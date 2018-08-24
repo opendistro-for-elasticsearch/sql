@@ -1,0 +1,52 @@
+
+## 2019-01-31, Version 6.5.4 (Current)
+
+
+### Notable Changes
+
+In this release, the following features are added with many other minor improvements and bug fixes.
+
+* **SQL HAVING**:
+  * Add support for SQL HAVING to filter aggregated result after GROUP BY.
+* **SQL Functions**:
+  * Common math functions as well as date function are available.
+* **Nested Field Query**:
+  * Query nested field in SQL++ syntax instead of explicit nested() function.
+* **JSON in RESTful Request**:
+  * Support JSON payload to allow for ESRally benchmark and parameters in JDBC request. And also pretty format and flatten native Elasticsearch DSL as response.
+* **Block Hash Join**:
+  * Introduced new query planning framework and new hash join algorithm with memory protection mechanism to perform hash join block by block safely.
+
+
+### Major Refactoring & Architecture Changes
+
+* **Avoid I/O Operation in NIO Thread**
+  * Move I/O blocking operations to custom worker thread pool or prefetch to avoid blocking. Meanwhile non-blocking operations still run in Elasticsearch transport thread for efficiency.
+
+
+### Commits
+
+* [[`46bf32b`](https://github.com/OpenDistro/OpenES-SQL/commit/46bf32b74056cbe3ef0489c1209fe25346661da5)] Add HAVING Support
+* [[`a3d6fae`](https://github.com/OpenDistro/OpenES-SQL/commit/a3d6fae16ee2737215c4341f78b5a3be27a2d79e)] Support date_format function in SQL query.
+* [[`337c656`](https://github.com/OpenDistro/OpenES-SQL/commit/337c65631ff50276398ba46d24b700a4b13e374b)] Support JSON object in REST request.
+* [[`58a430a`](https://github.com/OpenDistro/OpenES-SQL/commit/58a430a2e56ddfd61d02a49920e31ff3bee26ebb)] Improve Nested Field Query
+* [[`ea69fb1`](https://github.com/OpenDistro/OpenES-SQL/commit/ea69fb115f2d098ea1f3fa5be42f022445fa607a)] Support remaining math and date SQL functions
+* [[`54c0f9e`](https://github.com/OpenDistro/OpenES-SQL/commit/54c0f9e890a76be5758ca8dad16a959e59f0d570)] Refactor query functions
+* [[`0d17d75`](https://github.com/OpenDistro/OpenES-SQL/commit/0d17d750f144fa91c9c9e1125bcfc5b40af07469)] Pretty Format Response
+* [[`c3caafa`](https://github.com/OpenDistro/OpenES-SQL/commit/c3caafab9b97dcd2d8f164df048eec55ad31f4e2)] Pretty Format Response
+* [[`c7d7661`](https://github.com/OpenDistro/OpenES-SQL/commit/c7d76616b0e551ebe812de2a4ecdcc4fd907255f)] Support PreparedStatement.
+* [[`9129b65`](https://github.com/OpenDistro/OpenES-SQL/commit/9129b659b2ea0e79d470440f18bf8963faba80d0)] Add support for SHOW query to JDBC format response
+* [[`72b120f`](https://github.com/OpenDistro/OpenES-SQL/commit/72b120f9aef645923d908a36f36a9effaf08bd70)] Improve SQL explain of nested loop join
+* [[`df29fef`](https://github.com/OpenDistro/OpenES-SQL/commit/df29fefc4f4a4ae7b1acf9f5519092150ffbc4ca)] Support both order of ON conditions
+* [[`16230cd`](https://github.com/OpenDistro/OpenES-SQL/commit/16230cd2443ac759af3ad2f8d3bb4e22514170bd)] Move to ES 6.5.4
+* [[`63d48c2`](https://github.com/OpenDistro/OpenES-SQL/commit/63d48c2666d489eaf3a64bbe38041e2015071be0)] Removing x-pack dependencies
+* [[`18819a0`](https://github.com/OpenDistro/OpenES-SQL/commit/18819a0968893a0eed513fef96503ba6c3a869e4)] Fix GUI by posting Json payload. Update PreparedStatement int type to integer.
+* [[`ce624ae`](https://github.com/OpenDistro/OpenES-SQL/commit/ce624ae6f59030406e5f360056b8e06cd8e8bbcc)] Fix unit test error caused by parameter type enum update.
+* [[`befdb66`](https://github.com/OpenDistro/OpenES-SQL/commit/befdb66782f2d67757a0f95a420e31d99b87f674)] Fix integ test.
+* [[`dd8a533`](https://github.com/OpenDistro/OpenES-SQL/commit/dd8a5335b6c2537cdec28711c1fe7981f1549593)] Title: Fix null nested loop join bug
+* [[`ca898d2`](https://github.com/OpenDistro/OpenES-SQL/commit/ca898d2db7fb5e25102d3431fedc2e609f05dc3e)] Improve SHOW and DESCRIBE implementation
+* [[`60db25c`](https://github.com/OpenDistro/OpenES-SQL/commit/60db25c9712e2550350122da992082af601d0e4c)] Use Gradle build system to build with OpenES.
+* [[`b67f14c`](https://github.com/OpenDistro/OpenES-SQL/commit/b67f14c4b8241fe9d7b0341f49250673d484fd8f)] Title: add memory circuit breaker for nested loop join
+* [[`32aeb41`](https://github.com/OpenDistro/OpenES-SQL/commit/32aeb41090f03fcaabad7e0f4258dd86825f7226)] Match_Phrase query to Term query improvement
+* [[`b17fcf2`](https://github.com/OpenDistro/OpenES-SQL/commit/b17fcf2b6c837d135f9fdd14caf13e1c5d1ce6e5)] Block-based Hash Join Algorithm within New Planning Framework
+* [[`aa4633c`](https://github.com/OpenDistro/OpenES-SQL/commit/aa4633c9dff455dc3809e1bb3b7bf602942aa041)] Fix Pretty Format Issue with Join Query

@@ -1,0 +1,87 @@
+performing UNION ALL on :
+ left query:
+{
+  "from" : 0,
+  "size" : 200,
+  "query" : {
+    "bool" : {
+      "filter" : [
+        {
+          "bool" : {
+            "must" : [
+              {
+                "term" : {
+                  "firstname.keyword" : {
+                    "value" : "Amber",
+                    "boost" : 1.0
+                  }
+                }
+              }
+            ],
+            "adjust_pure_negative" : true,
+            "boost" : 1.0
+          }
+        }
+      ],
+      "adjust_pure_negative" : true,
+      "boost" : 1.0
+    }
+  },
+  "_source" : {
+    "includes" : [
+      "firstname"
+    ],
+    "excludes" : [ ]
+  }
+}
+ right query:
+{
+  "from" : 0,
+  "size" : 200,
+  "query" : {
+    "bool" : {
+      "filter" : [
+        {
+          "bool" : {
+            "must" : [
+              {
+                "bool" : {
+                  "should" : [
+                    {
+                      "term" : {
+                        "holdersName.keyword" : {
+                          "value" : "Hattie",
+                          "boost" : 1.0
+                        }
+                      }
+                    },
+                    {
+                      "term" : {
+                        "dog_name" : {
+                          "value" : "rex",
+                          "boost" : 1.0
+                        }
+                      }
+                    }
+                  ],
+                  "adjust_pure_negative" : true,
+                  "boost" : 1.0
+                }
+              }
+            ],
+            "adjust_pure_negative" : true,
+            "boost" : 1.0
+          }
+        }
+      ],
+      "adjust_pure_negative" : true,
+      "boost" : 1.0
+    }
+  },
+  "_source" : {
+    "includes" : [
+      "dog_name"
+    ],
+    "excludes" : [ ]
+  }
+}

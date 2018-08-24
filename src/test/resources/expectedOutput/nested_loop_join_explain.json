@@ -1,0 +1,123 @@
+{
+  "description": "Nested Loops run first query, and for each result run second query with additional conditions as following.",
+  "conditions": {
+    "bool": {
+      "filter": [
+        {
+          "bool": {
+            "adjust_pure_negative": true,
+            "must": [
+              {
+                "term": {
+                  "d.holdersName": {
+                    "boost": 1,
+                    "value": "a.firstname"
+                  }
+                }
+              }
+            ],
+            "boost": 1
+          }
+        }
+      ],
+      "adjust_pure_negative": true,
+      "boost": 1
+    }
+  },
+  "first query": {
+    "size": 200,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "bool": {
+              "adjust_pure_negative": true,
+              "must": [
+                {
+                  "bool": {
+                    "adjust_pure_negative": true,
+                    "should": [
+                      {
+                        "range": {
+                          "age": {
+                            "include_lower": false,
+                            "include_upper": true,
+                            "from": 10,
+                            "boost": 1,
+                            "to": null
+                          }
+                        }
+                      },
+                      {
+                        "range": {
+                          "balance": {
+                            "include_lower": false,
+                            "include_upper": true,
+                            "from": 2000,
+                            "boost": 1,
+                            "to": null
+                          }
+                        }
+                      }
+                    ],
+                    "boost": 1
+                  }
+                }
+              ],
+              "boost": 1
+            }
+          }
+        ],
+        "adjust_pure_negative": true,
+        "boost": 1
+      }
+    },
+    "from": 0,
+    "_source": {
+      "excludes": [],
+      "includes": [
+        "firstname",
+        "lastname",
+        "gender"
+      ]
+    }
+  },
+  "second query": {
+    "size": 200,
+    "query": {
+      "bool": {
+        "filter": [
+          {
+            "bool": {
+              "adjust_pure_negative": true,
+              "must": [
+                {
+                  "range": {
+                    "age": {
+                      "include_lower": false,
+                      "include_upper": true,
+                      "from": 1,
+                      "boost": 1,
+                      "to": null
+                    }
+                  }
+                }
+              ],
+              "boost": 1
+            }
+          }
+        ],
+        "adjust_pure_negative": true,
+        "boost": 1
+      }
+    },
+    "from": 0,
+    "_source": {
+      "excludes": [],
+      "includes": [
+        "dog_name",
+        "holdersName"
+      ]
+    }
+  }
+}
