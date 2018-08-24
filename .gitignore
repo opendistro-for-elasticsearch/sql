@@ -1,0 +1,22 @@
+*.class
+.settings/
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.ear
+.classpath
+.project
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+/bin/
+/target/
+log/
+elasticsearch-sql.iml
+.idea
+src/_site/vendor/codemirror/mode/jinja2/.goutputstream-*
+src/_site/node_modules
+src/site-server/node_modules
+*~
