@@ -58,6 +58,7 @@ public class SqlParser {
         findOrderBy(query, select);
 
         findGroupBy(query, select);
+
         return select;
     }
 
@@ -92,6 +93,9 @@ public class SqlParser {
         if (groupBy == null) {
             return;
         }
+
+        findHaving(query, select);
+
         List<SQLExpr> items = groupBy.getItems();
 
         List<SQLExpr> standardGroupBys = new ArrayList<>();
@@ -123,6 +127,10 @@ public class SqlParser {
         if (!standardGroupBys.isEmpty()) {
             select.addGroupBy(convertExprsToFields(standardGroupBys, sqlTableSource));
         }
+    }
+
+    private void findHaving(MySqlSelectQueryBlock query, Select select) throws SqlParseException {
+        select.setHaving(new Having(query.getGroupBy(), new WhereParser(this, query)));
     }
 
     private List<Field> convertExprsToFields(List<? extends SQLExpr> exprs, SQLTableSource sqlTableSource) throws SqlParseException {

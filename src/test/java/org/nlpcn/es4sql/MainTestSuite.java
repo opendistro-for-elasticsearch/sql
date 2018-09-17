@@ -23,6 +23,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 import com.google.common.io.ByteStreams;
+import org.nlpcn.es4sql.intgtest.HavingTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -40,7 +41,8 @@ import com.google.common.io.ByteStreams;
 		JDBCTests.class,
         UtilTests.class,
         MultiQueryTests.class,
-        DeleteTest.class
+        DeleteTest.class,
+        HavingTest.class,
 })
 public class MainTestSuite {
 

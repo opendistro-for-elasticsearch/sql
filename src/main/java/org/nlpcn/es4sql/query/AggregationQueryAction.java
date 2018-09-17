@@ -19,6 +19,7 @@ import org.elasticsearch.search.aggregations.bucket.nested.ReverseNestedAggregat
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.nlpcn.es4sql.domain.Field;
+import org.nlpcn.es4sql.domain.Having;
 import org.nlpcn.es4sql.domain.KVValue;
 import org.nlpcn.es4sql.domain.MethodField;
 import org.nlpcn.es4sql.domain.Order;
@@ -143,6 +144,8 @@ public class AggregationQueryAction extends QueryAction {
 
             // add aggregation function to each groupBy
             explanFields(request, select.getFields(), lastAgg);
+
+            explainHaving(lastAgg);
         }
 
         if (select.getGroupBys().size() < 1) {
@@ -195,7 +198,7 @@ public class AggregationQueryAction extends QueryAction {
         SqlElasticSearchRequestBuilder sqlElasticRequestBuilder = new SqlElasticSearchRequestBuilder(request);
         return sqlElasticRequestBuilder;
     }
-    
+
     private AggregationBuilder getGroupAgg(Field field, Select select2) throws SqlParseException {
         boolean refrence = false;
         AggregationBuilder lastAgg = null;
@@ -349,6 +352,13 @@ public class AggregationQueryAction extends QueryAction {
             } else {
                 throw new SqlParseException("it did not support this field method " + field);
             }
+        }
+    }
+
+    private void explainHaving(AggregationBuilder lastAgg) throws SqlParseException {
+        Having having = select.getHaving();
+        if (having != null) {
+            having.explain(lastAgg, select.getFields());
         }
     }
 

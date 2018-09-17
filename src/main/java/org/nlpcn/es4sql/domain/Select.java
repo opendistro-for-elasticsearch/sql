@@ -20,6 +20,7 @@ public class Select extends Query {
     private List<Hint> hints = new ArrayList<>();
 	private List<Field> fields = new ArrayList<>();
 	private List<List<Field>> groupBys = new ArrayList<>();
+	private Having having;
 	private List<Order> orderBys = new ArrayList<>();
 	private int offset;
 	private int rowCount = 200;
@@ -59,6 +60,14 @@ public class Select extends Query {
 	public List<List<Field>> getGroupBys() {
 		return groupBys;
 	}
+
+    public Having getHaving() {
+        return having;
+    }
+
+    public void setHaving(Having having) {
+        this.having = having;
+    }
 
 	public List<Order> getOrderBys() {
 		return orderBys;

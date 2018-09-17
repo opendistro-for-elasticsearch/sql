@@ -321,16 +321,31 @@
 				</configuration>
 			</plugin>
 
-
+			<!-- Add second test phase for integration test -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<includes>
-						<include>${runSuite}</include>
+						<include>**/unittest/*.class</include>
 					</includes>
 				</configuration>
+				<executions>
+					<execution>
+						<id>integration-test</id>
+						<goals>
+							<goal>test</goal>
+						</goals>
+						<phase>integration-test</phase>
+						<configuration>
+							<includes>
+								<include>${runSuite}</include>
+							</includes>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
