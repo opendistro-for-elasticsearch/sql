@@ -19,13 +19,13 @@ public class RestSqlAction extends BaseRestHandler {
 //    public static final RestSqlAction INSTANCE = new RestSqlAction();
 
 
-	public RestSqlAction(Settings settings, RestController restController) {
+    public RestSqlAction(Settings settings, RestController restController) {
         super(settings);
-		restController.registerHandler(RestRequest.Method.POST, "/_sql/_explain", this);
-		restController.registerHandler(RestRequest.Method.GET, "/_sql/_explain", this);
-		restController.registerHandler(RestRequest.Method.POST, "/_sql", this);
-		restController.registerHandler(RestRequest.Method.GET, "/_sql", this);
-	}
+        restController.registerHandler(RestRequest.Method.POST, "/_sql/_explain", this);
+        restController.registerHandler(RestRequest.Method.GET, "/_sql/_explain", this);
+        restController.registerHandler(RestRequest.Method.POST, "/_sql", this);
+        restController.registerHandler(RestRequest.Method.GET, "/_sql", this);
+    }
 
     @Override
     public String getName() {
@@ -40,28 +40,28 @@ public class RestSqlAction extends BaseRestHandler {
             sql = request.content().utf8ToString();
         }
         try {
-        SearchDao searchDao = new SearchDao(client);
-        QueryAction queryAction= null;
+            SearchDao searchDao = new SearchDao(client);
+            QueryAction queryAction= null;
 
             queryAction = searchDao.explain(sql);
 
-        // TODO add unittests to explain. (rest level?)
-        if (request.path().endsWith("/_explain")) {
-            final String jsonExplanation = queryAction.explain().explain();
-            return channel -> channel.sendResponse(new BytesRestResponse(RestStatus.OK, jsonExplanation));
-        } else {
-            Map<String, String> params = request.params();
-            RestExecutor restExecutor = ActionRequestRestExecuterFactory.createExecutor(params.get("format"));
-            final QueryAction finalQueryAction = queryAction;
-            //doing this hack because elasticsearch throws exception for un-consumed props
-            Map<String,String> additionalParams = new HashMap<>();
-            for (String paramName : responseParams()) {
-                if (request.hasParam(paramName)) {
-                    additionalParams.put(paramName, request.param(paramName));
+            // TODO add unittests to explain. (rest level?)
+            if (request.path().endsWith("/_explain")) {
+                final String jsonExplanation = queryAction.explain().explain();
+                return channel -> channel.sendResponse(new BytesRestResponse(RestStatus.OK, jsonExplanation));
+            } else {
+                Map<String, String> params = request.params();
+                RestExecutor restExecutor = ActionRequestRestExecuterFactory.createExecutor(params.get("format"));
+                final QueryAction finalQueryAction = queryAction;
+                //doing this hack because elasticsearch throws exception for un-consumed props
+                Map<String,String> additionalParams = new HashMap<>();
+                for (String paramName : responseParams()) {
+                    if (request.hasParam(paramName)) {
+                        additionalParams.put(paramName, request.param(paramName));
+                    }
                 }
+                return channel -> restExecutor.execute(client, additionalParams, finalQueryAction, channel);
             }
-            return channel -> restExecutor.execute(client,additionalParams, finalQueryAction,channel);
-        }
         } catch (SqlParseException | SQLFeatureNotSupportedException e) {
             e.printStackTrace();
         }

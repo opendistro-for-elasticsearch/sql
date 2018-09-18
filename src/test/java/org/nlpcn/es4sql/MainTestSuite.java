@@ -23,26 +23,28 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 import com.google.common.io.ByteStreams;
+import org.nlpcn.es4sql.intgtest.DateFormatTest;
 import org.nlpcn.es4sql.intgtest.HavingTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-		QueryTest.class,
-		MethodQueryTest.class,
-		AggregationTest.class,
-        JoinTests.class,
-		ExplainTest.class,
-        WktToGeoJsonConverterTests.class,
-        SqlParserTests.class,
-        ShowTest.class,
-        CSVResultsExtractorTests.class,
-        SourceFieldTest.class,
-		SQLFunctionsTest.class,
-		JDBCTests.class,
-        UtilTests.class,
-        MultiQueryTests.class,
-        DeleteTest.class,
-        HavingTest.class,
+    QueryTest.class,
+    MethodQueryTest.class,
+    AggregationTest.class,
+    JoinTests.class,
+    ExplainTest.class,
+    WktToGeoJsonConverterTests.class,
+    SqlParserTests.class,
+    ShowTest.class,
+    CSVResultsExtractorTests.class,
+    SourceFieldTest.class,
+    SQLFunctionsTest.class,
+    JDBCTests.class,
+    UtilTests.class,
+    MultiQueryTests.class,
+    DeleteTest.class,
+    HavingTest.class,
+    DateFormatTest.class
 })
 public class MainTestSuite {
 

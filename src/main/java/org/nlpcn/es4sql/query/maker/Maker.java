@@ -3,11 +3,19 @@ package org.nlpcn.es4sql.query.maker;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
+import java.time.ZoneId;
+import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 
+import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBooleanExpr;
-import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
+import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
+import com.alibaba.druid.sql.ast.expr.SQLCharExpr;
+import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
 import com.alibaba.druid.sql.ast.expr.SQLNumericLiteralExpr;
 import com.google.common.collect.ImmutableSet;
 import org.apache.lucene.search.join.ScoreMode;
@@ -56,19 +64,19 @@ public abstract class Maker {
         String name = cond.getName();
         Object value = cond.getValue();
 
-        ToXContent x = null;
+        ToXContent toXContent = null;
 
         if (value instanceof SQLMethodInvokeExpr) {
-            x = make(cond, name, (SQLMethodInvokeExpr) value);
+            toXContent = make(cond, name, (SQLMethodInvokeExpr) value);
         }
         else if (value instanceof SubQueryExpression){
-            x = make(cond,name,((SubQueryExpression)value).getValues());
+            toXContent = make(cond,name,((SubQueryExpression)value).getValues());
         } else {
-			x = make(cond, name, value);
+            toXContent = make(cond, name, value);
 		}
 
 
-		return x;
+		return toXContent;
 	}
 
 	private ToXContent make(Condition cond, String name, SQLMethodInvokeExpr value) throws SqlParseException {
@@ -79,14 +87,14 @@ public abstract class Maker {
 			paramer = Paramer.parseParamer(value);
 			QueryStringQueryBuilder queryString = QueryBuilders.queryStringQuery(paramer.value);
 			bqb = Paramer.fullParamer(queryString, paramer);
-			bqb = fixNot(cond, bqb);
+			bqb = applyNot(cond.getOpear(), bqb);
 			break;
 		case "matchquery":
 		case "match_query":
 			paramer = Paramer.parseParamer(value);
 			MatchQueryBuilder matchQuery = QueryBuilders.matchQuery(name, paramer.value);
 			bqb = Paramer.fullParamer(matchQuery, paramer);
-			bqb = fixNot(cond, bqb);
+			bqb = applyNot(cond.getOpear(), bqb);
 			break;
 		case "score":
 		case "scorequery":
@@ -126,7 +134,7 @@ public abstract class Maker {
 	}
 
 	private ToXContent make(Condition cond, String name, Object value) throws SqlParseException {
-		ToXContent x = null;
+		ToXContent toXContent = null;
 		switch (cond.getOpear()) {
 		case ISN:
 		case IS:
@@ -135,7 +143,7 @@ public abstract class Maker {
 			if (value == null || value instanceof SQLIdentifierExpr) {
                 //todo: change to exists
 				if(value == null || ((SQLIdentifierExpr) value).getName().equalsIgnoreCase("missing")) {
-                    x = QueryBuilders.boolQuery().mustNot(QueryBuilders.existsQuery(name));
+                    toXContent = QueryBuilders.boolQuery().mustNot(QueryBuilders.existsQuery(name));
 				}
 				else {
 					throw new SqlParseException(String.format("Cannot recoginze Sql identifer %s", ((SQLIdentifierExpr) value).getName()));
@@ -145,7 +153,7 @@ public abstract class Maker {
 				// TODO, maybe use term filter when not analayzed field avalaible to make exact matching?
 				// using matchPhrase to achieve equallity.
 				// matchPhrase still have some disatvantegs, f.e search for 'word' will match 'some word'
-				x = QueryBuilders.matchPhraseQuery(name, value);
+				toXContent = QueryBuilders.matchPhraseQuery(name, value);
 
 				break;
 			}
@@ -154,7 +162,7 @@ public abstract class Maker {
 			String queryStr = ((String) value);
             queryStr = queryStr.replace('%', '*').replace('_', '?');
             queryStr = queryStr.replace("&PERCENT","%").replace("&UNDERSCORE","_");
-			x = QueryBuilders.wildcardQuery(name, queryStr);
+			toXContent = QueryBuilders.wildcardQuery(name, queryStr);
 			break;
         case REGEXP:
             Object[] values = (Object[]) value;
@@ -170,19 +178,19 @@ public abstract class Maker {
             if (2 < values.length) {
                 regexpQuery.maxDeterminizedStates(Integer.parseInt(values[2].toString()));
             }
-            x = regexpQuery;
+            toXContent = regexpQuery;
             break;
 		case GT:
-            x = QueryBuilders.rangeQuery(name).gt(value);
+            toXContent = QueryBuilders.rangeQuery(name).gt(value);
 			break;
 		case GTE:
-            x = QueryBuilders.rangeQuery(name).gte(value);
+            toXContent = QueryBuilders.rangeQuery(name).gte(value);
 			break;
 		case LT:
-            x = QueryBuilders.rangeQuery(name).lt(value);
+            toXContent = QueryBuilders.rangeQuery(name).lt(value);
 			break;
 		case LTE:
-            x = QueryBuilders.rangeQuery(name).lte(value);
+            toXContent = QueryBuilders.rangeQuery(name).lte(value);
 			break;
 		case NIN:
 		case IN:
@@ -197,17 +205,17 @@ public abstract class Maker {
             for(MatchPhraseQueryBuilder matchQuery : matchQueries) {
                 boolQuery.should(matchQuery);
             }
-            x = boolQuery;
+            toXContent = boolQuery;
 			break;
 		case BETWEEN:
 		case NBETWEEN:
-            x = QueryBuilders.rangeQuery(name).gte(((Object[]) value)[0]).lte(((Object[]) value)[1]);
+            toXContent = QueryBuilders.rangeQuery(name).gte(((Object[]) value)[0]).lte(((Object[]) value)[1]);
 			break;
         case GEO_INTERSECTS:
             String wkt = cond.getValue().toString();
             try {
                 ShapeBuilder shapeBuilder = getShapeBuilderFromString(wkt);
-                x = QueryBuilders.geoShapeQuery(cond.getName(), shapeBuilder);
+                toXContent = QueryBuilders.geoShapeQuery(cond.getName(), shapeBuilder);
             } catch (IOException e) {
                 e.printStackTrace();
                 throw new SqlParseException("couldn't create shapeBuilder from wkt: " + wkt);
@@ -217,13 +225,13 @@ public abstract class Maker {
             BoundingBoxFilterParams boxFilterParams = (BoundingBoxFilterParams) cond.getValue();
             Point topLeft = boxFilterParams.getTopLeft();
             Point bottomRight = boxFilterParams.getBottomRight();
-            x = QueryBuilders.geoBoundingBoxQuery(cond.getName()).setCorners(topLeft.getLat(), topLeft.getLon(),bottomRight.getLat(), bottomRight.getLon());
+            toXContent = QueryBuilders.geoBoundingBoxQuery(cond.getName()).setCorners(topLeft.getLat(), topLeft.getLon(),bottomRight.getLat(), bottomRight.getLon());
             break;
         case GEO_DISTANCE:
             DistanceFilterParams distanceFilterParams = (DistanceFilterParams) cond.getValue();
             Point fromPoint = distanceFilterParams.getFrom();
             String distance = trimApostrophes(distanceFilterParams.getDistance());
-            x = QueryBuilders.geoDistanceQuery(cond.getName()).distance(distance).point(fromPoint.getLat(),fromPoint.getLon());
+            toXContent = QueryBuilders.geoDistanceQuery(cond.getName()).distance(distance).point(fromPoint.getLat(),fromPoint.getLon());
             break;
         case GEO_POLYGON:
             PolygonFilterParams polygonFilterParams = (PolygonFilterParams) cond.getValue();
@@ -231,7 +239,7 @@ public abstract class Maker {
             for(Point p : polygonFilterParams.getPolygon())
                 geoPoints.add(new GeoPoint(p.getLat(), p.getLon()));
             GeoPolygonQueryBuilder polygonFilterBuilder = QueryBuilders.geoPolygonQuery(cond.getName(),geoPoints);
-            x = polygonFilterBuilder;
+            toXContent = polygonFilterBuilder;
             break;
         case NIN_TERMS:
         case IN_TERMS:
@@ -242,12 +250,12 @@ public abstract class Maker {
             for (int i=0;i<termValues.length;i++){
                 termValuesObjects[i] = parseTermValue(termValues[i]);
             }
-            x = QueryBuilders.termsQuery(name,termValuesObjects);
+            toXContent = QueryBuilders.termsQuery(name,termValuesObjects);
         break;
         case NTERM:
         case TERM:
             Object term  =( (Object[]) value)[0];
-            x = QueryBuilders.termQuery(name, parseTermValue(term));
+            toXContent = QueryBuilders.termQuery(name, parseTermValue(term));
             break;
         case IDS_QUERY:
             Object[] idsParameters = (Object[]) value;
@@ -260,7 +268,7 @@ public abstract class Maker {
             else {
                 ids =arrayOfObjectsToStringArray(idsParameters,1,idsParameters.length-1);
             }
-            x = QueryBuilders.idsQuery(type).addIds(ids);
+            toXContent = QueryBuilders.idsQuery(type).addIds(ids);
         break;
         case NESTED_COMPLEX:
             if(value == null || ! (value instanceof Where) )
@@ -269,7 +277,7 @@ public abstract class Maker {
             Where whereNested = (Where) value;
             BoolQueryBuilder nestedFilter = QueryMaker.explan(whereNested);
 
-            x = QueryBuilders.nestedQuery(name, nestedFilter, ScoreMode.None);
+            toXContent = QueryBuilders.nestedQuery(name, nestedFilter, ScoreMode.None);
         break;
         case CHILDREN_COMPLEX:
             if(value == null || ! (value instanceof Where) )
@@ -278,7 +286,7 @@ public abstract class Maker {
             Where whereChildren = (Where) value;
             BoolQueryBuilder childrenFilter = QueryMaker.explan(whereChildren);
             //todo: pass score mode
-            x = JoinQueryBuilders.hasChildQuery(name, childrenFilter,ScoreMode.None);
+            toXContent = JoinQueryBuilders.hasChildQuery(name, childrenFilter,ScoreMode.None);
 
         break;
         case SCRIPT:
@@ -287,15 +295,91 @@ public abstract class Maker {
             if(scriptFilter.containsParameters()){
                 params = scriptFilter.getArgs();
             }
-            x = QueryBuilders.scriptQuery(new Script(scriptFilter.getScriptType(), Script.DEFAULT_SCRIPT_LANG,scriptFilter.getScript(), params));
+
+            SQLExpr nameExpr = cond.getNameExpr();
+            SQLExpr valueExpr = cond.getValueExpr();
+            if(nameExpr instanceof SQLMethodInvokeExpr && ((SQLMethodInvokeExpr) nameExpr).getMethodName().equals("date_format"))
+                toXContent = makeForDateFormat((SQLMethodInvokeExpr) nameExpr, (SQLCharExpr) valueExpr);
+            else
+                toXContent = QueryBuilders.scriptQuery(new Script(scriptFilter.getScriptType(), Script.DEFAULT_SCRIPT_LANG, scriptFilter.getScript(), params));
         break;
             default:
 			throw new SqlParseException("not define type " + cond.getName());
 		}
 
-		x = fixNot(cond, x);
-		return x;
+		toXContent = applyNot(cond.getOpear(), toXContent);
+		return toXContent;
 	}
+
+    /**
+     * Helper method used to form a range query object for the date_format function.
+     *
+     * Example: WHERE date_format(dateField, "YYYY-MM-dd") > "2012-01-01"
+     *          Expected range query:
+     *          "range": {
+     *              "dateField": {
+     *                  "from": "2012-01-01",
+     *                  "to": null,
+     *                  "include_lower": false,
+     *                  "include_upper": true,
+     *                  "time_zone": "America/Los_Angeles",
+     *                  "format": "YYYY-MM-dd",
+     *                  "boost": 1
+     *              }
+     *          }
+     *
+     * @param nameExpr  SQL method expression (ex. date_format(dateField, "YYYY-MM-dd"))
+     * @param valueExpr Value expression being compared to the SQL method result (ex. "2012-01-01")
+     * @throws SqlParseException
+     */
+    private ToXContent makeForDateFormat(SQLMethodInvokeExpr nameExpr, SQLCharExpr valueExpr) throws SqlParseException {
+        ToXContent toXContent = null;
+        List<SQLExpr> params = nameExpr.getParameters();
+
+        String field = params.get(0).toString();
+        String format = removeSingleQuote(params.get(1).toString());
+        String dateToCompare = valueExpr.getText();
+        String oper = ((SQLBinaryOpExpr) nameExpr.getParent()).getOperator().name;
+
+        String zoneId;
+        if(params.size() > 2)
+            zoneId = ZoneId.of(removeSingleQuote(params.get(2).toString())).toString();
+        else
+            zoneId = ZoneId.systemDefault().toString();
+
+        RangeQueryBuilder rangeQuery = QueryBuilders.rangeQuery(field).format(format).timeZone(zoneId);
+        switch (oper) {
+        case "<>":
+        case "=":
+            toXContent = rangeQuery.gte(dateToCompare).lte(dateToCompare);
+            break;
+        case ">":
+            toXContent = rangeQuery.gt(dateToCompare);
+            break;
+        case "<":
+            toXContent = rangeQuery.lt(dateToCompare);
+            break;
+        case ">=":
+            toXContent = rangeQuery.gte(dateToCompare);
+            break;
+        case "<=":
+            toXContent = rangeQuery.lte(dateToCompare);
+            break;
+        case "BETWEEN":
+        case "NOT BETWEEN":
+            //todo: Add support for BETWEEN
+            break;
+        default:
+            throw new SqlParseException("date_format does not support the operation " + oper);
+        }
+
+        toXContent = applyNot(OPEAR.operStringToOpear.get(oper), toXContent);
+        return toXContent;
+    }
+
+    private String removeSingleQuote(String param) {
+	    return param.replaceAll("\'", "");
+    }
 
     private String[] arrayOfObjectsToStringArray(Object[] values, int from, int to) {
         String[] strings = new String[to - from + 1];
@@ -337,11 +421,14 @@ public abstract class Maker {
         return str.substring(1, str.length()-1);
     }
 
-    private ToXContent fixNot(Condition cond, ToXContent bqb) {
-		if (NOT_OPEAR_SET.contains(cond.getOpear())) {
-				bqb = QueryBuilders.boolQuery().mustNot((QueryBuilder) bqb);
-		}
-		return bqb;
+    /**
+     * Applies negation to query builder if the operation is a "not" operation.
+     */
+    private ToXContent applyNot(OPEAR opear, ToXContent bqb) {
+        if (NOT_OPEAR_SET.contains(opear)) {
+            bqb = QueryBuilders.boolQuery().mustNot((QueryBuilder) bqb);
+        }
+        return bqb;
 	}
 
     private Object parseTermValue(Object termValue) {

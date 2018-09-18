@@ -276,7 +276,7 @@ public class WhereParser {
                         if (!scriptFilter.tryParseFromMethodExpr(sqlMethodInvokeExpr)) {
                             throw new SqlParseException("could not parse script filter");
                         }
-                        condition = new Condition(Where.CONN.valueOf(opear), null, null, "SCRIPT", scriptFilter, null);
+                        condition = new Condition(Where.CONN.valueOf(opear), null, soExpr.getLeft(), "SCRIPT", scriptFilter, soExpr.getRight());
 
                     }
 

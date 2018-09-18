@@ -24,6 +24,8 @@ public class Condition extends Where {
 
         public static Map<String, OPEAR> methodNameToOpear;
 
+        public static Map<String, OPEAR> operStringToOpear;
+
         private static BiMap<OPEAR, OPEAR> negatives;
 
         static {
@@ -37,6 +39,32 @@ public class Condition extends Where {
             methodNameToOpear.put("ids_query", IDS_QUERY);
             methodNameToOpear.put("regexp", REGEXP);
             methodNameToOpear.put("regexp_query", REGEXP);
+        }
+
+        static {
+            operStringToOpear = new HashMap<>();
+            operStringToOpear.put("=", EQ);
+            operStringToOpear.put(">", GT);
+            operStringToOpear.put("<", LT);
+            operStringToOpear.put(">=", GTE);
+            operStringToOpear.put("<=", LTE);
+            operStringToOpear.put("<>", N);
+            operStringToOpear.put("LIKE", LIKE);
+            operStringToOpear.put("NOT", N);
+            operStringToOpear.put("NOT LIKE", NLIKE);
+            operStringToOpear.put("IS", IS);
+            operStringToOpear.put("IS NOT", ISN);
+            operStringToOpear.put("IN", IN);
+            operStringToOpear.put("NOT IN", NIN);
+            operStringToOpear.put("BETWEEN", BETWEEN);
+            operStringToOpear.put("NOT BETWEEN", NBETWEEN);
+            operStringToOpear.put("GEO_INTERSECTS", GEO_INTERSECTS);
+            operStringToOpear.put("GEO_BOUNDING_BOX", GEO_BOUNDING_BOX);
+            operStringToOpear.put("GEO_DISTANCE", GEO_DISTANCE);
+            operStringToOpear.put("GEO_POLYGON", GEO_POLYGON);
+            operStringToOpear.put("NESTED", NESTED_COMPLEX);
+            operStringToOpear.put("CHILDREN", CHILDREN_COMPLEX);
+            operStringToOpear.put("SCRIPT", SCRIPT);
         }
 
         static {
@@ -131,77 +159,10 @@ public class Condition extends Where {
             this.childType = "";
         }
 
-        // EQ, GT, LT, GTE, LTE, N, LIKE, NLIKE, IS, ISN, IN, NIN
-        switch (oper) {
-            case "=":
-                this.opear = OPEAR.EQ;
-                break;
-            case ">":
-                this.opear = OPEAR.GT;
-                break;
-            case "<":
-                this.opear = OPEAR.LT;
-                break;
-            case ">=":
-                this.opear = OPEAR.GTE;
-                break;
-            case "<=":
-                this.opear = OPEAR.LTE;
-                break;
-            case "<>":
-                this.opear = OPEAR.N;
-                break;
-            case "LIKE":
-                this.opear = OPEAR.LIKE;
-                break;
-            case "NOT":
-                this.opear = OPEAR.N;
-                break;
-            case "NOT LIKE":
-                this.opear = OPEAR.NLIKE;
-                break;
-            case "IS":
-                this.opear = OPEAR.IS;
-                break;
-            case "IS NOT":
-                this.opear = OPEAR.ISN;
-                break;
-            case "NOT IN":
-                this.opear = OPEAR.NIN;
-                break;
-            case "IN":
-                this.opear = OPEAR.IN;
-                break;
-            case "BETWEEN":
-                this.opear = OPEAR.BETWEEN;
-                break;
-            case "NOT BETWEEN":
-                this.opear = OPEAR.NBETWEEN;
-                break;
-            case "GEO_INTERSECTS":
-                this.opear = OPEAR.GEO_INTERSECTS;
-                break;
-            case "GEO_BOUNDING_BOX":
-                this.opear = OPEAR.GEO_BOUNDING_BOX;
-                break;
-            case "GEO_DISTANCE":
-                this.opear = OPEAR.GEO_DISTANCE;
-                break;
-            case "GEO_POLYGON":
-                this.opear = OPEAR.GEO_POLYGON;
-                break;
-            case "NESTED":
-                this.opear = OPEAR.NESTED_COMPLEX;
-                break;
-            case "CHILDREN":
-                this.opear = OPEAR.CHILDREN_COMPLEX;
-                break;
-            case "SCRIPT":
-                this.opear = OPEAR.SCRIPT;
-                break;
-            default:
-                throw new SqlParseException(oper + " is err!");
-        }
+        if (OPEAR.operStringToOpear.containsKey(oper))
+            this.opear = OPEAR.operStringToOpear.get(oper);
+        else
+            throw new SqlParseException(oper + " is not a supported operation");
     }
 
 

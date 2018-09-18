@@ -9,8 +9,6 @@ import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.PipelineAggregationBuilder;
 import org.elasticsearch.search.aggregations.pipeline.bucketselector.BucketSelectorPipelineAggregationBuilder;
-import org.hamcrest.Factory;
-import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -19,7 +17,6 @@ import org.nlpcn.es4sql.exception.SqlParseException;
 import org.nlpcn.es4sql.parse.ElasticSqlExprParser;
 import org.nlpcn.es4sql.parse.SqlParser;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +27,7 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.both;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
-import static org.nlpcn.es4sql.unittest.HasFieldWithValue.hasFieldWithValue;
+import static org.nlpcn.es4sql.util.HasFieldWithValue.hasFieldWithValue;
 
 
 public class HavingTest {
@@ -228,50 +225,6 @@ public class HavingTest {
 
     private Matcher<PipelineAggregationBuilder> hasScript(String expectedCode) {
         return hasFieldWithValue("script", "has script", is(new Script(expectedCode)));
-    }
-}
-
-/**
- * A matcher for private field value extraction along with matcher to assert its value.
- *
- * @param <T>   Type of target (actual) object
- * @param <U>   Type of field member (feature) extracted from target object by reflection
- */
-class HasFieldWithValue<T, U> extends FeatureMatcher<T, U> {
-
-    private final String fieldName;
-
-    /**
-     * Construct a matcher. Reordered the argument list.
-     *
-     * @param name      Identifying text for mismatch message
-     * @param desc      Descriptive text to use in describeTo
-     * @param matcher   The matcher to apply to the feature
-     */
-    private HasFieldWithValue(String name, String desc, Matcher<? super U> matcher) {
-        super(matcher, desc, name);
-        this.fieldName = name;
-    }
-
-    @Factory
-    static <T, U> HasFieldWithValue<T, U> hasFieldWithValue(String name, String desc, Matcher<? super U> matcher) {
-        return new HasFieldWithValue<>(name, desc, matcher);
-    }
-
-    @Override
-    protected U featureValueOf(T targetObj) {
-        return getFieldValue(targetObj, fieldName);
-    }
-
-    @SuppressWarnings("unchecked")
-    private U getFieldValue(Object obj, String fieldName) {
-        try {
-            Field field = obj.getClass().getDeclaredField(fieldName);
-            field.setAccessible(true);
-            return (U) field.get(obj);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new IllegalArgumentException(e);
-        }
     }
 }
 
