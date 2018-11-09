@@ -24,7 +24,7 @@ public class QueryMaker extends Maker {
 		return explan(where,true);
 	}
 
-    public static BoolQueryBuilder explan(Where where,boolean isQuery) throws SqlParseException {
+    public static BoolQueryBuilder explan(Where where, boolean isQuery) throws SqlParseException {
         BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
         while (where.getWheres().size() == 1) {
             where = where.getWheres().getFirst();

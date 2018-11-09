@@ -4,12 +4,20 @@ import com.fasterxml.jackson.core.JsonFactory;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.LoggingDeprecationHandler;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;
+import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.common.xcontent.XContentParser;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.common.xcontent.json.JsonXContentParser;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchModule;
 import org.elasticsearch.search.collapse.CollapseBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.json.JSONObject;
+import org.nlpcn.es4sql.SqlRequest;
 import org.nlpcn.es4sql.domain.Query;
 import org.nlpcn.es4sql.domain.Select;
 import org.nlpcn.es4sql.domain.hints.Hint;
@@ -18,6 +26,7 @@ import org.nlpcn.es4sql.exception.SqlParseException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -28,11 +37,14 @@ public abstract class QueryAction {
 
 	protected org.nlpcn.es4sql.domain.Query query;
 	protected Client client;
+	protected SqlRequest sqlRequest;
 
 	public QueryAction(Client client, Query query) {
 		this.client = client;
 		this.query = query;
 	}
+
+    public void setSqlRequest(SqlRequest sqlRequest) { this.sqlRequest = sqlRequest; }
 
     protected void updateRequestWithCollapse(Select select, SearchRequestBuilder request) throws SqlParseException {
         JsonFactory jsonFactory = new JsonFactory();
@@ -165,7 +177,6 @@ public abstract class QueryAction {
         }
         return chars;
     }
-
 
     /**
 	 * Prepare the request, and return ES request.

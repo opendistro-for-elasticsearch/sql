@@ -263,10 +263,10 @@ public abstract class Maker {
             String type = idsParameters[0].toString();
             if(idsParameters.length ==2 && idsParameters[1] instanceof SubQueryExpression){
                 Object[] idsFromSubQuery = ((SubQueryExpression) idsParameters[1]).getValues();
-                ids = arrayOfObjectsToStringArray(idsFromSubQuery,0,idsFromSubQuery.length-1);
+                ids = arrayOfObjectsToStringArray(idsFromSubQuery, 0, idsFromSubQuery.length-1);
             }
             else {
-                ids =arrayOfObjectsToStringArray(idsParameters,1,idsParameters.length-1);
+                ids = arrayOfObjectsToStringArray(idsParameters, 1, idsParameters.length-1);
             }
             toXContent = QueryBuilders.idsQuery(type).addIds(ids);
         break;

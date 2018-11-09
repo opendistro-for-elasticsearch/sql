@@ -9,6 +9,7 @@ import org.elasticsearch.action.search.SearchAction;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.join.aggregations.JoinAggregationBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
@@ -370,10 +371,15 @@ public class AggregationQueryAction extends QueryAction {
      * @throws SqlParseException
      */
     private void setWhere(Where where) throws SqlParseException {
+        BoolQueryBuilder boolQuery = null;
         if (where != null) {
-            QueryBuilder whereQuery = QueryMaker.explan(where,this.select.isQuery);
-            request.setQuery(whereQuery);
+            boolQuery = QueryMaker.explan(where, this.select.isQuery);
         }
+        // Used to prevent NullPointerException of old tests, as they do not set sqlRequest in QueryAction
+        if (sqlRequest != null) {
+            boolQuery = sqlRequest.checkAndAddFilter(boolQuery);
+        }
+        request.setQuery(boolQuery);
     }
 
 

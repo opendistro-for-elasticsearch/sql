@@ -5,7 +5,10 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.plugin.nlpcn.executors.ActionRequestRestExecuterFactory;
 import org.elasticsearch.plugin.nlpcn.executors.RestExecutor;
 import org.elasticsearch.rest.*;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.nlpcn.es4sql.SearchDao;
+import org.nlpcn.es4sql.SqlRequest;
 import org.nlpcn.es4sql.exception.SqlParseException;
 import org.nlpcn.es4sql.query.QueryAction;
 
@@ -34,16 +37,14 @@ public class RestSqlAction extends BaseRestHandler {
 
     @Override
     protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient client) throws IOException {
-        String sql = request.param("sql");
+        SqlRequest sqlRequest = new SqlRequest(request);
 
-        if (sql == null) {
-            sql = request.content().utf8ToString();
-        }
         try {
             SearchDao searchDao = new SearchDao(client);
             QueryAction queryAction= null;
 
-            queryAction = searchDao.explain(sql);
+            queryAction = searchDao.explain(sqlRequest.getSql());
+            queryAction.setSqlRequest(sqlRequest);
 
             // TODO add unittests to explain. (rest level?)
             if (request.path().endsWith("/_explain")) {
