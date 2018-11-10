@@ -25,6 +25,7 @@ import org.junit.runners.Suite;
 import com.google.common.io.ByteStreams;
 import org.nlpcn.es4sql.intgtest.DateFormatTest;
 import org.nlpcn.es4sql.intgtest.HavingTest;
+import org.nlpcn.es4sql.intgtest.NestedFieldQueryTest;
 import org.nlpcn.es4sql.intgtest.JSONRequestTest;
 
 @RunWith(Suite.class)
@@ -45,6 +46,7 @@ import org.nlpcn.es4sql.intgtest.JSONRequestTest;
     MultiQueryTests.class,
     DeleteTest.class,
     HavingTest.class,
+    NestedFieldQueryTest.class,
     DateFormatTest.class,
     JSONRequestTest.class
 })

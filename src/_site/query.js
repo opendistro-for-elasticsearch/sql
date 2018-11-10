@@ -65,7 +65,7 @@ var DefaultQueryResultHandler = function(data,isFlat,showScore,showType,showId) 
         if(showScore){
             scheme.push("_score");
         }
-        if(showScore){
+        if(showId){
             scheme.push("_id");
         }
         return scheme
@@ -98,25 +98,37 @@ DefaultQueryResultHandler.prototype.getHead = function() {
 DefaultQueryResultHandler.prototype.getBody = function() {
     var hits = this.data.hits.hits
     var body = []
+    var newKeys = new Set(this.head);
     for(var i = 0; i < hits.length; i++) {
         var row = hits[i]._source;
+        var result = [row]
         if("fields" in hits[i]){
             addFieldsToRow(row,hits[i])
         }
         if(this.isFlat){
-            row = flatRow(this.head,row);
+            row = flatRow(this.head,row)
+            result = flatNestedField(newKeys, row, hits[i].inner_hits)
         }
         if(this.showType){
-            row["_type"] = hits[i]._type
+            result.map(function(e) {
+                e["_type"] = hits[i]._type
+            });
         }
         if(this.showScore){
-            row["_score"] = hits[i]._score
+            result.map(function(e) {
+                e["_score"] = hits[i]._score
+            });
         }
         if(this.showId){
-            row["_id"] = hits[i]._id
+            result.map(function(e) {
+                e["_id"] = hits[i]._id
+            });
         }
-        body.push(row)
+        for (j in result) {
+            body.push(result[j])
+        }
     }
+    resetHeader(this.head, newKeys)
     return body
 };
 
@@ -161,6 +173,127 @@ function flatRow (keys,row) {
         }
     }
     return flattenRow;
+}
+
+/** Update column name list (head) by newKeys which is generated during flatten */
+function resetHeader(header, newKeys) {
+    header.length = 0
+    var newKeysArray = Array.from(newKeys)
+    for (var i in newKeysArray) {
+        header.push(newKeysArray[i])
+    }
+}
+
+/*
+ * If inner_hits associated with column name exists, flatten both inner field name and inner rows in it.
+ * Sample input:
+ *   newKeys={'region'}, row={region:'US'},
+ *   innerHits= employees: {
+ *     hits: {
+ *       hits: [{
+ *         _source: {
+ *           age: 26,
+ *           firstname: 'Hank'
+ *         }
+ *       },{
+ *         _source: {
+ *           age: 30,
+ *           firstname: 'John'
+ *         }
+ *       }]
+ *     }
+ *   }
+ */
+function flatNestedField(newKeys, row, innerHits) {
+    var result = [row];
+    if (innerHits == null) {
+        return result;
+    }
+
+    for (colName in innerHits) {
+        var colValue = innerHits[colName].hits.hits;
+        doFlatNestedFieldName(colName, colValue, newKeys);
+        result = doFlatNestedFieldValue(colName, colValue, result);
+    }
+    return result;
+}
+
+/*
+ * Add inner field name such as "employees.name" and "employees.age" to header.
+ * Sample input:
+ *   colName='employees', keys={'region', 'employees'}
+ *   colValue= [{
+ *         _source: {
+ *           age: 26,
+ *           firstname: 'Hank'
+ *         }
+ *       },{
+ *         _source: {
+ *           age: 30,
+ *           firstname: 'John'
+ *         }
+ *       }]
+ * Return: update argument keys to {'region', 'employees.age', 'employees.firstname'}
+ *         (and remove 'employees' in case it exists in original list)
+ */
+function doFlatNestedFieldName(colName, colValue, keys) {
+    var innerRow = colValue[0]._source
+    for (field in innerRow) {
+        var innerName = colName + "." + field
+        if (innerRow.hasOwnProperty(field) && !keys.has(innerName)) {
+            keys.add(innerName)
+        }
+    }
+
+    if (keys.has(colName)) {
+        keys.delete(colName)
+    }
+}
+
+/*
+ * Do Cartesian Product between current outer row and inner rows by nested loop.
+ * And also remove original outer row.
+ * Sample input:
+ *   colName='employees', rows=[{region: 'US'}]
+ *   colValue= [{
+ *         _source: {
+ *           age: 26,
+ *           firstname: 'Hank'
+ *         }
+ *       },{
+ *         _source: {
+ *           age: 30,
+ *           firstname: 'John'
+ *         }
+ *       }]
+ * Return:
+ * [
+ *    {region:'US', employees.age:26, employees.firstname:'Hank'},
+ *    {region:'US', employees.age:30, employees.firstname:'John'}
+ * ]
+ */
+function doFlatNestedFieldValue(colName, colValue, rows) {
+    var result = []
+    for (i in rows) {
+        for (j in colValue) {
+            var row = rows[i]
+            var innerRow = colValue[j]._source
+            var copy = {}
+            for (field in row) {
+                if (row.hasOwnProperty(field)) {
+                    copy[field] = row[field]
+                }
+            }
+            for (field in innerRow) {
+                if (innerRow.hasOwnProperty(field)) {
+                    copy[colName + "." + field] = innerRow[field]
+                }
+            }
+            delete copy[colName]
+            result.push(copy)
+        }
+    }
+    return result
 }
 
 function addFieldsToRow (row,hit) {

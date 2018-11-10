@@ -18,6 +18,7 @@ import org.nlpcn.es4sql.domain.*;
 import org.nlpcn.es4sql.domain.hints.Hint;
 import org.nlpcn.es4sql.domain.hints.HintType;
 import org.nlpcn.es4sql.exception.SqlParseException;
+import org.nlpcn.es4sql.nestedfield.projection.NestedFieldProjection;
 import org.nlpcn.es4sql.query.maker.QueryMaker;
 
 /**
@@ -70,6 +71,7 @@ public class DefaultQueryAction extends QueryAction {
         updateRequestWithHighlight(select, request);
         updateRequestWithCollapse(select, request);
         updateRequestWithPostFilter(select, request);
+        updateRequestWithInnerHits(select, request);
         SqlElasticSearchRequestBuilder sqlElasticRequestBuilder = new SqlElasticSearchRequestBuilder(request);
 
         return sqlElasticRequestBuilder;
@@ -113,7 +115,9 @@ public class DefaultQueryAction extends QueryAction {
                         }
                     }
                 } else if (field instanceof Field) {
-                    includeFields.add(field.getName());
+                    if (isNotNested(field)) {
+                        includeFields.add(field.getName());
+                    }
                 }
             }
 
@@ -146,8 +150,8 @@ public class DefaultQueryAction extends QueryAction {
         }
         // Used to prevent NullPointerException of old tests, as they do not set sqlRequest in QueryAction
         if (sqlRequest != null) {
-			boolQuery = sqlRequest.checkAndAddFilter(boolQuery);
-		}
+            boolQuery = sqlRequest.checkAndAddFilter(boolQuery);
+        }
         request.setQuery(boolQuery);
     }
 
@@ -185,5 +189,13 @@ public class DefaultQueryAction extends QueryAction {
 
     public SearchRequestBuilder getRequestBuilder() {
         return request;
+    }
+
+    private boolean isNotNested(Field field) {
+        return !field.isNested() || field.isReverseNested();
+    }
+
+    private void updateRequestWithInnerHits(Select select, SearchRequestBuilder request) {
+        new NestedFieldProjection(request).project(select.getFields());
     }
 }

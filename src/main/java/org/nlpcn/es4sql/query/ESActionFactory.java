@@ -20,6 +20,7 @@ import org.nlpcn.es4sql.domain.Select;
 import org.nlpcn.es4sql.exception.SqlParseException;
 import org.nlpcn.es4sql.parse.ElasticLexer;
 import org.nlpcn.es4sql.parse.ElasticSqlExprParser;
+import org.nlpcn.es4sql.nestedfield.rewrite.NestedFieldRewriter;
 import org.nlpcn.es4sql.parse.SqlParser;
 import org.nlpcn.es4sql.parse.SubQueryExpression;
 import org.nlpcn.es4sql.query.join.ESJoinQueryActionFactory;
@@ -32,19 +33,20 @@ import java.util.List;
 
 public class ESActionFactory {
 
-	/**
-	 * Create the compatible Query object
-	 * based on the SQL query.
-	 *
-	 * @param sql The SQL query.
-	 * @return Query object.
-	 */
-	public static QueryAction create(Client client, String sql) throws SqlParseException, SQLFeatureNotSupportedException {
-		sql = sql.replaceAll("\n"," ");
+    /**
+     * Create the compatible Query object
+     * based on the SQL query.
+     *
+     * @param sql The SQL query.
+     * @return Query object.
+     */
+    public static QueryAction create(Client client, String sql) throws SqlParseException, SQLFeatureNotSupportedException {
+        sql = sql.replaceAll("\n"," ");
         String firstWord = sql.substring(0, sql.indexOf(' '));
         switch (firstWord.toUpperCase()) {
-			case "SELECT":
-				SQLQueryExpr sqlExpr = (SQLQueryExpr) toSqlExpr(sql);
+            case "SELECT":
+                SQLQueryExpr sqlExpr = (SQLQueryExpr) toSqlExpr(sql);
+                sqlExpr.accept(new NestedFieldRewriter());
                 if(isMulti(sqlExpr)){
                     MultiQuerySelect multiSelect = new SqlParser().parseMultiSelect((SQLUnionQuery) sqlExpr.getSubQuery().getQuery());
                     handleSubQueries(client,multiSelect.getFirstSelect());
@@ -62,17 +64,17 @@ public class ESActionFactory {
                     handleSubQueries(client, select);
                     return handleSelect(client, select);
                 }
-			case "DELETE":
+            case "DELETE":
                 SQLStatementParser parser = createSqlStatementParser(sql);
-				SQLDeleteStatement deleteStatement = parser.parseDeleteStatement();
-				Delete delete = new SqlParser().parseDelete(deleteStatement);
-				return new DeleteQueryAction(client, delete);
+                SQLDeleteStatement deleteStatement = parser.parseDeleteStatement();
+                Delete delete = new SqlParser().parseDelete(deleteStatement);
+                return new DeleteQueryAction(client, delete);
             case "SHOW":
                 return new ShowQueryAction(client,sql);
-			default:
-				throw new SQLFeatureNotSupportedException(String.format("Unsupported query: %s", sql));
-		}
-	}
+            default:
+                throw new SQLFeatureNotSupportedException(String.format("Unsupported query: %s", sql));
+        }
+    }
 
     private static boolean isMulti(SQLQueryExpr sqlExpr) {
         return sqlExpr.getSubQuery().getQuery() instanceof SQLUnionQuery;

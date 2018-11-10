@@ -244,7 +244,7 @@ public class FieldMaker {
                         throw new SqlParseException("failed parsing nested expr " + object);
                     }
 
-                    paramers.add(new KVValue("nested", nestedType));
+                    paramers.add(new KVValue(methodName, nestedType)); // Fix bug: method name of reversed_nested() was set to "nested" wrongly
                 } else if (methodName.equals("children")) {
                     ChildrenType childrenType = new ChildrenType();
 
