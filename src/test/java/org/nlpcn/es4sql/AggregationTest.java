@@ -845,7 +845,7 @@ public class AggregationTest {
         String query = "select count(*), avg(number) from source group by terms('alias'='asdf', substring(field, 0, 1)), date_histogram('alias'='time', 'field'='timestamp', 'interval'='20d ', 'format'='yyyy-MM-dd') limit 1000";
         String result = MainTestSuite.getSearchDao().explain(query).explain().toString();
         Assert.assertTrue(result.contains("\"script\":{\"source\""));
-        Assert.assertTrue(result.contains("substring(0,1)"));
+        Assert.assertTrue(result.contains("substring(0, 1)"));
     }
 
     @Test

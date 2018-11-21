@@ -104,7 +104,6 @@ public class DateFormatTest {
         try {
             SearchDao searchDao = MainTestSuite.getSearchDao();
             SqlElasticSearchRequestBuilder select = (SqlElasticSearchRequestBuilder) searchDao.explain(query).explain();
-            SearchResponse test = (SearchResponse) select.get();
             return getResult(((SearchResponse) select.get()).getHits(), "insert_time");
         } catch (SQLFeatureNotSupportedException | SqlParseException e) {
             throw new RuntimeException(e);

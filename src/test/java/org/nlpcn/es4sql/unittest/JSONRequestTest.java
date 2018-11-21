@@ -109,8 +109,8 @@ public class JSONRequestTest {
     private String translate(String sql, JSONObject jsonRequest) throws SQLFeatureNotSupportedException, SqlParseException {
         Client mockClient = Mockito.mock(Client.class);
         QueryAction queryAction = ESActionFactory.create(mockClient, sql);
-        SqlRequest sqlRequest = new SqlRequest(sql, jsonRequest);
 
+        SqlRequest sqlRequest = new SqlRequest(sql, jsonRequest);
         queryAction.setSqlRequest(sqlRequest);
 
         SqlElasticRequestBuilder requestBuilder = queryAction.explain();

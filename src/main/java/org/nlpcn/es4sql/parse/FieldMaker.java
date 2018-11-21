@@ -149,7 +149,7 @@ public class FieldMaker {
 
         String scriptFieldAlias;
         if (first && (alias == null || alias.equals(""))) {
-            scriptFieldAlias = "field_" + SQLFunctions.random();
+            scriptFieldAlias = SQLFunctions.randomize("field");
         } else {
             scriptFieldAlias = alias;
         }
@@ -217,7 +217,7 @@ public class FieldMaker {
 
                 SQLBinaryOpExpr binaryOpExpr = (SQLBinaryOpExpr) object;
 
-                if (SQLFunctions.buildInFunctions.contains(binaryOpExpr.getOperator().toString().toLowerCase())) {
+                if (SQLFunctions.isBuiltInFunction(binaryOpExpr.getOperator().toString())) {
                     SQLMethodInvokeExpr mExpr = makeBinaryMethodField(binaryOpExpr, alias, first);
                     MethodField abc = makeMethodField(mExpr.getMethodName(), mExpr.getParameters(), null, null, tableAlias, false);
                     paramers.add(new KVValue(abc.getParams().get(0).toString(), new SQLCharExpr(abc.getParams().get(1).toString())));
@@ -253,17 +253,17 @@ public class FieldMaker {
                     }
 
                     paramers.add(new KVValue("children", childrenType));
-                } else if (SQLFunctions.buildInFunctions.contains(methodName)) {
+                } else if (SQLFunctions.isBuiltInFunction(methodName)) {
                     //throw new SqlParseException("only support script/nested as inner functions");
                     MethodField abc = makeMethodField(methodName, mExpr.getParameters(), null, null, tableAlias, false);
                     paramers.add(new KVValue(abc.getParams().get(0).toString(), new SQLCharExpr(abc.getParams().get(1).toString())));
                 } else throw new SqlParseException("only support script/nested/children as inner functions");
             } else if (object instanceof SQLCaseExpr) {
                 String scriptCode = new CaseWhenParser((SQLCaseExpr) object, alias, tableAlias).parse();
-                paramers.add(new KVValue("script",new SQLCharExpr(scriptCode)));
-            } else if(object instanceof SQLCastExpr) {
+                paramers.add(new KVValue("script", new SQLCharExpr(scriptCode)));
+            } else if (object instanceof SQLCastExpr) {
                 String scriptCode = new CastParser((SQLCastExpr) object, alias, tableAlias).parse(false);
-                paramers.add(new KVValue("script",new SQLCharExpr(scriptCode)));
+                paramers.add(new KVValue("script", new SQLCharExpr(scriptCode)));
             } else {
                 paramers.add(new KVValue(Util.removeTableAilasFromField(object, tableAlias)));
             }
@@ -271,13 +271,13 @@ public class FieldMaker {
         }
 
         //just check we can find the function
-        if (SQLFunctions.buildInFunctions.contains(finalMethodName)) {
+        if (SQLFunctions.isBuiltInFunction(finalMethodName)) {
             if (alias == null && first) {
-                alias = "field_" + SQLFunctions.random();//paramers.get(0).value.toString();
+                alias = SQLFunctions.randomize("field");
             }
             //should check if field and first .
-            Tuple<String, String> newFunctions = SQLFunctions.function(finalMethodName, paramers,
-                    paramers.get(0).key,first);
+            Tuple<String, String> newFunctions = SQLFunctions.function(finalMethodName.toLowerCase(), paramers,
+                    paramers.isEmpty() ? null : paramers.get(0).key, first);
             paramers.clear();
             if (!first) {
                 //variance

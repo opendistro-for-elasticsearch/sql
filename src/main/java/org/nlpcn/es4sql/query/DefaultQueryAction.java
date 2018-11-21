@@ -34,7 +34,7 @@ public class DefaultQueryAction extends QueryAction {
         this.select = select;
     }
 
-    public void intialize(SearchRequestBuilder request) throws SqlParseException {
+    public void intialize(SearchRequestBuilder request) {
         this.request = request;
     }
 
@@ -148,7 +148,7 @@ public class DefaultQueryAction extends QueryAction {
         if (where != null) {
             boolQuery = QueryMaker.explan(where, this.select.isQuery);
         }
-        // Used to prevent NullPointerException of old tests, as they do not set sqlRequest in QueryAction
+        // Used to prevent NullPointerException in old tests as they do not set sqlRequest in QueryAction
         if (sqlRequest != null) {
             boolQuery = sqlRequest.checkAndAddFilter(boolQuery);
         }

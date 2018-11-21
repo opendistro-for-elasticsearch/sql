@@ -292,16 +292,22 @@ public abstract class Maker {
         case SCRIPT:
             ScriptFilter scriptFilter = (ScriptFilter) value;
             Map<String, Object> params = new HashMap<>();
-            if(scriptFilter.containsParameters()){
+            if (scriptFilter.containsParameters()) {
                 params = scriptFilter.getArgs();
             }
 
             SQLExpr nameExpr = cond.getNameExpr();
             SQLExpr valueExpr = cond.getValueExpr();
-            if(nameExpr instanceof SQLMethodInvokeExpr && ((SQLMethodInvokeExpr) nameExpr).getMethodName().equals("date_format"))
+            if (nameExpr instanceof SQLMethodInvokeExpr &&
+                    ((SQLMethodInvokeExpr) nameExpr).getMethodName().equalsIgnoreCase("date_format"))
                 toXContent = makeForDateFormat((SQLMethodInvokeExpr) nameExpr, (SQLCharExpr) valueExpr);
             else
-                toXContent = QueryBuilders.scriptQuery(new Script(scriptFilter.getScriptType(), Script.DEFAULT_SCRIPT_LANG, scriptFilter.getScript(), params));
+                toXContent = QueryBuilders.scriptQuery(
+                        new Script(
+                                scriptFilter.getScriptType(),
+                                Script.DEFAULT_SCRIPT_LANG,
+                                scriptFilter.getScript(),
+                                params));
         break;
             default:
 			throw new SqlParseException("not define type " + cond.getName());

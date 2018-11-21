@@ -103,4 +103,6 @@ public class ScriptFilter {
         return args;
     }
 
+    public void setArgs(Map<String, Object> args) { this.args = args; }
+
 }

@@ -24,9 +24,11 @@ import org.junit.runners.Suite;
 
 import com.google.common.io.ByteStreams;
 import org.nlpcn.es4sql.intgtest.DateFormatTest;
+import org.nlpcn.es4sql.intgtest.DateFunctionsTest;
 import org.nlpcn.es4sql.intgtest.HavingTest;
-import org.nlpcn.es4sql.intgtest.NestedFieldQueryTest;
 import org.nlpcn.es4sql.intgtest.JSONRequestTest;
+import org.nlpcn.es4sql.intgtest.MathFunctionsTest;
+import org.nlpcn.es4sql.intgtest.NestedFieldQueryTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -46,9 +48,11 @@ import org.nlpcn.es4sql.intgtest.JSONRequestTest;
     MultiQueryTests.class,
     DeleteTest.class,
     HavingTest.class,
-    NestedFieldQueryTest.class,
     DateFormatTest.class,
-    JSONRequestTest.class
+    JSONRequestTest.class,
+    NestedFieldQueryTest.class,
+    MathFunctionsTest.class,
+    DateFunctionsTest.class
 })
 public class MainTestSuite {
 
@@ -65,6 +69,7 @@ public class MainTestSuite {
 		System.out.println(String.format("Found cluster... cluster name: %s", clusterName));
 
 		// Load test data.
+        createTestIndex(TEST_INDEX_ONLINE);
         loadBulk("src/test/resources/online.json", TEST_INDEX_ONLINE);
 
         createTestIndex(TEST_INDEX_ACCOUNT);

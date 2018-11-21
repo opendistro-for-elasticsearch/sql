@@ -180,6 +180,7 @@ public class JSONRequestTest {
 
             SearchDao searchDao = MainTestSuite.getSearchDao();
             QueryAction queryAction = searchDao.explain(sql);
+
             SqlRequest sqlRequest = new SqlRequest(sql, jsonRequest);
             queryAction.setSqlRequest(sqlRequest);
 

@@ -1,11 +1,11 @@
 package org.nlpcn.es4sql.domain;
 
+import org.nlpcn.es4sql.Util;
+import org.nlpcn.es4sql.parse.NestedType;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.nlpcn.es4sql.Util;
-import org.nlpcn.es4sql.parse.NestedType;
 
 /**
  * 搜索域

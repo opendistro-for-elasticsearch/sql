@@ -33,7 +33,7 @@ public class CastParser {
 
         String dataType = castExpr.getDataType().getName().toUpperCase();
         String fileName = String.format("doc['%s'].value",Util.expr2Object(castExpr.getExpr()));
-        String name = "field_"+SQLFunctions.random();
+        String name = SQLFunctions.randomize("field");
 
         try {
             if (DataType.valueOf(dataType) == DataType.INT) {

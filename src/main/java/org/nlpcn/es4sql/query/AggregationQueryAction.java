@@ -10,7 +10,6 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.join.aggregations.JoinAggregationBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -375,7 +374,7 @@ public class AggregationQueryAction extends QueryAction {
         if (where != null) {
             boolQuery = QueryMaker.explan(where, this.select.isQuery);
         }
-        // Used to prevent NullPointerException of old tests, as they do not set sqlRequest in QueryAction
+        // Used to prevent NullPointerException in old tests as they do not set sqlRequest in QueryAction
         if (sqlRequest != null) {
             boolQuery = sqlRequest.checkAndAddFilter(boolQuery);
         }
