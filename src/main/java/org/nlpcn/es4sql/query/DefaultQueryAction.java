@@ -1,9 +1,5 @@
 package org.nlpcn.es4sql.query;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.ArrayList;
-
 import org.elasticsearch.action.search.*;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
@@ -20,6 +16,10 @@ import org.nlpcn.es4sql.domain.hints.HintType;
 import org.nlpcn.es4sql.exception.SqlParseException;
 import org.nlpcn.es4sql.nestedfield.projection.NestedFieldProjection;
 import org.nlpcn.es4sql.query.maker.QueryMaker;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Transform SQL query to standard Elasticsearch search query

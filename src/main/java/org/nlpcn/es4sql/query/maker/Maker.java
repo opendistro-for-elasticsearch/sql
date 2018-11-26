@@ -18,6 +18,7 @@ import com.alibaba.druid.sql.ast.expr.SQLCharExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
 import com.alibaba.druid.sql.ast.expr.SQLNumericLiteralExpr;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.common.geo.GeoPoint;
 import org.elasticsearch.common.geo.builders.ShapeBuilder;
@@ -41,25 +42,35 @@ import org.nlpcn.es4sql.parse.ScriptFilter;
 import org.nlpcn.es4sql.parse.SubQueryExpression;
 import org.nlpcn.es4sql.spatial.*;
 
+import static org.nlpcn.es4sql.parse.WhereParser.getConditionForMethod;
+
 public abstract class Maker {
 
+    public static final Set<String> queryFunctions = Sets.newHashSet(
+            "query",
+            "matchquery", "match_query", // match
+            "multimatchquery", "multi_match", "multimatch", // multi-match
+            "score", "scorequery", "score_query", // score
+            "wildcardquery", "wildcard_query", // wildcard
+            "matchphrasequery", "match_phrase", "matchphrase" // match-phrase
+    );
 
-	private static final Set<OPEAR> NOT_OPEAR_SET = ImmutableSet.of(OPEAR.N, OPEAR.NIN, OPEAR.ISN, OPEAR.NBETWEEN, OPEAR.NLIKE,OPEAR.NIN_TERMS,OPEAR.NTERM);
+    private static final Set<OPEAR> NOT_OPEAR_SET = ImmutableSet.of(
+            OPEAR.N, OPEAR.NIN, OPEAR.ISN, OPEAR.NBETWEEN, OPEAR.NLIKE,OPEAR.NIN_TERMS,OPEAR.NTERM
+    );
 
+    protected Maker(Boolean isQuery) {
 
+    }
 
-	protected Maker(Boolean isQuery) {
-
-	}
-
-	/**
-	 * 构建过滤条件
-	 * 
-	 * @param cond
-	 * @return
-	 * @throws SqlParseException
-	 */
-	protected ToXContent make(Condition cond) throws SqlParseException {
+    /**
+     * 构建过滤条件
+     *
+     * @param cond
+     * @return
+     * @throws SqlParseException
+     */
+    protected ToXContent make(Condition cond) throws SqlParseException {
 
         String name = cond.getName();
         Object value = cond.getValue();
@@ -73,50 +84,53 @@ public abstract class Maker {
             toXContent = make(cond,name,((SubQueryExpression)value).getValues());
         } else {
             toXContent = make(cond, name, value);
-		}
+        }
 
 
-		return toXContent;
-	}
+        return toXContent;
+    }
 
-	private ToXContent make(Condition cond, String name, SQLMethodInvokeExpr value) throws SqlParseException {
-		ToXContent bqb = null;
-		Paramer paramer = null;
-		switch (value.getMethodName().toLowerCase()) {
-		case "query":
-			paramer = Paramer.parseParamer(value);
-			QueryStringQueryBuilder queryString = QueryBuilders.queryStringQuery(paramer.value);
-			bqb = Paramer.fullParamer(queryString, paramer);
-			bqb = applyNot(cond.getOpear(), bqb);
-			break;
-		case "matchquery":
-		case "match_query":
-			paramer = Paramer.parseParamer(value);
-			MatchQueryBuilder matchQuery = QueryBuilders.matchQuery(name, paramer.value);
-			bqb = Paramer.fullParamer(matchQuery, paramer);
-			bqb = applyNot(cond.getOpear(), bqb);
-			break;
-		case "score":
-		case "scorequery":
-		case "score_query":
-			Float boost = Float.parseFloat(value.getParameters().get(1).toString());
-			Condition subCond = new Condition(cond.getConn(), cond.getName(),null, cond.getOpear(), value.getParameters().get(0),null);
-            bqb = QueryBuilders.constantScoreQuery((QueryBuilder) make(subCond)).boost(boost);
-			break;
-		case "wildcardquery":
-		case "wildcard_query":
-			paramer = Paramer.parseParamer(value);
-			WildcardQueryBuilder wildcardQuery = QueryBuilders.wildcardQuery(name, paramer.value);
-			bqb = Paramer.fullParamer(wildcardQuery, paramer);
-			break;
+    private ToXContent make(Condition cond, String name, SQLMethodInvokeExpr value) throws SqlParseException {
+        ToXContent bqb = null;
+        Paramer paramer = null;
+        switch (value.getMethodName().toLowerCase()) {
+        case "query":
+            paramer = Paramer.parseParamer(value);
+            QueryStringQueryBuilder queryString = QueryBuilders.queryStringQuery(paramer.value);
+            bqb = Paramer.fullParamer(queryString, paramer);
+            bqb = applyNot(cond.getOpear(), bqb);
+            break;
+        case "matchquery":
+        case "match_query":
+            paramer = Paramer.parseParamer(value);
+            MatchQueryBuilder matchQuery = QueryBuilders.matchQuery(name, paramer.value);
+            bqb = Paramer.fullParamer(matchQuery, paramer);
+            bqb = applyNot(cond.getOpear(), bqb);
+            break;
+        case "score":
+        case "scorequery":
+        case "score_query":
+            Float boost = Float.parseFloat(value.getParameters().get(1).toString());
+            Condition subCond = getConditionForMethod(value.getParameters().get(0), cond.getConn());
+            QueryBuilder subQuery = (QueryBuilder) make(subCond);
+            if (subCond.isNested())
+                subQuery = QueryBuilders.nestedQuery(subCond.getNestedPath(), subQuery, ScoreMode.None);
+            bqb = QueryBuilders.constantScoreQuery(subQuery).boost(boost);
+            break;
+        case "wildcardquery":
+        case "wildcard_query":
+            paramer = Paramer.parseParamer(value);
+            WildcardQueryBuilder wildcardQuery = QueryBuilders.wildcardQuery(name, paramer.value);
+            bqb = Paramer.fullParamer(wildcardQuery, paramer);
+            break;
 
-		case "matchphrasequery":
-		case "match_phrase":
-		case "matchphrase":
-			paramer = Paramer.parseParamer(value);
-			MatchPhraseQueryBuilder matchPhraseQuery = QueryBuilders.matchPhraseQuery(name, paramer.value);
-			bqb = Paramer.fullParamer(matchPhraseQuery, paramer);
-			break;
+        case "matchphrasequery":
+        case "match_phrase":
+        case "matchphrase":
+            paramer = Paramer.parseParamer(value);
+            MatchPhraseQueryBuilder matchPhraseQuery = QueryBuilders.matchPhraseQuery(name, paramer.value);
+            bqb = Paramer.fullParamer(matchPhraseQuery, paramer);
+            break;
 
         case "multimatchquery":
         case "multi_match":
@@ -125,45 +139,45 @@ public abstract class Maker {
             MultiMatchQueryBuilder multiMatchQuery = QueryBuilders.multiMatchQuery(paramer.value).fields(paramer.fieldsBoosts);
             bqb = Paramer.fullParamer(multiMatchQuery, paramer);
             break;
-		default:
-			throw new SqlParseException("it did not support this query method " + value.getMethodName());
+        default:
+            throw new SqlParseException("The following query method is not supported: " + value.getMethodName());
 
-		}
+        }
 
-		return bqb;
-	}
+        return bqb;
+    }
 
-	private ToXContent make(Condition cond, String name, Object value) throws SqlParseException {
-		ToXContent toXContent = null;
-		switch (cond.getOpear()) {
-		case ISN:
-		case IS:
-		case N:
-		case EQ:
-			if (value == null || value instanceof SQLIdentifierExpr) {
+    private ToXContent make(Condition cond, String name, Object value) throws SqlParseException {
+        ToXContent toXContent = null;
+        switch (cond.getOpear()) {
+        case ISN:
+        case IS:
+        case N:
+        case EQ:
+            if (value == null || value instanceof SQLIdentifierExpr) {
                 //todo: change to exists
-				if(value == null || ((SQLIdentifierExpr) value).getName().equalsIgnoreCase("missing")) {
+                if(value == null || ((SQLIdentifierExpr) value).getName().equalsIgnoreCase("missing")) {
                     toXContent = QueryBuilders.boolQuery().mustNot(QueryBuilders.existsQuery(name));
-				}
-				else {
-					throw new SqlParseException(String.format("Cannot recoginze Sql identifer %s", ((SQLIdentifierExpr) value).getName()));
-				}
-				break;
-			} else {
-				// TODO, maybe use term filter when not analayzed field avalaible to make exact matching?
-				// using matchPhrase to achieve equallity.
-				// matchPhrase still have some disatvantegs, f.e search for 'word' will match 'some word'
-				toXContent = QueryBuilders.matchPhraseQuery(name, value);
+                }
+                else {
+                    throw new SqlParseException(String.format("Cannot recoginze Sql identifer %s", ((SQLIdentifierExpr) value).getName()));
+                }
+                break;
+            } else {
+                // TODO, maybe use term filter when not analayzed field avalaible to make exact matching?
+                // using matchPhrase to achieve equallity.
+                // matchPhrase still have some disatvantegs, f.e search for 'word' will match 'some word'
+                toXContent = QueryBuilders.matchPhraseQuery(name, value);
 
-				break;
-			}
-		case LIKE:
+                break;
+            }
+        case LIKE:
         case NLIKE:
-			String queryStr = ((String) value);
+            String queryStr = ((String) value);
             queryStr = queryStr.replace('%', '*').replace('_', '?');
             queryStr = queryStr.replace("&PERCENT","%").replace("&UNDERSCORE","_");
-			toXContent = QueryBuilders.wildcardQuery(name, queryStr);
-			break;
+            toXContent = QueryBuilders.wildcardQuery(name, queryStr);
+            break;
         case REGEXP:
             Object[] values = (Object[]) value;
             RegexpQueryBuilder regexpQuery = QueryBuilders.regexpQuery(name, values[0].toString());
@@ -180,37 +194,37 @@ public abstract class Maker {
             }
             toXContent = regexpQuery;
             break;
-		case GT:
+        case GT:
             toXContent = QueryBuilders.rangeQuery(name).gt(value);
-			break;
-		case GTE:
+            break;
+        case GTE:
             toXContent = QueryBuilders.rangeQuery(name).gte(value);
-			break;
-		case LT:
+            break;
+        case LT:
             toXContent = QueryBuilders.rangeQuery(name).lt(value);
-			break;
-		case LTE:
+            break;
+        case LTE:
             toXContent = QueryBuilders.rangeQuery(name).lte(value);
-			break;
-		case NIN:
-		case IN:
+            break;
+        case NIN:
+        case IN:
             //todo: value is subquery? here or before
             values = (Object[]) value;
-			MatchPhraseQueryBuilder[] matchQueries = new MatchPhraseQueryBuilder[values.length];
-			for(int i = 0; i < values.length; i++) {
-				matchQueries[i] = QueryBuilders.matchPhraseQuery(name, values[i]);
-			}
+            MatchPhraseQueryBuilder[] matchQueries = new MatchPhraseQueryBuilder[values.length];
+            for(int i = 0; i < values.length; i++) {
+                matchQueries[i] = QueryBuilders.matchPhraseQuery(name, values[i]);
+            }
 
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
             for(MatchPhraseQueryBuilder matchQuery : matchQueries) {
                 boolQuery.should(matchQuery);
             }
             toXContent = boolQuery;
-			break;
-		case BETWEEN:
-		case NBETWEEN:
+            break;
+        case BETWEEN:
+        case NBETWEEN:
             toXContent = QueryBuilders.rangeQuery(name).gte(((Object[]) value)[0]).lte(((Object[]) value)[1]);
-			break;
+            break;
         case GEO_INTERSECTS:
             String wkt = cond.getValue().toString();
             try {
@@ -310,12 +324,16 @@ public abstract class Maker {
                                 params));
         break;
             default:
-			throw new SqlParseException("not define type " + cond.getName());
-		}
+            throw new SqlParseException("not define type " + cond.getName());
+        }
 
-		toXContent = applyNot(cond.getOpear(), toXContent);
-		return toXContent;
-	}
+        toXContent = applyNot(cond.getOpear(), toXContent);
+        return toXContent;
+    }
+
+    public static boolean isQueryFunction(String methodName) {
+        return queryFunctions.contains(methodName.toLowerCase());
+    }
 
     /**
      * Helper method used to form a range query object for the date_format function.
@@ -384,7 +402,7 @@ public abstract class Maker {
     }
 
     private String removeSingleQuote(String param) {
-	    return param.replaceAll("\'", "");
+        return param.replaceAll("\'", "");
     }
 
     private String[] arrayOfObjectsToStringArray(Object[] values, int from, int to) {
@@ -435,7 +453,7 @@ public abstract class Maker {
             bqb = QueryBuilders.boolQuery().mustNot((QueryBuilder) bqb);
         }
         return bqb;
-	}
+    }
 
     private Object parseTermValue(Object termValue) {
         if (termValue instanceof SQLNumericLiteralExpr) {

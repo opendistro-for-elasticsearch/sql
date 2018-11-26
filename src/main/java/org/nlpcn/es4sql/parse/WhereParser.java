@@ -30,6 +30,7 @@ import org.nlpcn.es4sql.domain.MethodField;
 import org.nlpcn.es4sql.domain.Select;
 import org.nlpcn.es4sql.domain.Where;
 import org.nlpcn.es4sql.exception.SqlParseException;
+import org.nlpcn.es4sql.query.maker.Maker;
 import org.nlpcn.es4sql.spatial.SpatialParamsFactory;
 
 import java.math.BigDecimal;
@@ -410,6 +411,10 @@ public class WhereParser {
                 }
                 Condition condition = new Condition(Where.CONN.valueOf(opear), null, null, "SCRIPT", scriptFilter, null);
                 where.addWhere(condition);
+            } else if (Maker.isQueryFunction(methodName)) {
+                Condition condition = getConditionForMethod(expr, Where.CONN.valueOf(opear));
+
+                where.addWhere(condition);
             } else {
                 throw new SqlParseException("unsupported method: " + methodName);
             }
@@ -575,6 +580,22 @@ public class WhereParser {
             throw new SqlParseException(
                     String.format("Failed to parse SqlExpression of type %s. expression value: %s", expr.getClass(), expr)
             );
+        }
+    }
+
+    public static Condition getConditionForMethod(SQLExpr expr, Where.CONN conn) throws SqlParseException {
+        SQLExpr param = ((SQLMethodInvokeExpr) expr).getParameters().get(0);
+        String fieldName = param.toString();
+
+        NestedType nestedType = new NestedType();
+        ChildrenType childrenType = new ChildrenType();
+
+        if (nestedType.tryFillFromExpr(param)) {
+            return new Condition(conn, nestedType.field, null, "=", expr, expr, nestedType);
+        } else if (childrenType.tryFillFromExpr(param)) {
+            return new Condition(conn, childrenType.field, null, "=", expr, expr, childrenType);
+        } else {
+            return new Condition(conn, fieldName, null, "=", expr, expr, null);
         }
     }
 }

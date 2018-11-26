@@ -29,6 +29,7 @@ import org.nlpcn.es4sql.intgtest.HavingTest;
 import org.nlpcn.es4sql.intgtest.JSONRequestTest;
 import org.nlpcn.es4sql.intgtest.MathFunctionsTest;
 import org.nlpcn.es4sql.intgtest.NestedFieldQueryTest;
+import org.nlpcn.es4sql.intgtest.QueryFunctionsTest;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -52,7 +53,8 @@ import org.nlpcn.es4sql.intgtest.NestedFieldQueryTest;
     JSONRequestTest.class,
     NestedFieldQueryTest.class,
     MathFunctionsTest.class,
-    DateFunctionsTest.class
+    DateFunctionsTest.class,
+    QueryFunctionsTest.class
 })
 public class MainTestSuite {
 

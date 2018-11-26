@@ -7,7 +7,6 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.elasticsearch.common.collect.Tuple;
-import org.elasticsearch.plugin.nlpcn.executors.CSVResult;
 import org.nlpcn.es4sql.domain.KVValue;
 
 import java.util.Arrays;
@@ -310,7 +309,6 @@ public class SQLFunctions {
         String name = randomize(methodName);
         return new Tuple<>(name, def(name, doc(field) + ".date." + methodName));
     }
-
 
     public static Tuple<String, String> add(SQLExpr a, SQLExpr b) {
         return binaryOpertator("add", "+", a, b);

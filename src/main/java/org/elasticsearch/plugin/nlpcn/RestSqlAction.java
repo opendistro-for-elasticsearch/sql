@@ -5,8 +5,6 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.plugin.nlpcn.executors.ActionRequestRestExecuterFactory;
 import org.elasticsearch.plugin.nlpcn.executors.RestExecutor;
 import org.elasticsearch.rest.*;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.nlpcn.es4sql.SearchDao;
 import org.nlpcn.es4sql.SqlRequest;
 import org.nlpcn.es4sql.exception.SqlParseException;
@@ -16,11 +14,7 @@ import java.io.IOException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.*;
 
-
 public class RestSqlAction extends BaseRestHandler {
-
-//    public static final RestSqlAction INSTANCE = new RestSqlAction();
-
 
     public RestSqlAction(Settings settings, RestController restController) {
         super(settings);
