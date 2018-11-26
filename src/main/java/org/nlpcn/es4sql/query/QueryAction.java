@@ -27,7 +27,7 @@ import java.util.Map;
  */
 public abstract class QueryAction {
 
-	protected org.nlpcn.es4sql.domain.Query query;
+	protected Query query;
 	protected Client client;
 	protected SqlRequest sqlRequest;
 
@@ -35,6 +35,10 @@ public abstract class QueryAction {
 		this.client = client;
 		this.query = query;
 	}
+
+	public Client getClient() { return client; }
+
+	public Query getQuery() { return query; }
 
     public void setSqlRequest(SqlRequest sqlRequest) { this.sqlRequest = sqlRequest; }
 

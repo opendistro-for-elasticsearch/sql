@@ -10,9 +10,12 @@ import org.nlpcn.es4sql.SqlRequest;
 import org.nlpcn.es4sql.exception.SqlParseException;
 import org.nlpcn.es4sql.query.QueryAction;
 
-import java.io.IOException;
 import java.sql.SQLFeatureNotSupportedException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class RestSqlAction extends BaseRestHandler {
 
@@ -30,7 +33,7 @@ public class RestSqlAction extends BaseRestHandler {
     }
 
     @Override
-    protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient client) throws IOException {
+    protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient client) {
         SqlRequest sqlRequest = new SqlRequest(request);
 
         try {
