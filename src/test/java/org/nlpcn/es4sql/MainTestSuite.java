@@ -192,7 +192,13 @@ public class MainTestSuite {
                 "          }," +
                 "          \"state\": {\n" +
                 "            \"type\": \"text\",\n" +
-                "            \"fielddata\": true\n" +
+                "            \"fielddata\": true,\n" +
+                "            \"fields\": {\n" +
+                "              \"keyword\": {\n" +
+                "                \"type\": \"keyword\",\n" +
+                "                \"ignore_above\": 256\n" +
+                "              }" +
+                "            }" +
                 "          }" +
                 "       }"+
                 "   }" +

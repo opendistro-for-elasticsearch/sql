@@ -28,7 +28,6 @@ public class ErrorMessage {
     private String fetchReason() { return emptyStringIfNull(exception.getLocalizedMessage()); }
 
     private String fetchDetails() {
-        // TODO When outputting to string, the JSON includes "\n" and "\t" explicitly for stack trace details
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         exception.printStackTrace(pw);

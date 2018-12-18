@@ -26,7 +26,15 @@ public class PrettyFormatRestExecutor implements RestExecutor {
     @Override
     public void execute(Client client, Map<String, String> params, QueryAction queryAction, RestChannel channel) {
         String formattedResponse = execute(client, params, queryAction);
-        BytesRestResponse bytesRestResponse = new BytesRestResponse(RestStatus.OK, formattedResponse);
+        BytesRestResponse bytesRestResponse;
+        if (format.equals("jdbc")) {
+            bytesRestResponse = new BytesRestResponse(RestStatus.OK,
+                    "application/json; charset=UTF-8",
+                    formattedResponse);
+        } else {
+            bytesRestResponse = new BytesRestResponse(RestStatus.OK, formattedResponse);
+        }
+
         channel.sendResponse(bytesRestResponse);
     }
 

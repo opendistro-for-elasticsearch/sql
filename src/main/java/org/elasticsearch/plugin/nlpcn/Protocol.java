@@ -7,9 +7,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.nlpcn.es4sql.domain.Query;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class Protocol {
 
@@ -48,12 +47,13 @@ public class Protocol {
                 case "jdbc":
                     return outputInJdbcFormat();
                 case "table":
-                    break;
+                    return outputInTableFormat();
                 case "raw":
-                    break;
+                    return outputInRawFormat();
                 default:
+                    throw new UnsupportedOperationException(
+                            String.format("The following format is not supported: %s", formatType));
             }
-            return "";
         }
 
         return error.toString();
@@ -72,20 +72,45 @@ public class Protocol {
         return formattedOutput.toString(2);
     }
 
+    private String outputInRawFormat() {
+        Schema schema = resultSet.getSchema();
+        DataRows dataRows = resultSet.getDataRows();
+
+        StringBuilder formattedOutput = new StringBuilder();
+        for (Row row : dataRows) {
+            formattedOutput.append(rawEntry(row, schema)).append("\n");
+        }
+
+        return formattedOutput.toString();
+    }
+
+    private String outputInTableFormat() {
+        return null;
+    }
+
+    private String rawEntry(Row row, Schema schema) {
+        // TODO String separator is being kept to "|" for the time being as using "\t" will require formatting since
+        // TODO tabs are occurring in multiple of 4 (one option is Guava's Strings.padEnd() method)
+        return StreamSupport.stream(schema.spliterator(), false)
+                .map(column -> row.getDataOrDefault(column.getName(), "NULL").toString())
+                .collect(Collectors.joining("|"));
+    }
+
     private JSONArray getSchemaAsJson() {
         Schema schema = resultSet.getSchema();
         JSONArray schemaJson = new JSONArray();
 
         for (Column column : schema) {
-            schemaJson.put(schemaEntry(column.getName(), column.getType()));
+            schemaJson.put(schemaEntry(column.getName(), column.getAlias(), column.getType()));
         }
 
         return schemaJson;
     }
 
-    private JSONObject schemaEntry(String name, String type) {
+    private JSONObject schemaEntry(String name, String alias, String type) {
         JSONObject entry = new JSONObject();
         entry.put("name", name);
+        if (alias != null) { entry.put("alias", alias); }
         entry.put("type", type);
 
         return entry;
@@ -107,8 +132,7 @@ public class Protocol {
         JSONArray entry = new JSONArray();
         for (Column column : schema) {
             String columnName = column.getName();
-            if (dataRow.hasField(columnName))
-                entry.put(dataRow.getData(columnName));
+            entry.put(dataRow.getDataOrDefault(columnName, JSONObject.NULL));
         }
         return entry;
     }

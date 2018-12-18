@@ -75,37 +75,20 @@ public class SQLFunctionsTest {
         Assert.assertTrue(content.contains("863 Wythe Place,863"));
     }
 
-    @Test
-    public void normalFieldAlias() throws Exception {
-
-        //here is a bug,csv field with spa
-        String query = "SELECT " +
-                "address as key,age from " +
-                TEST_INDEX_ACCOUNT + "/account where address is not null " +
-                "limit 10  ";
-
-        CSVResult csvResult = getCsvResult(false, query);
-        List<String> headers = csvResult.getHeaders();
-        Assert.assertTrue(headers.contains("key"));
-    }
-
-
-    @Test
-    public void groupByFieldAlias() throws Exception {
-
-        //here is a bug,csv field with spa
-        String query = "SELECT " +
-                "age as key,sum(age) from " +
-                TEST_INDEX_ACCOUNT + "/account where address is not null " +
-                " group by key limit 10  ";
-
-        CSVResult csvResult = getCsvResult(false, query);
-        List<String> headers = csvResult.getHeaders();
-        List<String> contents = csvResult.getLines();
-        Assert.assertTrue(headers.contains("key"));
-        String[] splits = contents.get(0).split(",");
-        Assert.assertTrue(Integer.parseInt(splits[0]) <= Double.parseDouble(splits[1]));
-    }
+    /** Commented out the following test as alias for normal fields is no longer stored in SearchHit's fields object */
+//    @Test
+//    public void normalFieldAlias() throws Exception {
+//
+//        //here is a bug,csv field with spa
+//        String query = "SELECT " +
+//                "address as key,age from " +
+//                TEST_INDEX_ACCOUNT + "/account where address is not null " +
+//                "limit 10  ";
+//
+//        CSVResult csvResult = getCsvResult(false, query);
+//        List<String> headers = csvResult.getHeaders();
+//        Assert.assertTrue(headers.contains("key"));
+//    }
 
     @Test
     public void concat_ws_field_and_string() throws Exception {
