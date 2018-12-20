@@ -7,7 +7,6 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.rest.RestRequest;
 import org.elasticsearch.search.SearchModule;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,25 +19,6 @@ public class SqlRequest {
 
     String sql;
     JSONObject jsonContent;
-
-    public SqlRequest(RestRequest request) {
-        String sql = request.param("sql");
-        JSONObject json = null;
-
-        if (sql == null) {
-            String content = request.content().utf8ToString();
-
-            if (isValidJson(content)) {
-                json = new JSONObject(content);
-                sql = json.getString("query");
-            } else {
-                sql = content;
-            }
-        }
-
-        this.sql = sql;
-        this.jsonContent = json;
-    }
 
     public SqlRequest(String sql, JSONObject jsonContent) {
         this.sql = sql;
@@ -55,6 +35,9 @@ public class SqlRequest {
     }
 
     public String getSql() { return this.sql; }
+    public JSONObject getJsonContent() {
+        return this.jsonContent;
+    }
 
     /**
      * JSONObject's getJSONObject method will return just the value, this helper method is to extract the key and

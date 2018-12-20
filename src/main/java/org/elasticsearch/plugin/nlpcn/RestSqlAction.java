@@ -5,19 +5,28 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.plugin.nlpcn.executors.ActionRequestRestExecuterFactory;
 import org.elasticsearch.plugin.nlpcn.executors.RestExecutor;
 import org.elasticsearch.rest.*;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.nlpcn.es4sql.PreparedStatementRequest;
 import org.nlpcn.es4sql.SearchDao;
 import org.nlpcn.es4sql.SqlRequest;
+import org.nlpcn.es4sql.SqlRequestFactory;
 import org.nlpcn.es4sql.exception.SqlParseException;
 import org.nlpcn.es4sql.query.QueryAction;
 
 import java.sql.SQLFeatureNotSupportedException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class RestSqlAction extends BaseRestHandler {
+
 
     public RestSqlAction(Settings settings, RestController restController) {
         super(settings);
@@ -34,7 +43,13 @@ public class RestSqlAction extends BaseRestHandler {
 
     @Override
     protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient client) {
-        SqlRequest sqlRequest = new SqlRequest(request);
+        SqlRequest sqlRequest;
+        try {
+            sqlRequest = SqlRequestFactory.getSqlRequest(request);
+        } catch(IllegalArgumentException e) {
+            // FIXME: need to send proper error response to client.
+            return null;
+        }
 
         try {
             SearchDao searchDao = new SearchDao(client);
@@ -61,9 +76,10 @@ public class RestSqlAction extends BaseRestHandler {
                 return channel -> restExecutor.execute(client, additionalParams, finalQueryAction, channel);
             }
         } catch (SqlParseException | SQLFeatureNotSupportedException e) {
+            // FIXME: need to catch all exceptions to avoid ES process from crashing
             e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
     @Override
@@ -72,4 +88,5 @@ public class RestSqlAction extends BaseRestHandler {
         responseParams.addAll(Arrays.asList("sql", "flat", "separator", "_score", "_type", "_id", "newLine", "format"));
         return responseParams;
     }
+
 }

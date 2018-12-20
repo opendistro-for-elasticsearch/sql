@@ -29,6 +29,7 @@ import org.nlpcn.es4sql.intgtest.HavingTest;
 import org.nlpcn.es4sql.intgtest.JSONRequestTest;
 import org.nlpcn.es4sql.intgtest.MathFunctionsTest;
 import org.nlpcn.es4sql.intgtest.NestedFieldQueryTest;
+import org.nlpcn.es4sql.intgtest.PreparedStatementTest;
 import org.nlpcn.es4sql.intgtest.QueryFunctionsTest;
 import org.nlpcn.es4sql.intgtest.PrettyFormatResponseTest;
 
@@ -56,7 +57,8 @@ import org.nlpcn.es4sql.intgtest.PrettyFormatResponseTest;
     MathFunctionsTest.class,
     DateFunctionsTest.class,
     QueryFunctionsTest.class,
-    PrettyFormatResponseTest.class
+    PrettyFormatResponseTest.class,
+    PreparedStatementTest.class
 })
 public class MainTestSuite {
 
