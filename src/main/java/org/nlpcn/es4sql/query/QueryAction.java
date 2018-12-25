@@ -12,6 +12,7 @@ import org.elasticsearch.search.collapse.CollapseBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.nlpcn.es4sql.SqlRequest;
 import org.nlpcn.es4sql.domain.Query;
+import org.nlpcn.es4sql.domain.QueryStatement;
 import org.nlpcn.es4sql.domain.Select;
 import org.nlpcn.es4sql.domain.hints.Hint;
 import org.nlpcn.es4sql.domain.hints.HintType;
@@ -38,7 +39,7 @@ public abstract class QueryAction {
 
 	public Client getClient() { return client; }
 
-	public Query getQuery() { return query; }
+	public QueryStatement getQueryStatement() { return query; }
 
     public void setSqlRequest(SqlRequest sqlRequest) { this.sqlRequest = sqlRequest; }
 

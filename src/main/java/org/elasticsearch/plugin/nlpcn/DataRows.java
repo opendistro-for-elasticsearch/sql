@@ -31,6 +31,11 @@ public class DataRows implements Iterable<DataRows.Row> {
         extractData();
     }
 
+    public DataRows(List<Row> rows) {
+        this.size = rows.size();
+        this.rows = rows;
+    }
+
     public long getSize() { return size; }
 
     public long getTotalHits() { return totalHits; }
@@ -316,7 +321,7 @@ public class DataRows implements Iterable<DataRows.Row> {
     }
 
     // Inner class for Row object
-    public class Row {
+    public static class Row {
 
         private Map<String, Object> data;
 

@@ -11,6 +11,10 @@ import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLSelectQueryBlock;
 import com.alibaba.druid.sql.ast.statement.SQLTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLUnionQuery;
+import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
+import org.elasticsearch.action.admin.indices.get.GetIndexRequestBuilder;
+import org.elasticsearch.client.Client;
+import org.nlpcn.es4sql.domain.IndexStatement;
 import org.nlpcn.es4sql.domain.KVValue;
 import org.nlpcn.es4sql.exception.SqlParseException;
 
@@ -206,6 +210,33 @@ public class Util {
             }
         }
         return false;
+    }
+
+    public static GetIndexRequestBuilder prepareIndexRequestBuilder(Client client, IndexStatement statement) {
+        String indexName = statement.getIndexName();
+        String type = statement.getTypeName();
+
+        /*
+         * The original plan was to remove all features for the indexRequest used in SHOW to prevent wasted data
+         * since only the index name and type are required. However, the type is obtained from the mappings response
+         * so this feature will need to be set in both SHOW and DESCRIBE unless another request can be found for only
+         * retrieving index name and type.
+         */
+        // TODO Is there a more efficient request for only getting index name and type?
+        GetIndexRequestBuilder indexRequestBuilder = client.admin().indices()
+                .prepareGetIndex()
+                .setFeatures(GetIndexRequest.Feature.MAPPINGS)
+                .setLocal(true);
+
+        if (!indexName.equals("*")) {
+            indexRequestBuilder.addIndices(indexName);
+            
+            if (type != null && !type.equals("")) {
+                indexRequestBuilder.setTypes(type);
+            }
+        }
+
+        return indexRequestBuilder;
     }
 
 }

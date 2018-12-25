@@ -5,10 +5,14 @@ import org.elasticsearch.plugin.nlpcn.DataRows.Row;
 import org.elasticsearch.plugin.nlpcn.Schema.Column;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.nlpcn.es4sql.domain.IndexStatement;
 import org.nlpcn.es4sql.domain.Query;
+import org.nlpcn.es4sql.domain.QueryStatement;
 
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
+import static org.nlpcn.es4sql.domain.IndexStatement.StatementType;
 
 public class Protocol {
 
@@ -22,11 +26,11 @@ public class Protocol {
     private ResultSet resultSet;
     private ErrorMessage error;
 
-    public Protocol(Client client, Query query, Object queryResult, String formatType) {
+    public Protocol(Client client, QueryStatement query, Object queryResult, String formatType) {
         this.formatType = formatType;
 
         this.status = OK_STATUS;
-        this.resultSet = new ResultSet(client, query, queryResult);
+        this.resultSet = loadResultSet(client, query, queryResult);
         this.size = resultSet.getDataRows().getSize();
         this.total = resultSet.getDataRows().getTotalHits();
     }
@@ -35,6 +39,26 @@ public class Protocol {
         this.formatType = null;
         this.status = ERROR_STATUS;
         this.error = new ErrorMessage(e, ERROR_STATUS);
+    }
+
+    private ResultSet loadResultSet(Client client, QueryStatement queryStatement, Object queryResult) {
+        if (queryStatement instanceof Query) {
+            return new SelectResultSet(client, (Query) queryStatement, queryResult);
+        } else if (queryStatement instanceof IndexStatement) {
+            IndexStatement statement = (IndexStatement) queryStatement;
+            StatementType statementType = statement.getStatementType();
+
+            if (statementType == StatementType.SHOW) {
+                return new ShowResultSet(client, statement, queryResult);
+            } else if (statementType == StatementType.DESCRIBE) {
+                return new DescribeResultSet(client, statement, queryResult);
+            }
+        }
+
+        throw new UnsupportedOperationException(
+                String.format("The following instance of QueryStatement is not supported: %s",
+                        queryStatement.getClass().toString())
+        );
     }
 
     public int getStatus() { return status; }

@@ -6,6 +6,7 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.nlpcn.es4sql.domain.Field;
+import org.nlpcn.es4sql.domain.IndexStatement;
 import org.nlpcn.es4sql.domain.MethodField;
 import org.nlpcn.es4sql.domain.Query;
 import org.nlpcn.es4sql.domain.Select;
@@ -38,6 +39,12 @@ public class Schema implements Iterable<Schema.Column> {
         this.selectAll = false;
 
         loadFromEsState();
+    }
+
+    public Schema(IndexStatement statement, List<Column> columns) {
+        this.indexName = statement.getIndexName();
+        this.typeName = statement.getTypeName();
+        this.columns = columns;
     }
 
     public String getIndexName() { return indexName; }
@@ -342,7 +349,7 @@ public class Schema implements Iterable<Schema.Column> {
     }
 
     // Only core ES datatypes currently supported
-    private enum Type {
+    public enum Type {
         TEXT, KEYWORD, // String types
         LONG, INTEGER, SHORT, BYTE, DOUBLE, FLOAT, HALF_FLOAT, SCALED_FLOAT, // Numeric types
         DATE, // Date types
@@ -356,7 +363,7 @@ public class Schema implements Iterable<Schema.Column> {
     }
 
     // Inner class for Column object
-    public class Column {
+    public static class Column {
 
         private final String name;
         private String alias;

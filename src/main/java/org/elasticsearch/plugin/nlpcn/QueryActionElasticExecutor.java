@@ -9,7 +9,9 @@ import org.nlpcn.es4sql.exception.SqlParseException;
 import org.nlpcn.es4sql.query.AggregationQueryAction;
 import org.nlpcn.es4sql.query.DefaultQueryAction;
 import org.nlpcn.es4sql.query.DeleteQueryAction;
+import org.nlpcn.es4sql.query.DescribeQueryAction;
 import org.nlpcn.es4sql.query.QueryAction;
+import org.nlpcn.es4sql.query.ShowQueryAction;
 import org.nlpcn.es4sql.query.SqlElasticRequestBuilder;
 import org.nlpcn.es4sql.query.SqlElasticSearchRequestBuilder;
 import org.nlpcn.es4sql.query.join.ESJoinQueryAction;
@@ -39,6 +41,14 @@ public class QueryActionElasticExecutor {
         return ((SearchResponse)select.get()).getAggregations();
     }
 
+    public static ActionResponse executeShowQueryAction(ShowQueryAction showQueryAction) {
+        return showQueryAction.explain().get();
+    }
+
+    public static ActionResponse executeDescribeQueryAction(DescribeQueryAction describeQueryAction) throws SqlParseException {
+        return describeQueryAction.explain().get();
+    }
+
     public static ActionResponse executeDeleteAction(DeleteQueryAction deleteQueryAction) throws SqlParseException {
         return deleteQueryAction.explain().get();
     }
@@ -50,16 +60,20 @@ public class QueryActionElasticExecutor {
         return executor.getHits();
     }
 
-    public static Object executeAnyAction(Client client , QueryAction queryAction) throws SqlParseException, IOException {
-        if(queryAction instanceof DefaultQueryAction)
+    public static Object executeAnyAction(Client client, QueryAction queryAction) throws SqlParseException, IOException {
+        if (queryAction instanceof DefaultQueryAction)
             return executeSearchAction((DefaultQueryAction) queryAction);
-        if(queryAction instanceof AggregationQueryAction)
+        if (queryAction instanceof AggregationQueryAction)
             return executeAggregationAction((AggregationQueryAction) queryAction);
-        if(queryAction instanceof ESJoinQueryAction)
+        if (queryAction instanceof ShowQueryAction)
+            return executeShowQueryAction((ShowQueryAction) queryAction);
+        if (queryAction instanceof DescribeQueryAction)
+            return executeDescribeQueryAction((DescribeQueryAction) queryAction);
+        if (queryAction instanceof ESJoinQueryAction)
             return executeJoinSearchAction(client, (ESJoinQueryAction) queryAction);
-        if(queryAction instanceof MultiQueryAction)
+        if (queryAction instanceof MultiQueryAction)
             return executeMultiQueryAction(client, (MultiQueryAction) queryAction);
-        if(queryAction instanceof DeleteQueryAction )
+        if (queryAction instanceof DeleteQueryAction )
             return executeDeleteAction((DeleteQueryAction) queryAction);
         return null;
     }

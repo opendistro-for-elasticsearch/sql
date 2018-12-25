@@ -28,6 +28,7 @@ import org.nlpcn.es4sql.intgtest.DateFunctionsTest;
 import org.nlpcn.es4sql.intgtest.HavingTest;
 import org.nlpcn.es4sql.intgtest.JSONRequestTest;
 import org.nlpcn.es4sql.intgtest.MathFunctionsTest;
+import org.nlpcn.es4sql.intgtest.MetaDataQueriesTest;
 import org.nlpcn.es4sql.intgtest.NestedFieldQueryTest;
 import org.nlpcn.es4sql.intgtest.PreparedStatementTest;
 import org.nlpcn.es4sql.intgtest.QueryFunctionsTest;
@@ -58,7 +59,8 @@ import org.nlpcn.es4sql.intgtest.PrettyFormatResponseTest;
     DateFunctionsTest.class,
     QueryFunctionsTest.class,
     PrettyFormatResponseTest.class,
-    PreparedStatementTest.class
+    PreparedStatementTest.class,
+    MetaDataQueriesTest.class
 })
 public class MainTestSuite {
 
@@ -300,11 +302,11 @@ public class MainTestSuite {
 
     @AfterClass
 	public static void tearDown() {
-		System.out.println("teardown process...");
+	    System.out.println("teardown process...");
 
-        deleteTestIndex(TEST_INDEX + "*");
+	    deleteTestIndex(TEST_INDEX + "*");
 
-		client.close();
+	    client.close();
 	}
 
 

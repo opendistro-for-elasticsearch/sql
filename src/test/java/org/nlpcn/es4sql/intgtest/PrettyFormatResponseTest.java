@@ -1,31 +1,17 @@
 package org.nlpcn.es4sql.intgtest;
 
-import com.alibaba.druid.sql.parser.ParserException;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.plugin.nlpcn.DataRows;
 import org.elasticsearch.plugin.nlpcn.DataRows.Row;
 import org.elasticsearch.plugin.nlpcn.Protocol;
-import org.elasticsearch.plugin.nlpcn.QueryActionElasticExecutor;
 import org.elasticsearch.plugin.nlpcn.Schema;
-import org.elasticsearch.plugin.nlpcn.Schema.Column;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
-import org.nlpcn.es4sql.MainTestSuite;
-import org.nlpcn.es4sql.SearchDao;
-import org.nlpcn.es4sql.domain.Query;
-import org.nlpcn.es4sql.exception.SqlParseException;
-import org.nlpcn.es4sql.query.QueryAction;
 
-import java.io.IOException;
-import java.sql.SQLFeatureNotSupportedException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,10 +20,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasKey;
-import static org.junit.Assert.assertTrue;
 import static org.nlpcn.es4sql.TestsConstants.TEST_INDEX_ACCOUNT;
 import static org.nlpcn.es4sql.TestsConstants.TEST_INDEX_NESTED_TYPE;
 import static org.nlpcn.es4sql.TestsConstants.TEST_INDEX_PHRASE;
+import static org.nlpcn.es4sql.util.CheckPrettyFormatContents.*;
 
 public class PrettyFormatResponseTest {
 
@@ -361,83 +347,5 @@ public class PrettyFormatResponseTest {
         assertThat(dataRowEntry.length(), equalTo(2));
         assertThat(dataRowEntry.get(0), equalTo("brown fox"));
         assertThat(dataRowEntry.get(1), equalTo(JSONObject.NULL));
-    }
-
-    private QueryAction getQueryAction(String sql) {
-        try {
-            SearchDao searchDao = MainTestSuite.getSearchDao();
-            return searchDao.explain(sql);
-        } catch (SqlParseException | SQLFeatureNotSupportedException e) {
-            throw new ParserException("Illegal sql expr in request: " + sql);
-        }
-    }
-
-    private JSONObject getJdbcResponse(String query) {
-        Protocol protocol = execute(query, "jdbc");
-        return new JSONObject(protocol.format());
-    }
-
-    private JSONArray getJdbcDataRows(JSONObject jdbcResponse) {
-        return jdbcResponse.getJSONArray("datarows");
-    }
-
-    private Schema getSchema(Protocol protocol) {
-        return protocol.getResultSet().getSchema();
-    }
-
-    private DataRows getDataRows(Protocol protocol) {
-        return protocol.getResultSet().getDataRows();
-    }
-
-    private void containsColumnsInAnyOrder(Schema schema, Set<String> fields) {
-        Set<String> columnNames = new HashSet<>();
-        for (Column column : schema) {
-            columnNames.add(column.getName());
-        }
-
-        assertThat(columnNames, equalTo(fields));
-    }
-
-    private void containsColumns(Schema schema, List<String> fields) {
-        List<String> columnNames = new ArrayList<>();
-        for (Column column : schema) {
-            columnNames.add(column.getName());
-        }
-
-        assertThat(columnNames, equalTo(fields));
-    }
-
-    private void containsAliases(Schema schema, Map<String, String> aliases) {
-        for (Column column : schema) {
-            assertThat(
-                    column.getAlias(),
-                    equalTo(
-                            aliases.get(
-                                    column.getName()
-                            )
-                    )
-            );
-        }
-    }
-
-    private void containsData(DataRows dataRows, Collection<String> fields) {
-        Row row = dataRows.iterator().next();
-        for (String field : fields) {
-            assertTrue(row.hasField(field));
-        }
-    }
-
-    private Protocol execute(String sql, String format) {
-        try {
-            QueryAction queryAction = getQueryAction(sql);
-            Client client = queryAction.getClient();
-            Query query = queryAction.getQuery();
-            Object queryResult = QueryActionElasticExecutor.executeAnyAction(client, queryAction);
-
-            return new Protocol(client, query, queryResult, format);
-        }
-        catch (IOException | SqlParseException e) {
-            throw new ParserException("Unsupported query: " + sql);
-        }
     }
 }

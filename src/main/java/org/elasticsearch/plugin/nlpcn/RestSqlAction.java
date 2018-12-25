@@ -5,10 +5,6 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.plugin.nlpcn.executors.ActionRequestRestExecuterFactory;
 import org.elasticsearch.plugin.nlpcn.executors.RestExecutor;
 import org.elasticsearch.rest.*;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.nlpcn.es4sql.PreparedStatementRequest;
 import org.nlpcn.es4sql.SearchDao;
 import org.nlpcn.es4sql.SqlRequest;
 import org.nlpcn.es4sql.SqlRequestFactory;
@@ -16,12 +12,9 @@ import org.nlpcn.es4sql.exception.SqlParseException;
 import org.nlpcn.es4sql.query.QueryAction;
 
 import java.sql.SQLFeatureNotSupportedException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 

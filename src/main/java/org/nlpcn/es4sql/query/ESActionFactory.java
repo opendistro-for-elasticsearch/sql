@@ -15,6 +15,7 @@ import org.elasticsearch.plugin.nlpcn.QueryActionElasticExecutor;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.nlpcn.es4sql.domain.Delete;
+import org.nlpcn.es4sql.domain.IndexStatement;
 import org.nlpcn.es4sql.domain.JoinSelect;
 import org.nlpcn.es4sql.domain.Select;
 import org.nlpcn.es4sql.exception.SqlParseException;
@@ -30,6 +31,8 @@ import org.nlpcn.es4sql.query.multi.MultiQuerySelect;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.nlpcn.es4sql.domain.IndexStatement.StatementType;
 
 public class ESActionFactory {
 
@@ -70,7 +73,11 @@ public class ESActionFactory {
                 Delete delete = new SqlParser().parseDelete(deleteStatement);
                 return new DeleteQueryAction(client, delete);
             case "SHOW":
-                return new ShowQueryAction(client,sql);
+                IndexStatement showStatement = new IndexStatement(StatementType.SHOW, sql);
+                return new ShowQueryAction(client, showStatement);
+            case "DESCRIBE":
+                IndexStatement describeStatement = new IndexStatement(StatementType.DESCRIBE, sql);
+                return new DescribeQueryAction(client, describeStatement);
             default:
                 throw new SQLFeatureNotSupportedException(String.format("Unsupported query: %s", sql));
         }

@@ -7,7 +7,7 @@ import java.util.List;
  * Represents abstract query. every query
  * has indexes, types, and where clause.
  */
-public abstract class Query {
+public abstract class Query implements QueryStatement {
 
 	private Where where = null;
 	private List<From> from = new ArrayList<>();
