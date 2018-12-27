@@ -91,6 +91,23 @@ public class ExplainTest {
         System.out.println(explain("SELECT * FROM index GROUP BY terms(field='correspond_brand_name',size='10',alias='correspond_brand_name',include='{\"partition\":0,\"num_partitions\":20}')"));
     }
 
+    @Test
+    public void explainNLJoin() throws IOException, SqlParseException, SQLFeatureNotSupportedException {
+        String query = "SELECT /*! USE_NL*/ a.firstname ,a.lastname , a.gender ,d.dog_name  FROM " +
+                TEST_INDEX_PEOPLE +
+                "/people a " +
+                " JOIN " +
+                TEST_INDEX_DOG +
+                "/dog d on d.holdersName = a.firstname " +
+                " WHERE " +
+                " (a.age > 10 OR a.balance > 2000)" +
+                " AND d.age > 1";
+
+        String result = explain(query);
+        String expectedOutput = Files.toString(new File("src/test/resources/expectedOutput/nested_loop_join_explain.json"), StandardCharsets.UTF_8).replaceAll("\r", "");
+        assertThat(result.replaceAll("\\s+", ""), equalTo(expectedOutput.replaceAll("\\s+", "")));
+    }
+
     private String explain(String sql) throws SQLFeatureNotSupportedException, SqlParseException {
         SearchDao searchDao = MainTestSuite.getSearchDao();
         SqlElasticRequestBuilder requestBuilder = searchDao.explain(sql).explain();
