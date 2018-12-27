@@ -592,4 +592,76 @@ public class JoinTests {
         if(one == null)   return other == null;
         return one.equals(other);
     }
+
+    @Test
+    public void joinParseCheckSelectedFieldsSplitNLConditionOrderEQ() throws SqlParseException, SQLFeatureNotSupportedException, IOException {
+        String query = "SELECT /*! USE_NL*/ a.firstname ,a.lastname , a.gender ,d.dog_name  FROM " +
+                TEST_INDEX_PEOPLE +
+                "/people a " +
+                " JOIN " +
+                TEST_INDEX_DOG +
+                "/dog d on a.firstname = d.holdersName " +
+                " WHERE " +
+                " (a.age > 10 OR a.balance > 2000)" +
+                " AND d.age > 1";
+
+        SearchHit[] hits = joinAndGetHits(query);
+        Assert.assertEquals(2, hits.length);
+
+        Map<String,Object> oneMatch = ImmutableMap.of("a.firstname", (Object) "Daenerys", "a.lastname", "Targaryen",
+                "a.gender", "M", "d.dog_name", "rex");
+        Map<String,Object> secondMatch = ImmutableMap.of("a.firstname", (Object) "Hattie", "a.lastname", "Bond",
+                "a.gender", "M", "d.dog_name", "snoopy");
+
+        Assert.assertTrue(hitsContains(hits, oneMatch));
+        Assert.assertTrue(hitsContains(hits,secondMatch));
+    }
+
+    @Test
+    public void joinParseCheckSelectedFieldsSplitNLConditionOrderGT() throws SqlParseException, SQLFeatureNotSupportedException, IOException {
+        String query = "SELECT /*! USE_NL*/ a.firstname ,a.lastname , a.gender ,d.firstname, d.age  FROM " +
+                TEST_INDEX_PEOPLE +
+                "/people a " +
+                " JOIN " +
+                TEST_INDEX_ACCOUNT +
+                "/account d on a.age < d.age " +
+                " WHERE " +
+                " (d.firstname = 'Lynn' OR d.firstname = 'Obrien')" +
+                " AND a.firstname = 'Mcgee'";
+
+        SearchHit[] hits = joinAndGetHits(query);
+        Assert.assertEquals(2, hits.length);
+
+        Map<String,Object> oneMatch = ImmutableMap.of("a.firstname", (Object) "Mcgee", "a.lastname", "Mooney",
+                "a.gender", "M", "d.firstname", "Obrien", "d.age", 40);
+        Map<String,Object> secondMatch = ImmutableMap.of("a.firstname", (Object) "Mcgee", "a.lastname", "Mooney",
+                "a.gender", "M", "d.firstname", "Lynn", "d.age", 40);
+
+        Assert.assertTrue(hitsContains(hits, oneMatch));
+        Assert.assertTrue(hitsContains(hits,secondMatch));
+    }
+
+    @Test
+    public void joinParseCheckSelectedFieldsSplitNLConditionOrderLT() throws SqlParseException, SQLFeatureNotSupportedException, IOException {
+        String query = "SELECT /*! USE_NL*/ a.firstname ,a.lastname , a.gender ,d.firstname, d.age  FROM " +
+                TEST_INDEX_PEOPLE +
+                "/people a " +
+                " JOIN " +
+                TEST_INDEX_ACCOUNT +
+                "/account d on a.age > d.age " +
+                " WHERE " +
+                " (d.firstname = 'Sandoval' OR d.firstname = 'Hewitt')" +
+                " AND a.firstname = 'Fulton'";
+
+        SearchHit[] hits = joinAndGetHits(query);
+        Assert.assertEquals(2, hits.length);
+
+        Map<String,Object> oneMatch = ImmutableMap.of("a.firstname", (Object) "Fulton", "a.lastname", "Holt",
+                "a.gender", "F", "d.firstname", "Sandoval", "d.age", 22);
+        Map<String,Object> secondMatch = ImmutableMap.of("a.firstname", (Object) "Fulton", "a.lastname", "Holt",
+                "a.gender", "F", "d.firstname", "Hewitt", "d.age", 22);
+
+        Assert.assertTrue(hitsContains(hits, oneMatch));
+        Assert.assertTrue(hitsContains(hits,secondMatch));
+    }
 }

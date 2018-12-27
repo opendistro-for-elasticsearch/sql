@@ -26,7 +26,11 @@ public class Condition extends Where {
 
         public static Map<String, OPEAR> operStringToOpear;
 
+        public static Map<String, OPEAR> simpleOperStringToOpear;
+
         private static BiMap<OPEAR, OPEAR> negatives;
+
+        private static BiMap<OPEAR, OPEAR> simpleReverses;
 
         static {
             methodNameToOpear = new HashMap<>();
@@ -68,6 +72,16 @@ public class Condition extends Where {
         }
 
         static {
+            simpleOperStringToOpear = new HashMap<>();
+            simpleOperStringToOpear.put("=", EQ);
+            simpleOperStringToOpear.put(">", GT);
+            simpleOperStringToOpear.put("<", LT);
+            simpleOperStringToOpear.put(">=", GTE);
+            simpleOperStringToOpear.put("<=", LTE);
+            simpleOperStringToOpear.put("<>", N);
+        }
+
+        static {
             negatives = HashBiMap.create(7);
             negatives.put(EQ, N);
             negatives.put(IN_TERMS, NIN_TERMS);
@@ -80,6 +94,14 @@ public class Condition extends Where {
             negatives.put(BETWEEN, NBETWEEN);
         }
 
+        static {
+            simpleReverses = HashBiMap.create(4);
+            simpleReverses.put(EQ, EQ);
+            simpleReverses.put(GT, LT);
+            simpleReverses.put(GTE, LTE);
+            simpleReverses.put(N, N);
+        }
+
         public OPEAR negative() throws SqlParseException {
             OPEAR negative = negatives.get(this);
             negative = negative != null ? negative : negatives.inverse().get(this);
@@ -87,6 +109,19 @@ public class Condition extends Where {
                 throw new SqlParseException("OPEAR negative not supported: " + this);
             }
             return negative;
+        }
+
+        public OPEAR simpleReverse() throws SqlParseException {
+            OPEAR reverse = simpleReverses.get(this);
+            reverse = reverse != null ? reverse : simpleReverses.inverse().get(this);
+            if (reverse == null) {
+                throw new SqlParseException("OPEAR simple negative not supported: " + this);
+            }
+            return reverse;
+        }
+
+        public Boolean isSimpleOperator() {
+            return simpleOperStringToOpear.containsValue(this);
         }
     }
 

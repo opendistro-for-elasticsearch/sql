@@ -210,6 +210,15 @@ public class NestedLoopsElasticExecutor extends ElasticJoinExecutor {
         if(where == null) return;
         if(where instanceof Condition){
             Condition c = (Condition) where;
+            if (shouldReverse(c, t1Alias, t2Alias)) {
+                try {
+                    reverseOrderOfCondition(c, t1Alias, t2Alias);
+                    return;
+                } catch (SqlParseException e) {
+                    //Do nothing here to continue using original logic below.
+                    //The condition is not changed here.
+                }
+            }
             if(!c.getName().startsWith(t2Alias+".") || !c.getValue().toString().startsWith(t1Alias +"."))
                 throw new RuntimeException("On NestedLoops currently only supported Ordered conditions (t2.field2 OPEAR t1.field1) , badCondition was:" + c);
             c.setName(c.getName().replaceFirst(t2Alias+".",""));
@@ -220,6 +229,17 @@ public class NestedLoopsElasticExecutor extends ElasticJoinExecutor {
             for (Where innerWhere : where.getWheres())
                 orderConditionRecursive(t1Alias,t2Alias,innerWhere);
         }
+    }
+
+    private Boolean shouldReverse(Condition cond, String t1Alias, String t2Alias) {
+        return cond.getName().startsWith(t1Alias+".") && cond.getValue().toString().startsWith(t2Alias +".") && cond.getOpear().isSimpleOperator();
+    }
+
+    private void reverseOrderOfCondition(Condition cond, String t1Alias, String t2Alias) throws SqlParseException {
+            cond.setOpear(cond.getOpear().simpleReverse());
+            String name = cond.getName();
+            cond.setName(cond.getValue().toString().replaceFirst(t2Alias + ".", ""));
+            cond.setValue(name.replaceFirst(t1Alias + ".", ""));
     }
 
 
