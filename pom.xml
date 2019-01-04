@@ -45,7 +45,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <runSuite>**/MainTestSuite.class</runSuite>
         <elasticsearch.plugin.name>sql</elasticsearch.plugin.name>
-        <elasticsearch.version>6.5.4</elasticsearch.version>
+        <elasticsearch.version>6.5.3</elasticsearch.version>
         <elasticsearch.plugin.classname>org.elasticsearch.plugin.nlpcn.SqlPlug</elasticsearch.plugin.classname>
     </properties>
 
@@ -124,9 +124,8 @@
 
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
-            <artifactId>x-pack-transport</artifactId>
+            <artifactId>transport</artifactId>
             <version>${elasticsearch.version}</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>

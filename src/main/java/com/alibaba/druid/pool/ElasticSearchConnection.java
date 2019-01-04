@@ -4,7 +4,7 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
-import org.elasticsearch.xpack.client.PreBuiltXPackTransportClient;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -30,7 +30,7 @@ public class ElasticSearchConnection implements Connection {
         info.forEach((k, v) -> builder.put(k.toString(), v.toString()));
         Settings settings = builder.build();
         try {
-            TransportClient transportClient = new PreBuiltXPackTransportClient(settings);
+            TransportClient transportClient = new PreBuiltTransportClient(settings);
 
             String hostAndPortArrayStr = jdbcUrl.split("/")[2];
             String[] hostAndPortArray = hostAndPortArrayStr.split(",");
