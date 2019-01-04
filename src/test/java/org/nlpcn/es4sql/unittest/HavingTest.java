@@ -18,7 +18,7 @@ import org.nlpcn.es4sql.parse.ElasticSqlExprParser;
 import org.nlpcn.es4sql.parse.SqlParser;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toMap;
@@ -184,11 +184,11 @@ public class HavingTest {
         query(SELECT_CNT_AVG_SUM_FROM_BANK_GROUP_BY_AGE + "HAVING AVG(age) > 10");
     }
 
-    private List<PipelineAggregationBuilder> query(String sql) {
+    private Collection<PipelineAggregationBuilder> query(String sql) {
         return translate(parseSql(sql));
     }
 
-    private List<PipelineAggregationBuilder> translate(SQLQueryExpr expr) {
+    private Collection<PipelineAggregationBuilder> translate(SQLQueryExpr expr) {
         try {
             Select select = new SqlParser().parseSelect(expr);
             AggregationBuilder agg = AggregationBuilders.terms("");
