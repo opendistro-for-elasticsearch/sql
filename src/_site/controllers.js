@@ -181,7 +181,7 @@ function updateWithScrollIfNeeded (query) {
       query = selectedQuery;
     }
     query = updateWithScrollIfNeeded(query);
-		$http.post($scope.url + "_sql", query)
+		$http.post($scope.url + "_sql", { query: query })
 		.success(function(data, status, headers, config) {
           var handler = ResultHandlerFactory.create(data,$scope.config.isFlat,$scope.config.showScore,$scope.config.showType,$scope.config.showId);
           updateDescription(handler);
@@ -248,7 +248,7 @@ function updateWithScrollIfNeeded (query) {
 		saveUrl()
 
         var query = window.editor.getValue();
-		$http.post($scope.url + "_sql/_explain", query)
+		$http.post($scope.url + "_sql/_explain", { query: query})
 		.success(function(data, status, headers, config) {
 					 $scope.resultExplan = true;
 				   window.explanResult.setValue(JSON.stringify(data, null, "\t"));

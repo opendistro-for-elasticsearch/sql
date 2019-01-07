@@ -87,7 +87,7 @@ public class PreparedStatementRequest extends SqlRequest {
     //////////////////////////////////////////////////
     public static enum ParameterType {
         BYTE,
-        INT,
+        INTEGER,
         LONG,
         FLOAT,
         DOUBLE,
