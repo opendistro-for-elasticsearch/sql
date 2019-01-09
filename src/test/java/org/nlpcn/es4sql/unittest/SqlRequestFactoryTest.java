@@ -45,10 +45,10 @@ public class SqlRequestFactoryTest {
     @Test
     public void testGenerateSqlRequest_preparedStatementFromPayload() {
         String payload = "{\n" +
-                "  \"query\": \"select * from my_table where int_param = ? and doulbe_param = ? and string_param = ? and date_param = ? and null_param = ?\",\n" +
+                "  \"query\": \"select * from my_table where int_param = ? and double_param = ? and string_param = ? and date_param = ? and null_param = ?\",\n" +
                 "  \"parameters\": [\n" +
                 "    {\n" +
-                "      \"type\": \"int\",\n" +
+                "      \"type\": \"integer\",\n" +
                 "      \"value\": 1\n" +
                 "    },\n" +
                 "    {\n" +
@@ -76,8 +76,8 @@ public class SqlRequestFactoryTest {
 
         Assert.assertTrue(sqlRequest instanceof  PreparedStatementRequest);
         PreparedStatementRequest preparedStatementRequest = (PreparedStatementRequest) sqlRequest;
-        Assert.assertEquals("select * from my_table where int_param = ? and doulbe_param = ? and string_param = ? and date_param = ? and null_param = ?", preparedStatementRequest.getPreparedStatement());
-        Assert.assertEquals("select * from my_table where int_param = 1 and doulbe_param = 2.0 and string_param = 'string_value' and date_param = '2000-01-01' and null_param = null", preparedStatementRequest.getSql());
+        Assert.assertEquals("select * from my_table where int_param = ? and double_param = ? and string_param = ? and date_param = ? and null_param = ?", preparedStatementRequest.getPreparedStatement());
+        Assert.assertEquals("select * from my_table where int_param = 1 and double_param = 2.0 and string_param = 'string_value' and date_param = '2000-01-01' and null_param = null", preparedStatementRequest.getSql());
         Assert.assertEquals(5, preparedStatementRequest.getParameters().size());
         Assert.assertTrue(preparedStatementRequest.getParameters().get(0).getValue() instanceof Long);
         Assert.assertTrue(preparedStatementRequest.getParameters().get(1).getValue() instanceof Double);
