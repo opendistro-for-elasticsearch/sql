@@ -36,7 +36,7 @@ public class PreparedStatementTest {
                 "  \"query\": \"SELECT * FROM %s/account WHERE age > ? AND state in (?, ?) LIMIT ?\",\n" +
                 "  \"parameters\": [\n" +
                 "    {\n" +
-                "      \"type\": \"int\",\n" +
+                "      \"type\": \"integer\",\n" +
                 "      \"value\": \"" + ageToCompare + "\"\n" +
                 "    },\n" +
                 "    {\n" +
@@ -48,7 +48,7 @@ public class PreparedStatementTest {
                 "      \"value\": \"UT\"\n" +
                 "    },\n" +
                 "    {\n" +
-                "      \"type\": \"int\",\n" +
+                "      \"type\": \"integer\",\n" +
                 "      \"value\": \"20\"\n" +
                 "    }\n" +
                 "  ]\n" +
