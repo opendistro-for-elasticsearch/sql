@@ -14,6 +14,7 @@ import org.nlpcn.es4sql.exception.SqlParseException;
 import org.nlpcn.es4sql.query.DefaultQueryAction;
 import org.nlpcn.es4sql.query.join.NestedLoopsElasticRequestBuilder;
 import org.nlpcn.es4sql.query.join.TableInJoinRequestBuilder;
+import org.nlpcn.es4sql.query.maker.Maker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -165,6 +166,9 @@ public class NestedLoopsElasticExecutor extends ElasticJoinExecutor {
         if(where instanceof Condition){
             Condition c = (Condition) where;
             Object value = deepSearchInMap(hit,c.getValue().toString());
+            if (value == null) {
+                value = Maker.NONE;
+            }
             c.setValue(value);
         }
         for(Where innerWhere : where.getWheres()){

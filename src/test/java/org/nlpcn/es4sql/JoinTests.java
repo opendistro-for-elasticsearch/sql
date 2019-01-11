@@ -96,7 +96,11 @@ public class JoinTests {
                 "on h.hname = c.house ",TEST_INDEX_GAME_OF_THRONES,TEST_INDEX_GAME_OF_THRONES);
         if(useNestedLoops) query = query.replace("select","select /*! USE_NL*/ ");
         SearchHit[] hits = joinAndGetHits(query);
-        Assert.assertEquals(16, hits.length);
+        if (useNestedLoops) {
+            Assert.assertEquals(4, hits.length);
+        } else {
+            Assert.assertEquals(16, hits.length);
+        }
         Map<String,Object> someMatch =  ImmutableMap.of("c.gender", (Object) "F", "h.hname", "Targaryen",
                 "h.words", "fireAndBlood");
         Assert.assertTrue(hitsContains(hits, someMatch));
@@ -286,7 +290,11 @@ public class JoinTests {
                 , TEST_INDEX_GAME_OF_THRONES,TEST_INDEX_GAME_OF_THRONES);
         if(useNestedLoops) query = query.replace("select","select /*! USE_NL*/ ");
         SearchHit[] hits = joinAndGetHits(query);
-        Assert.assertEquals(13, hits.length);
+        if (useNestedLoops) {
+            Assert.assertEquals(7, hits.length);
+        } else {
+            Assert.assertEquals(13, hits.length);
+        }
 
         Map<String,Object> oneMatch = new HashMap<>();
         oneMatch.put("c.name.firstname", "Daenerys");
@@ -350,7 +358,7 @@ public class JoinTests {
                 "JOIN  %s/gotCharacters c  ON c.name.lastname = h.hname ",TEST_INDEX_GAME_OF_THRONES,TEST_INDEX_GAME_OF_THRONES);
         if(useNestedLoops) query = query.replace("select","select /*! USE_NL*/ ");
         SearchHit[] hits = joinAndGetHits(query);
-        if(useNestedLoops) Assert.assertEquals(3, hits.length);
+        if(useNestedLoops) Assert.assertEquals(1, hits.length);
         else Assert.assertEquals(2, hits.length);
     }
 
@@ -389,7 +397,11 @@ public class JoinTests {
                 , TEST_INDEX_GAME_OF_THRONES,TEST_INDEX_GAME_OF_THRONES);
         if(useNestedLoops) query = query.replace("select","select /*! USE_NL*/ ");
         SearchHit[] hits = joinAndGetHits(query);
-        Assert.assertEquals(5, hits.length);
+        if (useNestedLoops) {
+            Assert.assertEquals(3, hits.length);
+        } else {
+            Assert.assertEquals(5, hits.length);
+        }
     }
 
     @Test
@@ -479,7 +491,11 @@ public class JoinTests {
                 ,  TEST_INDEX_GAME_OF_THRONES, TEST_INDEX_GAME_OF_THRONES);
         if(useNestedLoops) query = query.replace("select","select /*! USE_NL*/ ");
         SearchHit[] hits = joinAndGetHits(query);
-        Assert.assertEquals(16, hits.length);
+        if (useNestedLoops) {
+            Assert.assertEquals(4, hits.length);
+        } else {
+            Assert.assertEquals(16, hits.length);
+        }
         Assert.assertEquals("Brandon",hits[0].getSourceAsMap().get("c.name.firstname"));
         Assert.assertEquals("Daenerys",hits[1].getSourceAsMap().get("c.name.firstname"));
         Assert.assertEquals("Eddard",hits[2].getSourceAsMap().get("c.name.firstname"));
@@ -501,7 +517,11 @@ public class JoinTests {
                 ,  TEST_INDEX_GAME_OF_THRONES, TEST_INDEX_GAME_OF_THRONES);
         if(useNestedLoops) query = query.replace("select","select /*! USE_NL*/ ");
         SearchHit[] hits = joinAndGetHits(query);
-        Assert.assertEquals(16, hits.length);
+        if (useNestedLoops) {
+            Assert.assertEquals(4, hits.length);
+        } else {
+            Assert.assertEquals(16, hits.length);
+        }
         //Assert.assertEquals(5,hits[0].getSourceAsMap().size());
     }
 
@@ -521,7 +541,11 @@ public class JoinTests {
                 ,  TEST_INDEX_GAME_OF_THRONES, TEST_INDEX_GAME_OF_THRONES);
         if(useNestedLoops) query = query.replace("select","select /*! USE_NL*/ ");
         SearchHit[] hits = joinAndGetHits(query);
-        Assert.assertEquals(16, hits.length);
+        if (useNestedLoops) {
+            Assert.assertEquals(4, hits.length);
+        } else {
+            Assert.assertEquals(16, hits.length);
+        }
         //Assert.assertEquals(5,hits[0].getSourceAsMap().size());
     }
 
@@ -540,7 +564,11 @@ public class JoinTests {
                 ,  TEST_INDEX_GAME_OF_THRONES, TEST_INDEX_GAME_OF_THRONES);
         if(useNestedLoops) query = query.replace("select","select /*! USE_NL*/ ");
         SearchHit[] hits = joinAndGetHits(query);
-        Assert.assertEquals(10, hits.length);
+        if (useNestedLoops) {
+            Assert.assertEquals(7, hits.length);
+        } else {
+            Assert.assertEquals(10, hits.length);
+        }
         for (SearchHit hit : hits) {
             if(hit.getId().endsWith("0")){
                 Assert.assertEquals(1,hit.getSourceAsMap().size());
@@ -663,5 +691,60 @@ public class JoinTests {
 
         Assert.assertTrue(hitsContains(hits, oneMatch));
         Assert.assertTrue(hitsContains(hits,secondMatch));
+    }
+
+    @Test
+    public void leftJoinNLWithNullInCondition() throws SQLFeatureNotSupportedException, IOException, SqlParseException {
+        joinWithNullInCondition(true, "LEFT", "OR", "OR", 8);
+    }
+
+    @Test
+    public void leftJoinNLWithNullInCondition1() throws SQLFeatureNotSupportedException, IOException, SqlParseException {
+        joinWithNullInCondition(true, "LEFT", "OR", "AND", 7);
+    }
+
+    @Test
+    public void leftJoinNLWithNullInCondition2() throws SQLFeatureNotSupportedException, IOException, SqlParseException {
+        joinWithNullInCondition(true, "LEFT", "AND", "AND", 7);
+    }
+
+    @Test
+    public void leftJoinNLWithNullInCondition3() throws SQLFeatureNotSupportedException, IOException, SqlParseException {
+        joinWithNullInCondition(true, "LEFT", "AND", "OR", 7);
+    }
+
+    @Test
+    public void innerJoinNLWithNullInCondition() throws SQLFeatureNotSupportedException, IOException, SqlParseException {
+        joinWithNullInCondition(true, "", "OR", "OR", 5);
+    }
+
+    @Test
+    public void innerJoinNLWithNullInCondition1() throws SQLFeatureNotSupportedException, IOException, SqlParseException {
+        joinWithNullInCondition(true, "", "OR", "AND", 1);
+    }
+
+    @Test
+    public void innerJoinNLWithNullInCondition2() throws SQLFeatureNotSupportedException, IOException, SqlParseException {
+        joinWithNullInCondition(true, "", "AND", "AND", 0);
+    }
+
+    @Test
+    public void innerJoinNLWithNullInCondition3() throws SQLFeatureNotSupportedException, IOException, SqlParseException {
+        joinWithNullInCondition(true, "", "AND", "OR", 0);
+    }
+
+    private void joinWithNullInCondition(boolean useNestedLoops, String left, String oper1, String oper2, int expectedNum) throws SqlParseException, SQLFeatureNotSupportedException, IOException {
+        String query = String.format("select c.name.firstname, c.parents.father, c.hname, f.name.firstname, f.house, f.hname from %s/gotCharacters c " +
+                        "%s JOIN %s/gotCharacters f " +
+                        "on f.name.firstname = c.parents.father %s f.house = c.hname %s f.house = c.name.firstname"
+                , TEST_INDEX_GAME_OF_THRONES, left, TEST_INDEX_GAME_OF_THRONES, oper1, oper2);
+        if(useNestedLoops) query = query.replace("select","select /*! USE_NL*/ ");
+        SearchHit[] hits = joinAndGetHits(query);
+        if (useNestedLoops) {
+            Assert.assertEquals(expectedNum, hits.length);
+        } else {
+            //This branch is reserved for hash join. Currently won't enter.
+            Assert.assertTrue(true);
+        }
     }
 }

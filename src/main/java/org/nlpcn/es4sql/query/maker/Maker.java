@@ -44,6 +44,8 @@ import static org.nlpcn.es4sql.parse.WhereParser.getConditionForMethod;
 
 public abstract class Maker {
 
+    public static final Object NONE = new Object();
+
     public static final Set<String> queryFunctions = Sets.newHashSet(
             "query",
             "matchquery", "match_query", // match
@@ -81,9 +83,12 @@ public abstract class Maker {
         else if (value instanceof SubQueryExpression){
             toXContent = make(cond,name,((SubQueryExpression)value).getValues());
         } else {
-            toXContent = make(cond, name, value);
+            if (cond.getValue() == NONE) {
+                toXContent = new MatchNoneQueryBuilder();
+            } else {
+                toXContent = make(cond, name, value);
+            }
         }
-
 
         return toXContent;
     }
