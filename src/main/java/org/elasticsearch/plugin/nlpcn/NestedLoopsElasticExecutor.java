@@ -12,6 +12,7 @@ import org.nlpcn.es4sql.domain.Select;
 import org.nlpcn.es4sql.domain.Where;
 import org.nlpcn.es4sql.exception.SqlParseException;
 import org.nlpcn.es4sql.query.DefaultQueryAction;
+import org.nlpcn.es4sql.query.join.BackOffRetryStrategy;
 import org.nlpcn.es4sql.query.join.NestedLoopsElasticRequestBuilder;
 import org.nlpcn.es4sql.query.join.TableInJoinRequestBuilder;
 import org.nlpcn.es4sql.query.maker.Maker;
@@ -36,6 +37,7 @@ public class NestedLoopsElasticExecutor extends ElasticJoinExecutor {
 
     @Override
     protected List<SearchHit> innerRun() throws SqlParseException {
+        BackOffRetryStrategy retryStrategy = new BackOffRetryStrategy(new double[]{1, 2, 4});
         List<SearchHit> combinedResults = new ArrayList<>();
         int totalLimit = nestedLoopsRequest.getTotalLimit();
         int multiSearchMaxSize = nestedLoopsRequest.getMultiSearchMaxSize();
@@ -44,7 +46,9 @@ public class NestedLoopsElasticExecutor extends ElasticJoinExecutor {
 
         orderConditions(nestedLoopsRequest.getFirstTable().getAlias(),nestedLoopsRequest.getSecondTable().getAlias());
 
-
+        if (!retryStrategy.isHealthy()) {
+            throw new RuntimeException("Memory circuit is broken");
+        }
         FetchWithScrollResponse fetchWithScrollResponse = firstFetch(this.nestedLoopsRequest.getFirstTable());
         SearchResponse firstTableResponse = fetchWithScrollResponse.getResponse();
         boolean needScrollForFirstTable = fetchWithScrollResponse.isNeedScrollForFirstTable();
@@ -61,6 +65,9 @@ public class NestedLoopsElasticExecutor extends ElasticJoinExecutor {
             while(!finishedMultiSearches){
                 MultiSearchRequest multiSearchRequest = createMultiSearchRequest(multiSearchMaxSize, nestedLoopsRequest.getConnectedWhere(), hits, secondTableSelect, originalSecondTableWhere, currentHitsIndex);
                 int multiSearchSize = multiSearchRequest.requests().size();
+                if (!retryStrategy.isHealthy()) {
+                    throw new RuntimeException("Memory circuit is broken");
+                }
                 currentCombinedResults = combineResultsFromMultiResponses(combinedResults, totalLimit, currentCombinedResults, hits, currentHitsIndex, multiSearchRequest);
                 currentHitsIndex += multiSearchSize;
                 finishedMultiSearches = currentHitsIndex >= hits.length-1 || currentCombinedResults >= totalLimit;
@@ -70,8 +77,12 @@ public class NestedLoopsElasticExecutor extends ElasticJoinExecutor {
 
             if(!finishedWithFirstTable)
             {
-                if(needScrollForFirstTable)
+                if(needScrollForFirstTable) {
+                    if (!retryStrategy.isHealthy()) {
+                        throw new RuntimeException("Memory circuit is broken");
+                    }
                     firstTableResponse = client.prepareSearchScroll(firstTableResponse.getScrollId()).setScroll(new TimeValue(600000)).get();
+                }
                 else finishedWithFirstTable = true;
             }
 
