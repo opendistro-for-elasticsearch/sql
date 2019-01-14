@@ -1,4 +1,4 @@
-package org.nlpcn.es4sql;
+package org.nlpcn.es4sql.intgtest;
 
 
 import com.google.common.collect.ImmutableMap;
@@ -8,6 +8,7 @@ import org.elasticsearch.plugin.nlpcn.HashJoinElasticExecutor;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Test;
 import org.junit.Assert;
+import org.nlpcn.es4sql.SearchDao;
 import org.nlpcn.es4sql.exception.SqlParseException;
 import org.nlpcn.es4sql.query.join.HashJoinElasticRequestBuilder;
 import org.nlpcn.es4sql.query.SqlElasticRequestBuilder;
@@ -19,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.nlpcn.es4sql.TestsConstants.*;
+import static org.nlpcn.es4sql.intgtest.TestsConstants.*;
 
 /**
  * Created by Eliran on 22/8/2015.

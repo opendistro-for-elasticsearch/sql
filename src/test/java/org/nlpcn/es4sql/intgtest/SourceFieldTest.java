@@ -1,6 +1,6 @@
-package org.nlpcn.es4sql;
+package org.nlpcn.es4sql.intgtest;
 
-import static org.nlpcn.es4sql.TestsConstants.*;
+import static org.nlpcn.es4sql.intgtest.TestsConstants.*;
 
 import java.io.IOException;
 import java.sql.SQLFeatureNotSupportedException;
@@ -11,6 +11,7 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.junit.Assert;
 import org.junit.Test;
+import org.nlpcn.es4sql.SearchDao;
 import org.nlpcn.es4sql.exception.SqlParseException;
 import org.nlpcn.es4sql.query.SqlElasticSearchRequestBuilder;
 

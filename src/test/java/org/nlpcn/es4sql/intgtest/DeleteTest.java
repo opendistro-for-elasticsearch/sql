@@ -1,4 +1,4 @@
-package org.nlpcn.es4sql;
+package org.nlpcn.es4sql.intgtest;
 
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -6,12 +6,13 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.nlpcn.es4sql.SearchDao;
 import org.nlpcn.es4sql.exception.SqlParseException;
 import java.sql.SQLFeatureNotSupportedException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.nlpcn.es4sql.TestsConstants.*;
+import static org.nlpcn.es4sql.intgtest.TestsConstants.*;
 
 public class DeleteTest {
 

@@ -1,4 +1,4 @@
-package org.nlpcn.es4sql;
+package org.nlpcn.es4sql.intgtest;
 
 
 import com.alibaba.druid.sql.ast.SQLExpr;
@@ -8,15 +8,14 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.plugin.nlpcn.QueryActionElasticExecutor;
 import org.elasticsearch.plugin.nlpcn.executors.CSVResult;
 import org.elasticsearch.plugin.nlpcn.executors.CSVResultsExtractor;
-import org.elasticsearch.plugin.nlpcn.executors.CsvExtractorException;
 
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.nlpcn.es4sql.SearchDao;
 import org.nlpcn.es4sql.domain.Condition;
 import org.nlpcn.es4sql.domain.Select;
 import org.nlpcn.es4sql.domain.Where;
-import org.nlpcn.es4sql.exception.SqlParseException;
 import org.nlpcn.es4sql.parse.ElasticSqlExprParser;
 import org.nlpcn.es4sql.parse.ScriptFilter;
 import org.nlpcn.es4sql.parse.SqlParser;
@@ -24,12 +23,11 @@ import org.nlpcn.es4sql.query.QueryAction;
 import org.junit.Test;
 
 import java.net.UnknownHostException;
-import java.sql.SQLFeatureNotSupportedException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.nlpcn.es4sql.TestsConstants.*;
+import static org.nlpcn.es4sql.intgtest.TestsConstants.*;
 
 /**
  * Created by allwefantasy on 8/25/16.

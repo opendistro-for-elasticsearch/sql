@@ -91,10 +91,18 @@
 
         <dependency>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>2.23.4</version>
+            <artifactId>mockito-all</artifactId>
+            <version>1.9.5</version>
             <scope>test</scope>
         </dependency>
+        <!--
+        <dependency>
+            <groupId>org.elasticsearch.test</groupId>
+            <artifactId>framework</artifactId>
+            <version>${elasticsearch.version}</version>
+            <scope>test</scope>
+        </dependency>
+        -->
 
         <dependency>
             <groupId>com.alibaba</groupId>
@@ -204,6 +212,9 @@
                     <source>1.8</source>
                     <target>1.8</target>
                     <encoding>UTF-8</encoding>
+                    <testExcludes>
+                        <testExclude>**/org/openes/sql/integtest/*.java</testExclude>
+                    </testExcludes>
                 </configuration>
             </plugin>
 

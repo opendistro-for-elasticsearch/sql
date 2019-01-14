@@ -8,8 +8,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;
-import static org.nlpcn.es4sql.TestsConstants.TEST_INDEX;
-import static org.nlpcn.es4sql.TestsConstants.TEST_INDEX_ACCOUNT;
+import static org.nlpcn.es4sql.intgtest.TestsConstants.TEST_INDEX;
+import static org.nlpcn.es4sql.intgtest.TestsConstants.TEST_INDEX_ACCOUNT;
 import static org.nlpcn.es4sql.util.CheckPrettyFormatContents.*;
 
 public class MetaDataQueriesTest {

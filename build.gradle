@@ -1,0 +1,163 @@
+// TODO: need to clear the license things with NLPChina, and clean up following files:
+//       1. BUILDING.md
+//       2. README.md
+//       3. pom.xml and open-source.pom.xml
+//       4. LICENSE
+buildscript {
+
+    ext {
+        es_version = System.getProperty("es.version", "6.5.5")
+    }
+    // This isn't applying from repositories.gradle so repeating it here
+    repositories {
+        //TODO: modify the order of evaluation, once we have artifacts in mavenCentral.
+        maven {
+           name = "internal-snapshots"
+            url = "s3://open-es/snapshots"
+            authentication {
+               awsIm(AwsImAuthentication) // load from EC2 role or env var
+            }
+        }
+        maven {
+           name = "internal-releases"
+           url = "s3://open-es/releases"
+           authentication {
+               awsIm(AwsImAuthentication) // load from EC2 role or env var
+            }
+        }
+        mavenCentral()
+    } 
+
+    dependencies {
+        classpath "org.openes.gradle:build-tools:${es_version}"
+    }
+}
+
+//****************************************************************************/
+// Build configurations
+//****************************************************************************/
+
+plugins {
+    id 'java-library'
+}
+
+group = 'org.openes.plugin'
+version = "${version}"
+boolean snapshot = "true".equals(System.getProperty("build.snapshot", "true"));
+if (snapshot) {
+    version += "-SNAPSHOT"
+}
+
+apply plugin: 'elasticsearch.esplugin'
+
+ext {
+    projectSubstitutions = [:]
+    licenseFile = rootProject.file('LICENSE.txt')
+    noticeFile = rootProject.file('NOTICE.txt')
+}
+licenseHeaders.enabled = false
+
+// TODO: need to fix java doc to enable JavaDoc
+javadoc.enabled = false
+esplugin {
+    name 'openes-sql'
+    description 'OpenES SQL plugin'
+    // TODO: need to update plugin java package name, start with org.openes.
+    classname 'org.elasticsearch.plugin.nlpcn.SqlPlug'
+    // TODO: update to true
+    publishArtifact true
+}
+
+// Set source and target to be compatible with Java 8
+// Commented them out as the default is java 8
+// sourceCompatibility = '1.8'
+// targetCompatibility = '1.8'
+
+// TODO: fix compiler warnings
+compileJava.options.warnings = false
+compileJava {
+    doFirst {
+        // TODO: do not fail build on warnings, need to fix all compiler warnings
+        options.compilerArgs.remove('-Werror')
+        // TODO: need to fix all java doc format
+        options.compilerArgs.remove('-Xdoclint:all')
+    }
+}
+
+// TODO: Similarly, need to fix compiling errors in test source code
+compileTestJava.options.warnings = false
+compileTestJava {
+    doFirst {
+        options.compilerArgs.remove('-Werror')
+        options.compilerArgs.remove('-Xdoclint:all')
+    }
+}
+
+// TODO: Need to update integration test to use ElasticSearch test framework
+test {
+    include '**/*Test.class'
+    exclude 'org/nlpcn/es4sql/intgtest/**'
+    // Gradle runs unit test using a working directory other and project root
+    // set 'project.root' property to allow unit test classes to access test resources
+    systemProperty('project.root', project.rootDir.absolutePath)
+}
+
+integTestRunner {
+    // add "-Dtests.security.manager=false" to VM options if you want to run integ tests in IntelliJ
+    systemProperty 'tests.security.manager', 'false'
+    // allows integration test classes to access test resource from project root path
+    systemProperty('project.root', project.rootDir.absolutePath)
+}
+
+// TODO: fix code style in main and test source code
+checkstyleMain.ignoreFailures = true
+checkstyleTest.ignoreFailures = true
+
+// TODO: fix forbidden APIs
+// from police-man plugin, see https://github.com/policeman-tools/forbidden-apis/wiki/GradleUsage
+forbiddenApis.ignoreFailures = true
+// TODO: fix forbidden code patterns
+// introduced by elasticsearch plugin
+// see https://github.com/elastic/elasticsearch/blob/master/buildSrc/src/main/java/org/elasticsearch/gradle/precommit/ForbiddenPatternsTask.java
+forbiddenPatterns {
+    setEnabled(false)
+}
+
+// TODO: fix license
+dependencyLicenses.enabled = false
+
+// We don't need to following ES naming conventions.
+// see https://github.com/elastic/elasticsearch/blob/5ca6f312058ec8c7fbac072c4648246e7dfb4957/buildSrc/src/main/java/org/elasticsearch/gradle/precommit/NamingConventionsTask.java
+// enable namingConvention check will cause errors like:  "Classes ending with [Tests] must subclass [LuceneTestCase]"
+namingConventions.enabled = false
+
+// TODO: need to verify the thirdPartyAudi
+// currently it complains missing classes like ibatis, mysql etc, should not be a problem
+thirdPartyAudit.enabled = false
+
+
+//****************************************************************************/
+// Dependencies
+//****************************************************************************/
+dependencies {
+    compile group: 'com.alibaba', name: 'druid', version:'1.0.15'
+    // compile group: 'org.locationtech.spatial4j', name: 'spatial4j', version:'0.7'
+    compileOnly group: 'org.openes.client', name: 'transport', version: "${es_version}"
+    compile group: 'com.google.guava', name: 'guava', version:'15.0'
+    compile group: 'org.json', name: 'json', version:'20180813'
+    
+    // compileOnly group: 'org.locationtech.jts', name: 'jts-core', version:'1.15.0'
+    // compileOnly group: 'org.elasticsearch', name: 'elasticsearch', version:'6.5.3'
+    compileOnly group: 'com.unboundid', name: 'unboundid-ldapsdk', version:'3.2.0'
+    // compileOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version:'1.58'
+    // compileOnly group: 'log4j', name: 'log4j', version:'1.2.17'
+    // compileOnly group: 'org.apache.logging.log4j', name: 'log4j-api', version:'2.7'
+    // compileOnly group: 'org.apache.logging.log4j', name: 'log4j-core', version:'2.7'
+    compileOnly group: 'javax.servlet', name: 'servlet-api', version:'2.5'
+
+    // testCompile group: 'org.hamcrest', name: 'hamcrest-all', version:'1.3'
+    // testCompile group: 'junit', name: 'junit', version:'4.11'
+    // testCompile group: 'com.alibaba', name: 'fastjson', version:'1.1.41'
+    // testCompile group: 'org.mockito', name: 'mockito-core', version:'2.23.4'
+}
+

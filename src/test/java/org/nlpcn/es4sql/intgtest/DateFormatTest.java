@@ -8,7 +8,6 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.junit.Test;
-import org.nlpcn.es4sql.MainTestSuite;
 import org.nlpcn.es4sql.SearchDao;
 import org.nlpcn.es4sql.exception.SqlParseException;
 import org.nlpcn.es4sql.query.SqlElasticSearchRequestBuilder;
@@ -20,8 +19,8 @@ import java.util.HashSet;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.nlpcn.es4sql.TestsConstants.TEST_INDEX_ONLINE;
-import static org.nlpcn.es4sql.TestsConstants.SIMPLE_DATE_FORMAT;
+import static org.nlpcn.es4sql.intgtest.TestsConstants.TEST_INDEX_ONLINE;
+import static org.nlpcn.es4sql.intgtest.TestsConstants.SIMPLE_DATE_FORMAT;
 
 public class DateFormatTest {
 

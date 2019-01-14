@@ -2,11 +2,9 @@ package org.nlpcn.es4sql.intgtest;
 
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
 import org.junit.Test;
-import org.nlpcn.es4sql.MainTestSuite;
 import org.nlpcn.es4sql.SearchDao;
 import org.nlpcn.es4sql.exception.SqlParseException;
 import org.nlpcn.es4sql.query.SqlElasticRequestBuilder;
@@ -23,9 +21,9 @@ import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
-import static org.nlpcn.es4sql.TestsConstants.TEST_INDEX_ACCOUNT;
-import static org.nlpcn.es4sql.TestsConstants.TEST_INDEX_NESTED_TYPE;
-import static org.nlpcn.es4sql.TestsConstants.TEST_INDEX_PHRASE;
+import static org.nlpcn.es4sql.intgtest.TestsConstants.TEST_INDEX_ACCOUNT;
+import static org.nlpcn.es4sql.intgtest.TestsConstants.TEST_INDEX_NESTED_TYPE;
+import static org.nlpcn.es4sql.intgtest.TestsConstants.TEST_INDEX_PHRASE;
 
 public class QueryFunctionsTest {
 

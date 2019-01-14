@@ -7,7 +7,6 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.junit.Test;
-import org.nlpcn.es4sql.MainTestSuite;
 import org.nlpcn.es4sql.SearchDao;
 import org.nlpcn.es4sql.exception.SqlParseException;
 import org.nlpcn.es4sql.query.SqlElasticSearchRequestBuilder;
@@ -18,7 +17,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.lessThan;
-import static org.nlpcn.es4sql.TestsConstants.TEST_INDEX_ONLINE;
+import static org.nlpcn.es4sql.intgtest.TestsConstants.TEST_INDEX_ONLINE;
 
 public class DateFunctionsTest {
 

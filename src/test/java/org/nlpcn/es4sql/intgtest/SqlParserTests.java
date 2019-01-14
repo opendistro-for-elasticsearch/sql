@@ -1,4 +1,4 @@
-package org.nlpcn.es4sql;
+package org.nlpcn.es4sql.intgtest;
 
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.nlpcn.es4sql.TestsConstants.*;
+import static org.nlpcn.es4sql.intgtest.TestsConstants.*;
 
 /**
  * Created by Eliran on 21/8/2015.

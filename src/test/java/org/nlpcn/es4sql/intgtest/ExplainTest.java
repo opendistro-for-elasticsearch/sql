@@ -1,7 +1,8 @@
-package org.nlpcn.es4sql;
+package org.nlpcn.es4sql.intgtest;
 
 import com.google.common.io.Files;
 import org.junit.Test;
+import org.nlpcn.es4sql.SearchDao;
 import org.nlpcn.es4sql.exception.SqlParseException;
 import org.nlpcn.es4sql.query.SqlElasticRequestBuilder;
 import java.io.File;
@@ -12,7 +13,7 @@ import java.sql.SQLFeatureNotSupportedException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.nlpcn.es4sql.TestsConstants.*;
+import static org.nlpcn.es4sql.intgtest.TestsConstants.*;
 
 public class ExplainTest {
 

@@ -1,4 +1,4 @@
-package org.nlpcn.es4sql;
+package org.nlpcn.es4sql.intgtest;
 
 
 import com.google.common.collect.ContiguousSet;
@@ -28,6 +28,7 @@ import org.elasticsearch.search.aggregations.metrics.tophits.InternalTopHits;
 import org.elasticsearch.search.aggregations.metrics.valuecount.ValueCount;
 import org.junit.Assert;
 import org.junit.Test;
+import org.nlpcn.es4sql.SearchDao;
 import org.nlpcn.es4sql.exception.SqlParseException;
 import org.nlpcn.es4sql.query.SqlElasticSearchRequestBuilder;
 
@@ -37,7 +38,7 @@ import java.util.*;
 import static org.elasticsearch.search.aggregations.bucket.range.Range.Bucket;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.nlpcn.es4sql.TestsConstants.*;
+import static org.nlpcn.es4sql.intgtest.TestsConstants.*;
 
 public class AggregationTest {
 

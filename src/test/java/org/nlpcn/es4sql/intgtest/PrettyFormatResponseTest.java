@@ -21,9 +21,9 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
-import static org.nlpcn.es4sql.TestsConstants.TEST_INDEX_ACCOUNT;
-import static org.nlpcn.es4sql.TestsConstants.TEST_INDEX_NESTED_TYPE;
-import static org.nlpcn.es4sql.TestsConstants.TEST_INDEX_PHRASE;
+import static org.nlpcn.es4sql.intgtest.TestsConstants.TEST_INDEX_ACCOUNT;
+import static org.nlpcn.es4sql.intgtest.TestsConstants.TEST_INDEX_NESTED_TYPE;
+import static org.nlpcn.es4sql.intgtest.TestsConstants.TEST_INDEX_PHRASE;
 import static org.nlpcn.es4sql.util.CheckPrettyFormatContents.*;
 
 public class PrettyFormatResponseTest {

@@ -1,4 +1,4 @@
-package org.nlpcn.es4sql;
+package org.openes.sql.integtest;
 
 /**
  * Created by omershelef on 18/12/14.

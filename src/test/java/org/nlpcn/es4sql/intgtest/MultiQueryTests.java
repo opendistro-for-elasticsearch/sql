@@ -1,10 +1,11 @@
-package org.nlpcn.es4sql;
+package org.nlpcn.es4sql.intgtest;
 
 import org.elasticsearch.plugin.nlpcn.ElasticHitsExecutor;
 import org.elasticsearch.plugin.nlpcn.MultiRequestExecutorFactory;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Assert;
 import org.junit.Test;
+import org.nlpcn.es4sql.SearchDao;
 import org.nlpcn.es4sql.exception.SqlParseException;
 import org.nlpcn.es4sql.query.SqlElasticRequestBuilder;
 
@@ -14,7 +15,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.nlpcn.es4sql.TestsConstants.*;
+import static org.nlpcn.es4sql.intgtest.TestsConstants.*;
 
 /**
  * Created by Eliran on 21/8/2016.

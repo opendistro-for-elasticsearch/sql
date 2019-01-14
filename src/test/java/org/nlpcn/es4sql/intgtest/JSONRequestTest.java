@@ -6,7 +6,6 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.json.JSONObject;
 import org.junit.Test;
-import org.nlpcn.es4sql.MainTestSuite;
 import org.nlpcn.es4sql.SearchDao;
 import org.nlpcn.es4sql.SqlRequest;
 import org.nlpcn.es4sql.exception.SqlParseException;
@@ -20,8 +19,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.lessThan;
-import static org.nlpcn.es4sql.TestsConstants.TEST_INDEX_ACCOUNT;
-import static org.nlpcn.es4sql.TestsConstants.TEST_INDEX_NESTED_TYPE;
+import static org.nlpcn.es4sql.intgtest.TestsConstants.TEST_INDEX_ACCOUNT;
+import static org.nlpcn.es4sql.intgtest.TestsConstants.TEST_INDEX_NESTED_TYPE;
 
 public class JSONRequestTest {
 

@@ -24,9 +24,9 @@ import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.elasticsearch.index.query.QueryBuilders.wildcardQuery;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
-import static org.nlpcn.es4sql.TestsConstants.TEST_INDEX_ACCOUNT;
-import static org.nlpcn.es4sql.TestsConstants.TEST_INDEX_NESTED_TYPE;
-import static org.nlpcn.es4sql.TestsConstants.TEST_INDEX_PHRASE;
+import static org.nlpcn.es4sql.intgtest.TestsConstants.TEST_INDEX_ACCOUNT;
+import static org.nlpcn.es4sql.intgtest.TestsConstants.TEST_INDEX_NESTED_TYPE;
+import static org.nlpcn.es4sql.intgtest.TestsConstants.TEST_INDEX_PHRASE;
 
 public class QueryFunctionsTest {
 

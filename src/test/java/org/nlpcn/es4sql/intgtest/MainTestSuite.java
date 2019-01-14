@@ -1,6 +1,6 @@
-package org.nlpcn.es4sql;
+package org.nlpcn.es4sql.intgtest;
 
-import static org.nlpcn.es4sql.TestsConstants.*;
+import static org.nlpcn.es4sql.intgtest.TestsConstants.*;
 
 import java.io.FileInputStream;
 import java.net.InetAddress;
@@ -23,16 +23,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 import com.google.common.io.ByteStreams;
-import org.nlpcn.es4sql.intgtest.DateFormatTest;
-import org.nlpcn.es4sql.intgtest.DateFunctionsTest;
-import org.nlpcn.es4sql.intgtest.HavingTest;
-import org.nlpcn.es4sql.intgtest.JSONRequestTest;
-import org.nlpcn.es4sql.intgtest.MathFunctionsTest;
-import org.nlpcn.es4sql.intgtest.MetaDataQueriesTest;
-import org.nlpcn.es4sql.intgtest.NestedFieldQueryTest;
-import org.nlpcn.es4sql.intgtest.PreparedStatementTest;
-import org.nlpcn.es4sql.intgtest.QueryFunctionsTest;
-import org.nlpcn.es4sql.intgtest.PrettyFormatResponseTest;
+import org.nlpcn.es4sql.SearchDao;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({

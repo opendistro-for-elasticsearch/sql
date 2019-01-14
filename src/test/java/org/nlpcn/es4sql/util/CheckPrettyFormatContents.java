@@ -9,7 +9,7 @@ import org.elasticsearch.plugin.nlpcn.Schema;
 import org.elasticsearch.plugin.nlpcn.Schema.Column;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.nlpcn.es4sql.MainTestSuite;
+import org.nlpcn.es4sql.intgtest.MainTestSuite;
 import org.nlpcn.es4sql.SearchDao;
 import org.nlpcn.es4sql.domain.QueryStatement;
 import org.nlpcn.es4sql.exception.SqlParseException;

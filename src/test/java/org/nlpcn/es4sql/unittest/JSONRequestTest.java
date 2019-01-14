@@ -19,7 +19,7 @@ import java.sql.SQLFeatureNotSupportedException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.nlpcn.es4sql.TestsConstants.*;
+import static org.nlpcn.es4sql.intgtest.TestsConstants.*;
 
 public class JSONRequestTest {
 
@@ -32,7 +32,7 @@ public class JSONRequestTest {
                 "GROUP BY gender " +
                 "ORDER BY _score\"}", TEST_INDEX_ACCOUNT));
         String expectedOutput = Files.toString(
-                new File("src/test/resources/expectedOutput/search_explain.json"), StandardCharsets.UTF_8)
+                new File(getResourcePath() + "src/test/resources/expectedOutput/search_explain.json"), StandardCharsets.UTF_8)
                 .replaceAll("\r", "");
 
         assertThat(removeSpaces(result), equalTo(removeSpaces(expectedOutput)));
@@ -45,7 +45,7 @@ public class JSONRequestTest {
                 "FROM %s " +
                 "GROUP BY terms('field'='a','execution_hint'='global_ordinals'), a2345\"}", TEST_INDEX_ACCOUNT));
         String expectedOutput = Files.toString(
-                new File("src/test/resources/expectedOutput/aggregation_query_explain.json"), StandardCharsets.UTF_8)
+                new File(getResourcePath() + "src/test/resources/expectedOutput/aggregation_query_explain.json"), StandardCharsets.UTF_8)
                 .replaceAll("\r", "");
 
         assertThat(removeSpaces(result), equalTo(removeSpaces(expectedOutput)));
@@ -58,7 +58,7 @@ public class JSONRequestTest {
                 "FROM %s " +
                 "WHERE firstname LIKE 'A%%' AND age > 20\"}", TEST_INDEX_ACCOUNT));
         String expectedOutput = Files.toString(
-                new File("src/test/resources/expectedOutput/delete_explain.json"), StandardCharsets.UTF_8)
+                new File(getResourcePath() + "src/test/resources/expectedOutput/delete_explain.json"), StandardCharsets.UTF_8)
                 .replaceAll("\r", "");
 
         assertThat(removeSpaces(result), equalTo(removeSpaces(expectedOutput)));
@@ -85,7 +85,7 @@ public class JSONRequestTest {
                 "WHERE age > 25\"," +
                 "\"filter\":{\"range\":{\"balance\":{\"lte\":30000}}}}", TEST_INDEX_ACCOUNT));
         String expectedOutput = Files.toString(
-                new File("src/test/resources/expectedOutput/json_filter_explain.json"), StandardCharsets.UTF_8)
+                new File(getResourcePath() + "src/test/resources/expectedOutput/json_filter_explain.json"), StandardCharsets.UTF_8)
                 .replaceAll("\r", "");
 
         assertThat(removeSpaces(result), equalTo(removeSpaces(expectedOutput)));
@@ -115,5 +115,14 @@ public class JSONRequestTest {
 
         SqlElasticRequestBuilder requestBuilder = queryAction.explain();
         return requestBuilder.explain();
+    }
+
+    private String getResourcePath() {
+        String projectRoot = System.getProperty("project.root");
+        if ( projectRoot!= null && projectRoot.trim().length() > 0) {
+            return projectRoot.trim() + "/";
+        } else {
+            return "";
+        }
     }
 }

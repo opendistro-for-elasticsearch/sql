@@ -1,18 +1,16 @@
-package org.nlpcn.es4sql;
+package org.nlpcn.es4sql.intgtest;
 
 import org.elasticsearch.plugin.nlpcn.QueryActionElasticExecutor;
 import org.elasticsearch.plugin.nlpcn.executors.CSVResult;
 import org.elasticsearch.plugin.nlpcn.executors.CSVResultsExtractor;
-import org.elasticsearch.plugin.nlpcn.executors.CsvExtractorException;
 import org.junit.Assert;
 import org.junit.Test;
-import org.nlpcn.es4sql.exception.SqlParseException;
+import org.nlpcn.es4sql.SearchDao;
 import org.nlpcn.es4sql.query.QueryAction;
 
-import java.sql.SQLFeatureNotSupportedException;
 import java.util.List;
 
-import static org.nlpcn.es4sql.TestsConstants.*;
+import static org.nlpcn.es4sql.intgtest.TestsConstants.*;
 
 /**
  * Created by Eliran on 27/12/2015.

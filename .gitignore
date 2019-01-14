@@ -4,7 +4,6 @@
 .mtj.tmp/
 
 # Package Files #
-*.jar
 *.war
 *.ear
 .classpath
@@ -20,3 +19,6 @@ src/_site/vendor/codemirror/mode/jinja2/.goutputstream-*
 src/_site/node_modules
 src/site-server/node_modules
 *~
+.local-*
+/out/
+.gradle/

@@ -1,4 +1,4 @@
-package org.nlpcn.es4sql;
+package org.nlpcn.es4sql.intgtest;
 
 
 import com.alibaba.druid.pool.DruidDataSource;
