@@ -6,11 +6,11 @@ import org.elasticsearch.plugin.nlpcn.DataRows;
 import org.elasticsearch.plugin.nlpcn.Protocol;
 import org.elasticsearch.plugin.nlpcn.QueryActionElasticExecutor;
 import org.elasticsearch.plugin.nlpcn.Schema;
+import org.elasticsearch.plugin.nlpcn.Schema.Column;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.nlpcn.es4sql.MainTestSuite;
 import org.nlpcn.es4sql.SearchDao;
-import org.nlpcn.es4sql.domain.Query;
 import org.nlpcn.es4sql.domain.QueryStatement;
 import org.nlpcn.es4sql.exception.SqlParseException;
 import org.nlpcn.es4sql.query.QueryAction;
@@ -49,7 +49,7 @@ public class CheckPrettyFormatContents {
 
     public static void containsColumnsInAnyOrder(Schema schema, Set<String> fields) {
         Set<String> columnNames = new HashSet<>();
-        for (Schema.Column column : schema) {
+        for (Column column : schema) {
             columnNames.add(column.getName());
         }
 
@@ -58,7 +58,7 @@ public class CheckPrettyFormatContents {
 
     public static void containsColumns(Schema schema, List<String> fields) {
         List<String> columnNames = new ArrayList<>();
-        for (Schema.Column column : schema) {
+        for (Column column : schema) {
             columnNames.add(column.getName());
         }
 
@@ -66,7 +66,7 @@ public class CheckPrettyFormatContents {
     }
 
     public static void containsAliases(Schema schema, Map<String, String> aliases) {
-        for (Schema.Column column : schema) {
+        for (Column column : schema) {
             assertThat(
                     column.getAlias(),
                     equalTo(

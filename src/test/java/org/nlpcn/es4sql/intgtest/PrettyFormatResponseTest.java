@@ -20,6 +20,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.is;
 import static org.nlpcn.es4sql.TestsConstants.TEST_INDEX_ACCOUNT;
 import static org.nlpcn.es4sql.TestsConstants.TEST_INDEX_NESTED_TYPE;
 import static org.nlpcn.es4sql.TestsConstants.TEST_INDEX_PHRASE;
@@ -71,12 +72,13 @@ public class PrettyFormatResponseTest {
 
     @Test
     public void wrongIndexType() {
-        String query = String.format("SELECT * FROM %s/%s", TEST_INDEX_ACCOUNT, "wrongType");
-        Protocol protocol = execute(query, "jdbc");
-
-        Schema schema = getSchema(protocol);
-        assertThat(schema.getIndexName(), equalTo(TEST_INDEX_ACCOUNT));
-        assertThat(Iterables.size(schema), equalTo(0));
+        String type = "wrongType";
+        try {
+            String query = String.format("SELECT * FROM %s/%s", TEST_INDEX_ACCOUNT, type);
+            Protocol protocol = execute(query, "jdbc");
+        } catch (IllegalArgumentException e) {
+            assertThat(e.getMessage(), is(String.format("Index type %s does not exist", type)));
+        }
     }
 
     /** Test Protocol as a whole */

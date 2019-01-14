@@ -1,5 +1,6 @@
 package org.elasticsearch.plugin.nlpcn;
 
+import com.carrotsearch.hppc.cursors.ObjectObjectCursor;
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
@@ -21,11 +22,13 @@ public class DescribeResultSet extends ResultSet {
     private static final int DEFAULT_NUM_PREC_RADIX = 10;
     private static final String IS_AUTOINCREMENT = "NO";
 
+    private IndexStatement statement;
     private Object queryResult;
 
     public DescribeResultSet(Client client, IndexStatement statement, Object queryResult) {
         this.client = client;
         this.clusterName = getClusterName();
+        this.statement = statement;
         this.queryResult = queryResult;
 
         this.schema = new Schema(statement, loadColumns());
@@ -34,6 +37,7 @@ public class DescribeResultSet extends ResultSet {
 
     private List<Column> loadColumns() {
         List<Column> columns = new ArrayList<>();
+        // Unused Columns are still included in Schema to match JDBC/ODBC standard
         columns.add(new Column("TABLE_CAT", null, Type.KEYWORD));
         columns.add(new Column("TABLE_SCHEM", null, Type.KEYWORD));
         columns.add(new Column("TABLE_NAME", null, Type.KEYWORD));
@@ -68,15 +72,18 @@ public class DescribeResultSet extends ResultSet {
         ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> indexMappings = indexResponse.getMappings();
 
         // Iterate through indices in indexMappings
-        for (Iterator<String> iter = indexMappings.keysIt(); iter.hasNext(); ) {
-            String index = iter.next();
-            ImmutableOpenMap<String, MappingMetaData> typeMapping = indexMappings.get(index);
-            // Assuming ES 6.x, iterate through the only type of the index to get mapping data
-            for (Iterator<String> typeIter = typeMapping.keysIt(); typeIter.hasNext(); ) {
-                String type = typeIter.next();
-                MappingMetaData mappingMetaData = typeMapping.get(type);
-                // Load rows for each field in the mapping
-                rows.addAll(loadIndexData(index, mappingMetaData.getSourceAsMap()));
+        for (ObjectObjectCursor<String, ImmutableOpenMap<String, MappingMetaData>> indexCursor : indexMappings) {
+            String index = indexCursor.key;
+
+            // Check to see if index matches given pattern
+            if (matchesPattern(index, statement.getIndexPattern())) {
+                ImmutableOpenMap<String, MappingMetaData> typeMapping = indexCursor.value;
+                // Assuming ES 6.x, iterate through the only type of the index to get mapping data
+                for (ObjectObjectCursor<String, MappingMetaData> typeCursor : typeMapping) {
+                    MappingMetaData mappingMetaData = typeCursor.value;
+                    // Load rows for each field in the mapping
+                    rows.addAll(loadIndexData(index, mappingMetaData.getSourceAsMap()));
+                }
             }
         }
         return rows;
@@ -89,12 +96,17 @@ public class DescribeResultSet extends ResultSet {
         Map<String, String> flattenedMetaData = flattenMappingMetaData(mappingMetaData, "", new HashMap<>());
         int position = 1; // Used as an arbitrary ORDINAL_POSITION value for the time being
         for (Entry<String, String> entry : flattenedMetaData.entrySet()) {
-            rows.add(
-                    new Row(
-                            loadRowData(index, entry.getKey(), entry.getValue(), position)
-                    )
-            );
-            position++;
+            String columnPattern = statement.getColumnPattern();
+
+            // Check to see if column name matches pattern, if given
+            if (columnPattern == null || matchesPattern(entry.getKey(), columnPattern)) {
+                rows.add(
+                        new Row(
+                                loadRowData(index, entry.getKey(), entry.getValue(), position)
+                        )
+                );
+                position++;
+            }
         }
 
         return rows;
@@ -117,14 +129,12 @@ public class DescribeResultSet extends ResultSet {
     }
 
     /**
-     * To not disrupt old logic for the time being, ShowQueryAction and DescribeQueryAction are using the same
+     * To not disrupt old logic, for the time being, ShowQueryAction and DescribeQueryAction are using the same
      * 'GetIndexRequestBuilder' that was used in the old ShowQueryAction. Since the format of the resulting meta data
      * is different, this method is being used to flatten and retrieve types.
      *
      * In the future, should look for a way to generalize this since Schema is currently using FieldMappingMetaData
      * whereas here we are using MappingMetaData.
-     *
-     * // TODO Try to merge mapping request and type retrieval logic when Schema and DataRows is refactored ^
      */
     @SuppressWarnings("unchecked")
     private Map<String, String> flattenMappingMetaData(Map<String, Object> mappingMetaData,

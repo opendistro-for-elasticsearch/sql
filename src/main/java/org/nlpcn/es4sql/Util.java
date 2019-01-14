@@ -213,27 +213,30 @@ public class Util {
     }
 
     public static GetIndexRequestBuilder prepareIndexRequestBuilder(Client client, IndexStatement statement) {
-        String indexName = statement.getIndexName();
-        String type = statement.getTypeName();
+        /*
+         * indexPattern represents wildcard as '.*' which is the regex syntax for matching anything but
+         * indexRequestBuilder uses the file-match syntax like UNIX which is just '*', so the pattern is converted
+         * in case its added to the request below
+         */
+        String indexPattern = statement.getIndexPattern().replace(".*", "*");
 
         /*
-         * The original plan was to remove all features for the indexRequest used in SHOW to prevent wasted data
-         * since only the index name and type are required. However, the type is obtained from the mappings response
-         * so this feature will need to be set in both SHOW and DESCRIBE unless another request can be found for only
-         * retrieving index name and type.
+         * Ideally all features should be removed from the indexRequest used in SHOW to prevent wasted data
+         * since only the index name is required in the JDBC format response. However, the type is obtained from the
+         * mappings response so this feature will need to be set if retrieving type is necessary in other formats.
+         * (For the time being it is included since the GUI returns types for SHOW queries)
          */
-        // TODO Is there a more efficient request for only getting index name and type?
         GetIndexRequestBuilder indexRequestBuilder = client.admin().indices()
                 .prepareGetIndex()
                 .setFeatures(GetIndexRequest.Feature.MAPPINGS)
                 .setLocal(true);
 
-        if (!indexName.equals("*")) {
-            indexRequestBuilder.addIndices(indexName);
-            
-            if (type != null && !type.equals("")) {
-                indexRequestBuilder.setTypes(type);
-            }
+        /*
+         * Since the index request supports index names with wildcard (*) but not (.) it is checked for here so that the
+         * results returned can be reduced if possible (the regex checks in the ResultSet classes handle the rest).
+         */
+        if (!indexPattern.contains(".")) {
+            indexRequestBuilder.addIndices(indexPattern);
         }
 
         return indexRequestBuilder;

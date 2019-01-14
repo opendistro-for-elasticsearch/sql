@@ -45,7 +45,7 @@ public class QueryActionElasticExecutor {
         return showQueryAction.explain().get();
     }
 
-    public static ActionResponse executeDescribeQueryAction(DescribeQueryAction describeQueryAction) throws SqlParseException {
+    public static ActionResponse executeDescribeQueryAction(DescribeQueryAction describeQueryAction) {
         return describeQueryAction.explain().get();
     }
 

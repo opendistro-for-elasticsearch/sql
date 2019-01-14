@@ -5,46 +5,69 @@ public class IndexStatement implements QueryStatement {
 
     private StatementType statementType;
     private String query;
-    private String indexName;
-    private String typeName;
+    private String indexPattern;
+    private String columnPattern;
 
     public IndexStatement(StatementType statementType, String query) {
         this.statementType = statementType;
         this.query = query;
 
-        parseIndexNameAndType();
+        parseQuery();
     }
 
-    private void parseIndexNameAndType() {
-        String indexName = query.split(" ")[1];
-        String type = null;
+    private void parseQuery() {
+        String[] statement = query.split(" ");
 
-        // TODO Might remove this check for "<" and ">", see no cases of it in previous test but keeping for now
-        if (indexName.startsWith("<")) {
-            if (!indexName.endsWith(">")) {
-                int index = indexName.lastIndexOf('/');
-                if (index > -1) {
-                    type = indexName.substring(index + 1);
-                    indexName = indexName.substring(0, index);
+        int tokenLength = statement.length;
+        try {
+            for (int i = 1; i < tokenLength; i++) {
+                switch (statement[i].toUpperCase()) {
+                    case "TABLES":
+                        if (i + 1 < tokenLength && statement[i + 1].equalsIgnoreCase("LIKE")) {
+                            if (i + 2 < tokenLength) {
+                                indexPattern = replaceWildcard(statement[i + 2]);
+                                i += 2;
+                            }
+                        }
+                        break;
+                    case "COLUMNS":
+                        if (i + 1 < tokenLength && statement[i + 1].equalsIgnoreCase("LIKE")) {
+                            if (i + 2 < tokenLength) {
+                                columnPattern = replaceWildcard(statement[i + 2]);
+                                i += 2;
+                            }
+                        }
+                        break;
                 }
             }
-        } else if (indexName.contains("/")) {
-            String[] indexAndType = indexName.split("\\/");
-            indexName = indexAndType[0];
-            type = indexAndType[1];
-        }
 
-        this.indexName = indexName;
-        this.typeName = type;
+            if (indexPattern == null) {
+                throw new IllegalArgumentException();
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Expected syntax example: " + syntaxString(), e);
+        }
+    }
+
+    private String replaceWildcard(String str) {
+        return str.replace("%", ".*").replace("_", ".");
+    }
+
+    private String syntaxString() {
+        if (statementType.equals(StatementType.SHOW)) {
+            return "'SHOW TABLES LIKE <table pattern>'";
+        } else {
+            return "'DESCRIBE TABLES LIKE <table pattern> [COLUMNS LIKE <column pattern>]'";
+        }
     }
 
     public StatementType getStatementType() { return statementType; }
 
     public String getQuery() { return query; }
 
-    public String getIndexName() { return indexName; }
+    public String getIndexPattern() { return indexPattern; }
 
-    public String getTypeName() { return typeName; }
+    public String getColumnPattern() { return columnPattern; }
 
     public enum StatementType {
         SHOW, DESCRIBE

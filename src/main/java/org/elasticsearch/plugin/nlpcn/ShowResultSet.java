@@ -8,19 +8,23 @@ import org.elasticsearch.plugin.nlpcn.Schema.Type;
 import org.nlpcn.es4sql.domain.IndexStatement;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ShowResultSet extends ResultSet {
 
     private static final String TABLE_TYPE = "BASE TABLE";
 
+    private IndexStatement statement;
     private Object queryResult;
 
     public ShowResultSet(Client client, IndexStatement statement, Object queryResult) {
         this.client = client;
         this.clusterName = getClusterName();
+        this.statement = statement;
         this.queryResult = queryResult;
 
         this.schema = new Schema(statement, loadColumns());
@@ -29,9 +33,17 @@ public class ShowResultSet extends ResultSet {
 
     private List<Column> loadColumns() {
         List<Column> columns = new ArrayList<>();
+        // Unused Columns are still included in Schema to match JDBC/ODBC standard
         columns.add(new Column("TABLE_CAT", null, Type.KEYWORD));
+        columns.add(new Column("TABLE_SCHEM", null, Type.KEYWORD)); // Not used
         columns.add(new Column("TABLE_NAME", null, Type.KEYWORD));
         columns.add(new Column("TABLE_TYPE", null, Type.KEYWORD));
+        columns.add(new Column("REMARKS", null, Type.KEYWORD)); // Not used
+        columns.add(new Column("TYPE_CAT", null, Type.KEYWORD)); // Not used
+        columns.add(new Column("TYPE_SCHEM", null, Type.KEYWORD)); // Not used
+        columns.add(new Column("TYPE_NAME", null, Type.KEYWORD)); // Not used
+        columns.add(new Column("SELF_REFERENCING_COL_NAME", null, Type.KEYWORD)); // Not used
+        columns.add(new Column("REF_GENERATION", null, Type.KEYWORD)); // Not used
 
         return columns;
     }
@@ -45,13 +57,13 @@ public class ShowResultSet extends ResultSet {
         return rows;
     }
 
-    /**
-     * TODO Check if the following is true
-     * If index type is not necessary for other format responses (since it isn't used for JDBC format), it might be
-     * possible to remove Feature.MAPPINGS for the request used for SHOW since only index names are needed
-     */
-    private String[] extractIndices() {
-        return ((GetIndexResponse) queryResult).getIndices();
+    private List<String> extractIndices() {
+        String indexPattern = statement.getIndexPattern();
+        String[] indices = ((GetIndexResponse) queryResult).getIndices();
+
+        return Arrays.stream(indices)
+                .filter(index -> matchesPattern(index, indexPattern))
+                .collect(Collectors.toList());
     }
 
     private Map<String, Object> loadData(String tableName) {

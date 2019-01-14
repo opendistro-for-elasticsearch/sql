@@ -44,7 +44,7 @@ public class SqlRequestFactory {
         JSONObject jsonContent;
         try {
             jsonContent = new JSONObject(content);
-        } catch (JSONException e){
+        } catch (JSONException e) {
             throw new IllegalArgumentException("Failed to parse request payload", e);
         }
         String sql = jsonContent.getString(SQL_FIELD_NAME);

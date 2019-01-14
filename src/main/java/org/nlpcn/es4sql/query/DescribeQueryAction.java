@@ -21,13 +21,6 @@ public class DescribeQueryAction extends QueryAction {
 
     @Override
     public SqlElasticSearchRequestBuilder explain() {
-        /*
-         * For the time being the logic for parsing the SQL statement to get the indexRequestBuilder is the same for
-         * both SHOW and DESCRIBE statements so the method to obtain it has been moved to Util to be shared.
-         *
-         * When enhancing the syntax and support for SHOW and DESCRIBE, if the statements need to be parsed differently,
-         * then prepareIndexRequestBuilder() can be split or refactored.
-         */
         final GetIndexRequestBuilder indexRequestBuilder = prepareIndexRequestBuilder(client, statement);
 
         return new SqlElasticSearchRequestBuilder(indexRequestBuilder);
