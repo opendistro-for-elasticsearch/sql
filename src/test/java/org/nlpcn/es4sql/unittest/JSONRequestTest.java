@@ -11,6 +11,7 @@ import org.nlpcn.es4sql.exception.SqlParseException;
 import org.nlpcn.es4sql.query.ESActionFactory;
 import org.nlpcn.es4sql.query.QueryAction;
 import org.nlpcn.es4sql.query.SqlElasticRequestBuilder;
+import org.nlpcn.es4sql.util.CheckScriptContents;
 
 import java.io.File;
 import java.io.IOException;
@@ -107,7 +108,8 @@ public class JSONRequestTest {
     }
 
     private String translate(String sql, JSONObject jsonRequest) throws SQLFeatureNotSupportedException, SqlParseException {
-        Client mockClient = Mockito.mock(Client.class);
+        Client mockClient = Mockito.mock(Client.class, Mockito.RETURNS_DEEP_STUBS);
+        CheckScriptContents.stubMockClient(mockClient);
         QueryAction queryAction = ESActionFactory.create(mockClient, sql);
 
         SqlRequest sqlRequest = new SqlRequest(sql, jsonRequest);

@@ -341,7 +341,7 @@ public class PrettyFormatResponseTest {
     /** Test JDBC format response */
     @Test
     public void indexWithMissingFields() {
-        String query = String.format("SELECT phrase, insert_time2 FROM %s WHERE phrase = 'brown fox'", TEST_INDEX_PHRASE);
+        String query = String.format("SELECT phrase, insert_time2 FROM %s WHERE match_phrase(phrase, 'brown fox')", TEST_INDEX_PHRASE);
         JSONObject jdbcResponse = getJdbcResponse(query);
 
         JSONArray dataRowEntry = (JSONArray) getJdbcDataRows(jdbcResponse).get(0);

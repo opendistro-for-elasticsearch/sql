@@ -1,6 +1,5 @@
 package org.nlpcn.es4sql.query;
 
-
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.alibaba.druid.sql.ast.statement.SQLDeleteStatement;
@@ -19,6 +18,7 @@ import org.nlpcn.es4sql.domain.IndexStatement;
 import org.nlpcn.es4sql.domain.JoinSelect;
 import org.nlpcn.es4sql.domain.Select;
 import org.nlpcn.es4sql.exception.SqlParseException;
+import org.nlpcn.es4sql.matchtoterm.rewrite.TermFieldRewriter;
 import org.nlpcn.es4sql.parse.ElasticLexer;
 import org.nlpcn.es4sql.parse.ElasticSqlExprParser;
 import org.nlpcn.es4sql.nestedfield.rewrite.NestedFieldRewriter;
@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.nlpcn.es4sql.domain.IndexStatement.StatementType;
+import org.nlpcn.es4sql.matchtoterm.rewrite.TermFieldRewriter.TermRewriterFilter;
 
 public class ESActionFactory {
 
@@ -51,18 +52,21 @@ public class ESActionFactory {
                 SQLQueryExpr sqlExpr = (SQLQueryExpr) toSqlExpr(sql);
                 sqlExpr.accept(new NestedFieldRewriter());
                 if(isMulti(sqlExpr)){
+                    sqlExpr.accept(new TermFieldRewriter(client, TermRewriterFilter.MULTI_QUERY));
                     MultiQuerySelect multiSelect = new SqlParser().parseMultiSelect((SQLUnionQuery) sqlExpr.getSubQuery().getQuery());
                     handleSubQueries(client,multiSelect.getFirstSelect());
                     handleSubQueries(client,multiSelect.getSecondSelect());
                     return new MultiQueryAction(client, multiSelect);
                 }
                 else if(isJoin(sqlExpr,sql)){
+                    sqlExpr.accept(new TermFieldRewriter(client, TermRewriterFilter.JOIN));
                     JoinSelect joinSelect = new SqlParser().parseJoinSelect(sqlExpr);
                     handleSubQueries(client, joinSelect.getFirstTable());
                     handleSubQueries(client, joinSelect.getSecondTable());
                     return ESJoinQueryActionFactory.createJoinAction(client, joinSelect);
                 }
                 else {
+                    sqlExpr.accept(new TermFieldRewriter(client));
                     Select select = new SqlParser().parseSelect(sqlExpr);
                     handleSubQueries(client, select);
                     return handleSelect(client, select);
@@ -148,7 +152,4 @@ public class ESActionFactory {
 
         return expr;
     }
-
-
-
 }

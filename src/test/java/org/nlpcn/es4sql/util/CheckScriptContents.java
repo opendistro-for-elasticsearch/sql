@@ -3,9 +3,14 @@ package org.nlpcn.es4sql.util;
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.alibaba.druid.sql.parser.ParserException;
+import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequest;
+import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.client.Client;
-import org.mockito.Mockito;
+import org.elasticsearch.common.xcontent.DeprecationHandler;
+import org.elasticsearch.common.xcontent.NamedXContentRegistry;
+import org.elasticsearch.common.xcontent.XContentParser;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.nlpcn.es4sql.domain.Condition;
 import org.nlpcn.es4sql.domain.Select;
 import org.nlpcn.es4sql.domain.Where;
@@ -17,6 +22,7 @@ import org.nlpcn.es4sql.query.ESActionFactory;
 import org.nlpcn.es4sql.query.QueryAction;
 import org.nlpcn.es4sql.query.SqlElasticRequestBuilder;
 
+import java.io.IOException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -24,6 +30,7 @@ import java.util.regex.Pattern;
 
 import static org.elasticsearch.search.builder.SearchSourceBuilder.ScriptField;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
 
 public class CheckScriptContents {
 
@@ -33,7 +40,8 @@ public class CheckScriptContents {
 
     public static ScriptField getScriptFieldFromQuery(String query) {
         try {
-            Client mockClient = Mockito.mock(Client.class);
+            Client mockClient = mock(Client.class, RETURNS_DEEP_STUBS);
+            stubMockClient(mockClient);
             QueryAction queryAction = ESActionFactory.create(mockClient, query);
             SqlElasticRequestBuilder requestBuilder = queryAction.explain();
 
@@ -82,5 +90,83 @@ public class CheckScriptContents {
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(scriptFilter.getScript());
         return matcher.find();
+    }
+
+    public static void stubMockClient(Client mockClient) {
+        try {
+            String mappings = "{\n" +
+                "  \"elasticsearch-sql_test_index_bank\": {\n" +
+                "    \"mappings\": {\n" +
+                "      \"account\": {\n" +
+                "        \"properties\": {\n" +
+                "          \"account_number\": {\n" +
+                "            \"type\": \"long\"\n" +
+                "          },\n" +
+                "          \"address\": {\n" +
+                "            \"type\": \"text\"\n" +
+                "          },\n" +
+                "          \"age\": {\n" +
+                "            \"type\": \"integer\"\n" +
+                "          },\n" +
+                "          \"balance\": {\n" +
+                "            \"type\": \"long\"\n" +
+                "          },\n" +
+                "          \"birthdate\": {\n" +
+                "            \"type\": \"date\"\n" +
+                "          },\n" +
+                "          \"city\": {\n" +
+                "            \"type\": \"keyword\"\n" +
+                "          },\n" +
+                "          \"email\": {\n" +
+                "            \"type\": \"text\"\n" +
+                "          },\n" +
+                "          \"employer\": {\n" +
+                "            \"type\": \"text\",\n" +
+                "            \"fields\": {\n" +
+                "              \"keyword\": {\n" +
+                "                \"type\": \"keyword\",\n" +
+                "                \"ignore_above\": 256\n" +
+                "              }\n" +
+                "            }\n" +
+                "          },\n" +
+                "          \"firstname\": {\n" +
+                "            \"type\": \"text\"\n" +
+                "          },\n" +
+                "          \"gender\": {\n" +
+                "            \"type\": \"text\"\n" +
+                "          },\n" +
+                "          \"lastname\": {\n" +
+                "            \"type\": \"keyword\"\n" +
+                "          },\n" +
+                "          \"male\": {\n" +
+                "            \"type\": \"boolean\"\n" +
+                "          },\n" +
+                "          \"state\": {\n" +
+                "            \"type\": \"text\",\n" +
+                "            \"fields\": {\n" +
+                "              \"raw\": {\n" +
+                "                \"type\": \"keyword\",\n" +
+                "                \"ignore_above\": 256\n" +
+                "              }\n" +
+                "            }\n" +
+                "          }\n" +
+                "        }\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }\n" +
+                "}";
+
+            XContentType xContentType = XContentType.JSON;
+            XContentParser parser = xContentType.
+                xContent()
+                .createParser(NamedXContentRegistry.EMPTY, DeprecationHandler.THROW_UNSUPPORTED_OPERATION, mappings);
+
+            when(mockClient.admin().indices().getFieldMappings(any(GetFieldMappingsRequest.class)).actionGet()).
+                thenReturn(GetFieldMappingsResponse.fromXContent(parser));
+
+        } catch (IOException e) {
+            throw new ParserException(e.getMessage());
+        }
+
     }
 }

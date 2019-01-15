@@ -25,6 +25,7 @@ import org.junit.runners.Suite;
 import com.google.common.io.ByteStreams;
 import org.nlpcn.es4sql.SearchDao;
 
+
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
     QueryTest.class,
@@ -51,7 +52,8 @@ import org.nlpcn.es4sql.SearchDao;
     QueryFunctionsTest.class,
     PrettyFormatResponseTest.class,
     PreparedStatementTest.class,
-    MetaDataQueriesTest.class
+    MetaDataQueriesTest.class,
+    TermQueryExplainTest.class
 })
 public class MainTestSuite {
 
@@ -113,6 +115,15 @@ public class MainTestSuite {
         prepareJoinTypeIndex();
         loadBulk("src/test/resources/join_objects.json", TEST_INDEX_JOIN_TYPE);
 
+        createTestIndex(TEST_INDEX_BANK);
+        prepareBankIndex(TEST_INDEX_BANK, "account");
+        loadBulk("src/test/resources/bank.json", TEST_INDEX_BANK);
+
+
+        createTestIndex(TEST_INDEX_BANK_TWO);
+        prepareBankIndex(TEST_INDEX_BANK_TWO, "account_two");
+        loadBulk("src/test/resources/bank_two.json", TEST_INDEX_BANK_TWO);
+
         searchDao = new SearchDao(client);
 
         //refresh to make sure all the docs will return on queries
@@ -159,6 +170,61 @@ public class MainTestSuite {
                 "}"+
                 "} } }";
         client.admin().indices().preparePutMapping(TEST_INDEX_GAME_OF_THRONES).setType("gotCharacters").setSource(dataMapping, XContentType.JSON).execute().actionGet();
+    }
+
+    private static void prepareBankIndex(String index, String type) {
+        String dataMapping  = "{\n" +
+            "  \"" + type +"\": {\n" +
+            "    \"properties\": {\n" +
+            "      \"account_number\": {\n" +
+            "        \"type\": \"long\"\n" +
+            "      },\n" +
+            "      \"address\": {\n" +
+            "        \"type\": \"text\"\n" +
+            "      },\n" +
+            "      \"age\": {\n" +
+            "        \"type\": \"integer\"\n" +
+            "      },\n" +
+            "      \"balance\": {\n" +
+            "        \"type\": \"long\"\n" +
+            "      },\n" +
+            "      \"birthdate\": {\n" +
+            "        \"type\": \"date\"\n" +
+            "      },\n" +
+            "      \"city\": {\n" +
+            "        \"type\": \"keyword\"\n" +
+            "      },\n" +
+            "      \"email\": {\n" +
+            "        \"type\": \"text\"\n" +
+            "      },\n" +
+            "      \"employer\": {\n" +
+            "        \"type\": \"text\"\n" +
+            "      },\n" +
+            "      \"firstname\": {\n" +
+            "        \"type\": \"text\"\n" +
+            "      },\n" +
+            "      \"gender\": {\n" +
+            "        \"type\": \"text\"\n" +
+            "      },\n" +
+            "      \"lastname\": {\n" +
+            "        \"type\": \"keyword\"\n" +
+            "      },\n" +
+            "      \"male\": {\n" +
+            "        \"type\": \"boolean\"\n" +
+            "      },\n" +
+            "      \"state\": {\n" +
+            "        \"type\": \"text\",\n" +
+            "        \"fields\": {\n" +
+            "          \"keyword\": {\n" +
+            "            \"type\": \"keyword\",\n" +
+            "            \"ignore_above\": 256\n" +
+            "          }\n" +
+            "        }\n" +
+            "      }\n" +
+            "    }\n" +
+            "  }\n" +
+            "}";
+        client.admin().indices().preparePutMapping(index).setType(type).setSource(dataMapping, XContentType.JSON).execute().actionGet();
     }
 
     private static void prepareDogsIndex() {

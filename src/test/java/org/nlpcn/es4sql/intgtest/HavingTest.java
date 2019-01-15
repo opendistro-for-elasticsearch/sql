@@ -168,7 +168,7 @@ public class HavingTest {
         try {
             SearchDao searchDao = MainTestSuite.getSearchDao();
             SqlElasticSearchRequestBuilder select = (SqlElasticSearchRequestBuilder) searchDao.explain(query).explain();
-            return getResult((SearchResponse) select.get(), "state", "cnt");
+            return getResult((SearchResponse) select.get(), "state.keyword", "cnt");
         } catch (SQLFeatureNotSupportedException | SqlParseException e) {
             throw new RuntimeException(e);
         }
@@ -201,6 +201,6 @@ public class HavingTest {
     }
 
     private Matcher<Object[]> row(String state, long count) {
-        return arrayContaining(is(state.toLowerCase()), is(count));
+        return arrayContaining(is(state), is(count));
     }
 }

@@ -111,7 +111,8 @@ public class SQLFunctionsTest {
                 "             when traffic=0 then 100 \n" +
                 "             when traffic=1 then 1000 \n" +
                 "             else 10000 \n" +
-                "       end) as tf,date_format(5minute,'yyyyMMddHHmm') as nt  from traffic_statistics_v4_m200106 where business_line='2'   group by nt order by tf asc limit 10";
+                "       end) as tf,date_format(5minute,'yyyyMMddHHmm') as nt from %s where business_line='2'   group by nt order by tf asc limit 10";
+        query = String.format(query, TEST_INDEX_PHRASE);
 
         SearchDao searchDao = MainTestSuite.getSearchDao() != null ? MainTestSuite.getSearchDao() : getSearchDao();
         System.out.println(searchDao.explain(query).explain().explain());

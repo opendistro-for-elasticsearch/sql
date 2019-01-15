@@ -372,13 +372,15 @@ public class AggregationTest {
 	 */
 	@Test
 	public void countGroupByDateTest() throws IOException, SqlParseException, SQLFeatureNotSupportedException {
-        String result = MainTestSuite.getSearchDao().explain("select insert_time from online  group by date_histogram(field='insert_time','interval'='1.5h','format'='yyyy-MM','min_doc_count'=5) ").explain().toString();
+        String query = String.format("select insert_time from %s  group by date_histogram(field='insert_time','interval'='1.5h','format'='yyyy-MM','min_doc_count'=5) ", TEST_INDEX_ONLINE);
+        String result = MainTestSuite.getSearchDao().explain(query).explain().toString();
         Assert.assertTrue(result.replaceAll("\\s+", "").contains("{\"date_histogram\":{\"field\":\"insert_time\",\"format\":\"yyyy-MM\",\"interval\":\"1.5h\",\"offset\":0,\"order\":{\"_key\":\"asc\"},\"keyed\":false,\"min_doc_count\":5}"));
 	}
 
     @Test
     public void countGroupByDateTestWithAlias() throws IOException, SqlParseException, SQLFeatureNotSupportedException {
-        SqlElasticSearchRequestBuilder result = (SqlElasticSearchRequestBuilder) MainTestSuite.getSearchDao().explain("select insert_time from online  group by date_histogram(field='insert_time','interval'='1.5h','format'='yyyy-MM','alias'='myAlias') ").explain();
+        String query = String.format("select insert_time from %s group by date_histogram(field='insert_time','interval'='1.5h','format'='yyyy-MM','alias'='myAlias')", TEST_INDEX_ONLINE);
+        SqlElasticSearchRequestBuilder result = (SqlElasticSearchRequestBuilder) MainTestSuite.getSearchDao().explain(query).explain();
         boolean containAlias = result.toString().replaceAll("\\s+","").contains("myAlias\":{\"date_histogram\":{\"field\":\"insert_time\",\"format\":\"yyyy-MM\",\"interval\":\"1.5h\"");
         Assert.assertTrue(containAlias);
     }
@@ -393,7 +395,8 @@ public class AggregationTest {
 	 */
 	@Test
 	public void countDateRangeTest() throws IOException, SqlParseException, SQLFeatureNotSupportedException {
-        SqlElasticSearchRequestBuilder result = (SqlElasticSearchRequestBuilder) MainTestSuite.getSearchDao().explain("select online from online  group by date_range(field='insert_time','format'='yyyy-MM-dd' ,'2014-08-18','2014-08-17','now-8d','now-7d','now-6d','now') ").explain();
+        String query = String.format("select online from %s group by date_range(field='insert_time','format'='yyyy-MM-dd' ,'2014-08-18','2014-08-17','now-8d','now-7d','now-6d','now')", TEST_INDEX_ONLINE);
+        SqlElasticSearchRequestBuilder result = (SqlElasticSearchRequestBuilder) MainTestSuite.getSearchDao().explain(query).explain();
 		System.out.println(result);
 	}
 
@@ -529,7 +532,7 @@ public class AggregationTest {
 		Assert.assertEquals(expectedAges, buckets.get("m"));
 		Assert.assertEquals(expectedAges, buckets.get("f"));
 
-		Terms state = result.get("state");
+		Terms state = result.get("state.keyword");
 		for(Terms.Bucket stateBucket : state.getBuckets()) {
 			if(stateBucket.getKey().toString().equalsIgnoreCase("ak")) {
 				Assert.assertTrue("There are 22 entries for state ak", stateBucket.getDocCount() == 22);
@@ -556,7 +559,7 @@ public class AggregationTest {
 
 		Assert.assertEquals(2, gender.getBuckets().size());
 
-		Terms state = result.get("state");
+		Terms state = result.get("state.keyword");
 		for(Terms.Bucket stateBucket : state.getBuckets()) {
 			if(stateBucket.getKey().toString().equalsIgnoreCase("ak")) {
 				Assert.assertTrue("There are 22 entries for state ak", stateBucket.getDocCount() == 22);
@@ -843,7 +846,11 @@ public class AggregationTest {
 
     @Test
     public void termsWithScript() throws Exception {
-        String query = "select count(*), avg(number) from source group by terms('alias'='asdf', substring(field, 0, 1)), date_histogram('alias'='time', 'field'='timestamp', 'interval'='20d ', 'format'='yyyy-MM-dd') limit 1000";
+        String query = String.format("select count(*), avg(number)  " +
+            "from %s  " +
+            "group by terms('alias'='asdf', substring(field, 0, 1)), date_histogram('alias'='time', 'field'='timestamp', 'interval'='20d ', 'format'='yyyy-MM-dd')  " +
+            "limit 1000 " ,
+            TEST_INDEX_ONLINE);
         String result = MainTestSuite.getSearchDao().explain(query).explain().toString();
         Assert.assertTrue(result.contains("\"script\":{\"source\""));
         Assert.assertTrue(result.contains("substring(0, 1)"));
@@ -851,7 +858,7 @@ public class AggregationTest {
 
     @Test
     public void groupByScriptedDateHistogram() throws Exception {
-        String query = "select count(*), avg(number) from source group by date_histogram('alias'='time', ceil(timestamp), 'interval'='20d ', 'format'='yyyy-MM-dd') limit 1000";
+        String query = String.format("select count(*), avg(number) from %s group by date_histogram('alias'='time', ceil(timestamp), 'interval'='20d ', 'format'='yyyy-MM-dd') limit 1000" , TEST_INDEX_ONLINE);
         String result = MainTestSuite.getSearchDao().explain(query).explain().toString();
         Assert.assertTrue(result.contains("Math.ceil(doc['timestamp'].value);"));
         Assert.assertTrue(result.contains("\"script\":{\"source\""));
@@ -859,7 +866,7 @@ public class AggregationTest {
 
     @Test
     public void groupByScriptedHistogram() throws Exception {
-	    String query = "select count(*) from source group by histogram('alias'='field', pow(field,1))";
+        String query = String.format("select count(*) from %s group by histogram('alias'='field', pow(field,1))", TEST_INDEX_ONLINE);
 	    String result = MainTestSuite.getSearchDao().explain(query).explain().toString();
 	    System.out.println(result);
 	    Assert.assertTrue(result.contains("Math.pow(doc['field'].value, 1)"));

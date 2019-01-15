@@ -12,6 +12,7 @@ import org.mockito.Mockito;
 import org.nlpcn.es4sql.exception.SqlParseException;
 import org.nlpcn.es4sql.query.ESActionFactory;
 import org.nlpcn.es4sql.query.QueryAction;
+import org.nlpcn.es4sql.util.CheckScriptContents;
 
 import java.sql.SQLFeatureNotSupportedException;
 
@@ -190,7 +191,8 @@ public class QueryFunctionsTest {
 
     private String explain(String sql) {
         try {
-            Client mockClient = Mockito.mock(Client.class);
+            Client mockClient = Mockito.mock(Client.class, Mockito.RETURNS_DEEP_STUBS);
+            CheckScriptContents.stubMockClient(mockClient);
             QueryAction queryAction = ESActionFactory.create(mockClient, sql);
 
             return queryAction.explain().explain();

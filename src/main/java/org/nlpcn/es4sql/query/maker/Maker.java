@@ -166,11 +166,7 @@ public abstract class Maker {
                 }
                 break;
             } else {
-                // TODO, maybe use term filter when not analayzed field avalaible to make exact matching?
-                // using matchPhrase to achieve equallity.
-                // matchPhrase still have some disatvantegs, f.e search for 'word' will match 'some word'
-                toXContent = QueryBuilders.matchPhraseQuery(name, value);
-
+                toXContent = QueryBuilders.termQuery(name, value);
                 break;
             }
         case LIKE:
@@ -212,14 +208,14 @@ public abstract class Maker {
         case IN:
             //todo: value is subquery? here or before
             values = (Object[]) value;
-            MatchPhraseQueryBuilder[] matchQueries = new MatchPhraseQueryBuilder[values.length];
+            TermQueryBuilder[] termQueries = new TermQueryBuilder[values.length];
             for(int i = 0; i < values.length; i++) {
-                matchQueries[i] = QueryBuilders.matchPhraseQuery(name, values[i]);
+                termQueries[i] = QueryBuilders.termQuery(name, values[i]);
             }
 
             BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
-            for(MatchPhraseQueryBuilder matchQuery : matchQueries) {
-                boolQuery.should(matchQuery);
+            for(TermQueryBuilder termQuery : termQueries) {
+                boolQuery.should(termQuery);
             }
             toXContent = boolQuery;
             break;

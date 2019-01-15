@@ -20,6 +20,8 @@ public class TestsConstants {
     public final static String TEST_INDEX_LOCATION2 = TEST_INDEX + "_location2";
     public final static String TEST_INDEX_NESTED_TYPE = TEST_INDEX + "_nested_type";
     public final static String TEST_INDEX_JOIN_TYPE = TEST_INDEX + "_join_type";
+    public final static String TEST_INDEX_BANK = TEST_INDEX + "_bank";
+    public final static String TEST_INDEX_BANK_TWO = TEST_INDEX_BANK + "_two";
 
     public final static String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     public final static String TS_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";

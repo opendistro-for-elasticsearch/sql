@@ -43,7 +43,7 @@ public class DeleteTest {
 
 	@Test
 	public void deleteWithConditionTest() throws SqlParseException, SQLFeatureNotSupportedException {
-		delete(String.format("DELETE FROM %s/phrase WHERE phrase = 'quick fox here' ", TEST_INDEX_PHRASE), TEST_INDEX_PHRASE);
+		delete(String.format("DELETE FROM %s/phrase WHERE match_phrase(phrase, 'quick fox here') ", TEST_INDEX_PHRASE), TEST_INDEX_PHRASE);
 		// Assert no results exist for this type.
 		SearchRequestBuilder request = MainTestSuite.getClient().prepareSearch(TEST_INDEX_PHRASE);
 		request.setTypes("phrase");

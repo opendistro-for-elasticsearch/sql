@@ -8,12 +8,10 @@
             "adjust_pure_negative": true,
             "must": [
               {
-                "match_phrase": {
+                "term": {
                   "d.holdersName": {
-                    "query": "a.firstname",
-                    "zero_terms_query": "NONE",
                     "boost": 1,
-                    "slop": 0
+                    "value": "a.firstname"
                   }
                 }
               }

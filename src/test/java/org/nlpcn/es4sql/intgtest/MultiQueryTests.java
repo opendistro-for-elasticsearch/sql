@@ -55,7 +55,7 @@ public class MultiQueryTests {
     public void unionAllOnlyOneRecordEachWithComplexAlias() throws SQLFeatureNotSupportedException, IOException, SqlParseException {
         String query = String.format("SELECT firstname FROM %s/account WHERE firstname = 'Amber' " +
                 "union all " +
-                "SELECT name.firstname as firstname FROM %s/gotCharacters WHERE name.firstname = 'Daenerys'",TEST_INDEX_ACCOUNT,TEST_INDEX_GAME_OF_THRONES);
+                "SELECT name.firstname as firstname FROM %s/gotCharacters WHERE name.firstname = 'daenerys'",TEST_INDEX_ACCOUNT,TEST_INDEX_GAME_OF_THRONES);
         SearchHit[] searchHits = executeAndGetHits(query);
         Assert.assertEquals(2,searchHits.length);
         Set<String> names = new HashSet<>();
