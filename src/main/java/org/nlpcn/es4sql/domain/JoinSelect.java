@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Created by Eliran on 20/8/2015.
  */
-public class JoinSelect {
+public class JoinSelect extends Query {
 
 
     private TableOnJoinSelect firstTable;

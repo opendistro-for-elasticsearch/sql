@@ -10,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +23,7 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
 import static org.nlpcn.es4sql.intgtest.TestsConstants.TEST_INDEX_ACCOUNT;
+import static org.nlpcn.es4sql.intgtest.TestsConstants.TEST_INDEX_GAME_OF_THRONES;
 import static org.nlpcn.es4sql.intgtest.TestsConstants.TEST_INDEX_NESTED_TYPE;
 import static org.nlpcn.es4sql.intgtest.TestsConstants.TEST_INDEX_PHRASE;
 import static org.nlpcn.es4sql.util.CheckPrettyFormatContents.*;
@@ -349,5 +351,37 @@ public class PrettyFormatResponseTest {
         assertThat(dataRowEntry.length(), equalTo(2));
         assertThat(dataRowEntry.get(0), equalTo("brown fox"));
         assertThat(dataRowEntry.get(1), equalTo(JSONObject.NULL));
+    }
+
+    @Test
+    public void joinQuery() {
+        String query = String.format("SELECT b1.balance, b1.age, b2.firstname FROM %s b1 JOIN %s b2 ON b1.age = b2.age", TEST_INDEX_ACCOUNT, TEST_INDEX_ACCOUNT);
+        Protocol protocol = execute(query, "jdbc");
+
+        List<String> fields = Arrays.asList("b1.balance", "b1.age", "b2.firstname");
+        containsColumns(getSchema(protocol), fields);
+        containsData(getDataRows(protocol), fields);
+    }
+
+    @Test
+    public void joinQueryWithAlias() {
+        String query = String.format("SELECT b1.balance AS bal, b1.age AS age, b2.firstname AS name FROM %s b1 JOIN %s b2 ON b1.age = b2.age", TEST_INDEX_ACCOUNT, TEST_INDEX_ACCOUNT);
+        Protocol protocol = execute(query, "jdbc");
+
+        Map<String, String> aliases = new HashMap<>();
+        aliases.put("b1.balance", "bal");
+        aliases.put("b1.age", "age");
+        aliases.put("b2.firstname", "name");
+        containsAliases(getSchema(protocol), aliases);
+    }
+
+    @Test
+    public void joinQueryWithObjectFieldInSelect() {
+        String query = String.format("SELECT c.name.firstname, d.name.lastname FROM %s c JOIN %s d ON d.hname = c.house", TEST_INDEX_GAME_OF_THRONES, TEST_INDEX_GAME_OF_THRONES);
+        Protocol protocol = execute(query, "jdbc");
+
+        List<String> fields = Arrays.asList("c.name.firstname", "d.name.lastname");
+        containsColumns(getSchema(protocol), fields);
+        containsData(getDataRows(protocol), fields);
     }
 }

@@ -11,9 +11,11 @@ import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.NumericMetricsAggregation;
 import org.nlpcn.es4sql.domain.Field;
+import org.nlpcn.es4sql.domain.JoinSelect;
 import org.nlpcn.es4sql.domain.MethodField;
 import org.nlpcn.es4sql.domain.Query;
 import org.nlpcn.es4sql.domain.Select;
+import org.nlpcn.es4sql.domain.TableOnJoinSelect;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,7 +35,7 @@ public class SelectResultSet extends ResultSet {
     private boolean selectAll;
     private String indexName;
     private String typeName;
-    private List<Schema.Column> columns;
+    private List<Schema.Column> columns = new ArrayList<>();
 
     private List<String> head;
     private long size;
@@ -46,7 +48,13 @@ public class SelectResultSet extends ResultSet {
         this.queryResult = queryResult;
         this.selectAll = false;
 
-        loadFromEsState();
+        if (isJoinQuery()) {
+            JoinSelect joinQuery = (JoinSelect) query;
+            loadFromEsState(joinQuery.getFirstTable());
+            loadFromEsState(joinQuery.getSecondTable());
+        } else {
+            loadFromEsState(query);
+        }
         this.schema = new Schema(indexName, typeName, columns);
         this.head = schema.getHeaders();
 
@@ -58,14 +66,15 @@ public class SelectResultSet extends ResultSet {
           Logic for loading Columns to be stored in Schema
      ***********************************************************/
 
+
     /**
      * Makes a request to local node to receive meta data information and maps each field specified in SELECT to its
      * type in the index mapping
      */
-    private void loadFromEsState() {
-        String indexName = fetchIndexName();
-        String typeName = fetchTypeName();
-        String[] fieldNames = fetchFieldsAsArray();
+    private void loadFromEsState(Query query) {
+        String indexName = fetchIndexName(query);
+        String typeName = fetchTypeName(query);
+        String[] fieldNames = fetchFieldsAsArray(query);
 
         if (fieldNames.length == 0)
             selectAll = true;
@@ -101,15 +110,37 @@ public class SelectResultSet extends ResultSet {
             }
         }
 
-        this.indexName = indexName;
-        this.typeName = typeName;
-        this.columns = populateColumns(fieldNames, typeMappings);
+        this.indexName = this.indexName == null ? indexName : (this.indexName + "|" + indexName);
+        this.typeName = this.typeName == null ? typeName : (this.typeName + "|" + typeName);
+        this.columns.addAll(renameColumnWithTableAlias(query, populateColumns(query, fieldNames, typeMappings)));
+    }
+
+    /** Rename column name with table alias as prefix for join query */
+    private List<Schema.Column> renameColumnWithTableAlias(Query query, List<Schema.Column> columns) {
+        List<Schema.Column> renamedCols;
+        if ((query instanceof TableOnJoinSelect)
+                && !Strings.isNullOrEmpty(((TableOnJoinSelect) query).getAlias())) {
+
+            TableOnJoinSelect joinQuery = (TableOnJoinSelect) query;
+            renamedCols = new ArrayList<>();
+
+            for (Schema.Column column : columns) {
+                renamedCols.add(new Schema.Column(
+                    joinQuery.getAlias() + "." + column.getName(),
+                    column.getAlias(),
+                    Schema.Type.valueOf(column.getType().toUpperCase())
+                ));
+            }
+        } else {
+            renamedCols = columns;
+        }
+        return renamedCols;
     }
 
     private boolean isSelectAll() { return selectAll; }
 
-    private boolean containsWildcard() {
-        for (Field field : fetchFields()) {
+    private boolean containsWildcard(Query query) {
+        for (Field field : fetchFields(query)) {
             if (!(field instanceof MethodField) && field.getName().contains("*"))
                 return true;
         }
@@ -117,9 +148,9 @@ public class SelectResultSet extends ResultSet {
         return false;
     }
 
-    private String fetchIndexName() { return query.getFrom().get(0).getIndex(); }
+    private String fetchIndexName(Query query) { return query.getFrom().get(0).getIndex(); }
 
-    private String fetchTypeName() { return query.getFrom().get(0).getType(); }
+    private String fetchTypeName(Query query) { return query.getFrom().get(0).getType(); }
 
     /**
      * queryResult is checked to see if it's of type Aggregation in which case the aggregation fields in GROUP BY
@@ -131,7 +162,7 @@ public class SelectResultSet extends ResultSet {
      * MethodField are added (to prevent duplicate field in Schema for queries like
      * "SELECT age, COUNT(*) FROM bank GROUP BY age" where 'age' is mentioned in both SELECT and GROUP BY).
      */
-    private List<Field> fetchFields() {
+    private List<Field> fetchFields(Query query) {
         Select select = (Select) query;
         List<Field> fields;
         if (queryResult instanceof Aggregations) {
@@ -142,14 +173,18 @@ public class SelectResultSet extends ResultSet {
                 }
             }
         } else {
-            fields = select.getFields();
+            if (query instanceof TableOnJoinSelect) {
+                fields = ((TableOnJoinSelect) query).getSelectedFields();
+            } else {
+                fields = select.getFields();
+            }
         }
 
         return fields;
     }
 
-    private String[] fetchFieldsAsArray() {
-        List<Field> fields = fetchFields();
+    private String[] fetchFieldsAsArray(Query query) {
+        List<Field> fields = fetchFields(query);
         return fields.stream()
                 .map(this::getFieldName)
                 .toArray(String[]::new);
@@ -162,10 +197,10 @@ public class SelectResultSet extends ResultSet {
         return field.getName();
     }
 
-    private Map<String, Field> fetchFieldMap() {
+    private Map<String, Field> fetchFieldMap(Query query) {
         Map<String, Field> fieldMap = new HashMap<>();
 
-        for (Field field : fetchFields()) {
+        for (Field field : fetchFields(query)) {
             fieldMap.put(getFieldName(field), field);
         }
 
@@ -209,10 +244,10 @@ public class SelectResultSet extends ResultSet {
      * If an alias was given for a field, that will be used to identify the field in Column, otherwise the field name
      * will be used.
      */
-    private List<Schema.Column> populateColumns(String[] fieldNames, Map<String, FieldMappingMetaData> typeMappings) {
+    private List<Schema.Column> populateColumns(Query query, String[] fieldNames, Map<String, FieldMappingMetaData> typeMappings) {
         List<String> fields;
 
-        if (isSelectAll() || containsWildcard()) {
+        if (isSelectAll() || containsWildcard(query)) {
             fields = new ArrayList<>(typeMappings.keySet());
         } else {
             fields = Arrays.asList(fieldNames);
@@ -224,7 +259,7 @@ public class SelectResultSet extends ResultSet {
          * access field names in order that they were selected, if given, and then 'fieldMap' is used to access the
          * respective Field object to check for aliases.
          */
-        Map<String, Field> fieldMap = fetchFieldMap();
+        Map<String, Field> fieldMap = fetchFieldMap(query);
         List<Schema.Column> columns = new ArrayList<>();
         for (String field : fields) {
             // _score is a special case since it is not included in typeMappings, so it is checked for here
@@ -360,9 +395,11 @@ public class SelectResultSet extends ResultSet {
             List<DataRows.Row> result = new ArrayList<>();
             result.add(new DataRows.Row(rowSource));
 
-            rowSource = flatRow(head, rowSource);
-            rowSource.put("_score", hit.getScore());
-            result = flatNestedField(newKeys, rowSource, hit.getInnerHits());
+            if (!isJoinQuery()) { // Row already flatten in source in join. And join doesn't support nested fields for now.
+                rowSource = flatRow(head, rowSource);
+                rowSource.put("_score", hit.getScore());
+                result = flatNestedField(newKeys, rowSource, hit.getInnerHits());
+            }
 
             rows.addAll(result);
         }
@@ -582,5 +619,9 @@ public class SelectResultSet extends ResultSet {
         Map<String, Object> data = new HashMap<>();
         data.put(field, term);
         return data;
+    }
+
+    private boolean isJoinQuery() {
+        return query instanceof JoinSelect;
     }
 }

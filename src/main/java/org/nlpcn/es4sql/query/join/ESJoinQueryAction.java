@@ -23,7 +23,7 @@ public abstract class ESJoinQueryAction extends QueryAction {
     protected JoinSelect joinSelect;
 
     public ESJoinQueryAction(Client client, JoinSelect joinSelect) {
-        super(client, null);
+        super(client, joinSelect);
         this.joinSelect = joinSelect;
     }
 
