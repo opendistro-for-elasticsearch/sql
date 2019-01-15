@@ -18,6 +18,8 @@ import java.util.Map;
  */
 public class HintFactory {
 
+    private static final String PREFIX = "! ";
+
     public static Hint getHintFromString(String hintAsString) throws SqlParseException {
         if(hintAsString.startsWith("! USE_NESTED_LOOPS") || hintAsString.startsWith("! USE_NL")){
             return new Hint(HintType.USE_NESTED_LOOPS,null);
@@ -152,6 +154,39 @@ public class HintFactory {
             return new Hint(HintType.POST_FILTER, new String[]{postFilter});
         }
 
+        Hint queryPlanHint = parseHintForQueryPlanner(hintAsString);
+        if (queryPlanHint != null) {
+            return queryPlanHint;
+        }
+
+        return null;
+    }
+
+    /**
+     * Parse hints for hash join in new query planning framework.
+     * Only check syntax error here and leave semantics interpret work for planner.
+     */
+    private static Hint parseHintForQueryPlanner(String hintStr) {
+        if (hintStr.contains("(") &&
+            (hintStr.startsWith("! JOIN_ALGORITHM_BLOCK_SIZE")
+             || hintStr.startsWith("! JOIN_SCROLL_PAGE_SIZE")
+             || hintStr.startsWith("! JOIN_CIRCUIT_BREAK_LIMIT")
+             || hintStr.startsWith("! JOIN_BACK_OFF_RETRY_INTERVALS")
+             || hintStr.startsWith("! JOIN_TIME_OUT")
+            )) { // Note that Trie tree is needed here if many hint options
+
+            String hintName = hintStr.substring(PREFIX.length(), hintStr.indexOf('(')).trim();
+            String hintPrefix = PREFIX + hintName;
+            HintType hintType = HintType.valueOf(hintName);
+            Integer[] params = parseParamsAsInts(hintStr, hintPrefix);
+
+            if (params != null && params.length > 0) {
+                return new Hint(hintType, params);
+            }
+        }
+        else if (hintStr.startsWith("! JOIN_ALGORITHM_USE_LEGACY")) {
+            return new Hint(HintType.JOIN_ALGORITHM_USE_LEGACY, new Object[0]);
+        }
         return null;
     }
 

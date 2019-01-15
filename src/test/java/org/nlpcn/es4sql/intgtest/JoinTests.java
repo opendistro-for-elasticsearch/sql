@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import static org.nlpcn.es4sql.intgtest.TestsConstants.*;
 
@@ -76,14 +77,14 @@ public class JoinTests {
                 " (a.age > 10 OR a.balance > 2000)" +
                 " AND d.age > 1";
         String explainedQuery = hashJoinRunAndExplain(query);
-        boolean containTerms = explainedQuery.replaceAll("\\s+","").contains("\"terms\":{\"holdersName\":[");
+        boolean containTerms = isContainTerms(explainedQuery, "holdersName");
+
         List<String> holdersName = Arrays.asList("daenerys","nanette","virginia","aurelia","mcgee","hattie","elinor","burton");
         for(String holderName : holdersName){
             Assert.assertTrue("should contain:" + holderName , explainedQuery.contains(holderName));
         }
         Assert.assertTrue(containTerms);
     }
-
 
     @Test
     public void joinWithNoWhereButWithConditionHash() throws SQLFeatureNotSupportedException, IOException, SqlParseException {
@@ -106,7 +107,7 @@ public class JoinTests {
         if (useNestedLoops) {
             Assert.assertEquals(0, hits.length);
         } else {
-            Assert.assertEquals(16, hits.length);
+            Assert.assertEquals(4, hits.length);
             Assert.assertTrue(hitsContains(hits, someMatch));
         }
     }
@@ -122,7 +123,7 @@ public class JoinTests {
                 "on h.hname = c.house ",TEST_INDEX_GAME_OF_THRONES,TEST_INDEX_GAME_OF_THRONES);
         if(useNestedLoops) query = query.replace("select","select /*! USE_NL*/ ");
         SearchHit[] hits = joinAndGetHits(query);
-        Assert.assertEquals(16, hits.length);
+        Assert.assertEquals(4, hits.length);
         String house = hits[0].getSourceAsMap().get("c.house").toString();
         boolean someHouse = house.equals("Targaryen") || house.equals( "Stark") || house.equals("Lannister");
         Assert.assertTrue(someHouse );
@@ -327,7 +328,7 @@ public class JoinTests {
             Assert.assertEquals(7, hits.length);
 
         } else {
-            Assert.assertEquals(13, hits.length);
+            Assert.assertEquals(7, hits.length);
             secondMatch = ImmutableMap.of("c.name.firstname", (Object) "Brandon",
             "f.name.firstname", "Eddard", "f.name.lastname", "Stark");
         }
@@ -388,7 +389,7 @@ public class JoinTests {
         if(useNestedLoops) query = query.replace("select","select /*! USE_NL*/ ");
         SearchHit[] hits = joinAndGetHits(query);
         if(useNestedLoops) Assert.assertEquals(0, hits.length);
-        else Assert.assertEquals(2, hits.length);
+        else Assert.assertEquals(0, hits.length);
     }
 
     @Test
@@ -426,11 +427,7 @@ public class JoinTests {
                 , TEST_INDEX_GAME_OF_THRONES,TEST_INDEX_GAME_OF_THRONES);
         if(useNestedLoops) query = query.replace("select","select /*! USE_NL*/ ");
         SearchHit[] hits = joinAndGetHits(query);
-        if (useNestedLoops) {
-            Assert.assertEquals(3, hits.length);
-        } else {
-            Assert.assertEquals(5, hits.length);
-        }
+        Assert.assertEquals(3, hits.length);
     }
 
     @Test
@@ -501,13 +498,13 @@ public class JoinTests {
                 , TEST_INDEX_GAME_OF_THRONES, TEST_INDEX_DOG);
 
         String explainedQuery = hashJoinRunAndExplain(query);
-        boolean containsHoldersNamesTerms = explainedQuery.replaceAll("\\s+","").contains("\"terms\":{\"holdersName\":");
+        boolean containsHoldersNamesTerms = isContainTerms(explainedQuery, "holdersName");
         Assert.assertTrue(containsHoldersNamesTerms);
         List<String> holdersName = Arrays.asList("daenerys","brandon","eddard","jaime");
         for(String holderName : holdersName){
             Assert.assertTrue("should contain:" + holderName , explainedQuery.contains(holderName));
         }
-        boolean containsAgesTerms = explainedQuery.replaceAll("\\s+","").contains("\"terms\":{\"age\":");
+        boolean containsAgesTerms = isContainTerms(explainedQuery, "age");
         Assert.assertTrue(containsAgesTerms);
     }
 
@@ -530,13 +527,12 @@ public class JoinTests {
         if (useNestedLoops) {
             Assert.assertEquals(0, hits.length);
         } else {
-            Assert.assertEquals(16, hits.length);
+            Assert.assertEquals(4, hits.length);
             Assert.assertEquals("Brandon",hits[0].getSourceAsMap().get("c.name.firstname"));
             Assert.assertEquals("Daenerys",hits[1].getSourceAsMap().get("c.name.firstname"));
             Assert.assertEquals("Eddard",hits[2].getSourceAsMap().get("c.name.firstname"));
             Assert.assertEquals("Jaime",hits[3].getSourceAsMap().get("c.name.firstname"));
         }
-
     }
 
 
@@ -557,7 +553,7 @@ public class JoinTests {
         if (useNestedLoops) {
             Assert.assertEquals(0, hits.length);
         } else {
-            Assert.assertEquals(16, hits.length);
+            Assert.assertEquals(4, hits.length);
         }
         //Assert.assertEquals(5,hits[0].getSourceAsMap().size());
     }
@@ -581,7 +577,7 @@ public class JoinTests {
         if (useNestedLoops) {
             Assert.assertEquals(0, hits.length);
         } else {
-            Assert.assertEquals(16, hits.length);
+            Assert.assertEquals(4, hits.length);
         }
         //Assert.assertEquals(5,hits[0].getSourceAsMap().size());
     }
@@ -601,11 +597,7 @@ public class JoinTests {
                 ,  TEST_INDEX_GAME_OF_THRONES, TEST_INDEX_GAME_OF_THRONES);
         if(useNestedLoops) query = query.replace("select","select /*! USE_NL*/ ");
         SearchHit[] hits = joinAndGetHits(query);
-        if (useNestedLoops) {
-            Assert.assertEquals(7, hits.length);
-        } else {
-            Assert.assertEquals(10, hits.length);
-        }
+        Assert.assertEquals(7, hits.length);
         for (SearchHit hit : hits) {
             if(hit.getId().endsWith("0")){
                 Assert.assertEquals(1,hit.getSourceAsMap().size());
@@ -656,6 +648,16 @@ public class JoinTests {
     private boolean equalsWithNullCheck(Object one, Object other) {
         if(one == null)   return other == null;
         return one.equals(other);
+    }
+
+    private boolean isContainTerms(String explainedQuery, String fieldName) {
+        return Pattern.compile(
+            Pattern.quote("\"terms\":{")// quote() escapes special characters to regex, ex. \[{ ...
+                + ".*"                  // Possibly other attributes in-between
+                + Pattern.quote("\"" + fieldName + "\":[")
+        ).
+            matcher(explainedQuery.replaceAll("\\s+","")).
+            find();
     }
 
     @Test

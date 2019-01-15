@@ -3,6 +3,8 @@ package org.nlpcn.es4sql.domain;
 import org.nlpcn.es4sql.parse.ChildrenType;
 import org.nlpcn.es4sql.parse.NestedType;
 
+import java.util.Objects;
+
 /**
  * 搜索域
  * 
@@ -91,6 +93,11 @@ public class Field implements Cloneable{
         if(!namesAreEqual) return false;
         return (other.getAlias() == null && this.alias == null )
                 || other.getAlias().equals(this.alias) ;
+    }
+
+    @Override
+    public int hashCode() { // Bug: equals() is present but hashCode was missing
+        return Objects.hash(name, alias);
     }
 
     @Override

@@ -5,7 +5,7 @@ import org.nlpcn.es4sql.domain.*;
 import org.nlpcn.es4sql.domain.hints.Hint;
 import org.nlpcn.es4sql.domain.hints.HintType;
 import org.nlpcn.es4sql.exception.SqlParseException;
-import org.nlpcn.es4sql.query.*;
+import org.nlpcn.es4sql.query.planner.HashJoinQueryPlanRequestBuilder;
 
 import java.util.*;
 
@@ -30,7 +30,10 @@ public class ESHashJoinQueryAction extends ESJoinQueryAction {
 
     @Override
     protected JoinRequestBuilder createSpecificBuilder() {
-        return new HashJoinElasticRequestBuilder();
+        if (isLegacy()) {
+            return new HashJoinElasticRequestBuilder();
+        }
+        return new HashJoinQueryPlanRequestBuilder(client, sqlRequest);
     }
 
     @Override
@@ -41,6 +44,16 @@ public class ESHashJoinQueryAction extends ESJoinQueryAction {
                 ((HashJoinElasticRequestBuilder) requestBuilder).setUseTermFiltersOptimization(true);
             }
         }
+    }
+
+    /** Keep the option to run legacy hash join algorithm mainly for the comparison */
+    private boolean isLegacy() {
+        for (Hint hint : joinSelect.getHints()) {
+            if (hint.getType() == HintType.JOIN_ALGORITHM_USE_LEGACY) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private List<Map.Entry<Field, Field>> getComparisonFields(String t1Alias, String t2Alias, List<Condition> connectedConditions) throws SqlParseException {

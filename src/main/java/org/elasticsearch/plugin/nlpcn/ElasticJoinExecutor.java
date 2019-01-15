@@ -1,16 +1,13 @@
 package org.elasticsearch.plugin.nlpcn;
 
-import com.google.common.collect.ImmutableMap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
-import org.elasticsearch.common.xcontent.XContentType;
-
 import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestStatus;
@@ -25,15 +22,23 @@ import org.nlpcn.es4sql.query.join.HashJoinElasticRequestBuilder;
 import org.nlpcn.es4sql.query.join.JoinRequestBuilder;
 import org.nlpcn.es4sql.query.join.NestedLoopsElasticRequestBuilder;
 import org.nlpcn.es4sql.query.join.TableInJoinRequestBuilder;
+import org.nlpcn.es4sql.query.planner.HashJoinQueryPlanRequestBuilder;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Eliran on 15/9/2015.
  */
 public abstract class ElasticJoinExecutor implements ElasticHitsExecutor {
-    protected SearchHits results ;
+    private static final Logger LOG = LogManager.getLogger();
+
+    protected List<SearchHit> results; // Keep list to avoid copy to new array in SearchHits
     protected MetaSearchResult metaResults;
     protected final int MAX_RESULTS_ON_ONE_FETCH = 10000;
     private Set<String> aliasesOnReturn;
@@ -48,22 +53,28 @@ public abstract class ElasticJoinExecutor implements ElasticHitsExecutor {
                             && (secondTableReturnedField == null || secondTableReturnedField.size() == 0);
     }
 
-    public void  sendResponse(RestChannel channel){
+    public void sendResponse(RestChannel channel) {
+        XContentBuilder builder = null;
         try {
-            String json = ElasticUtils.hitsAsStringResult(results,metaResults);
-            BytesRestResponse bytesRestResponse = new BytesRestResponse(RestStatus.OK, json);
+            builder = ElasticUtils.hitsAsStringResultZeroCopy(results, metaResults);
+            BytesRestResponse bytesRestResponse = new BytesRestResponse(RestStatus.OK, builder);
             channel.sendResponse(bytesRestResponse);
-        } catch (IOException e) {
-            e.printStackTrace();
+        }
+        catch (IOException e) {
+            try {
+                if (builder != null) {
+                    builder.close();
+                }
+            } catch (Exception ex) {
+                // Ignore. Already logged in channel
+            }
+            LOG.error("Error when sending response", e);
         }
     }
 
     public void run() throws IOException, SqlParseException {
         long timeBefore = System.currentTimeMillis();
-        List<SearchHit> combinedSearchHits =  innerRun();
-        int resultsSize = combinedSearchHits.size();
-        SearchHit[] hits = combinedSearchHits.toArray(new SearchHit[resultsSize]);
-        this.results = new SearchHits(hits, resultsSize,1.0f);
+        results = innerRun();
         long joinTimeInMilli = System.currentTimeMillis() - timeBefore;
         this.metaResults.setTookImMilli(joinTimeInMilli);
     }
@@ -72,11 +83,14 @@ public abstract class ElasticJoinExecutor implements ElasticHitsExecutor {
     protected abstract List<SearchHit> innerRun() throws IOException, SqlParseException ;
 
     public SearchHits getHits(){
-        return results;
+        return new SearchHits(results.toArray(new SearchHit[results.size()]), results.size(), 1.0f);
     }
 
     public static ElasticJoinExecutor createJoinExecutor(Client client, SqlElasticRequestBuilder requestBuilder){
-        if(requestBuilder instanceof HashJoinElasticRequestBuilder) {
+        if (requestBuilder instanceof HashJoinQueryPlanRequestBuilder) {
+            return new QueryPlanElasticExecutor((HashJoinQueryPlanRequestBuilder) requestBuilder);
+        }
+        else if (requestBuilder instanceof HashJoinElasticRequestBuilder) {
             HashJoinElasticRequestBuilder hashJoin = (HashJoinElasticRequestBuilder) requestBuilder;
             return new HashJoinElasticExecutor(client, hashJoin);
         }

@@ -133,7 +133,7 @@ public class CSVResultsExtractorTests {
         Assert.assertTrue("h.words should be on headers", headers.contains("h.words"));
 
         List<String> lines = csvResult.getLines();
-        Assert.assertEquals(16, lines.size());
+        Assert.assertEquals(4, lines.size());
         Assert.assertTrue(lines.contains("F,Targaryen,fireAndBlood") ||
                           lines.contains("F,fireAndBlood,Targaryen") ||
                           lines.contains("Targaryen,fireAndBlood,F") ||

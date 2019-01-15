@@ -32,6 +32,8 @@ import org.nlpcn.es4sql.SearchDao;
     MethodQueryTest.class,
     AggregationTest.class,
     JoinTests.class,
+    HashJoinBasicTest.class,
+    HashJoinMoreTest.class,
     ExplainTest.class,
     WktToGeoJsonConverterTests.class,
     SqlParserTests.class,

@@ -6,11 +6,12 @@ import org.nlpcn.es4sql.domain.JoinSelect;
 import org.nlpcn.es4sql.domain.Select;
 import org.nlpcn.es4sql.domain.TableOnJoinSelect;
 import org.nlpcn.es4sql.domain.hints.Hint;
-import org.nlpcn.es4sql.domain.hints.HintType;
 import org.nlpcn.es4sql.exception.SqlParseException;
 import org.nlpcn.es4sql.query.DefaultQueryAction;
 import org.nlpcn.es4sql.query.QueryAction;
 import org.nlpcn.es4sql.query.SqlElasticRequestBuilder;
+import org.nlpcn.es4sql.query.planner.core.Config;
+import org.nlpcn.es4sql.query.planner.HashJoinQueryPlanRequestBuilder;
 
 import java.util.List;
 
@@ -55,12 +56,43 @@ public abstract class ESJoinQueryAction extends QueryAction {
 
     protected void updateRequestWithHints(JoinRequestBuilder requestBuilder){
         for(Hint hint : joinSelect.getHints()) {
-            if (hint.getType() == HintType.JOIN_LIMIT) {
-                Object[] params = hint.getParams();
-                requestBuilder.getFirstTable().setHintLimit((Integer) params[0]);
-                requestBuilder.getSecondTable().setHintLimit((Integer) params[1]);
+            Object[] params = hint.getParams();
+            switch (hint.getType()) {
+                case JOIN_LIMIT:
+                    requestBuilder.getFirstTable().setHintLimit((Integer) params[0]);
+                    requestBuilder.getSecondTable().setHintLimit((Integer) params[1]);
+                    break;
+                case JOIN_ALGORITHM_BLOCK_SIZE:
+                    if (requestBuilder instanceof HashJoinQueryPlanRequestBuilder) {
+                        queryPlannerConfig(requestBuilder).configureBlockSize(hint.getParams());
+                    }
+                    break;
+                case JOIN_SCROLL_PAGE_SIZE:
+                    if (requestBuilder instanceof HashJoinQueryPlanRequestBuilder) {
+                        queryPlannerConfig(requestBuilder).configureScrollPageSize(hint.getParams());
+                    }
+                    break;
+                case JOIN_CIRCUIT_BREAK_LIMIT:
+                    if (requestBuilder instanceof HashJoinQueryPlanRequestBuilder) {
+                        queryPlannerConfig(requestBuilder).configureCircuitBreakLimit(hint.getParams());
+                    }
+                    break;
+                case JOIN_BACK_OFF_RETRY_INTERVALS:
+                    if (requestBuilder instanceof HashJoinQueryPlanRequestBuilder) {
+                        queryPlannerConfig(requestBuilder).configureBackOffRetryIntervals(hint.getParams());
+                    }
+                    break;
+                case JOIN_TIME_OUT:
+                    if (requestBuilder instanceof HashJoinQueryPlanRequestBuilder) {
+                        queryPlannerConfig(requestBuilder).configureTimeOut(hint.getParams());
+                    }
+                    break;
             }
         }
+    }
+
+    private Config queryPlannerConfig(JoinRequestBuilder requestBuilder) {
+        return ((HashJoinQueryPlanRequestBuilder) requestBuilder).getConfig();
     }
 
     private void fillTableInJoinRequestBuilder(TableInJoinRequestBuilder requestBuilder, TableOnJoinSelect tableOnJoinSelect) throws SqlParseException {

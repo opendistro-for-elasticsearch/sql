@@ -37,7 +37,7 @@ public class NestedLoopsElasticExecutor extends ElasticJoinExecutor {
 
     @Override
     protected List<SearchHit> innerRun() throws SqlParseException {
-        BackOffRetryStrategy retryStrategy = new BackOffRetryStrategy(new double[]{1, 2, 4});
+        BackOffRetryStrategy retryStrategy = new BackOffRetryStrategy(new double[]{1});
         List<SearchHit> combinedResults = new ArrayList<>();
         int totalLimit = nestedLoopsRequest.getTotalLimit();
         int multiSearchMaxSize = nestedLoopsRequest.getMultiSearchMaxSize();
