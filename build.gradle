@@ -1,3 +1,18 @@
+/*
+ *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License").
+ *   You may not use this file except in compliance with the License.
+ *   A copy of the License is located at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   or in the "license" file accompanying this file. This file is distributed
+ *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ *   express or implied. See the License for the specific language governing
+ *   permissions and limitations under the License.
+ */
+
 // TODO: need to clear the license things with NLPChina, and clean up following files:
 //       1. BUILDING.md
 //       2. README.md
@@ -52,7 +67,7 @@ apply plugin: 'elasticsearch.esplugin'
 
 ext {
     projectSubstitutions = [:]
-    licenseFile = rootProject.file('LICENSE.txt')
+    licenseFile = rootProject.file('LICENSE.TXT')
     noticeFile = rootProject.file('NOTICE.txt')
 }
 licenseHeaders.enabled = false
@@ -63,7 +78,7 @@ esplugin {
     name 'openes-sql'
     description 'OpenES SQL plugin'
     // TODO: need to update plugin java package name, start with org.openes.
-    classname 'org.elasticsearch.plugin.nlpcn.SqlPlug'
+    classname 'com.amazon.opendistro.sql.SqlPlug'
     // TODO: update to true
     publishArtifact true
 }
@@ -96,7 +111,7 @@ compileTestJava {
 // TODO: Need to update integration test to use ElasticSearch test framework
 test {
     include '**/*Test.class'
-    exclude 'org/nlpcn/es4sql/intgtest/**'
+    exclude 'com/amazon/opendistro/sql/intgtest/**'
     // Gradle runs unit test using a working directory other and project root
     // set 'project.root' property to allow unit test classes to access test resources
     systemProperty('project.root', project.rootDir.absolutePath)
