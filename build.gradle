@@ -13,11 +13,6 @@
  *   permissions and limitations under the License.
  */
 
-// TODO: need to clear the license things with NLPChina, and clean up following files:
-//       1. BUILDING.md
-//       2. README.md
-//       3. pom.xml and open-source.pom.xml
-//       4. LICENSE
 buildscript {
 
     ext {
@@ -56,7 +51,7 @@ plugins {
     id 'java-library'
 }
 
-group = 'org.openes.plugin'
+group = 'com.amazon.opendistro'
 version = "${version}"
 boolean snapshot = "true".equals(System.getProperty("build.snapshot", "true"));
 if (snapshot) {
@@ -68,18 +63,16 @@ apply plugin: 'elasticsearch.esplugin'
 ext {
     projectSubstitutions = [:]
     licenseFile = rootProject.file('LICENSE.TXT')
-    noticeFile = rootProject.file('NOTICE.txt')
+    noticeFile = rootProject.file('NOTICE')
 }
-licenseHeaders.enabled = false
+licenseHeaders.enabled = true
 
 // TODO: need to fix java doc to enable JavaDoc
 javadoc.enabled = false
 esplugin {
-    name 'openes-sql'
-    description 'OpenES SQL plugin'
-    // TODO: need to update plugin java package name, start with org.openes.
+    name 'elasticsearch-sql' // plugin name in ${elasticsearch.plugin.name} read by ES when plugin loading
+    description 'Amazon Open Distribution for Elasticsearch SQL Access'
     classname 'com.amazon.opendistro.sql.SqlPlug'
-    // TODO: update to true
     publishArtifact true
 }
 
@@ -122,6 +115,10 @@ integTestRunner {
     systemProperty 'tests.security.manager', 'false'
     // allows integration test classes to access test resource from project root path
     systemProperty('project.root', project.rootDir.absolutePath)
+
+    // FIXME: disable ES assertion to allow blocking operation in transport threads
+    // See: https://github.com/elastic/elasticsearch/blob/master/buildSrc/src/main/groovy/com/carrotsearch/gradle/junit4/RandomizedTestingTask.groovy#L61
+    enableAssertions = false
 }
 
 // TODO: fix code style in main and test source code
@@ -138,7 +135,7 @@ forbiddenPatterns {
     setEnabled(false)
 }
 
-// TODO: fix license
+// TODO: fix license. skip dependency license checks
 dependencyLicenses.enabled = false
 
 // We don't need to following ES naming conventions.
@@ -156,14 +153,15 @@ thirdPartyAudit.enabled = false
 //****************************************************************************/
 dependencies {
     compile group: 'com.alibaba', name: 'druid', version:'1.0.15'
-    // compile group: 'org.locationtech.spatial4j', name: 'spatial4j', version:'0.7'
-    compileOnly group: 'org.openes.client', name: 'transport', version: "${es_version}"
+    compile group: 'org.locationtech.spatial4j', name: 'spatial4j', version:'0.7'
+    compile group: 'org.openes.plugin', name: 'parent-join-client', version: "${es_version}"
+    compile group: 'org.openes.plugin', name: 'reindex-client', version: "${es_version}"
     compile group: 'com.google.guava', name: 'guava', version:'15.0'
     compile group: 'org.json', name: 'json', version:'20180813'
-    
-    // compileOnly group: 'org.locationtech.jts', name: 'jts-core', version:'1.15.0'
+
+    //compileOnly group: 'org.locationtech.jts', name: 'jts-core', version:'1.15.0'
     // compileOnly group: 'org.elasticsearch', name: 'elasticsearch', version:'6.5.3'
-    compileOnly group: 'com.unboundid', name: 'unboundid-ldapsdk', version:'3.2.0'
+    // compileOnly group: 'com.unboundid', name: 'unboundid-ldapsdk', version:'3.2.0'
     // compileOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version:'1.58'
     // compileOnly group: 'log4j', name: 'log4j', version:'1.2.17'
     // compileOnly group: 'org.apache.logging.log4j', name: 'log4j-api', version:'2.7'
@@ -174,5 +172,5 @@ dependencies {
     // testCompile group: 'junit', name: 'junit', version:'4.11'
     // testCompile group: 'com.alibaba', name: 'fastjson', version:'1.1.41'
     // testCompile group: 'org.mockito', name: 'mockito-core', version:'2.23.4'
+    testCompile group: 'org.openes.client', name: 'transport', version: "${es_version}"
 }
-

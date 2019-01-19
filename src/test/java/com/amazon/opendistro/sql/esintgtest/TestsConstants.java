@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-package org.openes.sql.integtest;
+package com.amazon.opendistro.sql.esintgtest;
 
 /**
  * Created by omershelef on 18/12/14.

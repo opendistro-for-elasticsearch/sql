@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-package org.openes.sql.integtest;
+package com.amazon.opendistro.sql.esintgtest;
 
 import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;

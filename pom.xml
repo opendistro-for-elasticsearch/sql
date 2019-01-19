@@ -22,39 +22,6 @@
     <packaging>jar</packaging>
     <description>Amazon Open Distribution for Elasticsearch SQL Access</description>
     <name>opendistro-sql</name>
-    <!-- <url>https://github.com/NLPchina/elasticsearch-sql/</url> TODO:
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
-    <scm>
-        <connection>scm:git:git@github.com:NLPchina/elasticsearch-sql.git</connection>
-        <developerConnection>scm:git:git@github.com:NLPchina/elasticsearch-sql.git</developerConnection>
-        <url>git@github.com:NLPchina/elasticsearch-sql.git</url>
-    </scm>
-
-    <developers>
-        <developer>
-            <id>ansj</id>
-            <name>ansj</name>
-            <email>ansj-sun@163.com</email>
-        </developer>
-        <developer>
-            <id>omershelef</id>
-            <name>Omer shelef</name>
-            <email>shlaflaf@gmail.com</email>
-        </developer>
-        <developer>
-            <id>eliranmoyal</id>
-            <name>Eliran Moyal</name>
-            <email>eliran.moyal1@gmail.com</email>
-        </developer>
-    </developers>
-    -->
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -177,6 +144,7 @@
             <scope>provided</scope>
         </dependency>
 
+        <!--
         <dependency>
             <groupId>com.unboundid</groupId>
             <artifactId>unboundid-ldapsdk</artifactId>
@@ -190,6 +158,7 @@
             <version>1.58</version>
             <scope>provided</scope>
         </dependency>
+        -->
 
         <dependency>
             <groupId>log4j</groupId>
@@ -243,7 +212,7 @@
                     <target>1.8</target>
                     <encoding>UTF-8</encoding>
                     <testExcludes>
-                        <testExclude>**/org/openes/sql/integtest/*.java</testExclude> <!-- TODO -->
+                        <testExclude>**/com/amazon/opendistro/sql/esintgtest/*.java</testExclude> <!-- TODO -->
                     </testExcludes>
                 </configuration>
             </plugin>
