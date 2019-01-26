@@ -13,4 +13,4 @@
  *   permissions and limitations under the License.
  */
 
-rootProject.name = 'elasticsearch-sql' //TODO: is it artifactId. change and try ./gradlew publish
+rootProject.name = 'elasticsearch-sql'
