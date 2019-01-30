@@ -15,7 +15,7 @@
 
 package com.amazon.opendistro.sql.query.planner.resource;
 
-import com.amazon.opendistro.sql.query.planner.resource.monitor.BackOffRetryStrategy;
+import com.amazon.opendistro.sql.query.join.BackOffRetryStrategy;
 import com.amazon.opendistro.sql.query.planner.resource.monitor.Monitor;
 import com.amazon.opendistro.sql.query.planner.resource.monitor.TotalMemoryMonitor;
 import org.apache.logging.log4j.LogManager;
@@ -38,9 +38,6 @@ public class ResourceManager {
     /** Actual resource monitor list */
     private final List<Monitor> monitors = new ArrayList<>();
 
-    /** Wrapper for underlying monitors to exit with strategy */
-    private final Monitor monitorStrategy;
-
     /** Time out for the execution */
     private final int timeout;
     private final Instant startTime;
@@ -50,7 +47,6 @@ public class ResourceManager {
 
     public ResourceManager(Stats stats, Config config) {
         this.monitors.add(new TotalMemoryMonitor(stats, config));
-        this.monitorStrategy = new BackOffRetryStrategy(monitors, config.backOffRetryIntervals());
         this.timeout = config.timeout();
         this.startTime = Instant.now();
         this.metaResult = new MetaSearchResult();
@@ -62,7 +58,7 @@ public class ResourceManager {
      * @return  true for yes
      */
     public boolean isHealthy() {
-        return monitorStrategy.isHealthy();
+        return BackOffRetryStrategy.isHealthy();
     }
 
     /**

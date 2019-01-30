@@ -53,11 +53,6 @@ public class HashJoinTest {
     /** Set limit to 100% to bypass circuit break check */
     protected static final String BYPASS_CIRCUIT_BREAK = "/*! JOIN_CIRCUIT_BREAK_LIMIT(100)*/";
 
-    @BeforeClass
-    public static void init() {
-        //BackOffRetryStrategy.threshold = 100;
-    }
-
     protected SearchHits query(String sql) {
         try {
             SearchDao searchDao = MainTestSuite.getSearchDao();

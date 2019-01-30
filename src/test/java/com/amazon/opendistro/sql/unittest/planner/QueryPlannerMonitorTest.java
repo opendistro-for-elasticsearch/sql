@@ -17,6 +17,7 @@ package com.amazon.opendistro.sql.unittest.planner;
 
 import com.amazon.opendistro.sql.query.planner.core.QueryPlanner;
 import org.elasticsearch.search.SearchHits;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Spy;
 import org.mockito.invocation.InvocationOnMock;
@@ -29,6 +30,7 @@ import static org.mockito.Mockito.doAnswer;
 /**
  * Circuit breaker component test
  */
+@Ignore
 public class QueryPlannerMonitorTest extends QueryPlannerTest {
 
     /** Configure back off strategy 1s, 1s and 1s - retry 4 times at most */

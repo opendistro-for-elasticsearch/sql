@@ -15,11 +15,10 @@
 
 package com.amazon.opendistro.sql.intgtest;
 
+import com.amazon.opendistro.sql.executor.join.*;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import org.elasticsearch.common.bytes.BytesReference;
-import com.amazon.opendistro.sql.executor.join.ElasticUtils;
-import com.amazon.opendistro.sql.executor.join.MetaSearchResult;
 import org.elasticsearch.search.SearchHits;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -144,7 +143,7 @@ public class HashJoinMoreTest extends HashJoinTest {
         Assert.assertTrue(
             isTwoJsonSimilar(
                 ElasticUtils.hitsAsStringResult(newHits, META_SEARCH_RESULT),
-                BytesReference.bytes(ElasticUtils.hitsAsStringResultZeroCopy(Arrays.asList(newHits.getHits()), META_SEARCH_RESULT)).utf8ToString()
+                BytesReference.bytes(ElasticUtils.hitsAsStringResultZeroCopy(Arrays.asList(newHits.getHits()), META_SEARCH_RESULT, null)).utf8ToString()
             )
         );
     }

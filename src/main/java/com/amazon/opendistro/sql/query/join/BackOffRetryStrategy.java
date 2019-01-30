@@ -17,93 +17,193 @@ package com.amazon.opendistro.sql.query.join;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.elasticsearch.common.collect.Tuple;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-
-import static java.lang.Runtime.getRuntime;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Predicate;
 
 public class BackOffRetryStrategy {
 
     private final static Logger LOG = LogManager.getLogger();
 
     /** Interval (ms) between each retry */
-    private final long[] intervals;
+    private final static long[] intervals = milliseconds(new double[]{4, 8+4, 16+4});
 
     /** Delta to randomize interval (ms) */
-    private final long delta;
+    private final static long delta = 4 * 1000;
 
-    private final int threshold = 75;
+    private final static int threshold = 85;
 
-    public BackOffRetryStrategy(double[] intervals) {
-        this.intervals = milliseconds(intervals);
-        this.delta = milliseconds(0.5);
+    private static IdentityHashMap<Object, Tuple<Long, Long>> memUse = new IdentityHashMap<>();
+
+    private static AtomicLong mem = new AtomicLong(0L);
+
+    private static long lastTimeoutCleanTime = System.currentTimeMillis();
+
+    private final static long RELTIMEOUT = 1000 * 60 * 30;
+
+    private final static int MAXRETRIES = 999;
+
+    private final static Object obj = new Object();
+
+    private BackOffRetryStrategy() {
+
     }
 
-    public boolean isMemoryHealthy(long allocateMemory) {
+    private static boolean isMemoryHealthy() {
         final long freeMemory = Runtime.getRuntime().freeMemory();
         final long totalMemory = Runtime.getRuntime().totalMemory();
-        final int memoryUsage = (int)Math.round((double)(totalMemory - freeMemory + allocateMemory) / (double)totalMemory * 100);
+        final int memoryUsage = (int) Math.round((double) (totalMemory - freeMemory + mem.get()) / (double) totalMemory * 100);
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Memory total, free, allocate: {}, {}, {}", totalMemory, freeMemory, allocateMemory);
-            LOG.debug("Memory usage and limit: {}%, {}%", memoryUsage, threshold);
-        }
+        LOG.debug("[MCB1] Memory total, free, allocate: {}, {}, {}", totalMemory, freeMemory, mem.get());
+        LOG.debug("[MCB1] Memory usage and limit: {}%, {}%", memoryUsage, threshold);
 
         return memoryUsage < threshold;
     }
 
-    public boolean isHealthy() {
-        return isHealthy(0L);
-    }
-
-    public boolean isHealthy(long allocateMemory) {
+    public static boolean isHealthy() {
         for (int i = 0; i < intervals.length; i++) {
-            if (isMemoryHealthy(allocateMemory)) {
+            if (isMemoryHealthy()) {
                 return true;
             }
 
-            LOG.warn("Memory monitor is unhealthy now, back off retrying: {} attempt", i);
+            LOG.warn("[MCB1] Memory monitor is unhealthy now, back off retrying: {} attempt, thread id = {}", i, Thread.currentThread().getId());
+            if (ThreadLocalRandom.current().nextBoolean()) {
+                LOG.warn("[MCB1] Directly abort on idx {}.", i);
+                return false;
+            }
             backOffSleep(intervals[i]);
         }
-        return isMemoryHealthy(allocateMemory);
+        return isMemoryHealthy();
     }
 
-    private void backOffSleep(long interval) {
+    private static boolean isMemoryHealthy(long allocateMemory, int idx, Object key) {
+        long logMem = mem.get();
+
+        releaseTimeoutMemory();
+        if (idx == 0 && allocateMemory > 0) {
+            logMem = mem.addAndGet(allocateMemory);
+            synchronized (BackOffRetryStrategy.class) {
+                if (memUse.containsKey(key)) {
+                    memUse.put(key, Tuple.tuple(memUse.get(key).v1(), memUse.get(key).v2() + allocateMemory));
+                } else {
+                    memUse.put(key, Tuple.tuple(System.currentTimeMillis(), allocateMemory));
+                }
+            }
+        }
+
+        final long freeMemory = Runtime.getRuntime().freeMemory();
+        final long totalMemory = Runtime.getRuntime().totalMemory();
+        final int memoryUsage = (int) Math.round((double) (totalMemory - freeMemory + logMem) / (double) totalMemory * 100);
+
+        LOG.debug("[MCB] Idx is {}", idx);
+        LOG.debug("[MCB] Memory total, free, allocate: {}, {}, {}, {}", totalMemory, freeMemory, allocateMemory, logMem);
+        LOG.debug("[MCB] Memory usage and limit: {}%, {}%", memoryUsage, threshold);
+
+        return memoryUsage < threshold;
+
+    }
+
+    private static boolean isHealthy(Object key) {
+        return isHealthy(0L, key);
+    }
+
+    public static boolean isHealthy(long allocateMemory, Object key) {
+        if (key == null) {
+            key = obj;
+        }
+
+        for (int i = 0; i < intervals.length; i++) {
+            if (isMemoryHealthy(allocateMemory, i, key)) {
+                return true;
+            }
+
+            LOG.warn("[MCB] Memory monitor is unhealthy now, back off retrying: {} attempt, executor = {}, thread id = {}", i, key, Thread.currentThread().getId());
+            if (ThreadLocalRandom.current().nextBoolean()) {
+                LOG.warn("[MCB] Directly abort on idx {}, executor is {}.", i, key);
+                return false;
+            }
+            backOffSleep(intervals[i]);
+        }
+        return isMemoryHealthy(allocateMemory, MAXRETRIES, key);
+    }
+
+    private static void backOffSleep(long interval) {
         try {
             long millis = randomize(interval);
 
-            LOG.debug("Back off sleeping: {} ms", millis);
+            LOG.info("[MCB] Back off sleeping: {} ms", millis);
             Thread.sleep(millis);
         }
         catch (InterruptedException e) {
-            LOG.error("Sleep interrupted", e);
+            LOG.error("[MCB] Sleep interrupted", e);
         }
     }
 
     /** Generate random interval in [interval-delta, interval+delta) */
-    private long randomize(long interval) {
+    private static long randomize(long interval) {
         // Random number within range generator for JDK 7+
         return ThreadLocalRandom.current().nextLong(
                 lowerBound(interval), upperBound(interval)
         );
     }
 
-    private long lowerBound(long interval) {
+    private static long lowerBound(long interval) {
         return Math.max(0, interval - delta);
     }
 
-    private long upperBound(long interval) {
+    private static long upperBound(long interval) {
         return interval + delta;
     }
 
-    private long[] milliseconds(double[] seconds) {
+    private static long[] milliseconds(double[] seconds) {
         return Arrays.stream(seconds).
-                mapToLong(this::milliseconds).
+                mapToLong((second) -> (long) (1000 * second)).
                 toArray();
     }
 
-    private long milliseconds(double seconds) {
-        return (long) (1000 * seconds);
+    public static void releaseMem(Object key) {
+        LOG.debug("[MCB] mem is {} before release", mem);
+        long v = 0L;
+        synchronized (BackOffRetryStrategy.class) {
+            if (memUse.containsKey(key)) {
+                v = memUse.get(key).v2();
+                memUse.remove(key);
+            }
+        }
+        if (v > 0) {
+            atomicMinusLowBoundZero(mem, v);
+        }
+        LOG.debug("[MCB] mem is {} after release", mem);
+    }
+
+    private static void releaseTimeoutMemory() {
+        long cur = System.currentTimeMillis();
+        if (cur - lastTimeoutCleanTime < RELTIMEOUT) {
+            return;
+        }
+
+        List<Long> bulks = new ArrayList<>();
+        Predicate<Tuple<Long, Long>> isTimeout = t -> cur - t.v1() > RELTIMEOUT;
+        synchronized (BackOffRetryStrategy.class) {
+            memUse.values().stream().filter(isTimeout).forEach(v -> bulks.add(v.v2()));
+            memUse.values().removeIf(isTimeout);
+        }
+
+        for (long v : bulks) {
+            atomicMinusLowBoundZero(mem, v);
+        }
+
+        lastTimeoutCleanTime = cur;
+    }
+
+    private static void atomicMinusLowBoundZero(AtomicLong x, Long y) {
+        long memRes = x.addAndGet(-y);
+        if (memRes < 0) x.compareAndSet(memRes, 0L);
     }
 }

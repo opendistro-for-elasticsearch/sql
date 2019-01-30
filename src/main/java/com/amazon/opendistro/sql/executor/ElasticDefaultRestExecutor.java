@@ -15,11 +15,15 @@
 
 package com.amazon.opendistro.sql.executor;
 
+import com.amazon.opendistro.sql.exception.SqlParseException;
 import com.amazon.opendistro.sql.executor.join.ElasticJoinExecutor;
 import com.amazon.opendistro.sql.executor.join.ElasticUtils;
 import com.amazon.opendistro.sql.executor.join.MetaSearchResult;
 import com.amazon.opendistro.sql.executor.multi.MultiRequestExecutorFactory;
+import com.amazon.opendistro.sql.query.join.BackOffRetryStrategy;
 import com.google.common.collect.Maps;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
@@ -45,6 +49,7 @@ import java.util.Map;
 
 public class ElasticDefaultRestExecutor implements RestExecutor {
 
+    private static final Logger LOG = LogManager.getLogger();
 
     public ElasticDefaultRestExecutor() {
     }
@@ -59,8 +64,21 @@ public class ElasticDefaultRestExecutor implements RestExecutor {
 
         if (requestBuilder instanceof JoinRequestBuilder) {
             ElasticJoinExecutor executor = ElasticJoinExecutor.createJoinExecutor(client, requestBuilder);
-            executor.run();
-            executor.sendResponse(channel);
+            try {
+                executor.run();
+                executor.sendResponse(channel);
+            } catch (IOException | SqlParseException e) {
+                LOG.warn("[MCB] When run/sendResponse, got an IO/SQL exception: {}", e.getMessage());
+                channel.sendResponse(new BytesRestResponse(RestStatus.INTERNAL_SERVER_ERROR, e.getMessage()));
+            } catch (IllegalStateException e) {
+                LOG.warn("[MCB] When run/sendResponse, got a runtime exception: {}", e.getMessage());
+                channel.sendResponse(new BytesRestResponse(RestStatus.INSUFFICIENT_STORAGE, "Memory circuit is broken."));
+            } catch (Throwable t) {
+                LOG.warn("[MCB] When run/sendResponse, got an unknown throwable: {}", t.getMessage());
+                channel.sendResponse(new BytesRestResponse(RestStatus.INTERNAL_SERVER_ERROR, t.getMessage()));
+            } finally {
+                BackOffRetryStrategy.releaseMem(executor);
+            }
         } else if (requestBuilder instanceof MultiQueryRequestBuilder) {
             ElasticHitsExecutor executor = MultiRequestExecutorFactory.createExecutor(client, (MultiQueryRequestBuilder) requestBuilder);
             executor.run();

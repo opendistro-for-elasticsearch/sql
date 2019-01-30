@@ -92,9 +92,8 @@ public class ElasticUtils {
     }
 
     /** Generate string by serializing SearchHits in place without any new HashMap copy */
-    public static XContentBuilder hitsAsStringResultZeroCopy(List<SearchHit> results, MetaSearchResult metaResults) throws IOException {
+    public static XContentBuilder hitsAsStringResultZeroCopy(List<SearchHit> results, MetaSearchResult metaResults, ElasticJoinExecutor executor) throws IOException {
         BytesStreamOutput outputStream = new BytesStreamOutput();
-        BackOffRetryStrategy retry = new BackOffRetryStrategy(new double[]{1});
 
         XContentBuilder builder = XContentFactory.contentBuilder(XContentType.JSON, outputStream).prettyPrint();
         builder.startObject();
@@ -105,19 +104,18 @@ public class ElasticUtils {
             "successful", metaResults.getSuccessfulShards(),
             "failed", metaResults.getFailedShards()
         ));
-        toXContent(builder, EMPTY_PARAMS, results, retry);
+        toXContent(builder, EMPTY_PARAMS, results, executor);
         builder.endObject();
 
-        synchronized (BackOffRetryStrategy.class) {
-            if (!retry.isHealthy(outputStream.size())) {
-                throw new IllegalStateException("Memory may be insufficient when sendResponse()");
-            }
+        if (!BackOffRetryStrategy.isHealthy(2 * outputStream.size(), executor)) {
+            throw new IllegalStateException("Memory could be insufficient when sendResponse().");
         }
+
         return builder;
     }
 
     /** Code copy from SearchHits */
-    private static void toXContent(XContentBuilder builder, Params params, List<SearchHit> hits, BackOffRetryStrategy retry) throws IOException {
+    private static void toXContent(XContentBuilder builder, Params params, List<SearchHit> hits, ElasticJoinExecutor executor) throws IOException {
         builder.startObject(SearchHits.Fields.HITS);
         builder.field(SearchHits.Fields.TOTAL, hits.size());
         builder.field(SearchHits.Fields.MAX_SCORE, 1.0f);
@@ -125,7 +123,7 @@ public class ElasticUtils {
         builder.startArray();
 
         for (int i = 0; i < hits.size() ; i++) {
-            if (i % 10000 == 0 && !retry.isHealthy()) {
+            if (i % 10000 == 0 && !BackOffRetryStrategy.isHealthy()) {
                 throw new IllegalStateException("Memory circuit break when generating json builder");
             }
             toXContent(builder, params, hits.get(i));

@@ -26,8 +26,8 @@ public class Config {
 
     public static final int DEFAULT_BLOCK_SIZE = 10000;
     public static final int DEFAULT_SCROLL_PAGE_SIZE = 10000;
-    public static final int DEFAULT_CIRCUIT_BREAK_LIMIT = 75;
-    public static final double[] DEFAULT_BACK_OFF_RETRY_INTERVALS = {1};
+    public static final int DEFAULT_CIRCUIT_BREAK_LIMIT = 85;
+    public static final double[] DEFAULT_BACK_OFF_RETRY_INTERVALS = {4, 8+4, 16+4};
     public static final int DEFAULT_TIME_OUT = 60;
 
     /** Block size for join algorithm */

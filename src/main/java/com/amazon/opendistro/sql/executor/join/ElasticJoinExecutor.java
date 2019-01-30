@@ -16,6 +16,10 @@
 package com.amazon.opendistro.sql.executor.join;
 
 import com.amazon.opendistro.sql.executor.ElasticHitsExecutor;
+import com.amazon.opendistro.sql.query.join.HashJoinElasticRequestBuilder;
+import com.amazon.opendistro.sql.query.join.JoinRequestBuilder;
+import com.amazon.opendistro.sql.query.join.NestedLoopsElasticRequestBuilder;
+import com.amazon.opendistro.sql.query.join.TableInJoinRequestBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -34,10 +38,6 @@ import org.elasticsearch.search.sort.SortOrder;
 import com.amazon.opendistro.sql.domain.Field;
 import com.amazon.opendistro.sql.exception.SqlParseException;
 import com.amazon.opendistro.sql.query.SqlElasticRequestBuilder;
-import com.amazon.opendistro.sql.query.join.HashJoinElasticRequestBuilder;
-import com.amazon.opendistro.sql.query.join.JoinRequestBuilder;
-import com.amazon.opendistro.sql.query.join.NestedLoopsElasticRequestBuilder;
-import com.amazon.opendistro.sql.query.join.TableInJoinRequestBuilder;
 import com.amazon.opendistro.sql.query.planner.HashJoinQueryPlanRequestBuilder;
 
 import java.io.IOException;
@@ -69,11 +69,13 @@ public abstract class ElasticJoinExecutor implements ElasticHitsExecutor {
                             && (secondTableReturnedField == null || secondTableReturnedField.size() == 0);
     }
 
-    public void sendResponse(RestChannel channel) {
+    public void sendResponse(RestChannel channel) throws IOException {
         XContentBuilder builder = null;
+        long len;
         try {
-            builder = ElasticUtils.hitsAsStringResultZeroCopy(results, metaResults);
+            builder = ElasticUtils.hitsAsStringResultZeroCopy(results, metaResults, this);
             BytesRestResponse bytesRestResponse = new BytesRestResponse(RestStatus.OK, builder);
+            len = bytesRestResponse.content().length();
             channel.sendResponse(bytesRestResponse);
         }
         catch (IOException e) {
@@ -84,8 +86,9 @@ public abstract class ElasticJoinExecutor implements ElasticHitsExecutor {
             } catch (Exception ex) {
                 // Ignore. Already logged in channel
             }
-            LOG.error("Error when sending response", e);
+            throw e;
         }
+        LOG.debug("[MCB] Successfully send response with size of {}. Thread id = {}", len, Thread.currentThread().getId());
     }
 
     public void run() throws IOException, SqlParseException {
@@ -227,7 +230,7 @@ public abstract class ElasticJoinExecutor implements ElasticHitsExecutor {
         this.metaResults.updateTimeOut(searchResponse.isTimedOut());
     }
 
-    protected SearchResponse scrollOneTimeWithMax(Client client,TableInJoinRequestBuilder tableRequest) {
+    protected SearchResponse scrollOneTimeWithMax(Client client, TableInJoinRequestBuilder tableRequest) {
         SearchResponse responseWithHits;SearchRequestBuilder scrollRequest = tableRequest.getRequestBuilder()
                 .setScroll(new TimeValue(60000))
                 .setSize(MAX_RESULTS_ON_ONE_FETCH);
