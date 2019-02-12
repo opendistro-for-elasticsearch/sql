@@ -28,17 +28,17 @@ import com.alibaba.druid.sql.ast.statement.SQLTableSource;
 import com.alibaba.druid.sql.dialect.mysql.ast.expr.MySqlSelectGroupByExpr;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
-import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequest;
-import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
+import com.amazon.opendistro.sql.utils.LocalClusterState;
 import org.elasticsearch.client.Client;
-import java.util.Arrays;
-import java.util.Deque;
+
 import java.util.ArrayDeque;
-import java.util.Map;
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-
-import static org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse.FieldMappingMetaData;
+import static com.amazon.opendistro.sql.utils.LocalClusterState.FieldMappings;
+import static com.amazon.opendistro.sql.utils.LocalClusterState.IndexMappings;
 
 /**
  * Visitor to rewrite AST (abstract syntax tree) for supporting term_query in WHERE and IN condition
@@ -108,8 +108,8 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
         if (isValidIdentifierForTerm(expr)) {
             Map<String, Object> source = null;
             if (this.filterType == TermRewriterFilter.COMMA || this.filterType == TermRewriterFilter.MULTI_QUERY) {
-                if (curScope().getFinalMapping().containsKey(expr.getName())) {
-                    source  = curScope().getFinalMapping().get(expr.getName()).sourceAsMap();
+                if (curScope().getFinalMapping().has(expr.getName())) {
+                    source = curScope().getFinalMapping().mapping(expr.getName());
                 } else {
                     return true;
                 }
@@ -121,9 +121,9 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
                 String fullFieldName = arr[1];
 
                 String index = curScope().getAliases().get(alias);
-                String type = curScope().getMapper().get(index).entrySet().iterator().next().getKey();
-                if (curScope().getMapper().get(index).get(type).containsKey(fullFieldName)) {
-                    source = curScope().getMapper().get(index).get(type).get(fullFieldName).sourceAsMap();
+                FieldMappings fieldMappings = curScope().getMapper().mapping(index).firstMapping();
+                if (fieldMappings.has(fullFieldName)) {
+                    source = fieldMappings.mapping(fullFieldName);
                 } else {
                     return true;
                 }
@@ -171,20 +171,10 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
     }
 
     public String isBothTextAndKeyword(Map<String, Object> source) {
-        String innerFieldName = null;
-        if (source != null) {
-            innerFieldName =  source.keySet().iterator().next();
-        } else {
-            return null;
-        }
-
-        // 1. fieldname in FieldMappingData is not same when type is object
-        // 2. source will always have one key which will be the field name
-
-        if (((Map) source.get(innerFieldName)).containsKey("fields")) {
-            for (Object key : ((Map) ((Map) source.get(innerFieldName)).get("fields") ).keySet()) {
+        if (source.containsKey("fields")) {
+            for (Object key : ((Map) source.get("fields")).keySet()) {
                 if (key instanceof String &&
-                    ((Map) ((Map) ((Map) source.get(innerFieldName)).get("fields") ).get(key)).get("type").equals("keyword")) {
+                    ((Map) ((Map) source.get("fields")).get(key)).get("type").equals("keyword")) {
                     return (String) key;
                 }
             }
@@ -221,36 +211,20 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
             throw new VerificationException("Unknown index " + indexToType.keySet());
         }
 
-        for (Map<String, Map<String, FieldMappingMetaData>> typeMappings: scope.getMapper().values()) {
-            for (Map<String, FieldMappingMetaData> fieldMappings: typeMappings.values()) {
-                /**
-                 * TODO: check for a better way of comparing two fieldMappings
-                 * ES 6.5 does have a equals() method implemented on FieldMappingMetaData which can be used here
-                 */
-                String[] tempFieldMappingsAsArray = fieldMappings.keySet().stream().toArray(String[]::new);
-                Arrays.sort(tempFieldMappingsAsArray);
-
-                if (curScope().getFinalMappingAsArray() == null) {
-                    // We need this for comparison
-                    curScope().setFinalMappingAsArray(tempFieldMappingsAsArray);
-                    // We need this to lookup for rewriting
-                    curScope().setFinalMapping(fieldMappings);
-                }
-
-                if (!Arrays.equals(curScope().getFinalMappingAsArray(), tempFieldMappingsAsArray)) {
-                    return false;
-                }
-            }
+        if (isMappingOfAllIndicesDifferent()) {
+            return false;
         }
+
+        // We need finalMapping to lookup for rewriting
+        FieldMappings fieldMappings = curScope().getMapper().firstMapping().firstMapping();
+        curScope().setFinalMapping(fieldMappings);
         return true;
     }
 
-    public Map<String, Map<String, Map<String, FieldMappingMetaData>>> getMappings(Map<String, String> indexToType) {
+    public IndexMappings getMappings(Map<String, String> indexToType) {
         String[] allIndexes = indexToType.keySet().stream().toArray(String[]::new);
         // GetFieldMappingsRequest takes care of wildcard index expansion
-        GetFieldMappingsRequest request = new GetFieldMappingsRequest().indices(allIndexes).types("*").fields("*").local(true);
-        GetFieldMappingsResponse response = client.admin().indices().getFieldMappings(request).actionGet();
-        return response.mappings();
+        return LocalClusterState.state().getFieldMappings(allIndexes);
     }
 
     public enum TermRewriterFilter {
@@ -267,5 +241,13 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
         public static String toString(TermRewriterFilter filter) {
             return filter.name;
         }
+    }
+
+    private boolean isMappingOfAllIndicesDifferent() {
+        // Collect all FieldMappings into hash set and ignore index/type names. Size > 1 means FieldMappings NOT unique.
+        return curScope().getMapper().allMappings().stream().
+                                                    flatMap(typeMappings -> typeMappings.allMappings().stream()).
+                                                    collect(Collectors.toSet()).
+                                                    size() > 1;
     }
 }

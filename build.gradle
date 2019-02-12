@@ -115,10 +115,6 @@ integTestRunner {
     systemProperty 'tests.security.manager', 'false'
     // allows integration test classes to access test resource from project root path
     systemProperty('project.root', project.rootDir.absolutePath)
-
-    // FIXME: disable ES assertion to allow blocking operation in transport threads
-    // See: https://github.com/elastic/elasticsearch/blob/master/buildSrc/src/main/groovy/com/carrotsearch/gradle/junit4/RandomizedTestingTask.groovy#L61
-    enableAssertions = false
 }
 
 // TODO: fix code style in main and test source code

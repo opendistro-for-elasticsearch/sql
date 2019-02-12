@@ -15,13 +15,12 @@
 
 package com.amazon.opendistro.sql.intgtest;
 
-import static com.amazon.opendistro.sql.intgtest.TestsConstants.*;
-
-import java.io.FileInputStream;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
+import com.amazon.opendistro.sql.SearchDao;
+import com.amazon.opendistro.sql.utils.LocalClusterState;
+import com.google.common.io.ByteStreams;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
+import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
+import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.client.transport.TransportClient;
@@ -36,9 +35,32 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
-import com.google.common.io.ByteStreams;
-import com.amazon.opendistro.sql.SearchDao;
+import java.io.FileInputStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
+import static com.amazon.opendistro.sql.intgtest.TestsConstants.TEST_INDEX;
+import static com.amazon.opendistro.sql.intgtest.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistro.sql.intgtest.TestsConstants.TEST_INDEX_BANK;
+import static com.amazon.opendistro.sql.intgtest.TestsConstants.TEST_INDEX_BANK_TWO;
+import static com.amazon.opendistro.sql.intgtest.TestsConstants.TEST_INDEX_DOG;
+import static com.amazon.opendistro.sql.intgtest.TestsConstants.TEST_INDEX_GAME_OF_THRONES;
+import static com.amazon.opendistro.sql.intgtest.TestsConstants.TEST_INDEX_JOIN_TYPE;
+import static com.amazon.opendistro.sql.intgtest.TestsConstants.TEST_INDEX_LOCATION;
+import static com.amazon.opendistro.sql.intgtest.TestsConstants.TEST_INDEX_LOCATION2;
+import static com.amazon.opendistro.sql.intgtest.TestsConstants.TEST_INDEX_NESTED_TYPE;
+import static com.amazon.opendistro.sql.intgtest.TestsConstants.TEST_INDEX_ODBC;
+import static com.amazon.opendistro.sql.intgtest.TestsConstants.TEST_INDEX_ONLINE;
+import static com.amazon.opendistro.sql.intgtest.TestsConstants.TEST_INDEX_PEOPLE;
+import static com.amazon.opendistro.sql.intgtest.TestsConstants.TEST_INDEX_PHRASE;
+import static com.amazon.opendistro.sql.intgtest.TestsConstants.TEST_INDEX_SYSTEM;
+import static com.amazon.opendistro.sql.utils.LocalClusterState.IndexMappings;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 
 @RunWith(Suite.class)
@@ -73,28 +95,28 @@ import com.amazon.opendistro.sql.SearchDao;
 })
 public class MainTestSuite {
 
-	private static TransportClient client;
-	private static SearchDao searchDao;
+    private static TransportClient client;
+    private static SearchDao searchDao;
 
-	@BeforeClass
-	public static void setUp() throws Exception {
-		Settings settings = Settings.builder().put("client.transport.ignore_cluster_name",true).build();
-		client = new PreBuiltTransportClient(settings).addTransportAddress(getTransportAddress());
+    @BeforeClass
+    public static void setUp() throws Exception {
+        Settings settings = Settings.builder().put("client.transport.ignore_cluster_name", true).build();
+        client = new PreBuiltTransportClient(settings).addTransportAddress(getTransportAddress());
 
         NodesInfoResponse nodeInfos = client.admin().cluster().prepareNodesInfo().get();
-		String clusterName = nodeInfos.getClusterName().value();
-		System.out.println(String.format("Found cluster... cluster name: %s", clusterName));
+        String clusterName = nodeInfos.getClusterName().value();
+        System.out.println(String.format("Found cluster... cluster name: %s", clusterName));
 
-		// Load test data.
+        // Load test data.
         createTestIndex(TEST_INDEX_ONLINE);
         loadBulk("src/test/resources/online.json", TEST_INDEX_ONLINE);
 
         createTestIndex(TEST_INDEX_ACCOUNT);
         prepareAccountsIndex();
-		loadBulk("src/test/resources/accounts.json", TEST_INDEX_ACCOUNT);
+        loadBulk("src/test/resources/accounts.json", TEST_INDEX_ACCOUNT);
 
         createTestIndex(TEST_INDEX_PHRASE);
-		preparePhrasesIndex();
+        preparePhrasesIndex();
         loadBulk("src/test/resources/phrases.json", TEST_INDEX_PHRASE);
 
         createTestIndex(TEST_INDEX_DOG);
@@ -145,8 +167,42 @@ public class MainTestSuite {
         //refresh to make sure all the docs will return on queries
         client.admin().indices().prepareRefresh(TEST_INDEX + "*").get();
 
-		System.out.println("Finished the setup process...");
-	}
+        initLocalClusterState();
+
+        System.out.println("Finished the setup process...");
+    }
+
+	private static void initLocalClusterState() {
+        Answer<IndexMappings> getMapping = new Answer<IndexMappings>() {
+            @Override
+            public IndexMappings answer(InvocationOnMock invocation) {
+                Object[] args = invocation.getArguments();
+
+                // Mock by calling getMapping API to skip dependencies ClusterService and Resolver.
+                GetMappingsRequest request = new GetMappingsRequest();
+                request.indices(toStrArray(args[0]));
+                if (args.length > 1) {
+                    request.types(toStrArray(args[1]));
+                }
+
+                GetMappingsResponse response = client.admin().indices().getMappings(request).actionGet();
+                return new IndexMappings(response.mappings());
+            }
+
+            private String[] toStrArray(Object arg) {
+                if (arg instanceof String) {
+                    return new String[] { (String) arg };
+                }
+                return (String[]) arg;
+            }
+        };
+
+        LocalClusterState mockState = mock(LocalClusterState.class);
+        when(mockState.getFieldMappings(any())).thenAnswer(getMapping);
+        when(mockState.getFieldMappings(any(), any())).thenAnswer(getMapping);
+        when(mockState.getFieldMappings(any(), any(), any())).thenAnswer(getMapping);
+        LocalClusterState.state(mockState);
+    }
 
     private static void createTestIndex(String index) {
         deleteTestIndex(index);

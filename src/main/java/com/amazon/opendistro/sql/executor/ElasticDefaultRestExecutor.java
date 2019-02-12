@@ -49,9 +49,18 @@ import java.util.Map;
 
 public class ElasticDefaultRestExecutor implements RestExecutor {
 
+    /** Request builder to generate ES DSL */
+    private final SqlElasticRequestBuilder requestBuilder;
+
     private static final Logger LOG = LogManager.getLogger();
 
-    public ElasticDefaultRestExecutor() {
+    public ElasticDefaultRestExecutor(QueryAction queryAction) {
+        // Put explain() here to make it run in NIO thread
+        try {
+            this.requestBuilder = queryAction.explain();
+        } catch (SqlParseException e) {
+            throw new IllegalStateException("Failed to explain query action", e);
+        }
     }
 
     /**
@@ -59,7 +68,6 @@ public class ElasticDefaultRestExecutor implements RestExecutor {
      */
     @Override
     public void execute(Client client, Map<String, String> params, QueryAction queryAction, RestChannel channel) throws Exception {
-        SqlElasticRequestBuilder requestBuilder = queryAction.explain();
         ActionRequest request = requestBuilder.request();
 
         if (requestBuilder instanceof JoinRequestBuilder) {
@@ -98,8 +106,6 @@ public class ElasticDefaultRestExecutor implements RestExecutor {
 
     @Override
     public String execute(Client client, Map<String, String> params, QueryAction queryAction) throws Exception {
-
-        SqlElasticRequestBuilder requestBuilder = queryAction.explain();
         ActionRequest request = requestBuilder.request();
 
         if (requestBuilder instanceof JoinRequestBuilder) {

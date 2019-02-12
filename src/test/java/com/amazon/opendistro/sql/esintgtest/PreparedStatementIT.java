@@ -100,6 +100,32 @@ public class PreparedStatementIT extends ESIntegTestCase {
         }
     }
 
+    /** Temporary test case to verify that assertion for transport thread could pass now */
+    @Test
+    public void testPreparedStatementForJoin() throws IOException {
+        query(String.format("{\n" +
+            "  \"query\": \"SELECT * FROM %s/account a JOIN %s/account b ON a.age = b.age WHERE a.age > ? AND b.state in (?, ?) LIMIT ?\",\n" +
+            "  \"parameters\": [\n" +
+            "    {\n" +
+            "      \"type\": \"integer\",\n" +
+            "      \"value\": \"" + 30 + "\"\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"type\": \"string\",\n" +
+            "      \"value\": \"TN\"\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"type\": \"string\",\n" +
+            "      \"value\": \"UT\"\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"type\": \"integer\",\n" +
+            "      \"value\": \"20\"\n" +
+            "    }\n" +
+            "  ]\n" +
+            "}", TestsConstants.TEST_INDEX_ACCOUNT, TestsConstants.TEST_INDEX_ACCOUNT));
+    }
+
     private JSONObject query(String request) throws IOException {
         RestClient restClient = ESIntegTestCase.getRestClient();
         Request sqlRequest = new Request("POST", "_sql");

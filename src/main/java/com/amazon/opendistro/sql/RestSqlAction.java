@@ -17,7 +17,7 @@ package com.amazon.opendistro.sql;
 
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.common.settings.Settings;
-import com.amazon.opendistro.sql.executor.ActionRequestRestExecuterFactory;
+import com.amazon.opendistro.sql.executor.ActionRequestRestExecutorFactory;
 import com.amazon.opendistro.sql.executor.RestExecutor;
 import org.elasticsearch.rest.*;
 import com.amazon.opendistro.sql.request.SqlRequest;
@@ -71,7 +71,7 @@ public class RestSqlAction extends BaseRestHandler {
                 return channel -> channel.sendResponse(new BytesRestResponse(RestStatus.OK, jsonExplanation));
             } else {
                 Map<String, String> params = request.params();
-                RestExecutor restExecutor = ActionRequestRestExecuterFactory.createExecutor(params.get("format"));
+                RestExecutor restExecutor = ActionRequestRestExecutorFactory.createExecutor(params.get("format"), queryAction);
                 final QueryAction finalQueryAction = queryAction;
                 //doing this hack because elasticsearch throws exception for un-consumed props
                 Map<String,String> additionalParams = new HashMap<>();

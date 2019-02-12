@@ -22,12 +22,14 @@ import com.amazon.opendistro.sql.domain.Condition;
 import com.amazon.opendistro.sql.domain.Select;
 import com.amazon.opendistro.sql.domain.Where;
 import com.amazon.opendistro.sql.exception.SqlParseException;
+import com.amazon.opendistro.sql.intgtest.TestsConstants;
 import com.amazon.opendistro.sql.parser.ElasticSqlExprParser;
 import com.amazon.opendistro.sql.parser.ScriptFilter;
 import com.amazon.opendistro.sql.parser.SqlParser;
 import com.amazon.opendistro.sql.query.ESActionFactory;
 import com.amazon.opendistro.sql.query.QueryAction;
 import com.amazon.opendistro.sql.query.SqlElasticRequestBuilder;
+import com.amazon.opendistro.sql.utils.LocalClusterState;
 import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
@@ -35,10 +37,18 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.client.AdminClient;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.IndicesAdminClient;
+import org.elasticsearch.cluster.ClusterState;
+import org.elasticsearch.cluster.metadata.IndexMetaData;
+import org.elasticsearch.cluster.metadata.IndexNameExpressionResolver;
+import org.elasticsearch.cluster.metadata.MappingMetaData;
+import org.elasticsearch.cluster.metadata.MetaData;
+import org.elasticsearch.cluster.service.ClusterService;
+import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.xcontent.DeprecationHandler;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;
 import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
 import java.sql.SQLFeatureNotSupportedException;
@@ -48,7 +58,9 @@ import java.util.regex.Pattern;
 
 import static org.elasticsearch.search.builder.SearchSourceBuilder.ScriptField;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class CheckScriptContents {
 
@@ -170,14 +182,22 @@ public class CheckScriptContents {
                 "          }\n" +
                 "        }\n" +
                 "      }\n" +
-                "    }\n" +
+                "    },\n" +
+                // ==== All required by IndexMetaData.fromXContent() ====
+                "    \"settings\": {\n" +
+                "      \"index\": {\n" +
+                "        \"number_of_shards\": 5,\n" +
+                "        \"number_of_replicas\": 0,\n" +
+                "        \"version\": {\n" +
+                "          \"created\": \"6050399\"\n" +
+                "        }\n" +
+                "      }\n" +
+                "    },\n" +
+                "    \"mapping_version\": \"1\",\n" +
+                "    \"settings_version\": \"1\"\n" +
+                //=======================================================
                 "  }\n" +
                 "}";
-
-            XContentType xContentType = XContentType.JSON;
-            XContentParser parser = xContentType.
-                xContent()
-                .createParser(NamedXContentRegistry.EMPTY, DeprecationHandler.THROW_UNSUPPORTED_OPERATION, mappings);
 
             AdminClient mockAdminClient = mock(AdminClient.class);
             when(mockClient.admin()).thenReturn(mockAdminClient);
@@ -188,14 +208,60 @@ public class CheckScriptContents {
             ActionFuture<GetFieldMappingsResponse> mockActionResp = mock(ActionFuture.class);
             when(mockIndexClient.getFieldMappings(any(GetFieldMappingsRequest.class))).thenReturn(mockActionResp);
 
-            when(mockActionResp.actionGet()).thenReturn(GetFieldMappingsResponse.fromXContent(parser));
+            when(mockActionResp.actionGet()).thenReturn(GetFieldMappingsResponse.fromXContent(createParser(mappings)));
 
-            //when(mockClient.admin().indices().getFieldMappings(any(GetFieldMappingsRequest.class)).actionGet()).
-            //    thenReturn(GetFieldMappingsResponse.fromXContent(parser));
+            mockLocalClusterState(mappings);
 
         } catch (IOException e) {
             throw new ParserException(e.getMessage());
         }
 
     }
+
+    private static XContentParser createParser(String mappings) throws IOException {
+        return XContentType.JSON.xContent().createParser(
+            NamedXContentRegistry.EMPTY,
+            DeprecationHandler.THROW_UNSUPPORTED_OPERATION,
+            mappings
+        );
+    }
+
+    public static void mockLocalClusterState(String mappings) {
+        LocalClusterState.state().setClusterService(mockClusterService(mappings));
+        LocalClusterState.state().setResolver(mockIndexNameExpressionResolver());
+    }
+
+    public static ClusterService mockClusterService(String mappings) {
+        ClusterService mockService = mock(ClusterService.class);
+        ClusterState mockState = mock(ClusterState.class);
+        MetaData mockMetaData = mock(MetaData.class);
+
+        when(mockService.state()).thenReturn(mockState);
+        when(mockState.metaData()).thenReturn(mockMetaData);
+        try {
+            ImmutableOpenMap.Builder<String, ImmutableOpenMap<String, MappingMetaData>> builder = ImmutableOpenMap.builder();
+            builder.put(TestsConstants.TEST_INDEX_BANK, IndexMetaData.fromXContent(createParser(mappings)).getMappings());
+            when(mockMetaData.findMappings(any(), any(), any())).thenReturn(builder.build());
+        }
+        catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+        return mockService;
+    }
+
+    private static IndexNameExpressionResolver mockIndexNameExpressionResolver() {
+        IndexNameExpressionResolver mockResolver = mock(IndexNameExpressionResolver.class);
+        when(mockResolver.concreteIndexNames(any(), any(), any())).thenAnswer(
+            (Answer<String[]>) invocation -> {
+                // Return index expression directly without resolving
+                Object indexExprs = invocation.getArguments()[2];
+                if (indexExprs instanceof String) {
+                    return new String[]{ (String) indexExprs };
+                }
+                return (String[]) indexExprs;
+            }
+        );
+        return mockResolver;
+    }
+
 }

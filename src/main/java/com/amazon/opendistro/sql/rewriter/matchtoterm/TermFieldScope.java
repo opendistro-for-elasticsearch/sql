@@ -15,10 +15,11 @@
 
 package com.amazon.opendistro.sql.rewriter.matchtoterm;
 
+import com.amazon.opendistro.sql.utils.LocalClusterState.IndexMappings;
+import com.amazon.opendistro.sql.utils.LocalClusterState.FieldMappings;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse.FieldMappingMetaData;
 
 /**
  * Index Mapping information in current query being visited.
@@ -26,13 +27,12 @@ import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRespon
 public class TermFieldScope {
 
     // mapper => index, type, field_name, FieldMappingMetaData
-    private Map<String, Map<String, Map<String, FieldMappingMetaData>>> mapper;
-    private Map<String, FieldMappingMetaData> finalMapping;
-    private String[] finalMappingAsArray;
+    private IndexMappings mapper;
+    private FieldMappings finalMapping;
     private Map<String, String> aliases;
 
     public TermFieldScope() {
-        this.mapper = new HashMap<>();
+        this.mapper = IndexMappings.EMPTY;
         this.aliases = new HashMap<>();
     }
 
@@ -44,28 +44,20 @@ public class TermFieldScope {
         this.aliases = aliases;
     }
 
-    public Map<String, Map<String, Map<String, FieldMappingMetaData>>> getMapper() {
+    public IndexMappings getMapper() {
         return this.mapper;
     }
 
-    public void setMapper(Map<String, Map<String, Map<String, FieldMappingMetaData>>> mapper) {
+    public void setMapper(IndexMappings mapper) {
         this.mapper = mapper;
     }
 
-    public Map<String, FieldMappingMetaData> getFinalMapping() {
+    public FieldMappings getFinalMapping() {
         return this.finalMapping;
     }
 
-    public void setFinalMapping(Map<String, FieldMappingMetaData> finalMapping) {
+    public void setFinalMapping(FieldMappings finalMapping) {
         this.finalMapping = finalMapping;
-
     }
 
-    public String[] getFinalMappingAsArray() {
-        return finalMappingAsArray;
-    }
-
-    public void setFinalMappingAsArray(String[] finalMappingAsArray) {
-        this.finalMappingAsArray = finalMappingAsArray;
-    }
 }
