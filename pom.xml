@@ -18,7 +18,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.amazon.opendistro</groupId>
     <artifactId>elasticsearch-sql</artifactId> <!-- TODO -->
-    <version>6.5.3.0</version>
+    <version>6.5.4.0</version>
     <packaging>jar</packaging>
     <description>Amazon Open Distribution for Elasticsearch SQL Access</description>
     <name>opendistro-sql</name>
@@ -27,7 +27,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <runSuite>**/MainTestSuite.class</runSuite>
         <elasticsearch.plugin.name>elasticsearch-sql</elasticsearch.plugin.name> <!-- TODO -->
-        <elasticsearch.version>6.5.3</elasticsearch.version>
+        <elasticsearch.version>6.5.4</elasticsearch.version>
         <elasticsearch.plugin.classname>com.amazon.opendistro.sql.SqlPlug</elasticsearch.plugin.classname>
     </properties>
 
