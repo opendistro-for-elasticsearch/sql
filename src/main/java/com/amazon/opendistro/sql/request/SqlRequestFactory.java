@@ -99,6 +99,7 @@ public class SqlRequestFactory {
                         parameters.add(parameter);
                         break;
                     case BYTE:
+                    case SHORT:
                     case INTEGER:
                     case LONG:
                         parameter = new PreparedStatementRequest.PreparedStatementParameter<>(paramJson.getLong(PARAM_VALUE_FIELD_NAME));

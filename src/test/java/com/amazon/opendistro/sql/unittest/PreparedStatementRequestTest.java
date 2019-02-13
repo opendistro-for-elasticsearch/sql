@@ -26,7 +26,7 @@ import java.util.List;
 public class PreparedStatementRequestTest {
 
     @Test
-    public void testSubstibute() {
+    public void testSubstitute() {
         String sqlTemplate = "select * from table_name where number_param > ? and string_param = 'Amazon.com' " +
                 "and test_str = '''test escape? \\'' and state in (?,?) and null_param = ? and double_param = ? " +
                 "and question_mark = '?'";
@@ -72,7 +72,7 @@ public class PreparedStatementRequestTest {
 
     @Test(expected = IllegalStateException.class)
     public void testSubstitute_parameterNumberNotMatch() {
-        String sqlTemplate = "select * from talbe_name where param1 = ? and param2 = ?";
+        String sqlTemplate = "select * from table_name where param1 = ? and param2 = ?";
         List<PreparedStatementRequest.PreparedStatementParameter> params = new ArrayList<>();
         params.add(new PreparedStatementRequest.StringParameter("value"));
 

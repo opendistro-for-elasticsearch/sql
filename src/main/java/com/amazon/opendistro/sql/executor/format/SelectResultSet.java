@@ -239,6 +239,7 @@ public class SelectResultSet extends ResultSet {
     private Schema.Type fetchMethodReturnType(Field field) {
         switch (field.getName().toLowerCase()) {
             case "count":
+                return Schema.Type.LONG;
             case "sum":
             case "avg":
             case "min":
@@ -313,15 +314,26 @@ public class SelectResultSet extends ResultSet {
                     // TODO isPropertyType() logic should be changed to check for nested more effectively
                     if (isSelectAll() && isPropertyType(field)) { continue; }
 
-                    String type = getTypeFromMetaData(field, metaData);
+                    String type = getTypeFromMetaData(field, metaData).toUpperCase();
 
-                    columns.add(
-                            new Schema.Column(
-                                    field,
-                                    fetchAlias(field, fieldMap),
-                                    Schema.Type.valueOf(type.toUpperCase())
-                            )
-                    );
+                    /*
+                     * Three cases regarding Type:
+                     * 1. If Type exists, create Column
+                     * 2. If Type doesn't exist and isSelectAll() is false, throw exception
+                     * 3. If Type doesn't exist and isSelectAll() is true, Column creation for field is skipped
+                     */
+                    if (Schema.hasType(type)) {
+                        columns.add(
+                                new Schema.Column(
+                                        field,
+                                        fetchAlias(field, fieldMap),
+                                        Schema.Type.valueOf(type)
+                                )
+                        );
+                    } else if (!isSelectAll()) {
+                        throw new IllegalArgumentException(
+                                String.format("%s field types are currently not supported.", type));
+                    }
                 }
             }
         }
@@ -399,6 +411,8 @@ public class SelectResultSet extends ResultSet {
 
             this.rows = populateRows(aggregations);
             this.size = rows.size();
+            // Total hits is not available from Aggregations so 'size' is used
+            this.totalHits = size;
         }
     }
 
@@ -610,6 +624,7 @@ public class SelectResultSet extends ResultSet {
      */
     private List<DataRows.Row> doFlatNestedFieldValue(String colName, SearchHit[] colValue, List<DataRows.Row> rows) {
         List<DataRows.Row> result = new ArrayList<>();
+        Map<String, Schema.Type> fieldTypeMap = fetchFieldTypeMap();
         for (DataRows.Row row : rows) {
             for (SearchHit hit : colValue) {
                 Map<String, Object> innerRow = hit.getSourceAsMap();
@@ -628,6 +643,42 @@ public class SelectResultSet extends ResultSet {
         }
 
         return result;
+    }
+
+    /**
+     * Column information is kept as a List to maintain order but in cases like the convertData() method, when
+     * repeatedly checking the Type of a field before adding it into Row, it can be troublesome to iterate through all
+     * of the list of Columns just to get the Type for one field. This method returns a map to make a check like this
+     * more efficient.
+     */
+
+    private Map<String, Schema.Type> fetchFieldTypeMap() {
+        Map<String, Schema.Type> fieldTypeMap = new HashMap<>();
+        for (Schema.Column column : schema) {
+            fieldTypeMap.put(column.getName(), column.getEnumType());
+        }
+
+        return fieldTypeMap;
+    }
+
+    /**
+     * Created as a generic solution for applying any transformations or conversions to data before adding it into the
+     * resulting Row object.
+     *
+     * For the time being it is only used for converting Date values into the millis-since-epoch format.
+     */
+    private Object convertData(Map<String, Schema.Type> fieldTypeMap, String field, Object data) {
+        Schema.Type type = fieldTypeMap.get(field);
+        switch (type) {
+            case DATE:
+                // convert date
+            default:
+                return data;
+        }
+    }
+
+    private long convertDateToEpochInMillis() {
+        return 0;
     }
 
     private Map<String, Object> addMap(String field, Object term) {

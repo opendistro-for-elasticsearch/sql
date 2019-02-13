@@ -76,6 +76,223 @@ public class TestUtils {
                 "}";
     }
 
+    public static String getPhraseIndexMapping() {
+        return "{  \"phrase\": {" +
+                " \"properties\": {\n" +
+                "          \"phrase\": {\n" +
+                "            \"type\": \"text\",\n" +
+                "            \"store\": true\n" +
+                "          }" +
+                "       }"+
+                "   }" +
+                "}";
+    }
+
+    public static String getDogIndexMapping() {
+        return "{  \"dog\": {" +
+                " \"properties\": {\n" +
+                "          \"dog_name\": {\n" +
+                "            \"type\": \"text\",\n" +
+                "            \"fielddata\": true\n" +
+                "          }"+
+                "       }"+
+                "   }" +
+                "}";
+    }
+
+    public static String getGameOfThronesIndexMapping() {
+        return "{  \"gotCharacters\": { " +
+                " \"properties\": {\n" +
+                " \"nickname\": {\n" +
+                "\"type\":\"text\", "+
+                "\"fielddata\":true"+
+                "},\n"+
+                " \"name\": {\n" +
+                "\"properties\": {\n" +
+                "\"firstname\": {\n" +
+                "\"type\": \"text\",\n" +
+                "  \"fielddata\": true\n" +
+                "},\n" +
+                "\"lastname\": {\n" +
+                "\"type\": \"text\",\n" +
+                "  \"fielddata\": true\n" +
+                "},\n" +
+                "\"ofHerName\": {\n" +
+                "\"type\": \"integer\"\n" +
+                "},\n" +
+                "\"ofHisName\": {\n" +
+                "\"type\": \"integer\"\n" +
+                "}\n" +
+                "}\n" +
+                "}"+
+                "} } }";
+    }
+
+    // System
+
+    public static String getOdbcIndexMapping() {
+        return "{\n" +
+                "\t\"odbc\" :{\n" +
+                "\t\t\"properties\":{\n" +
+                "\t\t\t\"odbc_time\":{\n" +
+                "\t\t\t\t\"type\":\"date\",\n" +
+                "\t\t\t\t\"format\": \"{'ts' ''yyyy-MM-dd HH:mm:ss.SSS''}\"\n" +
+                "\t\t\t},\n" +
+                "\t\t\t\"docCount\":{\n" +
+                "\t\t\t\t\"type\":\"text\"\n" +
+                "\t\t\t}\n" +
+                "\t\t}\n" +
+                "\t}\n" +
+                "}";
+    }
+
+    public static String getLocationIndexMapping(String type) {
+        return "{\n" +
+                "\t\"" + type + "\" :{\n" +
+                "\t\t\"properties\":{\n" +
+                "\t\t\t\"place\":{\n" +
+                "\t\t\t\t\"type\":\"geo_shape\",\n" +
+                "\t\t\t\t\"tree\": \"quadtree\",\n" +
+                "\t\t\t\t\"precision\": \"10km\"\n" +
+                "\t\t\t},\n" +
+                "\t\t\t\"center\":{\n" +
+                "\t\t\t\t\"type\":\"geo_point\"\n" +
+                "\t\t\t},\n" +
+                "\t\t\t\"description\":{\n" +
+                "\t\t\t\t\"type\":\"text\"\n" +
+                "\t\t\t}\n" +
+                "\t\t}\n" +
+                "\t}\n" +
+                "}";
+    }
+
+    public static String getNestedTypeIndexMapping() {
+        return "{ \"nestedType\": {\n" +
+                "        \"properties\": {\n" +
+                "          \"message\": {\n" +
+                "            \"type\": \"nested\",\n" +
+                "            \"properties\": {\n" +
+                "              \"info\": {\n" +
+                "                \"type\": \"keyword\",\n" +
+                "                \"index\": \"true\"\n" +
+                "              },\n" +
+                "              \"author\": {\n" +
+                "                \"type\": \"keyword\",\n" +
+                "                \"index\": \"true\"\n" +
+                "              },\n" +
+                "              \"dayOfWeek\": {\n" +
+                "                \"type\": \"long\"\n" +
+                "              }\n" +
+                "            }\n" +
+                "          },\n" +
+                "          \"comment\": {\n" +
+                "            \"type\": \"nested\",\n" +
+                "            \"properties\": {\n" +
+                "              \"data\": {\n" +
+                "                \"type\": \"keyword\",\n" +
+                "                \"index\": \"true\"\n" +
+                "              },\n" +
+                "              \"likes\": {\n" +
+                "                \"type\": \"long\"\n" +
+                "              }\n" +
+                "            }\n" +
+                "          },\n" +
+                "          \"myNum\": {\n" +
+                "            \"type\": \"long\"\n" +
+                "          },\n" +
+                "          \"someField\": {\n" +
+                "                \"type\": \"keyword\",\n" +
+                "                \"index\": \"true\"\n" +
+                "          }\n" +
+                "        }\n" +
+                "      }\n" +
+                "    }}";
+    }
+
+    public static String getJoinTypeIndexMapping() {
+        return "{\n" +
+                "  \"joinType\": {\n" +
+                "    \"properties\": {\n" +
+                "      \"join_field\": {\n" +
+                "        \"type\": \"join\",\n" +
+                "        \"relations\": {\n" +
+                "          \"parentType\": \"childrenType\"\n" +
+                "        }\n" +
+                "      },\n" +
+                "      \"parentTile\": {\n" +
+                "        \"index\": \"true\",\n" +
+                "        \"type\": \"keyword\"\n" +
+                "      },\n" +
+                "      \"dayOfWeek\": {\n" +
+                "        \"type\": \"long\"\n" +
+                "      },\n" +
+                "      \"author\": {\n" +
+                "        \"index\": \"true\",\n" +
+                "        \"type\": \"keyword\"\n" +
+                "      },\n" +
+                "      \"info\": {\n" +
+                "        \"index\": \"true\",\n" +
+                "        \"type\": \"keyword\"\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }\n" +
+                "}";
+    }
+
+    public static String getBankIndexMapping(String type) {
+        return "{\n" +
+                "  \"" + type +"\": {\n" +
+                "    \"properties\": {\n" +
+                "      \"account_number\": {\n" +
+                "        \"type\": \"long\"\n" +
+                "      },\n" +
+                "      \"address\": {\n" +
+                "        \"type\": \"text\"\n" +
+                "      },\n" +
+                "      \"age\": {\n" +
+                "        \"type\": \"integer\"\n" +
+                "      },\n" +
+                "      \"balance\": {\n" +
+                "        \"type\": \"long\"\n" +
+                "      },\n" +
+                "      \"birthdate\": {\n" +
+                "        \"type\": \"date\"\n" +
+                "      },\n" +
+                "      \"city\": {\n" +
+                "        \"type\": \"keyword\"\n" +
+                "      },\n" +
+                "      \"email\": {\n" +
+                "        \"type\": \"text\"\n" +
+                "      },\n" +
+                "      \"employer\": {\n" +
+                "        \"type\": \"text\"\n" +
+                "      },\n" +
+                "      \"firstname\": {\n" +
+                "        \"type\": \"text\"\n" +
+                "      },\n" +
+                "      \"gender\": {\n" +
+                "        \"type\": \"text\"\n" +
+                "      },\n" +
+                "      \"lastname\": {\n" +
+                "        \"type\": \"keyword\"\n" +
+                "      },\n" +
+                "      \"male\": {\n" +
+                "        \"type\": \"boolean\"\n" +
+                "      },\n" +
+                "      \"state\": {\n" +
+                "        \"type\": \"text\",\n" +
+                "        \"fields\": {\n" +
+                "          \"keyword\": {\n" +
+                "            \"type\": \"keyword\",\n" +
+                "            \"ignore_above\": 256\n" +
+                "          }\n" +
+                "        }\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }\n" +
+                "}";
+    }
+
     public static void loadBulk(Client client, String jsonPath, String defaultIndex) throws Exception {
         System.out.println(String.format("Loading file %s into elasticsearch cluster", jsonPath));
         String absJsonPath = getResourceFilePath(jsonPath);

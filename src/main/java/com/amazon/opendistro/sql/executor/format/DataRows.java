@@ -33,6 +33,7 @@ public class DataRows implements Iterable<DataRows.Row> {
 
     public DataRows(List<Row> rows) {
         this.size = rows.size();
+        this.totalHits = rows.size();
         this.rows = rows;
     }
 

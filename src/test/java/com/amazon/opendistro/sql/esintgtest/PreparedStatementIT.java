@@ -15,6 +15,7 @@
 
 package com.amazon.opendistro.sql.esintgtest;
 
+import com.carrotsearch.randomizedtesting.annotations.ThreadLeakScope;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.AdminClient;
 import org.elasticsearch.client.Client;
@@ -23,10 +24,10 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.test.ESIntegTestCase;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -36,24 +37,18 @@ import java.io.InputStreamReader;
 
 // Refer to https://www.elastic.co/guide/en/elasticsearch/reference/6.5/integration-tests.html
 // for detailed ESIntegTestCase usages doc.
-@ESIntegTestCase.ClusterScope(scope = ESIntegTestCase.Scope.SUITE, numDataNodes = 3)
-public class PreparedStatementIT extends ESIntegTestCase {
+@ESIntegTestCase.SuiteScopeTestCase
+@ThreadLeakScope(ThreadLeakScope.Scope.NONE)
+public class PreparedStatementIT extends SQLIntegTestCase {
 
     // Please note that, we cannot use @BeforeClass method to prepare test data, because the testing cluster is NOT ready
     // when @BeforeClass method is invoked, you will get NPE when trying to get cluster client
-    @Before
-    public void setup() throws Exception {
+    @Override
+    public void setupSuiteScopeCluster() throws Exception {
         AdminClient adminClient = this.admin();
         Client esClient = ESIntegTestCase.client();
 
-        if (!this.indexExists(TestsConstants.TEST_INDEX_ACCOUNT)) {
-            // setup index and load data to it
-            TestUtils.createTestIndex(adminClient, TestsConstants.TEST_INDEX_ACCOUNT, "account", TestUtils.getAccountIndexMapping());
-            TestUtils.loadBulk(esClient, "src/test/resources/accounts.json", TestsConstants.TEST_INDEX_ACCOUNT);
-        } else {
-            System.out.println("Index " + TestsConstants.TEST_INDEX_ACCOUNT + " already exists.");
-        }
-        ensureGreen(TestsConstants.TEST_INDEX_ACCOUNT);
+        loadAccountIndex(adminClient, esClient);
     }
 
     @Test
@@ -100,55 +95,6 @@ public class PreparedStatementIT extends ESIntegTestCase {
         }
     }
 
-    /** Temporary test case to verify that assertion for transport thread could pass now */
-    @Test
-    public void testPreparedStatementForJoin() throws IOException {
-        query(String.format("{\n" +
-            "  \"query\": \"SELECT * FROM %s/account a JOIN %s/account b ON a.age = b.age WHERE a.age > ? AND b.state in (?, ?) LIMIT ?\",\n" +
-            "  \"parameters\": [\n" +
-            "    {\n" +
-            "      \"type\": \"integer\",\n" +
-            "      \"value\": \"" + 30 + "\"\n" +
-            "    },\n" +
-            "    {\n" +
-            "      \"type\": \"string\",\n" +
-            "      \"value\": \"TN\"\n" +
-            "    },\n" +
-            "    {\n" +
-            "      \"type\": \"string\",\n" +
-            "      \"value\": \"UT\"\n" +
-            "    },\n" +
-            "    {\n" +
-            "      \"type\": \"integer\",\n" +
-            "      \"value\": \"20\"\n" +
-            "    }\n" +
-            "  ]\n" +
-            "}", TestsConstants.TEST_INDEX_ACCOUNT, TestsConstants.TEST_INDEX_ACCOUNT));
-    }
-
-    private JSONObject query(String request) throws IOException {
-        RestClient restClient = ESIntegTestCase.getRestClient();
-        Request sqlRequest = new Request("POST", "_sql");
-        sqlRequest.setJsonEntity(request);
-        RequestOptions.Builder restOptionsBuilder = RequestOptions.DEFAULT.toBuilder();
-        restOptionsBuilder.addHeader("Content-Type", "application/json");
-        sqlRequest.setOptions(restOptionsBuilder);
-
-        Response sqlResponse = restClient.performRequest(sqlRequest);
-
-        Assert.assertTrue(sqlResponse.getStatusLine().getStatusCode() == 200);
-
-        InputStream is = sqlResponse.getEntity().getContent();
-        StringBuilder sb = new StringBuilder();
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
-            String line = null;
-            while((line = br.readLine()) != null) {
-                sb.append(line);
-            }
-        };
-        return new JSONObject(sb.toString());
-    }
-
     /* currently the integ test case will fail if run using Intellj, have to run using gradle command
      * because the integ test cluster created by IntellJ has http diabled, need to spend some time later to
      * figure out how to configure the integ test cluster properly. Related online resources:
@@ -168,5 +114,4 @@ public class PreparedStatementIT extends ESIntegTestCase {
                 .build();
     }
     */
-
 }

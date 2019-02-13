@@ -17,8 +17,10 @@ package com.amazon.opendistro.sql.executor.format;
 
 import com.amazon.opendistro.sql.domain.IndexStatement;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Schema implements Iterable<Schema.Column> {
@@ -26,6 +28,12 @@ public class Schema implements Iterable<Schema.Column> {
     private String indexName;
     private String typeName;
     private List<Column> columns;
+
+    private static Set<String> types;
+
+    static {
+        types = getTypes();
+    }
 
     public Schema(String indexName, String typeName, List<Column> columns) {
         this.indexName = indexName;
@@ -46,6 +54,20 @@ public class Schema implements Iterable<Schema.Column> {
         return columns.stream()
                 .map(column -> column.getName())
                 .collect(Collectors.toList());
+    }
+
+    private static Set<String> getTypes() {
+        HashSet<String> types = new HashSet<>();
+        for (Type type : Type.values()) {
+            types.add(type.name());
+        }
+
+        return types;
+    }
+
+    // A method for efficiently checking if a Type exists
+    public static boolean hasType(String type) {
+        return types.contains(type);
     }
 
     // Iterator method for Schema
@@ -103,5 +125,7 @@ public class Schema implements Iterable<Schema.Column> {
         public String getAlias() { return alias; }
 
         public String getType() { return type.nameLowerCase(); }
+
+        public Type getEnumType() { return type; }
     }
 }

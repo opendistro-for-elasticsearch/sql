@@ -60,7 +60,7 @@ public class PreparedStatementTest {
                 "      \"value\": \"UT\"\n" +
                 "    },\n" +
                 "    {\n" +
-                "      \"type\": \"integer\",\n" +
+                "      \"type\": \"short\",\n" +
                 "      \"value\": \"20\"\n" +
                 "    }\n" +
                 "  ]\n" +
