@@ -16,6 +16,9 @@
 package com.amazon.opendistro.sql.executor.join;
 
 import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
+import com.amazon.opendistro.sql.esdomain.ESClient;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.search.MultiSearchRequest;
 import org.elasticsearch.action.search.MultiSearchResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -38,11 +41,15 @@ import com.amazon.opendistro.sql.query.maker.Maker;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Created by Eliran on 15/9/2015.
  */
 public class NestedLoopsElasticExecutor extends ElasticJoinExecutor {
+
+    private static final Logger LOG = LogManager.getLogger();
 
     private final NestedLoopsElasticRequestBuilder nestedLoopsRequest;
     private final Client client;
@@ -108,7 +115,7 @@ public class NestedLoopsElasticExecutor extends ElasticJoinExecutor {
     }
 
     private int combineResultsFromMultiResponses(List<SearchHit> combinedResults, int totalLimit, int currentCombinedResults, SearchHit[] hits, int currentIndex, MultiSearchRequest multiSearchRequest) {
-        MultiSearchResponse.Item[] responses = client.multiSearch(multiSearchRequest).actionGet().getResponses();
+        MultiSearchResponse.Item[] responses = new ESClient(client).multiSearch(multiSearchRequest);
         String t1Alias = nestedLoopsRequest.getFirstTable().getAlias();
         String t2Alias = nestedLoopsRequest.getSecondTable().getAlias();
 
@@ -117,6 +124,9 @@ public class NestedLoopsElasticExecutor extends ElasticJoinExecutor {
             onlyReturnedFields(hitFromFirstTable.getSourceAsMap(), nestedLoopsRequest.getFirstTable().getReturnedFields(),nestedLoopsRequest.getFirstTable().getOriginalSelect().isSelectAll());
 
             SearchResponse multiItemResponse = responses[j].getResponse();
+
+            if (multiItemResponse == null) continue;
+
             updateMetaSearchResults(multiItemResponse);
 
             //todo: if responseForHit.getHits.length < responseForHit.getTotalHits(). need to fetch more!

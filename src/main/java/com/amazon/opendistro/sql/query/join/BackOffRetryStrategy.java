@@ -133,7 +133,7 @@ public class BackOffRetryStrategy {
         return isMemoryHealthy(allocateMemory, MAXRETRIES, key);
     }
 
-    private static void backOffSleep(long interval) {
+    public static void backOffSleep(long interval) {
         try {
             long millis = randomize(interval);
 

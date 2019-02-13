@@ -83,7 +83,7 @@ public class ElasticDefaultRestExecutor implements RestExecutor {
                 channel.sendResponse(new BytesRestResponse(RestStatus.INSUFFICIENT_STORAGE, "Memory circuit is broken."));
             } catch (Throwable t) {
                 LOG.warn("[MCB] When run/sendResponse, got an unknown throwable: {}", t.getMessage());
-                channel.sendResponse(new BytesRestResponse(RestStatus.INTERNAL_SERVER_ERROR, t.getMessage()));
+                channel.sendResponse(new BytesRestResponse(RestStatus.INTERNAL_SERVER_ERROR, String.valueOf(t.getMessage())));
             } finally {
                 BackOffRetryStrategy.releaseMem(executor);
             }
