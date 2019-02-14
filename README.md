@@ -33,12 +33,12 @@ node node-server.js
 
 * Simple query
 ````
-http://localhost:9200/_sql?sql=select * from indexName limit 10
+http://localhost:9200/_opendistro/_sql?sql=select * from indexName limit 10
 ````
 
 * Explain SQL to elasticsearch query DSL
 ````
-http://localhost:9200/_sql/_explain?sql=select * from indexName limit 10
+http://localhost:9200/_opendistro/_sql/_explain?sql=select * from indexName limit 10
 ```` 
 
 

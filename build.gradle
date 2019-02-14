@@ -16,21 +16,22 @@
 buildscript {
 
     ext {
-        es_version = System.getProperty("es.version", "6.5.5")
+        es_version = System.getProperty("es.version", "6.5.4")
+        es_group = "com.amazonaws.opendistro.elasticsearch"
     }
     // This isn't applying from repositories.gradle so repeating it here
     repositories {
         //TODO: modify the order of evaluation, once we have artifacts in mavenCentral.
         maven {
            name = "internal-snapshots"
-            url = "s3://open-es/snapshots"
+            url = "s3://snapshots.opendistro.amazonaws.com/maven"
             authentication {
                awsIm(AwsImAuthentication) // load from EC2 role or env var
             }
         }
         maven {
            name = "internal-releases"
-           url = "s3://open-es/releases"
+           url = "s3://artifacts.opendistro.amazonaws.com/maven"
            authentication {
                awsIm(AwsImAuthentication) // load from EC2 role or env var
             }
@@ -39,7 +40,7 @@ buildscript {
     } 
 
     dependencies {
-        classpath "org.openes.gradle:build-tools:${es_version}"
+        classpath "${es_group}.gradle:build-tools:${es_version}"
     }
 }
 
@@ -51,7 +52,26 @@ plugins {
     id 'java-library'
 }
 
-group = 'com.amazon.opendistro'
+// Repository on root level is for dependencies that project code depends on. And this block must be placed after plugins{}
+repositories {
+    mavenCentral() // For Elastic Libs that you can use to get started coding until open ES libs are available
+    maven {
+        name = "internal-snapshots"
+        url = "s3://snapshots.opendistro.amazonaws.com/maven"
+        authentication {
+            awsIm(AwsImAuthentication) // load from EC2 role or env var
+        }
+    }
+    maven {
+        name = "internal-releases"
+        url = "s3://artifacts.opendistro.amazonaws.com/maven"
+        authentication {
+            awsIm(AwsImAuthentication) // load from EC2 role or env var
+        }
+    }
+}
+
+group = 'com.amazon.opendistroforelasticsearch'
 version = "${version}"
 boolean snapshot = "true".equals(System.getProperty("build.snapshot", "true"));
 if (snapshot) {
@@ -70,9 +90,9 @@ licenseHeaders.enabled = true
 // TODO: need to fix java doc to enable JavaDoc
 javadoc.enabled = false
 esplugin {
-    name 'elasticsearch-sql' // plugin name in ${elasticsearch.plugin.name} read by ES when plugin loading
+    name 'opendistro-sql' // zip file name and plugin name in ${elasticsearch.plugin.name} read by ES when plugin loading
     description 'Amazon Open Distribution for Elasticsearch SQL Access'
-    classname 'com.amazon.opendistro.sql.SqlPlug'
+    classname 'com.amazon.opendistroforelasticsearch.sql.plugin.SqlPlug'
     publishArtifact true
 }
 
@@ -104,7 +124,7 @@ compileTestJava {
 // TODO: Need to update integration test to use ElasticSearch test framework
 test {
     include '**/*Test.class'
-    exclude 'com/amazon/opendistro/sql/intgtest/**'
+    exclude 'com/amazon/opendistroforelasticsearch/sql/intgtest/**'
     // Gradle runs unit test using a working directory other and project root
     // set 'project.root' property to allow unit test classes to access test resources
     systemProperty('project.root', project.rootDir.absolutePath)
@@ -150,8 +170,8 @@ thirdPartyAudit.enabled = false
 dependencies {
     compile group: 'com.alibaba', name: 'druid', version:'1.0.15'
     compile group: 'org.locationtech.spatial4j', name: 'spatial4j', version:'0.7'
-    compile group: 'org.openes.plugin', name: 'parent-join-client', version: "${es_version}"
-    compile group: 'org.openes.plugin', name: 'reindex-client', version: "${es_version}"
+    compile group: "${es_group}.plugin", name: 'parent-join-client', version: "${es_version}"
+    compile group: "${es_group}.plugin", name: 'reindex-client', version: "${es_version}"
     compile group: 'com.google.guava', name: 'guava', version:'15.0'
     compile group: 'org.json', name: 'json', version:'20180813'
 
@@ -168,5 +188,5 @@ dependencies {
     // testCompile group: 'junit', name: 'junit', version:'4.11'
     // testCompile group: 'com.alibaba', name: 'fastjson', version:'1.1.41'
     // testCompile group: 'org.mockito', name: 'mockito-core', version:'2.23.4'
-    testCompile group: 'org.openes.client', name: 'transport', version: "${es_version}"
+    testCompile group: "${es_group}.client", name: 'transport', version: "${es_version}"
 }

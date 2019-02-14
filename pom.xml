@@ -16,8 +16,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.amazon.opendistro</groupId>
-    <artifactId>elasticsearch-sql</artifactId> <!-- TODO -->
+    <groupId>com.amazon.opendistroforelasticsearch</groupId>
+    <artifactId>opendistro-sql</artifactId>
     <version>6.5.4.0</version>
     <packaging>jar</packaging>
     <description>Amazon Open Distribution for Elasticsearch SQL Access</description>
@@ -26,9 +26,9 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <runSuite>**/MainTestSuite.class</runSuite>
-        <elasticsearch.plugin.name>elasticsearch-sql</elasticsearch.plugin.name> <!-- TODO -->
+        <elasticsearch.plugin.name>opendistro-sql</elasticsearch.plugin.name>
         <elasticsearch.version>6.5.4</elasticsearch.version>
-        <elasticsearch.plugin.classname>com.amazon.opendistro.sql.SqlPlug</elasticsearch.plugin.classname>
+        <elasticsearch.plugin.classname>com.amazon.opendistroforelasticsearch.sql.plugin.SqlPlug</elasticsearch.plugin.classname>
     </properties>
 
     <repositories>
@@ -196,7 +196,7 @@
                     <target>1.8</target>
                     <encoding>UTF-8</encoding>
                     <testExcludes>
-                        <testExclude>**/com/amazon/opendistro/sql/esintgtest/*.java</testExclude> <!-- TODO -->
+                        <testExclude>**/com/amazon/opendistroforelasticsearch/sql/esintgtest/*.java</testExclude> <!-- TODO -->
                     </testExcludes>
                 </configuration>
             </plugin>
@@ -335,7 +335,7 @@
                 <version>2.4</version>
                 <configuration>
                     <descriptor>src/assembly/zip.xml</descriptor>
-                    <finalName>elasticsearch</finalName>
+                    <finalName>opendistro-sql</finalName>
                 </configuration>
             </plugin>
 

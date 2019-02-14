@@ -1,0 +1,172 @@
+/*
+ *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License").
+ *   You may not use this file except in compliance with the License.
+ *   A copy of the License is located at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   or in the "license" file accompanying this file. This file is distributed
+ *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ *   express or implied. See the License for the specific language governing
+ *   permissions and limitations under the License.
+ */
+
+package com.amazon.opendistroforelasticsearch.sql.domain;
+
+import com.amazon.opendistroforelasticsearch.sql.domain.hints.Hint;
+import com.amazon.opendistroforelasticsearch.sql.parser.SubQueryExpression;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * 将sql语句转换为select 对象
+ * 
+ * @author ansj
+ */
+public class Select extends Query {
+
+	// Using this functions, will cause query to execute as aggregation.
+	private final List<String> aggsFunctions = Arrays.asList("SUM", "MAX", "MIN", "AVG", "TOPHITS", "COUNT", "STATS","EXTENDED_STATS","PERCENTILES","SCRIPTED_METRIC");
+    private List<Hint> hints = new ArrayList<>();
+	private List<Field> fields = new ArrayList<>();
+	private List<List<Field>> groupBys = new ArrayList<>();
+	private Having having;
+	private List<Order> orderBys = new ArrayList<>();
+	private int offset;
+	private int rowCount = 200;
+    private boolean containsSubQueries;
+    private List<SubQueryExpression> subQueries;
+	public boolean isQuery = false;
+    private boolean selectAll = false;
+
+	public boolean isAgg = false;
+
+	public Select() {
+	}
+
+	public List<Field> getFields() {
+		return fields;
+	}
+
+	public void setOffset(int offset) {
+		this.offset = offset;
+	}
+
+	public void setRowCount(int rowCount) {
+		this.rowCount = rowCount;
+	}
+
+	public void addGroupBy(Field field) {
+		List<Field> wrapper = new ArrayList<>();
+		wrapper.add(field);
+		addGroupBy(wrapper);
+	}
+
+	public void addGroupBy(List<Field> fields) {
+		isAgg = true;
+		this.groupBys.add(fields);
+	}
+
+	public List<List<Field>> getGroupBys() {
+		return groupBys;
+	}
+
+    public Having getHaving() {
+        return having;
+    }
+
+    public void setHaving(Having having) {
+        this.having = having;
+    }
+
+	public List<Order> getOrderBys() {
+		return orderBys;
+	}
+
+	public int getOffset() {
+		return offset;
+	}
+
+	public int getRowCount() {
+		return rowCount;
+	}
+
+	public void addOrderBy(String nestedPath, String name, String type) {
+		if ("_score".equals(name)) {
+			isQuery = true;
+		}
+		this.orderBys.add(new Order(nestedPath, name, type));
+	}
+
+
+	public void addField(Field field) {
+		if (field == null ) {
+			return;
+		}
+        if(field.getName().equals("*")){
+            this.selectAll = true;
+        }
+
+		if(field instanceof  MethodField && aggsFunctions.contains(field.getName().toUpperCase())) {
+			isAgg = true;
+		}
+
+		fields.add(field);
+	}
+
+    public List<Hint> getHints() {
+        return hints;
+    }
+
+
+    public void fillSubQueries() {
+        subQueries = new ArrayList<>();
+        Where where = this.getWhere();
+        fillSubQueriesFromWhereRecursive(where);
+    }
+
+    private void fillSubQueriesFromWhereRecursive(Where where) {
+        if(where == null) return;
+        if(where instanceof Condition){
+            Condition condition = (Condition) where;
+            if ( condition.getValue() instanceof SubQueryExpression){
+                this.subQueries.add((SubQueryExpression) condition.getValue());
+                this.containsSubQueries = true;
+            }
+            if(condition.getValue() instanceof Object[]){
+
+                for(Object o : (Object[]) condition.getValue()){
+                    if ( o instanceof SubQueryExpression){
+                        this.subQueries.add((SubQueryExpression) o);
+                        this.containsSubQueries = true;
+                    }
+                }
+            }
+        }
+        else {
+            for(Where innerWhere : where.getWheres())
+                fillSubQueriesFromWhereRecursive(innerWhere);
+        }
+    }
+
+    public boolean containsSubQueries() {
+        return containsSubQueries;
+    }
+
+    public List<SubQueryExpression> getSubQueries() {
+        return subQueries;
+    }
+
+    public boolean isOrderdSelect(){
+        return this.getOrderBys()!=null && this.getOrderBys().size() >0 ;
+    }
+
+    public boolean isSelectAll() {
+        return selectAll;
+    }
+}
+
