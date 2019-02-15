@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
 import com.amazon.opendistroforelasticsearch.sql.executor.QueryActionElasticExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.RestExecutor;
+import com.amazon.opendistroforelasticsearch.sql.query.join.BackOffRetryStrategy;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestChannel;
@@ -46,6 +47,10 @@ public class PrettyFormatRestExecutor implements RestExecutor {
                     formattedResponse);
         } else {
             bytesRestResponse = new BytesRestResponse(RestStatus.OK, formattedResponse);
+        }
+
+        if (!BackOffRetryStrategy.isHealthy(2 * bytesRestResponse.content().length(), this)) {
+            throw new IllegalStateException("[PrettyFormatRestExecutor] Memory could be insufficient when sendResponse().");
         }
 
         channel.sendResponse(bytesRestResponse);

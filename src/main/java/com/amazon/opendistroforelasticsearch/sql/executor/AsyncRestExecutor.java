@@ -15,15 +15,19 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor;
 
+import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
+import com.amazon.opendistroforelasticsearch.sql.query.join.BackOffRetryStrategy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestChannel;
+import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.transport.Transports;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.function.Predicate;
 
@@ -98,10 +102,17 @@ public class AsyncRestExecutor implements RestExecutor {
             () -> {
                 try {
                     executor.execute(client, params, queryAction, channel);
-                }
-                catch (Exception e) {
-                    LOG.error("Failed to execute async task", e);
-                    channel.sendResponse(new BytesRestResponse(INTERNAL_SERVER_ERROR, e.getMessage()));
+                } catch (IOException | SqlParseException e) {
+                    LOG.warn("[MCB] async task got an IO/SQL exception: {}", e.getMessage());
+                    channel.sendResponse(new BytesRestResponse(RestStatus.INTERNAL_SERVER_ERROR, e.getMessage()));
+                } catch (IllegalStateException e) {
+                    LOG.warn("[MCB] async task got a runtime exception: {}", e.getMessage());
+                    channel.sendResponse(new BytesRestResponse(RestStatus.INSUFFICIENT_STORAGE, "Memory circuit is broken."));
+                } catch (Throwable t) {
+                    LOG.warn("[MCB] async task got an unknown throwable: {}", t.getMessage());
+                    channel.sendResponse(new BytesRestResponse(RestStatus.INTERNAL_SERVER_ERROR, String.valueOf(t.getMessage())));
+                } finally {
+                    BackOffRetryStrategy.releaseMem(executor);
                 }
             });
     }
