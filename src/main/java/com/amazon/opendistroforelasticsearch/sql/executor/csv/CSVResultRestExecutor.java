@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.executor.csv;
 
 import com.amazon.opendistroforelasticsearch.sql.executor.QueryActionElasticExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.RestExecutor;
+import com.amazon.opendistroforelasticsearch.sql.query.join.BackOffRetryStrategy;
 import com.google.common.base.Joiner;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.rest.BytesRestResponse;
@@ -50,6 +51,11 @@ public class CSVResultRestExecutor implements RestExecutor {
         }
         String csvString = buildString(separator, result, newLine);
         BytesRestResponse bytesRestResponse = new BytesRestResponse(RestStatus.OK, csvString);
+
+        if (!BackOffRetryStrategy.isHealthy(2 * bytesRestResponse.content().length(), this)) {
+            throw new IllegalStateException("[CSVResultRestExecutor] Memory could be insufficient when sendResponse().");
+        }
+
         channel.sendResponse(bytesRestResponse);
     }
 

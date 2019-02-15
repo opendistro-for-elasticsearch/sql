@@ -20,7 +20,6 @@ import com.amazon.opendistroforelasticsearch.sql.executor.join.ElasticJoinExecut
 import com.amazon.opendistroforelasticsearch.sql.executor.join.ElasticUtils;
 import com.amazon.opendistroforelasticsearch.sql.executor.join.MetaSearchResult;
 import com.amazon.opendistroforelasticsearch.sql.executor.multi.MultiRequestExecutorFactory;
-import com.amazon.opendistroforelasticsearch.sql.query.join.BackOffRetryStrategy;
 import com.google.common.collect.Maps;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -72,21 +71,8 @@ public class ElasticDefaultRestExecutor implements RestExecutor {
 
         if (requestBuilder instanceof JoinRequestBuilder) {
             ElasticJoinExecutor executor = ElasticJoinExecutor.createJoinExecutor(client, requestBuilder);
-            try {
-                executor.run();
-                executor.sendResponse(channel);
-            } catch (IOException | SqlParseException e) {
-                LOG.warn("[MCB] When run/sendResponse, got an IO/SQL exception: {}", e.getMessage());
-                channel.sendResponse(new BytesRestResponse(RestStatus.INTERNAL_SERVER_ERROR, e.getMessage()));
-            } catch (IllegalStateException e) {
-                LOG.warn("[MCB] When run/sendResponse, got a runtime exception: {}", e.getMessage());
-                channel.sendResponse(new BytesRestResponse(RestStatus.INSUFFICIENT_STORAGE, "Memory circuit is broken."));
-            } catch (Throwable t) {
-                LOG.warn("[MCB] When run/sendResponse, got an unknown throwable: {}", t.getMessage());
-                channel.sendResponse(new BytesRestResponse(RestStatus.INTERNAL_SERVER_ERROR, String.valueOf(t.getMessage())));
-            } finally {
-                BackOffRetryStrategy.releaseMem(executor);
-            }
+            executor.run();
+            executor.sendResponse(channel);
         } else if (requestBuilder instanceof MultiQueryRequestBuilder) {
             ElasticHitsExecutor executor = MultiRequestExecutorFactory.createExecutor(client, (MultiQueryRequestBuilder) requestBuilder);
             executor.run();
