@@ -105,15 +105,12 @@ http://localhost:9200/_opendistro/_sql/_explain?sql=select * from indexName limi
 *  SQL(ES) Date
 *  SQL avg()
 *  SQL count()
-*  SQL last()
 *  SQL max()
 *  SQL min()
 *  SQL sum()
 *  SQL Nulls
 *  SQL isnull()
-*  SQL now()
 *  SQL floor
-*  SQL split
 *  SQL trim
 *  SQL log
 *  SQL log10

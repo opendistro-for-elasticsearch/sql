@@ -79,7 +79,7 @@ public class SQLFunctions {
     public static Tuple<String, String> function(String methodName, List<KVValue> paramers, String name, boolean returnValue) {
         Tuple<String, String> functionStr = null;
         switch (methodName) {
-            // Split is using .split() in painless which does not seem to be supported
+            // Split is currently not supported since its using .split() in painless which is not whitelisted
             case "split":
                 if (paramers.size() == 3) {
                     functionStr = split((SQLExpr) paramers.get(0).value,
@@ -260,16 +260,14 @@ public class SQLFunctions {
 
     private static String func(String methodName, boolean quotes, String... params) {
         if (quotes)
-            return methodName + "(" + String.join(", ", quoteParams(params)) + ")";
+            return methodName + "(" + quoteParams(params) + ")";
 
         return methodName + "(" + String.join(", ", params) + ")";
     }
 
     /** Helper method to surround each param with '' (single quotes) for painless script */
-    private static List<String> quoteParams(String... params) {
-        return Arrays.stream(params)
-                .map(param -> "'" + param + "'")
-                .collect(Collectors.toList());
+    private static String quoteParams(String... params) {
+        return Stream.of(params).collect(Collectors.joining("', '", "'", "'"));
     }
 
     private static Tuple<String, String> concat_ws(String split, List<SQLExpr> columns) {
@@ -304,6 +302,20 @@ public class SQLFunctions {
                     func("split", true, pattern) + "[" + index + "]");
         }
         return new Tuple<>(name, script);
+    }
+
+    //split(Column expr, java.lang.String pattern)
+    public static Tuple<String, String> split(SQLExpr field, String pattern, String valueName) {
+        String name = randomize("split");
+        if (valueName == null) {
+            return new Tuple<>(name,
+                    def(name, getPropertyOrValue(field) + "." +
+                            func("split", true, pattern)));
+        } else {
+            return new Tuple<>(name, getPropertyOrValue(field) + "; " +
+                    def(name, valueName + "." +
+                            func("split", true, pattern)));
+        }
     }
 
     private static Tuple<String, String> date_format(SQLExpr field, String pattern, String zoneId, String valueName) {
@@ -485,19 +497,5 @@ public class SQLFunctions {
         }
 
     }
-
-    //split(Column expr, java.lang.String pattern)
-    public static Tuple<String, String> split(SQLExpr field, String pattern, String valueName) {
-        String name = randomize("split");
-        if (valueName == null) {
-            return new Tuple<>(name,
-                    def(name, getPropertyOrValue(field) + "." +
-                            func("split", false, pattern)));
-        } else {
-            return new Tuple<>(name, getPropertyOrValue(field) + "; " +
-                    def(name, valueName + "." + func("split", false, pattern)));
-        }
-    }
-
 
 }
