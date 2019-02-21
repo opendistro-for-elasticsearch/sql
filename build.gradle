@@ -17,25 +17,10 @@ buildscript {
 
     ext {
         es_version = System.getProperty("es.version", "6.5.4")
-        es_group = "com.amazonaws.opendistro.elasticsearch"
+        es_group = "org.elasticsearch"
     }
     // This isn't applying from repositories.gradle so repeating it here
     repositories {
-        //TODO: modify the order of evaluation, once we have artifacts in mavenCentral.
-        maven {
-           name = "internal-snapshots"
-            url = "s3://snapshots.opendistro.amazonaws.com/maven"
-            authentication {
-               awsIm(AwsImAuthentication) // load from EC2 role or env var
-            }
-        }
-        maven {
-           name = "internal-releases"
-           url = "s3://artifacts.opendistro.amazonaws.com/maven"
-           authentication {
-               awsIm(AwsImAuthentication) // load from EC2 role or env var
-            }
-        }
         mavenCentral()
     } 
 
@@ -55,29 +40,12 @@ plugins {
 // Repository on root level is for dependencies that project code depends on. And this block must be placed after plugins{}
 repositories {
     mavenCentral() // For Elastic Libs that you can use to get started coding until open ES libs are available
-    maven {
-        name = "internal-snapshots"
-        url = "s3://snapshots.opendistro.amazonaws.com/maven"
-        authentication {
-            awsIm(AwsImAuthentication) // load from EC2 role or env var
-        }
-    }
-    maven {
-        name = "internal-releases"
-        url = "s3://artifacts.opendistro.amazonaws.com/maven"
-        authentication {
-            awsIm(AwsImAuthentication) // load from EC2 role or env var
-        }
-    }
 }
 
-group = 'com.amazon.opendistroforelasticsearch'
-version = "${version}"
-boolean snapshot = "true".equals(System.getProperty("build.snapshot", "true"));
-if (snapshot) {
-    version += "-SNAPSHOT"
+ext {
+    opendistroVersion = '0.7.0'
 }
-
+version = "${opendistroVersion}.0" 
 apply plugin: 'elasticsearch.esplugin'
 
 ext {
@@ -87,13 +55,13 @@ ext {
 }
 licenseHeaders.enabled = true
 
+
 // TODO: need to fix java doc to enable JavaDoc
 javadoc.enabled = false
 esplugin {
-    name 'opendistro-sql' // zip file name and plugin name in ${elasticsearch.plugin.name} read by ES when plugin loading
+    name 'opendistro_sql' // zip file name and plugin name in ${elasticsearch.plugin.name} read by ES when plugin loading
     description 'Amazon Open Distribution for Elasticsearch SQL Access'
     classname 'com.amazon.opendistroforelasticsearch.sql.plugin.SqlPlug'
-    publishArtifact true
 }
 
 // Set source and target to be compatible with Java 8
