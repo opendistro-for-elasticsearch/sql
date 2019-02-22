@@ -48,12 +48,9 @@ repositories {
 
 ext {
     opendistroVersion = '0.7.0'
-    isSnapshot = "true" == System.getProperty("build.snapshot", "true")
 }
-version = "${opendistroVersion}.0"
-if (isSnapshot) {
-    version += "-SNAPSHOT"
-}
+version = "${opendistroVersion}.0" 
+
 apply plugin: 'elasticsearch.esplugin'
 
 ext {
@@ -62,6 +59,7 @@ ext {
     noticeFile = rootProject.file('NOTICE')
 }
 licenseHeaders.enabled = true
+
 
 // TODO: need to fix java doc to enable JavaDoc
 javadoc.enabled = false
