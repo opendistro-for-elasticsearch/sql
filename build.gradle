@@ -29,6 +29,10 @@ buildscript {
     }
 }
 
+plugins {
+    id 'nebula.ospackage' version "5.3.0"
+}
+
 //****************************************************************************/
 // Build configurations
 //****************************************************************************/
@@ -46,12 +50,10 @@ ext {
     opendistroVersion = '0.7.0'
     isSnapshot = "true" == System.getProperty("build.snapshot", "true")
 }
-
-version = "${opendistroVersion}.0" 
+version = "${opendistroVersion}.0"
 if (isSnapshot) {
     version += "-SNAPSHOT"
 }
-
 apply plugin: 'elasticsearch.esplugin'
 
 ext {
@@ -162,4 +164,45 @@ dependencies {
     // testCompile group: 'com.alibaba', name: 'fastjson', version:'1.1.41'
     // testCompile group: 'org.mockito', name: 'mockito-core', version:'2.23.4'
     testCompile group: "${es_group}.client", name: 'transport', version: "${es_version}"
+}
+
+apply plugin: 'nebula.ospackage'
+
+// This is afterEvaluate because the bundlePlugin ZIP task is updated afterEvaluate and changes the ZIP name to match the plugin name
+afterEvaluate {
+    ospackage {
+        packageName = "opendistro-${name}"
+        release = isSnapshot ? "0.1" : '1'
+        version = "${project.version}" - "-SNAPSHOT"
+
+        into '/usr/share/elasticsearch/plugins'
+        from(zipTree(bundlePlugin.archivePath)) {
+            into esplugin.name
+        }
+
+        user 'root'
+        permissionGroup 'root'
+        fileMode 0644
+        dirMode 0755
+
+        requires('elasticsearch-oss', versions.elasticsearch, EQUAL)
+        arch = 'NOARCH'
+        packager = 'Amazon'
+        vendor = 'Amazon'
+        os = 'LINUX'
+        prefix '/usr'
+
+        license 'ASL-2.0'
+        maintainer 'OpenDistro for Elasticsearch Team <opendistro@amazon.com>'
+        url 'https://opendistro.github.io/elasticsearch/downloads'
+        summary '''
+         SQL plugin for OpenDistro for Elasticsearch. 
+         Reference documentation can be found at https://opendistro.github.io/elasticsearch/docs.
+    '''.stripIndent().replace('\n', ' ').trim()
+    }
+
+    buildRpm {
+        archiveName "${packageName}-${version}.rpm"
+        dependsOn 'assemble'
+    }
 }
