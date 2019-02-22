@@ -171,7 +171,7 @@ apply plugin: 'nebula.ospackage'
 // This is afterEvaluate because the bundlePlugin ZIP task is updated afterEvaluate and changes the ZIP name to match the plugin name
 afterEvaluate {
     ospackage {
-        packageName = "opendistro-${name}"
+        packageName = "${name}"
         release = isSnapshot ? "0.1" : '1'
         version = "${project.version}" - "-SNAPSHOT"
 
