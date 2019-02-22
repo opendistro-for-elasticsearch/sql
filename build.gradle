@@ -17,7 +17,6 @@ buildscript {
 
     ext {
         es_version = System.getProperty("es.version", "6.5.4")
-        es_group = "org.elasticsearch"
     }
     // This isn't applying from repositories.gradle so repeating it here
     repositories {
@@ -25,7 +24,7 @@ buildscript {
     } 
 
     dependencies {
-        classpath "${es_group}.gradle:build-tools:${es_version}"
+        classpath "org.elasticsearch.gradle:build-tools:${es_version}"
     }
 }
 
@@ -48,6 +47,7 @@ repositories {
 
 ext {
     opendistroVersion = '0.7.0'
+    isSnapshot = "true" == System.getProperty("build.snapshot", "true")
 }
 version = "${opendistroVersion}.0" 
 
@@ -143,8 +143,8 @@ thirdPartyAudit.enabled = false
 dependencies {
     compile group: 'com.alibaba', name: 'druid', version:'1.0.15'
     compile group: 'org.locationtech.spatial4j', name: 'spatial4j', version:'0.7'
-    compile group: "${es_group}.plugin", name: 'parent-join-client', version: "${es_version}"
-    compile group: "${es_group}.plugin", name: 'reindex-client', version: "${es_version}"
+    compile group: "org.elasticsearch.plugin", name: 'parent-join-client', version: "${es_version}"
+    compile group: "org.elasticsearch.plugin", name: 'reindex-client', version: "${es_version}"
     compile group: 'com.google.guava', name: 'guava', version:'15.0'
     compile group: 'org.json', name: 'json', version:'20180813'
 
@@ -161,7 +161,7 @@ dependencies {
     // testCompile group: 'junit', name: 'junit', version:'4.11'
     // testCompile group: 'com.alibaba', name: 'fastjson', version:'1.1.41'
     // testCompile group: 'org.mockito', name: 'mockito-core', version:'2.23.4'
-    testCompile group: "${es_group}.client", name: 'transport', version: "${es_version}"
+    testCompile group: "org.elasticsearch.client", name: 'transport', version: "${es_version}"
 }
 
 apply plugin: 'nebula.ospackage'
