@@ -7,38 +7,44 @@ You can also use ES functions in SQL.
 
 ## SETUP
 
-Install as plugin:
-TODO
+Install as plugin: build plugin from source code by following the instruction in Build section and install it to your Elasticsearch.
 
 After doing this, you need to restart the Elasticsearch server. Otherwise you may get errors like `Invalid index name [sql], must not start with '']; ","status":400}`.
 
 
+## Build
+
+The package uses the [Gradle](https://docs.gradle.org/4.10.2/userguide/userguide.html) build system.
+
+1. Checkout this package from version control.
+2. To build from command line set `JAVA_HOME` to point to a JDK >=11 
+3. Run `./gradlew build`
+
+You may note that some Maven configuration file is present in the source too. That is because we were using Maven and the migration to Gradle is still in progress.
+
+
 ## Basic Usage
 
-On elasticsearch 1.x / 2.x, visit the elasticsearch-sql web front-end:
-
-````
-http://localhost:9200/_plugin/sql/
-````
-
-On elasticsearch 5.x/6.x, [download and extract site](https://github.com/NLPchina/elasticsearch-sql/releases/download/5.4.1.0/es-sql-site-standalone.zip).
-
-Then start the web front-end like this:
-
-```shell
-cd site-server
-npm install express --save
-node node-server.js 
-```
+To use the feature, send requests to the `_opendistro/_sql` URI. You can use a request parameter or the request body (recommended).
 
 * Simple query
 ````
-http://localhost:9200/_opendistro/_sql?sql=select * from indexName limit 10
+GET https://<host>:<port>/_opendistro/_sql?sql=select * from my-index limit 50
+````
+
+````
+POST https://<host>:<port>/_opendistro/_sql
+{
+  "query": "SELECT * FROM my-index LIMIT 50"
+}
 ````
 
 * Explain SQL to elasticsearch query DSL
 ````
-http://localhost:9200/_opendistro/_sql/_explain?sql=select * from indexName limit 10
+POST _opendistro/_sql/_explain
+{
+  "query": "SELECT * FROM my-index LIMIT 50"
+}
 ```` 
 
 
