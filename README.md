@@ -126,9 +126,9 @@ POST _opendistro/_sql/_explain
 *  SQL concat_ws
 *  SQL union and minus
 
-## JDBC Support (Experimental feature)
+## JDBC Support
 
-Check details : [JDBC Support](https://github.com/NLPchina/elasticsearch-sql/pull/283) 
+Please check out JDBC driver repository for more details.
 
 ## Beyond sql features
 
@@ -139,6 +139,4 @@ Check details : [JDBC Support](https://github.com/NLPchina/elasticsearch-sql/pul
 *  ES GEO_BOUNDING_BOX
 *  ES GEO_DISTANCE
 *  ES GEOHASH_GRID aggregation
-
-
 
