@@ -1,54 +1,11 @@
-Elasticsearch-SQL
-=================
 
-Query elasticsearch using familiar SQL syntax.
-You can also use ES functions in SQL.
+## Repo Description
 
+Open Distro for Elasticsearch SQL lets you write queries in SQL rather than the Elasticsearch query domain-specific language (DSL). If you’re already familiar with SQL and don’t want to learn the query DSL, this plugin is a great option.
 
-## SETUP
+## Highlights 
 
-Install as plugin: build plugin from source code by following the instruction in Build section and install it to your Elasticsearch.
-
-After doing this, you need to restart the Elasticsearch server. Otherwise you may get errors like `Invalid index name [sql], must not start with '']; ","status":400}`.
-
-
-## Build
-
-The package uses the [Gradle](https://docs.gradle.org/4.10.2/userguide/userguide.html) build system.
-
-1. Checkout this package from version control.
-2. To build from command line set `JAVA_HOME` to point to a JDK >=11 
-3. Run `./gradlew build`
-
-You may note that some Maven configuration file is present in the source too. That is because we were using Maven and the migration to Gradle is still in progress.
-
-
-## Basic Usage
-
-To use the feature, send requests to the `_opendistro/_sql` URI. You can use a request parameter or the request body (recommended).
-
-* Simple query
-````
-GET https://<host>:<port>/_opendistro/_sql?sql=select * from my-index limit 50
-````
-
-````
-POST https://<host>:<port>/_opendistro/_sql
-{
-  "query": "SELECT * FROM my-index LIMIT 50"
-}
-````
-
-* Explain SQL to elasticsearch query DSL
-````
-POST _opendistro/_sql/_explain
-{
-  "query": "SELECT * FROM my-index LIMIT 50"
-}
-```` 
-
-
-## SQL Usage
+#### SQL Usage
 
 * Query
 
@@ -63,13 +20,11 @@ POST _opendistro/_sql/_explain
 
         DELETE FROM bank WHERE age >30 AND gender = 'm'
 
-
-## Beyond SQL
+#### Beyond SQL
 
 * Search
 
         SELECT address FROM bank WHERE address = matchQuery('880 Holmes Lane') ORDER BY _score DESC LIMIT 3
-        
 
 * Aggregations
 
@@ -93,8 +48,7 @@ POST _opendistro/_sql/_explain
 
         SELECT * FROM indexName/type
 
-
-## SQL Features
+#### SQL Features
 
 *  SQL Select
 *  SQL Delete
@@ -126,11 +80,11 @@ POST _opendistro/_sql/_explain
 *  SQL concat_ws
 *  SQL union and minus
 
-## JDBC Support
+#### JDBC Support
 
-Please check out JDBC driver repository for more details.
+Please check out our JDBC driver repository for more details.
 
-## Beyond sql features
+#### Beyond sql features
 
 *  ES TopHits
 *  ES MISSING
@@ -140,3 +94,56 @@ Please check out JDBC driver repository for more details.
 *  ES GEO_DISTANCE
 *  ES GEOHASH_GRID aggregation
 
+## Technical Documentation
+
+Please see our tech docs [here](https://opendistro.github.io/for-elasticsearch-docs/)
+
+## Developer Setup, Build and Run steps
+
+#### SETUP
+
+Build plugin from source code by the following instructions in Build section and then install it to your Elasticsearch.
+
+After doing this, you need to restart the Elasticsearch server. Otherwise you may get errors like `Invalid index name [sql], must not start with '']; ","status":400}`.
+
+#### Build
+
+The package uses the [Gradle](https://docs.gradle.org/4.10.2/userguide/userguide.html) build system.
+
+1. Checkout this package from version control.
+2. To build from command line set `JAVA_HOME` to point to a JDK >=11 
+3. Run `./gradlew build`
+
+You may note that some Maven configuration file is present in the source too. That is because we were using Maven and the migration to Gradle is still in progress.
+
+#### Basic Usage
+
+To use the feature, send requests to the `_opendistro/_sql` URI. You can use a request parameter or the request body (recommended).
+
+* Simple query
+````
+GET https://<host>:<port>/_opendistro/_sql?sql=select * from my-index limit 50
+````
+
+````
+POST https://<host>:<port>/_opendistro/_sql
+{
+  "query": "SELECT * FROM my-index LIMIT 50"
+}
+````
+
+* Explain SQL to Elasticsearch query DSL
+````
+POST https://<host>:<port>/_opendistro/_sql/_explain
+{
+  "query": "SELECT * FROM my-index LIMIT 50"
+}
+```` 
+
+## Contributing to Open Distro For Elasticsearch SQL
+
+Please go to Issues and Pull Request for reporting bugs and contributing your code.
+
+## License
+
+This code is licensed under Apache License Version 2.0.
