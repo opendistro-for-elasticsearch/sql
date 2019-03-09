@@ -1,9 +1,11 @@
-Elasticsearch-SQL
-=================
+# Open Distro for Elasticsearch SQL
 
-Query elasticsearch using familiar SQL syntax.
-You can also use ES functions in SQL.
 
+Open Distro for Elasticsearch enables you to extract insights out of Elasticsearch using the familiar SQL query syntax. Use aggregations, group by, and where clauses to investigate your data. Read your data as JSON documents or CSV tables so you have the flexibility to use the format that works best for you.
+
+## Documentation
+
+Please refer to the [technical documentation](https://opendistro.github.io/for-elasticsearch-docs) for detailed information on installing and configuring opendistro-elasticsearch-security plugin.
 
 ## SETUP
 
@@ -140,3 +142,10 @@ Please check out JDBC driver repository for more details.
 *  ES GEO_DISTANCE
 *  ES GEOHASH_GRID aggregation
 
+## License
+
+This code is licensed under the Apache 2.0 License. 
+
+## Copyright
+
+Copyright 2019- Amazon.com, Inc. or its affiliates. All Rights Reserved.
