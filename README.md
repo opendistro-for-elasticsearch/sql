@@ -140,6 +140,10 @@ POST https://<host>:<port>/_opendistro/_sql/_explain
 }
 ```` 
 
+## Attribution
+
+This project is based on the Apache 2.0-licensed [elasticsearch-sql](https://github.com/NLPchina/elasticsearch-sql) project. Thank you [eliranmoyal](https://github.com/eliranmoyal), [shi-yuan](https://github.com/shi-yuan), [ansjsun](https://github.com/ansjsun) and everyone else who contributed great code to that project. We plan on contributing our enhancements back upstream.
+
 ## Contributing to Open Distro For Elasticsearch SQL
 
 Please go to Issues and Pull Request for reporting bugs and contributing your code.
