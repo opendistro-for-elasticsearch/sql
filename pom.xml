@@ -20,7 +20,7 @@
     <artifactId>opendistro-sql</artifactId>
     <version>6.5.4.0</version>
     <packaging>jar</packaging>
-    <description>Amazon Open Distribution for Elasticsearch SQL Access</description>
+    <description>Open Distro for Elasticsearch SQL</description>
     <name>opendistro-sql</name>
 
     <properties>
@@ -109,7 +109,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.1.41</version>
+            <version>1.2.56</version>
             <scope>test</scope>
         </dependency>
 
