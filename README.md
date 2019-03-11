@@ -7,7 +7,7 @@ Open Distro for Elasticsearch enables you to extract insights out of Elasticsear
 
 Please refer to the [technical documentation](https://opendistro.github.io/for-elasticsearch-docs) for detailed information on installing and configuring opendistro-elasticsearch-security plugin.
 
-## SETUP
+## Setup
 
 Install as plugin: build plugin from source code by following the instruction in Build section and install it to your Elasticsearch.
 
@@ -146,9 +146,20 @@ Please check out JDBC driver repository for more details.
 
 This project is based on the Apache 2.0-licensed [elasticsearch-sql](https://github.com/NLPchina/elasticsearch-sql) project. Thank you [eliranmoyal](https://github.com/eliranmoyal), [shi-yuan](https://github.com/shi-yuan), [ansjsun](https://github.com/ansjsun) and everyone else who contributed great code to that project. We plan on contributing our enhancements back upstream.
 
-## License
+## Code of Conduct
 
-This code is licensed under the Apache 2.0 License. 
+This project has adopted an [Open Source Code of Conduct](https://opendistro.github.io/for-elasticsearch/codeofconduct.html).
+
+
+## Security issue notifications
+
+If you discover a potential security issue in this project we ask that you notify AWS/Amazon Security via our [vulnerability reporting page](http://aws.amazon.com/security/vulnerability-reporting/). Please do **not** create a public GitHub issue.
+
+
+## Licensing
+
+See the [LICENSE](./LICENSE) file for our project's licensing. We will ask you to confirm the licensing of your contribution.
+
 
 ## Copyright
 
