@@ -30,24 +30,29 @@ You may note that some Maven configuration file is present in the source too. Th
 To use the feature, send requests to the `_opendistro/_sql` URI. You can use a request parameter or the request body (recommended).
 
 * Simple query
-````
+```
 GET https://<host>:<port>/_opendistro/_sql?sql=select * from my-index limit 50
-````
+```
 
-````
+```
 POST https://<host>:<port>/_opendistro/_sql
 {
   "query": "SELECT * FROM my-index LIMIT 50"
 }
-````
+```
 
 * Explain SQL to elasticsearch query DSL
-````
+```
 POST _opendistro/_sql/_explain
 {
   "query": "SELECT * FROM my-index LIMIT 50"
 }
-```` 
+```
+
+* For a sample curl command with the Open Distro for Elasticsearch Security plugin, try:
+```
+curl -XPOST https://localhost:9200/_opendistro/_sql -u admin:admin -k -d '{"query": "SELECT * FROM my-index LIMIT 10"}' -H 'Content-Type: application/json'
+```
 
 
 ## SQL Usage
