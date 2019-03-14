@@ -1,2 +1,11 @@
 Open Distribution for Elasticsearch SQL
 Copyright 2018-2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+This project is based on the Apache 2.0-licensed elasticsearch-sql project (https://github.com/NLPchina/elasticsearch-sql):
+
+Copyright 2014 omershelef
+Copyright 2015-2016 Eliran
+Copyright 2015 jheimbouch
+Copyright 2016 allwefantasy
+Copyright 2016 Razma Tazz
+Copyright 2017 leonlu
