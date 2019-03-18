@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class RestSqlAction extends BaseRestHandler {
-    public static Logger logger = LogManager.getLogger(RestSqlAction.class);
+    private static Logger logger = LogManager.getLogger(RestSqlAction.class);
 
     /** API endpoint path */
     public static final String QUERY_API_ENDPOINT = "/_opendistro/_sql";
