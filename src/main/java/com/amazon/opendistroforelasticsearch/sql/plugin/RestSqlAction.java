@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class RestSqlAction extends BaseRestHandler {
-    private static Logger logger = LogManager.getLogger(RestSqlAction.class);
+    private static final Logger LOG = LogManager.getLogger(RestSqlAction.class);
 
     /** API endpoint path */
     public static final String QUERY_API_ENDPOINT = "/_opendistro/_sql";
@@ -61,7 +61,7 @@ public class RestSqlAction extends BaseRestHandler {
             sqlRequest = SqlRequestFactory.getSqlRequest(request);
         } catch(IllegalArgumentException e) {
             // FIXME: need to send proper error response to client.
-            logger.error("Failed to parse SQL request.", e);
+            LOG.error("Failed to parse SQL request.", e);
             return null;
         }
 
@@ -91,7 +91,7 @@ public class RestSqlAction extends BaseRestHandler {
             }
         } catch (SqlParseException | SQLFeatureNotSupportedException e) {
             // FIXME: need to catch all exceptions to avoid ES process from crashing
-            logger.error("Failed during Query Action.", e);
+            LOG.error("Failed during Query Action.", e);
             return null;
         }
     }
