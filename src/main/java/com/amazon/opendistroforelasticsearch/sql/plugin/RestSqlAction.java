@@ -15,6 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.plugin;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.common.settings.Settings;
 import com.amazon.opendistroforelasticsearch.sql.executor.ActionRequestRestExecutorFactory;
@@ -33,6 +35,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class RestSqlAction extends BaseRestHandler {
+    private static final Logger LOG = LogManager.getLogger(RestSqlAction.class);
 
     /** API endpoint path */
     public static final String QUERY_API_ENDPOINT = "/_opendistro/_sql";
@@ -58,6 +61,7 @@ public class RestSqlAction extends BaseRestHandler {
             sqlRequest = SqlRequestFactory.getSqlRequest(request);
         } catch(IllegalArgumentException e) {
             // FIXME: need to send proper error response to client.
+            LOG.error("Failed to parse SQL request.", e);
             return null;
         }
 
@@ -87,7 +91,7 @@ public class RestSqlAction extends BaseRestHandler {
             }
         } catch (SqlParseException | SQLFeatureNotSupportedException e) {
             // FIXME: need to catch all exceptions to avoid ES process from crashing
-            e.printStackTrace();
+            LOG.error("Failed during Query Action.", e);
             return null;
         }
     }
