@@ -17,9 +17,6 @@ package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
 import org.json.JSONObject;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
 public class ErrorMessage {
 
     private Exception exception;
@@ -38,16 +35,12 @@ public class ErrorMessage {
         this.details = fetchDetails();
     }
 
-    private String fetchType() { return exception.getClass().getName(); }
+    private String fetchType() { return exception.getClass().getSimpleName(); }
 
     private String fetchReason() { return emptyStringIfNull(exception.getLocalizedMessage()); }
 
     private String fetchDetails() {
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        exception.printStackTrace(pw);
-
-        return sw.toString();
+        return exception.toString();
     }
 
     private String emptyStringIfNull(String str) { return str != null ? str : ""; }
