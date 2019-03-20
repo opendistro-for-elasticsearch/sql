@@ -49,6 +49,12 @@ public class NestedFieldRewriterTest {
     }
 
     @Test
+    public void selectWithoutFrom() {
+        // Expect no exception thrown
+        query("SELECT now()");
+    }
+
+    @Test
     public void selectAll() {
         same(
             query("SELECT * FROM team t, t.employees"),

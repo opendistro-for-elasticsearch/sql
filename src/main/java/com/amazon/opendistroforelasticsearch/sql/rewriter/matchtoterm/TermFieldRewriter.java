@@ -65,6 +65,10 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
     @Override
     public boolean visit(MySqlSelectQueryBlock query) {
         environment.push(new TermFieldScope());
+        if (query.getFrom() == null) {
+            return false;
+        }
+
         Map<String, String> indexToType = new HashMap<>();
         collect(query.getFrom(), indexToType, curScope().getAliases());
         curScope().setMapper(getMappings(indexToType));
