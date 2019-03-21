@@ -78,8 +78,15 @@ public class From {
         this.alias = alias;
     }
 
-	@Override
-	public String toString() {
-        return index + (type == null ? "" : "/" + type) + (alias == null ? "" : " " + type);
-	}
+    @Override
+    public String toString() {
+        StringBuilder str = new StringBuilder(index);
+        if (type != null) {
+            str.append('/').append(type);
+        }
+        if (alias != null) {
+            str.append(" AS ").append(alias);
+        }
+        return str.toString();
+    }
 }
