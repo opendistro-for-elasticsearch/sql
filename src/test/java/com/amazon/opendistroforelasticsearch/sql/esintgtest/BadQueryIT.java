@@ -21,7 +21,6 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.test.ESIntegTestCase;
-import org.json.JSONObject;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -45,7 +44,7 @@ public class BadQueryIT extends SQLIntegTestCase {
 
     @Test
     public void typoKeyword() throws IOException {
-        assertEquals(400, queryForStatusCode("SELECT * FROMa " + TEST_INDEX_ACCOUNT));
+        assertEquals(400, queryForStatusCode("SELECT * FRON " + TEST_INDEX_ACCOUNT));
     }
 
     private int queryForStatusCode(String sql) throws IOException {

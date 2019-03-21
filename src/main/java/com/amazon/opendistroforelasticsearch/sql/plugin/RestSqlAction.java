@@ -106,6 +106,7 @@ public class RestSqlAction extends BaseRestHandler {
                e instanceof SqlParseException |
                e instanceof ParserException |
                e instanceof SQLFeatureNotSupportedException |
+               e instanceof IllegalArgumentException |
                e instanceof IndexNotFoundException;
     }
 
