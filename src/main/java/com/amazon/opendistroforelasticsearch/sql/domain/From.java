@@ -77,4 +77,9 @@ public class From {
     public void setAlias(String alias) {
         this.alias = alias;
     }
+
+	@Override
+	public String toString() {
+        return index + (type == null ? "" : "/" + type) + (alias == null ? "" : " " + type);
+	}
 }
