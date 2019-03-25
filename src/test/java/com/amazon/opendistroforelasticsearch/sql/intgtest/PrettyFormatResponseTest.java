@@ -98,7 +98,7 @@ public class PrettyFormatResponseTest {
     public void indexPattern() {
         String query = "SELECT * FROM " + TestsConstants.TEST_INDEX + "_loc*";
         Protocol protocol = CheckPrettyFormatContents.execute(query, "jdbc");
-        assertThat(4L, equalTo(protocol.getResultSet().getDataRows().getSize()));
+        assertThat(protocol.getResultSet().getDataRows().getSize(), equalTo(4L));
     }
 
     /** Test Protocol as a whole */
