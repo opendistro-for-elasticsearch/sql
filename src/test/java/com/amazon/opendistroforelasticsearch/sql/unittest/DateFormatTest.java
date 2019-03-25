@@ -24,9 +24,11 @@ import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
 import com.amazon.opendistroforelasticsearch.sql.parser.SqlParser;
 import com.amazon.opendistroforelasticsearch.sql.query.maker.QueryMaker;
+import com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.common.lucene.BytesRefs;
+import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.hamcrest.*;
 import org.junit.Test;
 
@@ -45,14 +47,14 @@ public class DateFormatTest {
         List<QueryBuilder> q = query(SELECT_CNT_FROM_DATE + "WHERE date_format(creationDate, 'YYYY') < '2018'");
 
         assertThat(q, hasQueryWithValue("fieldName", equalTo("creationDate")));
-        assertThat(q, hasQueryWithValue("format", hasFieldWithValue("format", "has format", equalTo("YYYY"))));
+        assertThat(q, hasQueryWithValueGetter("format", MatcherUtils.featureValueOf("has format", equalTo("YYYY"), f->((RangeQueryBuilder)f).format())));
     }
 
     @Test
     public void equalCondition() {
         List<QueryBuilder> q = query(SELECT_CNT_FROM_DATE + "WHERE date_format(creationDate, 'YYYY-MM-dd') = '2018-04-02'");
 
-        assertThat(q, hasQueryWithValue("format", hasFieldWithValue("format", "has format", equalTo("YYYY-MM-dd"))));
+        assertThat(q, hasQueryWithValueGetter("format", MatcherUtils.featureValueOf("has format", equalTo("YYYY-MM-dd"), f->((RangeQueryBuilder)f).format())));
 
         // Equality query for date_format is created with a rangeQuery where the 'from' and 'to' values are equal to the value we are equating to
         assertThat(q, hasQueryWithValue("from", equalTo(BytesRefs.toBytesRef("2018-04-02")))); // converting string to bytes ref as RangeQueryBuilder stores it this way
@@ -128,5 +130,11 @@ public class DateFormatTest {
                 hasFieldWithValue("mustClauses", "has mustClauses",
                         hasItem(hasFieldWithValue("mustNotClauses", "has mustNotClauses",
                                 hasItem(hasFieldWithValue(name, "has " + name, matcher))))));
+    }
+
+    private <T, U> Matcher<Iterable<? super T>> hasQueryWithValueGetter(String name, Matcher<? super U> matcher) {
+        return hasItem(
+                hasFieldWithValue("mustClauses", "has mustClauses",
+                        hasItem(matcher)));
     }
 }
