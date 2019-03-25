@@ -88,7 +88,6 @@ public class RestSqlAction extends BaseRestHandler {
                 return channel -> restExecutor.execute(client, additionalParams, queryAction, channel);
             }
         } catch (Exception e) {
-            // FIXME: need to catch all exceptions to avoid ES process from crashing
             LOG.error("Failed during Query Action.", e);
             return reportError(e, isClientError(e) ? BAD_REQUEST : SERVICE_UNAVAILABLE);
         }
