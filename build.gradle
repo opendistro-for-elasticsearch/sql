@@ -95,7 +95,7 @@ compileTestJava {
 }
 
 // TODO: Need to update integration test to use ElasticSearch test framework
-test {
+unitTest {
     include '**/*Test.class'
     exclude 'com/amazon/opendistroforelasticsearch/sql/intgtest/**'
     // Gradle runs unit test using a working directory other and project root
