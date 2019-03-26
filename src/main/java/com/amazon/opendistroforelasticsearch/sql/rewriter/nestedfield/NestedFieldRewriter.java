@@ -72,6 +72,9 @@ public class NestedFieldRewriter extends MySqlASTVisitorAdapter {
     @Override
     public boolean visit(MySqlSelectQueryBlock query) {
         environment.push(new Scope());
+        if (query.getFrom() == null) {
+            return false;
+        }
 
         query.getFrom().setParent(query);
         new From(query.getFrom()).rewrite(curScope());

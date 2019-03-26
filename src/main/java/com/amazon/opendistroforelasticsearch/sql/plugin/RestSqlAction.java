@@ -15,17 +15,24 @@
 
 package com.amazon.opendistroforelasticsearch.sql.plugin;
 
+import com.alibaba.druid.sql.parser.ParserException;
+import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.executor.ActionRequestRestExecutorFactory;
+import com.amazon.opendistroforelasticsearch.sql.executor.RestExecutor;
+import com.amazon.opendistroforelasticsearch.sql.executor.format.ErrorMessage;
+import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
+import com.amazon.opendistroforelasticsearch.sql.request.SqlRequest;
+import com.amazon.opendistroforelasticsearch.sql.request.SqlRequestFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.common.settings.Settings;
-import com.amazon.opendistroforelasticsearch.sql.executor.ActionRequestRestExecutorFactory;
-import com.amazon.opendistroforelasticsearch.sql.executor.RestExecutor;
-import org.elasticsearch.rest.*;
-import com.amazon.opendistroforelasticsearch.sql.request.SqlRequest;
-import com.amazon.opendistroforelasticsearch.sql.request.SqlRequestFactory;
-import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
-import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
+import org.elasticsearch.index.IndexNotFoundException;
+import org.elasticsearch.rest.BaseRestHandler;
+import org.elasticsearch.rest.BytesRestResponse;
+import org.elasticsearch.rest.RestController;
+import org.elasticsearch.rest.RestRequest;
+import org.elasticsearch.rest.RestStatus;
 
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.Arrays;
@@ -33,6 +40,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import static org.elasticsearch.rest.RestStatus.BAD_REQUEST;
+import static org.elasticsearch.rest.RestStatus.OK;
+import static org.elasticsearch.rest.RestStatus.SERVICE_UNAVAILABLE;
 
 public class RestSqlAction extends BaseRestHandler {
     private static final Logger LOG = LogManager.getLogger(RestSqlAction.class);
@@ -56,30 +67,17 @@ public class RestSqlAction extends BaseRestHandler {
 
     @Override
     protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient client) {
-        SqlRequest sqlRequest;
         try {
-            sqlRequest = SqlRequestFactory.getSqlRequest(request);
-        } catch(IllegalArgumentException e) {
-            // FIXME: need to send proper error response to client.
-            LOG.error("Failed to parse SQL request.", e);
-            return null;
-        }
-
-        try {
-            SearchDao searchDao = new SearchDao(client);
-            QueryAction queryAction= null;
-
-            queryAction = searchDao.explain(sqlRequest.getSql());
+            final SqlRequest sqlRequest = SqlRequestFactory.getSqlRequest(request);
+            final QueryAction queryAction = new SearchDao(client).explain(sqlRequest.getSql());
             queryAction.setSqlRequest(sqlRequest);
 
-            // TODO add unittests to explain. (rest level?)
             if (request.path().endsWith("/_explain")) {
                 final String jsonExplanation = queryAction.explain().explain();
-                return channel -> channel.sendResponse(new BytesRestResponse(RestStatus.OK, jsonExplanation));
+                return sendResponse(jsonExplanation, OK);
             } else {
                 Map<String, String> params = request.params();
                 RestExecutor restExecutor = ActionRequestRestExecutorFactory.createExecutor(params.get("format"), queryAction);
-                final QueryAction finalQueryAction = queryAction;
                 //doing this hack because elasticsearch throws exception for un-consumed props
                 Map<String,String> additionalParams = new HashMap<>();
                 for (String paramName : responseParams()) {
@@ -87,12 +85,11 @@ public class RestSqlAction extends BaseRestHandler {
                         additionalParams.put(paramName, request.param(paramName));
                     }
                 }
-                return channel -> restExecutor.execute(client, additionalParams, finalQueryAction, channel);
+                return channel -> restExecutor.execute(client, additionalParams, queryAction, channel);
             }
-        } catch (SqlParseException | SQLFeatureNotSupportedException e) {
-            // FIXME: need to catch all exceptions to avoid ES process from crashing
+        } catch (Exception e) {
             LOG.error("Failed during Query Action.", e);
-            return null;
+            return reportError(e, isClientError(e) ? BAD_REQUEST : SERVICE_UNAVAILABLE);
         }
     }
 
@@ -103,4 +100,20 @@ public class RestSqlAction extends BaseRestHandler {
         return responseParams;
     }
 
+    private boolean isClientError(Exception e) {
+        return e instanceof NullPointerException | // NPE is hard to differentiate but more likely caused by bad query
+               e instanceof SqlParseException |
+               e instanceof ParserException |
+               e instanceof SQLFeatureNotSupportedException |
+               e instanceof IllegalArgumentException |
+               e instanceof IndexNotFoundException;
+    }
+
+    private RestChannelConsumer reportError(Exception e, RestStatus status) {
+        return sendResponse(new ErrorMessage(e, status.getStatus()).toString(), status);
+    }
+
+    private RestChannelConsumer sendResponse(String message, RestStatus status) {
+        return channel -> channel.sendResponse(new BytesRestResponse(status, message));
+    }
 }
