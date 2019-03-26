@@ -47,14 +47,14 @@ public class DateFormatTest {
         List<QueryBuilder> q = query(SELECT_CNT_FROM_DATE + "WHERE date_format(creationDate, 'YYYY') < '2018'");
 
         assertThat(q, hasQueryWithValue("fieldName", equalTo("creationDate")));
-        assertThat(q, hasQueryWithValueGetter("format", MatcherUtils.featureValueOf("has format", equalTo("YYYY"), f->((RangeQueryBuilder)f).format())));
+        assertThat(q, hasQueryWithValueGetter(MatcherUtils.featureValueOf("has format", equalTo("YYYY"), f->((RangeQueryBuilder)f).format())));
     }
 
     @Test
     public void equalCondition() {
         List<QueryBuilder> q = query(SELECT_CNT_FROM_DATE + "WHERE date_format(creationDate, 'YYYY-MM-dd') = '2018-04-02'");
 
-        assertThat(q, hasQueryWithValueGetter("format", MatcherUtils.featureValueOf("has format", equalTo("YYYY-MM-dd"), f->((RangeQueryBuilder)f).format())));
+        assertThat(q, hasQueryWithValueGetter(MatcherUtils.featureValueOf("has format", equalTo("YYYY-MM-dd"), f->((RangeQueryBuilder)f).format())));
 
         // Equality query for date_format is created with a rangeQuery where the 'from' and 'to' values are equal to the value we are equating to
         assertThat(q, hasQueryWithValue("from", equalTo(BytesRefs.toBytesRef("2018-04-02")))); // converting string to bytes ref as RangeQueryBuilder stores it this way
@@ -132,7 +132,7 @@ public class DateFormatTest {
                                 hasItem(hasFieldWithValue(name, "has " + name, matcher))))));
     }
 
-    private <T, U> Matcher<Iterable<? super T>> hasQueryWithValueGetter(String name, Matcher<? super U> matcher) {
+    private <T, U> Matcher<Iterable<? super T>> hasQueryWithValueGetter(Matcher<? super U> matcher) {
         return hasItem(
                 hasFieldWithValue("mustClauses", "has mustClauses",
                         hasItem(matcher)));
