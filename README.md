@@ -63,8 +63,23 @@ curl -XPOST https://localhost:9200/_opendistro/_sql -u admin:admin -k -d '{"quer
 
 * Aggregation
 
-        select COUNT(*),SUM(age),MIN(age) as m, MAX(age),AVG(age)
-        FROM bank GROUP BY gender ORDER BY SUM(age), m DESC
+        SELECT COUNT(*),SUM(age),MIN(age) as m, MAX(age),AVG(age)
+        FROM bank
+        GROUP BY gender
+        HAVING m >= 20
+        ORDER BY SUM(age), m DESC
+
+* Join
+
+        SELECT b1.firstname, b1.lastname, b2.age
+        FROM bank b1
+        LEFT JOIN bank b2
+        ON b1.age = b2.age AND b1.state = b2.state
+
+* Show
+
+        SHOW TABLES LIKE ban%
+        DESCRIBE TABLES LIKE bank
 
 * Delete
 
@@ -76,7 +91,10 @@ curl -XPOST https://localhost:9200/_opendistro/_sql -u admin:admin -k -d '{"quer
 * Search
 
         SELECT address FROM bank WHERE address = matchQuery('880 Holmes Lane') ORDER BY _score DESC LIMIT 3
-        
+
+* SQL++
+
+        SELECT address FROM bank b, b.nestedField e WHERE b.state = 'WA' and e.name = 'test'
 
 * Aggregations
 
@@ -96,9 +114,10 @@ curl -XPOST https://localhost:9200/_opendistro/_sql -u admin:admin -k -d '{"quer
 		
 		SELECT * FROM locations WHERE GEO_BOUNDING_BOX(fieldname,100.0,1.0,101,0.0)
 
-* Select type
+* Select type or pattern
 
         SELECT * FROM indexName/type
+        SELECT * FROM index*
 
 
 ## SQL Features
@@ -108,6 +127,11 @@ curl -XPOST https://localhost:9200/_opendistro/_sql -u admin:admin -k -d '{"quer
 *  SQL Where
 *  SQL Order By
 *  SQL Group By
+*  SQL Having
+*  SQL Inner Join
+*  SQL Left Join
+*  SQL Show
+*  SQL Describe
 *  SQL AND & OR
 *  SQL Like
 *  SQL COUNT distinct
