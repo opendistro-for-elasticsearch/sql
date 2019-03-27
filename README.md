@@ -92,7 +92,7 @@ curl -XPOST https://localhost:9200/_opendistro/_sql -u admin:admin -k -d '{"quer
 
         SELECT address FROM bank WHERE address = matchQuery('880 Holmes Lane') ORDER BY _score DESC LIMIT 3
 
-* SQL++
+* Nested Field
 
         SELECT address FROM bank b, b.nestedField e WHERE b.state = 'WA' and e.name = 'test'
 
