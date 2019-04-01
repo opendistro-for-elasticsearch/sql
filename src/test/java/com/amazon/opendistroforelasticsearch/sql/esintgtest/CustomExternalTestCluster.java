@@ -15,19 +15,18 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.admin.cluster.node.info.NodeInfo;
 import org.elasticsearch.action.admin.cluster.node.info.NodesInfoResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.node.DiscoveryNode;
 import org.elasticsearch.common.io.stream.NamedWriteableRegistry;
-import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.network.NetworkModule;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.env.Environment;
 import org.elasticsearch.plugins.Plugin;
-import org.elasticsearch.test.ExternalTestCluster;
 import org.elasticsearch.test.InternalTestCluster;
 import org.elasticsearch.test.TestCluster;
 import org.elasticsearch.transport.MockTcpTransportPlugin;
@@ -45,7 +44,7 @@ import static org.elasticsearch.test.ESTestCase.getTestTransportType;
 
 public class CustomExternalTestCluster extends TestCluster {
 
-    private static final Logger logger = Loggers.getLogger(ExternalTestCluster.class);
+    private static final Logger logger = LogManager.getLogger(CustomExternalTestCluster.class);
 
     private static final AtomicInteger counter = new AtomicInteger();
     public static final String EXTERNAL_CLUSTER_PREFIX = "external_";

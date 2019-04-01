@@ -77,4 +77,16 @@ public class From {
     public void setAlias(String alias) {
         this.alias = alias;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder str = new StringBuilder(index);
+        if (type != null) {
+            str.append('/').append(type);
+        }
+        if (alias != null) {
+            str.append(" AS ").append(alias);
+        }
+        return str.toString();
+    }
 }

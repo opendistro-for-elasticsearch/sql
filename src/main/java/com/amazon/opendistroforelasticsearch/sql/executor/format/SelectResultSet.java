@@ -102,12 +102,14 @@ public class SelectResultSet extends ResultSet {
         GetFieldMappingsResponse response = client.admin().indices()
                 .getFieldMappings(request)
                 .actionGet();
-        Map<String, Map<String, FieldMappingMetaData>> indexMappings = response.mappings().get(indexName);
 
-        // If the incorrect typeName was given, indexMappings will be null so Schema's columns will not be populated
-        if (indexMappings == null) {
-            throw new IllegalArgumentException(String.format("Index type %s does not exist", typeName));
+        Map<String, Map<String, Map<String, FieldMappingMetaData>>> mappings = response.mappings();
+        if (mappings.isEmpty()) {
+            throw new IllegalArgumentException(String.format("Index type %s does not exist", query.getFrom()));
         }
+
+        // Assumption is all indices share the same mapping which is validated in TermFieldRewriter.
+        Map<String, Map<String, FieldMappingMetaData>> indexMappings = mappings.values().iterator().next();
 
         /*
          * There are three cases regarding type name to consider:

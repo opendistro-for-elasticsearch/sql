@@ -90,8 +90,15 @@ public class PrettyFormatResponseTest {
             String query = String.format("SELECT * FROM %s/%s", TestsConstants.TEST_INDEX_ACCOUNT, type);
             Protocol protocol = CheckPrettyFormatContents.execute(query, "jdbc");
         } catch (IllegalArgumentException e) {
-            assertThat(e.getMessage(), is(String.format("Index type %s does not exist", type)));
+            assertThat(e.getMessage(), is(String.format("Index type [%s/%s] does not exist", TestsConstants.TEST_INDEX_ACCOUNT, type)));
         }
+    }
+
+    @Test
+    public void indexPattern() {
+        String query = "SELECT * FROM " + TestsConstants.TEST_INDEX + "_loc*";
+        Protocol protocol = CheckPrettyFormatContents.execute(query, "jdbc");
+        assertThat(protocol.getResultSet().getDataRows().getSize(), equalTo(4L));
     }
 
     /** Test Protocol as a whole */
