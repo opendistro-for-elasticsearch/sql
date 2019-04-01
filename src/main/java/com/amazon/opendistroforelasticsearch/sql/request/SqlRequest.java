@@ -40,7 +40,7 @@ public class SqlRequest {
         this.jsonContent = jsonContent;
     }
 
-    private boolean isValidJson(String json) {
+    private static boolean isValidJson(String json) {
         try {
             new JSONObject(json);
         } catch (JSONException e) {
@@ -60,7 +60,7 @@ public class SqlRequest {
      */
     private String getFilterObjectAsString(JSONObject jsonContent) {
         String filterVal = jsonContent.getJSONObject("filter").toString();
-        return "{" + "\"filter\":" + filterVal + "}";
+        return "{\"filter\":" + filterVal + "}";
     }
 
     private boolean hasFilterInRequest() {

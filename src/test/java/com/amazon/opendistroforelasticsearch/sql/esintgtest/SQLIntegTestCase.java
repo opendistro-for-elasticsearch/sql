@@ -15,15 +15,18 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
+import com.carrotsearch.randomizedtesting.annotations.ThreadLeakScope;
 import org.elasticsearch.client.AdminClient;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
+import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.test.ESIntegTestCase;
 import org.elasticsearch.test.TestCluster;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;
 
@@ -35,25 +38,38 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URL;
 
+import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.EXPLAIN_API_ENDPOINT;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.QUERY_API_ENDPOINT;
 
-public class SQLIntegTestCase extends ESIntegTestCase {
+@ESIntegTestCase.SuiteScopeTestCase
+@ESIntegTestCase.ClusterScope(scope=ESIntegTestCase.Scope.SUITE, numDataNodes=3, supportsDedicatedMasters=false, transportClientRatio=1)
+@ThreadLeakScope(ThreadLeakScope.Scope.NONE)
+public abstract class SQLIntegTestCase extends ESIntegTestCase {
 
     @Override
     protected TestCluster buildTestCluster(Scope scope, long seed) throws IOException {
+
         String clusterAddresses = System.getProperty(TESTS_CLUSTER);
-        String[] stringAddresses = clusterAddresses.split(",");
-        TransportAddress[] transportAddresses = new TransportAddress[stringAddresses.length];
-        int i = 0;
-        for (String stringAddress : stringAddresses) {
-            URL url = new URL("http://" + stringAddress);
-            InetAddress inetAddress = InetAddress.getByName(url.getHost());
-            transportAddresses[i++] = new TransportAddress(new InetSocketAddress(inetAddress, url.getPort()));
+
+        if (Strings.hasLength(clusterAddresses)) {
+            String[] stringAddresses = clusterAddresses.split(",");
+            TransportAddress[] transportAddresses = new TransportAddress[stringAddresses.length];
+            int i = 0;
+            for (String stringAddress : stringAddresses) {
+                URL url = new URL("http://" + stringAddress);
+                InetAddress inetAddress = InetAddress.getByName(url.getHost());
+                transportAddresses[i++] = new TransportAddress(new InetSocketAddress(inetAddress, url.getPort()));
+            }
+            return new CustomExternalTestCluster(createTempDir(), externalClusterClientSettings(),
+                                                 transportClientPlugins(), transportAddresses);
         }
-        return new CustomExternalTestCluster(createTempDir(), externalClusterClientSettings(), transportClientPlugins(), transportAddresses);
+
+        return super.buildTestCluster(scope, seed);
     }
 
-    /** Helper methods for loading indices */
+    /**
+     * Helper methods for loading indices
+     */
     protected void loadOnlineIndex(AdminClient adminClient, Client esClient) throws Exception {
         TestUtils.createTestIndex(adminClient, TestsConstants.TEST_INDEX_ONLINE, "online", null);
         TestUtils.loadBulk(esClient, "src/test/resources/online.json", TestsConstants.TEST_INDEX_ONLINE);
@@ -93,6 +109,12 @@ public class SQLIntegTestCase extends ESIntegTestCase {
         TestUtils.loadBulk(esClient, "src/test/resources/game_of_thrones_complex.json",
                 TestsConstants.TEST_INDEX_GAME_OF_THRONES);
         ensureGreen(TestsConstants.TEST_INDEX_GAME_OF_THRONES);
+    }
+
+    protected void loadSystemIndex(AdminClient adminClient, Client esClient) throws Exception {
+        TestUtils.createTestIndex(adminClient, TestsConstants.TEST_INDEX_SYSTEM, "systems", null);
+        TestUtils.loadBulk(esClient, "src/test/resources/systems.json", TestsConstants.TEST_INDEX_SYSTEM);
+        ensureGreen(TestsConstants.TEST_INDEX_SYSTEM);
     }
 
     protected void loadOdbcIndex(AdminClient adminClient, Client esClient) throws Exception {
@@ -140,14 +162,43 @@ public class SQLIntegTestCase extends ESIntegTestCase {
         ensureGreen(TestsConstants.TEST_INDEX_BANK_TWO);
     }
 
-    protected JSONObject query(String request) throws IOException {
-        RestClient restClient = ESIntegTestCase.getRestClient();
-        Request sqlRequest = new Request("POST", QUERY_API_ENDPOINT);
+    private Request getSqlRequest(String request, boolean explain) {
+
+        Request sqlRequest = new Request("POST", explain ? EXPLAIN_API_ENDPOINT : QUERY_API_ENDPOINT);
         sqlRequest.setJsonEntity(request);
         RequestOptions.Builder restOptionsBuilder = RequestOptions.DEFAULT.toBuilder();
         restOptionsBuilder.addHeader("Content-Type", "application/json");
         sqlRequest.setOptions(restOptionsBuilder);
 
+        return sqlRequest;
+    }
+
+    protected JSONObject executeQuery(final String sqlQuery) throws IOException {
+
+        final String requestBody = makeRequest(sqlQuery);
+        return executeRequest(requestBody);
+    }
+
+    protected String explainQuery(final String sqlQuery) throws IOException {
+
+        final String requestBody = makeRequest(sqlQuery);
+        return executeExplainRequest(requestBody);
+    }
+
+    protected JSONObject executeRequest(final String requestBody) throws IOException {
+
+        return new JSONObject(executeRequest(requestBody, false));
+    }
+
+    protected String executeExplainRequest(final String requestBody) throws IOException {
+
+        return executeRequest(requestBody, true);
+    }
+
+    private String executeRequest(final String requestBody, final boolean isExplainQuery) throws IOException {
+
+        RestClient restClient = ESIntegTestCase.getRestClient();
+        Request sqlRequest = getSqlRequest(requestBody, isExplainQuery);
         Response sqlResponse = restClient.performRequest(sqlRequest);
 
         Assert.assertTrue(sqlResponse.getStatusLine().getStatusCode() == 200);
@@ -160,6 +211,28 @@ public class SQLIntegTestCase extends ESIntegTestCase {
                 sb.append(line);
             }
         }
-        return new JSONObject(sb.toString());
+        return sb.toString();
+    }
+
+    private String makeRequest(String query) {
+        return String.format("{\n" +
+                "  \"query\": \"%s\"\n" +
+                "}", query);
+    }
+
+    protected JSONArray getHits(JSONObject response) {
+        Assert.assertTrue(response.getJSONObject("hits").has("hits"));
+
+        return response.getJSONObject("hits").getJSONArray("hits");
+    }
+
+    protected int getTotalHits(JSONObject response) {
+        Assert.assertTrue(response.getJSONObject("hits").has("total"));
+
+        return response.getJSONObject("hits").getInt("total");
+    }
+
+    protected JSONObject getSource(JSONObject hit) {
+        return hit.getJSONObject("_source");
     }
 }
