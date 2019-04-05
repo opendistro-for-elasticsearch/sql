@@ -60,8 +60,9 @@ public class ErrorMessage {
 
         errorJson.put("type", type);
         errorJson.put("reason", reason);
-        errorJson.put("details", details);
 
+        //Remove for now for security concern
+        //errorJson.put("details", details);
         return errorJson;
     }
 }
