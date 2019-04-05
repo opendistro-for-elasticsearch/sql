@@ -132,6 +132,13 @@ public abstract class SQLIntegTestCase extends ESIntegTestCase {
         ensureGreen(TestsConstants.TEST_INDEX_LOCATION);
     }
 
+    protected void loadLocation2Index(AdminClient adminClient, Client esClient) throws Exception {
+        TestUtils.createTestIndex(adminClient, TestsConstants.TEST_INDEX_LOCATION2, "location2",
+                TestUtils.getLocationIndexMapping("location2"));
+        TestUtils.loadBulk(esClient, "src/test/resources/locations2.json", TestsConstants.TEST_INDEX_LOCATION2);
+        ensureGreen(TestsConstants.TEST_INDEX_LOCATION2);
+    }
+
     protected void loadNestedTypeIndex(AdminClient adminClient, Client esClient) throws Exception {
         TestUtils.createTestIndex(adminClient, TestsConstants.TEST_INDEX_NESTED_TYPE, "nestedType",
                 TestUtils.getNestedTypeIndexMapping());
