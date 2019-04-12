@@ -67,109 +67,28 @@ public abstract class SQLIntegTestCase extends ESIntegTestCase {
         return super.buildTestCluster(scope, seed);
     }
 
-    /**
-     * Helper methods for loading indices
-     */
-    protected void loadOnlineIndex(AdminClient adminClient, Client esClient) throws Exception {
-        TestUtils.createTestIndex(adminClient, TestsConstants.TEST_INDEX_ONLINE, "online", null);
-        TestUtils.loadBulk(esClient, "src/test/resources/online.json", TestsConstants.TEST_INDEX_ONLINE);
-        ensureGreen(TestsConstants.TEST_INDEX_ONLINE);
+    @Override
+    protected void setupSuiteScopeCluster() throws Exception {
+        init();
     }
 
-    protected void loadAccountIndex(AdminClient adminClient, Client esClient) throws Exception {
-        TestUtils.createTestIndex(adminClient, TestsConstants.TEST_INDEX_ACCOUNT, "account",
-                TestUtils.getAccountIndexMapping());
-        TestUtils.loadBulk(esClient, "src/test/resources/accounts.json", TestsConstants.TEST_INDEX_ACCOUNT);
-        ensureGreen(TestsConstants.TEST_INDEX_ACCOUNT);
+    protected void init() throws Exception {}
+
+    protected void loadIndex(Index index) throws Exception {
+        AdminClient adminClient = this.admin();
+        Client esClient = ESIntegTestCase.client();
+
+        String name = index.getName();
+        String type = index.getType();
+        String mapping = index.getMapping();
+        String dataSet = index.getDataSet();
+
+        TestUtils.createTestIndex(adminClient, name, type, mapping);
+        TestUtils.loadBulk(esClient, dataSet, name);
+        ensureGreen(name);
     }
 
-    protected void loadPhraseIndex(AdminClient adminClient, Client esClient) throws Exception {
-        TestUtils.createTestIndex(adminClient, TestsConstants.TEST_INDEX_PHRASE, "phrase",
-                TestUtils.getPhraseIndexMapping());
-        TestUtils.loadBulk(esClient, "src/test/resources/phrases.json", TestsConstants.TEST_INDEX_PHRASE);
-        ensureGreen(TestsConstants.TEST_INDEX_PHRASE);
-    }
-
-    protected void loadDogIndex(AdminClient adminClient, Client esClient) throws Exception {
-        TestUtils.createTestIndex(adminClient, TestsConstants.TEST_INDEX_DOG, "dog",
-                TestUtils.getDogIndexMapping());
-        TestUtils.loadBulk(esClient, "src/test/resources/dogs.json", TestsConstants.TEST_INDEX_DOG);
-        ensureGreen(TestsConstants.TEST_INDEX_DOG);
-    }
-
-    protected void loadPeopleIndex(AdminClient adminClient, Client esClient) throws Exception {
-        TestUtils.createTestIndex(adminClient, TestsConstants.TEST_INDEX_PEOPLE, "people", null);
-        TestUtils.loadBulk(esClient, "src/test/resources/peoples.json", TestsConstants.TEST_INDEX_PEOPLE);
-        ensureGreen(TestsConstants.TEST_INDEX_PEOPLE);
-    }
-
-    protected void loadGameOfThronesIndex(AdminClient adminClient, Client esClient) throws Exception {
-        TestUtils.createTestIndex(adminClient, TestsConstants.TEST_INDEX_GAME_OF_THRONES, "gotCharacters",
-                TestUtils.getGameOfThronesIndexMapping());
-        TestUtils.loadBulk(esClient, "src/test/resources/game_of_thrones_complex.json",
-                TestsConstants.TEST_INDEX_GAME_OF_THRONES);
-        ensureGreen(TestsConstants.TEST_INDEX_GAME_OF_THRONES);
-    }
-
-    protected void loadSystemIndex(AdminClient adminClient, Client esClient) throws Exception {
-        TestUtils.createTestIndex(adminClient, TestsConstants.TEST_INDEX_SYSTEM, "systems", null);
-        TestUtils.loadBulk(esClient, "src/test/resources/systems.json", TestsConstants.TEST_INDEX_SYSTEM);
-        ensureGreen(TestsConstants.TEST_INDEX_SYSTEM);
-    }
-
-    protected void loadOdbcIndex(AdminClient adminClient, Client esClient) throws Exception {
-        TestUtils.createTestIndex(adminClient, TestsConstants.TEST_INDEX_ODBC, "odbc",
-                TestUtils.getOdbcIndexMapping());
-        TestUtils.loadBulk(esClient, "src/test/resources/odbc-date-formats.json",
-                TestsConstants.TEST_INDEX_ODBC);
-        ensureGreen(TestsConstants.TEST_INDEX_ODBC);
-    }
-
-    protected void loadLocationIndex(AdminClient adminClient, Client esClient) throws Exception {
-        TestUtils.createTestIndex(adminClient, TestsConstants.TEST_INDEX_LOCATION, "location",
-                TestUtils.getLocationIndexMapping("location"));
-        TestUtils.loadBulk(esClient, "src/test/resources/locations.json", TestsConstants.TEST_INDEX_LOCATION);
-        ensureGreen(TestsConstants.TEST_INDEX_LOCATION);
-    }
-
-    protected void loadLocation2Index(AdminClient adminClient, Client esClient) throws Exception {
-        TestUtils.createTestIndex(adminClient, TestsConstants.TEST_INDEX_LOCATION2, "location2",
-                TestUtils.getLocationIndexMapping("location2"));
-        TestUtils.loadBulk(esClient, "src/test/resources/locations2.json", TestsConstants.TEST_INDEX_LOCATION2);
-        ensureGreen(TestsConstants.TEST_INDEX_LOCATION2);
-    }
-
-    protected void loadNestedTypeIndex(AdminClient adminClient, Client esClient) throws Exception {
-        TestUtils.createTestIndex(adminClient, TestsConstants.TEST_INDEX_NESTED_TYPE, "nestedType",
-                TestUtils.getNestedTypeIndexMapping());
-        TestUtils.loadBulk(esClient, "src/test/resources/nested_objects.json",
-                TestsConstants.TEST_INDEX_NESTED_TYPE);
-        ensureGreen(TestsConstants.TEST_INDEX_NESTED_TYPE);
-    }
-
-    protected void loadJoinTypeIndex(AdminClient adminClient, Client esClient) throws Exception {
-        TestUtils.createTestIndex(adminClient, TestsConstants.TEST_INDEX_JOIN_TYPE, "joinType",
-                TestUtils.getJoinTypeIndexMapping());
-        TestUtils.loadBulk(esClient, "src/test/resources/join_objects.json",
-                TestsConstants.TEST_INDEX_JOIN_TYPE);
-        ensureGreen(TestsConstants.TEST_INDEX_JOIN_TYPE);
-    }
-
-    protected void loadBankIndex(AdminClient adminClient, Client esClient) throws Exception {
-        TestUtils.createTestIndex(adminClient, TestsConstants.TEST_INDEX_BANK, "account",
-                TestUtils.getBankIndexMapping("account"));
-        TestUtils.loadBulk(esClient, "src/test/resources/bank.json", TestsConstants.TEST_INDEX_BANK);
-        ensureGreen(TestsConstants.TEST_INDEX_BANK);
-    }
-
-    protected void loadBankTwoIndex(AdminClient adminClient, Client esClient) throws Exception {
-        TestUtils.createTestIndex(adminClient, TestsConstants.TEST_INDEX_BANK_TWO, "account_two",
-                TestUtils.getBankIndexMapping("account_two"));
-        TestUtils.loadBulk(esClient, "src/test/resources/bank_two.json", TestsConstants.TEST_INDEX_BANK_TWO);
-        ensureGreen(TestsConstants.TEST_INDEX_BANK_TWO);
-    }
-
-    private Request getSqlRequest(String request, boolean explain) {
+    protected Request getSqlRequest(String request, boolean explain) {
 
         Request sqlRequest = new Request("POST", explain ? EXPLAIN_API_ENDPOINT : QUERY_API_ENDPOINT);
         sqlRequest.setJsonEntity(request);
@@ -241,5 +160,88 @@ public abstract class SQLIntegTestCase extends ESIntegTestCase {
 
     protected JSONObject getSource(JSONObject hit) {
         return hit.getJSONObject("_source");
+    }
+
+
+    /**
+     * Enum for associating test index with relevant mapping and data.
+     */
+    public enum Index {
+        ONLINE(TestsConstants.TEST_INDEX_ONLINE,
+                "online",
+                null,
+                "src/test/resources/online.json"),
+        ACCOUNT(TestsConstants.TEST_INDEX_ACCOUNT,
+                "account",
+                TestUtils.getAccountIndexMapping(),
+                "src/test/resources/accounts.json"),
+        PHRASE(TestsConstants.TEST_INDEX_PHRASE,
+                "phrase",
+                TestUtils.getPhraseIndexMapping(),
+                "src/test/resources/phrases.json"),
+        DOG(TestsConstants.TEST_INDEX_DOG,
+                "dog",
+                TestUtils.getDogIndexMapping(),
+                "src/test/resources/dogs.json"),
+        PEOPLE(TestsConstants.TEST_INDEX_PEOPLE,
+                "people",
+                null,
+                "src/test/resources/peoples.json"),
+        GAME_OF_THRONES(TestsConstants.TEST_INDEX_GAME_OF_THRONES,
+                "gotCharacters",
+                TestUtils.getGameOfThronesIndexMapping(),
+                "src/test/resources/game_of_thrones_complex.json"),
+        SYSTEM(TestsConstants.TEST_INDEX_SYSTEM,
+                "systems",
+                null,
+                "src/test/resources/systems.json"),
+        ODBC(TestsConstants.TEST_INDEX_ODBC,
+                "odbc",
+                TestUtils.getOdbcIndexMapping(),
+                "src/test/resources/odbc-date-formats.json"),
+        LOCATION(TestsConstants.TEST_INDEX_LOCATION,
+                "location",
+                TestUtils.getLocationIndexMapping("location"),
+                "src/test/resources/locations.json"),
+        LOCATION_TWO(TestsConstants.TEST_INDEX_LOCATION2,
+                "location2",
+                TestUtils.getLocationIndexMapping("location2"),
+                "src/test/resources/locations2.json"),
+        NESTED(TestsConstants.TEST_INDEX_NESTED_TYPE,
+                "nestedType",
+                TestUtils.getNestedTypeIndexMapping(),
+                "src/test/resources/nested_objects.json"),
+        JOIN(TestsConstants.TEST_INDEX_JOIN_TYPE,
+                "joinType",
+                TestUtils.getJoinTypeIndexMapping(),
+                "src/test/resources/join_objects.json"),
+        BANK(TestsConstants.TEST_INDEX_BANK,
+                "account",
+                TestUtils.getBankIndexMapping("account"),
+                "src/test/resources/bank.json"),
+        BANK_TWO(TestsConstants.TEST_INDEX_BANK_TWO,
+                "account_two",
+                TestUtils.getBankIndexMapping("account_two"),
+                "src/test/resources/bank_two.json");
+
+        private final String name;
+        private final String type;
+        private final String mapping;
+        private final String dataSet;
+
+        Index(String name, String type, String mapping, String dataSet) {
+            this.name = name;
+            this.type = type;
+            this.mapping = mapping;
+            this.dataSet = dataSet;
+        }
+
+        public String getName() { return this.name; }
+
+        public String getType() { return this.type; }
+
+        public String getMapping() { return this.mapping; }
+
+        public String getDataSet() { return this.dataSet; }
     }
 }

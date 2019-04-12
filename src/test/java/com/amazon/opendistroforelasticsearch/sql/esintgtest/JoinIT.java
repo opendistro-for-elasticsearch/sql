@@ -16,9 +16,6 @@
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
 import com.google.common.collect.ImmutableMap;
-import org.elasticsearch.client.AdminClient;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.test.ESIntegTestCase;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -47,15 +44,12 @@ public class JoinIT extends SQLIntegTestCase {
     private static final String USE_NL_HINT = " /*! USE_NL*/";
 
     @Override
-    protected void setupSuiteScopeCluster() throws Exception {
-        AdminClient adminClient = this.admin();
-        Client esClient = ESIntegTestCase.client();
-
-        loadDogIndex(adminClient, esClient);
-        loadPeopleIndex(adminClient, esClient);
-        loadGameOfThronesIndex(adminClient, esClient);
-        loadLocationIndex(adminClient, esClient);
-        loadLocation2Index(adminClient, esClient);
+    protected void init() throws Exception {
+        loadIndex(Index.DOG);
+        loadIndex(Index.PEOPLE);
+        loadIndex(Index.GAME_OF_THRONES);
+        loadIndex(Index.LOCATION);
+        loadIndex(Index.LOCATION_TWO);
     }
 
     @Test

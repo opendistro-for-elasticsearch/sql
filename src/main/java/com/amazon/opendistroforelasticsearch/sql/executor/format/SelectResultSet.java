@@ -91,8 +91,10 @@ public class SelectResultSet extends ResultSet {
         String typeName = fetchTypeName(query);
         String[] fieldNames = fetchFieldsAsArray(query);
 
-        if (fieldNames.length == 0)
+        if (fieldNames.length == 0 && !fieldsSelectedOnAnotherTable(query))
             selectAll = true;
+        else
+            selectAll = false; // Reset boolean in the case of JOIN query where multiple calls to loadFromEsState() are made
 
         GetFieldMappingsRequest request = new GetFieldMappingsRequest()
                 .indices(indexName)
@@ -145,7 +147,8 @@ public class SelectResultSet extends ResultSet {
                 renamedCols.add(new Schema.Column(
                     joinQuery.getAlias() + "." + column.getName(),
                     column.getAlias(),
-                    Schema.Type.valueOf(column.getType().toUpperCase())
+                    Schema.Type.valueOf(column.getType().toUpperCase()),
+                    true
                 ));
             }
         } else {
@@ -155,6 +158,28 @@ public class SelectResultSet extends ResultSet {
     }
 
     private boolean isSelectAll() { return selectAll; }
+
+    /**
+     * In the case of a JOIN query, if no fields are SELECTed on for a particular table, the other table's fields are
+     * checked in SELECT to ensure a table is not incorrectly marked as a isSelectAll() case.
+     */
+    private boolean fieldsSelectedOnAnotherTable(Query query) {
+        if (isJoinQuery()) {
+            TableOnJoinSelect otherTable = getOtherTable(query);
+            return otherTable.getSelectedFields().size() > 0;
+        }
+
+        return false;
+    }
+
+    private TableOnJoinSelect getOtherTable(Query currJoinSelect) {
+        JoinSelect joinQuery = (JoinSelect) query;
+        if (joinQuery.getFirstTable() == currJoinSelect) {
+            return joinQuery.getSecondTable();
+        } else {
+            return joinQuery.getFirstTable();
+        }
+    }
 
     private boolean containsWildcard(Query query) {
         for (Field field : fetchFields(query)) {
@@ -626,7 +651,6 @@ public class SelectResultSet extends ResultSet {
      */
     private List<DataRows.Row> doFlatNestedFieldValue(String colName, SearchHit[] colValue, List<DataRows.Row> rows) {
         List<DataRows.Row> result = new ArrayList<>();
-        Map<String, Schema.Type> fieldTypeMap = fetchFieldTypeMap();
         for (DataRows.Row row : rows) {
             for (SearchHit hit : colValue) {
                 Map<String, Object> innerRow = hit.getSourceAsMap();
@@ -645,42 +669,6 @@ public class SelectResultSet extends ResultSet {
         }
 
         return result;
-    }
-
-    /**
-     * Column information is kept as a List to maintain order but in cases like the convertData() method, when
-     * repeatedly checking the Type of a field before adding it into Row, it can be troublesome to iterate through all
-     * of the list of Columns just to get the Type for one field. This method returns a map to make a check like this
-     * more efficient.
-     */
-
-    private Map<String, Schema.Type> fetchFieldTypeMap() {
-        Map<String, Schema.Type> fieldTypeMap = new HashMap<>();
-        for (Schema.Column column : schema) {
-            fieldTypeMap.put(column.getName(), column.getEnumType());
-        }
-
-        return fieldTypeMap;
-    }
-
-    /**
-     * Created as a generic solution for applying any transformations or conversions to data before adding it into the
-     * resulting Row object.
-     *
-     * For the time being it is only used for converting Date values into the millis-since-epoch format.
-     */
-    private Object convertData(Map<String, Schema.Type> fieldTypeMap, String field, Object data) {
-        Schema.Type type = fieldTypeMap.get(field);
-        switch (type) {
-            case DATE:
-                // convert date
-            default:
-                return data;
-        }
-    }
-
-    private long convertDateToEpochInMillis() {
-        return 0;
     }
 
     private Map<String, Object> addMap(String field, Object term) {

@@ -170,7 +170,7 @@ public class Protocol {
     private JSONArray dataEntry(Row dataRow, Schema schema) {
         JSONArray entry = new JSONArray();
         for (Column column : schema) {
-            String columnName = column.getName();
+            String columnName = column.getIdentifier();
             entry.put(dataRow.getDataOrDefault(columnName, JSONObject.NULL));
         }
         return entry;

@@ -15,10 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
-import org.elasticsearch.client.AdminClient;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.index.IndexNotFoundException;
-import org.elasticsearch.test.ESIntegTestCase;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -48,33 +45,35 @@ public class QueryIT extends SQLIntegTestCase {
     /**
      * Currently commenting out tests related to JoinType index since there is an issue with mapping.
      *
-     * Also ignoring the following tests as they are failing, will investigate after renaming changes:
-     *   - com.amazon.opendistro.sql.esintgtest.QueryIT.idsQuerySubQueryIds
-     *   - com.amazon.opendistro.sql.esintgtest.QueryIT.escapedCharactersCheck
-     *   - com.amazon.opendistro.sql.esintgtest.QueryIT.fieldCollapsingTest
-     *   - com.amazon.opendistro.sql.esintgtest.QueryIT.idsQueryOneId
-     *   - com.amazon.opendistro.sql.esintgtest.QueryIT.idsQueryMultipleId
-     *   - com.amazon.opendistro.sql.esintgtest.QueryIT.multipleIndicesOneNotExistWithoutHint
+     * Also ignoring the following tests as they are failing, will require investigation:
+     *   - idsQuerySubQueryIds
+     *   - escapedCharactersCheck
+     *   - fieldCollapsingTest
+     *   - idsQueryOneId
+     *   - idsQueryMultipleId
+     *   - multipleIndicesOneNotExistWithoutHint
+     *
+     * The following tests are being ignored because subquery is still running in ES transport thread:
+     *   - innerQueryTest()
+     *   - twoSubQueriesTest()
+     *   - inTermsSubQueryTest()
      */
 
     @Override
-    public void setupSuiteScopeCluster() throws Exception {
-        AdminClient adminClient = this.admin();
-        Client esClient = ESIntegTestCase.client();
-
-        loadOnlineIndex(adminClient, esClient);
-        loadAccountIndex(adminClient, esClient);
-        loadPhraseIndex(adminClient, esClient);
-        loadDogIndex(adminClient, esClient);
-        loadPeopleIndex(adminClient, esClient);
-        loadGameOfThronesIndex(adminClient, esClient);
-        loadOdbcIndex(adminClient, esClient);
-        loadLocationIndex(adminClient, esClient);
-        loadNestedTypeIndex(adminClient, esClient);
+    protected void init() throws Exception {
+        loadIndex(Index.ONLINE);
+        loadIndex(Index.ACCOUNT);
+        loadIndex(Index.PHRASE);
+        loadIndex(Index.DOG);
+        loadIndex(Index.PEOPLE);
+        loadIndex(Index.GAME_OF_THRONES);
+        loadIndex(Index.ODBC);
+        loadIndex(Index.LOCATION);
+        loadIndex(Index.NESTED);
         // TODO Remove comment after issue with loading join type is resolved
-//        loadJoinTypeIndex(adminClient, esClient);
-        loadBankIndex(adminClient, esClient);
-        loadBankTwoIndex(adminClient, esClient);
+        // loadIndex(Index.JOIN);
+        loadIndex(Index.BANK);
+        loadIndex(Index.BANK_TWO);
     }
 
     @Test
