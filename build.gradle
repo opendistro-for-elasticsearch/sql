@@ -16,7 +16,7 @@
 buildscript {
 
     ext {
-        es_version = System.getProperty("es.version", "6.6.2")
+        es_version = System.getProperty("es.version", "6.7.1")
     }
     // This isn't applying from repositories.gradle so repeating it here
     repositories {
@@ -46,7 +46,7 @@ repositories {
 }
 
 ext {
-    opendistroVersion = '0.8.0'
+    opendistroVersion = '0.9.0'
     isSnapshot = "true" == System.getProperty("build.snapshot", "true")
 }
 
@@ -130,7 +130,7 @@ dependencyLicenses.enabled = false
 // We don't need to following ES naming conventions.
 // see https://github.com/elastic/elasticsearch/blob/5ca6f312058ec8c7fbac072c4648246e7dfb4957/buildSrc/src/main/java/org/elasticsearch/gradle/precommit/NamingConventionsTask.java
 // enable namingConvention check will cause errors like:  "Classes ending with [Tests] must subclass [LuceneTestCase]"
-namingConventions.enabled = false
+testingConventions.enabled = false
 
 // TODO: need to verify the thirdPartyAudi
 // currently it complains missing classes like ibatis, mysql etc, should not be a problem

@@ -118,7 +118,7 @@ public class PreparedStatementTest {
         }
 
         @Override
-        public BytesReference content() {
+        public BytesReference innerContent() {
             return new BytesArray(this.payload);
         }
     }
