@@ -127,9 +127,9 @@ forbiddenPatterns {
 // TODO: fix license. skip dependency license checks
 dependencyLicenses.enabled = false
 
-// We don't need to following ES naming conventions.
-// see https://github.com/elastic/elasticsearch/blob/5ca6f312058ec8c7fbac072c4648246e7dfb4957/buildSrc/src/main/java/org/elasticsearch/gradle/precommit/NamingConventionsTask.java
-// enable namingConvention check will cause errors like:  "Classes ending with [Tests] must subclass [LuceneTestCase]"
+// We don't need to following ES testing naming conventions.
+// see https://github.com/elastic/elasticsearch/blob/323f312bbc829a63056a79ebe45adced5099f6e6/buildSrc/src/main/java/org/elasticsearch/gradle/precommit/TestingConventionsTasks.java
+// enable testingConventions check will cause errors like:  "Classes ending with [Tests] must subclass [LuceneTestCase]"
 testingConventions.enabled = false
 
 // TODO: need to verify the thirdPartyAudi
