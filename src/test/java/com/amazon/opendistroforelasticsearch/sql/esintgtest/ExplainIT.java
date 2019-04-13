@@ -16,9 +16,6 @@
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
 import com.google.common.io.Files;
-import org.elasticsearch.client.AdminClient;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.test.ESIntegTestCase;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -38,16 +35,13 @@ import static org.hamcrest.Matchers.equalTo;
 public class ExplainIT extends SQLIntegTestCase {
 
     @Override
-    protected void setupSuiteScopeCluster() throws Exception {
-        AdminClient adminClient = this.admin();
-        Client esClient = ESIntegTestCase.client();
-
-        loadAccountIndex(adminClient, esClient);
-        loadDogIndex(adminClient, esClient);
-        loadPeopleIndex(adminClient, esClient);
-        loadPhraseIndex(adminClient, esClient);
-        loadLocationIndex(adminClient, esClient);
-        loadNestedTypeIndex(adminClient, esClient);
+    protected void init() throws Exception {
+        loadIndex(Index.ACCOUNT);
+        loadIndex(Index.DOG);
+        loadIndex(Index.PEOPLE);
+        loadIndex(Index.PHRASE);
+        loadIndex(Index.LOCATION);
+        loadIndex(Index.NESTED);
     }
 
     @Test

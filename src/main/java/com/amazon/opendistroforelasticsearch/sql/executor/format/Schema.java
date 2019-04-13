@@ -114,10 +114,17 @@ public class Schema implements Iterable<Schema.Column> {
         private String alias;
         private final Type type;
 
-        public Column(String name, String alias, Type type) {
+        private boolean identifiedByAlias;
+
+        public Column(String name, String alias, Type type, boolean identifiedByAlias) {
             this.name = name;
             this.alias = alias;
             this.type = type;
+            this.identifiedByAlias = identifiedByAlias;
+        }
+
+        public Column(String name, String alias, Type type) {
+            this(name, alias, type, false);
         }
 
         public String getName() { return name; }
@@ -125,6 +132,19 @@ public class Schema implements Iterable<Schema.Column> {
         public String getAlias() { return alias; }
 
         public String getType() { return type.nameLowerCase(); }
+
+        /*
+         * Some query types (like JOIN) label the data in SearchHit using alias instead of field name if it's given.
+         *
+         * This method returns the alias as the identifier if the identifiedByAlias flag is set for such cases so that
+         * the correct identifier is used to access related data in DataRows.
+         */
+        public String getIdentifier() {
+            if (identifiedByAlias && alias != null)
+                return alias;
+            else
+                return name;
+        }
 
         public Type getEnumType() { return type; }
     }

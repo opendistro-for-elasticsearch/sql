@@ -16,7 +16,6 @@
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.AdminClient;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.test.ESIntegTestCase;
 
@@ -31,14 +30,9 @@ import java.io.IOException;
 // for detailed ESIntegTestCase usages doc.
 public class PreparedStatementIT extends SQLIntegTestCase {
 
-    // Please note that, we cannot use @BeforeClass method to prepare test data, because the testing cluster is NOT ready
-    // when @BeforeClass method is invoked, you will get NPE when trying to get cluster client
     @Override
-    public void setupSuiteScopeCluster() throws Exception {
-        AdminClient adminClient = this.admin();
-        Client esClient = ESIntegTestCase.client();
-
-        loadAccountIndex(adminClient, esClient);
+    protected void init() throws Exception {
+        loadIndex(Index.ACCOUNT);
     }
 
     @Test

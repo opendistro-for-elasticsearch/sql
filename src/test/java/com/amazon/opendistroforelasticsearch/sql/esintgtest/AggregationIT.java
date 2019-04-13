@@ -15,9 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
-import org.elasticsearch.client.AdminClient;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.test.ESIntegTestCase;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -50,15 +47,12 @@ import static org.hamcrest.Matchers.not;
 public class AggregationIT extends SQLIntegTestCase {
 
     @Override
-    protected void setupSuiteScopeCluster() throws Exception {
-        AdminClient adminClient = this.admin();
-        Client esClient = ESIntegTestCase.client();
-
-        loadAccountIndex(adminClient, esClient);
-        loadGameOfThronesIndex(adminClient, esClient);
-        loadDogIndex(adminClient, esClient);
-        loadOnlineIndex(adminClient, esClient);
-        loadNestedTypeIndex(adminClient, esClient);
+    protected void init() throws Exception {
+        loadIndex(Index.ACCOUNT);
+        loadIndex(Index.GAME_OF_THRONES);
+        loadIndex(Index.DOG);
+        loadIndex(Index.ONLINE);
+        loadIndex(Index.NESTED);
     }
 
     @Test
