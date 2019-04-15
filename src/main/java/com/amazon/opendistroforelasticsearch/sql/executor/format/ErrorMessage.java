@@ -44,8 +44,8 @@ public class ErrorMessage {
         // Some exception prints internal information (full class name) which is security concern
         //return emptyStringIfNull(exception.getLocalizedMessage());
         return status == RestStatus.BAD_REQUEST.getStatus()
-                ? "SQL query in the request is not valid"
-                : "There is some problem at backend at the moment";
+                ? "SQL in the query request is not valid"
+                : "There was internal problem at backend";
     }
 
     private String fetchDetails() {

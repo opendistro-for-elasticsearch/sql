@@ -69,6 +69,8 @@ public class RestSqlAction extends BaseRestHandler {
     protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient client) {
         try {
             final SqlRequest sqlRequest = SqlRequestFactory.getSqlRequest(request);
+            LOG.info("[{}] Incoming request: {}", sqlRequest.getId(), sqlRequest.getSql());
+
             final QueryAction queryAction = new SearchDao(client).explain(sqlRequest.getSql());
             queryAction.setSqlRequest(sqlRequest);
 

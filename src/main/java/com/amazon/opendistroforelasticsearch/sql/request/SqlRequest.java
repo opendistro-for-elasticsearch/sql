@@ -29,8 +29,12 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.UUID;
 
 public class SqlRequest {
+
+    /** Unique request ID for tracking */
+    private final String id = UUID.randomUUID().toString();
 
     String sql;
     JSONObject jsonContent;
@@ -53,6 +57,8 @@ public class SqlRequest {
     public JSONObject getJsonContent() {
         return this.jsonContent;
     }
+
+    public String getId() { return id; }
 
     /**
      * JSONObject's getJSONObject method will return just the value, this helper method is to extract the key and

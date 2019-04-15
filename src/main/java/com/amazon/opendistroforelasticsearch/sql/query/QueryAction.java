@@ -58,6 +58,8 @@ public abstract class QueryAction {
 
     public void setSqlRequest(SqlRequest sqlRequest) { this.sqlRequest = sqlRequest; }
 
+    public SqlRequest getSqlRequest() { return sqlRequest; }
+
     protected void updateRequestWithCollapse(Select select, SearchRequestBuilder request) throws SqlParseException {
         JsonFactory jsonFactory = new JsonFactory();
         for (Hint hint : select.getHints()) {

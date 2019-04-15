@@ -28,10 +28,10 @@ import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.transport.Transports;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Map;
 import java.util.function.Predicate;
-
-import static org.elasticsearch.rest.RestStatus.INTERNAL_SERVER_ERROR;
 
 /**
  * A RestExecutor wrapper to execute request asynchronously to avoid blocking transport thread.
@@ -53,11 +53,11 @@ public class AsyncRestExecutor implements RestExecutor {
     private final Predicate<QueryAction> isBlocking;
 
 
-    AsyncRestExecutor(RestExecutor executor) {
+    public AsyncRestExecutor(RestExecutor executor) {
         this(executor, ALL_ACTION_IS_BLOCKING);
     }
 
-    AsyncRestExecutor(RestExecutor executor, Predicate<QueryAction> isBlocking) {
+    public AsyncRestExecutor(RestExecutor executor, Predicate<QueryAction> isBlocking) {
         this.executor = executor;
         this.isBlocking = isBlocking;
     }
@@ -76,7 +76,7 @@ public class AsyncRestExecutor implements RestExecutor {
                 LOG.debug("Continue running query action [{}] for executor [{}] in current thread [{}]",
                     name(executor), name(queryAction), Thread.currentThread().getName());
             }
-            executor.execute(client, params, queryAction, channel);
+            doExecuteWithTimeMeasured(client, params, queryAction, channel);
         }
     }
 
@@ -97,11 +97,9 @@ public class AsyncRestExecutor implements RestExecutor {
     private void async(Client client, Map<String, String> params, QueryAction queryAction, RestChannel channel) {
         // Run given task in thread pool asynchronously
         client.threadPool().schedule(
-            new TimeValue(0L),
-            SQL_WORKER_THREAD_POOL_NAME,
             () -> {
                 try {
-                    executor.execute(client, params, queryAction, channel);
+                    doExecuteWithTimeMeasured(client, params, queryAction, channel);
                 } catch (IOException | SqlParseException e) {
                     LOG.warn("[MCB] async task got an IO/SQL exception: {}", e.getMessage());
                     channel.sendResponse(new BytesRestResponse(RestStatus.INTERNAL_SERVER_ERROR, e.getMessage()));
@@ -114,7 +112,30 @@ public class AsyncRestExecutor implements RestExecutor {
                 } finally {
                     BackOffRetryStrategy.releaseMem(executor);
                 }
-            });
+            },
+            new TimeValue(0L),
+            SQL_WORKER_THREAD_POOL_NAME);
+    }
+
+    /** Time the real execution of Executor and log slow query for troubleshooting */
+    private void doExecuteWithTimeMeasured(Client client,
+                                           Map<String, String> params,
+                                           QueryAction action,
+                                           RestChannel channel) throws Exception {
+        Instant startTime = Instant.now();
+        try {
+            executor.execute(client, params, action, channel);
+        }
+        finally {
+            Duration elapsed = Duration.between(startTime, Instant.now());
+            if (elapsed.getSeconds() >= 0) {
+                LOG.info("[{}] Slow query: elapsed={} (ms)", requestId(action), elapsed.toMillis());
+            }
+        }
+    }
+
+    private String requestId(QueryAction action) {
+        return action.getSqlRequest() == null ? "Unknown" : action.getSqlRequest().getId();
     }
 
     private String name(Object object) {
