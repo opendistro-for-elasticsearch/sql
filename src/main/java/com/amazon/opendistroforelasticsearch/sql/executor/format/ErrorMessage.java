@@ -15,7 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
+import org.elasticsearch.rest.RestStatus;
 import org.json.JSONObject;
+
+
 
 public class ErrorMessage {
 
@@ -37,7 +40,13 @@ public class ErrorMessage {
 
     private String fetchType() { return exception.getClass().getSimpleName(); }
 
-    private String fetchReason() { return emptyStringIfNull(exception.getLocalizedMessage()); }
+    private String fetchReason() {
+        // Some exception prints internal information (full class name) which is security concern
+        //return emptyStringIfNull(exception.getLocalizedMessage());
+        return status == RestStatus.BAD_REQUEST.getStatus()
+                ? "SQL query in the request is not valid"
+                : "There is some problem at backend at the moment";
+    }
 
     private String fetchDetails() {
         return exception.toString();
@@ -57,12 +66,9 @@ public class ErrorMessage {
 
     private JSONObject getErrorAsJson() {
         JSONObject errorJson = new JSONObject();
-
         errorJson.put("type", type);
         errorJson.put("reason", reason);
-
-        //Remove for now for security concern
-        //errorJson.put("details", details);
+        errorJson.put("details", details);
         return errorJson;
     }
 }
