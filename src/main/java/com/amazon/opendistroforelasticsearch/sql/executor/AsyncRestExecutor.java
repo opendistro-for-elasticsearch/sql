@@ -66,15 +66,15 @@ public class AsyncRestExecutor implements RestExecutor {
     public void execute(Client client, Map<String, String> params, QueryAction queryAction, RestChannel channel) throws Exception {
         if (isBlockingAction(queryAction) && isRunningInTransportThread()) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Async blocking query action [{}] for executor [{}] in current thread [{}]",
-                    name(executor), name(queryAction), Thread.currentThread().getName());
+                LOG.debug("[{}] Async blocking query action [{}] for executor [{}] in current thread [{}]",
+                    requestId(queryAction), name(executor), name(queryAction), Thread.currentThread().getName());
             }
             async(client, params, queryAction, channel);
         }
         else {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Continue running query action [{}] for executor [{}] in current thread [{}]",
-                    name(executor), name(queryAction), Thread.currentThread().getName());
+                LOG.debug("[{}] Continue running query action [{}] for executor [{}] in current thread [{}]",
+                    requestId(queryAction), name(executor), name(queryAction), Thread.currentThread().getName());
             }
             doExecuteWithTimeMeasured(client, params, queryAction, channel);
         }
@@ -101,13 +101,13 @@ public class AsyncRestExecutor implements RestExecutor {
                 try {
                     doExecuteWithTimeMeasured(client, params, queryAction, channel);
                 } catch (IOException | SqlParseException e) {
-                    LOG.warn("[MCB] async task got an IO/SQL exception: {}", e.getMessage());
+                    LOG.warn("[{}] [MCB] async task got an IO/SQL exception: {}", requestId(queryAction), e.getMessage());
                     channel.sendResponse(new BytesRestResponse(RestStatus.INTERNAL_SERVER_ERROR, e.getMessage()));
                 } catch (IllegalStateException e) {
-                    LOG.warn("[MCB] async task got a runtime exception: {}", e.getMessage());
+                    LOG.warn("[{}] [MCB] async task got a runtime exception: {}", requestId(queryAction), e.getMessage());
                     channel.sendResponse(new BytesRestResponse(RestStatus.INSUFFICIENT_STORAGE, "Memory circuit is broken."));
                 } catch (Throwable t) {
-                    LOG.warn("[MCB] async task got an unknown throwable: {}", t.getMessage());
+                    LOG.warn("[{}] [MCB] async task got an unknown throwable: {}", requestId(queryAction), t.getMessage());
                     channel.sendResponse(new BytesRestResponse(RestStatus.INTERNAL_SERVER_ERROR, String.valueOf(t.getMessage())));
                 } finally {
                     BackOffRetryStrategy.releaseMem(executor);
@@ -129,7 +129,7 @@ public class AsyncRestExecutor implements RestExecutor {
         finally {
             Duration elapsed = Duration.between(startTime, Instant.now());
             if (elapsed.getSeconds() >= 0) {
-                LOG.info("[{}] Slow query: elapsed={} (ms)", requestId(action), elapsed.toMillis());
+                LOG.warn("[{}] Slow query: elapsed={} (ms)", requestId(action), elapsed.toMillis());
             }
         }
     }
