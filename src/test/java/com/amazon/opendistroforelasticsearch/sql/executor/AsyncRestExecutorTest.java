@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.unittest;
+package com.amazon.opendistroforelasticsearch.sql.executor;
 
 import com.amazon.opendistroforelasticsearch.sql.executor.AsyncRestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.RestExecutor;

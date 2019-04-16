@@ -53,11 +53,11 @@ public class AsyncRestExecutor implements RestExecutor {
     private final Predicate<QueryAction> isBlocking;
 
 
-    public AsyncRestExecutor(RestExecutor executor) {
+    AsyncRestExecutor(RestExecutor executor) {
         this(executor, ALL_ACTION_IS_BLOCKING);
     }
 
-    public AsyncRestExecutor(RestExecutor executor, Predicate<QueryAction> isBlocking) {
+    AsyncRestExecutor(RestExecutor executor, Predicate<QueryAction> isBlocking) {
         this.executor = executor;
         this.isBlocking = isBlocking;
     }
