@@ -45,7 +45,7 @@ public abstract class QueryAction {
 
 	protected Query query;
 	protected Client client;
-	protected SqlRequest sqlRequest;
+	protected SqlRequest sqlRequest = SqlRequest.NULL;
 
 	public QueryAction(Client client, Query query) {
 		this.client = client;

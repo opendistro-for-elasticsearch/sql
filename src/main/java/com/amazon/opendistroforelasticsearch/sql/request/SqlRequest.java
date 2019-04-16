@@ -33,15 +33,23 @@ import java.util.UUID;
 
 public class SqlRequest {
 
+    public static final SqlRequest NULL = new SqlRequest("Unknown", "", null);
+
     /** Unique request ID for tracking */
-    private final String id = UUID.randomUUID().toString();
+    private final String id;
 
     String sql;
     JSONObject jsonContent;
 
-    public SqlRequest(String sql, JSONObject jsonContent) {
+
+    public SqlRequest(String id, String sql, JSONObject jsonContent) {
+        this.id = id;
         this.sql = sql;
         this.jsonContent = jsonContent;
+    }
+
+    public SqlRequest(String sql, JSONObject jsonContent) {
+        this(UUID.randomUUID().toString(), sql, jsonContent);
     }
 
     private static boolean isValidJson(String json) {

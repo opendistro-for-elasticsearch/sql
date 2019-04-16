@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.unittest;
 import com.amazon.opendistroforelasticsearch.sql.executor.AsyncRestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.RestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
+import com.amazon.opendistroforelasticsearch.sql.request.SqlRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.threadpool.ThreadPool;
@@ -63,6 +64,7 @@ public class AsyncRestExecutorTest {
     @Before
     public void setUp() {
         when(client.threadPool()).thenReturn(mock(ThreadPool.class));
+        when(action.getSqlRequest()).thenReturn(SqlRequest.NULL);
     }
 
     @Test

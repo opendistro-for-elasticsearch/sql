@@ -135,7 +135,7 @@ public class AsyncRestExecutor implements RestExecutor {
     }
 
     private String requestId(QueryAction action) {
-        return action.getSqlRequest() == null ? "Unknown" : action.getSqlRequest().getId();
+        return action.getSqlRequest().getId();
     }
 
     private String name(Object object) {

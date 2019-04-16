@@ -67,7 +67,7 @@ public class RestSqlAction extends BaseRestHandler {
 
     @Override
     protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient client) {
-        SqlRequest sqlRequest = null;
+        SqlRequest sqlRequest = SqlRequest.NULL;
         try {
             sqlRequest = SqlRequestFactory.getSqlRequest(request);
             LOG.info("[{}] Incoming request {}: {}", sqlRequest.getId(), request.uri(), sqlRequest.getSql());
@@ -91,7 +91,7 @@ public class RestSqlAction extends BaseRestHandler {
                 return channel -> restExecutor.execute(client, additionalParams, queryAction, channel);
             }
         } catch (Exception e) {
-            LOG.error(String.format("[%s] Failed during query execution", requestId(sqlRequest)), e);
+            LOG.error(String.format("[%s] Failed during query execution", sqlRequest.getId()), e);
             return reportError(e, isClientError(e) ? BAD_REQUEST : SERVICE_UNAVAILABLE);
         }
     }
@@ -101,10 +101,6 @@ public class RestSqlAction extends BaseRestHandler {
         Set<String> responseParams = new HashSet<>(super.responseParams());
         responseParams.addAll(Arrays.asList("sql", "flat", "separator", "_score", "_type", "_id", "newLine", "format"));
         return responseParams;
-    }
-
-    private String requestId(SqlRequest request) {
-        return request == null ? "Unknown" : request.getId();
     }
 
     private boolean isClientError(Exception e) {
