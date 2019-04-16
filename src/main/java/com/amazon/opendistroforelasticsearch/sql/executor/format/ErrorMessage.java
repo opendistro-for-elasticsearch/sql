@@ -64,9 +64,11 @@ public class ErrorMessage {
 
     private JSONObject getErrorAsJson() {
         JSONObject errorJson = new JSONObject();
+
         errorJson.put("type", type);
         errorJson.put("reason", reason);
         errorJson.put("details", details);
+
         return errorJson;
     }
 }

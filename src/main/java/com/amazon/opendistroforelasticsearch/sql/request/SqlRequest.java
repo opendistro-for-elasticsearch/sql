@@ -33,7 +33,7 @@ import java.util.UUID;
 
 public class SqlRequest {
 
-    public static final SqlRequest NULL = new SqlRequest("Unknown", "", null);
+    public static final SqlRequest NULL = new SqlRequest("Unassigned", "", null);
 
     /** Unique request ID for tracking */
     private final String id;
