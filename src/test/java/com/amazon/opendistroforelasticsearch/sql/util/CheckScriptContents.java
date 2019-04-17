@@ -26,6 +26,7 @@ import com.amazon.opendistroforelasticsearch.sql.intgtest.TestsConstants;
 import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
 import com.amazon.opendistroforelasticsearch.sql.parser.ScriptFilter;
 import com.amazon.opendistroforelasticsearch.sql.parser.SqlParser;
+import com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings;
 import com.amazon.opendistroforelasticsearch.sql.query.ESActionFactory;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.SqlElasticRequestBuilder;

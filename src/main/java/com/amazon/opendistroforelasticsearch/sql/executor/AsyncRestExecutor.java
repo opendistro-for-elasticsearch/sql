@@ -15,7 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor;
 
+import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.executor.format.ErrorMessage;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.join.BackOffRetryStrategy;
 import org.apache.logging.log4j.LogManager;
@@ -32,6 +34,9 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 import java.util.function.Predicate;
+
+import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_SLOWLOG;
+import static org.elasticsearch.rest.RestStatus.SERVICE_UNAVAILABLE;
 
 /**
  * A RestExecutor wrapper to execute request asynchronously to avoid blocking transport thread.
@@ -76,7 +81,7 @@ public class AsyncRestExecutor implements RestExecutor {
                 LOG.debug("[{}] Continue running query action [{}] for executor [{}] in current thread [{}]",
                     requestId(queryAction), name(executor), name(queryAction), Thread.currentThread().getName());
             }
-            doExecuteWithTimeMeasured(client, params, queryAction, channel);
+            sync(client, params, queryAction, channel);
         }
     }
 
@@ -117,6 +122,16 @@ public class AsyncRestExecutor implements RestExecutor {
             SQL_WORKER_THREAD_POOL_NAME);
     }
 
+    private void sync(Client client, Map<String, String> params, QueryAction queryAction, RestChannel channel) {
+        try {
+            doExecuteWithTimeMeasured(client, params, queryAction, channel);
+        }
+        catch (Exception e) {
+            LOG.error(String.format("[%s] Failed during query execution", requestId(queryAction)), e);
+            channel.sendResponse(new BytesRestResponse(SERVICE_UNAVAILABLE, new ErrorMessage(e, SERVICE_UNAVAILABLE.getStatus()).toString()));
+        }
+    }
+
     /** Time the real execution of Executor and log slow query for troubleshooting */
     private void doExecuteWithTimeMeasured(Client client,
                                            Map<String, String> params,
@@ -128,7 +143,8 @@ public class AsyncRestExecutor implements RestExecutor {
         }
         finally {
             Duration elapsed = Duration.between(startTime, Instant.now());
-            if (elapsed.getSeconds() >= 0) {
+            int slowLogThreshold = LocalClusterState.state().getSettingValue(QUERY_SLOWLOG);
+            if (elapsed.getSeconds() > slowLogThreshold) {
                 LOG.warn("[{}] Slow query: elapsed={} (ms)", requestId(action), elapsed.toMillis());
             }
         }

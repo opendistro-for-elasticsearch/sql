@@ -15,8 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor;
 
-import com.amazon.opendistroforelasticsearch.sql.executor.AsyncRestExecutor;
-import com.amazon.opendistroforelasticsearch.sql.executor.RestExecutor;
+import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
+import com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import com.amazon.opendistroforelasticsearch.sql.request.SqlRequest;
 import org.elasticsearch.client.Client;
@@ -65,6 +65,8 @@ public class AsyncRestExecutorTest {
     public void setUp() {
         when(client.threadPool()).thenReturn(mock(ThreadPool.class));
         when(action.getSqlRequest()).thenReturn(SqlRequest.NULL);
+
+        LocalClusterState.state().setSqlSettings(new SqlSettings(emptyMap()));
     }
 
     @Test
