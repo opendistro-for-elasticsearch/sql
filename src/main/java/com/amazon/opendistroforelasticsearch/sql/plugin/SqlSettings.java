@@ -33,7 +33,8 @@ public class SqlSettings {
 
     /**
      * Get plugin settings stored in cluster setting. Why not use ES slow log settings consistently?
-     *  1) It's per-index 2) It has separate setting for Query and Fetch phase which are all ES concepts.
+     *  1) It's per-index setting.
+     *  2) It has separate setting for Query and Fetch phase which are all ES internal concepts.
      */
     public static final String QUERY_SLOWLOG = "opendistro.sql.query.slowlog";
 

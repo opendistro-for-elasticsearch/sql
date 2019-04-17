@@ -71,7 +71,7 @@ public class LocalClusterState {
     /** Current cluster state on local node */
     private ClusterService clusterService;
 
-    /** Sql specific setting in ES cluster setting */
+    /** Sql specific settings in ES cluster settings */
     private SqlSettings sqlSettings;
 
     /** Index name expression resolver to get concrete index name */
@@ -83,7 +83,7 @@ public class LocalClusterState {
      */
     private final Cache<Tuple<List<String>, List<String>>, IndexMappings> cache;
 
-    /** Latest setting value for each registered key. Thread-safe is required here as well. */
+    /** Latest setting value for each registered key. Thread-safe is required. */
     private final Map<String, Object> settingMap = new ConcurrentHashMap<>();
 
 
@@ -120,7 +120,7 @@ public class LocalClusterState {
                 setting,
                 newVal -> {
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug("Setting [{}] changed to [{}]", setting.getKey(), newVal);
+                        LOG.debug("Setting value of [{}] changed to [{}]", setting.getKey(), newVal);
                     }
                     settingMap.put(setting.getKey(), newVal);
                 });

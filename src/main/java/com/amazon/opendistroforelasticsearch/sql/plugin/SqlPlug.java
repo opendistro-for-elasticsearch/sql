@@ -73,7 +73,7 @@ public class SqlPlug extends Plugin implements ActionPlugin {
     @Override
     public Collection<Object> createComponents(Client client, ClusterService clusterService, ThreadPool threadPool, ResourceWatcherService resourceWatcherService, ScriptService scriptService, NamedXContentRegistry xContentRegistry, Environment environment, NodeEnvironment nodeEnvironment, NamedWriteableRegistry namedWriteableRegistry) {
 	    LocalClusterState.state().setClusterService(clusterService);
-		LocalClusterState.state().setSqlSettings(sqlSettings);
+	    LocalClusterState.state().setSqlSettings(sqlSettings);
 	    return super.createComponents(client, clusterService, threadPool, resourceWatcherService, scriptService, xContentRegistry, environment, nodeEnvironment, namedWriteableRegistry);
     }
 

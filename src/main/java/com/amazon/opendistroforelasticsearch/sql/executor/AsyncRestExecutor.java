@@ -127,7 +127,7 @@ public class AsyncRestExecutor implements RestExecutor {
             doExecuteWithTimeMeasured(client, params, queryAction, channel);
         }
         catch (Exception e) {
-            LOG.error(String.format("[%s] Failed during query execution", requestId(queryAction)), e);
+            LOG.error(String.format("[%s] Failed during query execution in executor", requestId(queryAction)), e);
             channel.sendResponse(new BytesRestResponse(SERVICE_UNAVAILABLE, new ErrorMessage(e, SERVICE_UNAVAILABLE.getStatus()).toString()));
         }
     }
