@@ -84,7 +84,7 @@ public class LocalClusterState {
     private final Cache<Tuple<List<String>, List<String>>, IndexMappings> cache;
 
     /** Latest setting value for each registered key. Thread-safe is required. */
-    private final Map<String, Object> settingMap = new ConcurrentHashMap<>();
+    private final Map<String, Object> latestSettings = new ConcurrentHashMap<>();
 
 
     public static synchronized LocalClusterState state() {
@@ -120,9 +120,9 @@ public class LocalClusterState {
                 setting,
                 newVal -> {
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug("Setting value of [{}] changed to [{}]", setting.getKey(), newVal);
+                        LOG.debug("The value of setting [{}] changed to [{}]", setting.getKey(), newVal);
                     }
-                    settingMap.put(setting.getKey(), newVal);
+                    latestSettings.put(setting.getKey(), newVal);
                 });
         }
     }
@@ -144,7 +144,7 @@ public class LocalClusterState {
     @SuppressWarnings("unchecked")
     public <T> T getSettingValue(String key) {
         Objects.requireNonNull(sqlSettings, "SQL setting is null");
-        return (T) settingMap.getOrDefault(key, sqlSettings.getSetting(key).getDefault(EMPTY));
+        return (T) latestSettings.getOrDefault(key, sqlSettings.getSetting(key).getDefault(EMPTY));
     }
 
     /** Get field mappings by index expressions. All types and fields are included in response. */

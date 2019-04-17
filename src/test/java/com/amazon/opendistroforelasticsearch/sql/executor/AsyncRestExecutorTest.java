@@ -31,10 +31,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.util.Map;
 import java.util.function.Predicate;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static org.elasticsearch.transport.TcpTransport.TRANSPORT_WORKER_THREAD_NAME_PREFIX;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -66,7 +69,9 @@ public class AsyncRestExecutorTest {
         when(client.threadPool()).thenReturn(mock(ThreadPool.class));
         when(action.getSqlRequest()).thenReturn(SqlRequest.NULL);
 
-        LocalClusterState.state().setSqlSettings(new SqlSettings(emptyMap()));
+        SqlSettings settings = spy(new SqlSettings());
+        doReturn(emptyList()).when(settings).getSettings();
+        LocalClusterState.state().setSqlSettings(settings);
     }
 
     @Test
