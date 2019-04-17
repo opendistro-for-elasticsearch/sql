@@ -41,6 +41,7 @@ import org.elasticsearch.threadpool.FixedExecutorBuilder;
 import org.elasticsearch.threadpool.ThreadPool;
 import org.elasticsearch.watcher.ResourceWatcherService;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -67,7 +68,9 @@ public class SqlPlug extends Plugin implements ActionPlugin {
 	@Override
 	public List<RestHandler> getRestHandlers(Settings settings, RestController restController, ClusterSettings clusterSettings, IndexScopedSettings indexScopedSettings, SettingsFilter settingsFilter, IndexNameExpressionResolver indexNameExpressionResolver, Supplier<DiscoveryNodes> nodesInCluster) {
 	    LocalClusterState.state().setResolver(indexNameExpressionResolver);
-		return Collections.singletonList(new RestSqlAction(settings, restController));
+		return Arrays.asList(
+				new RestSqlAction(settings, restController),
+				new RestSqlStatsAction(settings, restController));
 	}
 
     @Override
