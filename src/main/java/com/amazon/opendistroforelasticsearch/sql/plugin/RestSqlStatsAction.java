@@ -46,60 +46,32 @@ import static org.elasticsearch.rest.RestStatus.BAD_REQUEST;
 import static org.elasticsearch.rest.RestStatus.OK;
 import static org.elasticsearch.rest.RestStatus.SERVICE_UNAVAILABLE;
 
-public class RestSqlAction extends BaseRestHandler {
-    private static final Logger LOG = LogManager.getLogger(RestSqlAction.class);
+public class RestSqlStatsAction extends BaseRestHandler {
+    private static final Logger LOG = LogManager.getLogger(RestSqlStatsAction.class);
 
     /** API endpoint path */
-    public static final String QUERY_API_ENDPOINT = "/_opendistro/_sql";
-    public static final String EXPLAIN_API_ENDPOINT = QUERY_API_ENDPOINT + "/_explain";
-    public static final String STATS_API_ENDPOINT = QUERY_API_ENDPOINT + "/stats";
+    public static final String STATS_API_ENDPOINT = "/_opendistro/_sql/stats";
 
-    public RestSqlAction(Settings settings, RestController restController) {
+    public RestSqlStatsAction(Settings settings, RestController restController) {
         super(settings);
-        restController.registerHandler(RestRequest.Method.POST, QUERY_API_ENDPOINT, this);
-        restController.registerHandler(RestRequest.Method.GET, QUERY_API_ENDPOINT, this);
-        restController.registerHandler(RestRequest.Method.POST, EXPLAIN_API_ENDPOINT, this);
-        restController.registerHandler(RestRequest.Method.GET, EXPLAIN_API_ENDPOINT, this);
         restController.registerHandler(RestRequest.Method.POST, STATS_API_ENDPOINT, this);
         restController.registerHandler(RestRequest.Method.GET, STATS_API_ENDPOINT, this);
     }
 
     @Override
     public String getName() {
-        return "sql_action";
+        return "sql_stats_action";
     }
 
     @Override
     protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient client) {
         try {
-            if (request.path().endsWith("/stats")) {
-                JSONStringer jsonStringer = new JSONStringer();
-                jsonStringer.object().key("request_count").value(0L).key("failed_request_count_syserr").value(0L).
-                        key("failed_request_count_cuserr").value(0L).endObject();
-                return channel -> channel.sendResponse(new BytesRestResponse(RestStatus.OK, jsonStringer.toString()));
-            }
-
-            final SqlRequest sqlRequest = SqlRequestFactory.getSqlRequest(request);
-            final QueryAction queryAction = new SearchDao(client).explain(sqlRequest.getSql());
-            queryAction.setSqlRequest(sqlRequest);
-
-            if (request.path().endsWith("/_explain")) {
-                final String jsonExplanation = queryAction.explain().explain();
-                return sendResponse(jsonExplanation, OK);
-            } else {
-                Map<String, String> params = request.params();
-                RestExecutor restExecutor = ActionRequestRestExecutorFactory.createExecutor(params.get("format"), queryAction);
-                //doing this hack because elasticsearch throws exception for un-consumed props
-                Map<String,String> additionalParams = new HashMap<>();
-                for (String paramName : responseParams()) {
-                    if (request.hasParam(paramName)) {
-                        additionalParams.put(paramName, request.param(paramName));
-                    }
-                }
-                return channel -> restExecutor.execute(client, additionalParams, queryAction, channel);
-            }
+            JSONStringer jsonStringer = new JSONStringer();
+            jsonStringer.object().key("request_count").value(0L).key("failed_request_count_syserr").value(0L).
+                    key("failed_request_count_cuserr").value(0L).endObject();
+            return channel -> channel.sendResponse(new BytesRestResponse(RestStatus.OK, jsonStringer.toString()));
         } catch (Exception e) {
-            LOG.error("Failed during Query Action.", e);
+            LOG.error("Failed during Query SQL STATS Action.", e);
             return reportError(e, isClientError(e) ? BAD_REQUEST : SERVICE_UNAVAILABLE);
         }
     }
