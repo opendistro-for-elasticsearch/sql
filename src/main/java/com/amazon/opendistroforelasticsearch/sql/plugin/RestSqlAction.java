@@ -33,7 +33,6 @@ import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestController;
 import org.elasticsearch.rest.RestRequest;
 import org.elasticsearch.rest.RestStatus;
-import org.json.JSONStringer;
 
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.Arrays;
@@ -52,7 +51,6 @@ public class RestSqlAction extends BaseRestHandler {
     /** API endpoint path */
     public static final String QUERY_API_ENDPOINT = "/_opendistro/_sql";
     public static final String EXPLAIN_API_ENDPOINT = QUERY_API_ENDPOINT + "/_explain";
-    public static final String STATS_API_ENDPOINT = QUERY_API_ENDPOINT + "/stats";
 
     public RestSqlAction(Settings settings, RestController restController) {
         super(settings);
@@ -60,8 +58,6 @@ public class RestSqlAction extends BaseRestHandler {
         restController.registerHandler(RestRequest.Method.GET, QUERY_API_ENDPOINT, this);
         restController.registerHandler(RestRequest.Method.POST, EXPLAIN_API_ENDPOINT, this);
         restController.registerHandler(RestRequest.Method.GET, EXPLAIN_API_ENDPOINT, this);
-        restController.registerHandler(RestRequest.Method.POST, STATS_API_ENDPOINT, this);
-        restController.registerHandler(RestRequest.Method.GET, STATS_API_ENDPOINT, this);
     }
 
     @Override
@@ -72,13 +68,6 @@ public class RestSqlAction extends BaseRestHandler {
     @Override
     protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient client) {
         try {
-            if (request.path().endsWith("/stats")) {
-                JSONStringer jsonStringer = new JSONStringer();
-                jsonStringer.object().key("request_count").value(0L).key("failed_request_count_syserr").value(0L).
-                        key("failed_request_count_cuserr").value(0L).endObject();
-                return channel -> channel.sendResponse(new BytesRestResponse(RestStatus.OK, jsonStringer.toString()));
-            }
-
             final SqlRequest sqlRequest = SqlRequestFactory.getSqlRequest(request);
             final QueryAction queryAction = new SearchDao(client).explain(sqlRequest.getSql());
             queryAction.setSqlRequest(sqlRequest);

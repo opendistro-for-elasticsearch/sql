@@ -15,24 +15,25 @@
 
 package com.amazon.opendistroforelasticsearch.sql.metrics;
 
+import java.util.function.Supplier;
+
 public class GaugeMetric<T> extends Metric<T> {
 
     private T value;
+    private Supplier<T> LOAD_VALUE;
 
-    public GaugeMetric(String name, T value) {
+    public GaugeMetric(String name, T value, Supplier<T> supplier) {
         super(name);
         this.value = value;
+        this.LOAD_VALUE = supplier;
     }
 
     public String getName() {
         return super.getName();
     }
 
-    public void setValue(T v) {
-        this.value = v;
-    }
-
     public T getValue() {
+        value = LOAD_VALUE.get();
         return value;
     }
 

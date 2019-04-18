@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 public class BackOffRetryStrategy {
 
@@ -50,6 +51,8 @@ public class BackOffRetryStrategy {
     private final static int MAXRETRIES = 999;
 
     private final static Object obj = new Object();
+
+    public final static Supplier<Integer> GET_CB_STATE = () -> isMemoryHealthy() ? 0 : 1;
 
     private BackOffRetryStrategy() {
 

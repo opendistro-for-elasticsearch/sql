@@ -15,13 +15,15 @@
 
 package com.amazon.opendistroforelasticsearch.sql.metrics;
 
+import com.amazon.opendistroforelasticsearch.sql.query.join.BackOffRetryStrategy;
+
 public class MetricFactory {
 
     public static Metric createMetric(MetricType type) {
         if (type.getType() == 1) {
             return new NumericMetric<>(type.getName(), new RollingCounter());
-        } else if (type.getType() == 2) {
-            return new GaugeMetric<>(type.getName(), 0);
+        } else if (type == MetricType.CIRCUIT_BREAKER) {
+            return new GaugeMetric<>(type.getName(), 0, BackOffRetryStrategy.GET_CB_STATE);
         } else {
             return new NumericMetric<>(type.getName(), new BasicCounter());
         }

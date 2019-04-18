@@ -17,12 +17,8 @@ package com.amazon.opendistroforelasticsearch.sql.plugin;
 
 import com.alibaba.druid.sql.parser.ParserException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
-import com.amazon.opendistroforelasticsearch.sql.executor.ActionRequestRestExecutorFactory;
-import com.amazon.opendistroforelasticsearch.sql.executor.RestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.ErrorMessage;
-import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
-import com.amazon.opendistroforelasticsearch.sql.request.SqlRequest;
-import com.amazon.opendistroforelasticsearch.sql.request.SqlRequestFactory;
+import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.node.NodeClient;
@@ -33,17 +29,13 @@ import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestController;
 import org.elasticsearch.rest.RestRequest;
 import org.elasticsearch.rest.RestStatus;
-import org.json.JSONStringer;
 
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import static org.elasticsearch.rest.RestStatus.BAD_REQUEST;
-import static org.elasticsearch.rest.RestStatus.OK;
 import static org.elasticsearch.rest.RestStatus.SERVICE_UNAVAILABLE;
 
 public class RestSqlStatsAction extends BaseRestHandler {
@@ -66,10 +58,7 @@ public class RestSqlStatsAction extends BaseRestHandler {
     @Override
     protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient client) {
         try {
-            JSONStringer jsonStringer = new JSONStringer();
-            jsonStringer.object().key("request_count").value(0L).key("failed_request_count_syserr").value(0L).
-                    key("failed_request_count_cuserr").value(0L).endObject();
-            return channel -> channel.sendResponse(new BytesRestResponse(RestStatus.OK, jsonStringer.toString()));
+            return channel -> channel.sendResponse(new BytesRestResponse(RestStatus.OK, Metrics.collectToJSON()));
         } catch (Exception e) {
             LOG.error("Failed during Query SQL STATS Action.", e);
             return reportError(e, isClientError(e) ? BAD_REQUEST : SERVICE_UNAVAILABLE);
