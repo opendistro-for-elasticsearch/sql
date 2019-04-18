@@ -45,7 +45,7 @@ public abstract class QueryAction {
 
 	protected Query query;
 	protected Client client;
-	protected SqlRequest sqlRequest;
+	protected SqlRequest sqlRequest = SqlRequest.NULL;
 
 	public QueryAction(Client client, Query query) {
 		this.client = client;
@@ -57,6 +57,8 @@ public abstract class QueryAction {
 	public QueryStatement getQueryStatement() { return query; }
 
     public void setSqlRequest(SqlRequest sqlRequest) { this.sqlRequest = sqlRequest; }
+
+    public SqlRequest getSqlRequest() { return sqlRequest; }
 
     protected void updateRequestWithCollapse(Select select, SearchRequestBuilder request) throws SqlParseException {
         JsonFactory jsonFactory = new JsonFactory();

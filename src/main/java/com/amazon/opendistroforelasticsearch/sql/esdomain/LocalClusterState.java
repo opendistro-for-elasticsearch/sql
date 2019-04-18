@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esdomain;
 
+import com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings;
 import com.carrotsearch.hppc.cursors.ObjectObjectCursor;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -29,6 +30,7 @@ import org.elasticsearch.cluster.metadata.MetaData;
 import org.elasticsearch.cluster.service.ClusterService;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.collect.Tuple;
+import org.elasticsearch.common.settings.Setting;
 import org.elasticsearch.index.IndexNotFoundException;
 import org.json.JSONObject;
 
@@ -38,11 +40,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static java.util.Collections.emptyMap;
+import static org.elasticsearch.common.settings.Settings.EMPTY;
 
 /**
  * Local cluster state information which may be stale but help avoid blocking operation in NIO thread.
@@ -67,6 +71,9 @@ public class LocalClusterState {
     /** Current cluster state on local node */
     private ClusterService clusterService;
 
+    /** Sql specific settings in ES cluster settings */
+    private SqlSettings sqlSettings;
+
     /** Index name expression resolver to get concrete index name */
     private IndexNameExpressionResolver resolver;
 
@@ -75,6 +82,9 @@ public class LocalClusterState {
      * Array cannot be used as key because hashCode() always return reference address, so either use wrapper or List.
      */
     private final Cache<Tuple<List<String>, List<String>>, IndexMappings> cache;
+
+    /** Latest setting value for each registered key. Thread-safe is required. */
+    private final Map<String, Object> latestSettings = new ConcurrentHashMap<>();
 
 
     public static synchronized LocalClusterState state() {
@@ -103,12 +113,38 @@ public class LocalClusterState {
         });
     }
 
+    public void setSqlSettings(SqlSettings sqlSettings) {
+        this.sqlSettings = sqlSettings;
+        for (Setting<?> setting : sqlSettings.getSettings()) {
+            clusterService.getClusterSettings().addSettingsUpdateConsumer(
+                setting,
+                newVal -> {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("The value of setting [{}] changed to [{}]", setting.getKey(), newVal);
+                    }
+                    latestSettings.put(setting.getKey(), newVal);
+                });
+        }
+    }
+
     public void setResolver(IndexNameExpressionResolver resolver) {
         this.resolver = resolver;
     }
 
     private LocalClusterState() {
         cache = CacheBuilder.newBuilder().maximumSize(100).build();
+    }
+
+    /**
+     * Get setting value by key. Return default value if not configured explicitly.
+     *
+     * @param key   setting key registered during plugin launch.
+     * @return      setting value or default
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T getSettingValue(String key) {
+        Objects.requireNonNull(sqlSettings, "SQL setting is null");
+        return (T) latestSettings.getOrDefault(key, sqlSettings.getSetting(key).getDefault(EMPTY));
     }
 
     /** Get field mappings by index expressions. All types and fields are included in response. */

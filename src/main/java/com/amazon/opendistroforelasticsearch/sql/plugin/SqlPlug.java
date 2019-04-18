@@ -24,6 +24,7 @@ import org.elasticsearch.cluster.service.ClusterService;
 import org.elasticsearch.common.io.stream.NamedWriteableRegistry;
 import org.elasticsearch.common.settings.ClusterSettings;
 import org.elasticsearch.common.settings.IndexScopedSettings;
+import org.elasticsearch.common.settings.Setting;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.settings.SettingsFilter;
 import org.elasticsearch.common.util.concurrent.EsExecutors;
@@ -47,6 +48,9 @@ import java.util.function.Supplier;
 
 public class SqlPlug extends Plugin implements ActionPlugin {
 
+	/** Sql plugin specific settings in ES cluster settings */
+	private final SqlSettings sqlSettings = new SqlSettings();
+
 	public SqlPlug() {
 	}
 
@@ -69,6 +73,7 @@ public class SqlPlug extends Plugin implements ActionPlugin {
     @Override
     public Collection<Object> createComponents(Client client, ClusterService clusterService, ThreadPool threadPool, ResourceWatcherService resourceWatcherService, ScriptService scriptService, NamedXContentRegistry xContentRegistry, Environment environment, NodeEnvironment nodeEnvironment, NamedWriteableRegistry namedWriteableRegistry) {
 	    LocalClusterState.state().setClusterService(clusterService);
+	    LocalClusterState.state().setSqlSettings(sqlSettings);
 	    return super.createComponents(client, clusterService, threadPool, resourceWatcherService, scriptService, xContentRegistry, environment, nodeEnvironment, namedWriteableRegistry);
     }
 
@@ -85,4 +90,8 @@ public class SqlPlug extends Plugin implements ActionPlugin {
         );
 	}
 
+	@Override
+	public List<Setting<?>> getSettings() {
+	    return sqlSettings.getSettings();
+	}
 }

@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor;
 
+import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.join.BackOffRetryStrategy;
@@ -28,10 +29,11 @@ import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.transport.Transports;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import static org.elasticsearch.rest.RestStatus.INTERNAL_SERVER_ERROR;
+import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_SLOWLOG;
 
 /**
  * A RestExecutor wrapper to execute request asynchronously to avoid blocking transport thread.
@@ -66,17 +68,17 @@ public class AsyncRestExecutor implements RestExecutor {
     public void execute(Client client, Map<String, String> params, QueryAction queryAction, RestChannel channel) throws Exception {
         if (isBlockingAction(queryAction) && isRunningInTransportThread()) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Async blocking query action [{}] for executor [{}] in current thread [{}]",
-                    name(executor), name(queryAction), Thread.currentThread().getName());
+                LOG.debug("[{}] Async blocking query action [{}] for executor [{}] in current thread [{}]",
+                    requestId(queryAction), name(executor), name(queryAction), Thread.currentThread().getName());
             }
             async(client, params, queryAction, channel);
         }
         else {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Continue running query action [{}] for executor [{}] in current thread [{}]",
-                    name(executor), name(queryAction), Thread.currentThread().getName());
+                LOG.debug("[{}] Continue running query action [{}] for executor [{}] in current thread [{}]",
+                    requestId(queryAction), name(executor), name(queryAction), Thread.currentThread().getName());
             }
-            executor.execute(client, params, queryAction, channel);
+            doExecuteWithTimeMeasured(client, params, queryAction, channel);
         }
     }
 
@@ -97,24 +99,46 @@ public class AsyncRestExecutor implements RestExecutor {
     private void async(Client client, Map<String, String> params, QueryAction queryAction, RestChannel channel) {
         // Run given task in thread pool asynchronously
         client.threadPool().schedule(
-            new TimeValue(0L),
-            SQL_WORKER_THREAD_POOL_NAME,
             () -> {
                 try {
-                    executor.execute(client, params, queryAction, channel);
+                    doExecuteWithTimeMeasured(client, params, queryAction, channel);
                 } catch (IOException | SqlParseException e) {
-                    LOG.warn("[MCB] async task got an IO/SQL exception: {}", e.getMessage());
+                    LOG.warn("[{}] [MCB] async task got an IO/SQL exception: {}", requestId(queryAction), e.getMessage());
                     channel.sendResponse(new BytesRestResponse(RestStatus.INTERNAL_SERVER_ERROR, e.getMessage()));
                 } catch (IllegalStateException e) {
-                    LOG.warn("[MCB] async task got a runtime exception: {}", e.getMessage());
+                    LOG.warn("[{}] [MCB] async task got a runtime exception: {}", requestId(queryAction), e.getMessage());
                     channel.sendResponse(new BytesRestResponse(RestStatus.INSUFFICIENT_STORAGE, "Memory circuit is broken."));
                 } catch (Throwable t) {
-                    LOG.warn("[MCB] async task got an unknown throwable: {}", t.getMessage());
+                    LOG.warn("[{}] [MCB] async task got an unknown throwable: {}", requestId(queryAction), t.getMessage());
                     channel.sendResponse(new BytesRestResponse(RestStatus.INTERNAL_SERVER_ERROR, String.valueOf(t.getMessage())));
                 } finally {
                     BackOffRetryStrategy.releaseMem(executor);
                 }
-            });
+            },
+            new TimeValue(0L),
+            SQL_WORKER_THREAD_POOL_NAME);
+    }
+
+    /** Time the real execution of Executor and log slow query for troubleshooting */
+    private void doExecuteWithTimeMeasured(Client client,
+                                           Map<String, String> params,
+                                           QueryAction action,
+                                           RestChannel channel) throws Exception {
+        long startTime = System.nanoTime();
+        try {
+            executor.execute(client, params, action, channel);
+        }
+        finally {
+            Duration elapsed = Duration.ofNanos(System.nanoTime() - startTime);
+            int slowLogThreshold = LocalClusterState.state().getSettingValue(QUERY_SLOWLOG);
+            if (elapsed.getSeconds() >= slowLogThreshold) {
+                LOG.warn("[{}] Slow query: elapsed={} (ms)", requestId(action), elapsed.toMillis());
+            }
+        }
+    }
+
+    private String requestId(QueryAction action) {
+        return action.getSqlRequest().getId();
     }
 
     private String name(Object object) {

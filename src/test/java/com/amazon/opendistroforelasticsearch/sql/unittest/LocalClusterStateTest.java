@@ -15,11 +15,12 @@
 
 package com.amazon.opendistroforelasticsearch.sql.unittest;
 
-import com.amazon.opendistroforelasticsearch.sql.intgtest.TestsConstants;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState.FieldMappings;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState.IndexMappings;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState.TypeMappings;
+import com.amazon.opendistroforelasticsearch.sql.intgtest.TestsConstants;
+import com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings;
 import org.elasticsearch.cluster.ClusterChangedEvent;
 import org.elasticsearch.cluster.ClusterStateListener;
 import org.elasticsearch.cluster.service.ClusterService;
@@ -30,12 +31,16 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_SLOWLOG;
 import static com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents.mockClusterService;
 import static com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents.mockLocalClusterState;
+import static java.util.Collections.emptyList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -185,6 +190,16 @@ public class LocalClusterStateTest {
             LocalClusterState.state().getFieldMappings(new String[]{INDEX_NAME});
         }
         verify(mockService.state().metaData(), times(2)).findMappings(eq(new String[]{INDEX_NAME}), any(), any());
+    }
+
+    @Test
+    public void getDefaultValueForQuerySlowLog() {
+        // Force return empty list to avoid ClusterSettings be invoked which is a final class and hard to mock.
+        SqlSettings settings = spy(new SqlSettings());
+        doReturn(emptyList()).when(settings).getSettings();
+        LocalClusterState.state().setSqlSettings(settings);
+
+        Assert.assertEquals(2, (int) LocalClusterState.state().getSettingValue(QUERY_SLOWLOG));
     }
 
 }
