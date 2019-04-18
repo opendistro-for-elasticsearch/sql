@@ -30,7 +30,6 @@ import org.elasticsearch.transport.Transports;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.Map;
 import java.util.function.Predicate;
 
@@ -125,14 +124,14 @@ public class AsyncRestExecutor implements RestExecutor {
                                            Map<String, String> params,
                                            QueryAction action,
                                            RestChannel channel) throws Exception {
-        Instant startTime = Instant.now();
+        long startTime = System.nanoTime();
         try {
             executor.execute(client, params, action, channel);
         }
         finally {
-            Duration elapsed = Duration.between(startTime, Instant.now());
+            Duration elapsed = Duration.ofNanos(System.nanoTime() - startTime);
             int slowLogThreshold = LocalClusterState.state().getSettingValue(QUERY_SLOWLOG);
-            if (elapsed.getSeconds() > slowLogThreshold) {
+            if (elapsed.getSeconds() >= slowLogThreshold) {
                 LOG.warn("[{}] Slow query: elapsed={} (ms)", requestId(action), elapsed.toMillis());
             }
         }
