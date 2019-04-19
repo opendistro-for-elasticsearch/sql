@@ -23,7 +23,9 @@ public class MetricFactory {
         if (type.getType() == 1) {
             return new NumericMetric<>(type.getName(), new RollingCounter());
         } else if (type == MetricType.CIRCUIT_BREAKER) {
-            return new GaugeMetric<>(type.getName(), 0, BackOffRetryStrategy.GET_CB_STATE);
+            return new GaugeMetric<>(type.getName(), BackOffRetryStrategy.GET_CB_STATE);
+        } else if (type.getType() == 0) {
+            return new NumericMetric<>(type.getName(), new BasicCounter());
         } else {
             return new NumericMetric<>(type.getName(), new BasicCounter());
         }

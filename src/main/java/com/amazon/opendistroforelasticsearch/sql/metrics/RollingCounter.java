@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.metrics;
 
 import java.time.Clock;
+import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.LongAdder;
 
@@ -28,7 +29,7 @@ public class RollingCounter implements Counter<Long> {
     private final ConcurrentSkipListMap<Long, Long> time2CountWin;
     private final LongAdder count;
 
-    RollingCounter() {
+    public RollingCounter() {
         this.window = 3600;
         this.interval = 60;
         clock = Clock.systemDefaultZone();
@@ -37,7 +38,7 @@ public class RollingCounter implements Counter<Long> {
         capacity = window / interval * 2;
     }
 
-    RollingCounter(long window, long interval) {
+    public RollingCounter(long window, long interval) {
         this.window = window;
         this.interval = interval;
         clock = Clock.systemDefaultZone();
@@ -55,7 +56,7 @@ public class RollingCounter implements Counter<Long> {
     @Override
     public void increment(long n) {
         trim();
-        time2CountWin.compute(getKey(clock.millis()), (k, v) -> (v == null) ? 1 : v+n);
+        time2CountWin.compute(getKey(clock.millis()), (k, v) -> (v == null) ? n : v+n);
     }
 
     @Override
@@ -64,7 +65,10 @@ public class RollingCounter implements Counter<Long> {
     }
 
     public long getValue(long key) {
-        return time2CountWin.get(key);
+        Long res = time2CountWin.get(key);
+        if (res == null) return 0;
+
+        return res;
     }
 
     public long getSum() {
@@ -73,12 +77,12 @@ public class RollingCounter implements Counter<Long> {
 
     private void trim() {
         if (time2CountWin.size() > capacity) {
-            time2CountWin.headMap(getKey(clock.millis() - window)).clear();
+            time2CountWin.headMap(getKey(clock.millis() - window * 1000)).clear();
         }
     }
 
     private long getKey(long millis) {
-        return millis / 1000 / 60;
+        return millis / 1000 / this.interval;
     }
 
     private long getPreKey(long millis) {

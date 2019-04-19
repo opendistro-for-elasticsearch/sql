@@ -19,12 +19,10 @@ import java.util.function.Supplier;
 
 public class GaugeMetric<T> extends Metric<T> {
 
-    private T value;
     private Supplier<T> LOAD_VALUE;
 
-    public GaugeMetric(String name, T value, Supplier<T> supplier) {
+    public GaugeMetric(String name, Supplier<T> supplier) {
         super(name);
-        this.value = value;
         this.LOAD_VALUE = supplier;
     }
 
@@ -33,8 +31,7 @@ public class GaugeMetric<T> extends Metric<T> {
     }
 
     public T getValue() {
-        value = LOAD_VALUE.get();
-        return value;
+        return LOAD_VALUE.get();
     }
 
 }

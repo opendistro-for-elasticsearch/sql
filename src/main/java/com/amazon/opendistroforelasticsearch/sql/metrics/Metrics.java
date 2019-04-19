@@ -34,12 +34,12 @@ public class Metrics {
         metricMap.put(metric.getName(), metric);
     }
 
-    public static void unRegisterMetric(Metric metric) {
-        if (metric == null) {
+    public static void unRegisterMetric(String name) {
+        if (name == null || !metricMap.containsKey(name)) {
             return;
         }
 
-        metricMap.remove(metric.getName());
+        metricMap.remove(name);
     }
 
     public static Metric getMetric(String name) {
@@ -50,6 +50,15 @@ public class Metrics {
         return metricMap.get(name);
     }
 
+    public static NumericMetric getNumericMetric(MetricType metricType) {
+        String name = metricType.getName();
+        if (!metricType.isNumerical()) {
+            name = MetricType.DEFAULT.getName();
+        }
+
+        return (NumericMetric) metricMap.get(name);
+    }
+
     public static List<Metric> getAllMetrics() {
         return new ArrayList<>(metricMap.values());
     }
@@ -58,6 +67,7 @@ public class Metrics {
         JSONObject metricsJSONObject = new JSONObject();
 
         for (Metric metric : metricMap.values()) {
+            if (metric.getName().equals("default")) continue;
             metricsJSONObject.put(metric.getName(), metric.getValue());
         }
 

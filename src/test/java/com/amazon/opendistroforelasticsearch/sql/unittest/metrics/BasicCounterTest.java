@@ -13,26 +13,32 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.metrics;
+package com.amazon.opendistroforelasticsearch.sql.unittest.metrics;
 
-import java.util.concurrent.atomic.LongAdder;
+import com.amazon.opendistroforelasticsearch.sql.metrics.BasicCounter;
+import org.junit.Test;
 
-public class BasicCounter implements Counter<Long> {
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 
-    private LongAdder count = new LongAdder();
+public class BasicCounterTest {
 
-    @Override
+    @Test
     public void increment() {
-        count.increment();
+        BasicCounter counter = new BasicCounter();
+        for (int i=0; i<5; ++i) {
+            counter.increment();
+        }
+
+        assertThat(counter.getValue(), equalTo(5L));
     }
 
-    @Override
-    public void increment(long n) {
-        count.add(n);
+    @Test
+    public void incrementN() {
+        BasicCounter counter = new BasicCounter();
+        counter.increment(5);
+
+        assertThat(counter.getValue(), equalTo(5L));
     }
 
-    @Override
-    public Long getValue() {
-        return count.longValue();
-    }
 }

@@ -21,10 +21,13 @@ import java.util.stream.Collectors;
 
 public enum MetricType {
 
+    REQ_TOTAL("request_total", 0),
     REQ_COUNT_TOTAL("request_count", 1),
     FAILED_REQ_COUNT_SYS("failed_request_count_syserr", 1),
     FAILED_REQ_COUNT_CUS("failed_request_count_cuserr", 1),
-    CIRCUIT_BREAKER("circuit_breaker", 2);
+    FAILED_REQ_COUNT_CB("failed_request_count_cb", 1),
+    CIRCUIT_BREAKER("circuit_breaker", 2),
+    DEFAULT("default", 0);
 
     private String name;
     private int type;
@@ -44,5 +47,9 @@ public enum MetricType {
 
     public static List<String> getNames() {
         return Arrays.stream(MetricType.values()).map(v -> v.name).collect(Collectors.toList());
+    }
+
+    public boolean isNumerical() {
+        return type < 2;
     }
 }
