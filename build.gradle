@@ -214,3 +214,4 @@ afterEvaluate {
          tasks = ['build', 'buildRpm', 'buildDeb']
     }
 }
+
