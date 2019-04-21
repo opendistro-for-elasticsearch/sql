@@ -209,4 +209,8 @@ afterEvaluate {
         archiveName "${packageName}-${version}.deb"
         dependsOn 'assemble'
     }
+
+    task buildPackages(type: GradleBuild) {
+         tasks = ['build', 'buildRpm', 'buildDeb']
+    }
 }
