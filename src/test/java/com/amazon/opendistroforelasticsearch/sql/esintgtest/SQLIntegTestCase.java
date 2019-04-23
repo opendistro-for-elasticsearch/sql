@@ -34,9 +34,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 
 import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.EXPLAIN_API_ENDPOINT;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.QUERY_API_ENDPOINT;
@@ -99,6 +103,23 @@ public abstract class SQLIntegTestCase extends ESIntegTestCase {
         return sqlRequest;
     }
 
+    protected Request buildGetEndpointRequest(final String sqlQuery) {
+
+        final String utf8CharsetName = StandardCharsets.UTF_8.name();
+        String urlEncodedQuery = "";
+
+        try {
+            urlEncodedQuery = URLEncoder.encode(sqlQuery, utf8CharsetName);
+        } catch (UnsupportedEncodingException e) {
+            // Will never reach here since UTF-8 is always supported
+            Assert.fail(utf8CharsetName + " not available");
+        }
+
+        final String requestUrl = String.format(Locale.ROOT, "%s?sql=%s",
+                QUERY_API_ENDPOINT, urlEncodedQuery);
+        return new Request("GET", requestUrl);
+    }
+
     protected JSONObject executeQuery(final String sqlQuery) throws IOException {
 
         final String requestBody = makeRequest(sqlQuery);
@@ -129,21 +150,35 @@ public abstract class SQLIntegTestCase extends ESIntegTestCase {
 
     private String executeRequest(final String requestBody, final boolean isExplainQuery) throws IOException {
 
-        RestClient restClient = ESIntegTestCase.getRestClient();
         Request sqlRequest = getSqlRequest(requestBody, isExplainQuery);
-        Response sqlResponse = restClient.performRequest(sqlRequest);
+        return executeRequest(sqlRequest);
+    }
 
-        Assert.assertTrue(sqlResponse.getStatusLine().getStatusCode() == 200);
+    private String executeRequest(final Request request) throws IOException {
 
-        InputStream is = sqlResponse.getEntity().getContent();
-        StringBuilder sb = new StringBuilder();
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
-            String line = null;
-            while((line = br.readLine()) != null) {
+        RestClient restClient = ESIntegTestCase.getRestClient();
+        Response response = restClient.performRequest(request);
+        Assert.assertEquals(200, response.getStatusLine().getStatusCode());
+
+        final StringBuilder sb = new StringBuilder();
+
+        try (final InputStream is = response.getEntity().getContent();
+             final BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+
+            String line;
+            while ((line = br.readLine()) != null) {
                 sb.append(line);
             }
         }
+
         return sb.toString();
+    }
+
+    protected JSONObject executeQueryWithGetRequest(final String sqlQuery) throws IOException {
+
+        final Request request = buildGetEndpointRequest(sqlQuery);
+        final String result = executeRequest(request);
+        return new JSONObject(result);
     }
 
     private String makeRequest(String query) {

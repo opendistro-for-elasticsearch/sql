@@ -43,7 +43,7 @@ public class AsyncRestExecutor implements RestExecutor {
     /** Custom thread pool name managed by ES */
     public static final String SQL_WORKER_THREAD_POOL_NAME = "sql-worker";
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(AsyncRestExecutor.class);
 
     /** Treat all actions as blocking which means async all actions, ex. execute() in csv executor or pretty format executor */
     private static final Predicate<QueryAction> ALL_ACTION_IS_BLOCKING = anyAction -> true;
