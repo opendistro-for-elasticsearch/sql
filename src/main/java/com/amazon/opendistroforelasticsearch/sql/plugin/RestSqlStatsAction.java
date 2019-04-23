@@ -58,7 +58,7 @@ public class RestSqlStatsAction extends BaseRestHandler {
     @Override
     protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient client) {
         try {
-            return channel -> channel.sendResponse(new BytesRestResponse(RestStatus.OK, Metrics.collectToJSON()));
+            return channel -> channel.sendResponse(new BytesRestResponse(RestStatus.OK, Metrics.getInstance().collectToJSON()));
         } catch (Exception e) {
             LOG.error("Failed during Query SQL STATS Action.", e);
             return reportError(e, isClientError(e) ? BAD_REQUEST : SERVICE_UNAVAILABLE);

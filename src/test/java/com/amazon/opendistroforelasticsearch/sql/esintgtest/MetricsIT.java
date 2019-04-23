@@ -18,11 +18,20 @@ package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 import com.amazon.opendistroforelasticsearch.sql.metrics.MetricType;
 import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
 import com.google.common.io.Files;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.client.Request;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.test.ESIntegTestCase;
+import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
@@ -38,27 +47,51 @@ import static org.hamcrest.Matchers.equalTo;
 
 public class MetricsIT extends SQLIntegTestCase {
 
+    private RestClient restClient = ESIntegTestCase.getRestClient();
+
     @Override
     protected void init() throws Exception {
         loadIndex(Index.ACCOUNT);
         loadIndex(Index.DOG);
-        loadIndex(Index.PEOPLE);
-        loadIndex(Index.PHRASE);
-        loadIndex(Index.LOCATION);
-        loadIndex(Index.NESTED);
     }
 
     @Test
     public void requestCount() throws IOException, InterruptedException {
         multiQueries(3);
-        TimeUnit.SECONDS.sleep(3L);
-        assertThat(Metrics.getNumericMetric(MetricType.REQ_COUNT_TOTAL).getValue(), equalTo(2L));
+        TimeUnit.SECONDS.sleep(2L);
+        JSONObject res = new JSONObject(executeStatRequest(makeStatRequest()));
     }
 
     private void multiQueries(int n) throws IOException {
         for (int i=0; i<n; ++i) {
-            executeQuery(String.format("SELECT COUNT(*) FROM %s/account", TEST_INDEX_DOG));
+            executeQuery(String.format("SELECT COUNT(*) FROM %s/dog", TEST_INDEX_DOG));
         }
+    }
+
+    private Request makeStatRequest() {
+        return new Request(
+                "GET", "/_opendistro/_sql/stats"
+        );
+    }
+
+    private String executeStatRequest(final Request request) throws IOException {
+
+        RestClient restClient = ESIntegTestCase.getRestClient();
+        Response sqlResponse = restClient.performRequest(request);
+
+        Assert.assertTrue(sqlResponse.getStatusLine().getStatusCode() == 200);
+
+        InputStream is = sqlResponse.getEntity().getContent();
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+            String line = null;
+            while((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+        }
+
+        System.out.println("[jing]: " + sb.toString());
+        return sb.toString();
     }
 
 }

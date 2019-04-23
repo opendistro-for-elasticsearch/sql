@@ -69,7 +69,7 @@ public class SqlPlug extends Plugin implements ActionPlugin {
 	@Override
 	public List<RestHandler> getRestHandlers(Settings settings, RestController restController, ClusterSettings clusterSettings, IndexScopedSettings indexScopedSettings, SettingsFilter settingsFilter, IndexNameExpressionResolver indexNameExpressionResolver, Supplier<DiscoveryNodes> nodesInCluster) {
 	    LocalClusterState.state().setResolver(indexNameExpressionResolver);
-		Metrics.registerDefaultMetrics();
+		Metrics.getInstance().registerDefaultMetrics();
 		return Arrays.asList(
 				new RestSqlAction(settings, restController),
 				new RestSqlStatsAction(settings, restController));

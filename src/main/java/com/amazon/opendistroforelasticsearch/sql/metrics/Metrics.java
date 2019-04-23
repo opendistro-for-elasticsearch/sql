@@ -22,19 +22,32 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Metrics {
-    private static ConcurrentHashMap<String, Metric> metricMap = new ConcurrentHashMap<>();
+    private static Metrics metrics = new Metrics();
+    private ConcurrentHashMap<String, Metric> metricMap = new ConcurrentHashMap<>();
+/*
+    static {
+        for (MetricType metricType : MetricType.values()) {
+            System.out.println("registger:" + metricType.getName());
+            registerMetric(MetricFactory.createMetric(metricType));
+        }
+    }
+*/
 
-    public static void registerDefaultMetrics() {
+    public static Metrics getInstance() {
+        return metrics;
+    }
+
+    public void registerDefaultMetrics() {
         for (MetricType metricType : MetricType.values()) {
             registerMetric(MetricFactory.createMetric(metricType));
         }
     }
 
-    public static void registerMetric(Metric metric) {
+    public void registerMetric(Metric metric) {
         metricMap.put(metric.getName(), metric);
     }
 
-    public static void unRegisterMetric(String name) {
+    public void unRegisterMetric(String name) {
         if (name == null || !metricMap.containsKey(name)) {
             return;
         }
@@ -42,7 +55,7 @@ public class Metrics {
         metricMap.remove(name);
     }
 
-    public static Metric getMetric(String name) {
+    public Metric getMetric(String name) {
         if (name == null || !metricMap.containsKey(name)) {
             return null;
         }
@@ -50,7 +63,7 @@ public class Metrics {
         return metricMap.get(name);
     }
 
-    public static NumericMetric getNumericMetric(MetricType metricType) {
+    public NumericMetric getNumericMetric(MetricType metricType) {
         String name = metricType.getName();
         if (!metricType.isNumerical()) {
             name = MetricType.DEFAULT.getName();
@@ -59,11 +72,11 @@ public class Metrics {
         return (NumericMetric) metricMap.get(name);
     }
 
-    public static List<Metric> getAllMetrics() {
+    public List<Metric> getAllMetrics() {
         return new ArrayList<>(metricMap.values());
     }
 
-    public static String collectToJSON() {
+    public String collectToJSON() {
         JSONObject metricsJSONObject = new JSONObject();
 
         for (Metric metric : metricMap.values()) {
@@ -74,7 +87,7 @@ public class Metrics {
         return metricsJSONObject.toString();
     }
 
-    public static void clear() {
+    public void clear() {
         metricMap.clear();
     }
 }

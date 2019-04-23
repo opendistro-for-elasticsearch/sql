@@ -34,6 +34,8 @@ public class RollingCounter implements Counter<Long> {
     public RollingCounter() {
         this.window = LocalClusterState.state().getSettingValue(SqlSettings.METRICS_ROLLING_WINDOW);
         this.interval = LocalClusterState.state().getSettingValue(SqlSettings.METRICS_ROLLING_INTERVAL);
+        //this.window = 6;
+        //this.interval = 2;
         clock = Clock.systemDefaultZone();
         time2CountWin = new ConcurrentSkipListMap<>();
         count = new LongAdder();

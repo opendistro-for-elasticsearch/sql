@@ -166,8 +166,8 @@ public abstract class SQLIntegTestCase extends ESIntegTestCase {
     @Override
     protected Settings nodeSettings(int nodeOrdinal) {
         return Settings.builder().put(super.nodeSettings(nodeOrdinal))
-                .put("opendistro.sql.metrics.rollingwindow", 9)
-                .put("opendistro.sql.metrics.rollinginterval", 3)
+                .put("opendistro.sql.metrics.rollingwindow", 6)
+                .put("opendistro.sql.metrics.rollinginterval", 2)
                 .build();
     }
 

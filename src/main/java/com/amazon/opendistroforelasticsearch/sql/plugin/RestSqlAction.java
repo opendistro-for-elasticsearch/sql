@@ -69,8 +69,8 @@ public class RestSqlAction extends BaseRestHandler {
 
     @Override
     protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient client) {
-        Metrics.getNumericMetric(MetricType.REQ_TOTAL).increment();
-        Metrics.getNumericMetric(MetricType.REQ_COUNT_TOTAL).increment();
+        Metrics.getInstance().getNumericMetric(MetricType.REQ_TOTAL).increment();
+        Metrics.getInstance().getNumericMetric(MetricType.REQ_COUNT_TOTAL).increment();
         SqlRequest sqlRequest = SqlRequest.NULL;
         try {
             sqlRequest = SqlRequestFactory.getSqlRequest(request);
@@ -96,9 +96,9 @@ public class RestSqlAction extends BaseRestHandler {
             }
         } catch (Exception e) {
             if (isClientError(e)) {
-                Metrics.getNumericMetric(MetricType.FAILED_REQ_COUNT_CUS).increment();
+                Metrics.getInstance().getNumericMetric(MetricType.FAILED_REQ_COUNT_CUS).increment();
             } else {
-                Metrics.getNumericMetric(MetricType.FAILED_REQ_COUNT_SYS).increment();
+                Metrics.getInstance().getNumericMetric(MetricType.FAILED_REQ_COUNT_SYS).increment();
             }
             LOG.error(String.format("[%s] Failed during query execution", sqlRequest.getId()), e);
             return reportError(e, isClientError(e) ? BAD_REQUEST : SERVICE_UNAVAILABLE);

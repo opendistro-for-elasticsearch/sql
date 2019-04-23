@@ -105,15 +105,15 @@ public class AsyncRestExecutor implements RestExecutor {
                 try {
                     doExecuteWithTimeMeasured(client, params, queryAction, channel);
                 } catch (IOException | SqlParseException e) {
-                    Metrics.getNumericMetric(MetricType.FAILED_REQ_COUNT_SYS).increment();
+                    Metrics.getInstance().getNumericMetric(MetricType.FAILED_REQ_COUNT_SYS).increment();
                     LOG.warn("[{}] [MCB] async task got an IO/SQL exception: {}", requestId(queryAction), e.getMessage());
                     channel.sendResponse(new BytesRestResponse(RestStatus.INTERNAL_SERVER_ERROR, e.getMessage()));
                 } catch (IllegalStateException e) {
-                    Metrics.getNumericMetric(MetricType.FAILED_REQ_COUNT_SYS).increment();
+                    Metrics.getInstance().getNumericMetric(MetricType.FAILED_REQ_COUNT_SYS).increment();
                     LOG.warn("[{}] [MCB] async task got a runtime exception: {}", requestId(queryAction), e.getMessage());
                     channel.sendResponse(new BytesRestResponse(RestStatus.INSUFFICIENT_STORAGE, "Memory circuit is broken."));
                 } catch (Throwable t) {
-                    Metrics.getNumericMetric(MetricType.FAILED_REQ_COUNT_SYS).increment();
+                    Metrics.getInstance().getNumericMetric(MetricType.FAILED_REQ_COUNT_SYS).increment();
                     LOG.warn("[{}] [MCB] async task got an unknown throwable: {}", requestId(queryAction), t.getMessage());
                     channel.sendResponse(new BytesRestResponse(RestStatus.INTERNAL_SERVER_ERROR, String.valueOf(t.getMessage())));
                 } finally {

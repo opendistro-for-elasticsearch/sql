@@ -79,7 +79,7 @@ public class BackOffRetryStrategy {
 
             LOG.warn("[MCB1] Memory monitor is unhealthy now, back off retrying: {} attempt, thread id = {}", i, Thread.currentThread().getId());
             if (ThreadLocalRandom.current().nextBoolean()) {
-                Metrics.getNumericMetric(MetricType.FAILED_REQ_COUNT_CB).increment();
+                Metrics.getInstance().getNumericMetric(MetricType.FAILED_REQ_COUNT_CB).increment();
                 LOG.warn("[MCB1] Directly abort on idx {}.", i);
                 return false;
             }
@@ -87,7 +87,7 @@ public class BackOffRetryStrategy {
         }
 
         boolean health = isMemoryHealthy();
-        if (!health) Metrics.getNumericMetric(MetricType.FAILED_REQ_COUNT_CB).increment();
+        if (!health) Metrics.getInstance().getNumericMetric(MetricType.FAILED_REQ_COUNT_CB).increment();
 
         return health;
     }
