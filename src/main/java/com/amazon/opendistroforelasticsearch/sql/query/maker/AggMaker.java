@@ -153,6 +153,8 @@ public class AggMaker {
                 BigDecimal percentile = (BigDecimal) kValue.value;
                 percentiles.add(percentile.doubleValue());
 
+            } else if (kValue.value instanceof Integer) {
+                percentiles.add(((Integer)kValue.value).doubleValue());
             }
         }
         if (percentiles.size() > 0) {

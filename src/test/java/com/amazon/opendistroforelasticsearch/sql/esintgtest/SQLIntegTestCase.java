@@ -111,6 +111,12 @@ public abstract class SQLIntegTestCase extends ESIntegTestCase {
         return executeExplainRequest(requestBody);
     }
 
+    protected String executeQueryWithStringOutput(final String sqlQuery) throws IOException {
+
+        final String requestString = makeRequest(sqlQuery);
+        return executeRequest(requestString, false);
+    }
+
     protected JSONObject executeRequest(final String requestBody) throws IOException {
 
         return new JSONObject(executeRequest(requestBody, false));
