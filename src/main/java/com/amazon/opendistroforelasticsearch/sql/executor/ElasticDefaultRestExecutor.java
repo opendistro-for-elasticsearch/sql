@@ -51,7 +51,7 @@ public class ElasticDefaultRestExecutor implements RestExecutor {
     /** Request builder to generate ES DSL */
     private final SqlElasticRequestBuilder requestBuilder;
 
-    private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger(ElasticDefaultRestExecutor.class);
 
     public ElasticDefaultRestExecutor(QueryAction queryAction) {
         // Put explain() here to make it run in NIO thread
