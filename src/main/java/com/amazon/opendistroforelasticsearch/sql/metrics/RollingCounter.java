@@ -15,8 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.metrics;
 
+import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
+import com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings;
+
 import java.time.Clock;
-import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.LongAdder;
 
@@ -30,8 +32,8 @@ public class RollingCounter implements Counter<Long> {
     private final LongAdder count;
 
     public RollingCounter() {
-        this.window = 3600;
-        this.interval = 60;
+        this.window = LocalClusterState.state().getSettingValue(SqlSettings.METRICS_ROLLING_WINDOW);
+        this.interval = LocalClusterState.state().getSettingValue(SqlSettings.METRICS_ROLLING_INTERVAL);
         clock = Clock.systemDefaultZone();
         time2CountWin = new ConcurrentSkipListMap<>();
         count = new LongAdder();
@@ -91,6 +93,10 @@ public class RollingCounter implements Counter<Long> {
 
     public int size() {
         return time2CountWin.size();
+    }
+
+    public void reset() {
+        time2CountWin.clear();
     }
 
 }

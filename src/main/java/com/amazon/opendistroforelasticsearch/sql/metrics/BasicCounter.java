@@ -35,4 +35,9 @@ public class BasicCounter implements Counter<Long> {
     public Long getValue() {
         return count.longValue();
     }
+
+    @Override
+    public void reset() {
+        count.reset();
+    }
 }

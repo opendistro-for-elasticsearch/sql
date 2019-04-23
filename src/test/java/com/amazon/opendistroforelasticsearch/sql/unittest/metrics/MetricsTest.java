@@ -34,48 +34,53 @@ public class MetricsTest {
 
     @Test
     public void registerMetric() {
+        Metrics.clear();
         Metrics.registerMetric(new NumericMetric("test", new BasicCounter()));
 
-        assertThat(Metrics.getAllMetrics().size(), equalTo(MetricType.values().length + 1));
+        assertThat(Metrics.getAllMetrics().size(), equalTo(1));
     }
 
     @Test
     public void unRegisterMetric() {
-        assertThat(Metrics.getAllMetrics().size(), equalTo(MetricType.values().length));
+        Metrics.clear();
+        Metrics.registerMetric(new NumericMetric("test1", new BasicCounter()));
+        Metrics.registerMetric(new NumericMetric("test2", new BasicCounter()));
+        assertThat(Metrics.getAllMetrics().size(), equalTo(2));
 
-        Metrics.unRegisterMetric(MetricType.REQ_COUNT_TOTAL.getName());
-
-        assertThat(Metrics.getAllMetrics().size(), equalTo(MetricType.values().length - 1));
+        Metrics.unRegisterMetric("test2");
+        assertThat(Metrics.getAllMetrics().size(), equalTo(1));
     }
 
     @Test
     public void getMetric() {
-        Metric metric = Metrics.getMetric(MetricType.FAILED_REQ_COUNT_SYS.getName());
+        Metrics.clear();
+        Metrics.registerMetric(new NumericMetric("test1", new BasicCounter()));
+        Metric metric = Metrics.getMetric("test1");
 
         assertThat(metric, notNullValue());
     }
 
-    @Test
-    public void getNumericMetric() {
-        NumericMetric metric = Metrics.getNumericMetric(MetricType.FAILED_REQ_COUNT_SYS);
-
-        assertThat(metric.getName(), equalTo(MetricType.FAILED_REQ_COUNT_SYS.getName()));
-    }
 
     @Test
     public void getAllMetric() {
+        Metrics.clear();
+        Metrics.registerMetric(new NumericMetric("test1", new BasicCounter()));
+        Metrics.registerMetric(new NumericMetric("test2", new BasicCounter()));
         List list = Metrics.getAllMetrics();
 
-        assertThat(list.size(), equalTo(MetricType.values().length));
+        assertThat(list.size(), equalTo(2));
     }
 
     @Test
     public void collectToJSON() {
+        Metrics.clear();
+        Metrics.registerMetric(new NumericMetric("test1", new BasicCounter()));
+        Metrics.registerMetric(new NumericMetric("test2", new BasicCounter()));
         String res = Metrics.collectToJSON();
         JSONObject jsonObject = new JSONObject(res);
 
-        assertThat(jsonObject.getLong(MetricType.REQ_COUNT_TOTAL.getName()), equalTo(0L));
-        assertThat(jsonObject.getInt(MetricType.CIRCUIT_BREAKER.getName()), equalTo(0));
+        assertThat(jsonObject.getLong("test1"), equalTo(0L));
+        assertThat(jsonObject.getInt("test2"), equalTo(0));
     }
 
 }

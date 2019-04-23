@@ -23,6 +23,7 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.common.Strings;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.test.ESIntegTestCase;
 import org.elasticsearch.test.TestCluster;
@@ -160,6 +161,14 @@ public abstract class SQLIntegTestCase extends ESIntegTestCase {
 
     protected JSONObject getSource(JSONObject hit) {
         return hit.getJSONObject("_source");
+    }
+
+    @Override
+    protected Settings nodeSettings(int nodeOrdinal) {
+        return Settings.builder().put(super.nodeSettings(nodeOrdinal))
+                .put("opendistro.sql.metrics.rollingwindow", 9)
+                .put("opendistro.sql.metrics.rollinginterval", 3)
+                .build();
     }
 
 

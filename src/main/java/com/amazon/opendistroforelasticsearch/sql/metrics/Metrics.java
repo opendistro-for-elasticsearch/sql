@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Metrics {
     private static ConcurrentHashMap<String, Metric> metricMap = new ConcurrentHashMap<>();
 
-    static {
+    public static void registerDefaultMetrics() {
         for (MetricType metricType : MetricType.values()) {
             registerMetric(MetricFactory.createMetric(metricType));
         }
@@ -72,5 +72,9 @@ public class Metrics {
         }
 
         return metricsJSONObject.toString();
+    }
+
+    public static void clear() {
+        metricMap.clear();
     }
 }

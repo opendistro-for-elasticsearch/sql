@@ -37,12 +37,16 @@ public class SqlSettings {
      *  2) It has separate setting for Query and Fetch phase which are all ES internal concepts.
      */
     public static final String QUERY_SLOWLOG = "opendistro.sql.query.slowlog";
+    public static final String METRICS_ROLLING_WINDOW = "opendistro.sql.metrics.rollingwindow";
+    public static final String METRICS_ROLLING_INTERVAL = "opendistro.sql.metrics.rollinginterval";
 
     private final Map<String, Setting<?>> settings;
 
     public SqlSettings() {
         Map<String, Setting<?>> settings = new HashMap<>();
         settings.put(QUERY_SLOWLOG, Setting.intSetting(QUERY_SLOWLOG, 2, NodeScope, Dynamic));
+        settings.put(METRICS_ROLLING_WINDOW, Setting.intSetting(METRICS_ROLLING_WINDOW, 3600, NodeScope, Dynamic));
+        settings.put(METRICS_ROLLING_INTERVAL, Setting.intSetting(METRICS_ROLLING_INTERVAL, 60, NodeScope, Dynamic));
 
         this.settings = unmodifiableMap(settings);
     }

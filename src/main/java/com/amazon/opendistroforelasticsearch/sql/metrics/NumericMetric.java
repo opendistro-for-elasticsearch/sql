@@ -44,4 +44,8 @@ public class NumericMetric<T> extends Metric<T> {
         return counter.getValue();
     }
 
+    public void clear() {
+        counter.reset();
+    }
+
 }

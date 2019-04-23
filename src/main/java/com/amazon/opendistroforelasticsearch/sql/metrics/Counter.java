@@ -22,4 +22,6 @@ public interface Counter<T> {
     void increment(long n);
 
     T getValue();
+
+    void reset();
 }
