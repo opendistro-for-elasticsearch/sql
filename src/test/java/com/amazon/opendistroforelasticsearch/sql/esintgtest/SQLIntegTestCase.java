@@ -163,15 +163,6 @@ public abstract class SQLIntegTestCase extends ESIntegTestCase {
         return hit.getJSONObject("_source");
     }
 
-    @Override
-    protected Settings nodeSettings(int nodeOrdinal) {
-        return Settings.builder().put(super.nodeSettings(nodeOrdinal))
-                .put("opendistro.sql.metrics.rollingwindow", 6)
-                .put("opendistro.sql.metrics.rollinginterval", 2)
-                .build();
-    }
-
-
     /**
      * Enum for associating test index with relevant mapping and data.
      */

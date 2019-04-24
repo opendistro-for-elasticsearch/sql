@@ -31,35 +31,31 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
 public class MetricsTest {
-    @Test
-    public void test() {
 
-    }
-/*
     @Test
     public void registerMetric() {
-        Metrics.clear();
-        Metrics.registerMetric(new NumericMetric("test", new BasicCounter()));
+        Metrics.getInstance().clear();
+        Metrics.getInstance().registerMetric(new NumericMetric("test", new BasicCounter()));
 
-        assertThat(Metrics.getAllMetrics().size(), equalTo(1));
+        assertThat(Metrics.getInstance().getAllMetrics().size(), equalTo(1));
     }
 
     @Test
     public void unRegisterMetric() {
-        Metrics.clear();
-        Metrics.registerMetric(new NumericMetric("test1", new BasicCounter()));
-        Metrics.registerMetric(new NumericMetric("test2", new BasicCounter()));
-        assertThat(Metrics.getAllMetrics().size(), equalTo(2));
+        Metrics.getInstance().clear();
+        Metrics.getInstance().registerMetric(new NumericMetric("test1", new BasicCounter()));
+        Metrics.getInstance().registerMetric(new NumericMetric("test2", new BasicCounter()));
+        assertThat(Metrics.getInstance().getAllMetrics().size(), equalTo(2));
 
-        Metrics.unRegisterMetric("test2");
-        assertThat(Metrics.getAllMetrics().size(), equalTo(1));
+        Metrics.getInstance().unRegisterMetric("test2");
+        assertThat(Metrics.getInstance().getAllMetrics().size(), equalTo(1));
     }
 
     @Test
     public void getMetric() {
-        Metrics.clear();
-        Metrics.registerMetric(new NumericMetric("test1", new BasicCounter()));
-        Metric metric = Metrics.getMetric("test1");
+        Metrics.getInstance().clear();
+        Metrics.getInstance().registerMetric(new NumericMetric("test1", new BasicCounter()));
+        Metric metric = Metrics.getInstance().getMetric("test1");
 
         assertThat(metric, notNullValue());
     }
@@ -67,24 +63,24 @@ public class MetricsTest {
 
     @Test
     public void getAllMetric() {
-        Metrics.clear();
-        Metrics.registerMetric(new NumericMetric("test1", new BasicCounter()));
-        Metrics.registerMetric(new NumericMetric("test2", new BasicCounter()));
-        List list = Metrics.getAllMetrics();
+        Metrics.getInstance().clear();
+        Metrics.getInstance().registerMetric(new NumericMetric("test1", new BasicCounter()));
+        Metrics.getInstance().registerMetric(new NumericMetric("test2", new BasicCounter()));
+        List list = Metrics.getInstance().getAllMetrics();
 
         assertThat(list.size(), equalTo(2));
     }
 
     @Test
     public void collectToJSON() {
-        Metrics.clear();
-        Metrics.registerMetric(new NumericMetric("test1", new BasicCounter()));
-        Metrics.registerMetric(new NumericMetric("test2", new BasicCounter()));
-        String res = Metrics.collectToJSON();
+        Metrics.getInstance().clear();
+        Metrics.getInstance().registerMetric(new NumericMetric("test1", new BasicCounter()));
+        Metrics.getInstance().registerMetric(new NumericMetric("test2", new BasicCounter()));
+        String res = Metrics.getInstance().collectToJSON();
         JSONObject jsonObject = new JSONObject(res);
 
         assertThat(jsonObject.getLong("test1"), equalTo(0L));
         assertThat(jsonObject.getInt("test2"), equalTo(0));
     }
-*/
+
 }

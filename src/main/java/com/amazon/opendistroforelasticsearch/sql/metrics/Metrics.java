@@ -22,16 +22,9 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Metrics {
+
     private static Metrics metrics = new Metrics();
     private ConcurrentHashMap<String, Metric> metricMap = new ConcurrentHashMap<>();
-/*
-    static {
-        for (MetricType metricType : MetricType.values()) {
-            System.out.println("registger:" + metricType.getName());
-            registerMetric(MetricFactory.createMetric(metricType));
-        }
-    }
-*/
 
     public static Metrics getInstance() {
         return metrics;

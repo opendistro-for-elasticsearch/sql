@@ -45,8 +45,8 @@ public class SqlSettings {
     public SqlSettings() {
         Map<String, Setting<?>> settings = new HashMap<>();
         settings.put(QUERY_SLOWLOG, Setting.intSetting(QUERY_SLOWLOG, 2, NodeScope, Dynamic));
-        settings.put(METRICS_ROLLING_WINDOW, Setting.intSetting(METRICS_ROLLING_WINDOW, 3600, NodeScope, Dynamic));
-        settings.put(METRICS_ROLLING_INTERVAL, Setting.intSetting(METRICS_ROLLING_INTERVAL, 60, NodeScope, Dynamic));
+        settings.put(METRICS_ROLLING_WINDOW, Setting.longSetting(METRICS_ROLLING_WINDOW, 3600L, 2L, NodeScope, Dynamic));
+        settings.put(METRICS_ROLLING_INTERVAL, Setting.longSetting(METRICS_ROLLING_INTERVAL, 60L, 1L, NodeScope, Dynamic));
 
         this.settings = unmodifiableMap(settings);
     }

@@ -25,6 +25,7 @@ import org.elasticsearch.client.RestClient;
 import org.elasticsearch.test.ESIntegTestCase;
 import org.json.JSONObject;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -45,9 +46,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 
+@Ignore
 public class MetricsIT extends SQLIntegTestCase {
-
-    private RestClient restClient = ESIntegTestCase.getRestClient();
 
     @Override
     protected void init() throws Exception {
@@ -59,7 +59,8 @@ public class MetricsIT extends SQLIntegTestCase {
     public void requestCount() throws IOException, InterruptedException {
         multiQueries(3);
         TimeUnit.SECONDS.sleep(2L);
-        JSONObject res = new JSONObject(executeStatRequest(makeStatRequest()));
+        JSONObject jsonObject = new JSONObject(executeStatRequest(makeStatRequest()));
+        assertThat(jsonObject.getInt(MetricType.REQ_COUNT_TOTAL.getName()), equalTo(3));
     }
 
     private void multiQueries(int n) throws IOException {
@@ -90,7 +91,6 @@ public class MetricsIT extends SQLIntegTestCase {
             }
         }
 
-        System.out.println("[jing]: " + sb.toString());
         return sb.toString();
     }
 
