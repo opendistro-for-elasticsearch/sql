@@ -17,7 +17,6 @@ package com.amazon.opendistroforelasticsearch.sql.unittest.metrics;
 
 import com.amazon.opendistroforelasticsearch.sql.metrics.BasicCounter;
 import com.amazon.opendistroforelasticsearch.sql.metrics.Metric;
-import com.amazon.opendistroforelasticsearch.sql.metrics.MetricType;
 import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
 import com.amazon.opendistroforelasticsearch.sql.metrics.NumericMetric;
 

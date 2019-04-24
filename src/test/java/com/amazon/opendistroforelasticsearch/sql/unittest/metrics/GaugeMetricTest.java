@@ -15,11 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.unittest.metrics;
 
-import com.amazon.opendistroforelasticsearch.sql.metrics.BasicCounter;
 import com.amazon.opendistroforelasticsearch.sql.metrics.GaugeMetric;
 import org.junit.Test;
-
-import java.util.function.Supplier;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
