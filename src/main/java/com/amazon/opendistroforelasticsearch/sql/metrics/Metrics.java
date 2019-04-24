@@ -30,6 +30,8 @@ public class Metrics {
         return metrics;
     }
 
+    private Metrics() {}
+
     public void registerDefaultMetrics() {
         for (MetricType metricType : MetricType.values()) {
             registerMetric(MetricFactory.createMetric(metricType));
