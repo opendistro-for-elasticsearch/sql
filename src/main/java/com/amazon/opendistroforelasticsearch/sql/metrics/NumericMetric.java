@@ -37,7 +37,7 @@ public class NumericMetric<T> extends Metric<T> {
     }
 
     public void increment(long n) {
-        counter.increment(n);
+        counter.add(n);
     }
 
     public T getValue() {

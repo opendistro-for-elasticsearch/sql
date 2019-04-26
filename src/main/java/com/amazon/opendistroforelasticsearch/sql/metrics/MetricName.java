@@ -19,37 +19,33 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public enum MetricType {
+public enum MetricName {
 
-    REQ_TOTAL("request_total", 0),
-    REQ_COUNT_TOTAL("request_count", 1),
-    FAILED_REQ_COUNT_SYS("failed_request_count_syserr", 1),
-    FAILED_REQ_COUNT_CUS("failed_request_count_cuserr", 1),
-    FAILED_REQ_COUNT_CB("failed_request_count_cb", 1),
-    CIRCUIT_BREAKER("circuit_breaker", 2),
-    DEFAULT("default", 0);
+    REQ_TOTAL("request_total"),
+    REQ_COUNT_TOTAL("request_count"),
+    FAILED_REQ_COUNT_SYS("failed_request_count_syserr"),
+    FAILED_REQ_COUNT_CUS("failed_request_count_cuserr"),
+    FAILED_REQ_COUNT_CB("failed_request_count_cb"),
+    CIRCUIT_BREAKER("circuit_breaker"),
+    DEFAULT("default");
 
     private String name;
-    private int type;
 
-    private MetricType(String name, int type) {
+    private MetricName(String name) {
         this.name = name;
-        this.type = type;
     }
 
     public String getName() {
         return name;
     }
 
-    public int getType() {
-        return type;
-    }
-
     public static List<String> getNames() {
-        return Arrays.stream(MetricType.values()).map(v -> v.name).collect(Collectors.toList());
+        return Arrays.stream(MetricName.values()).map(v -> v.name).collect(Collectors.toList());
     }
 
     public boolean isNumerical() {
-        return type < 2;
+        return this == REQ_TOTAL || this == REQ_COUNT_TOTAL || this == FAILED_REQ_COUNT_SYS ||
+                this == FAILED_REQ_COUNT_CUS || this == FAILED_REQ_COUNT_CB || this == DEFAULT;
     }
+
 }

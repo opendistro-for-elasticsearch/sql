@@ -27,7 +27,7 @@ public class BasicCounter implements Counter<Long> {
     }
 
     @Override
-    public void increment(long n) {
+    public void add(long n) {
         count.add(n);
     }
 

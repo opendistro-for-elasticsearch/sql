@@ -48,16 +48,16 @@ public class RollingCounterTest {
     }
 
     @Test
-    public void incrementN() throws InterruptedException {
+    public void add() throws InterruptedException {
         RollingCounter counter = new RollingCounter(3, 1);
 
-        counter.increment(6);
+        counter.add(6);
         assertThat(counter.getValue(), equalTo(0L));
 
         TimeUnit.SECONDS.sleep(1L);
         assertThat(counter.getValue(), equalTo(6L));
 
-        counter.increment(4);
+        counter.add(4);
         TimeUnit.SECONDS.sleep(1L);
         assertThat(counter.getValue(), equalTo(4L));
 

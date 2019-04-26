@@ -22,6 +22,9 @@ import java.time.Clock;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.LongAdder;
 
+/**
+ * Rolling counter. The count is refreshed every interval. In every interval the count is cumulative.
+ */
 public class RollingCounter implements Counter<Long> {
 
     private final long capacity;
@@ -32,12 +35,9 @@ public class RollingCounter implements Counter<Long> {
     private final LongAdder count;
 
     public RollingCounter() {
-        this.window = LocalClusterState.state().getSettingValue(SqlSettings.METRICS_ROLLING_WINDOW);
-        this.interval = LocalClusterState.state().getSettingValue(SqlSettings.METRICS_ROLLING_INTERVAL);
-        clock = Clock.systemDefaultZone();
-        time2CountWin = new ConcurrentSkipListMap<>();
-        count = new LongAdder();
-        capacity = window / interval * 2;
+
+        this(LocalClusterState.state().getSettingValue(SqlSettings.METRICS_ROLLING_WINDOW),
+                LocalClusterState.state().getSettingValue(SqlSettings.METRICS_ROLLING_INTERVAL));
     }
 
     public RollingCounter(long window, long interval) {
@@ -51,12 +51,12 @@ public class RollingCounter implements Counter<Long> {
 
     @Override
     public void increment() {
-        trim();
-        time2CountWin.compute(getKey(clock.millis()), (k, v) -> (v == null) ? 1 : v+1);
+
+        add(1L);
     }
 
     @Override
-    public void increment(long n) {
+    public void add(long n) {
         trim();
         time2CountWin.compute(getKey(clock.millis()), (k, v) -> (v == null) ? n : v+n);
     }

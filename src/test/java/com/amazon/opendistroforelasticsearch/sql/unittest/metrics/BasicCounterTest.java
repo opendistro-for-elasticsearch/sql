@@ -36,7 +36,7 @@ public class BasicCounterTest {
     @Test
     public void incrementN() {
         BasicCounter counter = new BasicCounter();
-        counter.increment(5);
+        counter.add(5);
 
         assertThat(counter.getValue(), equalTo(5L));
     }

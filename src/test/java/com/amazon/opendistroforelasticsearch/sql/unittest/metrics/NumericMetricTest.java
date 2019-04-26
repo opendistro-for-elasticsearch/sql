@@ -35,7 +35,7 @@ public class NumericMetricTest {
     }
 
     @Test
-    public void incrementN() {
+    public void add() {
         NumericMetric metric = new NumericMetric("test", new BasicCounter());
         metric.increment(5);
 

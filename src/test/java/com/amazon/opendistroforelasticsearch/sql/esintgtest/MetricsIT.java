@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
-import com.amazon.opendistroforelasticsearch.sql.metrics.MetricType;
+import com.amazon.opendistroforelasticsearch.sql.metrics.MetricName;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
@@ -48,7 +48,7 @@ public class MetricsIT extends SQLIntegTestCase {
         multiQueries(3);
         TimeUnit.SECONDS.sleep(2L);
         JSONObject jsonObject = new JSONObject(executeStatRequest(makeStatRequest()));
-        assertThat(jsonObject.getInt(MetricType.REQ_COUNT_TOTAL.getName()), equalTo(3));
+        assertThat(jsonObject.getInt(MetricName.REQ_COUNT_TOTAL.getName()), equalTo(3));
     }
 
     private void multiQueries(int n) throws IOException {

@@ -17,13 +17,16 @@ package com.amazon.opendistroforelasticsearch.sql.metrics;
 
 import java.util.function.Supplier;
 
+/**
+ * Gauge metric, an instant value like cpu usage, state and so on
+ */
 public class GaugeMetric<T> extends Metric<T> {
 
-    private Supplier<T> LOAD_VALUE;
+    private Supplier<T> loadValue;
 
     public GaugeMetric(String name, Supplier<T> supplier) {
         super(name);
-        this.LOAD_VALUE = supplier;
+        this.loadValue = supplier;
     }
 
     public String getName() {
@@ -31,7 +34,7 @@ public class GaugeMetric<T> extends Metric<T> {
     }
 
     public T getValue() {
-        return LOAD_VALUE.get();
+        return loadValue.get();
     }
 
 }

@@ -19,15 +19,21 @@ import com.amazon.opendistroforelasticsearch.sql.query.join.BackOffRetryStrategy
 
 public class MetricFactory {
 
-    public static Metric createMetric(MetricType type) {
-        if (type.getType() == 1) {
-            return new NumericMetric<>(type.getName(), new RollingCounter());
-        } else if (type == MetricType.CIRCUIT_BREAKER) {
-            return new GaugeMetric<>(type.getName(), BackOffRetryStrategy.GET_CB_STATE);
-        } else if (type.getType() == 0) {
-            return new NumericMetric<>(type.getName(), new BasicCounter());
-        } else {
-            return new NumericMetric<>(type.getName(), new BasicCounter());
+    public static Metric createMetric(MetricName name) {
+
+        switch (name) {
+            case REQ_TOTAL:
+            case DEFAULT:
+                return new NumericMetric<>(name.getName(), new BasicCounter());
+            case CIRCUIT_BREAKER:
+                return new GaugeMetric<>(name.getName(), BackOffRetryStrategy.GET_CB_STATE);
+            case REQ_COUNT_TOTAL:
+            case FAILED_REQ_COUNT_CUS:
+            case FAILED_REQ_COUNT_SYS:
+            case FAILED_REQ_COUNT_CB:
+                return new NumericMetric<>(name.getName(), new RollingCounter());
+            default:
+                return new NumericMetric<>(name.getName(), new BasicCounter());
         }
     }
 }

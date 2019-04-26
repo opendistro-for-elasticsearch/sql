@@ -19,7 +19,7 @@ public interface Counter<T> {
 
     void increment();
 
-    void increment(long n);
+    void add(long n);
 
     T getValue();
 

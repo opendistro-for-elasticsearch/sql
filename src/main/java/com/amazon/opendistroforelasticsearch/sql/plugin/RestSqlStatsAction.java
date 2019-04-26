@@ -15,27 +15,22 @@
 
 package com.amazon.opendistroforelasticsearch.sql.plugin;
 
-import com.alibaba.druid.sql.parser.ParserException;
-import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.ErrorMessage;
 import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.rest.BaseRestHandler;
 import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestController;
 import org.elasticsearch.rest.RestRequest;
 import org.elasticsearch.rest.RestStatus;
 
-import java.sql.SQLFeatureNotSupportedException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.elasticsearch.rest.RestStatus.BAD_REQUEST;
 import static org.elasticsearch.rest.RestStatus.SERVICE_UNAVAILABLE;
 
 public class RestSqlStatsAction extends BaseRestHandler {
@@ -61,7 +56,9 @@ public class RestSqlStatsAction extends BaseRestHandler {
             return channel -> channel.sendResponse(new BytesRestResponse(RestStatus.OK, Metrics.getInstance().collectToJSON()));
         } catch (Exception e) {
             LOG.error("Failed during Query SQL STATS Action.", e);
-            return reportError(e, isClientError(e) ? BAD_REQUEST : SERVICE_UNAVAILABLE);
+
+            return channel -> channel.sendResponse(new BytesRestResponse(SERVICE_UNAVAILABLE,
+                    new ErrorMessage(e, SERVICE_UNAVAILABLE.getStatus()).toString()));
         }
     }
 
@@ -72,20 +69,4 @@ public class RestSqlStatsAction extends BaseRestHandler {
         return responseParams;
     }
 
-    private boolean isClientError(Exception e) {
-        return e instanceof NullPointerException | // NPE is hard to differentiate but more likely caused by bad query
-               e instanceof SqlParseException |
-               e instanceof ParserException |
-               e instanceof SQLFeatureNotSupportedException |
-               e instanceof IllegalArgumentException |
-               e instanceof IndexNotFoundException;
-    }
-
-    private RestChannelConsumer reportError(Exception e, RestStatus status) {
-        return sendResponse(new ErrorMessage(e, status.getStatus()).toString(), status);
-    }
-
-    private RestChannelConsumer sendResponse(String message, RestStatus status) {
-        return channel -> channel.sendResponse(new BytesRestResponse(status, message));
-    }
 }
