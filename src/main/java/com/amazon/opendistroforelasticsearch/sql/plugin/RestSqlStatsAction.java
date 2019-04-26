@@ -33,6 +33,10 @@ import java.util.Set;
 
 import static org.elasticsearch.rest.RestStatus.SERVICE_UNAVAILABLE;
 
+/**
+ * Currently this interface is for node level.
+ * Cluster level is coming up soon. https://github.com/opendistro-for-elasticsearch/sql/issues/41
+ */
 public class RestSqlStatsAction extends BaseRestHandler {
     private static final Logger LOG = LogManager.getLogger(RestSqlStatsAction.class);
 
