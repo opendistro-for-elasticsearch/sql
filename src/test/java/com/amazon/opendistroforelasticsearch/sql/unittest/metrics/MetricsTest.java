@@ -46,7 +46,7 @@ public class MetricsTest {
         Metrics.getInstance().registerMetric(new NumericMetric("test2", new BasicCounter()));
         assertThat(Metrics.getInstance().getAllMetrics().size(), equalTo(2));
 
-        Metrics.getInstance().unRegisterMetric("test2");
+        Metrics.getInstance().unregisterMetric("test2");
         assertThat(Metrics.getInstance().getAllMetrics().size(), equalTo(1));
     }
 

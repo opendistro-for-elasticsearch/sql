@@ -42,7 +42,7 @@ public class Metrics {
         registeredMetricsByName.put(metric.getName(), metric);
     }
 
-    public void unRegisterMetric(String name) {
+    public void unregisterMetric(String name) {
         if (name == null) {
             return;
         }

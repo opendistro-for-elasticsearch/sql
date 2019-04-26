@@ -87,7 +87,9 @@ public class BackOffRetryStrategy {
         }
 
         boolean isHealthy = isMemoryHealthy();
-        if (!isHealthy) Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_CB).increment();
+        if (!isHealthy) {
+            Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_CB).increment();
+        }
 
         return isHealthy;
     }
