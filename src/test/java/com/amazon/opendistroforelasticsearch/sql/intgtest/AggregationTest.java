@@ -611,7 +611,7 @@ public class AggregationTest {
         Aggregations result = query(String.format("SELECT COUNT(*) FROM %s/nestedType GROUP BY nested(message.info)", TEST_INDEX_NESTED_TYPE));
         InternalNested nested = result.get("message.info@NESTED");
         Terms infos = nested.getAggregations().get("message.info");
-        Assert.assertEquals(3,infos.getBuckets().size());
+        Assert.assertEquals(4,infos.getBuckets().size());
         for(Terms.Bucket bucket : infos.getBuckets()) {
             String key = bucket.getKey().toString();
             long count = ((ValueCount) bucket.getAggregations().get("COUNT(*)")).getValue();
@@ -622,6 +622,9 @@ public class AggregationTest {
                 Assert.assertEquals(2, count);
             }
             else if(key.equalsIgnoreCase("b")) {
+                Assert.assertEquals(1, count);
+            }
+            else if(key.equalsIgnoreCase("zz")) {
                 Assert.assertEquals(1, count);
             }
             else {
@@ -683,7 +686,7 @@ public class AggregationTest {
         Aggregations result = query(String.format("SELECT sum(nested(message.dayOfWeek)) as sumDays FROM %s/nestedType", TEST_INDEX_NESTED_TYPE));
         InternalNested nested = result.get("message.dayOfWeek@NESTED");
         Sum sum = nested.getAggregations().get("sumDays");
-        Assert.assertEquals(13.0,sum.getValue(),0.0001);
+        Assert.assertEquals(19.0,sum.getValue(),0.0001);
 
     }
 
@@ -698,11 +701,11 @@ public class AggregationTest {
             if(key.equals("0") || key.equals("4")){
                 Assert.assertEquals(2,count);
             }
-            else if (key.equals("2")){
+            else if (key.equals("2") || key.equals("6")){
                 Assert.assertEquals(1,count);
             }
             else{
-                Assert.assertTrue("only 0 2 4 keys are allowed got:" + key,false);
+                Assert.assertTrue("only 0 2 4 6 keys are allowed got:" + key,false);
             }
         }
 

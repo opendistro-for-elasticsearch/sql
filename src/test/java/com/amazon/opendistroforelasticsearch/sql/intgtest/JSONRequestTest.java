@@ -30,6 +30,7 @@ import org.junit.Test;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.Map;
 
+import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
@@ -181,7 +182,7 @@ public class JSONRequestTest {
             int likes = (int) ((Map) hit.getSourceAsMap().get("comment")).get("likes");
             String data = ((Map) hit.getSourceAsMap().get("comment")).get("data").toString();
             assertThat(likes, greaterThan(likesToCompare));
-            assertThat(data, equalTo(dataToCompare));
+            assertThat(data, anyOf(equalTo(dataToCompare), equalTo("[aa, bb]")));
         }
     }
 

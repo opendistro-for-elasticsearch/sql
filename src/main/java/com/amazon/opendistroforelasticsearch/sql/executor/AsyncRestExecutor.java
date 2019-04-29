@@ -99,6 +99,8 @@ public class AsyncRestExecutor implements RestExecutor {
     private void async(Client client, Map<String, String> params, QueryAction queryAction, RestChannel channel) {
         // Run given task in thread pool asynchronously
         client.threadPool().schedule(
+            new TimeValue(0L),
+            SQL_WORKER_THREAD_POOL_NAME,
             () -> {
                 try {
                     doExecuteWithTimeMeasured(client, params, queryAction, channel);
@@ -114,9 +116,7 @@ public class AsyncRestExecutor implements RestExecutor {
                 } finally {
                     BackOffRetryStrategy.releaseMem(executor);
                 }
-            },
-            new TimeValue(0L),
-            SQL_WORKER_THREAD_POOL_NAME);
+            });
     }
 
     /** Time the real execution of Executor and log slow query for troubleshooting */

@@ -61,12 +61,12 @@ public class CSVResultsExtractorTests {
 
         List<String> lines = csvResult.getLines();
         Assert.assertEquals(7, lines.size());
-        Assert.assertTrue(lines.contains("{firstname=Daenerys, lastname=Targaryen, ofHerName=1},Targaryen") ||
-                lines.contains("{firstname=Daenerys, ofHerName=1, lastname=Targaryen},Targaryen") ||
-                lines.contains("{lastname=Targaryen, firstname=Daenerys, ofHerName=1},Targaryen") ||
-                lines.contains("{lastname=Targaryen, ofHerName=1, firstname=Daenerys},Targaryen") ||
-                lines.contains("{ofHerName=1, lastname=Targaryen, firstname=Daenerys},Targaryen") ||
-                lines.contains("{ofHerName=1, firstname=Daenerys, lastname=Targaryen},Targaryen")
+        Assert.assertTrue(lines.contains("\"{firstname=Daenerys, lastname=Targaryen, ofHerName=1}\",Targaryen") ||
+                lines.contains("\"{firstname=Daenerys, ofHerName=1, lastname=Targaryen}\",Targaryen") ||
+                lines.contains("\"{lastname=Targaryen, firstname=Daenerys, ofHerName=1}\",Targaryen") ||
+                lines.contains("\"{lastname=Targaryen, ofHerName=1, firstname=Daenerys}\",Targaryen") ||
+                lines.contains("\"{ofHerName=1, lastname=Targaryen, firstname=Daenerys}\",Targaryen") ||
+                lines.contains("\"{ofHerName=1, firstname=Daenerys, lastname=Targaryen}\",Targaryen")
         );
         //todo: generate all options for rest 3..
     }
@@ -103,14 +103,14 @@ public class CSVResultsExtractorTests {
 
         List<String> lines = csvResult.getLines();
         Assert.assertEquals(7, lines.size());
-        Assert.assertTrue(lines.contains("{firstname=Daenerys, lastname=Targaryen},Targaryen") ||
-                lines.contains("{lastname=Targaryen, firstname=Daenerys},Targaryen"));
-        Assert.assertTrue(lines.contains("{firstname=Eddard, lastname=Stark},Stark") ||
-                lines.contains("{lastname=Stark, firstname=Eddard},Stark"));
-        Assert.assertTrue(lines.contains("{firstname=Brandon, lastname=Stark},Stark") ||
-                lines.contains("{lastname=Stark, firstname=Brandon},Stark"));
-        Assert.assertTrue(lines.contains("{firstname=Jaime, lastname=Lannister},Lannister") ||
-                lines.contains("{lastname=Lannister, firstname=Jaime},Lannister") );
+        Assert.assertTrue(lines.contains("\"{firstname=Daenerys, lastname=Targaryen}\",Targaryen") ||
+                lines.contains("\"{lastname=Targaryen, firstname=Daenerys}\",Targaryen"));
+        Assert.assertTrue(lines.contains("\"{firstname=Eddard, lastname=Stark}\",Stark") ||
+                lines.contains("\"{lastname=Stark, firstname=Eddard}\",Stark"));
+        Assert.assertTrue(lines.contains("\"{firstname=Brandon, lastname=Stark}\",Stark") ||
+                lines.contains("\"{lastname=Stark, firstname=Brandon}\",Stark"));
+        Assert.assertTrue(lines.contains("\"{firstname=Jaime, lastname=Lannister}\",Lannister") ||
+                lines.contains("\"{lastname=Lannister, firstname=Jaime}\",Lannister") );
 
     }
 

@@ -20,13 +20,17 @@ import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.query.SqlElasticRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
+import org.json.JSONArray;
 import org.junit.Test;
 
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -89,9 +93,8 @@ public class QueryFunctionsTest {
                 "WHERE MATCH_QUERY(NESTED(comment.data), 'aa')"
             ),
             hits(
-                //hasValueForFields("aa", "comment.data")
-                hasNestedField("comment",
-                    "data", "aa")
+                anyOf(hasNestedField("comment", "data", "aa"),
+                        hasNestedArrayField("comment", "data", "aa"))
             )
         );
     }
@@ -223,6 +226,24 @@ public class QueryFunctionsTest {
 
     private final Matcher<SearchHit> hasNestedField(String path, String field, String value) {
         return featureValueOf(field, is(value), hit -> ((HashMap) hit.getSourceAsMap().get(path)).get(field));
+    }
+
+    private final Matcher<SearchHit> hasNestedArrayField(String path, String field, String value) {
+
+        return new BaseMatcher<SearchHit>() {
+            @Override
+            public void describeTo(Description description) {
+
+            }
+
+            @Override
+            public boolean matches(Object item) {
+
+                SearchHit hit = (SearchHit)item;
+                List<Object> elements = (List<Object>) ((HashMap) hit.getSourceAsMap().get(path)).get(field);
+                return elements.contains(value);
+            }
+        };
     }
 
     private Matcher<SearchHit> kv(String key, Matcher<Object> valMatcher) {
