@@ -20,6 +20,8 @@ import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.ActionRequestRestExecutorFactory;
 import com.amazon.opendistroforelasticsearch.sql.executor.RestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.ErrorMessage;
+import com.amazon.opendistroforelasticsearch.sql.metrics.MetricName;
+import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import com.amazon.opendistroforelasticsearch.sql.request.SqlRequest;
 import com.amazon.opendistroforelasticsearch.sql.request.SqlRequestFactory;
@@ -67,6 +69,8 @@ public class RestSqlAction extends BaseRestHandler {
 
     @Override
     protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient client) {
+        Metrics.getInstance().getNumericalMetric(MetricName.REQ_TOTAL).increment();
+        Metrics.getInstance().getNumericalMetric(MetricName.REQ_COUNT_TOTAL).increment();
         SqlRequest sqlRequest = SqlRequest.NULL;
         try {
             sqlRequest = SqlRequestFactory.getSqlRequest(request);
@@ -91,6 +95,11 @@ public class RestSqlAction extends BaseRestHandler {
                 return channel -> restExecutor.execute(client, additionalParams, queryAction, channel);
             }
         } catch (Exception e) {
+            if (isClientError(e)) {
+                Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_CUS).increment();
+            } else {
+                Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
+            }
             LOG.error(String.format("[%s] Failed during query execution", sqlRequest.getId()), e);
             return reportError(e, isClientError(e) ? BAD_REQUEST : SERVICE_UNAVAILABLE);
         }
@@ -104,11 +113,11 @@ public class RestSqlAction extends BaseRestHandler {
     }
 
     private boolean isClientError(Exception e) {
-        return e instanceof NullPointerException | // NPE is hard to differentiate but more likely caused by bad query
-               e instanceof SqlParseException |
-               e instanceof ParserException |
-               e instanceof SQLFeatureNotSupportedException |
-               e instanceof IllegalArgumentException |
+        return e instanceof NullPointerException || // NPE is hard to differentiate but more likely caused by bad query
+               e instanceof SqlParseException ||
+               e instanceof ParserException ||
+               e instanceof SQLFeatureNotSupportedException ||
+               e instanceof IllegalArgumentException ||
                e instanceof IndexNotFoundException;
     }
 

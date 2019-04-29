@@ -15,6 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.query.join;
 
+import com.amazon.opendistroforelasticsearch.sql.metrics.MetricName;
+import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.common.collect.Tuple;
@@ -26,6 +28,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 public class BackOffRetryStrategy {
 
@@ -51,6 +54,8 @@ public class BackOffRetryStrategy {
 
     private final static Object obj = new Object();
 
+    public final static Supplier<Integer> GET_CB_STATE = () -> isMemoryHealthy() ? 0 : 1;
+
     private BackOffRetryStrategy() {
 
     }
@@ -74,12 +79,19 @@ public class BackOffRetryStrategy {
 
             LOG.warn("[MCB1] Memory monitor is unhealthy now, back off retrying: {} attempt, thread id = {}", i, Thread.currentThread().getId());
             if (ThreadLocalRandom.current().nextBoolean()) {
+                Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_CB).increment();
                 LOG.warn("[MCB1] Directly abort on idx {}.", i);
                 return false;
             }
             backOffSleep(intervals[i]);
         }
-        return isMemoryHealthy();
+
+        boolean isHealthy = isMemoryHealthy();
+        if (!isHealthy) {
+            Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_CB).increment();
+        }
+
+        return isHealthy;
     }
 
     private static boolean isMemoryHealthy(long allocateMemory, int idx, Object key) {

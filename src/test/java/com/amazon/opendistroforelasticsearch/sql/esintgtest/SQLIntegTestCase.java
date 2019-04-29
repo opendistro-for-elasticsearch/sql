@@ -203,7 +203,6 @@ public abstract class SQLIntegTestCase extends ESIntegTestCase {
         return hit.getJSONObject("_source");
     }
 
-
     /**
      * Enum for associating test index with relevant mapping and data.
      */
