@@ -299,27 +299,35 @@ public class CSVResultsExtractor {
     }
 
     private String findFieldValue(String header, Map<String, Object> doc, boolean flat, String separator) {
-        if(flat && header.contains(".")){
+
+        if (flat && header.contains(".")) {
             String[] split = header.split("\\.");
             Object innerDoc = doc;
-            for(String innerField : split){
-                if(!(innerDoc instanceof Map)){
+
+            for (String innerField : split) {
+
+                if (!(innerDoc instanceof Map)) {
                     return separator;
                 }
                 innerDoc = ((Map<String,Object>)innerDoc).get(innerField);
-                if(innerDoc == null){
+                if (innerDoc == null) {
                     return separator;
                 }
-
             }
-            return innerDoc.toString() + separator;
+            return quoteValueIfRequired(innerDoc.toString(), separator);
         }
         else {
-            if(doc.containsKey(header)){
-                return String.valueOf(doc.get(header)) + separator;
+            if (doc.containsKey(header)) {
+                return quoteValueIfRequired(String.valueOf(doc.get(header)), separator);
             }
         }
         return separator;
+    }
+
+    private String quoteValueIfRequired(final String input, final String separator) {
+
+        final String quote = input.contains(separator) ? "\"" : "";
+        return quote + input + quote + separator;
     }
 
     private void mergeHeaders(Set<String> headers, Map<String, Object> doc, boolean flat) {
