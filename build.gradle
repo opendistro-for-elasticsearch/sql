@@ -61,6 +61,7 @@ ext {
 }
 licenseHeaders.enabled = true
 
+// Test comment
 // TODO: need to fix java doc to enable JavaDoc
 javadoc.enabled = false
 esplugin {
