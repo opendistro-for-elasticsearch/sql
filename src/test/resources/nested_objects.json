@@ -6,3 +6,5 @@
 {"message":{"info":"c","author":"g","dayOfWeek":1},"comment":{"data":"aa","likes":3},"myNum":3,"someField":"a"}
 {"index":{"_type": "nestedType", "_id":"4"}}
 {"message":[{"info":"c","author":"h","dayOfWeek":4},{"info":"a","author":"i","dayOfWeek":5}],"comment":{"data":"ab","likes":1},"myNum":4,"someField":"b"}
+{"index":{"_type": "nestedType", "_id":"5"}}
+{"message": [{"info":"zz","author":"zz","dayOfWeek":6}],"comment":{"data":["aa","bb"],"likes":10},"myNum":[3,4],"someField":"a"}

@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.Locale;
 
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_NESTED_TYPE;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 
@@ -31,9 +32,12 @@ import static org.hamcrest.Matchers.not;
  */
 public class CsvFormatResponseIT extends SQLIntegTestCase {
 
+    private boolean flatOption = false;
+
     @Override
     protected void init() throws Exception {
         loadIndex(Index.ACCOUNT);
+        loadIndex(Index.NESTED);
     }
 
     @Override
@@ -41,6 +45,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
         Request sqlRequest = super.getSqlRequest(request, explain);
         sqlRequest.addParameter("format", "csv");
+        sqlRequest.addParameter("flat", flatOption ? "true" : "false");
         return sqlRequest;
     }
 
@@ -56,7 +61,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void specificPercentilesIntAndDouble() throws IOException  {
+    public void specificPercentilesIntAndDouble() throws IOException {
 
         final String query = String.format(Locale.ROOT, "SELECT PERCENTILES(age,10,49.0) FROM %s",
                 TEST_INDEX_ACCOUNT);
@@ -68,5 +73,46 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
         for (final String unexpectedPercentile : unexpectedPercentiles) {
             Assert.assertThat(result, not(containsString("PERCENTILES(age,10,49.0)." + unexpectedPercentile)));
         }
+    }
+
+    @Test
+    public void nestedObjectsAndArraysAreQuoted() throws IOException {
+
+        final String query = String.format(Locale.ROOT, "SELECT * FROM %s WHERE _id = 5",
+                TEST_INDEX_NESTED_TYPE);
+        final String result = executeQueryWithStringOutput(query);
+
+        final String expectedMyNum = "\"[3, 4]\"";
+        final String expectedComment = "\"{data=[aa, bb], likes=10}\"";
+        final String expectedMessage = "\"[{dayOfWeek=6, author=zz, info=zz}]\"";
+
+        Assert.assertThat(result, containsString(expectedMyNum));
+        Assert.assertThat(result, containsString(expectedComment));
+        Assert.assertThat(result, containsString(expectedMessage));
+    }
+
+    @Test
+    public void arraysAreQuotedInFlatMode() throws IOException {
+
+        setFlatOption(true);
+
+        final String query = String.format(Locale.ROOT, "SELECT * FROM %s WHERE _id = 5",
+                TEST_INDEX_NESTED_TYPE);
+        final String result = executeQueryWithStringOutput(query);
+
+        final String expectedMyNum = "\"[3, 4]\"";
+        final String expectedCommentData = "\"[aa, bb]\"";
+        final String expectedMessage = "\"[{dayOfWeek=6, author=zz, info=zz}]\"";
+
+        Assert.assertThat(result, containsString(expectedMyNum));
+        Assert.assertThat(result, containsString(expectedCommentData));
+        Assert.assertThat(result, containsString(expectedMessage));
+
+        setFlatOption(false);
+    }
+
+    private void setFlatOption(boolean flat) {
+
+        this.flatOption = flat;
     }
 }

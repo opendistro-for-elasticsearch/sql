@@ -192,11 +192,11 @@ public class PrettyFormatResponseTest {
         CheckPrettyFormatContents.containsColumns(CheckPrettyFormatContents.getSchema(protocol), fields);
         CheckPrettyFormatContents.containsData(CheckPrettyFormatContents.getDataRows(protocol), fields);
 
-        // The nested test index being used contains 4 entries but one of them has an array of 2 message objects, so
-        // we check to see if the amount of data rows is 5 since that is the result after flattening
+        // The nested test index being used contains 5 entries but one of them has an array of 2 message objects, so
+        // we check to see if the amount of data rows is 6 since that is the result after flattening
         assertThat(
                 Iterables.size(CheckPrettyFormatContents.getDataRows(protocol)),
-                equalTo(5)
+                equalTo(6)
         );
     }
 

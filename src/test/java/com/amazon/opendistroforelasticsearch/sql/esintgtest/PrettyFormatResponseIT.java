@@ -182,9 +182,9 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
         assertContainsColumns(getSchema(response), fields);
         assertContainsData(getDataRows(response), fields);
 
-        // The nested test index being used contains 4 entries but one of them has an array of 2 message objects, so
-        // we check to see if the amount of data rows is 5 since that is the result after flattening
-        assertThat(getDataRows(response).length(), equalTo(5));
+        // The nested test index being used contains 5 entries but one of them has an array of 2 message objects, so
+        // we check to see if the amount of data rows is 6 since that is the result after flattening
+        assertThat(getDataRows(response).length(), equalTo(6));
     }
 
     @Test

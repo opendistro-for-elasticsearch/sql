@@ -121,7 +121,8 @@ public class AsyncRestExecutor implements RestExecutor {
                 }
             },
             new TimeValue(0L),
-            SQL_WORKER_THREAD_POOL_NAME);
+            SQL_WORKER_THREAD_POOL_NAME
+            );
     }
 
     /** Time the real execution of Executor and log slow query for troubleshooting */

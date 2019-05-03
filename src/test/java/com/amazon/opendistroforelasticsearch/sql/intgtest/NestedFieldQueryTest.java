@@ -245,7 +245,7 @@ public class NestedFieldQueryTest {
     public void aggregationWithoutGroupBy() {
         SearchResponse resp = query("SELECT AVG(m.dayOfWeek) AS avgDay");
         Avg avgDay = getNestedAgg(resp, "message.dayOfWeek", "avgDay");
-        assertThat(avgDay.getValue(), isCloseTo(2.6));
+        assertThat(avgDay.getValue(), isCloseTo(3.166666666));
     }
 
     @Test
@@ -258,7 +258,8 @@ public class NestedFieldQueryTest {
             buckets(
                 bucket("a", count(equalTo(2))),
                 bucket("c", count(equalTo(2))),
-                bucket("b", count(equalTo(1)))
+                bucket("b", count(equalTo(1))),
+                bucket("zz", count(equalTo(1)))
             )
         );
     }
@@ -302,7 +303,8 @@ public class NestedFieldQueryTest {
             getNestedAgg(agg.getBucketByKey("a").getAggregations(), "message.info", "message.info"),
             buckets(
                 bucket("b", count(equalTo(1))),
-                bucket("c", count(equalTo(1)))
+                bucket("c", count(equalTo(1))),
+                bucket("zz", count(equalTo(1)))
             )
         );
         assertThat(
