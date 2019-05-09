@@ -28,6 +28,7 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestStatus;
+import org.elasticsearch.threadpool.ThreadPool;
 import org.elasticsearch.transport.Transports;
 
 import java.io.IOException;
@@ -98,31 +99,36 @@ public class AsyncRestExecutor implements RestExecutor {
         return Transports.isTransportThread(Thread.currentThread());
     }
 
+    /** Run given task in thread pool asynchronously */
     private void async(Client client, Map<String, String> params, QueryAction queryAction, RestChannel channel) {
-        // Run given task in thread pool asynchronously
-        client.threadPool().schedule(
-            () -> {
-                try {
-                    doExecuteWithTimeMeasured(client, params, queryAction, channel);
-                } catch (IOException | SqlParseException e) {
-                    Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
-                    LOG.warn("[{}] [MCB] async task got an IO/SQL exception: {}", requestId(queryAction), e.getMessage());
-                    channel.sendResponse(new BytesRestResponse(RestStatus.INTERNAL_SERVER_ERROR, e.getMessage()));
-                } catch (IllegalStateException e) {
-                    Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
-                    LOG.warn("[{}] [MCB] async task got a runtime exception: {}", requestId(queryAction), e.getMessage());
-                    channel.sendResponse(new BytesRestResponse(RestStatus.INSUFFICIENT_STORAGE, "Memory circuit is broken."));
-                } catch (Throwable t) {
-                    Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
-                    LOG.warn("[{}] [MCB] async task got an unknown throwable: {}", requestId(queryAction), t.getMessage());
-                    channel.sendResponse(new BytesRestResponse(RestStatus.INTERNAL_SERVER_ERROR, String.valueOf(t.getMessage())));
-                } finally {
-                    BackOffRetryStrategy.releaseMem(executor);
-                }
-            },
+
+        ThreadPool threadPool = client.threadPool();
+        Runnable runnable = () -> {
+            try {
+                doExecuteWithTimeMeasured(client, params, queryAction, channel);
+            } catch (IOException | SqlParseException e) {
+                Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
+                LOG.warn("[{}] [MCB] async task got an IO/SQL exception: {}", requestId(queryAction), e.getMessage());
+                channel.sendResponse(new BytesRestResponse(RestStatus.INTERNAL_SERVER_ERROR, e.getMessage()));
+            } catch (IllegalStateException e) {
+                Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
+                LOG.warn("[{}] [MCB] async task got a runtime exception: {}", requestId(queryAction), e.getMessage());
+                channel.sendResponse(new BytesRestResponse(RestStatus.INSUFFICIENT_STORAGE, "Memory circuit is broken."));
+            } catch (Throwable t) {
+                Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
+                LOG.warn("[{}] [MCB] async task got an unknown throwable: {}", requestId(queryAction), t.getMessage());
+                channel.sendResponse(new BytesRestResponse(RestStatus.INTERNAL_SERVER_ERROR, String.valueOf(t.getMessage())));
+            } finally {
+                BackOffRetryStrategy.releaseMem(executor);
+            }
+        };
+
+        // Preserve context of calling thread to ensure headers of requests are forwarded when running blocking actions
+        threadPool.schedule(
+            threadPool.preserveContext(runnable),
             new TimeValue(0L),
             SQL_WORKER_THREAD_POOL_NAME
-            );
+        );
     }
 
     /** Time the real execution of Executor and log slow query for troubleshooting */
