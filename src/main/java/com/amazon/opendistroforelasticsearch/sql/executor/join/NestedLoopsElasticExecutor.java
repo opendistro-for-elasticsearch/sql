@@ -16,7 +16,16 @@
 package com.amazon.opendistroforelasticsearch.sql.executor.join;
 
 import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
+import com.amazon.opendistroforelasticsearch.sql.domain.Condition;
+import com.amazon.opendistroforelasticsearch.sql.domain.Select;
+import com.amazon.opendistroforelasticsearch.sql.domain.Where;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.ESClient;
+import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.query.DefaultQueryAction;
+import com.amazon.opendistroforelasticsearch.sql.query.join.BackOffRetryStrategy;
+import com.amazon.opendistroforelasticsearch.sql.query.join.NestedLoopsElasticRequestBuilder;
+import com.amazon.opendistroforelasticsearch.sql.query.join.TableInJoinRequestBuilder;
+import com.amazon.opendistroforelasticsearch.sql.query.maker.Maker;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.search.MultiSearchRequest;
@@ -28,15 +37,6 @@ import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
-import com.amazon.opendistroforelasticsearch.sql.domain.Condition;
-import com.amazon.opendistroforelasticsearch.sql.domain.Select;
-import com.amazon.opendistroforelasticsearch.sql.domain.Where;
-import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
-import com.amazon.opendistroforelasticsearch.sql.query.DefaultQueryAction;
-import com.amazon.opendistroforelasticsearch.sql.query.join.BackOffRetryStrategy;
-import com.amazon.opendistroforelasticsearch.sql.query.join.NestedLoopsElasticRequestBuilder;
-import com.amazon.opendistroforelasticsearch.sql.query.join.TableInJoinRequestBuilder;
-import com.amazon.opendistroforelasticsearch.sql.query.maker.Maker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -224,7 +224,7 @@ public class NestedLoopsElasticExecutor extends ElasticJoinExecutor {
             else {
                 //scroll request with max.
                 responseWithHits = scrollOneTimeWithMax(client,tableRequest);
-                if(responseWithHits.getHits().getTotalHits() < MAX_RESULTS_ON_ONE_FETCH)
+                if(responseWithHits.getHits().getTotalHits() != null && responseWithHits.getHits().getTotalHits().value < MAX_RESULTS_ON_ONE_FETCH)
                     needScrollForFirstTable = true;
             }
 

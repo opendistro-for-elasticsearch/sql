@@ -195,8 +195,9 @@ public abstract class SQLIntegTestCase extends ESIntegTestCase {
 
     protected int getTotalHits(JSONObject response) {
         Assert.assertTrue(response.getJSONObject("hits").has("total"));
+        Assert.assertTrue(response.getJSONObject("hits").getJSONObject("total").has("value"));
 
-        return response.getJSONObject("hits").getInt("total");
+        return response.getJSONObject("hits").getJSONObject("total").getInt("value");
     }
 
     protected JSONObject getSource(JSONObject hit) {

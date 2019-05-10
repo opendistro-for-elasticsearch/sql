@@ -61,7 +61,7 @@ public class QueryTest {
 	@Test
 	public void indexWithWildcardTest() throws IOException, SqlParseException, SQLFeatureNotSupportedException{
 		SearchHits response = query(String.format("SELECT * FROM %s* LIMIT 1000", TEST_INDEX_BANK));
-		assertThat(response.getTotalHits(), greaterThan(0L));
+		assertThat(response.getTotalHits().value, greaterThan(0L));
 	}
 
 
@@ -888,7 +888,7 @@ public class QueryTest {
     @Test(expected=IndexNotFoundException.class)
     public void multipleIndicesOneNotExistWithoutHint() throws IOException, SqlParseException, SQLFeatureNotSupportedException{
         SearchHits response = query(String.format("SELECT  * FROM %s,%s ", TEST_INDEX_ACCOUNT,"badindex"));
-        Assert.assertTrue(response.getTotalHits() > 0);
+        Assert.assertTrue(response.getTotalHits().value > 0);
     }
 
     @Test

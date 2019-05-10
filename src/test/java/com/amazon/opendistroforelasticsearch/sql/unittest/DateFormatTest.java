@@ -93,7 +93,7 @@ public class DateFormatTest {
         List<QueryBuilder> q = query(SELECT_CNT_FROM_DATE + "WHERE date_format(creationDate, 'YYYY-MM-dd', 'America/Phoenix') > '2018-04-02'");
 
         // Used hasProperty here as getter followed convention for obtaining ID and Feature Matcher was having issues with generic type to obtain value
-        assertThat(q, hasQueryWithValue("timeZone", hasProperty("ID", equalTo("America/Phoenix"))));
+        assertThat(q, hasQueryWithValue("timeZone", hasProperty("id", equalTo("America/Phoenix"))));
     }
 
     private List<QueryBuilder> query(String sql) {

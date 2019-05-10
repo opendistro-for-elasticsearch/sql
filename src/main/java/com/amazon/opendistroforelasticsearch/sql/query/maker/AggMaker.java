@@ -49,13 +49,12 @@ import org.elasticsearch.search.aggregations.bucket.range.RangeAggregationBuilde
 import org.elasticsearch.search.aggregations.bucket.range.DateRangeAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.terms.IncludeExclude;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.geobounds.GeoBoundsAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.percentiles.PercentilesAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.scripted.ScriptedMetricAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.tophits.TopHitsAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.GeoBoundsAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.PercentilesAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.ScriptedMetricAggregationBuilder;
+import org.elasticsearch.search.aggregations.metrics.TopHitsAggregationBuilder;
 import org.elasticsearch.search.aggregations.support.ValuesSourceAggregationBuilder;
 import org.elasticsearch.search.sort.SortOrder;
-import org.joda.time.DateTimeZone;
 import com.amazon.opendistroforelasticsearch.sql.utils.Util;
 import com.amazon.opendistroforelasticsearch.sql.parser.ChildrenType;
 import com.amazon.opendistroforelasticsearch.sql.parser.NestedType;
@@ -473,7 +472,7 @@ public class AggMaker {
                 dateRange.format(value);
                 continue;
             } else if ("time_zone".equals(kv.key)) {
-                dateRange.timeZone(DateTimeZone.forTimeZone(TimeZone.getTimeZone(ZoneOffset.of(value))));
+                dateRange.timeZone(ZoneOffset.of(value));
                 continue;
             } else if ("from".equals(kv.key)) {
                 dateRange.addUnboundedFrom(kv.value.toString());
@@ -523,7 +522,7 @@ public class AggMaker {
                         dateHistogram.format(value);
                         break;
                     case "time_zone":
-                        dateHistogram.timeZone(DateTimeZone.forTimeZone(TimeZone.getTimeZone(ZoneOffset.of(value))));
+                        dateHistogram.timeZone(ZoneOffset.of(value));
                         break;
                     case "min_doc_count":
                         dateHistogram.minDocCount(Long.parseLong(value));

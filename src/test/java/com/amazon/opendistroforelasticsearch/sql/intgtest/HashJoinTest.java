@@ -70,7 +70,7 @@ public class HashJoinTest {
         Collection<SearchHitComparator> expectedSet = wrapAndIgnoreUninterestedFields(expected.getHits());
         Collection<SearchHitComparator> actualSet = wrapAndIgnoreUninterestedFields(actual.getHits());
         try {
-            Assert.assertEquals(expected.totalHits, actual.totalHits);
+            Assert.assertEquals(expected.getTotalHits().value, actual.getTotalHits().value);
             Assert.assertEquals(expected.getHits().length, actual.getHits().length);
             Assert.assertEquals(expectedSet, actualSet);
         }

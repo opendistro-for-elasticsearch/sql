@@ -17,6 +17,8 @@ package com.amazon.opendistroforelasticsearch.sql.executor.multi;
 
 import com.amazon.opendistroforelasticsearch.sql.executor.ElasticHitsExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.join.ElasticUtils;
+import org.apache.lucene.search.TotalHits;
+import org.apache.lucene.search.TotalHits.Relation;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.document.DocumentField;
@@ -136,7 +138,7 @@ public class MinusExecutor implements ElasticHitsExecutor {
         }
         int totalSize = currentId - 1;
         SearchHit[] unionHitsArr = minusHitsList.toArray(new SearchHit[totalSize]);
-        this.minusHits = new SearchHits(unionHitsArr, totalSize,1.0f);
+        this.minusHits = new SearchHits(unionHitsArr, new TotalHits(totalSize, Relation.EQUAL_TO), 1.0f);
     }
 
     private void fillMinusHitsFromResults(Set<ComperableHitResult> comperableHitResults) {
@@ -164,7 +166,7 @@ public class MinusExecutor implements ElasticHitsExecutor {
         }
         int totalSize = currentId - 1;
         SearchHit[] unionHitsArr = minusHitsList.toArray(new SearchHit[totalSize]);
-        this.minusHits = new SearchHits(unionHitsArr, totalSize,1.0f);
+        this.minusHits = new SearchHits(unionHitsArr, new TotalHits(totalSize, Relation.EQUAL_TO), 1.0f);
     }
 
     private Set<ComperableHitResult> runWithScrollings() {

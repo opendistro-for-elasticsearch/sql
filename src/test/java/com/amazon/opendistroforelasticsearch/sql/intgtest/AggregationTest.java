@@ -31,17 +31,17 @@ import org.elasticsearch.search.aggregations.bucket.histogram.InternalHistogram;
 import org.elasticsearch.search.aggregations.bucket.nested.InternalNested;
 import org.elasticsearch.search.aggregations.bucket.nested.InternalReverseNested;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.metrics.avg.Avg;
-import org.elasticsearch.search.aggregations.metrics.geobounds.InternalGeoBounds;
-import org.elasticsearch.search.aggregations.metrics.max.Max;
-import org.elasticsearch.search.aggregations.metrics.min.Min;
-import org.elasticsearch.search.aggregations.metrics.percentiles.Percentiles;
-import org.elasticsearch.search.aggregations.metrics.stats.Stats;
-import org.elasticsearch.search.aggregations.metrics.stats.extended.ExtendedStats;
-import org.elasticsearch.search.aggregations.metrics.sum.InternalSum;
-import org.elasticsearch.search.aggregations.metrics.sum.Sum;
-import org.elasticsearch.search.aggregations.metrics.tophits.InternalTopHits;
-import org.elasticsearch.search.aggregations.metrics.valuecount.ValueCount;
+import org.elasticsearch.search.aggregations.metrics.Avg;
+import org.elasticsearch.search.aggregations.metrics.InternalGeoBounds;
+import org.elasticsearch.search.aggregations.metrics.Max;
+import org.elasticsearch.search.aggregations.metrics.Min;
+import org.elasticsearch.search.aggregations.metrics.Percentiles;
+import org.elasticsearch.search.aggregations.metrics.Stats;
+import org.elasticsearch.search.aggregations.metrics.ExtendedStats;
+import org.elasticsearch.search.aggregations.metrics.InternalSum;
+import org.elasticsearch.search.aggregations.metrics.Sum;
+import org.elasticsearch.search.aggregations.metrics.InternalTopHits;
+import org.elasticsearch.search.aggregations.metrics.ValueCount;
 import org.junit.Assert;
 import org.junit.Test;
 import com.amazon.opendistroforelasticsearch.sql.plugin.SearchDao;
@@ -230,7 +230,7 @@ public class AggregationTest {
     public void postFilterTest() throws Exception {
         SqlElasticSearchRequestBuilder select = getSearchRequestBuilder(String.format("SELECT /*! POST_FILTER({\"term\":{\"gender\":\"m\"}}) */ COUNT(*) FROM %s/account GROUP BY gender", TEST_INDEX_ACCOUNT));
         SearchResponse res = (SearchResponse) select.get();
-        Assert.assertEquals(507, res.getHits().totalHits);
+        Assert.assertEquals(507, res.getHits().getTotalHits().value);
 
         Aggregations result = res.getAggregations();
         Terms gender = result.get("gender");

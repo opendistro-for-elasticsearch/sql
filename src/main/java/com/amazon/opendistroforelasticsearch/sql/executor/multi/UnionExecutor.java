@@ -16,6 +16,8 @@
 package com.amazon.opendistroforelasticsearch.sql.executor.multi;
 
 import com.amazon.opendistroforelasticsearch.sql.executor.ElasticHitsExecutor;
+import org.apache.lucene.search.TotalHits;
+import org.apache.lucene.search.TotalHits.Relation;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.text.Text;
@@ -54,7 +56,7 @@ public class UnionExecutor implements ElasticHitsExecutor {
         fillInternalSearchHits(unionHits,secondResponse.getHits().getHits(),this.multiQueryBuilder.getSecondTableFieldToAlias());
         int totalSize = unionHits.size();
         SearchHit[] unionHitsArr = unionHits.toArray(new SearchHit[totalSize]);
-        this.results = new SearchHits(unionHitsArr, totalSize,1.0f);
+        this.results = new SearchHits(unionHitsArr, new TotalHits(totalSize, Relation.EQUAL_TO),1.0f);
     }
 
     private void fillInternalSearchHits(List<SearchHit> unionHits, SearchHit[] hits, Map<String, String> fieldNameToAlias) {

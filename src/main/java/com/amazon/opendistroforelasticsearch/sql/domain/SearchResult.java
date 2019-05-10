@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import org.elasticsearch.action.search.SearchResponse;
@@ -34,8 +35,8 @@ import org.elasticsearch.search.aggregations.bucket.terms.InternalTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.LongTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
 import org.elasticsearch.search.aggregations.metrics.InternalNumericMetricsAggregation;
-import org.elasticsearch.search.aggregations.metrics.tophits.InternalTopHits;
-import org.elasticsearch.search.aggregations.metrics.valuecount.InternalValueCount;
+import org.elasticsearch.search.aggregations.metrics.InternalTopHits;
+import org.elasticsearch.search.aggregations.metrics.InternalValueCount;
 
 public class SearchResult {
 	/**
@@ -49,7 +50,7 @@ public class SearchResult {
 
 	public SearchResult(SearchResponse resp) {
 		SearchHits hits = resp.getHits();
-		this.total = hits.getTotalHits();
+		this.total = Optional.ofNullable(hits.getTotalHits()).map(totalHits -> totalHits.value).orElse(0L);
 		results = new ArrayList<>(hits.getHits().length);
 		for (SearchHit searchHit : hits.getHits()) {
 			if (searchHit.getSourceAsMap() != null) {

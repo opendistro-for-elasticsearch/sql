@@ -29,8 +29,8 @@ import org.elasticsearch.env.Environment;
 import org.elasticsearch.plugins.Plugin;
 import org.elasticsearch.test.InternalTestCluster;
 import org.elasticsearch.test.TestCluster;
-import org.elasticsearch.transport.MockTcpTransportPlugin;
 import org.elasticsearch.transport.MockTransportClient;
+import org.elasticsearch.transport.nio.MockNioTransportPlugin;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -71,10 +71,10 @@ public class CustomExternalTestCluster extends TestCluster {
         if (addMockTcpTransport) {
             String transport = getTestTransportType();
             clientSettingsBuilder.put(NetworkModule.TRANSPORT_TYPE_KEY, transport);
-            if (pluginClasses.contains(MockTcpTransportPlugin.class) == false) {
+            if (pluginClasses.contains(MockNioTransportPlugin.class) == false) {
                 pluginClasses = new ArrayList<>(pluginClasses);
-                if (transport.equals(MockTcpTransportPlugin.MOCK_TCP_TRANSPORT_NAME)) {
-                    pluginClasses.add(MockTcpTransportPlugin.class);
+                if (transport.equals(MockNioTransportPlugin.MOCK_NIO_TRANSPORT_NAME)) {
+                    pluginClasses.add(MockNioTransportPlugin.class);
                 }
             }
         }

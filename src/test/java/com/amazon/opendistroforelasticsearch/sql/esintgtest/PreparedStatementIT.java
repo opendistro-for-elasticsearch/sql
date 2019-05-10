@@ -39,7 +39,6 @@ public class PreparedStatementIT extends SQLIntegTestCase {
     public void sample_test() {
         Client client = ESIntegTestCase.client();
         SearchResponse response = client.prepareSearch(TestsConstants.TEST_INDEX_ACCOUNT).get();
-        System.out.println(response.getHits().totalHits);
     }
 
     @Test

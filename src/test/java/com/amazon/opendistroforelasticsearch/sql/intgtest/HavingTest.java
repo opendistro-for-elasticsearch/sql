@@ -21,7 +21,7 @@ import com.amazon.opendistroforelasticsearch.sql.query.SqlElasticSearchRequestBu
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.metrics.valuecount.ValueCount;
+import org.elasticsearch.search.aggregations.metrics.ValueCount;
 import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
