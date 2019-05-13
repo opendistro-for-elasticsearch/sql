@@ -363,19 +363,17 @@ public class NestedFieldQueryTest {
             public boolean matches(Object item) {
 
                 if (item instanceof SearchHit) {
-                    final SearchHit hit = (SearchHit)item;
-                    List<Integer> actualValues = (ArrayList<Integer>)hit.getSourceAsMap().get("myNum");
+                    final SearchHit hit = (SearchHit) item;
+                    List<Integer> actualValues = (ArrayList<Integer>) hit.getSourceAsMap().get("myNum");
 
                     if (actualValues.size() != values.length) {
                         return false;
                     }
-
                     for (int value : values) {
                         if (!actualValues.contains(value)) {
                             return false;
                         }
                     }
-
                     return true;
                 }
 
@@ -384,7 +382,6 @@ public class NestedFieldQueryTest {
 
             @Override
             public void describeTo(Description description) {
-
             }
         };
     }
