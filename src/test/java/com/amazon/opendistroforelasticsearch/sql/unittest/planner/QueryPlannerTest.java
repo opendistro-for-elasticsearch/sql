@@ -38,6 +38,8 @@ import org.apache.logging.log4j.core.config.builder.api.LayoutComponentBuilder;
 import org.apache.logging.log4j.core.config.builder.api.LoggerComponentBuilder;
 import org.apache.logging.log4j.core.config.builder.api.RootLoggerComponentBuilder;
 import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
+import org.apache.lucene.search.TotalHits;
+import org.apache.lucene.search.TotalHits.Relation;
 import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.search.ClearScrollRequestBuilder;
 import org.elasticsearch.action.search.ClearScrollResponse;
@@ -162,7 +164,7 @@ public abstract class QueryPlannerTest {
         });
 
         List<SearchHit> hits = plan(sql).execute();
-        return new SearchHits(hits.toArray(new SearchHit[0]), hits.size(), 0);
+        return new SearchHits(hits.toArray(new SearchHit[0]), new TotalHits(hits.size(), Relation.EQUAL_TO), 0);
     }
 
     protected QueryPlanner plan(String sql) {
@@ -221,7 +223,7 @@ public abstract class QueryPlannerTest {
                 curBatch = currentBatch();
                 callCnt++;
             }
-            return new SearchHits(curBatch, allHits.length, 0);
+            return new SearchHits(curBatch, new TotalHits(allHits.length, Relation.EQUAL_TO), 0);
         }
 
         private boolean isNoMoreBatch() {

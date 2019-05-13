@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import static java.util.stream.Collectors.joining;
-import static org.elasticsearch.search.aggregations.pipeline.PipelineAggregatorBuilders.bucketSelector;
+import static org.elasticsearch.search.aggregations.PipelineAggregatorBuilders.bucketSelector;
 
 /**
  * Domain object for HAVING clause in SQL which covers both the parsing and explain logic.

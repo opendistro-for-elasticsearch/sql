@@ -15,13 +15,19 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.join;
 
+import com.amazon.opendistroforelasticsearch.sql.domain.Field;
+import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.ElasticHitsExecutor;
+import com.amazon.opendistroforelasticsearch.sql.query.SqlElasticRequestBuilder;
 import com.amazon.opendistroforelasticsearch.sql.query.join.HashJoinElasticRequestBuilder;
 import com.amazon.opendistroforelasticsearch.sql.query.join.JoinRequestBuilder;
 import com.amazon.opendistroforelasticsearch.sql.query.join.NestedLoopsElasticRequestBuilder;
 import com.amazon.opendistroforelasticsearch.sql.query.join.TableInJoinRequestBuilder;
+import com.amazon.opendistroforelasticsearch.sql.query.planner.HashJoinQueryPlanRequestBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.lucene.search.TotalHits;
+import org.apache.lucene.search.TotalHits.Relation;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
@@ -35,10 +41,6 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
-import com.amazon.opendistroforelasticsearch.sql.domain.Field;
-import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
-import com.amazon.opendistroforelasticsearch.sql.query.SqlElasticRequestBuilder;
-import com.amazon.opendistroforelasticsearch.sql.query.planner.HashJoinQueryPlanRequestBuilder;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -102,7 +104,7 @@ public abstract class ElasticJoinExecutor implements ElasticHitsExecutor {
     protected abstract List<SearchHit> innerRun() throws IOException, SqlParseException ;
 
     public SearchHits getHits(){
-        return new SearchHits(results.toArray(new SearchHit[results.size()]), results.size(), 1.0f);
+        return new SearchHits(results.toArray(new SearchHit[results.size()]), new TotalHits(results.size(), Relation.EQUAL_TO), 1.0f);
     }
 
     public static ElasticJoinExecutor createJoinExecutor(Client client, SqlElasticRequestBuilder requestBuilder){

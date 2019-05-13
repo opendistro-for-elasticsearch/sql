@@ -53,7 +53,7 @@ public class DateFormatIT extends SQLIntegTestCase {
     @Test
     public void equalTo() throws SqlParseException {
         assertThat(
-            dateQuery(SELECT_FROM + "WHERE date_format(insert_time, 'YYYY-MM-dd', 'UTC') = '2014-08-17'"),
+            dateQuery(SELECT_FROM + "WHERE date_format(insert_time, 'yyyy-MM-dd', 'UTC') = '2014-08-17'"),
             contains("2014-08-17")
         );
     }
@@ -61,7 +61,7 @@ public class DateFormatIT extends SQLIntegTestCase {
     @Test
     public void lessThan() throws SqlParseException {
         assertThat(
-            dateQuery(SELECT_FROM + "WHERE date_format(insert_time, 'YYYY-MM-dd', 'UTC') < '2014-08-18'"),
+            dateQuery(SELECT_FROM + "WHERE date_format(insert_time, 'yyyy-MM-dd', 'UTC') < '2014-08-18'"),
             contains("2014-08-17")
         );
     }
@@ -69,7 +69,7 @@ public class DateFormatIT extends SQLIntegTestCase {
     @Test
     public void lessThanOrEqualTo() throws SqlParseException {
         assertThat(
-            dateQuery(SELECT_FROM + "WHERE date_format(insert_time, 'YYYY-MM-dd', 'UTC') <= '2014-08-18' " +
+            dateQuery(SELECT_FROM + "WHERE date_format(insert_time, 'yyyy-MM-dd', 'UTC') <= '2014-08-18' " +
                       "ORDER BY insert_time " +
                       "LIMIT 1000"),
             contains("2014-08-17", "2014-08-18")
@@ -79,7 +79,7 @@ public class DateFormatIT extends SQLIntegTestCase {
     @Test
     public void greaterThan() throws SqlParseException {
         assertThat(
-            dateQuery(SELECT_FROM + "WHERE date_format(insert_time, 'YYYY-MM-dd', 'UTC') > '2014-08-23'"),
+            dateQuery(SELECT_FROM + "WHERE date_format(insert_time, 'yyyy-MM-dd', 'UTC') > '2014-08-23'"),
             contains("2014-08-24")
         );
     }
@@ -87,7 +87,7 @@ public class DateFormatIT extends SQLIntegTestCase {
     @Test
     public void greaterThanOrEqualTo() throws SqlParseException {
         assertThat(
-            dateQuery(SELECT_FROM + "WHERE date_format(insert_time, 'YYYY-MM-dd', 'UTC') >= '2014-08-23' " +
+            dateQuery(SELECT_FROM + "WHERE date_format(insert_time, 'yyyy-MM-dd', 'UTC') >= '2014-08-23' " +
                       "ORDER BY insert_time " +
                       "LIMIT 2000"),
             contains("2014-08-23", "2014-08-24")
@@ -98,8 +98,8 @@ public class DateFormatIT extends SQLIntegTestCase {
     public void and() throws SqlParseException{
         assertThat(
             dateQuery(SELECT_FROM +
-                      "WHERE date_format(insert_time, 'YYYY-MM-dd', 'UTC') >= '2014-08-21' " +
-                      "AND date_format(insert_time, 'YYYY-MM-dd', 'UTC') <= '2014-08-23' " +
+                      "WHERE date_format(insert_time, 'yyyy-MM-dd', 'UTC') >= '2014-08-21' " +
+                      "AND date_format(insert_time, 'yyyy-MM-dd', 'UTC') <= '2014-08-23' " +
                       "ORDER BY insert_time " +
                       "LIMIT 3000"),
             contains("2014-08-21", "2014-08-22", "2014-08-23")
@@ -110,8 +110,8 @@ public class DateFormatIT extends SQLIntegTestCase {
     public void or() throws SqlParseException {
         assertThat(
             dateQuery(SELECT_FROM +
-                      "WHERE date_format(insert_time, 'YYYY-MM-dd', 'UTC') < '2014-08-18' " +
-                      "OR date_format(insert_time, 'YYYY-MM-dd', 'UTC') > '2014-08-23' " +
+                      "WHERE date_format(insert_time, 'yyyy-MM-dd', 'UTC') < '2014-08-18' " +
+                      "OR date_format(insert_time, 'yyyy-MM-dd', 'UTC') > '2014-08-23' " +
                       "ORDER BY insert_time " +
                       "LIMIT 1000"),
             contains("2014-08-17", "2014-08-24")

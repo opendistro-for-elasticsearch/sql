@@ -15,7 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.join;
 
+import com.amazon.opendistroforelasticsearch.sql.domain.Select;
+import com.amazon.opendistroforelasticsearch.sql.query.join.BackOffRetryStrategy;
 import com.google.common.collect.ImmutableMap;
+import org.apache.lucene.search.TotalHits.Relation;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
@@ -30,12 +33,11 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
-import com.amazon.opendistroforelasticsearch.sql.domain.Select;
-import com.amazon.opendistroforelasticsearch.sql.query.join.BackOffRetryStrategy;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 import static org.elasticsearch.common.xcontent.ToXContent.EMPTY_PARAMS;
 
@@ -60,11 +62,11 @@ public class ElasticUtils {
     }
 
 
-    //use our deserializer instead of results toXcontent because the source field is differnet from sourceAsMap.
+    //use our deserializer instead of results toXcontent because the source field is different from sourceAsMap.
     public static String hitsAsStringResult(SearchHits results, MetaSearchResult metaResults) throws IOException {
         if(results == null) return null;
         Object[] searchHits;
-        searchHits = new Object[(int) results.getTotalHits()];
+        searchHits = new Object[Optional.ofNullable(results.getTotalHits()).map(th -> th.value).orElse(0L).intValue()];
         int i = 0;
         for(SearchHit hit : results) {
             HashMap<String,Object> value = new HashMap<>();
@@ -76,7 +78,10 @@ public class ElasticUtils {
             i++;
         }
         HashMap<String,Object> hits = new HashMap<>();
-        hits.put("total",results.getTotalHits());
+        hits.put("total", ImmutableMap.of(
+                "value", Optional.ofNullable(results.getTotalHits()).map(th -> th.value).orElse(0L),
+                "relation", Optional.ofNullable(results.getTotalHits()).map(th -> th.relation).orElse(Relation.EQUAL_TO)
+        ));
         hits.put("max_score",results.getMaxScore());
         hits.put("hits",searchHits);
         XContentBuilder builder = XContentFactory.contentBuilder(XContentType.JSON).prettyPrint();

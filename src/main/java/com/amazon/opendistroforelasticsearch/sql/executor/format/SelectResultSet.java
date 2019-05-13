@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse.FieldMappingMetaData;
@@ -430,7 +431,7 @@ public class SelectResultSet extends ResultSet {
             SearchHits searchHits = (SearchHits) queryResult;
 
             this.size = searchHits.getHits().length;
-            this.totalHits = searchHits.totalHits;
+            this.totalHits = Optional.ofNullable(searchHits.getTotalHits()).map(th -> th.value).orElse(0L);
             this.rows = populateRows(searchHits);
 
         } else if (queryResult instanceof Aggregations) {
