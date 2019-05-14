@@ -66,9 +66,7 @@ public class DateFormatTest {
     @Test
     public void lessThanOrEqualTo() {
         assertThat(
-            query(SELECT_FROM + "WHERE date_format(insert_time, 'yyyy-MM-dd', 'UTC') <= '2014-08-18' " +
-                    "ORDER BY insert_time " +
-                    "LIMIT 1000"),
+            query(SELECT_FROM + "WHERE date_format(insert_time, 'yyyy-MM-dd', 'UTC') <= '2014-08-18' LIMIT 1000"),
             containsInAnyOrder("2014-08-17", "2014-08-18")
         );
     }
@@ -109,7 +107,6 @@ public class DateFormatTest {
             query(SELECT_FROM +
                   "WHERE date_format(insert_time, 'yyyy-MM-dd', 'UTC') < '2014-08-18' " +
                   "OR date_format(insert_time, 'yyyy-MM-dd', 'UTC') > '2014-08-23'" +
-                  "ORDER BY insert_time " +
                   "LIMIT 3000"),
             containsInAnyOrder("2014-08-17", "2014-08-24")
         );
