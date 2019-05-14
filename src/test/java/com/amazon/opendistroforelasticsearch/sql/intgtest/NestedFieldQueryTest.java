@@ -35,7 +35,6 @@ import org.junit.Test;
 
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Function;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -364,13 +363,13 @@ public class NestedFieldQueryTest {
 
                 if (item instanceof SearchHit) {
                     final SearchHit hit = (SearchHit) item;
-                    List<Integer> actualValues = (ArrayList<Integer>) hit.getSourceAsMap().get("myNum");
+                    ArrayList<Integer> actualValues = (ArrayList<Integer>) hit.getSourceAsMap().get("myNum");
 
                     if (actualValues.size() != values.length) {
                         return false;
                     }
-                    for (int value : values) {
-                        if (!actualValues.contains(value)) {
+                    for (int i = 0; i < values.length; ++i) {
+                        if (values[i] != actualValues.get(i)) {
                             return false;
                         }
                     }
