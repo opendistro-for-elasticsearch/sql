@@ -48,7 +48,7 @@ public class DateFunctionsTest {
         assertTrue(
                 scriptContainsString(
                         scriptField,
-                        "doc['creationDate'].date.year"));
+                        "doc['creationDate'].value.year"));
     }
 
     @Test
@@ -60,7 +60,7 @@ public class DateFunctionsTest {
         assertTrue(
                 scriptContainsString(
                         scriptFilter,
-                        "doc['creationDate'].date.year"));
+                        "doc['creationDate'].value.year"));
         assertTrue(
                 scriptHasPattern(
                         scriptFilter,
@@ -75,7 +75,7 @@ public class DateFunctionsTest {
         assertTrue(
                 scriptContainsString(
                         scriptField,
-                        "doc['creationDate'].date.weekOfWeekyear"));
+                        "doc['creationDate'].value.weekOfWeekyear"));
     }
 
     @Test
@@ -87,7 +87,7 @@ public class DateFunctionsTest {
         assertTrue(
                 scriptContainsString(
                         scriptFilter,
-                        "doc['creationDate'].date.weekOfWeekyear"));
+                        "doc['creationDate'].value.weekOfWeekyear"));
         assertTrue(
                 scriptHasPattern(
                         scriptFilter,
@@ -102,7 +102,7 @@ public class DateFunctionsTest {
         assertTrue(
                 scriptContainsString(
                         scriptField,
-                        "doc['creationDate'].date.dayOfMonth"));
+                        "doc['creationDate'].value.dayOfMonth"));
     }
 
     @Test
@@ -113,7 +113,7 @@ public class DateFunctionsTest {
         assertTrue(
                 scriptContainsString(
                         scriptField,
-                        "doc['creationDate'].date.hourOfDay"));
+                        "doc['creationDate'].value.hourOfDay"));
     }
 
     @Test
@@ -124,7 +124,7 @@ public class DateFunctionsTest {
         assertTrue(
                 scriptContainsString(
                         scriptField,
-                        "doc['creationDate'].date.secondOfMinute"));
+                        "doc['creationDate'].value.secondOfMinute"));
     }
 
 }

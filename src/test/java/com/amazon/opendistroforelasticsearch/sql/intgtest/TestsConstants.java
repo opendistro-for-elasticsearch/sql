@@ -41,5 +41,5 @@ public class TestsConstants {
 
     public final static String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     public final static String TS_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
-    public final static String SIMPLE_DATE_FORMAT = "YYYY-MM-dd";
+    public final static String SIMPLE_DATE_FORMAT = "yyyy-MM-dd";
 }
