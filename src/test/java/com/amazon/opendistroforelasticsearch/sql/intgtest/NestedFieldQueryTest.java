@@ -15,8 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.intgtest;
 
-import com.amazon.opendistroforelasticsearch.sql.plugin.SearchDao;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.plugin.SearchDao;
 import com.amazon.opendistroforelasticsearch.sql.query.SqlElasticRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
@@ -27,11 +27,14 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.Avg;
 import org.elasticsearch.search.aggregations.metrics.Sum;
 import org.elasticsearch.search.aggregations.metrics.ValueCount;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
 import org.junit.Test;
 
 import java.sql.SQLFeatureNotSupportedException;
+import java.util.ArrayList;
 import java.util.function.Function;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -118,6 +121,16 @@ public class NestedFieldQueryTest {
                         hit(
                             author("i"),
                             info("a")
+                        )
+                    )
+                ),
+                hit(
+                    myNum(new int[]{3, 4}),
+                    someField("a"),
+                    innerHits("message",
+                        hit(
+                            author("zz"),
+                            info("zz")
                         )
                     )
                 )
@@ -273,8 +286,8 @@ public class NestedFieldQueryTest {
         assertThat(
             getAgg(resp, "someField"),
             buckets(
-                bucket("a", sum("message.dayOfWeek", "sumDay", isCloseTo(3))),
-                bucket("b", sum("message.dayOfWeek", "sumDay", isCloseTo(10)))
+                bucket("a", sum("message.dayOfWeek", "sumDay", isCloseTo(9.0))),
+                bucket("b", sum("message.dayOfWeek", "sumDay", isCloseTo(10.0)))
             )
         );
     }
@@ -339,6 +352,37 @@ public class NestedFieldQueryTest {
 
     private Matcher<SearchHit> myNum(int value) {
         return kv("myNum", is(value));
+    }
+
+    private Matcher<SearchHit> myNum(int[] values) {
+
+        return new BaseMatcher<SearchHit>() {
+
+            @Override
+            public boolean matches(Object item) {
+
+                if (item instanceof SearchHit) {
+                    final SearchHit hit = (SearchHit) item;
+                    ArrayList<Integer> actualValues = (ArrayList<Integer>) hit.getSourceAsMap().get("myNum");
+
+                    if (actualValues.size() != values.length) {
+                        return false;
+                    }
+                    for (int i = 0; i < values.length; ++i) {
+                        if (values[i] != actualValues.get(i)) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+
+                return false;
+            }
+
+            @Override
+            public void describeTo(Description description) {
+            }
+        };
     }
 
     private Matcher<SearchHit> someField(String value) {
