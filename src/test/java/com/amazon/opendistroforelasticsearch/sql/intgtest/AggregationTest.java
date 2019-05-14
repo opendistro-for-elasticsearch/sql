@@ -554,7 +554,7 @@ public class AggregationTest {
 			}
 		}
 
-		Assert.assertEquals(response.getHits().getTotalHits(), 1000);
+		Assert.assertEquals(response.getHits().getTotalHits().value, 1000);
 		Assert.assertEquals(response.getHits().getHits().length, 10);
 	}
 
@@ -581,7 +581,7 @@ public class AggregationTest {
 			}
 		}
 
-		Assert.assertEquals(response.getHits().getTotalHits(), 1000);
+		Assert.assertEquals(response.getHits().getTotalHits().value, 1000);
 		Assert.assertEquals(response.getHits().getHits().length, 10);
 	}
 

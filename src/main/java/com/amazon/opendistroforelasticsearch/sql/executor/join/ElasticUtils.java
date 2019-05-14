@@ -122,7 +122,10 @@ public class ElasticUtils {
     /** Code copy from SearchHits */
     private static void toXContent(XContentBuilder builder, Params params, List<SearchHit> hits, ElasticJoinExecutor executor) throws IOException {
         builder.startObject(SearchHits.Fields.HITS);
-        builder.field(SearchHits.Fields.TOTAL, hits.size());
+        builder.field(SearchHits.Fields.TOTAL, ImmutableMap.of(
+                "value", hits.size(),
+                "relation", Relation.EQUAL_TO
+        ));
         builder.field(SearchHits.Fields.MAX_SCORE, 1.0f);
         builder.field(SearchHits.Fields.HITS);
         builder.startArray();

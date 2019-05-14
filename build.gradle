@@ -194,7 +194,7 @@ afterEvaluate {
         url 'https://opendistro.github.io/elasticsearch/downloads'
         summary '''
          SQL plugin for OpenDistro for Elasticsearch. 
-         Reference documentation can be found at https://opendistro.github.io/elasticsearch/docs.
+         Reference documentation can be found at https://opendistro.github.io/for-elasticsearch-docs/.
     '''.stripIndent().replace('\n', ' ').trim()
     }
 

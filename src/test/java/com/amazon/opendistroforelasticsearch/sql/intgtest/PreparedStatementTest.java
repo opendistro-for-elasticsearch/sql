@@ -23,6 +23,7 @@ import com.amazon.opendistroforelasticsearch.sql.query.SqlElasticSearchRequestBu
 import com.amazon.opendistroforelasticsearch.sql.request.SqlRequest;
 import com.amazon.opendistroforelasticsearch.sql.request.SqlRequestFactory;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.common.bytes.BytesArray;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;
 import org.elasticsearch.http.HttpChannel;
 import org.elasticsearch.http.HttpRequest;
@@ -34,6 +35,7 @@ import org.junit.Test;
 
 import java.sql.SQLFeatureNotSupportedException;
 
+import static org.elasticsearch.rest.RestRequest.Method.POST;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertTrue;
@@ -78,7 +80,9 @@ public class PreparedStatementTest {
     private SearchHits query(String request) {
         try {
             final HttpRequest httpRequest = mock(HttpRequest.class);
-            when (httpRequest.uri()).thenReturn("");
+            when(httpRequest.uri()).thenReturn("uri");
+            when(httpRequest.method()).thenReturn(POST);
+            when(httpRequest.content()).thenReturn(new BytesArray(request));
 
             SqlRequest sqlRequest = SqlRequestFactory.getSqlRequest(RestRequest.request(NamedXContentRegistry.EMPTY, httpRequest, mock(HttpChannel.class)));
 

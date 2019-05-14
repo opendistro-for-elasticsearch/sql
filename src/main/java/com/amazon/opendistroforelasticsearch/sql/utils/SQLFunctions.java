@@ -334,7 +334,7 @@ public class SQLFunctions {
 
     private static Tuple<String, String> dateFunctionTemplate(String methodName, SQLExpr field) {
         String name = randomize(methodName);
-        return new Tuple<>(name, def(name, doc(field) + ".date." + methodName));
+        return new Tuple<>(name, def(name, doc(field) + ".value." + methodName));
     }
 
     public static Tuple<String, String> add(SQLExpr a, SQLExpr b) {

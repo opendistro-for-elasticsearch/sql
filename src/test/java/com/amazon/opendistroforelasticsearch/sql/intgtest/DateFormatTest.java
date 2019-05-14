@@ -50,7 +50,7 @@ public class DateFormatTest {
     @Test
     public void equalTo() {
         assertThat(
-            query(SELECT_FROM + "WHERE date_format(insert_time, 'YYYY-MM-dd', 'UTC') = '2014-08-17'"),
+            query(SELECT_FROM + "WHERE date_format(insert_time, 'yyyy-MM-dd', 'UTC') = '2014-08-17'"),
             containsInAnyOrder("2014-08-17")
         );
     }
@@ -58,7 +58,7 @@ public class DateFormatTest {
     @Test
     public void lessThan() {
         assertThat(
-            query(SELECT_FROM + "WHERE date_format(insert_time, 'YYYY-MM-dd', 'UTC') < '2014-08-18'"),
+            query(SELECT_FROM + "WHERE date_format(insert_time, 'yyyy-MM-dd', 'UTC') < '2014-08-18'"),
             containsInAnyOrder("2014-08-17")
         );
     }
@@ -66,7 +66,9 @@ public class DateFormatTest {
     @Test
     public void lessThanOrEqualTo() {
         assertThat(
-            query(SELECT_FROM + "WHERE date_format(insert_time, 'YYYY-MM-dd', 'UTC') <= '2014-08-18'"),
+            query(SELECT_FROM + "WHERE date_format(insert_time, 'yyyy-MM-dd', 'UTC') <= '2014-08-18' " +
+                    "ORDER BY insert_time " +
+                    "LIMIT 1000"),
             containsInAnyOrder("2014-08-17", "2014-08-18")
         );
     }
@@ -74,7 +76,7 @@ public class DateFormatTest {
     @Test
     public void greaterThan() {
         assertThat(
-            query(SELECT_FROM + "WHERE date_format(insert_time, 'YYYY-MM-dd', 'UTC') > '2014-08-23'"),
+            query(SELECT_FROM + "WHERE date_format(insert_time, 'yyyy-MM-dd', 'UTC') > '2014-08-23'"),
             containsInAnyOrder("2014-08-24")
         );
     }
@@ -86,7 +88,7 @@ public class DateFormatTest {
     @Test
     public void greaterThanOrEqualTo() {
         assertThat(
-            query(SELECT_FROM + "WHERE date_format(insert_time, 'YYYY-MM-dd', 'UTC') >= '2014-08-23' LIMIT 1000"),
+            query(SELECT_FROM + "WHERE date_format(insert_time, 'yyyy-MM-dd', 'UTC') >= '2014-08-23' LIMIT 2000"),
             containsInAnyOrder("2014-08-23", "2014-08-24")
         );
     }
@@ -95,8 +97,8 @@ public class DateFormatTest {
     public void and() {
         assertThat(
             query(SELECT_FROM +
-                  "WHERE date_format(insert_time, 'YYYY-MM-dd', 'UTC') >= '2014-08-21' " +
-                  "AND date_format(insert_time, 'YYYY-MM-dd', 'UTC') <= '2014-08-23' LIMIT 1000"),
+                  "WHERE date_format(insert_time, 'yyyy-MM-dd', 'UTC') >= '2014-08-21' " +
+                  "AND date_format(insert_time, 'yyyy-MM-dd', 'UTC') <= '2014-08-23' LIMIT 3000"),
             containsInAnyOrder("2014-08-21", "2014-08-22", "2014-08-23")
         );
     }
@@ -105,8 +107,10 @@ public class DateFormatTest {
     public void or() {
         assertThat(
             query(SELECT_FROM +
-                  "WHERE date_format(insert_time, 'YYYY-MM-dd', 'UTC') < '2014-08-18' " +
-                  "OR date_format(insert_time, 'YYYY-MM-dd', 'UTC') > '2014-08-23'"),
+                  "WHERE date_format(insert_time, 'yyyy-MM-dd', 'UTC') < '2014-08-18' " +
+                  "OR date_format(insert_time, 'yyyy-MM-dd', 'UTC') > '2014-08-23'" +
+                  "ORDER BY insert_time " +
+                  "LIMIT 3000"),
             containsInAnyOrder("2014-08-17", "2014-08-24")
         );
     }
