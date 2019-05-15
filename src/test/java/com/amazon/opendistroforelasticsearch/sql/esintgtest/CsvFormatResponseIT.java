@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
 import org.elasticsearch.client.Request;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -26,6 +27,7 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstant
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_NESTED_TYPE;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.core.StringStartsWith.startsWith;
 
 /**
  * Tests to cover requests with "?format=csv" parameter
@@ -109,6 +111,52 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
         Assert.assertThat(result, containsString(expectedMessage));
 
         setFlatOption(false);
+    }
+
+    @Test
+    public void fieldOrder() throws IOException {
+
+        final String[] expectedFields = {"age", "firstname", "address", "gender", "email"};
+
+        verifyFieldOrder(expectedFields);
+    }
+
+    @Test
+    public void fieldOrderOther() throws IOException {
+
+        final String[] expectedFields = {"email", "firstname", "age", "gender", "address"};
+
+        verifyFieldOrder(expectedFields);
+    }
+
+    @Ignore("Painless script not supported") // TODO: remove the ignore line once the issue is fixed
+    @Test
+    public void fieldOrderWithScriptFields() throws IOException {
+
+        final String[] expectedFields = {"email", "script1", "script2", "gender", "address"};
+        final String query = String.format(Locale.ROOT, "SELECT email, " +
+                "script(script1, \"doc['balance'].value * 2\"), " +
+                "script(script2, painless, \"doc['balance'].value + 10\"), gender, address " +
+                "FROM %s WHERE email='amberduke@pyrami.com'", TEST_INDEX_ACCOUNT);
+
+        verifyFieldOrder(expectedFields, query);
+    }
+
+    private void verifyFieldOrder(final String[] expectedFields) throws IOException {
+
+        final String fields = String.join(", ", expectedFields);
+        final String query = String.format(Locale.ROOT, "SELECT %s FROM %s " +
+                "WHERE email='amberduke@pyrami.com'", fields, TEST_INDEX_ACCOUNT);
+
+        verifyFieldOrder(expectedFields, query);
+    }
+
+    private void verifyFieldOrder(final String[] expectedFields, final String query) throws IOException {
+
+        final String result = executeQueryWithStringOutput(query);
+
+        final String expectedHeader = String.join(",", expectedFields);
+        Assert.assertThat(result, startsWith(expectedHeader));
     }
 
     private void setFlatOption(boolean flat) {

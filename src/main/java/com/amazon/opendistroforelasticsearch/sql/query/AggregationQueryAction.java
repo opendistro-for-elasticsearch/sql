@@ -350,7 +350,7 @@ public class AggregationQueryAction extends QueryAction {
                 if (field.getName().equals("script")) {
                     request.addStoredField(field.getAlias());
                     DefaultQueryAction defaultQueryAction = new DefaultQueryAction(client, select);
-                    defaultQueryAction.intialize(request);
+                    defaultQueryAction.initialize(request);
                     List<Field> tempFields = Lists.newArrayList(field);
                     defaultQueryAction.setFields(tempFields);
                     continue;

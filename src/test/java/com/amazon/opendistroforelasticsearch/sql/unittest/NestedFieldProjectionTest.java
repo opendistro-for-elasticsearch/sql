@@ -328,7 +328,7 @@ public class NestedFieldProjectionTest {
             Select select = new SqlParser().parseSelect(expr);
 
             DefaultQueryAction action = new DefaultQueryAction(mockClient, select);
-            action.intialize(request);
+            action.initialize(request);
             action.setFields(select.getFields());
 
             if (select.getWhere() != null) {

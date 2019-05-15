@@ -17,15 +17,16 @@ package com.amazon.opendistroforelasticsearch.sql.executor.csv;
 
 import com.amazon.opendistroforelasticsearch.sql.executor.QueryActionElasticExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.RestExecutor;
+import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.join.BackOffRetryStrategy;
 import com.google.common.base.Joiner;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestStatus;
-import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Eliran on 26/12/2015.
@@ -33,24 +34,11 @@ import java.util.*;
 public class CSVResultRestExecutor implements RestExecutor {
 
     @Override
-    public void execute(Client client, Map<String, String> params, QueryAction queryAction, RestChannel channel) throws Exception {
-        Object queryResult = QueryActionElasticExecutor.executeAnyAction(client, queryAction);
+    public void execute(final Client client, final Map<String, String> params, final QueryAction queryAction,
+                        final RestChannel channel) throws Exception {
 
-        boolean flat = getBooleanOrDefault(params,"flat",false);
-        String separator = ",";
-        if(params.containsKey("separator")){
-         separator = params.get("separator");
-        }
-        boolean includeScore = getBooleanOrDefault(params,"_score",false);
-        boolean includeType = getBooleanOrDefault(params,"_type",false);
-        boolean includeId = getBooleanOrDefault(params,"_id",false);
-        CSVResult result  = new CSVResultsExtractor(includeScore,includeType,includeId).extractResults(queryResult,flat,separator);
-        String newLine = "\n";
-        if(params.containsKey("newLine")){
-         newLine = params.get("newLine");
-        }
-        String csvString = buildString(separator, result, newLine);
-        BytesRestResponse bytesRestResponse = new BytesRestResponse(RestStatus.OK, csvString);
+        final String csvString = execute(client, params, queryAction);
+        final BytesRestResponse bytesRestResponse = new BytesRestResponse(RestStatus.OK, csvString);
 
         if (!BackOffRetryStrategy.isHealthy(2 * bytesRestResponse.content().length(), this)) {
             throw new IllegalStateException("[CSVResultRestExecutor] Memory could be insufficient when sendResponse().");
@@ -60,24 +48,24 @@ public class CSVResultRestExecutor implements RestExecutor {
     }
 
     @Override
-    public String execute(Client client, Map<String, String> params, QueryAction queryAction) throws Exception {
-        Object queryResult = QueryActionElasticExecutor.executeAnyAction(client, queryAction);
+    public String execute(final Client client, final Map<String, String> params, final QueryAction queryAction)
+            throws Exception {
 
-        boolean flat = getBooleanOrDefault(params,"flat",false);
-        String separator = ",";
-        if(params.containsKey("separator")){
-            separator = params.get("separator");
-        }
-        boolean includeScore = getBooleanOrDefault(params,"_score",false);
-        boolean includeType = getBooleanOrDefault(params,"_type",false);
-        boolean includeId = getBooleanOrDefault(params,"_id",false);
-        CSVResult result  = new CSVResultsExtractor(includeScore,includeType,includeId).extractResults(queryResult,flat,separator);
-        String newLine = "\n";
-        if(params.containsKey("newLine")){
-            newLine = params.get("newLine");
-        }
-        String csvString = buildString(separator, result, newLine);
-        return csvString;
+        final Object queryResult = QueryActionElasticExecutor.executeAnyAction(client, queryAction);
+
+        final String separator = params.getOrDefault("separator", ",");
+        final String newLine = params.getOrDefault("newLine", "\n");
+
+        final boolean flat = getBooleanOrDefault(params, "flat", false);
+        final boolean includeScore = getBooleanOrDefault(params, "_score", false);
+        final boolean includeType = getBooleanOrDefault(params, "_type", false);
+        final boolean includeId = getBooleanOrDefault(params, "_id", false);
+
+        final List<String> fieldNames = queryAction.getFieldNames().orElse(null);
+        final CSVResult result = new CSVResultsExtractor(includeScore, includeType, includeId)
+                .extractResults(queryResult, flat, separator, fieldNames);
+
+        return buildString(separator, result, newLine);
     }
 
     private boolean getBooleanOrDefault(Map<String, String> params, String param, boolean defaultValue) {

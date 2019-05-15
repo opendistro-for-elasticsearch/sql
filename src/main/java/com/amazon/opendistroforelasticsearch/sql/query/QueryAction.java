@@ -35,7 +35,9 @@ import com.amazon.opendistroforelasticsearch.sql.domain.QueryStatement;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Abstract class. used to transform Select object (Represents SQL query) to
@@ -59,6 +61,12 @@ public abstract class QueryAction {
     public void setSqlRequest(SqlRequest sqlRequest) { this.sqlRequest = sqlRequest; }
 
     public SqlRequest getSqlRequest() { return sqlRequest; }
+
+    /**
+     *
+     * @return List of field names produced by the query
+     */
+    public Optional<List<String>> getFieldNames() { return Optional.empty(); }
 
     protected void updateRequestWithCollapse(Select select, SearchRequestBuilder request) throws SqlParseException {
         JsonFactory jsonFactory = new JsonFactory();

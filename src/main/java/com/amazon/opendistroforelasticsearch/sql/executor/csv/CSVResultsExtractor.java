@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.csv;
 
+import com.amazon.opendistroforelasticsearch.sql.utils.Util;
 import com.google.common.base.Joiner;
 import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.search.SearchHit;
@@ -23,41 +24,50 @@ import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
 import org.elasticsearch.search.aggregations.bucket.SingleBucketAggregation;
-import org.elasticsearch.search.aggregations.metrics.NumericMetricsAggregation;
+import org.elasticsearch.search.aggregations.metrics.ExtendedStats;
 import org.elasticsearch.search.aggregations.metrics.GeoBounds;
+import org.elasticsearch.search.aggregations.metrics.NumericMetricsAggregation;
 import org.elasticsearch.search.aggregations.metrics.Percentile;
 import org.elasticsearch.search.aggregations.metrics.Percentiles;
 import org.elasticsearch.search.aggregations.metrics.Stats;
-import org.elasticsearch.search.aggregations.metrics.ExtendedStats;
 import org.elasticsearch.search.aggregations.metrics.TopHits;
-import com.amazon.opendistroforelasticsearch.sql.utils.Util;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Eliran on 27/12/2015.
  */
 public class CSVResultsExtractor {
+
     private final boolean includeType;
     private final boolean includeScore;
-    private final boolean indcludeId;
+    private final boolean includeId;
     private int currentLineIndex;
+
     public CSVResultsExtractor(boolean includeScore, boolean includeType, boolean includeId) {
         this.includeScore = includeScore;
         this.includeType = includeType;
-        this.indcludeId = includeId;
+        this.includeId = includeId;
         this.currentLineIndex = 0;
     }
 
-    public CSVResult extractResults(Object queryResult, boolean flat, String separator) throws CsvExtractorException {
-        if(queryResult instanceof SearchHits){
+    public CSVResult extractResults(Object queryResult, boolean flat, String separator,
+                                    final List<String> fieldNames) throws CsvExtractorException {
+
+        if (queryResult instanceof SearchHits){
             SearchHit[] hits = ((SearchHits) queryResult).getHits();
             List<Map<String,Object>> docsAsMap = new ArrayList<>();
-            List<String> headers = createHeadersAndFillDocsMap(flat, hits, docsAsMap);
+            List<String> headers = createHeadersAndFillDocsMap(flat, hits, docsAsMap, fieldNames);
             List<String> csvLines = createCSVLinesFromDocs(flat, separator, docsAsMap, headers);
             return new CSVResult(headers,csvLines);
         }
-        if(queryResult instanceof Aggregations){
+        if (queryResult instanceof Aggregations){
             List<String> headers = new ArrayList<>();
             List<List<String>> lines = new ArrayList<>();
             lines.add(new ArrayList<String>());
@@ -78,41 +88,42 @@ public class CSVResultsExtractor {
         return null;
     }
 
-    private  void handleAggregations(Aggregations aggregations, List<String> headers, List<List<String>> lines) throws CsvExtractorException {
-        if(allNumericAggregations(aggregations)){
+    private  void handleAggregations(Aggregations aggregations, List<String> headers, List<List<String>> lines)
+                                                                                    throws CsvExtractorException {
+        if (allNumericAggregations(aggregations)){
             lines.get(this.currentLineIndex).addAll(fillHeaderAndCreateLineForNumericAggregations(aggregations, headers));
             return;
         }
         //aggregations with size one only supported when not metrics.
         List<Aggregation> aggregationList = aggregations.asList();
-        if(aggregationList.size() > 1){
+        if (aggregationList.size() > 1){
             throw new CsvExtractorException("currently support only one aggregation at same level (Except for numeric metrics)");
         }
         Aggregation aggregation = aggregationList.get(0);
         //we want to skip singleBucketAggregations (nested,reverse_nested,filters)
-        if(aggregation instanceof SingleBucketAggregation){
+        if (aggregation instanceof SingleBucketAggregation){
             Aggregations singleBucketAggs = ((SingleBucketAggregation) aggregation).getAggregations();
             handleAggregations(singleBucketAggs, headers, lines);
             return;
         }
-        if(aggregation instanceof NumericMetricsAggregation){
+        if (aggregation instanceof NumericMetricsAggregation){
             handleNumericMetricAggregation(headers, lines.get(currentLineIndex), aggregation);
             return;
         }
-        if(aggregation instanceof GeoBounds){
+        if (aggregation instanceof GeoBounds){
             handleGeoBoundsAggregation(headers, lines, (GeoBounds) aggregation);
             return;
         }
-        if(aggregation instanceof TopHits){
+        if (aggregation instanceof TopHits){
             //todo: handle this . it returns hits... maby back to normal?
             //todo: read about this usages
             // TopHits topHitsAggregation = (TopHits) aggregation;
         }
-        if(aggregation instanceof MultiBucketsAggregation){
+        if (aggregation instanceof MultiBucketsAggregation){
             MultiBucketsAggregation bucketsAggregation = (MultiBucketsAggregation) aggregation;
             String name = bucketsAggregation.getName();
             //checking because it can comes from sub aggregation again
-            if(!headers.contains(name)){
+            if (!headers.contains(name)){
                 headers.add(name);
             }
             Collection<? extends MultiBucketsAggregation.Bucket> buckets = bucketsAggregation.getBuckets();
@@ -126,10 +137,9 @@ public class CSVResultsExtractor {
             for (MultiBucketsAggregation.Bucket bucket : buckets) {
                 //each bucket need to add new line with current line copied => except for first line
                 String key = bucket.getKeyAsString();
-                if(firstLine){
+                if (firstLine){
                     firstLine = false;
-                }
-                else {
+                } else {
                     currentLineIndex++;
                     currentLine = new ArrayList<String>(clonedLine);
                     lines.add(currentLine);
@@ -139,7 +149,6 @@ public class CSVResultsExtractor {
 
             }
         }
-
     }
 
     private void handleGeoBoundsAggregation(List<String> headers, List<List<String>> lines, GeoBounds geoBoundsAggregation) {
@@ -159,7 +168,7 @@ public class CSVResultsExtractor {
     private  List<String> fillHeaderAndCreateLineForNumericAggregations(Aggregations aggregations, List<String> header) throws CsvExtractorException {
         List<String> line = new ArrayList<>();
         List<Aggregation> aggregationList = aggregations.asList();
-        for(Aggregation aggregation : aggregationList){
+        for (Aggregation aggregation : aggregationList) {
             handleNumericMetricAggregation(header, line, aggregation);
         }
         return line;
@@ -265,16 +274,24 @@ public class CSVResultsExtractor {
         return csvLines;
     }
 
-    private List<String> createHeadersAndFillDocsMap(boolean flat, SearchHit[] hits, List<Map<String, Object>> docsAsMap) {
-        Set<String> csvHeaders = new HashSet<>();
-        for(SearchHit hit : hits){
-            Map<String, Object> doc = hit.getSourceAsMap();
-            Map<String, DocumentField> fields = hit.getFields();
-            for(DocumentField searchHitField : fields.values()){
+    private List<String> createHeadersAndFillDocsMap(final boolean flat, final SearchHit[] hits,
+                                                     final List<Map<String, Object>> docsAsMap,
+                                                     final List<String> fieldNames) {
+
+        final Set<String> csvHeaders = new LinkedHashSet<>();
+        if (fieldNames != null) {
+            csvHeaders.addAll(fieldNames);
+        }
+
+        for (final SearchHit hit : hits){
+
+            final Map<String, Object> doc = hit.getSourceAsMap();
+            final Map<String, DocumentField> fields = hit.getFields();
+            for (final DocumentField searchHitField : fields.values()){
                 doc.put(searchHitField.getName(),searchHitField.getValue());
             }
-            mergeHeaders(csvHeaders, doc, flat);
-            if(this.indcludeId){
+
+            if(this.includeId){
                 doc.put("_id", hit.getId());
             }
             if(this.includeScore){
@@ -283,19 +300,12 @@ public class CSVResultsExtractor {
             if(this.includeType){
                 doc.put("_type",hit.getType());
             }
+
+            mergeHeaders(csvHeaders, doc, flat);
             docsAsMap.add(doc);
         }
-        ArrayList<String> headersList = new ArrayList<>(csvHeaders);
-        if (this.indcludeId){
-            headersList.add("_id");
-        }
-        if (this.includeScore){
-            headersList.add("_score");
-        }
-        if (this.includeType){
-            headersList.add("_type");
-        }
-        return headersList;
+
+        return new ArrayList<>(csvHeaders);
     }
 
     private String findFieldValue(String header, Map<String, Object> doc, boolean flat, String separator) {
