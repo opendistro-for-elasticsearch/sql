@@ -293,7 +293,9 @@ public class SQLFunctionsTest {
         SearchDao searchDao = MainTestSuite.getSearchDao() != null ? MainTestSuite.getSearchDao() : getSearchDao();
         QueryAction queryAction = searchDao.explain(query);
         Object execution = QueryActionElasticExecutor.executeAnyAction(searchDao.getClient(), queryAction);
-        return new CSVResultsExtractor(includeScore, includeType, includeId).extractResults(execution, flat, ",");
+        final List<String> fieldNames = queryAction.getFieldNames().orElse(null);
+        return new CSVResultsExtractor(includeScore, includeType, includeId)
+                .extractResults(execution, flat, ",", fieldNames);
     }
 
 

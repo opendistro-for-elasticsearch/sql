@@ -24,9 +24,13 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Where;
 import com.amazon.opendistroforelasticsearch.sql.domain.hints.Hint;
 import com.amazon.opendistroforelasticsearch.sql.domain.hints.HintType;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
-import com.amazon.opendistroforelasticsearch.sql.rewriter.nestedfield.NestedFieldProjection;
 import com.amazon.opendistroforelasticsearch.sql.query.maker.QueryMaker;
-import org.elasticsearch.action.search.*;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.nestedfield.NestedFieldProjection;
+import org.elasticsearch.action.search.SearchAction;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchScrollAction;
+import org.elasticsearch.action.search.SearchScrollRequestBuilder;
+import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -37,9 +41,11 @@ import org.elasticsearch.search.sort.NestedSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Transform SQL query to standard Elasticsearch search query
@@ -49,12 +55,14 @@ public class DefaultQueryAction extends QueryAction {
     private final Select select;
     private SearchRequestBuilder request;
 
+    private final List<String> fieldNames = new LinkedList<>();
+
     public DefaultQueryAction(Client client, Select select) {
         super(client, select);
         this.select = select;
     }
 
-    public void intialize(SearchRequestBuilder request) {
+    public void initialize(SearchRequestBuilder request) {
         this.request = request;
     }
 
@@ -92,9 +100,14 @@ public class DefaultQueryAction extends QueryAction {
         updateRequestWithCollapse(select, request);
         updateRequestWithPostFilter(select, request);
         updateRequestWithInnerHits(select, request);
-        SqlElasticSearchRequestBuilder sqlElasticRequestBuilder = new SqlElasticSearchRequestBuilder(request);
 
-        return sqlElasticRequestBuilder;
+        return new SqlElasticSearchRequestBuilder(request);
+    }
+
+    @Override
+    public Optional<List<String>> getFieldNames() {
+
+        return Optional.of(fieldNames);
     }
 
     /**
@@ -116,9 +129,10 @@ public class DefaultQueryAction extends QueryAction {
      *            list of fields to source filter.
      */
     public void setFields(List<Field> fields) throws SqlParseException {
-        if (select.getFields().size() > 0) {
-            ArrayList<String> includeFields = new ArrayList<String>();
-            ArrayList<String> excludeFields = new ArrayList<String>();
+
+        if (!select.getFields().isEmpty()) {
+            ArrayList<String> includeFields = new ArrayList<>();
+            ArrayList<String> excludeFields = new ArrayList<>();
 
             for (Field field : fields) {
                 if (field instanceof MethodField) {
@@ -127,33 +141,42 @@ public class DefaultQueryAction extends QueryAction {
                         handleScriptField(method);
                     } else if (method.getName().equalsIgnoreCase("include")) {
                         for (KVValue kvValue : method.getParams()) {
-                            includeFields.add(kvValue.value.toString()) ;
+                            includeFields.add(kvValue.value.toString());
                         }
                     } else if (method.getName().equalsIgnoreCase("exclude")) {
                         for (KVValue kvValue : method.getParams()) {
                             excludeFields.add(kvValue.value.toString()) ;
                         }
                     }
-                } else if (field instanceof Field) {
+                } else if (field != null) {
                     if (isNotNested(field)) {
                         includeFields.add(field.getName());
                     }
                 }
             }
 
-            request.setFetchSource(includeFields.toArray(new String[includeFields.size()]), excludeFields.toArray(new String[excludeFields.size()]));
+            fieldNames.addAll(includeFields);
+            request.setFetchSource(includeFields.toArray(new String[0]), excludeFields.toArray(new String[0]));
         }
     }
 
-    private void handleScriptField(MethodField method) throws SqlParseException {
-        List<KVValue> params = method.getParams();
-        if (params.size() == 2) {
-            request.addScriptField(params.get(0).value.toString(), new Script(params.get(1).value.toString()));
-        } else if (params.size() == 3) {
-            request.addScriptField(params.get(0).value.toString(), new Script(ScriptType.INLINE, params.get(1).value.toString(), params.get(2).value.toString(), Collections.emptyMap()));
-        } else {
-            throw new SqlParseException("scripted_field only allows script(name,script) or script(name,lang,script)");
+    private void handleScriptField(final MethodField method) throws SqlParseException {
+
+        final List<KVValue> params = method.getParams();
+        final int numOfParams = params.size();
+
+        if (2 != numOfParams && 3 != numOfParams) {
+            throw new SqlParseException("scripted_field only allows 'script(name,script)' " +
+                    "or 'script(name,lang,script)'");
         }
+
+        final String fieldName = params.get(0).value.toString();
+        fieldNames.add(fieldName);
+
+        final String secondParam = params.get(1).value.toString();
+        final Script script = (2 == numOfParams) ? new Script(secondParam) :
+                new Script(ScriptType.INLINE, secondParam, params.get(2).value.toString(), Collections.emptyMap());
+        request.addScriptField(fieldName, script);
     }
 
     /**
@@ -162,6 +185,7 @@ public class DefaultQueryAction extends QueryAction {
      * @param where
      *            the 'WHERE' part of the SQL query.
      * @throws SqlParseException
+     *            if the where clause does not represent valid sql
      */
     private void setWhere(Where where) throws SqlParseException {
         BoolQueryBuilder boolQuery = null;

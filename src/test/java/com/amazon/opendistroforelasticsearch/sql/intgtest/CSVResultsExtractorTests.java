@@ -477,8 +477,10 @@ public class CSVResultsExtractorTests {
     private CSVResult getCsvResult(boolean flat, String query,boolean includeScore , boolean includeType,boolean includeId,String seperator) throws Exception {
         SearchDao searchDao = MainTestSuite.getSearchDao();
         QueryAction queryAction = searchDao.explain(query);
-        Object execution =  QueryActionElasticExecutor.executeAnyAction(searchDao.getClient(), queryAction);
-        return new CSVResultsExtractor(includeScore,includeType, includeId).extractResults(execution, flat, seperator);
+        Object execution = QueryActionElasticExecutor.executeAnyAction(searchDao.getClient(), queryAction);
+        final List<String> fieldNames = queryAction.getFieldNames().orElse(null);
+        return new CSVResultsExtractor(includeScore,includeType, includeId)
+                .extractResults(execution, flat, seperator, fieldNames);
     }
 
 }
