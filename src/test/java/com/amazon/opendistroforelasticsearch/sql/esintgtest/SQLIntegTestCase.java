@@ -163,7 +163,7 @@ public abstract class SQLIntegTestCase extends ESIntegTestCase {
         final StringBuilder sb = new StringBuilder();
 
         try (final InputStream is = response.getEntity().getContent();
-             final BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+             final BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
 
             String line;
             while ((line = br.readLine()) != null) {

@@ -28,7 +28,11 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 
 public class TestUtils {
 
@@ -298,10 +302,14 @@ public class TestUtils {
         String absJsonPath = getResourceFilePath(jsonPath);
 
         BulkRequest bulkRequest = new BulkRequest();
-        try (BufferedReader br = new BufferedReader(new FileReader(absJsonPath))) {
+        try (final InputStream stream =  new FileInputStream(absJsonPath);
+             final Reader streamReader = new InputStreamReader(stream, StandardCharsets.UTF_8);
+             final BufferedReader br = new BufferedReader(streamReader)) {
+
             while (true) {
+
                 String actionLine = br.readLine();
-                if (actionLine == null || actionLine.trim().length() == 0) {
+                if (actionLine == null || actionLine.trim().isEmpty()) {
                     break;
                 }
                 String sourceLine = br.readLine();
