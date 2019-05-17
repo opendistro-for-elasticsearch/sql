@@ -110,6 +110,11 @@ integTestRunner {
     systemProperty('project.root', project.rootDir.absolutePath)
 }
 
+integTestCluster {
+    // use elasticsearch oss distribution for integration test.
+    distribution = "oss-zip"
+}
+
 // TODO: fix code style in main and test source code
 checkstyleMain.ignoreFailures = true
 checkstyleTest.ignoreFailures = true
