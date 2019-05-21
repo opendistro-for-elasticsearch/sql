@@ -19,7 +19,11 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -28,6 +32,7 @@ import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasItems;
 
 public class MatcherUtils {
 
@@ -79,4 +84,24 @@ public class MatcherUtils {
         return (Matcher) hasEntry(key, value);
     }
 
+    @SuppressWarnings("unchecked")
+    public static Matcher<JSONObject> hitAny(Matcher<? super Object>... matcher) {
+        return featureValueOf("SearchHits", hasItems(matcher), actual -> {
+            JSONArray array = (JSONArray) (actual.query("/hits/hits"));
+            List<Object> results = new ArrayList<Object>(array.length());
+            for (Object element : array) {
+
+                results.add(element);
+            }
+            return results;
+        });
+    }
+
+    public static Matcher<Object> kvString(String key, Matcher<String> matcher) {
+        return featureValueOf("Json Match", matcher, actual -> (String) ((JSONObject) actual).query(key));
+    }
+
+    public static Matcher<Object> kvDouble(String key, Matcher<Double> matcher) {
+        return featureValueOf("Json Match", matcher, actual -> (Double) ((JSONObject) actual).query(key));
+    }
 }
