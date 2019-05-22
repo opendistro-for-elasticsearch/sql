@@ -64,9 +64,10 @@ integTestCluster {
 
 jacocoTestReport {
     dependsOn integTest, test
-    executionData dummyTest.jacoco.destinationFile, dummyIntegTest.jacoco.destinationFile
-    sourceDirectories = sourceSets.main.allSource
-    classDirectories = sourceSets.main.output
+    executionData.from = [dummyTest.jacoco.destinationFile, dummyIntegTest.jacoco.destinationFile]
+    sourceDirectories.from = sourceSets.main.java.sourceDirectories
+    classDirectories.from = files(sourceSets.main.java.outputDir)
+
     reports {
         html.enabled = true // human readable
         csv.enabled = true
