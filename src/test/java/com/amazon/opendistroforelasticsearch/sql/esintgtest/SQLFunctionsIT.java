@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
 import org.json.JSONObject;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.stream.IntStream;
@@ -30,6 +31,8 @@ import static org.hamcrest.Matchers.both;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.isEmptyOrNullString;
+import static org.hamcrest.Matchers.not;
 
 
 /**
@@ -59,28 +62,23 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     }
 
     /**
-     * Commented out the following test as alias for normal fields is no longer stored in SearchHit's fields object
+     * todo fix the issue.
+     * @see <a href="https://github.com/opendistro-for-elasticsearch/sql/issues/59">https://github.com/opendistro-for-elasticsearch/sql/issues/59</a>
      */
-//    @Test
-//    public void normalFieldAlias() throws Exception {
-//
-//        //here is a bug,csv field with spa
-//        String query = "SELECT " +
-//                "address as key,age from " +
-//                TEST_INDEX_ACCOUNT + "/account where address is not null " +
-//                "limit 10  ";
-//
-//        CSVResult csvResult = getCsvResult(false, query);
-//        List<String> headers = csvResult.getHeaders();
-//        Assert.assertTrue(headers.contains("key"));
-//    }
+    @Ignore
+    public void normalFieldAlias() throws Exception {
 
+        //here is a bug,csv field with spa
+        String query = "SELECT " +
+                "address as key,age from " +
+                TEST_INDEX_ACCOUNT + "/account where address is not null " +
+                "limit 10  ";
 
-//        CSVResult csvResult = getCsvResult(false, query);
-//        List<String> headers = csvResult.getHeaders();
-//        List<String> contents = csvResult.getLines();
-//        String[] splits = contents.get(0).split(",");
-//        Assert.assertTrue(splits[0].endsWith("--") || splits[1].endsWith("--"));
+        assertThat(
+                executeQuery(query),
+                hitAny(kvString("/_source/key", not(isEmptyOrNullString())))
+        );
+    }
 
     @Test
     public void functionAlias() throws Exception {
@@ -111,50 +109,35 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         );
     }
 
-// todo: add the assert phase
-//    @Test
-//    public void test() throws Exception {
-//
-//        String query = "select sum(case \n" +
-//                "             when traffic=0 then 100 \n" +
-//                "             when traffic=1 then 1000 \n" +
-//                "             else 10000 \n" +
-//                "       end) as tf,date_format(5minute,'yyyyMMddHHmm') as nt from %s where business_line='2'   group by nt order by tf asc limit 10";
-//        query = String.format(query, TEST_INDEX_PHRASE);
-//
-//        SearchDao searchDao = MainTestSuite.getSearchDao() != null ? MainTestSuite.getSearchDao() : getSearchDao();
-//        System.out.println(searchDao.explain(query).explain().explain());
-//    }
+    /**
+     * Ignore this test case because painless doesn't whitelist String.split function.
+     * @see <a href="https://www.elastic.co/guide/en/elasticsearch/painless/7.0/painless-api-reference.html">https://www.elastic.co/guide/en/elasticsearch/painless/7.0/painless-api-reference.html</a>
+     */
+    @Ignore
+    public void whereConditionLeftFunctionRightVariableEqualTest() throws Exception {
 
-// todo: change when split is back on language
-//    @Test
-//    public void whereConditionLeftFunctionRightVariableEqualTest() throws Exception {
-//
-//        String query = "SELECT " +
-//                " * from " +
-//                TestsConstants.TEST_INDEX + "/account " +
-//                " where split(address,' ')[0]='806' limit 1000  ";
-//
-//        CSVResult csvResult = getCsvResult(false, query);
-//        List<String> contents = csvResult.getLines();
-//        Assert.assertTrue(contents.size() == 4);
-//    }
-//
-//    @Test
-//    public void whereConditionLeftFunctionRightVariableGreatTest() throws Exception {
-//
-//        String query = "SELECT " +
-//                " * from " +
-//                TestsConstants.TEST_INDEX + "/account " +
-//                " where floor(split(address,' ')[0]+0) > 805 limit 1000  ";
-//
-//        SearchDao searchDao = MainTestSuite.getSearchDao() != null ? MainTestSuite.getSearchDao() : getSearchDao();
-//        System.out.println(searchDao.explain(query).explain().explain());
-//
-//        CSVResult csvResult = getCsvResult(false, query);
-//        List<String> contents = csvResult.getLines();
-//        Assert.assertTrue(contents.size() == 223);
-//    }
+        String query = "SELECT " +
+                " * from " +
+                TestsConstants.TEST_INDEX + "/account " +
+                " where split(address,' ')[0]='806' limit 1000  ";
+
+        assertThat(executeQuery(query).query("/hits/total"), equalTo(4));
+    }
+
+    /**
+     * Ignore this test case because painless doesn't whitelist String.split function.
+     * @see <a href="https://www.elastic.co/guide/en/elasticsearch/painless/7.0/painless-api-reference.html">https://www.elastic.co/guide/en/elasticsearch/painless/7.0/painless-api-reference.html</a>
+     */
+    @Ignore
+    public void whereConditionLeftFunctionRightVariableGreatTest() throws Exception {
+
+        String query = "SELECT " +
+                " * from " +
+                TestsConstants.TEST_INDEX + "/account " +
+                " where floor(split(address,' ')[0]+0) > 805 limit 1000  ";
+
+        assertThat(executeQuery(query).query("/hits/total"), equalTo(223));
+    }
 
     @Test
     public void concat_ws_fields() throws Exception {
@@ -195,23 +178,17 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         );
     }
 
-//    // todo: change when split is back on language
-//    @Test
-//    public void split_field() throws Exception {
-//
-//        //here is a bug,csv field with spa
-//        String query = "SELECT " +
-//                " split(address,' ')[0],age from " +
-//                TestsConstants.TEST_INDEX + "/account where address is not null " +
-//                " limit 10  ";
-//        SearchDao searchDao = MainTestSuite.getSearchDao() != null ? MainTestSuite.getSearchDao() : getSearchDao();
-//        System.out.println(searchDao.explain(query).explain().explain());
-//
-//        CSVResult csvResult = getCsvResult(false, query);
-//        List<String> headers = csvResult.getHeaders();
-//        List<String> contents = csvResult.getLines();
-//        String[] splits = contents.get(0).split(",");
-//        Assert.assertTrue(headers.size() == 2);
-//        Assert.assertTrue(Integer.parseInt(splits[0]) > 0);
-//    }
+    /**
+     * Ignore this test case because painless doesn't whitelist String.split function.
+     * @see <a href="https://www.elastic.co/guide/en/elasticsearch/painless/7.0/painless-api-reference.html">https://www.elastic.co/guide/en/elasticsearch/painless/7.0/painless-api-reference.html</a>
+     */
+    @Ignore
+    public void split_field() throws Exception {
+
+        //here is a bug,csv field with spa
+        String query = "SELECT " +
+                " split(address,' ')[0],age from " +
+                TestsConstants.TEST_INDEX + "/account where address is not null " +
+                " limit 10  ";
+    }
 }

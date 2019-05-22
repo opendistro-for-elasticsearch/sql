@@ -84,24 +84,22 @@ public class MatcherUtils {
         return (Matcher) hasEntry(key, value);
     }
 
-    @SuppressWarnings("unchecked")
-    public static Matcher<JSONObject> hitAny(Matcher<? super Object>... matcher) {
+    public static Matcher<JSONObject> hitAny(Matcher<JSONObject>... matcher) {
         return featureValueOf("SearchHits", hasItems(matcher), actual -> {
             JSONArray array = (JSONArray) (actual.query("/hits/hits"));
-            List<Object> results = new ArrayList<Object>(array.length());
+            List<JSONObject> results = new ArrayList<>(array.length());
             for (Object element : array) {
-
-                results.add(element);
+                results.add((JSONObject)element);
             }
             return results;
         });
     }
 
-    public static Matcher<Object> kvString(String key, Matcher<String> matcher) {
-        return featureValueOf("Json Match", matcher, actual -> (String) ((JSONObject) actual).query(key));
+    public static Matcher<JSONObject> kvString(String key, Matcher<String> matcher) {
+        return featureValueOf("Json Match", matcher, actual -> (String) actual.query(key));
     }
 
-    public static Matcher<Object> kvDouble(String key, Matcher<Double> matcher) {
-        return featureValueOf("Json Match", matcher, actual -> (Double) ((JSONObject) actual).query(key));
+    public static Matcher<JSONObject> kvDouble(String key, Matcher<Double> matcher) {
+        return featureValueOf("Json Match", matcher, actual -> (Double) actual.query(key));
     }
 }
