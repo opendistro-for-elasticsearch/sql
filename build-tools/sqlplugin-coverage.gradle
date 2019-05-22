@@ -1,0 +1,97 @@
+/*
+ *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License").
+ *   You may not use this file except in compliance with the License.
+ *   A copy of the License is located at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   or in the "license" file accompanying this file. This file is distributed
+ *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ *   express or implied. See the License for the specific language governing
+ *   permissions and limitations under the License.
+ */
+
+import javax.management.remote.JMXConnectorFactory
+import javax.management.remote.JMXServiceURL
+
+/**
+ * ES Plugin build tools don't work with the Gradle Jacoco Plugin to report coverage out of the box.
+ * https://github.com/elastic/elasticsearch/issues/28867.
+ *
+ * This code sets up coverage reporting manually for ES plugin tests. This is complicated because:
+ *  1. The ES integTest Task doesn't implement Gradle's JavaForkOptions so we have to manually start the jacoco agent with the test JVM
+ *  2. The cluster nodes are stopped using 'kill -9' which means jacoco can't dump it's execution output to a file on VM shutdown
+ *  3. The Java Security Manager prevents JMX from writing execution output to the file.
+ *
+ *  To workaround these we start the cluster with jmx enabled and then use Jacoco's JMX MBean to get the execution data before the
+ *  cluster is stopped and dump it to a file. Luckily our current security policy seems to allow this. This will also probably
+ *  break if there are multiple nodes in the integTestCluster. But for now... it sorta works.
+ */
+apply plugin: 'jacoco'
+
+// Get gradle to generate the required jvm agent arg for us using a dummy tasks of type Test. Unfortunately Elastic's
+// testing tasks don't derive from Test so the jacoco plugin can't do this automatically.
+task dummyTest(type: Test) {
+    enabled = false
+    workingDir = file("/") // Force absolute path to jacoco agent jar
+    jacoco {
+        destinationFile = file("${buildDir}/jacoco/test.exec")
+        destinationFile.parentFile.mkdirs()
+        jmx = true
+    }
+}
+
+task dummyIntegTest(type: Test) {
+    enabled = false
+    workingDir = file("/") // Force absolute path to jacoco agent jar
+    jacoco {
+        destinationFile = file("${buildDir}/jacoco/integTest.exec")
+        destinationFile.parentFile.mkdirs()
+        jmx = true
+    }
+}
+
+integTestCluster {
+    jvmArgs += " ${dummyIntegTest.jacoco.getAsJvmArg()}"
+    systemProperty 'com.sun.management.jmxremote', "true"
+    systemProperty 'com.sun.management.jmxremote.authenticate', "false"
+    systemProperty 'com.sun.management.jmxremote.port', "7777"
+    systemProperty 'com.sun.management.jmxremote.ssl', "false"
+    systemProperty 'java.rmi.server.hostname', "127.0.0.1"
+}
+
+jacocoTestReport {
+    dependsOn integTest, test
+    executionData.from = [dummyTest.jacoco.destinationFile, dummyIntegTest.jacoco.destinationFile]
+    sourceDirectories.from = sourceSets.main.java.sourceDirectories
+    classDirectories.from = files(sourceSets.main.java.outputDir)
+
+    reports {
+        html.enabled = true // human readable
+        csv.enabled = true
+        xml.enabled = true // for coverlay
+    }
+}
+
+// See https://www.eclemma.org/jacoco/trunk/doc/api/org/jacoco/agent/rt/IAgent.html
+task dumpCoverage {
+    doFirst {
+        def serverUrl = "service:jmx:rmi:///jndi/rmi://127.0.0.1:7777/jmxrmi"
+        def connector = JMXConnectorFactory.connect(new JMXServiceURL(serverUrl))
+        try {
+            def jacocoMBean = new GroovyMBean(connector.MBeanServerConnection, "org.jacoco:type=Runtime")
+            byte[] data = jacocoMBean.getExecutionData(false)
+            file(dummyIntegTest.jacoco.destinationFile).setBytes(data)
+        } finally {
+            connector.close()
+        }
+    }
+}
+
+project.gradle.projectsEvaluated {
+    dumpCoverage.dependsOn integTestRunner
+    tasks['integTestCluster#stop'].dependsOn dumpCoverage
+    jacocoTestReport.dependsOn dumpCoverage
+}

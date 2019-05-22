@@ -53,6 +53,12 @@ ext {
 version = "${opendistroVersion}.0" 
 
 apply plugin: 'elasticsearch.esplugin'
+apply plugin: 'jacoco'
+apply from: 'build-tools/sqlplugin-coverage.gradle'
+
+jacoco {
+    toolVersion = "0.8.3"
+}
 
 ext {
     projectSubstitutions = [:]
@@ -114,6 +120,8 @@ integTestCluster {
     // use elasticsearch oss distribution for integration test.
     distribution = "oss-zip"
 }
+
+check.dependsOn jacocoTestReport
 
 // TODO: fix code style in main and test source code
 checkstyleMain.ignoreFailures = true
