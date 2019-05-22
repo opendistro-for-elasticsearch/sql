@@ -30,11 +30,14 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
-import static com.amazon.opendistroforelasticsearch.sql.intgtest.TestsConstants.TEST_INDEX_DOG;
-import static com.amazon.opendistroforelasticsearch.sql.intgtest.TestsConstants.TEST_INDEX_GAME_OF_THRONES;
-import static com.amazon.opendistroforelasticsearch.sql.intgtest.TestsConstants.TEST_INDEX_LOCATION;
-import static com.amazon.opendistroforelasticsearch.sql.intgtest.TestsConstants.TEST_INDEX_LOCATION2;
-import static com.amazon.opendistroforelasticsearch.sql.intgtest.TestsConstants.TEST_INDEX_PEOPLE;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_DOG;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_DOG2;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_GAME_OF_THRONES;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_LOCATION;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_LOCATION2;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_PEOPLE;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_PEOPLE2;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -45,11 +48,15 @@ public class JoinIT extends SQLIntegTestCase {
 
     @Override
     protected void init() throws Exception {
+
         loadIndex(Index.DOG);
+        loadIndex(Index.DOGS2);
         loadIndex(Index.PEOPLE);
+        loadIndex(Index.PEOPLE2);
         loadIndex(Index.GAME_OF_THRONES);
         loadIndex(Index.LOCATION);
         loadIndex(Index.LOCATION_TWO);
+        loadIndex(Index.ACCOUNT);
     }
 
     @Test
@@ -356,6 +363,116 @@ public class JoinIT extends SQLIntegTestCase {
     }
 
     @Test
+    public void joinWithAllFromSecondTableHASH() throws IOException {
+
+        joinWithAllFromSecondTable(false);
+    }
+
+    @Test
+    public void joinWithAllFromSecondTableNL() throws IOException {
+
+        joinWithAllFromSecondTable(true);
+    }
+
+    @Test
+    public void joinWithAllFromFirstTableHASH() throws IOException {
+
+        joinWithAllFromFirstTable(false);
+    }
+
+    @Test
+    public void joinWithAllFromFirstTableNL() throws IOException {
+
+        joinWithAllFromFirstTable(true);
+    }
+
+    @Test
+    public void leftJoinWithAllFromSecondTableHASH() throws IOException {
+
+        leftJoinWithAllFromSecondTable(false);
+    }
+
+    @Test
+    public void leftJoinWithAllFromSecondTableNL() throws IOException {
+
+        leftJoinWithAllFromSecondTable(true);
+    }
+
+    @Test
+    public void joinParseCheckSelectedFieldsSplitNLConditionOrderEQ() throws IOException {
+
+        final String query = String.format(Locale.ROOT, "SELECT /*! USE_NL*/ " +
+                "a.firstname, a.lastname, a.gender, d.dog_name FROM %s/people a JOIN %s/dog d " +
+                "ON a.firstname = d.holdersName WHERE (a.age > 10 OR a.balance > 2000) AND d.age > 1",
+                TEST_INDEX_PEOPLE2, TEST_INDEX_DOG2);
+
+        JSONObject result = executeQuery(query);
+        JSONArray hits = getHits(result);
+
+        Assert.assertThat(hits.length(), equalTo(2));
+
+        Map<String, String> match1 = ImmutableMap.of(
+                "a.firstname", "Daenerys",
+                "a.lastname", "Targaryen",
+                "a.gender", "M",
+                "d.dog_name", "rex");
+        Map<String, String> match2 = ImmutableMap.of(
+                "a.firstname", "Hattie",
+                "a.lastname", "Bond",
+                "a.gender", "M",
+                "d.dog_name", "snoopy");
+
+        Assert.assertTrue(hitsInclude(hits, match1));
+        Assert.assertTrue(hitsInclude(hits, match2));
+    }
+
+    @Test
+    public void joinParseCheckSelectedFieldsSplitNLConditionOrderGT() throws IOException {
+
+        final String query = String.format(Locale.ROOT, "SELECT /*! USE_NL*/ " +
+                "a.firstname, a.lastname, a.gender, d.firstname, d.age  FROM " +
+                "%s/people a JOIN %s/account d on a.age < d.age " +
+                "WHERE (d.firstname = 'Lynn' OR d.firstname = 'Obrien') AND a.firstname = 'Mcgee'",
+                TEST_INDEX_PEOPLE, TEST_INDEX_ACCOUNT);
+
+        JSONObject result = executeQuery(query);
+        JSONArray hits = getHits(result);
+
+        Assert.assertThat(hits.length(), equalTo(2));
+
+        Map<String, ?> oneMatch = ImmutableMap.of("a.firstname", "Mcgee", "a.lastname", "Mooney",
+                "a.gender", "M", "d.firstname", "Obrien", "d.age", 40);
+        Map<String, ?> secondMatch = ImmutableMap.of("a.firstname", "Mcgee", "a.lastname", "Mooney",
+                "a.gender", "M", "d.firstname", "Lynn", "d.age", 40);
+
+        Assert.assertTrue(hitsInclude(hits, oneMatch));
+        Assert.assertTrue(hitsInclude(hits, secondMatch));
+    }
+
+    @Test
+    public void joinParseCheckSelectedFieldsSplitNLConditionOrderLT() throws IOException {
+
+        final String query = String.format(Locale.ROOT, "SELECT /*! USE_NL*/ " +
+                "a.firstname, a.lastname, a.gender, d.firstname, d.age  FROM " +
+                "%s/people a JOIN %s/account d on a.age > d.age " +
+                "WHERE (d.firstname = 'Sandoval' OR d.firstname = 'Hewitt') AND a.firstname = 'Fulton'",
+                TEST_INDEX_PEOPLE, TEST_INDEX_ACCOUNT);
+
+        JSONObject result = executeQuery(query);
+        JSONArray hits = getHits(result);
+
+        Assert.assertThat(hits.length(), equalTo(2));
+
+        Map<String, ?> oneMatch = ImmutableMap.of("a.firstname", "Fulton", "a.lastname", "Holt",
+                "a.gender", "F", "d.firstname", "Sandoval", "d.age", 22);
+        Map<String, ?> secondMatch = ImmutableMap.of("a.firstname", "Fulton", "a.lastname", "Holt",
+                "a.gender", "F", "d.firstname", "Hewitt", "d.age", 22);
+
+        Assert.assertTrue(hitsInclude(hits, oneMatch));
+        Assert.assertTrue(hitsInclude(hits, secondMatch));
+    }
+
+    @Test
     public void leftJoinNLWithNullInCondition() throws IOException {
 
         joinWithNullInCondition(true, "LEFT", "OR", "OR", 7);
@@ -401,6 +518,62 @@ public class JoinIT extends SQLIntegTestCase {
     public void innerJoinNLWithNullInCondition3() throws IOException {
 
         joinWithNullInCondition(true, "", "AND", "OR", 0);
+    }
+
+    private void joinWithAllFromSecondTable(boolean useNestedLoops) throws IOException {
+
+        final String hint = useNestedLoops ? USE_NL_HINT : "";
+        final String query = String.format(Locale.ROOT, "SELECT%1$s c.name.firstname, d.* " +
+                        "FROM %2$s/gotCharacters c JOIN %2$s/gotCharacters d ON d.hname = c.house",
+                hint, TEST_INDEX_GAME_OF_THRONES);
+
+        JSONObject result = executeQuery(query);
+        JSONArray hits = getHits(result);
+
+        if (useNestedLoops) {
+            Assert.assertThat(hits.length(), equalTo(0));
+        } else {
+            Assert.assertThat(hits.length(), equalTo(4));
+            Assert.assertThat(hits.getJSONObject(0).getJSONObject("_source").length(), equalTo(5));
+        }
+    }
+
+    private void joinWithAllFromFirstTable(boolean useNestedLoops) throws IOException {
+
+        final String hint = useNestedLoops ? USE_NL_HINT : "";
+        final String query = String.format(Locale.ROOT, "SELECT%1$s c.name.firstname " +
+                        "FROM %2$s/gotCharacters d JOIN %2$s/gotCharacters c ON c.house = d.hname",
+                hint, TEST_INDEX_GAME_OF_THRONES);
+
+        JSONObject result = executeQuery(query);
+        JSONArray hits = getHits(result);
+
+        if (useNestedLoops) {
+            Assert.assertThat(hits.length(), equalTo(0));
+        } else {
+            Assert.assertThat(hits.length(), equalTo(4));
+            Assert.assertThat(hits.getJSONObject(0).getJSONObject("_source").length(), equalTo(1));
+        }
+    }
+
+    private void leftJoinWithAllFromSecondTable(boolean useNestedLoops) throws IOException {
+
+        final String hint = useNestedLoops ? USE_NL_HINT : "";
+        final String query = String.format(Locale.ROOT, "SELECT%1$s c.name.firstname, d.* " +
+                        "FROM %2$s/gotCharacters c LEFT JOIN %2$s/gotCharacters d ON d.hname = c.house",
+                hint, TEST_INDEX_GAME_OF_THRONES);
+
+        JSONObject result = executeQuery(query);
+        JSONArray hits = getHits(result);
+
+        Assert.assertThat(hits.length(), equalTo(7));
+
+        hits.forEach(hitObj -> {
+            JSONObject hit = (JSONObject)hitObj;
+
+            Assert.assertThat(hit.getJSONObject("_source").length(),
+                    equalTo(hit.getString("_id").endsWith("0") ? 1 : 5));
+        });
     }
 
     private void joinParseCheckSelectedFieldsSplit(boolean useNestedLoops) throws IOException {
