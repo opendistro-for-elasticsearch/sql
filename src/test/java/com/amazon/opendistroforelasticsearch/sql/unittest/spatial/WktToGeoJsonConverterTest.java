@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.intgtest;
+package com.amazon.opendistroforelasticsearch.sql.unittest.spatial;
 
 
 import com.amazon.opendistroforelasticsearch.sql.spatial.WktToGeoJsonConverter;
@@ -23,7 +23,7 @@ import org.junit.Assert;
 /**
  * Created by Eliran on 4/8/2015.
  */
-public class WktToGeoJsonConverterTests {
+public class WktToGeoJsonConverterTest {
 
     @Test
     public void convertPoint_NoRedundantSpaces_ShouldConvert(){
