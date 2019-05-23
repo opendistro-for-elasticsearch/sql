@@ -104,6 +104,28 @@ public class TestUtils {
                 "}";
     }
 
+    public static String getDogs2IndexMapping() {
+        return "{  \"dog\": {" +
+                " \"properties\": {\n" +
+                "          \"holdersName\": {\n" +
+                "            \"type\": \"keyword\"\n" +
+                "          }"+
+                "       }"+
+                "   }" +
+                "}";
+    }
+
+    public static String getPeople2IndexMapping() {
+        return "{  \"people\": {" +
+                " \"properties\": {\n" +
+                "          \"firstname\": {\n" +
+                "            \"type\": \"keyword\"\n" +
+                "          }"+
+                "       }"+
+                "   }" +
+                "}";
+    }
+
     public static String getGameOfThronesIndexMapping() {
         return "{  \"gotCharacters\": { " +
                 " \"properties\": {\n" +
