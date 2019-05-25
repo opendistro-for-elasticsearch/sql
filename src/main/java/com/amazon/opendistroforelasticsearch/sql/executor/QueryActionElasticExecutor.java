@@ -15,14 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor;
 
+import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.join.ElasticJoinExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.multi.MultiRequestExecutorFactory;
-import org.elasticsearch.action.ActionResponse;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.aggregations.Aggregations;
-import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.query.AggregationQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.DefaultQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.DeleteQueryAction;
@@ -34,43 +29,57 @@ import com.amazon.opendistroforelasticsearch.sql.query.SqlElasticSearchRequestBu
 import com.amazon.opendistroforelasticsearch.sql.query.join.ESJoinQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.multi.MultiQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.multi.MultiQueryRequestBuilder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.elasticsearch.action.ActionResponse;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.threadpool.ThreadPool;
 
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 /**
  * Created by Eliran on 3/10/2015.
  */
 public class QueryActionElasticExecutor {
-    public static SearchHits executeSearchAction(DefaultQueryAction searchQueryAction) throws SqlParseException {
+
+    private static final Logger LOG = LogManager.getLogger(QueryActionElasticExecutor.class);
+
+    private static SearchHits executeSearchAction(DefaultQueryAction searchQueryAction) throws SqlParseException {
         SqlElasticSearchRequestBuilder builder  =  searchQueryAction.explain();
         return ((SearchResponse) builder.get()).getHits();
     }
 
-    public static SearchHits executeJoinSearchAction(Client client , ESJoinQueryAction joinQueryAction) throws IOException, SqlParseException {
+    private static SearchHits executeJoinSearchAction(Client client , ESJoinQueryAction joinQueryAction) throws IOException, SqlParseException {
         SqlElasticRequestBuilder joinRequestBuilder = joinQueryAction.explain();
         ElasticJoinExecutor executor = ElasticJoinExecutor.createJoinExecutor(client,joinRequestBuilder);
         executor.run();
         return executor.getHits();
     }
 
-    public static Aggregations executeAggregationAction(AggregationQueryAction aggregationQueryAction) throws SqlParseException {
+    private static Aggregations executeAggregationAction(AggregationQueryAction aggregationQueryAction) throws SqlParseException {
         SqlElasticSearchRequestBuilder select =  aggregationQueryAction.explain();
         return ((SearchResponse)select.get()).getAggregations();
     }
 
-    public static ActionResponse executeShowQueryAction(ShowQueryAction showQueryAction) {
+    private static ActionResponse executeShowQueryAction(ShowQueryAction showQueryAction) {
         return showQueryAction.explain().get();
     }
 
-    public static ActionResponse executeDescribeQueryAction(DescribeQueryAction describeQueryAction) {
+    private static ActionResponse executeDescribeQueryAction(DescribeQueryAction describeQueryAction) {
         return describeQueryAction.explain().get();
     }
 
-    public static ActionResponse executeDeleteAction(DeleteQueryAction deleteQueryAction) throws SqlParseException {
+    private static ActionResponse executeDeleteAction(DeleteQueryAction deleteQueryAction) throws SqlParseException {
         return deleteQueryAction.explain().get();
     }
 
-    public static SearchHits executeMultiQueryAction(Client client, MultiQueryAction queryAction) throws SqlParseException, IOException {
+    private static SearchHits executeMultiQueryAction(Client client, MultiQueryAction queryAction) throws SqlParseException, IOException {
         SqlElasticRequestBuilder multiRequestBuilder = queryAction.explain();
         ElasticHitsExecutor executor = MultiRequestExecutorFactory.createExecutor(client, (MultiQueryRequestBuilder) multiRequestBuilder);
         executor.run();
@@ -95,5 +104,23 @@ public class QueryActionElasticExecutor {
         return null;
     }
 
+    public static Future<Object> executeAnyActionAsync(Client client, QueryAction queryAction) {
 
+        CompletableFuture<Object> future = new CompletableFuture<>();
+        final Runnable task = () -> {
+            try {
+                future.complete(executeAnyAction(client, queryAction));
+            } catch (Exception ex) {
+                LOG.error("[{}] async action execution failed: {}", queryAction.getSqlRequest().getId(),
+                        ex.getMessage());
+                throw new RuntimeException(ex);
+            }
+        };
+
+        final ThreadPool threadPool = client.threadPool();
+        threadPool.schedule(threadPool.preserveContext(task), new TimeValue(0L),
+                AsyncRestExecutor.SQL_WORKER_THREAD_POOL_NAME);
+
+        return future;
+    }
 }

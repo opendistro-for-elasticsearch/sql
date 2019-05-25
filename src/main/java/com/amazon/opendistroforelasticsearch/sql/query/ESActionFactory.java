@@ -22,33 +22,37 @@ import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLUnionQuery;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
 import com.alibaba.druid.sql.dialect.mysql.parser.MySqlStatementParser;
-import com.alibaba.druid.sql.parser.*;
+import com.alibaba.druid.sql.parser.ParserException;
+import com.alibaba.druid.sql.parser.SQLExprParser;
+import com.alibaba.druid.sql.parser.SQLStatementParser;
+import com.alibaba.druid.sql.parser.Token;
 import com.amazon.opendistroforelasticsearch.sql.domain.Delete;
+import com.amazon.opendistroforelasticsearch.sql.domain.IndexStatement;
 import com.amazon.opendistroforelasticsearch.sql.domain.JoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
-import com.amazon.opendistroforelasticsearch.sql.rewriter.nestedfield.NestedFieldRewriter;
-import com.amazon.opendistroforelasticsearch.sql.query.join.ESJoinQueryActionFactory;
-import com.amazon.opendistroforelasticsearch.sql.query.multi.MultiQueryAction;
-import com.amazon.opendistroforelasticsearch.sql.query.multi.MultiQuerySelect;
-import org.elasticsearch.client.Client;
 import com.amazon.opendistroforelasticsearch.sql.executor.ElasticResultHandler;
 import com.amazon.opendistroforelasticsearch.sql.executor.QueryActionElasticExecutor;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import com.amazon.opendistroforelasticsearch.sql.domain.IndexStatement;
-import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.TermFieldRewriter;
 import com.amazon.opendistroforelasticsearch.sql.parser.ElasticLexer;
 import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
 import com.amazon.opendistroforelasticsearch.sql.parser.SqlParser;
 import com.amazon.opendistroforelasticsearch.sql.parser.SubQueryExpression;
+import com.amazon.opendistroforelasticsearch.sql.query.join.ESJoinQueryActionFactory;
+import com.amazon.opendistroforelasticsearch.sql.query.multi.MultiQueryAction;
+import com.amazon.opendistroforelasticsearch.sql.query.multi.MultiQuerySelect;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.TermFieldRewriter;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.TermFieldRewriter.TermRewriterFilter;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.nestedfield.NestedFieldRewriter;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 
+import java.io.IOException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.amazon.opendistroforelasticsearch.sql.domain.IndexStatement.StatementType;
-import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.TermFieldRewriter.TermRewriterFilter;
 
 public class ESActionFactory {
 
@@ -116,26 +120,35 @@ public class ESActionFactory {
         }
     }
 
-    private static void executeAndFillSubQuery(Client client , SubQueryExpression subQueryExpression,QueryAction queryAction) throws SqlParseException {
-        List<Object> values = new ArrayList<>();
+    private static void executeAndFillSubQuery(final Client client, final SubQueryExpression subQueryExpression,
+                                               QueryAction queryAction) throws SqlParseException {
+
         Object queryResult;
         try {
-            queryResult = QueryActionElasticExecutor.executeAnyAction(client,queryAction);
-        } catch (Exception e) {
-            throw new SqlParseException("could not execute SubQuery: " +  e.getMessage());
+            queryResult = QueryActionElasticExecutor.executeAnyActionAsync(client, queryAction).get();
+        } catch (final Exception e) {
+
+            final Throwable cause = e.getCause();
+            Throwable original = e;
+            if (cause instanceof IOException || cause instanceof SqlParseException) {
+                original = cause;
+            }
+            throw new SqlParseException("could not execute SubQuery: " +  original.getMessage());
         }
 
-        String returnField = subQueryExpression.getReturnField();
-        if(queryResult instanceof SearchHits) {
-            SearchHits hits = (SearchHits) queryResult;
+        if (queryResult instanceof SearchHits) {
+
+            final List<Object> values = new ArrayList<>();
+            final String returnField = subQueryExpression.getReturnField();
+            final SearchHits hits = (SearchHits) queryResult;
             for (SearchHit hit : hits) {
-                values.add(ElasticResultHandler.getFieldValue(hit,returnField));
+                values.add(ElasticResultHandler.getFieldValue(hit, returnField));
             }
+            subQueryExpression.setValues(values.toArray());
         }
         else {
             throw new SqlParseException("on sub queries only support queries that return Hits and not aggregations");
         }
-        subQueryExpression.setValues(values.toArray());
     }
 
     private static QueryAction handleSelect(Client client, Select select) {
