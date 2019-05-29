@@ -374,7 +374,7 @@ public class TestUtils {
             return new File(projectRoot + "/" + relPath).getAbsolutePath();
         }
     }
-    
+
     public static String getResponseBody(Response response) throws IOException {
         final StringBuilder sb = new StringBuilder();
 
@@ -387,20 +387,5 @@ public class TestUtils {
             }
         }
         return sb.toString();
-    }
-
-    public enum SettingType {
-        PERSISTENT("persistent"),
-        TRANSIENT("transient");
-
-        private String val;
-
-        SettingType(String val) {
-            this.val = val;
-        }
-
-        public String val() {
-            return val;
-        }
     }
 }

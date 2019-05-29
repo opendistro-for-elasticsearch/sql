@@ -19,20 +19,20 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.client.Request;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.test.ESIntegTestCase;
 
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Locale;
 
 import static com.amazon.opendistroforelasticsearch.sql.intgtest.TestsConstants.TEST_INDEX_ACCOUNT;
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.SettingType;
 import static org.hamcrest.Matchers.equalTo;
 
 public class PluginIT extends SQLIntegTestCase {
+
+    private static final String PERSISTENT = "persistent";
 
     @Override
     protected void init() throws Exception {
@@ -41,16 +41,15 @@ public class PluginIT extends SQLIntegTestCase {
 
     @Test
     public void sqlEnableSettingsTest() throws IOException {
-        updateClusterSettings(SettingType.PERSISTENT, "opendistro.sql.enabled", "true");
-        JSONObject queryResult = executeQuery(String.format("SELECT firstname FROM %s/account WHERE account_number=1", TEST_INDEX_ACCOUNT));
-        System.out.println(queryResult);
+        updateClusterSettings(PERSISTENT, "opendistro.sql.enabled", "true");
+        String query = String.format(Locale.ROOT, "SELECT firstname FROM %s/account WHERE account_number=1", TEST_INDEX_ACCOUNT);
+        JSONObject queryResult = executeQuery(query);
         Assert.assertThat(getHits(queryResult).length(), equalTo(1));
 
-        updateClusterSettings(SettingType.PERSISTENT, "opendistro.sql.enabled", "false");
+        updateClusterSettings(PERSISTENT, "opendistro.sql.enabled", "false");
         Response response = null;
         try {
-            queryResult = executeQuery(String.format("SELECT firstname FROM %s/account WHERE account_number = 1", TEST_INDEX_ACCOUNT));
-            System.out.println(queryResult);
+            queryResult = executeQuery(query);
         } catch (ResponseException ex) {
             response = ex.getResponse();
         }
@@ -61,18 +60,17 @@ public class PluginIT extends SQLIntegTestCase {
         Assert.assertThat(error.getString("reason"), equalTo("Invalid SQL query"));
         Assert.assertThat(error.getString("details"), equalTo("Either opendistro.sql.enabled or rest.action.multi.allow_explicit_index setting is false"));
         Assert.assertThat(error.getString("type"), equalTo("SQLFeatureDisabledException"));
-        resetClusterSettings(SettingType.PERSISTENT, "opendistro.sql.enabled");
+        resetClusterSettings(PERSISTENT, "opendistro.sql.enabled");
     }
 
-    private JSONObject updateClusterSettings(SettingType settingType, String setting , String value) throws IOException {
+    private JSONObject updateClusterSettings(String settingType, String setting , String value) throws IOException {
         Request request = new Request("PUT", "/_cluster/settings?pretty");
-        String persistentSetting = "{\""+ settingType.val() +"\": {\"" + setting + "\": " + value + "}}";
+        String persistentSetting = String.format(Locale.ROOT, "{\"%s\": {\"%s\": %s}}", settingType, setting, value);
         request.setJsonEntity(persistentSetting);
         RequestOptions.Builder restOptionsBuilder = RequestOptions.DEFAULT.toBuilder();
         restOptionsBuilder.addHeader("Content-Type", "application/json");
         request.setOptions(restOptionsBuilder);
         JSONObject result = new JSONObject(executeRequest(request));
-        System.out.println(result);
         return result;
     }
 
@@ -83,13 +81,7 @@ public class PluginIT extends SQLIntegTestCase {
      * TODO: Look for a way to reset all the persistent and transient settings instead of
      *       individually resetting of each such setting
      */
-    private JSONObject resetClusterSettings(SettingType settingType, String setting) throws IOException {
+    private JSONObject resetClusterSettings(String settingType, String setting) throws IOException {
         return updateClusterSettings(settingType, setting, "null");
-    }
-
-    private String executeRequest(final Request request) throws IOException {
-        RestClient restClient = ESIntegTestCase.getRestClient();
-        Response response = restClient.performRequest(request);
-        return TestUtils.getResponseBody(response);
     }
 }

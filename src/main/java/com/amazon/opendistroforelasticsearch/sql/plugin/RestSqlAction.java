@@ -81,7 +81,9 @@ public class RestSqlAction extends BaseRestHandler {
         try {
 
             if (!isSQLFeatureEnabled()) {
-                throw new SQLFeatureDisabledException("Either opendistro.sql.enabled or rest.action.multi.allow_explicit_index setting is false");
+                throw new SQLFeatureDisabledException(
+                    "Either opendistro.sql.enabled or rest.action.multi.allow_explicit_index setting is false"
+                );
             }
 
             sqlRequest = SqlRequestFactory.getSqlRequest(request);
