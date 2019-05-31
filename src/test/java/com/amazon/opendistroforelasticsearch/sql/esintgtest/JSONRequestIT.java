@@ -13,33 +13,37 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.intgtest;
+package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
-import com.alibaba.druid.sql.parser.ParserException;
-import com.amazon.opendistroforelasticsearch.sql.plugin.SearchDao;
-import com.amazon.opendistroforelasticsearch.sql.request.SqlRequest;
-import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
-import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
-import com.amazon.opendistroforelasticsearch.sql.query.SqlElasticSearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.common.xcontent.LoggingDeprecationHandler;
+import org.elasticsearch.common.xcontent.NamedXContentRegistry;
+import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.common.xcontent.XContentParser;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.json.JSONObject;
 import org.junit.Test;
 
-import java.sql.SQLFeatureNotSupportedException;
+import java.io.IOException;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.anyOf;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.lessThan;
 
-public class JSONRequestTest {
+public class JSONRequestIT extends SQLIntegTestCase {
+
+    @Override
+    protected void init() throws Exception {
+        loadIndex(Index.ACCOUNT);
+        loadIndex(Index.NESTED);
+    }
 
     @Test
-    public void search() {
+    public void search() throws IOException {
         int ageToCompare = 25;
         SearchHits response = query(String.format("{\"query\":\"" +
                 "SELECT * " +
@@ -54,7 +58,7 @@ public class JSONRequestTest {
     }
 
     @Test
-    public void searchWithFilterAndNoWhere() {
+    public void searchWithFilterAndNoWhere() throws IOException {
         /*
          * Human readable format of the request defined below:
          * {
@@ -81,7 +85,7 @@ public class JSONRequestTest {
     }
 
     @Test
-    public void searchWithRangeFilter() {
+    public void searchWithRangeFilter() throws IOException {
         /*
          * Human readable format of the request defined below:
          * {
@@ -117,7 +121,7 @@ public class JSONRequestTest {
      * Using TEST_INDEX_NESTED_TYPE here since term filter does not work properly on analyzed fields like text.
      * The field 'someField' in TEST_INDEX_NESTED_TYPE is of type keyword.
      */
-    public void searchWithTermFilter() {
+    public void searchWithTermFilter() throws IOException {
         /*
          * Human readable format of the request defined below:
          * {
@@ -147,7 +151,7 @@ public class JSONRequestTest {
     }
 
     @Test
-    public void searchWithNestedFilter() {
+    public void searchWithNestedFilter() throws IOException {
         /*
          * Human readable format of the request defined below:
          * {
@@ -186,22 +190,13 @@ public class JSONRequestTest {
         }
     }
 
-    private SearchHits query(String request) {
-        try {
-            JSONObject jsonRequest = new JSONObject(request);
-            String sql = jsonRequest.getString("query");
+    private SearchHits query(String request) throws IOException {
+        final JSONObject jsonObject = executeRequest(request);
 
-            SearchDao searchDao = MainTestSuite.getSearchDao();
-            QueryAction queryAction = searchDao.explain(sql);
-
-            SqlRequest sqlRequest = new SqlRequest(sql, jsonRequest);
-            queryAction.setSqlRequest(sqlRequest);
-
-            SqlElasticSearchRequestBuilder select = (SqlElasticSearchRequestBuilder) queryAction.explain();
-            return ((SearchResponse) select.get()).getHits();
-
-        } catch (SqlParseException | SQLFeatureNotSupportedException e) {
-            throw new ParserException("Illegal sql expr in request: " + request);
-        }
+        final XContentParser parser = XContentFactory.xContent(XContentType.JSON).createParser(
+                NamedXContentRegistry.EMPTY,
+                LoggingDeprecationHandler.INSTANCE,
+                jsonObject.toString());
+        return SearchResponse.fromXContent(parser).getHits();
     }
 }

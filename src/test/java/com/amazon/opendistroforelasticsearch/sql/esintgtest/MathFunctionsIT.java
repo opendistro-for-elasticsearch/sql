@@ -13,28 +13,34 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.intgtest;
+package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
-import com.alibaba.druid.sql.parser.ParserException;
-import com.amazon.opendistroforelasticsearch.sql.plugin.SearchDao;
-import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
-import com.amazon.opendistroforelasticsearch.sql.query.SqlElasticSearchRequestBuilder;
+import com.amazon.opendistroforelasticsearch.sql.intgtest.TestsConstants;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.common.xcontent.LoggingDeprecationHandler;
+import org.elasticsearch.common.xcontent.NamedXContentRegistry;
+import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.common.xcontent.XContentParser;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Test;
 
-import java.sql.SQLFeatureNotSupportedException;
+import java.io.IOException;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 
-public class MathFunctionsTest {
+public class MathFunctionsIT extends SQLIntegTestCase {
 
     private static final String FROM = "FROM " + TestsConstants.TEST_INDEX_ACCOUNT + "/account";
 
+    @Override
+    protected void init() throws Exception {
+        loadIndex(Index.ACCOUNT);
+    }
+
     @Test
-    public void lowerCaseFunctionCall() {
+    public void lowerCaseFunctionCall() throws IOException {
         SearchHit[] hits = query(
                 "SELECT abs(age - 100) AS abs"
         );
@@ -45,7 +51,7 @@ public class MathFunctionsTest {
     }
 
     @Test
-    public void upperCaseFunctionCall() {
+    public void upperCaseFunctionCall() throws IOException {
         SearchHit[] hits = query(
                 "SELECT ABS(age - 100) AS abs"
         );
@@ -56,7 +62,7 @@ public class MathFunctionsTest {
     }
 
     @Test
-    public void eulersNumber() {
+    public void eulersNumber() throws IOException {
         SearchHit[] hits = query(
                 "SELECT E() AS e"
         );
@@ -65,7 +71,7 @@ public class MathFunctionsTest {
     }
 
     @Test
-    public void pi() {
+    public void pi() throws IOException {
         SearchHit[] hits = query(
                 "SELECT PI() AS pi"
         );
@@ -74,7 +80,7 @@ public class MathFunctionsTest {
     }
 
     @Test
-    public void expm1Function() {
+    public void expm1Function() throws IOException {
         SearchHit[] hits = query(
                 "SELECT EXPM1(2) AS expm1"
         );
@@ -83,7 +89,7 @@ public class MathFunctionsTest {
     }
 
     @Test
-    public void degreesFunction() {
+    public void degreesFunction() throws IOException {
         SearchHit[] hits = query(
                 "SELECT age, DEGREES(age) AS degrees"
         );
@@ -95,7 +101,7 @@ public class MathFunctionsTest {
     }
 
     @Test
-    public void radiansFunction() {
+    public void radiansFunction() throws IOException {
         SearchHit[] hits = query(
                 "SELECT age, RADIANS(age) as radians"
         );
@@ -107,7 +113,7 @@ public class MathFunctionsTest {
     }
 
     @Test
-    public void sin() {
+    public void sin() throws IOException {
         SearchHit[] hits = query(
                 "SELECT SIN(PI()) as sin"
         );
@@ -116,16 +122,16 @@ public class MathFunctionsTest {
     }
 
     @Test
-    public void asin() {
+    public void asin() throws IOException {
         SearchHit[] hits = query(
                 "SELECT ASIN(PI()) as asin"
         );
-        double asin = (double) getField(hits[0], "asin");
+        double asin = Double.valueOf((String) getField(hits[0], "asin"));
         assertThat(asin, equalTo(Math.asin(Math.PI)));
     }
 
     @Test
-    public void sinh() {
+    public void sinh() throws IOException {
         SearchHit[] hits = query(
                 "SELECT SINH(PI()) as sinh"
         );
@@ -133,19 +139,14 @@ public class MathFunctionsTest {
         assertThat(sinh, equalTo(Math.sinh(Math.PI)));
     }
 
-    private SearchHit[] query(String select, String... statements) {
-        return execute(select + " " + FROM + " " + String.join(" ", statements));
-    }
+    private SearchHit[] query(String select, String... statements) throws IOException {
+        final String response = executeQueryWithStringOutput(select + " " + FROM + " " + String.join(" ", statements));
 
-    private SearchHit[] execute(String sql) {
-        try {
-            SearchDao searchDao = MainTestSuite.getSearchDao();
-            SqlElasticSearchRequestBuilder select = (SqlElasticSearchRequestBuilder) searchDao.explain(sql).explain();
-            return ((SearchResponse) select.get()).getHits().getHits();
-        } catch (SQLFeatureNotSupportedException | SqlParseException e) {
-            throw new ParserException("Unable to parse query: " + sql);
-        }
-
+        final XContentParser parser = XContentFactory.xContent(XContentType.JSON).createParser(
+                NamedXContentRegistry.EMPTY,
+                LoggingDeprecationHandler.INSTANCE,
+                response);
+        return SearchResponse.fromXContent(parser).getHits().getHits();
     }
 
     private Object getField(SearchHit hit, String fieldName) {
