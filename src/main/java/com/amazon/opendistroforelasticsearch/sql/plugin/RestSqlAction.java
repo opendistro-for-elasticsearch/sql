@@ -25,6 +25,7 @@ import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import com.amazon.opendistroforelasticsearch.sql.request.SqlRequest;
 import com.amazon.opendistroforelasticsearch.sql.request.SqlRequestFactory;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.VerificationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.node.NodeClient;
@@ -118,7 +119,8 @@ public class RestSqlAction extends BaseRestHandler {
                e instanceof ParserException ||
                e instanceof SQLFeatureNotSupportedException ||
                e instanceof IllegalArgumentException ||
-               e instanceof IndexNotFoundException;
+               e instanceof IndexNotFoundException ||
+               e instanceof VerificationException;
     }
 
     private RestChannelConsumer reportError(Exception e, RestStatus status) {
