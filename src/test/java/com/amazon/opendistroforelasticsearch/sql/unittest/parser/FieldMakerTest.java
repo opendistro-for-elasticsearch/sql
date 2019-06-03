@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.unittest.parser;
 
 import com.alibaba.druid.sql.ast.expr.SQLIntegerExpr;
+import com.alibaba.druid.sql.ast.expr.SQLNumberExpr;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.parser.FieldMaker;
@@ -26,20 +27,29 @@ import static org.junit.Assert.assertTrue;
 
 public class FieldMakerTest {
 
-    private static final String FIELD_NAME = "address";
-
     private static final String ALIAS = "a";
 
     private static final String TABLE_ALIAS = "t";
 
     @Test
     public void makeFiled_assign() throws SqlParseException {
-        final SQLIntegerExpr sqlIntegerExpr = new SQLIntegerExpr(10);
-        final MethodField field = (MethodField) FieldMaker.makeField(sqlIntegerExpr, ALIAS, TABLE_ALIAS);
+        final SQLIntegerExpr sqlExpr = new SQLIntegerExpr(10);
+        final MethodField field = (MethodField) FieldMaker.makeField(sqlExpr, ALIAS, TABLE_ALIAS);
 
         assertEquals("script", field.getName());
         assertEquals(ALIAS, field.getParams().get(0).value);
         assertTrue(((String)field.getParams().get(1).value).matches("def assign_[0-9]+ = 10;return assign_[0-9]+;"));
+        assertEquals(ALIAS, field.getAlias());
+    }
+
+    @Test
+    public void makeFiled_assign_double() throws SqlParseException {
+        final SQLNumberExpr sqlExpr = new SQLNumberExpr(10.0);
+        final MethodField field = (MethodField) FieldMaker.makeField(sqlExpr, ALIAS, TABLE_ALIAS);
+
+        assertEquals("script", field.getName());
+        assertEquals(ALIAS, field.getParams().get(0).value);
+        assertTrue(((String)field.getParams().get(1).value).matches("def assign_[0-9]+ = 10.0;return assign_[0-9]+;"));
         assertEquals(ALIAS, field.getAlias());
     }
 }

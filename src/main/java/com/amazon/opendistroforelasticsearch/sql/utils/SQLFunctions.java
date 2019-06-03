@@ -346,8 +346,6 @@ public class SQLFunctions {
     public static Tuple<String, String> assign(SQLExpr a) {
         String name = randomize("assign");
         return new Tuple<>(name,
-                scriptDeclare(a) +
-                        convertType(a) +
                         def(name, extractName(a)));
     }
 
