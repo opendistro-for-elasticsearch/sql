@@ -27,7 +27,7 @@ import static org.junit.Assert.assertTrue;
 public class SQLFunctionsTest {
 
     @Test
-    public void test_assign() {
+    public void testAssign() {
         final SQLIntegerExpr sqlIntegerExpr = new SQLIntegerExpr(10);
         final Tuple<String, String> assign = SQLFunctions.function("assign",
                 ImmutableList.of(new KVValue(null, sqlIntegerExpr)),

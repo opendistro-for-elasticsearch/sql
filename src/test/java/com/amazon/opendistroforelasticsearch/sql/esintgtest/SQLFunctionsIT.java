@@ -215,7 +215,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void literal_withDoubleValue() throws Exception {
+    public void literalWithDoubleValue() throws Exception {
         String query = "SELECT 10.0 "+
                 "from " + TEST_INDEX_ACCOUNT + "/account limit 1";
 
@@ -224,7 +224,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void literal_withAlias() throws Exception {
+    public void literalWithAlias() throws Exception {
         String query = "SELECT 10 as key "+
                 "from " + TEST_INDEX_ACCOUNT + "/account limit 1";
         final SearchHit[] hits = query(query).getHits();
@@ -234,7 +234,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void literal_multiField() throws Exception {
+    public void literalMultiField() throws Exception {
         String query = "SELECT 1, 2 "+
                 "from " + TEST_INDEX_ACCOUNT + "/account limit 1";
         final SearchHit[] hits = query(query).getHits();

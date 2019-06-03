@@ -32,7 +32,7 @@ public class FieldMakerTest {
     private static final String TABLE_ALIAS = "t";
 
     @Test
-    public void makeFiled_assign() throws SqlParseException {
+    public void makeFieldAssign() throws SqlParseException {
         final SQLIntegerExpr sqlExpr = new SQLIntegerExpr(10);
         final MethodField field = (MethodField) FieldMaker.makeField(sqlExpr, ALIAS, TABLE_ALIAS);
 
@@ -43,7 +43,7 @@ public class FieldMakerTest {
     }
 
     @Test
-    public void makeFiled_assign_double() throws SqlParseException {
+    public void makeFieldAssignDouble() throws SqlParseException {
         final SQLNumberExpr sqlExpr = new SQLNumberExpr(10.0);
         final MethodField field = (MethodField) FieldMaker.makeField(sqlExpr, ALIAS, TABLE_ALIAS);
 
