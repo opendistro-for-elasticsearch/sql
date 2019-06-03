@@ -16,7 +16,9 @@
 package com.amazon.opendistroforelasticsearch.sql.plugin;
 
 import com.alibaba.druid.sql.parser.ParserException;
+import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.exception.SQLFeatureDisabledException;
 import com.amazon.opendistroforelasticsearch.sql.executor.ActionRequestRestExecutorFactory;
 import com.amazon.opendistroforelasticsearch.sql.executor.RestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.ErrorMessage;
@@ -44,12 +46,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.SQL_ENABLED;
 import static org.elasticsearch.rest.RestStatus.BAD_REQUEST;
 import static org.elasticsearch.rest.RestStatus.OK;
 import static org.elasticsearch.rest.RestStatus.SERVICE_UNAVAILABLE;
 
 public class RestSqlAction extends BaseRestHandler {
     private static final Logger LOG = LogManager.getLogger(RestSqlAction.class);
+    private final boolean allowExplicitIndex;
 
     /** API endpoint path */
     public static final String QUERY_API_ENDPOINT = "/_opendistro/_sql";
@@ -61,6 +65,8 @@ public class RestSqlAction extends BaseRestHandler {
         restController.registerHandler(RestRequest.Method.GET, QUERY_API_ENDPOINT, this);
         restController.registerHandler(RestRequest.Method.POST, EXPLAIN_API_ENDPOINT, this);
         restController.registerHandler(RestRequest.Method.GET, EXPLAIN_API_ENDPOINT, this);
+
+        this.allowExplicitIndex = MULTI_ALLOW_EXPLICIT_INDEX.get(settings);
     }
 
     @Override
@@ -74,6 +80,13 @@ public class RestSqlAction extends BaseRestHandler {
         Metrics.getInstance().getNumericalMetric(MetricName.REQ_COUNT_TOTAL).increment();
         SqlRequest sqlRequest = SqlRequest.NULL;
         try {
+
+            if (!isSQLFeatureEnabled()) {
+                throw new SQLFeatureDisabledException(
+                    "Either opendistro.sql.enabled or rest.action.multi.allow_explicit_index setting is false"
+                );
+            }
+
             sqlRequest = SqlRequestFactory.getSqlRequest(request);
             LOG.info("[{}] Incoming request {}: {}", sqlRequest.getId(), request.uri(), sqlRequest.getSql());
 
@@ -118,6 +131,7 @@ public class RestSqlAction extends BaseRestHandler {
                e instanceof SqlParseException ||
                e instanceof ParserException ||
                e instanceof SQLFeatureNotSupportedException ||
+               e instanceof SQLFeatureDisabledException ||
                e instanceof IllegalArgumentException ||
                e instanceof IndexNotFoundException ||
                e instanceof VerificationException;
@@ -129,5 +143,10 @@ public class RestSqlAction extends BaseRestHandler {
 
     private RestChannelConsumer sendResponse(String message, RestStatus status) {
         return channel -> channel.sendResponse(new BytesRestResponse(status, message));
+    }
+
+    private boolean isSQLFeatureEnabled() {
+        boolean isSqlEnabled = LocalClusterState.state().getSettingValue(SQL_ENABLED);
+        return allowExplicitIndex && isSqlEnabled;
     }
 }

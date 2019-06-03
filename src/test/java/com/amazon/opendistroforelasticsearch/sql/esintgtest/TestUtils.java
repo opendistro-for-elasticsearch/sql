@@ -30,7 +30,6 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -361,7 +360,8 @@ public class TestUtils {
         BulkResponse bulkResponse = client.bulk(bulkRequest).actionGet();
 
         if (bulkResponse.hasFailures()) {
-            throw new Exception("Failed to load test data into index " + defaultIndex + ", " + bulkResponse.buildFailureMessage());
+            throw new Exception("Failed to load test data into index " + defaultIndex + ", " +
+                    bulkResponse.buildFailureMessage());
         }
         System.out.println(bulkResponse.getItems().length + " documents loaded.");
         // ensure the documents are searchable
