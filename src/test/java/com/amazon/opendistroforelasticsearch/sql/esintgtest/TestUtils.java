@@ -23,12 +23,14 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.AdminClient;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.Response;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -371,5 +373,19 @@ public class TestUtils {
         } else {
             return new File(projectRoot + "/" + relPath).getAbsolutePath();
         }
+    }
+
+    public static String getResponseBody(Response response) throws IOException {
+        final StringBuilder sb = new StringBuilder();
+
+        try (final InputStream is = response.getEntity().getContent();
+             final BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line);
+            }
+        }
+        return sb.toString();
     }
 }
