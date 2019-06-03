@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 
 public class TestUtils {
 
@@ -359,7 +360,8 @@ public class TestUtils {
         BulkResponse bulkResponse = client.bulk(bulkRequest).actionGet();
 
         if (bulkResponse.hasFailures()) {
-            throw new Exception("Failed to load test data into index " + defaultIndex + ", " + bulkResponse.buildFailureMessage());
+            throw new Exception("Failed to load test data into index " + defaultIndex + ", " +
+                    bulkResponse.buildFailureMessage());
         }
         System.out.println(bulkResponse.getItems().length + " documents loaded.");
         // ensure the documents are searchable
@@ -387,5 +389,30 @@ public class TestUtils {
             }
         }
         return sb.toString();
+    }
+
+    public static String fileToString(final String filePathFromProjectRoot, final boolean removeNewLines)
+            throws IOException {
+
+        final String absolutePath = getResourceFilePath(filePathFromProjectRoot);
+
+        try (final InputStream stream = new FileInputStream(absolutePath);
+             final Reader streamReader = new InputStreamReader(stream, StandardCharsets.UTF_8);
+             final BufferedReader br = new BufferedReader(streamReader)) {
+
+            final StringBuilder stringBuilder = new StringBuilder();
+            String line = br.readLine();
+
+            while (line != null) {
+
+                stringBuilder.append(line);
+                if (!removeNewLines) {
+                    stringBuilder.append(String.format(Locale.ROOT, "%n"));
+                }
+                line = br.readLine();
+            }
+
+            return stringBuilder.toString();
+        }
     }
 }

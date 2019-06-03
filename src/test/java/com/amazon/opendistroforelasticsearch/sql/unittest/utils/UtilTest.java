@@ -13,19 +13,16 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.intgtest;
+package com.amazon.opendistroforelasticsearch.sql.unittest.utils;
 
+import com.amazon.opendistroforelasticsearch.sql.utils.Util;
 import org.junit.Assert;
 import org.junit.Test;
-import com.amazon.opendistroforelasticsearch.sql.utils.Util;
 
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by Eliran on 25/8/2016.
- */
-public class UtilTests {
+public class UtilTest {
 
     @Test
     public void clearEmptyPaths_EmptyMap_ShouldReturnTrue(){
@@ -65,6 +62,7 @@ public class UtilTests {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void clearEmptyPaths_MapSizeTwoAndTwoOneInnerEmpty_MapShouldBeSizeTwoAndOne(){
         Map<String,Object> map = new HashMap<>();
         Map<String,Object> innerMap = new HashMap<>();
@@ -73,7 +71,7 @@ public class UtilTests {
         map.put("a",innerMap);
         map.put("c",1);
         Util.clearEmptyPaths(map);
-        Assert.assertEquals(2,map.size());
+        Assert.assertEquals(2, map.size());
         Assert.assertEquals(1,((HashMap<String,Object>)map.get("a")).size());
     }
 }

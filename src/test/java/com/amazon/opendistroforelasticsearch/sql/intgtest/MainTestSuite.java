@@ -70,10 +70,8 @@ import static org.mockito.Mockito.when;
     AggregationTest.class,
     HashJoinBasicTest.class,
     HashJoinMoreTest.class,
-    SqlParserTests.class,
     CSVResultsExtractorTests.class,
     SourceFieldTest.class,
-    UtilTests.class,
     MultiQueryTests.class,
     DeleteTest.class,
     HavingTest.class,
@@ -84,8 +82,7 @@ import static org.mockito.Mockito.when;
     QueryFunctionsTest.class,
     PrettyFormatResponseTest.class,
     PreparedStatementTest.class,
-    MetaDataQueriesTest.class,
-    TermQueryExplainTest.class
+    MetaDataQueriesTest.class
 })
 public class MainTestSuite {
 
