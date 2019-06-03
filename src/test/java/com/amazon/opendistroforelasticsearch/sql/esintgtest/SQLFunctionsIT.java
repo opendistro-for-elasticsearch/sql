@@ -26,6 +26,7 @@ import java.util.stream.IntStream;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.hitAny;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvDouble;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvInt;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvString;
 import static org.hamcrest.Matchers.both;
 import static org.hamcrest.Matchers.containsString;
@@ -190,5 +191,15 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
                 " split(address,' ')[0],age from " +
                 TestsConstants.TEST_INDEX + "/account where address is not null " +
                 " limit 10  ";
+    }
+
+    @Test
+    public void functionAssign() throws Exception {
+        String query = "SELECT 10 as key "+
+                "from " + TEST_INDEX_ACCOUNT + "/account limit 1";
+
+        assertThat(
+                executeQuery(query),
+                hitAny(kvInt("/fields/key/0", equalTo(10))));
     }
 }
