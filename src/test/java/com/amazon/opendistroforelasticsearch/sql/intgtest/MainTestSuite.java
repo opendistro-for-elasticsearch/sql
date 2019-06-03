@@ -66,7 +66,6 @@ import static org.mockito.Mockito.when;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
     QueryTest.class,
-    MethodQueryTest.class,
     AggregationTest.class,
     HashJoinBasicTest.class,
     HashJoinMoreTest.class,
@@ -75,9 +74,7 @@ import static org.mockito.Mockito.when;
     MultiQueryTests.class,
     DeleteTest.class,
     HavingTest.class,
-    JSONRequestTest.class,
     NestedFieldQueryTest.class,
-    MathFunctionsTest.class,
     DateFunctionsTest.class,
     QueryFunctionsTest.class,
     PrettyFormatResponseTest.class,
