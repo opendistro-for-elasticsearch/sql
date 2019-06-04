@@ -75,7 +75,6 @@ import static org.mockito.Mockito.when;
     DeleteTest.class,
     HavingTest.class,
     NestedFieldQueryTest.class,
-    DateFunctionsTest.class,
     QueryFunctionsTest.class,
     PrettyFormatResponseTest.class,
     PreparedStatementTest.class,
