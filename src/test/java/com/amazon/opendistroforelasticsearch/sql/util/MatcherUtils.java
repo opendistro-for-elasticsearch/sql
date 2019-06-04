@@ -102,4 +102,8 @@ public class MatcherUtils {
     public static Matcher<JSONObject> kvDouble(String key, Matcher<Double> matcher) {
         return featureValueOf("Json Match", matcher, actual -> (Double) actual.query(key));
     }
+
+    public static Matcher<JSONObject> kvInt(String key, Matcher<Integer> matcher) {
+        return featureValueOf("Json Match", matcher, actual -> (Integer) actual.query(key));
+    }
 }
