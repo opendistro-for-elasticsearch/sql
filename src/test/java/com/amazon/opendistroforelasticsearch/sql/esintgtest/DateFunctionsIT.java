@@ -92,7 +92,7 @@ public class DateFunctionsIT extends SQLIntegTestCase {
         SearchHit[] hits = query(
             "SELECT insert_time",
             "WHERE DATE_FORMAT(insert_time, 'YYYY-MM-dd') < '2014-08-19' AND " +
-                "WEEK_OF_YEAR(insert_time) > 33",
+            "WEEK_OF_YEAR(insert_time) > 33",
             "LIMIT 2000"
         );
         for (SearchHit hit : hits) {

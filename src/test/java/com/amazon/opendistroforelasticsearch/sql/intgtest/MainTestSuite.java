@@ -72,7 +72,6 @@ import static org.mockito.Mockito.when;
     CSVResultsExtractorTests.class,
     SourceFieldTest.class,
     MultiQueryTests.class,
-    DeleteTest.class,
     HavingTest.class,
     NestedFieldQueryTest.class,
     QueryFunctionsTest.class,
