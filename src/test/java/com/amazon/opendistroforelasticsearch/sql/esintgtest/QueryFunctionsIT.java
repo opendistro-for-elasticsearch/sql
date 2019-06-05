@@ -13,21 +13,24 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.intgtest;
+package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
-import com.amazon.opendistroforelasticsearch.sql.plugin.SearchDao;
-import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
-import com.amazon.opendistroforelasticsearch.sql.query.SqlElasticRequestBuilder;
+import com.amazon.opendistroforelasticsearch.sql.intgtest.TestsConstants;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.common.xcontent.LoggingDeprecationHandler;
+import org.elasticsearch.common.xcontent.NamedXContentRegistry;
+import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.common.xcontent.XContentParser;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.search.SearchHit;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
-import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.Test;
 
-import java.sql.SQLFeatureNotSupportedException;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -35,26 +38,32 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 
-public class QueryFunctionsTest {
+public class QueryFunctionsIT extends SQLIntegTestCase {
 
     private static final String SELECT_ALL = "SELECT *";
-    private static final String FROM_ACCOUNTS = "FROM " + TestsConstants.TEST_INDEX_ACCOUNT + "/account";
-    private static final String FROM_NESTED = "FROM " + TestsConstants.TEST_INDEX_NESTED_TYPE + "/nestedType";
+    private static final String FROM_ACCOUNTS = "FROM " + com.amazon.opendistroforelasticsearch.sql.intgtest.TestsConstants.TEST_INDEX_ACCOUNT + "/account";
+    private static final String FROM_NESTED = "FROM " + com.amazon.opendistroforelasticsearch.sql.intgtest.TestsConstants.TEST_INDEX_NESTED_TYPE + "/nestedType";
     private static final String FROM_PHRASE = "FROM " + TestsConstants.TEST_INDEX_PHRASE + "/phrase";
 
     /**
      * TODO Looks like Math/Date Functions test all use the same query() and execute() functions
-     * TODO execute/featureValueOf/hits functions are the same as used in NestedFieldQueryTest, should refactor into util
+     * TODO execute/featureValueOf/hits functions are the same as used in NestedFieldQueryIT, should refactor into util
      */
 
+    @Override
+    protected void init() throws Exception {
+        loadIndex(Index.ACCOUNT);
+        loadIndex(Index.NESTED);
+        loadIndex(Index.PHRASE);
+    }
+
     @Test
-    public void query() {
+    public void query() throws IOException {
         assertThat(
             query(
                 "SELECT state",
@@ -68,7 +77,7 @@ public class QueryFunctionsTest {
     }
 
     @Test
-    public void matchQueryRegularField() {
+    public void matchQueryRegularField() throws IOException {
         assertThat(
             query(
                 "SELECT firstname",
@@ -82,7 +91,7 @@ public class QueryFunctionsTest {
     }
 
     @Test
-    public void matchQueryNestedField() {
+    public void matchQueryNestedField() throws IOException {
         SearchHit[] hits = query("SELECT comment.data", FROM_NESTED, "WHERE MATCH_QUERY(NESTED(comment.data), 'aa')").getHits().getHits();
         Map<String, Object> source = hits[0].getSourceAsMap();
         // SearchHits innerHits = hits[0].getInnerHits().get("comment");
@@ -100,7 +109,7 @@ public class QueryFunctionsTest {
     }
 
     @Test
-    public void scoreQuery() {
+    public void scoreQuery() throws IOException {
         assertThat(
             query(
                 "SELECT firstname",
@@ -114,7 +123,7 @@ public class QueryFunctionsTest {
     }
 
     @Test
-    public void scoreQueryWithNestedField() {
+    public void scoreQueryWithNestedField() throws IOException {
         assertThat(
             query(
                 "SELECT comment.data",
@@ -130,7 +139,7 @@ public class QueryFunctionsTest {
     }
 
     @Test
-    public void wildcardQuery() {
+    public void wildcardQuery() throws IOException {
         assertThat(
             query(
                 "SELECT city",
@@ -144,7 +153,7 @@ public class QueryFunctionsTest {
     }
 
     @Test
-    public void matchPhraseQuery() {
+    public void matchPhraseQuery() throws IOException {
         assertThat(
             query(
                 "SELECT phrase",
@@ -158,7 +167,7 @@ public class QueryFunctionsTest {
     }
 
     @Test
-    public void multiMatchQuerySingleField() {
+    public void multiMatchQuerySingleField() throws IOException {
         assertThat(
             query(
                 "SELECT firstname",
@@ -172,7 +181,7 @@ public class QueryFunctionsTest {
     }
 
     @Test
-    public void multiMatchQueryWildcardField() {
+    public void multiMatchQueryWildcardField() throws IOException {
         assertThat(
             query(
                 "SELECT firstname, lastname",
@@ -254,18 +263,17 @@ public class QueryFunctionsTest {
                 Query Utility to Fetch Response for SQL
      ***********************************************************/
 
-    private SearchResponse query(String select, String from, String... statements) {
+    private SearchResponse query(String select, String from, String... statements) throws IOException {
         return execute(select + " " + from + " " + String.join(" ", statements));
     }
 
-    private SearchResponse execute(String sql) {
-        SearchDao searchDao = MainTestSuite.getSearchDao();
-        try {
-            SqlElasticRequestBuilder result = searchDao.explain(sql).explain();
-            return (SearchResponse) result.get();
-        }
-        catch (SqlParseException | SQLFeatureNotSupportedException e) {
-            throw new IllegalStateException("Query failed: " + sql, e);
-        }
+    private SearchResponse execute(String sql) throws IOException {
+        final JSONObject jsonObject = executeQuery(sql);
+
+        final XContentParser parser = XContentFactory.xContent(XContentType.JSON).createParser(
+                NamedXContentRegistry.EMPTY,
+                LoggingDeprecationHandler.INSTANCE,
+                jsonObject.toString());
+        return SearchResponse.fromXContent(parser);
     }
 }

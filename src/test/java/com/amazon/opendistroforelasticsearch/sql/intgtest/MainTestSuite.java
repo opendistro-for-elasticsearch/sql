@@ -15,6 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.intgtest;
 
+import com.amazon.opendistroforelasticsearch.sql.esintgtest.NestedFieldQueryIT;
+import com.amazon.opendistroforelasticsearch.sql.esintgtest.QueryFunctionsIT;
+import com.amazon.opendistroforelasticsearch.sql.esintgtest.SourceFieldIT;
 import com.amazon.opendistroforelasticsearch.sql.plugin.SearchDao;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.google.common.io.ByteStreams;
@@ -70,13 +73,10 @@ import static org.mockito.Mockito.when;
     HashJoinBasicTest.class,
     HashJoinMoreTest.class,
     CSVResultsExtractorTests.class,
-    SourceFieldTest.class,
     MultiQueryTests.class,
     DeleteTest.class,
     HavingTest.class,
-    NestedFieldQueryTest.class,
     DateFunctionsTest.class,
-    QueryFunctionsTest.class,
     PrettyFormatResponseTest.class,
     PreparedStatementTest.class,
     MetaDataQueriesTest.class

@@ -13,12 +13,15 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.intgtest;
+package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
-import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
-import com.amazon.opendistroforelasticsearch.sql.plugin.SearchDao;
-import com.amazon.opendistroforelasticsearch.sql.query.SqlElasticRequestBuilder;
+import com.amazon.opendistroforelasticsearch.sql.intgtest.TestsConstants;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.common.xcontent.LoggingDeprecationHandler;
+import org.elasticsearch.common.xcontent.NamedXContentRegistry;
+import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.common.xcontent.XContentParser;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
@@ -31,13 +34,13 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
+import org.json.JSONObject;
 import org.junit.Test;
 
-import java.sql.SQLFeatureNotSupportedException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.function.Function;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.closeTo;
@@ -62,21 +65,26 @@ import static org.hamcrest.Matchers.is;
  *  5) HAVING
  *  6) Verification for conditions mixed with regular and nested fields
  */
-public class NestedFieldQueryTest {
+public class NestedFieldQueryIT extends SQLIntegTestCase {
 
     private static final String FROM = "FROM " + TestsConstants.TEST_INDEX_NESTED_TYPE + "/nestedType n, n.message m";
 
+    @Override
+    protected void init() throws Exception {
+        loadIndex(Index.NESTED);
+    }
+
     @Test
-    public void selectAll() {
+    public void selectAll() throws IOException {
         queryAll("SELECT *");
     }
 
     @Test
-    public void noCondition() {
+    public void noCondition() throws IOException {
         queryAll("SELECT myNum, someField, m.author, m.info");
     }
 
-    private void queryAll(String sql) {
+    private void queryAll(String sql) throws IOException {
         assertThat(
             query(sql),
             hits(
@@ -139,7 +147,7 @@ public class NestedFieldQueryTest {
     }
 
     @Test
-    public void singleCondition() {
+    public void singleCondition() throws IOException {
         assertThat(
             query(
                 "SELECT myNum, m.author, m.info",
@@ -169,7 +177,7 @@ public class NestedFieldQueryTest {
     }
 
     @Test
-    public void multipleConditionsOfNestedField() {
+    public void multipleConditionsOfNestedField() throws IOException {
         assertThat(
             query(
                 "SELECT someField, m.author, m.info",
@@ -190,7 +198,7 @@ public class NestedFieldQueryTest {
     }
 
     @Test
-    public void multipleConditionsOfNestedFieldNoMatch() {
+    public void multipleConditionsOfNestedFieldNoMatch() throws IOException {
         assertThat(
             query(
                 "SELECT someField, m.author, m.info",
@@ -201,7 +209,7 @@ public class NestedFieldQueryTest {
     }
 
     @Test
-    public void multipleConditionsOfRegularAndNestedField() {
+    public void multipleConditionsOfRegularAndNestedField() throws IOException {
         assertThat(
             query(
                 "SELECT myNum, m.author, m.info",
@@ -222,7 +230,7 @@ public class NestedFieldQueryTest {
     }
 
     @Test
-    public void multipleConditionsOfRegularOrNestedField() {
+    public void multipleConditionsOfRegularOrNestedField() throws IOException {
         assertThat(
             query(
                 "SELECT myNum, m.author, m.info",
@@ -255,14 +263,14 @@ public class NestedFieldQueryTest {
     }
 
     @Test
-    public void aggregationWithoutGroupBy() {
+    public void aggregationWithoutGroupBy() throws IOException {
         SearchResponse resp = query("SELECT AVG(m.dayOfWeek) AS avgDay");
         Avg avgDay = getNestedAgg(resp, "message.dayOfWeek", "avgDay");
         assertThat(avgDay.getValue(), isCloseTo(3.166666666));
     }
 
     @Test
-    public void groupByNestedFieldAndCount() {
+    public void groupByNestedFieldAndCount() throws IOException {
         SearchResponse resp = query(
             "SELECT m.info, COUNT(*)", "GROUP BY m.info"
         );
@@ -278,7 +286,7 @@ public class NestedFieldQueryTest {
     }
 
     @Test
-    public void groupByRegularFieldAndSum() {
+    public void groupByRegularFieldAndSum() throws IOException {
         SearchResponse resp = query(
             "SELECT *, SUM(m.dayOfWeek) AS sumDay",
             "GROUP BY someField"
@@ -294,7 +302,7 @@ public class NestedFieldQueryTest {
 
     // Doesn't support: aggregate function other than COUNT()
     @SuppressWarnings("unused")
-    public void groupByNestedFieldAndAvg() {
+    public void groupByNestedFieldAndAvg() throws IOException {
         query(
             "SELECT m.info, AVG(m.dayOfWeek)",
             "GROUP BY m.info"
@@ -306,7 +314,7 @@ public class NestedFieldQueryTest {
     }
 
     @Test
-    public void groupByNestedAndRegularField() {
+    public void groupByNestedAndRegularField() throws IOException {
         SearchResponse resp = query(
             "SELECT someField, m.info, COUNT(*)",
             "GROUP BY someField, m.info"
@@ -471,19 +479,18 @@ public class NestedFieldQueryTest {
                 Query Utility to Fetch Response for SQL
      ***********************************************************/
 
-    private SearchResponse query(String select, String... statements) {
+    private SearchResponse query(String select, String... statements) throws IOException {
         return execute(select + " " + FROM + " " + String.join(" ", statements));
     }
 
-    private SearchResponse execute(String sql) {
-        SearchDao searchDao = MainTestSuite.getSearchDao();
-        try {
-            SqlElasticRequestBuilder result = searchDao.explain(sql).explain();
-            return (SearchResponse) result.get();
-        }
-        catch (SqlParseException | SQLFeatureNotSupportedException e) {
-            throw new IllegalStateException("Query failed: " + sql, e);
-        }
+    private SearchResponse execute(String sql) throws IOException {
+        final JSONObject jsonObject = executeQuery(sql);
+
+        final XContentParser parser = XContentFactory.xContent(XContentType.JSON).createParser(
+                NamedXContentRegistry.EMPTY,
+                LoggingDeprecationHandler.INSTANCE,
+                jsonObject.toString());
+        return SearchResponse.fromXContent(parser);
     }
 
 }
