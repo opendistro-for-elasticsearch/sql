@@ -66,26 +66,20 @@ import static org.mockito.Mockito.when;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
     QueryTest.class,
-    MethodQueryTest.class,
     AggregationTest.class,
     HashJoinBasicTest.class,
     HashJoinMoreTest.class,
-    SqlParserTests.class,
     CSVResultsExtractorTests.class,
     SourceFieldTest.class,
-    UtilTests.class,
     MultiQueryTests.class,
     DeleteTest.class,
     HavingTest.class,
-    JSONRequestTest.class,
     NestedFieldQueryTest.class,
-    MathFunctionsTest.class,
     DateFunctionsTest.class,
     QueryFunctionsTest.class,
     PrettyFormatResponseTest.class,
     PreparedStatementTest.class,
-    MetaDataQueriesTest.class,
-    TermQueryExplainTest.class
+    MetaDataQueriesTest.class
 })
 public class MainTestSuite {
 

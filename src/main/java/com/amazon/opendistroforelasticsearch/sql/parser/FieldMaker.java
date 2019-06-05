@@ -85,6 +85,10 @@ public class FieldMaker {
             methodParameters.add(new KVValue(alias));
             methodParameters.add(new KVValue(scriptCode));
             return new MethodField("script", methodParameters, null, alias);
+        } else if (expr instanceof SQLNumericLiteralExpr) {
+            SQLMethodInvokeExpr methodInvokeExpr = new SQLMethodInvokeExpr("assign", null);
+            methodInvokeExpr.addParameter(expr);
+            return makeMethodField(methodInvokeExpr.getMethodName(), methodInvokeExpr.getParameters(), null, alias, tableAlias, true);
         } else {
             throw new SqlParseException("unknown field name : " + expr);
         }

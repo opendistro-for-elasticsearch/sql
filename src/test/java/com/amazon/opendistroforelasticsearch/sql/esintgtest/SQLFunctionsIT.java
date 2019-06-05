@@ -16,21 +16,35 @@
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
 
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.common.xcontent.LoggingDeprecationHandler;
+import org.elasticsearch.common.xcontent.NamedXContentRegistry;
+import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.common.xcontent.XContentParser;
+import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.stream.IntStream;
 
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.hitAny;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvDouble;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvString;
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.both;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasValue;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.not;
 
@@ -190,5 +204,52 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
                 " split(address,' ')[0],age from " +
                 TestsConstants.TEST_INDEX + "/account where address is not null " +
                 " limit 10  ";
+    }
+
+    @Test
+    public void literal() throws Exception {
+        String query = "SELECT 10 "+
+                "from " + TEST_INDEX_ACCOUNT + "/account limit 1";
+        final SearchHit[] hits = query(query).getHits();
+        assertThat(hits[0].getFields(), hasValue(contains(10)));
+    }
+
+    @Test
+    public void literalWithDoubleValue() throws Exception {
+        String query = "SELECT 10.0 "+
+                "from " + TEST_INDEX_ACCOUNT + "/account limit 1";
+
+        final SearchHit[] hits = query(query).getHits();
+        assertThat(hits[0].getFields(), hasValue(contains(10.0)));
+    }
+
+    @Test
+    public void literalWithAlias() throws Exception {
+        String query = "SELECT 10 as key "+
+                "from " + TEST_INDEX_ACCOUNT + "/account limit 1";
+        final SearchHit[] hits = query(query).getHits();
+
+        assertThat(hits.length, is(1));
+        assertThat(hits[0].getFields(), hasEntry(is("key"), contains(10)));
+    }
+
+    @Test
+    public void literalMultiField() throws Exception {
+        String query = "SELECT 1, 2 "+
+                "from " + TEST_INDEX_ACCOUNT + "/account limit 1";
+        final SearchHit[] hits = query(query).getHits();
+
+        assertThat(hits.length, is(1));
+        assertThat(hits[0].getFields(), allOf(hasValue(contains(1)), hasValue(contains(2))));
+    }
+
+    private SearchHits query(String query) throws IOException {
+        final String rsp = executeQueryWithStringOutput(query);
+
+        final XContentParser parser = XContentFactory.xContent(XContentType.JSON).createParser(
+                NamedXContentRegistry.EMPTY,
+                LoggingDeprecationHandler.INSTANCE,
+                rsp);
+        return SearchResponse.fromXContent(parser).getHits();
     }
 }

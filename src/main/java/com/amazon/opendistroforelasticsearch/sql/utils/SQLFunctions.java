@@ -60,7 +60,7 @@ public class SQLFunctions {
             "day_of_week", "hour_of_day", "minute_of_day", "minute_of_hour", "second_of_minute"
     );
 
-    private final static Set<String> utilityFunctions = Sets.newHashSet("field");
+    private final static Set<String> utilityFunctions = Sets.newHashSet("field", "assign");
     
     public final static Set<String> builtInFunctions = Stream.of(
             numberOperators,
@@ -229,7 +229,9 @@ public class SQLFunctions {
                     functionStr = log(SQLUtils.toSQLExpr("Math.E"), logs.get(0), name);
                 }
                 break;
-
+            case "assign":
+                functionStr = assign((SQLExpr) paramers.get(0).value);
+                break;
             default:
 
         }
@@ -339,6 +341,12 @@ public class SQLFunctions {
 
     public static Tuple<String, String> add(SQLExpr a, SQLExpr b) {
         return binaryOpertator("add", "+", a, b);
+    }
+
+    public static Tuple<String, String> assign(SQLExpr a) {
+        String name = randomize("assign");
+        return new Tuple<>(name,
+                        def(name, extractName(a)));
     }
 
     private static Tuple<String, String> modulus(SQLExpr a, SQLExpr b) {

@@ -154,24 +154,12 @@ public abstract class SQLIntegTestCase extends ESIntegTestCase {
         return executeRequest(sqlRequest);
     }
 
-    private String executeRequest(final Request request) throws IOException {
+    protected String executeRequest(final Request request) throws IOException {
 
         RestClient restClient = ESIntegTestCase.getRestClient();
         Response response = restClient.performRequest(request);
         Assert.assertEquals(200, response.getStatusLine().getStatusCode());
-
-        final StringBuilder sb = new StringBuilder();
-
-        try (final InputStream is = response.getEntity().getContent();
-             final BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
-
-            String line;
-            while ((line = br.readLine()) != null) {
-                sb.append(line);
-            }
-        }
-
-        return sb.toString();
+        return TestUtils.getResponseBody(response);
     }
 
     protected JSONObject executeQueryWithGetRequest(final String sqlQuery) throws IOException {
