@@ -102,6 +102,7 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
     }
 
     @Test
+    @Ignore("allow non-identical mapping when query multi-index")
     public void testNonIdenticalMappings() throws IOException {
         try {
             explainQuery(String.format(Locale.ROOT, "SELECT firstname, birthdate FROM %s, %s " +
@@ -113,6 +114,17 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
             assertThat(entity, containsString("When using multiple indices, the mappings must be identical"));
             assertThat(entity, containsString("\"type\": \"VerificationException\""));
         }
+    }
+
+    @Test
+    public void testNonIdenticalMapping() throws IOException {
+        String result = explainQuery(String.format(Locale.ROOT, "SELECT firstname, birthdate FROM %s, %s " +
+                        "WHERE firstname = 'Leo' OR male = 'true'",
+                TEST_INDEX_BANK, TEST_INDEX_ONLINE));
+        assertThat(result, containsString("term"));
+        assertThat(result, containsString("_source"));
+        assertThat(result, containsString("firstname"));
+        assertThat(result, containsString("birthdate"));
     }
 
     @Test
