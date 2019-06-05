@@ -117,7 +117,7 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void testNonIdenticalMapping() throws IOException {
+    public void testAllowNonIdenticalMappings() throws IOException {
         String result = explainQuery(String.format(Locale.ROOT, "SELECT firstname, birthdate FROM %s, %s " +
                         "WHERE firstname = 'Leo' OR male = 'true'",
                 TEST_INDEX_BANK, TEST_INDEX_ONLINE));
