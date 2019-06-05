@@ -73,8 +73,8 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
         collect(query.getFrom(), indexToType, curScope().getAliases());
         curScope().setMapper(getMappings(indexToType));
         if ((this.filterType == TermRewriterFilter.COMMA || this.filterType == TermRewriterFilter.MULTI_QUERY)
-            && !hasIdenticalMappings(curScope(), indexToType)) {
-            throw new VerificationException("When using multiple indices, the mappings must be identical.");
+            && !hasUnknownIndex(curScope())) {
+            throw new VerificationException("Unknown index " + indexToType.keySet());
         }
         return true;
     }
@@ -210,12 +210,8 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
             );
     }
 
-    public boolean hasIdenticalMappings(TermFieldScope scope, Map<String, String> indexToType) {
+    public boolean hasUnknownIndex(TermFieldScope scope) {
         if (scope.getMapper().isEmpty()) {
-            throw new VerificationException("Unknown index " + indexToType.keySet());
-        }
-
-        if (isMappingOfAllIndicesDifferent()) {
             return false;
         }
 
@@ -245,13 +241,5 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
         public static String toString(TermRewriterFilter filter) {
             return filter.name;
         }
-    }
-
-    private boolean isMappingOfAllIndicesDifferent() {
-        // Collect all FieldMappings into hash set and ignore index/type names. Size > 1 means FieldMappings NOT unique.
-        return curScope().getMapper().allMappings().stream().
-                                                    flatMap(typeMappings -> typeMappings.allMappings().stream()).
-                                                    collect(Collectors.toSet()).
-                                                    size() > 1;
     }
 }
