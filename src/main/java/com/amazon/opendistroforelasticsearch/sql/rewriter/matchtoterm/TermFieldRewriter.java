@@ -73,7 +73,7 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
         collect(query.getFrom(), indexToType, curScope().getAliases());
         curScope().setMapper(getMappings(indexToType));
         if ((this.filterType == TermRewriterFilter.COMMA || this.filterType == TermRewriterFilter.MULTI_QUERY)
-            && !hasUnknownIndex(curScope())) {
+            && hasUnknownIndex(curScope())) {
             throw new VerificationException("Unknown index " + indexToType.keySet());
         }
         return true;
@@ -212,13 +212,13 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
 
     public boolean hasUnknownIndex(TermFieldScope scope) {
         if (scope.getMapper().isEmpty()) {
-            return false;
+            return true;
         }
 
         // We need finalMapping to lookup for rewriting
         FieldMappings fieldMappings = curScope().getMapper().firstMapping().firstMapping();
         curScope().setFinalMapping(fieldMappings);
-        return true;
+        return false;
     }
 
     public IndexMappings getMappings(Map<String, String> indexToType) {
