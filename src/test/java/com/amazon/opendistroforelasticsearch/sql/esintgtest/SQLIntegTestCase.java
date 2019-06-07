@@ -169,7 +169,7 @@ public abstract class SQLIntegTestCase extends ESIntegTestCase {
         return new JSONObject(result);
     }
 
-    private String makeRequest(String query) {
+    protected String makeRequest(String query) {
         return String.format("{\n" +
                 "  \"query\": \"%s\"\n" +
                 "}", query);
