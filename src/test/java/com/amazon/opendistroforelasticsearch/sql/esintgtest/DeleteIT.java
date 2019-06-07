@@ -47,6 +47,9 @@ public class DeleteIT extends SQLIntegTestCase {
             TestsConstants.TEST_INDEX_ACCOUNT);
         response = executeRequest(makeRequest(deleteQuery));
         assertThat(response.getInt("deleted"), equalTo(totalHits));
+
+        // The documents are not deleted immediately, causing the next search call to return all results.
+        // To prevent flakiness, the minimum value of 2000 msec works fine.
         Thread.sleep(2000);
 
         response = executeRequest(makeRequest(selectQuery));
@@ -70,6 +73,8 @@ public class DeleteIT extends SQLIntegTestCase {
         );
         response = executeRequest(makeRequest(deleteQuery));
         assertThat(response.getInt("deleted"), equalTo(totalHits));
+        // The documents are not deleted immediately, causing the next search call to return all results.
+        // To prevent flakiness, the minimum value of 2000 msec works fine.
         Thread.sleep(2000);
 
         selectQuery = String.format(
