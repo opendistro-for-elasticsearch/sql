@@ -70,11 +70,8 @@ import static org.mockito.Mockito.when;
     HashJoinBasicTest.class,
     HashJoinMoreTest.class,
     CSVResultsExtractorTests.class,
-    SourceFieldTest.class,
     MultiQueryTests.class,
     HavingTest.class,
-    NestedFieldQueryTest.class,
-    QueryFunctionsTest.class,
     PrettyFormatResponseTest.class,
     PreparedStatementTest.class,
     MetaDataQueriesTest.class

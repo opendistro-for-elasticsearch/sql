@@ -13,27 +13,34 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.intgtest;
+package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
 import static com.amazon.opendistroforelasticsearch.sql.intgtest.TestsConstants.*;
 
 import java.io.IOException;
-import java.sql.SQLFeatureNotSupportedException;
 import java.util.Set;
 
-import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.common.xcontent.LoggingDeprecationHandler;
+import org.elasticsearch.common.xcontent.NamedXContentRegistry;
+import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.common.xcontent.XContentParser;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
-import com.amazon.opendistroforelasticsearch.sql.plugin.SearchDao;
-import com.amazon.opendistroforelasticsearch.sql.query.SqlElasticSearchRequestBuilder;
 
-public class SourceFieldTest {
+public class SourceFieldIT extends SQLIntegTestCase {
+
+	@Override
+	protected void init() throws Exception {
+		loadIndex(Index.ACCOUNT);
+	}
 
 	@Test
-	public void includeTest() throws IOException, SqlParseException, SQLFeatureNotSupportedException {
+	public void includeTest() throws IOException {
 		SearchHits response = query(String.format("SELECT include('*name','*ge'),include('b*'),include('*ddre*'),include('gender') FROM %s/account LIMIT 1000", TEST_INDEX_ACCOUNT));
 		for (SearchHit hit : response.getHits()) {
 			Set<String> keySet = hit.getSourceAsMap().keySet();
@@ -45,7 +52,7 @@ public class SourceFieldTest {
 	}
 	
 	@Test
-	public void excludeTest() throws SqlParseException, SQLFeatureNotSupportedException {
+	public void excludeTest() throws IOException {
 
 		SearchHits response = query(String.format("SELECT exclude('*name','*ge'),exclude('b*'),exclude('*ddre*'),exclude('gender') FROM %s/account LIMIT 1000", TEST_INDEX_ACCOUNT));
 
@@ -58,7 +65,7 @@ public class SourceFieldTest {
 	}
 	
 	@Test
-	public void allTest() throws SqlParseException, SQLFeatureNotSupportedException {
+	public void allTest() throws IOException {
 
 		SearchHits response = query(String.format("SELECT exclude('*name','*ge'),include('b*'),exclude('*ddre*'),include('gender') FROM %s/account LIMIT 1000", TEST_INDEX_ACCOUNT));
 
@@ -71,10 +78,14 @@ public class SourceFieldTest {
 		}
 	}
 
-	private SearchHits query(String query) throws SqlParseException, SQLFeatureNotSupportedException {
-		SearchDao searchDao = MainTestSuite.getSearchDao();
-		SqlElasticSearchRequestBuilder select = (SqlElasticSearchRequestBuilder) searchDao.explain(query).explain();
-		return ((SearchResponse) select.get()).getHits();
+	private SearchHits query(String query) throws IOException {
+		final JSONObject jsonObject = executeQuery(query);
+
+		final XContentParser parser = XContentFactory.xContent(XContentType.JSON).createParser(
+				NamedXContentRegistry.EMPTY,
+				LoggingDeprecationHandler.INSTANCE,
+				jsonObject.toString());
+		return SearchResponse.fromXContent(parser).getHits();
 	}
 
 }
