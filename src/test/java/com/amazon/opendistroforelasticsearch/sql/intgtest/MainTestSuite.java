@@ -67,7 +67,6 @@ import static org.mockito.Mockito.when;
 @Suite.SuiteClasses({
     QueryTest.class,
     AggregationTest.class,
-    HashJoinBasicTest.class,
     HashJoinMoreTest.class,
     CSVResultsExtractorTests.class,
     MultiQueryTests.class,
