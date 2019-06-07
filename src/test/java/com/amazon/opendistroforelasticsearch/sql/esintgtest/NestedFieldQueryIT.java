@@ -23,12 +23,6 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.aggregations.Aggregation;
-import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.bucket.nested.InternalNested;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.metrics.Sum;
-import org.elasticsearch.search.aggregations.metrics.ValueCount;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.FeatureMatcher;
@@ -45,7 +39,7 @@ import java.util.function.Function;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 /**
@@ -270,7 +264,7 @@ public class NestedFieldQueryIT extends SQLIntegTestCase {
         JSONObject result = executeQuery(sql);
         JSONObject aggregation = getAggregation(result, "message.dayOfWeek@NESTED");
 
-        Assert.assertThat((Double) aggregation.query("/avgDay/value"), org.hamcrest.Matchers.closeTo(3.166666666, 0.01));
+        Assert.assertThat((Double) aggregation.query("/avgDay/value"), closeTo(3.166666666, 0.01));
     }
 
     @Test
@@ -282,15 +276,15 @@ public class NestedFieldQueryIT extends SQLIntegTestCase {
         JSONArray msgInfoBuckets = (JSONArray)aggregation.optQuery("/message.info/buckets");
 
         Assert.assertNotNull(msgInfoBuckets);
-        Assert.assertThat(msgInfoBuckets.length(), org.hamcrest.Matchers.equalTo(4));
-        Assert.assertThat(msgInfoBuckets.query("/0/key"), org.hamcrest.Matchers.equalTo("a"));
-        Assert.assertThat(msgInfoBuckets.query("/0/COUNT(*)/value"), org.hamcrest.Matchers.equalTo(2));
-        Assert.assertThat(msgInfoBuckets.query("/1/key"), org.hamcrest.Matchers.equalTo("c"));
-        Assert.assertThat(msgInfoBuckets.query("/1/COUNT(*)/value"), org.hamcrest.Matchers.equalTo(2));
-        Assert.assertThat(msgInfoBuckets.query("/2/key"), org.hamcrest.Matchers.equalTo("b"));
-        Assert.assertThat(msgInfoBuckets.query("/2/COUNT(*)/value"), org.hamcrest.Matchers.equalTo(1));
-        Assert.assertThat(msgInfoBuckets.query("/3/key"), org.hamcrest.Matchers.equalTo("zz"));
-        Assert.assertThat(msgInfoBuckets.query("/3/COUNT(*)/value"), org.hamcrest.Matchers.equalTo(1));
+        Assert.assertThat(msgInfoBuckets.length(), equalTo(4));
+        Assert.assertThat(msgInfoBuckets.query("/0/key"), equalTo("a"));
+        Assert.assertThat(msgInfoBuckets.query("/0/COUNT(*)/value"), equalTo(2));
+        Assert.assertThat(msgInfoBuckets.query("/1/key"), equalTo("c"));
+        Assert.assertThat(msgInfoBuckets.query("/1/COUNT(*)/value"), equalTo(2));
+        Assert.assertThat(msgInfoBuckets.query("/2/key"), equalTo("b"));
+        Assert.assertThat(msgInfoBuckets.query("/2/COUNT(*)/value"), equalTo(1));
+        Assert.assertThat(msgInfoBuckets.query("/3/key"), equalTo("zz"));
+        Assert.assertThat(msgInfoBuckets.query("/3/COUNT(*)/value"), equalTo(1));
     }
 
     @Test
@@ -302,11 +296,11 @@ public class NestedFieldQueryIT extends SQLIntegTestCase {
         JSONArray msgInfoBuckets = (JSONArray)aggregation.optQuery("/buckets");
 
         Assert.assertNotNull(msgInfoBuckets);
-        Assert.assertThat(msgInfoBuckets.length(), org.hamcrest.Matchers.equalTo(2));
-        Assert.assertThat(msgInfoBuckets.query("/0/key"), org.hamcrest.Matchers.equalTo("a"));
-        Assert.assertThat((Double) msgInfoBuckets.query("/0/message.dayOfWeek@NESTED/sumDay/value"), org.hamcrest.Matchers.closeTo(9.0, 0.01));
-        Assert.assertThat(msgInfoBuckets.query("/1/key"), org.hamcrest.Matchers.equalTo("b"));
-        Assert.assertThat((Double) msgInfoBuckets.query("/1/message.dayOfWeek@NESTED/sumDay/value"), org.hamcrest.Matchers.closeTo(10.0, 0.01));
+        Assert.assertThat(msgInfoBuckets.length(), equalTo(2));
+        Assert.assertThat(msgInfoBuckets.query("/0/key"), equalTo("a"));
+        Assert.assertThat((Double) msgInfoBuckets.query("/0/message.dayOfWeek@NESTED/sumDay/value"), closeTo(9.0, 0.01));
+        Assert.assertThat(msgInfoBuckets.query("/1/key"), equalTo("b"));
+        Assert.assertThat((Double) msgInfoBuckets.query("/1/message.dayOfWeek@NESTED/sumDay/value"), closeTo(10.0, 0.01));
     }
 
     // Doesn't support: aggregate function other than COUNT()
@@ -331,23 +325,23 @@ public class NestedFieldQueryIT extends SQLIntegTestCase {
         JSONArray msgInfoBuckets = (JSONArray)aggregation.optQuery("/buckets");
 
         Assert.assertNotNull(msgInfoBuckets);
-        Assert.assertThat(msgInfoBuckets.length(), org.hamcrest.Matchers.equalTo(2));
-        Assert.assertThat(msgInfoBuckets.query("/0/key"), org.hamcrest.Matchers.equalTo("a"));
-        Assert.assertThat(msgInfoBuckets.query("/1/key"), org.hamcrest.Matchers.equalTo("b"));
+        Assert.assertThat(msgInfoBuckets.length(), equalTo(2));
+        Assert.assertThat(msgInfoBuckets.query("/0/key"), equalTo("a"));
+        Assert.assertThat(msgInfoBuckets.query("/1/key"), equalTo("b"));
 
         JSONArray innerBuckets = (JSONArray)msgInfoBuckets.optQuery("/0/message.info@NESTED/message.info/buckets");
-        Assert.assertThat(innerBuckets.query("/0/key"), org.hamcrest.Matchers.equalTo("b"));
-        Assert.assertThat(innerBuckets.query("/0/COUNT(*)/value"), org.hamcrest.Matchers.equalTo(1));
-        Assert.assertThat(innerBuckets.query("/1/key"), org.hamcrest.Matchers.equalTo("c"));
-        Assert.assertThat(innerBuckets.query("/1/COUNT(*)/value"), org.hamcrest.Matchers.equalTo(1));
-        Assert.assertThat(innerBuckets.query("/2/key"), org.hamcrest.Matchers.equalTo("zz"));
-        Assert.assertThat(innerBuckets.query("/2/COUNT(*)/value"), org.hamcrest.Matchers.equalTo(1));
+        Assert.assertThat(innerBuckets.query("/0/key"), equalTo("b"));
+        Assert.assertThat(innerBuckets.query("/0/COUNT(*)/value"), equalTo(1));
+        Assert.assertThat(innerBuckets.query("/1/key"), equalTo("c"));
+        Assert.assertThat(innerBuckets.query("/1/COUNT(*)/value"), equalTo(1));
+        Assert.assertThat(innerBuckets.query("/2/key"), equalTo("zz"));
+        Assert.assertThat(innerBuckets.query("/2/COUNT(*)/value"), equalTo(1));
 
         innerBuckets = (JSONArray)msgInfoBuckets.optQuery("/1/message.info@NESTED/message.info/buckets");
-        Assert.assertThat(innerBuckets.query("/0/key"), org.hamcrest.Matchers.equalTo("a"));
-        Assert.assertThat(innerBuckets.query("/0/COUNT(*)/value"), org.hamcrest.Matchers.equalTo(2));
-        Assert.assertThat(innerBuckets.query("/1/key"), org.hamcrest.Matchers.equalTo("c"));
-        Assert.assertThat(innerBuckets.query("/1/COUNT(*)/value"), org.hamcrest.Matchers.equalTo(1));
+        Assert.assertThat(innerBuckets.query("/0/key"), equalTo("a"));
+        Assert.assertThat(innerBuckets.query("/0/COUNT(*)/value"), equalTo(2));
+        Assert.assertThat(innerBuckets.query("/1/key"), equalTo("c"));
+        Assert.assertThat(innerBuckets.query("/1/COUNT(*)/value"), equalTo(1));
     }
 
 
@@ -428,50 +422,6 @@ public class NestedFieldQueryIT extends SQLIntegTestCase {
     /***********************************************************
                 Matchers for Aggregation Testing
      ***********************************************************/
-
-    private <T extends Aggregation> T getAgg(SearchResponse resp,
-                                             String fieldName) {
-        return resp.getAggregations().get(fieldName);
-    }
-
-    private <T extends Aggregation> T getNestedAgg(SearchResponse resp,
-                                                   String nestedFieldName,
-                                                   String aggAlias) {
-        return getNestedAgg(resp.getAggregations(), nestedFieldName, aggAlias);
-    }
-
-    private <T extends Aggregation> T getNestedAgg(Aggregations aggs,
-                                                   String nestedFieldName,
-                                                   String aggAlias) {
-        return aggs.<InternalNested>get(nestedFieldName + "@NESTED").
-                    getAggregations().
-                    get(aggAlias);
-    }
-
-    @SafeVarargs
-    private final Matcher<Terms> buckets(Matcher<Terms.Bucket>... subMatchers) {
-        return featureValueOf("buckets", containsInAnyOrder(subMatchers), Terms::getBuckets);
-    }
-
-    private Matcher<Terms.Bucket> bucket(String key, Matcher<Aggregations> valMatcher) {
-        return featureValueOf(key, valMatcher, Terms.Bucket::getAggregations);
-    }
-
-    private Matcher<Aggregations> count(Matcher<Long> subMatcher) {
-        return featureValueOf("COUNT(*)", subMatcher, aggs -> ((ValueCount) aggs.get("COUNT(*)")).getValue());
-    }
-
-    private Matcher<Aggregations> sum(String nestedFieldName, String name, Matcher<Double> subMatcher) {
-        return featureValueOf(name, subMatcher, aggs -> ((Sum) getNestedAgg(aggs, nestedFieldName, name)).getValue());
-    }
-
-    private Matcher<Double> isCloseTo(double expected) {
-        return closeTo(expected, 0.01);
-    }
-
-    private Matcher<Long> equalTo(int expected) {
-        return is((long) expected);
-    }
 
     private <T, U> FeatureMatcher<T, U> featureValueOf(String name, Matcher<U> subMatcher, Function<T, U> getter) {
         return new FeatureMatcher<T, U>(subMatcher, name, name) {
