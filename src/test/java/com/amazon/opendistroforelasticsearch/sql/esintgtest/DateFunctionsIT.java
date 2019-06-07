@@ -211,6 +211,7 @@ public class DateFunctionsIT extends SQLIntegTestCase {
         return execute(select + " " + FROM + " " + String.join(" ", statements));
     }
 
+    // TODO: I think this code is now re-used in multiple classes, would be good to move to the base class.
     private SearchHit[] execute(String sqlRequest) throws IOException {
         final JSONObject jsonObject = executeRequest(makeRequest(sqlRequest));
 
