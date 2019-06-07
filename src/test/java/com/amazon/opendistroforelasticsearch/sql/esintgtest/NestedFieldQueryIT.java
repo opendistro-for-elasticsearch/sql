@@ -27,14 +27,15 @@ import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.nested.InternalNested;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.metrics.Avg;
 import org.elasticsearch.search.aggregations.metrics.Sum;
 import org.elasticsearch.search.aggregations.metrics.ValueCount;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
+import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -264,40 +265,48 @@ public class NestedFieldQueryIT extends SQLIntegTestCase {
 
     @Test
     public void aggregationWithoutGroupBy() throws IOException {
-        SearchResponse resp = query("SELECT AVG(m.dayOfWeek) AS avgDay");
-        Avg avgDay = getNestedAgg(resp, "message.dayOfWeek", "avgDay");
-        assertThat(avgDay.getValue(), isCloseTo(3.166666666));
+        String sql = "SELECT AVG(m.dayOfWeek) AS avgDay " + FROM;
+
+        JSONObject result = executeQuery(sql);
+        JSONObject aggregation = getAggregation(result, "message.dayOfWeek@NESTED");
+
+        Assert.assertThat((Double) aggregation.query("/avgDay/value"), org.hamcrest.Matchers.closeTo(3.166666666, 0.01));
     }
 
     @Test
     public void groupByNestedFieldAndCount() throws IOException {
-        SearchResponse resp = query(
-            "SELECT m.info, COUNT(*)", "GROUP BY m.info"
-        );
-        assertThat(
-            getNestedAgg(resp, "message.info", "message.info"),
-            buckets(
-                bucket("a", count(equalTo(2))),
-                bucket("c", count(equalTo(2))),
-                bucket("b", count(equalTo(1))),
-                bucket("zz", count(equalTo(1)))
-            )
-        );
+        final String sql = "SELECT m.info, COUNT(*) " + FROM + " GROUP BY m.info";
+
+        JSONObject result = executeQuery(sql);
+        JSONObject aggregation = getAggregation(result, "message.info@NESTED");
+        JSONArray msgInfoBuckets = (JSONArray)aggregation.optQuery("/message.info/buckets");
+
+        Assert.assertNotNull(msgInfoBuckets);
+        Assert.assertThat(msgInfoBuckets.length(), org.hamcrest.Matchers.equalTo(4));
+        Assert.assertThat(msgInfoBuckets.query("/0/key"), org.hamcrest.Matchers.equalTo("a"));
+        Assert.assertThat(msgInfoBuckets.query("/0/COUNT(*)/value"), org.hamcrest.Matchers.equalTo(2));
+        Assert.assertThat(msgInfoBuckets.query("/1/key"), org.hamcrest.Matchers.equalTo("c"));
+        Assert.assertThat(msgInfoBuckets.query("/1/COUNT(*)/value"), org.hamcrest.Matchers.equalTo(2));
+        Assert.assertThat(msgInfoBuckets.query("/2/key"), org.hamcrest.Matchers.equalTo("b"));
+        Assert.assertThat(msgInfoBuckets.query("/2/COUNT(*)/value"), org.hamcrest.Matchers.equalTo(1));
+        Assert.assertThat(msgInfoBuckets.query("/3/key"), org.hamcrest.Matchers.equalTo("zz"));
+        Assert.assertThat(msgInfoBuckets.query("/3/COUNT(*)/value"), org.hamcrest.Matchers.equalTo(1));
     }
 
     @Test
     public void groupByRegularFieldAndSum() throws IOException {
-        SearchResponse resp = query(
-            "SELECT *, SUM(m.dayOfWeek) AS sumDay",
-            "GROUP BY someField"
-        );
-        assertThat(
-            getAgg(resp, "someField"),
-            buckets(
-                bucket("a", sum("message.dayOfWeek", "sumDay", isCloseTo(9.0))),
-                bucket("b", sum("message.dayOfWeek", "sumDay", isCloseTo(10.0)))
-            )
-        );
+        final String sql = "SELECT *, SUM(m.dayOfWeek) AS sumDay " + FROM + " GROUP BY someField";
+
+        JSONObject result = executeQuery(sql);
+        JSONObject aggregation = getAggregation(result, "someField");
+        JSONArray msgInfoBuckets = (JSONArray)aggregation.optQuery("/buckets");
+
+        Assert.assertNotNull(msgInfoBuckets);
+        Assert.assertThat(msgInfoBuckets.length(), org.hamcrest.Matchers.equalTo(2));
+        Assert.assertThat(msgInfoBuckets.query("/0/key"), org.hamcrest.Matchers.equalTo("a"));
+        Assert.assertThat((Double) msgInfoBuckets.query("/0/message.dayOfWeek@NESTED/sumDay/value"), org.hamcrest.Matchers.closeTo(9.0, 0.01));
+        Assert.assertThat(msgInfoBuckets.query("/1/key"), org.hamcrest.Matchers.equalTo("b"));
+        Assert.assertThat((Double) msgInfoBuckets.query("/1/message.dayOfWeek@NESTED/sumDay/value"), org.hamcrest.Matchers.closeTo(10.0, 0.01));
     }
 
     // Doesn't support: aggregate function other than COUNT()
@@ -315,32 +324,30 @@ public class NestedFieldQueryIT extends SQLIntegTestCase {
 
     @Test
     public void groupByNestedAndRegularField() throws IOException {
-        SearchResponse resp = query(
-            "SELECT someField, m.info, COUNT(*)",
-            "GROUP BY someField, m.info"
-        );
-        Terms agg = getAgg(resp, "someField");
-        assertThat(
-            getNestedAgg(agg.getBucketByKey("a").getAggregations(), "message.info", "message.info"),
-            buckets(
-                bucket("b", count(equalTo(1))),
-                bucket("c", count(equalTo(1))),
-                bucket("zz", count(equalTo(1)))
-            )
-        );
-        assertThat(
-            getNestedAgg(agg.getBucketByKey("b").getAggregations(), "message.info", "message.info"),
-            buckets(
-                bucket("a", count(equalTo(2))),
-                bucket("c", count(equalTo(1)))
-            )
-        );
+        final String sql = "SELECT someField, m.info, COUNT(*) " + FROM + " GROUP BY someField, m.info";
 
-        //doesn't support: group by nested field first
-        /*query(
-            "SELECT *, SUM(m.dayOfWeek)",
-            "GROUP BY m.author, someField"
-        );*/
+        JSONObject result = executeQuery(sql);
+        JSONObject aggregation = getAggregation(result, "someField");
+        JSONArray msgInfoBuckets = (JSONArray)aggregation.optQuery("/buckets");
+
+        Assert.assertNotNull(msgInfoBuckets);
+        Assert.assertThat(msgInfoBuckets.length(), org.hamcrest.Matchers.equalTo(2));
+        Assert.assertThat(msgInfoBuckets.query("/0/key"), org.hamcrest.Matchers.equalTo("a"));
+        Assert.assertThat(msgInfoBuckets.query("/1/key"), org.hamcrest.Matchers.equalTo("b"));
+
+        JSONArray innerBuckets = (JSONArray)msgInfoBuckets.optQuery("/0/message.info@NESTED/message.info/buckets");
+        Assert.assertThat(innerBuckets.query("/0/key"), org.hamcrest.Matchers.equalTo("b"));
+        Assert.assertThat(innerBuckets.query("/0/COUNT(*)/value"), org.hamcrest.Matchers.equalTo(1));
+        Assert.assertThat(innerBuckets.query("/1/key"), org.hamcrest.Matchers.equalTo("c"));
+        Assert.assertThat(innerBuckets.query("/1/COUNT(*)/value"), org.hamcrest.Matchers.equalTo(1));
+        Assert.assertThat(innerBuckets.query("/2/key"), org.hamcrest.Matchers.equalTo("zz"));
+        Assert.assertThat(innerBuckets.query("/2/COUNT(*)/value"), org.hamcrest.Matchers.equalTo(1));
+
+        innerBuckets = (JSONArray)msgInfoBuckets.optQuery("/1/message.info@NESTED/message.info/buckets");
+        Assert.assertThat(innerBuckets.query("/0/key"), org.hamcrest.Matchers.equalTo("a"));
+        Assert.assertThat(innerBuckets.query("/0/COUNT(*)/value"), org.hamcrest.Matchers.equalTo(2));
+        Assert.assertThat(innerBuckets.query("/1/key"), org.hamcrest.Matchers.equalTo("c"));
+        Assert.assertThat(innerBuckets.query("/1/COUNT(*)/value"), org.hamcrest.Matchers.equalTo(1));
     }
 
 
@@ -491,6 +498,16 @@ public class NestedFieldQueryIT extends SQLIntegTestCase {
                 LoggingDeprecationHandler.INSTANCE,
                 jsonObject.toString());
         return SearchResponse.fromXContent(parser);
+    }
+
+    private JSONObject getAggregation(final JSONObject queryResult, final String aggregationName)
+    {
+        final String aggregationsObjName = "aggregations";
+        Assert.assertTrue(queryResult.has(aggregationsObjName));
+
+        final JSONObject aggregations = queryResult.getJSONObject(aggregationsObjName);
+        Assert.assertTrue(aggregations.has(aggregationName));
+        return aggregations.getJSONObject(aggregationName);
     }
 
 }
