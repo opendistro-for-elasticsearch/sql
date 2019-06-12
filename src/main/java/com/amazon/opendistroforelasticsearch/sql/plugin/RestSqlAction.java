@@ -28,6 +28,7 @@ import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import com.amazon.opendistroforelasticsearch.sql.request.SqlRequest;
 import com.amazon.opendistroforelasticsearch.sql.request.SqlRequestFactory;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.VerificationException;
+import com.amazon.opendistroforelasticsearch.sql.utils.LogUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.node.NodeClient;
@@ -43,6 +44,7 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -52,14 +54,19 @@ import static org.elasticsearch.rest.RestStatus.OK;
 import static org.elasticsearch.rest.RestStatus.SERVICE_UNAVAILABLE;
 
 public class RestSqlAction extends BaseRestHandler {
+
     private static final Logger LOG = LogManager.getLogger(RestSqlAction.class);
+
     private final boolean allowExplicitIndex;
 
-    /** API endpoint path */
+    /**
+     * API endpoint path
+     */
     public static final String QUERY_API_ENDPOINT = "/_opendistro/_sql";
     public static final String EXPLAIN_API_ENDPOINT = QUERY_API_ENDPOINT + "/_explain";
 
-    public RestSqlAction(Settings settings, RestController restController) {
+    RestSqlAction(Settings settings, RestController restController) {
+
         super(settings);
         restController.registerHandler(RestRequest.Method.POST, QUERY_API_ENDPOINT, this);
         restController.registerHandler(RestRequest.Method.GET, QUERY_API_ENDPOINT, this);
@@ -78,17 +85,19 @@ public class RestSqlAction extends BaseRestHandler {
     protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient client) {
         Metrics.getInstance().getNumericalMetric(MetricName.REQ_TOTAL).increment();
         Metrics.getInstance().getNumericalMetric(MetricName.REQ_COUNT_TOTAL).increment();
-        SqlRequest sqlRequest = SqlRequest.NULL;
+
+        LogUtils.addRequestId();
+
         try {
 
             if (!isSQLFeatureEnabled()) {
                 throw new SQLFeatureDisabledException(
-                    "Either opendistro.sql.enabled or rest.action.multi.allow_explicit_index setting is false"
+                        "Either opendistro.sql.enabled or rest.action.multi.allow_explicit_index setting is false"
                 );
             }
 
-            sqlRequest = SqlRequestFactory.getSqlRequest(request);
-            LOG.info("[{}] Incoming request {}: {}", sqlRequest.getId(), request.uri(), sqlRequest.getSql());
+            final SqlRequest sqlRequest = SqlRequestFactory.getSqlRequest(request);
+            LOG.info("[{}] Incoming request {}: {}", LogUtils.getRequestId(), request.uri(), sqlRequest.getSql());
 
             final QueryAction queryAction = new SearchDao(client).explain(sqlRequest.getSql());
             queryAction.setSqlRequest(sqlRequest);
@@ -98,9 +107,10 @@ public class RestSqlAction extends BaseRestHandler {
                 return sendResponse(jsonExplanation, OK);
             } else {
                 Map<String, String> params = request.params();
-                RestExecutor restExecutor = ActionRequestRestExecutorFactory.createExecutor(params.get("format"), queryAction);
+                RestExecutor restExecutor = ActionRequestRestExecutorFactory.createExecutor(params.get("format"),
+                        queryAction);
                 //doing this hack because elasticsearch throws exception for un-consumed props
-                Map<String,String> additionalParams = new HashMap<>();
+                Map<String, String> additionalParams = new HashMap<>();
                 for (String paramName : responseParams()) {
                     if (request.hasParam(paramName)) {
                         additionalParams.put(paramName, request.param(paramName));
@@ -114,7 +124,7 @@ public class RestSqlAction extends BaseRestHandler {
             } else {
                 Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
             }
-            LOG.error(String.format("[%s] Failed during query execution", sqlRequest.getId()), e);
+            LOG.error(String.format(Locale.ROOT, "[%s] Failed during query execution", LogUtils.getRequestId()), e);
             return reportError(e, isClientError(e) ? BAD_REQUEST : SERVICE_UNAVAILABLE);
         }
     }
@@ -128,13 +138,13 @@ public class RestSqlAction extends BaseRestHandler {
 
     private boolean isClientError(Exception e) {
         return e instanceof NullPointerException || // NPE is hard to differentiate but more likely caused by bad query
-               e instanceof SqlParseException ||
-               e instanceof ParserException ||
-               e instanceof SQLFeatureNotSupportedException ||
-               e instanceof SQLFeatureDisabledException ||
-               e instanceof IllegalArgumentException ||
-               e instanceof IndexNotFoundException ||
-               e instanceof VerificationException;
+                e instanceof SqlParseException ||
+                e instanceof ParserException ||
+                e instanceof SQLFeatureNotSupportedException ||
+                e instanceof SQLFeatureDisabledException ||
+                e instanceof IllegalArgumentException ||
+                e instanceof IndexNotFoundException ||
+                e instanceof VerificationException;
     }
 
     private RestChannelConsumer reportError(Exception e, RestStatus status) {
