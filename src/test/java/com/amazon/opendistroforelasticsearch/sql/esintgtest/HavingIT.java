@@ -13,57 +13,48 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.intgtest;
+package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
-import com.amazon.opendistroforelasticsearch.sql.plugin.SearchDao;
-import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
-import com.amazon.opendistroforelasticsearch.sql.query.SqlElasticSearchRequestBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.metrics.ValueCount;
 import org.hamcrest.Matcher;
-import org.junit.Before;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.Test;
 
-import java.sql.SQLFeatureNotSupportedException;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 
-
-public class HavingTest {
+public class HavingIT extends SQLIntegTestCase {
 
     private static final String SELECT_FROM_WHERE_GROUP_BY =
             "SELECT state, COUNT(*) cnt " +
-            "  FROM " + TestsConstants.TEST_INDEX_ACCOUNT + "/account " +
-            "    WHERE age = 30 " +
-            "      GROUP BY state ";
+            "FROM " + TestsConstants.TEST_INDEX_ACCOUNT + "/account " +
+            "WHERE age = 30 " +
+            "GROUP BY state ";
 
-    private static Set<Matcher<Object[]>> states1;
-    private static Set<Matcher<Object[]>> states2;
-    private static Set<Matcher<Object[]>> states3;
-
-    @Before
-    public void setUp() {
-        states1 = rowSet(1, Arrays.asList(
+    private static final Set<Matcher<Object[]>> states1 = rowSet(1, Arrays.asList(
             "AK", "AR", "CT", "DE", "HI", "IA", "IL", "IN", "LA", "MA", "MD", "MN",
             "MO", "MT", "NC", "ND", "NE", "NH", "NJ", "NV", "SD", "VT", "WV", "WY"
-        ));
-        states2 = rowSet(2, Arrays.asList("AZ", "DC", "KS", "ME"));
-        states3 = rowSet(3, Arrays.asList("AL", "ID", "KY", "OR", "TN"));
+    ));
+    private static final Set<Matcher<Object[]>> states2 = rowSet(2, Arrays.asList("AZ", "DC", "KS", "ME"));
+    private static final Set<Matcher<Object[]>> states3 = rowSet(3, Arrays.asList("AL", "ID", "KY", "OR", "TN"));
+
+    @Override
+    protected void init() throws Exception {
+        loadIndex(Index.ACCOUNT);
     }
 
     @Test
-    public void equalsTo() {
+    public void equalsTo() throws IOException {
         assertThat(
             query(SELECT_FROM_WHERE_GROUP_BY + "HAVING cnt = 2"),
             resultSet(
@@ -73,7 +64,7 @@ public class HavingTest {
     }
 
     @Test
-    public void lessThanOrEqual() {
+    public void lessThanOrEqual() throws IOException {
         assertThat(
             query(SELECT_FROM_WHERE_GROUP_BY + "HAVING cnt <= 2"),
             resultSet(
@@ -84,7 +75,7 @@ public class HavingTest {
     }
 
     @Test
-    public void notEqualsTo() {
+    public void notEqualsTo() throws IOException {
         assertThat(
             query(SELECT_FROM_WHERE_GROUP_BY + "HAVING cnt <> 2"),
             resultSet(
@@ -95,7 +86,7 @@ public class HavingTest {
     }
 
     @Test
-    public void between() {
+    public void between() throws IOException {
         assertThat(
             query(SELECT_FROM_WHERE_GROUP_BY + "HAVING cnt BETWEEN 1 AND 2"),
             resultSet(
@@ -106,7 +97,7 @@ public class HavingTest {
     }
 
     @Test
-    public void notBetween() {
+    public void notBetween() throws IOException {
         assertThat(
             query(SELECT_FROM_WHERE_GROUP_BY + "HAVING cnt NOT BETWEEN 1 AND 2"),
             resultSet(
@@ -116,7 +107,7 @@ public class HavingTest {
     }
 
     @Test
-    public void in() {
+    public void in() throws IOException {
         assertThat(
             query(SELECT_FROM_WHERE_GROUP_BY + "HAVING cnt IN (2, 3)"),
             resultSet(
@@ -127,7 +118,7 @@ public class HavingTest {
     }
 
     @Test
-    public void notIn() {
+    public void notIn() throws IOException {
         assertThat(
             query(SELECT_FROM_WHERE_GROUP_BY + "HAVING cnt NOT IN (2, 3)"),
             resultSet(
@@ -137,7 +128,7 @@ public class HavingTest {
     }
 
     @Test
-    public void and() {
+    public void and() throws IOException {
         assertThat(
             query(SELECT_FROM_WHERE_GROUP_BY + "HAVING cnt >= 1 AND cnt < 3"),
             resultSet(
@@ -148,7 +139,7 @@ public class HavingTest {
     }
 
     @Test
-    public void or() {
+    public void or() throws IOException {
         assertThat(
             query(SELECT_FROM_WHERE_GROUP_BY + "HAVING cnt = 1 OR cnt = 3"),
             resultSet(
@@ -159,7 +150,7 @@ public class HavingTest {
     }
 
     @Test
-    public void not() {
+    public void not() throws IOException {
         assertThat(
             query(SELECT_FROM_WHERE_GROUP_BY + "HAVING NOT cnt >= 2"),
             resultSet(
@@ -169,7 +160,7 @@ public class HavingTest {
     }
 
     @Test
-    public void notAndOr() {
+    public void notAndOr() throws IOException {
         assertThat(
             query(SELECT_FROM_WHERE_GROUP_BY + "HAVING NOT (cnt > 0 AND cnt <= 2)"),
             resultSet(
@@ -178,43 +169,42 @@ public class HavingTest {
         );
     }
 
-    private Set<Object[]> query(String query) {
-        try {
-            SearchDao searchDao = MainTestSuite.getSearchDao();
-            SqlElasticSearchRequestBuilder select = (SqlElasticSearchRequestBuilder) searchDao.explain(query).explain();
-            return getResult((SearchResponse) select.get(), "state.keyword", "cnt");
-        } catch (SQLFeatureNotSupportedException | SqlParseException e) {
-            throw new RuntimeException(e);
-        }
+    private Set<Object[]> query(String query) throws IOException {
+        JSONObject response = executeQuery(query);
+        return getResult(response, "state.keyword", "cnt");
     }
 
-    private Set<Object[]> getResult(SearchResponse resp, String aggName, String aggFunc) {
-        Aggregations aggs = resp.getAggregations();
-        Terms agg = aggs.get(aggName);
+    private Set<Object[]> getResult(JSONObject response, String aggName, String aggFunc) {
+
+        String bucketsPath = String.format(Locale.ROOT, "/aggregations/%s/buckets", aggName);
+        JSONArray buckets = (JSONArray) response.query(bucketsPath);
+
         Set<Object[]> result = new HashSet<>();
-        for (Terms.Bucket bucket : agg.getBuckets()) {
+        for (int i = 0; i < buckets.length(); i++) {
+            JSONObject bucket = buckets.getJSONObject(i);
             result.add(new Object[]{
-                bucket.getKey().toString(),
-                ((ValueCount) bucket.getAggregations().get(aggFunc)).getValue()
+                bucket.get("key"),
+                ((JSONObject) bucket.get(aggFunc)).getLong("value")
             });
         }
-        return result;
-    }
 
-    private Set<Matcher<Object[]>> rowSet(long count, List<String> states) {
-        return states.stream().
-                      map(state -> row(state, count)).
-                      collect(Collectors.toSet());
+        return result;
     }
 
     @SafeVarargs
     private final Matcher<Iterable<? extends Object[]>> resultSet(Set<Matcher<Object[]>>... rowSets) {
-        return containsInAnyOrder(Arrays.stream(rowSets).
-                                         flatMap(Collection::stream).
-                                         collect(Collectors.toList()));
+        return containsInAnyOrder(Arrays.stream(rowSets)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList()));
     }
 
-    private Matcher<Object[]> row(String state, long count) {
+    private static Set<Matcher<Object[]>> rowSet(long count, List<String> states) {
+        return states.stream()
+                .map(state -> row(state, count))
+                .collect(Collectors.toSet());
+    }
+
+    private static Matcher<Object[]> row(String state, long count) {
         return arrayContaining(is(state), is(count));
     }
 }

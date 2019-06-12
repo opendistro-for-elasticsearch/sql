@@ -131,29 +131,45 @@ public class TestUtils {
 
     public static String getGameOfThronesIndexMapping() {
         return "{  \"gotCharacters\": { " +
-                " \"properties\": {\n" +
-                " \"nickname\": {\n" +
-                "\"type\":\"text\", "+
-                "\"fielddata\":true"+
-                "},\n"+
-                " \"name\": {\n" +
-                "\"properties\": {\n" +
-                "\"firstname\": {\n" +
-                "\"type\": \"text\",\n" +
-                "  \"fielddata\": true\n" +
-                "},\n" +
-                "\"lastname\": {\n" +
-                "\"type\": \"text\",\n" +
-                "  \"fielddata\": true\n" +
-                "},\n" +
-                "\"ofHerName\": {\n" +
-                "\"type\": \"integer\"\n" +
-                "},\n" +
-                "\"ofHisName\": {\n" +
-                "\"type\": \"integer\"\n" +
-                "}\n" +
-                "}\n" +
-                "}"+
+                "    \"properties\": {\n" +
+                "      \"nickname\": {\n" +
+                "        \"type\":\"text\", "+
+                "        \"fielddata\":true"+
+                "      },\n"+
+                "      \"name\": {\n" +
+                "        \"properties\": {\n" +
+                "          \"firstname\": {\n" +
+                "            \"type\": \"text\",\n" +
+                "            \"fielddata\": true\n" +
+                "          },\n" +
+                "          \"lastname\": {\n" +
+                "            \"type\": \"text\",\n" +
+                "            \"fielddata\": true\n" +
+                "          },\n" +
+                "          \"ofHerName\": {\n" +
+                "            \"type\": \"integer\"\n" +
+                "          },\n" +
+                "          \"ofHisName\": {\n" +
+                "            \"type\": \"integer\"\n" +
+                "          }\n" +
+                "        }\n" +
+                "      },\n" +
+                "      \"house\": {\n" +
+                "        \"type\": \"text\",\n" +
+                "        \"fields\": {\n" +
+                "          \"keyword\": {\n" +
+                "            \"type\": \"keyword\"\n" +
+                "          }\n" +
+                "        }\n" +
+                "      },\n" +
+                "      \"gender\": {\n" +
+                "        \"type\": \"text\",\n" +
+                "        \"fields\": {\n" +
+                "          \"keyword\": {\n" +
+                "            \"type\": \"keyword\"\n" +
+                "          }\n" +
+                "        }\n" +
+                "      }" +
                 "} } }";
     }
 
