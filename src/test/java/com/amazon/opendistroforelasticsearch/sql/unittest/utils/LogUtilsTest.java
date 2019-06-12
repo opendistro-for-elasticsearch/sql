@@ -29,6 +29,8 @@ import static org.hamcrest.Matchers.nullValue;
 
 public class LogUtilsTest {
 
+    private static final String REQUEST_ID_KEY = "request_id";
+
     @After
     public void cleanUpContext() {
 
@@ -38,9 +40,9 @@ public class LogUtilsTest {
     @Test
     public void addRequestId() {
 
-        Assert.assertNull(ThreadContext.get(LogUtils.REQUEST_ID_KEY));
+        Assert.assertNull(ThreadContext.get(REQUEST_ID_KEY));
         LogUtils.addRequestId();
-        final String requestId = ThreadContext.get(LogUtils.REQUEST_ID_KEY);
+        final String requestId = ThreadContext.get(REQUEST_ID_KEY);
         Assert.assertNotNull(requestId);
     }
 
@@ -48,9 +50,9 @@ public class LogUtilsTest {
     public void addRequestId_alreadyExists() {
 
         LogUtils.addRequestId();
-        final String requestId = ThreadContext.get(LogUtils.REQUEST_ID_KEY);
+        final String requestId = ThreadContext.get(REQUEST_ID_KEY);
         LogUtils.addRequestId();
-        final String requestId2 = ThreadContext.get(LogUtils.REQUEST_ID_KEY);
+        final String requestId2 = ThreadContext.get(REQUEST_ID_KEY);
         Assert.assertThat(requestId2, equalTo(requestId));
     }
 
@@ -64,7 +66,7 @@ public class LogUtilsTest {
     public void getRequestId() {
 
         final String test_request_id = "test_id_111";
-        ThreadContext.put(LogUtils.REQUEST_ID_KEY, test_request_id);
+        ThreadContext.put(REQUEST_ID_KEY, test_request_id);
         final String requestId = LogUtils.getRequestId();
         Assert.assertThat(requestId, equalTo(test_request_id));
     }

@@ -28,7 +28,7 @@ public class LogUtils {
     /**
      * The key of the request id in the context map
      */
-    public static final String REQUEST_ID_KEY = "request_id";
+    private static final String REQUEST_ID_KEY = "request_id";
 
     /**
      * Generates a random UUID and adds to the {@link ThreadContext} as the request id.
