@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.plugin;
 
 import com.amazon.opendistroforelasticsearch.sql.executor.format.ErrorMessage;
 import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
+import com.amazon.opendistroforelasticsearch.sql.utils.LogUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.node.NodeClient;
@@ -56,6 +57,9 @@ public class RestSqlStatsAction extends BaseRestHandler {
 
     @Override
     protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient client) {
+
+        LogUtils.addRequestId();
+
         try {
             return channel -> channel.sendResponse(new BytesRestResponse(RestStatus.OK, Metrics.getInstance().collectToJSON()));
         } catch (Exception e) {

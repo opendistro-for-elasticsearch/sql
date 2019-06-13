@@ -21,6 +21,7 @@ import com.amazon.opendistroforelasticsearch.sql.metrics.MetricName;
 import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.join.BackOffRetryStrategy;
+import com.amazon.opendistroforelasticsearch.sql.utils.LogUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.Client;
@@ -72,14 +73,14 @@ public class AsyncRestExecutor implements RestExecutor {
         if (isBlockingAction(queryAction) && isRunningInTransportThread()) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("[{}] Async blocking query action [{}] for executor [{}] in current thread [{}]",
-                    requestId(queryAction), name(executor), name(queryAction), Thread.currentThread().getName());
+                    LogUtils.getRequestId(), name(executor), name(queryAction), Thread.currentThread().getName());
             }
             async(client, params, queryAction, channel);
         }
         else {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("[{}] Continue running query action [{}] for executor [{}] in current thread [{}]",
-                    requestId(queryAction), name(executor), name(queryAction), Thread.currentThread().getName());
+                    LogUtils.getRequestId(), name(executor), name(queryAction), Thread.currentThread().getName());
             }
             doExecuteWithTimeMeasured(client, params, queryAction, channel);
         }
@@ -105,18 +106,19 @@ public class AsyncRestExecutor implements RestExecutor {
         ThreadPool threadPool = client.threadPool();
         Runnable runnable = () -> {
             try {
+                LOG.info("[{}] starting processing of request blablabla", LogUtils.getRequestId());
                 doExecuteWithTimeMeasured(client, params, queryAction, channel);
             } catch (IOException | SqlParseException e) {
                 Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
-                LOG.warn("[{}] [MCB] async task got an IO/SQL exception: {}", requestId(queryAction), e.getMessage());
+                LOG.warn("[{}] [MCB] async task got an IO/SQL exception: {}", LogUtils.getRequestId(), e.getMessage());
                 channel.sendResponse(new BytesRestResponse(RestStatus.INTERNAL_SERVER_ERROR, e.getMessage()));
             } catch (IllegalStateException e) {
                 Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
-                LOG.warn("[{}] [MCB] async task got a runtime exception: {}", requestId(queryAction), e.getMessage());
+                LOG.warn("[{}] [MCB] async task got a runtime exception: {}", LogUtils.getRequestId(), e.getMessage());
                 channel.sendResponse(new BytesRestResponse(RestStatus.INSUFFICIENT_STORAGE, "Memory circuit is broken."));
             } catch (Throwable t) {
                 Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
-                LOG.warn("[{}] [MCB] async task got an unknown throwable: {}", requestId(queryAction), t.getMessage());
+                LOG.warn("[{}] [MCB] async task got an unknown throwable: {}", LogUtils.getRequestId(), t.getMessage());
                 channel.sendResponse(new BytesRestResponse(RestStatus.INTERNAL_SERVER_ERROR, String.valueOf(t.getMessage())));
             } finally {
                 BackOffRetryStrategy.releaseMem(executor);
@@ -125,7 +127,7 @@ public class AsyncRestExecutor implements RestExecutor {
 
         // Preserve context of calling thread to ensure headers of requests are forwarded when running blocking actions
         threadPool.schedule(
-            threadPool.preserveContext(runnable),
+            threadPool.preserveContext(LogUtils.withCurrentContext(runnable)),
             new TimeValue(0L),
             SQL_WORKER_THREAD_POOL_NAME
         );
@@ -144,17 +146,12 @@ public class AsyncRestExecutor implements RestExecutor {
             Duration elapsed = Duration.ofNanos(System.nanoTime() - startTime);
             int slowLogThreshold = LocalClusterState.state().getSettingValue(QUERY_SLOWLOG);
             if (elapsed.getSeconds() >= slowLogThreshold) {
-                LOG.warn("[{}] Slow query: elapsed={} (ms)", requestId(action), elapsed.toMillis());
+                LOG.warn("[{}] Slow query: elapsed={} (ms)", LogUtils.getRequestId(), elapsed.toMillis());
             }
         }
-    }
-
-    private String requestId(QueryAction action) {
-        return action.getSqlRequest().getId();
     }
 
     private String name(Object object) {
         return object.getClass().getSimpleName();
     }
-
 }
