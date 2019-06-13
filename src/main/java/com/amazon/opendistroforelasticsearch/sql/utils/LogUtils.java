@@ -32,12 +32,16 @@ public class LogUtils {
 
     /**
      * Generates a random UUID and adds to the {@link ThreadContext} as the request id.
+     * <p>
+     * Note: If a request id already present, this method will overwrite it with a new
+     * one. This is to pre-vent re-using the same request id for different requests in
+     * case the same thread handles both of them. But this also means one should not
+     * call this method twice on the same thread within the lifetime of the request.
+     * </p>
      */
     public static void addRequestId() {
 
-        if (ThreadContext.get(REQUEST_ID_KEY) == null) {
-            ThreadContext.put(REQUEST_ID_KEY, UUID.randomUUID().toString());
-        }
+        ThreadContext.put(REQUEST_ID_KEY, UUID.randomUUID().toString());
     }
 
     /**

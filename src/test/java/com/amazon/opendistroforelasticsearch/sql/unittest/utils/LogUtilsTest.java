@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
@@ -53,7 +54,7 @@ public class LogUtilsTest {
         final String requestId = ThreadContext.get(REQUEST_ID_KEY);
         LogUtils.addRequestId();
         final String requestId2 = ThreadContext.get(REQUEST_ID_KEY);
-        Assert.assertThat(requestId2, equalTo(requestId));
+        Assert.assertThat(requestId2, not(equalTo(requestId)));
     }
 
     @Test(expected = IllegalStateException.class)
