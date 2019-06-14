@@ -28,6 +28,7 @@ public class TestsConstants {
     public final static String TEST_INDEX_PHRASE = TEST_INDEX + "_phrase";
     public final static String TEST_INDEX_DOG = TEST_INDEX + "_dog";
     public final static String TEST_INDEX_DOG2 = TEST_INDEX + "_dog2";
+    public final static String TEST_INDEX_DOG3 = TEST_INDEX + "_dog3";
     public final static String TEST_INDEX_PEOPLE = TEST_INDEX + "_people";
     public final static String TEST_INDEX_PEOPLE2 = TEST_INDEX + "_people2";
     public final static String TEST_INDEX_GAME_OF_THRONES = TEST_INDEX + "_game_of_thrones";
