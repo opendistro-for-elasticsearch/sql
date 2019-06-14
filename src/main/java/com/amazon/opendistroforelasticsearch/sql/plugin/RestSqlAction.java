@@ -17,9 +17,10 @@ package com.amazon.opendistroforelasticsearch.sql.plugin;
 
 import com.alibaba.druid.sql.parser.ParserException;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
-import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SQLFeatureDisabledException;
+import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.ActionRequestRestExecutorFactory;
+import com.amazon.opendistroforelasticsearch.sql.executor.AsyncRestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.RestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.ErrorMessage;
 import com.amazon.opendistroforelasticsearch.sql.metrics.MetricName;
@@ -31,14 +32,18 @@ import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.Verificati
 import com.amazon.opendistroforelasticsearch.sql.utils.LogUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.rest.BaseRestHandler;
 import org.elasticsearch.rest.BytesRestResponse;
+import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestController;
 import org.elasticsearch.rest.RestRequest;
 import org.elasticsearch.rest.RestStatus;
+import org.elasticsearch.threadpool.ThreadPool;
 
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.Arrays;
@@ -65,7 +70,7 @@ public class RestSqlAction extends BaseRestHandler {
     public static final String QUERY_API_ENDPOINT = "/_opendistro/_sql";
     public static final String EXPLAIN_API_ENDPOINT = QUERY_API_ENDPOINT + "/_explain";
 
-    RestSqlAction(Settings settings, RestController restController) {
+    RestSqlAction(final Settings settings, final RestController restController) {
 
         super(settings);
         restController.registerHandler(RestRequest.Method.POST, QUERY_API_ENDPOINT, this);
@@ -83,13 +88,13 @@ public class RestSqlAction extends BaseRestHandler {
 
     @Override
     protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient client) {
+
         Metrics.getInstance().getNumericalMetric(MetricName.REQ_TOTAL).increment();
         Metrics.getInstance().getNumericalMetric(MetricName.REQ_COUNT_TOTAL).increment();
 
         LogUtils.addRequestId();
 
         try {
-
             if (!isSQLFeatureEnabled()) {
                 throw new SQLFeatureDisabledException(
                         "Either opendistro.sql.enabled or rest.action.multi.allow_explicit_index setting is false"
@@ -99,33 +104,32 @@ public class RestSqlAction extends BaseRestHandler {
             final SqlRequest sqlRequest = SqlRequestFactory.getSqlRequest(request);
             LOG.info("[{}] Incoming request {}: {}", LogUtils.getRequestId(), request.uri(), sqlRequest.getSql());
 
-            final QueryAction queryAction = new SearchDao(client).explain(sqlRequest.getSql());
-            queryAction.setSqlRequest(sqlRequest);
+            if (explainRequiresBlockingIOCall(sqlRequest)) {
 
-            if (request.path().endsWith("/_explain")) {
-                final String jsonExplanation = queryAction.explain().explain();
-                return sendResponse(jsonExplanation, OK);
+                return channel -> {
+                    final Runnable requestExecution = () -> {
+                        try {
+                            final QueryAction action = explainRequest(client, sqlRequest);
+                            executeSqlRequest(request, action, client, channel);
+                        } catch (Exception e) {
+                            logAndPublishMetrics(e);
+                            reportError(channel, e, isClientError(e) ? BAD_REQUEST : SERVICE_UNAVAILABLE);
+                        }
+                    };
+
+                    final ThreadPool threadPool = client.threadPool();
+                    threadPool.schedule(threadPool.preserveContext(requestExecution), new TimeValue(0L),
+                            AsyncRestExecutor.SQL_WORKER_THREAD_POOL_NAME);
+                };
             } else {
-                Map<String, String> params = request.params();
-                RestExecutor restExecutor = ActionRequestRestExecutorFactory.createExecutor(params.get("format"),
-                        queryAction);
-                //doing this hack because elasticsearch throws exception for un-consumed props
-                Map<String, String> additionalParams = new HashMap<>();
-                for (String paramName : responseParams()) {
-                    if (request.hasParam(paramName)) {
-                        additionalParams.put(paramName, request.param(paramName));
-                    }
-                }
-                return channel -> restExecutor.execute(client, additionalParams, queryAction, channel);
+                final QueryAction queryAction = explainRequest(client, sqlRequest);
+                return channel -> executeSqlRequest(request, queryAction, client, channel);
             }
+
         } catch (Exception e) {
-            if (isClientError(e)) {
-                Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_CUS).increment();
-            } else {
-                Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
-            }
-            LOG.error(String.format(Locale.ROOT, "[%s] Failed during query execution", LogUtils.getRequestId()), e);
-            return reportError(e, isClientError(e) ? BAD_REQUEST : SERVICE_UNAVAILABLE);
+
+            logAndPublishMetrics(e);
+            return channel -> reportError(channel, e, isClientError(e) ? BAD_REQUEST : SERVICE_UNAVAILABLE);
         }
     }
 
@@ -136,7 +140,61 @@ public class RestSqlAction extends BaseRestHandler {
         return responseParams;
     }
 
-    private boolean isClientError(Exception e) {
+    private static void logAndPublishMetrics(final Exception e) {
+
+        if (isClientError(e)) {
+            Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_CUS).increment();
+        } else {
+            Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
+        }
+        LOG.error(String.format("[%s] Failed during query execution", LogUtils.getRequestId()), e);
+    }
+
+    private static QueryAction explainRequest(final NodeClient client, final SqlRequest sqlRequest)
+            throws SQLFeatureNotSupportedException, SqlParseException {
+
+            final QueryAction queryAction = new SearchDao(client).explain(sqlRequest.getSql());
+            queryAction.setSqlRequest(sqlRequest);
+            return queryAction;
+    }
+
+    private void executeSqlRequest(final RestRequest request, final QueryAction queryAction,
+                                   final Client client, final RestChannel channel) throws Exception {
+
+        if (isExplainRequest(request)) {
+            final String jsonExplanation = queryAction.explain().explain();
+            channel.sendResponse(new BytesRestResponse(OK, jsonExplanation));
+        } else {
+            Map<String, String> params = request.params();
+            RestExecutor restExecutor = ActionRequestRestExecutorFactory.createExecutor(params.get("format"),
+                    queryAction);
+            //doing this hack because elasticsearch throws exception for un-consumed props
+            Map<String, String> additionalParams = new HashMap<>();
+            for (String paramName : responseParams()) {
+                if (request.hasParam(paramName)) {
+                    additionalParams.put(paramName, request.param(paramName));
+                }
+            }
+            restExecutor.execute(client, additionalParams, queryAction, channel);
+        }
+    }
+
+    private static boolean isExplainRequest(final RestRequest request) {
+
+        return request.path().endsWith("/_explain");
+    }
+
+    private static boolean explainRequiresBlockingIOCall(final SqlRequest request) {
+
+        return containsSubquery(request);
+    }
+
+    private static boolean containsSubquery(final SqlRequest request) {
+
+        return request.getSql().toLowerCase(Locale.ROOT).contains("(select ");
+    }
+
+    private static boolean isClientError(Exception e) {
         return e instanceof NullPointerException || // NPE is hard to differentiate but more likely caused by bad query
                 e instanceof SqlParseException ||
                 e instanceof ParserException ||
@@ -147,12 +205,12 @@ public class RestSqlAction extends BaseRestHandler {
                 e instanceof VerificationException;
     }
 
-    private RestChannelConsumer reportError(Exception e, RestStatus status) {
-        return sendResponse(new ErrorMessage(e, status.getStatus()).toString(), status);
+    private void sendResponse(final RestChannel channel, final String message, final RestStatus status) {
+        channel.sendResponse(new BytesRestResponse(status, message));
     }
 
-    private RestChannelConsumer sendResponse(String message, RestStatus status) {
-        return channel -> channel.sendResponse(new BytesRestResponse(status, message));
+    private void reportError(final RestChannel channel, final Exception e, final RestStatus status) {
+        sendResponse(channel, new ErrorMessage(e, status.getStatus()).toString(), status);
     }
 
     private boolean isSQLFeatureEnabled() {
