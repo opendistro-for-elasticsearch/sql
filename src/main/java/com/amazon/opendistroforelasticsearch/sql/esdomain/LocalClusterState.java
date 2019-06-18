@@ -35,7 +35,12 @@ import org.elasticsearch.index.IndexNotFoundException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
@@ -395,10 +400,10 @@ public class LocalClusterState {
             fieldMappings = mappings.sourceAsMap();
         }
 
-        public FieldMappings(Map<String, Map<String, Object>> map) {
-            Map<String, Object> finalMap = new LinkedHashMap<>();
-            finalMap.put(PROPERTIES, map);
-            fieldMappings = finalMap;
+        public FieldMappings(Map<String, Map<String, Object>> mapping) {
+            Map<String, Object> finalMapping = new HashMap<>();
+            finalMapping.put(PROPERTIES, mapping);
+            fieldMappings = finalMapping;
         }
 
         @Override

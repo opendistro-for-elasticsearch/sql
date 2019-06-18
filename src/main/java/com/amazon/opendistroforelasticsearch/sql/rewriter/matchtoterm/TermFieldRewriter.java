@@ -35,8 +35,8 @@ import org.json.JSONObject;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
-import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -214,53 +214,53 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
             );
     }
 
-    public void checkMappingCompatibility(TermFieldScope scope, Map<String, String> indexToType) {
+    private void checkMappingCompatibility(TermFieldScope scope, Map<String, String> indexToType) {
         if (scope.getMapper().isEmpty()) {
             throw new VerificationException("Unknown index " + indexToType.keySet());
         }
         // Collect all FieldMappings into hash set and ignore index/type names. set.size > 1 means FieldMappings NOT unique,
         // needs further compatibility check
-        Set<FieldMappings> set = curScope().getMapper().allMappings().stream().
+        Set<FieldMappings> mappingSet = curScope().getMapper().allMappings().stream().
                                  flatMap(typeMappings -> typeMappings.allMappings().stream()).
                                  collect(Collectors.toSet());
 
         FieldMappings fieldMappings = null;
 
-        if (set.size() > 1) {
-            Map<String, Map<String, Object>> map = new LinkedHashMap<>();
+        if (mappingSet.size() > 1) {
+            Map<String, Map<String, Object>> mergedMapping = new HashMap<>();
 
-            for (FieldMappings f : set) {
+            for (FieldMappings f : mappingSet) {
                 Map<String, Map<String, Object>> m = f.data();
-
-                for (Map.Entry<String, Map<String, Object>> e : m.entrySet()) {
-                    String fieldName = e.getKey();
-                    Map<String, Object> fieldMappingValue = e.getValue();
-
-                    if (!map.containsKey(fieldName)) {
-                        map.put(fieldName, fieldMappingValue);
-                    } else {
-                        // check if types are same
-                        if (!fieldMappingValue.equals(map.get(fieldName))) {
-                           // TODO: Merge mappings if they are compatible, like text and text/keyword to text/keyword.
-
-                            String firstFieldType= new JSONObject(fieldMappingValue).toString().replaceAll("\"", "");
-                            String secondFieldType = new JSONObject(map.get(fieldName)).toString().replaceAll("\"", "");
-
-                            String exceptionReason = String.format("Cannot use field [%s] " +
-                                            "due to ambiguities being mapped as incompatible types: [%s] and [%s] ",
-                                    fieldName, firstFieldType, secondFieldType);
-
-                            throw new VerificationException(exceptionReason);
-                        }
-                    }
-                }
+                m.forEach((k, v) -> getMergedMapping(k, v, mergedMapping));
             }
-            fieldMappings = new FieldMappings(map);
+
+            fieldMappings = new FieldMappings(mergedMapping);
         } else {
             fieldMappings = curScope().getMapper().firstMapping().firstMapping();
         }
         // We need finalMapping to lookup for rewriting
         curScope().setFinalMapping(fieldMappings);
+    }
+
+    private void getMergedMapping(String fieldName, Map<String, Object> fieldMappingValue , Map<String, Map<String, Object>> mergedMapping){
+
+        if (!mergedMapping.containsKey(fieldName)) {
+            mergedMapping.put(fieldName, fieldMappingValue);
+        } else {
+            // check if types are same
+            if (!fieldMappingValue.equals(mergedMapping.get(fieldName))) {
+                // TODO: Merge mappings if they are compatible, like text and text/keyword to text/keyword.
+
+                String firstFieldType= new JSONObject(fieldMappingValue).toString().replaceAll("\"", "");
+                String secondFieldType = new JSONObject(mergedMapping.get(fieldName)).toString().replaceAll("\"", "");
+
+                String exceptionReason = String.format(Locale.ROOT,"Cannot use field [%s] " +
+                                "due to ambiguities being mapped as incompatible types: [%s] and [%s] ",
+                        fieldName, firstFieldType, secondFieldType);
+
+                throw new VerificationException(exceptionReason);
+            }
+        }
     }
 
     public IndexMappings getMappings(Map<String, String> indexToType) {

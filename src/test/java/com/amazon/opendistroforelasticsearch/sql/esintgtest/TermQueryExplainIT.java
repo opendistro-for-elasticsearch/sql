@@ -24,7 +24,13 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Locale;
 
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.*;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_BANK;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_BANK_TWO;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_DOG;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_DOG2;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_DOG3;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
+
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
@@ -104,6 +110,7 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
         try {
             explainQuery(String.format(Locale.ROOT, "SELECT * FROM %s, %s ",
                     TEST_INDEX_DOG, TEST_INDEX_DOG2));
+            Assert.fail("Expected ResponseException, but none was thrown");
         } catch (ResponseException e) {
             assertThat(e.getResponse().getStatusLine().getStatusCode(), equalTo(RestStatus.BAD_REQUEST.getStatus()));
             final String entity = TestUtils.getResponseBody(e.getResponse());
@@ -115,7 +122,7 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void testCompatibleMappings() throws IOException {
+    public void testEqualFieldMappings() throws IOException {
         String result = explainQuery(String.format(Locale.ROOT, "SELECT color FROM %s, %s ",
                     TEST_INDEX_DOG2, TEST_INDEX_DOG3));
         assertThat(result, containsString("color"));
