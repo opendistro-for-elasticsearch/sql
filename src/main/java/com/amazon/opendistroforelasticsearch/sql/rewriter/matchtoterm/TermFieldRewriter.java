@@ -219,16 +219,16 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
             throw new VerificationException("Unknown index " + indexToType.keySet());
         }
 
-        Set<FieldMappings> mappingSet = curScope().getMapper().allMappings().stream().
+        Set<FieldMappings> indexMappings = curScope().getMapper().allMappings().stream().
                                  flatMap(typeMappings -> typeMappings.allMappings().stream()).
                                  collect(Collectors.toSet());
 
-        FieldMappings fieldMappings = null;
+        final FieldMappings fieldMappings;
 
-        if (mappingSet.size() > 1) {
+        if (indexMappings.size() > 1) {
             Map<String, Map<String, Object>> mergedMapping = new HashMap<>();
 
-            for (FieldMappings f : mappingSet) {
+            for (FieldMappings f : indexMappings) {
                 Map<String, Map<String, Object>> m = f.data();
                 m.forEach((k, v) -> verifySingleFieldMapping(k, v, mergedMapping));
             }
@@ -241,17 +241,20 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
         curScope().setFinalMapping(fieldMappings);
     }
 
-    private void verifySingleFieldMapping(String fieldName, Map<String, Object> fieldMappingValue , Map<String, Map<String, Object>> mergedMapping){
+    private void verifySingleFieldMapping(final String fieldName, final Map<String, Object> fieldMapping,
+                                          final Map<String, Map<String, Object>> mergedMapping) {
 
         if (!mergedMapping.containsKey(fieldName)) {
-            mergedMapping.put(fieldName, fieldMappingValue);
+            mergedMapping.put(fieldName, fieldMapping);
         } else {
+
+            final Map<String, Object> visitedMapping = mergedMapping.get(fieldName);
             // check if types are same
-            if (!fieldMappingValue.equals(mergedMapping.get(fieldName))) {
+            if (!fieldMapping.equals(visitedMapping)) {
                 // TODO: Merge mappings if they are compatible, for text and text/keyword to text/keyword.
 
-                String firstFieldType = new JSONObject(fieldMappingValue).toString().replaceAll("\"", "");
-                String secondFieldType = new JSONObject(mergedMapping.get(fieldName)).toString().replaceAll("\"", "");
+                String firstFieldType = new JSONObject(fieldMapping).toString().replaceAll("\"", "");
+                String secondFieldType = new JSONObject(visitedMapping).toString().replaceAll("\"", "");
 
                 String exceptionReason = String.format(Locale.ROOT,"Different mappings are not allowed " +
                                 "for the same field[%s]: found [%s] and [%s] ",
