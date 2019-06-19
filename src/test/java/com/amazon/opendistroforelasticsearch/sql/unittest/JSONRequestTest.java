@@ -16,18 +16,18 @@
 package com.amazon.opendistroforelasticsearch.sql.unittest;
 
 import com.alibaba.druid.sql.parser.ParserException;
-import com.amazon.opendistroforelasticsearch.sql.request.SqlRequest;
+import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
-import com.amazon.opendistroforelasticsearch.sql.intgtest.TestsConstants;
 import com.amazon.opendistroforelasticsearch.sql.query.ESActionFactory;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.SqlElasticRequestBuilder;
+import com.amazon.opendistroforelasticsearch.sql.request.SqlRequest;
+import com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents;
 import com.google.common.io.Files;
 import org.elasticsearch.client.Client;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.mockito.Mockito;
-import com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,7 +35,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.SQLFeatureNotSupportedException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
 
 public class JSONRequestTest {
 

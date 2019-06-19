@@ -24,6 +24,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -83,18 +84,17 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     public void wrongIndexType() throws IOException  {
         String type = "wrongType";
         try {
-            JSONObject response = executeQuery(
-                                    String.format("SELECT * FROM %s/%s",
+            executeQuery(String.format(Locale.ROOT, "SELECT * FROM %s/%s",
                                             TestsConstants.TEST_INDEX_ACCOUNT, type));
         } catch (IllegalArgumentException e) {
-            assertThat(e.getMessage(), is(String.format("Index type %s does not exist", type)));
+            assertThat(e.getMessage(), is(String.format(Locale.ROOT, "Index type %s does not exist", type)));
         }
     }
 
     @Test
     public void selectAll() throws IOException {
         JSONObject response = executeQuery(
-                                String.format("SELECT * FROM %s/%s",
+                                String.format(Locale.ROOT, "SELECT * FROM %s/%s",
                                         TestsConstants.TEST_INDEX_ACCOUNT, "account"));
 
         // This also tests that .keyword fields are ignored when SELECT * is called
@@ -105,7 +105,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     @Test
     public void selectNames() throws IOException {
         JSONObject response = executeQuery(
-                                String.format("SELECT firstname, lastname FROM %s/%s",
+                                String.format(Locale.ROOT, "SELECT firstname, lastname FROM %s/%s",
                                         TestsConstants.TEST_INDEX_ACCOUNT, "account"));
 
         assertContainsColumns(getSchema(response), nameFields);
@@ -115,24 +115,25 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     @Test
     public void selectWrongField() throws IOException {
         JSONObject response = executeQuery(
-                                String.format("SELECT wrongField FROM %s",
+                                String.format(Locale.ROOT, "SELECT wrongField FROM %s",
                                         TestsConstants.TEST_INDEX_ACCOUNT));
 
         assertThat(getSchema(response).length(), equalTo(0));
 
         // DataRows object will still get populated with SearchHits but since wrongField is not available in the Map
         // each row in the response will be empty
-        // TODO Perhaps a code change should be made to format logic to ensure a 'datarows' length of 0 in response for this case
+        // TODO Perhaps a code change should be made to format logic to ensure a
+        //  'datarows' length of 0 in response for this case
         assertThat(getDataRows(response).length(), equalTo(RESPONSE_DEFAULT_MAX_SIZE));
     }
 
     @Test
     public void selectKeyword() throws IOException {
         JSONObject response = executeQuery(
-                                String.format("SELECT firstname.keyword FROM %s",
+                                String.format(Locale.ROOT, "SELECT firstname.keyword FROM %s",
                                         TestsConstants.TEST_INDEX_ACCOUNT));
 
-        List<String> fields = Arrays.asList("firstname.keyword");
+        List<String> fields = Collections.singletonList("firstname.keyword");
         assertContainsColumns(getSchema(response), fields);
 
         /*
@@ -147,17 +148,18 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     @Test
     public void selectScore() throws IOException {
         JSONObject response = executeQuery(
-                                String.format("SELECT _score FROM %s WHERE balance > 30000",
+                                String.format(Locale.ROOT, "SELECT _score FROM %s WHERE balance > 30000",
                                         TestsConstants.TEST_INDEX_ACCOUNT));
 
-        List<String> fields = Arrays.asList("_score");
+        List<String> fields = Collections.singletonList("_score");
         assertContainsColumns(getSchema(response), fields);
         assertContainsData(getDataRows(response), fields);
     }
 
     @Test
     public void selectAllFromNestedWithoutFieldInFrom() throws IOException {
-        JSONObject response = executeQuery(String.format("SELECT * FROM %s", TestsConstants.TEST_INDEX_NESTED_TYPE));
+        JSONObject response = executeQuery(String.format(Locale.ROOT, "SELECT * FROM %s",
+                TestsConstants.TEST_INDEX_NESTED_TYPE));
 
         assertContainsColumnsInAnyOrder(getSchema(response), regularFields);
         assertContainsData(getDataRows(response), regularFields);
@@ -166,7 +168,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     @Test
     public void selectAllFromNestedWithFieldInFrom() throws IOException {
         JSONObject response = executeQuery(
-                                String.format("SELECT * FROM %s e, e.message m",
+                                String.format(Locale.ROOT, "SELECT * FROM %s e, e.message m",
                                         TestsConstants.TEST_INDEX_NESTED_TYPE));
 
         assertContainsColumnsInAnyOrder(getSchema(response), messageFields);
@@ -176,7 +178,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     @Test
     public void selectNestedFields() throws IOException {
         JSONObject response = executeQuery(
-                                String.format("SELECT nested(message.info), someField FROM %s",
+                                String.format(Locale.ROOT, "SELECT nested(message.info), someField FROM %s",
                                         TestsConstants.TEST_INDEX_NESTED_TYPE));
 
         List<String> fields = Arrays.asList("message.info", "someField");
@@ -191,7 +193,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     @Test
     public void selectNestedFieldWithWildcard() throws IOException {
         JSONObject response = executeQuery(
-                                String.format("SELECT nested(message.*) FROM %s",
+                                String.format(Locale.ROOT, "SELECT nested(message.*) FROM %s",
                                         TestsConstants.TEST_INDEX_NESTED_TYPE));
 
         assertContainsColumnsInAnyOrder(getSchema(response), messageFields);
@@ -202,7 +204,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     public void selectWithWhere() throws IOException {
         int balanceToCompare = 30000;
         JSONObject response = executeQuery(
-                                String.format("SELECT balance " +
+                                String.format(Locale.ROOT, "SELECT balance " +
                                               "FROM %s/%s " +
                                               "WHERE balance > %d",
                                         TestsConstants.TEST_INDEX_ACCOUNT, "account", balanceToCompare));
@@ -224,10 +226,10 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     @Test
     public void groupBySingleField() throws IOException {
         JSONObject response = executeQuery(
-                                String.format("SELECT * FROM %s GROUP BY age",
+                                String.format(Locale.ROOT, "SELECT * FROM %s GROUP BY age",
                                         TestsConstants.TEST_INDEX_ACCOUNT));
 
-        List<String> fields = Arrays.asList("age");
+        List<String> fields = Collections.singletonList("age");
         assertContainsColumns(getSchema(response), fields);
         assertContainsData(getDataRows(response), fields);
     }
@@ -235,7 +237,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     @Test
     public void groupByMultipleFields() throws IOException {
         JSONObject response = executeQuery(
-                                String.format("SELECT * FROM %s GROUP BY age, balance",
+                                String.format(Locale.ROOT, "SELECT * FROM %s GROUP BY age, balance",
                                         TestsConstants.TEST_INDEX_ACCOUNT));
 
         List<String> fields = Arrays.asList("age", "balance");
@@ -246,7 +248,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     @Test
     public void testSizeAndTotal() throws IOException {
         JSONObject response = executeQuery(
-                                String.format("SELECT * " +
+                                String.format(Locale.ROOT, "SELECT * " +
                                               "FROM %s " +
                                               "WHERE balance > 30000 " +
                                               "LIMIT 5",
@@ -263,7 +265,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     @Test
     public void testSizeWithGroupBy() throws IOException {
         JSONObject response = executeQuery(
-                                String.format("SELECT * FROM %s GROUP BY age LIMIT 5",
+                                String.format(Locale.ROOT, "SELECT * FROM %s GROUP BY age LIMIT 5",
                                         TestsConstants.TEST_INDEX_ACCOUNT));
 
         assertThat(getDataRows(response).length(), equalTo(5));
@@ -272,7 +274,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     @Test
     public void aggregationFunctionInSelect() throws IOException {
         JSONObject response = executeQuery(
-                                String.format("SELECT COUNT(*) FROM %s GROUP BY age",
+                                String.format(Locale.ROOT, "SELECT COUNT(*) FROM %s GROUP BY age",
                                         TestsConstants.TEST_INDEX_ACCOUNT));
 
         String count = "COUNT(*)";
@@ -291,7 +293,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     @Test
     public void aggregationFunctionInSelectCaseCheck() throws IOException {
         JSONObject response = executeQuery(
-                                String.format("SELECT count(*) FROM %s GROUP BY age",
+                                String.format(Locale.ROOT, "SELECT count(*) FROM %s GROUP BY age",
                                         TestsConstants.TEST_INDEX_ACCOUNT));
 
         String count = "COUNT(*)";
@@ -310,7 +312,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     @Test
     public void aggregationFunctionInSelectWithAlias() throws IOException {
         JSONObject response = executeQuery(
-                                String.format("SELECT COUNT(*) AS total FROM %s GROUP BY age",
+                                String.format(Locale.ROOT, "SELECT COUNT(*) AS total FROM %s GROUP BY age",
                                         TestsConstants.TEST_INDEX_ACCOUNT));
 
         String count = "total";
@@ -329,7 +331,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     @Test
     public void aggregationFunctionInSelectGroupByMultipleFields() throws IOException {
         JSONObject response = executeQuery(
-                                String.format("SELECT SUM(age) FROM %s GROUP BY age, state.keyword",
+                                String.format(Locale.ROOT, "SELECT SUM(age) FROM %s GROUP BY age, state.keyword",
                                         TestsConstants.TEST_INDEX_ACCOUNT));
 
         List<String> fields = Arrays.asList("age", "state.keyword", "SUM(age)");
@@ -339,10 +341,11 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void aggregationFunctionInSelectNoGroupBy() throws IOException {
-        JSONObject response = executeQuery(String.format("SELECT SUM(age) FROM %s", TestsConstants.TEST_INDEX_ACCOUNT));
+        JSONObject response = executeQuery(String.format(Locale.ROOT, "SELECT SUM(age) FROM %s",
+                TestsConstants.TEST_INDEX_ACCOUNT));
 
         String ageSum = "SUM(age)";
-        assertContainsColumns(getSchema(response), Arrays.asList(ageSum));
+        assertContainsColumns(getSchema(response), Collections.singletonList(ageSum));
 
         JSONArray dataRows = getDataRows(response);
         for (int i = 0; i < dataRows.length(); i++) {
@@ -356,7 +359,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     @Test
     public void multipleAggregationFunctionsInSelect() throws IOException {
         JSONObject response = executeQuery(
-                                String.format("SELECT COUNT(*), AVG(age) FROM %s GROUP BY age",
+                                String.format(Locale.ROOT, "SELECT COUNT(*), AVG(age) FROM %s GROUP BY age",
                                         TestsConstants.TEST_INDEX_ACCOUNT));
 
         List<String> fields = Arrays.asList("age", "COUNT(*)", "AVG(age)");
@@ -372,13 +375,13 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
      */
 //    @Test
 //    public void nestedAggregationFunctionInSelect() {
-//        String query = String.format("SELECT SUM(SQRT(age)) FROM age GROUP BY age", TEST_INDEX_ACCOUNT);
+//        String query = String.format(Locale.ROOT, "SELECT SUM(SQRT(age)) FROM age GROUP BY age", TEST_INDEX_ACCOUNT);
 //    }
 
     @Test
     public void fieldsWithAlias() throws IOException {
         JSONObject response = executeQuery(
-                                String.format("SELECT firstname AS first, age AS a FROM %s",
+                                String.format(Locale.ROOT, "SELECT firstname AS first, age AS a FROM %s",
                                         TestsConstants.TEST_INDEX_ACCOUNT));
 
         Map<String, String> aliases = new HashMap<>();
@@ -391,7 +394,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     @Test
     public void indexWithMissingFields() throws IOException {
         JSONObject response = executeQuery(
-                                String.format("SELECT phrase, insert_time2 " +
+                                String.format(Locale.ROOT, "SELECT phrase, insert_time2 " +
                                               "FROM %s " +
                                               "WHERE match_phrase(phrase, 'brown fox')",
                                         TestsConstants.TEST_INDEX_PHRASE));
@@ -405,7 +408,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     @Test
     public void joinQuery() throws IOException {
         JSONObject response = executeQuery(
-                                String.format("SELECT b1.balance, b1.age, b2.firstname " +
+                                String.format(Locale.ROOT, "SELECT b1.balance, b1.age, b2.firstname " +
                                               "FROM %s b1 JOIN %s b2 ON b1.age = b2.age",
                                         TestsConstants.TEST_INDEX_ACCOUNT, TestsConstants.TEST_INDEX_ACCOUNT));
 
@@ -416,10 +419,9 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void joinQueryWithAlias() throws IOException {
-        JSONObject response = executeQuery(
-                                String.format("SELECT b1.balance AS bal, b1.age AS age, b2.firstname AS name " +
-                                              "FROM %s b1 JOIN %s b2 ON b1.age = b2.age",
-                                        TestsConstants.TEST_INDEX_ACCOUNT, TestsConstants.TEST_INDEX_ACCOUNT));
+        JSONObject response = executeQuery(String.format(Locale.ROOT, "SELECT b1.balance AS bal, " +
+                        " b1.age AS age, b2.firstname AS name FROM %s b1 JOIN %s b2 ON b1.age = b2.age",
+                TestsConstants.TEST_INDEX_ACCOUNT, TestsConstants.TEST_INDEX_ACCOUNT));
 
         Map<String, String> aliases = new HashMap<>();
         aliases.put("b1.balance", "bal");
@@ -433,7 +435,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     @Test
     public void joinQueryWithObjectFieldInSelect() throws IOException {
         JSONObject response = executeQuery(
-                                String.format("SELECT c.name.firstname, d.name.lastname " +
+                                String.format(Locale.ROOT, "SELECT c.name.firstname, d.name.lastname " +
                                               "FROM %s c JOIN %s d ON d.hname = c.house",
                                         TestsConstants.TEST_INDEX_GAME_OF_THRONES,
                                         TestsConstants.TEST_INDEX_GAME_OF_THRONES));
@@ -453,11 +455,11 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     @Test
     public void joinQuerySelectOnlyOnOneTable() throws Exception {
         JSONObject response = executeQuery(
-                                String.format("SELECT b1.age " +
+                                String.format(Locale.ROOT, "SELECT b1.age " +
                                               "FROM %s b1 JOIN %s b2 ON b1.firstname = b2.firstname",
                                         TestsConstants.TEST_INDEX_ACCOUNT, TestsConstants.TEST_INDEX_ACCOUNT));
 
-        List<String> fields = Arrays.asList("b1.age");
+        List<String> fields = Collections.singletonList("b1.age");
         assertContainsColumns(getSchema(response), fields);
         assertContainsData(getDataRows(response), fields);
     }

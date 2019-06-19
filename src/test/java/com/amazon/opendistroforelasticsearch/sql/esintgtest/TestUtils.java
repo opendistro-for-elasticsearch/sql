@@ -35,7 +35,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 public class TestUtils {
 
@@ -408,6 +412,11 @@ public class TestUtils {
     }
 
     public static String getResponseBody(Response response) throws IOException {
+
+        return getResponseBody(response, false);
+    }
+
+    public static String getResponseBody(Response response, boolean retainNewLines) throws IOException {
         final StringBuilder sb = new StringBuilder();
 
         try (final InputStream is = response.getEntity().getContent();
@@ -416,6 +425,9 @@ public class TestUtils {
             String line;
             while ((line = br.readLine()) != null) {
                 sb.append(line);
+                if (retainNewLines) {
+                    sb.append(String.format(Locale.ROOT, "%n"));
+                }
             }
         }
         return sb.toString();
@@ -444,5 +456,52 @@ public class TestUtils {
 
             return stringBuilder.toString();
         }
+    }
+
+    /**
+     * Builds all permutations of the given list of Strings
+     * @param items
+                list of strings to permute
+     * @return list of permutations
+     */
+    public static List<List<String>> getPermutations(final List<String> items) {
+
+        if (items.size() > 5) {
+            throw new IllegalArgumentException("Inefficient test, please refactor");
+        }
+
+        final List<List<String>> result = new LinkedList<>();
+
+        if (items.isEmpty() || 1 == items.size()) {
+
+            final List<String> onlyElement = new ArrayList<>();
+            if (1 == items.size()) {
+                onlyElement.add(items.get(0));
+            }
+            result.add(onlyElement);
+            return result;
+        }
+
+        for (int i = 0; i < items.size(); ++i) {
+
+            final List<String> smallerSet = new ArrayList<>();
+
+            if (i != 0) {
+                smallerSet.addAll(items.subList(0, i));
+            }
+            if (i != items.size() - 1) {
+                smallerSet.addAll(items.subList(i + 1, items.size()));
+            }
+
+            final String currentItem = items.get(i);
+            result.addAll(getPermutations(smallerSet).stream().map(smallerSetPermutation -> {
+                final List<String> permutation = new ArrayList<>();
+                permutation.add(currentItem);
+                permutation.addAll(smallerSetPermutation);
+                return permutation;
+            }).collect(Collectors.toCollection(LinkedList::new)));
+        }
+
+        return result;
     }
 }

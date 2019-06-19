@@ -106,7 +106,6 @@ public class AsyncRestExecutor implements RestExecutor {
         ThreadPool threadPool = client.threadPool();
         Runnable runnable = () -> {
             try {
-                LOG.info("[{}] starting processing of request blablabla", LogUtils.getRequestId());
                 doExecuteWithTimeMeasured(client, params, queryAction, channel);
             } catch (IOException | SqlParseException e) {
                 Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
