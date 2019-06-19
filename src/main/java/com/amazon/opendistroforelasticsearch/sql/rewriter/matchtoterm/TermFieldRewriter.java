@@ -76,7 +76,7 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
         collect(query.getFrom(), indexToType, curScope().getAliases());
         curScope().setMapper(getMappings(indexToType));
 
-        if ((this.filterType == TermRewriterFilter.COMMA || this.filterType == TermRewriterFilter.MULTI_QUERY)) {
+        if (this.filterType == TermRewriterFilter.COMMA || this.filterType == TermRewriterFilter.MULTI_QUERY) {
             checkMappingCompatibility(curScope(), indexToType);
         }
 
@@ -218,8 +218,7 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
         if (scope.getMapper().isEmpty()) {
             throw new VerificationException("Unknown index " + indexToType.keySet());
         }
-        // Collect all FieldMappings into hash set and ignore index/type names. set.size > 1 means FieldMappings NOT unique,
-        // needs further compatibility check
+
         Set<FieldMappings> mappingSet = curScope().getMapper().allMappings().stream().
                                  flatMap(typeMappings -> typeMappings.allMappings().stream()).
                                  collect(Collectors.toSet());
@@ -249,13 +248,13 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
         } else {
             // check if types are same
             if (!fieldMappingValue.equals(mergedMapping.get(fieldName))) {
-                // TODO: Merge mappings if they are compatible, like text and text/keyword to text/keyword.
+                // TODO: Merge mappings if they are compatible, for text and text/keyword to text/keyword.
 
-                String firstFieldType= new JSONObject(fieldMappingValue).toString().replaceAll("\"", "");
+                String firstFieldType = new JSONObject(fieldMappingValue).toString().replaceAll("\"", "");
                 String secondFieldType = new JSONObject(mergedMapping.get(fieldName)).toString().replaceAll("\"", "");
 
-                String exceptionReason = String.format(Locale.ROOT,"Cannot use field [%s] " +
-                                "due to ambiguities being mapped as incompatible types: [%s] and [%s] ",
+                String exceptionReason = String.format(Locale.ROOT,"Different mappings are not allowed " +
+                                "for the same field[%s]: found [%s] and [%s] ",
                         fieldName, firstFieldType, secondFieldType);
 
                 throw new VerificationException(exceptionReason);
