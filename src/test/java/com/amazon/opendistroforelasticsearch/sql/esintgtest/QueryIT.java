@@ -16,7 +16,6 @@
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
 import org.elasticsearch.client.ResponseException;
-import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.rest.RestStatus;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -33,10 +32,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_GAME_OF_THRONES;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_NESTED_TYPE;
@@ -114,7 +111,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void selectSpecificFields() throws IOException {
         String[] arr = new String[] {"age", "account_number"};
-		Set<String> expectedSource = new HashSet<>(Arrays.asList(arr));
+        Set<String> expectedSource = new HashSet<>(Arrays.asList(arr));
 
         JSONObject response = executeQuery(String.format(Locale.ROOT, "SELECT age, account_number FROM %s/account",
                 TEST_INDEX_ACCOUNT));
@@ -129,7 +126,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void selectFieldWithSpace() throws IOException {
         String[] arr = new String[] {"test field"};
-		Set<String> expectedSource = new HashSet<>(Arrays.asList(arr));
+        Set<String> expectedSource = new HashSet<>(Arrays.asList(arr));
 
         JSONObject response = executeQuery(String.format(Locale.ROOT, "SELECT ['test field'] FROM %s/phrase " +
                         "WHERE ['test field'] IS NOT null",
@@ -144,15 +141,15 @@ public class QueryIT extends SQLIntegTestCase {
 
     @Ignore("field aliases are not supported currently")
     // it might be possible to change field names after the query already executed.
-	@Test
-	public void selectAliases() throws IOException {
+    @Test
+    public void selectAliases() throws IOException {
 
-		String[] arr = new String[] {"myage", "myaccount_number"};
-		Set expectedSource = new HashSet(Arrays.asList(arr));
+        String[] arr = new String[] {"myage", "myaccount_number"};
+        Set<String> expectedSource = new HashSet<>(Arrays.asList(arr));
 
-		JSONObject result = executeQuery(String.format(Locale.ROOT,
+        JSONObject result = executeQuery(String.format(Locale.ROOT,
                 "SELECT age AS myage, account_number AS myaccount_number FROM %s/account", TEST_INDEX_ACCOUNT));
-		JSONArray hits = getHits(result);
+        JSONArray hits = getHits(result);
         hits.forEach(hitObj -> {
             JSONObject hit = (JSONObject)hitObj;
             Assert.assertEquals(expectedSource, hit.getJSONObject("_source").keySet());
@@ -567,13 +564,13 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void dateSearch() throws IOException {
         DateTimeFormatter formatter = DateTimeFormat.forPattern(TestsConstants.DATE_FORMAT);
-		DateTime dateToCompare = new DateTime(2014, 8, 18, 0, 0, 0);
+        DateTime dateToCompare = new DateTime(2014, 8, 18, 0, 0, 0);
 
-		JSONObject response = executeQuery(
-		                String.format(Locale.ROOT, "SELECT insert_time FROM %s/online WHERE insert_time < '2014-08-18'",
+        JSONObject response = executeQuery(
+                        String.format(Locale.ROOT, "SELECT insert_time FROM %s/online WHERE insert_time < '2014-08-18'",
                                 TestsConstants.TEST_INDEX_ONLINE));
-		JSONArray hits = getHits(response);
-		for (int i = 0; i < hits.length(); i++) {
+        JSONArray hits = getHits(response);
+        for (int i = 0; i < hits.length(); i++) {
             JSONObject hit = hits.getJSONObject(i);
             JSONObject source = getSource(hit);
             DateTime insertTime = formatter.parseDateTime(source.getString("insert_time"));
@@ -611,17 +608,17 @@ public class QueryIT extends SQLIntegTestCase {
     public void dateBetweenSearch() throws IOException {
         DateTimeFormatter formatter = DateTimeFormat.forPattern(TestsConstants.DATE_FORMAT);
 
-		DateTime dateLimit1 = new DateTime(2014, 8, 18, 0, 0, 0);
-		DateTime dateLimit2 = new DateTime(2014, 8, 21, 0, 0, 0);
+        DateTime dateLimit1 = new DateTime(2014, 8, 18, 0, 0, 0);
+        DateTime dateLimit2 = new DateTime(2014, 8, 21, 0, 0, 0);
 
-		JSONObject response = executeQuery(
-		                String.format(Locale.ROOT, "SELECT insert_time " +
+        JSONObject response = executeQuery(
+                        String.format(Locale.ROOT, "SELECT insert_time " +
                                       "FROM %s/online " +
                                       "WHERE insert_time BETWEEN '2014-08-18' AND '2014-08-21' " +
                                       "LIMIT 3",
                                 TestsConstants.TEST_INDEX_ONLINE));
-		JSONArray hits = getHits(response);
-		for (int i = 0; i < hits.length(); i++) {
+        JSONArray hits = getHits(response);
+        for (int i = 0; i < hits.length(); i++) {
             JSONObject hit = hits.getJSONObject(i);
             JSONObject source = getSource(hit);
             DateTime insertTime = formatter.parseDateTime(source.getString("insert_time"));
@@ -929,7 +926,7 @@ public class QueryIT extends SQLIntegTestCase {
      */
     @Ignore
     @Test
-    public void queryWithATfieldOnWhere() throws IOException {
+    public void queryWithAtFieldOnWhere() throws IOException {
         JSONObject response = executeQuery(String.format(Locale.ROOT,
                 "SELECT * FROM %s/gotCharacters where @wolf = 'Summer' LIMIT 1000", TEST_INDEX_GAME_OF_THRONES));
         Assert.assertEquals(1, getTotalHits(response));
@@ -1032,7 +1029,7 @@ public class QueryIT extends SQLIntegTestCase {
         }
     }
 
-    @Ignore // Subquery still runs in ES transport thread which fails the thread assertion as well as tests followed.
+    @Ignore // Subquery still runs in ES transport thread which fails the assertion. Same issue for the following tests.
     @Test
     public void innerQueryTest() throws IOException {
         JSONObject response = executeQuery(
@@ -1284,7 +1281,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void multipleIndicesOneNotExistWithoutHint() throws IOException {
         try {
-            JSONObject response = executeQuery(
+            executeQuery(
                     String.format(Locale.ROOT, "SELECT * FROM %s, %s", TEST_INDEX_ACCOUNT, "badindex"));
             Assert.fail("Expected exception, but call succeeded");
         } catch (ResponseException e) {

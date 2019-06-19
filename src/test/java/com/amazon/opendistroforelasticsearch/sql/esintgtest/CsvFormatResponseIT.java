@@ -21,6 +21,8 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.test.ESIntegTestCase;
+import org.hamcrest.Matcher;
+import org.hamcrest.core.AnyOf;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -28,15 +30,22 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_DOG;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_GAME_OF_THRONES;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_NESTED_TYPE;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ONLINE;
+import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.StringStartsWith.startsWith;
 
@@ -187,16 +196,16 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
         List<String> lines = csvResult.getLines();
         Assert.assertEquals(7, lines.size());
-        Assert.assertTrue(lines.contains("\"{firstname=Daenerys, lastname=Targaryen, ofHerName=1}\",Targaryen") ||
-                lines.contains("\"{firstname=Daenerys, ofHerName=1, lastname=Targaryen}\",Targaryen") ||
-                lines.contains("\"{lastname=Targaryen, firstname=Daenerys, ofHerName=1}\",Targaryen") ||
-                lines.contains("\"{lastname=Targaryen, ofHerName=1, firstname=Daenerys}\",Targaryen") ||
-                lines.contains("\"{ofHerName=1, lastname=Targaryen, firstname=Daenerys}\",Targaryen") ||
-                lines.contains("\"{ofHerName=1, firstname=Daenerys, lastname=Targaryen}\",Targaryen")
-        );
-        //todo: generate all options for rest 3..
-    }
 
+        Assert.assertThat(lines, hasRow(null, "Targaryen",
+                Arrays.asList("firstname=Daenerys", "lastname=Targaryen", "ofHerName=1"), true));
+        Assert.assertThat(lines, hasRow(null, "Stark",
+                Arrays.asList("firstname=Eddard", "lastname=Stark", "ofHisName=1"), true));
+        Assert.assertThat(lines, hasRow(null, "Stark",
+                Arrays.asList("firstname=Brandon", "lastname=Stark", "ofHisName=4"), true));
+        Assert.assertThat(lines, hasRow(null, "Lannister",
+                Arrays.asList("firstname=Jaime", "lastname=Lannister", "ofHisName=1"), true));
+    }
 
     @Ignore("headers incorrect in case of nested fields")
     @Test
@@ -233,15 +242,15 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
         List<String> lines = csvResult.getLines();
         Assert.assertEquals(7, lines.size());
-        Assert.assertTrue(lines.contains("\"{firstname=Daenerys, lastname=Targaryen}\",Targaryen") ||
-                lines.contains("\"{lastname=Targaryen, firstname=Daenerys}\",Targaryen"));
-        Assert.assertTrue(lines.contains("\"{firstname=Eddard, lastname=Stark}\",Stark") ||
-                lines.contains("\"{lastname=Stark, firstname=Eddard}\",Stark"));
-        Assert.assertTrue(lines.contains("\"{firstname=Brandon, lastname=Stark}\",Stark") ||
-                lines.contains("\"{lastname=Stark, firstname=Brandon}\",Stark"));
-        Assert.assertTrue(lines.contains("\"{firstname=Jaime, lastname=Lannister}\",Lannister") ||
-                lines.contains("\"{lastname=Lannister, firstname=Jaime}\",Lannister"));
 
+        Assert.assertThat(lines, hasRow(null, "Targaryen",
+                Arrays.asList("firstname=Daenerys", "lastname=Targaryen"), true));
+        Assert.assertThat(lines, hasRow(null, "Stark",
+                Arrays.asList("firstname=Eddard", "lastname=Stark"), true));
+        Assert.assertThat(lines, hasRow(null, "Stark",
+                Arrays.asList("firstname=Brandon", "lastname=Stark"), true));
+        Assert.assertThat(lines, hasRow(null, "Lannister",
+                Arrays.asList("firstname=Jaime", "lastname=Lannister"), true));
     }
 
     @Test
@@ -261,7 +270,6 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
         Assert.assertTrue(lines.contains("Eddard,Stark"));
         Assert.assertTrue(lines.contains("Brandon,Stark"));
         Assert.assertTrue(lines.contains("Jaime,Lannister"));
-
     }
 
     @Test
@@ -279,15 +287,8 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
         List<String> lines = csvResult.getLines();
         Assert.assertEquals(4, lines.size());
-        Assert.assertTrue(lines.contains("F,Targaryen,fireAndBlood") ||
-                lines.contains("F,fireAndBlood,Targaryen") ||
-                lines.contains("Targaryen,fireAndBlood,F") ||
-                lines.contains("Targaryen,F,fireAndBlood") ||
-                lines.contains("fireAndBlood,Targaryen,F") ||
-                lines.contains("fireAndBlood,F,Targaryen")
 
-        );
-
+        Assert.assertThat(lines, hasRow(null, null, Arrays.asList("F", "fireAndBlood", "Targaryen"), false));
     }
 
     @Test
@@ -421,10 +422,8 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
         List<String> lines = csvResult.getLines();
         Assert.assertEquals(3, lines.size());
-        Assert.assertTrue("2014-08-14 00:00:00,477.0", lines.contains("2014-08-14 00:00:00,477.0"));
-        Assert.assertTrue("2014-08-18 00:00:00,5664.0", lines.contains("2014-08-18 00:00:00,5664.0"));
-        Assert.assertTrue("2014-08-22 00:00:00,3795.0", lines.contains("2014-08-22 00:00:00,3795.0"));
-
+        Assert.assertThat(lines,
+                hasItems("2014-08-14 00:00:00,477.0", "2014-08-18 00:00:00,5664.0", "2014-08-22 00:00:00,3795.0"));
     }
 
     @Test
@@ -442,7 +441,6 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
         List<String> lines = csvResult.getLines();
         Assert.assertEquals(1, lines.size());
         Assert.assertEquals("1000,30171.0,30.171,20.0,40.0", lines.get(0));
-
     }
 
     @Test
@@ -450,15 +448,13 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
         String query = String.format(Locale.ROOT, "SELECT EXTENDED_STATS(age) FROM %s/account", TEST_INDEX_ACCOUNT);
         CSVResult csvResult = executeCsvRequest(query, false);
         List<String> headers = csvResult.getHeaders();
-        Assert.assertEquals(8, headers.size());
-        Assert.assertEquals("EXTENDED_STATS(age).count", headers.get(0));
-        Assert.assertEquals("EXTENDED_STATS(age).sum", headers.get(1));
-        Assert.assertEquals("EXTENDED_STATS(age).avg", headers.get(2));
-        Assert.assertEquals("EXTENDED_STATS(age).min", headers.get(3));
-        Assert.assertEquals("EXTENDED_STATS(age).max", headers.get(4));
-        Assert.assertEquals("EXTENDED_STATS(age).sumOfSquares", headers.get(5));
-        Assert.assertEquals("EXTENDED_STATS(age).variance", headers.get(6));
-        Assert.assertEquals("EXTENDED_STATS(age).stdDeviation", headers.get(7));
+
+        final String expectedHeaders[] = {"EXTENDED_STATS(age).count", "EXTENDED_STATS(age).sum",
+                "EXTENDED_STATS(age).avg", "EXTENDED_STATS(age).min", "EXTENDED_STATS(age).max",
+                "EXTENDED_STATS(age).sumOfSquares", "EXTENDED_STATS(age).variance", "EXTENDED_STATS(age).stdDeviation"};
+
+        Assert.assertEquals(expectedHeaders.length, headers.size());
+        Assert.assertThat(headers, contains(expectedHeaders));
 
         List<String> lines = csvResult.getLines();
         Assert.assertEquals(1, lines.size());
@@ -560,7 +556,6 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
                 lines.get(0).contains("31,32") || lines.get(0).contains("31.0,32.0"));
     }
 
-
     @Ignore("separator not exposed")
     @Test
     public void twoCharsSeperator() throws Exception {
@@ -578,7 +573,6 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
         Assert.assertTrue("snoopy||4".equals(lines.get(1)) || "4||snoopy".equals(lines.get(1)));
 
     }
-
 
     @Test
     public void includeIdAndNotTypeOrScore() throws Exception {
@@ -660,7 +654,6 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
     private CSVResult csvResultFromStringResponse(final String response) {
 
-        final List<String> headers = new ArrayList<>();
         final List<String> rows = new ArrayList<>();
 
         final String newLine = String.format(Locale.ROOT, "%n");
@@ -679,7 +672,44 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
             }
         }
 
-        headers.addAll(Arrays.asList(headerLine.split(",")));
+        final List<String> headers = new ArrayList<>(Arrays.asList(headerLine.split(",")));
         return new CSVResult(headers, rows);
+    }
+
+    private static AnyOf<List<String>> hasRow(final String prefix, final String suffix, final List<String> items,
+                                              final boolean areItemsNested) {
+
+        final Collection<List<String>> permutations = TestUtils.getPermutations(items);
+
+        final List<Matcher<? super List<String>>> matchers = permutations.stream().map(permutation -> {
+
+            final String delimiter = areItemsNested ? ", " : ",";
+            final String objectField = String.join(delimiter, permutation);
+            final String row = String.format(Locale.ROOT, "%s%s%s%s%s",
+                    printablePrefix(prefix), areItemsNested ? "\"{" : "",
+                    objectField, areItemsNested ? "}\"" : "", printableSuffix(suffix));
+            return hasItem(row);
+
+        }).collect(Collectors.toCollection(LinkedList::new));
+
+        return anyOf(matchers);
+    }
+
+    private static String printablePrefix(final String prefix) {
+
+        if (prefix == null || prefix.trim().isEmpty()) {
+            return "";
+        }
+
+        return prefix + ",";
+    }
+
+    private static String printableSuffix(final String suffix) {
+
+        if (suffix == null || suffix.trim().isEmpty()) {
+            return "";
+        }
+
+        return "," + suffix;
     }
 }
