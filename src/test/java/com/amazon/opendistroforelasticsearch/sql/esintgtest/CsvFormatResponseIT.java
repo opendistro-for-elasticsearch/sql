@@ -221,10 +221,10 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
         List<String> lines = csvResult.getLines();
         Assert.assertEquals(7, lines.size());
-        Assert.assertTrue(lines.contains("{firstname=Daenerys},Targaryen"));
-        Assert.assertTrue(lines.contains("{firstname=Eddard},Stark"));
-        Assert.assertTrue(lines.contains("{firstname=Brandon},Stark"));
-        Assert.assertTrue(lines.contains("{firstname=Jaime},Lannister"));
+        Assert.assertThat(lines, hasItem("{firstname=Daenerys},Targaryen"));
+        Assert.assertThat(lines, hasItem("{firstname=Eddard},Stark"));
+        Assert.assertThat(lines, hasItem("{firstname=Brandon},Stark"));
+        Assert.assertThat(lines, hasItem("{firstname=Jaime},Lannister"));
 
     }
 
