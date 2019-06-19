@@ -24,11 +24,13 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Locale;
 
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_BANK;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_BANK_TWO;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_DOG;
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ONLINE;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_DOG2;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_DOG3;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
+
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
@@ -43,6 +45,8 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
         loadIndex(Index.BANK);
         loadIndex(Index.BANK_TWO);
         loadIndex(Index.DOG);
+        loadIndex(Index.DOGS2);
+        loadIndex(Index.DOGS3);
     }
 
     @Test
@@ -102,17 +106,27 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void testNonIdenticalMappings() throws IOException {
+    public void testNonCompatibleMappings() throws IOException {
         try {
-            explainQuery(String.format(Locale.ROOT, "SELECT firstname, birthdate FROM %s, %s " +
-                            "WHERE firstname = 'Leo' OR male = 'true'",
-                    TEST_INDEX_BANK, TEST_INDEX_ONLINE));
+            explainQuery(String.format(Locale.ROOT, "SELECT * FROM %s, %s ",
+                    TEST_INDEX_DOG, TEST_INDEX_DOG2));
+            Assert.fail("Expected ResponseException, but none was thrown");
         } catch (ResponseException e) {
             assertThat(e.getResponse().getStatusLine().getStatusCode(), equalTo(RestStatus.BAD_REQUEST.getStatus()));
             final String entity = TestUtils.getResponseBody(e.getResponse());
-            assertThat(entity, containsString("When using multiple indices, the mappings must be identical"));
+            assertThat(entity, containsString("dog_name"));
+            assertThat(entity, containsString("{type:text,fields:{keyword:{type:keyword,ignore_above:256}}}"));
+            assertThat(entity, containsString("{type:text,fielddata:true}"));
             assertThat(entity, containsString("\"type\": \"VerificationException\""));
         }
+    }
+
+    @Test
+    public void testEqualFieldMappings() throws IOException {
+        String result = explainQuery(String.format(Locale.ROOT, "SELECT color FROM %s, %s ",
+                    TEST_INDEX_DOG2, TEST_INDEX_DOG3));
+        assertThat(result, containsString("color"));
+        assertThat(result, containsString("_source"));
     }
 
     @Test

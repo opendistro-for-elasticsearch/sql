@@ -30,11 +30,14 @@ import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import org.elasticsearch.client.Client;
+import org.json.JSONObject;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState.FieldMappings;
@@ -72,10 +75,11 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
         Map<String, String> indexToType = new HashMap<>();
         collect(query.getFrom(), indexToType, curScope().getAliases());
         curScope().setMapper(getMappings(indexToType));
-        if ((this.filterType == TermRewriterFilter.COMMA || this.filterType == TermRewriterFilter.MULTI_QUERY)
-            && !hasIdenticalMappings(curScope(), indexToType)) {
-            throw new VerificationException("When using multiple indices, the mappings must be identical.");
+
+        if (this.filterType == TermRewriterFilter.COMMA || this.filterType == TermRewriterFilter.MULTI_QUERY) {
+            checkMappingCompatibility(curScope(), indexToType);
         }
+
         return true;
     }
 
@@ -210,19 +214,55 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
             );
     }
 
-    public boolean hasIdenticalMappings(TermFieldScope scope, Map<String, String> indexToType) {
+    private void checkMappingCompatibility(TermFieldScope scope, Map<String, String> indexToType) {
         if (scope.getMapper().isEmpty()) {
             throw new VerificationException("Unknown index " + indexToType.keySet());
         }
 
-        if (isMappingOfAllIndicesDifferent()) {
-            return false;
-        }
+        Set<FieldMappings> indexMappings = curScope().getMapper().allMappings().stream().
+                                 flatMap(typeMappings -> typeMappings.allMappings().stream()).
+                                 collect(Collectors.toSet());
 
+        final FieldMappings fieldMappings;
+
+        if (indexMappings.size() > 1) {
+            Map<String, Map<String, Object>> mergedMapping = new HashMap<>();
+
+            for (FieldMappings f : indexMappings) {
+                Map<String, Map<String, Object>> m = f.data();
+                m.forEach((k, v) -> verifySingleFieldMapping(k, v, mergedMapping));
+            }
+
+            fieldMappings = new FieldMappings(mergedMapping);
+        } else {
+            fieldMappings = curScope().getMapper().firstMapping().firstMapping();
+        }
         // We need finalMapping to lookup for rewriting
-        FieldMappings fieldMappings = curScope().getMapper().firstMapping().firstMapping();
         curScope().setFinalMapping(fieldMappings);
-        return true;
+    }
+
+    private void verifySingleFieldMapping(final String fieldName, final Map<String, Object> fieldMapping,
+                                          final Map<String, Map<String, Object>> mergedMapping) {
+
+        if (!mergedMapping.containsKey(fieldName)) {
+            mergedMapping.put(fieldName, fieldMapping);
+        } else {
+
+            final Map<String, Object> visitedMapping = mergedMapping.get(fieldName);
+            // check if types are same
+            if (!fieldMapping.equals(visitedMapping)) {
+                // TODO: Merge mappings if they are compatible, for text and text/keyword to text/keyword.
+
+                String firstFieldType = new JSONObject(fieldMapping).toString().replaceAll("\"", "");
+                String secondFieldType = new JSONObject(visitedMapping).toString().replaceAll("\"", "");
+
+                String exceptionReason = String.format(Locale.ROOT,"Different mappings are not allowed " +
+                                "for the same field[%s]: found [%s] and [%s] ",
+                        fieldName, firstFieldType, secondFieldType);
+
+                throw new VerificationException(exceptionReason);
+            }
+        }
     }
 
     public IndexMappings getMappings(Map<String, String> indexToType) {
@@ -245,13 +285,5 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
         public static String toString(TermRewriterFilter filter) {
             return filter.name;
         }
-    }
-
-    private boolean isMappingOfAllIndicesDifferent() {
-        // Collect all FieldMappings into hash set and ignore index/type names. Size > 1 means FieldMappings NOT unique.
-        return curScope().getMapper().allMappings().stream().
-                                                    flatMap(typeMappings -> typeMappings.allMappings().stream()).
-                                                    collect(Collectors.toSet()).
-                                                    size() > 1;
     }
 }

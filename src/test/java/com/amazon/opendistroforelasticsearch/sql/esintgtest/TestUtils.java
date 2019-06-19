@@ -118,6 +118,20 @@ public class TestUtils {
                 "}";
     }
 
+    public static String getDogs3IndexMapping() {
+        return "{  \"dog\": {" +
+                " \"properties\": {\n" +
+                "          \"holdersName\": {\n" +
+                "            \"type\": \"keyword\"\n" +
+                "          },\n"+
+                "          \"color\": {\n" +
+                "            \"type\": \"text\"\n" +
+                "          }"+
+                "       }"+
+                "   }" +
+                "}";
+    }
+
     public static String getPeople2IndexMapping() {
         return "{  \"people\": {" +
                 " \"properties\": {\n" +
