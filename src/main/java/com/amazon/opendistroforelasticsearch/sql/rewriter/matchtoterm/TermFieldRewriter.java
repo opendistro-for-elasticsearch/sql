@@ -230,7 +230,7 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
 
             for (FieldMappings f : mappingSet) {
                 Map<String, Map<String, Object>> m = f.data();
-                m.forEach((k, v) -> getMergedMapping(k, v, mergedMapping));
+                m.forEach((k, v) -> verifySingleFieldMapping(k, v, mergedMapping));
             }
 
             fieldMappings = new FieldMappings(mergedMapping);
@@ -241,7 +241,7 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
         curScope().setFinalMapping(fieldMappings);
     }
 
-    private void getMergedMapping(String fieldName, Map<String, Object> fieldMappingValue , Map<String, Map<String, Object>> mergedMapping){
+    private void verifySingleFieldMapping(String fieldName, Map<String, Object> fieldMappingValue , Map<String, Map<String, Object>> mergedMapping){
 
         if (!mergedMapping.containsKey(fieldName)) {
             mergedMapping.put(fieldName, fieldMappingValue);
