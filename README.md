@@ -22,8 +22,6 @@ The package uses the [Gradle](https://docs.gradle.org/4.10.2/userguide/userguide
 2. To build from command line set `JAVA_HOME` to point to a JDK >=12
 3. Run `./gradlew build`
 
-You may note that some Maven configuration file is present in the source too. That is because we were using Maven and the migration to Gradle is still in progress.
-
 
 ## Basic Usage
 

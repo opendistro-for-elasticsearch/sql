@@ -19,7 +19,7 @@ import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState.FieldMappings;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState.IndexMappings;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState.TypeMappings;
-import com.amazon.opendistroforelasticsearch.sql.intgtest.TestsConstants;
+import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants;
 import com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings;
 import org.elasticsearch.cluster.ClusterChangedEvent;
 import org.elasticsearch.cluster.ClusterStateListener;

@@ -394,6 +394,11 @@ public class TestUtils {
     }
 
     public static String getResponseBody(Response response) throws IOException {
+
+        return getResponseBody(response, false);
+    }
+
+    public static String getResponseBody(Response response, boolean retainNewLines) throws IOException {
         final StringBuilder sb = new StringBuilder();
 
         try (final InputStream is = response.getEntity().getContent();
@@ -402,6 +407,9 @@ public class TestUtils {
             String line;
             while ((line = br.readLine()) != null) {
                 sb.append(line);
+                if (retainNewLines) {
+                    sb.append(String.format(Locale.ROOT, "%n"));
+                }
             }
         }
         return sb.toString();

@@ -15,11 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
-import static com.amazon.opendistroforelasticsearch.sql.intgtest.TestsConstants.*;
-
-import java.io.IOException;
-import java.util.Set;
-
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.xcontent.LoggingDeprecationHandler;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;
@@ -31,6 +26,11 @@ import org.elasticsearch.search.SearchHits;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.IOException;
+import java.util.Set;
+
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
 
 public class SourceFieldIT extends SQLIntegTestCase {
 

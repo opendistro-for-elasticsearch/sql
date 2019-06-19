@@ -16,10 +16,11 @@
 package com.amazon.opendistroforelasticsearch.sql.unittest;
 
 import com.alibaba.druid.sql.parser.ParserException;
+import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
-import com.amazon.opendistroforelasticsearch.sql.intgtest.TestsConstants;
 import com.amazon.opendistroforelasticsearch.sql.query.ESActionFactory;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
+import com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents;
 import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.Strings;
@@ -28,13 +29,12 @@ import org.elasticsearch.index.query.MultiMatchQueryBuilder;
 import org.hamcrest.Matcher;
 import org.junit.Test;
 import org.mockito.Mockito;
-import com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents;
 
 import java.sql.SQLFeatureNotSupportedException;
 
 import static org.elasticsearch.index.query.QueryBuilders.constantScoreQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchPhraseQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.nestedQuery;
 import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;

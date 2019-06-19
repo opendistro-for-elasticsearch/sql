@@ -120,8 +120,7 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
 
         String result = explainQuery(String.format(Locale.ROOT, "SELECT firstname, birthdate, state " +
                         "FROM %s, %s WHERE state = 'WA' OR male = 'true'",
-                com.amazon.opendistroforelasticsearch.sql.intgtest.TestsConstants.TEST_INDEX_BANK,
-                com.amazon.opendistroforelasticsearch.sql.intgtest.TestsConstants.TEST_INDEX_BANK_TWO));
+                TEST_INDEX_BANK, TEST_INDEX_BANK_TWO));
         assertThat(result, containsString("term"));
         assertThat(result, containsString("state.keyword"));
         assertThat(result, containsString("_source"));
@@ -131,8 +130,7 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
     public void testIdenticalMappingsWithTypes() throws IOException {
 
         String result = explainQuery(String.format(Locale.ROOT, "SELECT firstname, birthdate, state FROM %s, %s WHERE state = 'WA' OR male = 'true'",
-                com.amazon.opendistroforelasticsearch.sql.intgtest.TestsConstants.TEST_INDEX_BANK + "/account",
-                com.amazon.opendistroforelasticsearch.sql.intgtest.TestsConstants.TEST_INDEX_BANK_TWO + "/account_two"));
+                TEST_INDEX_BANK + "/account", TEST_INDEX_BANK_TWO + "/account_two"));
         assertThat(result, containsString("term"));
         assertThat(result, containsString("state.keyword"));
         assertThat(result, containsString("_source"));

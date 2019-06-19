@@ -15,11 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
+import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseException;
-import org.elasticsearch.client.Request;
-
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
@@ -27,7 +26,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Locale;
 
-import static com.amazon.opendistroforelasticsearch.sql.intgtest.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
 import static org.hamcrest.Matchers.equalTo;
 
 public class PluginIT extends SQLIntegTestCase {
