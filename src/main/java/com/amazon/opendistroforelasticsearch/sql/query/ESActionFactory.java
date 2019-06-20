@@ -60,9 +60,11 @@ public class ESActionFactory {
      * @return Query object.
      */
     public static QueryAction create(Client client, String sql) throws SqlParseException, SQLFeatureNotSupportedException {
-        sql = sql.replaceAll("\n"," ");
-        String firstWord = sql.substring(0, sql.indexOf(' '));
-        switch (firstWord.toUpperCase()) {
+
+        // Linebreak matcher
+        sql = sql.replaceAll("\\R"," ").trim();
+
+        switch (getFirstWord(sql)) {
             case "SELECT":
                 SQLQueryExpr sqlExpr = (SQLQueryExpr) toSqlExpr(sql);
                 sqlExpr.accept(new NestedFieldRewriter());
@@ -98,8 +100,16 @@ public class ESActionFactory {
                 IndexStatement describeStatement = new IndexStatement(StatementType.DESCRIBE, sql);
                 return new DescribeQueryAction(client, describeStatement);
             default:
-                throw new SQLFeatureNotSupportedException(String.format("Unsupported query: %s", sql));
+                throw new SQLFeatureNotSupportedException(
+                        String.format("Query must start with SELECT, DELETE, SHOW or DESCRIBE: %s", sql));
         }
+    }
+
+    private static String getFirstWord(String sql) {
+        int endOfFirstWord = sql.indexOf(' ');
+        return sql
+                .substring(0, endOfFirstWord > 0 ? endOfFirstWord : sql.length())
+                .toUpperCase();
     }
 
     private static boolean isMulti(SQLQueryExpr sqlExpr) {
