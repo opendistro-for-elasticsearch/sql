@@ -198,6 +198,26 @@ public class QueryFunctionsTest {
         );
     }
 
+    @Test(expected = SQLFeatureNotSupportedException.class)
+    public void emptyQueryShouldThrowSQLFeatureNotSupportedException() throws SQLFeatureNotSupportedException, SqlParseException {
+        ESActionFactory.create(Mockito.mock(Client.class), "");
+    }
+
+    @Test(expected = SQLFeatureNotSupportedException.class)
+    public void emptyNewLineQueryShouldThrowSQLFeatureNotSupportedException() throws SQLFeatureNotSupportedException, SqlParseException {
+        ESActionFactory.create(Mockito.mock(Client.class), "\n");
+    }
+
+    @Test(expected = SQLFeatureNotSupportedException.class)
+    public void queryWithoutSpaceShouldSQLFeatureNotSupportedException() throws SQLFeatureNotSupportedException, SqlParseException {
+        ESActionFactory.create(Mockito.mock(Client.class), "SELE");
+    }
+
+    @Test(expected = SQLFeatureNotSupportedException.class)
+    public void spacesOnlyQueryShouldThrowSQLFeatureNotSupportedException() throws SQLFeatureNotSupportedException, SqlParseException {
+        ESActionFactory.create(Mockito.mock(Client.class), "      ");
+    }
+
     private String query(String from, String... statements) {
         return explain(SELECT_ALL + " " + from + " " + String.join(" ", statements));
     }
