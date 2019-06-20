@@ -30,8 +30,7 @@ import java.sql.SQLFeatureNotSupportedException;
 public class BuggedQueries {
 
     @Test(expected = ParserException.class)
-
     public void missingWhereAndFieldName() throws SQLFeatureNotSupportedException, SqlParseException {
-        ESActionFactory.create(Mockito.mock(Client.class), "select * from products like 'CompassPoint*' limit 10");
+        ESActionFactory.create(Mockito.mock(Client.class), "select * from products like 'SomeProduct*' limit 10");
     }
 }
