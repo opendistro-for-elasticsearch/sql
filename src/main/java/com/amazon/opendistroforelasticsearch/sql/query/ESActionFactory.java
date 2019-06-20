@@ -60,7 +60,9 @@ public class ESActionFactory {
      * @return Query object.
      */
     public static QueryAction create(Client client, String sql) throws SqlParseException, SQLFeatureNotSupportedException {
-        sql = sql.replaceAll(System.lineSeparator()," ").trim();
+
+        // Linebreak matcher
+        sql = sql.replaceAll("\\R"," ").trim();
 
         switch (getFirstWord(sql)) {
             case "SELECT":

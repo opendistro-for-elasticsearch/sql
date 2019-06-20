@@ -209,6 +209,11 @@ public class QueryFunctionsTest {
     }
 
     @Test(expected = SQLFeatureNotSupportedException.class)
+    public void emptyNewLineQueryShouldThrowSQLFeatureNotSupportedException2() throws SQLFeatureNotSupportedException, SqlParseException {
+        ESActionFactory.create(Mockito.mock(Client.class), "\r\n");
+    }
+
+    @Test(expected = SQLFeatureNotSupportedException.class)
     public void queryWithoutSpaceShouldSQLFeatureNotSupportedException() throws SQLFeatureNotSupportedException, SqlParseException {
         ESActionFactory.create(Mockito.mock(Client.class), "SELE");
     }
