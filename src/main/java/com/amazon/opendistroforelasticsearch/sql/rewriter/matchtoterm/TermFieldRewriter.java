@@ -150,31 +150,31 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
     public void collect(SQLTableSource tableSource, Map<String, String> indexToType,  Map<String, String> aliases) {
         if (tableSource instanceof SQLExprTableSource) {
 
-            String table = null;
+            String tableName = null;
             SQLExprTableSource sqlExprTableSource = (SQLExprTableSource) tableSource;
 
             if (sqlExprTableSource.getExpr() instanceof SQLIdentifierExpr) {
                 SQLIdentifierExpr sqlIdentifier = (SQLIdentifierExpr) sqlExprTableSource.getExpr();
-                table = sqlIdentifier.getName();
-                indexToType.put(table, null);
+                tableName = sqlIdentifier.getName();
+                indexToType.put(tableName, null);
             } else if (sqlExprTableSource.getExpr() instanceof SQLBinaryOpExpr) {
                 SQLBinaryOpExpr sqlBinaryOpExpr = (SQLBinaryOpExpr) sqlExprTableSource.getExpr();
-                table = ((SQLIdentifierExpr) sqlBinaryOpExpr.getLeft()).getName();
+                tableName = ((SQLIdentifierExpr) sqlBinaryOpExpr.getLeft()).getName();
                 SQLExpr rightSideOfExpression = sqlBinaryOpExpr.getRight();
 
                 // This assumes that right side of the expression is different name in query
                 if (rightSideOfExpression instanceof SQLIdentifierExpr) {
                     SQLIdentifierExpr right = (SQLIdentifierExpr) rightSideOfExpression;
-                    indexToType.put(table, right.getName());
+                    indexToType.put(tableName, right.getName());
                 } else {
                     throw new ParserException("Right side of the expression [" + rightSideOfExpression.toString() +
                             "] is expected to be an identifier");
                 }
             }
             if (tableSource.getAlias() != null) {
-                aliases.put(tableSource.getAlias(), table);
+                aliases.put(tableSource.getAlias(), tableName);
             } else {
-                aliases.put(table, table);
+                aliases.put(tableName, tableName);
             }
 
         } else if (tableSource instanceof SQLJoinTableSource) {
