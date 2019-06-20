@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm;
 
+import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOperator;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
@@ -28,6 +29,7 @@ import com.alibaba.druid.sql.ast.statement.SQLTableSource;
 import com.alibaba.druid.sql.dialect.mysql.ast.expr.MySqlSelectGroupByExpr;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
+import com.alibaba.druid.sql.parser.ParserException;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import org.elasticsearch.client.Client;
 import org.json.JSONObject;
@@ -147,24 +149,32 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
 
     public void collect(SQLTableSource tableSource, Map<String, String> indexToType,  Map<String, String> aliases) {
         if (tableSource instanceof SQLExprTableSource) {
-            String table = null;
-            if (((SQLExprTableSource) tableSource).getExpr() instanceof SQLIdentifierExpr) {
-                table = ((SQLIdentifierExpr) ((SQLExprTableSource) tableSource).getExpr()).getName();
-                indexToType.put(
-                    table,
-                    null
-                );
-            } else if (((SQLExprTableSource) tableSource).getExpr() instanceof SQLBinaryOpExpr) {
-                table = ((SQLIdentifierExpr)((SQLBinaryOpExpr) ((SQLExprTableSource) tableSource).getExpr()).getLeft()).getName();
-                indexToType.put(
-                    table,
-                    ((SQLIdentifierExpr)((SQLBinaryOpExpr) ((SQLExprTableSource) tableSource).getExpr()).getRight()).getName()
-                );
+
+            String tableName = null;
+            SQLExprTableSource sqlExprTableSource = (SQLExprTableSource) tableSource;
+
+            if (sqlExprTableSource.getExpr() instanceof SQLIdentifierExpr) {
+                SQLIdentifierExpr sqlIdentifier = (SQLIdentifierExpr) sqlExprTableSource.getExpr();
+                tableName = sqlIdentifier.getName();
+                indexToType.put(tableName, null);
+            } else if (sqlExprTableSource.getExpr() instanceof SQLBinaryOpExpr) {
+                SQLBinaryOpExpr sqlBinaryOpExpr = (SQLBinaryOpExpr) sqlExprTableSource.getExpr();
+                tableName = ((SQLIdentifierExpr) sqlBinaryOpExpr.getLeft()).getName();
+                SQLExpr rightSideOfExpression = sqlBinaryOpExpr.getRight();
+
+                // This assumes that right side of the expression is different name in query
+                if (rightSideOfExpression instanceof SQLIdentifierExpr) {
+                    SQLIdentifierExpr right = (SQLIdentifierExpr) rightSideOfExpression;
+                    indexToType.put(tableName, right.getName());
+                } else {
+                    throw new ParserException("Right side of the expression [" + rightSideOfExpression.toString() +
+                            "] is expected to be an identifier");
+                }
             }
             if (tableSource.getAlias() != null) {
-                aliases.put(tableSource.getAlias(), table);
+                aliases.put(tableSource.getAlias(), tableName);
             } else {
-                aliases.put(table, table);
+                aliases.put(tableName, tableName);
             }
 
         } else if (tableSource instanceof SQLJoinTableSource) {

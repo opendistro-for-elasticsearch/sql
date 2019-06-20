@@ -120,12 +120,14 @@ public class RestSqlAction extends BaseRestHandler {
             }
         } catch (Exception e) {
             if (isClientError(e)) {
+                LOG.error(String.format(Locale.ROOT, "[%s] Client side error during query execution", LogUtils.getRequestId()), e);
                 Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_CUS).increment();
+                return reportError(e, BAD_REQUEST);
             } else {
+                LOG.error(String.format(Locale.ROOT, "[%s] Server side error during query execution", LogUtils.getRequestId()), e);
                 Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
+                return reportError(e, SERVICE_UNAVAILABLE);
             }
-            LOG.error(String.format(Locale.ROOT, "[%s] Failed during query execution", LogUtils.getRequestId()), e);
-            return reportError(e, isClientError(e) ? BAD_REQUEST : SERVICE_UNAVAILABLE);
         }
     }
 
