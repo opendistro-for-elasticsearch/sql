@@ -167,8 +167,8 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
                     SQLIdentifierExpr right = (SQLIdentifierExpr) rightSideOfExpression;
                     indexToType.put(table, right.getName());
                 } else {
-                    throw new ParserException("Right side of the expression  " + rightSideOfExpression.toString() +
-                            " is expected to be an identifier");
+                    throw new ParserException("Right side of the expression [" + rightSideOfExpression.toString() +
+                            "] is expected to be an identifier");
                 }
             }
             if (tableSource.getAlias() != null) {

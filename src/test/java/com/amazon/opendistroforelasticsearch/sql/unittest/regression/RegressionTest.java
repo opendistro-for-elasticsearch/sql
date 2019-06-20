@@ -13,24 +13,30 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.unittest.bugs;
+package com.amazon.opendistroforelasticsearch.sql.unittest.regression;
 
 import com.alibaba.druid.sql.parser.ParserException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.query.ESActionFactory;
 import org.elasticsearch.client.Client;
 import org.junit.Test;
-import org.mockito.Mockito;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLFeatureNotSupportedException;
 
 /**
  * Special cases for queries that had broken our parser in past.
  */
-public class BuggedQueries {
+@RunWith(MockitoJUnitRunner.class)
+public class RegressionTest {
+
+    @Mock
+    Client client;
 
     @Test(expected = ParserException.class)
     public void missingWhereAndFieldName() throws SQLFeatureNotSupportedException, SqlParseException {
-        ESActionFactory.create(Mockito.mock(Client.class), "select * from products like 'SomeProduct*' limit 10");
+        ESActionFactory.create(client, "select * from products like 'SomeProduct*' limit 10");
     }
 }
