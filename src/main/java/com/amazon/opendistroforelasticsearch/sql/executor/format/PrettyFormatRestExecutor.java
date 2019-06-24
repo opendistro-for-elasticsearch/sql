@@ -17,16 +17,20 @@ package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
 import com.amazon.opendistroforelasticsearch.sql.executor.QueryActionElasticExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.RestExecutor;
+import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.join.BackOffRetryStrategy;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestStatus;
-import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 
 import java.util.Map;
 
 public class PrettyFormatRestExecutor implements RestExecutor {
+
+    private static final Logger LOG = LogManager.getLogger();
 
     private final String format;
 
@@ -64,9 +68,7 @@ public class PrettyFormatRestExecutor implements RestExecutor {
             Object queryResult = QueryActionElasticExecutor.executeAnyAction(client, queryAction);
             protocol = new Protocol(client, queryAction.getQueryStatement(), queryResult, format);
         } catch (Exception e) {
-            // TODO Might require some refactoring, Exceptions that happen in RestSqAction code before invoking execution
-            // TODO are being caught in RestController (line 242) and being sent as a bytesRestResponse
-            // ex. "SELECT * FROM WHERE balance > 30000", results in ParserException and ErrorMessage is never made
+            LOG.error("Error happened in pretty formatter", e);
             protocol = new Protocol(e);
         }
 
