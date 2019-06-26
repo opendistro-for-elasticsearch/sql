@@ -108,7 +108,7 @@ public class Select extends Query {
 		if (field == null ) {
 			return;
 		}
-        if (field.getName().equals("*") && !isAgg) { // Ignore * for GROUP BY
+        if (field.getName().equals("*") && !isAgg) { // Ignore GROUP BY since columns present in result are decided by column list in GROUP BY
             this.selectAll = true;
             return;
         }

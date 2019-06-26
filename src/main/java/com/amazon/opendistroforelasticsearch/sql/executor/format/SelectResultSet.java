@@ -168,7 +168,7 @@ public class SelectResultSet extends ResultSet {
     }
 
     /**
-     * Is a join query with SELECT * on either one of the table
+     * Is a join query with SELECT * on either one of the tables  some fields specified
      */
     private boolean isJoinQuerySelectAll(Query query, String[] fieldNames) {
         return fieldNames.length == 0 && !fieldsSelectedOnAnotherTable(query);
@@ -449,7 +449,7 @@ public class SelectResultSet extends ResultSet {
 
             this.rows = populateRows(searchHits);
             this.size = rows.size();
-            this.totalHits = Math.max(size, // size may be greater than totalHits after nested rows flatten
+            this.totalHits = Math.max(size, // size may be greater than totalHits after nested rows be flatten
                                       Optional.ofNullable(searchHits.getTotalHits()).map(th -> th.value).orElse(0L));
 
         } else if (queryResult instanceof Aggregations) {
