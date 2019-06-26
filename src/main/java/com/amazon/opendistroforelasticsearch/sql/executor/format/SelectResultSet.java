@@ -446,9 +446,10 @@ public class SelectResultSet extends ResultSet {
         if (queryResult instanceof SearchHits) {
             SearchHits searchHits = (SearchHits) queryResult;
 
-            this.size = searchHits.getHits().length;
-            this.totalHits = Optional.ofNullable(searchHits.getTotalHits()).map(th -> th.value).orElse(0L);
             this.rows = populateRows(searchHits);
+            this.size = rows.size();
+            this.totalHits = Math.max(size,
+                                      Optional.ofNullable(searchHits.getTotalHits()).map(th -> th.value).orElse(0L));
 
         } else if (queryResult instanceof Aggregations) {
             Aggregations aggregations = (Aggregations) queryResult;
