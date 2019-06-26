@@ -241,6 +241,15 @@ public class TestUtils {
                 "              },\n" +
                 "              \"author\": {\n" +
                 "                \"type\": \"keyword\",\n" +
+            /*
+                "                \"type\": \"keyword\",\n" +
+                "                \"fields\": {\n" +
+                "                  \"keyword\": {\n" +
+                "                    \"type\": \"keyword\",\n" +
+                "                    \"ignore_above\" : 256\n" +
+                "                  }\n" +
+                "                },\n" +
+             */
                 "                \"index\": \"true\"\n" +
                 "              },\n" +
                 "              \"dayOfWeek\": {\n" +

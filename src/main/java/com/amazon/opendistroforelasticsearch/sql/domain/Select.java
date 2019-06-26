@@ -68,6 +68,7 @@ public class Select extends Query {
 
 	public void addGroupBy(List<Field> fields) {
 		isAgg = true;
+		selectAll = false;
 		this.groupBys.add(fields);
 	}
 
@@ -107,8 +108,9 @@ public class Select extends Query {
 		if (field == null ) {
 			return;
 		}
-        if(field.getName().equals("*")){
+        if (field.getName().equals("*") && !isAgg) { // Ignore * for GROUP BY
             this.selectAll = true;
+            return;
         }
 
 		if(field instanceof  MethodField && aggsFunctions.contains(field.getName().toUpperCase())) {

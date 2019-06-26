@@ -92,7 +92,7 @@ public class SelectResultSet extends ResultSet {
         String typeName = fetchTypeName(query);
         String[] fieldNames = fetchFieldsAsArray(query);
 
-        if (fieldNames.length == 0 && !fieldsSelectedOnAnotherTable(query))
+        if ((fieldNames.length == 0 && !fieldsSelectedOnAnotherTable(query)) || isQuerySelectAllExplicitly(query))
             selectAll = true;
         else
             selectAll = false; // Reset boolean in the case of JOIN query where multiple calls to loadFromEsState() are made
@@ -338,9 +338,7 @@ public class SelectResultSet extends ResultSet {
                 if (!isSelectAll() || !field.endsWith(".keyword")) {
                     FieldMappingMetaData metaData = typeMappings.get(field);
 
-                    // Ignore nested fields during SELECT *, expectation is that user will SELECT them specifically
-                    // TODO isPropertyType() logic should be changed to check for nested more effectively
-                    if (isSelectAll() && isPropertyType(field)) { continue; }
+                    if (isFieldNestedAndNotSelected(fieldMap, field)) { continue; }
 
                     String type = getTypeFromMetaData(field, metaData).toUpperCase();
 
@@ -367,6 +365,24 @@ public class SelectResultSet extends ResultSet {
         }
 
         return columns;
+    }
+
+    private boolean isQuerySelectAllExplicitly(Query query) {
+        return (query instanceof Select) && ((Select) query).isSelectAll();
+    }
+
+    /**
+     *
+     */
+    private boolean isFieldNestedAndNotSelected(Map<String, Field> fieldMap, String fieldName) {
+        int lastDot = fieldName.lastIndexOf(".");
+        if (lastDot > -1) {
+            String path = fieldName.substring(0, lastDot);
+            if (!fieldMap.containsKey(fieldName) && !fieldMap.containsKey(path + ".*")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

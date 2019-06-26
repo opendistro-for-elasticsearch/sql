@@ -46,6 +46,7 @@ public class FieldMaker {
             return makeField(makeBinaryMethodField((SQLBinaryOpExpr) expr, alias, true), alias, tableAlias);
 
         } else if (expr instanceof SQLAllColumnExpr) {
+            return new Field("*", "");
         } else if (expr instanceof SQLMethodInvokeExpr) {
             SQLMethodInvokeExpr mExpr = (SQLMethodInvokeExpr) expr;
 
@@ -92,7 +93,6 @@ public class FieldMaker {
         } else {
             throw new SqlParseException("unknown field name : " + expr);
         }
-        return null;
     }
 
     private static Object getScriptValue(SQLExpr expr) throws SqlParseException {
