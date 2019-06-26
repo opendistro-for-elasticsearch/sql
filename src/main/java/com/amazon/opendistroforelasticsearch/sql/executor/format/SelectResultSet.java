@@ -15,6 +15,12 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
+import com.amazon.opendistroforelasticsearch.sql.domain.Field;
+import com.amazon.opendistroforelasticsearch.sql.domain.JoinSelect;
+import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
+import com.amazon.opendistroforelasticsearch.sql.domain.Query;
+import com.amazon.opendistroforelasticsearch.sql.domain.Select;
+import com.amazon.opendistroforelasticsearch.sql.domain.TableOnJoinSelect;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
 import org.elasticsearch.client.Client;
@@ -25,12 +31,6 @@ import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.NumericMetricsAggregation;
-import com.amazon.opendistroforelasticsearch.sql.domain.Field;
-import com.amazon.opendistroforelasticsearch.sql.domain.JoinSelect;
-import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
-import com.amazon.opendistroforelasticsearch.sql.domain.Query;
-import com.amazon.opendistroforelasticsearch.sql.domain.Select;
-import com.amazon.opendistroforelasticsearch.sql.domain.TableOnJoinSelect;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -92,7 +92,7 @@ public class SelectResultSet extends ResultSet {
         String typeName = fetchTypeName(query);
         String[] fieldNames = fetchFieldsAsArray(query);
 
-        if ((fieldNames.length == 0 && !fieldsSelectedOnAnotherTable(query)) || isQuerySelectAllExplicitly(query))
+        if (isSimpleQuerySelectAll(query) || isJoinQuerySelectAll(query, fieldNames))
             selectAll = true;
         else
             selectAll = false; // Reset boolean in the case of JOIN query where multiple calls to loadFromEsState() are made
@@ -159,6 +159,20 @@ public class SelectResultSet extends ResultSet {
     }
 
     private boolean isSelectAll() { return selectAll; }
+
+    /**
+     * Is a simple (non-join/non-group-by) query with SELECT * explicitly
+     */
+    private boolean isSimpleQuerySelectAll(Query query) {
+        return (query instanceof Select) && ((Select) query).isSelectAll();
+    }
+
+    /**
+     * Is a join query with SELECT * on either one of the table
+     */
+    private boolean isJoinQuerySelectAll(Query query, String[] fieldNames) {
+        return fieldNames.length == 0 && !fieldsSelectedOnAnotherTable(query);
+    }
 
     /**
      * In the case of a JOIN query, if no fields are SELECTed on for a particular table, the other table's fields are
@@ -338,7 +352,7 @@ public class SelectResultSet extends ResultSet {
                 if (!isSelectAll() || !field.endsWith(".keyword")) {
                     FieldMappingMetaData metaData = typeMappings.get(field);
 
-                    if (isFieldNestedAndNotSelected(fieldMap, field)) { continue; }
+                    if (isPropertyFieldNotSelected(fieldMap, field)) { continue; }
 
                     String type = getTypeFromMetaData(field, metaData).toUpperCase();
 
@@ -367,14 +381,10 @@ public class SelectResultSet extends ResultSet {
         return columns;
     }
 
-    private boolean isQuerySelectAllExplicitly(Query query) {
-        return (query instanceof Select) && ((Select) query).isSelectAll();
-    }
-
     /**
-     *
+     *  Verify if field is property field (object or nested ) but NOT specified and NOT matched by wildcard pattern given in SELECT
      */
-    private boolean isFieldNestedAndNotSelected(Map<String, Field> fieldMap, String fieldName) {
+    private boolean isPropertyFieldNotSelected(Map<String, Field> fieldMap, String fieldName) {
         int lastDot = fieldName.lastIndexOf(".");
         if (lastDot > -1) {
             String path = fieldName.substring(0, lastDot);
@@ -395,15 +405,6 @@ public class SelectResultSet extends ResultSet {
             return fieldMap.get(fieldName).getAlias();
 
         return null;
-    }
-
-    // TODO change this method, a temporary solution and not an effective way for checking if a field is nested
-    // Unfortunately the typeMapping when returning all fields returns the full path so the outer field can't be
-    // retrieved to check type for "nested"
-    private boolean isPropertyType(String fieldName) {
-        int lastDot = fieldName.lastIndexOf(".");
-
-        return lastDot > -1 && !fieldName.substring(lastDot + 1).equals("keyword");
     }
 
     /** Used to retrieve the type of fields from metaData map structures for both regular and nested fields */
@@ -448,7 +449,7 @@ public class SelectResultSet extends ResultSet {
 
             this.rows = populateRows(searchHits);
             this.size = rows.size();
-            this.totalHits = Math.max(size,
+            this.totalHits = Math.max(size, // size may be greater than totalHits after nested rows flatten
                                       Optional.ofNullable(searchHits.getTotalHits()).map(th -> th.value).orElse(0L));
 
         } else if (queryResult instanceof Aggregations) {
