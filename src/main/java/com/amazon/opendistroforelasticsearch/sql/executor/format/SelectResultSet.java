@@ -392,11 +392,11 @@ public class SelectResultSet extends ResultSet {
 
     /**
      *  Verify if field is property field (object or nested ) and matched by wildcard pattern given in SELECT
-     *  A special case is text field with nested keyword. Ignore it in the case of SELECT * ?
+     *  A special case is text field with nested keyword. Ignore it because it's a "hidden" field.
      */
     private boolean isFieldPropertyAndMatchWildcard(Map<String, Field> fieldMap, String fieldName) {
         int lastDot = fieldName.lastIndexOf(".");
-        if (lastDot > -1) {
+        if (lastDot != -1) {
             String path = fieldName.substring(0, lastDot);
             return !fieldName.endsWith(".keyword") && fieldMap.containsKey(path + ".*");
         }
