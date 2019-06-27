@@ -164,17 +164,20 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void selectAllFromNestedWithoutFieldInFrom() throws IOException {
-        assertNestedFieldQueryResultContainsColumnsAndData("SELECT * FROM %s", regularFields, fields("message", "comment"));
+        assertNestedFieldQueryResultContainsColumnsAndData("SELECT * FROM %s",
+                                                           regularFields, fields("message", "comment"));
     }
 
     @Test
     public void selectAllFromNestedWithFieldInFrom() throws IOException {
-        assertNestedFieldQueryResultContainsColumnsAndData("SELECT * FROM %s e, e.message m", regularFields, messageFields);
+        assertNestedFieldQueryResultContainsColumnsAndData("SELECT * FROM %s e, e.message m",
+                                                           regularFields, messageFields);
     }
 
     @Test
     public void selectAllFromNestedWithMultipleFieldsInFrom() throws IOException {
-        assertNestedFieldQueryResultContainsColumnsAndData("SELECT * FROM %s e, e.message m, e.comment c", regularFields, messageFields, commentFields);
+        assertNestedFieldQueryResultContainsColumnsAndData("SELECT * FROM %s e, e.message m, e.comment c",
+                                                           regularFields, messageFields, commentFields);
     }
 
     @Test
