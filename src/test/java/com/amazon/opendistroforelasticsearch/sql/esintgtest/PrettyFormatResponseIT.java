@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -163,7 +164,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void selectAllFromNestedWithoutFieldInFrom() throws IOException {
-        assertNestedFieldQueryResultContainsColumnsAndData("SELECT * FROM %s", regularFields);
+        assertNestedFieldQueryResultContainsColumnsAndData("SELECT * FROM %s", regularFields, fields("message", "comment"));
     }
 
     @Test
@@ -184,7 +185,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     @Test
     public void selectSpecificRegularFieldAndAllFromNestedWithFieldInFrom() throws IOException {
         assertNestedFieldQueryResultContainsColumnsAndData("SELECT e.someField, m.* FROM %s e, e.message m",
-                                                           Collections.singleton("someField"), messageFields);
+                                                           fields("someField"), messageFields);
     }
 
     /**
@@ -200,6 +201,10 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
 
         assertContainsColumnsInAnyOrder(getSchema(response), allExpectedFieldNames);
         assertContainsData(getDataRows(response), allExpectedFieldNames);
+    }
+
+    private Set<String> fields(String... fieldNames) {
+        return Sets.newHashSet(fieldNames);
     }
 
     @Test

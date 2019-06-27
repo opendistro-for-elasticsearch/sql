@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse.FieldMappingMetaData;
 
@@ -349,11 +350,11 @@ public class SelectResultSet extends ResultSet {
              * explicitly selected.
              */
             if (typeMappings.containsKey(field) && !field.startsWith("_")) {
-                if (!isSelectAll() || !field.endsWith(".keyword")) {
+
+                if (isFieldSpecifiedExplicitly(fieldMap, field) ||
+                    isFieldPropertyAndMatchWildcard(fieldMap, field)) {
+
                     FieldMappingMetaData metaData = typeMappings.get(field);
-
-                    if (isPropertyFieldNotSelected(fieldMap, field)) { continue; }
-
                     String type = getTypeFromMetaData(field, metaData).toUpperCase();
 
                     /*
@@ -378,21 +379,45 @@ public class SelectResultSet extends ResultSet {
             }
         }
 
+        if (isSelectAllOnly(query)) {
+            populateAllNestedFields(columns, fields);
+        }
+
         return columns;
     }
 
+    private boolean isFieldSpecifiedExplicitly(Map<String, Field> fieldMap, String fieldName) {
+        return fieldMap.containsKey(fieldName);
+    }
+
     /**
-     *  Verify if field is property field (object or nested ) but NOT specified and NOT matched by wildcard pattern given in SELECT
+     *  Verify if field is property field (object or nested ) and matched by wildcard pattern given in SELECT
+     *  A special case is text field with nested keyword. Ignore it in the case of SELECT * ?
      */
-    private boolean isPropertyFieldNotSelected(Map<String, Field> fieldMap, String fieldName) {
+    private boolean isFieldPropertyAndMatchWildcard(Map<String, Field> fieldMap, String fieldName) {
         int lastDot = fieldName.lastIndexOf(".");
         if (lastDot > -1) {
             String path = fieldName.substring(0, lastDot);
-            if (!fieldMap.containsKey(fieldName) && !fieldMap.containsKey(path + ".*")) {
-                return true;
-            }
+            return !fieldName.endsWith(".keyword") && fieldMap.containsKey(path + ".*");
         }
-        return false;
+        return true;
+    }
+
+    private boolean isSelectAllOnly(Query query) {
+        return isSelectAll() && fetchFields(query).isEmpty();
+    }
+
+    private void populateAllNestedFields(List<Schema.Column> columns, List<String> fields) {
+        Set<String> nestedFieldNames = fields.stream().
+                                       filter(f -> f.contains(".") && !f.endsWith("keyword")).
+                                       map(f -> f.substring(0, f.lastIndexOf("."))).
+                                       collect(Collectors.toSet());
+
+        for (String fieldName : nestedFieldNames) {
+            columns.add(
+                new Schema.Column(fieldName, "", Schema.Type.TEXT)
+            );
+        }
     }
 
     /**
