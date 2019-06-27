@@ -403,10 +403,18 @@ public class SelectResultSet extends ResultSet {
         return true;
     }
 
+    /**
+     * SELECT * only without other columns or wildcard pattern specified.
+     */
     private boolean isSelectAllOnly(Query query) {
         return isSelectAll() && fetchFields(query).isEmpty();
     }
 
+    /**
+     * Special case which trades off consistency of SELECT * meaning for more intuition from customer perspective.
+     * In other cases, * means all regular fields on the level.
+     * The only exception here is * picks all non-regular (nested) fields as JSON without flatten.
+     */
     private void populateAllNestedFields(List<Schema.Column> columns, List<String> fields) {
         Set<String> nestedFieldNames = fields.stream().
                                        filter(f -> f.contains(".") && !f.endsWith("keyword")).
