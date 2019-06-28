@@ -215,7 +215,8 @@ public class DefaultQueryAction extends QueryAction {
                                 .setNestedSort(new NestedSortBuilder(order.getNestedPath())));
             } else {
                 if (order.isScriptField()) {
-                    // TODO(galk) Investigate how to find the sort type
+                    // TODO: Investigate how to find the type of expression (string or number)
+                    // As of now this shouldn't be a problem, because the support is for date_format function
 
                     ScriptSortBuilder.ScriptSortType string = ScriptSortBuilder.ScriptSortType.STRING;
                     request.addSort(

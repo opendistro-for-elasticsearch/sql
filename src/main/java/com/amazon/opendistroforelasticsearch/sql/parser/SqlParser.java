@@ -215,22 +215,28 @@ public class SqlParser {
             String type = sqlSelectOrderByItem.getType().toString();
 
             SQLExpr expr = sqlSelectOrderByItem.getExpr();
-            Field f = FieldMaker.makeField(expr, null, null);
+            Field field = FieldMaker.makeField(expr, null, null);
 
             String orderByName;
-            if (f instanceof MethodField && f.getName().equals("script")) {
-                MethodField mf = (MethodField) f;
+            if (field instanceof MethodField && field.getName().equals("script")) {
+                // TODO The consumer of ordering doesn't know the type of the expression, and elasticsearch needs to
+                // specify it for the script field ordering. Explore opportinities to supply that information to
+                // client code. One of the options is to have metadata store about functions that will supply
+                // return type of the result function here.
 
-                // TODO(galk) Ensure that the index will be always 1
-                orderByName = mf.getParams().get(1).toString();
+                MethodField methodField = (MethodField) field;
+
+                // 0 - generated field name
+                final int SCRIPT_CONTENT_INDEX = 1;
+                orderByName = methodField.getParams().get(SCRIPT_CONTENT_INDEX).toString();
 
             } else {
-                orderByName = f.toString();
+                orderByName = field.toString();
             }
 
             orderByName = orderByName.replace("`", "");
             if (alias != null) orderByName = orderByName.replaceFirst(alias + "\\.", "");
-            select.addOrderBy(f.getNestedPath(), orderByName, type, f instanceof MethodField);
+            select.addOrderBy(field.getNestedPath(), orderByName, type, field instanceof MethodField);
 
         }
     }
