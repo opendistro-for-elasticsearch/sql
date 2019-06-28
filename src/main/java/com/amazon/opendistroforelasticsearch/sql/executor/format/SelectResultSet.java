@@ -417,7 +417,7 @@ public class SelectResultSet extends ResultSet {
      */
     private void populateAllNestedFields(List<Schema.Column> columns, List<String> fields) {
         Set<String> nestedFieldNames = fields.stream().
-                                       filter(f -> f.contains(".") && !f.endsWith("keyword")).
+                                       filter(f -> f.contains(".") && !f.endsWith(".keyword")).
                                        map(f -> f.substring(0, f.lastIndexOf("."))).
                                        collect(Collectors.toSet());
 
