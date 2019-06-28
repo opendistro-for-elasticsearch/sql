@@ -24,11 +24,17 @@ public class Order {
 	private String nestedPath;
 	private String name;
 	private String type;
+	private boolean isScriptField;
 
-	public Order(String nestedPath, String name, String type) {
+	public boolean isScriptField() {
+		return isScriptField;
+	}
+
+	public Order(String nestedPath, String name, String type, boolean isScriptField) {
         this.nestedPath = nestedPath;
 		this.name = name;
 		this.type = type;
+		this.isScriptField = isScriptField;
 	}
 
     public String getNestedPath() {

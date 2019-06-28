@@ -30,6 +30,7 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.From;
 import com.amazon.opendistroforelasticsearch.sql.domain.Having;
 import com.amazon.opendistroforelasticsearch.sql.domain.JoinSelect;
+import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.domain.TableOnJoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.domain.Where;
@@ -208,18 +209,28 @@ public class SqlParser {
 
     private void addOrderByToSelect(Select select, List<SQLSelectOrderByItem> items, String alias) throws SqlParseException {
         for (SQLSelectOrderByItem sqlSelectOrderByItem : items) {
-            SQLExpr expr = sqlSelectOrderByItem.getExpr();
-            Field f = FieldMaker.makeField(expr, null, null);
-            String orderByName = f.toString();
-
             if (sqlSelectOrderByItem.getType() == null) {
                 sqlSelectOrderByItem.setType(SQLOrderingSpecification.ASC);
             }
             String type = sqlSelectOrderByItem.getType().toString();
 
+            SQLExpr expr = sqlSelectOrderByItem.getExpr();
+            Field f = FieldMaker.makeField(expr, null, null);
+
+            String orderByName;
+            if (f instanceof MethodField && f.getName().equals("script")) {
+                MethodField mf = (MethodField) f;
+
+                // TODO(galk) Ensure that the index will be always 1
+                orderByName = mf.getParams().get(1).toString();
+
+            } else {
+                orderByName = f.toString();
+            }
+
             orderByName = orderByName.replace("`", "");
             if (alias != null) orderByName = orderByName.replaceFirst(alias + "\\.", "");
-            select.addOrderBy(f.getNestedPath(), orderByName, type);
+            select.addOrderBy(f.getNestedPath(), orderByName, type, f instanceof MethodField);
 
         }
     }

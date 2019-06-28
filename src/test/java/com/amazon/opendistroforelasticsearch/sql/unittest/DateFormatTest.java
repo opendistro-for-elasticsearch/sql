@@ -19,6 +19,7 @@ import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.alibaba.druid.sql.parser.ParserException;
 import com.alibaba.druid.sql.parser.Token;
+import com.amazon.opendistroforelasticsearch.sql.domain.Order;
 import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
@@ -30,6 +31,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.common.lucene.BytesRefs;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.hamcrest.*;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -59,6 +61,52 @@ public class DateFormatTest {
         // Equality query for date_format is created with a rangeQuery where the 'from' and 'to' values are equal to the value we are equating to
         assertThat(q, hasQueryWithValue("from", equalTo(BytesRefs.toBytesRef("2018-04-02")))); // converting string to bytes ref as RangeQueryBuilder stores it this way
         assertThat(q, hasQueryWithValue("to", equalTo(BytesRefs.toBytesRef("2018-04-02"))));
+    }
+
+    @Test
+    public void orderByTest() {
+        String query = "SELECT agent, ip, date_format(utc_time, 'dd-MM-YYYY') date " +
+                "FROM kibana_sample_data_logs " +
+                "ORDER BY date_format(utc_time, 'dd-MM-YYYY') desc, ip";
+
+        Select select = getSelect(query);
+
+        List<Order> orderBys = select.getOrderBys();
+        assertThat(orderBys.size(), equalTo(2));
+
+        Order formula = orderBys.get(0);
+
+        assertThat(formula.isScriptField(), is(true));
+        assertThat(formula.getType(), is("DESC"));
+        assertThat(formula.getName(), containsString("DateTimeFormatter.ofPattern"));
+
+        Order ip = orderBys.get(1);
+
+        assertThat(ip.isScriptField(), is(false));
+        assertThat(ip.getName(), is("ip"));
+        assertThat(ip.getType(), is("ASC"));
+    }
+
+    public Select getSelect(String query) {
+        ElasticSqlExprParser parser = new ElasticSqlExprParser(query);
+        SQLQueryExpr expr = (SQLQueryExpr) parser.expr();
+        try {
+            return new SqlParser().parseSelect(expr);
+        } catch (SqlParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @Ignore("06/27/2019: During implementing of ORDER BY date_format found that this fails as well. " +
+            "Will investigate after order by fix submitted, to scope amount of fixes.")
+    public void orderByWithGroupByTest() {
+        String query = "SELECT ip, count(ip) " +
+                "FROM kibana_sample_data_logs " +
+                "GROUP BY date_format(utc_time, 'dd-MM-YYYY') " +
+                "ORDER BY date_format(utc_time, 'dd-MM-YYYY') DESC";
+
+        Select select = getSelect(query);
     }
 
     @Test

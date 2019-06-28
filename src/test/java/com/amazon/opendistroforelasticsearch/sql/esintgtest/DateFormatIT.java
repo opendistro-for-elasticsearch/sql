@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.is;
 
 public class DateFormatIT extends SQLIntegTestCase {
 
@@ -116,6 +117,22 @@ public class DateFormatIT extends SQLIntegTestCase {
                       "LIMIT 1000"),
             contains("2014-08-17", "2014-08-24")
         );
+    }
+
+
+    @Test
+    public void sortByDateFormat() throws IOException {
+        // Sort by expression in descending order, but sort inside in ascending order, so we increase our confidence
+        // that successful test isn't just random chance.
+
+        JSONArray hits =
+                getHits(executeQuery("SELECT all_client, insert_time " +
+                        "FROM " + TestsConstants.TEST_INDEX_ONLINE + "/online " +
+                        "ORDER BY date_format(insert_time, 'dd-MM-YYYY') DESC, insert_time " +
+                        "LIMIT 10"));
+
+        assertThat(new DateTime(getSource(hits.getJSONObject(0)).get("insert_time"), DateTimeZone.UTC),
+                is(new DateTime("2014-08-24T07:00:55.481Z", DateTimeZone.UTC)));
     }
 
     private Set<Object> dateQuery(String sql) throws SqlParseException {

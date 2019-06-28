@@ -38,6 +38,7 @@ import org.elasticsearch.script.Script;
 import org.elasticsearch.script.ScriptType;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.NestedSortBuilder;
+import org.elasticsearch.search.sort.ScriptSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 
@@ -208,9 +209,22 @@ public class DefaultQueryAction extends QueryAction {
     private void setSorts(List<Order> orderBys) {
         for (Order order : orderBys) {
             if (order.getNestedPath() != null) {
-                request.addSort(SortBuilders.fieldSort(order.getName()).order(SortOrder.valueOf(order.getType())).setNestedSort(new NestedSortBuilder(order.getNestedPath())));
+                request.addSort(
+                        SortBuilders.fieldSort(order.getName())
+                                .order(SortOrder.valueOf(order.getType()))
+                                .setNestedSort(new NestedSortBuilder(order.getNestedPath())));
             } else {
-                request.addSort(order.getName(), SortOrder.valueOf(order.getType()));
+                if (order.isScriptField()) {
+                    // TODO(galk) Investigate how to find the sort type
+
+                    ScriptSortBuilder.ScriptSortType string = ScriptSortBuilder.ScriptSortType.STRING;
+                    request.addSort(
+                            SortBuilders
+                                    .scriptSort(new Script(order.getName()), string)
+                                    .order(SortOrder.valueOf(order.getType())));
+                } else {
+                    request.addSort(order.getName(), SortOrder.valueOf(order.getType()));
+                }
             }
         }
     }
