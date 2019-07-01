@@ -392,13 +392,13 @@ public class SelectResultSet extends ResultSet {
 
     /**
      *  Verify if field is property field (object or nested ) and matched by wildcard pattern given in SELECT
-     *  A special case is text field with nested keyword. Ignore it because it's a "hidden" field.
+     *  A special case is multi-field, typically text field with nested keyword. Ignore it because it's a "hidden" field.
      */
     private boolean isFieldPropertyAndMatchWildcard(Map<String, Field> fieldMap, String fieldName) {
         int lastDot = fieldName.lastIndexOf(".");
         if (lastDot != -1) {
             String path = fieldName.substring(0, lastDot);
-            return !fieldName.endsWith(".keyword") && fieldMap.containsKey(path + ".*");
+            return !isInMultiField(fieldName) && fieldMap.containsKey(path + ".*");
         }
         return true;
     }
@@ -417,7 +417,7 @@ public class SelectResultSet extends ResultSet {
      */
     private void populateAllNestedFields(List<Schema.Column> columns, List<String> fields) {
         Set<String> nestedFieldNames = fields.stream().
-                                       filter(f -> f.contains(".") && !f.endsWith(".keyword")).
+                                       filter(f -> f.contains(".") && !isInMultiField(f)).
                                        map(f -> f.substring(0, f.lastIndexOf("."))).
                                        collect(Collectors.toSet());
 
@@ -427,6 +427,14 @@ public class SelectResultSet extends ResultSet {
             );
         }
     }
+
+    /**
+     * Does field belong to a multi-field, for example, field "a.keyword" in field "a"
+     */
+    private boolean isInMultiField(String fieldName) {
+        return fieldName.endsWith(".keyword");
+    }
+
 
     /**
      * Since this helper method is called within a check to see if the field exists in type mapping, it's
