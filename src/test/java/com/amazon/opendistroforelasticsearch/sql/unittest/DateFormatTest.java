@@ -87,16 +87,6 @@ public class DateFormatTest {
         assertThat(ip.getType(), is("ASC"));
     }
 
-    public Select getSelect(String query) {
-        ElasticSqlExprParser parser = new ElasticSqlExprParser(query);
-        SQLQueryExpr expr = (SQLQueryExpr) parser.expr();
-        try {
-            return new SqlParser().parseSelect(expr);
-        } catch (SqlParseException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     @Test
     @Ignore("06/27/2019: During implementing of ORDER BY date_format found that this fails as well. " +
             "Will investigate after order by fix submitted, to scope amount of fixes.")
@@ -165,6 +155,14 @@ public class DateFormatTest {
             throw new ParserException("Illegal sql: " + sql);
         }
         return (SQLQueryExpr) expr;
+    }
+
+    private Select getSelect(String query) {
+        try {
+            return new SqlParser().parseSelect(parseSql(query));
+        } catch (SqlParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private <T, U> Matcher<Iterable<? super T>> hasQueryWithValue(String name, Matcher<? super U> matcher) {
