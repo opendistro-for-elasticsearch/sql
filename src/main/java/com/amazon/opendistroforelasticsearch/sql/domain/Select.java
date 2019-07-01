@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.amazon.opendistroforelasticsearch.sql.domain.Field.STAR;
+
 /**
  * 将sql语句转换为select 对象
  * 
@@ -108,7 +110,7 @@ public class Select extends Query {
 		if (field == null ) {
 			return;
 		}
-        if (field.getName().equals("*") && !isAgg) { // Ignore GROUP BY since columns present in result are decided by column list in GROUP BY
+        if (field == STAR && !isAgg) { // Ignore GROUP BY since columns present in result are decided by column list in GROUP BY
             this.selectAll = true;
             return;
         }

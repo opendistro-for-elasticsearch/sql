@@ -46,7 +46,7 @@ public class FieldMaker {
             return makeField(makeBinaryMethodField((SQLBinaryOpExpr) expr, alias, true), alias, tableAlias);
 
         } else if (expr instanceof SQLAllColumnExpr) {
-            return new Field("*", "");
+            return Field.STAR;
         } else if (expr instanceof SQLMethodInvokeExpr) {
             SQLMethodInvokeExpr mExpr = (SQLMethodInvokeExpr) expr;
 
