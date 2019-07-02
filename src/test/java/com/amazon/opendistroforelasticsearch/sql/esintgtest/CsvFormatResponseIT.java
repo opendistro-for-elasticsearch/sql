@@ -449,7 +449,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
         CSVResult csvResult = executeCsvRequest(query, false);
         List<String> headers = csvResult.getHeaders();
 
-        final String expectedHeaders[] = {"EXTENDED_STATS(age).count", "EXTENDED_STATS(age).sum",
+        final String[] expectedHeaders = {"EXTENDED_STATS(age).count", "EXTENDED_STATS(age).sum",
                 "EXTENDED_STATS(age).avg", "EXTENDED_STATS(age).min", "EXTENDED_STATS(age).max",
                 "EXTENDED_STATS(age).sumOfSquares", "EXTENDED_STATS(age).variance", "EXTENDED_STATS(age).stdDeviation"};
 
