@@ -24,7 +24,7 @@ public class Order {
 	private String nestedPath;
 	private String name;
 	private String type;
-	private boolean isScriptField;
+    private boolean isScriptField;
 
     public boolean isScriptField() {
         return isScriptField;
