@@ -218,7 +218,7 @@ public class SqlParser {
             Field field = FieldMaker.makeField(expr, null, null);
 
             String orderByName;
-            if (field instanceof MethodField && field.getName().equals("script")) {
+            if (isScriptField(field)) {
                 // TODO The consumer of ordering doesn't know the type of the expression, and elasticsearch needs to
                 // specify it for the script field ordering. Explore opportinities to supply that information to
                 // client code. One of the options is to have metadata store about functions that will supply
@@ -236,9 +236,13 @@ public class SqlParser {
 
             orderByName = orderByName.replace("`", "");
             if (alias != null) orderByName = orderByName.replaceFirst(alias + "\\.", "");
-            select.addOrderBy(field.getNestedPath(), orderByName, type, field instanceof MethodField);
+            select.addOrderBy(field.getNestedPath(), orderByName, type, isScriptField(field));
 
         }
+    }
+
+    private boolean isScriptField(Field field) {
+        return field instanceof MethodField && field.getName().equals("script");
     }
 
     private void findLimit(MySqlSelectQueryBlock.Limit limit, Select select) {
