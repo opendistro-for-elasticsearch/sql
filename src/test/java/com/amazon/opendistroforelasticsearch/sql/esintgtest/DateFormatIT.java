@@ -35,7 +35,7 @@ public class DateFormatIT extends SQLIntegTestCase {
 
     private static final String SELECT_FROM =
             "SELECT insert_time " +
-            "FROM " + TestsConstants.TEST_INDEX_ONLINE + "/online ";
+            "FROM " + TestsConstants.TEST_INDEX_ONLINE + " ";
 
     @Override
     protected void init() throws Exception {
@@ -127,9 +127,9 @@ public class DateFormatIT extends SQLIntegTestCase {
 
         JSONArray hits =
                 getHits(executeQuery("SELECT all_client, insert_time " +
-                        "FROM " + TestsConstants.TEST_INDEX_ONLINE + "/online " +
-                        "ORDER BY date_format(insert_time, 'dd-MM-YYYY') DESC, insert_time " +
-                        "LIMIT 10"));
+                        " FROM " + TestsConstants.TEST_INDEX_ONLINE +
+                        " ORDER BY date_format(insert_time, 'dd-MM-YYYY') DESC, insert_time " +
+                        " LIMIT 10"));
 
         assertThat(new DateTime(getSource(hits.getJSONObject(0)).get("insert_time"), DateTimeZone.UTC),
                 is(new DateTime("2014-08-24T07:00:55.481Z", DateTimeZone.UTC)));

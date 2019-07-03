@@ -26,15 +26,15 @@ public class Order {
 	private String type;
 	private boolean isScriptField;
 
-	public boolean isScriptField() {
-		return isScriptField;
-	}
+    public boolean isScriptField() {
+        return isScriptField;
+    }
 
 	public Order(String nestedPath, String name, String type, boolean isScriptField) {
         this.nestedPath = nestedPath;
 		this.name = name;
 		this.type = type;
-		this.isScriptField = isScriptField;
+        this.isScriptField = isScriptField;
 	}
 
     public String getNestedPath() {
