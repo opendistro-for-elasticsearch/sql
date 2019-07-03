@@ -223,7 +223,6 @@ public class QueryFunctionsIT extends SQLIntegTestCase {
      * @param fields A list of fields to match
      */
     private Matcher<SearchHit> hasValueForFields(String value, String... fields) {
-
         return anyOf(
                 Arrays.stream(fields)
                 .map(field -> kv(field, is(value)))
@@ -243,12 +242,10 @@ public class QueryFunctionsIT extends SQLIntegTestCase {
         return new BaseMatcher<SearchHit>() {
             @Override
             public void describeTo(Description description) {
-
             }
 
             @Override
             public boolean matches(Object item) {
-
                 SearchHit hit = (SearchHit)item;
                 List<Object> elements = uncheckedGetList(((HashMap) hit.getSourceAsMap().get(path)).get(field));
                 return elements.contains(value);

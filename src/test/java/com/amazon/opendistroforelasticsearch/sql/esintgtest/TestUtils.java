@@ -367,7 +367,6 @@ public class TestUtils {
              final BufferedReader br = new BufferedReader(streamReader)) {
 
             while (true) {
-
                 String actionLine = br.readLine();
                 if (actionLine == null || actionLine.trim().isEmpty()) {
                     break;
@@ -413,7 +412,6 @@ public class TestUtils {
     }
 
     public static String getResponseBody(Response response) throws IOException {
-
         return getResponseBody(response, false);
     }
 
@@ -422,7 +420,6 @@ public class TestUtils {
 
         try (final InputStream is = response.getEntity().getContent();
              final BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
-
             String line;
             while ((line = br.readLine()) != null) {
                 sb.append(line);
@@ -436,7 +433,6 @@ public class TestUtils {
 
     public static String fileToString(final String filePathFromProjectRoot, final boolean removeNewLines)
             throws IOException {
-
         final String absolutePath = getResourceFilePath(filePathFromProjectRoot);
 
         try (final InputStream stream = new FileInputStream(absolutePath);
@@ -447,7 +443,6 @@ public class TestUtils {
             String line = br.readLine();
 
             while (line != null) {
-
                 stringBuilder.append(line);
                 if (!removeNewLines) {
                     stringBuilder.append(format("%n"));
@@ -466,7 +461,6 @@ public class TestUtils {
      * @return list of permutations
      */
     public static List<List<String>> getPermutations(final List<String> items) {
-
         if (items.size() > 5) {
             throw new IllegalArgumentException("Inefficient test, please refactor");
         }
@@ -474,7 +468,6 @@ public class TestUtils {
         final List<List<String>> result = new LinkedList<>();
 
         if (items.isEmpty() || 1 == items.size()) {
-
             final List<String> onlyElement = new ArrayList<>();
             if (1 == items.size()) {
                 onlyElement.add(items.get(0));
@@ -484,7 +477,6 @@ public class TestUtils {
         }
 
         for (int i = 0; i < items.size(); ++i) {
-
             final List<String> smallerSet = new ArrayList<>();
 
             if (i != 0) {

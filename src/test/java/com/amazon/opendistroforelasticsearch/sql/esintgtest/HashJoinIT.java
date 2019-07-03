@@ -68,13 +68,11 @@ public class HashJoinIT extends SQLIntegTestCase {
 
     @Test
     public void innerJoin() throws IOException {
-
         testJoin("INNER JOIN");
     }
 
     @Test
     public void leftJoin() throws IOException {
-
         testJoin("LEFT JOIN");
     }
 
@@ -119,7 +117,6 @@ public class HashJoinIT extends SQLIntegTestCase {
     }
 
     private void testJoin(final String join) throws IOException {
-
         final String queryPrefix = "SELECT";
 
         // TODO: reduce the balance threshold to 10000 when the memory circuit breaker issue
@@ -135,7 +132,6 @@ public class HashJoinIT extends SQLIntegTestCase {
     }
 
     private void testJoinWithObjectField(final String join, final String hint) throws IOException {
-
         final String queryPrefix = "SELECT";
 
         // TODO: reduce the balance threshold to 10000 when the memory circuit breaker issue
@@ -153,7 +149,6 @@ public class HashJoinIT extends SQLIntegTestCase {
     }
 
     private void executeAndCompareOldAndNewJoins(final String oldQuery, final String newQuery) throws IOException {
-
         final JSONObject responseOld = executeQuery(oldQuery);
         final JSONObject responseNew = executeQuery(newQuery);
 

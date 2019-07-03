@@ -370,7 +370,6 @@ public class NestedFieldQueryIT extends SQLIntegTestCase {
 
             @Override
             public boolean matches(Object item) {
-
                 if (item instanceof SearchHit) {
                     final SearchHit hit = (SearchHit) item;
                     ArrayList<Integer> actualValues = (ArrayList<Integer>) hit.getSourceAsMap().get("myNum");

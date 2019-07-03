@@ -82,7 +82,6 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
 
     @Test
     public void testNonResolvingIndexPatternWithExistingIndex() throws IOException {
-
         String result = explainQuery(format("SELECT * " +
                 "FROM elasticsearch_sql_test_blah_blah*, %s " +
                 "WHERE state = 'DC'", TEST_INDEX_BANK));
@@ -130,7 +129,6 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
 
     @Test
     public void testIdenticalMappings() throws IOException {
-
         String result = explainQuery(format("SELECT firstname, birthdate, state " +
                         "FROM %s, %s WHERE state = 'WA' OR male = 'true'",
                 TEST_INDEX_BANK, TEST_INDEX_BANK_TWO));
@@ -141,7 +139,6 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
 
     @Test
     public void testIdenticalMappingsWithTypes() throws IOException {
-
         String result = explainQuery(format("SELECT firstname, birthdate, state FROM %s, %s " +
                         "WHERE state = 'WA' OR male = 'true'",
                 TEST_INDEX_BANK + "/account", TEST_INDEX_BANK_TWO + "/account_two"));
@@ -153,7 +150,6 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
 
     @Test
     public void testIdenticalMappingsWithPartialType() throws IOException {
-
         String result = explainQuery(format("SELECT firstname, birthdate, state " +
                         "FROM %s, %s WHERE state = 'WA' OR male = 'true'",
                 TEST_INDEX_BANK + "/account", TEST_INDEX_BANK_TWO));
@@ -164,7 +160,6 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
 
     @Test
     public void testTextFieldOnly() throws IOException {
-
         String result = explainQuery(format("SELECT firstname, birthdate, state " +
                 "FROM %s WHERE firstname = 'Abbas'", TEST_INDEX_BANK));
         assertThat(result, containsString("term"));
@@ -173,7 +168,6 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
 
     @Test
     public void testTextAndKeywordAppendsKeywordAlias() throws IOException {
-
         String result = explainQuery(format("SELECT firstname, birthdate, state " +
                 "FROM %s WHERE state = 'WA' OR lastname = 'Chen'", TEST_INDEX_BANK));
         assertThat(result, containsString("term"));
@@ -183,7 +177,6 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
 
     @Test
     public void testBooleanFieldNoKeywordAlias() throws IOException {
-
         String result = explainQuery(format("SELECT * FROM %s WHERE male = 'false'",
                 TEST_INDEX_BANK));
         assertThat(result, containsString("term"));
@@ -192,7 +185,6 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
 
     @Test
     public void testDateFieldNoKeywordAlias() throws IOException {
-
         String result = explainQuery(format("SELECT * FROM %s WHERE birthdate = '2018-08-19'",
                 TEST_INDEX_BANK));
         assertThat(result, containsString("term"));
@@ -201,7 +193,6 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
 
     @Test
     public void testNumberNoKeywordAlias() throws IOException {
-
         String result = explainQuery(format("SELECT * FROM %s WHERE age = 32",
                 TEST_INDEX_BANK));
         assertThat(result, containsString("term"));
@@ -210,7 +201,6 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
 
     @Test
     public void inTestInWhere() throws IOException {
-
         String result = explainQuery(format("select * from %s " +
                 "where state IN ('WA' , 'PA' , 'TN')", TEST_INDEX_BANK));
         assertThat(result, containsString("term"));
@@ -220,7 +210,6 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
     @Test
     @Ignore // TODO: enable when subqueries are fixed
     public void inTestInWhereSubquery() throws IOException {
-
         String result = explainQuery(format("select * from %s where " +
                         "state IN (select state from %s where city = 'Nicholson')",
                 TEST_INDEX_BANK + "/account", TEST_INDEX_BANK));
@@ -230,7 +219,6 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
 
     @Test
     public void testKeywordAliasGroupBy() throws IOException {
-
         String result = explainQuery(format("SELECT firstname, state FROM %s " +
                 "GROUP BY firstname, state", TEST_INDEX_BANK + "/account"));
         assertThat(result, containsString("term"));
@@ -240,7 +228,6 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
 
     @Test
     public void testKeywordAliasOrderBy() throws IOException {
-
         String result = explainQuery(format("SELECT * FROM %s ORDER BY state, lastname ",
                 TEST_INDEX_BANK));
         assertThat(result, containsString("\"state.keyword\":{\"order\":\"asc\""));
@@ -250,7 +237,6 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
     @Test
     @Ignore // TODO: verify the returned query is correct and fix the expected output
     public void testJoinWhere() throws IOException {
-
         String expectedOutput = TestUtils.fileToString("src/test/resources/expectedOutput/term_join_where", true);
         String result = explainQuery(format("SELECT a.firstname, a.lastname , b.city " +
                 "FROM %s a JOIN %s b ON a.city = b.city where a.city IN ('Nicholson', 'Yardville')",
@@ -278,7 +264,6 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
     @Test
     @Ignore // TODO: enable when subqueries are fixed
     public void testMultiQuery() throws IOException {
-
         String expectedOutput = TestUtils.fileToString("src/test/resources/expectedOutput/term_union_where", true);
         String result = explainQuery(format("SELECT firstname FROM %s/account " +
                         "WHERE firstname = 'Amber' UNION ALL SELECT dog_name as firstname FROM %s/dog " +

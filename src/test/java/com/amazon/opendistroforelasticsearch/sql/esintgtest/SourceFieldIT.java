@@ -56,7 +56,6 @@ public class SourceFieldIT extends SQLIntegTestCase {
 
     @Test
     public void excludeTest() throws IOException {
-
         SearchHits response = query(format("SELECT exclude('*name','*ge'),exclude('b*'),exclude('*ddre*')," +
                 "exclude('gender') FROM %s/account LIMIT 1000", TEST_INDEX_ACCOUNT));
 
@@ -71,7 +70,6 @@ public class SourceFieldIT extends SQLIntegTestCase {
 
     @Test
     public void allTest() throws IOException {
-
         SearchHits response = query(format("SELECT exclude('*name','*ge'),include('b*'),exclude('*ddre*')," +
                 "include('gender') FROM %s/account LIMIT 1000", TEST_INDEX_ACCOUNT));
 

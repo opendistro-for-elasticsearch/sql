@@ -467,7 +467,6 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void fieldOrder() throws IOException {
-
         final String[] expectedFields = {"age", "firstname", "address", "gender", "email"};
         final Object[] expectedValues = {32, "Amber", "880 Holmes Lane", "M", "amberduke@pyrami.com"};
 
@@ -476,7 +475,6 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void fieldOrderOther() throws IOException {
-
         final String[] expectedFields = {"email", "firstname", "age", "gender", "address"};
         final Object[] expectedValues = {"amberduke@pyrami.com", "Amber", 32, "M", "880 Holmes Lane"};
 
@@ -484,14 +482,12 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     }
 
     private void testFieldOrder(final String[] expectedFields, final Object[] expectedValues) throws IOException {
-
         final String fields = String.join(", ", expectedFields);
         final String query = format("SELECT %s FROM %s " +
                 "WHERE email='amberduke@pyrami.com'", fields, TestsConstants.TEST_INDEX_ACCOUNT);
         final JSONObject result = executeQuery(query);
 
         for (int i = 0; i < expectedFields.length; ++i) {
-
             final String fieldName = (String)result.query(format("/schema/%d/name", i));
             assertThat(fieldName, equalTo(expectedFields[i]));
             final Object fieldValue = result.query(format("/datarows/0/%d", i));
@@ -506,7 +502,6 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     }
 
     private void assertContainsColumnsInAnyOrder(JSONArray schema, Set<String> fields) {
-
         assertThat(schema.length(), equalTo(fields.size()));
 
         for (int i = 0; i < schema.length(); i++) {
@@ -518,7 +513,6 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     }
 
     private void assertContainsColumns(JSONArray schema, List<String> fields) {
-
         assertThat(schema.length(), equalTo(fields.size()));
 
         for (int i = 0; i < schema.length(); i++) {

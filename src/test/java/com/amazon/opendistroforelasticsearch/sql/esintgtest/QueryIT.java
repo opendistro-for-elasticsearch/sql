@@ -143,7 +143,6 @@ public class QueryIT extends SQLIntegTestCase {
     // it might be possible to change field names after the query already executed.
     @Test
     public void selectAliases() throws IOException {
-
         String[] arr = new String[] {"myage", "myaccount_number"};
         Set<String> expectedSource = new HashSet<>(Arrays.asList(arr));
 
@@ -1271,7 +1270,6 @@ public class QueryIT extends SQLIntegTestCase {
     @Ignore // the hint does not really work, NoSuchIndexException is thrown
     @Test
     public void multipleIndicesOneNotExistWithHint() throws IOException {
-
         JSONObject response = executeQuery(
                 format("SELECT /*! IGNORE_UNAVAILABLE */ * FROM %s,%s ", TEST_INDEX_ACCOUNT, "badindex"));
 
@@ -1312,7 +1310,6 @@ public class QueryIT extends SQLIntegTestCase {
     @Ignore // Getting parser error: syntax error, expect RPAREN, actual IDENTIFIER insert_time
     @Test
     public void scriptFilterNoParams() throws IOException {
-
         JSONObject result = executeQuery(format(
                 "SELECT insert_time FROM %s/online where script('doc[\\'insert_time\''].date.hourOfDay==16') " +
                 "and insert_time <'2014-08-21T00:00:00.000Z'", TEST_INDEX_ONLINE));
@@ -1322,7 +1319,6 @@ public class QueryIT extends SQLIntegTestCase {
     @Ignore // Getting parser error: syntax error, expect RPAREN, actual IDENTIFIER insert_time
     @Test
     public void scriptFilterWithParams() throws IOException {
-
         JSONObject result = executeQuery(format(
                 "SELECT insert_time FROM %s/online where script('doc[\\'insert_time\''].date.hourOfDay==x','x'=16) " +
                 "and insert_time <'2014-08-21T00:00:00.000Z'", TEST_INDEX_ONLINE));

@@ -81,7 +81,6 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
      */
     @Ignore
     public void normalFieldAlias() throws Exception {
-
         //here is a bug,csv field with spa
         String query = "SELECT " +
                 "address as key,age from " +
@@ -129,7 +128,6 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
      */
     @Ignore
     public void whereConditionLeftFunctionRightVariableEqualTest() throws Exception {
-
         String query = "SELECT " +
                 " * from " +
                 TestsConstants.TEST_INDEX + "/account " +
@@ -144,7 +142,6 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
      */
     @Ignore
     public void whereConditionLeftFunctionRightVariableGreatTest() throws Exception {
-
         String query = "SELECT " +
                 " * from " +
                 TestsConstants.TEST_INDEX + "/account " +
@@ -155,7 +152,6 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
     @Test
     public void concat_ws_fields() throws Exception {
-
         //here is a bug,csv field with spa
         String query = "SELECT " +
                 " concat_ws('-',age,address) as combine,address from " +
@@ -200,7 +196,6 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
      */
     @Ignore
     public void split_field() {
-
         //here is a bug, csv field with spa
         String query = "SELECT " +
                 " split(address,' ')[0],age from " +

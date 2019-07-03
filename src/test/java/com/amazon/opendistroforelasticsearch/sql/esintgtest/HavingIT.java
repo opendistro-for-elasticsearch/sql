@@ -175,7 +175,6 @@ public class HavingIT extends SQLIntegTestCase {
     }
 
     private Set<Object[]> getResult(JSONObject response, String aggName, String aggFunc) {
-
         String bucketsPath = format("/aggregations/%s/buckets", aggName);
         JSONArray buckets = (JSONArray) response.query(bucketsPath);
 

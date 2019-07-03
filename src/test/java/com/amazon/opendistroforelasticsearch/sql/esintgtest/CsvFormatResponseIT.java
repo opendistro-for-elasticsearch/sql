@@ -67,7 +67,6 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
     @Override
     protected Request getSqlRequest(String request, boolean explain) {
-
         Request sqlRequest = super.getSqlRequest(request, explain);
         sqlRequest.addParameter("format", "csv");
         sqlRequest.addParameter("flat", flatOption ? "true" : "false");
@@ -76,7 +75,6 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void allPercentilesByDefault() throws IOException {
-
         final String query = format("SELECT PERCENTILES(age) FROM %s", TEST_INDEX_ACCOUNT);
         final String result = executeQueryWithStringOutput(query);
 
@@ -87,7 +85,6 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void specificPercentilesIntAndDouble() throws IOException {
-
         final String query = format("SELECT PERCENTILES(age,10,49.0) FROM %s",
                 TEST_INDEX_ACCOUNT);
         final String result = executeQueryWithStringOutput(query);
@@ -102,7 +99,6 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void nestedObjectsAndArraysAreQuoted() throws IOException {
-
         final String query = format("SELECT * FROM %s WHERE _id = 5",
                 TEST_INDEX_NESTED_TYPE);
         final String result = executeQueryWithStringOutput(query);
@@ -118,7 +114,6 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void arraysAreQuotedInFlatMode() throws IOException {
-
         setFlatOption(true);
 
         final String query = format("SELECT * FROM %s WHERE _id = 5",
@@ -138,7 +133,6 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void fieldOrder() throws IOException {
-
         final String[] expectedFields = {"age", "firstname", "address", "gender", "email"};
 
         verifyFieldOrder(expectedFields);
@@ -146,7 +140,6 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void fieldOrderOther() throws IOException {
-
         final String[] expectedFields = {"email", "firstname", "age", "gender", "address"};
 
         verifyFieldOrder(expectedFields);
@@ -155,7 +148,6 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     @Ignore("Getting parser error")
     @Test
     public void fieldOrderWithScriptFields() throws IOException {
-
         final String[] expectedFields = {"email", "script1", "script2", "gender", "address"};
         final String query = format("SELECT email, " +
                 "script(script1, \"doc['balance'].value * 2\"), " +
@@ -605,7 +597,6 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     //endregion Tests migrated from CSVResultsExtractorTests
 
     private void verifyFieldOrder(final String[] expectedFields) throws IOException {
-
         final String fields = String.join(", ", expectedFields);
         final String query = format("SELECT %s FROM %s " +
                 "WHERE email='amberduke@pyrami.com'", fields, TEST_INDEX_ACCOUNT);
@@ -614,7 +605,6 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     }
 
     private void verifyFieldOrder(final String[] expectedFields, final String query) throws IOException {
-
         final String result = executeQueryWithStringOutput(query);
 
         final String expectedHeader = String.join(",", expectedFields);
@@ -622,18 +612,15 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     }
 
     private void setFlatOption(boolean flat) {
-
         this.flatOption = flat;
     }
 
     private CSVResult executeCsvRequest(final String query, boolean flat) throws IOException {
-
         return executeCsvRequest(query, flat, false, false, false);
     }
 
     private CSVResult executeCsvRequest(final String query, boolean flat, boolean includeScore,
                                         boolean includeType, boolean includeId) throws IOException {
-
         final String requestBody = super.makeRequest(query);
         final String endpoint = format(
                 "/_opendistro/_sql?format=csv&flat=%b&_id=%b&_score=%b&_type=%b",
@@ -653,7 +640,6 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     }
 
     private CSVResult csvResultFromStringResponse(final String response) {
-
         final List<String> rows = new ArrayList<>();
 
         final String newLine = format("%n");
@@ -678,11 +664,9 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
     private static AnyOf<List<String>> hasRow(final String prefix, final String suffix, final List<String> items,
                                               final boolean areItemsNested) {
-
         final Collection<List<String>> permutations = TestUtils.getPermutations(items);
 
         final List<Matcher<? super List<String>>> matchers = permutations.stream().map(permutation -> {
-
             final String delimiter = areItemsNested ? ", " : ",";
             final String objectField = String.join(delimiter, permutation);
             final String row = format("%s%s%s%s%s",
@@ -696,7 +680,6 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     }
 
     private static String printablePrefix(final String prefix) {
-
         if (prefix == null || prefix.trim().isEmpty()) {
             return "";
         }
@@ -705,7 +688,6 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     }
 
     private static String printableSuffix(final String suffix) {
-
         if (suffix == null || suffix.trim().isEmpty()) {
             return "";
         }

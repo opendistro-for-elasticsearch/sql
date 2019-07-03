@@ -38,7 +38,6 @@ public class GetEndpointQueryIT extends SQLIntegTestCase {
 
     @Test
     public void unicodeTermInQuery() throws IOException  {
-
         // NOTE: There are unicode characters in name, not just whitespace.
         final String name = "盛虹";
         final String query = format("SELECT id, firstname FROM %s " +

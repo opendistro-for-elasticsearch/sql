@@ -56,8 +56,7 @@ public class AggregationIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void countTest() throws IOException {
-
+    public void countTest() throws Exception {
         JSONObject result = executeQuery(format("SELECT COUNT(*) FROM %s/account", TEST_INDEX_ACCOUNT));
         Assert.assertThat(getTotalHits(result), equalTo(1000));
         Assert.assertThat(getIntAggregationValue(result, "COUNT(*)", "value"), equalTo(1000));
@@ -65,7 +64,6 @@ public class AggregationIT extends SQLIntegTestCase {
 
     @Test
     public void countWithDocsHintTest() throws Exception {
-
         JSONObject result = executeQuery(format("SELECT /*! DOCS_WITH_AGGREGATION(10) */ count(*) from %s/account",
                 TEST_INDEX_ACCOUNT));
         JSONArray hits = (JSONArray)result.query("/hits/hits");
@@ -73,40 +71,35 @@ public class AggregationIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void sumTest() throws IOException {
-
+    public void sumTest() throws Exception {
         JSONObject result = executeQuery(format("SELECT SUM(balance) FROM %s/account", TEST_INDEX_ACCOUNT));
         Assert.assertThat(getTotalHits(result), equalTo(1000));
         Assert.assertThat(getDoubleAggregationValue(result, "SUM(balance)", "value"), equalTo(25714837.0));
     }
 
     @Test
-    public void minTest() throws IOException {
-
+    public void minTest() throws Exception {
         JSONObject result = executeQuery(format("SELECT MIN(age) FROM %s/account", TEST_INDEX_ACCOUNT));
         Assert.assertThat(getTotalHits(result), equalTo(1000));
         Assert.assertThat(getDoubleAggregationValue(result, "MIN(age)", "value"), equalTo(20.0));
     }
 
     @Test
-    public void maxTest() throws IOException {
-
+    public void maxTest() throws Exception {
         JSONObject result = executeQuery(format("SELECT MAX(age) FROM %s/account", TEST_INDEX_ACCOUNT));
         Assert.assertThat(getTotalHits(result), equalTo(1000));
         Assert.assertThat(getDoubleAggregationValue(result, "MAX(age)", "value"), equalTo(40.0));
     }
 
     @Test
-    public void avgTest() throws IOException {
-
+    public void avgTest() throws Exception {
         JSONObject result = executeQuery(format("SELECT AVG(age) FROM %s/account", TEST_INDEX_ACCOUNT));
         Assert.assertThat(getTotalHits(result), equalTo(1000));
         Assert.assertThat(getDoubleAggregationValue(result, "AVG(age)", "value"), equalTo(30.171));
     }
 
     @Test
-    public void statsTest() throws IOException {
-
+    public void statsTest() throws Exception {
         JSONObject result = executeQuery(format("SELECT STATS(age) FROM %s/account", TEST_INDEX_ACCOUNT));
         Assert.assertThat(getTotalHits(result), equalTo(1000));
         Assert.assertThat(getIntAggregationValue(result, "STATS(age)", "count"), equalTo(1000));
@@ -117,8 +110,7 @@ public class AggregationIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void extendedStatsTest() throws IOException {
-
+    public void extendedStatsTest() throws Exception {
         JSONObject result = executeQuery(format("SELECT EXTENDED_STATS(age) FROM %s/account",
                 TEST_INDEX_ACCOUNT));
         Assert.assertThat(getTotalHits(result), equalTo(1000));
@@ -135,8 +127,7 @@ public class AggregationIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void percentileTest() throws IOException {
-
+    public void percentileTest() throws Exception {
         JSONObject result = executeQuery(format("SELECT PERCENTILES(age) FROM %s/account", TEST_INDEX_ACCOUNT));
         Assert.assertThat(getTotalHits(result), equalTo(1000));
         Assert.assertEquals(20.0, getDoubleAggregationValue(result, "PERCENTILES(age)", "values", "1.0"), 0.001);
@@ -150,8 +141,7 @@ public class AggregationIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void percentileTestSpecific() throws IOException {
-
+    public void percentileTestSpecific() throws Exception {
         JSONObject result = executeQuery(format("SELECT PERCENTILES(age,25.0,75.0) FROM %s/account",
                 TEST_INDEX_ACCOUNT));
 
@@ -163,8 +153,7 @@ public class AggregationIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void aliasTest() throws IOException {
-
+    public void aliasTest() throws Exception {
         JSONObject result = executeQuery(format("SELECT COUNT(*) AS mycount FROM %s/account",
                 TEST_INDEX_ACCOUNT));
         Assert.assertThat(getTotalHits(result), equalTo(1000));
@@ -173,7 +162,6 @@ public class AggregationIT extends SQLIntegTestCase {
 
     @Test
     public void groupByTest() throws Exception {
-
         JSONObject result = executeQuery(format("SELECT COUNT(*) FROM %s/account GROUP BY gender",
                 TEST_INDEX_ACCOUNT));
         Assert.assertThat(getTotalHits(result), equalTo(1000));
@@ -195,7 +183,6 @@ public class AggregationIT extends SQLIntegTestCase {
 
     @Test
     public void postFilterTest() throws Exception {
-
         JSONObject result = executeQuery(format("SELECT /*! POST_FILTER({\\\"term\\\":" +
                         "{\\\"gender\\\":\\\"m\\\"}}) */ COUNT(*) FROM %s/account GROUP BY gender",
                 TEST_INDEX_ACCOUNT));
@@ -218,7 +205,6 @@ public class AggregationIT extends SQLIntegTestCase {
 
     @Test
     public void multipleGroupByTest() throws Exception {
-
         JSONObject result = executeQuery(format("SELECT COUNT(*) FROM %s/account GROUP BY gender," +
                         " terms('field'='age','size'=200,'alias'='age')",
                 TEST_INDEX_ACCOUNT));
@@ -252,7 +238,6 @@ public class AggregationIT extends SQLIntegTestCase {
 
     @Test
     public void multipleGroupBysWithSize() throws Exception {
-
         JSONObject result = executeQuery(format("SELECT COUNT(*) FROM %s/account GROUP BY gender," +
                         " terms('alias'='ageAgg','field'='age','size'=3)",
                 TEST_INDEX_ACCOUNT));
@@ -269,7 +254,6 @@ public class AggregationIT extends SQLIntegTestCase {
 
     @Test
     public void termsWithSize() throws Exception {
-
         JSONObject result = executeQuery(format("SELECT COUNT(*) FROM %s/account GROUP BY terms" +
                         "('alias'='ageAgg','field'='age','size'=3)",
                 TEST_INDEX_ACCOUNT));
@@ -280,7 +264,6 @@ public class AggregationIT extends SQLIntegTestCase {
 
     @Test
     public void termsWithMissing() throws Exception {
-
         JSONObject result = executeQuery(format("SELECT count(*) FROM %s/gotCharacters GROUP BY terms" +
                         "('alias'='nick','field'='nickname','missing'='no_nickname')",
                 TEST_INDEX_GAME_OF_THRONES));
@@ -300,7 +283,6 @@ public class AggregationIT extends SQLIntegTestCase {
 
     @Test
     public void termsWithOrder() throws Exception {
-
         final String dog1 = "snoopy";
         final String dog2 = "rex";
 
@@ -326,8 +308,7 @@ public class AggregationIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void orderByAscTest() throws IOException {
-
+    public void orderByAscTest() throws Exception {
         JSONObject result = executeQuery(format(
                 "SELECT COUNT(*) FROM %s/account GROUP BY age ORDER BY COUNT(*)",
                 TEST_INDEX_ACCOUNT));
@@ -350,8 +331,7 @@ public class AggregationIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void orderByDescTest() throws IOException {
-
+    public void orderByDescTest() throws Exception {
         JSONObject result = executeQuery(format("SELECT COUNT(*) FROM %s/account GROUP BY age" +
                 " ORDER BY COUNT(*) DESC", TEST_INDEX_ACCOUNT));
         JSONObject ageAgg = getAggregation(result, "age");
@@ -373,8 +353,7 @@ public class AggregationIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void limitTest() throws IOException {
-
+    public void limitTest() throws Exception {
         JSONObject result = executeQuery(format("SELECT COUNT(*) FROM %s/account GROUP BY age" +
                 " ORDER BY COUNT(*) LIMIT 5", TEST_INDEX_ACCOUNT));
         JSONObject ageAgg = getAggregation(result, "age");
@@ -383,8 +362,7 @@ public class AggregationIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void countGroupByRange() throws IOException {
-
+    public void countGroupByRange() throws Exception {
         JSONObject result = executeQuery(format("SELECT COUNT(age) FROM %s/account" +
                 " GROUP BY range(age, 20,25,30,35,40)", TEST_INDEX_ACCOUNT));
         JSONObject ageAgg = getAggregation(result, "range(age,20,25,30,35,40)");
@@ -394,7 +372,6 @@ public class AggregationIT extends SQLIntegTestCase {
         final int[] expectedResults = new int[] {225, 226, 259, 245};
 
         for (int i = 0; i < expectedResults.length; ++i) {
-
             Assert.assertThat(buckets.query(format("/%d/COUNT(age)/value", i)),
                     equalTo(expectedResults[i]));
         }
@@ -404,8 +381,7 @@ public class AggregationIT extends SQLIntegTestCase {
      * <a>http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-aggregations-bucket-datehistogram-aggregation.html</a>
      */
     @Test
-    public void countGroupByDateTest() throws IOException {
-
+    public void countGroupByDateTest() throws Exception {
         String result = explainQuery(format("select insert_time from %s group by date_histogram" +
                 "(field='insert_time','interval'='1.5h','format'='yyyy-MM','min_doc_count'=5) ", TEST_INDEX_ONLINE));
         Assert.assertThat(result.replaceAll("\\s+", ""),
@@ -435,8 +411,7 @@ public class AggregationIT extends SQLIntegTestCase {
 //    }
 
     @Test
-    public void topHitTest() throws IOException {
-
+    public void topHitTest() throws Exception {
         String query = format("select topHits('size'=3,age='desc') from %s group by gender",
                 TEST_INDEX_ACCOUNT);
         JSONObject result = executeQuery(query);
@@ -466,8 +441,7 @@ public class AggregationIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void topHitTest_WithInclude() throws IOException {
-
+    public void topHitTest_WithInclude() throws Exception {
         String query = format("select topHits('size'=3,age='desc',include=age) from %s/account group by gender",
                 TEST_INDEX_ACCOUNT);
         JSONObject result = executeQuery(query);
@@ -512,8 +486,7 @@ public class AggregationIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void topHitTest_WithIncludeTwoFields() throws IOException {
-
+    public void topHitTest_WithIncludeTwoFields() throws Exception {
         String query = format("select topHits('size'=3,'include'='age,firstname',age='desc') from %s/account " +
                         "group by gender", TEST_INDEX_ACCOUNT);
         JSONObject result = executeQuery(query);
@@ -535,8 +508,7 @@ public class AggregationIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void topHitTest_WithExclude() throws IOException {
-
+    public void topHitTest_WithExclude() throws Exception {
         String query = format("select topHits('size'=3,'exclude'='lastname',age='desc') from " +
                 "%s/account group by gender", TEST_INDEX_ACCOUNT);
         JSONObject result = executeQuery(query);
@@ -857,7 +829,6 @@ public class AggregationIT extends SQLIntegTestCase {
 
     @Test
     public void groupByOnNestedFieldWithFilterTest() throws Exception {
-
         String query = format("SELECT COUNT(*) FROM %s/nestedType GROUP BY  nested(message.info)," +
                 "filter('myFilter',message.info = 'a')", TEST_INDEX_NESTED_TYPE);
         JSONObject result = executeQuery(query);
@@ -874,7 +845,6 @@ public class AggregationIT extends SQLIntegTestCase {
 
     @Test
     public void minOnNestedField() throws Exception {
-
         String query = format("SELECT min(nested(message.dayOfWeek)) as minDays FROM %s/nestedType",
                                         TEST_INDEX_NESTED_TYPE);
         JSONObject result = executeQuery(query);
@@ -884,7 +854,6 @@ public class AggregationIT extends SQLIntegTestCase {
 
     @Test
     public void sumOnNestedField() throws Exception {
-
         String query = format("SELECT sum(nested(message.dayOfWeek)) as sumDays FROM %s/nestedType",
                                         TEST_INDEX_NESTED_TYPE);
         JSONObject result = executeQuery(query);
@@ -894,7 +863,6 @@ public class AggregationIT extends SQLIntegTestCase {
 
     @Test
     public void histogramOnNestedField() throws Exception {
-
         String query = format("select count(*) from %s/nestedType group by histogram" +
                 "('field'='message.dayOfWeek','nested'='message','interval'='2' , 'alias' = 'someAlias' )",
                 TEST_INDEX_NESTED_TYPE);
@@ -921,7 +889,6 @@ public class AggregationIT extends SQLIntegTestCase {
 
     @Test
     public void reverseToRootGroupByOnNestedFieldWithFilterTestWithReverseNestedAndEmptyPath() throws Exception {
-
         String query = format("SELECT COUNT(*) FROM %s/nestedType GROUP BY  nested(message.info)," +
                 "filter('myFilter',message.info = 'a'),reverse_nested(someField,'')", TEST_INDEX_NESTED_TYPE);
         JSONObject result = executeQuery(query);
@@ -940,7 +907,6 @@ public class AggregationIT extends SQLIntegTestCase {
 
     @Test
     public void reverseToRootGroupByOnNestedFieldWithFilterTestWithReverseNestedNoPath() throws Exception {
-
         String query = format("SELECT COUNT(*) FROM %s/nestedType GROUP BY  nested(message.info),filter" +
                 "('myFilter',message.info = 'a'),reverse_nested(someField)", TEST_INDEX_NESTED_TYPE);
         JSONObject result = executeQuery(query);
@@ -959,7 +925,6 @@ public class AggregationIT extends SQLIntegTestCase {
 
     @Test
     public void reverseToRootGroupByOnNestedFieldWithFilterTestWithReverseNestedOnHistogram() throws Exception {
-
         String query = format("SELECT COUNT(*) FROM %s/nestedType GROUP BY  nested(message.info)," +
                 "filter('myFilter',message.info = 'a'),histogram('field'='myNum','reverse_nested'='','interval'='2', " +
                 "'alias' = 'someAlias' )", TEST_INDEX_NESTED_TYPE);
@@ -990,7 +955,6 @@ public class AggregationIT extends SQLIntegTestCase {
 
     @Test
     public void reverseToRootGroupByOnNestedFieldWithFilterAndSumOnReverseNestedField() throws Exception {
-
         String query = format("SELECT sum(reverse_nested(myNum)) bla FROM %s/nestedType GROUP BY " +
                 "nested(message.info),filter('myFilter',message.info = 'a')", TEST_INDEX_NESTED_TYPE);
         JSONObject result = executeQuery(query);
@@ -1007,7 +971,6 @@ public class AggregationIT extends SQLIntegTestCase {
 
     @Test
     public void reverseAnotherNestedGroupByOnNestedFieldWithFilterTestWithReverseNestedNoPath() throws Exception {
-
         String query = format("SELECT COUNT(*) FROM %s/nestedType GROUP BY  nested(message.info)," +
                 "filter('myFilter',message.info = 'a'),reverse_nested(comment.data,'~comment')",
                 TEST_INDEX_NESTED_TYPE);
@@ -1028,7 +991,6 @@ public class AggregationIT extends SQLIntegTestCase {
 
     @Test
     public void reverseAnotherNestedGroupByOnNestedFieldWithFilterTestWithReverseNestedOnHistogram() throws Exception {
-
         String query = format("SELECT COUNT(*) FROM %s/nestedType GROUP BY  nested(message.info),filter" +
                 "('myFilter',message.info = 'a'),histogram('field'='comment.likes','reverse_nested'='~comment'," +
                 "'interval'='2' , 'alias' = 'someAlias' )", TEST_INDEX_NESTED_TYPE);
@@ -1059,7 +1021,6 @@ public class AggregationIT extends SQLIntegTestCase {
 
     @Test
     public void reverseAnotherNestedGroupByOnNestedFieldWithFilterAndSumOnReverseNestedField() throws Exception {
-
         String query = format("SELECT sum(reverse_nested(comment.likes,'~comment')) bla FROM %s/nestedType " +
                 "GROUP BY  nested(message.info),filter('myFilter',message.info = 'a')", TEST_INDEX_NESTED_TYPE);
         JSONObject result = executeQuery(query);
@@ -1134,7 +1095,6 @@ public class AggregationIT extends SQLIntegTestCase {
 
     private int getIntAggregationValue(final JSONObject queryResult, final String aggregationName,
                                        final String fieldName) {
-
         final JSONObject targetAggregation = getAggregation(queryResult, aggregationName);
         Assert.assertTrue(targetAggregation.has(fieldName));
         return targetAggregation.getInt(fieldName);
@@ -1142,7 +1102,6 @@ public class AggregationIT extends SQLIntegTestCase {
 
     private double getDoubleAggregationValue(final JSONObject queryResult, final String aggregationName,
                                              final String fieldName) {
-
         final JSONObject targetAggregation = getAggregation(queryResult, aggregationName);
         Assert.assertTrue(targetAggregation.has(fieldName));
         return targetAggregation.getDouble(fieldName);
@@ -1150,7 +1109,6 @@ public class AggregationIT extends SQLIntegTestCase {
 
     private double getDoubleAggregationValue(final JSONObject queryResult, final String aggregationName,
                                              final String fieldName, final String subFieldName) {
-
         final JSONObject targetAggregation = getAggregation(queryResult, aggregationName);
         Assert.assertTrue(targetAggregation.has(fieldName));
         final JSONObject targetField = targetAggregation.getJSONObject(fieldName);

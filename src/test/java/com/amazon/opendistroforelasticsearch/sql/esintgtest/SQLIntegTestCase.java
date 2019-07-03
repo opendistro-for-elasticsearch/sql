@@ -91,7 +91,6 @@ public abstract class SQLIntegTestCase extends ESIntegTestCase {
     }
 
     protected Request getSqlRequest(String request, boolean explain) {
-
         Request sqlRequest = new Request("POST", explain ? EXPLAIN_API_ENDPOINT : QUERY_API_ENDPOINT);
         sqlRequest.setJsonEntity(request);
         RequestOptions.Builder restOptionsBuilder = RequestOptions.DEFAULT.toBuilder();
@@ -102,7 +101,6 @@ public abstract class SQLIntegTestCase extends ESIntegTestCase {
     }
 
     private Request buildGetEndpointRequest(final String sqlQuery) {
-
         final String utf8CharsetName = StandardCharsets.UTF_8.name();
         String urlEncodedQuery = "";
 
@@ -119,41 +117,34 @@ public abstract class SQLIntegTestCase extends ESIntegTestCase {
     }
 
     protected JSONObject executeQuery(final String sqlQuery) throws IOException {
-
         final String requestBody = makeRequest(sqlQuery);
         return executeRequest(requestBody);
     }
 
     protected String explainQuery(final String sqlQuery) throws IOException {
-
         final String requestBody = makeRequest(sqlQuery);
         return executeExplainRequest(requestBody);
     }
 
     protected String executeQueryWithStringOutput(final String sqlQuery) throws IOException {
-
         final String requestString = makeRequest(sqlQuery);
         return executeRequest(requestString, false);
     }
 
     protected JSONObject executeRequest(final String requestBody) throws IOException {
-
         return new JSONObject(executeRequest(requestBody, false));
     }
 
     protected String executeExplainRequest(final String requestBody) throws IOException {
-
         return executeRequest(requestBody, true);
     }
 
     private String executeRequest(final String requestBody, final boolean isExplainQuery) throws IOException {
-
         Request sqlRequest = getSqlRequest(requestBody, isExplainQuery);
         return executeRequest(sqlRequest);
     }
 
     protected String executeRequest(final Request request) throws IOException {
-
         RestClient restClient = ESIntegTestCase.getRestClient();
         Response response = restClient.performRequest(request);
         Assert.assertEquals(200, response.getStatusLine().getStatusCode());
@@ -161,7 +152,6 @@ public abstract class SQLIntegTestCase extends ESIntegTestCase {
     }
 
     protected JSONObject executeQueryWithGetRequest(final String sqlQuery) throws IOException {
-
         final Request request = buildGetEndpointRequest(sqlQuery);
         final String result = executeRequest(request);
         return new JSONObject(result);

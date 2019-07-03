@@ -60,7 +60,6 @@ public class ExplainIT extends SQLIntegTestCase {
 
     @Test
     public void aggregationQuery() throws IOException {
-
         String expectedOutputFilePath = TestUtils.getResourceFilePath(
                 "src/test/resources/expectedOutput/aggregation_query_explain.json");
         String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8)
@@ -74,7 +73,6 @@ public class ExplainIT extends SQLIntegTestCase {
 
     @Test
     public void explainScriptValue() throws IOException {
-
         String expectedOutputFilePath = TestUtils.getResourceFilePath(
                 "src/test/resources/expectedOutput/script_value.json");
         String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8)
@@ -87,7 +85,6 @@ public class ExplainIT extends SQLIntegTestCase {
 
     @Test
     public void betweenScriptValue() throws IOException {
-
         String expectedOutputFilePath = TestUtils.getResourceFilePath(
                 "src/test/resources/expectedOutput/between_query.json");
         String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8)
@@ -100,7 +97,6 @@ public class ExplainIT extends SQLIntegTestCase {
 
     @Test
     public void searchSanityFilter() throws IOException {
-
         String expectedOutputFilePath = TestUtils.getResourceFilePath(
                 "src/test/resources/expectedOutput/search_explain_filter.json");
         String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8)
@@ -113,7 +109,6 @@ public class ExplainIT extends SQLIntegTestCase {
 
     @Test
     public void deleteSanity() throws IOException {
-
         String expectedOutputFilePath = TestUtils.getResourceFilePath(
                 "src/test/resources/expectedOutput/delete_explain.json");
         String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8)
@@ -126,7 +121,6 @@ public class ExplainIT extends SQLIntegTestCase {
 
     @Test
     public void spatialFilterExplainTest() throws IOException {
-
         String expectedOutputFilePath = TestUtils.getResourceFilePath(
                 "src/test/resources/expectedOutput/search_spatial_explain.json");
         String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8)
@@ -139,7 +133,6 @@ public class ExplainIT extends SQLIntegTestCase {
 
     @Test
     public void orderByOnNestedFieldTest() throws Exception {
-
         String result = explainQuery(format("SELECT * FROM %s ORDER BY NESTED('message.info','message')",
                 TEST_INDEX_NESTED_TYPE));
         Assert.assertThat(result.replaceAll("\\s+", ""),
@@ -149,7 +142,6 @@ public class ExplainIT extends SQLIntegTestCase {
 
     @Test
     public void multiMatchQuery() throws IOException {
-
         String expectedOutputFilePath = TestUtils.getResourceFilePath(
                 "src/test/resources/expectedOutput/multi_match_query.json");
         String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8)
@@ -163,7 +155,6 @@ public class ExplainIT extends SQLIntegTestCase {
 
     @Test
     public void termsIncludeExcludeExplainTest() throws IOException {
-
         final String queryPrefix = "SELECT * FROM " + TEST_INDEX_PHRASE + " GROUP BY ";
         final String expected1 = "\"include\":\".*sport.*\",\"exclude\":\"water_.*\"";
         final String expected2 = "\"include\":[\"honda\",\"mazda\"],\"exclude\":[\"jensen\",\"rover\"]";
@@ -185,7 +176,6 @@ public class ExplainIT extends SQLIntegTestCase {
 
     @Test
     public void explainNLJoin() throws IOException {
-
         String expectedOutputFilePath = TestUtils.getResourceFilePath(
                 "src/test/resources/expectedOutput/nested_loop_join_explain.json");
         String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8)
