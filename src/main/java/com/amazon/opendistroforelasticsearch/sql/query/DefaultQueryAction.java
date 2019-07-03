@@ -214,7 +214,7 @@ public class DefaultQueryAction extends QueryAction {
                                 .order(SortOrder.valueOf(order.getType()))
                                 .setNestedSort(new NestedSortBuilder(order.getNestedPath())));
             } else {
-                if (order.isScriptField()) {
+                if (order.isScript()) {
                     // TODO: Investigate how to find the type of expression (string or number)
                     // As of now this shouldn't be a problem, because the support is for date_format function
 

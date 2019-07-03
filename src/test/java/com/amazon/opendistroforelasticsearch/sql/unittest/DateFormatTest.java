@@ -76,13 +76,13 @@ public class DateFormatTest {
 
         Order formula = orderBys.get(0);
 
-        assertThat(formula.isScriptField(), is(true));
+        assertThat(formula.isScript(), is(true));
         assertThat(formula.getType(), is("DESC"));
         assertThat(formula.getName(), containsString("DateTimeFormatter.ofPattern"));
 
         Order ip = orderBys.get(1);
 
-        assertThat(ip.isScriptField(), is(false));
+        assertThat(ip.isScript(), is(false));
         assertThat(ip.getName(), is("ip"));
         assertThat(ip.getType(), is("ASC"));
     }
