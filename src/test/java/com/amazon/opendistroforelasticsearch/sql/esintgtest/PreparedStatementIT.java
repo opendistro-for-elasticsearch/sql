@@ -18,13 +18,15 @@ package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.test.ESIntegTestCase;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
+
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.format;
+
 
 // Refer to https://www.elastic.co/guide/en/elasticsearch/reference/6.5/integration-tests.html
 // for detailed ESIntegTestCase usages doc.
@@ -45,7 +47,7 @@ public class PreparedStatementIT extends SQLIntegTestCase {
     public void testPreparedStatement() throws IOException {
         int ageToCompare = 35;
 
-        JSONObject response = executeRequest(String.format("{\n" +
+        JSONObject response = executeRequest(format("{\n" +
                 "  \"query\": \"SELECT * FROM %s/account WHERE age > ? AND state in (?, ?) LIMIT ?\",\n" +
                 "  \"parameters\": [\n" +
                 "    {\n" +

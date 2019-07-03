@@ -29,6 +29,7 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstant
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_NESTED_TYPE;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_PEOPLE;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_PHRASE;
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.format;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -52,7 +53,7 @@ public class ExplainIT extends SQLIntegTestCase {
         String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8)
                 .replaceAll("\r","");
 
-        String result = explainQuery(String.format("SELECT * FROM %s WHERE firstname LIKE 'A%%' AND age > 20 " +
+        String result = explainQuery(format("SELECT * FROM %s WHERE firstname LIKE 'A%%' AND age > 20 " +
                 "GROUP BY gender order by _score", TEST_INDEX_ACCOUNT));
         Assert.assertThat(result.replaceAll("\\s+",""), equalTo(expectedOutput.replaceAll("\\s+","")));
     }
@@ -65,7 +66,7 @@ public class ExplainIT extends SQLIntegTestCase {
         String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8)
                 .replaceAll("\r","");
 
-        String result = explainQuery(String.format("SELECT a, CASE WHEN gender='0' then 'aaa' else 'bbb'end a2345," +
+        String result = explainQuery(format("SELECT a, CASE WHEN gender='0' then 'aaa' else 'bbb'end a2345," +
                         "count(c) FROM %s GROUP BY terms('field'='a','execution_hint'='global_ordinals'),a2345",
                 TEST_INDEX_ACCOUNT));
         Assert.assertThat(result.replaceAll("\\s+",""), equalTo(expectedOutput.replaceAll("\\s+","")));
@@ -79,7 +80,7 @@ public class ExplainIT extends SQLIntegTestCase {
         String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8)
                 .replaceAll("\r","");
 
-        String result = explainQuery(String.format("SELECT case when gender is null then 'aaa' " +
+        String result = explainQuery(format("SELECT case when gender is null then 'aaa' " +
                 "else gender  end  test , cust_code FROM %s", TEST_INDEX_ACCOUNT));
         Assert.assertThat(result.replaceAll("\\s+",""), equalTo(expectedOutput.replaceAll("\\s+","")));
     }
@@ -92,7 +93,7 @@ public class ExplainIT extends SQLIntegTestCase {
         String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8)
                 .replaceAll("\r","");
 
-        String result = explainQuery(String.format("SELECT  case when value between 100 and 200 then 'aaa' " +
+        String result = explainQuery(format("SELECT  case when value between 100 and 200 then 'aaa' " +
                 "else value  end  test, cust_code FROM %s", TEST_INDEX_ACCOUNT));
         Assert.assertThat(result.replaceAll("\\s+",""), equalTo(expectedOutput.replaceAll("\\s+","")));
     }
@@ -105,7 +106,7 @@ public class ExplainIT extends SQLIntegTestCase {
         String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8)
                 .replaceAll("\r","");
 
-        String result = explainQuery(String.format("SELECT * FROM %s WHERE firstname LIKE 'A%%' " +
+        String result = explainQuery(format("SELECT * FROM %s WHERE firstname LIKE 'A%%' " +
                 "AND age > 20 GROUP BY gender", TEST_INDEX_ACCOUNT));
         Assert.assertThat(result.replaceAll("\\s+",""), equalTo(expectedOutput.replaceAll("\\s+","")));
     }
@@ -118,7 +119,7 @@ public class ExplainIT extends SQLIntegTestCase {
         String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8)
                 .replaceAll("\r","");;
 
-        String result = explainQuery(String.format("DELETE FROM %s WHERE firstname LIKE 'A%%' AND age > 20",
+        String result = explainQuery(format("DELETE FROM %s WHERE firstname LIKE 'A%%' AND age > 20",
                 TEST_INDEX_ACCOUNT));
         Assert.assertThat(result.replaceAll("\\s+",""), equalTo(expectedOutput.replaceAll("\\s+","")));
     }
@@ -131,7 +132,7 @@ public class ExplainIT extends SQLIntegTestCase {
         String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8)
                 .replaceAll("\r","");;
 
-        String result = explainQuery(String.format("SELECT * FROM %s WHERE GEO_INTERSECTS" +
+        String result = explainQuery(format("SELECT * FROM %s WHERE GEO_INTERSECTS" +
                 "(place,'POLYGON ((102 2, 103 2, 103 3, 102 3, 102 2))')", TEST_INDEX_LOCATION));
         Assert.assertThat(result.replaceAll("\\s+",""), equalTo(expectedOutput.replaceAll("\\s+","")));
     }
@@ -139,7 +140,7 @@ public class ExplainIT extends SQLIntegTestCase {
     @Test
     public void orderByOnNestedFieldTest() throws Exception {
 
-        String result = explainQuery(String.format("SELECT * FROM %s ORDER BY NESTED('message.info','message')",
+        String result = explainQuery(format("SELECT * FROM %s ORDER BY NESTED('message.info','message')",
                 TEST_INDEX_NESTED_TYPE));
         Assert.assertThat(result.replaceAll("\\s+", ""),
                 equalTo("{\"from\":0,\"size\":200,\"sort\":[{\"message.info\":" +
@@ -154,7 +155,7 @@ public class ExplainIT extends SQLIntegTestCase {
         String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8)
                 .replaceAll("\r", "");
 
-        String result = explainQuery(String.format("SELECT * FROM %s WHERE q=multimatch(query='this is a test'," +
+        String result = explainQuery(format("SELECT * FROM %s WHERE q=multimatch(query='this is a test'," +
                 "fields='subject^3,message',analyzer='standard',type='best_fields',boost=1.0," +
                 "slop=0,tie_breaker=0.3,operator='and')", TEST_INDEX_ACCOUNT));
         Assert.assertThat(result.replaceAll("\\s+", ""), equalTo(expectedOutput.replaceAll("\\s+", "")));

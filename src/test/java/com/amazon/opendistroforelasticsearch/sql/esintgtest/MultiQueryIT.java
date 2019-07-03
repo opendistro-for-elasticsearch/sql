@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.format;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 
@@ -42,7 +43,7 @@ public class MultiQueryIT extends SQLIntegTestCase {
 
     @Test
     public void unionAllSameRequestOnlyOneRecordTwice() throws IOException {
-        String query = String.format("SELECT firstname " +
+        String query = format("SELECT firstname " +
                                      "FROM %s/account " +
                                      "WHERE firstname = 'Amber' " +
                                      "LIMIT 1 " +
@@ -66,7 +67,7 @@ public class MultiQueryIT extends SQLIntegTestCase {
 
     @Test
     public void unionAllOnlyOneRecordEachWithAlias() throws IOException {
-        String query = String.format("SELECT firstname FROM %s/account WHERE firstname = 'Amber' " +
+        String query = format("SELECT firstname FROM %s/account WHERE firstname = 'Amber' " +
                                      "UNION ALL " +
                                      "SELECT dog_name as firstname FROM %s/dog WHERE dog_name = 'rex'",
                 TestsConstants.TEST_INDEX_ACCOUNT, TestsConstants.TEST_INDEX_DOG);
@@ -88,7 +89,7 @@ public class MultiQueryIT extends SQLIntegTestCase {
 
     @Test
     public void unionAllOnlyOneRecordEachWithComplexAlias() throws IOException {
-        String query = String.format("SELECT firstname FROM %s/account WHERE firstname = 'Amber' " +
+        String query = format("SELECT firstname FROM %s/account WHERE firstname = 'Amber' " +
                                      "UNION ALL " +
                                      "SELECT name.firstname as firstname " +
                                      "FROM %s/gotCharacters " +
@@ -152,7 +153,7 @@ public class MultiQueryIT extends SQLIntegTestCase {
 
     @Test
     public void minusCMinusDTwoFieldsAliasOnBothSecondTableFields() throws IOException {
-        String query = String.format("SELECT pk, letter FROM %s/systems WHERE system_name = 'C' " +
+        String query = format("SELECT pk, letter FROM %s/systems WHERE system_name = 'C' " +
                                      "MINUS " +
                                      "SELECT myId as pk, myLetter as letter FROM %s/systems WHERE system_name = 'E'",
                 TestsConstants.TEST_INDEX_SYSTEM, TestsConstants.TEST_INDEX_SYSTEM);
@@ -182,7 +183,7 @@ public class MultiQueryIT extends SQLIntegTestCase {
 
     @Test
     public void minusCMinusCTwoFieldsOneAlias() throws IOException {
-        String query = String.format("SELECT pk as myId, letter FROM %s/systems WHERE system_name = 'C' " +
+        String query = format("SELECT pk as myId, letter FROM %s/systems WHERE system_name = 'C' " +
                                      "MINUS " +
                                      "SELECT pk as myId, letter FROM %s/systems WHERE system_name = 'C'",
                 TestsConstants.TEST_INDEX_SYSTEM, TestsConstants.TEST_INDEX_SYSTEM);
@@ -193,7 +194,7 @@ public class MultiQueryIT extends SQLIntegTestCase {
 
     @Test
     public void minusCMinusTNonExistentFieldTwoFields() throws IOException {
-        String query = String.format("SELECT pk, letter FROM %s/systems WHERE system_name = 'C' " +
+        String query = format("SELECT pk, letter FROM %s/systems WHERE system_name = 'C' " +
                                      "MINUS " +
                                      "SELECT pk, letter FROM %s/systems WHERE system_name = 'T' ",
                 TestsConstants.TEST_INDEX_SYSTEM, TestsConstants.TEST_INDEX_SYSTEM);
@@ -233,7 +234,7 @@ public class MultiQueryIT extends SQLIntegTestCase {
     }
 
     private void innerMinusAMinusANoAlias(String hint) throws IOException {
-        String query = String.format("SELECT %s pk FROM %s/systems WHERE system_name = 'A' " +
+        String query = format("SELECT %s pk FROM %s/systems WHERE system_name = 'A' " +
                                      "MINUS " +
                                      "SELECT pk FROM %s/systems WHERE system_name = 'A'",
                 hint, TestsConstants.TEST_INDEX_SYSTEM, TestsConstants.TEST_INDEX_SYSTEM);
@@ -243,7 +244,7 @@ public class MultiQueryIT extends SQLIntegTestCase {
     }
 
     private void innerMinusAMinusBNoAlias(String hint) throws IOException {
-        String query = String.format("SELECT %s pk FROM %s/systems WHERE system_name = 'A' " +
+        String query = format("SELECT %s pk FROM %s/systems WHERE system_name = 'A' " +
                                      "MINUS " +
                                      "SELECT pk FROM %s/systems WHERE system_name = 'B'",
                 hint, TestsConstants.TEST_INDEX_SYSTEM, TestsConstants.TEST_INDEX_SYSTEM);
@@ -259,7 +260,7 @@ public class MultiQueryIT extends SQLIntegTestCase {
     }
 
     private void innerMinusCMinusDTwoFieldsNoAlias(String hint) throws IOException {
-        String query = String.format("SELECT %s pk, letter FROM %s/systems WHERE system_name = 'C' " +
+        String query = format("SELECT %s pk, letter FROM %s/systems WHERE system_name = 'C' " +
                                      "MINUS " +
                                      "SELECT pk, letter FROM %s/systems WHERE system_name = 'D'",
                 hint, TestsConstants.TEST_INDEX_SYSTEM, TestsConstants.TEST_INDEX_SYSTEM);
@@ -278,7 +279,7 @@ public class MultiQueryIT extends SQLIntegTestCase {
     }
 
     private void innerMinusCMinusDTwoFieldsAliasOnBothTables(String hint) throws IOException  {
-        String query = String.format("SELECT %s pk as myId, letter FROM %s/systems WHERE system_name = 'C' " +
+        String query = format("SELECT %s pk as myId, letter FROM %s/systems WHERE system_name = 'C' " +
                                      "MINUS " +
                                      "SELECT myId, myLetter as letter FROM %s/systems WHERE system_name = 'E'",
                 hint, TestsConstants.TEST_INDEX_SYSTEM, TestsConstants.TEST_INDEX_SYSTEM);
@@ -297,7 +298,7 @@ public class MultiQueryIT extends SQLIntegTestCase {
     }
 
     private void innerMinusCMinusTNonExistentFieldOneField(String hint) throws IOException {
-        String query = String.format("SELECT %s letter FROM %s/systems WHERE system_name = 'C' " +
+        String query = format("SELECT %s letter FROM %s/systems WHERE system_name = 'C' " +
                                      "MINUS " +
                                      "SELECT letter FROM %s/systems WHERE system_name = 'T'",
                 hint, TestsConstants.TEST_INDEX_SYSTEM, TestsConstants.TEST_INDEX_SYSTEM);
@@ -307,7 +308,7 @@ public class MultiQueryIT extends SQLIntegTestCase {
     }
 
     private void innerMinusTMinusCNonExistentFieldFirstQuery(String hint) throws IOException {
-        String query = String.format("SELECT %s letter FROM %s/systems WHERE system_name = 'T' " +
+        String query = format("SELECT %s letter FROM %s/systems WHERE system_name = 'T' " +
                                      "MINUS " +
                                      "SELECT letter FROM %s/systems WHERE system_name = 'C'",
                 hint, TestsConstants.TEST_INDEX_SYSTEM, TestsConstants.TEST_INDEX_SYSTEM);

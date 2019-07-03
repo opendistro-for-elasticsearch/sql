@@ -31,13 +31,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Set;
 
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_GAME_OF_THRONES;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_NESTED_TYPE;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ONLINE;
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.format;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.greaterThan;
@@ -85,7 +85,7 @@ public class QueryIT extends SQLIntegTestCase {
 
     @Test
     public void searchTypeTest() throws IOException {
-        JSONObject response = executeQuery(String.format(Locale.ROOT, "SELECT * FROM %s/phrase LIMIT 1000",
+        JSONObject response = executeQuery(format("SELECT * FROM %s/phrase LIMIT 1000",
                 TestsConstants.TEST_INDEX_PHRASE));
         Assert.assertTrue(response.has("hits"));
         Assert.assertEquals(6, getTotalHits(response));
@@ -93,7 +93,7 @@ public class QueryIT extends SQLIntegTestCase {
 
     @Test
     public void multipleFromTest() throws IOException {
-        JSONObject response = executeQuery(String.format(Locale.ROOT,
+        JSONObject response = executeQuery(format(
                 "SELECT * FROM %s/account, %s/account_two LIMIT 2000",
                 TestsConstants.TEST_INDEX_BANK, TestsConstants.TEST_INDEX_BANK_TWO));
         Assert.assertTrue(response.has("hits"));
@@ -102,7 +102,7 @@ public class QueryIT extends SQLIntegTestCase {
 
     @Test
     public void indexWithWildcardTest() throws IOException {
-        JSONObject response = executeQuery(String.format(Locale.ROOT, "SELECT * FROM %s* LIMIT 1000",
+        JSONObject response = executeQuery(format("SELECT * FROM %s* LIMIT 1000",
                 TestsConstants.TEST_INDEX_BANK));
         Assert.assertTrue(response.has("hits"));
         assertThat(getTotalHits(response), greaterThan(0));
@@ -113,7 +113,7 @@ public class QueryIT extends SQLIntegTestCase {
         String[] arr = new String[] {"age", "account_number"};
         Set<String> expectedSource = new HashSet<>(Arrays.asList(arr));
 
-        JSONObject response = executeQuery(String.format(Locale.ROOT, "SELECT age, account_number FROM %s/account",
+        JSONObject response = executeQuery(format("SELECT age, account_number FROM %s/account",
                 TEST_INDEX_ACCOUNT));
 
         JSONArray hits = getHits(response);
@@ -128,7 +128,7 @@ public class QueryIT extends SQLIntegTestCase {
         String[] arr = new String[] {"test field"};
         Set<String> expectedSource = new HashSet<>(Arrays.asList(arr));
 
-        JSONObject response = executeQuery(String.format(Locale.ROOT, "SELECT ['test field'] FROM %s/phrase " +
+        JSONObject response = executeQuery(format("SELECT ['test field'] FROM %s/phrase " +
                         "WHERE ['test field'] IS NOT null",
                         TestsConstants.TEST_INDEX_PHRASE));
 
@@ -147,7 +147,7 @@ public class QueryIT extends SQLIntegTestCase {
         String[] arr = new String[] {"myage", "myaccount_number"};
         Set<String> expectedSource = new HashSet<>(Arrays.asList(arr));
 
-        JSONObject result = executeQuery(String.format(Locale.ROOT,
+        JSONObject result = executeQuery(format(
                 "SELECT age AS myage, account_number AS myaccount_number FROM %s/account", TEST_INDEX_ACCOUNT));
         JSONArray hits = getHits(result);
         hits.forEach(hitObj -> {
@@ -158,7 +158,7 @@ public class QueryIT extends SQLIntegTestCase {
 
     @Test
     public void equalityTest() throws IOException {
-        JSONObject response = executeQuery(String.format(Locale.ROOT,
+        JSONObject response = executeQuery(format(
                 "SELECT * FROM %s/account WHERE city = 'Nogal' LIMIT 1000", TEST_INDEX_ACCOUNT));
 
         JSONArray hits = getHits(response);
@@ -168,7 +168,7 @@ public class QueryIT extends SQLIntegTestCase {
 
     @Test
     public void equalityTestPhrase() throws IOException {
-        JSONObject response = executeQuery(String.format(Locale.ROOT, "SELECT * FROM %s/phrase WHERE " +
+        JSONObject response = executeQuery(format("SELECT * FROM %s/phrase WHERE " +
                                                          "match_phrase(phrase, 'quick fox here') LIMIT 1000",
                                                          TestsConstants.TEST_INDEX_PHRASE));
 
@@ -181,7 +181,7 @@ public class QueryIT extends SQLIntegTestCase {
     public void greaterThanTest() throws IOException {
         int someAge = 25;
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * FROM %s WHERE age > %s LIMIT 1000",
+                        format("SELECT * FROM %s WHERE age > %s LIMIT 1000",
                                 TestsConstants.TEST_INDEX_PEOPLE,
                                 someAge));
 
@@ -197,7 +197,7 @@ public class QueryIT extends SQLIntegTestCase {
     public void greaterThanOrEqualTest() throws IOException {
         int someAge = 25;
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * FROM %s WHERE age >= %s LIMIT 1000",
+                        format("SELECT * FROM %s WHERE age >= %s LIMIT 1000",
                                 TEST_INDEX_ACCOUNT,
                                 someAge));
 
@@ -213,7 +213,7 @@ public class QueryIT extends SQLIntegTestCase {
         }
 
         Assert.assertTrue(
-                String.format(Locale.ROOT, "At least one of the documents need to contains age equal to %s", someAge),
+                format("At least one of the documents need to contains age equal to %s", someAge),
                 isEqualFound);
     }
 
@@ -221,7 +221,7 @@ public class QueryIT extends SQLIntegTestCase {
     public void lessThanTest() throws IOException {
         int someAge = 25;
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * FROM %s WHERE age < %s LIMIT 1000",
+                        format("SELECT * FROM %s WHERE age < %s LIMIT 1000",
                                 TestsConstants.TEST_INDEX_PEOPLE,
                                 someAge));
 
@@ -237,7 +237,7 @@ public class QueryIT extends SQLIntegTestCase {
     public void lessThanOrEqualTest() throws IOException {
         int someAge = 25;
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * FROM %s WHERE age <= %s LIMIT 1000",
+                        format("SELECT * FROM %s WHERE age <= %s LIMIT 1000",
                                 TEST_INDEX_ACCOUNT,
                                 someAge));
 
@@ -253,14 +253,14 @@ public class QueryIT extends SQLIntegTestCase {
         }
 
         Assert.assertTrue(
-                String.format(Locale.ROOT, "At least one of the documents need to contains age equal to %s", someAge),
+                format("At least one of the documents need to contains age equal to %s", someAge),
                 isEqualFound);
     }
 
     @Test
     public void orTest() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * " +
+                        format("SELECT * " +
                                       "FROM %s/account " +
                                       "WHERE match_phrase(gender, 'F') OR match_phrase(gender, 'M') " +
                                       "LIMIT 1000", TEST_INDEX_ACCOUNT));
@@ -270,7 +270,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void andTest() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * FROM %s WHERE age=32 AND gender='M' LIMIT 1000",
+                        format("SELECT * FROM %s WHERE age=32 AND gender='M' LIMIT 1000",
                                 TestsConstants.TEST_INDEX_PEOPLE));
 
         JSONArray hits = getHits(response);
@@ -284,7 +284,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void likeTest() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * FROM %s WHERE firstname LIKE 'amb%%' LIMIT 1000",
+                        format("SELECT * FROM %s WHERE firstname LIKE 'amb%%' LIMIT 1000",
                                 TEST_INDEX_ACCOUNT));
 
         JSONArray hits = getHits(response);
@@ -295,7 +295,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void notLikeTest() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * FROM %s/account WHERE firstname NOT LIKE 'amb%%'",
+                        format("SELECT * FROM %s/account WHERE firstname NOT LIKE 'amb%%'",
                                 TEST_INDEX_ACCOUNT));
 
         JSONArray hits = getHits(response);
@@ -309,7 +309,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void regexQueryTest() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * " +
+                        format("SELECT * " +
                                       "FROM %s/dog " +
                                       "WHERE dog_name = REGEXP_QUERY('sn.*', 'INTERSECTION|COMPLEMENT|EMPTY', 10000)",
                                 TestsConstants.TEST_INDEX_DOG));
@@ -326,25 +326,25 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void doubleNotTest() throws IOException {
         JSONObject response1 = executeQuery(
-                        String.format(Locale.ROOT,
+                        format(
                                 "SELECT * FROM %s/account WHERE NOT gender LIKE 'm' AND NOT gender LIKE 'f'",
                                 TEST_INDEX_ACCOUNT));
         Assert.assertEquals(0, getTotalHits(response1));
 
         JSONObject response2 = executeQuery(
-                        String.format(Locale.ROOT,
+                        format(
                                 "SELECT * FROM %s/account WHERE NOT gender LIKE 'm' AND gender NOT LIKE 'f'",
                                 TEST_INDEX_ACCOUNT));
         Assert.assertEquals(0, getTotalHits(response2));
 
         JSONObject response3 = executeQuery(
-                        String.format(Locale.ROOT,
+                        format(
                                 "SELECT * FROM %s/account WHERE gender NOT LIKE 'm' AND gender NOT LIKE 'f'",
                                 TEST_INDEX_ACCOUNT));
         Assert.assertEquals(0, getTotalHits(response3));
 
         JSONObject response4 = executeQuery(
-                        String.format(Locale.ROOT,
+                        format(
                                 "SELECT * FROM %s/account WHERE gender LIKE 'm' AND NOT gender LIKE 'f'",
                                 TEST_INDEX_ACCOUNT));
         // Assert there are results and they all have gender 'm'
@@ -356,14 +356,14 @@ public class QueryIT extends SQLIntegTestCase {
         }
 
         JSONObject response5 = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * FROM %s/account WHERE NOT (gender = 'm' OR gender = 'f')",
+                        format("SELECT * FROM %s/account WHERE NOT (gender = 'm' OR gender = 'f')",
                                 TEST_INDEX_ACCOUNT));
         Assert.assertEquals(0, getTotalHits(response5));
     }
 
     @Test
     public void limitTest() throws IOException {
-        JSONObject response = executeQuery(String.format(Locale.ROOT, "SELECT * FROM %s LIMIT 30",
+        JSONObject response = executeQuery(format("SELECT * FROM %s LIMIT 30",
                         TEST_INDEX_ACCOUNT));
 
         JSONArray hits = getHits(response);
@@ -375,7 +375,7 @@ public class QueryIT extends SQLIntegTestCase {
         int min = 27;
         int max = 30;
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * FROM %s WHERE age BETWEEN %s AND %s LIMIT 1000",
+                        format("SELECT * FROM %s WHERE age BETWEEN %s AND %s LIMIT 1000",
                                 TestsConstants.TEST_INDEX_PEOPLE, min, max));
 
         JSONArray hits = getHits(response);
@@ -393,7 +393,7 @@ public class QueryIT extends SQLIntegTestCase {
         int min = 20;
         int max = 37;
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * FROM %s WHERE age NOT BETWEEN %s AND %s LIMIT 1000",
+                        format("SELECT * FROM %s WHERE age NOT BETWEEN %s AND %s LIMIT 1000",
                                 TestsConstants.TEST_INDEX_PEOPLE, min, max));
 
         JSONArray hits = getHits(response);
@@ -412,7 +412,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void inTest() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT age FROM %s/phrase WHERE age IN (20, 22) LIMIT 1000",
+                        format("SELECT age FROM %s/phrase WHERE age IN (20, 22) LIMIT 1000",
                                 TestsConstants.TEST_INDEX_PHRASE));
 
         JSONArray hits = getHits(response);
@@ -426,7 +426,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void inTestWithStrings() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT,
+                        format(
                                 "SELECT phrase FROM %s/phrase WHERE phrase IN ('quick', 'fox') LIMIT 1000",
                                 TestsConstants.TEST_INDEX_PHRASE));
 
@@ -441,7 +441,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void inTermsTestWithIdentifiersTreatedLikeStrings() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT name " +
+                        format("SELECT name " +
                                       "FROM %s/gotCharacters " +
                                       "WHERE name.firstname = IN_TERMS(daenerys,eddard) " +
                                       "LIMIT 1000",
@@ -459,7 +459,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void inTermsTestWithStrings() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT name " +
+                        format("SELECT name " +
                                       "FROM %s/gotCharacters " +
                                       "WHERE name.firstname = IN_TERMS('daenerys','eddard') " +
                                       "LIMIT 1000",
@@ -477,7 +477,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void inTermsWithNumbers() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT name " +
+                        format("SELECT name " +
                                       "FROM %s/gotCharacters " +
                                       "WHERE name.ofHisName = IN_TERMS(4,2) " +
                                       "LIMIT 1000",
@@ -494,7 +494,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void termQueryWithNumber() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT,
+                        format(
                                 "SELECT name FROM %s/gotCharacters WHERE name.ofHisName = term(4) LIMIT 1000",
                                 TestsConstants.TEST_INDEX_GAME_OF_THRONES));
 
@@ -509,7 +509,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void termQueryWithStringIdentifier() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT name " +
+                        format("SELECT name " +
                                       "FROM %s/gotCharacters " +
                                       "WHERE name.firstname = term(brandon) " +
                                       "LIMIT 1000",
@@ -526,7 +526,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void termQueryWithStringLiteral() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT name " +
+                        format("SELECT name " +
                                       "FROM %s/gotCharacters " +
                                       "WHERE name.firstname = term('brandon') " +
                                       "LIMIT 1000",
@@ -545,7 +545,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void notInTest() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT age FROM %s WHERE age NOT IN (20, 22) LIMIT 1000",
+                        format("SELECT age FROM %s WHERE age NOT IN (20, 22) LIMIT 1000",
                                 TestsConstants.TEST_INDEX_PEOPLE));
 
         JSONArray hits = getHits(response);
@@ -567,7 +567,7 @@ public class QueryIT extends SQLIntegTestCase {
         DateTime dateToCompare = new DateTime(2014, 8, 18, 0, 0, 0);
 
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT insert_time FROM %s/online WHERE insert_time < '2014-08-18'",
+                        format("SELECT insert_time FROM %s/online WHERE insert_time < '2014-08-18'",
                                 TestsConstants.TEST_INDEX_ONLINE));
         JSONArray hits = getHits(response);
         for (int i = 0; i < hits.length(); i++) {
@@ -575,7 +575,7 @@ public class QueryIT extends SQLIntegTestCase {
             JSONObject source = getSource(hit);
             DateTime insertTime = formatter.parseDateTime(source.getString("insert_time"));
 
-            String errorMessage = String.format(Locale.ROOT, "insert_time must be before 2014-08-18. Found: %s",
+            String errorMessage = format("insert_time must be before 2014-08-18. Found: %s",
                     insertTime);
             Assert.assertTrue(errorMessage, insertTime.isBefore(dateToCompare));
         }
@@ -587,7 +587,7 @@ public class QueryIT extends SQLIntegTestCase {
         DateTime dateToCompare = new DateTime(2015, 3, 15, 0, 0, 0);
 
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT,
+                        format(
                                 "SELECT odbc_time FROM %s/odbc WHERE odbc_time < {ts '2015-03-15 00:00:00.000'}",
                                 TestsConstants.TEST_INDEX_ODBC));
         JSONArray hits = getHits(response);
@@ -598,7 +598,7 @@ public class QueryIT extends SQLIntegTestCase {
             insertTimeStr = insertTimeStr.replace("{ts '", "").replace("'}", "");
 
             DateTime insertTime = formatter.parseDateTime(insertTimeStr);
-            String errorMessage = String.format(Locale.ROOT, "insert_time must be before 2015-03-15. Found: %s",
+            String errorMessage = format("insert_time must be before 2015-03-15. Found: %s",
                     insertTime);
             Assert.assertTrue(errorMessage, insertTime.isBefore(dateToCompare));
         }
@@ -612,7 +612,7 @@ public class QueryIT extends SQLIntegTestCase {
         DateTime dateLimit2 = new DateTime(2014, 8, 21, 0, 0, 0);
 
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT insert_time " +
+                        format("SELECT insert_time " +
                                       "FROM %s/online " +
                                       "WHERE insert_time BETWEEN '2014-08-18' AND '2014-08-21' " +
                                       "LIMIT 3",
@@ -633,7 +633,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void missFilterSearch() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * FROM %s/phrase WHERE insert_time2 IS missing",
+                        format("SELECT * FROM %s/phrase WHERE insert_time2 IS missing",
                                 TestsConstants.TEST_INDEX_PHRASE));
 
         JSONArray hits = getHits(response);
@@ -649,7 +649,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void notMissFilterSearch() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * FROM %s/phrase WHERE insert_time2 IS NOT missing",
+                        format("SELECT * FROM %s/phrase WHERE insert_time2 IS NOT missing",
                                 TestsConstants.TEST_INDEX_PHRASE));
 
         JSONArray hits = getHits(response);
@@ -668,7 +668,7 @@ public class QueryIT extends SQLIntegTestCase {
                 "(gender='m' AND (age> 25 OR account_number>5)) OR (gender='f' AND (age>30 OR account_number < 8)";
 
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * " +
+                        format("SELECT * " +
                                       "FROM %s/account " +
                                       "WHERE (gender='m' AND (age> 25 OR account_number>5)) " +
                                         "OR (gender='f' AND (age>30 OR account_number < 8))",
@@ -696,7 +696,7 @@ public class QueryIT extends SQLIntegTestCase {
                      "OR (NOT gender='f' AND NOT (age > 30 OR account_number < 8))";
 
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * " +
+                        format("SELECT * " +
                                       "FROM %s/account " +
                                       "WHERE NOT (gender='m' AND NOT (age > 25 OR account_number > 5)) " +
                                         "OR (NOT gender='f' AND NOT (age > 30 OR account_number < 8))",
@@ -722,7 +722,7 @@ public class QueryIT extends SQLIntegTestCase {
     @SuppressWarnings("unchecked")
     public void orderByAscTest() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT age FROM %s/account ORDER BY age ASC LIMIT 1000",
+                        format("SELECT age FROM %s/account ORDER BY age ASC LIMIT 1000",
                                 TEST_INDEX_ACCOUNT));
 
         JSONArray hits = getHits(response);
@@ -743,7 +743,7 @@ public class QueryIT extends SQLIntegTestCase {
     @SuppressWarnings("unchecked")
     public void orderByDescTest() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT age FROM %s/account ORDER BY age DESC LIMIT 1000",
+                        format("SELECT age FROM %s/account ORDER BY age DESC LIMIT 1000",
                                 TEST_INDEX_ACCOUNT));
 
         JSONArray hits = getHits(response);
@@ -764,7 +764,7 @@ public class QueryIT extends SQLIntegTestCase {
     @SuppressWarnings("unchecked")
     public void orderByAscFieldWithSpaceTest() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * " +
+                        format("SELECT * " +
                                       "FROM %s/phrase " +
                                       "WHERE `test field` IS NOT null " +
                                       "ORDER BY `test field` ASC " +
@@ -788,7 +788,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void testMultiPartWhere() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * " +
+                        format("SELECT * " +
                                       "FROM %s/account " +
                                       "WHERE (firstname LIKE 'opal' OR firstname LIKE 'rodriquez') " +
                                         "AND (state like 'oh' OR state like 'hi')",
@@ -800,7 +800,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void testMultiPartWhere2() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * " +
+                        format("SELECT * " +
                                       "FROM %s/account " +
                                       "WHERE ((account_number > 200 AND account_number < 300) OR gender LIKE 'm') " +
                                         "AND (state LIKE 'hi' OR address LIKE 'avenue')",
@@ -812,7 +812,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void testMultiPartWhere3() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * " +
+                        format("SELECT * " +
                                       "FROM %s/account " +
                                       "WHERE ((account_number > 25 AND account_number < 75) AND age >35 ) " +
                                         "AND (state LIKE 'md' OR (address LIKE 'avenue' OR address LIKE 'street'))",
@@ -824,7 +824,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void filterPolygonTest() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * " +
+                        format("SELECT * " +
                                       "FROM %s/location " +
                                       "WHERE GEO_INTERSECTS(place,'POLYGON ((102 2, 103 2, 103 3, 102 3, 102 2))')",
                                 TestsConstants.TEST_INDEX_LOCATION));
@@ -839,7 +839,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void boundingBox() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT,
+                        format(
                                 "SELECT * FROM %s/location WHERE GEO_BOUNDING_BOX(center, 100.0, 1.0, 101, 0.0)",
                                 TestsConstants.TEST_INDEX_LOCATION));
 
@@ -853,7 +853,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void geoDistance() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT,
+                        format(
                                 "SELECT * FROM %s/location WHERE GEO_DISTANCE(center, '1km', 100.5, 0.500001)",
                                 TestsConstants.TEST_INDEX_LOCATION));
 
@@ -867,7 +867,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void geoPolygon() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT,
+                        format(
                                 "SELECT * FROM %s/location WHERE GEO_POLYGON(center, 100,0, 100.5, 2, 101.0,0)",
                                 TestsConstants.TEST_INDEX_LOCATION));
 
@@ -882,7 +882,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void escapedCharactersCheck() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * " +
+                        format("SELECT * " +
                                       "FROM %s/gotCharacters " +
                                       "WHERE MATCH_PHRASE(nickname, 'Daenerys \"Stormborn\"') " +
                                       "LIMIT 1000",
@@ -894,7 +894,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void complexObjectSearch() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * " +
+                        format("SELECT * " +
                                       "FROM %s/gotCharacters " +
                                       "WHERE MATCH_PHRASE(name.firstname, 'Jaime') " +
                                       "LIMIT 1000",
@@ -906,7 +906,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void complexObjectReturnField() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT parents.father " +
+                        format("SELECT parents.father " +
                                       "FROM %s/gotCharacters " +
                                       "WHERE MATCH_PHRASE(name.firstname, 'Brandon') " +
                                       "LIMIT 1000",
@@ -927,7 +927,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Ignore
     @Test
     public void queryWithAtFieldOnWhere() throws IOException {
-        JSONObject response = executeQuery(String.format(Locale.ROOT,
+        JSONObject response = executeQuery(format(
                 "SELECT * FROM %s/gotCharacters where @wolf = 'Summer' LIMIT 1000", TEST_INDEX_GAME_OF_THRONES));
         Assert.assertEquals(1, getTotalHits(response));
         JSONObject hit = getHits(response).getJSONObject(0);
@@ -938,7 +938,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void notLikeTests() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT name " +
+                        format("SELECT name " +
                                       "FROM %s/gotCharacters " +
                                       "WHERE name.firstname NOT LIKE 'd%%' AND name IS NOT NULL " +
                                       "LIMIT 1000",
@@ -951,7 +951,7 @@ public class QueryIT extends SQLIntegTestCase {
             JSONObject source = getSource(hit);
 
             String name = source.getJSONObject("name").getString("firstname");
-            Assert.assertFalse(String.format(Locale.ROOT, "Name [%s] should not match pattern [d%%]", name),
+            Assert.assertFalse(format("Name [%s] should not match pattern [d%%]", name),
                     name.startsWith("d"));
         }
     }
@@ -959,7 +959,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void isNullTest() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT name " +
+                        format("SELECT name " +
                                       "FROM %s/gotCharacters " +
                                       "WHERE nickname IS NULL " +
                                       "LIMIT 1000",
@@ -971,7 +971,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void isNotNullTest() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT name " +
+                        format("SELECT name " +
                                       "FROM %s/gotCharacters " +
                                       "WHERE nickname IS NOT NULL " +
                                       "LIMIT 1000",
@@ -983,7 +983,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void useScrollWithoutParams() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT /*! USE_SCROLL*/ age, gender, firstname, balance " +
+                        format("SELECT /*! USE_SCROLL*/ age, gender, firstname, balance " +
                                       "FROM  %s/account " +
                                       "LIMIT 2000",
                                 TEST_INDEX_ACCOUNT));
@@ -998,7 +998,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void useScrollWithParams() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT,
+                        format(
                                 "SELECT /*! USE_SCROLL(10, 5000) */ age, gender, firstname, balance FROM  %s/account",
                                 TEST_INDEX_ACCOUNT));
 
@@ -1011,7 +1011,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void useScrollWithOrderByAndParams() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT,
+                        format(
                                 "SELECT /*! USE_SCROLL(5, 50000) */ age, gender, firstname, balance " +
                                       "FROM %s/account " +
                                       "ORDER BY age",
@@ -1033,7 +1033,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void innerQueryTest() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * " +
+                        format("SELECT * " +
                                       "FROM %s/dog " +
                                       "WHERE holdersName IN (SELECT firstname " +
                                                             "FROM %s/account " +
@@ -1054,7 +1054,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void twoSubQueriesTest() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * " +
+                        format("SELECT * " +
                                       "FROM %s/dog " +
                                       "WHERE holdersName IN (SELECT firstname " +
                                                             "FROM %s/account " +
@@ -1081,7 +1081,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void inTermsSubQueryTest() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * " +
+                        format("SELECT * " +
                                       "FROM %s/dog " +
                                       "WHERE age = IN_TERMS (SELECT name.ofHisName " +
                                                             "FROM %s/gotCharacters " +
@@ -1103,7 +1103,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void idsQueryOneId() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * FROM %s/dog WHERE _id = IDS_QUERY(dog, 1)",
+                        format("SELECT * FROM %s/dog WHERE _id = IDS_QUERY(dog, 1)",
                                 TestsConstants.TEST_INDEX_DOG));
 
         JSONArray hits = getHits(response);
@@ -1120,7 +1120,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void idsQueryMultipleId() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * FROM %s/dog WHERE _id = IDS_QUERY(dog, 1, 2, 3)",
+                        format("SELECT * FROM %s/dog WHERE _id = IDS_QUERY(dog, 1, 2, 3)",
                                 TestsConstants.TEST_INDEX_DOG));
 
         JSONArray hits = getHits(response);
@@ -1137,7 +1137,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void idsQuerySubQueryIds() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * " +
+                        format("SELECT * " +
                                       "FROM %s/dog " +
                                       "WHERE _id = IDS_QUERY(dog, (SELECT name.ofHisName " +
                                                                   "FROM %s/gotCharacters " +
@@ -1158,7 +1158,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void nestedEqualsTestFieldNormalField() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * FROM %s/nestedType WHERE nested(message.info)='b'",
+                        format("SELECT * FROM %s/nestedType WHERE nested(message.info)='b'",
                                 TestsConstants.TEST_INDEX_NESTED_TYPE));
 
         Assert.assertEquals(1, getTotalHits(response));
@@ -1167,7 +1167,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void nestedEqualsTestFieldInsideArrays() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * FROM %s/nestedType WHERE nested(message.info) = 'a'",
+                        format("SELECT * FROM %s/nestedType WHERE nested(message.info) = 'a'",
                                 TestsConstants.TEST_INDEX_NESTED_TYPE));
 
         Assert.assertEquals(2, getTotalHits(response));
@@ -1176,7 +1176,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Ignore // Seems like we don't support nested with IN, throwing IllegalArgumentException
     @Test
     public void nestedOnInQuery() throws IOException {
-        JSONObject response = executeQuery(String.format(Locale.ROOT,
+        JSONObject response = executeQuery(format(
                 "SELECT * FROM %s where nested(message.info) IN ('a','b')", TEST_INDEX_NESTED_TYPE));
         Assert.assertEquals(3, getTotalHits(response));
     }
@@ -1184,7 +1184,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void complexNestedQueryBothOnSameObject() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * " +
+                        format("SELECT * " +
                                       "FROM %s/nestedType " +
                                       "WHERE nested('message', message.info = 'a' AND message.author ='i')",
                                 TestsConstants.TEST_INDEX_NESTED_TYPE));
@@ -1195,7 +1195,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void complexNestedQueryNotBothOnSameObject() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * " +
+                        format("SELECT * " +
                                       "FROM %s/nestedType " +
                                       "WHERE nested('message', message.info = 'a' AND message.author ='h')",
                                 TestsConstants.TEST_INDEX_NESTED_TYPE));
@@ -1206,7 +1206,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void nestedOnInTermsQuery() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT * " +
+                        format("SELECT * " +
                                       "FROM %s/nestedType " +
                                       "WHERE nested(message.info) = IN_TERMS(a, b)",
                                 TestsConstants.TEST_INDEX_NESTED_TYPE));
@@ -1218,9 +1218,8 @@ public class QueryIT extends SQLIntegTestCase {
 //    @Test
 //    public void childrenEqualsTestFieldNormalField() throws IOException {
 //        JSONObject response = executeQuery(
-//                        String.format(Locale.ROOT, "SELECT * " +
-//                                      "FROM %s/joinType " +
-//                                      "WHERE children(childrenType, info) = 'b'", TestsConstants.TEST_INDEX_JOIN_TYPE));
+//                        format("SELECT * FROM %s/joinType " +
+//                                "WHERE children(childrenType, info) = 'b'", TestsConstants.TEST_INDEX_JOIN_TYPE));
 //
 //        Assert.assertEquals(1, getTotalHits(response));
 //    }
@@ -1228,7 +1227,7 @@ public class QueryIT extends SQLIntegTestCase {
 //    @Test
 //    public void childrenOnInQuery() throws IOException {
 //        JSONObject response = executeQuery(
-//                        String.format(Locale.ROOT, "SELECT * " +
+//                        format("SELECT * " +
 //                                      "FROM %s/joinType " +
 //                                      "WHERE children(childrenType, info) IN ('a', 'b')",
 //                                TestsConstants.TEST_INDEX_JOIN_TYPE));
@@ -1239,7 +1238,7 @@ public class QueryIT extends SQLIntegTestCase {
 //    @Test
 //    public void complexChildrenQueryBothOnSameObject() throws IOException {
 //        JSONObject response = executeQuery(
-//                        String.format(Locale.ROOT, "SELECT * " +
+//                        format("SELECT * " +
 //                                      "FROM %s/joinType " +
 //                                      "WHERE children(childrenType, info = 'a' AND author ='e')",
 //                                TestsConstants.TEST_INDEX_JOIN_TYPE));
@@ -1250,7 +1249,7 @@ public class QueryIT extends SQLIntegTestCase {
 //    @Test
 //    public void complexChildrenQueryNotOnSameObject() throws IOException {
 //        JSONObject response = executeQuery(
-//                        String.format(Locale.ROOT, "SELECT * " +
+//                        format("SELECT * " +
 //                                      "FROM %s/joinType " +
 //                                      "WHERE children(childrenType, info = 'a' AND author ='j')",
 //                                TestsConstants.TEST_INDEX_JOIN_TYPE));
@@ -1261,7 +1260,7 @@ public class QueryIT extends SQLIntegTestCase {
 //    @Test
 //    public void childrenOnInTermsQuery() throws IOException {
 //        JSONObject response = executeQuery(
-//                        String.format(Locale.ROOT, "SELECT * " +
+//                        format("SELECT * " +
 //                                      "FROM %s/joinType " +
 //                                      "WHERE children(childrenType, info) = IN_TERMS(a, b)",
 //                                TestsConstants.TEST_INDEX_JOIN_TYPE));
@@ -1273,7 +1272,8 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void multipleIndicesOneNotExistWithHint() throws IOException {
 
-        JSONObject response = executeQuery(String.format(Locale.ROOT, "SELECT /*! IGNORE_UNAVAILABLE */ * FROM %s,%s ", TEST_INDEX_ACCOUNT,"badindex"));
+        JSONObject response = executeQuery(
+                format("SELECT /*! IGNORE_UNAVAILABLE */ * FROM %s,%s ", TEST_INDEX_ACCOUNT, "badindex"));
 
         Assert.assertTrue(getTotalHits(response) > 0);
     }
@@ -1282,7 +1282,7 @@ public class QueryIT extends SQLIntegTestCase {
     public void multipleIndicesOneNotExistWithoutHint() throws IOException {
         try {
             executeQuery(
-                    String.format(Locale.ROOT, "SELECT * FROM %s, %s", TEST_INDEX_ACCOUNT, "badindex"));
+                    format("SELECT * FROM %s, %s", TEST_INDEX_ACCOUNT, "badindex"));
             Assert.fail("Expected exception, but call succeeded");
         } catch (ResponseException e) {
             Assert.assertEquals(RestStatus.BAD_REQUEST.getStatus(), e.getResponse().getStatusLine().getStatusCode());
@@ -1295,7 +1295,7 @@ public class QueryIT extends SQLIntegTestCase {
     //  to properly update these tests to ESIntegTestCase format
 //    @Test
 //    public void routingRequestOneRounting() throws IOException {
-//        SqlElasticSearchRequestBuilder request = getRequestBuilder(String.format(Locale.ROOT,
+//        SqlElasticSearchRequestBuilder request = getRequestBuilder(format(
 //                                  "SELECT /*! ROUTINGS(hey) */ * FROM %s/account ", TEST_INDEX_ACCOUNT));
 //        SearchRequestBuilder searchRequestBuilder = (SearchRequestBuilder) request.getBuilder();
 //        Assert.assertEquals("hey",searchRequestBuilder.request().routing());
@@ -1303,7 +1303,7 @@ public class QueryIT extends SQLIntegTestCase {
 //
 //    @Test
 //    public void routingRequestMultipleRountings() throws IOException {
-//        SqlElasticSearchRequestBuilder request = getRequestBuilder(String.format(Locale.ROOT,
+//        SqlElasticSearchRequestBuilder request = getRequestBuilder(format(
 //                                  "SELECT /*! ROUTINGS(hey,bye) */ * FROM %s/account ", TEST_INDEX_ACCOUNT));
 //        SearchRequestBuilder searchRequestBuilder = (SearchRequestBuilder) request.getBuilder();
 //        Assert.assertEquals("hey,bye",searchRequestBuilder.request().routing());
@@ -1313,7 +1313,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void scriptFilterNoParams() throws IOException {
 
-        JSONObject result = executeQuery(String.format(Locale.ROOT,
+        JSONObject result = executeQuery(format(
                 "SELECT insert_time FROM %s/online where script('doc[\\'insert_time\''].date.hourOfDay==16') " +
                 "and insert_time <'2014-08-21T00:00:00.000Z'", TEST_INDEX_ONLINE));
         Assert.assertEquals(237, getTotalHits(result));
@@ -1323,7 +1323,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void scriptFilterWithParams() throws IOException {
 
-        JSONObject result = executeQuery(String.format(Locale.ROOT,
+        JSONObject result = executeQuery(format(
                 "SELECT insert_time FROM %s/online where script('doc[\\'insert_time\''].date.hourOfDay==x','x'=16) " +
                 "and insert_time <'2014-08-21T00:00:00.000Z'", TEST_INDEX_ONLINE));
         Assert.assertEquals(237, getTotalHits(result));
@@ -1332,7 +1332,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void highlightPreTagsAndPostTags() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT,
+                        format(
                                 "SELECT /*! HIGHLIGHT(phrase, pre_tags : ['<b>'], post_tags : ['</b>']) */ " +
                                       "* FROM %s/phrase " +
                                       "WHERE phrase LIKE 'fox' " +
@@ -1352,7 +1352,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void fieldCollapsingTest() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT /*! COLLAPSE({\"field\":\"age\"," +
+                        format("SELECT /*! COLLAPSE({\"field\":\"age\"," +
                                                            "\"inner_hits\":{\"name\": \"account\"," +
                                                                            "\"size\":1," +
                                                                            "\"sort\":[{\"age\":\"asc\"}]}," +

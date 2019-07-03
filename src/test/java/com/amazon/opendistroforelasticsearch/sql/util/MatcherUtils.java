@@ -73,7 +73,7 @@ public class MatcherUtils {
         return featureValueOf("SearchHits", arrayContaining(hitMatchers), SearchHits::getHits);
     }
 
-    @SuppressWarnings("unchecked")
+    @SafeVarargs
     public static Matcher<SearchHit> hit(Matcher<Map<String, Object>>... entryMatchers) {
         return featureValueOf("SearchHit", allOf(entryMatchers), SearchHit::getSourceAsMap);
     }
@@ -84,6 +84,7 @@ public class MatcherUtils {
         return (Matcher) hasEntry(key, value);
     }
 
+    @SafeVarargs
     public static Matcher<JSONObject> hitAny(Matcher<JSONObject>... matcher) {
         return featureValueOf("SearchHits", hasItems(matcher), actual -> {
             JSONArray array = (JSONArray) (actual.query("/hits/hits"));

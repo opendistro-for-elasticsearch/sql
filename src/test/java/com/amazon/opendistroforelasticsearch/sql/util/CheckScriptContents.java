@@ -57,6 +57,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.elasticsearch.search.builder.SearchSourceBuilder.ScriptField;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
@@ -78,7 +79,7 @@ public class CheckScriptContents {
             SearchRequestBuilder request = (SearchRequestBuilder) requestBuilder.getBuilder();
             List<ScriptField> scriptFields = request.request().source().scriptFields();
 
-            assertTrue(scriptFields.size() == 1);
+            assertEquals(1, scriptFields.size());
 
             return scriptFields.get(0);
 
@@ -92,7 +93,7 @@ public class CheckScriptContents {
             Select select = parser.parseSelect((SQLQueryExpr) queryToExpr(query));
             Where where = select.getWhere();
 
-            assertTrue(where.getWheres().size() == 1);
+            assertEquals(1, where.getWheres().size());
             assertTrue(((Condition) (where.getWheres().get(0))).getValue() instanceof ScriptFilter);
 
             return (ScriptFilter) (((Condition) (where.getWheres().get(0))).getValue());
@@ -239,8 +240,10 @@ public class CheckScriptContents {
         when(mockService.state()).thenReturn(mockState);
         when(mockState.metaData()).thenReturn(mockMetaData);
         try {
-            ImmutableOpenMap.Builder<String, ImmutableOpenMap<String, MappingMetaData>> builder = ImmutableOpenMap.builder();
-            builder.put(TestsConstants.TEST_INDEX_BANK, IndexMetaData.fromXContent(createParser(mappings)).getMappings());
+            ImmutableOpenMap.Builder<String, ImmutableOpenMap<String, MappingMetaData>> builder =
+                    ImmutableOpenMap.builder();
+            builder.put(TestsConstants.TEST_INDEX_BANK,
+                    IndexMetaData.fromXContent(createParser(mappings)).getMappings());
             when(mockMetaData.findMappings(any(), any(), any())).thenReturn(builder.build());
         }
         catch (IOException e) {

@@ -22,11 +22,11 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Set;
 
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_GAME_OF_THRONES;
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.format;
 import static org.hamcrest.Matchers.equalTo;
 
 /**
@@ -126,7 +126,7 @@ public class HashJoinIT extends SQLIntegTestCase {
         //  (https://github.com/opendistro-for-elasticsearch/sql/issues/73) is fixed.
         final String querySuffixTemplate = "a.firstname, a.lastname, b.city, b.state FROM %1$s a %2$s %1$s b " +
                 "ON b.age = a.age WHERE a.balance > 45000 AND b.age > 25 LIMIT 1000000";
-        final String querySuffix = String.format(Locale.ROOT, querySuffixTemplate, TEST_INDEX_ACCOUNT, join);
+        final String querySuffix = format(querySuffixTemplate, TEST_INDEX_ACCOUNT, join);
 
         final String oldQuery = String.join(" ", queryPrefix, USE_OLD_JOIN_ALGORITHM, querySuffix);
         final String newQuery = String.join(" ", queryPrefix, BYPASS_CIRCUIT_BREAK, querySuffix);
@@ -144,7 +144,7 @@ public class HashJoinIT extends SQLIntegTestCase {
                 "FROM %1$s c %2$s %1$s f ON f.gender.keyword = c.gender.keyword " +
                 "AND f.house.keyword = c.house.keyword " +
                 "WHERE c.gender = 'M' LIMIT 1000000";
-        final String querySuffix = String.format(Locale.ROOT, querySuffixTemplate, TEST_INDEX_GAME_OF_THRONES, join);
+        final String querySuffix = format(querySuffixTemplate, TEST_INDEX_GAME_OF_THRONES, join);
 
         final String oldQuery = String.join(" ", queryPrefix, USE_OLD_JOIN_ALGORITHM, querySuffix);
         final String newQuery = String.join(" ", queryPrefix, hint, BYPASS_CIRCUIT_BREAK, querySuffix);

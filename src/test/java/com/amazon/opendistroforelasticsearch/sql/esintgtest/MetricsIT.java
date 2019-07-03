@@ -32,7 +32,9 @@ import java.io.InputStreamReader;
 import java.util.concurrent.TimeUnit;
 
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_DOG;
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.format;
 import static org.hamcrest.Matchers.equalTo;
+
 
 @Ignore
 public class MetricsIT extends SQLIntegTestCase {
@@ -53,7 +55,7 @@ public class MetricsIT extends SQLIntegTestCase {
 
     private void multiQueries(int n) throws IOException {
         for (int i=0; i<n; ++i) {
-            executeQuery(String.format("SELECT COUNT(*) FROM %s/dog", TEST_INDEX_DOG));
+            executeQuery(format("SELECT COUNT(*) FROM %s/dog", TEST_INDEX_DOG));
         }
     }
 
@@ -68,12 +70,12 @@ public class MetricsIT extends SQLIntegTestCase {
         RestClient restClient = ESIntegTestCase.getRestClient();
         Response sqlResponse = restClient.performRequest(request);
 
-        Assert.assertTrue(sqlResponse.getStatusLine().getStatusCode() == 200);
+        Assert.assertThat(sqlResponse.getStatusLine().getStatusCode(), equalTo(200));
 
         InputStream is = sqlResponse.getEntity().getContent();
         StringBuilder sb = new StringBuilder();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
-            String line = null;
+            String line;
             while((line = br.readLine()) != null) {
                 sb.append(line);
             }

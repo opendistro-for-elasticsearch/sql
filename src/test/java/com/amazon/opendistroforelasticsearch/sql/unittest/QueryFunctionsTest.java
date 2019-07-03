@@ -199,27 +199,32 @@ public class QueryFunctionsTest {
     }
 
     @Test(expected = SQLFeatureNotSupportedException.class)
-    public void emptyQueryShouldThrowSQLFeatureNotSupportedException() throws SQLFeatureNotSupportedException, SqlParseException {
+    public void emptyQueryShouldThrowSQLFeatureNotSupportedException()
+                        throws SQLFeatureNotSupportedException, SqlParseException {
         ESActionFactory.create(Mockito.mock(Client.class), "");
     }
 
     @Test(expected = SQLFeatureNotSupportedException.class)
-    public void emptyNewLineQueryShouldThrowSQLFeatureNotSupportedException() throws SQLFeatureNotSupportedException, SqlParseException {
+    public void emptyNewLineQueryShouldThrowSQLFeatureNotSupportedException()
+                        throws SQLFeatureNotSupportedException, SqlParseException {
         ESActionFactory.create(Mockito.mock(Client.class), "\n");
     }
 
     @Test(expected = SQLFeatureNotSupportedException.class)
-    public void emptyNewLineQueryShouldThrowSQLFeatureNotSupportedException2() throws SQLFeatureNotSupportedException, SqlParseException {
+    public void emptyNewLineQueryShouldThrowSQLFeatureNotSupportedException2()
+                        throws SQLFeatureNotSupportedException, SqlParseException {
         ESActionFactory.create(Mockito.mock(Client.class), "\r\n");
     }
 
     @Test(expected = SQLFeatureNotSupportedException.class)
-    public void queryWithoutSpaceShouldSQLFeatureNotSupportedException() throws SQLFeatureNotSupportedException, SqlParseException {
+    public void queryWithoutSpaceShouldSQLFeatureNotSupportedException()
+                        throws SQLFeatureNotSupportedException, SqlParseException {
         ESActionFactory.create(Mockito.mock(Client.class), "SELE");
     }
 
     @Test(expected = SQLFeatureNotSupportedException.class)
-    public void spacesOnlyQueryShouldThrowSQLFeatureNotSupportedException() throws SQLFeatureNotSupportedException, SqlParseException {
+    public void spacesOnlyQueryShouldThrowSQLFeatureNotSupportedException()
+                        throws SQLFeatureNotSupportedException, SqlParseException {
         ESActionFactory.create(Mockito.mock(Client.class), "      ");
     }
 

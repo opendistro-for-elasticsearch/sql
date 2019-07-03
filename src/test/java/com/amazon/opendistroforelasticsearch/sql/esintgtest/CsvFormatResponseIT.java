@@ -33,7 +33,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
@@ -41,6 +40,7 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstant
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_GAME_OF_THRONES;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_NESTED_TYPE;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ONLINE;
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.format;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
@@ -77,7 +77,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     @Test
     public void allPercentilesByDefault() throws IOException {
 
-        final String query = String.format(Locale.ROOT, "SELECT PERCENTILES(age) FROM %s", TEST_INDEX_ACCOUNT);
+        final String query = format("SELECT PERCENTILES(age) FROM %s", TEST_INDEX_ACCOUNT);
         final String result = executeQueryWithStringOutput(query);
 
         final String expectedHeaders = "PERCENTILES(age).1.0,PERCENTILES(age).5.0,PERCENTILES(age).25.0," +
@@ -88,7 +88,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     @Test
     public void specificPercentilesIntAndDouble() throws IOException {
 
-        final String query = String.format(Locale.ROOT, "SELECT PERCENTILES(age,10,49.0) FROM %s",
+        final String query = format("SELECT PERCENTILES(age,10,49.0) FROM %s",
                 TEST_INDEX_ACCOUNT);
         final String result = executeQueryWithStringOutput(query);
 
@@ -103,7 +103,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     @Test
     public void nestedObjectsAndArraysAreQuoted() throws IOException {
 
-        final String query = String.format(Locale.ROOT, "SELECT * FROM %s WHERE _id = 5",
+        final String query = format("SELECT * FROM %s WHERE _id = 5",
                 TEST_INDEX_NESTED_TYPE);
         final String result = executeQueryWithStringOutput(query);
 
@@ -121,7 +121,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
         setFlatOption(true);
 
-        final String query = String.format(Locale.ROOT, "SELECT * FROM %s WHERE _id = 5",
+        final String query = format("SELECT * FROM %s WHERE _id = 5",
                 TEST_INDEX_NESTED_TYPE);
         final String result = executeQueryWithStringOutput(query);
 
@@ -157,7 +157,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     public void fieldOrderWithScriptFields() throws IOException {
 
         final String[] expectedFields = {"email", "script1", "script2", "gender", "address"};
-        final String query = String.format(Locale.ROOT, "SELECT email, " +
+        final String query = format("SELECT email, " +
                 "script(script1, \"doc['balance'].value * 2\"), " +
                 "script(script2, painless, \"doc['balance'].value + 10\"), gender, address " +
                 "FROM %s WHERE email='amberduke@pyrami.com'", TEST_INDEX_ACCOUNT);
@@ -169,7 +169,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void simpleSearchResultNotNestedNotFlatNoAggs() throws Exception {
-        String query = String.format(Locale.ROOT, "select dog_name,age from %s/dog order by age", TEST_INDEX_DOG);
+        String query = format("select dog_name,age from %s/dog order by age", TEST_INDEX_DOG);
         final CSVResult csvResult = executeCsvRequest(query, false);
 
         List<String> headers = csvResult.getHeaders();
@@ -185,7 +185,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void simpleSearchResultWithNestedNotFlatNoAggs() throws Exception {
-        String query = String.format(Locale.ROOT, "select name,house from %s/gotCharacters",
+        String query = format("select name,house from %s/gotCharacters",
                 TEST_INDEX_GAME_OF_THRONES);
         CSVResult csvResult = executeCsvRequest(query, false);
 
@@ -210,7 +210,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     @Ignore("headers incorrect in case of nested fields")
     @Test
     public void simpleSearchResultWithNestedOneFieldNotFlatNoAggs() throws Exception {
-        String query = String.format(Locale.ROOT, "select name.firstname,house from %s/gotCharacters",
+        String query = format("select name.firstname,house from %s/gotCharacters",
                 TEST_INDEX_GAME_OF_THRONES);
         CSVResult csvResult = executeCsvRequest(query, false);
 
@@ -231,7 +231,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     @Ignore("headers incorrect in case of nested fields")
     @Test
     public void simpleSearchResultWithNestedTwoFieldsFromSameNestedNotFlatNoAggs() throws Exception {
-        String query = String.format(Locale.ROOT, "select name.firstname,name.lastname,house from %s/gotCharacters",
+        String query = format("select name.firstname,name.lastname,house from %s/gotCharacters",
                 TEST_INDEX_GAME_OF_THRONES);
         CSVResult csvResult = executeCsvRequest(query, false);
 
@@ -255,7 +255,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void simpleSearchResultWithNestedWithFlatNoAggs() throws Exception {
-        String query = String.format(Locale.ROOT, "select name.firstname,house from %s/gotCharacters",
+        String query = format("select name.firstname,house from %s/gotCharacters",
                 TEST_INDEX_GAME_OF_THRONES);
         CSVResult csvResult = executeCsvRequest(query, true);
 
@@ -274,7 +274,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void joinSearchResultNotNestedNotFlatNoAggs() throws Exception {
-        String query = String.format(Locale.ROOT, "select c.gender , h.hname,h.words from %s/gotCharacters c " +
+        String query = format("select c.gender , h.hname,h.words from %s/gotCharacters c " +
                 "JOIN %s/gotCharacters h " +
                 "on h.hname = c.house ", TEST_INDEX_GAME_OF_THRONES, TEST_INDEX_GAME_OF_THRONES);
         CSVResult csvResult = executeCsvRequest(query, false);
@@ -293,7 +293,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void simpleNumericValueAgg() throws Exception {
-        String query = String.format(Locale.ROOT, "select count(*) from %s/dog ", TEST_INDEX_DOG);
+        String query = format("select count(*) from %s/dog ", TEST_INDEX_DOG);
         CSVResult csvResult = executeCsvRequest(query, false);
 
         List<String> headers = csvResult.getHeaders();
@@ -309,7 +309,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void simpleNumericValueAggWithAlias() throws Exception {
-        String query = String.format(Locale.ROOT, "select avg(age) as myAlias from %s/dog ", TEST_INDEX_DOG);
+        String query = format("select avg(age) as myAlias from %s/dog ", TEST_INDEX_DOG);
         CSVResult csvResult = executeCsvRequest(query, false);
 
         List<String> headers = csvResult.getHeaders();
@@ -325,7 +325,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void twoNumericAggWithAlias() throws Exception {
-        String query = String.format(Locale.ROOT, "select count(*) as count, avg(age) as myAlias from %s/dog ",
+        String query = format("select count(*) as count, avg(age) as myAlias from %s/dog ",
                 TEST_INDEX_DOG);
         CSVResult csvResult = executeCsvRequest(query, false);
 
@@ -348,7 +348,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void aggAfterTermsGroupBy() throws Exception {
-        String query = String.format(Locale.ROOT, "SELECT COUNT(*) FROM %s/account GROUP BY gender",
+        String query = format("SELECT COUNT(*) FROM %s/account GROUP BY gender",
                 TEST_INDEX_ACCOUNT);
         CSVResult csvResult = executeCsvRequest(query, false);
         List<String> headers = csvResult.getHeaders();
@@ -365,7 +365,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void aggAfterTwoTermsGroupBy() throws Exception {
-        String query = String.format(Locale.ROOT,
+        String query = format(
                 "SELECT COUNT(*) FROM %s/account where age in (35,36) GROUP BY gender,age",
                 TEST_INDEX_ACCOUNT);
         CSVResult csvResult = executeCsvRequest(query, false);
@@ -386,7 +386,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void multipleAggAfterTwoTermsGroupBy() throws Exception {
-        String query = String.format(Locale.ROOT,
+        String query = format(
                 "SELECT COUNT(*) , sum(balance) FROM %s/account where age in (35,36) GROUP BY gender,age",
                 TEST_INDEX_ACCOUNT);
         CSVResult csvResult = executeCsvRequest(query, false);
@@ -412,7 +412,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void dateHistogramTest() throws Exception {
-        String query = String.format(Locale.ROOT, "select count(*) from %s/online" +
+        String query = format("select count(*) from %s/online" +
                 " group by date_histogram('field'='insert_time','interval'='4d','alias'='days')", TEST_INDEX_ONLINE);
         CSVResult csvResult = executeCsvRequest(query, false);
         List<String> headers = csvResult.getHeaders();
@@ -428,7 +428,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void statsAggregationTest() throws Exception {
-        String query = String.format(Locale.ROOT, "SELECT STATS(age) FROM %s/account", TEST_INDEX_ACCOUNT);
+        String query = format("SELECT STATS(age) FROM %s/account", TEST_INDEX_ACCOUNT);
         CSVResult csvResult = executeCsvRequest(query, false);
         List<String> headers = csvResult.getHeaders();
         Assert.assertEquals(5, headers.size());
@@ -445,7 +445,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void extendedStatsAggregationTest() throws Exception {
-        String query = String.format(Locale.ROOT, "SELECT EXTENDED_STATS(age) FROM %s/account", TEST_INDEX_ACCOUNT);
+        String query = format("SELECT EXTENDED_STATS(age) FROM %s/account", TEST_INDEX_ACCOUNT);
         CSVResult csvResult = executeCsvRequest(query, false);
         List<String> headers = csvResult.getHeaders();
 
@@ -466,7 +466,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void percentileAggregationTest() throws Exception {
-        String query = String.format(Locale.ROOT, "select percentiles(age) as per from %s/account where age > 31",
+        String query = format("select percentiles(age) as per from %s/account where age > 31",
                 TEST_INDEX_ACCOUNT);
         CSVResult csvResult = executeCsvRequest(query, false);
         List<String> headers = csvResult.getHeaders();
@@ -487,7 +487,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void includeTypeAndNotScore() throws Exception {
-        String query = String.format(Locale.ROOT, "select age , firstname from %s/account where age > 31 limit 2",
+        String query = format("select age , firstname from %s/account where age > 31 limit 2",
                 TEST_INDEX_ACCOUNT);
         CSVResult csvResult = executeCsvRequest(query, false, false, true, false);
         List<String> headers = csvResult.getHeaders();
@@ -502,7 +502,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void includeScoreAndNotType() throws Exception {
-        String query = String.format(Locale.ROOT,
+        String query = format(
                 "select age , firstname from %s/account where age > 31 order by _score desc limit 2 ",
                 TEST_INDEX_ACCOUNT);
         CSVResult csvResult = executeCsvRequest(query, false, true, false, false);
@@ -518,7 +518,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void includeScoreAndType() throws Exception {
-        String query = String.format(Locale.ROOT,
+        String query = format(
                 "select age , firstname from %s/account where age > 31 order by _score desc limit 2 ",
                 TEST_INDEX_ACCOUNT);
         CSVResult csvResult = executeCsvRequest(query, false, true, true, false);
@@ -542,7 +542,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void scriptedField() throws Exception {
-        String query = String.format(Locale.ROOT,
+        String query = format(
                 "select age+1 as agePlusOne ,age , firstname from %s/account where age =  31 limit 1",
                 TEST_INDEX_ACCOUNT);
         CSVResult csvResult = executeCsvRequest(query, false);
@@ -559,7 +559,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     @Ignore("separator not exposed")
     @Test
     public void twoCharsSeperator() throws Exception {
-        String query = String.format(Locale.ROOT, "select dog_name,age from %s/dog order by age", TEST_INDEX_DOG);
+        String query = format("select dog_name,age from %s/dog order by age", TEST_INDEX_DOG);
         CSVResult csvResult = executeCsvRequest(query, false);
 
         List<String> headers = csvResult.getHeaders();
@@ -576,7 +576,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void includeIdAndNotTypeOrScore() throws Exception {
-        String query = String.format(Locale.ROOT,
+        String query = format(
                 "select age , firstname from %s/account where lastname = 'Marquez' ", TEST_INDEX_ACCOUNT);
         CSVResult csvResult = executeCsvRequest(query, false, false, false, true);
         List<String> headers = csvResult.getHeaders();
@@ -590,7 +590,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void includeIdAndTypeButNoScore() throws Exception {
-        String query = String.format(Locale.ROOT,
+        String query = format(
                 "select age , firstname from %s/account where lastname = 'Marquez' ", TEST_INDEX_ACCOUNT);
         CSVResult csvResult = executeCsvRequest(query, false, false, true, true);
         List<String> headers = csvResult.getHeaders();
@@ -607,7 +607,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     private void verifyFieldOrder(final String[] expectedFields) throws IOException {
 
         final String fields = String.join(", ", expectedFields);
-        final String query = String.format(Locale.ROOT, "SELECT %s FROM %s " +
+        final String query = format("SELECT %s FROM %s " +
                 "WHERE email='amberduke@pyrami.com'", fields, TEST_INDEX_ACCOUNT);
 
         verifyFieldOrder(expectedFields, query);
@@ -635,7 +635,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
                                         boolean includeType, boolean includeId) throws IOException {
 
         final String requestBody = super.makeRequest(query);
-        final String endpoint = String.format(Locale.ROOT,
+        final String endpoint = format(
                 "/_opendistro/_sql?format=csv&flat=%b&_id=%b&_score=%b&_type=%b",
                 flat, includeId, includeScore, includeType);
         final Request sqlRequest = new Request("POST", endpoint);
@@ -656,7 +656,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
         final List<String> rows = new ArrayList<>();
 
-        final String newLine = String.format(Locale.ROOT, "%n");
+        final String newLine = format("%n");
         int newLineIndex = response.indexOf(newLine);
 
         final String headerLine;
@@ -685,7 +685,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
             final String delimiter = areItemsNested ? ", " : ",";
             final String objectField = String.join(delimiter, permutation);
-            final String row = String.format(Locale.ROOT, "%s%s%s%s%s",
+            final String row = format("%s%s%s%s%s",
                     printablePrefix(prefix), areItemsNested ? "\"{" : "",
                     objectField, areItemsNested ? "}\"" : "", printableSuffix(suffix));
             return hasItem(row);

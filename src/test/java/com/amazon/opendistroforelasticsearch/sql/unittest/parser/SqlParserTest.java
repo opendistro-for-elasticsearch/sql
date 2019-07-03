@@ -43,7 +43,6 @@ import org.junit.Test;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
@@ -53,6 +52,7 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstant
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_DOG;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_GAME_OF_THRONES;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ODBC;
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.format;
 import static org.hamcrest.Matchers.equalTo;
 
 public class SqlParserTest {
@@ -275,7 +275,7 @@ public class SqlParserTest {
 
     @Test
     public void joinConditionWithComplexObjectComparisonRightSide() throws SqlParseException {
-        String query = String.format(Locale.ROOT, "select c.name.firstname,c.parents.father , h.name,h.words " +
+        String query = format("select c.name.firstname,c.parents.father , h.name,h.words " +
                 "from %s/gotCharacters c " +
                 "JOIN %s/gotCharacters h " +
                 "on h.name = c.name.lastname  " +
@@ -290,7 +290,7 @@ public class SqlParserTest {
 
     @Test
     public void joinConditionWithComplexObjectComparisonLeftSide() throws SqlParseException {
-        String query = String.format(Locale.ROOT,
+        String query = format(
                 "select c.name.firstname,c.parents.father , h.name,h.words from %s/gotCharacters c " +
                 "JOIN %s/gotCharacters h " +
                 "on c.name.lastname = h.name  " +
@@ -306,7 +306,7 @@ public class SqlParserTest {
 
     @Test
     public void limitHintsOnJoin() throws SqlParseException {
-        String query = String.format(Locale.ROOT,"select /*! JOIN_TABLES_LIMIT(1000,null) */ " +
+        String query = format("select /*! JOIN_TABLES_LIMIT(1000,null) */ " +
                 "c.name.firstname,c.parents.father , h.name,h.words from %s/gotCharacters c " +
                 "use KEY (termsFilter) " +
                 "JOIN %s/gotCharacters h " +
@@ -327,7 +327,7 @@ public class SqlParserTest {
 
     @Test
     public void hashTermsFilterHint() throws SqlParseException {
-        String query = String.format(Locale.ROOT, "select /*! HASH_WITH_TERMS_FILTER*/ " +
+        String query = format("select /*! HASH_WITH_TERMS_FILTER*/ " +
                 "c.name.firstname,c.parents.father , h.name,h.words from %s/gotCharacters c " +
                 "use KEY (termsFilter) " +
                 "JOIN %s/gotCharacters h " +
@@ -343,7 +343,7 @@ public class SqlParserTest {
 
     @Test
     public void multipleHints() throws SqlParseException {
-        String query = String.format(Locale.ROOT, "select /*! HASH_WITH_TERMS_FILTER*/ " +
+        String query = format("select /*! HASH_WITH_TERMS_FILTER*/ " +
                 "/*! JOIN_TABLES_LIMIT(1000,null) */ " +
                 " /*! JOIN_TABLES_LIMIT(100,200) */ " +
                 "c.name.firstname,c.parents.father , h.name,h.words from %s/gotCharacters c " +
@@ -371,7 +371,7 @@ public class SqlParserTest {
 
     @Test
     public void searchWithOdbcTimeFormatParse() throws SqlParseException {
-        String query = String.format(Locale.ROOT, "SELECT insert_time FROM %s/odbc " +
+        String query = format("SELECT insert_time FROM %s/odbc " +
                 "WHERE insert_time < {ts '2015-03-15 00:00:00.000'}", TEST_INDEX_ODBC);
         SQLExpr sqlExpr = queryToExpr(query);
         Select select = parser.parseSelect((SQLQueryExpr) sqlExpr);
@@ -503,7 +503,7 @@ public class SqlParserTest {
 
     @Test
     public void innerQueryTest() throws SqlParseException {
-        String query = String.format(Locale.ROOT, "select * from %s/dog where holdersName " +
+        String query = format("select * from %s/dog where holdersName " +
                 "IN (select firstname from %s/account where firstname = 'eliran')",
                 TEST_INDEX_DOG, TestsConstants.TEST_INDEX_ACCOUNT);
         SQLExpr sqlExpr = queryToExpr(query);
@@ -514,7 +514,7 @@ public class SqlParserTest {
 
     @Test
     public void inTermsSubQueryTest() throws SqlParseException {
-        String query = String.format(Locale.ROOT, "select * from %s/dog where " +
+        String query = format("select * from %s/dog where " +
                 "holdersName = IN_TERMS (select firstname from %s/account where firstname = 'eliran')",
                 TEST_INDEX_DOG, TestsConstants.TEST_INDEX_ACCOUNT);
         SQLExpr sqlExpr = queryToExpr(query);
@@ -526,7 +526,7 @@ public class SqlParserTest {
 
     @Test
     public void innerQueryTestTwoQueries() throws SqlParseException {
-        String query = String.format(Locale.ROOT, "select * from %s/dog where holdersName IN " +
+        String query = format("select * from %s/dog where holdersName IN " +
                 "(select firstname from %s/account where firstname = 'eliran') and " +
                 "age IN (select name.ofHisName from %s/gotCharacters) ",
                 TEST_INDEX_DOG, TestsConstants.TEST_INDEX_ACCOUNT, TEST_INDEX_GAME_OF_THRONES);
@@ -803,7 +803,7 @@ public class SqlParserTest {
 
     @Test
     public void parseJoinWithOneTableOrderByAttachToCorrectTable() throws SqlParseException {
-        String query = String.format(Locale.ROOT, "select c.name.firstname , d.words from %s/gotCharacters c " +
+        String query = format("select c.name.firstname , d.words from %s/gotCharacters c " +
                         "JOIN %s/gotCharacters d on d.name = c.house " +
                         "order by c.name.firstname"
                 , TEST_INDEX_GAME_OF_THRONES, TEST_INDEX_GAME_OF_THRONES);
@@ -816,7 +816,7 @@ public class SqlParserTest {
 
     @Test
     public void parseJoinWithOneTableOrderByRemoveAlias() throws SqlParseException {
-        String query = String.format(Locale.ROOT, "select c.name.firstname , d.words from %s/gotCharacters c " +
+        String query = format("select c.name.firstname , d.words from %s/gotCharacters c " +
                         "JOIN %s/gotCharacters d on d.name = c.house " +
                         "order by c.name.firstname"
                 , TEST_INDEX_GAME_OF_THRONES, TEST_INDEX_GAME_OF_THRONES);

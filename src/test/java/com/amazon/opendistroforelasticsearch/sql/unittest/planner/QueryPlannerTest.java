@@ -121,8 +121,9 @@ public abstract class QueryPlannerTest {
             @Override
             public SearchResponse answer(InvocationOnMock invocation) {
                 /*
-                 * This works based on assumption that first call comes from Scroll-1, all the following calls come from Scroll-2.
-                 * Because Scroll-1 only open scroll once and must be ahead of Scroll-2 which opens multiple times later.
+                 * This works based on assumption that first call comes from Scroll-1, all the following
+                 * calls come from Scroll-2. Because Scroll-1 only open scroll once and must be ahead of
+                 * Scroll-2 which opens multiple times later.
                  */
                 return callCnt++ == 0 ? response1 : response2;
             }
@@ -157,7 +158,7 @@ public abstract class QueryPlannerTest {
         when(mockReqBuilder.addScrollId(any())).thenReturn(mockReqBuilder);
         when(mockReqBuilder.get()).thenAnswer(new Answer<ClearScrollResponse>() {
             @Override
-            public ClearScrollResponse answer(InvocationOnMock invocation) throws Throwable {
+            public ClearScrollResponse answer(InvocationOnMock invocation) {
                 mockHits2.reset();
                 return new ClearScrollResponse(true, 0);
             }
@@ -272,7 +273,8 @@ public abstract class QueryPlannerTest {
             hit.sourceRef(new BytesArray("{\"lastname\":\"" + lastname + "\"}"));
         }
         else {
-            hit.sourceRef(new BytesArray("{\"lastname\":\"" + lastname + "\",\"departmentId\":\"" + departmentId + "\"}"));
+            hit.sourceRef(new BytesArray("{\"lastname\":\"" + lastname + "\",\"departmentId\":\"" +
+                    departmentId + "\"}"));
         }
         return hit;
     }

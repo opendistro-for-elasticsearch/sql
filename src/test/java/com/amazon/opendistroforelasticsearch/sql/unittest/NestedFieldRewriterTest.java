@@ -179,7 +179,8 @@ public class NestedFieldRewriterTest {
             query("SELECT region " +
                   "FROM team " +
                   "WHERE department = 'IT' AND " +
-                  "      nested(\"employees\", employees.age = 26 OR (employees.firstname = 'John' AND employees.lastname = 'Smith')) AND " +
+                  "      nested(\"employees\", employees.age = 26 " +
+                  "   OR (employees.firstname = 'John' AND employees.lastname = 'Smith')) AND " +
                   "      region = 'US' AND " +
                   "      nested(\"manager\", manager.name = 'Alice' AND manager.age = 50)")
         );

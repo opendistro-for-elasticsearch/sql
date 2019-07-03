@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -94,8 +93,9 @@ public class QueryFunctionsIT extends SQLIntegTestCase {
 
     @Test
     public void matchQueryNestedField() throws IOException {
-        SearchHit[] hits = query("SELECT comment.data", FROM_NESTED, "WHERE MATCH_QUERY(NESTED(comment.data), 'aa')").getHits().getHits();
-        Map<String, Object> source = hits[0].getSourceAsMap();
+        SearchHit[] hits = query("SELECT comment.data", FROM_NESTED, "WHERE MATCH_QUERY(NESTED(comment.data), 'aa')")
+                .getHits().getHits();
+
         // SearchHits innerHits = hits[0].getInnerHits().get("comment");
         assertThat(
             query(
@@ -196,7 +196,7 @@ public class QueryFunctionsIT extends SQLIntegTestCase {
         );
     }
 
-    private final Matcher<SearchResponse> hits(Matcher<SearchHit> subMatcher) {
+    private Matcher<SearchResponse> hits(Matcher<SearchHit> subMatcher) {
         return featureValueOf("hits", everyItem(subMatcher), resp -> Arrays.asList(resp.getHits().getHits()));
     }
 
@@ -222,24 +222,23 @@ public class QueryFunctionsIT extends SQLIntegTestCase {
      * @param value The value to match for a field in the sourceMap
      * @param fields A list of fields to match
      */
-    @SafeVarargs
-    private final Matcher<SearchHit> hasValueForFields(String value, String... fields) {
+    private Matcher<SearchHit> hasValueForFields(String value, String... fields) {
+
         return anyOf(
-                Arrays.asList(fields).
-                        stream().
-                        map(field -> kv(field, is(value))).
-                        collect(Collectors.toList()));
+                Arrays.stream(fields)
+                .map(field -> kv(field, is(value)))
+                .collect(Collectors.toList()));
     }
 
-    private final Matcher<SearchHit> hasFieldWithPrefix(String field, String prefix) {
+    private Matcher<SearchHit> hasFieldWithPrefix(String field, String prefix) {
         return featureValueOf(field, startsWith(prefix), hit -> (String) hit.getSourceAsMap().get(field));
     }
 
-    private final Matcher<SearchHit> hasNestedField(String path, String field, String value) {
+    private Matcher<SearchHit> hasNestedField(String path, String field, String value) {
         return featureValueOf(field, is(value), hit -> ((HashMap) hit.getSourceAsMap().get(path)).get(field));
     }
 
-    private final Matcher<SearchHit> hasNestedArrayField(String path, String field, String value) {
+    private Matcher<SearchHit> hasNestedArrayField(String path, String field, String value) {
 
         return new BaseMatcher<SearchHit>() {
             @Override
@@ -251,10 +250,15 @@ public class QueryFunctionsIT extends SQLIntegTestCase {
             public boolean matches(Object item) {
 
                 SearchHit hit = (SearchHit)item;
-                List<Object> elements = (List<Object>) ((HashMap) hit.getSourceAsMap().get(path)).get(field);
+                List<Object> elements = uncheckedGetList(((HashMap) hit.getSourceAsMap().get(path)).get(field));
                 return elements.contains(value);
             }
         };
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Object> uncheckedGetList(final Object listObject) {
+        return (List<Object>)listObject;
     }
 
     private Matcher<SearchHit> kv(String key, Matcher<Object> valMatcher) {

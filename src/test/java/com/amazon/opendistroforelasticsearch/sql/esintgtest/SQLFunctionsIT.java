@@ -36,6 +36,7 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstant
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.hitAny;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvDouble;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvString;
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.format;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.both;
 import static org.hamcrest.Matchers.contains;
@@ -47,7 +48,6 @@ import static org.hamcrest.Matchers.hasValue;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.not;
-
 
 /**
  * Created by allwefantasy on 8/25/16.
@@ -69,8 +69,8 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
 
         IntStream.rangeClosed(0, 9).forEach(i -> {
-                    Assert.assertNotNull(result.query(String.format("/aggregations/key/buckets/%d/key", i)));
-                    Assert.assertNotNull(result.query(String.format("/aggregations/key/buckets/%d/cvalue/value", i)));
+                    Assert.assertNotNull(result.query(format("/aggregations/key/buckets/%d/key", i)));
+                    Assert.assertNotNull(result.query(format("/aggregations/key/buckets/%d/cvalue/value", i)));
                 }
         );
     }
@@ -184,11 +184,13 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     @Test
     public void functionPow() throws Exception {
         String query = "SELECT pow(account_number, 2) as key,"+
-                "abs(age - 60) as new_age from " + TEST_INDEX_ACCOUNT + "/account WHERE firstname = 'Virginia' and lastname='Ayala' limit 1";
+                "abs(age - 60) as new_age from " + TEST_INDEX_ACCOUNT +
+                "/account WHERE firstname = 'Virginia' and lastname='Ayala' limit 1";
 
         assertThat(
                 executeQuery(query),
-                hitAny(both(kvDouble("/fields/new_age/0", equalTo(21.0))).and(kvDouble("/fields/key/0", equalTo(625.0))))
+                hitAny(both(kvDouble("/fields/new_age/0", equalTo(21.0))).and(kvDouble("/fields/key/0",
+                        equalTo(625.0))))
         );
     }
 
@@ -197,9 +199,9 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
      * @see <a href="https://www.elastic.co/guide/en/elasticsearch/painless/7.0/painless-api-reference.html">https://www.elastic.co/guide/en/elasticsearch/painless/7.0/painless-api-reference.html</a>
      */
     @Ignore
-    public void split_field() throws Exception {
+    public void split_field() {
 
-        //here is a bug,csv field with spa
+        //here is a bug, csv field with spa
         String query = "SELECT " +
                 " split(address,' ')[0],age from " +
                 TestsConstants.TEST_INDEX + "/account where address is not null " +

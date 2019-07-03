@@ -24,7 +24,6 @@ public class TestsConstants {
 
     public final static String TEST_INDEX_ONLINE = TEST_INDEX + "_online";
     public final static String TEST_INDEX_ACCOUNT = TEST_INDEX + "_account";
-    public final static String TEST_INDEX_ACCOUNT_TEMP = TEST_INDEX + "_account_temp";
     public final static String TEST_INDEX_PHRASE = TEST_INDEX + "_phrase";
     public final static String TEST_INDEX_DOG = TEST_INDEX + "_dog";
     public final static String TEST_INDEX_DOG2 = TEST_INDEX + "_dog2";

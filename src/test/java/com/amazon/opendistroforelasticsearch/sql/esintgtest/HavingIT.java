@@ -25,10 +25,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.format;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
@@ -176,7 +176,7 @@ public class HavingIT extends SQLIntegTestCase {
 
     private Set<Object[]> getResult(JSONObject response, String aggName, String aggFunc) {
 
-        String bucketsPath = String.format(Locale.ROOT, "/aggregations/%s/buckets", aggName);
+        String bucketsPath = format("/aggregations/%s/buckets", aggName);
         JSONArray buckets = (JSONArray) response.query(bucketsPath);
 
         Set<Object[]> result = new HashSet<>();

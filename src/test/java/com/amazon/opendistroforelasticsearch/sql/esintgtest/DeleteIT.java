@@ -19,8 +19,8 @@ import org.json.JSONObject;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Locale;
 
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.format;
 import static org.hamcrest.core.IsEqual.equalTo;
 
 public class DeleteIT extends SQLIntegTestCase {
@@ -33,16 +33,14 @@ public class DeleteIT extends SQLIntegTestCase {
 
     @Test
     public void deleteAllTest() throws IOException, InterruptedException {
-        String selectQuery = String.format(
-            Locale.ROOT,
+        String selectQuery = format(
             "SELECT * FROM %s/account",
             TestsConstants.TEST_INDEX_ACCOUNT
         );
         JSONObject response = executeRequest(makeRequest(selectQuery));
         int totalHits = getTotalHits(response);
 
-        String deleteQuery = String.format(
-            Locale.ROOT,
+        String deleteQuery = format(
             "DELETE FROM %s/account",
             TestsConstants.TEST_INDEX_ACCOUNT);
         response = executeRequest(makeRequest(deleteQuery));
@@ -58,16 +56,14 @@ public class DeleteIT extends SQLIntegTestCase {
 
     @Test
     public void deleteWithConditionTest() throws IOException, InterruptedException {
-        String selectQuery = String.format(
-            Locale.ROOT,
+        String selectQuery = format(
             "SELECT * FROM %s/phrase WHERE match_phrase(phrase, 'quick fox here')",
             TestsConstants.TEST_INDEX_PHRASE
         );
         JSONObject response = executeRequest(makeRequest(selectQuery));
         int totalHits = getTotalHits(response);
 
-        String deleteQuery = String.format(
-            Locale.ROOT,
+        String deleteQuery = format(
             "DELETE FROM %s/phrase WHERE match_phrase(phrase, 'quick fox here')",
             TestsConstants.TEST_INDEX_PHRASE
         );
@@ -77,8 +73,7 @@ public class DeleteIT extends SQLIntegTestCase {
         // To prevent flakiness, the minimum value of 2000 msec works fine.
         Thread.sleep(2000);
 
-        selectQuery = String.format(
-            Locale.ROOT,
+        selectQuery = format(
             "SELECT * FROM %s/phrase",
             TestsConstants.TEST_INDEX_PHRASE
         );

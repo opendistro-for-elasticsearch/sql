@@ -27,11 +27,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.runners.Parameterized.Parameters;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.hit;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.hits;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kv;
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.format;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.runners.Parameterized.Parameters;
 
 /**
  * Batch prefetch testing. Test against different combination of algorithm block size and scroll page size.
@@ -188,7 +189,7 @@ public class QueryPlannerBatchTest extends QueryPlannerTest {
     public void departmentInnerJoinEmployee() {
         assertThat(
             query(
-                String.format(
+                format(
                     TEST_SQL1 + TEST_SQL2_JOIN1 + TEST_SQL3,
                     blockSize, pageSize, "INNER JOIN"),
                 departments(pageSize, departments),
@@ -202,7 +203,7 @@ public class QueryPlannerBatchTest extends QueryPlannerTest {
     public void employeeInnerJoinDepartment() {
         assertThat(
             query(
-                String.format(
+                format(
                     TEST_SQL1 + TEST_SQL2_JOIN2 + TEST_SQL3,
                     blockSize, pageSize, "INNER JOIN"),
                 employees(pageSize, employees),
@@ -216,7 +217,7 @@ public class QueryPlannerBatchTest extends QueryPlannerTest {
     public void departmentLeftJoinEmployee() {
         assertThat(
             query(
-                String.format(
+                format(
                     TEST_SQL1 + TEST_SQL2_JOIN1 + TEST_SQL3,
                     blockSize, pageSize, "LEFT JOIN"),
                 departments(pageSize, departments),
@@ -230,7 +231,7 @@ public class QueryPlannerBatchTest extends QueryPlannerTest {
     public void employeeLeftJoinDepartment() {
         assertThat(
             query(
-                String.format(
+                format(
                     TEST_SQL1 + TEST_SQL2_JOIN2 + TEST_SQL3,
                     blockSize, pageSize, "LEFT JOIN"),
                 employees(pageSize, employees),

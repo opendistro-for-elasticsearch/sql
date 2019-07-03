@@ -25,18 +25,20 @@ import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
 import com.amazon.opendistroforelasticsearch.sql.parser.SqlParser;
 import com.amazon.opendistroforelasticsearch.sql.query.maker.QueryMaker;
 import com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils;
+import org.elasticsearch.common.lucene.BytesRefs;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.common.lucene.BytesRefs;
 import org.elasticsearch.index.query.RangeQueryBuilder;
-import org.hamcrest.*;
+import org.hamcrest.Matcher;
 import org.junit.Test;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
 import static com.amazon.opendistroforelasticsearch.sql.util.HasFieldWithValue.hasFieldWithValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasProperty;
 
 public class DateFormatTest {
 
@@ -47,23 +49,29 @@ public class DateFormatTest {
         List<QueryBuilder> q = query(SELECT_CNT_FROM_DATE + "WHERE date_format(creationDate, 'YYYY') < '2018'");
 
         assertThat(q, hasQueryWithValue("fieldName", equalTo("creationDate")));
-        assertThat(q, hasQueryWithValueGetter(MatcherUtils.featureValueOf("has format", equalTo("YYYY"), f->((RangeQueryBuilder)f).format())));
+        assertThat(q, hasQueryWithValueGetter(MatcherUtils.featureValueOf("has format", equalTo("YYYY"),
+                f->((RangeQueryBuilder)f).format())));
     }
 
     @Test
     public void equalCondition() {
-        List<QueryBuilder> q = query(SELECT_CNT_FROM_DATE + "WHERE date_format(creationDate, 'YYYY-MM-dd') = '2018-04-02'");
+        List<QueryBuilder> q = query(SELECT_CNT_FROM_DATE +
+                "WHERE date_format(creationDate, 'YYYY-MM-dd') = '2018-04-02'");
 
-        assertThat(q, hasQueryWithValueGetter(MatcherUtils.featureValueOf("has format", equalTo("YYYY-MM-dd"), f->((RangeQueryBuilder)f).format())));
+        assertThat(q, hasQueryWithValueGetter(MatcherUtils.featureValueOf("has format", equalTo("YYYY-MM-dd"),
+                f->((RangeQueryBuilder)f).format())));
 
-        // Equality query for date_format is created with a rangeQuery where the 'from' and 'to' values are equal to the value we are equating to
-        assertThat(q, hasQueryWithValue("from", equalTo(BytesRefs.toBytesRef("2018-04-02")))); // converting string to bytes ref as RangeQueryBuilder stores it this way
+        // Equality query for date_format is created with a rangeQuery where the 'from' and 'to'
+        // values are equal to the value we are equating to
+        // NOTE: converting string to bytes ref as RangeQueryBuilder stores it this way
+        assertThat(q, hasQueryWithValue("from", equalTo(BytesRefs.toBytesRef("2018-04-02"))));
         assertThat(q, hasQueryWithValue("to", equalTo(BytesRefs.toBytesRef("2018-04-02"))));
     }
 
     @Test
     public void notEqualCondition() {
-        List<QueryBuilder> q = query(SELECT_CNT_FROM_DATE + "WHERE date_format(creationDate, 'YYYY-MM-dd') <> '2018-04-02'");
+        List<QueryBuilder> q = query(SELECT_CNT_FROM_DATE +
+                "WHERE date_format(creationDate, 'YYYY-MM-dd') <> '2018-04-02'");
 
         assertThat(q, hasNotQueryWithValue("from", equalTo(BytesRefs.toBytesRef("2018-04-02"))));
         assertThat(q, hasNotQueryWithValue("to", equalTo(BytesRefs.toBytesRef("2018-04-02"))));
@@ -71,7 +79,8 @@ public class DateFormatTest {
 
     @Test
     public void greaterThanCondition() {
-        List<QueryBuilder> q = query(SELECT_CNT_FROM_DATE + "WHERE date_format(creationDate, 'YYYY-MM-dd') > '2018-04-02'");
+        List<QueryBuilder> q = query(SELECT_CNT_FROM_DATE +
+                "WHERE date_format(creationDate, 'YYYY-MM-dd') > '2018-04-02'");
 
         assertThat(q, hasQueryWithValue("from", equalTo(BytesRefs.toBytesRef("2018-04-02"))));
         assertThat(q, hasQueryWithValue("includeLower", equalTo(false)));
@@ -80,7 +89,8 @@ public class DateFormatTest {
 
     @Test
     public void greaterThanOrEqualToCondition() {
-        List<QueryBuilder> q = query(SELECT_CNT_FROM_DATE + "WHERE date_format(creationDate, 'YYYY-MM-dd') >= '2018-04-02'");
+        List<QueryBuilder> q = query(SELECT_CNT_FROM_DATE +
+                "WHERE date_format(creationDate, 'YYYY-MM-dd') >= '2018-04-02'");
 
         assertThat(q, hasQueryWithValue("from", equalTo(BytesRefs.toBytesRef("2018-04-02"))));
         assertThat(q, hasQueryWithValue("to", equalTo(null)));
@@ -90,9 +100,11 @@ public class DateFormatTest {
 
     @Test
     public void timeZoneCondition() {
-        List<QueryBuilder> q = query(SELECT_CNT_FROM_DATE + "WHERE date_format(creationDate, 'YYYY-MM-dd', 'America/Phoenix') > '2018-04-02'");
+        List<QueryBuilder> q = query(SELECT_CNT_FROM_DATE +
+                "WHERE date_format(creationDate, 'YYYY-MM-dd', 'America/Phoenix') > '2018-04-02'");
 
-        // Used hasProperty here as getter followed convention for obtaining ID and Feature Matcher was having issues with generic type to obtain value
+        // Used hasProperty here as getter followed convention for obtaining ID
+        // and Feature Matcher was having issues with generic type to obtain value
         assertThat(q, hasQueryWithValue("timeZone", hasProperty("id", equalTo("America/Phoenix"))));
     }
 

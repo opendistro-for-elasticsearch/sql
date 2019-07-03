@@ -37,13 +37,14 @@ import java.net.InetSocketAddress;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Locale;
 
 import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.EXPLAIN_API_ENDPOINT;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.QUERY_API_ENDPOINT;
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.format;
 
 @ESIntegTestCase.SuiteScopeTestCase
-@ESIntegTestCase.ClusterScope(scope=ESIntegTestCase.Scope.SUITE, numDataNodes=3, supportsDedicatedMasters=false, transportClientRatio=1)
+@ESIntegTestCase.ClusterScope(scope=ESIntegTestCase.Scope.SUITE, numDataNodes=3, supportsDedicatedMasters=false,
+        transportClientRatio=1)
 @ThreadLeakScope(ThreadLeakScope.Scope.NONE)
 public abstract class SQLIntegTestCase extends ESIntegTestCase {
 
@@ -100,7 +101,7 @@ public abstract class SQLIntegTestCase extends ESIntegTestCase {
         return sqlRequest;
     }
 
-    protected Request buildGetEndpointRequest(final String sqlQuery) {
+    private Request buildGetEndpointRequest(final String sqlQuery) {
 
         final String utf8CharsetName = StandardCharsets.UTF_8.name();
         String urlEncodedQuery = "";
@@ -112,7 +113,7 @@ public abstract class SQLIntegTestCase extends ESIntegTestCase {
             Assert.fail(utf8CharsetName + " not available");
         }
 
-        final String requestUrl = String.format(Locale.ROOT, "%s?sql=%s",
+        final String requestUrl = format("%s?sql=%s",
                 QUERY_API_ENDPOINT, urlEncodedQuery);
         return new Request("GET", requestUrl);
     }

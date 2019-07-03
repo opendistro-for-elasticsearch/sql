@@ -65,7 +65,8 @@ public class ESClientTest {
     @Test
     public void multiSearchRetryOneTime() {
         ESClient esClient = new ESClient(client);
-        MultiSearchResponse.Item[] res = esClient.multiSearch(new MultiSearchRequest().add(new SearchRequest()).add(new SearchRequest()));
+        MultiSearchResponse.Item[] res = esClient.multiSearch(new MultiSearchRequest()
+                                            .add(new SearchRequest()).add(new SearchRequest()));
         Assert.assertEquals(res.length, 2);
         Assert.assertFalse(res[0].isFailure());
         Assert.assertFalse(res[1].isFailure());

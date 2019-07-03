@@ -76,7 +76,7 @@ public class PreparedStatementRequestTest {
         List<PreparedStatementRequest.PreparedStatementParameter> params = new ArrayList<>();
         params.add(new PreparedStatementRequest.StringParameter("value"));
 
-        PreparedStatementRequest psr = new PreparedStatementRequest(sqlTemplate, new JSONObject(), params);
+        new PreparedStatementRequest(sqlTemplate, new JSONObject(), params);
     }
 
     @Test

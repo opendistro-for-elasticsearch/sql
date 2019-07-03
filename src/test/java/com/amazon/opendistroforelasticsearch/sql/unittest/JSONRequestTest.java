@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLFeatureNotSupportedException;
 
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.format;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -41,14 +42,15 @@ public class JSONRequestTest {
 
     @Test
     public void searchSanity() throws IOException {
-        String result = explain(String.format("{\"query\":\"" +
+        String result = explain(format("{\"query\":\"" +
                 "SELECT * " +
                 "FROM %s " +
                 "WHERE firstname LIKE 'A%%' AND age > 20 " +
                 "GROUP BY gender " +
                 "ORDER BY _score\"}", TestsConstants.TEST_INDEX_ACCOUNT));
         String expectedOutput = Files.toString(
-                new File(getResourcePath() + "src/test/resources/expectedOutput/search_explain.json"), StandardCharsets.UTF_8)
+                new File(getResourcePath() + "src/test/resources/expectedOutput/search_explain.json"),
+                StandardCharsets.UTF_8)
                 .replaceAll("\r", "");
 
         assertThat(removeSpaces(result), equalTo(removeSpaces(expectedOutput)));
@@ -56,12 +58,14 @@ public class JSONRequestTest {
 
     @Test
     public void aggregationQuery() throws IOException {
-        String result = explain(String.format("{\"query\":\"" +
+        String result = explain(format("{\"query\":\"" +
                 "SELECT a, CASE WHEN gender='0' THEN 'aaa' ELSE 'bbb' END AS a2345, count(c) " +
                 "FROM %s " +
-                "GROUP BY terms('field'='a','execution_hint'='global_ordinals'), a2345\"}", TestsConstants.TEST_INDEX_ACCOUNT));
+                "GROUP BY terms('field'='a','execution_hint'='global_ordinals'), a2345\"}",
+                TestsConstants.TEST_INDEX_ACCOUNT));
         String expectedOutput = Files.toString(
-                new File(getResourcePath() + "src/test/resources/expectedOutput/aggregation_query_explain.json"), StandardCharsets.UTF_8)
+                new File(getResourcePath() + "src/test/resources/expectedOutput/aggregation_query_explain.json"),
+                StandardCharsets.UTF_8)
                 .replaceAll("\r", "");
 
         assertThat(removeSpaces(result), equalTo(removeSpaces(expectedOutput)));
@@ -69,12 +73,13 @@ public class JSONRequestTest {
 
     @Test
     public void deleteSanity() throws IOException {
-        String result = explain(String.format("{\"query\":\"" +
+        String result = explain(format("{\"query\":\"" +
                 "DELETE " +
                 "FROM %s " +
                 "WHERE firstname LIKE 'A%%' AND age > 20\"}", TestsConstants.TEST_INDEX_ACCOUNT));
         String expectedOutput = Files.toString(
-                new File(getResourcePath() + "src/test/resources/expectedOutput/delete_explain.json"), StandardCharsets.UTF_8)
+                new File(getResourcePath() + "src/test/resources/expectedOutput/delete_explain.json"),
+                StandardCharsets.UTF_8)
                 .replaceAll("\r", "");
 
         assertThat(removeSpaces(result), equalTo(removeSpaces(expectedOutput)));
@@ -95,13 +100,14 @@ public class JSONRequestTest {
          *   }
          * }
          */
-        String result = explain(String.format("{\"query\":\"" +
+        String result = explain(format("{\"query\":\"" +
                 "SELECT * " +
                 "FROM %s " +
                 "WHERE age > 25\"," +
                 "\"filter\":{\"range\":{\"balance\":{\"lte\":30000}}}}", TestsConstants.TEST_INDEX_ACCOUNT));
         String expectedOutput = Files.toString(
-                new File(getResourcePath() + "src/test/resources/expectedOutput/json_filter_explain.json"), StandardCharsets.UTF_8)
+                new File(getResourcePath() + "src/test/resources/expectedOutput/json_filter_explain.json"),
+                StandardCharsets.UTF_8)
                 .replaceAll("\r", "");
 
         assertThat(removeSpaces(result), equalTo(removeSpaces(expectedOutput)));
@@ -122,7 +128,9 @@ public class JSONRequestTest {
         }
     }
 
-    private String translate(String sql, JSONObject jsonRequest) throws SQLFeatureNotSupportedException, SqlParseException {
+    private String translate(String sql, JSONObject jsonRequest)
+                                throws SQLFeatureNotSupportedException, SqlParseException {
+
         Client mockClient = Mockito.mock(Client.class);
         CheckScriptContents.stubMockClient(mockClient);
         QueryAction queryAction = ESActionFactory.create(mockClient, sql);

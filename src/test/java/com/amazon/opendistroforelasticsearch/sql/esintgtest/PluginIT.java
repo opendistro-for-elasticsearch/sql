@@ -24,10 +24,11 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Locale;
 
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.format;
 import static org.hamcrest.Matchers.equalTo;
+
 
 public class PluginIT extends SQLIntegTestCase {
 
@@ -41,7 +42,7 @@ public class PluginIT extends SQLIntegTestCase {
     @Test
     public void sqlEnableSettingsTest() throws IOException {
         updateClusterSettings(PERSISTENT, "opendistro.sql.enabled", "true");
-        String query = String.format(Locale.ROOT, "SELECT firstname FROM %s/account WHERE account_number=1", TEST_INDEX_ACCOUNT);
+        String query = format("SELECT firstname FROM %s/account WHERE account_number=1", TEST_INDEX_ACCOUNT);
         JSONObject queryResult = executeQuery(query);
         Assert.assertThat(getHits(queryResult).length(), equalTo(1));
 
@@ -57,14 +58,15 @@ public class PluginIT extends SQLIntegTestCase {
         Assert.assertThat(queryResult.getInt("status"), equalTo(400));
         JSONObject error = queryResult.getJSONObject("error");
         Assert.assertThat(error.getString("reason"), equalTo("Invalid SQL query"));
-        Assert.assertThat(error.getString("details"), equalTo("Either opendistro.sql.enabled or rest.action.multi.allow_explicit_index setting is false"));
+        Assert.assertThat(error.getString("details"),
+                equalTo("Either opendistro.sql.enabled or rest.action.multi.allow_explicit_index setting is false"));
         Assert.assertThat(error.getString("type"), equalTo("SQLFeatureDisabledException"));
         resetClusterSettings(PERSISTENT, "opendistro.sql.enabled");
     }
 
     private JSONObject updateClusterSettings(String settingType, String setting , String value) throws IOException {
         Request request = new Request("PUT", "/_cluster/settings?pretty");
-        String persistentSetting = String.format(Locale.ROOT, "{\"%s\": {\"%s\": %s}}", settingType, setting, value);
+        String persistentSetting = format("{\"%s\": {\"%s\": %s}}", settingType, setting, value);
         request.setJsonEntity(persistentSetting);
         RequestOptions.Builder restOptionsBuilder = RequestOptions.DEFAULT.toBuilder();
         restOptionsBuilder.addHeader("Content-Type", "application/json");

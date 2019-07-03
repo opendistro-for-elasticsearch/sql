@@ -21,9 +21,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Locale;
 
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.format;
 import static org.hamcrest.Matchers.equalTo;
 
 /**
@@ -41,7 +41,7 @@ public class GetEndpointQueryIT extends SQLIntegTestCase {
 
         // NOTE: There are unicode characters in name, not just whitespace.
         final String name = "盛虹";
-        final String query = String.format(Locale.ROOT, "SELECT id, firstname FROM %s " +
+        final String query = format("SELECT id, firstname FROM %s " +
                 "WHERE firstname=matchQuery('%s') LIMIT 2", TEST_INDEX_ACCOUNT, name);
 
         final JSONObject result = executeQueryWithGetRequest(query);

@@ -36,13 +36,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
+import static com.amazon.opendistroforelasticsearch.sql.util.HasFieldWithValue.hasFieldWithValue;
 import static java.util.stream.Collectors.toMap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.both;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
-import static com.amazon.opendistroforelasticsearch.sql.util.HasFieldWithValue.hasFieldWithValue;
 
 
 public class HavingTest {
@@ -54,7 +54,8 @@ public class HavingTest {
     private static final String GROUP_BY_AGE = "GROUP BY age ";
     private static final String SELECT_CNT_FROM_BANK_GROUP_BY_AGE = SELECT_CNT + FROM_BANK + GROUP_BY_AGE;
     private static final String SELECT_CNT_AVG_FROM_BANK_GROUP_BY_AGE = SELECT_CNT_AVG + FROM_BANK + GROUP_BY_AGE;
-    private static final String SELECT_CNT_AVG_SUM_FROM_BANK_GROUP_BY_AGE = SELECT_CNT_AVG_SUM + FROM_BANK + GROUP_BY_AGE;
+    private static final String SELECT_CNT_AVG_SUM_FROM_BANK_GROUP_BY_AGE =
+            SELECT_CNT_AVG_SUM + FROM_BANK + GROUP_BY_AGE;
 
     @Test
     public void singleCondition() {
@@ -181,7 +182,8 @@ public class HavingTest {
     @Test
     public void nestedConditions() {
         assertThat(
-            query(SELECT_CNT_AVG_SUM_FROM_BANK_GROUP_BY_AGE + "HAVING i <= 10000 OR NOT (a < 10 OR a > 30) AND c <= 10"),
+            query(SELECT_CNT_AVG_SUM_FROM_BANK_GROUP_BY_AGE +
+                    "HAVING i <= 10000 OR NOT (a < 10 OR a > 30) AND c <= 10"),
             contains(
                 bucketSelector(
                     hasScript("params.i <= 10000 || ((params.a >= 10 && params.a <= 30) && params.c <= 10)")
@@ -242,4 +244,3 @@ public class HavingTest {
         return hasFieldWithValue("script", "has script", is(new Script(expectedCode)));
     }
 }
-

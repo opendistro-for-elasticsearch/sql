@@ -29,6 +29,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Map;
 
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.format;
 import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
@@ -45,7 +46,7 @@ public class JSONRequestIT extends SQLIntegTestCase {
     @Test
     public void search() throws IOException {
         int ageToCompare = 25;
-        SearchHits response = query(String.format("{\"query\":\"" +
+        SearchHits response = query(format("{\"query\":\"" +
                 "SELECT * " +
                 "FROM %s/account " +
                 "WHERE age > %s " +
@@ -73,10 +74,11 @@ public class JSONRequestIT extends SQLIntegTestCase {
          * }
          */
         int ageToCompare = 25;
-        SearchHits response = query(String.format("{\"query\":\"" +
+        SearchHits response = query(format("{\"query\":\"" +
                 "SELECT * " +
                 "FROM %s/account " +
-                "LIMIT 1000\",\"filter\":{\"range\":{\"age\":{\"gt\":%s}}}}", TestsConstants.TEST_INDEX_ACCOUNT, ageToCompare));
+                "LIMIT 1000\",\"filter\":{\"range\":{\"age\":{\"gt\":%s}}}}",
+                TestsConstants.TEST_INDEX_ACCOUNT, ageToCompare));
         SearchHit[] hits = response.getHits();
         for (SearchHit hit : hits) {
             int age = (int) hit.getSourceAsMap().get("age");
@@ -101,7 +103,7 @@ public class JSONRequestIT extends SQLIntegTestCase {
          */
         int ageToCompare = 25;
         int balanceToCompare = 35000;
-        SearchHits response = query(String.format("{\"query\":\"" +
+        SearchHits response = query(format("{\"query\":\"" +
                 "SELECT * " +
                 "FROM %s/account " +
                 "WHERE age > %s " +
@@ -135,7 +137,7 @@ public class JSONRequestIT extends SQLIntegTestCase {
          */
         int likesToCompare = 3;
         String fieldToCompare = "a";
-        SearchHits response = query(String.format("{\"query\":\"" +
+        SearchHits response = query(format("{\"query\":\"" +
                 "SELECT * " +
                 "FROM %s/nestedType " +
                 "WHERE nested(comment.likes) < %s\"," +
@@ -174,7 +176,7 @@ public class JSONRequestIT extends SQLIntegTestCase {
          */
         int likesToCompare = 1;
         String dataToCompare = "aa";
-        SearchHits response = query(String.format("{\"query\":\"" +
+        SearchHits response = query(format("{\"query\":\"" +
                 "SELECT * " +
                 "FROM %s/nestedType " +
                 "WHERE nested(comment.likes) > %s\"," +

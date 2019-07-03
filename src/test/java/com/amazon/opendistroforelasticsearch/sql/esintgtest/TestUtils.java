@@ -38,8 +38,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
+
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.format;
 
 public class TestUtils {
 
@@ -357,7 +358,7 @@ public class TestUtils {
     }
 
     public static void loadBulk(Client client, String jsonPath, String defaultIndex) throws Exception {
-        System.out.println(String.format("Loading file %s into elasticsearch cluster", jsonPath));
+        System.out.println(format("Loading file %s into elasticsearch cluster", jsonPath));
         String absJsonPath = getResourceFilePath(jsonPath);
 
         BulkRequest bulkRequest = new BulkRequest();
@@ -426,7 +427,7 @@ public class TestUtils {
             while ((line = br.readLine()) != null) {
                 sb.append(line);
                 if (retainNewLines) {
-                    sb.append(String.format(Locale.ROOT, "%n"));
+                    sb.append(format("%n"));
                 }
             }
         }
@@ -449,7 +450,7 @@ public class TestUtils {
 
                 stringBuilder.append(line);
                 if (!removeNewLines) {
-                    stringBuilder.append(String.format(Locale.ROOT, "%n"));
+                    stringBuilder.append(format("%n"));
                 }
                 line = br.readLine();
             }

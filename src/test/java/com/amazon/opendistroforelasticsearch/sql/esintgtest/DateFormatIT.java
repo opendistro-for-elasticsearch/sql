@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.format;
 import static org.hamcrest.Matchers.contains;
 
 public class DateFormatIT extends SQLIntegTestCase {
@@ -123,7 +124,7 @@ public class DateFormatIT extends SQLIntegTestCase {
             JSONObject response = executeQuery(sql);
             return getResult(response, "insert_time");
         } catch (IOException e) {
-            throw new SqlParseException(String.format("Unable to process query '%s'", sql));
+            throw new SqlParseException(format("Unable to process query '%s'", sql));
         }
     }
 

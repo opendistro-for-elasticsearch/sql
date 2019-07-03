@@ -429,7 +429,8 @@ public class QueryPlannerExecuteTest extends QueryPlannerTest {
     public void simpleQueryWithTableLimit() {
         MatcherAssert.assertThat(
             query(
-                "SELECT /*! JOIN_TABLES_LIMIT(1, 5) */ d.name, e.lastname FROM employee e JOIN department d ON d.id = e.departmentId",
+                "SELECT /*! JOIN_TABLES_LIMIT(1, 5) */ d.name, e.lastname FROM employee e JOIN department d " +
+                        "ON d.id = e.departmentId",
                 employees(
                     employee(1, "Alice", "1"),
                     employee(2, "Hank", "1")
@@ -452,7 +453,8 @@ public class QueryPlannerExecuteTest extends QueryPlannerTest {
     public void simpleQueryWithOrderBy() {
         MatcherAssert.assertThat(
             query(
-                "SELECT d.name, e.lastname FROM employee e JOIN department d ON d.id = e.departmentId ORDER BY e.lastname",
+                "SELECT d.name, e.lastname FROM employee e JOIN department d ON d.id = e.departmentId "
+                        + "ORDER BY e.lastname",
                 employees(
                     employee(1, "Hank", "1"),
                     employee(2, "Alice", "2"),
@@ -785,5 +787,4 @@ public class QueryPlannerExecuteTest extends QueryPlannerTest {
             )
         );
     }
-
 }

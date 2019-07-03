@@ -20,12 +20,12 @@ import com.amazon.opendistroforelasticsearch.sql.parser.SqlParser;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static org.elasticsearch.search.builder.SearchSourceBuilder.ScriptField;
-import static org.junit.Assert.assertTrue;
 import static com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents.getScriptFieldFromQuery;
 import static com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents.getScriptFilterFromQuery;
 import static com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents.scriptContainsString;
 import static com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents.scriptHasPattern;
+import static org.elasticsearch.search.builder.SearchSourceBuilder.ScriptField;
+import static org.junit.Assert.assertTrue;
 
 public class DateFunctionsTest {
 

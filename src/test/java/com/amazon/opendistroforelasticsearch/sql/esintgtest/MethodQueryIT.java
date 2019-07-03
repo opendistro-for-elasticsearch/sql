@@ -19,8 +19,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Locale;
 
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.format;
 import static org.hamcrest.Matchers.both;
 import static org.hamcrest.Matchers.containsString;
 
@@ -44,7 +44,7 @@ public class MethodQueryIT extends SQLIntegTestCase {
      */
     @Test
     public void queryTest() throws IOException {
-        final String result = explainQuery(String.format(Locale.ROOT,
+        final String result = explainQuery(format(
                 "select address from %s where q= query('address:880 Holmes Lane') limit 3",
                 TestsConstants.TEST_INDEX_ACCOUNT));
         Assert.assertThat(result,
@@ -60,7 +60,7 @@ public class MethodQueryIT extends SQLIntegTestCase {
      */
     @Test
     public void matchQueryTest() throws IOException {
-        final String result = explainQuery(String.format(Locale.ROOT,
+        final String result = explainQuery(format(
                 "select address from %s where address= matchQuery('880 Holmes Lane') limit 3",
                 TestsConstants.TEST_INDEX_ACCOUNT));
         Assert.assertThat(result,
@@ -79,7 +79,7 @@ public class MethodQueryIT extends SQLIntegTestCase {
     // todo
     @Test
     public void scoreQueryTest() throws IOException {
-        final String result = explainQuery(String.format(Locale.ROOT,
+        final String result = explainQuery(format(
                 "select address from %s " +
                         "where score(matchQuery(address, 'Lane'),100) " +
                         "or score(matchQuery(address,'Street'),0.5)  order by _score desc limit 3",
@@ -99,7 +99,7 @@ public class MethodQueryIT extends SQLIntegTestCase {
      */
     @Test
     public void wildcardQueryTest() throws IOException {
-        final String result = explainQuery(String.format(Locale.ROOT,
+        final String result = explainQuery(format(
                 "select address from %s where address= wildcardQuery('l*e')  order by _score desc limit 3",
                 TestsConstants.TEST_INDEX_ACCOUNT));
         Assert.assertThat(result,
@@ -117,7 +117,7 @@ public class MethodQueryIT extends SQLIntegTestCase {
      */
     @Test
     public void matchPhraseQueryTest() throws IOException {
-        final String result = explainQuery(String.format(Locale.ROOT,
+        final String result = explainQuery(format(
                 "select address from %s " +
                         "where address= matchPhrase('671 Bristol Street')  order by _score desc limit 3",
                 TestsConstants.TEST_INDEX_ACCOUNT));

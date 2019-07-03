@@ -297,9 +297,11 @@ public class NestedFieldQueryIT extends SQLIntegTestCase {
         Assert.assertNotNull(msgInfoBuckets);
         Assert.assertThat(msgInfoBuckets.length(), equalTo(2));
         Assert.assertThat(msgInfoBuckets.query("/0/key"), equalTo("a"));
-        Assert.assertThat((Double) msgInfoBuckets.query("/0/message.dayOfWeek@NESTED/sumDay/value"), closeTo(9.0, 0.01));
+        Assert.assertThat((Double) msgInfoBuckets.query("/0/message.dayOfWeek@NESTED/sumDay/value"),
+                closeTo(9.0, 0.01));
         Assert.assertThat(msgInfoBuckets.query("/1/key"), equalTo("b"));
-        Assert.assertThat((Double) msgInfoBuckets.query("/1/message.dayOfWeek@NESTED/sumDay/value"), closeTo(10.0, 0.01));
+        Assert.assertThat((Double) msgInfoBuckets.query("/1/message.dayOfWeek@NESTED/sumDay/value"),
+                closeTo(10.0, 0.01));
     }
 
     // Doesn't support: aggregate function other than COUNT()
@@ -458,5 +460,4 @@ public class NestedFieldQueryIT extends SQLIntegTestCase {
         Assert.assertTrue(aggregations.has(aggregationName));
         return aggregations.getJSONObject(aggregationName);
     }
-
 }

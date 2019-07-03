@@ -23,8 +23,6 @@ import org.junit.Test;
 
 import static org.elasticsearch.search.builder.SearchSourceBuilder.ScriptField;
 import static org.junit.Assert.assertTrue;
-import static com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents.scriptContainsString;
-import static com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents.scriptHasPattern;
 
 public class MathFunctionsTest {
 
