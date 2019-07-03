@@ -30,6 +30,7 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.From;
 import com.amazon.opendistroforelasticsearch.sql.domain.Having;
 import com.amazon.opendistroforelasticsearch.sql.domain.JoinSelect;
+import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.domain.TableOnJoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.domain.Where;
@@ -208,20 +209,40 @@ public class SqlParser {
 
     private void addOrderByToSelect(Select select, List<SQLSelectOrderByItem> items, String alias) throws SqlParseException {
         for (SQLSelectOrderByItem sqlSelectOrderByItem : items) {
-            SQLExpr expr = sqlSelectOrderByItem.getExpr();
-            Field f = FieldMaker.makeField(expr, null, null);
-            String orderByName = f.toString();
-
             if (sqlSelectOrderByItem.getType() == null) {
                 sqlSelectOrderByItem.setType(SQLOrderingSpecification.ASC);
             }
             String type = sqlSelectOrderByItem.getType().toString();
 
+            SQLExpr expr = sqlSelectOrderByItem.getExpr();
+            Field field = FieldMaker.makeField(expr, null, null);
+
+            String orderByName;
+            if (isScriptField(field)) {
+                // TODO The consumer of ordering doesn't know the type of the expression, and elasticsearch needs to
+                // specify it for the script field ordering. Explore opportinities to supply that information to
+                // client code. One of the options is to have metadata store about functions that will supply
+                // return type of the result function here.
+
+                MethodField methodField = (MethodField) field;
+
+                // 0 - generated field name
+                final int SCRIPT_CONTENT_INDEX = 1;
+                orderByName = methodField.getParams().get(SCRIPT_CONTENT_INDEX).toString();
+
+            } else {
+                orderByName = field.toString();
+            }
+
             orderByName = orderByName.replace("`", "");
             if (alias != null) orderByName = orderByName.replaceFirst(alias + "\\.", "");
-            select.addOrderBy(f.getNestedPath(), orderByName, type);
+            select.addOrderBy(field.getNestedPath(), orderByName, type, isScriptField(field));
 
         }
+    }
+
+    private boolean isScriptField(Field field) {
+        return field instanceof MethodField && field.getName().equals("script");
     }
 
     private void findLimit(MySqlSelectQueryBlock.Limit limit, Select select) {
