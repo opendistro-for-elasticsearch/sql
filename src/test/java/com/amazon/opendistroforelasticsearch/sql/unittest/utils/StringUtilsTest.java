@@ -31,19 +31,16 @@ public class StringUtilsTest {
 
     @Before
     public void saveOriginalLocale() {
-
         originalLocale = Locale.getDefault();
     }
 
     @After
     public void restoreOriginalLocale() {
-
         Locale.setDefault(originalLocale);
     }
 
     @Test
     public void toLower() {
-
         final String input = "SAMPLE STRING";
         final String output = StringUtils.toLower(input);
 
@@ -59,7 +56,6 @@ public class StringUtilsTest {
 
     @Test
     public void toUpper() {
-
         final String input = "sample string";
         final String output = StringUtils.toUpper(input);
 
@@ -75,7 +71,6 @@ public class StringUtilsTest {
 
     @Test
     public void format() {
-
         Locale.setDefault(Locale.forLanguageTag("tr"));
         final String upper = "\u0130 \u0049";
         final String lower = "\u0069 \u0131";
