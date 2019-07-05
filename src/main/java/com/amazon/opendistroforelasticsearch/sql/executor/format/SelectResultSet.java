@@ -94,10 +94,8 @@ public class SelectResultSet extends ResultSet {
         String typeName = fetchTypeName(query);
         String[] fieldNames = fetchFieldsAsArray(query);
 
-        if (isSimpleQuerySelectAll(query) || isJoinQuerySelectAll(query, fieldNames))
-            selectAll = true;
-        else
-            selectAll = false; // Reset boolean in the case of JOIN query where multiple calls to loadFromEsState() are made
+        // Reset boolean in the case of JOIN query where multiple calls to loadFromEsState() are made
+        selectAll = isSimpleQuerySelectAll(query) || isJoinQuerySelectAll(query, fieldNames);
 
         GetFieldMappingsRequest request = new GetFieldMappingsRequest()
                 .indices(indexName)
