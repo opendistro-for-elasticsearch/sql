@@ -21,7 +21,7 @@ import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Query;
 import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.domain.TableOnJoinSelect;
-import com.google.common.base.CharMatcher;
+import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMapping;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
 import org.elasticsearch.client.Client;
@@ -41,8 +41,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toSet;
 import static org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse.FieldMappingMetaData;
 
 public class SelectResultSet extends ResultSet {
@@ -319,10 +319,10 @@ public class SelectResultSet extends ResultSet {
          */
         Map<String, Field> fieldMap = fetchFieldMap(query);
         List<Schema.Column> columns = new ArrayList<>();
-        for (String field : fields) {
+        for (String fieldName : fields) {
             // _score is a special case since it is not included in typeMappings, so it is checked for here
-            if (field.equals("_score")) {
-                columns.add(new Schema.Column(field, fetchAlias(field, fieldMap), Schema.Type.FLOAT));
+            if (fieldName.equals("_score")) {
+                columns.add(new Schema.Column(fieldName, fetchAlias(fieldName, fieldMap), Schema.Type.FLOAT));
             }
             /*
              * Methods are also a special case as their type cannot be determined from typeMappings, so it is checked
@@ -332,8 +332,8 @@ public class SelectResultSet extends ResultSet {
              * is set as alias (ex. COUNT(*)) and overwritten if an alias is given. So alias is used as the
              * name instead.
              */
-            if (fieldMap.get(field) instanceof MethodField) {
-                Field methodField = fieldMap.get(field);
+            if (fieldMap.get(fieldName) instanceof MethodField) {
+                Field methodField = fieldMap.get(fieldName);
                 columns.add(
                         new Schema.Column(
                                 methodField.getAlias(),
@@ -345,65 +345,41 @@ public class SelectResultSet extends ResultSet {
 
             /*
              * Unnecessary fields (ex. _index, _parent) are ignored.
-             * Fields like field.keyword will be ignored when isSelectAll is true but will be returned if
+             * Fields like fieldName.keyword will be ignored when isSelectAll is true but will be returned if
              * explicitly selected.
              */
-            if (typeMappings.containsKey(field) && !field.startsWith("_")) {
+            FieldMapping field = new FieldMapping(fieldName, typeMappings, fieldMap);
+            if (typeMappings.containsKey(fieldName) && !field.isMetaField()) {
 
-                if ((!isNotInMultiField(field) && !isFieldSpecifiedExplicitly(fieldMap, field)) ||
-                    (isProperty(field) &&
-                        (!isFieldSpecifiedExplicitly(fieldMap, field) && !isPropertyFieldMatchWildcard(fieldMap, field)))) {
-                    continue;
+                if (field.isMultiField() && !field.isSpecified()) { continue; }
+                if (field.isPropertyField() && !field.isSpecified() && !field.isWildcardSpecified()) { continue; }
+
+                /*
+                 * Three cases regarding Type:
+                 * 1. If Type exists, create Column
+                 * 2. If Type doesn't exist and isSelectAll() is false, throw exception
+                 * 3. If Type doesn't exist and isSelectAll() is true, Column creation for fieldName is skipped
+                 */
+                String type = field.type().toUpperCase();
+                if (Schema.hasType(type)) {
+                    columns.add(
+                        new Schema.Column(
+                            fieldName,
+                            fetchAlias(fieldName, fieldMap),
+                            Schema.Type.valueOf(type)
+                        )
+                    );
+                } else if (!isSelectAll()) {
+                    throw new IllegalArgumentException(
+                        String.format("%s fieldName types are currently not supported.", type));
                 }
-
-                //if (isFieldSpecifiedExplicitly(fieldMap, field) ||
-                //    isPropertyFieldMatchWildcard(fieldMap, field)) {
-
-                    FieldMappingMetaData metaData = typeMappings.get(field);
-                    String type = getTypeFromMetaData(field, metaData).toUpperCase();
-
-                    /*
-                     * Three cases regarding Type:
-                     * 1. If Type exists, create Column
-                     * 2. If Type doesn't exist and isSelectAll() is false, throw exception
-                     * 3. If Type doesn't exist and isSelectAll() is true, Column creation for field is skipped
-                     */
-                    if (Schema.hasType(type)) {
-                        columns.add(
-                                new Schema.Column(
-                                        field,
-                                        fetchAlias(field, fieldMap),
-                                        Schema.Type.valueOf(type)
-                                )
-                        );
-                    } else if (!isSelectAll()) {
-                        throw new IllegalArgumentException(
-                                String.format("%s field types are currently not supported.", type));
-                    }
-                //}
             }
         }
 
         if (isSelectAllOnly(query)) {
             populateAllNestedFields(columns, fields);
         }
-
         return columns;
-    }
-
-    private boolean isFieldSpecifiedExplicitly(Map<String, Field> fieldMap, String fieldName) {
-        return fieldMap.containsKey(fieldName);
-    }
-
-    /**
-     *  Verify if field is property field (object or nested ) and matched by wildcard pattern given in SELECT
-     *  A special case is multi-field, typically text field with nested keyword. Exclude it because it's a "hidden" field.
-     */
-    private boolean isPropertyFieldMatchWildcard(Map<String, Field> fieldMap, String fieldName) {
-        //if (isProperty(fieldName)) {
-            return /* isNotInMultiField(fieldName) && */ fieldMap.containsKey(path(fieldName) + ".*");
-        //}
-        //return true; // Ignore regular fields
     }
 
     /**
@@ -420,10 +396,11 @@ public class SelectResultSet extends ResultSet {
      */
     private void populateAllNestedFields(List<Schema.Column> columns, List<String> fields) {
         Set<String> nestedFieldNames = fields.stream().
-                                       filter(this::isProperty).
-                                       filter(this::isNotInMultiField).
-                                       map(this::path).
-                                       collect(Collectors.toSet());
+                                       map(FieldMapping::new).
+                                       filter(FieldMapping::isPropertyField).
+                                       filter(f -> !f.isMultiField()).
+                                       map(FieldMapping::path).
+                                       collect(toSet());
 
         for (String fieldName : nestedFieldNames) {
             columns.add(
@@ -431,24 +408,6 @@ public class SelectResultSet extends ResultSet {
             );
         }
     }
-
-    private boolean isProperty(String fieldName) {
-        int numOfDots = CharMatcher.is('.').countIn(fieldName); // Move to our own StringUtils
-        return numOfDots > 1 || (numOfDots == 1 && isNotInMultiField(fieldName));
-    }
-
-    private String path(String fieldName) {
-        int lastDot = fieldName.lastIndexOf(".");
-        return fieldName.substring(0, lastDot);
-    }
-
-    /**
-     * Does field belong to a multi-field, for example, field "a.keyword" in field "a"
-     */
-    private boolean isNotInMultiField(String fieldName) {
-        return !fieldName.endsWith(".keyword");
-    }
-
 
     /**
      * Since this helper method is called within a check to see if the field exists in type mapping, it's
@@ -460,30 +419,6 @@ public class SelectResultSet extends ResultSet {
             return fieldMap.get(fieldName).getAlias();
 
         return null;
-    }
-
-    /** Used to retrieve the type of fields from metaData map structures for both regular and nested fields */
-    @SuppressWarnings("unchecked")
-    private String getTypeFromMetaData(String fieldName, FieldMappingMetaData metaData) {
-        Map<String, Object> source = metaData.sourceAsMap();
-        String[] fieldPath = fieldName.split("\\.");
-
-        /*
-         * When field is not nested the metaData source is fieldName -> type
-         * When it is nested or contains "." in general (ex. fieldName.nestedName) the source is nestedName -> type
-         */
-        Map<String, Object> fieldMapping;
-        if (fieldPath.length < 2) {
-            fieldMapping = (Map<String, Object>) source.get(fieldName);
-        } else {
-            fieldMapping = (Map<String, Object>) source.get(fieldPath[1]);
-        }
-
-        for (int i = 2; i < fieldPath.length; i++) {
-            fieldMapping = (Map<String, Object>) fieldMapping.get(fieldPath[i]);
-        }
-
-        return (String) fieldMapping.get("type");
     }
 
     /***********************************************************
