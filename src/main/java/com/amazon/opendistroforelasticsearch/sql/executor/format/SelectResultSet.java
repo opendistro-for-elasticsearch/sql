@@ -345,7 +345,7 @@ public class SelectResultSet extends ResultSet {
 
             /*
              * Unnecessary fields (ex. _index, _parent) are ignored.
-             * Fields like fieldName.keyword will be ignored when isSelectAll is true but will be returned if
+             * Fields like field.keyword will be ignored when isSelectAll is true but will be returned if
              * explicitly selected.
              */
             FieldMapping field = new FieldMapping(fieldName, typeMappings, fieldMap);

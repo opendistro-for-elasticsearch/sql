@@ -28,7 +28,7 @@ import java.util.Objects;
  */
 public class Field implements Cloneable{
 
-    /** Constant for '*' field in SELECT for reuse */
+    /** Constant for '*' field in SELECT */
     public static final Field STAR = new Field("*", "");
 
 	protected String name;

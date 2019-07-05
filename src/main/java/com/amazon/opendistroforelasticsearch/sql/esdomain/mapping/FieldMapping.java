@@ -26,7 +26,7 @@ import static org.elasticsearch.action.admin.indices.mapping.get.GetFieldMapping
 /**
  * Field mapping that parse native ES mapping.
  *
- * NOTE that approaches in this class is NOT reliable because of the ES mapping query API used.
+ * NOTE that approaches in this class are NOT reliable because of the ES mapping query API used.
  * We should deprecate this in future and parse field mapping in more solid way.
  */
 public class FieldMapping {
