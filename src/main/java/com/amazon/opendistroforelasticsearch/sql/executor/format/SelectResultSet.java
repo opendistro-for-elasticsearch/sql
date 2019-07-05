@@ -21,6 +21,7 @@ import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Query;
 import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.domain.TableOnJoinSelect;
+import com.google.common.base.CharMatcher;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
 import org.elasticsearch.client.Client;
@@ -351,8 +352,14 @@ public class SelectResultSet extends ResultSet {
              */
             if (typeMappings.containsKey(field) && !field.startsWith("_")) {
 
-                if (isFieldSpecifiedExplicitly(fieldMap, field) ||
-                    isFieldPropertyAndMatchWildcard(fieldMap, field)) {
+                if ((!isNotInMultiField(field) && !isFieldSpecifiedExplicitly(fieldMap, field)) ||
+                    (isProperty(field) &&
+                        (!isFieldSpecifiedExplicitly(fieldMap, field) && !isPropertyFieldMatchWildcard(fieldMap, field)))) {
+                    continue;
+                }
+
+                //if (isFieldSpecifiedExplicitly(fieldMap, field) ||
+                //    isPropertyFieldMatchWildcard(fieldMap, field)) {
 
                     FieldMappingMetaData metaData = typeMappings.get(field);
                     String type = getTypeFromMetaData(field, metaData).toUpperCase();
@@ -375,7 +382,7 @@ public class SelectResultSet extends ResultSet {
                         throw new IllegalArgumentException(
                                 String.format("%s field types are currently not supported.", type));
                     }
-                }
+                //}
             }
         }
 
@@ -392,15 +399,13 @@ public class SelectResultSet extends ResultSet {
 
     /**
      *  Verify if field is property field (object or nested ) and matched by wildcard pattern given in SELECT
-     *  A special case is multi-field, typically text field with nested keyword. Ignore it because it's a "hidden" field.
+     *  A special case is multi-field, typically text field with nested keyword. Exclude it because it's a "hidden" field.
      */
-    private boolean isFieldPropertyAndMatchWildcard(Map<String, Field> fieldMap, String fieldName) {
-        int lastDot = fieldName.lastIndexOf(".");
-        if (lastDot != -1) {
-            String path = fieldName.substring(0, lastDot);
-            return !isInMultiField(fieldName) && fieldMap.containsKey(path + ".*");
-        }
-        return true;
+    private boolean isPropertyFieldMatchWildcard(Map<String, Field> fieldMap, String fieldName) {
+        //if (isProperty(fieldName)) {
+            return /* isNotInMultiField(fieldName) && */ fieldMap.containsKey(path(fieldName) + ".*");
+        //}
+        //return true; // Ignore regular fields
     }
 
     /**
@@ -417,8 +422,9 @@ public class SelectResultSet extends ResultSet {
      */
     private void populateAllNestedFields(List<Schema.Column> columns, List<String> fields) {
         Set<String> nestedFieldNames = fields.stream().
-                                       filter(f -> f.contains(".") && !isInMultiField(f)).
-                                       map(f -> f.substring(0, f.lastIndexOf("."))).
+                                       filter(this::isProperty).
+                                       filter(this::isNotInMultiField).
+                                       map(this::path).
                                        collect(Collectors.toSet());
 
         for (String fieldName : nestedFieldNames) {
@@ -428,11 +434,21 @@ public class SelectResultSet extends ResultSet {
         }
     }
 
+    private boolean isProperty(String fieldName) {
+        int numOfDots = CharMatcher.is('.').countIn(fieldName); // Move to our own StringUtils
+        return numOfDots > 1 || (numOfDots == 1 && isNotInMultiField(fieldName));
+    }
+
+    private String path(String fieldName) {
+        int lastDot = fieldName.lastIndexOf(".");
+        return fieldName.substring(0, lastDot);
+    }
+
     /**
      * Does field belong to a multi-field, for example, field "a.keyword" in field "a"
      */
-    private boolean isInMultiField(String fieldName) {
-        return fieldName.endsWith(".keyword");
+    private boolean isNotInMultiField(String fieldName) {
+        return !fieldName.endsWith(".keyword");
     }
 
 
