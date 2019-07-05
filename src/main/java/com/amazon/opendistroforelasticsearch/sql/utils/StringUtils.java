@@ -15,6 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.utils;
 
+import com.google.common.base.CharMatcher;
+
 import java.util.Locale;
 
 /**
@@ -78,6 +80,17 @@ public class StringUtils {
      */
     public static String toUpper(final String input) {
         return input.toUpperCase(Locale.ROOT);
+    }
+
+    /**
+     * Count how many occurrences of character in this input {@code Sequence}.
+     *
+     * @param input  the input string
+     * @param match  char to be matched
+     * @return       number of occurrences
+     */
+    public static int countMatches(CharSequence input, char match) {
+        return CharMatcher.is(match).countIn(input);
     }
 
     private StringUtils() {

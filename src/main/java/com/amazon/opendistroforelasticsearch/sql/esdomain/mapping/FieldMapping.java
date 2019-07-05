@@ -16,7 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.esdomain.mapping;
 
 import com.amazon.opendistroforelasticsearch.sql.domain.Field;
-import com.google.common.base.CharMatcher;
+import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 
 import java.util.Map;
 
@@ -67,7 +67,7 @@ public class FieldMapping {
      * @return true for property field
      */
     public boolean isPropertyField() {
-        int numOfDots = CharMatcher.is('.').countIn(fieldName); // Move to our own StringUtils
+        int numOfDots = StringUtils.countMatches(fieldName, '.');
         return numOfDots > 1 || (numOfDots == 1 && !isMultiField());
     }
 
