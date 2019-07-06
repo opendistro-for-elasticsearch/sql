@@ -31,7 +31,7 @@ import static org.elasticsearch.action.admin.indices.mapping.get.GetFieldMapping
  */
 public class FieldMapping {
 
-    /** Field (name) to be parsed */
+    /** Name of the Field to be parsed */
     private final String fieldName;
 
     /** Native mapping information returned from ES */
@@ -118,7 +118,7 @@ public class FieldMapping {
          * When it is nested or contains "." in general (ex. fieldName.nestedName) the source is nestedName -> type
          */
         Map<String, Object> fieldMapping;
-        if (fieldPath.length < 2) {
+        if (fieldPath.length == 1) {
             fieldMapping = (Map<String, Object>) source.get(fieldName);
         } else {
             fieldMapping = (Map<String, Object>) source.get(fieldPath[1]);
