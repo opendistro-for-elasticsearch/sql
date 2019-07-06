@@ -303,23 +303,23 @@ public class SelectResultSet extends ResultSet {
      * will be used.
      */
     private List<Schema.Column> populateColumns(Query query, String[] fieldNames, Map<String, FieldMappingMetaData> typeMappings) {
-        List<String> fields;
+        List<String> fieldNameList;
 
         if (isSelectAll() || containsWildcard(query)) {
-            fields = new ArrayList<>(typeMappings.keySet());
+            fieldNameList = new ArrayList<>(typeMappings.keySet());
         } else {
-            fields = Arrays.asList(fieldNames);
+            fieldNameList = Arrays.asList(fieldNames);
         }
 
         /*
-         * The reason the 'fieldMap' mapping is needed on top of 'fields' is because the map would be empty in cases
-         * like 'SELECT *' but List<String> fields will always be set in either case. That way, 'fields' is used to
+         * The reason the 'fieldMap' mapping is needed on top of 'fieldNameList' is because the map would be empty in cases
+         * like 'SELECT *' but List<String> fieldNameList will always be set in either case. That way, 'fieldNameList' is used to
          * access field names in order that they were selected, if given, and then 'fieldMap' is used to access the
          * respective Field object to check for aliases.
          */
         Map<String, Field> fieldMap = fetchFieldMap(query);
         List<Schema.Column> columns = new ArrayList<>();
-        for (String fieldName : fields) {
+        for (String fieldName : fieldNameList) {
             // _score is a special case since it is not included in typeMappings, so it is checked for here
             if (fieldName.equals("_score")) {
                 columns.add(new Schema.Column(fieldName, fetchAlias(fieldName, fieldMap), Schema.Type.FLOAT));
@@ -377,7 +377,7 @@ public class SelectResultSet extends ResultSet {
         }
 
         if (isSelectAllOnly(query)) {
-            populateAllNestedFields(columns, fields);
+            populateAllNestedFields(columns, fieldNameList);
         }
         return columns;
     }

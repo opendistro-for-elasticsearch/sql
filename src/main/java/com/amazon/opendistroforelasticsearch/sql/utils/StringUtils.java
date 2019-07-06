@@ -15,8 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.utils;
 
-import com.google.common.base.CharMatcher;
-
 import java.util.Locale;
 
 /**
@@ -90,7 +88,9 @@ public class StringUtils {
      * @return       number of occurrences
      */
     public static int countMatches(CharSequence input, char match) {
-        return CharMatcher.is(match).countIn(input);
+        return Math.toIntExact(input.chars().
+                                     filter(c -> c == match).
+                                     count());
     }
 
     private StringUtils() {

@@ -24,7 +24,7 @@ import static java.util.Collections.emptyMap;
 import static org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse.FieldMappingMetaData;
 
 /**
- * Field mapping that parse native ES mapping.
+ * Field mapping that parses native ES mapping.
  *
  * NOTE that approaches in this class are NOT reliable because of the ES mapping query API used.
  * We should deprecate this in future and parse field mapping in more solid way.
@@ -37,8 +37,8 @@ public class FieldMapping {
     /** Native mapping information returned from ES */
     private final Map<String, FieldMappingMetaData> typeMappings;
 
-    /** Map of field name to Field object that specified in query explicitly */
-    private final Map<String, Field> specifiedFieldByNames;
+    /** Maps a field name to Field object that specified in query explicitly */
+    private final Map<String, Field> specifiedFieldsByName;
 
 
     public FieldMapping(String fieldName) {
@@ -51,7 +51,7 @@ public class FieldMapping {
 
         this.fieldName = fieldName;
         this.typeMappings = typeMappings;
-        this.specifiedFieldByNames = specifiedFieldByNames;
+        this.specifiedFieldsByName = specifiedFieldByNames;
     }
 
     /**
@@ -59,7 +59,7 @@ public class FieldMapping {
      * @return true if specified
      */
     public boolean isSpecified() {
-        return specifiedFieldByNames.containsKey(fieldName);
+        return specifiedFieldsByName.containsKey(fieldName);
     }
 
     /**
@@ -85,7 +85,7 @@ public class FieldMapping {
      * @return true if matched
      */
     public boolean isWildcardSpecified() {
-        return specifiedFieldByNames.containsKey(path() + ".*");
+        return specifiedFieldsByName.containsKey(path() + ".*");
     }
 
     /**
