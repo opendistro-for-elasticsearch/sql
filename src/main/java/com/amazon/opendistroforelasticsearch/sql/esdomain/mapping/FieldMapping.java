@@ -117,13 +117,7 @@ public class FieldMapping {
          * When field is not nested the metaData source is fieldName -> type
          * When it is nested or contains "." in general (ex. fieldName.nestedName) the source is nestedName -> type
          */
-        Map<String, Object> fieldMapping;
-        if (fieldPath.length == 1) {
-            fieldMapping = (Map<String, Object>) source.get(fieldName);
-        } else {
-            fieldMapping = (Map<String, Object>) source.get(fieldPath[1]);
-        }
-
+        Map<String, Object> fieldMapping = (Map<String, Object>) source.get(fieldPath.length == 1 ? fieldName : fieldPath[1]);
         for (int i = 2; i < fieldPath.length; i++) {
             fieldMapping = (Map<String, Object>) fieldMapping.get(fieldPath[i]);
         }
