@@ -63,29 +63,20 @@ public class FieldMapping {
     }
 
     /**
+     * Verify if property field matches wildcard pattern specified in query
+     * @return true if matched
+     */
+    public boolean isWildcardSpecified() {
+        return specifiedFieldsByName.containsKey(path() + ".*");
+    }
+
+    /**
      * Is field a property field, which means either object field or nested field.
      * @return true for property field
      */
     public boolean isPropertyField() {
         int numOfDots = StringUtils.countMatches(fieldName, '.');
         return numOfDots > 1 || (numOfDots == 1 && !isMultiField());
-    }
-
-    /**
-     * Path of property field, for example "employee" in "employee.manager"
-     * @return path of property field
-     */
-    public String path() {
-        int lastDot = fieldName.lastIndexOf(".");
-        return fieldName.substring(0, lastDot);
-    }
-
-    /**
-     * Verify if property field matches wildcard pattern specified in query
-     * @return true if matched
-     */
-    public boolean isWildcardSpecified() {
-        return specifiedFieldsByName.containsKey(path() + ".*");
     }
 
     /**
@@ -102,6 +93,15 @@ public class FieldMapping {
      */
     public boolean isMetaField() {
         return fieldName.startsWith("_");
+    }
+
+    /**
+     * Path of property field, for example "employee" in "employee.manager"
+     * @return path of property field
+     */
+    public String path() {
+        int lastDot = fieldName.lastIndexOf(".");
+        return fieldName.substring(0, lastDot);
     }
 
     /**
