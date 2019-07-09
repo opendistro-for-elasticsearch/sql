@@ -26,19 +26,18 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonMap;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 /**
- * Unit test for {@code FieldMapping}. Ignore trivial methods such as isSpecified, isMetaField etc.
+ * Unit test for {@code FieldMapping} with trivial methods ignored such as isSpecified, isMetaField etc.
  */
 public class FieldMappingTest {
 
     @Test
     public void testFieldMatchesWildcardPatternSpecifiedInQuery() {
         assertThat(
-            new FieldMapping("employee.first", map(), fieldsSpecifiedInQuery("employee.*")),
+            new FieldMapping("employee.first", typeMappings(), fieldsSpecifiedInQuery("employee.*")),
             isWildcardSpecified(true)
         );
     }
@@ -46,7 +45,7 @@ public class FieldMappingTest {
     @Test
     public void testFieldMismatchesWildcardPatternSpecifiedInQuery() {
         assertThat(
-            new FieldMapping("employee.first", map(), fieldsSpecifiedInQuery("manager.*")),
+            new FieldMapping("employee.first", typeMappings(), fieldsSpecifiedInQuery("manager.*")),
             isWildcardSpecified(false)
         );
     }
@@ -96,14 +95,6 @@ public class FieldMappingTest {
     }
 
     private Map<String, FieldMappingMetaData> typeMappings() {
-        return null;
-    }
-
-    private <K, V> Map<K, V> map(K key, V value) {
-        return singletonMap(key, value);
-    }
-
-    private <K, V> Map<K, V> map() {
         return emptyMap();
     }
 
