@@ -28,15 +28,26 @@ public class JdbcTestIT extends SQLIntegTestCase {
 
     public void testDateTimeInQuery() {
         String query = "SELECT date_format(insert_time, 'dd-MM-YYYY') FROM elasticsearch-sql_test_index_online limit 1";
-        String response = executeJdbcRequest(query);
 
-        JSONObject parsed = new JSONObject(response);
+        JSONObject parsed = new JSONObject(executeJdbcRequest(query));
 
         assertThat(
                 parsed.getJSONArray("datarows")
                         .getJSONArray(0)
                         .getString(0),
                 equalTo("17-08-2014"));
+    }
+
+    public void testDivisionInQuery() {
+        String query = "SELECT all_client/10 from elasticsearch-sql_test_index_online ORDER BY all_client desc limit 1";
+
+        JSONObject parsed = new JSONObject(executeJdbcRequest(query));
+
+        assertThat(
+                parsed.getJSONArray("datarows")
+                        .getJSONArray(0)
+                        .getDouble(0),
+                equalTo(16827.0));
     }
 
 

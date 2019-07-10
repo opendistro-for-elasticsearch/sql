@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
+import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
 import org.elasticsearch.client.Client;
@@ -279,17 +280,9 @@ public class SelectResultSet extends ResultSet {
                 ScriptMethodField smf = (ScriptMethodField) field;
                 // TODO: this information is disconnected from the function definitions in SQLFunctions.
                 // Refactor SQLFunctions to have functions self-explanatory (types, scripts) and pluggable
-                // (similar to Strategy pattern).
+                // (similar to Strategy pattern)
 
-                switch (smf.getFunctionName()) {
-                    case "date_format": {
-                        return Schema.Type.TEXT;
-                    }
-                    default:
-                        throw new UnsupportedOperationException(
-                                String.format("The following method is not supported in Schema: %s",
-                                        smf.getFunctionName()));
-                }
+                return SQLFunctions.getScriptFunctionReturnType(smf.getFunctionName());
             }
             default:
                 throw new UnsupportedOperationException(

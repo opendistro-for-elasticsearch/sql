@@ -19,6 +19,7 @@ import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.*;
 import com.amazon.opendistroforelasticsearch.sql.domain.KVValue;
+import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -506,4 +507,23 @@ public class SQLFunctions {
 
     }
 
+    /**
+     * Returns return type of script function. This is simple approach, that might be not the best solution in the long
+     * term. For example - for JDBC, if the column type in index is INTEGER, and the query is "select column+5", current
+     * approach will return type of result column as DOUBLE, although there is enough information to understand that
+     * it might be safely treated as INTEGER.
+     */
+    public static Schema.Type getScriptFunctionReturnType(String functionName) {
+        if (dateFunctions.contains(functionName) || stringOperators.contains(functionName))
+            return Schema.Type.TEXT;
+
+        if (mathConstants.contains(functionName) || numberOperators.contains(functionName)
+                || trigFunctions.contains(functionName) || binaryOperators.contains(functionName))
+            return Schema.Type.DOUBLE;
+
+        throw new UnsupportedOperationException(
+                String.format(
+                        "The following method is not supported in Schema: %s",
+                        functionName));
+    }
 }
