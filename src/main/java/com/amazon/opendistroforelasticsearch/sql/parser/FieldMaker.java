@@ -312,12 +312,11 @@ public class FieldMaker {
             paramers.addAll(tempParamers);
         }
 
-        if (!builtInScriptFunction) {
+        if (builtInScriptFunction) {
+            return new ScriptMethodField(name, paramers, option == null ? null : option.name(), alias);
+        } else {
           return new MethodField(
               name, paramers, option == null ? null : option.name(), alias);
-            }
-        else {
-            return new ScriptMethodField(name, paramers, option == null ? null : option.name(), alias);
         }
     }
 }
