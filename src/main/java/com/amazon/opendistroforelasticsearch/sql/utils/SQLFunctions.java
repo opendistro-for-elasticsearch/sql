@@ -72,7 +72,7 @@ public class SQLFunctions {
             utilityFunctions)
             .flatMap(Set::stream).collect(Collectors.toSet());
 
-    public static boolean isBuiltInFunction(String function) {
+    public static boolean isBuiltInScriptFunction(String function) {
         return builtInFunctions.contains(function.toLowerCase());
     }
 

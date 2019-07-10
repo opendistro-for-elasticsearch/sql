@@ -19,6 +19,7 @@ import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsReques
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.Strings;
+import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.Aggregation;
@@ -29,6 +30,7 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.JoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Query;
+import com.amazon.opendistroforelasticsearch.sql.domain.ScriptMethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.domain.TableOnJoinSelect;
 
@@ -273,6 +275,22 @@ public class SelectResultSet extends ResultSet {
             case "min":
             case "max":
                 return Schema.Type.DOUBLE;
+            case "script": {
+                ScriptMethodField smf = (ScriptMethodField) field;
+                // TODO: this information is disconnected from the function definitions in SQLFunctions.
+                // Refactor SQLFunctions to have functions self-explanatory (types, scripts) and pluggable
+                // (similar to Strategy pattern).
+
+                switch (smf.getFunctionName()) {
+                    case "date_format": {
+                        return Schema.Type.TEXT;
+                    }
+                    default:
+                        throw new UnsupportedOperationException(
+                                String.format("The following method is not supported in Schema: %s",
+                                        smf.getFunctionName()));
+                }
+            }
             default:
                 throw new UnsupportedOperationException(
                         String.format("The following method is not supported in Schema: %s", field.getName()));
@@ -449,13 +467,20 @@ public class SelectResultSet extends ResultSet {
         Set<String> newKeys = new HashSet<>(head);
         for (SearchHit hit : searchHits) {
             Map<String, Object> rowSource = hit.getSourceAsMap();
-            List<DataRows.Row> result = new ArrayList<>();
-            result.add(new DataRows.Row(rowSource));
+            List<DataRows.Row> result;
 
             if (!isJoinQuery()) { // Row already flatten in source in join. And join doesn't support nested fields for now.
                 rowSource = flatRow(head, rowSource);
                 rowSource.put("_score", hit.getScore());
+
+                for (Map.Entry<String, DocumentField> field : hit.getFields().entrySet()) {
+                    rowSource.put(field.getKey(), field.getValue().getValue());
+                }
+
                 result = flatNestedField(newKeys, rowSource, hit.getInnerHits());
+            } else {
+                result = new ArrayList<>();
+                result.add(new DataRows.Row(rowSource));
             }
 
             rows.addAll(result);
