@@ -95,11 +95,11 @@ public class Select extends Query {
 		return rowCount;
 	}
 
-	public void addOrderBy(String nestedPath, String name, String type, boolean isScriptField) {
+	public void addOrderBy(String nestedPath, String name, String type, Field field) {
 		if ("_score".equals(name)) {
 			isQuery = true;
 		}
-		this.orderBys.add(new Order(nestedPath, name, type, isScriptField));
+		this.orderBys.add(new Order(nestedPath, name, type, field));
 	}
 
 

@@ -116,4 +116,9 @@ public class MethodField extends Field {
 
         return this.getParamsAsMap().get("children").toString();
     }
+
+    @Override
+    public boolean isScriptField() {
+	    return "script".equals(getName());
+    }
 }

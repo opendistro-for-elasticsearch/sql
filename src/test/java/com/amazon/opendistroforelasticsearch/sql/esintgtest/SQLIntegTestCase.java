@@ -103,6 +103,25 @@ public abstract class SQLIntegTestCase extends ESIntegTestCase {
         return sqlRequest;
     }
 
+    protected String executeQuery(String query, String requestType) {
+        try {
+            String endpoint = "/_opendistro/_sql?format=" + requestType;
+            String requestBody = makeRequest(query);
+
+            Request sqlRequest = new Request("POST", endpoint);
+            sqlRequest.setJsonEntity(requestBody);
+
+            RestClient restClient = ESIntegTestCase.getRestClient();
+            Response response = restClient.performRequest(sqlRequest);
+            Assert.assertEquals(200, response.getStatusLine().getStatusCode());
+            String responseString = TestUtils.getResponseBody(response, true);
+
+            return responseString;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     protected Request buildGetEndpointRequest(final String sqlQuery) {
 
         final String utf8CharsetName = StandardCharsets.UTF_8.name();
