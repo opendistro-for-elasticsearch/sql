@@ -27,7 +27,7 @@ public class Order {
     private Field sortField;
 
     public boolean isScript() {
-        return sortField != null && sortField instanceof ScriptMethodField;
+        return sortField != null && sortField.isScriptField();
     }
 
     public Order(String nestedPath, String name, String type, Field sortField) {
