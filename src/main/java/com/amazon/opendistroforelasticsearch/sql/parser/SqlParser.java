@@ -31,6 +31,7 @@ import com.amazon.opendistroforelasticsearch.sql.domain.From;
 import com.amazon.opendistroforelasticsearch.sql.domain.Having;
 import com.amazon.opendistroforelasticsearch.sql.domain.JoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
+import com.amazon.opendistroforelasticsearch.sql.domain.ScriptMethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.domain.TableOnJoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.domain.Where;
@@ -218,7 +219,7 @@ public class SqlParser {
             Field field = FieldMaker.makeField(expr, null, null);
 
             String orderByName;
-            if (isScriptField(field)) {
+            if (field instanceof ScriptMethodField) {
                 // TODO The consumer of ordering doesn't know the type of the expression, and elasticsearch needs to
                 // specify it for the script field ordering. Explore opportinities to supply that information to
                 // client code. One of the options is to have metadata store about functions that will supply
@@ -236,13 +237,8 @@ public class SqlParser {
 
             orderByName = orderByName.replace("`", "");
             if (alias != null) orderByName = orderByName.replaceFirst(alias + "\\.", "");
-            select.addOrderBy(field.getNestedPath(), orderByName, type, isScriptField(field));
-
+            select.addOrderBy(field.getNestedPath(), orderByName, type, field);
         }
-    }
-
-    private boolean isScriptField(Field field) {
-        return field instanceof MethodField && field.getName().equals("script");
     }
 
     private void findLimit(MySqlSelectQueryBlock.Limit limit, Select select) {

@@ -39,7 +39,7 @@ public class JdbcTestIT extends SQLIntegTestCase {
     }
 
     public void testDivisionInQuery() {
-        String query = "SELECT all_client/10 from elasticsearch-sql_test_index_online ORDER BY all_client desc limit 1";
+        String query = "SELECT all_client/10 from elasticsearch-sql_test_index_online ORDER BY all_client/10 desc limit 1";
 
         JSONObject parsed = new JSONObject(executeJdbcRequest(query));
 
