@@ -73,7 +73,8 @@ public class SQLFunctions {
             utilityFunctions)
             .flatMap(Set::stream).collect(Collectors.toSet());
 
-    public static boolean isBuiltInScriptFunction(String function) {
+    /** Is the function actually translated into Elastic DSL script during execution? */
+    public static boolean isFunctionTranslatedToScript(String function) {
         return builtInFunctions.contains(function.toLowerCase());
     }
 

@@ -219,12 +219,7 @@ public class SqlParser {
             Field field = FieldMaker.makeField(expr, null, null);
 
             String orderByName;
-            if (field instanceof ScriptMethodField) {
-                // TODO The consumer of ordering doesn't know the type of the expression, and elasticsearch needs to
-                // specify it for the script field ordering. Explore opportinities to supply that information to
-                // client code. One of the options is to have metadata store about functions that will supply
-                // return type of the result function here.
-
+            if (field.isScriptField()) {
                 MethodField methodField = (MethodField) field;
 
                 // 0 - generated field name

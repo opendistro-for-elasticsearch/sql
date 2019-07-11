@@ -34,8 +34,8 @@ public class Order {
         this.nestedPath = nestedPath;
         this.name = name;
         this.type = type;
-		this.sortField = sortField;
-	}
+        this.sortField = sortField;
+    }
 
     public String getNestedPath() {
         return nestedPath;

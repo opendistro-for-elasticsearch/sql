@@ -205,7 +205,7 @@ public class WhereParser {
     private boolean isAllowedMethodOnConditionLeft(SQLMethodInvokeExpr method, SQLBinaryOperator operator) {
         return (method.getMethodName().toLowerCase().equals("nested") ||
                 method.getMethodName().toLowerCase().equals("children") ||
-                SQLFunctions.isBuiltInScriptFunction(method.getMethodName())
+                SQLFunctions.isFunctionTranslatedToScript(method.getMethodName())
         ) &&
                 !operator.isLogical();
     }
@@ -496,13 +496,13 @@ public class WhereParser {
         }
 
         if (soExpr.getLeft() instanceof SQLMethodInvokeExpr) {
-            if (!SQLFunctions.isBuiltInScriptFunction(((SQLMethodInvokeExpr) soExpr.getLeft()).getMethodName())) {
+            if (!SQLFunctions.isFunctionTranslatedToScript(((SQLMethodInvokeExpr) soExpr.getLeft()).getMethodName())) {
                 return null;
             }
         }
 
         if (soExpr.getRight() instanceof SQLMethodInvokeExpr) {
-            if (!SQLFunctions.isBuiltInScriptFunction(((SQLMethodInvokeExpr) soExpr.getRight()).getMethodName())) {
+            if (!SQLFunctions.isFunctionTranslatedToScript(((SQLMethodInvokeExpr) soExpr.getRight()).getMethodName())) {
                 return null;
             }
         }

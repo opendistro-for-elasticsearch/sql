@@ -229,7 +229,7 @@ public class FieldMaker {
 
                 SQLBinaryOpExpr binaryOpExpr = (SQLBinaryOpExpr) object;
 
-                if (SQLFunctions.isBuiltInScriptFunction(binaryOpExpr.getOperator().toString())) {
+                if (SQLFunctions.isFunctionTranslatedToScript(binaryOpExpr.getOperator().toString())) {
                     SQLMethodInvokeExpr mExpr = makeBinaryMethodField(binaryOpExpr, alias, first);
                     MethodField abc = makeMethodField(mExpr.getMethodName(), mExpr.getParameters(), null, null, tableAlias, false);
                     paramers.add(new KVValue(abc.getParams().get(0).toString(), new SQLCharExpr(abc.getParams().get(1).toString())));
@@ -265,7 +265,7 @@ public class FieldMaker {
                     }
 
                     paramers.add(new KVValue("children", childrenType));
-                } else if (SQLFunctions.isBuiltInScriptFunction(methodName)) {
+                } else if (SQLFunctions.isFunctionTranslatedToScript(methodName)) {
                     //throw new SqlParseException("only support script/nested as inner functions");
                     MethodField abc = makeMethodField(methodName, mExpr.getParameters(), null, null, tableAlias, false);
                     paramers.add(new KVValue(abc.getParams().get(0).toString(), new SQLCharExpr(abc.getParams().get(1).toString())));
@@ -283,7 +283,7 @@ public class FieldMaker {
         }
 
         //just check we can find the function
-        boolean builtInScriptFunction = SQLFunctions.isBuiltInScriptFunction(name);
+        boolean builtInScriptFunction = SQLFunctions.isFunctionTranslatedToScript(name);
         if (builtInScriptFunction) {
             if (alias == null && first) {
                 alias = SQLFunctions.randomize(name);
@@ -315,8 +315,7 @@ public class FieldMaker {
         if (builtInScriptFunction) {
             return new ScriptMethodField(name, paramers, option == null ? null : option.name(), alias);
         } else {
-          return new MethodField(
-              name, paramers, option == null ? null : option.name(), alias);
+          return new MethodField(name, paramers, option == null ? null : option.name(), alias);
         }
     }
 }

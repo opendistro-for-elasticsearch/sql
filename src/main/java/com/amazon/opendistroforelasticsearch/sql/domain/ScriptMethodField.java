@@ -29,4 +29,9 @@ public class ScriptMethodField extends MethodField {
     public String getFunctionName() {
         return functionName;
     }
+
+    @Override
+    public boolean isScriptField() {
+        return true;
+    }
 }

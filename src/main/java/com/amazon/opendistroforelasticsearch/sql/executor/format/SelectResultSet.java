@@ -277,12 +277,12 @@ public class SelectResultSet extends ResultSet {
             case "max":
                 return Schema.Type.DOUBLE;
             case "script": {
-                ScriptMethodField smf = (ScriptMethodField) field;
-                // TODO: this information is disconnected from the function definitions in SQLFunctions.
+                // TODO: return type information is disconnected from the function definitions in SQLFunctions.
                 // Refactor SQLFunctions to have functions self-explanatory (types, scripts) and pluggable
                 // (similar to Strategy pattern)
 
-                return SQLFunctions.getScriptFunctionReturnType(smf.getFunctionName());
+                return SQLFunctions.getScriptFunctionReturnType(
+                        ((ScriptMethodField) field).getFunctionName());
             }
             default:
                 throw new UnsupportedOperationException(
