@@ -408,16 +408,16 @@ public class SelectResultSet extends ResultSet {
      * The only exception here is * picks all non-regular (nested) fields as JSON without flatten.
      */
     private void populateAllNestedFields(List<Schema.Column> columns, List<String> fields) {
-        Set<String> nestedFieldNames = fields.stream().
-                                       map(FieldMapping::new).
-                                       filter(FieldMapping::isPropertyField).
-                                       filter(f -> !f.isMultiField()).
-                                       map(FieldMapping::path).
-                                       collect(toSet());
+        Set<String> nestedFieldPaths = fields.stream().
+                                              map(FieldMapping::new).
+                                              filter(FieldMapping::isPropertyField).
+                                              filter(f -> !f.isMultiField()).
+                                              map(FieldMapping::path).
+                                              collect(toSet());
 
-        for (String fieldName : nestedFieldNames) {
+        for (String nestedFieldPath : nestedFieldPaths) {
             columns.add(
-                new Schema.Column(fieldName, "", Schema.Type.TEXT)
+                new Schema.Column(nestedFieldPath, "", Schema.Type.TEXT)
             );
         }
     }
