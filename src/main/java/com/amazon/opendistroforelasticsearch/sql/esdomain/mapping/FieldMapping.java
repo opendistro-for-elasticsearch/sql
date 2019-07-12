@@ -101,6 +101,9 @@ public class FieldMapping {
      */
     public String path() {
         int lastDot = fieldName.lastIndexOf(".");
+        if (lastDot == -1) {
+            throw new IllegalStateException("path() is being invoked on wrong field");
+        }
         return fieldName.substring(0, lastDot);
     }
 
@@ -117,7 +120,8 @@ public class FieldMapping {
          * When field is not nested the metaData source is fieldName -> type
          * When it is nested or contains "." in general (ex. fieldName.nestedName) the source is nestedName -> type
          */
-        Map<String, Object> fieldMapping = (Map<String, Object>) source.get(fieldPath.length == 1 ? fieldName : fieldPath[1]);
+        String root = (fieldPath.length == 1) ? fieldName : fieldPath[1];
+        Map<String, Object> fieldMapping = (Map<String, Object>) source.get(root);
         for (int i = 2; i < fieldPath.length; i++) {
             fieldMapping = (Map<String, Object>) fieldMapping.get(fieldPath[i]);
         }
