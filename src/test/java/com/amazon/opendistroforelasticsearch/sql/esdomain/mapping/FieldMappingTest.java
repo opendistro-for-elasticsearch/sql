@@ -17,7 +17,6 @@ package com.amazon.opendistroforelasticsearch.sql.esdomain.mapping;
 
 import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils;
-import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse.FieldMappingMetaData;
 import org.hamcrest.Matcher;
 import org.junit.Test;
 
@@ -37,7 +36,7 @@ public class FieldMappingTest {
     @Test
     public void testFieldMatchesWildcardPatternSpecifiedInQuery() {
         assertThat(
-            new FieldMapping("employee.first", typeMappings(), fieldsSpecifiedInQuery("employee.*")),
+            new FieldMapping("employee.first", emptyMap(), fieldsSpecifiedInQuery("employee.*")),
             isWildcardSpecified(true)
         );
     }
@@ -45,7 +44,7 @@ public class FieldMappingTest {
     @Test
     public void testFieldMismatchesWildcardPatternSpecifiedInQuery() {
         assertThat(
-            new FieldMapping("employee.first", typeMappings(), fieldsSpecifiedInQuery("manager.*")),
+            new FieldMapping("employee.first", emptyMap(), fieldsSpecifiedInQuery("manager.*")),
             isWildcardSpecified(false)
         );
     }
@@ -56,7 +55,10 @@ public class FieldMappingTest {
             new FieldMapping("employee.first"),
             isPropertyField(true)
         );
+    }
 
+    @Test
+    public void testNestedMultiFieldIsProperty() {
         assertThat(
             new FieldMapping("employee.first.keyword"),
             isPropertyField(true)
@@ -69,7 +71,10 @@ public class FieldMappingTest {
             new FieldMapping("employee"),
             isPropertyField(false)
         );
+    }
 
+    @Test
+    public void testMultiFieldIsNotProperty() {
         assertThat(
             new FieldMapping("employee.keyword"),
             isPropertyField(false)
@@ -92,10 +97,6 @@ public class FieldMappingTest {
         return Arrays.stream(fieldNames).
                       collect(Collectors.toMap(name -> name,
                                                name -> new Field(name, "")));
-    }
-
-    private Map<String, FieldMappingMetaData> typeMappings() {
-        return emptyMap();
     }
 
 }
