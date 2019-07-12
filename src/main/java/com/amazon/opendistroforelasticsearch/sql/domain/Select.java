@@ -105,13 +105,12 @@ public class Select extends Query {
         return rowCount;
     }
 
-    public void addOrderBy(String nestedPath, String name, String type, boolean isScriptField) {
-        if ("_score".equals(name)) {
-            isQuery = true;
-        }
-        this.orderBys.add(new Order(nestedPath, name, type, isScriptField));
-    }
-
+	public void addOrderBy(String nestedPath, String name, String type, Field field) {
+		if ("_score".equals(name)) {
+			isQuery = true;
+		}
+		this.orderBys.add(new Order(nestedPath, name, type, field));
+	}
 
     public void addField(Field field) {
         if (field == null) {

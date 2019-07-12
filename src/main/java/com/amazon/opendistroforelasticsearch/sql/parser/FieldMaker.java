@@ -19,6 +19,7 @@ import com.alibaba.druid.sql.ast.expr.*;
 import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.KVValue;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
+import com.amazon.opendistroforelasticsearch.sql.domain.ScriptMethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Where;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import org.elasticsearch.common.collect.Tuple;
@@ -221,7 +222,6 @@ public class FieldMaker {
 
     public static MethodField makeMethodField(String name, List<SQLExpr> arguments, SQLAggregateOption option, String alias, String tableAlias, boolean first) throws SqlParseException {
         List<KVValue> paramers = new LinkedList<>();
-        String finalMethodName = name;
 
         for (SQLExpr object : arguments) {
 
@@ -229,7 +229,7 @@ public class FieldMaker {
 
                 SQLBinaryOpExpr binaryOpExpr = (SQLBinaryOpExpr) object;
 
-                if (SQLFunctions.isBuiltInFunction(binaryOpExpr.getOperator().toString())) {
+                if (SQLFunctions.isFunctionTranslatedToScript(binaryOpExpr.getOperator().toString())) {
                     SQLMethodInvokeExpr mExpr = makeBinaryMethodField(binaryOpExpr, alias, first);
                     MethodField abc = makeMethodField(mExpr.getMethodName(), mExpr.getParameters(), null, null, tableAlias, false);
                     paramers.add(new KVValue(abc.getParams().get(0).toString(), new SQLCharExpr(abc.getParams().get(1).toString())));
@@ -265,7 +265,7 @@ public class FieldMaker {
                     }
 
                     paramers.add(new KVValue("children", childrenType));
-                } else if (SQLFunctions.isBuiltInFunction(methodName)) {
+                } else if (SQLFunctions.isFunctionTranslatedToScript(methodName)) {
                     //throw new SqlParseException("only support script/nested as inner functions");
                     MethodField abc = makeMethodField(methodName, mExpr.getParameters(), null, null, tableAlias, false);
                     paramers.add(new KVValue(abc.getParams().get(0).toString(), new SQLCharExpr(abc.getParams().get(1).toString())));
@@ -283,12 +283,13 @@ public class FieldMaker {
         }
 
         //just check we can find the function
-        if (SQLFunctions.isBuiltInFunction(finalMethodName)) {
+        boolean builtInScriptFunction = SQLFunctions.isFunctionTranslatedToScript(name);
+        if (builtInScriptFunction) {
             if (alias == null && first) {
-                alias = SQLFunctions.randomize("field");
+                alias = SQLFunctions.randomize(name);
             }
             //should check if field and first .
-            Tuple<String, String> newFunctions = SQLFunctions.function(finalMethodName.toLowerCase(), paramers,
+            Tuple<String, String> newFunctions = SQLFunctions.function(name.toLowerCase(), paramers,
                     paramers.isEmpty() ? null : paramers.get(0).key, first);
             paramers.clear();
             if (!first) {
@@ -299,7 +300,6 @@ public class FieldMaker {
             }
 
             paramers.add(new KVValue(newFunctions.v2()));
-            finalMethodName = "script";
         }
         if (first) {
             List<KVValue> tempParamers = new LinkedList<>();
@@ -312,6 +312,10 @@ public class FieldMaker {
             paramers.addAll(tempParamers);
         }
 
-        return new MethodField(finalMethodName, paramers, option == null ? null : option.name(), alias);
+        if (builtInScriptFunction) {
+            return new ScriptMethodField(name, paramers, option == null ? null : option.name(), alias);
+        } else {
+          return new MethodField(name, paramers, option == null ? null : option.name(), alias);
+        }
     }
 }

@@ -19,13 +19,16 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.KVValue;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Order;
+import com.amazon.opendistroforelasticsearch.sql.domain.ScriptMethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.domain.Where;
 import com.amazon.opendistroforelasticsearch.sql.domain.hints.Hint;
 import com.amazon.opendistroforelasticsearch.sql.domain.hints.HintType;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema;
 import com.amazon.opendistroforelasticsearch.sql.query.maker.QueryMaker;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.nestedfield.NestedFieldProjection;
+import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
 import org.elasticsearch.action.search.SearchAction;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchScrollAction;
@@ -220,13 +223,34 @@ public class DefaultQueryAction extends QueryAction {
 
                     request.addSort(
                             SortBuilders
-                                    .scriptSort(new Script(order.getName()), ScriptSortType.STRING)
+                                    .scriptSort(new Script(order.getName()), getScriptSortType(order))
                                     .order(SortOrder.valueOf(order.getType())));
                 } else {
                     request.addSort(order.getName(), SortOrder.valueOf(order.getType()));
                 }
             }
         }
+    }
+
+    private ScriptSortType getScriptSortType(Order order) {
+        ScriptSortType scriptSortType;
+        ScriptMethodField smf = (ScriptMethodField) order.getSortField();
+        Schema.Type scriptFunctionReturnType = SQLFunctions.getScriptFunctionReturnType(smf.getFunctionName());
+
+        // as of now script function return type returns only text and double
+        switch (scriptFunctionReturnType) {
+            case TEXT:
+                scriptSortType = ScriptSortType.STRING;
+                break;
+
+            case DOUBLE:
+                scriptSortType = ScriptSortType.NUMBER;
+                break;
+
+            default:
+                throw new RuntimeException("unknown");
+        }
+        return scriptSortType;
     }
 
     /**
