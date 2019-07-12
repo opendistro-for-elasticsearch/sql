@@ -336,8 +336,16 @@ public class CSVResultsExtractor {
 
     private String quoteValueIfRequired(final String input, final String separator) {
 
-        final String quote = input.contains(separator) ? "\"" : "";
-        return quote + input + quote + separator;
+        final String quote = "\"";
+        final String result;
+
+        if (input.contains(separator)) {
+            result = quote + input.replaceAll("\"", "\"\"") + quote + separator;
+        } else {
+            result = input + separator;
+        }
+
+        return result;
     }
 
     private void mergeHeaders(Set<String> headers, Map<String, Object> doc, boolean flat) {
