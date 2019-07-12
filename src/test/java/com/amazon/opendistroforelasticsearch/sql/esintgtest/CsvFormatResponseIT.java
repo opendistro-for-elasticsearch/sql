@@ -141,7 +141,6 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void doubleQuotesAreEscapedWithDoubleQuotes() throws IOException {
-
         final String query = "SELECT * FROM " + TEST_INDEX_NESTED_WITH_QUOTES;
 
         final CSVResult csvResult = executeCsvRequest(query, false);
