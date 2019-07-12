@@ -47,6 +47,8 @@ import static org.elasticsearch.action.admin.indices.mapping.get.GetFieldMapping
 
 public class SelectResultSet extends ResultSet {
 
+    public static final String SCORE = "_score";
+
     private Query query;
     private Object queryResult;
 
@@ -321,7 +323,7 @@ public class SelectResultSet extends ResultSet {
         List<Schema.Column> columns = new ArrayList<>();
         for (String fieldName : fieldNameList) {
             // _score is a special case since it is not included in typeMappings, so it is checked for here
-            if (fieldName.equals("_score")) {
+            if (fieldName.equals(SCORE)) {
                 columns.add(new Schema.Column(fieldName, fetchAlias(fieldName, fieldMap), Schema.Type.FLOAT));
             }
             /*
@@ -462,7 +464,7 @@ public class SelectResultSet extends ResultSet {
 
             if (!isJoinQuery()) { // Row already flatten in source in join. And join doesn't support nested fields for now.
                 rowSource = flatRow(head, rowSource);
-                rowSource.put("_score", hit.getScore());
+                rowSource.put(SCORE, hit.getScore());
                 result = flatNestedField(newKeys, rowSource, hit.getInnerHits());
             }
 

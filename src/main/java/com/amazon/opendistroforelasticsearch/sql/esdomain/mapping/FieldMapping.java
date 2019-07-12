@@ -40,7 +40,6 @@ public class FieldMapping {
     /** Maps a field name to Field object that specified in query explicitly */
     private final Map<String, Field> specifiedFieldsByName;
 
-
     public FieldMapping(String fieldName) {
         this(fieldName, emptyMap(), emptyMap());
     }
@@ -102,7 +101,7 @@ public class FieldMapping {
     public String path() {
         int lastDot = fieldName.lastIndexOf(".");
         if (lastDot == -1) {
-            throw new IllegalStateException("path() is being invoked on wrong field");
+            throw new IllegalStateException("path() is being invoked on the wrong field [" + fieldName + "]");
         }
         return fieldName.substring(0, lastDot);
     }
