@@ -38,13 +38,24 @@ import java.util.List;
  */
 public class FieldMaker {
     public static Field makeField(SQLExpr expr, String alias, String tableAlias) throws SqlParseException {
+        Field field = makeFieldImpl(expr, alias, tableAlias);
+
+        // why we may get null as a field???
+        if (field != null) {
+            field.setExpression(expr);
+        }
+
+        return field;
+    }
+
+    private static Field makeFieldImpl(SQLExpr expr, String alias, String tableAlias) throws SqlParseException {
         if (expr instanceof SQLIdentifierExpr || expr instanceof SQLPropertyExpr || expr instanceof SQLVariantRefExpr) {
             return handleIdentifier(expr, alias, tableAlias);
         } else if (expr instanceof SQLQueryExpr) {
             throw new SqlParseException("unknow field name : " + expr);
         } else if (expr instanceof SQLBinaryOpExpr) {
             //make a SCRIPT method field;
-            return makeField(makeBinaryMethodField((SQLBinaryOpExpr) expr, alias, true), alias, tableAlias);
+            return makeFieldImpl(makeBinaryMethodField((SQLBinaryOpExpr) expr, alias, true), alias, tableAlias);
 
         } else if (expr instanceof SQLAllColumnExpr) {
             return Field.STAR;

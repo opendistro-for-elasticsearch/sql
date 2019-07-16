@@ -88,6 +88,24 @@ public class DateFormatTest {
     }
 
     @Test
+    public void dateFormatWithGroupBy() {
+        String query = "SELECT date_format(utc_time, 'dd-MM-YYYY'), count(*) " +
+                "FROM kibana_sample_data_logs " +
+                "GROUP BY date_format(utc_time, 'dd-MM-YYYY')";
+
+        Select select = getSelect(query);
+    }
+
+    @Test
+    public void dateFormatWithGroupBy2() {
+        String query = "SELECT date_format(utc_time, 'dd-MM-YYYY') df, count(*) " +
+                "FROM kibana_sample_data_logs " +
+                "GROUP BY date_format(utc_time, 'dd-MM-YYYY')";
+
+        Select select = getSelect(query);
+    }
+
+    @Test
     @Ignore("06/27/2019: During implementing of ORDER BY date_format found that this fails as well. " +
             "Will investigate after order by fix submitted, to scope amount of fixes.")
     public void orderByWithGroupByTest() {
