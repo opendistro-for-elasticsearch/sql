@@ -236,11 +236,13 @@ public class SelectResultSet extends ResultSet {
                 }
             }
             return groupByFields;
-        } else if (query instanceof TableOnJoinSelect) {
-            return ((TableOnJoinSelect) query).getSelectedFields();
-        } else {
-            return select.getFields();
         }
+
+        if (query instanceof TableOnJoinSelect) {
+            return ((TableOnJoinSelect) query).getSelectedFields();
+        }
+
+        return select.getFields();
     }
 
     private String[] fetchFieldsAsArray(Query query) {
