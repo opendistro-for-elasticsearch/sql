@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.domain;
 
+import com.alibaba.druid.sql.ast.SQLExpr;
 import com.amazon.opendistroforelasticsearch.sql.parser.ChildrenType;
 import com.amazon.opendistroforelasticsearch.sql.parser.NestedType;
 
@@ -35,8 +36,9 @@ public class Field implements Cloneable{
 	private String alias;
     private NestedType nested;
     private ChildrenType children;
+    private SQLExpr expression;
 
-	public Field(String name, String alias) {
+    public Field(String name, String alias) {
 		this.name = name;
 		this.alias = alias;
         this.nested = null;
@@ -126,5 +128,13 @@ public class Field implements Cloneable{
     /** Returns true if the field is script field. */
     public boolean isScriptField() {
         return false;
+    }
+
+    public void setExpression(SQLExpr expression) {
+        this.expression = expression;
+    }
+
+    public SQLExpr getExpression() {
+        return expression;
     }
 }

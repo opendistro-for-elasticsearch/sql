@@ -226,23 +226,23 @@ public class SelectResultSet extends ResultSet {
      */
     private List<Field> fetchFields(Query query) {
         Select select = (Select) query;
-        List<Field> fields;
+
         if (queryResult instanceof Aggregations) {
-            fields = select.getGroupBys().isEmpty() ? new ArrayList<>() : select.getGroupBys().get(0);
-            for (Field field : select.getFields()) {
-                if (field instanceof MethodField) {
-                    fields.add(field);
+            List<Field> groupByFields = select.getGroupBys().isEmpty() ? new ArrayList<>() : select.getGroupBys().get(0);
+
+            for (Field selectField : select.getFields()) {
+                if (selectField instanceof MethodField && !selectField.isScriptField()) {
+                    groupByFields.add(selectField);
                 }
             }
-        } else {
-            if (query instanceof TableOnJoinSelect) {
-                fields = ((TableOnJoinSelect) query).getSelectedFields();
-            } else {
-                fields = select.getFields();
-            }
+            return groupByFields;
         }
 
-        return fields;
+        if (query instanceof TableOnJoinSelect) {
+            return ((TableOnJoinSelect) query).getSelectedFields();
+        }
+
+        return select.getFields();
     }
 
     private String[] fetchFieldsAsArray(Query query) {
