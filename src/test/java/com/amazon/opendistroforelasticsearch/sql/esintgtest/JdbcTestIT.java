@@ -27,31 +27,39 @@ public class JdbcTestIT extends SQLIntegTestCase {
     }
 
     public void testDateTimeInQuery() {
-        String query = "SELECT date_format(insert_time, 'dd-MM-YYYY') FROM elasticsearch-sql_test_index_online limit 1";
-
-        JSONObject parsed = new JSONObject(executeJdbcRequest(query));
+        JSONObject response = executeJdbcRequest(
+                "SELECT date_format(insert_time, 'dd-MM-YYYY') FROM elasticsearch-sql_test_index_online limit 1");
 
         assertThat(
-                parsed.getJSONArray("datarows")
+                response.getJSONArray("datarows")
                         .getJSONArray(0)
                         .getString(0),
                 equalTo("17-08-2014"));
     }
 
     public void testDivisionInQuery() {
-        String query = "SELECT all_client/10 from elasticsearch-sql_test_index_online ORDER BY all_client/10 desc limit 1";
-
-        JSONObject parsed = new JSONObject(executeJdbcRequest(query));
+        JSONObject response = executeJdbcRequest(
+                "SELECT all_client/10 from elasticsearch-sql_test_index_online ORDER BY all_client/10 desc limit 1");
 
         assertThat(
-                parsed.getJSONArray("datarows")
+                response.getJSONArray("datarows")
                         .getJSONArray(0)
                         .getDouble(0),
                 equalTo(16827.0));
     }
 
+    public void testGroupByInQuery() {
+        JSONObject response = executeJdbcRequest(
+                "SELECT date_format(insert_time, 'YYYY-MM-dd'), COUNT(*) " +
+                        "FROM elasticsearch-sql_test_index_online " +
+                        "GROUP BY date_format(insert_time, 'YYYY-MM-dd')"
+        );
 
-    private String executeJdbcRequest(String query){
-        return executeQuery(query, "jdbc");
+        assertThat(response.getJSONArray("schema").length(), equalTo(2));
+        assertThat(response.getJSONArray("datarows").length(), equalTo(8));
+    }
+
+    private JSONObject executeJdbcRequest(String query){
+        return new JSONObject(executeQuery(query, "jdbc"));
     }
 }

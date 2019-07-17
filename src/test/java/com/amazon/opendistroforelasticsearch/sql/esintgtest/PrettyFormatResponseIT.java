@@ -19,6 +19,7 @@ import com.google.common.collect.Sets;
 import org.elasticsearch.client.Request;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -26,11 +27,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.toSet;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
@@ -59,6 +63,8 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
 
     private static final Set<String> messageFields = Sets.newHashSet(
             "message.dayOfWeek", "message.info", "message.author");
+
+    private static final Set<String> commentFields = Sets.newHashSet("comment.data", "comment.likes");
 
     private static final List<String> nameFields = Arrays.asList("firstname", "lastname");
 
@@ -158,21 +164,50 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
 
     @Test
     public void selectAllFromNestedWithoutFieldInFrom() throws IOException {
-        JSONObject response = executeQuery(String.format(Locale.ROOT, "SELECT * FROM %s",
-                TestsConstants.TEST_INDEX_NESTED_TYPE));
-
-        assertContainsColumnsInAnyOrder(getSchema(response), regularFields);
-        assertContainsData(getDataRows(response), regularFields);
+        assertNestedFieldQueryResultContainsColumnsAndData("SELECT * FROM %s",
+                                                           regularFields, fields("message", "comment"));
     }
 
     @Test
     public void selectAllFromNestedWithFieldInFrom() throws IOException {
-        JSONObject response = executeQuery(
-                                String.format(Locale.ROOT, "SELECT * FROM %s e, e.message m",
-                                        TestsConstants.TEST_INDEX_NESTED_TYPE));
+        assertNestedFieldQueryResultContainsColumnsAndData("SELECT * FROM %s e, e.message m",
+                                                           regularFields, messageFields);
+    }
 
-        assertContainsColumnsInAnyOrder(getSchema(response), messageFields);
-        assertContainsData(getDataRows(response), messageFields);
+    @Test
+    public void selectAllFromNestedWithMultipleFieldsInFrom() throws IOException {
+        assertNestedFieldQueryResultContainsColumnsAndData("SELECT * FROM %s e, e.message m, e.comment c",
+                                                           regularFields, messageFields, commentFields);
+    }
+
+    @Test
+    public void selectAllNestedFromNestedWithFieldInFrom() throws IOException {
+        assertNestedFieldQueryResultContainsColumnsAndData("SELECT m.* FROM %s e, e.message m", messageFields);
+    }
+
+    @Test
+    public void selectSpecificRegularFieldAndAllFromNestedWithFieldInFrom() throws IOException {
+        assertNestedFieldQueryResultContainsColumnsAndData("SELECT e.someField, m.* FROM %s e, e.message m",
+                                                           fields("someField"), messageFields);
+    }
+
+    /**
+     * Execute the query against index with nested fields and assert result contains columns and data as expected.
+     */
+    @SafeVarargs
+    private final void assertNestedFieldQueryResultContainsColumnsAndData(String query,
+                                                                          Set<String>... expectedFieldNames) throws IOException {
+        JSONObject response = executeQuery(String.format(Locale.ROOT, query, TestsConstants.TEST_INDEX_NESTED_TYPE));
+        Set<String> allExpectedFieldNames = Stream.of(expectedFieldNames).
+                                                   flatMap(Set::stream).
+                                                   collect(toSet());
+
+        assertContainsColumnsInAnyOrder(getSchema(response), allExpectedFieldNames);
+        assertContainsData(getDataRows(response), allExpectedFieldNames);
+    }
+
+    private Set<String> fields(String... fieldNames) {
+        return Sets.newHashSet(fieldNames);
     }
 
     @Test

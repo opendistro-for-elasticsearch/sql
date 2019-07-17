@@ -98,7 +98,6 @@ public class RestSqlAction extends BaseRestHandler {
         LogUtils.addRequestId();
 
         try {
-
             if (!isSQLFeatureEnabled()) {
                 throw new SQLFeatureDisabledException(
                         "Either opendistro.sql.enabled or rest.action.multi.allow_explicit_index setting is false"
@@ -128,7 +127,6 @@ public class RestSqlAction extends BaseRestHandler {
                 final QueryAction queryAction = explainRequest(client, sqlRequest);
                 return channel -> executeSqlRequest(request, queryAction, client, channel);
             }
-
         } catch (Exception e) {
             logAndPublishMetrics(e);
             return channel -> reportError(channel, e, isClientError(e) ? BAD_REQUEST : SERVICE_UNAVAILABLE);

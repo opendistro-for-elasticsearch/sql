@@ -91,7 +91,7 @@ public class DateFormatTest {
     @Ignore("06/27/2019: During implementing of ORDER BY date_format found that this fails as well. " +
             "Will investigate after order by fix submitted, to scope amount of fixes.")
     public void orderByWithGroupByTest() {
-        String query = "SELECT ip, count(ip) " +
+        String query = "SELECT date_format(utc_time, 'dd-MM-YYYY'), count(*) " +
                 "FROM kibana_sample_data_logs " +
                 "GROUP BY date_format(utc_time, 'dd-MM-YYYY') " +
                 "ORDER BY date_format(utc_time, 'dd-MM-YYYY') DESC";

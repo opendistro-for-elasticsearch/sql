@@ -16,6 +16,10 @@
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
 import com.google.common.io.Files;
+import org.elasticsearch.client.Request;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.test.ESIntegTestCase;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -196,5 +200,15 @@ public class ExplainIT extends SQLIntegTestCase {
         String result = explainQuery(query);
 
         Assert.assertThat(result.replaceAll("\\s+", ""), equalTo(expectedOutput.replaceAll("\\s+", "")));
+    }
+
+    public void testContentTypeOfExplainRequestShouldBeJson() throws IOException {
+        String query = makeRequest("SELECT firstname FROM elasticsearch-sql_test_index_account");
+        Request request = getSqlRequest(query, true);
+
+        RestClient restClient = ESIntegTestCase.getRestClient();
+        Response response = restClient.performRequest(request);
+
+        assertEquals("application/json; charset=UTF-8", response.getHeader("content-type"));
     }
 }

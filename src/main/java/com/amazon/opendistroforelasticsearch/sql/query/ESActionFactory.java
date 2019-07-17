@@ -149,7 +149,7 @@ public class ESActionFactory {
     }
 
     private static QueryAction handleSelect(Client client, Select select) {
-        if (select.isAgg) {
+        if (select.isAggregate) {
             return new AggregationQueryAction(client, select);
         } else {
             return new DefaultQueryAction(client, select);

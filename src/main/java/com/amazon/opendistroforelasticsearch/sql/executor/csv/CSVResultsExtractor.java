@@ -277,14 +277,12 @@ public class CSVResultsExtractor {
     private List<String> createHeadersAndFillDocsMap(final boolean flat, final SearchHit[] hits,
                                                      final List<Map<String, Object>> docsAsMap,
                                                      final List<String> fieldNames) {
-
         final Set<String> csvHeaders = new LinkedHashSet<>();
         if (fieldNames != null) {
             csvHeaders.addAll(fieldNames);
         }
 
         for (final SearchHit hit : hits){
-
             final Map<String, Object> doc = hit.getSourceAsMap();
             final Map<String, DocumentField> fields = hit.getFields();
             for (final DocumentField searchHitField : fields.values()){
@@ -309,13 +307,11 @@ public class CSVResultsExtractor {
     }
 
     private String findFieldValue(String header, Map<String, Object> doc, boolean flat, String separator) {
-
         if (flat && header.contains(".")) {
             String[] split = header.split("\\.");
             Object innerDoc = doc;
 
             for (String innerField : split) {
-
                 if (!(innerDoc instanceof Map)) {
                     return separator;
                 }
@@ -335,9 +331,11 @@ public class CSVResultsExtractor {
     }
 
     private String quoteValueIfRequired(final String input, final String separator) {
+        final String quote = "\"";
 
-        final String quote = input.contains(separator) ? "\"" : "";
-        return quote + input + quote + separator;
+        return input.contains(separator) ?
+                quote + input.replaceAll("\"", "\"\"") + quote + separator :
+                input + separator;
     }
 
     private void mergeHeaders(Set<String> headers, Map<String, Object> doc, boolean flat) {

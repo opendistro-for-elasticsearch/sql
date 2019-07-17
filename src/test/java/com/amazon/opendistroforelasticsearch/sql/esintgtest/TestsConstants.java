@@ -24,7 +24,6 @@ public class TestsConstants {
 
     public final static String TEST_INDEX_ONLINE = TEST_INDEX + "_online";
     public final static String TEST_INDEX_ACCOUNT = TEST_INDEX + "_account";
-    public final static String TEST_INDEX_ACCOUNT_TEMP = TEST_INDEX + "_account_temp";
     public final static String TEST_INDEX_PHRASE = TEST_INDEX + "_phrase";
     public final static String TEST_INDEX_DOG = TEST_INDEX + "_dog";
     public final static String TEST_INDEX_DOG2 = TEST_INDEX + "_dog2";
@@ -37,6 +36,7 @@ public class TestsConstants {
     public final static String TEST_INDEX_LOCATION = TEST_INDEX + "_location";
     public final static String TEST_INDEX_LOCATION2 = TEST_INDEX + "_location2";
     public final static String TEST_INDEX_NESTED_TYPE = TEST_INDEX + "_nested_type";
+    public final static String TEST_INDEX_NESTED_WITH_QUOTES = TEST_INDEX + "_nested_type_with_quotes";
     public final static String TEST_INDEX_JOIN_TYPE = TEST_INDEX + "_join_type";
     public final static String TEST_INDEX_BANK = TEST_INDEX + "_bank";
     public final static String TEST_INDEX_BANK_TWO = TEST_INDEX_BANK + "_two";

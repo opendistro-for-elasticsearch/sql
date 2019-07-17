@@ -40,10 +40,12 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstant
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_DOG;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_GAME_OF_THRONES;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_NESTED_TYPE;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_NESTED_WITH_QUOTES;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ONLINE;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.not;
@@ -60,6 +62,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     protected void init() throws Exception {
         loadIndex(Index.ACCOUNT);
         loadIndex(Index.NESTED);
+        loadIndex(Index.NESTED_WITH_QUOTES);
         loadIndex(Index.DOG);
         loadIndex(Index.GAME_OF_THRONES);
         loadIndex(Index.ONLINE);
@@ -134,6 +137,22 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
         Assert.assertThat(result, containsString(expectedMessage));
 
         setFlatOption(false);
+    }
+
+    @Test
+    public void doubleQuotesAreEscapedWithDoubleQuotes() throws IOException {
+        final String query = "SELECT * FROM " + TEST_INDEX_NESTED_WITH_QUOTES;
+
+        final CSVResult csvResult = executeCsvRequest(query, false);
+        final List<String> rows = csvResult.getLines();
+        Assert.assertThat(rows.size(), equalTo(2));
+
+        final String expectedValue1 = "\"[{dayOfWeek=6, author=z\"\"z, info=zz}]\"";
+        final String expectedValue2 = "\"[{dayOfWeek=3, author=this \"\"value\"\" contains quotes, info=rr}]\"";
+
+        for (String row : rows) {
+            Assert.assertThat(row, anyOf(containsString(expectedValue1), containsString(expectedValue2)));
+        }
     }
 
     @Test
@@ -449,7 +468,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
         CSVResult csvResult = executeCsvRequest(query, false);
         List<String> headers = csvResult.getHeaders();
 
-        final String expectedHeaders[] = {"EXTENDED_STATS(age).count", "EXTENDED_STATS(age).sum",
+        final String[] expectedHeaders = {"EXTENDED_STATS(age).count", "EXTENDED_STATS(age).sum",
                 "EXTENDED_STATS(age).avg", "EXTENDED_STATS(age).min", "EXTENDED_STATS(age).max",
                 "EXTENDED_STATS(age).sumOfSquares", "EXTENDED_STATS(age).variance", "EXTENDED_STATS(age).stdDeviation"};
 
