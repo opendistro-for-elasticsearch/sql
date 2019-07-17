@@ -16,6 +16,8 @@
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.unittest.DateFormatTest;
+import org.hamcrest.Matchers;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -133,6 +135,29 @@ public class DateFormatIT extends SQLIntegTestCase {
 
         assertThat(new DateTime(getSource(hits.getJSONObject(0)).get("insert_time"), DateTimeZone.UTC),
                 is(new DateTime("2014-08-24T07:00:55.481Z", DateTimeZone.UTC)));
+    }
+
+    @Test
+    public void groupByAndSort() throws IOException {
+        JSONObject aggregations = executeQuery(
+                "SELECT date_format(insert_time, 'dd-MM-YYYY') " +
+                        "FROM elasticsearch-sql_test_index_online " +
+                        "GROUP BY date_format(insert_time, 'dd-MM-YYYY') " +
+                        "ORDER BY date_format(insert_time, 'dd-MM-YYYY') DESC")
+                .getJSONObject("aggregations");
+
+        String date = DateFormatTest.getScriptAggregationKey(aggregations, "date_format");
+        JSONArray buckets = aggregations.getJSONObject(date).getJSONArray("buckets");
+
+        assertThat(buckets.length(), is(8));
+
+        String previousKey = buckets.getJSONObject(0).getString("key");
+        for (int i=1; i < buckets.length(); i++) {
+            String currentKey = buckets.getJSONObject(i).getString("key");
+            assertThat(previousKey, Matchers.greaterThan(currentKey));
+
+            previousKey = currentKey;
+        }
     }
 
     private Set<Object> dateQuery(String sql) throws SqlParseException {
