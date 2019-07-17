@@ -181,12 +181,10 @@ public class RestSqlAction extends BaseRestHandler {
     }
 
     private static boolean isExplainRequest(final RestRequest request) {
-
         return request.path().endsWith("/_explain");
     }
 
     private static boolean explainRequiresBlockingIOCall(final SqlRequest request) {
-
         return CONTAINS_SUBQUERY.test(StringUtils.toLower(request.getSql()));
     }
 
