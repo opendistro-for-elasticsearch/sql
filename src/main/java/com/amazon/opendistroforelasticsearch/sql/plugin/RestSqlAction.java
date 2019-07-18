@@ -162,7 +162,7 @@ public class RestSqlAction extends BaseRestHandler {
                                    final Client client, final RestChannel channel) throws Exception {
         if (isExplainRequest(request)) {
             final String jsonExplanation = queryAction.explain().explain();
-            channel.sendResponse(new BytesRestResponse(OK, jsonExplanation));
+            channel.sendResponse(new BytesRestResponse(OK, "application/json; charset=UTF-8", jsonExplanation));
         } else {
             Map<String, String> params = request.params();
             RestExecutor restExecutor = ActionRequestRestExecutorFactory.createExecutor(params.get("format"),
