@@ -47,6 +47,7 @@ import org.elasticsearch.search.sort.SortOrder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Transform SQL query to Elasticsearch aggregations query
@@ -241,29 +242,29 @@ public class AggregationQueryAction extends QueryAction {
 
         // find if we have order for that aggregation. As of now only special case for script fields
         if (field.isScriptField()) {
-            addOrderByScriptFieldIfPresent((ScriptMethodField) field, select, lastAgg);
+            addOrderByScriptFieldIfPresent(select, lastAgg, field.getExpression());
         }
 
         return lastAgg;
     }
 
-    private void addOrderByScriptFieldIfPresent(ScriptMethodField field, Select select, AggregationBuilder lastAgg) {
-        // This is a hacky way, but it's the best that could be done now.
-
+    private void addOrderByScriptFieldIfPresent(Select select, AggregationBuilder groupByAggregation, SQLExpr groupByExpression) {
         // TODO: Explore other ways to correlate different fields/functions in the query (params?)
-        ScriptMethodField groupByScriptField = field;
-        SQLExpr groupByExpression = groupByScriptField.getExpression();
-        for (Order order : select.getOrderBys()) {
-            if (order.isScript()) {
-                ScriptMethodField orderByScriptField = (ScriptMethodField) order.getSortField();
-                SQLExpr orderByExpression = orderByScriptField.getExpression();
+        // This feels like a hacky way, but it's the best that could be done now.
 
-                if (groupByExpression.equals(orderByExpression)) {
-                    TermsAggregationBuilder termsAggregationBuilder = (TermsAggregationBuilder) lastAgg;
-                    termsAggregationBuilder.order(BucketOrder.key(isASC(order)));
-                }
-            }
+        Optional<Order> orderForGroupBy =
+                select
+                    .getOrderBys()
+                    .stream()
+                    .filter(order -> groupByExpression.equals(order.getSortField().getExpression()))
+                    .findFirst();
+
+        if (!orderForGroupBy.isPresent()) {
+            return;
         }
+
+        TermsAggregationBuilder termsAggregationBuilder = (TermsAggregationBuilder) groupByAggregation;
+        termsAggregationBuilder.order(BucketOrder.key(isASC(orderForGroupBy.get())));
     }
 
     private AggregationBuilder wrapNestedIfNeeded(AggregationBuilder nestedBuilder, boolean reverseNested) {
