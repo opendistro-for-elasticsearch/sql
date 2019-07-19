@@ -27,6 +27,7 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Delete;
 import com.amazon.opendistroforelasticsearch.sql.domain.JoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.parser.subquery.SubqueryRewriterHelper;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.nestedfield.NestedFieldRewriter;
 import com.amazon.opendistroforelasticsearch.sql.query.join.ESJoinQueryActionFactory;
 import com.amazon.opendistroforelasticsearch.sql.query.multi.MultiQueryAction;
@@ -48,6 +49,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.amazon.opendistroforelasticsearch.sql.domain.IndexStatement.StatementType;
+import static com.amazon.opendistroforelasticsearch.sql.parser.subquery.SubqueryRewriterHelper.isSubquery;
+
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.TermFieldRewriter.TermRewriterFilter;
 
 public class ESActionFactory {
@@ -71,21 +74,22 @@ public class ESActionFactory {
                 if(isMulti(sqlExpr)){
                     sqlExpr.accept(new TermFieldRewriter(client, TermRewriterFilter.MULTI_QUERY));
                     MultiQuerySelect multiSelect = new SqlParser().parseMultiSelect((SQLUnionQuery) sqlExpr.getSubQuery().getQuery());
-                    handleSubQueries(client,multiSelect.getFirstSelect());
-                    handleSubQueries(client,multiSelect.getSecondSelect());
                     return new MultiQueryAction(client, multiSelect);
+                }
+                else if(isSubquery(sqlExpr)){
+                    SubqueryRewriterHelper.rewrite(sqlExpr);
+                    sqlExpr.accept(new TermFieldRewriter(client, TermRewriterFilter.JOIN));
+                    JoinSelect joinSelect = new SqlParser().parseJoinSelect(sqlExpr);
+                    return ESJoinQueryActionFactory.createJoinAction(client, joinSelect);
                 }
                 else if(isJoin(sqlExpr,sql)){
                     sqlExpr.accept(new TermFieldRewriter(client, TermRewriterFilter.JOIN));
                     JoinSelect joinSelect = new SqlParser().parseJoinSelect(sqlExpr);
-                    handleSubQueries(client, joinSelect.getFirstTable());
-                    handleSubQueries(client, joinSelect.getSecondTable());
                     return ESJoinQueryActionFactory.createJoinAction(client, joinSelect);
                 }
                 else {
                     sqlExpr.accept(new TermFieldRewriter(client));
                     Select select = new SqlParser().parseSelect(sqlExpr);
-                    handleSubQueries(client, select);
                     return handleSelect(client, select);
                 }
             case "DELETE":
@@ -114,16 +118,6 @@ public class ESActionFactory {
 
     private static boolean isMulti(SQLQueryExpr sqlExpr) {
         return sqlExpr.getSubQuery().getQuery() instanceof SQLUnionQuery;
-    }
-
-    private static void handleSubQueries(Client client, Select select) throws SqlParseException {
-        if (select.containsSubQueries())
-        {
-            for(SubQueryExpression subQueryExpression : select.getSubQueries()){
-                QueryAction queryAction = handleSelect(client, subQueryExpression.getSelect());
-                executeAndFillSubQuery(client , subQueryExpression,queryAction);
-            }
-        }
     }
 
     private static void executeAndFillSubQuery(Client client , SubQueryExpression subQueryExpression,QueryAction queryAction) throws SqlParseException {

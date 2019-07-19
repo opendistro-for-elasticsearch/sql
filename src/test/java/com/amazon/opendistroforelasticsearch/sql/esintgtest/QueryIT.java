@@ -61,7 +61,6 @@ public class QueryIT extends SQLIntegTestCase {
      *   - multipleIndicesOneNotExistWithoutHint
      *
      * The following tests are being ignored because subquery is still running in ES transport thread:
-     *   - innerQueryTest()
      *   - twoSubQueriesTest()
      *   - inTermsSubQueryTest()
      */
@@ -1029,12 +1028,11 @@ public class QueryIT extends SQLIntegTestCase {
         }
     }
 
-    @Ignore // Subquery still runs in ES transport thread which fails the assertion. Same issue for the following tests.
     @Test
     public void innerQueryTest() throws IOException {
         JSONObject response = executeQuery(
                         String.format(Locale.ROOT, "SELECT * " +
-                                      "FROM %s/dog " +
+                                      "FROM %s/dog D " +
                                       "WHERE holdersName IN (SELECT firstname " +
                                                             "FROM %s/account " +
                                                             "WHERE firstname = 'Hattie')",
@@ -1045,9 +1043,9 @@ public class QueryIT extends SQLIntegTestCase {
 
         JSONObject hit = hits.getJSONObject(0);
         JSONObject source = getSource(hit);
-        Assert.assertEquals("snoopy", source.getString("dog_name"));
-        Assert.assertEquals("Hattie", source.getString("holdersName"));
-        Assert.assertEquals(4, source.getInt("age"));
+        Assert.assertEquals("snoopy", source.getString("D.dog_name"));
+        Assert.assertEquals("Hattie", source.getString("D.holdersName"));
+        Assert.assertEquals(4, source.getInt("D.age"));
     }
 
     @Ignore
