@@ -17,7 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.unittest.DateFormatTest;
-import org.hamcrest.Matchers;
+import com.google.common.collect.Ordering;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -27,8 +27,11 @@ import org.json.JSONObject;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
@@ -151,13 +154,12 @@ public class DateFormatIT extends SQLIntegTestCase {
 
         assertThat(buckets.length(), is(8));
 
-        String previousKey = buckets.getJSONObject(0).getString("key");
-        for (int i=1; i < buckets.length(); i++) {
-            String currentKey = buckets.getJSONObject(i).getString("key");
-            assertThat(previousKey, Matchers.greaterThan(currentKey));
+        List<String> aggregationSortKeys = IntStream.range(0, 8)
+                .mapToObj(index -> buckets.getJSONObject(index).getString("key"))
+                .collect(Collectors.toList());
 
-            previousKey = currentKey;
-        }
+        assertTrue("The query result must be sorted by date in descending order",
+                Ordering.natural().reverse().isOrdered(aggregationSortKeys));
     }
 
     private Set<Object> dateQuery(String sql) throws SqlParseException {
