@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.util;
 
-import org.hamcrest.Factory;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
 
@@ -43,7 +42,6 @@ public class HasFieldWithValue<T, U> extends FeatureMatcher<T, U> {
         this.fieldName = name;
     }
 
-    @Factory
     public static <T, U> HasFieldWithValue<T, U> hasFieldWithValue(String name, String desc, Matcher<? super U> matcher) {
         return new HasFieldWithValue<>(name, desc, matcher);
     }
