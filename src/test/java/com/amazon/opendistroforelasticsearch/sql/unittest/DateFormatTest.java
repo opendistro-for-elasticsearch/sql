@@ -130,7 +130,8 @@ public class DateFormatTest {
     public static String getScriptAggregationKey(JSONObject aggregation, String prefix) {
         return aggregation.keySet()
                 .stream()
-                .filter(x -> x.startsWith(prefix)).findFirst()
+                .filter(x -> x.startsWith(prefix))
+                .findFirst()
                 .orElseThrow(()-> new RuntimeException("Can't find key" + prefix + " in aggregation " + aggregation));
     }
 

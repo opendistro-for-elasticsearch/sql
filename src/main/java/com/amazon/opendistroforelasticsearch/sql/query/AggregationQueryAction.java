@@ -242,29 +242,21 @@ public class AggregationQueryAction extends QueryAction {
 
         // find if we have order for that aggregation. As of now only special case for script fields
         if (field.isScriptField()) {
-            addOrderByScriptFieldIfPresent(select, lastAgg, field.getExpression());
+            addOrderByScriptFieldIfPresent(select, (TermsAggregationBuilder) lastAgg, field.getExpression());
         }
 
         return lastAgg;
     }
 
-    private void addOrderByScriptFieldIfPresent(Select select, AggregationBuilder groupByAggregation, SQLExpr groupByExpression) {
+    private void addOrderByScriptFieldIfPresent(Select select, TermsAggregationBuilder groupByAggregation, SQLExpr groupByExpression) {
         // TODO: Explore other ways to correlate different fields/functions in the query (params?)
         // This feels like a hacky way, but it's the best that could be done now.
-
-        Optional<Order> orderForGroupBy =
-                select
-                    .getOrderBys()
-                    .stream()
-                    .filter(order -> groupByExpression.equals(order.getSortField().getExpression()))
-                    .findFirst();
-
-        if (!orderForGroupBy.isPresent()) {
-            return;
-        }
-
-        TermsAggregationBuilder termsAggregationBuilder = (TermsAggregationBuilder) groupByAggregation;
-        termsAggregationBuilder.order(BucketOrder.key(isASC(orderForGroupBy.get())));
+        select
+            .getOrderBys()
+            .stream()
+            .filter(order -> groupByExpression.equals(order.getSortField().getExpression()))
+            .findFirst()
+            .ifPresent(orderForGroupBy -> groupByAggregation.order(BucketOrder.key(isASC(orderForGroupBy))));
     }
 
     private AggregationBuilder wrapNestedIfNeeded(AggregationBuilder nestedBuilder, boolean reverseNested) {
