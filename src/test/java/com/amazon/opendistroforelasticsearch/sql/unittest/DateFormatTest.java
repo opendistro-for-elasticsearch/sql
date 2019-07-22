@@ -24,14 +24,16 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
 import com.amazon.opendistroforelasticsearch.sql.parser.SqlParser;
+import com.amazon.opendistroforelasticsearch.sql.query.AggregationQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.maker.QueryMaker;
 import com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.common.lucene.BytesRefs;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.hamcrest.*;
-import org.junit.Ignore;
+import org.json.JSONObject;
 import org.junit.Test;
 
 import java.util.List;
@@ -39,6 +41,7 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static com.amazon.opendistroforelasticsearch.sql.util.HasFieldWithValue.hasFieldWithValue;
+import static org.mockito.Mockito.mock;
 
 public class DateFormatTest {
 
@@ -88,15 +91,48 @@ public class DateFormatTest {
     }
 
     @Test
-    @Ignore("06/27/2019: During implementing of ORDER BY date_format found that this fails as well. " +
-            "Will investigate after order by fix submitted, to scope amount of fixes.")
-    public void orderByWithGroupByTest() {
+    public void groupByWithDescOrder() throws SqlParseException {
         String query = "SELECT date_format(utc_time, 'dd-MM-YYYY'), count(*) " +
                 "FROM kibana_sample_data_logs " +
                 "GROUP BY date_format(utc_time, 'dd-MM-YYYY') " +
                 "ORDER BY date_format(utc_time, 'dd-MM-YYYY') DESC";
 
+        JSONObject sort = getAggregationOrder(query);
+        assertThat(sort.getString("_key"), is("desc"));
+    }
+
+    @Test
+    public void groupByWithAscOrder() throws SqlParseException {
+        String query = "SELECT date_format(utc_time, 'dd-MM-YYYY'), count(*) " +
+                "FROM kibana_sample_data_logs " +
+                "GROUP BY date_format(utc_time, 'dd-MM-YYYY') " +
+                "ORDER BY date_format(utc_time, 'dd-MM-YYYY')";
+
+        JSONObject sort = getAggregationOrder(query);
+        assertThat(sort.getString("_key"), is("asc"));
+    }
+
+    public JSONObject getAggregationOrder(String query) throws SqlParseException {
         Select select = getSelect(query);
+
+        Client client = mock(Client.class);
+        AggregationQueryAction queryAction = new AggregationQueryAction(client, select);
+
+        String elasticDsl = queryAction.explain().explain();
+        JSONObject elasticQuery = new JSONObject(elasticDsl);
+
+        JSONObject aggregations = elasticQuery.getJSONObject("aggregations");
+        String dateFormatAggregationKey = getScriptAggregationKey(aggregations, "date_format");
+
+        return aggregations.getJSONObject(dateFormatAggregationKey).getJSONObject("terms").getJSONObject("order");
+    }
+
+    public static String getScriptAggregationKey(JSONObject aggregation, String prefix) {
+        return aggregation.keySet()
+                .stream()
+                .filter(x -> x.startsWith(prefix))
+                .findFirst()
+                .orElseThrow(()-> new RuntimeException("Can't find key" + prefix + " in aggregation " + aggregation));
     }
 
     @Test

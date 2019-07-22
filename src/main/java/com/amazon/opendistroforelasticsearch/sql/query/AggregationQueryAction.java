@@ -15,11 +15,13 @@
 
 package com.amazon.opendistroforelasticsearch.sql.query;
 
+import com.alibaba.druid.sql.ast.SQLExpr;
 import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.Having;
 import com.amazon.opendistroforelasticsearch.sql.domain.KVValue;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Order;
+import com.amazon.opendistroforelasticsearch.sql.domain.ScriptMethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.domain.Where;
 import com.amazon.opendistroforelasticsearch.sql.domain.hints.Hint;
@@ -45,6 +47,7 @@ import org.elasticsearch.search.sort.SortOrder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Transform SQL query to Elasticsearch aggregations query
@@ -179,6 +182,8 @@ public class AggregationQueryAction extends QueryAction {
         // add order
         if (lastAgg != null && select.getOrderBys().size() > 0) {
             for (Order order : select.getOrderBys()) {
+
+                // check "standard" fields
                 KVValue temp = groupMap.get(order.getName());
                 if (temp != null) {
                     TermsAggregationBuilder termsBuilder = (TermsAggregationBuilder) temp.value;
@@ -197,7 +202,10 @@ public class AggregationQueryAction extends QueryAction {
                         default:
                             throw new SqlParseException(order.getName() + " can not to order");
                     }
+                } else if (order.isScript()) {
+                    // Do not add scripted fields into sort, they must be sorted inside of aggregation
                 } else {
+                    // TODO: Is there a legit case when we want to add field into sort for aggregation queries?
                     request.addSort(order.getName(), SortOrder.valueOf(order.getType()));
                 }
             }
@@ -214,7 +222,7 @@ public class AggregationQueryAction extends QueryAction {
         return sqlElasticRequestBuilder;
     }
 
-    private AggregationBuilder getGroupAgg(Field field, Select select2) throws SqlParseException {
+    private AggregationBuilder getGroupAgg(Field field, Select select) throws SqlParseException {
         boolean refrence = false;
         AggregationBuilder lastAgg = null;
         for (Field temp : select.getFields()) {
@@ -231,8 +239,24 @@ public class AggregationQueryAction extends QueryAction {
         }
 
         if (!refrence) lastAgg = aggMaker.makeGroupAgg(field);
-        
+
+        // find if we have order for that aggregation. As of now only special case for script fields
+        if (field.isScriptField()) {
+            addOrderByScriptFieldIfPresent(select, (TermsAggregationBuilder) lastAgg, field.getExpression());
+        }
+
         return lastAgg;
+    }
+
+    private void addOrderByScriptFieldIfPresent(Select select, TermsAggregationBuilder groupByAggregation, SQLExpr groupByExpression) {
+        // TODO: Explore other ways to correlate different fields/functions in the query (params?)
+        // This feels like a hacky way, but it's the best that could be done now.
+        select
+            .getOrderBys()
+            .stream()
+            .filter(order -> groupByExpression.equals(order.getSortField().getExpression()))
+            .findFirst()
+            .ifPresent(orderForGroupBy -> groupByAggregation.order(BucketOrder.key(isASC(orderForGroupBy))));
     }
 
     private AggregationBuilder wrapNestedIfNeeded(AggregationBuilder nestedBuilder, boolean reverseNested) {

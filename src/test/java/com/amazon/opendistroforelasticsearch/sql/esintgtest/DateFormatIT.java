@@ -16,6 +16,8 @@
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.unittest.DateFormatTest;
+import com.google.common.collect.Ordering;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -25,8 +27,11 @@ import org.json.JSONObject;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
@@ -133,6 +138,28 @@ public class DateFormatIT extends SQLIntegTestCase {
 
         assertThat(new DateTime(getSource(hits.getJSONObject(0)).get("insert_time"), DateTimeZone.UTC),
                 is(new DateTime("2014-08-24T07:00:55.481Z", DateTimeZone.UTC)));
+    }
+
+    @Test
+    public void groupByAndSort() throws IOException {
+        JSONObject aggregations = executeQuery(
+                "SELECT date_format(insert_time, 'dd-MM-YYYY') " +
+                        "FROM elasticsearch-sql_test_index_online " +
+                        "GROUP BY date_format(insert_time, 'dd-MM-YYYY') " +
+                        "ORDER BY date_format(insert_time, 'dd-MM-YYYY') DESC")
+                .getJSONObject("aggregations");
+
+        String date = DateFormatTest.getScriptAggregationKey(aggregations, "date_format");
+        JSONArray buckets = aggregations.getJSONObject(date).getJSONArray("buckets");
+
+        assertThat(buckets.length(), is(8));
+
+        List<String> aggregationSortKeys = IntStream.range(0, 8)
+                .mapToObj(index -> buckets.getJSONObject(index).getString("key"))
+                .collect(Collectors.toList());
+
+        assertTrue("The query result must be sorted by date in descending order",
+                Ordering.natural().reverse().isOrdered(aggregationSortKeys));
     }
 
     private Set<Object> dateQuery(String sql) throws SqlParseException {
