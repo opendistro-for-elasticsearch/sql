@@ -77,7 +77,11 @@ jacocoTestReport {
 
 // See https://www.eclemma.org/jacoco/trunk/doc/api/org/jacoco/agent/rt/IAgent.html
 task dumpCoverage {
-    doFirst {
+    onlyIf {
+        // ignore the integ test coverage result when integTestRunner failed.
+        integTestRunner.getState().getFailure() == null
+    }
+    doFirst () {
         def serverUrl = "service:jmx:rmi:///jndi/rmi://127.0.0.1:7777/jmxrmi"
         def connector = JMXConnectorFactory.connect(new JMXServiceURL(serverUrl))
         try {
@@ -91,7 +95,7 @@ task dumpCoverage {
 }
 
 project.gradle.projectsEvaluated {
-    dumpCoverage.dependsOn integTestRunner
+    integTestRunner.finalizedBy dumpCoverage
     tasks['integTestCluster#stop'].dependsOn dumpCoverage
     jacocoTestReport.dependsOn dumpCoverage
 }
