@@ -21,14 +21,12 @@ import com.alibaba.druid.sql.ast.SQLObject;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.alibaba.druid.sql.ast.statement.SQLTableSource;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
-import com.alibaba.druid.sql.parser.ParserException;
-import com.alibaba.druid.sql.parser.Token;
-import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
 import com.amazon.opendistroforelasticsearch.sql.parser.subquery.SubqueryRewriterHelper;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import static com.amazon.opendistroforelasticsearch.sql.util.SqlParserUtils.parse;
 import static org.junit.Assert.assertEquals;
 
 public class InSubqueryRewriterTest {
@@ -40,9 +38,14 @@ public class InSubqueryRewriterTest {
     public void testFrom() {
         assertEquals(
                 sqlString(expectFrom(
-                        "SELECT TbA_0.* FROM TbA as TbA_0 JOIN TbB as TbB_1 ON TbA_0.a = TbB_1.b WHERE TbB_1.b IS NOT NULL")),
+                        "SELECT TbA_0.* " +
+                                "FROM TbA as TbA_0 " +
+                                "JOIN TbB as TbB_1 " +
+                                "ON TbA_0.a = TbB_1.b " +
+                                "WHERE TbB_1.b IS NOT NULL")),
                 sqlString(actualFrom(
-                        "SELECT * FROM TbA WHERE a in (SELECT b FROM TbB)"))
+                        "SELECT * FROM TbA " +
+                                "WHERE a in (SELECT b FROM TbB)"))
         );
     }
 
@@ -50,9 +53,15 @@ public class InSubqueryRewriterTest {
     public void testWhere() {
         assertEquals(
                 sqlString(expectWhere(
-                        "SELECT TbA_0.* FROM TbA as TbA_0 JOIN TbB as TbB_1 ON TbA_0.a = TbB_1.b WHERE TbB_1.b IS NOT NULL")),
+                        "SELECT TbA_0.* " +
+                                "FROM TbA as TbA_0 " +
+                                "JOIN TbB as TbB_1 " +
+                                "ON TbA_0.a = TbB_1.b " +
+                                "WHERE TbB_1.b IS NOT NULL")),
                 sqlString(actualWhere(
-                        "SELECT * FROM TbA WHERE a in (SELECT b FROM TbB)"))
+                        "SELECT * " +
+                                "FROM TbA " +
+                                "WHERE a in (SELECT b FROM TbB)"))
         );
     }
 
@@ -60,9 +69,15 @@ public class InSubqueryRewriterTest {
     public void testFromWithInnerWhere() {
         assertEquals(
                 sqlString(expectFrom(
-                        "SELECT TbA_0.* FROM TbA as TbA_0 JOIN TbB as TbB_1 ON TbA_0.a = TbB_1.b WHERE TbB_1.b IS NOT NULL AND TbB_1.b > 0")),
+                        "SELECT TbA_0.* " +
+                                "FROM TbA as TbA_0 " +
+                                "JOIN TbB as TbB_1 " +
+                                "ON TbA_0.a = TbB_1.b " +
+                                "WHERE TbB_1.b IS NOT NULL AND TbB_1.b > 0")),
                 sqlString(actualFrom(
-                        "SELECT * FROM TbA WHERE a in (SELECT b FROM TbB WHERE b > 0)"))
+                        "SELECT * " +
+                                "FROM TbA " +
+                                "WHERE a in (SELECT b FROM TbB WHERE b > 0)"))
         );
     }
 
@@ -70,9 +85,15 @@ public class InSubqueryRewriterTest {
     public void testWhereWithInnerWhere() {
         assertEquals(
                 sqlString(expectWhere(
-                        "SELECT TbA_0.* FROM TbA as TbA_0 JOIN TbB as TbB_1 ON TbA_0.a = TbB_1.b WHERE TbB_1.b IS NOT NULL AND TbB_1.b > 0")),
+                        "SELECT TbA_0.* " +
+                                "FROM TbA as TbA_0 " +
+                                "JOIN TbB as TbB_1 " +
+                                "ON TbA_0.a = TbB_1.b " +
+                                "WHERE TbB_1.b IS NOT NULL AND TbB_1.b > 0")),
                 sqlString(actualWhere(
-                        "SELECT * FROM TbA WHERE a in (SELECT b FROM TbB WHERE b > 0)"))
+                        "SELECT * " +
+                                "FROM TbA " +
+                                "WHERE a in (SELECT b FROM TbB WHERE b > 0)"))
         );
     }
 
@@ -80,9 +101,15 @@ public class InSubqueryRewriterTest {
     public void testFromWithOuterWhere() {
         assertEquals(
                 sqlString(expectFrom(
-                        "SELECT TbA_0.* FROM TbA as TbA_0 JOIN TbB as TbB_1 ON TbA_0.a = TbB_1.b WHERE TbB_1.b IS NOT NULL AND TbA_0.a > 10")),
+                        "SELECT TbA_0.* " +
+                                "FROM TbA as TbA_0 " +
+                                "JOIN TbB as TbB_1 " +
+                                "ON TbA_0.a = TbB_1.b " +
+                                "WHERE TbB_1.b IS NOT NULL AND TbA_0.a > 10")),
                 sqlString(actualFrom(
-                        "SELECT * FROM TbA WHERE a in (SELECT b FROM TbB) AND a > 10"))
+                        "SELECT * " +
+                                "FROM TbA " +
+                                "WHERE a in (SELECT b FROM TbB) AND a > 10"))
         );
     }
 
@@ -90,9 +117,15 @@ public class InSubqueryRewriterTest {
     public void testWhereWithOuterWhere() {
         assertEquals(
                 sqlString(expectWhere(
-                        "SELECT TbA_0.* FROM TbA as TbA_0 JOIN TbB as TbB_1 ON TbA_0.a = TbB_1.b WHERE TbB_1.b IS NOT NULL AND TbA_0.a > 10")),
+                        "SELECT TbA_0.* " +
+                                "FROM TbA as TbA_0 " +
+                                "JOIN TbB as TbB_1 " +
+                                "ON TbA_0.a = TbB_1.b" +
+                                " WHERE TbB_1.b IS NOT NULL AND TbA_0.a > 10")),
                 sqlString(actualWhere(
-                        "SELECT * FROM TbA WHERE a in (SELECT b FROM TbB) AND a > 10"))
+                        "SELECT * " +
+                                "FROM TbA " +
+                                "WHERE a in (SELECT b FROM TbB) AND a > 10"))
         );
     }
 
@@ -100,7 +133,10 @@ public class InSubqueryRewriterTest {
     public void testException() {
         exceptionRule.expect(IllegalStateException.class);
         exceptionRule.expectMessage("Unsupported subquery with multiple select [TbB_1.b1, TbB_1.b2]");
-        actualFrom("SELECT * FROM TbA WHERE a in (SELECT b1, b2 FROM TbB) AND a > 10");
+        actualFrom(
+                "SELECT * " +
+                        "FROM TbA " +
+                        "WHERE a in (SELECT b1, b2 FROM TbB) AND a > 10");
     }
 
     private String sqlString(SQLObject expr) {
@@ -108,31 +144,22 @@ public class InSubqueryRewriterTest {
     }
 
     private SQLTableSource actualFrom(String sql) {
-        final SQLQueryExpr sqlExpr = query(sql);
+        SQLQueryExpr sqlExpr = parse(sql);
         SubqueryRewriterHelper.rewrite(sqlExpr);
         return ((MySqlSelectQueryBlock) sqlExpr.getSubQuery().getQuery()).getFrom();
     }
 
     private SQLTableSource expectFrom(String sql) {
-        return ((MySqlSelectQueryBlock) query(sql).getSubQuery().getQuery()).getFrom();
+        return ((MySqlSelectQueryBlock) parse(sql).getSubQuery().getQuery()).getFrom();
     }
 
     private SQLExpr actualWhere(String sql) {
-        final SQLQueryExpr sqlExpr = query(sql);
+        SQLQueryExpr sqlExpr = parse(sql);
         SubqueryRewriterHelper.rewrite(sqlExpr);
         return ((MySqlSelectQueryBlock) sqlExpr.getSubQuery().getQuery()).getWhere();
     }
 
     private SQLExpr expectWhere(String sql) {
-        return ((MySqlSelectQueryBlock) query(sql).getSubQuery().getQuery()).getWhere();
-    }
-
-    private SQLQueryExpr query(String sql) {
-        ElasticSqlExprParser parser = new ElasticSqlExprParser(sql);
-        SQLQueryExpr expr = (SQLQueryExpr) parser.expr();
-        if (parser.getLexer().token() != Token.EOF) {
-            throw new ParserException("Illegal sql: " + sql);
-        }
-        return expr;
+        return ((MySqlSelectQueryBlock) parse(sql).getSubQuery().getQuery()).getWhere();
     }
 }

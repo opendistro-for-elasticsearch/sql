@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.parser.subquery.rewriter;
 
-import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLAllColumnExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOperator;
@@ -32,18 +31,35 @@ import java.util.Deque;
 /**
  * Add the alias for identifier the subquery query.
  * Use the table alias if it already has one, Auto generate if it doesn't has one.
+ *
+ * The following table demonstrate how the rewriter works with scope and query.
+ * +-----------------------+-------------+-----------------------------------------------------------------------------------------------------+
+ * | Rewrite               | TableScope  | Query                                                                                               |
+ * +-----------------------+-------------+-----------------------------------------------------------------------------------------------------+
+ * | (Start)               | ()          | SELECT * FROM TbA WHERE a IN (SELECT b FROM TbB) and c > 10                                         |
+ * +-----------------------+-------------+-----------------------------------------------------------------------------------------------------+
+ * | MySqlSelectQueryBlock | (TbA,TbA_0) | SELECT * FROM TbA as TbA_0 WHERE a IN (SELECT b FROM TbB) and c > 10                                |
+ * +-----------------------+-------------+-----------------------------------------------------------------------------------------------------+
+ * | Identifier in Select  | (TbA,TbA_0) | SELECT TbA.* FROM TbA as TbA_0 WHERE a IN (SELECT b FROM TbB) and c > 10                            |
+ * +-----------------------+-------------+-----------------------------------------------------------------------------------------------------+
+ * | Identifier in Where   | (TbA,TbA_0) | SELECT TbA.* FROM TbA as TbA_0 WHERE TbA_0.a IN (SELECT b FROM TbB) and TbA_0.c > 10                |
+ * +-----------------------+-------------+-----------------------------------------------------------------------------------------------------+
+ * | MySqlSelectQueryBlock | (TbA,TbA_0) | SELECT TbA.* FROM TbA as TbA_0 WHERE TbA_0.a IN (SELECT b FROM TbB as TbB_0) and TbA_0.c > 10       |
+ * |                       | (TbB,TbB_0) |                                                                                                     |
+ * +-----------------------+-------------+-----------------------------------------------------------------------------------------------------+
+ * | Identifier in Select  | (TbA,TbA_0) | SELECT TbA.* FROM TbA as TbA_0 WHERE TbA_0.a IN (SELECT TbB_0.b FROM TbB as TbB_0) and TbA_0.c > 10 |
+ * |                       | (TbB,TbB_0) |                                                                                                     |
+ * +-----------------------+-------------+-----------------------------------------------------------------------------------------------------+
+ *
  */
 public class SubqueryAliasRewriter extends MySqlASTVisitorAdapter {
-
-    private Deque<Table> tableScope =  new ArrayDeque<>();
-
+    private final Deque<Table> tableScope = new ArrayDeque<>();
     private int aliasSuffix = 0;
-
     private final static String DOT = ".";
 
     @Override
     public boolean visit(MySqlSelectQueryBlock query) {
-        final SQLExprTableSource from = (SQLExprTableSource) query.getFrom();
+        SQLExprTableSource from = (SQLExprTableSource) query.getFrom();
         String tableName = from.getExpr().toString().replaceAll(" ", "");
 
         if (from.getAlias() != null) {
@@ -52,17 +68,46 @@ public class SubqueryAliasRewriter extends MySqlASTVisitorAdapter {
             from.setAlias(createAlias(tableName));
             tableScope.push(new Table(tableName, from.getAlias()));
         }
-
-        for (SQLSelectItem item : query.getSelectList()) {
-            final SQLExpr itemExpr = item.getExpr();
-            if (itemExpr instanceof SQLIdentifierExpr) {
-                rewrite(tableScope.peek(), (SQLIdentifierExpr)itemExpr);
-            } else if (itemExpr instanceof SQLAllColumnExpr){
-                item.setExpr(createIdentifierExpr(tableScope.peek(), "*"));
-            }
-        }
-
         return true;
+    }
+
+    @Override
+    public boolean visit(SQLIdentifierExpr expr) {
+        if (inSelect(expr) || inWhere(expr) || inSubquery(expr)) {
+            rewrite(tableScope.peek(), expr);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean visit(SQLAllColumnExpr expr) {
+        if (inSelect(expr) ) {
+            ((SQLSelectItem) expr.getParent()).setExpr(createIdentifierExpr(tableScope.peek()));
+        }
+        return true;
+    }
+
+    private boolean inSelect(SQLIdentifierExpr expr) {
+        return expr.getParent() instanceof SQLSelectItem;
+    }
+
+    private boolean inSelect(SQLAllColumnExpr expr) {
+        return expr.getParent() instanceof SQLSelectItem;
+    }
+
+    private boolean inWhere(SQLIdentifierExpr expr) {
+        return expr.getParent() instanceof SQLBinaryOpExpr && !isESTable((SQLBinaryOpExpr) expr.getParent());
+    }
+
+    /**
+     * The table name in elasticsaerch could be "index/type". Which represent as SQLBinaryOpExpr in AST.
+     */
+    private boolean isESTable(SQLBinaryOpExpr expr) {
+        return expr.getOperator() == SQLBinaryOperator.Divide && expr.getParent() instanceof SQLExprTableSource;
+    }
+
+    private boolean inSubquery(SQLIdentifierExpr expr) {
+        return expr.getParent() instanceof SQLInSubQueryExpr;
     }
 
     @Override
@@ -70,42 +115,20 @@ public class SubqueryAliasRewriter extends MySqlASTVisitorAdapter {
         tableScope.pop();
     }
 
-    @Override
-    public void endVisit(SQLBinaryOpExpr expr) {
-        // ignore the es table name, index/account
-        if (expr.getOperator() == SQLBinaryOperator.Divide && expr.getParent() instanceof SQLExprTableSource) {
-            return;
-        }
-
-        if (expr.getLeft() instanceof SQLIdentifierExpr) {
-            rewrite(tableScope.peek(), (SQLIdentifierExpr)expr.getLeft());
-        }
-        if (expr.getRight() instanceof SQLIdentifierExpr) {
-            rewrite(tableScope.peek(), (SQLIdentifierExpr)expr.getRight());
-        }
-    }
-
-    @Override
-    public void endVisit(SQLInSubQueryExpr expr) {
-        if (expr.getExpr() instanceof SQLIdentifierExpr) {
-            rewrite(tableScope.peek(), (SQLIdentifierExpr)expr.getExpr());
-        }
-    }
-
     private void rewrite(Table table, SQLIdentifierExpr expr) {
-        final String tableAlias = table.getAlias();
-        final String tableName = table.getName();
+        String tableAlias = table.getAlias();
+        String tableName = table.getName();
 
-        final String exprName = expr.getName();
+        String exprName = expr.getName();
         if (exprName.startsWith(tableName + DOT) || exprName.startsWith(tableAlias + DOT)) {
-            expr.setName(exprName.replace(tableName + DOT, tableAlias+DOT));
+            expr.setName(exprName.replace(tableName + DOT, tableAlias + DOT));
         } else {
             expr.setName(String.join(DOT, tableAlias, exprName));
         }
     }
 
-    private SQLIdentifierExpr createIdentifierExpr(Table table, String name) {
-        final String newIdentifierName = String.join(DOT, table.getAlias(), name);
+    private SQLIdentifierExpr createIdentifierExpr(Table table) {
+        String newIdentifierName = String.join(DOT, table.getAlias(), "*");
         return new SQLIdentifierExpr(newIdentifierName);
     }
 

@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.unittest.parser.subquery;
 
-import com.amazon.opendistroforelasticsearch.sql.parser.subquery.SubqueryType;
+import com.amazon.opendistroforelasticsearch.sql.parser.subquery.model.SubqueryType;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
@@ -25,11 +25,16 @@ public class SubqueryTypeTest {
 
     @Test
     public void testSupport() {
-        assertTrue(SubqueryType.isSupported(SubqueryType.IN));
+        assertTrue(SubqueryType.IN.isSupported());
     }
 
     @Test
     public void testNotSupport() {
-        assertFalse(SubqueryType.isSupported(SubqueryType.UNSUPPORTED));
+        assertFalse(SubqueryType.UNSUPPORTED.isSupported());
+    }
+
+    @Test
+    public void testNotSubquery() {
+        assertTrue(SubqueryType.NOT_SUBQUERY.isNotSubquery());
     }
 }

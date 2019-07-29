@@ -15,8 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.parser.subquery;
 
-import com.alibaba.druid.sql.ast.SQLExpr;
-import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
+import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
 
 /**
  * Rewrite the Predicate Subquery to JOIN.
@@ -24,12 +23,8 @@ import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
 public interface SubqueryRewriter {
 
     /**
-     * Generate JOIN clause based on subquery.
+     * Rewrite the subquery with correspond JOIN query.
+     * It is NOT idempotent operation.
      */
-    SQLJoinTableSource getFrom();
-
-    /**
-     * Generate WHERE clause based on subquery.
-     */
-    SQLExpr getWhere();
+    void rewrite(MySqlSelectQueryBlock query);
 }

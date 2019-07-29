@@ -17,7 +17,11 @@ package com.amazon.opendistroforelasticsearch.sql.parser.subquery;
 
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
+import com.amazon.opendistroforelasticsearch.sql.parser.subquery.model.SubqueryType;
+import com.amazon.opendistroforelasticsearch.sql.parser.subquery.rewriter.SubqueryAliasRewriter;
 import com.amazon.opendistroforelasticsearch.sql.parser.subquery.visitor.FindSubqueryInWhere;
+
+import java.sql.SQLFeatureNotSupportedException;
 
 /**
  * {@link SubqueryRewriter} Helper Function.
@@ -30,15 +34,20 @@ public class SubqueryRewriterHelper {
      * @param sqlExpr sqlExpr will be rewritten.
      */
     public static void rewrite(SQLQueryExpr sqlExpr) {
-        MySqlSelectQueryBlock rootQuery = (MySqlSelectQueryBlock) sqlExpr.getSubQuery().getQuery();
-        final FindSubqueryInWhere subqueryInWhere = new FindSubqueryInWhere();
+        FindSubqueryInWhere subqueryInWhere = new FindSubqueryInWhere();
         sqlExpr.accept(subqueryInWhere);
 
-        if (subqueryInWhere.subqueryType() == SubqueryType.IN) {
-            final InSubqueryRewriter rewriter = new InSubqueryRewriter(rootQuery,
-                    subqueryInWhere.getSqlInSubQueryExprs().get(0));
-            rootQuery.setFrom(rewriter.getFrom());
-            rootQuery.setWhere(rewriter.getWhere());
+        if (!subqueryInWhere.subquery().getSubqueryType().isSupported()) {
+            throw new IllegalStateException("Unsupported subquery: " + sqlExpr);
+        } else {
+            MySqlSelectQueryBlock rootQuery = (MySqlSelectQueryBlock) sqlExpr.getSubQuery().getQuery();
+            // add the alias for the subquery identifier if missing
+            rootQuery.accept(new SubqueryAliasRewriter());
+            // handle the SubqueryType.IN
+            if (SubqueryType.IN == subqueryInWhere.subquery().getSubqueryType()) {
+                InSubqueryRewriter rewriter = new InSubqueryRewriter(subqueryInWhere.subquery());
+                rewriter.rewrite(rootQuery);
+            }
         }
     }
 
@@ -48,9 +57,16 @@ public class SubqueryRewriterHelper {
      *
      * @return true if it is yes, otherwise false.
      */
-    public static boolean isSubquery(SQLQueryExpr sqlExpr) {
-        final FindSubqueryInWhere whereSubquery = new FindSubqueryInWhere();
+    public static boolean isSubquery(SQLQueryExpr sqlExpr) throws SQLFeatureNotSupportedException {
+        FindSubqueryInWhere whereSubquery = new FindSubqueryInWhere();
         sqlExpr.accept(whereSubquery);
-        return SubqueryType.isSupported(whereSubquery.subqueryType());
+
+        SubqueryType subqueryType = whereSubquery.subquery().getSubqueryType();
+        if (subqueryType.isNotSubquery()) return false;
+        else if (subqueryType.isSupported()) {
+            return true;
+        } else {
+            throw new SQLFeatureNotSupportedException("Unsupported subquery");
+        }
     }
 }

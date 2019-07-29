@@ -23,42 +23,61 @@ import com.alibaba.druid.sql.ast.expr.SQLNullExpr;
 import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource.JoinType;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
-import com.amazon.opendistroforelasticsearch.sql.parser.subquery.rewriter.SubqueryAliasRewriter;
+import com.amazon.opendistroforelasticsearch.sql.parser.subquery.model.Subquery;
 
 /**
  * IN Subquery Rewriter.
  * For example,
- *  SELECT * FROM A WHERE a IN (SELECT b FROM B) should be rewritten to
- *  SELECT A.* FROM A JOIN B ON A.a = B.b.
+ *  SELECT * FROM A WHERE a IN (SELECT b FROM B) and c > 10 should be rewritten to
+ *  SELECT A.* FROM A JOIN B ON A.a = B.b WHERE c > 10 and B.b IS NOT NULL.
  */
 public class InSubqueryRewriter implements SubqueryRewriter {
-
-    private final MySqlSelectQueryBlock rootQuery;
-
     private final SQLInSubQueryExpr inSubQueryExpr;
-
     private final MySqlSelectQueryBlock inSubQuery;
+    private final SQLExpr joinLeftExpr;
+    private final SQLExpr joinRightExpr;
 
-    private SQLExpr joinLeftExpr;
-
-    private SQLExpr joinRightExpr;
-
-    public InSubqueryRewriter(MySqlSelectQueryBlock rootQuery, SQLInSubQueryExpr inSubQueryExpr) {
-        rootQuery.accept0(new SubqueryAliasRewriter());
-        this.rootQuery = rootQuery;
-        this.inSubQueryExpr = inSubQueryExpr;
+    public InSubqueryRewriter(Subquery subquery) {
+        this.inSubQueryExpr = (SQLInSubQueryExpr) subquery.getSubQueryExpr();
         this.inSubQuery = (MySqlSelectQueryBlock) inSubQueryExpr.getSubQuery().getQuery();
-
         joinLeftExpr = inSubQueryExpr.getExpr();
         joinRightExpr = rightExpr(inSubQuery);
     }
 
     /**
-     * {@inheritDoc}
+     * Rewrite the subquery with JOIN clause. This API is NOT idempotent.
+     *
+     * @param query Subquery will be written.
      */
     @Override
-    public SQLJoinTableSource getFrom() {
-        final SQLJoinTableSource sqlJoin = new SQLJoinTableSource();
+    public void rewrite(MySqlSelectQueryBlock query) {
+        query.setFrom(buildFrom(query));
+        query.setWhere(buildWhere(query));
+    }
+
+    /**
+     * Build From clause from input query.
+     *
+     * With the input query.
+     *       Query
+     *     /   |   \
+     * SELECT FROM     WHERE
+     *    |    |     /   |  \
+     *    *    A  c>10 AND INSubquery
+     *                      /    \
+     *                     a    Query
+     *                          /    \
+     *                       SELECT FORM
+     *                         |     |
+     *                         b     B
+     *
+     * The FROM logic should be
+     *     JOIN
+     *     / | \
+     *    A  B A.a == B.b
+     */
+    private SQLJoinTableSource buildFrom(MySqlSelectQueryBlock rootQuery) {
+        SQLJoinTableSource sqlJoin = new SQLJoinTableSource();
         sqlJoin.setLeft(rootQuery.getFrom());
         sqlJoin.setRight(inSubQuery.getFrom());
         sqlJoin.setCondition(new SQLBinaryOpExpr(joinLeftExpr, SQLBinaryOperator.Equality, joinRightExpr));
@@ -68,10 +87,27 @@ public class InSubqueryRewriter implements SubqueryRewriter {
     }
 
     /**
-     * {@inheritDoc}
+     * Build Where clause from input query.
+     *
+     * With the input query.
+     *       Query
+     *     /   |   \
+     * SELECT FROM     WHERE
+     *    |    |     /   |  \
+     *    *    A  c>10 AND INSubquery
+     *                      /    \
+     *                     a    Query
+     *                          /    \
+     *                       SELECT FORM
+     *                         |     |
+     *                         b     B
+     *
+     *
+     *     WHERE
+     *     /  |   \
+     *   c>10 AND B.b is NOT NULL
      */
-    @Override
-    public SQLExpr getWhere() {
+    private SQLExpr buildWhere(MySqlSelectQueryBlock rootQuery) {
         return rewriteSubquery(rootQuery.getWhere());
     }
 
@@ -96,13 +132,11 @@ public class InSubqueryRewriter implements SubqueryRewriter {
     }
 
     private SQLBinaryOpExpr createSubqueryReplacementCondition() {
-        /**
-         * IN subquery is rewritten to JOIN, the null value from the right table should be filtered out.
-         */
+        // IN subquery is rewritten to JOIN, the null value from the right table should be filtered out.
         SQLBinaryOpExpr replacementCond = new SQLBinaryOpExpr(joinRightExpr,
                 inSubQueryExpr.isNot() ? SQLBinaryOperator.Is : SQLBinaryOperator.IsNot,
                 new SQLNullExpr());
-        final SQLExpr subqueryWhere = inSubQuery.getWhere();
+        SQLExpr subqueryWhere = inSubQuery.getWhere();
         if (subqueryWhere == null) {
             return replacementCond;
         } else {

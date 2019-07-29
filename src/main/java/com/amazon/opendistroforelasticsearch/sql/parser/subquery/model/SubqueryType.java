@@ -13,22 +13,27 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.parser.subquery;
+package com.amazon.opendistroforelasticsearch.sql.parser.subquery.model;
 
 public enum SubqueryType {
     /**
      * SELECT * FROM A WHERE a IN (SELECT * FROM B)
      */
     IN(0),
-    UNSUPPORTED(32);
+    UNSUPPORTED(32),
+    NOT_SUBQUERY(33);
 
-    private int v;
+    private int id;
 
-    SubqueryType(int v) {
-        this.v = v;
+    SubqueryType(int id) {
+        this.id = id;
     }
 
-    public static boolean isSupported(SubqueryType subqueryType) {
-        return subqueryType.v < SubqueryType.UNSUPPORTED.v;
+    public boolean isSupported() {
+        return id < SubqueryType.UNSUPPORTED.id;
+    }
+
+    public boolean isNotSubquery() {
+        return id == SubqueryType.NOT_SUBQUERY.id;
     }
 }

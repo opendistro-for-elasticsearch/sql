@@ -15,35 +15,43 @@
 
 package com.amazon.opendistroforelasticsearch.sql.unittest.parser.subquery;
 
-import com.alibaba.druid.sql.ast.SQLExpr;
-import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
-import com.alibaba.druid.sql.parser.ParserException;
-import com.alibaba.druid.sql.parser.Token;
-import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
 import com.amazon.opendistroforelasticsearch.sql.parser.subquery.SubqueryRewriterHelper;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
+import java.sql.SQLFeatureNotSupportedException;
+
+import static com.amazon.opendistroforelasticsearch.sql.util.SqlParserUtils.parse;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class SubqueryRewriterHelperTest {
 
+    @Rule
+    public ExpectedException exceptionRule = ExpectedException.none();
+
     @Test
-    public void isSubquery(){
-        assertTrue(SubqueryRewriterHelper.isSubquery(parse("SELECT * FROM A WHERE a IN (SELECT b FROM B)")));
+    public void isSubquery() throws Exception {
+        assertTrue(SubqueryRewriterHelper.isSubquery(parse(
+                "SELECT * " +
+                        "FROM A " +
+                        "WHERE a IN (SELECT b FROM B)")));
     }
 
     @Test
-    public void notSupportedSubquery(){
-        assertFalse(SubqueryRewriterHelper.isSubquery(parse("SELECT * FROM A WHERE a NOT IN (SELECT * FROM B)")));
+    public void notSubquery() throws Exception {
+        assertFalse(SubqueryRewriterHelper.isSubquery(parse(
+                "SELECT * FROM A")));
     }
 
-    private SQLQueryExpr parse(String sql) {
-        ElasticSqlExprParser parser = new ElasticSqlExprParser(sql);
-        SQLExpr expr = parser.expr();
-        if (parser.getLexer().token() != Token.EOF) {
-            throw new ParserException("Illegal sql: " + sql);
-        }
-        return (SQLQueryExpr) expr;
+    @Test
+    public void notSupportedSubquery() throws Exception {
+        exceptionRule.expect(SQLFeatureNotSupportedException.class);
+        exceptionRule.expectMessage("Unsupported subquery");
+        assertFalse(SubqueryRewriterHelper.isSubquery(parse(
+                "SELECT * " +
+                        "FROM A " +
+                        "WHERE a NOT IN (SELECT b FROM B)")));
     }
 }

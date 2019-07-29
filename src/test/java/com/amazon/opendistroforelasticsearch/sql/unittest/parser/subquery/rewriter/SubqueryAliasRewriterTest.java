@@ -18,12 +18,10 @@ package com.amazon.opendistroforelasticsearch.sql.unittest.parser.subquery.rewri
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
-import com.alibaba.druid.sql.parser.ParserException;
-import com.alibaba.druid.sql.parser.Token;
-import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
 import com.amazon.opendistroforelasticsearch.sql.parser.subquery.rewriter.SubqueryAliasRewriter;
 import org.junit.Test;
 
+import static com.amazon.opendistroforelasticsearch.sql.util.SqlParserUtils.parse;
 import static org.junit.Assert.assertEquals;
 
 public class SubqueryAliasRewriterTest {
@@ -31,101 +29,114 @@ public class SubqueryAliasRewriterTest {
     @Test
     public void testWithoutAlias() {
         assertEquals(
-                sqlString(
-                        parse(
-                                "SELECT TbA_0.* FROM TbA as TbA_0 WHERE TbA_0.a IN (SELECT TbB_1.b FROM TbB as TbB_1) and TbA_0.c > 10")),
-                sqlString(
-                        rewrite(parse(
-                                "SELECT * FROM TbA WHERE a IN (SELECT b FROM TbB) and c > 10"))));
+                sqlString(parse(
+                        "SELECT TbA_0.* " +
+                                "FROM TbA as TbA_0 " +
+                                "WHERE TbA_0.a IN (SELECT TbB_1.b FROM TbB as TbB_1) and TbA_0.c > 10")),
+                sqlString(rewrite(parse(
+                        "SELECT * " +
+                                "FROM TbA " +
+                                "WHERE a IN (SELECT b FROM TbB) and c > 10"))));
     }
 
     @Test
     public void testWithAlias() {
         assertEquals(
-                sqlString(
-                        parse(
-                                "SELECT A.* FROM TbA as A WHERE A.a IN (SELECT B.b FROM TbB as B) and A.c > 10")),
-                sqlString(
-                        rewrite(parse(
-                                "SELECT A.* FROM TbA as A WHERE A.a IN (SELECT B.b FROM TbB as B) and A.c > 10"))));
+                sqlString(parse(
+                        "SELECT A.* " +
+                                "FROM TbA as A " +
+                                "WHERE A.a IN (SELECT B.b FROM TbB as B) " +
+                                "AND A.c > 10")),
+                sqlString(rewrite(parse(
+                        "SELECT A.* " +
+                                "FROM TbA as A " +
+                                "WHERE A.a IN (SELECT B.b FROM TbB as B) " +
+                                "AND A.c > 10"))));
     }
 
     @Test
     public void testOuterWithoutAliasInnerWithAlias() {
         assertEquals(
-                sqlString(
-                        parse(
-                                "SELECT TbA_0.* FROM TbA as TbA_0 WHERE TbA_0.a IN (SELECT TbB.b FROM TbB as TbB) and TbA_0.c > 10")),
-                sqlString(
-                        rewrite(parse(
-                                "SELECT * FROM TbA WHERE a IN (SELECT TbB.b FROM TbB as TbB) and c > 10"))));
+                sqlString(parse(
+                        "SELECT TbA_0.* " +
+                                "FROM TbA as TbA_0 " +
+                                "WHERE TbA_0.a IN (SELECT TbB.b FROM TbB as TbB) " +
+                                "AND TbA_0.c > 10")),
+                sqlString(rewrite(parse(
+                        "SELECT * " +
+                                "FROM TbA " +
+                                "WHERE a IN (SELECT TbB.b FROM TbB as TbB) " +
+                                "AND c > 10"))));
     }
 
     @Test
     public void testOuterWithoutAliasInnerMixAlias() {
-        String expect = "SELECT TbA_0.* FROM TbA as TbA_0 WHERE TbA_0.a IN (SELECT B.b FROM TbB as B) and TbA_0.c > 10";
+        String expect =
+                "SELECT TbA_0.* " +
+                        "FROM TbA as TbA_0 " +
+                        "WHERE TbA_0.a IN (SELECT B.b FROM TbB as B) " +
+                        "AND TbA_0.c > 10";
 
         assertEquals(
-                sqlString(
-                        parse(
-                                expect)),
-                sqlString(
-                        rewrite(parse(
-                                "SELECT * FROM TbA WHERE a IN (SELECT b FROM TbB as B) and c > 10"))));
+                sqlString(parse(expect)),
+                sqlString(rewrite(parse(
+                        "SELECT * " +
+                                "FROM TbA " +
+                                "WHERE a IN (SELECT b FROM TbB as B) " +
+                                "AND c > 10"))));
 
         assertEquals(
-                sqlString(
-                        parse(
-                                expect)),
-                sqlString(
-                        rewrite(parse(
-                                "SELECT * FROM TbA WHERE a IN (SELECT TbB.b FROM TbB as B) and c > 10"))));
+                sqlString(parse(expect)),
+                sqlString(rewrite(parse(
+                        "SELECT * " +
+                                "FROM TbA " +
+                                "WHERE a IN (SELECT TbB.b FROM TbB as B) " +
+                                "AND c > 10"))));
     }
 
     @Test
     public void testOuterWithAliasInnerWithoutAlias() {
         assertEquals(
-                sqlString(
-                        parse(
-                                "SELECT TbA.* FROM TbA as TbA WHERE TbA.a IN (SELECT TbB_0.b FROM TbB as TbB_0) and TbA.c > 10")),
-                sqlString(
-                        rewrite(parse(
-                                "SELECT TbA.* FROM TbA as TbA WHERE TbA.a IN (SELECT b FROM TbB ) and TbA.c > 10"))));
+                sqlString(parse(
+                        "SELECT TbA.* " +
+                                "FROM TbA as TbA " +
+                                "WHERE TbA.a IN (SELECT TbB_0.b FROM TbB as TbB_0) " +
+                                "AND TbA.c > 10")),
+                sqlString(rewrite(parse(
+                        "SELECT TbA.* " +
+                                "FROM TbA as TbA " +
+                                "WHERE TbA.a IN (SELECT b FROM TbB ) " +
+                                "AND TbA.c > 10"))));
     }
 
     @Test
     public void testOuterMixAliasInnerWithoutAlias() {
-        String expect = "SELECT A.* FROM TbA as A WHERE A.a IN (SELECT TbB_0.b FROM TbB as TbB_0) and A.c > 10";
+        String expect =
+                "SELECT A.* " +
+                        "FROM TbA as A " +
+                        "WHERE A.a IN (SELECT TbB_0.b FROM TbB as TbB_0) " +
+                        "AND A.c > 10";
 
         assertEquals(
-                sqlString(
-                        parse(
-                                expect)),
-                sqlString(rewrite(
-                        parse(
-                                "SELECT TbA.* FROM TbA as A WHERE a IN (SELECT b FROM TbB ) and TbA.c > 10"))));
+                sqlString(parse(expect)),
+                sqlString(rewrite(parse(
+                        "SELECT TbA.* " +
+                                "FROM TbA as A " +
+                                "WHERE a IN (SELECT b FROM TbB ) " +
+                                "AND TbA.c > 10"))));
 
         assertEquals(
-                sqlString(
-                        parse(
-                                expect)),
-                sqlString(
-                        rewrite(parse(
-                                "SELECT * FROM TbA as A WHERE TbA.a IN (SELECT b FROM TbB ) and TbA.c > 10"))));
+                sqlString(parse(expect)),
+                sqlString(rewrite(parse(
+                        "SELECT * " +
+                                "FROM TbA as A " +
+                                "WHERE TbA.a IN (SELECT b FROM TbB ) " +
+                                "AND TbA.c > 10"))));
     }
 
 
     private String sqlString(SQLExpr expr) {
         return SQLUtils.toMySqlString(expr);
-    }
-
-    private SQLQueryExpr parse(String sql) {
-        ElasticSqlExprParser parser = new ElasticSqlExprParser(sql);
-        SQLExpr expr = parser.expr();
-        if (parser.getLexer().token() != Token.EOF) {
-            throw new ParserException("Illegal sql: " + sql);
-        }
-        return (SQLQueryExpr) expr;
     }
 
     private SQLQueryExpr rewrite(SQLQueryExpr expr) {

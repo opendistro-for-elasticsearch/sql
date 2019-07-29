@@ -15,96 +15,67 @@
 
 package com.amazon.opendistroforelasticsearch.sql.unittest.parser.subquery.visitor;
 
-import com.alibaba.druid.sql.ast.SQLExpr;
-import com.alibaba.druid.sql.ast.expr.SQLExistsExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInSubQueryExpr;
-import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
-import com.alibaba.druid.sql.parser.ParserException;
-import com.alibaba.druid.sql.parser.Token;
-import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
-import com.amazon.opendistroforelasticsearch.sql.parser.subquery.SubqueryType;
+import com.amazon.opendistroforelasticsearch.sql.parser.subquery.model.SubqueryType;
 import com.amazon.opendistroforelasticsearch.sql.parser.subquery.visitor.FindSubqueryInWhere;
 import org.junit.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
+import static com.amazon.opendistroforelasticsearch.sql.util.SqlParserUtils.parse;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 
 public class FindSubqueryInWhereTest {
 
     @Test
-    public void findIN() {
+    public void findIn() {
         String sql = "SELECT * FROM A WHERE a IN (SELECT b FROM B)";
-        final FindSubqueryInWhere subqueryInWhere = new FindSubqueryInWhere();
+        FindSubqueryInWhere subqueryInWhere = new FindSubqueryInWhere();
         parse(sql).accept(subqueryInWhere);
 
-        assertEquals(SubqueryType.IN, subqueryInWhere.subqueryType());
-        assertEquals(1, subqueryInWhere.getSqlInSubQueryExprs().size());
-        assertThat(subqueryInWhere.getSqlInSubQueryExprs().get(0), is(instanceOf(SQLInSubQueryExpr.class)));
-        assertFalse(subqueryInWhere.getSqlInSubQueryExprs().get(0).isNot());
-        assertEquals(0, subqueryInWhere.getSqlExistsExprs().size());
+        assertEquals(SubqueryType.IN, subqueryInWhere.subquery().getSubqueryType());
+        assertThat(subqueryInWhere.subquery().getSubQueryExpr(), is(instanceOf(SQLInSubQueryExpr.class)));
     }
 
     @Test
-    public void findNOTIN() {
+    public void findNotIn() {
         String sql = "SELECT * FROM A WHERE a NOT IN (SELECT b FROM B)";
-        final FindSubqueryInWhere subqueryInWhere = new FindSubqueryInWhere();
+        FindSubqueryInWhere subqueryInWhere = new FindSubqueryInWhere();
         parse(sql).accept(subqueryInWhere);
 
-        assertEquals(SubqueryType.UNSUPPORTED, subqueryInWhere.subqueryType());
-        assertEquals(1, subqueryInWhere.getSqlInSubQueryExprs().size());
-        assertThat(subqueryInWhere.getSqlInSubQueryExprs().get(0), is(instanceOf(SQLInSubQueryExpr.class)));
-        assertTrue(subqueryInWhere.getSqlInSubQueryExprs().get(0).isNot());
-        assertEquals(0, subqueryInWhere.getSqlExistsExprs().size());
+        assertEquals(SubqueryType.UNSUPPORTED, subqueryInWhere.subquery().getSubqueryType());
+        assertNull(subqueryInWhere.subquery().getSubQueryExpr());
     }
 
     @Test
-    public void findEXIST() {
+    public void findExist() {
         String sql = "SELECT * FROM A WHERE EXISTS (SELECT 1 FROM B WHERE A.a_v = B.b_v)";
-        final FindSubqueryInWhere subqueryInWhere = new FindSubqueryInWhere();
+        FindSubqueryInWhere subqueryInWhere = new FindSubqueryInWhere();
         parse(sql).accept(subqueryInWhere);
 
-        assertEquals(SubqueryType.UNSUPPORTED, subqueryInWhere.subqueryType());
-        assertEquals(1, subqueryInWhere.getSqlExistsExprs().size());
-        assertThat(subqueryInWhere.getSqlExistsExprs().get(0), is(instanceOf(SQLExistsExpr.class)));
-        assertFalse(subqueryInWhere.getSqlExistsExprs().get(0).isNot());
-        assertEquals(0, subqueryInWhere.getSqlInSubQueryExprs().size());
+        assertEquals(SubqueryType.UNSUPPORTED, subqueryInWhere.subquery().getSubqueryType());
+        assertNull(subqueryInWhere.subquery().getSubQueryExpr());
     }
 
     @Test
-    public void findNOTEXIST() {
+    public void findNotExist() {
         String sql = "SELECT * FROM A WHERE NOT EXISTS (SELECT 1 FROM B WHERE A.a_v = B.b_v)";
-        final FindSubqueryInWhere subqueryInWhere = new FindSubqueryInWhere();
+        FindSubqueryInWhere subqueryInWhere = new FindSubqueryInWhere();
         parse(sql).accept(subqueryInWhere);
 
-        assertEquals(SubqueryType.UNSUPPORTED, subqueryInWhere.subqueryType());
-        assertEquals(1, subqueryInWhere.getSqlExistsExprs().size());
-        assertThat(subqueryInWhere.getSqlExistsExprs().get(0), is(instanceOf(SQLExistsExpr.class)));
-        assertTrue(subqueryInWhere.getSqlExistsExprs().get(0).isNot());
-        assertEquals(0, subqueryInWhere.getSqlInSubQueryExprs().size());
+        assertEquals(SubqueryType.UNSUPPORTED, subqueryInWhere.subquery().getSubqueryType());
+        assertNull(subqueryInWhere.subquery().getSubQueryExpr());
     }
 
     @Test
-    public void findINatSelect() {
-        String sql = "SELECT A.v, (SELECT  MAX(b) FROM B WHERE A.id = B.id) max_age  FROM A";
-        final FindSubqueryInWhere subqueryInWhere = new FindSubqueryInWhere();
-        final SQLQueryExpr parse = parse(sql);
+    public void findInAtSelect() {
+        String sql = "SELECT A.v as v, (SELECT MAX(b) FROM B WHERE A.id = B.id) as max_age FROM A";
+        FindSubqueryInWhere subqueryInWhere = new FindSubqueryInWhere();
         parse(sql).accept(subqueryInWhere);
 
-        assertEquals(SubqueryType.UNSUPPORTED, subqueryInWhere.subqueryType());
-        assertEquals(0, subqueryInWhere.getSqlInSubQueryExprs().size());
-        assertEquals(0, subqueryInWhere.getSqlExistsExprs().size());
-    }
-
-    private SQLQueryExpr parse(String sql) {
-        ElasticSqlExprParser parser = new ElasticSqlExprParser(sql);
-        SQLExpr expr = parser.expr();
-        if (parser.getLexer().token() != Token.EOF) {
-            throw new ParserException("Illegal sql: " + sql);
-        }
-        return (SQLQueryExpr) expr;
+        assertEquals(SubqueryType.NOT_SUBQUERY, subqueryInWhere.subquery().getSubqueryType());
+        assertNull(subqueryInWhere.subquery().getSubQueryExpr());
     }
 }

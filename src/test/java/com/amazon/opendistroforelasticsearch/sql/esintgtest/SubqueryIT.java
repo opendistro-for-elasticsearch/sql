@@ -15,9 +15,13 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
+import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
+import org.elasticsearch.client.ResponseException;
 import org.json.JSONObject;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -32,6 +36,10 @@ import static org.hamcrest.core.Is.is;
 
 public class SubqueryIT extends SQLIntegTestCase {
 
+    @Rule
+    public ExpectedException exceptionRule = ExpectedException.none();
+
+
     @Override
     protected void init() throws Exception {
         loadIndex(Index.ACCOUNT);
@@ -39,19 +47,13 @@ public class SubqueryIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void test() throws IOException {
-        String query = String.format("SELECT * FROM %s/dog A JOIN %s/account B ON A.v = B.v",
-                TEST_INDEX_DOGSUBQUERY, TEST_INDEX_ACCOUNT);
-        System.out.println(explainQuery(query));
-    }
-
-    @Test
     public void testIN() throws IOException {
-        String query = String.format(Locale.ROOT, "SELECT dog_name " +
-                        "FROM %s/dog A " +
-                        "WHERE holdersName IN (SELECT firstname FROM %s/account B) AND dog_name <> 'babala'",
+        String query = String.format(Locale.ROOT,
+                "SELECT dog_name " +
+                            "FROM %s/dog A " +
+                            "WHERE holdersName IN (SELECT firstname FROM %s/account B) " +
+                            "AND dog_name <> 'babala'",
                 TEST_INDEX_DOGSUBQUERY, TEST_INDEX_ACCOUNT);
-        System.out.println(explainQuery(query));
 
         JSONObject response = executeQuery(query);
         assertThat(
@@ -65,9 +67,11 @@ public class SubqueryIT extends SQLIntegTestCase {
 
     @Test
     public void testINWithAlias() throws IOException {
-        String query = String.format(Locale.ROOT, "SELECT A.dog_name " +
-                        "FROM %s/dog A " +
-                        "WHERE A.holdersName IN (SELECT B.firstname FROM %s/account B) AND A.dog_name <> 'babala'",
+        String query = String.format(Locale.ROOT,
+                "SELECT A.dog_name " +
+                            "FROM %s/dog A " +
+                            "WHERE A.holdersName IN (SELECT B.firstname FROM %s/account B) " +
+                            "AND A.dog_name <> 'babala'",
                 TEST_INDEX_DOGSUBQUERY, TEST_INDEX_ACCOUNT);
 
         JSONObject response = executeQuery(query);
@@ -82,9 +86,11 @@ public class SubqueryIT extends SQLIntegTestCase {
 
     @Test
     public void testINSelectAll() throws IOException {
-        String query = String.format(Locale.ROOT, "SELECT * " +
-                        "FROM %s/dog A " +
-                        "WHERE holdersName IN (SELECT firstname FROM %s/account B) AND dog_name <> 'babala'",
+        String query = String.format(Locale.ROOT,
+                "SELECT * " +
+                            "FROM %s/dog A " +
+                            "WHERE holdersName IN (SELECT firstname FROM %s/account B) " +
+                            "AND dog_name <> 'babala'",
                 TEST_INDEX_DOGSUBQUERY, TEST_INDEX_ACCOUNT);
 
         JSONObject response = executeQuery(query);
@@ -103,9 +109,11 @@ public class SubqueryIT extends SQLIntegTestCase {
 
     @Test
     public void testINWithInnerWhere() throws IOException {
-        String query = String.format(Locale.ROOT, "SELECT dog_name " +
-                        "FROM %s/dog A " +
-                        "WHERE holdersName IN (SELECT firstname FROM %s/account B WHERE age <> 36) AND dog_name <> 'babala'",
+        String query = String.format(Locale.ROOT,
+                "SELECT dog_name " +
+                            "FROM %s/dog A " +
+                            "WHERE holdersName IN (SELECT firstname FROM %s/account B WHERE age <> 36) " +
+                            "AND dog_name <> 'babala'",
                 TEST_INDEX_DOGSUBQUERY, TEST_INDEX_ACCOUNT);
 
         JSONObject response = executeQuery(query);
@@ -117,13 +125,27 @@ public class SubqueryIT extends SQLIntegTestCase {
         );
     }
 
+    @Test
+    public void testNotSupportedQuery() throws IOException {
+        exceptionRule.expect(ResponseException.class);
+        exceptionRule.expectMessage("Unsupported subquery");
+        String query = String.format(Locale.ROOT,
+                "SELECT dog_name " +
+                        "FROM %s/dog A " +
+                        "WHERE holdersName NOT IN (SELECT firstname FROM %s/account B WHERE age <> 36) " +
+                        "AND dog_name <> 'babala'",
+                TEST_INDEX_DOGSUBQUERY, TEST_INDEX_ACCOUNT);
+        executeQuery(query);
+    }
+
     // todo Pending on DISTINCT support in JOIN
     @Ignore
     @Test
     public void testINWithDuplicate() throws IOException {
-        String query = String.format(Locale.ROOT, "SELECT dog_name " +
-                        "FROM %s/dog A " +
-                        "WHERE holdersName IN (SELECT firstname FROM %s/account B)",
+        String query = String.format(Locale.ROOT,
+                "SELECT dog_name " +
+                            "FROM %s/dog A " +
+                            "WHERE holdersName IN (SELECT firstname FROM %s/account B)",
                 TEST_INDEX_DOGSUBQUERY, TEST_INDEX_ACCOUNT);
 
         JSONObject response = executeQuery(query);

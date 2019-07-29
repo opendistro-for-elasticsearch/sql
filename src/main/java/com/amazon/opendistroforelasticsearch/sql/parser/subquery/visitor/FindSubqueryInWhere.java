@@ -19,45 +19,31 @@ import com.alibaba.druid.sql.ast.expr.SQLExistsExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInSubQueryExpr;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
-import com.amazon.opendistroforelasticsearch.sql.parser.subquery.SubqueryType;
+import com.amazon.opendistroforelasticsearch.sql.parser.subquery.model.Subquery;
+import com.amazon.opendistroforelasticsearch.sql.parser.subquery.model.SubqueryType;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Find all the {@link SQLInSubQueryExpr} and {@link SQLExistsExpr} in the {@link SQLQueryExpr}
+ * Find the {@link SQLInSubQueryExpr} and {@link SQLExistsExpr} in the {@link SQLQueryExpr}
  */
 public class FindSubqueryInWhere extends MySqlASTVisitorAdapter {
-
     private final List<SQLInSubQueryExpr> sqlInSubQueryExprs = new ArrayList<>();
-
     private final List<SQLExistsExpr> sqlExistsExprs = new ArrayList<>();
 
     /**
-     * Get all the {@link SQLInSubQueryExpr}
+     * Return Subquery
+     * @return {@link Subquery}
      */
-    public List<SQLInSubQueryExpr> getSqlInSubQueryExprs() {
-        return sqlInSubQueryExprs;
-    }
-
-    /**
-     * Get all the {@link SQLExistsExpr}
-     */
-    public List<SQLExistsExpr> getSqlExistsExprs() {
-        return sqlExistsExprs;
-    }
-
-
-    /**
-     * @return {@link SubqueryType}
-     */
-    public SubqueryType subqueryType() {
-        if (getSqlInSubQueryExprs().size() == 1 &&
-                getSqlExistsExprs().size() == 0 &&
-                !getSqlInSubQueryExprs().get(0).isNot()) {
-            return SubqueryType.IN;
+    public Subquery subquery() {
+        if (sqlExistsExprs.isEmpty() && sqlInSubQueryExprs.isEmpty()) return new Subquery(SubqueryType.NOT_SUBQUERY);
+        if (sqlInSubQueryExprs.size() == 1 &&
+                sqlExistsExprs.isEmpty() &&
+                !sqlInSubQueryExprs.get(0).isNot()) {
+            return new Subquery(SubqueryType.IN, sqlInSubQueryExprs.get(0));
         }
-        return SubqueryType.UNSUPPORTED;
+        return new Subquery(SubqueryType.UNSUPPORTED);
     }
 
     @Override
