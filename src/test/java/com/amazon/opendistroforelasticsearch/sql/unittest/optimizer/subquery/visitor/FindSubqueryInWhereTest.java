@@ -13,17 +13,18 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.unittest.parser.subquery.visitor;
+package com.amazon.opendistroforelasticsearch.sql.unittest.optimizer.subquery.visitor;
 
 import com.alibaba.druid.sql.ast.expr.SQLInSubQueryExpr;
-import com.amazon.opendistroforelasticsearch.sql.parser.subquery.model.SubqueryType;
-import com.amazon.opendistroforelasticsearch.sql.parser.subquery.visitor.FindSubqueryInWhere;
+import com.amazon.opendistroforelasticsearch.sql.optimizer.subquery.model.SubqueryType;
+import com.amazon.opendistroforelasticsearch.sql.optimizer.subquery.visitor.FindSubqueryInWhere;
 import org.junit.Test;
 
 import static com.amazon.opendistroforelasticsearch.sql.util.SqlParserUtils.parse;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
@@ -35,8 +36,8 @@ public class FindSubqueryInWhereTest {
         FindSubqueryInWhere subqueryInWhere = new FindSubqueryInWhere();
         parse(sql).accept(subqueryInWhere);
 
-        assertEquals(SubqueryType.IN, subqueryInWhere.subquery().getSubqueryType());
-        assertThat(subqueryInWhere.subquery().getSubQueryExpr(), is(instanceOf(SQLInSubQueryExpr.class)));
+        assertEquals(SubqueryType.IN, subqueryInWhere.subquery().get().getSubqueryType());
+        assertThat(subqueryInWhere.subquery().get().getSubQueryExpr(), is(instanceOf(SQLInSubQueryExpr.class)));
     }
 
     @Test
@@ -45,8 +46,8 @@ public class FindSubqueryInWhereTest {
         FindSubqueryInWhere subqueryInWhere = new FindSubqueryInWhere();
         parse(sql).accept(subqueryInWhere);
 
-        assertEquals(SubqueryType.UNSUPPORTED, subqueryInWhere.subquery().getSubqueryType());
-        assertNull(subqueryInWhere.subquery().getSubQueryExpr());
+        assertEquals(SubqueryType.UNSUPPORTED, subqueryInWhere.subquery().get().getSubqueryType());
+        assertNull(subqueryInWhere.subquery().get().getSubQueryExpr());
     }
 
     @Test
@@ -55,8 +56,8 @@ public class FindSubqueryInWhereTest {
         FindSubqueryInWhere subqueryInWhere = new FindSubqueryInWhere();
         parse(sql).accept(subqueryInWhere);
 
-        assertEquals(SubqueryType.UNSUPPORTED, subqueryInWhere.subquery().getSubqueryType());
-        assertNull(subqueryInWhere.subquery().getSubQueryExpr());
+        assertEquals(SubqueryType.UNSUPPORTED, subqueryInWhere.subquery().get().getSubqueryType());
+        assertNull(subqueryInWhere.subquery().get().getSubQueryExpr());
     }
 
     @Test
@@ -65,8 +66,8 @@ public class FindSubqueryInWhereTest {
         FindSubqueryInWhere subqueryInWhere = new FindSubqueryInWhere();
         parse(sql).accept(subqueryInWhere);
 
-        assertEquals(SubqueryType.UNSUPPORTED, subqueryInWhere.subquery().getSubqueryType());
-        assertNull(subqueryInWhere.subquery().getSubQueryExpr());
+        assertEquals(SubqueryType.UNSUPPORTED, subqueryInWhere.subquery().get().getSubqueryType());
+        assertNull(subqueryInWhere.subquery().get().getSubQueryExpr());
     }
 
     @Test
@@ -75,7 +76,6 @@ public class FindSubqueryInWhereTest {
         FindSubqueryInWhere subqueryInWhere = new FindSubqueryInWhere();
         parse(sql).accept(subqueryInWhere);
 
-        assertEquals(SubqueryType.NOT_SUBQUERY, subqueryInWhere.subquery().getSubqueryType());
-        assertNull(subqueryInWhere.subquery().getSubQueryExpr());
+        assertFalse(subqueryInWhere.subquery().isPresent());
     }
 }

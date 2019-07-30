@@ -13,49 +13,46 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.unittest.parser.subquery;
+package com.amazon.opendistroforelasticsearch.sql.unittest.optimizer.subquery;
 
-import com.amazon.opendistroforelasticsearch.sql.parser.subquery.SubqueryRewriterHelper;
+import com.amazon.opendistroforelasticsearch.sql.optimizer.subquery.SubqueryOptimizeRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.sql.SQLFeatureNotSupportedException;
 
-import static com.amazon.opendistroforelasticsearch.sql.parser.subquery.SubqueryRewriterHelper.subquery;
 import static com.amazon.opendistroforelasticsearch.sql.util.SqlParserUtils.parse;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class SubqueryRewriterHelperTest {
+public class SubqueryOptimizeRuleTest {
+    final SubqueryOptimizeRule optimizeRule = new SubqueryOptimizeRule();
 
     @Rule
     public ExpectedException exceptionRule = ExpectedException.none();
 
     @Test
-    public void isSubquery() throws Exception {
-        assertTrue(SubqueryRewriterHelper.isSubquery(
-                subquery(parse(
+    public void isMatch() throws Exception {
+        assertTrue(optimizeRule.match(parse(
                 "SELECT * " +
                         "FROM A " +
-                        "WHERE a IN (SELECT b FROM B)"))));
+                        "WHERE a IN (SELECT b FROM B)")));
     }
 
     @Test
-    public void notSubquery() throws Exception {
-        assertFalse(SubqueryRewriterHelper.isSubquery(
-                subquery(parse(
-                "SELECT * FROM A"))));
+    public void notMatch() throws Exception {
+        assertFalse(optimizeRule.match(parse(
+                "SELECT * FROM A")));
     }
 
     @Test
     public void notSupportedSubquery() throws Exception {
         exceptionRule.expect(SQLFeatureNotSupportedException.class);
         exceptionRule.expectMessage("Unsupported subquery");
-        assertFalse(SubqueryRewriterHelper.isSubquery(
-                subquery(parse(
+        assertFalse(optimizeRule.match(parse(
                 "SELECT * " +
                         "FROM A " +
-                        "WHERE a NOT IN (SELECT b FROM B)"))));
+                        "WHERE a NOT IN (SELECT b FROM B)")));
     }
 }

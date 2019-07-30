@@ -13,12 +13,12 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.unittest.parser.subquery.rewriter;
+package com.amazon.opendistroforelasticsearch.sql.unittest.optimizer.subquery.rewriter;
 
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
-import com.amazon.opendistroforelasticsearch.sql.parser.subquery.rewriter.SubqueryAliasRewriter;
+import com.amazon.opendistroforelasticsearch.sql.optimizer.subquery.rewriter.SubqueryAliasRewriter;
 import org.junit.Test;
 
 import static com.amazon.opendistroforelasticsearch.sql.util.SqlParserUtils.parse;

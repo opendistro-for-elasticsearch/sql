@@ -13,17 +13,18 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.parser.subquery.visitor;
+package com.amazon.opendistroforelasticsearch.sql.optimizer.subquery.visitor;
 
 import com.alibaba.druid.sql.ast.expr.SQLExistsExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInSubQueryExpr;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
-import com.amazon.opendistroforelasticsearch.sql.parser.subquery.model.Subquery;
-import com.amazon.opendistroforelasticsearch.sql.parser.subquery.model.SubqueryType;
+import com.amazon.opendistroforelasticsearch.sql.optimizer.subquery.model.Subquery;
+import com.amazon.opendistroforelasticsearch.sql.optimizer.subquery.model.SubqueryType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Find the {@link SQLInSubQueryExpr} and {@link SQLExistsExpr} in the {@link SQLQueryExpr}
@@ -36,14 +37,14 @@ public class FindSubqueryInWhere extends MySqlASTVisitorAdapter {
      * Return Subquery
      * @return {@link Subquery}
      */
-    public Subquery subquery() {
-        if (sqlExistsExprs.isEmpty() && sqlInSubQueryExprs.isEmpty()) return new Subquery(SubqueryType.NOT_SUBQUERY);
+    public Optional<Subquery> subquery() {
+        if (sqlExistsExprs.isEmpty() && sqlInSubQueryExprs.isEmpty()) return Optional.empty();
         if (sqlInSubQueryExprs.size() == 1 &&
                 sqlExistsExprs.isEmpty() &&
                 !sqlInSubQueryExprs.get(0).isNot()) {
-            return new Subquery(SubqueryType.IN, sqlInSubQueryExprs.get(0));
+            return Optional.of(new Subquery(SubqueryType.IN, sqlInSubQueryExprs.get(0)));
         }
-        return new Subquery(SubqueryType.UNSUPPORTED);
+        return Optional.of(new Subquery(SubqueryType.UNSUPPORTED));
     }
 
     @Override

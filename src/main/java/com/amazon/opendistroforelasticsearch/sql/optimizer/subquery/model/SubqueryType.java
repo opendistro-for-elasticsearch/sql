@@ -13,18 +13,22 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.parser.subquery;
+package com.amazon.opendistroforelasticsearch.sql.optimizer.subquery.model;
 
-import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
-
-/**
- * Rewrites the query to replace the subquery with a join.
- */
-public interface SubqueryRewriter {
-
+public enum SubqueryType {
     /**
-     * Rewrite the subquery with correspond JOIN query.
-     * It is NOT idempotent operation.
+     * SELECT * FROM A WHERE a IN (SELECT * FROM B)
      */
-    void rewrite(MySqlSelectQueryBlock query);
+    IN(0),
+    UNSUPPORTED(32);
+
+    private int id;
+
+    SubqueryType(int id) {
+        this.id = id;
+    }
+
+    public boolean isSupported() {
+        return id < SubqueryType.UNSUPPORTED.id;
+    }
 }

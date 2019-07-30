@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.parser.subquery.rewriter;
+package com.amazon.opendistroforelasticsearch.sql.optimizer.subquery.rewriter;
 
 import com.alibaba.druid.sql.ast.expr.SQLAllColumnExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
@@ -100,7 +100,7 @@ public class SubqueryAliasRewriter extends MySqlASTVisitorAdapter {
     }
 
     /**
-     * The table name in elasticsaerch could be "index/type". Which represent as SQLBinaryOpExpr in AST.
+     * The table name in elasticsearch could be "index/type". Which represent as SQLBinaryOpExpr in AST.
      */
     private boolean isESTable(SQLBinaryOpExpr expr) {
         return expr.getOperator() == SQLBinaryOperator.Divide && expr.getParent() instanceof SQLExprTableSource;

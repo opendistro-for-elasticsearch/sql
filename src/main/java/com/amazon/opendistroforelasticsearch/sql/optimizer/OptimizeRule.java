@@ -13,27 +13,27 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.parser.subquery.model;
+package com.amazon.opendistroforelasticsearch.sql.optimizer;
 
-public enum SubqueryType {
+import java.sql.SQLFeatureNotSupportedException;
+
+/**
+ * Query Optimize Rule
+ */
+public interface OptimizeRule<T> {
+
     /**
-     * SELECT * FROM A WHERE a IN (SELECT * FROM B)
+     * Checking whether the rule match the query?
+     *
+     * @return true if the rule match to the query.
+     * @throws SQLFeatureNotSupportedException
      */
-    IN(0),
-    UNSUPPORTED(32),
-    NOT_SUBQUERY(33);
+    boolean match(T expr) throws SQLFeatureNotSupportedException;
 
-    private int id;
-
-    SubqueryType(int id) {
-        this.id = id;
-    }
-
-    public boolean isSupported() {
-        return id < SubqueryType.UNSUPPORTED.id;
-    }
-
-    public boolean isNotSubquery() {
-        return id == SubqueryType.NOT_SUBQUERY.id;
-    }
+    /**
+     * Optimize the query.
+     *
+     * @throws SQLFeatureNotSupportedException
+     */
+    void optimize(T expr) throws SQLFeatureNotSupportedException;
 }

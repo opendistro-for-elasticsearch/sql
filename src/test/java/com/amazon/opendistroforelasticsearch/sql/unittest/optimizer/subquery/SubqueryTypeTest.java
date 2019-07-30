@@ -13,9 +13,9 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.unittest.parser.subquery;
+package com.amazon.opendistroforelasticsearch.sql.unittest.optimizer.subquery;
 
-import com.amazon.opendistroforelasticsearch.sql.parser.subquery.model.SubqueryType;
+import com.amazon.opendistroforelasticsearch.sql.optimizer.subquery.model.SubqueryType;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
@@ -31,10 +31,5 @@ public class SubqueryTypeTest {
     @Test
     public void testNotSupport() {
         assertFalse(SubqueryType.UNSUPPORTED.isSupported());
-    }
-
-    @Test
-    public void testNotSubquery() {
-        assertTrue(SubqueryType.NOT_SUBQUERY.isNotSubquery());
     }
 }
