@@ -22,6 +22,7 @@ import org.junit.rules.ExpectedException;
 
 import java.sql.SQLFeatureNotSupportedException;
 
+import static com.amazon.opendistroforelasticsearch.sql.parser.subquery.SubqueryRewriterHelper.subquery;
 import static com.amazon.opendistroforelasticsearch.sql.util.SqlParserUtils.parse;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -33,25 +34,28 @@ public class SubqueryRewriterHelperTest {
 
     @Test
     public void isSubquery() throws Exception {
-        assertTrue(SubqueryRewriterHelper.isSubquery(parse(
+        assertTrue(SubqueryRewriterHelper.isSubquery(
+                subquery(parse(
                 "SELECT * " +
                         "FROM A " +
-                        "WHERE a IN (SELECT b FROM B)")));
+                        "WHERE a IN (SELECT b FROM B)"))));
     }
 
     @Test
     public void notSubquery() throws Exception {
-        assertFalse(SubqueryRewriterHelper.isSubquery(parse(
-                "SELECT * FROM A")));
+        assertFalse(SubqueryRewriterHelper.isSubquery(
+                subquery(parse(
+                "SELECT * FROM A"))));
     }
 
     @Test
     public void notSupportedSubquery() throws Exception {
         exceptionRule.expect(SQLFeatureNotSupportedException.class);
         exceptionRule.expectMessage("Unsupported subquery");
-        assertFalse(SubqueryRewriterHelper.isSubquery(parse(
+        assertFalse(SubqueryRewriterHelper.isSubquery(
+                subquery(parse(
                 "SELECT * " +
                         "FROM A " +
-                        "WHERE a NOT IN (SELECT b FROM B)")));
+                        "WHERE a NOT IN (SELECT b FROM B)"))));
     }
 }

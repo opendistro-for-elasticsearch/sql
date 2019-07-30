@@ -26,6 +26,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.sql.SQLFeatureNotSupportedException;
+
+import static com.amazon.opendistroforelasticsearch.sql.parser.subquery.SubqueryRewriterHelper.subquery;
 import static com.amazon.opendistroforelasticsearch.sql.util.SqlParserUtils.parse;
 import static org.junit.Assert.assertEquals;
 
@@ -35,7 +38,7 @@ public class InSubqueryRewriterTest {
     public ExpectedException exceptionRule = ExpectedException.none();
 
     @Test
-    public void testFrom() {
+    public void testFrom() throws Exception {
         assertEquals(
                 sqlString(expectFrom(
                         "SELECT TbA_0.* " +
@@ -50,7 +53,7 @@ public class InSubqueryRewriterTest {
     }
 
     @Test
-    public void testWhere() {
+    public void testWhere() throws Exception {
         assertEquals(
                 sqlString(expectWhere(
                         "SELECT TbA_0.* " +
@@ -66,7 +69,7 @@ public class InSubqueryRewriterTest {
     }
 
     @Test
-    public void testFromWithInnerWhere() {
+    public void testFromWithInnerWhere() throws Exception {
         assertEquals(
                 sqlString(expectFrom(
                         "SELECT TbA_0.* " +
@@ -82,7 +85,7 @@ public class InSubqueryRewriterTest {
     }
 
     @Test
-    public void testWhereWithInnerWhere() {
+    public void testWhereWithInnerWhere() throws Exception {
         assertEquals(
                 sqlString(expectWhere(
                         "SELECT TbA_0.* " +
@@ -98,7 +101,7 @@ public class InSubqueryRewriterTest {
     }
 
     @Test
-    public void testFromWithOuterWhere() {
+    public void testFromWithOuterWhere() throws Exception {
         assertEquals(
                 sqlString(expectFrom(
                         "SELECT TbA_0.* " +
@@ -114,7 +117,7 @@ public class InSubqueryRewriterTest {
     }
 
     @Test
-    public void testWhereWithOuterWhere() {
+    public void testWhereWithOuterWhere() throws Exception {
         assertEquals(
                 sqlString(expectWhere(
                         "SELECT TbA_0.* " +
@@ -130,7 +133,7 @@ public class InSubqueryRewriterTest {
     }
 
     @Test
-    public void testException() {
+    public void testException() throws Exception {
         exceptionRule.expect(IllegalStateException.class);
         exceptionRule.expectMessage("Unsupported subquery with multiple select [TbB_1.b1, TbB_1.b2]");
         actualFrom(
@@ -143,9 +146,9 @@ public class InSubqueryRewriterTest {
         return SQLUtils.toMySqlString(expr).replace("\t", "");
     }
 
-    private SQLTableSource actualFrom(String sql) {
+    private SQLTableSource actualFrom(String sql) throws SQLFeatureNotSupportedException {
         SQLQueryExpr sqlExpr = parse(sql);
-        SubqueryRewriterHelper.rewrite(sqlExpr);
+        SubqueryRewriterHelper.rewrite(sqlExpr, subquery(sqlExpr));
         return ((MySqlSelectQueryBlock) sqlExpr.getSubQuery().getQuery()).getFrom();
     }
 
@@ -153,9 +156,9 @@ public class InSubqueryRewriterTest {
         return ((MySqlSelectQueryBlock) parse(sql).getSubQuery().getQuery()).getFrom();
     }
 
-    private SQLExpr actualWhere(String sql) {
+    private SQLExpr actualWhere(String sql) throws SQLFeatureNotSupportedException {
         SQLQueryExpr sqlExpr = parse(sql);
-        SubqueryRewriterHelper.rewrite(sqlExpr);
+        SubqueryRewriterHelper.rewrite(sqlExpr, subquery(sqlExpr));
         return ((MySqlSelectQueryBlock) sqlExpr.getSubQuery().getQuery()).getWhere();
     }
 

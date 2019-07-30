@@ -28,6 +28,8 @@ import com.amazon.opendistroforelasticsearch.sql.domain.JoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.parser.subquery.SubqueryRewriterHelper;
+import com.amazon.opendistroforelasticsearch.sql.parser.subquery.model.Subquery;
+import com.amazon.opendistroforelasticsearch.sql.parser.subquery.model.SubqueryType;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.nestedfield.NestedFieldRewriter;
 import com.amazon.opendistroforelasticsearch.sql.query.join.ESJoinQueryActionFactory;
 import com.amazon.opendistroforelasticsearch.sql.query.multi.MultiQueryAction;
@@ -50,6 +52,7 @@ import java.util.List;
 
 import static com.amazon.opendistroforelasticsearch.sql.domain.IndexStatement.StatementType;
 import static com.amazon.opendistroforelasticsearch.sql.parser.subquery.SubqueryRewriterHelper.isSubquery;
+import static com.amazon.opendistroforelasticsearch.sql.parser.subquery.SubqueryRewriterHelper.subquery;
 
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.TermFieldRewriter.TermRewriterFilter;
 
@@ -66,6 +69,7 @@ public class ESActionFactory {
 
         // Linebreak matcher
         sql = sql.replaceAll("\\R"," ").trim();
+        Subquery subquery;
 
         switch (getFirstWord(sql)) {
             case "SELECT":
@@ -76,8 +80,8 @@ public class ESActionFactory {
                     MultiQuerySelect multiSelect = new SqlParser().parseMultiSelect((SQLUnionQuery) sqlExpr.getSubQuery().getQuery());
                     return new MultiQueryAction(client, multiSelect);
                 }
-                else if(isSubquery(sqlExpr)){
-                    SubqueryRewriterHelper.rewrite(sqlExpr);
+                else if((subquery = subquery(sqlExpr)) != null && isSubquery(subquery)){
+                    SubqueryRewriterHelper.rewrite(sqlExpr, subquery);
                     sqlExpr.accept(new TermFieldRewriter(client, TermRewriterFilter.JOIN));
                     JoinSelect joinSelect = new SqlParser().parseJoinSelect(sqlExpr);
                     return ESJoinQueryActionFactory.createJoinAction(client, joinSelect);

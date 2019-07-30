@@ -18,7 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.parser.subquery;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
 
 /**
- * Rewrite the Predicate Subquery to JOIN.
+ * Rewrites the query to replace the subquery with a join.
  */
 public interface SubqueryRewriter {
 
