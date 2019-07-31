@@ -58,7 +58,7 @@ public class NestedFieldRewriterTest {
     public void selectAll() {
         same(
             query("SELECT * FROM team t, t.employees"),
-            query("SELECT *, nested(employees.*) FROM team")
+            query("SELECT *, nested(employees.*, 'employees') FROM team")
         );
     }
 
@@ -66,7 +66,7 @@ public class NestedFieldRewriterTest {
     public void selectAllWithGroupBy() {
         same(
             query("SELECT * FROM team t, t.employees e GROUP BY e.firstname"),
-            query("SELECT * FROM team GROUP BY nested(employees.firstname)")
+            query("SELECT * FROM team GROUP BY nested(employees.firstname, 'employees')")
         );
     }
 
@@ -74,7 +74,7 @@ public class NestedFieldRewriterTest {
     public void selectAllWithCondition() {
         same(
             query("SELECT * FROM team t, t.employees e WHERE e.age = 26"),
-            query("SELECT *, nested(employees.*) FROM team WHERE nested(employees.age) = 26")
+            query("SELECT *, nested(employees.*, 'employees') FROM team WHERE nested(employees.age, 'employees') = 26")
         );
     }
 
@@ -82,7 +82,7 @@ public class NestedFieldRewriterTest {
     public void singleCondition() {
         same(
             query("SELECT region FROM team t, t.employees e WHERE e.age = 26"),
-            query("SELECT region FROM team WHERE nested(employees.age) = 26")
+            query("SELECT region FROM team WHERE nested(employees.age, 'employees') = 26")
         );
     }
 
@@ -90,7 +90,7 @@ public class NestedFieldRewriterTest {
     public void mixedWithObjectType() {
         same(
             query("SELECT region FROM team t, t.employees e WHERE e.age > 30 OR manager.age = 50"),
-            query("SELECT region FROM team WHERE nested(employees.age) > 30 OR manager.age = 50")
+            query("SELECT region FROM team WHERE nested(employees.age, 'employees') > 30 OR manager.age = 50")
         );
     }
 
@@ -98,7 +98,7 @@ public class NestedFieldRewriterTest {
     public void noAlias() {
         same(
             query("SELECT region FROM team t, t.employees WHERE employees.age = 26"),
-            query("SELECT region FROM team WHERE nested(employees.age) = 26")
+            query("SELECT region FROM team WHERE nested(employees.age, 'employees') = 26")
         );
     }
 
@@ -123,7 +123,7 @@ public class NestedFieldRewriterTest {
     public void select() {
         same(
             query("SELECT e.age FROM team t, t.employees e"),
-            query("SELECT nested(employees.age) FROM team")
+            query("SELECT nested(employees.age, 'employees' ) FROM team")
         );
     }
 
@@ -131,7 +131,7 @@ public class NestedFieldRewriterTest {
     public void aggregationInSelect() {
         same(
             query("SELECT AVG(e.age) FROM team t, t.employees e"),
-            query("SELECT AVG(nested(employees.age)) FROM team")
+            query("SELECT AVG(nested(employees.age, 'employees')) FROM team")
         );
     }
 
@@ -139,7 +139,7 @@ public class NestedFieldRewriterTest {
     public void multipleAggregationsInSelect() {
         same(
             query("SELECT COUNT(*), AVG(e.age) FROM team t, t.employees e"),
-            query("SELECT COUNT(*), AVG(nested(employees.age)) FROM team")
+            query("SELECT COUNT(*), AVG(nested(employees.age, 'employees')) FROM team")
         );
     }
 
@@ -147,7 +147,7 @@ public class NestedFieldRewriterTest {
     public void groupBy() {
         same(
             query("SELECT e.firstname, COUNT(*) FROM team t, t.employees e GROUP BY e.firstname"),
-            query("SELECT nested(employees.firstname), COUNT(*) FROM team GROUP BY nested(employees.firstname)")
+            query("SELECT nested(employees.firstname, 'employees'), COUNT(*) FROM team GROUP BY nested(employees.firstname, 'employees')")
         );
     }
 
@@ -155,7 +155,7 @@ public class NestedFieldRewriterTest {
     public void multipleFieldsInGroupBy() {
         same(
             query("SELECT COUNT(*) FROM team t, t.employees e GROUP BY t.manager, e.age"),
-            query("SELECT COUNT(*) FROM team GROUP BY manager, nested(employees.age)")
+            query("SELECT COUNT(*) FROM team GROUP BY manager, nested(employees.age, 'employees')")
         );
     }
 
@@ -189,7 +189,8 @@ public class NestedFieldRewriterTest {
     public void multipleFieldsInFrom() {
         same(
             query("SELECT region FROM team/test t, t.manager m, t.employees e WHERE m.age = 30 AND e.age = 26"),
-            query("SELECT region FROM team/test WHERE nested(manager.age) = 30 AND nested(employees.age) = 26")
+            query("SELECT region FROM team/test WHERE nested(manager.age, 'manager') = 30 " +
+                  "AND nested(employees.age, 'employees') = 26")
         );
     }
 
@@ -200,9 +201,9 @@ public class NestedFieldRewriterTest {
             query("SELECT region FROM team t, t.employees e WHERE e.age = 26 " +
                   "UNION ALL " +
                   "SELECT region FROM team t, t.employees e WHERE e.firstname = 'John'"),
-            query("SELECT region FROM team WHERE nested(employees.age) = 26 " +
+            query("SELECT region FROM team WHERE nested(employees.age, 'employees') = 26 " +
                   "UNION ALL " +
-                  "SELECT region FROM team WHERE nested(employees.firstname) = 'John'")
+                  "SELECT region FROM team WHERE nested(employees.firstname, 'employees') = 'John'")
         );
     }
 
@@ -212,9 +213,9 @@ public class NestedFieldRewriterTest {
             query("SELECT region FROM team t, t.employees e WHERE e.age = 26 " +
                   "MINUS " +
                   "SELECT region FROM team t, t.employees e WHERE e.firstname = 'John'"),
-            query("SELECT region FROM team WHERE nested(employees.age) = 26 " +
+            query("SELECT region FROM team WHERE nested(employees.age, 'employees') = 26 " +
                   "MINUS " +
-                  "SELECT region FROM team WHERE nested(employees.firstname) = 'John'")
+                  "SELECT region FROM team WHERE nested(employees.firstname, 'employees') = 'John'")
         );
     }
 
@@ -230,8 +231,8 @@ public class NestedFieldRewriterTest {
                   "  WHERE e.age IN " +
                   "    (SELECT t1.manager.age FROM team t1, t1.employees e1 WHERE e1.age > 0)"),
             query("SELECT region FROM team " +
-                  "  WHERE nested(employees.age) IN " +
-                  "    (SELECT manager.age FROM team WHERE nested(employees.age) > 0)")
+                  "  WHERE nested(employees.age, 'employees') IN " +
+                  "    (SELECT manager.age FROM team WHERE nested(employees.age, 'employees') > 0)")
         );
     }
 
@@ -243,8 +244,8 @@ public class NestedFieldRewriterTest {
                   "  WHERE e.age IN " +
                   "    (SELECT e.age FROM team e, e.manager m WHERE e.age > 0 OR m.name = 'Alice')"),
             query("SELECT name FROM team " +
-                  "  WHERE nested(employees.age) IN " +
-                  "    (SELECT age FROM team WHERE age > 0 OR nested(manager.name) = 'Alice')")
+                  "  WHERE nested(employees.age, 'employees') IN " +
+                  "    (SELECT age FROM team WHERE age > 0 OR nested(manager.name, 'manager') = 'Alice')")
         );
     }
 

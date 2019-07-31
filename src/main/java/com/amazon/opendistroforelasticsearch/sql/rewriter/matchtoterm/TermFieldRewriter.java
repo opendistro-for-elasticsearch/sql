@@ -21,6 +21,7 @@ import com.alibaba.druid.sql.ast.expr.SQLBinaryOperator;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInListExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInSubQueryExpr;
+import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
 import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLSelectItem;
@@ -204,7 +205,7 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
         /**
          * Only for following conditions Identifier will be modified
          *  Where:  WHERE identifier = 'something'
-         *  IN list: IN ('Tom', 'Dick', ;'Harry')
+         *  IN list: IN ('Tom', 'Dick', 'Harry')
          *  IN subquery: IN (SELECT firstname from accounts/account where firstname = 'John')
          *  Group by: GROUP BY state , employer , ...
          *  Order by: ORDER BY firstname, lastname , ...
@@ -214,14 +215,23 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
         return
             !expr.getName().startsWith("_")
             && (
-                (   expr.getParent() instanceof SQLBinaryOpExpr
-                    && ((SQLBinaryOpExpr) expr.getParent()).getOperator() == SQLBinaryOperator.Equality
-                )
-                || expr.getParent() instanceof SQLInListExpr
-                || expr.getParent() instanceof SQLInSubQueryExpr
-                || expr.getParent() instanceof SQLSelectOrderByItem
-                || expr.getParent() instanceof MySqlSelectGroupByExpr
-            );
+                validIdentifierHelper(expr)
+                || (
+                    expr.getParent() instanceof SQLMethodInvokeExpr
+                    && validIdentifierHelper((SQLMethodInvokeExpr) expr.getParent())
+                    )
+               );
+    }
+
+    private boolean validIdentifierHelper(SQLExpr expr) {
+        return
+            ( expr.getParent() instanceof SQLBinaryOpExpr
+              && ((SQLBinaryOpExpr) expr.getParent()).getOperator() == SQLBinaryOperator.Equality
+            )
+            || expr.getParent() instanceof SQLInListExpr
+            || expr.getParent() instanceof SQLInSubQueryExpr
+            || expr.getParent() instanceof SQLSelectOrderByItem
+            || expr.getParent() instanceof MySqlSelectGroupByExpr;
     }
 
     private void checkMappingCompatibility(TermFieldScope scope, Map<String, String> indexToType) {

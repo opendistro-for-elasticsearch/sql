@@ -30,16 +30,18 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstant
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_DOG2;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_DOG3;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_EMPLOYEE_NESTED;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.stringContainsInOrder;
+
 
 public class TermQueryExplainIT extends SQLIntegTestCase {
 
     @Override
     protected void init() throws Exception {
-
         loadIndex(Index.ACCOUNT);
         loadIndex(Index.ONLINE);
         loadIndex(Index.BANK);
@@ -47,6 +49,7 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
         loadIndex(Index.DOG);
         loadIndex(Index.DOGS2);
         loadIndex(Index.DOGS3);
+        loadIndex(Index.EMPLOYEE_NESTED);
     }
 
     @Test
@@ -274,6 +277,65 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
         }
 
     }
+
+    @Test
+    public void testNestedSingleConditionAllFields() throws IOException {
+        String result = explainQuery(String.format(Locale.ROOT,
+            "SELECT * FROM %s e, e.projects p WHERE p.name = 'something' ",
+            TEST_INDEX_EMPLOYEE_NESTED));
+        assertThat(result, containsString("\"term\":{\"projects.name.keyword\":{\"value\":\"something\""));
+        assertThat(result, containsString("\"path\":\"projects\""));
+    }
+
+    @Test
+    public void testNestedMultipleCondition() throws IOException {
+        String result = explainQuery(String.format(Locale.ROOT,
+            "SELECT e.id, p.name FROM %s e, e.projects p WHERE p.name = 'something' and p.started_year = 1990 ",
+            TEST_INDEX_EMPLOYEE_NESTED));
+        assertThat(result, containsString("\"term\":{\"projects.name.keyword\":{\"value\":\"something\""));
+        assertThat(result, containsString("\"term\":{\"projects.started_year\":{\"value\":1990"));
+        assertThat(result, containsString("\"path\":\"projects\""));
+    }
+
+    @Test
+    public void testConditionsOnDifferentNestedDocs() throws IOException {
+        String result = explainQuery(String.format(Locale.ROOT,
+            "SELECT p.name, c.likes  FROM %s e, e.projects p, e.comments c WHERE p.name = 'something' or c.likes = 56 ",
+            TEST_INDEX_EMPLOYEE_NESTED));
+        assertThat(result, containsString("\"term\":{\"projects.name.keyword\":{\"value\":\"something\""));
+        assertThat(result, containsString("\"term\":{\"comments.likes\":{\"value\":56"));
+        assertThat(result, containsString("\"path\":\"projects\""));
+        assertThat(result, containsString("\"path\":\"comments\""));
+    }
+
+    @Test
+    public void testNestedSingleConditionSpecificFields() throws IOException {
+        String result = explainQuery(String.format(Locale.ROOT,
+            "SELECT e.id, p.name FROM %s e, e.projects p WHERE p.name = 'hello' or p.name = 'world' ",
+            TEST_INDEX_EMPLOYEE_NESTED));
+        assertThat(result, containsString("\"term\":{\"projects.name.keyword\":{\"value\":\"hello\""));
+        assertThat(result, containsString("\"term\":{\"projects.name.keyword\":{\"value\":\"world\""));
+        assertThat(result, containsString("\"path\":\"projects\""));
+    }
+
+    @Test
+    public void testNestedSingleGroupBy() throws IOException {
+        String result = explainQuery(String.format(Locale.ROOT,
+            "SELECT e.id, p.name FROM %s e, e.projects p GROUP BY  p.name ",
+            TEST_INDEX_EMPLOYEE_NESTED));
+        assertThat(result, containsString("\"terms\":{\"field\":\"projects.name.keyword\""));
+        assertThat(result, containsString("\"nested\":{\"path\":\"projects\""));
+    }
+
+    @Test
+    public void testNestedSingleOrderBy() throws IOException {
+        String result = explainQuery(String.format(Locale.ROOT,
+            "SELECT e.id, p.name FROM %s e, e.projects p ORDER BY p.name ",
+            TEST_INDEX_EMPLOYEE_NESTED));
+        assertThat(result, containsString("\"sort\":[{\"projects.name.keyword\""));
+        assertThat(result, containsString("\"nested\":{\"path\":\"projects\""));
+    }
+
 
     @Test
     @Ignore // TODO: enable when subqueries are fixed

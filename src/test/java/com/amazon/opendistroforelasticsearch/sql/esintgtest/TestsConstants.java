@@ -37,6 +37,7 @@ public class TestsConstants {
     public final static String TEST_INDEX_LOCATION2 = TEST_INDEX + "_location2";
     public final static String TEST_INDEX_NESTED_TYPE = TEST_INDEX + "_nested_type";
     public final static String TEST_INDEX_NESTED_WITH_QUOTES = TEST_INDEX + "_nested_type_with_quotes";
+    public final static String TEST_INDEX_EMPLOYEE_NESTED = TEST_INDEX + "_employee_nested";
     public final static String TEST_INDEX_JOIN_TYPE = TEST_INDEX + "_join_type";
     public final static String TEST_INDEX_BANK = TEST_INDEX + "_bank";
     public final static String TEST_INDEX_BANK_TWO = TEST_INDEX_BANK + "_two";

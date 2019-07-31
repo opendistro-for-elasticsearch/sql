@@ -19,12 +19,14 @@ import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLObject;
 import com.alibaba.druid.sql.ast.expr.SQLAggregateExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
+import com.alibaba.druid.sql.ast.expr.SQLCharExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInSubQueryExpr;
 import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
 import com.alibaba.druid.sql.ast.statement.SQLSelectItem;
 import com.alibaba.druid.sql.ast.statement.SQLSelectOrderByItem;
 import com.alibaba.druid.sql.dialect.mysql.ast.expr.MySqlSelectGroupByExpr;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
+import com.amazon.opendistroforelasticsearch.sql.utils.Util;
 
 import java.util.List;
 
@@ -47,8 +49,12 @@ abstract class SQLClause<T> {
      */
     abstract void rewrite(Scope scope);
 
-    /** Replace expr by nested(expr) and set pointer in parent properly */
     SQLMethodInvokeExpr replaceByNestedFunction(SQLExpr expr) {
+        return replaceByNestedFunction(expr, null);
+    }
+
+    /** Replace expr by nested(expr) and set pointer in parent properly */
+    SQLMethodInvokeExpr replaceByNestedFunction(SQLExpr expr, String path) {
         SQLObject parent = expr.getParent();
         SQLMethodInvokeExpr nestedFunc = wrapNestedFunction(expr);
         if (parent instanceof SQLAggregateExpr) {
@@ -81,6 +87,10 @@ abstract class SQLClause<T> {
         else {
             throw new IllegalStateException("Unsupported place to use nested field under parent: " + parent);
         }
+
+        if (path != null) {
+            nestedFunc.getParameters().add(1, new SQLCharExpr(path));
+        }
         return nestedFunc;
     }
 
@@ -89,6 +99,12 @@ abstract class SQLClause<T> {
         nestedFunc.setParent(expr.getParent());
         nestedFunc.addParameter(expr);  // this will auto set parent of expr
         return nestedFunc;
+    }
+
+    String pathFromIdentifier(SQLExpr identifier) {
+        String field = Util.extendedToString(identifier);
+        int lastDot = field.lastIndexOf(".");
+        return field.substring(0, lastDot);
     }
 
 }

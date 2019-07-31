@@ -229,6 +229,97 @@ public class TestUtils {
                 "}";
     }
 
+    public static String getEmployeeNestedTypeIndexMapping() {
+        return "{\n" +
+            "  \"_doc\": {\n" +
+            "    \"properties\": {\n" +
+            "      \"comments\": {\n" +
+            "        \"type\": \"nested\",\n" +
+            "        \"properties\": {\n" +
+            "          \"date\": {\n" +
+            "            \"type\": \"date\"\n" +
+            "          },\n" +
+            "          \"likes\": {\n" +
+            "            \"type\": \"long\"\n" +
+            "          },\n" +
+            "          \"message\": {\n" +
+            "            \"type\": \"text\",\n" +
+            "            \"fields\": {\n" +
+            "              \"keyword\": {\n" +
+            "                \"type\": \"keyword\",\n" +
+            "                \"ignore_above\": 256\n" +
+            "              }\n" +
+            "            }\n" +
+            "          }\n" +
+            "        }\n" +
+            "      },\n" +
+            "      \"id\": {\n" +
+            "        \"type\": \"long\"\n" +
+            "      },\n" +
+            "      \"name\": {\n" +
+            "        \"type\": \"text\",\n" +
+            "        \"fields\": {\n" +
+            "          \"keyword\": {\n" +
+            "            \"type\": \"keyword\",\n" +
+            "            \"ignore_above\": 256\n" +
+            "          }\n" +
+            "        }\n" +
+            "      },\n" +
+            "      \"projects\": {\n" +
+            "        \"type\": \"nested\",\n" +
+            "        \"properties\": {\n" +
+            "          \"address\": {\n" +
+            "            \"type\": \"nested\",\n" +
+            "            \"properties\": {\n" +
+            "              \"city\": {\n" +
+            "                \"type\": \"text\",\n" +
+            "                \"fields\": {\n" +
+            "                  \"keyword\": {\n" +
+            "                    \"type\": \"keyword\",\n" +
+            "                    \"ignore_above\": 256\n" +
+            "                  }\n" +
+            "                }\n" +
+            "              },\n" +
+            "              \"state\": {\n" +
+            "                \"type\": \"text\",\n" +
+            "                \"fields\": {\n" +
+            "                  \"keyword\": {\n" +
+            "                    \"type\": \"keyword\",\n" +
+            "                    \"ignore_above\": 256\n" +
+            "                  }\n" +
+            "                }\n" +
+            "              }\n" +
+            "            }\n" +
+            "          },\n" +
+            "          \"name\": {\n" +
+            "            \"type\": \"text\",\n" +
+            "            \"fields\": {\n" +
+            "              \"keyword\": {\n" +
+            "                \"type\": \"keyword\"\n" +
+            "              }\n" +
+            "            },\n" +
+            "            \"fielddata\": true\n" +
+            "          },\n" +
+            "          \"started_year\": {\n" +
+            "            \"type\": \"long\"\n" +
+            "          }\n" +
+            "        }\n" +
+            "      },\n" +
+            "      \"title\": {\n" +
+            "        \"type\": \"text\",\n" +
+            "        \"fields\": {\n" +
+            "          \"keyword\": {\n" +
+            "            \"type\": \"keyword\",\n" +
+            "            \"ignore_above\": 256\n" +
+            "          }\n" +
+            "        }\n" +
+            "      }\n" +
+            "    }\n" +
+            "  }\n" +
+            "}\n";
+    }
+
+
     public static String getNestedTypeIndexMapping() {
         return "{ \"nestedType\": {\n" +
                 "        \"properties\": {\n" +

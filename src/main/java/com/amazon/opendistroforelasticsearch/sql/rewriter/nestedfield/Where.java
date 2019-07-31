@@ -121,7 +121,7 @@ class Where extends SQLClause<SQLBinaryOpExpr> {
             if (isLeftChildCondition()) {
                 replaceByNestedFunction(expr).getParameters().add(0, new SQLCharExpr(tag));
             } else {
-                replaceByNestedFunction(expr.getLeft());
+                replaceByNestedFunction(expr.getLeft(), pathFromIdentifier(expr.getLeft()));
             }
         }
     }
