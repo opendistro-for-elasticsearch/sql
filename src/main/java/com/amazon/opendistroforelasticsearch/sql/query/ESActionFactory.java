@@ -33,8 +33,8 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.ElasticResultHandler;
 import com.amazon.opendistroforelasticsearch.sql.executor.QueryActionElasticExecutor;
-import com.amazon.opendistroforelasticsearch.sql.optimizer.Optimizer;
-import com.amazon.opendistroforelasticsearch.sql.optimizer.subquery.SubqueryOptimizeRule;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.RewriteRuleExecutor;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.SubqueryRewriteRule;
 import com.amazon.opendistroforelasticsearch.sql.parser.ElasticLexer;
 import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
 import com.amazon.opendistroforelasticsearch.sql.parser.SqlParser;
@@ -73,10 +73,10 @@ public class ESActionFactory {
             case "SELECT":
                 SQLQueryExpr sqlExpr = (SQLQueryExpr) toSqlExpr(sql);
                 sqlExpr.accept(new NestedFieldRewriter());
-                Optimizer<SQLQueryExpr> optimizer = Optimizer.<SQLQueryExpr>builder()
-                        .withRule(new SubqueryOptimizeRule())
+                RewriteRuleExecutor<SQLQueryExpr> ruleExecutor = RewriteRuleExecutor.<SQLQueryExpr>builder()
+                        .withRule(new SubqueryRewriteRule())
                         .build();
-                optimizer.optimize(sqlExpr);
+                ruleExecutor.executeOn(sqlExpr);
 
                 if(isMulti(sqlExpr)){
                     sqlExpr.accept(new TermFieldRewriter(client, TermRewriterFilter.MULTI_QUERY));

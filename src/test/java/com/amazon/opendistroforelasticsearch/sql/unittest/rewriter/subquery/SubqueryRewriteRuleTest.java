@@ -13,9 +13,9 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.unittest.optimizer.subquery;
+package com.amazon.opendistroforelasticsearch.sql.unittest.rewriter.subquery;
 
-import com.amazon.opendistroforelasticsearch.sql.optimizer.subquery.SubqueryOptimizeRule;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.SubqueryRewriteRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -26,15 +26,15 @@ import static com.amazon.opendistroforelasticsearch.sql.util.SqlParserUtils.pars
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class SubqueryOptimizeRuleTest {
-    final SubqueryOptimizeRule optimizeRule = new SubqueryOptimizeRule();
+public class SubqueryRewriteRuleTest {
+    final SubqueryRewriteRule rewriteRule = new SubqueryRewriteRule();
 
     @Rule
     public ExpectedException exceptionRule = ExpectedException.none();
 
     @Test
     public void isMatch() throws Exception {
-        assertTrue(optimizeRule.match(parse(
+        assertTrue(rewriteRule.match(parse(
                 "SELECT * " +
                         "FROM A " +
                         "WHERE a IN (SELECT b FROM B)")));
@@ -42,7 +42,7 @@ public class SubqueryOptimizeRuleTest {
 
     @Test
     public void notMatch() throws Exception {
-        assertFalse(optimizeRule.match(parse(
+        assertFalse(rewriteRule.match(parse(
                 "SELECT * FROM A")));
     }
 
@@ -50,7 +50,7 @@ public class SubqueryOptimizeRuleTest {
     public void notSupportedSubquery() throws Exception {
         exceptionRule.expect(SQLFeatureNotSupportedException.class);
         exceptionRule.expectMessage("Unsupported subquery");
-        assertFalse(optimizeRule.match(parse(
+        assertFalse(rewriteRule.match(parse(
                 "SELECT * " +
                         "FROM A " +
                         "WHERE a NOT IN (SELECT b FROM B)")));

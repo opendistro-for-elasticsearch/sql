@@ -13,14 +13,14 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.optimizer.subquery.visitor;
+package com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.visitor;
 
 import com.alibaba.druid.sql.ast.expr.SQLExistsExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInSubQueryExpr;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
-import com.amazon.opendistroforelasticsearch.sql.optimizer.subquery.model.Subquery;
-import com.amazon.opendistroforelasticsearch.sql.optimizer.subquery.model.SubqueryType;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.model.Subquery;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.model.SubqueryType;
 
 import java.util.ArrayList;
 import java.util.List;

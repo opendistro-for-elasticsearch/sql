@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.optimizer.subquery.rewriter;
+package com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.rewriter;
 
 import com.alibaba.druid.sql.ast.expr.SQLAllColumnExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;

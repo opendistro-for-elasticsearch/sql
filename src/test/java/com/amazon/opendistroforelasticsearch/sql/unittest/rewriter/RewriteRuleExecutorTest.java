@@ -13,11 +13,11 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.unittest.optimizer;
+package com.amazon.opendistroforelasticsearch.sql.unittest.rewriter;
 
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
-import com.amazon.opendistroforelasticsearch.sql.optimizer.OptimizeRule;
-import com.amazon.opendistroforelasticsearch.sql.optimizer.Optimizer;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.RewriteRule;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.RewriteRuleExecutor;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,32 +32,32 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class OptimizerTest {
+public class RewriteRuleExecutorTest {
     @Mock
-    private OptimizeRule<SQLQueryExpr> optimizeRule;
+    private RewriteRule<SQLQueryExpr> rewriter;
     @Mock
     private SQLQueryExpr expr;
 
-    private Optimizer<SQLQueryExpr> optimizer;
+    private RewriteRuleExecutor<SQLQueryExpr> ruleExecutor;
 
     @Before
     public void setup() {
-        optimizer = Optimizer.<SQLQueryExpr>builder().withRule(optimizeRule).build();
+        ruleExecutor = RewriteRuleExecutor.<SQLQueryExpr>builder().withRule(rewriter).build();
     }
 
     @Test
     public void optimize() throws SQLFeatureNotSupportedException {
-        when(optimizeRule.match(expr)).thenReturn(true);
+        when(rewriter.match(expr)).thenReturn(true);
 
-        optimizer.optimize(expr);
-        verify(optimizeRule, times(1)).optimize(expr);
+        ruleExecutor.executeOn(expr);
+        verify(rewriter, times(1)).rewrite(expr);
     }
 
     @Test
     public void noOptimize() throws SQLFeatureNotSupportedException {
-        when(optimizeRule.match(expr)).thenReturn(false);
+        when(rewriter.match(expr)).thenReturn(false);
 
-        optimizer.optimize(expr);
-        verify(optimizeRule, never()).optimize(expr);
+        ruleExecutor.executeOn(expr);
+        verify(rewriter, never()).rewrite(expr);
     }
 }

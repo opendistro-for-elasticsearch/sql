@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -171,6 +172,32 @@ public class AggregationIT extends SQLIntegTestCase {
 
         JSONObject result = executeQuery(String.format("SELECT COUNT(*) FROM %s/account GROUP BY gender",
                 TEST_INDEX_ACCOUNT));
+        Assert.assertThat(getTotalHits(result), equalTo(1000));
+        JSONObject gender = getAggregation(result, "gender");
+        Assert.assertThat(gender.getJSONArray("buckets").length(), equalTo(2));
+
+        final boolean isMaleFirst = gender.optQuery("/buckets/0/key").equals("m");
+        final int maleBucketId = isMaleFirst ? 0 : 1;
+        final int femaleBucketId = isMaleFirst ? 1 : 0;
+
+        final String maleBucketPrefix = String.format(Locale.ROOT, "/buckets/%d", maleBucketId);
+        final String femaleBucketPrefix = String.format(Locale.ROOT, "/buckets/%d", femaleBucketId);
+
+        Assert.assertThat(gender.query(maleBucketPrefix + "/key"), equalTo("m"));
+        Assert.assertThat(gender.query(maleBucketPrefix + "/COUNT(*)/value"), equalTo(507));
+        Assert.assertThat(gender.query(femaleBucketPrefix + "/key"), equalTo("f"));
+        Assert.assertThat(gender.query(femaleBucketPrefix + "/COUNT(*)/value"), equalTo(493));
+    }
+
+    @Ignore //todo VerificationException: table alias or field name missing
+    @Test
+    public void groupBySubqueryTest() throws Exception {
+
+        JSONObject result = executeQuery(String.format(
+                "SELECT COUNT(*) FROM %s/account " +
+                        "WHERE firstname IN (SELECT firstname FROM %s/account) " +
+                        "GROUP BY gender",
+                TEST_INDEX_ACCOUNT, TEST_INDEX_ACCOUNT));
         Assert.assertThat(getTotalHits(result), equalTo(1000));
         JSONObject gender = getAggregation(result, "gender");
         Assert.assertThat(gender.getJSONArray("buckets").length(), equalTo(2));

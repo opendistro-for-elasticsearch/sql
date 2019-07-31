@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.optimizer.subquery;
+package com.amazon.opendistroforelasticsearch.sql.rewriter.subquery;
 
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
@@ -23,7 +23,7 @@ import com.alibaba.druid.sql.ast.expr.SQLNullExpr;
 import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource.JoinType;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
-import com.amazon.opendistroforelasticsearch.sql.optimizer.subquery.model.Subquery;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.model.Subquery;
 
 /**
  * IN Subquery Rewriter.

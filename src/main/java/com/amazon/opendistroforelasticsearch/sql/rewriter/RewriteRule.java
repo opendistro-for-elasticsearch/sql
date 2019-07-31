@@ -13,14 +13,16 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.optimizer;
+package com.amazon.opendistroforelasticsearch.sql.rewriter;
+
+import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 
 import java.sql.SQLFeatureNotSupportedException;
 
 /**
  * Query Optimize Rule
  */
-public interface OptimizeRule<T> {
+public interface RewriteRule<T extends SQLQueryExpr> {
 
     /**
      * Checking whether the rule match the query?
@@ -35,5 +37,5 @@ public interface OptimizeRule<T> {
      *
      * @throws SQLFeatureNotSupportedException
      */
-    void optimize(T expr) throws SQLFeatureNotSupportedException;
+    void rewrite(T expr) throws SQLFeatureNotSupportedException;
 }

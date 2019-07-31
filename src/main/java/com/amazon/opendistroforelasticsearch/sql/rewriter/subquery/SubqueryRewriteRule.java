@@ -13,16 +13,15 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.optimizer.subquery;
+package com.amazon.opendistroforelasticsearch.sql.rewriter.subquery;
 
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
-import com.amazon.opendistroforelasticsearch.sql.optimizer.OptimizeRule;
-import com.amazon.opendistroforelasticsearch.sql.optimizer.subquery.InSubqueryRewriter;
-import com.amazon.opendistroforelasticsearch.sql.optimizer.subquery.model.Subquery;
-import com.amazon.opendistroforelasticsearch.sql.optimizer.subquery.model.SubqueryType;
-import com.amazon.opendistroforelasticsearch.sql.optimizer.subquery.rewriter.SubqueryAliasRewriter;
-import com.amazon.opendistroforelasticsearch.sql.optimizer.subquery.visitor.FindSubqueryInWhere;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.RewriteRule;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.model.Subquery;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.model.SubqueryType;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.rewriter.SubqueryAliasRewriter;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.visitor.FindSubqueryInWhere;
 
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.Optional;
@@ -30,7 +29,7 @@ import java.util.Optional;
 /**
  * Subquery Optimize Rule.
  */
-public class SubqueryOptimizeRule implements OptimizeRule<SQLQueryExpr> {
+public class SubqueryRewriteRule implements RewriteRule<SQLQueryExpr> {
     private Optional<Subquery> subquery;
 
     @Override
@@ -49,7 +48,7 @@ public class SubqueryOptimizeRule implements OptimizeRule<SQLQueryExpr> {
     }
 
     @Override
-    public void optimize(SQLQueryExpr expr) {
+    public void rewrite(SQLQueryExpr expr) {
         if (subquery == null) subquery = subquery(expr);
         MySqlSelectQueryBlock rootQuery = (MySqlSelectQueryBlock) expr.getSubQuery().getQuery();
         // add the alias for the subquery identifier if missing

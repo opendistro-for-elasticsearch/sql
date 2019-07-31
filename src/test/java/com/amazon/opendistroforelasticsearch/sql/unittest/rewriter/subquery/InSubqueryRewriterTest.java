@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.unittest.optimizer.subquery;
+package com.amazon.opendistroforelasticsearch.sql.unittest.rewriter.subquery;
 
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLExpr;
@@ -21,7 +21,7 @@ import com.alibaba.druid.sql.ast.SQLObject;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.alibaba.druid.sql.ast.statement.SQLTableSource;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
-import com.amazon.opendistroforelasticsearch.sql.optimizer.subquery.SubqueryOptimizeRule;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.SubqueryRewriteRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -147,7 +147,7 @@ public class InSubqueryRewriterTest {
 
     private SQLTableSource actualFrom(String sql) throws SQLFeatureNotSupportedException {
         SQLQueryExpr sqlExpr = parse(sql);
-        new SubqueryOptimizeRule().optimize(sqlExpr);
+        new SubqueryRewriteRule().rewrite(sqlExpr);
         return ((MySqlSelectQueryBlock) sqlExpr.getSubQuery().getQuery()).getFrom();
     }
 
@@ -157,7 +157,7 @@ public class InSubqueryRewriterTest {
 
     private SQLExpr actualWhere(String sql) throws SQLFeatureNotSupportedException {
         SQLQueryExpr sqlExpr = parse(sql);
-        new SubqueryOptimizeRule().optimize(sqlExpr);
+        new SubqueryRewriteRule().rewrite(sqlExpr);
         return ((MySqlSelectQueryBlock) sqlExpr.getSubQuery().getQuery()).getWhere();
     }
 

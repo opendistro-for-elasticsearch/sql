@@ -13,9 +13,9 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.unittest.optimizer.subquery;
+package com.amazon.opendistroforelasticsearch.sql.unittest.rewriter.subquery;
 
-import com.amazon.opendistroforelasticsearch.sql.optimizer.subquery.model.SubqueryType;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.model.SubqueryType;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;

@@ -13,11 +13,11 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.unittest.optimizer.subquery.visitor;
+package com.amazon.opendistroforelasticsearch.sql.unittest.rewriter.subquery.visitor;
 
 import com.alibaba.druid.sql.ast.expr.SQLInSubQueryExpr;
-import com.amazon.opendistroforelasticsearch.sql.optimizer.subquery.model.SubqueryType;
-import com.amazon.opendistroforelasticsearch.sql.optimizer.subquery.visitor.FindSubqueryInWhere;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.model.SubqueryType;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.visitor.FindSubqueryInWhere;
 import org.junit.Test;
 
 import static com.amazon.opendistroforelasticsearch.sql.util.SqlParserUtils.parse;
