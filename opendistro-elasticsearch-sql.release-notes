@@ -1,5 +1,10 @@
+## 2019-07-31, Version 0.10.0.0 (Current)
 
-## 2019-04-19, Version 0.9.0 (Current)
+### Notable Changes
+
+* Feature [#134](https://github.com/opendistro-for-elasticsearch/sql/issues/134): Add support for Elasticsearch 6.8.1
+
+## 2019-04-19, Version 0.9.0.0
 
 ### Notable Changes
 
@@ -7,7 +12,7 @@
 * Migration [#17](https://github.com/opendistro-for-elasticsearch/sql/issues/17): Migrate legacy integration tests in Maven to ES test in Gradle.
 
 
-## 2019-04-02, Version 0.8.0
+## 2019-04-02, Version 0.8.0.0
 
 ### Notable Changes
 
@@ -16,7 +21,7 @@
 * Bug fix [#10](https://github.com/opendistro-for-elasticsearch/sql/issues/10): Return friendly error message instead of NPE for illegal query and other exception cases.
 
 
-## 2019-03-11, Version 0.7.0
+## 2019-03-11, Version 0.7.0.0
 
 ### Notable Changes
 
