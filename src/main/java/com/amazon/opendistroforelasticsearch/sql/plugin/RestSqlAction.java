@@ -20,7 +20,6 @@ import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.exception.SQLFeatureDisabledException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.ActionRequestRestExecutorFactory;
-import com.amazon.opendistroforelasticsearch.sql.executor.AsyncRestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.RestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.ErrorMessage;
 import com.amazon.opendistroforelasticsearch.sql.metrics.MetricName;
@@ -30,13 +29,11 @@ import com.amazon.opendistroforelasticsearch.sql.request.SqlRequest;
 import com.amazon.opendistroforelasticsearch.sql.request.SqlRequestFactory;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.VerificationException;
 import com.amazon.opendistroforelasticsearch.sql.utils.LogUtils;
-import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.rest.BaseRestHandler;
 import org.elasticsearch.rest.BytesRestResponse;
@@ -44,7 +41,6 @@ import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestController;
 import org.elasticsearch.rest.RestRequest;
 import org.elasticsearch.rest.RestStatus;
-import org.elasticsearch.threadpool.ThreadPool;
 
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.Arrays;
@@ -107,26 +103,8 @@ public class RestSqlAction extends BaseRestHandler {
             final SqlRequest sqlRequest = SqlRequestFactory.getSqlRequest(request);
             LOG.info("[{}] Incoming request {}: {}", LogUtils.getRequestId(), request.uri(), sqlRequest.getSql());
 
-            if (explainRequiresBlockingIOCall(sqlRequest)) {
-                return channel -> {
-                    final Runnable requestExecution = () -> {
-                        try {
-                            final QueryAction action = explainRequest(client, sqlRequest);
-                            executeSqlRequest(request, action, client, channel);
-                        } catch (Exception e) {
-                            logAndPublishMetrics(e);
-                            reportError(channel, e, isClientError(e) ? BAD_REQUEST : SERVICE_UNAVAILABLE);
-                        }
-                    };
-
-                    final ThreadPool threadPool = client.threadPool();
-                    threadPool.schedule(threadPool.preserveContext(requestExecution), new TimeValue(0L),
-                            AsyncRestExecutor.SQL_WORKER_THREAD_POOL_NAME);
-                };
-            } else {
-                final QueryAction queryAction = explainRequest(client, sqlRequest);
-                return channel -> executeSqlRequest(request, queryAction, client, channel);
-            }
+            final QueryAction queryAction = explainRequest(client, sqlRequest);
+            return channel -> executeSqlRequest(request, queryAction, client, channel);
         } catch (Exception e) {
             logAndPublishMetrics(e);
             return channel -> reportError(channel, e, isClientError(e) ? BAD_REQUEST : SERVICE_UNAVAILABLE);
@@ -180,10 +158,6 @@ public class RestSqlAction extends BaseRestHandler {
 
     private static boolean isExplainRequest(final RestRequest request) {
         return request.path().endsWith("/_explain");
-    }
-
-    private static boolean explainRequiresBlockingIOCall(final SqlRequest request) {
-        return CONTAINS_SUBQUERY.test(StringUtils.toLower(request.getSql()));
     }
 
     private static boolean isClientError(Exception e) {

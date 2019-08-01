@@ -30,6 +30,7 @@ import java.util.function.Function;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasItems;
@@ -86,6 +87,17 @@ public class MatcherUtils {
 
     public static Matcher<JSONObject> hitAny(Matcher<JSONObject>... matcher) {
         return featureValueOf("SearchHits", hasItems(matcher), actual -> {
+            JSONArray array = (JSONArray) (actual.query("/hits/hits"));
+            List<JSONObject> results = new ArrayList<>(array.length());
+            for (Object element : array) {
+                results.add((JSONObject)element);
+            }
+            return results;
+        });
+    }
+
+    public static Matcher<JSONObject> hitAll(Matcher<JSONObject>... matcher) {
+        return featureValueOf("SearchHits", containsInAnyOrder(matcher), actual -> {
             JSONArray array = (JSONArray) (actual.query("/hits/hits"));
             List<JSONObject> results = new ArrayList<>(array.length());
             for (Object element : array) {
