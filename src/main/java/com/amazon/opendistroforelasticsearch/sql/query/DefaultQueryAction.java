@@ -86,7 +86,6 @@ public class DefaultQueryAction extends QueryAction {
         this.request = new SearchRequestBuilder(client, SearchAction.INSTANCE);
         setIndicesAndTypes();
 
-        // Potential bug source
         setFields(select.getFields());
 
         setWhere(select.getWhere());
