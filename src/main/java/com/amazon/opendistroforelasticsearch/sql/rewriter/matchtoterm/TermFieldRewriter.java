@@ -214,16 +214,17 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
          */
         return
             !expr.getName().startsWith("_")
-            && (
-                validIdentifierHelper(expr)
-                || (
-                    expr.getParent() instanceof SQLMethodInvokeExpr
-                    && validIdentifierHelper((SQLMethodInvokeExpr) expr.getParent())
-                    )
-               );
+            && (isValidIdentifier(expr) || checkIfNestedIdentifier(expr));
     }
 
-    private boolean validIdentifierHelper(SQLExpr expr) {
+    private boolean checkIfNestedIdentifier(SQLIdentifierExpr expr) {
+        return
+            expr.getParent() instanceof SQLMethodInvokeExpr
+            && ((SQLMethodInvokeExpr) expr.getParent()).getMethodName().equals("nested")
+            && isValidIdentifier((SQLMethodInvokeExpr) expr.getParent());
+    }
+
+    private boolean isValidIdentifier(SQLExpr expr) {
         return
             ( expr.getParent() instanceof SQLBinaryOpExpr
               && ((SQLBinaryOpExpr) expr.getParent()).getOperator() == SQLBinaryOperator.Equality

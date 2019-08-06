@@ -38,6 +38,7 @@ import java.util.List;
 abstract class SQLClause<T> {
 
     protected final T expr;
+    final int nestedPathIndex = 1;
 
     SQLClause(T expr) {
         this.expr = expr;
@@ -49,12 +50,14 @@ abstract class SQLClause<T> {
      */
     abstract void rewrite(Scope scope);
 
-    SQLMethodInvokeExpr replaceByNestedFunction(SQLExpr expr) {
-        return replaceByNestedFunction(expr, null);
+    SQLMethodInvokeExpr replaceByNestedFunction(SQLExpr expr, String nestedPath) {
+        SQLMethodInvokeExpr nestedFunc = replaceByNestedFunction(expr);
+        nestedFunc.getParameters().add(nestedPathIndex, new SQLCharExpr(nestedPath));
+        return nestedFunc;
     }
 
     /** Replace expr by nested(expr) and set pointer in parent properly */
-    SQLMethodInvokeExpr replaceByNestedFunction(SQLExpr expr, String path) {
+    SQLMethodInvokeExpr replaceByNestedFunction(SQLExpr expr) {
         SQLObject parent = expr.getParent();
         SQLMethodInvokeExpr nestedFunc = wrapNestedFunction(expr);
         if (parent instanceof SQLAggregateExpr) {
@@ -86,10 +89,6 @@ abstract class SQLClause<T> {
         }
         else {
             throw new IllegalStateException("Unsupported place to use nested field under parent: " + parent);
-        }
-
-        if (path != null) {
-            nestedFunc.getParameters().add(1, new SQLCharExpr(path));
         }
         return nestedFunc;
     }
