@@ -100,6 +100,49 @@ public class QueryIT extends SQLIntegTestCase {
     }
 
     @Test
+    public void selectAllAndSpecificFieldTest() throws IOException {
+        String[] arr = new String[] {"account_number", "firstname", "address", "birthdate", "gender", "city", "lastname", "balance", "employer", "state", "age", "email", "male"};
+        Set<String> expectedSource = new HashSet<>(Arrays.asList(arr));
+        JSONObject response = executeQuery(String.format(Locale.ROOT,
+                "SELECT *, age FROM %s/account", TestsConstants.TEST_INDEX_BANK));
+        Assert.assertTrue(response.has("hits"));
+        JSONArray hits = getHits(response);
+        for (int i = 0; i < hits.length(); ++i) {
+            JSONObject hit = hits.getJSONObject(i);
+            Assert.assertEquals(expectedSource, getSource(hit).keySet());
+        }
+    }
+
+    @Test
+    public void selectAllAndSpecificFieldwithGroupByTest() throws IOException {
+        String[] arr = new String[] {"account_number", "firstname", "address", "birthdate", "gender", "city", "lastname", "balance", "employer", "state", "age", "email", "male"};
+        Set<String> expectedSource = new HashSet<>(Arrays.asList(arr));
+        JSONObject response = executeQuery(String.format(Locale.ROOT,
+                "SELECT *, age FROM %s/account GROUP BY age", TestsConstants.TEST_INDEX_BANK));
+        Assert.assertTrue(response.has("hits"));
+        JSONArray hits = getHits(response);
+        for (int i = 0; i < hits.length(); ++i) {
+            JSONObject hit = hits.getJSONObject(i);
+            Assert.assertEquals(expectedSource, getSource(hit).keySet());
+        }
+    }
+
+    @Test
+    public void selectAllAndSpecificFieldwithOrderByTest() throws IOException {
+        String[] arr = new String[] {"account_number", "firstname", "address", "birthdate", "gender", "city", "lastname", "balance", "employer", "state", "age", "email", "male"};
+        Set<String> expectedSource = new HashSet<>(Arrays.asList(arr));
+        JSONObject response = executeQuery(String.format(Locale.ROOT,
+                "SELECT *, age FROM %s/account ORDER BY age", TestsConstants.TEST_INDEX_BANK));
+        Assert.assertTrue(response.has("hits"));
+        JSONArray hits = getHits(response);
+        for (int i = 0; i < hits.length(); ++i) {
+            JSONObject hit = hits.getJSONObject(i);
+            Assert.assertEquals(expectedSource, getSource(hit).keySet());
+        }
+    }
+
+
+    @Test
     public void indexWithWildcardTest() throws IOException {
         JSONObject response = executeQuery(String.format(Locale.ROOT, "SELECT * FROM %s* LIMIT 1000",
                 TestsConstants.TEST_INDEX_BANK));
