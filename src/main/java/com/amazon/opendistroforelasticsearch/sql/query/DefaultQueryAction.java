@@ -86,6 +86,7 @@ public class DefaultQueryAction extends QueryAction {
         this.request = new SearchRequestBuilder(client, SearchAction.INSTANCE);
         setIndicesAndTypes();
 
+        // Potential bug source
         setFields(select.getFields());
 
         setWhere(select.getWhere());
@@ -134,7 +135,7 @@ public class DefaultQueryAction extends QueryAction {
      */
     public void setFields(List<Field> fields) throws SqlParseException {
 
-        if (!select.getFields().isEmpty()) {
+        if (!select.getFields().isEmpty() && !select.isSelectAll()) {
             ArrayList<String> includeFields = new ArrayList<>();
             ArrayList<String> excludeFields = new ArrayList<>();
 
