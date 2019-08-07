@@ -215,25 +215,26 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
          */
         return
             !expr.getName().startsWith("_")
-            && (isValidIdentifier(expr.getParent()) || checkIfNestedIdentifier(expr));
+            && (isValidIdentifier(expr) || checkIfNestedIdentifier(expr));
     }
 
     private boolean checkIfNestedIdentifier(SQLIdentifierExpr expr) {
         return
             expr.getParent() instanceof SQLMethodInvokeExpr
             && ((SQLMethodInvokeExpr) expr.getParent()).getMethodName().equals("nested")
-            && isValidIdentifier(expr.getParent().getParent());
+            && isValidIdentifier(expr.getParent());
     }
 
     private boolean isValidIdentifier(SQLObject expr) {
+        SQLObject parent = expr.getParent();
         return
-            ( expr instanceof SQLBinaryOpExpr
-              && ((SQLBinaryOpExpr) expr).getOperator() == SQLBinaryOperator.Equality
+            ( parent instanceof SQLBinaryOpExpr
+              && ((SQLBinaryOpExpr) parent).getOperator() == SQLBinaryOperator.Equality
             )
-            || expr instanceof SQLInListExpr
-            || expr instanceof SQLInSubQueryExpr
-            || expr instanceof SQLSelectOrderByItem
-            || expr instanceof MySqlSelectGroupByExpr;
+            || parent instanceof SQLInListExpr
+            || parent instanceof SQLInSubQueryExpr
+            || parent instanceof SQLSelectOrderByItem
+            || parent instanceof MySqlSelectGroupByExpr;
     }
 
     private void checkMappingCompatibility(TermFieldScope scope, Map<String, String> indexToType) {
@@ -248,7 +249,7 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
         final FieldMappings fieldMappings;
 
         if (indexMappings.size() > 1) {
-            Map<String, Map<String, Object>> mergedMapping = new HashMap<>(); 
+            Map<String, Map<String, Object>> mergedMapping = new HashMap<>();
 
             for (FieldMappings f : indexMappings) {
                 Map<String, Map<String, Object>> m = f.data();
