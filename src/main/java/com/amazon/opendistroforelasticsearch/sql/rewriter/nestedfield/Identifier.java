@@ -46,7 +46,7 @@ class Identifier extends SQLClause<SQLIdentifierExpr> {
             if (isInCondition()) {
                 useFullPathAsTag(scope);
             } else {
-                replaceByNestedFunction(expr);
+                replaceByNestedFunction(expr, pathFromIdentifier(expr));
             }
         }
     }

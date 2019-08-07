@@ -16,11 +16,13 @@
 package com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm;
 
 import com.alibaba.druid.sql.ast.SQLExpr;
+import com.alibaba.druid.sql.ast.SQLObject;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOperator;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInListExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInSubQueryExpr;
+import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
 import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLSelectItem;
@@ -204,7 +206,7 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
         /**
          * Only for following conditions Identifier will be modified
          *  Where:  WHERE identifier = 'something'
-         *  IN list: IN ('Tom', 'Dick', ;'Harry')
+         *  IN list: IN ('Tom', 'Dick', 'Harry')
          *  IN subquery: IN (SELECT firstname from accounts/account where firstname = 'John')
          *  Group by: GROUP BY state , employer , ...
          *  Order by: ORDER BY firstname, lastname , ...
@@ -213,15 +215,26 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
          */
         return
             !expr.getName().startsWith("_")
-            && (
-                (   expr.getParent() instanceof SQLBinaryOpExpr
-                    && ((SQLBinaryOpExpr) expr.getParent()).getOperator() == SQLBinaryOperator.Equality
-                )
-                || expr.getParent() instanceof SQLInListExpr
-                || expr.getParent() instanceof SQLInSubQueryExpr
-                || expr.getParent() instanceof SQLSelectOrderByItem
-                || expr.getParent() instanceof MySqlSelectGroupByExpr
-            );
+            && (isValidIdentifier(expr) || checkIfNestedIdentifier(expr));
+    }
+
+    private boolean checkIfNestedIdentifier(SQLIdentifierExpr expr) {
+        return
+            expr.getParent() instanceof SQLMethodInvokeExpr
+            && ((SQLMethodInvokeExpr) expr.getParent()).getMethodName().equals("nested")
+            && isValidIdentifier(expr.getParent());
+    }
+
+    private boolean isValidIdentifier(SQLObject expr) {
+        SQLObject parent = expr.getParent();
+        return
+            ( parent instanceof SQLBinaryOpExpr
+              && ((SQLBinaryOpExpr) parent).getOperator() == SQLBinaryOperator.Equality
+            )
+            || parent instanceof SQLInListExpr
+            || parent instanceof SQLInSubQueryExpr
+            || parent instanceof SQLSelectOrderByItem
+            || parent instanceof MySqlSelectGroupByExpr;
     }
 
     private void checkMappingCompatibility(TermFieldScope scope, Map<String, String> indexToType) {

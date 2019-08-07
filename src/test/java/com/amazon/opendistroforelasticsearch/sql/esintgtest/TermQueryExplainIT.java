@@ -24,22 +24,16 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Locale;
 
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_BANK;
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_BANK_TWO;
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_DOG;
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_DOG2;
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_DOG3;
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
-
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
+
+
 
 public class TermQueryExplainIT extends SQLIntegTestCase {
 
     @Override
     protected void init() throws Exception {
-
         loadIndex(Index.ACCOUNT);
         loadIndex(Index.ONLINE);
         loadIndex(Index.BANK);
@@ -47,14 +41,15 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
         loadIndex(Index.DOG);
         loadIndex(Index.DOGS2);
         loadIndex(Index.DOGS3);
+        loadIndex(Index.EMPLOYEE_NESTED);
     }
 
     @Test
     public void testNonExistingIndex() throws IOException {
         try {
             explainQuery("SELECT firstname, lastname " +
-                    "FROM elasticsearch_sql_test_fake_index " +
-                    "WHERE firstname = 'Leo'");
+                         "FROM elasticsearch_sql_test_fake_index " +
+                         "WHERE firstname = 'Leo'");
             Assert.fail("Expected ResponseException, but none was thrown");
 
         } catch (ResponseException e) {
@@ -69,8 +64,8 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
     public void testNonResolvingIndexPattern() throws IOException {
         try {
             explainQuery("SELECT * " +
-                    "FROM elasticsearch_sql_test_blah_blah* " +
-                    "WHERE firstname = 'Leo'");
+                         "FROM elasticsearch_sql_test_blah_blah* " +
+                         "WHERE firstname = 'Leo'");
             Assert.fail("Expected ResponseException, but none was thrown");
 
         } catch (ResponseException e) {
@@ -83,19 +78,20 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
 
     @Test
     public void testNonResolvingIndexPatternWithExistingIndex() throws IOException {
-
-        String result = explainQuery(String.format(Locale.ROOT, "SELECT * " +
-                "FROM elasticsearch_sql_test_blah_blah*, %s " +
-                "WHERE state = 'DC'", TEST_INDEX_BANK));
+        String result = explainQuery(
+                            "SELECT * " +
+                            "FROM elasticsearch_sql_test_blah_blah*, elasticsearch-sql_test_index_bank " +
+                            "WHERE state = 'DC'");
         assertThat(result, containsString("\"term\":{\"state.keyword\""));
     }
 
     @Test
     public void testNonResolvingIndexPatternWithNonExistingIndex() throws IOException {
         try {
-            explainQuery("SELECT firstname, lastname " +
-                    "FROM elasticsearch_sql_test_blah_blah*, another_fake_index " +
-                    "WHERE firstname = 'Leo'");
+            explainQuery(
+                "SELECT firstname, lastname " +
+                "FROM elasticsearch_sql_test_blah_blah*, another_fake_index " +
+                "WHERE firstname = 'Leo'");
             Assert.fail("Expected ResponseException, but none was thrown");
         } catch (ResponseException e) {
             assertThat(e.getResponse().getStatusLine().getStatusCode(), equalTo(RestStatus.BAD_REQUEST.getStatus()));
@@ -108,8 +104,7 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
     @Test
     public void testNonCompatibleMappings() throws IOException {
         try {
-            explainQuery(String.format(Locale.ROOT, "SELECT * FROM %s, %s ",
-                    TEST_INDEX_DOG, TEST_INDEX_DOG2));
+            explainQuery("SELECT * FROM elasticsearch-sql_test_index_dog, elasticsearch-sql_test_index_dog2");
             Assert.fail("Expected ResponseException, but none was thrown");
         } catch (ResponseException e) {
             assertThat(e.getResponse().getStatusLine().getStatusCode(), equalTo(RestStatus.BAD_REQUEST.getStatus()));
@@ -123,18 +118,20 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
 
     @Test
     public void testEqualFieldMappings() throws IOException {
-        String result = explainQuery(String.format(Locale.ROOT, "SELECT color FROM %s, %s ",
-                    TEST_INDEX_DOG2, TEST_INDEX_DOG3));
+        String result = explainQuery(
+            "SELECT color " +
+            "FROM elasticsearch-sql_test_index_dog2, elasticsearch-sql_test_index_dog3");
         assertThat(result, containsString("color"));
         assertThat(result, containsString("_source"));
     }
 
     @Test
     public void testIdenticalMappings() throws IOException {
-
-        String result = explainQuery(String.format(Locale.ROOT, "SELECT firstname, birthdate, state " +
-                        "FROM %s, %s WHERE state = 'WA' OR male = 'true'",
-                TEST_INDEX_BANK, TEST_INDEX_BANK_TWO));
+        String result = explainQuery(
+                "SELECT firstname, birthdate, state " +
+                "FROM elasticsearch-sql_test_index_bank, elasticsearch-sql_test_index_bank_two " +
+                "WHERE state = 'WA' OR male = 'true'"
+                );
         assertThat(result, containsString("term"));
         assertThat(result, containsString("state.keyword"));
         assertThat(result, containsString("_source"));
@@ -142,9 +139,11 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
 
     @Test
     public void testIdenticalMappingsWithTypes() throws IOException {
-
-        String result = explainQuery(String.format(Locale.ROOT, "SELECT firstname, birthdate, state FROM %s, %s WHERE state = 'WA' OR male = 'true'",
-                TEST_INDEX_BANK + "/account", TEST_INDEX_BANK_TWO + "/account_two"));
+        String result = explainQuery(
+            "SELECT firstname, birthdate, state " +
+            "FROM elasticsearch-sql_test_index_bank/account, elasticsearch-sql_test_index_bank_two/account_two " +
+            "WHERE state = 'WA' OR male = 'true'"
+        );
         assertThat(result, containsString("term"));
         assertThat(result, containsString("state.keyword"));
         assertThat(result, containsString("_source"));
@@ -153,10 +152,11 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
 
     @Test
     public void testIdenticalMappingsWithPartialType() throws IOException {
-
-        String result = explainQuery(String.format(Locale.ROOT, "SELECT firstname, birthdate, state " +
-                        "FROM %s, %s WHERE state = 'WA' OR male = 'true'",
-                TEST_INDEX_BANK + "/account", TEST_INDEX_BANK_TWO));
+        String result = explainQuery(
+            "SELECT firstname, birthdate, state " +
+            "FROM elasticsearch-sql_test_index_bank/account, elasticsearch-sql_test_index_bank_two " +
+            "WHERE state = 'WA' OR male = 'true'"
+        );
         assertThat(result, containsString("term"));
         assertThat(result, containsString("state.keyword"));
         assertThat(result, containsString("_source"));
@@ -165,17 +165,22 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
     @Test
     public void testTextFieldOnly() throws IOException {
 
-        String result = explainQuery(String.format(Locale.ROOT, "SELECT firstname, birthdate, state " +
-                "FROM %s WHERE firstname = 'Abbas'", TEST_INDEX_BANK));
+        String result = explainQuery(
+            "SELECT firstname, birthdate, state " +
+            "FROM elasticsearch-sql_test_index_bank " +
+            "WHERE firstname = 'Abbas'"
+        );
         assertThat(result, containsString("term"));
         assertThat(result, not(containsString("firstname.")));
     }
 
     @Test
     public void testTextAndKeywordAppendsKeywordAlias() throws IOException {
-
-        String result = explainQuery(String.format(Locale.ROOT, "SELECT firstname, birthdate, state " +
-                "FROM %s WHERE state = 'WA' OR lastname = 'Chen'", TEST_INDEX_BANK));
+        String result = explainQuery(
+            "SELECT firstname, birthdate, state " +
+            "FROM elasticsearch-sql_test_index_bank " +
+            "WHERE state = 'WA' OR lastname = 'Chen'"
+        );
         assertThat(result, containsString("term"));
         assertThat(result, containsString("state.keyword"));
         assertThat(result, not(containsString("lastname.")));
@@ -184,8 +189,7 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
     @Test
     public void testBooleanFieldNoKeywordAlias() throws IOException {
 
-        String result = explainQuery(String.format(Locale.ROOT, "SELECT * FROM %s WHERE male = 'false'",
-                TEST_INDEX_BANK));
+        String result = explainQuery("SELECT * FROM elasticsearch-sql_test_index_bank WHERE male = 'false'");
         assertThat(result, containsString("term"));
         assertThat(result, not(containsString("male.")));
     }
@@ -193,26 +197,25 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
     @Test
     public void testDateFieldNoKeywordAlias() throws IOException {
 
-        String result = explainQuery(String.format(Locale.ROOT, "SELECT * FROM %s WHERE birthdate = '2018-08-19'",
-                TEST_INDEX_BANK));
+        String result = explainQuery("SELECT * FROM elasticsearch-sql_test_index_bank WHERE birthdate = '2018-08-19'");
         assertThat(result, containsString("term"));
         assertThat(result, not(containsString("birthdate.")));
     }
 
     @Test
     public void testNumberNoKeywordAlias() throws IOException {
-
-        String result = explainQuery(String.format(Locale.ROOT, "SELECT * FROM %s WHERE age = 32",
-                TEST_INDEX_BANK));
+        String result = explainQuery("SELECT * FROM elasticsearch-sql_test_index_bank WHERE age = 32");
         assertThat(result, containsString("term"));
         assertThat(result, not(containsString("age.")));
     }
 
     @Test
     public void inTestInWhere() throws IOException {
-
-        String result = explainQuery(String.format(Locale.ROOT, "select * from %s " +
-                "where state IN ('WA' , 'PA' , 'TN')", TEST_INDEX_BANK));
+        String result = explainQuery(
+            "SELECT * " +
+            "FROM elasticsearch-sql_test_index_bank " +
+            "WHERE state IN ('WA' , 'PA' , 'TN')"
+        );
         assertThat(result, containsString("term"));
         assertThat(result, containsString("state.keyword"));
     }
@@ -220,19 +223,21 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
     @Test
     @Ignore // TODO: enable when subqueries are fixed
     public void inTestInWhereSubquery() throws IOException {
-
-        String result = explainQuery(String.format(Locale.ROOT, "select * from %s where " +
-                        "state IN (select state from %s where city = 'Nicholson')",
-                TEST_INDEX_BANK + "/account", TEST_INDEX_BANK));
+        String result = explainQuery(
+            "SELECT * " +
+            "FROM elasticsearch-sql_test_index_bank/account WHERE " +
+            "state IN (SELECT state FROM elasticsearch-sql_test_index_bank WHERE city = 'Nicholson')"
+         );
         assertThat(result, containsString("term"));
         assertThat(result, containsString("state.keyword"));
     }
 
     @Test
     public void testKeywordAliasGroupBy() throws IOException {
-
-        String result = explainQuery(String.format(Locale.ROOT, "SELECT firstname, state FROM %s " +
-                "GROUP BY firstname, state", TEST_INDEX_BANK + "/account"));
+        String result = explainQuery(
+            "SELECT firstname, state " +
+            "FROM elasticsearch-sql_test_index_bank/account " +
+            "GROUP BY firstname, state");
         assertThat(result, containsString("term"));
         assertThat(result, containsString("state.keyword"));
         assertThat(result, not(containsString("lastname.")));
@@ -240,9 +245,11 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
 
     @Test
     public void testKeywordAliasOrderBy() throws IOException {
-
-        String result = explainQuery(String.format(Locale.ROOT, "SELECT * FROM %s ORDER BY state, lastname ",
-                TEST_INDEX_BANK));
+        String result = explainQuery(
+            "SELECT * " +
+            "FROM elasticsearch-sql_test_index_bank " +
+            "ORDER BY state, lastname "
+        );
         assertThat(result, containsString("\"state.keyword\":{\"order\":\"asc\""));
         assertThat(result, containsString("\"lastname\":{\"order\":\"asc\"}"));
     }
@@ -250,11 +257,14 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
     @Test
     @Ignore // TODO: verify the returned query is correct and fix the expected output
     public void testJoinWhere() throws IOException {
-
         String expectedOutput = TestUtils.fileToString("src/test/resources/expectedOutput/term_join_where", true);
-        String result = explainQuery(String.format(Locale.ROOT, "SELECT a.firstname, a.lastname , b.city " +
-                "FROM %s a JOIN %s b ON a.city = b.city where a.city IN ('Nicholson', 'Yardville')",
-                TEST_INDEX_ACCOUNT, TEST_INDEX_ACCOUNT ));
+        String result = explainQuery(
+            "SELECT a.firstname, a.lastname , b.city " +
+            "FROM elasticsearch-sql_test_index_account a " +
+            "JOIN elasticsearch-sql_test_index_account b " +
+            "ON a.city = b.city " +
+            "WHERE a.city IN ('Nicholson', 'Yardville')"
+            );
 
         assertThat(result.replaceAll("\\s+",""), equalTo(expectedOutput.replaceAll("\\s+","")));
     }
@@ -262,9 +272,13 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
     @Test
     public void testJoinAliasMissing() throws IOException {
         try {
-            explainQuery(String.format(Locale.ROOT, "SELECT a.firstname, a.lastname , b.city " +
-                    "FROM %s a JOIN %s b ON a.city = b.city where city IN ('Nicholson', 'Yardville')",
-                    TEST_INDEX_ACCOUNT, TEST_INDEX_ACCOUNT));
+            explainQuery(
+                "SELECT a.firstname, a.lastname , b.city " +
+                "FROM elasticsearch-sql_test_index_account a " +
+                "JOIN elasticsearch-sql_test_index_account b " +
+                "ON a.city = b.city " +
+                "WHERE city IN ('Nicholson', 'Yardville')"
+            );
             Assert.fail("Expected ResponseException, but none was thrown");
         } catch (ResponseException e) {
             assertThat(e.getResponse().getStatusLine().getStatusCode(), equalTo(RestStatus.BAD_REQUEST.getStatus()));
@@ -276,13 +290,86 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
     }
 
     @Test
+    public void testNestedSingleConditionAllFields() throws IOException {
+        String result = explainQuery(
+            "SELECT * " +
+            "FROM elasticsearch-sql_test_index_employee_nested e, e.projects p " +
+            "WHERE p.name = 'something' "
+        );
+        assertThat(result, containsString("\"term\":{\"projects.name.keyword\":{\"value\":\"something\""));
+        assertThat(result, containsString("\"path\":\"projects\""));
+    }
+
+    @Test
+    public void testNestedMultipleCondition() throws IOException {
+        String result = explainQuery(
+            "SELECT e.id, p.name " +
+            "FROM elasticsearch-sql_test_index_employee_nested e, e.projects p " +
+            "WHERE p.name = 'something' and p.started_year = 1990 "
+            );
+        assertThat(result, containsString("\"term\":{\"projects.name.keyword\":{\"value\":\"something\""));
+        assertThat(result, containsString("\"term\":{\"projects.started_year\":{\"value\":1990"));
+        assertThat(result, containsString("\"path\":\"projects\""));
+    }
+
+    @Test
+    public void testConditionsOnDifferentNestedDocs() throws IOException {
+        String result = explainQuery(
+            "SELECT p.name, c.likes  " +
+            "FROM elasticsearch-sql_test_index_employee_nested e, e.projects p, e.comments c " +
+            "WHERE p.name = 'something' or c.likes = 56 "
+            );
+        assertThat(result, containsString("\"term\":{\"projects.name.keyword\":{\"value\":\"something\""));
+        assertThat(result, containsString("\"term\":{\"comments.likes\":{\"value\":56"));
+        assertThat(result, containsString("\"path\":\"projects\""));
+        assertThat(result, containsString("\"path\":\"comments\""));
+    }
+
+    @Test
+    public void testNestedSingleConditionSpecificFields() throws IOException {
+        String result = explainQuery(
+            "SELECT e.id, p.name " +
+            "FROM elasticsearch-sql_test_index_employee_nested e, e.projects p " +
+            "WHERE p.name = 'hello' or p.name = 'world' "
+            );
+        assertThat(result, containsString("\"term\":{\"projects.name.keyword\":{\"value\":\"hello\""));
+        assertThat(result, containsString("\"term\":{\"projects.name.keyword\":{\"value\":\"world\""));
+        assertThat(result, containsString("\"path\":\"projects\""));
+    }
+
+    @Test
+    public void testNestedSingleGroupBy() throws IOException {
+        String result = explainQuery(
+            "SELECT e.id, p.name " +
+            "FROM elasticsearch-sql_test_index_employee_nested e, e.projects p " +
+            "GROUP BY  p.name ");
+        assertThat(result, containsString("\"terms\":{\"field\":\"projects.name.keyword\""));
+        assertThat(result, containsString("\"nested\":{\"path\":\"projects\""));
+    }
+
+    @Test
+    public void testNestedSingleOrderBy() throws IOException {
+        String result = explainQuery(
+            "SELECT e.id, p.name " +
+            "FROM elasticsearch-sql_test_index_employee_nested e, e.projects p " +
+            "ORDER BY p.name "
+        );
+        assertThat(result, containsString("\"sort\":[{\"projects.name.keyword\""));
+        assertThat(result, containsString("\"nested\":{\"path\":\"projects\""));
+    }
+
+    @Test
     @Ignore // TODO: enable when subqueries are fixed
     public void testMultiQuery() throws IOException {
-
         String expectedOutput = TestUtils.fileToString("src/test/resources/expectedOutput/term_union_where", true);
-        String result = explainQuery(String.format(Locale.ROOT, "SELECT firstname FROM %s/account " +
-                        "WHERE firstname = 'Amber' UNION ALL SELECT dog_name as firstname FROM %s/dog " +
-                        "WHERE holdersName = 'Hattie' OR dog_name = 'rex'", TEST_INDEX_ACCOUNT, TEST_INDEX_DOG));
+        String result = explainQuery(
+            "SELECT firstname " +
+            "FROM elasticsearch-sql_test_index_account/account " +
+            "WHERE firstname = 'Amber' " +
+            "UNION ALL " +
+            "SELECT dog_name as firstname " +
+            "FROM elasticsearch-sql_test_index_dog/dog " +
+            "WHERE holdersName = 'Hattie' OR dog_name = 'rex'");
         assertThat(result.replaceAll("\\s+",""), equalTo(expectedOutput.replaceAll("\\s+","")));
     }
 }

@@ -19,12 +19,14 @@ import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLObject;
 import com.alibaba.druid.sql.ast.expr.SQLAggregateExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
+import com.alibaba.druid.sql.ast.expr.SQLCharExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInSubQueryExpr;
 import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
 import com.alibaba.druid.sql.ast.statement.SQLSelectItem;
 import com.alibaba.druid.sql.ast.statement.SQLSelectOrderByItem;
 import com.alibaba.druid.sql.dialect.mysql.ast.expr.MySqlSelectGroupByExpr;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
+import com.amazon.opendistroforelasticsearch.sql.utils.Util;
 
 import java.util.List;
 
@@ -46,6 +48,13 @@ abstract class SQLClause<T> {
      * @param scope     Scope of current query
      */
     abstract void rewrite(Scope scope);
+
+    SQLMethodInvokeExpr replaceByNestedFunction(SQLExpr expr, String nestedPath) {
+        final int nestedPathIndex = 1;
+        SQLMethodInvokeExpr nestedFunc = replaceByNestedFunction(expr);
+        nestedFunc.getParameters().add(nestedPathIndex, new SQLCharExpr(nestedPath));
+        return nestedFunc;
+    }
 
     /** Replace expr by nested(expr) and set pointer in parent properly */
     SQLMethodInvokeExpr replaceByNestedFunction(SQLExpr expr) {
@@ -89,6 +98,15 @@ abstract class SQLClause<T> {
         nestedFunc.setParent(expr.getParent());
         nestedFunc.addParameter(expr);  // this will auto set parent of expr
         return nestedFunc;
+    }
+
+    String pathFromIdentifier(SQLExpr identifier) {
+        String field = Util.extendedToString(identifier);
+        int lastDot = field.lastIndexOf(".");
+        if (lastDot == -1) {
+            throw new IllegalStateException("pathFromIdentifier() is being invoked on the wrong field [" + field + "]");
+        }
+        return field.substring(0, lastDot);
     }
 
 }
