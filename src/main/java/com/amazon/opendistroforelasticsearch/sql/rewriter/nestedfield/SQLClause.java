@@ -38,7 +38,6 @@ import java.util.List;
 abstract class SQLClause<T> {
 
     protected final T expr;
-    final int nestedPathIndex = 1;
 
     SQLClause(T expr) {
         this.expr = expr;
@@ -51,6 +50,7 @@ abstract class SQLClause<T> {
     abstract void rewrite(Scope scope);
 
     SQLMethodInvokeExpr replaceByNestedFunction(SQLExpr expr, String nestedPath) {
+        final int nestedPathIndex = 1;
         SQLMethodInvokeExpr nestedFunc = replaceByNestedFunction(expr);
         nestedFunc.getParameters().add(nestedPathIndex, new SQLCharExpr(nestedPath));
         return nestedFunc;
@@ -103,6 +103,9 @@ abstract class SQLClause<T> {
     String pathFromIdentifier(SQLExpr identifier) {
         String field = Util.extendedToString(identifier);
         int lastDot = field.lastIndexOf(".");
+        if (lastDot == -1) {
+            throw new IllegalStateException("pathFromIdentifier() is being invoked on the wrong field [" + field + "]");
+        }
         return field.substring(0, lastDot);
     }
 

@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm;
 
 import com.alibaba.druid.sql.ast.SQLExpr;
+import com.alibaba.druid.sql.ast.SQLObject;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOperator;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
@@ -214,25 +215,25 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
          */
         return
             !expr.getName().startsWith("_")
-            && (isValidIdentifier(expr) || checkIfNestedIdentifier(expr));
+            && (isValidIdentifier(expr.getParent()) || checkIfNestedIdentifier(expr));
     }
 
     private boolean checkIfNestedIdentifier(SQLIdentifierExpr expr) {
         return
             expr.getParent() instanceof SQLMethodInvokeExpr
             && ((SQLMethodInvokeExpr) expr.getParent()).getMethodName().equals("nested")
-            && isValidIdentifier((SQLMethodInvokeExpr) expr.getParent());
+            && isValidIdentifier(expr.getParent().getParent());
     }
 
-    private boolean isValidIdentifier(SQLExpr expr) {
+    private boolean isValidIdentifier(SQLObject expr) {
         return
-            ( expr.getParent() instanceof SQLBinaryOpExpr
-              && ((SQLBinaryOpExpr) expr.getParent()).getOperator() == SQLBinaryOperator.Equality
+            ( expr instanceof SQLBinaryOpExpr
+              && ((SQLBinaryOpExpr) expr).getOperator() == SQLBinaryOperator.Equality
             )
-            || expr.getParent() instanceof SQLInListExpr
-            || expr.getParent() instanceof SQLInSubQueryExpr
-            || expr.getParent() instanceof SQLSelectOrderByItem
-            || expr.getParent() instanceof MySqlSelectGroupByExpr;
+            || expr instanceof SQLInListExpr
+            || expr instanceof SQLInSubQueryExpr
+            || expr instanceof SQLSelectOrderByItem
+            || expr instanceof MySqlSelectGroupByExpr;
     }
 
     private void checkMappingCompatibility(TermFieldScope scope, Map<String, String> indexToType) {
@@ -247,7 +248,7 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
         final FieldMappings fieldMappings;
 
         if (indexMappings.size() > 1) {
-            Map<String, Map<String, Object>> mergedMapping = new HashMap<>();
+            Map<String, Map<String, Object>> mergedMapping = new HashMap<>(); 
 
             for (FieldMappings f : indexMappings) {
                 Map<String, Map<String, Object>> m = f.data();
