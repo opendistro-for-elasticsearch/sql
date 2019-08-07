@@ -104,7 +104,7 @@ public class QueryIT extends SQLIntegTestCase {
         String[] arr = new String[] {"account_number", "firstname", "address", "birthdate", "gender", "city", "lastname", "balance", "employer", "state", "age", "email", "male"};
         Set<String> expectedSource = new HashSet<>(Arrays.asList(arr));
         JSONObject response = executeQuery(String.format(Locale.ROOT,
-                "SELECT *, age FROM %s/account", TestsConstants.TEST_INDEX_BANK));
+                "SELECT *, age FROM %s/account LIMIT 5", TestsConstants.TEST_INDEX_BANK));
         Assert.assertTrue(response.has("hits"));
         JSONArray hits = getHits(response);
         for (int i = 0; i < hits.length(); ++i) {
@@ -118,7 +118,7 @@ public class QueryIT extends SQLIntegTestCase {
         String[] arr = new String[] {"account_number", "firstname", "address", "birthdate", "gender", "city", "lastname", "balance", "employer", "state", "age", "email", "male"};
         Set<String> expectedSource = new HashSet<>(Arrays.asList(arr));
         JSONObject response = executeQuery(String.format(Locale.ROOT,
-                "SELECT *, age FROM %s/account GROUP BY age", TestsConstants.TEST_INDEX_BANK));
+                "SELECT *, age FROM %s/account GROUP BY age LIMIT 5", TestsConstants.TEST_INDEX_BANK));
         Assert.assertTrue(response.has("hits"));
         JSONArray hits = getHits(response);
         for (int i = 0; i < hits.length(); ++i) {
@@ -132,7 +132,7 @@ public class QueryIT extends SQLIntegTestCase {
         String[] arr = new String[] {"account_number", "firstname", "address", "birthdate", "gender", "city", "lastname", "balance", "employer", "state", "age", "email", "male"};
         Set<String> expectedSource = new HashSet<>(Arrays.asList(arr));
         JSONObject response = executeQuery(String.format(Locale.ROOT,
-                "SELECT *, age FROM %s/account ORDER BY age", TestsConstants.TEST_INDEX_BANK));
+                "SELECT *, age FROM %s/account ORDER BY age LIMIT 5", TestsConstants.TEST_INDEX_BANK));
         Assert.assertTrue(response.has("hits"));
         JSONArray hits = getHits(response);
         for (int i = 0; i < hits.length(); ++i) {
