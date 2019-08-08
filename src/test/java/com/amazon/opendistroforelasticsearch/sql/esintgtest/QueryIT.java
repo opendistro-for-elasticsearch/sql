@@ -105,7 +105,7 @@ public class QueryIT extends SQLIntegTestCase {
         String fieldName = "age";
         Set<String> expectedSource = new HashSet<>(Arrays.asList(arr));
         JSONObject response = executeQuery(String.format(Locale.ROOT,
-                "SELECT *, %s as t " +
+                "SELECT * as a, %s as t " +
                         "FROM %s/account LIMIT 5",
                 fieldName, TestsConstants.TEST_INDEX_BANK));
 
@@ -124,7 +124,7 @@ public class QueryIT extends SQLIntegTestCase {
         String fieldName = "age";
         Set<String> expectedSource = new HashSet<>(Arrays.asList(arr));
         JSONObject response = executeQuery(String.format(Locale.ROOT,
-                "SELECT *, %s as t " +
+                "SELECT * as a, %s as t " +
                         "FROM %s/account GROUP BY %s",
                 fieldName, TestsConstants.TEST_INDEX_BANK, fieldName));
 
@@ -139,7 +139,7 @@ public class QueryIT extends SQLIntegTestCase {
         String fieldName = "age";
         Set<String> expectedSource = new HashSet<>(Arrays.asList(arr));
         JSONObject response = executeQuery(String.format(Locale.ROOT,
-                "SELECT *, %s as t " + "" +
+                "SELECT * as a, %s as t " + "" +
                         "FROM %s/account ORDER BY %s LIMIT 5",
                 fieldName, TestsConstants.TEST_INDEX_BANK, fieldName));
 
