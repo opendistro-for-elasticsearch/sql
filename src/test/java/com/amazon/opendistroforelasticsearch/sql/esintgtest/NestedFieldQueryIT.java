@@ -29,6 +29,7 @@ import org.hamcrest.Matcher;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -66,6 +67,7 @@ public class NestedFieldQueryIT extends SQLIntegTestCase {
     @Override
     protected void init() throws Exception {
         loadIndex(Index.NESTED);
+        loadIndex(Index.EMPLOYEE_NESTED);
     }
 
     @Test
@@ -163,6 +165,107 @@ public class NestedFieldQueryIT extends SQLIntegTestCase {
                         hit(
                             author("h"),
                             info("c")
+                        )
+                    )
+                )
+            )
+        );
+    }
+
+    @Test
+    public void regularAndDeepNestedFieldInSelect() throws IOException {
+        assertThat(
+            execute("select title, a.city " +
+                    "from elasticsearch-sql_test_index_employee_nested e, e.projects p, p.address a"),
+            hits(
+                hit(
+                    textMatch("title", null),
+                    innerHits("projects.address",
+                        hit(
+                            textMatch("city", "Seattle")
+                        ),
+                        hit(
+                            textMatch("city", "Boston")
+                        ),
+                        hit(
+                            textMatch("city", "Chicago")
+                        )
+                    )
+                ),
+                hit(
+                    textMatch("title", "Software Eng 2"),
+                    innerHits("projects.address",
+                        hit(
+                            textMatch("city", "Dallas")
+                        )
+                    )
+                )
+            )
+        );
+    }
+
+    @Test
+    public void deepSelectAll() throws IOException {
+        assertThat(
+            execute("SELECT * FROM elasticsearch-sql_test_index_employee_nested e, e.projects p, p.address a"),
+            hits(
+                hit(
+                    textMatch("name", "Bob Smith"),
+                    innerHits("projects",
+                        hit(
+                            textMatch("name", "AWS Redshift Spectrum querying"),
+                            innerHits("projects.address",
+                                hit(
+                                    textMatch("city", "Seattle"),
+                                    textMatch("state", "WA")
+                                ),
+                                hit(
+                                    textMatch("city", "Boston"),
+                                    textMatch("state", "MA")
+                                )
+                            )
+                        ),
+                        hit(
+                            textMatch("name", "AWS Redshift security"),
+                            innerHits("projects.address",
+                                hit(
+                                    textMatch("city", "Chicago"),
+                                    textMatch("state", "IL")
+                                )
+                            )
+                        )
+                    )
+                ),
+                hit(
+                    textMatch("name", "Jane Smith"),
+                    innerHits("projects",
+                        hit(
+                            textMatch("name", "AWS Hello security"),
+                            innerHits("projects.address",
+                                hit(
+                                    textMatch("city", "Dallas"),
+                                    textMatch("state", "TX")
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        );
+    }
+
+    @Test
+    @Ignore("Deep query with WHERE condition is not fully supported")
+    public void deepSingleCondition() throws IOException {
+        assertThat(
+            execute("SELECT a.city FROM elasticsearch-sql_test_index_employee_nested e, e.projects p, p.address a" +
+                    " WHERE p.name = 'AWS Hello security' "),
+            hits(
+                hit(
+                    textMatch("name", "Jane Smith"),
+                    innerHits("projects.address",
+                        hit(
+                            textMatch("city", "Dallas")
                         )
                     )
                 )
@@ -403,6 +506,10 @@ public class NestedFieldQueryIT extends SQLIntegTestCase {
 
     private Matcher<SearchHit> info(String value) {
         return kv("info", is(value));
+    }
+
+    private Matcher<SearchHit> textMatch(String fieldName, String value) {
+        return kv(fieldName, is(value));
     }
 
     private Matcher<SearchHit> kv(String key, Matcher<Object> valMatcher) {

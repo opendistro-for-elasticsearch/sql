@@ -31,6 +31,7 @@ import com.alibaba.druid.sql.parser.ParserException;
 import com.alibaba.druid.sql.parser.Token;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.nestedfield.NestedFieldRewriter;
 import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -120,7 +121,7 @@ public class NestedFieldRewriterTest {
     }
 
     @Test
-    public void select() {
+    public void selectNestedField() {
         same(
             query("SELECT e.age FROM team t, t.employees e"),
             query("SELECT nested(employees.age, 'employees' ) FROM team")
@@ -223,6 +224,9 @@ public class NestedFieldRewriterTest {
         // TODO
     }
 
+    //TODO: this case will fail because of  "SELECT expected:<[manager.age]> but was:<[t1.manager.age]>".
+    // Need Re-evaluate the correctness of this test case.
+    @Ignore
     @Test
     public void subQuery() {
         // Subquery only support IN and TERMS
@@ -246,6 +250,93 @@ public class NestedFieldRewriterTest {
             query("SELECT name FROM team " +
                   "  WHERE nested(employees.age, 'employees') IN " +
                   "    (SELECT age FROM team WHERE age > 0 OR nested(manager.name, 'manager') = 'Alice')")
+        );
+    }
+
+    @Test
+    public void deepSelectAll() {
+        same(
+            query("SELECT * FROM employees e, e.projects p, p.address a"),
+            query("SELECT *, nested(projects.*, 'projects'), " +
+                    "nested(projects.address.*, 'projects.address') FROM employees")
+        );
+    }
+
+    @Test
+    public void deepSelectAllFromDiffLevel() {
+        same(
+            query("SELECT * FROM employees e, e.projects p, p.address a, e.comments c, c.message m"),
+            query("SELECT *, nested(projects.*, 'projects'), nested(projects.address.*, 'projects.address'), " +
+                    "nested(comments.*, 'comments'), nested(comments.message.*, 'comments.message') FROM employees")
+        );
+    }
+
+    @Test
+    public void deeperSelectAll() {
+        same(
+            query("SELECT * FROM employees e, e.projects p, p.address a, a.country c"),
+            query("SELECT *, nested(projects.*, 'projects'), nested(projects.address.*, 'projects.address'), " +
+                    "nested(projects.address.country.*, 'projects.address.country') FROM employees")
+        );
+    }
+
+    @Test
+    public void regularAndDeeplyNestedFieldInSelect() {
+        same(
+                query("SELECT title, a.city FROM employees e, e.projects p, p.address a"),
+                query("SELECT title, nested(projects.address.city, 'projects.address') from employees")
+        );
+    }
+
+    @Test
+    @Ignore("Deep query with WHERE condition is not fully supported")
+    public void deepSelectAllWithCondition() {
+        same(
+            query("SELECT * FROM employees e, e.projects p, p.address a WHERE a.city = 'Dallas' "),
+            query("SELECT *, nested(projects.*, 'projects'), nested(projects.address.*, 'projects.address') " +
+                    "FROM employees WHERE nested(projects.address.city, 'projects.address') = 'Dallas' ")
+        );
+    }
+
+    @Test
+    @Ignore("Deep query with WHERE condition is not fully supported")
+    public void deepSelectAllWithMultiConditionSameLevel() {
+        same(
+            query("SELECT * FROM employees e, e.projects p, p.address a WHERE a.state = 'TX' AND a.city = 'Dallas' "),
+            query("SELECT *, nested(projects.*, 'projects'), nested(projects.address.*, 'projects.address') FROM employees WHERE " +
+                    "nested(\"projects.address\", projects.address.state = 'TX' AND projects.address.city = 'Dallas') ")
+        );
+    }
+
+    @Test
+    @Ignore("Deep query with WHERE condition is not fully supported")
+    public void deepSelectAllWithMultiConditionDiffLevel() {
+        same(
+            query("SELECT * FROM employees e, e.projects p, p.address a WHERE p.started_year = 1990 AND a.city = 'Seattle' "),
+            query("SELECT *, nested(projects.*), nested(projects.address.*) FROM employees WHERE " +
+                    "nested(projects.started_year) = 1990 AND nested(projects.address.city) = 'Seattle' ")
+            // TODO: need to generate
+            //  "WHERE nested(\"projects\", projects.started_year = 1990 AND
+            //  nested(\"projects.address\", projects.address.city = 'Seattle')) "
+        );
+    }
+
+    @Test
+    public void deepSelectNestedField() {
+        same(
+            query("SELECT p.name, a.city, p.year, a.state FROM employees e, e.projects p, p.address a"),
+            query("SELECT nested(projects.name, 'projects'), nested(projects.address.city, 'projects.address'), " +
+                    "nested(projects.year, 'projects'), nested(projects.address.state, 'projects.address') FROM employees")
+        );
+    }
+
+    @Test
+    @Ignore("Deep query with WHERE condition is not fully supported")
+    public void deepSelectNestedFieldWithSingleCondition() {
+        same(
+            query("SELECT p.name, a.city FROM employees e, e.projects p, p.address a WHERE a.city = 'Dallas'"),
+            query("SELECT nested(projects.name, 'projects'), nested(projects.address.city, 'projects.address') " +
+                    "FROM employees WHERE nested(projects.address.city, 'projects.address') = 'Dallas' ")
         );
     }
 

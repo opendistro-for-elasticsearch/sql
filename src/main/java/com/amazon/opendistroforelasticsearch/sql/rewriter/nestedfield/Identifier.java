@@ -60,7 +60,7 @@ class Identifier extends SQLClause<SQLIdentifierExpr> {
     }
 
     private int separatorIndex() {
-        return expr.getName().indexOf(SEPARATOR);
+        return expr.getName().lastIndexOf(SEPARATOR);
     }
 
     /**

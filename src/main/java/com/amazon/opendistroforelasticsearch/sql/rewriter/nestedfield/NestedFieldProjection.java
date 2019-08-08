@@ -26,6 +26,8 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.TreeMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -45,6 +47,9 @@ import static org.elasticsearch.index.query.QueryBuilders.nestedQuery;
 public class NestedFieldProjection {
 
     private final SearchRequestBuilder request;
+    private static final String SEPARATOR = ".";
+    private String lastFieldInPath = "";
+    private List<String> lastFieldNames = new ArrayList<>();
 
     public NestedFieldProjection(SearchRequestBuilder request) {
         this.request = request;
@@ -57,12 +62,19 @@ public class NestedFieldProjection {
     public void project(List<Field> fields) {
         if (isAnyNestedField(fields)) {
             initBoolQueryFilterIfNull();
-
+            // Extract nested query from WHERE clause
             List<NestedQueryBuilder> nestedQueries = extractNestedQueries(query());
             groupFieldNamesByPath(fields).forEach(
-                (path, fieldNames) -> buildInnerHit(fieldNames, findNestedQueryWithSamePath(nestedQueries, path))
+                (path, fieldNames) -> buildInnerHit(fieldNames, findNestedQueryWithSamePath(nestedQueries, path, fieldNames))
             );
         }
+    }
+
+    /** Reset values of lastFieldInPath and lastFieldNames to prepare for next check */
+    private void setLastValues(String path, List<String> fieldNames) {
+        int pos = path.lastIndexOf(SEPARATOR);
+        lastFieldInPath = path.substring(pos + 1);
+        lastFieldNames = fieldNames;
     }
 
     /** Check via traditional for loop first to avoid lambda performance impact on all queries even though those without nested field */
@@ -88,7 +100,7 @@ public class NestedFieldProjection {
         return fields.stream().
                       filter(Field::isNested).
                       filter(not(Field::isReverseNested)).
-                      collect(groupingBy(Field::getNestedPath, mapping(Field::getName, toList())));
+                      collect(groupingBy(Field::getNestedPath, () -> new TreeMap<>(Collections.reverseOrder()), mapping(Field::getName, toList())));
     }
 
     /**
@@ -123,23 +135,64 @@ public class NestedFieldProjection {
      * Why linear search? Because NestedQueryBuilder hides "path" field from any access.
      * Assumption: collected NestedQueryBuilder list should be very small or mostly only one.
      */
-    private NestedQueryBuilder findNestedQueryWithSamePath(List<NestedQueryBuilder> nestedQueries, String path) {
+    private NestedQueryBuilder findNestedQueryWithSamePath(
+            List<NestedQueryBuilder> nestedQueries, String path, List<String> fieldNames) {
+
         return nestedQueries.stream().
-                             filter(query -> isSamePath(path, query)).
-                             findAny().
-                             orElseGet(createEmptyNestedQuery(path));
+                filter(query -> isSamePath(path, query, fieldNames)).
+                findAny().
+                orElseGet(createNestedQuery(path, fieldNames));
     }
 
-    private boolean isSamePath(String path, NestedQueryBuilder query) {
-        return nestedQuery(path, query.query(), query.scoreMode()).equals(query);
+    /** Check against NestedQuery of WHERE condition */
+    private boolean isSamePath(String path, NestedQueryBuilder query, List<String> fieldNames) {
+        boolean isSamePath = nestedQuery(path, query.query(), query.scoreMode()).equals(query);
+        if (isSamePath) {
+           setLastValues(path, fieldNames);
+        }
+        return isSamePath;
+    }
+
+    /**
+     * Since groupFieldNamesByPath() uses TreeMap to maintain reverse alphabetical order. Here we maintain previous
+     * path and fieldName value to compare with current nested query.
+     * */
+    private boolean hasSameParent(String path, QueryBuilder query) {
+        // query could also be termQueryBuilder
+        if (!lastFieldInPath.isEmpty() && (query instanceof NestedQueryBuilder)) {
+            NestedQueryBuilder nestedQuery = (NestedQueryBuilder) query;
+
+            String finalPath = path + "." + lastFieldInPath;
+            NestedQueryBuilder tmp = nestedQuery(finalPath, nestedQuery.query(), nestedQuery.scoreMode());
+            buildInnerHit(lastFieldNames, tmp);
+            return tmp.equals(query);
+        }
+        return false;
     }
 
     /** Create a nested query with match all filter to place inner hits */
-    private Supplier<NestedQueryBuilder> createEmptyNestedQuery(String path) {
+    private Supplier<NestedQueryBuilder> createNestedQuery(String path, List<String> fieldNames) {
         return () -> {
-            NestedQueryBuilder nestedQuery = nestedQuery(path, matchAllQuery(), ScoreMode.None);
-            ((BoolQueryBuilder) query().filter().get(0)).must(nestedQuery);
-            return nestedQuery;
+            NestedQueryBuilder newNestedQuery;
+            List<QueryBuilder> mustList = ((BoolQueryBuilder) query().filter().get(0)).must();
+            int lastIndex = mustList.size() - 1;
+
+            if (mustList.isEmpty() || !hasSameParent(path, mustList.get(lastIndex))) {
+                // create empty nested query
+                newNestedQuery = nestedQuery(path, matchAllQuery(), ScoreMode.None);
+            } else {
+                // create a nested query containing another nested query
+                NestedQueryBuilder oldNestedQuery = (NestedQueryBuilder) mustList.get(lastIndex);
+                newNestedQuery = nestedQuery(path, oldNestedQuery, ScoreMode.None);
+
+                // remove outdated nested query
+                mustList.remove(lastIndex);
+            }
+
+            setLastValues(path, fieldNames);
+            // include newly-built nestedQuery in must
+            ((BoolQueryBuilder) query().filter().get(0)).must(newNestedQuery);
+            return newNestedQuery;
         };
     }
 

@@ -108,6 +108,12 @@ class From extends SQLClause<SQLTableSource> {
         Identifier table = new Identifier((SQLIdentifierExpr) ((SQLExprTableSource) expr).getExpr());
         if (table.path().equals(scope.getParentAlias())) {
             scope.addAliasFullPath(emptyIfNull(expr.getAlias()), table.name());
+        } else {
+            String fullPath = scope.getFullPath(table.path());
+
+            if (!fullPath.isEmpty()) {
+                scope.addAliasFullPath(emptyIfNull(expr.getAlias()),fullPath + "." + table.name());
+            }
         }
     }
 

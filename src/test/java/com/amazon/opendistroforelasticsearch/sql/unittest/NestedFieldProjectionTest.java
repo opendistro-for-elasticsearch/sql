@@ -39,6 +39,7 @@ import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -239,8 +240,288 @@ public class NestedFieldProjectionTest {
         );
     }
 
+    @Test
+    public void deepSelectAll() {
+        assertThat(
+            query("SELECT *, nested(projects.*), nested(projects.address.*) FROM employees_nested_2"),
+            source(
+                boolQuery(
+                    filter(
+                        boolQuery(
+                            must(
+                                nestedQuery(
+                                    deepNestedQuery(
+                                        deepSource(
+                                            nestedQuery(
+                                                path("projects.address"),
+                                                innerHits("projects.address.*")
+                                            )
+                                        )
+                                    ),
+                                    path("projects"),
+                                    innerHits("projects.*")
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        );
+    }
+
+    @Test
+    public void deepSelectAllFromDiffLevel() {
+        assertThat(
+            query("SELECT *, nested(projects.*), nested(projects.address.*), nested(comments.*), " +
+                    "nested(comments.message.*) FROM employees"),
+            source(
+                boolQuery(
+                    filter(
+                        boolQuery(
+                            must(
+                                nestedQuery(
+                                    deepNestedQuery(
+                                        deepSource(
+                                            nestedQuery(
+                                                path("projects.address"),
+                                                innerHits("projects.address.*")
+                                            )
+                                        )
+                                    ),
+                                    path("projects"),
+                                    innerHits("projects.*")
+                                ),
+                                nestedQuery(
+                                    deepNestedQuery(
+                                        deepSource(
+                                            nestedQuery(
+                                                path("comments.message"),
+                                                innerHits("comments.message.*")
+                                            )
+                                        )
+                                    ),
+                                    path("comments"),
+                                    innerHits("comments.*")
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        );
+    }
+
+    @Test
+    public void deeperSelectAll() {
+        assertThat(
+            query("SELECT *, nested(projects.*), nested(projects.address.*), nested(projects.address.city.*) " +
+                    "FROM employees_nested_2"),
+            source(
+                boolQuery(
+                    filter(
+                        boolQuery(
+                            must(
+                                nestedQuery(
+                                    deepNestedQuery(
+                                        deepSource(
+                                            nestedQuery(
+                                                path("projects.address"),
+                                                innerHits("projects.address.*")
+                                            )
+                                        )
+                                    ),
+                                    path("projects"),
+                                    innerHits("projects.*")
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        );
+    }
+
+    @Test
+    public void regularAndDeeplyNestedFieldInSelect() {
+        assertThat(
+            query("SELECT title, nested(projects.address.city) from employee_nested_2"),
+            source(
+                boolQuery(
+                    filter(
+                        boolQuery(
+                            must(
+                                nestedQuery(
+                                    path("projects.address"),
+                                    innerHits("projects.address.city")
+                                )
+                            )
+                        )
+                    )
+                ),
+                fetchSource("title")
+            )
+        );
+    }
+
+    @Test
+    public void deepSelectNestedField() {
+        assertThat(
+            query("SELECT nested(projects.address.state), nested(projects.address.city), " +
+                    "nested(projects.started_year), nested(projects.name) FROM employees_nested_2"),
+            source(
+                boolQuery(
+                    filter(
+                        boolQuery(
+                                must(
+                                    nestedQuery(
+                                        deepNestedQuery(
+                                            deepSource(
+                                                nestedQuery(
+                                                    path("projects.address"),
+                                                    innerHits("projects.address.state", "projects.address.city")
+                                                )
+                                            )
+                                        ),
+                                        path("projects"),
+                                        innerHits("projects.started_year", "projects.name")
+                                    )
+                                )
+                        )
+                    )
+                )
+            )
+        );
+    }
+
+    @Test
+    @Ignore("Deep query with WHERE condition is not fully supported")
+    public void deepSelectNestedFieldWithCondition() {
+        assertThat(
+            query("SELECT nested(projects.name), nested(projects.address.city) FROM employees " +
+                    "WHERE nested(projects.address.city) = 'Dallas'"),
+            source(
+                boolQuery(
+                    filter(
+                        boolQuery(
+                            must(
+                                nestedQuery(
+                                    deepNestedQuery(
+                                        deepSource(
+                                            nestedQuery(
+                                                path("projects.address"),
+                                                innerHits("projects.address.city")
+                                        )
+                                        )
+                                    ),
+                                    path("projects"),
+                                    innerHits( "projects.name")
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        );
+    }
+
+    @Test
+    @Ignore("Deep query with WHERE condition is not fully supported")
+    public void deepSelectAllWithCondition() {
+        assertThat(
+            query("SELECT *, nested(projects.*), nested(projects.address.*) FROM employees_nested_2 " +
+                    "WHERE nested(projects.address.city) = 'Dallas' "),
+            source(
+                boolQuery(
+                    filter(
+                        boolQuery(
+                            must(
+                                nestedQuery(
+                                    deepNestedQuery(
+                                        deepSource(
+                                            nestedQuery(
+                                                path("projects.address"),
+                                                innerHits("projects.address.*")
+                                            )
+                                        )
+                                    ),
+                                    path("projects"),
+                                    innerHits("projects.*")
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        );
+    }
+
+    // TODO: this test case needs re-evaluation
+    @Test
+    @Ignore("Deep query with WHERE condition is not fully supported")
+    public void deepSelectAllWithMultiConditionDiffLevel() {
+        assertThat(
+            query("SELECT *, nested(projects.*), nested(projects.address.*) FROM employees_nested_2 " +
+                    "WHERE nested(\"projects\", projects.started_year = 1990 " +
+                    "AND nested(\"projects.address\", projects.address.city = 'Seattle')) "),
+            source(
+                boolQuery(
+                    filter(
+                        boolQuery(
+                            must(
+                                nestedQuery(
+                                    path("projects.address"),
+                                    innerHits("projects.address.*")
+                                ),
+                                nestedQuery(
+                                    path("projects"),
+                                    innerHits("projects.*")
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        );
+    }
+
+    @Test
+    @Ignore("Deep query with WHERE condition is not fully supported")
+    public void deepSelectAllWithMultiConditionSameLevel() {
+        assertThat(
+            query("SELECT *, nested(projects.*), nested(projects.address.*) FROM employees_nested_2 " +
+                    "WHERE nested(\"projects.address\", projects.address.state = 'TX' " +
+                    "OR projects.address.city = 'Dallas') "),
+            source(
+                boolQuery(
+                    filter(
+                        boolQuery(
+                            must(
+                                nestedQuery(
+                                    deepNestedQuery(
+                                        deepSource(
+                                            nestedQuery(
+                                                path("projects.address"),
+                                                innerHits("projects.address.*")
+                                            )
+                                        )
+                                    ),
+                                    path("projects"),
+                                    innerHits("projects.*")
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        );
+    }
+
     private Matcher<SearchSourceBuilder> source(Matcher<QueryBuilder> queryMatcher) {
         return featureValueOf("query", queryMatcher, SearchSourceBuilder::query);
+    }
+
+    private Matcher<NestedQueryBuilder> deepSource(Matcher<QueryBuilder> queryMatcher) {
+        return featureValueOf("query", queryMatcher, NestedQueryBuilder::query);
     }
 
     private Matcher<SearchSourceBuilder> source(Matcher<QueryBuilder> queryMatcher,
@@ -262,6 +543,12 @@ public class NestedFieldProjectionTest {
     private final Matcher<QueryBuilder> nestedQuery(Matcher<NestedQueryBuilder>... matchers) {
         return (Matcher) both(is(Matchers.<NestedQueryBuilder>instanceOf(NestedQueryBuilder.class))).
                             and(allOf(matchers));
+    }
+
+    @SafeVarargs
+    private final Matcher<NestedQueryBuilder> deepNestedQuery(Matcher<NestedQueryBuilder>... matchers) {
+        return both(is(Matchers.<NestedQueryBuilder>instanceOf(NestedQueryBuilder.class))).
+                and(allOf(matchers));
     }
 
     @SafeVarargs
