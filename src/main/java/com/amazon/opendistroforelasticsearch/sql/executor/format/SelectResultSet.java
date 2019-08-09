@@ -23,6 +23,7 @@ import com.amazon.opendistroforelasticsearch.sql.domain.ScriptMethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.domain.TableOnJoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMapping;
+import com.amazon.opendistroforelasticsearch.sql.exception.SqlFeatureNotImplementedException;
 import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
@@ -35,6 +36,8 @@ import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.NumericMetricsAggregation;
+import org.elasticsearch.search.aggregations.metrics.Percentile;
+import org.elasticsearch.search.aggregations.metrics.Percentiles;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,6 +47,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toSet;
 import static org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse.FieldMappingMetaData;
@@ -291,6 +296,7 @@ public class SelectResultSet extends ResultSet {
             case "avg":
             case "min":
             case "max":
+            case "percentiles":
                 return Schema.Type.DOUBLE;
             case "script": {
                 // TODO: return type information is disconnected from the function definitions in SQLFunctions.
@@ -555,8 +561,21 @@ public class SelectResultSet extends ResultSet {
      */
     private Map<String, Object> addNumericAggregation(List<Aggregation> aggs, Map<String, Object> data) {
         for (Aggregation aggregation : aggs) {
-            NumericMetricsAggregation.SingleValue numericAggs = (NumericMetricsAggregation.SingleValue) aggregation;
-            data.put(numericAggs.getName(), numericAggs.value());
+            if (aggregation instanceof NumericMetricsAggregation.SingleValue){
+                NumericMetricsAggregation.SingleValue singleValueAggregation = (NumericMetricsAggregation.SingleValue) aggregation;
+                data.put(singleValueAggregation.getName(), !Double.isInfinite(singleValueAggregation.value()) ? singleValueAggregation.getValueAsString() : "null");
+            }
+            else if (aggregation instanceof Percentiles) {
+                Percentiles percentiles = (Percentiles) aggregation;
+
+                data.put(percentiles.getName(), StreamSupport
+                        .stream(percentiles.spliterator(), false)
+                        .collect(Collectors.toMap(Percentile::getPercent, Percentile::getValue)));
+            }
+            else {
+                throw new SqlFeatureNotImplementedException("Aggregation type " + aggregation.getType()
+                        + " is not yet supported");
+            }
         }
 
         return data;
