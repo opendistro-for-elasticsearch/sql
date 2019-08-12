@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -570,11 +571,18 @@ public class SelectResultSet extends ResultSet {
 
                 data.put(percentiles.getName(), StreamSupport
                         .stream(percentiles.spliterator(), false)
-                        .collect(Collectors.toMap(Percentile::getPercent, Percentile::getValue)));
+                        .collect(
+                                Collectors.toMap(
+                                        Percentile::getPercent,
+                                        Percentile::getValue,
+                                        (v1, v2) -> {
+                                            throw new IllegalArgumentException(
+                                                    String.format("Duplicate key for values %s and %s", v1, v2));},
+                                        TreeMap::new)));
             }
             else {
                 throw new SqlFeatureNotImplementedException("Aggregation type " + aggregation.getType()
-                        + " is not yet supported");
+                        + " is not yet implemented");
             }
         }
 

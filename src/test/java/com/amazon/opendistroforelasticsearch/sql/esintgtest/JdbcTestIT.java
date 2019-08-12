@@ -29,8 +29,8 @@ public class JdbcTestIT extends SQLIntegTestCase {
 
     public void testPercentilesQuery() {
         JSONObject response = executeJdbcRequest(
-                "SELECT percentiles(age, 25.0, 50.0, 75.0, 99.9) age_percentiles" +
-                        " FROM elasticsearch-sql_test_index_people");
+            "SELECT percentiles(age, 25.0, 50.0, 75.0, 99.9) age_percentiles " +
+            "FROM elasticsearch-sql_test_index_people");
 
         assertThat(response.getJSONArray("datarows").length(), equalTo(1));
 
