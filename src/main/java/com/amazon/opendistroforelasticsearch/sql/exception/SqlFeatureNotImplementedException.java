@@ -7,8 +7,6 @@ package com.amazon.opendistroforelasticsearch.sql.exception;
 public class SqlFeatureNotImplementedException extends RuntimeException {
     private static final long serialVersionUID = 1;
 
-    public SqlFeatureNotImplementedException() { super();}
-
     public SqlFeatureNotImplementedException(String message) {
         super(message);
     }
