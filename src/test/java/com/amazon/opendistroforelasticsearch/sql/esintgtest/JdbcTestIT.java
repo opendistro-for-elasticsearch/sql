@@ -24,6 +24,22 @@ public class JdbcTestIT extends SQLIntegTestCase {
     @Override
     protected void init() throws Exception {
         loadIndex(Index.ONLINE);
+        loadIndex(Index.PEOPLE);
+    }
+
+    public void testPercentilesQuery() {
+        JSONObject response = executeJdbcRequest(
+            "SELECT percentiles(age, 25.0, 50.0, 75.0, 99.9) age_percentiles " +
+            "FROM elasticsearch-sql_test_index_people");
+
+        assertThat(response.getJSONArray("datarows").length(), equalTo(1));
+
+        JSONObject percentileRow = (JSONObject) response.query("/datarows/0/0");
+
+        assertThat(percentileRow.getDouble("25.0"), equalTo(31.5));
+        assertThat(percentileRow.getDouble("50.0"), equalTo(33.5));
+        assertThat(percentileRow.getDouble("75.0"), equalTo(36.5));
+        assertThat(percentileRow.getDouble("99.9"), equalTo(39.0));
     }
 
     public void testDateTimeInQuery() {
