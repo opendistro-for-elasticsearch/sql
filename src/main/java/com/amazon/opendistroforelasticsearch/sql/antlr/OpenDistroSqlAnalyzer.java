@@ -2,7 +2,9 @@ package com.amazon.opendistroforelasticsearch.sql.antlr;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlLexer;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser;
-import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParserBaseListener;
+import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.QuerySpecificationContext;
+import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.TableNameContext;
+import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.VerificationException;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import org.antlr.v4.runtime.BaseErrorListener;
@@ -14,8 +16,6 @@ import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.tree.ParseTreeListener;
-import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.apache.lucene.search.spell.LevenshteinDistance;
 import org.apache.lucene.search.spell.StringDistance;
 
@@ -46,14 +46,12 @@ public class OpenDistroSqlAnalyzer {
         analyzeSemantic(
             analyzeSyntax(
                 createParser(
-                    createLexer(sql)
-                )
-            )
-        );
+                    createLexer(sql))));
     }
 
     private OpenDistroSqlParser createParser(Lexer lexer) {
-        return new OpenDistroSqlParser(new CommonTokenStream(lexer));
+        return new OpenDistroSqlParser(
+                   new CommonTokenStream(lexer));
     }
 
     private OpenDistroSqlLexer createLexer(String sql) {
@@ -74,43 +72,48 @@ public class OpenDistroSqlAnalyzer {
     }
 
     private void analyzeSemantic(ParseTree tree) {
-        final Map<String, FieldMappings> mappingByAlias = new HashMap<>();
-
-        ParseTreeListener listener1 = new OpenDistroSqlParserBaseListener() {
+        tree.accept(new OpenDistroSqlParserBaseVisitor<Attribute>() {
+            private final SymbolTable<String, FieldMappings> typesBySymbol = new SymbolTable<>();
 
             @Override
-            public void enterTableName(OpenDistroSqlParser.TableNameContext ctx) {
-                OpenDistroSqlParser.FullIdContext fullId = ctx.fullId();
-                String indexName = fullId.uid(0).simpleId().ID().getSymbol().getText();
+            public Attribute visitQuerySpecification(QuerySpecificationContext ctx) {
+                // Always visit FROM clause first to define symbols
+                visit(ctx.fromClause());
 
+                for (int i = 0; i < ctx.getChildCount(); i++) {
+                    if (ctx.getChild(i) != ctx.fromClause()) {
+                        visit(ctx.getChild(i));
+                    }
+                }
+                return Attribute.EMPTY;
+            }
+
+            @Override
+            public Attribute visitTableName(TableNameContext ctx) {
+                String indexName = ctx.fullId().uid(0).simpleId().ID().getSymbol().getText();
                 IndexMappings indexMappings = state().getFieldMappings(new String[]{indexName});
                 if (indexMappings == null) {
                     throw new VerificationException(StringUtils.format("Index name or pattern [%s] doesn't match any existing index", indexName));
                 }
 
                 FieldMappings mappings = indexMappings.firstMapping().firstMapping();
-                mappingByAlias.put("", mappings);
+                typesBySymbol.define("", mappings);
+                return Attribute.EMPTY;
             }
-        };
-
-        ParseTreeListener listener2 = new OpenDistroSqlParserBaseListener() {
 
             @Override
-            public void enterFullColumnName(OpenDistroSqlParser.FullColumnNameContext ctx) {
+            public Attribute visitFullColumnName(OpenDistroSqlParser.FullColumnNameContext ctx) {
                 final String fieldName = ctx.uid().simpleId().ID().getText();
-                FieldMappings fieldMappings = mappingByAlias.get("");
+                FieldMappings fieldMappings = typesBySymbol.resolve("");
                 Map<String, Object> mappings = fieldMappings.mapping(fieldName);
                 if (mappings == null) {
                     List<String> suggestedWords = new StringSimilarity(fieldMappings.allNames()).similarTo(fieldName);
                     throw new VerificationException(StringUtils.format(
                         "Field [%s] cannot be found. Did you mean [%s]?", fieldName, String.join(", ", suggestedWords)));
                 }
+                return Attribute.EMPTY;
             }
-        };
-
-        ParseTreeWalker walker = new ParseTreeWalker();
-        walker.walk(listener1, tree);
-        walker.walk(listener2, tree);
+        });
     }
 
 
@@ -186,6 +189,21 @@ public class OpenDistroSqlAnalyzer {
         public String getSourceName() {
             return stream.getSourceName();
         }
+    }
+
+
+    /**
+     * Attribute on tree
+     */
+    private static class Attribute {
+        public static final Attribute EMPTY = new Attribute("");
+
+        private final String type;
+
+        private Attribute(String type) {
+            this.type = type;
+        }
+
     }
 
 
