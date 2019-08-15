@@ -2,6 +2,7 @@ package com.amazon.opendistroforelasticsearch.sql.antlr;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlLexer;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser;
+import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FunctionArgsContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.QuerySpecificationContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.TableNameContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParserBaseVisitor;
@@ -27,6 +28,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.DecimalLiteralContext;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FullColumnNameContext;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.ScalarFunctionCallContext;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.StringLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState.FieldMappings;
 import static com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState.IndexMappings;
 import static com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState.state;
@@ -102,7 +107,7 @@ public class OpenDistroSqlAnalyzer {
             }
 
             @Override
-            public Attribute visitFullColumnName(OpenDistroSqlParser.FullColumnNameContext ctx) {
+            public Attribute visitFullColumnName(FullColumnNameContext ctx) {
                 final String fieldName = ctx.uid().simpleId().ID().getText();
                 FieldMappings fieldMappings = typesBySymbol.resolve("");
                 Map<String, Object> mappings = fieldMappings.mapping(fieldName);
@@ -111,7 +116,30 @@ public class OpenDistroSqlAnalyzer {
                     throw new VerificationException(StringUtils.format(
                         "Field [%s] cannot be found. Did you mean [%s]?", fieldName, String.join(", ", suggestedWords)));
                 }
-                return Attribute.EMPTY;
+                return new Attribute((String) mappings.get("type"));
+            }
+
+            @Override
+            public Attribute visitScalarFunctionCall(ScalarFunctionCallContext ctx) {
+                if (ctx.scalarFunctionName().functionNameBase().ABS() != null) {
+                    Attribute argAttribute = visit(ctx.functionArgs());
+                    if (!argAttribute.isNumber()) {
+                        throw new VerificationException(StringUtils.format(
+                            "Function ABS can only work with number instead of %s. Usage ABS(number)", argAttribute));
+                    }
+                    return argAttribute;
+                }
+                return super.visitScalarFunctionCall(ctx);
+            }
+
+            @Override
+            public Attribute visitStringLiteral(StringLiteralContext ctx) {
+                return new Attribute("text");
+            }
+
+            @Override
+            public Attribute visitDecimalLiteral(DecimalLiteralContext ctx) {
+                return new Attribute("long");
             }
         });
     }
@@ -200,10 +228,23 @@ public class OpenDistroSqlAnalyzer {
 
         private final String type;
 
-        private Attribute(String type) {
+        public Attribute(String type) {
             this.type = type;
         }
 
+        // Should be method in ES type class in ES (mapping) domain layer
+        public boolean isNumber() {
+            return "long".equals(type) || "integer".equals(type);
+        }
+
+        public boolean isString() {
+            return "text".equals(type) || "keyword".equals(type);
+        }
+
+        @Override
+        public String toString() {
+            return "[" + type + ']';
+        }
     }
 
 
