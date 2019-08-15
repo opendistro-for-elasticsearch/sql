@@ -26,6 +26,7 @@ import com.alibaba.druid.sql.parser.ParserException;
 import com.alibaba.druid.sql.parser.SQLExprParser;
 import com.alibaba.druid.sql.parser.SQLStatementParser;
 import com.alibaba.druid.sql.parser.Token;
+import com.amazon.opendistroforelasticsearch.sql.antlr.OpenDistroSqlAnalyzer;
 import com.amazon.opendistroforelasticsearch.sql.domain.Delete;
 import com.amazon.opendistroforelasticsearch.sql.domain.IndexStatement;
 import com.amazon.opendistroforelasticsearch.sql.domain.JoinSelect;
@@ -163,6 +164,8 @@ public class ESActionFactory {
     }
 
     private static SQLExpr toSqlExpr(String sql) {
+        new OpenDistroSqlAnalyzer().analyze(sql);
+
         SQLExprParser parser = new ElasticSqlExprParser(sql);
         SQLExpr expr = parser.expr();
 
