@@ -19,7 +19,12 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.apache.lucene.search.spell.LevenshteinDistance;
 import org.apache.lucene.search.spell.StringDistance;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState.FieldMappings;
@@ -96,17 +101,9 @@ public class OpenDistroSqlAnalyzer {
                 FieldMappings fieldMappings = mappingByAlias.get("");
                 Map<String, Object> mappings = fieldMappings.mapping(fieldName);
                 if (mappings == null) {
-                    StringDistance distanceAlg = new LevenshteinDistance();
-                    String candiate = fieldName;
-                    float min = Float.MAX_VALUE;
-                    for (String name : fieldMappings.allNames()) {
-                        float dist = distanceAlg.getDistance(fieldName, name);
-                        if (dist < min) {
-                            candiate = name;
-                            min = dist;
-                        }
-                    }
-                    throw new VerificationException(StringUtils.format("Field [%s] cannot be found. Did you mean [%s]?", fieldName, candiate));
+                    List<String> suggestedWords = new StringSimilarity(fieldMappings.allNames()).similarTo(fieldName);
+                    throw new VerificationException(StringUtils.format(
+                        "Field [%s] cannot be found. Did you mean [%s]?", fieldName, String.join(", ", suggestedWords)));
                 }
             }
         };
@@ -116,8 +113,9 @@ public class OpenDistroSqlAnalyzer {
         walker.walk(listener2, tree);
     }
 
+
     /**
-     * Convert to upper/lower case before sending to lexer.
+     * Custom stream to convert to upper/lower case before sending to lexer.
      * https://github.com/antlr/antlr4/blob/master/doc/case-insensitive-lexing.md#custom-character-streams-approach
      * https://github.com/parrt/antlr4/blob/case-insensitivity-doc/doc/resources/CaseChangingCharStream.java
      */
@@ -189,4 +187,55 @@ public class OpenDistroSqlAnalyzer {
             return stream.getSourceName();
         }
     }
+
+
+    /**
+     * Symbol table for CSA (context-sensitive analysis)
+     * @param <Symbol>  type of symbol
+     * @param <Value>   type of information associated with symbol
+     */
+    private static class SymbolTable<Symbol, Value> {
+        private final List<SymbolTable<Symbol, Value>> children = new ArrayList<>();
+        private final Map<Symbol, Value> valuesBySymbol = new HashMap<>();
+
+        public void define(Symbol symbol, Value value) {
+            valuesBySymbol.put(symbol, value);
+        }
+
+        public Value resolve(Symbol symbol) {
+            return valuesBySymbol.get(symbol); //Ignore multiple levels/scopes
+        }
+    }
+
+
+    /**
+     * String similarity for similar string(s) computation
+     */
+    public static class StringSimilarity {
+        private final StringDistance algorithm = new LevenshteinDistance();
+        private final Collection<String> candidates;
+
+        public StringSimilarity(Collection<String> candidates) {
+            this.candidates = Collections.unmodifiableCollection(candidates);
+        }
+
+        /**
+         * Calculate similarity distance between target and candidate strings.
+         * @param target string to match
+         * @return       one or more most similar strings
+         */
+        public List<String> similarTo(String target) {
+            float max = 0;
+            String result = target; // get only one for now
+            for (String name : candidates) {
+                float dist = algorithm.getDistance(target, name);
+                if (dist > max) {
+                    result = name;
+                    max = dist;
+                }
+            }
+            return Arrays.asList(result);
+        }
+    }
+
 }

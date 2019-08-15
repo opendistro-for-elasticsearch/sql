@@ -123,7 +123,7 @@ integTestCluster {
 }
 
 generateGrammarSource {
-    arguments += ['-package', 'com.amazon.opendistroforelasticsearch.sql.antlr.parser']
+    arguments += ['-visitor', '-package', 'com.amazon.opendistroforelasticsearch.sql.antlr.parser']
     source = sourceSets.main.antlr
     outputDirectory = file("src/main/java/com/amazon/opendistroforelasticsearch/sql/antlr/parser")
 }

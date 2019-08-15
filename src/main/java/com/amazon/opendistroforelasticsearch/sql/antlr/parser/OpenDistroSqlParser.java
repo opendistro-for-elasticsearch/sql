@@ -794,6 +794,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitRoot(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitRoot(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final RootContext root() throws RecognitionException {
@@ -870,6 +875,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSqlStatements(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSqlStatements(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1118,6 +1128,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSqlStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSqlStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final SqlStatementContext sqlStatement() throws RecognitionException {
@@ -1202,6 +1217,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitEmptyStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitEmptyStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1343,6 +1363,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDdlStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDdlStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1654,6 +1679,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDmlStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDmlStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DmlStatementContext dmlStatement() throws RecognitionException {
@@ -1785,6 +1815,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTransactionStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTransactionStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1928,6 +1963,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitReplicationStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitReplicationStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -2078,6 +2118,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPreparedStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPreparedStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final PreparedStatementContext preparedStatement() throws RecognitionException {
@@ -2166,6 +2211,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCompoundStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCompoundStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -2346,6 +2396,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAdministrationStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAdministrationStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -2569,6 +2624,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitUtilityStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitUtilityStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final UtilityStatementContext utilityStatement() throws RecognitionException {
@@ -2647,6 +2707,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCreateDatabase(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCreateDatabase(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -2752,6 +2817,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCreateEvent(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCreateEvent(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -2931,6 +3001,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCreateIndex(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCreateIndex(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -3150,6 +3225,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCreateLogfileGroup(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCreateLogfileGroup(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final CreateLogfileGroupContext createLogfileGroup() throws RecognitionException {
@@ -3356,6 +3436,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCreateProcedure(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCreateProcedure(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final CreateProcedureContext createProcedure() throws RecognitionException {
@@ -3483,6 +3568,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCreateFunction(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCreateFunction(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final CreateFunctionContext createFunction() throws RecognitionException {
@@ -3605,6 +3695,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCreateServer(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCreateServer(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final CreateServerContext createServer() throws RecognitionException {
@@ -3709,6 +3804,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCopyCreateTable(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCopyCreateTable(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class ColumnCreateTableContext extends CreateTableContext {
 		public TerminalNode CREATE() { return getToken(OpenDistroSqlParser.CREATE, 0); }
@@ -3740,6 +3840,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitColumnCreateTable(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitColumnCreateTable(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class QueryCreateTableContext extends CreateTableContext {
@@ -3779,6 +3884,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitQueryCreateTable(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitQueryCreateTable(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -4090,6 +4200,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCreateTablespaceInnodb(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCreateTablespaceInnodb(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final CreateTablespaceInnodbContext createTablespaceInnodb() throws RecognitionException {
@@ -4212,6 +4327,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCreateTablespaceNdb(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCreateTablespaceNdb(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -4457,6 +4577,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCreateTrigger(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCreateTrigger(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final CreateTriggerContext createTrigger() throws RecognitionException {
@@ -4595,6 +4720,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCreateView(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCreateView(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -4767,6 +4897,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCreateDatabaseOption(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCreateDatabaseOption(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final CreateDatabaseOptionContext createDatabaseOption() throws RecognitionException {
@@ -4884,6 +5019,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitOwnerStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitOwnerStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final OwnerStatementContext ownerStatement() throws RecognitionException {
@@ -4973,6 +5113,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPreciseSchedule(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPreciseSchedule(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class IntervalScheduleContext extends ScheduleExpressionContext {
 		public TimestampValueContext startTimestamp;
@@ -5012,6 +5157,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitIntervalSchedule(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitIntervalSchedule(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -5165,6 +5315,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTimestampValue(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTimestampValue(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final TimestampValueContext timestampValue() throws RecognitionException {
@@ -5238,6 +5393,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitIntervalExpr(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitIntervalExpr(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final IntervalExprContext intervalExpr() throws RecognitionException {
@@ -5308,6 +5468,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitIntervalType(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitIntervalType(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -5448,6 +5613,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitEnableType(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitEnableType(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final EnableTypeContext enableType() throws RecognitionException {
@@ -5511,6 +5681,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitIndexType(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitIndexType(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final IndexTypeContext indexType() throws RecognitionException {
@@ -5571,6 +5746,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitIndexOption(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitIndexOption(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -5666,6 +5846,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitProcedureParameter(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitProcedureParameter(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ProcedureParameterContext procedureParameter() throws RecognitionException {
@@ -5730,6 +5915,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitFunctionParameter(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitFunctionParameter(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final FunctionParameterContext functionParameter() throws RecognitionException {
@@ -5778,6 +5968,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitRoutineBehavior(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitRoutineBehavior(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class RoutineLanguageContext extends RoutineOptionContext {
 		public TerminalNode LANGUAGE() { return getToken(OpenDistroSqlParser.LANGUAGE, 0); }
@@ -5791,6 +5986,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitRoutineLanguage(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitRoutineLanguage(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class RoutineCommentContext extends RoutineOptionContext {
 		public TerminalNode COMMENT() { return getToken(OpenDistroSqlParser.COMMENT, 0); }
@@ -5803,6 +6003,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitRoutineComment(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitRoutineComment(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class RoutineSecurityContext extends RoutineOptionContext {
@@ -5820,6 +6025,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitRoutineSecurity(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitRoutineSecurity(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class RoutineDataContext extends RoutineOptionContext {
 		public TerminalNode CONTAINS() { return getToken(OpenDistroSqlParser.CONTAINS, 0); }
@@ -5836,6 +6046,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitRoutineData(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitRoutineData(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -5997,6 +6212,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitServerOption(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitServerOption(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ServerOptionContext serverOption() throws RecognitionException {
@@ -6103,6 +6323,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCreateDefinitions(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCreateDefinitions(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final CreateDefinitionsContext createDefinitions() throws RecognitionException {
@@ -6174,6 +6399,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitColumnDeclaration(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitColumnDeclaration(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class ConstraintDeclarationContext extends CreateDefinitionContext {
 		public TableConstraintContext tableConstraint() {
@@ -6188,6 +6418,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitConstraintDeclaration(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitConstraintDeclaration(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class IndexDeclarationContext extends CreateDefinitionContext {
 		public IndexColumnDefinitionContext indexColumnDefinition() {
@@ -6201,6 +6436,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitIndexDeclaration(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitIndexDeclaration(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -6970,6 +7210,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitColumnDefinition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitColumnDefinition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ColumnDefinitionContext columnDefinition() throws RecognitionException {
@@ -7034,6 +7279,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitStorageColumnConstraint(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitStorageColumnConstraint(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class FormatColumnConstraintContext extends ColumnConstraintContext {
 		public Token colformat;
@@ -7050,6 +7300,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitFormatColumnConstraint(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitFormatColumnConstraint(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class CollateColumnConstraintContext extends ColumnConstraintContext {
 		public TerminalNode COLLATE() { return getToken(OpenDistroSqlParser.COLLATE, 0); }
@@ -7064,6 +7319,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCollateColumnConstraint(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCollateColumnConstraint(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class AutoIncrementColumnConstraintContext extends ColumnConstraintContext {
@@ -7082,6 +7342,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAutoIncrementColumnConstraint(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAutoIncrementColumnConstraint(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class CommentColumnConstraintContext extends ColumnConstraintContext {
 		public TerminalNode COMMENT() { return getToken(OpenDistroSqlParser.COMMENT, 0); }
@@ -7094,6 +7359,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCommentColumnConstraint(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCommentColumnConstraint(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class PrimaryKeyColumnConstraintContext extends ColumnConstraintContext {
@@ -7108,6 +7378,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPrimaryKeyColumnConstraint(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPrimaryKeyColumnConstraint(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class UniqueKeyColumnConstraintContext extends ColumnConstraintContext {
 		public TerminalNode UNIQUE() { return getToken(OpenDistroSqlParser.UNIQUE, 0); }
@@ -7120,6 +7395,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitUniqueKeyColumnConstraint(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitUniqueKeyColumnConstraint(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class SerialDefaultColumnConstraintContext extends ColumnConstraintContext {
@@ -7135,6 +7415,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSerialDefaultColumnConstraint(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSerialDefaultColumnConstraint(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class NullColumnConstraintContext extends ColumnConstraintContext {
 		public NullNotnullContext nullNotnull() {
@@ -7148,6 +7433,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitNullColumnConstraint(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitNullColumnConstraint(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class DefaultColumnConstraintContext extends ColumnConstraintContext {
@@ -7164,6 +7454,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDefaultColumnConstraint(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDefaultColumnConstraint(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class ReferenceColumnConstraintContext extends ColumnConstraintContext {
 		public ReferenceDefinitionContext referenceDefinition() {
@@ -7177,6 +7472,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitReferenceColumnConstraint(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitReferenceColumnConstraint(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class GeneratedColumnConstraintContext extends ColumnConstraintContext {
@@ -7196,6 +7496,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitGeneratedColumnConstraint(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitGeneratedColumnConstraint(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -7477,6 +7782,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitUniqueKeyTableConstraint(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitUniqueKeyTableConstraint(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class CheckTableConstraintContext extends TableConstraintContext {
 		public UidContext name;
@@ -7496,6 +7806,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCheckTableConstraint(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCheckTableConstraint(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class PrimaryKeyTableConstraintContext extends TableConstraintContext {
@@ -7531,6 +7846,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPrimaryKeyTableConstraint(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPrimaryKeyTableConstraint(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class ForeignKeyTableConstraintContext extends TableConstraintContext {
 		public UidContext name;
@@ -7558,6 +7878,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitForeignKeyTableConstraint(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitForeignKeyTableConstraint(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -7837,6 +8162,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitReferenceDefinition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitReferenceDefinition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ReferenceDefinitionContext referenceDefinition() throws RecognitionException {
@@ -7931,6 +8261,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitReferenceAction(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitReferenceAction(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ReferenceActionContext referenceAction() throws RecognitionException {
@@ -8021,6 +8356,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitReferenceControlType(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitReferenceControlType(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -8116,6 +8456,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSpecialIndexDeclaration(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSpecialIndexDeclaration(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class SimpleIndexDeclarationContext extends IndexColumnDefinitionContext {
 		public Token indexFormat;
@@ -8144,6 +8489,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSimpleIndexDeclaration(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSimpleIndexDeclaration(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -8311,6 +8661,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableOptionEngine(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableOptionEngine(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class TableOptionMaxRowsContext extends TableOptionContext {
 		public TerminalNode MAX_ROWS() { return getToken(OpenDistroSqlParser.MAX_ROWS, 0); }
@@ -8325,6 +8680,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableOptionMaxRows(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableOptionMaxRows(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class TableOptionCollateContext extends TableOptionContext {
@@ -8342,6 +8702,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableOptionCollate(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableOptionCollate(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class TableOptionPersistentContext extends TableOptionContext {
 		public Token extBoolValue;
@@ -8355,6 +8720,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableOptionPersistent(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableOptionPersistent(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class TableOptionTablespaceContext extends TableOptionContext {
@@ -8374,6 +8744,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableOptionTablespace(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableOptionTablespace(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class TableOptionPackKeysContext extends TableOptionContext {
 		public Token extBoolValue;
@@ -8388,6 +8763,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableOptionPackKeys(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableOptionPackKeys(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class TableOptionPasswordContext extends TableOptionContext {
 		public TerminalNode PASSWORD() { return getToken(OpenDistroSqlParser.PASSWORD, 0); }
@@ -8400,6 +8780,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableOptionPassword(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableOptionPassword(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class TableOptionUnionContext extends TableOptionContext {
@@ -8416,6 +8801,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableOptionUnion(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableOptionUnion(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class TableOptionSamplePageContext extends TableOptionContext {
 		public TerminalNode STATS_SAMPLE_PAGES() { return getToken(OpenDistroSqlParser.STATS_SAMPLE_PAGES, 0); }
@@ -8430,6 +8820,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableOptionSamplePage(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableOptionSamplePage(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class TableOptionCharsetContext extends TableOptionContext {
@@ -8449,6 +8844,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableOptionCharset(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableOptionCharset(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class TableOptionIndexDirectoryContext extends TableOptionContext {
 		public TerminalNode INDEX() { return getToken(OpenDistroSqlParser.INDEX, 0); }
@@ -8462,6 +8862,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableOptionIndexDirectory(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableOptionIndexDirectory(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class TableOptionKeyBlockSizeContext extends TableOptionContext {
@@ -8478,6 +8883,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableOptionKeyBlockSize(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableOptionKeyBlockSize(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class TableOptionEncryptionContext extends TableOptionContext {
 		public TerminalNode ENCRYPTION() { return getToken(OpenDistroSqlParser.ENCRYPTION, 0); }
@@ -8490,6 +8900,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableOptionEncryption(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableOptionEncryption(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class TableOptionDataDirectoryContext extends TableOptionContext {
@@ -8505,6 +8920,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableOptionDataDirectory(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableOptionDataDirectory(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class TableOptionRecalculationContext extends TableOptionContext {
 		public Token extBoolValue;
@@ -8518,6 +8938,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableOptionRecalculation(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableOptionRecalculation(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class TableOptionAutoIncrementContext extends TableOptionContext {
@@ -8534,6 +8959,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableOptionAutoIncrement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableOptionAutoIncrement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class TableOptionChecksumContext extends TableOptionContext {
 		public Token boolValue;
@@ -8548,6 +8978,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableOptionChecksum(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableOptionChecksum(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class TableOptionDelayContext extends TableOptionContext {
 		public Token boolValue;
@@ -8560,6 +8995,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableOptionDelay(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableOptionDelay(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class TableOptionConnectionContext extends TableOptionContext {
@@ -8574,6 +9014,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableOptionConnection(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableOptionConnection(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class TableOptionCommentContext extends TableOptionContext {
 		public TerminalNode COMMENT() { return getToken(OpenDistroSqlParser.COMMENT, 0); }
@@ -8586,6 +9031,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableOptionComment(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableOptionComment(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class TableOptionAverageContext extends TableOptionContext {
@@ -8601,6 +9051,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableOptionAverage(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableOptionAverage(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class TableOptionRowFormatContext extends TableOptionContext {
@@ -8621,6 +9076,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableOptionRowFormat(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableOptionRowFormat(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class TableOptionCompressionContext extends TableOptionContext {
 		public TerminalNode COMPRESSION() { return getToken(OpenDistroSqlParser.COMPRESSION, 0); }
@@ -8634,6 +9094,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableOptionCompression(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableOptionCompression(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class TableOptionInsertMethodContext extends TableOptionContext {
@@ -8651,6 +9116,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableOptionInsertMethod(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableOptionInsertMethod(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class TableOptionMinRowsContext extends TableOptionContext {
 		public TerminalNode MIN_ROWS() { return getToken(OpenDistroSqlParser.MIN_ROWS, 0); }
@@ -8665,6 +9135,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableOptionMinRows(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableOptionMinRows(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -9339,6 +9814,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTablespaceStorage(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTablespaceStorage(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final TablespaceStorageContext tablespaceStorage() throws RecognitionException {
@@ -9413,6 +9893,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPartitionDefinitions(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPartitionDefinitions(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -9538,6 +10023,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPartitionFunctionKey(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPartitionFunctionKey(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class PartitionFunctionHashContext extends PartitionFunctionDefinitionContext {
 		public TerminalNode HASH() { return getToken(OpenDistroSqlParser.HASH, 0); }
@@ -9553,6 +10043,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPartitionFunctionHash(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPartitionFunctionHash(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class PartitionFunctionListContext extends PartitionFunctionDefinitionContext {
@@ -9573,6 +10068,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPartitionFunctionList(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPartitionFunctionList(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class PartitionFunctionRangeContext extends PartitionFunctionDefinitionContext {
 		public TerminalNode RANGE() { return getToken(OpenDistroSqlParser.RANGE, 0); }
@@ -9591,6 +10091,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPartitionFunctionRange(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPartitionFunctionRange(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -9784,6 +10289,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSubPartitionFunctionHash(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSubPartitionFunctionHash(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class SubPartitionFunctionKeyContext extends SubpartitionFunctionDefinitionContext {
 		public Token algType;
@@ -9801,6 +10311,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSubPartitionFunctionKey(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSubPartitionFunctionKey(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -9942,6 +10457,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPartitionComparision(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPartitionComparision(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class PartitionListAtomContext extends PartitionDefinitionContext {
 		public TerminalNode PARTITION() { return getToken(OpenDistroSqlParser.PARTITION, 0); }
@@ -9976,6 +10496,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPartitionListAtom(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPartitionListAtom(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class PartitionListVectorContext extends PartitionDefinitionContext {
@@ -10012,6 +10537,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPartitionListVector(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPartitionListVector(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class PartitionSimpleContext extends PartitionDefinitionContext {
 		public TerminalNode PARTITION() { return getToken(OpenDistroSqlParser.PARTITION, 0); }
@@ -10038,6 +10568,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPartitionSimple(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPartitionSimple(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -10431,6 +10966,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPartitionDefinerAtom(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPartitionDefinerAtom(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final PartitionDefinerAtomContext partitionDefinerAtom() throws RecognitionException {
@@ -10492,6 +11032,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPartitionDefinerVector(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPartitionDefinerVector(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -10560,6 +11105,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSubpartitionDefinition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSubpartitionDefinition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final SubpartitionDefinitionContext subpartitionDefinition() throws RecognitionException {
@@ -10624,6 +11174,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPartitionOptionComment(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPartitionOptionComment(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class PartitionOptionNodeGroupContext extends PartitionOptionContext {
 		public UidContext nodegroup;
@@ -10640,6 +11195,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPartitionOptionNodeGroup(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPartitionOptionNodeGroup(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class PartitionOptionIndexDirectoryContext extends PartitionOptionContext {
 		public Token indexDirectory;
@@ -10654,6 +11214,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPartitionOptionIndexDirectory(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPartitionOptionIndexDirectory(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class PartitionOptionMaxRowsContext extends PartitionOptionContext {
@@ -10671,6 +11236,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPartitionOptionMaxRows(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPartitionOptionMaxRows(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class PartitionOptionTablespaceContext extends PartitionOptionContext {
 		public UidContext tablespace;
@@ -10686,6 +11256,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPartitionOptionTablespace(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPartitionOptionTablespace(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class PartitionOptionEngineContext extends PartitionOptionContext {
@@ -10703,6 +11278,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPartitionOptionEngine(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPartitionOptionEngine(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class PartitionOptionMinRowsContext extends PartitionOptionContext {
 		public DecimalLiteralContext minRows;
@@ -10719,6 +11299,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPartitionOptionMinRows(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPartitionOptionMinRows(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class PartitionOptionDataDirectoryContext extends PartitionOptionContext {
 		public Token dataDirectory;
@@ -10733,6 +11318,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPartitionOptionDataDirectory(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPartitionOptionDataDirectory(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -10966,6 +11556,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterUpgradeName(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterUpgradeName(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class AlterSimpleDatabaseContext extends AlterDatabaseContext {
 		public Token dbFormat;
@@ -10989,6 +11584,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterSimpleDatabase(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterSimpleDatabase(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -11130,6 +11730,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterEvent(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterEvent(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -11279,6 +11884,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterFunction(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterFunction(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final AlterFunctionContext alterFunction() throws RecognitionException {
@@ -11339,6 +11949,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterInstance(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterInstance(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -11403,6 +12018,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterLogfileGroup(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterLogfileGroup(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -11510,6 +12130,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterProcedure(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterProcedure(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final AlterProcedureContext alterProcedure() throws RecognitionException {
@@ -11576,6 +12201,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterServer(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterServer(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -11659,6 +12289,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterTable(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterTable(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -11785,6 +12420,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterTablespace(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterTablespace(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final AlterTablespaceContext alterTablespace() throws RecognitionException {
@@ -11909,6 +12549,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterView(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterView(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -12068,6 +12713,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByDisableKeys(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByDisableKeys(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class AlterByDefaultCharsetContext extends AlterSpecificationContext {
 		public TerminalNode CHARACTER() { return getToken(OpenDistroSqlParser.CHARACTER, 0); }
@@ -12088,6 +12738,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByDefaultCharset(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByDefaultCharset(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class AlterByRenameColumnContext extends AlterSpecificationContext {
@@ -12111,6 +12766,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByRenameColumn(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByRenameColumn(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class AlterByConvertCharsetContext extends AlterSpecificationContext {
 		public TerminalNode CONVERT() { return getToken(OpenDistroSqlParser.CONVERT, 0); }
@@ -12133,6 +12793,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByConvertCharset(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByConvertCharset(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class AlterByAddPartitionContext extends AlterSpecificationContext {
 		public TerminalNode ADD() { return getToken(OpenDistroSqlParser.ADD, 0); }
@@ -12151,6 +12816,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByAddPartition(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByAddPartition(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class AlterByAddForeignKeyContext extends AlterSpecificationContext {
@@ -12181,6 +12851,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByAddForeignKey(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByAddForeignKey(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class AlterByRenameIndexContext extends AlterSpecificationContext {
 		public Token indexFormat;
@@ -12203,6 +12878,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByRenameIndex(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByRenameIndex(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class AlterByRemovePartitioningContext extends AlterSpecificationContext {
 		public TerminalNode REMOVE() { return getToken(OpenDistroSqlParser.REMOVE, 0); }
@@ -12215,6 +12895,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByRemovePartitioning(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByRemovePartitioning(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class AlterByRenameContext extends AlterSpecificationContext {
@@ -12237,6 +12922,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByRename(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByRename(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class AlterByOptimizePartitionContext extends AlterSpecificationContext {
 		public TerminalNode OPTIMIZE() { return getToken(OpenDistroSqlParser.OPTIMIZE, 0); }
@@ -12254,6 +12944,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByOptimizePartition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByOptimizePartition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class AlterByImportTablespaceContext extends AlterSpecificationContext {
 		public TerminalNode IMPORT() { return getToken(OpenDistroSqlParser.IMPORT, 0); }
@@ -12266,6 +12961,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByImportTablespace(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByImportTablespace(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class AlterByCoalescePartitionContext extends AlterSpecificationContext {
@@ -12282,6 +12982,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByCoalescePartition(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByCoalescePartition(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class AlterByAddColumnsContext extends AlterSpecificationContext {
@@ -12308,6 +13013,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByAddColumns(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByAddColumns(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class AlterByDropForeignKeyContext extends AlterSpecificationContext {
 		public TerminalNode DROP() { return getToken(OpenDistroSqlParser.DROP, 0); }
@@ -12324,6 +13034,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByDropForeignKey(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByDropForeignKey(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class AlterByAddCheckTableConstraintContext extends AlterSpecificationContext {
@@ -12346,6 +13061,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByAddCheckTableConstraint(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByAddCheckTableConstraint(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class AlterByRebuildPartitionContext extends AlterSpecificationContext {
 		public TerminalNode REBUILD() { return getToken(OpenDistroSqlParser.REBUILD, 0); }
@@ -12363,6 +13083,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByRebuildPartition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByRebuildPartition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class AlterByUpgradePartitioningContext extends AlterSpecificationContext {
 		public TerminalNode UPGRADE() { return getToken(OpenDistroSqlParser.UPGRADE, 0); }
@@ -12375,6 +13100,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByUpgradePartitioning(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByUpgradePartitioning(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class AlterByRepairPartitionContext extends AlterSpecificationContext {
@@ -12392,6 +13122,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByRepairPartition(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByRepairPartition(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class AlterByExchangePartitionContext extends AlterSpecificationContext {
@@ -12419,6 +13154,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByExchangePartition(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByExchangePartition(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class AlterByAddIndexContext extends AlterSpecificationContext {
@@ -12450,6 +13190,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByAddIndex(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByAddIndex(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class AlterByDropColumnContext extends AlterSpecificationContext {
 		public TerminalNode DROP() { return getToken(OpenDistroSqlParser.DROP, 0); }
@@ -12466,6 +13211,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByDropColumn(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByDropColumn(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class AlterByImportPartitionContext extends AlterSpecificationContext {
@@ -12484,6 +13234,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByImportPartition(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByImportPartition(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class AlterByChangeDefaultContext extends AlterSpecificationContext {
@@ -12507,6 +13262,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByChangeDefault(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByChangeDefault(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class AlterByForceContext extends AlterSpecificationContext {
 		public TerminalNode FORCE() { return getToken(OpenDistroSqlParser.FORCE, 0); }
@@ -12518,6 +13278,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByForce(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByForce(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class AlterByDropPartitionContext extends AlterSpecificationContext {
@@ -12534,6 +13299,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByDropPartition(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByDropPartition(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class AlterByAddSpecialIndexContext extends AlterSpecificationContext {
@@ -12565,6 +13335,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByAddSpecialIndex(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByAddSpecialIndex(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class AlterByModifyColumnContext extends AlterSpecificationContext {
 		public TerminalNode MODIFY() { return getToken(OpenDistroSqlParser.MODIFY, 0); }
@@ -12589,6 +13364,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByModifyColumn(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByModifyColumn(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class AlterByTableOptionContext extends AlterSpecificationContext {
 		public List<TableOptionContext> tableOption() {
@@ -12606,6 +13386,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByTableOption(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByTableOption(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class AlterByDropPrimaryKeyContext extends AlterSpecificationContext {
 		public TerminalNode DROP() { return getToken(OpenDistroSqlParser.DROP, 0); }
@@ -12619,6 +13404,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByDropPrimaryKey(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByDropPrimaryKey(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class AlterByLockContext extends AlterSpecificationContext {
@@ -12636,6 +13426,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByLock(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByLock(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class AlterByDiscardPartitionContext extends AlterSpecificationContext {
@@ -12655,6 +13450,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByDiscardPartition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByDiscardPartition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class AlterByDiscardTablespaceContext extends AlterSpecificationContext {
 		public TerminalNode DISCARD() { return getToken(OpenDistroSqlParser.DISCARD, 0); }
@@ -12667,6 +13467,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByDiscardTablespace(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByDiscardTablespace(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class AlterByValidateContext extends AlterSpecificationContext {
@@ -12682,6 +13487,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByValidate(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByValidate(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class AlterByAddPrimaryKeyContext extends AlterSpecificationContext {
@@ -12714,6 +13524,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByAddPrimaryKey(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByAddPrimaryKey(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class AlterByCheckPartitionContext extends AlterSpecificationContext {
 		public TerminalNode CHECK() { return getToken(OpenDistroSqlParser.CHECK, 0); }
@@ -12731,6 +13546,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByCheckPartition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByCheckPartition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class AlterByEnableKeysContext extends AlterSpecificationContext {
 		public TerminalNode ENABLE() { return getToken(OpenDistroSqlParser.ENABLE, 0); }
@@ -12743,6 +13563,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByEnableKeys(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByEnableKeys(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class AlterByReorganizePartitionContext extends AlterSpecificationContext {
@@ -12767,6 +13592,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByReorganizePartition(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByReorganizePartition(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class AlterBySetAlgorithmContext extends AlterSpecificationContext {
 		public Token algType;
@@ -12782,6 +13612,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterBySetAlgorithm(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterBySetAlgorithm(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class AlterByAnalyzePartitionContext extends AlterSpecificationContext {
@@ -12799,6 +13634,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByAnalyzePartition(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByAnalyzePartition(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class AlterByChangeColumnContext extends AlterSpecificationContext {
@@ -12826,6 +13666,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByChangeColumn(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByChangeColumn(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class AlterByAddUniqueKeyContext extends AlterSpecificationContext {
@@ -12864,6 +13709,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByAddUniqueKey(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByAddUniqueKey(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class AlterByTruncatePartitionContext extends AlterSpecificationContext {
 		public TerminalNode TRUNCATE() { return getToken(OpenDistroSqlParser.TRUNCATE, 0); }
@@ -12880,6 +13730,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByTruncatePartition(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByTruncatePartition(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class AlterByDropIndexContext extends AlterSpecificationContext {
@@ -12898,6 +13753,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByDropIndex(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByDropIndex(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class AlterByAddColumnContext extends AlterSpecificationContext {
@@ -12923,6 +13783,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByAddColumn(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByAddColumn(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class AlterByOrderContext extends AlterSpecificationContext {
 		public TerminalNode ORDER() { return getToken(OpenDistroSqlParser.ORDER, 0); }
@@ -12938,6 +13803,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterByOrder(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterByOrder(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -20009,6 +20879,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDropDatabase(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDropDatabase(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DropDatabaseContext dropDatabase() throws RecognitionException {
@@ -20076,6 +20951,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDropEvent(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDropEvent(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -20173,6 +21053,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDropIndex(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDropIndex(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -20321,6 +21206,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDropLogfileGroup(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDropLogfileGroup(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DropLogfileGroupContext dropLogfileGroup() throws RecognitionException {
@@ -20376,6 +21266,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDropProcedure(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDropProcedure(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -20436,6 +21331,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDropFunction(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDropFunction(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DropFunctionContext dropFunction() throws RecognitionException {
@@ -20494,6 +21394,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDropServer(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDropServer(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -20557,6 +21462,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDropTable(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDropTable(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -20647,6 +21557,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDropTablespace(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDropTablespace(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DropTablespaceContext dropTablespace() throws RecognitionException {
@@ -20718,6 +21633,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDropTrigger(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDropTrigger(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DropTriggerContext dropTrigger() throws RecognitionException {
@@ -20782,6 +21702,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDropView(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDropView(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -20877,6 +21802,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitRenameTable(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitRenameTable(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final RenameTableContext renameTable() throws RecognitionException {
@@ -20941,6 +21871,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitRenameTableClause(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitRenameTableClause(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final RenameTableClauseContext renameTableClause() throws RecognitionException {
@@ -20985,6 +21920,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTruncateTable(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTruncateTable(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -21044,6 +21984,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCallStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCallStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -21117,6 +22062,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDeleteStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDeleteStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DeleteStatementContext deleteStatement() throws RecognitionException {
@@ -21170,6 +22120,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDoStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDoStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DoStatementContext doStatement() throws RecognitionException {
@@ -21219,6 +22174,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitHandlerStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitHandlerStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -21320,6 +22280,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitInsertStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitInsertStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -21572,6 +22537,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitLoadDataStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitLoadDataStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -21894,6 +22864,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitLoadXmlStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitLoadXmlStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final LoadXmlStatementContext loadXmlStatement() throws RecognitionException {
@@ -22136,6 +23111,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitReplaceStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitReplaceStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ReplaceStatementContext replaceStatement() throws RecognitionException {
@@ -22310,6 +23290,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitUnionSelect(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitUnionSelect(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class UnionParenthesisSelectContext extends SelectStatementContext {
 		public Token unionType;
@@ -22346,6 +23331,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitUnionParenthesisSelect(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitUnionParenthesisSelect(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class SimpleSelectContext extends SelectStatementContext {
 		public QuerySpecificationContext querySpecification() {
@@ -22363,6 +23353,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSimpleSelect(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSimpleSelect(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class ParenthesisSelectContext extends SelectStatementContext {
 		public QueryExpressionContext queryExpression() {
@@ -22379,6 +23374,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitParenthesisSelect(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitParenthesisSelect(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -22653,6 +23653,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitUpdateStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitUpdateStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final UpdateStatementContext updateStatement() throws RecognitionException {
@@ -22713,6 +23718,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitInsertStatementValue(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitInsertStatementValue(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -22809,6 +23819,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitUpdatedElement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitUpdatedElement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -23625,6 +24640,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAssignmentField(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAssignmentField(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final AssignmentFieldContext assignmentField() throws RecognitionException {
@@ -24371,6 +25391,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitLockClause(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitLockClause(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final LockClauseContext lockClause() throws RecognitionException {
@@ -24453,6 +25478,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSingleDeleteStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSingleDeleteStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -24594,6 +25624,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitMultipleDeleteStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitMultipleDeleteStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -25480,6 +26515,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitHandlerOpenStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitHandlerOpenStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final HandlerOpenStatementContext handlerOpenStatement() throws RecognitionException {
@@ -25568,6 +26608,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitHandlerReadIndexStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitHandlerReadIndexStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -25691,6 +26736,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitHandlerReadStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitHandlerReadStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final HandlerReadStatementContext handlerReadStatement() throws RecognitionException {
@@ -25772,6 +26822,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitHandlerCloseStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitHandlerCloseStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final HandlerCloseStatementContext handlerCloseStatement() throws RecognitionException {
@@ -25839,6 +26894,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSingleUpdateStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSingleUpdateStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -25989,6 +27049,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitMultipleUpdateStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitMultipleUpdateStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final MultipleUpdateStatementContext multipleUpdateStatement() throws RecognitionException {
@@ -26088,6 +27153,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitOrderByClause(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitOrderByClause(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final OrderByClauseContext orderByClause() throws RecognitionException {
@@ -26151,6 +27221,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitOrderByExpression(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitOrderByExpression(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final OrderByExpressionContext orderByExpression() throws RecognitionException {
@@ -26212,6 +27287,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableSources(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableSources(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -26283,6 +27363,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableSourceNested(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableSourceNested(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class TableSourceBaseContext extends TableSourceContext {
 		public TableSourceItemContext tableSourceItem() {
@@ -26302,6 +27387,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableSourceBase(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableSourceBase(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -26407,6 +27497,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSubqueryTableItem(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSubqueryTableItem(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class AtomTableItemContext extends TableSourceItemContext {
 		public UidContext alias;
@@ -26436,6 +27531,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAtomTableItem(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAtomTableItem(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class TableSourcesItemContext extends TableSourceItemContext {
 		public TableSourcesContext tableSources() {
@@ -26449,6 +27549,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableSourcesItem(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableSourcesItem(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -26623,6 +27728,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitIndexHint(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitIndexHint(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final IndexHintContext indexHint() throws RecognitionException {
@@ -26701,6 +27811,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitIndexHintType(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitIndexHintType(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -26786,6 +27901,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitInnerJoin(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitInnerJoin(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class NaturalJoinContext extends JoinPartContext {
 		public TerminalNode NATURAL() { return getToken(OpenDistroSqlParser.NATURAL, 0); }
@@ -26804,6 +27924,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitNaturalJoin(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitNaturalJoin(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class OuterJoinContext extends JoinPartContext {
@@ -26831,6 +27956,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitOuterJoin(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitOuterJoin(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class StraightJoinContext extends JoinPartContext {
 		public TerminalNode STRAIGHT_JOIN() { return getToken(OpenDistroSqlParser.STRAIGHT_JOIN, 0); }
@@ -26849,6 +27979,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitStraightJoin(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitStraightJoin(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -27067,6 +28202,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitQueryExpression(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitQueryExpression(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final QueryExpressionContext queryExpression() throws RecognitionException {
@@ -27129,6 +28269,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitQueryExpressionNointo(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitQueryExpressionNointo(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -27208,6 +28353,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitQuerySpecification(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitQuerySpecification(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -27395,6 +28545,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitQuerySpecificationNointo(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitQuerySpecificationNointo(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final QuerySpecificationNointoContext querySpecificationNointo() throws RecognitionException {
@@ -27488,6 +28643,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitUnionParenthesis(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitUnionParenthesis(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final UnionParenthesisContext unionParenthesis() throws RecognitionException {
@@ -27555,6 +28715,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitUnionStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitUnionStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -27640,6 +28805,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSelectSpec(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSelectSpec(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -27760,6 +28930,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSelectElements(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSelectElements(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -28602,6 +29777,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSelectExpressionElement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSelectExpressionElement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class SelectFunctionElementContext extends SelectElementContext {
 		public FunctionCallContext functionCall() {
@@ -28620,6 +29800,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSelectFunctionElement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSelectFunctionElement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class SelectStarElementContext extends SelectElementContext {
 		public FullIdContext fullId() {
@@ -28633,6 +29818,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSelectStarElement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSelectStarElement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class SelectColumnElementContext extends SelectElementContext {
@@ -28651,6 +29841,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSelectColumnElement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSelectColumnElement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -28811,6 +30006,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSelectIntoVariables(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSelectIntoVariables(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class SelectIntoTextFileContext extends SelectIntoExpressionContext {
 		public Token filename;
@@ -28848,6 +30048,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSelectIntoTextFile(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSelectIntoTextFile(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class SelectIntoDumpFileContext extends SelectIntoExpressionContext {
 		public TerminalNode INTO() { return getToken(OpenDistroSqlParser.INTO, 0); }
@@ -28861,6 +30066,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSelectIntoDumpFile(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSelectIntoDumpFile(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -29030,6 +30240,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSelectFieldsInto(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSelectFieldsInto(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final SelectFieldsIntoContext selectFieldsInto() throws RecognitionException {
@@ -29118,6 +30333,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSelectLinesInto(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSelectLinesInto(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final SelectLinesIntoContext selectLinesInto() throws RecognitionException {
@@ -29200,6 +30420,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitFromClause(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitFromClause(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -29312,6 +30537,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitGroupByItem(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitGroupByItem(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final GroupByItemContext groupByItem() throws RecognitionException {
@@ -29377,6 +30607,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitLimitClause(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitLimitClause(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -29452,6 +30687,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitLimitClauseAtom(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitLimitClauseAtom(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final LimitClauseAtomContext limitClauseAtom() throws RecognitionException {
@@ -29514,6 +30754,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitStartTransaction(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitStartTransaction(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -29582,6 +30827,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitBeginWork(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitBeginWork(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final BeginWorkContext beginWork() throws RecognitionException {
@@ -29639,6 +30889,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCommitWork(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCommitWork(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -29740,6 +30995,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitRollbackWork(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitRollbackWork(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final RollbackWorkContext rollbackWork() throws RecognitionException {
@@ -29833,6 +31093,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSavepointStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSavepointStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final SavepointStatementContext savepointStatement() throws RecognitionException {
@@ -29877,6 +31142,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitRollbackStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitRollbackStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -29944,6 +31214,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitReleaseStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitReleaseStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ReleaseStatementContext releaseStatement() throws RecognitionException {
@@ -29991,6 +31266,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitLockTables(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitLockTables(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -30051,6 +31331,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitUnlockTables(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitUnlockTables(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final UnlockTablesContext unlockTables() throws RecognitionException {
@@ -30091,6 +31376,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSetAutocommitStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSetAutocommitStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -30154,6 +31444,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSetTransactionStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSetTransactionStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -30237,6 +31532,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTransactionMode(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTransactionMode(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final TransactionModeContext transactionMode() throws RecognitionException {
@@ -30311,6 +31611,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitLockTableElement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitLockTableElement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final LockTableElementContext lockTableElement() throws RecognitionException {
@@ -30373,6 +31678,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitLockAction(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitLockAction(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -30455,6 +31765,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTransactionOption(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTransactionOption(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final TransactionOptionContext transactionOption() throws RecognitionException {
@@ -30523,6 +31838,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTransactionLevel(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTransactionLevel(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -30605,6 +31925,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitChangeMaster(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitChangeMaster(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ChangeMasterContext changeMaster() throws RecognitionException {
@@ -30683,6 +32008,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitChangeReplicationFilter(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitChangeReplicationFilter(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ChangeReplicationFilterContext changeReplicationFilter() throws RecognitionException {
@@ -30751,6 +32081,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPurgeBinaryLogs(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPurgeBinaryLogs(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -30826,6 +32161,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitResetMaster(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitResetMaster(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ResetMasterContext resetMaster() throws RecognitionException {
@@ -30869,6 +32209,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitResetSlave(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitResetSlave(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -30949,6 +32294,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitStartSlave(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitStartSlave(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -31059,6 +32409,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitStopSlave(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitStopSlave(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final StopSlaveContext stopSlave() throws RecognitionException {
@@ -31126,6 +32481,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitStartGroupReplication(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitStartGroupReplication(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final StartGroupReplicationContext startGroupReplication() throws RecognitionException {
@@ -31165,6 +32525,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitStopGroupReplication(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitStopGroupReplication(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -31216,6 +32581,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitMasterStringOption(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitMasterStringOption(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class MasterRealOptionContext extends MasterOptionContext {
 		public TerminalNode MASTER_HEARTBEAT_PERIOD() { return getToken(OpenDistroSqlParser.MASTER_HEARTBEAT_PERIOD, 0); }
@@ -31228,6 +32598,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitMasterRealOption(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitMasterRealOption(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class MasterBoolOptionContext extends MasterOptionContext {
@@ -31243,6 +32618,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitMasterBoolOption(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitMasterBoolOption(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class MasterUidListOptionContext extends MasterOptionContext {
@@ -31262,6 +32642,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitMasterUidListOption(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitMasterUidListOption(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class MasterDecimalOptionContext extends MasterOptionContext {
 		public DecimalMasterOptionContext decimalMasterOption() {
@@ -31278,6 +32663,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitMasterDecimalOption(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitMasterDecimalOption(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -31448,6 +32838,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitStringMasterOption(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitStringMasterOption(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final StringMasterOptionContext stringMasterOption() throws RecognitionException {
@@ -31499,6 +32894,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDecimalMasterOption(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDecimalMasterOption(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DecimalMasterOptionContext decimalMasterOption() throws RecognitionException {
@@ -31547,6 +32947,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitBoolMasterOption(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitBoolMasterOption(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final BoolMasterOptionContext boolMasterOption() throws RecognitionException {
@@ -31594,6 +32999,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitChannelOption(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitChannelOption(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -31647,6 +33057,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitWildIgnoreTableReplication(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitWildIgnoreTableReplication(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class DoTableReplicationContext extends ReplicationFilterContext {
 		public TerminalNode REPLICATE_DO_TABLE() { return getToken(OpenDistroSqlParser.REPLICATE_DO_TABLE, 0); }
@@ -31662,6 +33077,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDoTableReplication(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDoTableReplication(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class IgnoreTableReplicationContext extends ReplicationFilterContext {
 		public TerminalNode REPLICATE_IGNORE_TABLE() { return getToken(OpenDistroSqlParser.REPLICATE_IGNORE_TABLE, 0); }
@@ -31676,6 +33096,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitIgnoreTableReplication(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitIgnoreTableReplication(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class RewriteDbReplicationContext extends ReplicationFilterContext {
@@ -31695,6 +33120,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitRewriteDbReplication(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitRewriteDbReplication(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class DoDbReplicationContext extends ReplicationFilterContext {
 		public TerminalNode REPLICATE_DO_DB() { return getToken(OpenDistroSqlParser.REPLICATE_DO_DB, 0); }
@@ -31709,6 +33139,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDoDbReplication(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDoDbReplication(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class IgnoreDbReplicationContext extends ReplicationFilterContext {
@@ -31725,6 +33160,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitIgnoreDbReplication(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitIgnoreDbReplication(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class WildDoTableReplicationContext extends ReplicationFilterContext {
 		public TerminalNode REPLICATE_WILD_DO_TABLE() { return getToken(OpenDistroSqlParser.REPLICATE_WILD_DO_TABLE, 0); }
@@ -31739,6 +33179,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitWildDoTableReplication(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitWildDoTableReplication(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -31914,6 +33359,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTablePair(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTablePair(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final TablePairContext tablePair() throws RecognitionException {
@@ -31959,6 +33409,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitThreadType(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitThreadType(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -32019,6 +33474,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitGtidsUntilOption(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitGtidsUntilOption(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class SqlGapsUntilOptionContext extends UntilOptionContext {
 		public TerminalNode SQL_AFTER_MTS_GAPS() { return getToken(OpenDistroSqlParser.SQL_AFTER_MTS_GAPS, 0); }
@@ -32030,6 +33490,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSqlGapsUntilOption(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSqlGapsUntilOption(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class MasterLogUntilOptionContext extends UntilOptionContext {
@@ -32048,6 +33513,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitMasterLogUntilOption(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitMasterLogUntilOption(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class RelayLogUntilOptionContext extends UntilOptionContext {
 		public TerminalNode RELAY_LOG_FILE() { return getToken(OpenDistroSqlParser.RELAY_LOG_FILE, 0); }
@@ -32064,6 +33534,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitRelayLogUntilOption(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitRelayLogUntilOption(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -32184,6 +33659,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPluginDirConnectionOption(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPluginDirConnectionOption(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class UserConnectionOptionContext extends ConnectionOptionContext {
 		public Token conOptUser;
@@ -32197,6 +33677,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitUserConnectionOption(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitUserConnectionOption(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class DefaultAuthConnectionOptionContext extends ConnectionOptionContext {
@@ -32212,6 +33697,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDefaultAuthConnectionOption(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDefaultAuthConnectionOption(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class PasswordConnectionOptionContext extends ConnectionOptionContext {
 		public Token conOptPassword;
@@ -32225,6 +33715,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPasswordConnectionOption(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPasswordConnectionOption(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -32318,6 +33813,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitGtuidSet(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitGtuidSet(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final GtuidSetContext gtuidSet() throws RecognitionException {
@@ -32399,6 +33899,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitXaStartTransaction(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitXaStartTransaction(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final XaStartTransactionContext xaStartTransaction() throws RecognitionException {
@@ -32476,6 +33981,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitXaEndTransaction(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitXaEndTransaction(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final XaEndTransactionContext xaEndTransaction() throws RecognitionException {
@@ -32544,6 +34054,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitXaPrepareStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitXaPrepareStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final XaPrepareStatementContext xaPrepareStatement() throws RecognitionException {
@@ -32590,6 +34105,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitXaCommitWork(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitXaCommitWork(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -32649,6 +34169,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitXaRollbackWork(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitXaRollbackWork(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final XaRollbackWorkContext xaRollbackWork() throws RecognitionException {
@@ -32694,6 +34219,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitXaRecoverWork(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitXaRecoverWork(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -32754,6 +34284,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPrepareStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPrepareStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -32821,6 +34356,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitExecuteStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitExecuteStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ExecuteStatementContext executeStatement() throws RecognitionException {
@@ -32879,6 +34419,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDeallocatePrepare(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDeallocatePrepare(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DeallocatePrepareContext deallocatePrepare() throws RecognitionException {
@@ -32934,6 +34479,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitRoutineBody(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitRoutineBody(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -33025,6 +34575,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitBlockStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitBlockStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -33206,6 +34761,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCaseStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCaseStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final CaseStatementContext caseStatement() throws RecognitionException {
@@ -33333,6 +34893,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitIfStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitIfStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final IfStatementContext ifStatement() throws RecognitionException {
@@ -33449,6 +35014,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitIterateStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitIterateStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final IterateStatementContext iterateStatement() throws RecognitionException {
@@ -33490,6 +35060,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitLeaveStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitLeaveStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -33545,6 +35120,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitLoopStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitLoopStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -33651,6 +35231,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitRepeatStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitRepeatStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final RepeatStatementContext repeatStatement() throws RecognitionException {
@@ -33743,6 +35328,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitReturnStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitReturnStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ReturnStatementContext returnStatement() throws RecognitionException {
@@ -33801,6 +35391,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitWhileStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitWhileStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -33902,6 +35497,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCloseCursor(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCloseCursor(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class OpenCursorContext extends CursorStatementContext {
 		public TerminalNode OPEN() { return getToken(OpenDistroSqlParser.OPEN, 0); }
@@ -33916,6 +35516,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitOpenCursor(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitOpenCursor(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class FetchCursorContext extends CursorStatementContext {
@@ -33937,6 +35542,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitFetchCursor(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitFetchCursor(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -34041,6 +35651,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDeclareVariable(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDeclareVariable(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DeclareVariableContext declareVariable() throws RecognitionException {
@@ -34105,6 +35720,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDeclareCondition(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDeclareCondition(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -34191,6 +35811,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDeclareCursor(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDeclareCursor(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DeclareCursorContext declareCursor() throws RecognitionException {
@@ -34250,6 +35875,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDeclareHandler(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDeclareHandler(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -34332,6 +35962,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitHandlerConditionWarning(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitHandlerConditionWarning(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class HandlerConditionCodeContext extends HandlerConditionValueContext {
 		public DecimalLiteralContext decimalLiteral() {
@@ -34346,6 +35981,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitHandlerConditionCode(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitHandlerConditionCode(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class HandlerConditionNotfoundContext extends HandlerConditionValueContext {
 		public TerminalNode NOT() { return getToken(OpenDistroSqlParser.NOT, 0); }
@@ -34358,6 +35998,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitHandlerConditionNotfound(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitHandlerConditionNotfound(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class HandlerConditionStateContext extends HandlerConditionValueContext {
@@ -34373,6 +36018,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitHandlerConditionState(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitHandlerConditionState(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class HandlerConditionExceptionContext extends HandlerConditionValueContext {
 		public TerminalNode SQLEXCEPTION() { return getToken(OpenDistroSqlParser.SQLEXCEPTION, 0); }
@@ -34384,6 +36034,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitHandlerConditionException(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitHandlerConditionException(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class HandlerConditionNameContext extends HandlerConditionValueContext {
@@ -34398,6 +36053,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitHandlerConditionName(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitHandlerConditionName(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -35198,6 +36858,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitProcedureSqlStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitProcedureSqlStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ProcedureSqlStatementContext procedureSqlStatement() throws RecognitionException {
@@ -35263,6 +36928,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCaseAlternative(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCaseAlternative(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -35350,6 +37020,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitElifAlternative(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitElifAlternative(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ElifAlternativeContext elifAlternative() throws RecognitionException {
@@ -35427,6 +37102,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterUserMysqlV56(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterUserMysqlV56(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class AlterUserMysqlV57Context extends AlterUserContext {
 		public Token tlsNone;
@@ -35480,6 +37160,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAlterUserMysqlV57(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAlterUserMysqlV57(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -35742,6 +37427,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCreateUserMysqlV57(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCreateUserMysqlV57(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class CreateUserMysqlV56Context extends CreateUserContext {
 		public TerminalNode CREATE() { return getToken(OpenDistroSqlParser.CREATE, 0); }
@@ -35760,6 +37450,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCreateUserMysqlV56(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCreateUserMysqlV56(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -35982,6 +37677,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDropUser(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDropUser(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DropUserContext dropUser() throws RecognitionException {
@@ -36097,6 +37797,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitGrantStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitGrantStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -36317,6 +38022,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitGrantProxy(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitGrantProxy(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final GrantProxyContext grantProxy() throws RecognitionException {
@@ -36402,6 +38112,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitRenameUser(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitRenameUser(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -36490,6 +38205,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDetailRevoke(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDetailRevoke(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class ShortRevokeContext extends RevokeStatementContext {
 		public TerminalNode REVOKE() { return getToken(OpenDistroSqlParser.REVOKE, 0); }
@@ -36512,6 +38232,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitShortRevoke(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitShortRevoke(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -36678,6 +38403,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitRevokeProxy(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitRevokeProxy(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final RevokeProxyContext revokeProxy() throws RecognitionException {
@@ -36751,6 +38481,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSetPasswordStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSetPasswordStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -36830,6 +38565,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitUserSpecification(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitUserSpecification(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final UserSpecificationContext userSpecification() throws RecognitionException {
@@ -36879,6 +38619,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSimpleAuthOption(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSimpleAuthOption(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class PasswordAuthOptionContext extends UserAuthOptionContext {
 		public Token hashed;
@@ -36897,6 +38642,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPasswordAuthOption(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPasswordAuthOption(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class StringAuthOptionContext extends UserAuthOptionContext {
@@ -36919,6 +38669,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitStringAuthOption(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitStringAuthOption(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class HashAuthOptionContext extends UserAuthOptionContext {
 		public UserNameContext userName() {
@@ -36939,6 +38694,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitHashAuthOption(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitHashAuthOption(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -37058,6 +38818,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTlsOption(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTlsOption(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final TlsOptionContext tlsOption() throws RecognitionException {
@@ -37143,6 +38908,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitUserResourceOption(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitUserResourceOption(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final UserResourceOptionContext userResourceOption() throws RecognitionException {
@@ -37225,6 +38995,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitUserPasswordOption(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitUserPasswordOption(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -37355,6 +39130,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitUserLockOption(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitUserLockOption(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final UserLockOptionContext userLockOption() throws RecognitionException {
@@ -37408,6 +39188,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPrivelegeClause(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPrivelegeClause(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -37494,6 +39279,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPrivilege(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPrivilege(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -37798,6 +39588,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDefiniteSchemaPrivLevel(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDefiniteSchemaPrivLevel(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class DefiniteFullTablePrivLevel2Context extends PrivilegeLevelContext {
 		public UidContext uid() {
@@ -37814,6 +39609,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDefiniteFullTablePrivLevel2(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDefiniteFullTablePrivLevel2(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class DefiniteFullTablePrivLevelContext extends PrivilegeLevelContext {
@@ -37832,6 +39632,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDefiniteFullTablePrivLevel(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDefiniteFullTablePrivLevel(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class GlobalPrivLevelContext extends PrivilegeLevelContext {
 		public GlobalPrivLevelContext(PrivilegeLevelContext ctx) { copyFrom(ctx); }
@@ -37842,6 +39647,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitGlobalPrivLevel(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitGlobalPrivLevel(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class DefiniteTablePrivLevelContext extends PrivilegeLevelContext {
@@ -37857,6 +39667,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDefiniteTablePrivLevel(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDefiniteTablePrivLevel(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class CurrentSchemaPriviLevelContext extends PrivilegeLevelContext {
 		public CurrentSchemaPriviLevelContext(PrivilegeLevelContext ctx) { copyFrom(ctx); }
@@ -37867,6 +39682,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCurrentSchemaPriviLevel(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCurrentSchemaPriviLevel(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -37974,6 +39794,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitRenameUserClause(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitRenameUserClause(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final RenameUserClauseContext renameUserClause() throws RecognitionException {
@@ -38021,6 +39846,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAnalyzeTable(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAnalyzeTable(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -38093,6 +39923,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCheckTable(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCheckTable(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final CheckTableContext checkTable() throws RecognitionException {
@@ -38155,6 +39990,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitChecksumTable(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitChecksumTable(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -38223,6 +40063,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitOptimizeTable(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitOptimizeTable(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -38294,6 +40139,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitRepairTable(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitRepairTable(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -38392,6 +40242,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCheckTableOption(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCheckTableOption(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final CheckTableOptionContext checkTableOption() throws RecognitionException {
@@ -38487,6 +40342,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCreateUdfunction(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCreateUdfunction(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final CreateUdfunctionContext createUdfunction() throws RecognitionException {
@@ -38562,6 +40422,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitInstallPlugin(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitInstallPlugin(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final InstallPluginContext installPlugin() throws RecognitionException {
@@ -38610,6 +40475,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitUninstallPlugin(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitUninstallPlugin(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -38662,6 +40532,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSetTransaction(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSetTransaction(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class SetCharsetContext extends SetStatementContext {
 		public List<TerminalNode> SET() { return getTokens(OpenDistroSqlParser.SET); }
@@ -38682,6 +40557,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSetCharset(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSetCharset(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class SetNamesContext extends SetStatementContext {
@@ -38704,6 +40584,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSetNames(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSetNames(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class SetPasswordContext extends SetStatementContext {
 		public SetPasswordStatementContext setPasswordStatement() {
@@ -38718,6 +40603,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSetPassword(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSetPassword(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class SetAutocommitContext extends SetStatementContext {
 		public SetAutocommitStatementContext setAutocommitStatement() {
@@ -38731,6 +40621,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSetAutocommit(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSetAutocommit(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class SetNewValueInsideTriggerContext extends SetStatementContext {
@@ -38749,6 +40644,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSetNewValueInsideTrigger(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSetNewValueInsideTrigger(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class SetVariableContext extends SetStatementContext {
@@ -38773,6 +40673,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSetVariable(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSetVariable(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -39096,6 +41001,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitShowOpenTables(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitShowOpenTables(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class ShowGlobalInfoContext extends ShowStatementContext {
 		public TerminalNode SHOW() { return getToken(OpenDistroSqlParser.SHOW, 0); }
@@ -39110,6 +41020,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitShowGlobalInfo(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitShowGlobalInfo(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class ShowCreateFullIdObjectContext extends ShowStatementContext {
@@ -39134,6 +41049,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitShowCreateFullIdObject(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitShowCreateFullIdObject(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class ShowCreateUserContext extends ShowStatementContext {
 		public TerminalNode SHOW() { return getToken(OpenDistroSqlParser.SHOW, 0); }
@@ -39150,6 +41070,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitShowCreateUser(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitShowCreateUser(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class ShowErrorsContext extends ShowStatementContext {
@@ -39175,6 +41100,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitShowErrors(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitShowErrors(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class ShowCountErrorsContext extends ShowStatementContext {
 		public Token errorFormat;
@@ -39190,6 +41120,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitShowCountErrors(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitShowCountErrors(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class ShowObjectFilterContext extends ShowStatementContext {
@@ -39208,6 +41143,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitShowObjectFilter(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitShowObjectFilter(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class ShowCreateDbContext extends ShowStatementContext {
@@ -39231,6 +41171,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitShowCreateDb(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitShowCreateDb(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class ShowEngineContext extends ShowStatementContext {
 		public Token engineOption;
@@ -39249,6 +41194,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitShowEngine(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitShowEngine(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class ShowSchemaFilterContext extends ShowStatementContext {
@@ -39273,6 +41223,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitShowSchemaFilter(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitShowSchemaFilter(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class ShowIndexesContext extends ShowStatementContext {
@@ -39310,6 +41265,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitShowIndexes(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitShowIndexes(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class ShowLogEventsContext extends ShowStatementContext {
 		public Token logFormat;
@@ -39340,6 +41300,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitShowLogEvents(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitShowLogEvents(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class ShowMasterLogsContext extends ShowStatementContext {
 		public Token logFormat;
@@ -39355,6 +41320,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitShowMasterLogs(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitShowMasterLogs(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class ShowGrantsContext extends ShowStatementContext {
@@ -39373,6 +41343,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitShowGrants(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitShowGrants(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class ShowSlaveStatusContext extends ShowStatementContext {
 		public TerminalNode SHOW() { return getToken(OpenDistroSqlParser.SHOW, 0); }
@@ -39389,6 +41364,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitShowSlaveStatus(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitShowSlaveStatus(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class ShowRoutineContext extends ShowStatementContext {
@@ -39408,6 +41388,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitShowRoutine(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitShowRoutine(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class ShowProfileContext extends ShowStatementContext {
@@ -39439,6 +41424,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitShowProfile(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitShowProfile(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class ShowColumnsContext extends ShowStatementContext {
@@ -39474,6 +41464,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitShowColumns(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitShowColumns(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -40148,6 +42143,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitVariableClause(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitVariableClause(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -40939,6 +42939,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitShowCommonEntity(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitShowCommonEntity(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ShowCommonEntityContext showCommonEntity() throws RecognitionException {
@@ -41067,6 +43072,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitShowFilter(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitShowFilter(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ShowFilterContext showFilter() throws RecognitionException {
@@ -41134,6 +43144,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitShowGlobalInfoClause(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitShowGlobalInfoClause(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -41268,6 +43283,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitShowSchemaEntity(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitShowSchemaEntity(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ShowSchemaEntityContext showSchemaEntity() throws RecognitionException {
@@ -41358,6 +43378,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitShowProfileType(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitShowProfileType(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -41467,6 +43492,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitBinlogStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitBinlogStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final BinlogStatementContext binlogStatement() throws RecognitionException {
@@ -41522,6 +43552,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCacheIndexStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCacheIndexStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -42315,6 +44350,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitFlushStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitFlushStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final FlushStatementContext flushStatement() throws RecognitionException {
@@ -42399,6 +44439,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitKillStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitKillStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final KillStatementContext killStatement() throws RecognitionException {
@@ -42479,6 +44524,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitLoadIndexIntoCache(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitLoadIndexIntoCache(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final LoadIndexIntoCacheContext loadIndexIntoCache() throws RecognitionException {
@@ -42543,6 +44593,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitResetStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitResetStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ResetStatementContext resetStatement() throws RecognitionException {
@@ -42583,6 +44638,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitShutdownStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitShutdownStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -42628,6 +44688,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableIndexes(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableIndexes(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -42714,6 +44779,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableFlushOption(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableFlushOption(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class ChannelFlushOptionContext extends FlushOptionContext {
 		public TerminalNode RELAY() { return getToken(OpenDistroSqlParser.RELAY, 0); }
@@ -42729,6 +44799,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitChannelFlushOption(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitChannelFlushOption(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class SimpleFlushOptionContext extends FlushOptionContext {
@@ -42759,6 +44834,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSimpleFlushOption(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSimpleFlushOption(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -42947,6 +45027,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitFlushTableOption(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitFlushTableOption(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final FlushTableOptionContext flushTableOption() throws RecognitionException {
@@ -43021,6 +45106,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitLoadedTableIndexes(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitLoadedTableIndexes(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -43838,6 +45928,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSimpleDescribeStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSimpleDescribeStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final SimpleDescribeStatementContext simpleDescribeStatement() throws RecognitionException {
@@ -43915,6 +46010,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitFullDescribeStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitFullDescribeStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -43998,6 +46098,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitHelpStatement(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitHelpStatement(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final HelpStatementContext helpStatement() throws RecognitionException {
@@ -44039,6 +46144,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitUseStatement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitUseStatement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -44101,6 +46211,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDescribeStatements(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDescribeStatements(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class DescribeConnectionContext extends DescribeObjectClauseContext {
 		public TerminalNode FOR() { return getToken(OpenDistroSqlParser.FOR, 0); }
@@ -44116,6 +46231,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDescribeConnection(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDescribeConnection(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -44221,6 +46341,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitFullId(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitFullId(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final FullIdContext fullId() throws RecognitionException {
@@ -44278,6 +46403,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTableName(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTableName(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final TableNameContext tableName() throws RecognitionException {
@@ -44322,6 +46452,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitFullColumnName(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitFullColumnName(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -44388,6 +46523,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitIndexColumnName(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitIndexColumnName(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -44476,6 +46616,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitUserName(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitUserName(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final UserNameContext userName() throws RecognitionException {
@@ -44522,6 +46667,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitMysqlVariable(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitMysqlVariable(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -44573,6 +46723,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCharsetName(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCharsetName(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -44682,6 +46837,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCollationName(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCollationName(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final CollationNameContext collationName() throws RecognitionException {
@@ -44746,6 +46906,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitEngineName(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitEngineName(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final EngineNameContext engineName() throws RecognitionException {
@@ -44796,6 +46961,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitUuidSet(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitUuidSet(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -44882,6 +47052,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitXid(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitXid(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final XidContext xid() throws RecognitionException {
@@ -44948,6 +47123,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitXuidStringId(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitXuidStringId(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -45024,6 +47204,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAuthPlugin(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAuthPlugin(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final AuthPluginContext authPlugin() throws RecognitionException {
@@ -45077,6 +47262,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitUid(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitUid(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -45158,6 +47348,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSimpleId(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSimpleId(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -45261,6 +47456,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDottedId(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDottedId(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DottedIdContext dottedId() throws RecognitionException {
@@ -45318,6 +47518,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDecimalLiteral(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDecimalLiteral(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DecimalLiteralContext decimalLiteral() throws RecognitionException {
@@ -45366,6 +47571,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitFileSizeLiteral(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitFileSizeLiteral(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -45430,6 +47640,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitStringLiteral(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitStringLiteral(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -45570,6 +47785,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitBooleanLiteral(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitBooleanLiteral(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final BooleanLiteralContext booleanLiteral() throws RecognitionException {
@@ -45616,6 +47836,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitHexadecimalLiteral(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitHexadecimalLiteral(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -45666,6 +47891,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitNullNotnull(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitNullNotnull(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -45739,6 +47969,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitConstant(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitConstant(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -45872,6 +48107,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSpatialDataType(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSpatialDataType(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class CollectionDataTypeContext extends DataTypeContext {
 		public Token typeName;
@@ -45898,6 +48138,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCollectionDataType(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCollectionDataType(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class NationalVaryingStringDataTypeContext extends DataTypeContext {
 		public Token typeName;
@@ -45917,6 +48162,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitNationalVaryingStringDataType(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitNationalVaryingStringDataType(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class DimensionDataTypeContext extends DataTypeContext {
@@ -45963,6 +48213,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDimensionDataType(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDimensionDataType(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class StringDataTypeContext extends DataTypeContext {
 		public Token typeName;
@@ -45997,6 +48252,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitStringDataType(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitStringDataType(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class NationalStringDataTypeContext extends DataTypeContext {
 		public Token typeName;
@@ -46017,6 +48277,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitNationalStringDataType(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitNationalStringDataType(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class SimpleDataTypeContext extends DataTypeContext {
 		public Token typeName;
@@ -46036,6 +48301,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSimpleDataType(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSimpleDataType(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -46598,6 +48868,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCollectionOptions(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCollectionOptions(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final CollectionOptionsContext collectionOptions() throws RecognitionException {
@@ -46677,6 +48952,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitConvertedDataType(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitConvertedDataType(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -46854,6 +49134,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitLengthOneDimension(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitLengthOneDimension(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final LengthOneDimensionContext lengthOneDimension() throws RecognitionException {
@@ -46899,6 +49184,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitLengthTwoDimension(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitLengthTwoDimension(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -46949,6 +49239,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitLengthTwoOptionalDimension(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitLengthTwoOptionalDimension(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -47008,6 +49303,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitUidList(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitUidList(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -47070,6 +49370,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTables(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTables(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final TablesContext tables() throws RecognitionException {
@@ -47130,6 +49435,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitIndexColumnNames(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitIndexColumnNames(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -47194,6 +49504,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitExpressions(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitExpressions(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ExpressionsContext expressions() throws RecognitionException {
@@ -47252,6 +49567,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitExpressionsWithDefaults(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitExpressionsWithDefaults(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -47312,6 +49632,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitConstants(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitConstants(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ConstantsContext constants() throws RecognitionException {
@@ -47369,6 +49694,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSimpleStrings(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSimpleStrings(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final SimpleStringsContext simpleStrings() throws RecognitionException {
@@ -47425,6 +49755,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitUserVariables(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitUserVariables(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -47493,6 +49828,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDefaultValue(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDefaultValue(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -47580,6 +49920,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCurrentTimestamp(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCurrentTimestamp(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -47683,6 +50028,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitExpressionOrDefault(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitExpressionOrDefault(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -48492,6 +50842,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitIfExists(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitIfExists(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final IfExistsContext ifExists() throws RecognitionException {
@@ -48532,6 +50887,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitIfNotExists(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitIfNotExists(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -48584,6 +50944,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSpecificFunctionCall(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSpecificFunctionCall(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class PasswordFunctionCallContext extends FunctionCallContext {
 		public PasswordFunctionClauseContext passwordFunctionClause() {
@@ -48597,6 +50962,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPasswordFunctionCall(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPasswordFunctionCall(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class UdfFunctionCallContext extends FunctionCallContext {
@@ -48615,6 +50985,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitUdfFunctionCall(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitUdfFunctionCall(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class AggregateFunctionCallContext extends FunctionCallContext {
 		public AggregateWindowedFunctionContext aggregateWindowedFunction() {
@@ -48628,6 +51003,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAggregateFunctionCall(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAggregateFunctionCall(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class ScalarFunctionCallContext extends FunctionCallContext {
@@ -48645,6 +51025,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitScalarFunctionCall(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitScalarFunctionCall(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -48776,6 +51161,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPositionFunctionCall(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPositionFunctionCall(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class TrimFunctionCallContext extends SpecificFunctionContext {
 		public Token positioinForm;
@@ -48809,6 +51199,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTrimFunctionCall(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTrimFunctionCall(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class SimpleFunctionCallContext extends SpecificFunctionContext {
 		public TerminalNode CURRENT_DATE() { return getToken(OpenDistroSqlParser.CURRENT_DATE, 0); }
@@ -48824,6 +51219,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSimpleFunctionCall(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSimpleFunctionCall(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class CharFunctionCallContext extends SpecificFunctionContext {
@@ -48843,6 +51243,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCharFunctionCall(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCharFunctionCall(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class WeightFunctionCallContext extends SpecificFunctionContext {
@@ -48872,6 +51277,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitWeightFunctionCall(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitWeightFunctionCall(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class GetFormatFunctionCallContext extends SpecificFunctionContext {
 		public Token datetimeFormat;
@@ -48890,6 +51300,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitGetFormatFunctionCall(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitGetFormatFunctionCall(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class CaseFunctionCallContext extends SpecificFunctionContext {
@@ -48918,6 +51333,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCaseFunctionCall(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCaseFunctionCall(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class ExtractFunctionCallContext extends SpecificFunctionContext {
 		public StringLiteralContext sourceString;
@@ -48941,6 +51361,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitExtractFunctionCall(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitExtractFunctionCall(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class DataTypeFunctionCallContext extends SpecificFunctionContext {
@@ -48967,6 +51392,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDataTypeFunctionCall(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDataTypeFunctionCall(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class ValuesFunctionCallContext extends SpecificFunctionContext {
 		public TerminalNode VALUES() { return getToken(OpenDistroSqlParser.VALUES, 0); }
@@ -48981,6 +51411,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitValuesFunctionCall(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitValuesFunctionCall(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class SubstrFunctionCallContext extends SpecificFunctionContext {
@@ -49017,6 +51452,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSubstrFunctionCall(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSubstrFunctionCall(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -49601,6 +52041,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCaseFuncAlternative(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCaseFuncAlternative(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final CaseFuncAlternativeContext caseFuncAlternative() throws RecognitionException {
@@ -49660,6 +52105,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitLevelWeightRange(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitLevelWeightRange(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class LevelWeightListContext extends LevelsInWeightStringContext {
 		public TerminalNode LEVEL() { return getToken(OpenDistroSqlParser.LEVEL, 0); }
@@ -49677,6 +52127,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitLevelWeightList(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitLevelWeightList(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -49760,6 +52215,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitLevelInWeightListElement(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitLevelInWeightListElement(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -49853,6 +52313,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitAggregateWindowedFunction(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitAggregateWindowedFunction(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -50861,6 +53326,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitScalarFunctionName(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitScalarFunctionName(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ScalarFunctionNameContext scalarFunctionName() throws RecognitionException {
@@ -51378,6 +53848,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPasswordFunctionClause(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPasswordFunctionClause(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final PasswordFunctionClauseContext passwordFunctionClause() throws RecognitionException {
@@ -51453,6 +53928,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitFunctionArgs(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitFunctionArgs(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -51571,6 +54051,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitFunctionArg(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitFunctionArg(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final FunctionArgContext functionArg() throws RecognitionException {
@@ -51651,6 +54136,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitIsExpression(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitIsExpression(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class NotExpressionContext extends ExpressionContext {
 		public Token notOperator;
@@ -51666,6 +54156,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitNotExpression(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitNotExpression(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class LogicalExpressionContext extends ExpressionContext {
@@ -51687,6 +54182,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitLogicalExpression(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitLogicalExpression(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class PredicateExpressionContext extends ExpressionContext {
 		public PredicateContext predicate() {
@@ -51700,6 +54200,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPredicateExpression(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPredicateExpression(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -51852,6 +54357,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSoundsLikePredicate(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSoundsLikePredicate(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class ExpressionAtomPredicateContext extends PredicateContext {
 		public ExpressionAtomContext expressionAtom() {
@@ -51867,6 +54377,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitExpressionAtomPredicate(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitExpressionAtomPredicate(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class InPredicateContext extends PredicateContext {
@@ -51889,6 +54404,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitInPredicate(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitInPredicate(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class SubqueryComparasionPredicateContext extends PredicateContext {
@@ -51914,6 +54434,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSubqueryComparasionPredicate(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSubqueryComparasionPredicate(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class BetweenPredicateContext extends PredicateContext {
 		public List<PredicateContext> predicate() {
@@ -51933,6 +54458,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitBetweenPredicate(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitBetweenPredicate(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class BinaryComparasionPredicateContext extends PredicateContext {
@@ -51956,6 +54486,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitBinaryComparasionPredicate(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitBinaryComparasionPredicate(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class IsNullPredicateContext extends PredicateContext {
 		public PredicateContext predicate() {
@@ -51973,6 +54508,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitIsNullPredicate(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitIsNullPredicate(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class LikePredicateContext extends PredicateContext {
@@ -51995,6 +54535,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitLikePredicate(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitLikePredicate(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class RegexpPredicateContext extends PredicateContext {
 		public Token regex;
@@ -52015,6 +54560,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitRegexpPredicate(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitRegexpPredicate(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -52310,6 +54860,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitUnaryExpressionAtom(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitUnaryExpressionAtom(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class CollateExpressionAtomContext extends ExpressionAtomContext {
 		public ExpressionAtomContext expressionAtom() {
@@ -52328,6 +54883,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCollateExpressionAtom(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCollateExpressionAtom(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class SubqueryExpessionAtomContext extends ExpressionAtomContext {
 		public SelectStatementContext selectStatement() {
@@ -52342,6 +54902,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitSubqueryExpessionAtom(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitSubqueryExpessionAtom(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class MysqlVariableExpressionAtomContext extends ExpressionAtomContext {
 		public MysqlVariableContext mysqlVariable() {
@@ -52355,6 +54920,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitMysqlVariableExpressionAtom(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitMysqlVariableExpressionAtom(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class NestedExpressionAtomContext extends ExpressionAtomContext {
@@ -52373,6 +54943,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitNestedExpressionAtom(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitNestedExpressionAtom(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class NestedRowExpressionAtomContext extends ExpressionAtomContext {
 		public TerminalNode ROW() { return getToken(OpenDistroSqlParser.ROW, 0); }
@@ -52390,6 +54965,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitNestedRowExpressionAtom(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitNestedRowExpressionAtom(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class MathExpressionAtomContext extends ExpressionAtomContext {
@@ -52413,6 +54993,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitMathExpressionAtom(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitMathExpressionAtom(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class IntervalExpressionAtomContext extends ExpressionAtomContext {
 		public TerminalNode INTERVAL() { return getToken(OpenDistroSqlParser.INTERVAL, 0); }
@@ -52431,6 +55016,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitIntervalExpressionAtom(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitIntervalExpressionAtom(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class ExistsExpessionAtomContext extends ExpressionAtomContext {
 		public TerminalNode EXISTS() { return getToken(OpenDistroSqlParser.EXISTS, 0); }
@@ -52446,6 +55036,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitExistsExpessionAtom(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitExistsExpessionAtom(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class ConstantExpressionAtomContext extends ExpressionAtomContext {
 		public ConstantContext constant() {
@@ -52460,6 +55055,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitConstantExpressionAtom(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitConstantExpressionAtom(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class FunctionCallExpressionAtomContext extends ExpressionAtomContext {
 		public FunctionCallContext functionCall() {
@@ -52473,6 +55073,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitFunctionCallExpressionAtom(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitFunctionCallExpressionAtom(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class BinaryExpressionAtomContext extends ExpressionAtomContext {
@@ -52489,6 +55094,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitBinaryExpressionAtom(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitBinaryExpressionAtom(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 	public static class FullColumnNameExpressionAtomContext extends ExpressionAtomContext {
 		public FullColumnNameContext fullColumnName() {
@@ -52502,6 +55112,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitFullColumnNameExpressionAtom(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitFullColumnNameExpressionAtom(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 	public static class BitExpressionAtomContext extends ExpressionAtomContext {
@@ -52524,6 +55139,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitBitExpressionAtom(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitBitExpressionAtom(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -52791,6 +55411,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitUnaryOperator(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitUnaryOperator(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final UnaryOperatorContext unaryOperator() throws RecognitionException {
@@ -52835,6 +55460,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitComparisonOperator(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitComparisonOperator(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -52942,6 +55572,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitLogicalOperator(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitLogicalOperator(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final LogicalOperatorContext logicalOperator() throws RecognitionException {
@@ -53017,6 +55652,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitBitOperator(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitBitOperator(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -53095,6 +55735,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitMathOperator(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitMathOperator(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -53181,6 +55826,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitCharsetNameBase(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitCharsetNameBase(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final CharsetNameBaseContext charsetNameBase() throws RecognitionException {
@@ -53229,6 +55879,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitTransactionLevelBase(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitTransactionLevelBase(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -53284,6 +55939,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitPrivilegesBase(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitPrivilegesBase(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final PrivilegesBaseContext privilegesBase() throws RecognitionException {
@@ -53337,6 +55997,11 @@ public class OpenDistroSqlParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitIntervalTypeBase(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitIntervalTypeBase(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final IntervalTypeBaseContext intervalTypeBase() throws RecognitionException {
@@ -53388,6 +56053,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitDataTypeBase(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitDataTypeBase(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -53738,6 +56408,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitKeywordsCanBeId(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitKeywordsCanBeId(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -54097,6 +56772,11 @@ public class OpenDistroSqlParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof OpenDistroSqlParserListener ) ((OpenDistroSqlParserListener)listener).exitFunctionNameBase(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof OpenDistroSqlParserVisitor ) return ((OpenDistroSqlParserVisitor<? extends T>)visitor).visitFunctionNameBase(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
