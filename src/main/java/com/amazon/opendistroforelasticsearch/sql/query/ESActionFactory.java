@@ -91,6 +91,13 @@ public class ESActionFactory {
                 else {
                     sqlExpr.accept(new TermFieldRewriter(client));
                     Select select = new SqlParser().parseSelect(sqlExpr);
+                    if (select.isSelectAll() && !select.getFields().isEmpty()) {
+                        for (int i = 0; i < select.getFields().size(); ++i) {
+                            if (select.getFields().get(i) != null && !select.getFields().get(i).isNested()) {
+                                throw new SqlParseException("Other expressions may not be present in the select list when '*' is used");
+                            }
+                        }
+                    }
                     return handleSelect(client, select);
                 }
             case "DELETE":

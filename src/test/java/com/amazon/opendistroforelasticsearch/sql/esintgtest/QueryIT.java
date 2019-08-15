@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
+import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.rest.RestStatus;
 import org.joda.time.DateTime;
@@ -24,7 +25,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -82,6 +85,9 @@ public class QueryIT extends SQLIntegTestCase {
         loadIndex(Index.BANK_TWO);
     }
 
+    @Rule
+    public  ExpectedException exception = ExpectedException.none();
+
     @Test
     public void searchTypeTest() throws IOException {
         JSONObject response = executeQuery(String.format(Locale.ROOT, "SELECT * FROM %s/phrase LIMIT 1000",
@@ -100,57 +106,18 @@ public class QueryIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void selectAllAndSpecificFieldTest() throws IOException {
-        String[] arr = new String[] {"account_number", "firstname", "address", "birthdate", "gender", "city", "lastname", "balance", "employer", "state", "age", "email", "male"};
+    public void selectAllWithFieldThrowsException() throws IOException {
         String fieldName = "age";
-        Set<String> expectedSource = new HashSet<>(Arrays.asList(arr));
-        JSONObject response = executeQuery(String.format(Locale.ROOT,
-                "SELECT *, %s as t " +
-                        "FROM %s/account LIMIT 5",
-                fieldName, TestsConstants.TEST_INDEX_BANK));
-
-        JSONArray hits = getHits(response);
-        Assert.assertTrue(hits.length() > 0);
-        for (int i = 0; i < hits.length(); ++i) {
-            JSONObject hit = hits.getJSONObject(i);
-            Assert.assertEquals(expectedSource, getSource(hit).keySet());
-        }
-    }
-
-    @Test
-    public void selectAllAndSpecificFieldwithGroupByTest() throws IOException {
-        String[] arr = new String[] {"account_number", "firstname", "address", "birthdate", "gender", "city", "lastname", "balance", "employer", "state", "age", "email", "male"};
-        String aggregationsObjectName = "aggregations";
-        String fieldName = "age";
-        Set<String> expectedSource = new HashSet<>(Arrays.asList(arr));
-        JSONObject response = executeQuery(String.format(Locale.ROOT,
-                "SELECT *, %s as t " +
-                        "FROM %s/account GROUP BY %s",
-                fieldName, TestsConstants.TEST_INDEX_BANK, fieldName));
-
-        JSONObject ageAgg = (response.getJSONObject(aggregationsObjectName)).getJSONObject(fieldName);
-        JSONArray buckets = ageAgg.getJSONArray("buckets");
-        Assert.assertTrue(buckets.length() == 6);
-    }
-
-    @Test
-    public void selectAllAndSpecificFieldwithOrderByTest() throws IOException {
-        String[] arr = new String[] {"account_number", "firstname", "address", "birthdate", "gender", "city", "lastname", "balance", "employer", "state", "age", "email", "male"};
-        String fieldName = "age";
-        Set<String> expectedSource = new HashSet<>(Arrays.asList(arr));
-        JSONObject response = executeQuery(String.format(Locale.ROOT,
+        exception.expect(ResponseException.class);
+        exception.expectMessage("\"error\": {\n" +
+                "    \"reason\": \"Invalid SQL query\",\n" +
+                "    \"details\": \"Other expressions may not be present in the select list when '*' is used\",\n" +
+                "    \"type\": \"SqlParseException\"");
+        executeQuery(String.format(Locale.ROOT,
                 "SELECT *, %s as t " + "" +
                         "FROM %s/account ORDER BY %s LIMIT 5",
                 fieldName, TestsConstants.TEST_INDEX_BANK, fieldName));
-
-        JSONArray hits = getHits(response);
-        Assert.assertTrue(hits.length() > 0);
-        for (int i = 0; i < hits.length(); ++i) {
-            JSONObject hit = hits.getJSONObject(i);
-            Assert.assertEquals(expectedSource, getSource(hit).keySet());
-        }
     }
-
 
     @Test
     public void indexWithWildcardTest() throws IOException {
