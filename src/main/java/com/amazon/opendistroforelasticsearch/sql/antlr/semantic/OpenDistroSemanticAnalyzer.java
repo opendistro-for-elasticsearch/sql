@@ -126,13 +126,13 @@ public class OpenDistroSemanticAnalyzer extends OpenDistroSqlParserBaseVisitor<A
 
     @Override
     protected Attribute aggregateResult(Attribute aggregate, Attribute nextResult) {
-        if (nextResult != Attribute.EMPTY) { // should call Atrribute.synthesis
+        if (nextResult != Attribute.EMPTY) { // should call Attribute method for synthesis
             return nextResult;
         }
         return aggregate;
     }
 
     private String getTextFrom(OpenDistroSqlParser.UidContext uid) {
-        return uid.simpleId().ID().getText();
+        return uid.simpleId().ID().getText(); // NPE possible when ID() = null
     }
 }

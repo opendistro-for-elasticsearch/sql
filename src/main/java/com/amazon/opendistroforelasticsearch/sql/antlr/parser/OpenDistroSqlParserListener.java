@@ -5472,18 +5472,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 */
 	void exitFunctionArg(OpenDistroSqlParser.FunctionArgContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code isExpression}
-	 * labeled alternative in {@link OpenDistroSqlParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterIsExpression(OpenDistroSqlParser.IsExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code isExpression}
-	 * labeled alternative in {@link OpenDistroSqlParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitIsExpression(OpenDistroSqlParser.IsExpressionContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code notExpression}
 	 * labeled alternative in {@link OpenDistroSqlParser#expression}.
 	 * @param ctx the parse tree

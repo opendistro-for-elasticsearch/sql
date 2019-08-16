@@ -3241,13 +3241,6 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFunctionArg(OpenDistroSqlParser.FunctionArgContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code isExpression}
-	 * labeled alternative in {@link OpenDistroSqlParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitIsExpression(OpenDistroSqlParser.IsExpressionContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code notExpression}
 	 * labeled alternative in {@link OpenDistroSqlParser#expression}.
 	 * @param ctx the parse tree
