@@ -65,10 +65,10 @@ ddlStatement
     ;
 
 dmlStatement
-    : selectStatement | insertStatement | updateStatement
-    | deleteStatement | replaceStatement | callStatement
-    | loadDataStatement | loadXmlStatement | doStatement
-    | handlerStatement
+    : selectStatement //| insertStatement | updateStatement
+    | deleteStatement //| replaceStatement | callStatement
+    //| loadDataStatement | loadXmlStatement | doStatement
+    //| handlerStatement
     ;
 
 transactionStatement
@@ -987,14 +987,17 @@ queryExpressionNointo
 
 querySpecification
     : SELECT selectSpec* selectElements selectIntoExpression?
-      fromClause? orderByClause? limitClause?
+    //  fromClause? orderByClause? limitClause?
+      fromClause orderByClause? limitClause?
     | SELECT selectSpec* selectElements
-    fromClause? orderByClause? limitClause? selectIntoExpression?
+    //fromClause? orderByClause? limitClause? selectIntoExpression?
+    fromClause orderByClause? limitClause? selectIntoExpression?
     ;
 
 querySpecificationNointo
     : SELECT selectSpec* selectElements
-      fromClause? orderByClause? limitClause?
+    //  fromClause? orderByClause? limitClause?
+      fromClause orderByClause? limitClause?
     ;
 
 unionParenthesis
@@ -2121,6 +2124,7 @@ functionCall
     | scalarFunctionName '(' functionArgs? ')'                      #scalarFunctionCall
     | fullId '(' functionArgs? ')'                                  #udfFunctionCall
     | passwordFunctionClause                                        #passwordFunctionCall
+    | SUBSTRING '(' fullColumnName ',' functionArg ')'              #substringFunctionCall
     ;
 
 specificFunction
@@ -2252,7 +2256,7 @@ scalarFunctionName
     | ASCII | CURDATE | CURRENT_DATE | CURRENT_TIME
     | CURRENT_TIMESTAMP | CURTIME | DATE_ADD | DATE_SUB
     | IF | INSERT | LOCALTIME | LOCALTIMESTAMP | MID | NOW
-    | REPLACE | SUBSTR | SUBSTRING | SYSDATE | TRIM
+    | REPLACE | SUBSTR /*| SUBSTRING */ | SYSDATE | TRIM
     | UTC_DATE | UTC_TIME | UTC_TIMESTAMP
     ;
 
@@ -2312,7 +2316,7 @@ expressionAtom
     | '(' selectStatement ')'                                       #subqueryExpessionAtom
     | INTERVAL expression intervalType                              #intervalExpressionAtom
     | left=expressionAtom bitOperator right=expressionAtom          #bitExpressionAtom
-    | left=expressionAtom mathOperator right=expressionAtom         #mathExpressionAtom
+    //| left=expressionAtom mathOperator right=expressionAtom         #mathExpressionAtom
     ;
 
 unaryOperator
@@ -2321,7 +2325,7 @@ unaryOperator
 
 comparisonOperator
     : '=' | '>' | '<' | '<' '=' | '>' '='
-    | '<' '>' | '!' '=' | '<' '=' '>'
+    | '<' '>' | '!' '=' //| '<' '=' '>'
     ;
 
 logicalOperator

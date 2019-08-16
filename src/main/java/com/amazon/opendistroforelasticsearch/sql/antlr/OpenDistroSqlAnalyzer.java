@@ -48,7 +48,7 @@ public class OpenDistroSqlAnalyzer {
             @Override
             public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e) {
                 throw new VerificationException(StringUtils.format(
-                    "ANTLR parser failed due to syntax error by offending symbol [%s] at position [%d]: ", offendingSymbol, charPositionInLine));
+                    "Failed to parse query due to syntax error by offending symbol [%s] at position [%d]: ", offendingSymbol, charPositionInLine));
             }
         });
         return parser.root();

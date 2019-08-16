@@ -5234,6 +5234,18 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 */
 	void exitPasswordFunctionCall(OpenDistroSqlParser.PasswordFunctionCallContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code substringFunctionCall}
+	 * labeled alternative in {@link OpenDistroSqlParser#functionCall}.
+	 * @param ctx the parse tree
+	 */
+	void enterSubstringFunctionCall(OpenDistroSqlParser.SubstringFunctionCallContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code substringFunctionCall}
+	 * labeled alternative in {@link OpenDistroSqlParser#functionCall}.
+	 * @param ctx the parse tree
+	 */
+	void exitSubstringFunctionCall(OpenDistroSqlParser.SubstringFunctionCallContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code simpleFunctionCall}
 	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
 	 * @param ctx the parse tree
@@ -5687,18 +5699,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitNestedRowExpressionAtom(OpenDistroSqlParser.NestedRowExpressionAtomContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code mathExpressionAtom}
-	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
-	 * @param ctx the parse tree
-	 */
-	void enterMathExpressionAtom(OpenDistroSqlParser.MathExpressionAtomContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code mathExpressionAtom}
-	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
-	 * @param ctx the parse tree
-	 */
-	void exitMathExpressionAtom(OpenDistroSqlParser.MathExpressionAtomContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code intervalExpressionAtom}
 	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.

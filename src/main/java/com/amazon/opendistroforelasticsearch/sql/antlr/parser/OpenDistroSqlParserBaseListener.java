@@ -5740,6 +5740,18 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterSubstringFunctionCall(OpenDistroSqlParser.SubstringFunctionCallContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSubstringFunctionCall(OpenDistroSqlParser.SubstringFunctionCallContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterSimpleFunctionCall(OpenDistroSqlParser.SimpleFunctionCallContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -6203,18 +6215,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitNestedRowExpressionAtom(OpenDistroSqlParser.NestedRowExpressionAtomContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterMathExpressionAtom(OpenDistroSqlParser.MathExpressionAtomContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitMathExpressionAtom(OpenDistroSqlParser.MathExpressionAtomContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

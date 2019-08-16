@@ -1,6 +1,7 @@
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.StringSimilarity;
+import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.QuerySpecificationContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.VerificationException;
@@ -14,6 +15,7 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroS
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FullColumnNameContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.ScalarFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.StringLiteralContext;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.SubstringFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.TableNameContext;
 import static com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState.FieldMappings;
 import static com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState.IndexMappings;
@@ -41,7 +43,7 @@ public class OpenDistroSemanticAnalyzer extends OpenDistroSqlParserBaseVisitor<A
 
     @Override
     public Attribute visitTableName(TableNameContext ctx) {
-        String indexName = ctx.fullId().uid(0).simpleId().ID().getSymbol().getText();
+        String indexName = getTextFrom(ctx.fullId().uid(0));
         IndexMappings indexMappings = state().getFieldMappings(new String[]{indexName});
         if (indexMappings == null) { // ES API throws its own IndexNotFoundException before this
             throw new VerificationException(StringUtils.format("Index name or pattern [%s] doesn't match any existing index", indexName));
@@ -54,7 +56,7 @@ public class OpenDistroSemanticAnalyzer extends OpenDistroSqlParserBaseVisitor<A
 
     @Override
     public Attribute visitFullColumnName(FullColumnNameContext ctx) {
-        final String fieldName = ctx.uid().simpleId().ID().getText();
+        final String fieldName = getTextFrom(ctx.uid()); //.simpleId().ID().getText();
         FieldMappings fieldMappings = typesBySymbol.resolve("");
         Map<String, Object> mappings = fieldMappings.mapping(fieldName);
         if (mappings == null) {
@@ -96,6 +98,18 @@ public class OpenDistroSemanticAnalyzer extends OpenDistroSqlParserBaseVisitor<A
     }
 
     @Override
+    public Attribute visitSubstringFunctionCall(SubstringFunctionCallContext ctx) {
+        Attribute colAttr = visit(ctx.fullColumnName());
+        Attribute argAttr = visit(ctx.functionArg());
+        if (colAttr.isString() && argAttr.isNumber()) {
+            return new Attribute("text");
+        }
+        throw new VerificationException(StringUtils.format(
+            "Type of column [%s] and of argument must be string and number rather than %s and %s.",
+                getTextFrom(ctx.fullColumnName().uid()), colAttr, argAttr));
+    }
+
+    @Override
     public Attribute visitStringLiteral(StringLiteralContext ctx) {
         return new Attribute("text");
     }
@@ -103,5 +117,22 @@ public class OpenDistroSemanticAnalyzer extends OpenDistroSqlParserBaseVisitor<A
     @Override
     public Attribute visitDecimalLiteral(DecimalLiteralContext ctx) {
         return new Attribute("long");
+    }
+
+    @Override
+    protected Attribute defaultResult() {
+        return Attribute.EMPTY;
+    }
+
+    @Override
+    protected Attribute aggregateResult(Attribute aggregate, Attribute nextResult) {
+        if (nextResult != Attribute.EMPTY) { // should call Atrribute.synthesis
+            return nextResult;
+        }
+        return aggregate;
+    }
+
+    private String getTextFrom(OpenDistroSqlParser.UidContext uid) {
+        return uid.simpleId().ID().getText();
     }
 }

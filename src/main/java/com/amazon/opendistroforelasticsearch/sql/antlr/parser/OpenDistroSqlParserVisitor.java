@@ -3101,6 +3101,13 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitPasswordFunctionCall(OpenDistroSqlParser.PasswordFunctionCallContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code substringFunctionCall}
+	 * labeled alternative in {@link OpenDistroSqlParser#functionCall}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSubstringFunctionCall(OpenDistroSqlParser.SubstringFunctionCallContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code simpleFunctionCall}
 	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
 	 * @param ctx the parse tree
@@ -3366,13 +3373,6 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitNestedRowExpressionAtom(OpenDistroSqlParser.NestedRowExpressionAtomContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code mathExpressionAtom}
-	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitMathExpressionAtom(OpenDistroSqlParser.MathExpressionAtomContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code intervalExpressionAtom}
 	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
