@@ -4,8 +4,7 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlLexer
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.OpenDistroSemanticAnalyzer;
 import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.CaseChangingCharStream;
-import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.VerificationException;
-import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.SyntaxAnalysisException;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -47,8 +46,8 @@ public class OpenDistroSqlAnalyzer {
         parser.addErrorListener(new BaseErrorListener() {
             @Override
             public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e) {
-                throw new VerificationException(StringUtils.format(
-                    "Failed to parse query due to syntax error by offending symbol [%s] at position [%d]: ", offendingSymbol, charPositionInLine));
+                throw new SyntaxAnalysisException(
+                    "Failed to parse query due to syntax error by offending symbol [%s] at position [%d]: ", offendingSymbol, charPositionInLine);
             }
         });
         return parser.root();

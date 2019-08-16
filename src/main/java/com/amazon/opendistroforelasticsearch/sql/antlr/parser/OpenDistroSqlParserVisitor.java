@@ -3087,13 +3087,6 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitScalarFunctionCall(OpenDistroSqlParser.ScalarFunctionCallContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code udfFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#functionCall}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitUdfFunctionCall(OpenDistroSqlParser.UdfFunctionCallContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code passwordFunctionCall}
 	 * labeled alternative in {@link OpenDistroSqlParser#functionCall}.
 	 * @param ctx the parse tree

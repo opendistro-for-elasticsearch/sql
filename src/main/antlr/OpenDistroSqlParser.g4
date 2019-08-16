@@ -2122,7 +2122,7 @@ functionCall
     : specificFunction                                              #specificFunctionCall
     | aggregateWindowedFunction                                     #aggregateFunctionCall
     | scalarFunctionName '(' functionArgs? ')'                      #scalarFunctionCall
-    | fullId '(' functionArgs? ')'                                  #udfFunctionCall
+    //| fullId '(' functionArgs? ')'                                  #udfFunctionCall
     | passwordFunctionClause                                        #passwordFunctionCall
     | SUBSTRING '(' fullColumnName ',' functionArg ')'              #substringFunctionCall
     ;

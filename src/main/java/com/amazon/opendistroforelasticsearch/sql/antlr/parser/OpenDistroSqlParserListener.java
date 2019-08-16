@@ -5210,18 +5210,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 */
 	void exitScalarFunctionCall(OpenDistroSqlParser.ScalarFunctionCallContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code udfFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#functionCall}.
-	 * @param ctx the parse tree
-	 */
-	void enterUdfFunctionCall(OpenDistroSqlParser.UdfFunctionCallContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code udfFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#functionCall}.
-	 * @param ctx the parse tree
-	 */
-	void exitUdfFunctionCall(OpenDistroSqlParser.UdfFunctionCallContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code passwordFunctionCall}
 	 * labeled alternative in {@link OpenDistroSqlParser#functionCall}.
 	 * @param ctx the parse tree

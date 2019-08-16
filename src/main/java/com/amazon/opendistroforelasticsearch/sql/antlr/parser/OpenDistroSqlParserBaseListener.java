@@ -5716,18 +5716,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterUdfFunctionCall(OpenDistroSqlParser.UdfFunctionCallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitUdfFunctionCall(OpenDistroSqlParser.UdfFunctionCallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterPasswordFunctionCall(OpenDistroSqlParser.PasswordFunctionCallContext ctx) { }
 	/**
 	 * {@inheritDoc}

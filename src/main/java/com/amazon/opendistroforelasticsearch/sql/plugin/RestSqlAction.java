@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.plugin;
 
 import com.alibaba.druid.sql.parser.ParserException;
+import com.amazon.opendistroforelasticsearch.sql.antlr.SqlAnalysisException;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.exception.SQLFeatureDisabledException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
@@ -168,7 +169,8 @@ public class RestSqlAction extends BaseRestHandler {
                 e instanceof SQLFeatureDisabledException ||
                 e instanceof IllegalArgumentException ||
                 e instanceof IndexNotFoundException ||
-                e instanceof VerificationException;
+                e instanceof VerificationException ||
+                e instanceof SqlAnalysisException;
     }
 
     private void sendResponse(final RestChannel channel, final String message, final RestStatus status) {

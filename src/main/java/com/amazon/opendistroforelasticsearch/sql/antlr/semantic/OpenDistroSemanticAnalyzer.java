@@ -4,8 +4,6 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.StringSimilarity;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.QuerySpecificationContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParserBaseVisitor;
-import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.VerificationException;
-import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -46,7 +44,7 @@ public class OpenDistroSemanticAnalyzer extends OpenDistroSqlParserBaseVisitor<A
         String indexName = getTextFrom(ctx.fullId().uid(0));
         IndexMappings indexMappings = state().getFieldMappings(new String[]{indexName});
         if (indexMappings == null) { // ES API throws its own IndexNotFoundException before this
-            throw new VerificationException(StringUtils.format("Index name or pattern [%s] doesn't match any existing index", indexName));
+            throw new SemanticAnalysisException("Index name or pattern [%s] doesn't match any existing index", indexName);
         }
 
         FieldMappings mappings = indexMappings.firstMapping().firstMapping();
@@ -56,13 +54,13 @@ public class OpenDistroSemanticAnalyzer extends OpenDistroSqlParserBaseVisitor<A
 
     @Override
     public Attribute visitFullColumnName(FullColumnNameContext ctx) {
-        final String fieldName = getTextFrom(ctx.uid()); //.simpleId().ID().getText();
+        final String fieldName = getTextFrom(ctx.uid());
         FieldMappings fieldMappings = typesBySymbol.resolve("");
         Map<String, Object> mappings = fieldMappings.mapping(fieldName);
         if (mappings == null) {
             List<String> suggestedWords = new StringSimilarity(fieldMappings.allNames()).similarTo(fieldName);
-            throw new VerificationException(StringUtils.format(
-                "Field [%s] cannot be found. Did you mean [%s]?", fieldName, String.join(", ", suggestedWords)));
+            throw new SemanticAnalysisException(
+                "Field [%s] cannot be found. Did you mean [%s]?", fieldName, String.join(", ", suggestedWords));
         }
         return new Attribute((String) mappings.get("type"));
     }
@@ -73,8 +71,8 @@ public class OpenDistroSemanticAnalyzer extends OpenDistroSqlParserBaseVisitor<A
         if (ctx.scalarFunctionName().functionNameBase().ABS() != null) {
             Attribute argAttribute = visit(ctx.functionArgs());
             if (!argAttribute.isNumber()) {
-                throw new VerificationException(StringUtils.format(
-                    "Function ABS can only work with number instead of %s. Usage ABS(number)", argAttribute));
+                throw new SemanticAnalysisException(
+                    "Function ABS can only work with number instead of %s. Usage: ABS(number)", argAttribute);
             }
             return argAttribute;
         }
@@ -89,8 +87,8 @@ public class OpenDistroSemanticAnalyzer extends OpenDistroSqlParserBaseVisitor<A
             Attribute leftAttr = visit(ctx.predicate(0));
             Attribute rightAttr = visit(ctx.predicate(1));
             if (!leftAttr.isCompatible(rightAttr)) {
-                throw new VerificationException(StringUtils.format(
-                    "Type of left side %s and right side %s are not compatible for operator ['%s'].", leftAttr, rightAttr, op));
+                throw new SemanticAnalysisException(
+                    "Type of left side %s and right side %s are not compatible for operator ['%s'].", leftAttr, rightAttr, op);
             }
             return leftAttr;
         }
@@ -104,9 +102,9 @@ public class OpenDistroSemanticAnalyzer extends OpenDistroSqlParserBaseVisitor<A
         if (colAttr.isString() && argAttr.isNumber()) {
             return new Attribute("text");
         }
-        throw new VerificationException(StringUtils.format(
+        throw new SemanticAnalysisException(
             "Type of column [%s] and of argument must be string and number rather than %s and %s.",
-                getTextFrom(ctx.fullColumnName().uid()), colAttr, argAttr));
+                getTextFrom(ctx.fullColumnName().uid()), colAttr, argAttr);
     }
 
     @Override
