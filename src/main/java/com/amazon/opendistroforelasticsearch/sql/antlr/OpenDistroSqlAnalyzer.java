@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.*;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.DecimalLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FullColumnNameContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.ScalarFunctionCallContext;
@@ -119,6 +120,7 @@ public class OpenDistroSqlAnalyzer {
                 return new Attribute((String) mappings.get("type"));
             }
 
+            // This check should be able to accomplish in grammar
             @Override
             public Attribute visitScalarFunctionCall(ScalarFunctionCallContext ctx) {
                 if (ctx.scalarFunctionName().functionNameBase().ABS() != null) {
@@ -130,6 +132,22 @@ public class OpenDistroSqlAnalyzer {
                     return argAttribute;
                 }
                 return super.visitScalarFunctionCall(ctx);
+            }
+
+            // Better semantic check example for overloading operator '='
+            @Override
+            public Attribute visitBinaryComparasionPredicate(BinaryComparasionPredicateContext ctx) {
+                String op = ctx.comparisonOperator().getText();
+                if ("=".equals(op) || "<".equals(op) || ">".equals(op)) {
+                    Attribute leftAttr = visit(ctx.predicate(0));
+                    Attribute rightAttr = visit(ctx.predicate(1));
+                    if (!leftAttr.isCompatible(rightAttr)) {
+                        throw new VerificationException(StringUtils.format(
+                            "Type of left side %s and right side %s are not compatible for operator ['%s'].", leftAttr, rightAttr, op));
+                    }
+                    return leftAttr;
+                }
+                return super.visitBinaryComparasionPredicate(ctx);
             }
 
             @Override
@@ -239,6 +257,10 @@ public class OpenDistroSqlAnalyzer {
 
         public boolean isString() {
             return "text".equals(type) || "keyword".equals(type);
+        }
+
+        public boolean isCompatible(Attribute other) {
+            return (isNumber() && other.isNumber()) || (isString() && other.isString());
         }
 
         @Override
