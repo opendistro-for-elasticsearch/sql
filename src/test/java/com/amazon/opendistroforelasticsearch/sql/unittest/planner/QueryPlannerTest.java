@@ -112,8 +112,8 @@ public abstract class QueryPlannerTest {
     public void init() throws IOException {
         MockitoAnnotations.initMocks(this);
 
-        response1 = spy(new SearchResponse(StreamInput.wrap("response1".getBytes())));
-        response2 = spy(new SearchResponse(StreamInput.wrap("response2".getBytes())));
+        response1 = mock(SearchResponse.class);
+        response2 = mock(SearchResponse.class);
 
         ActionFuture mockFuture = mock(ActionFuture.class);
         when(client.execute(any(), any())).thenReturn(mockFuture);

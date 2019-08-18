@@ -51,8 +51,8 @@ public class ESClientTest {
         MultiSearchResponse response = mock(MultiSearchResponse.class);
         when(mockFuture.actionGet()).thenReturn(response);
 
-        MultiSearchResponse.Item item0 = new MultiSearchResponse.Item(new SearchResponse(StreamInput.wrap("item0".getBytes())), null);
-        MultiSearchResponse.Item item1 = new MultiSearchResponse.Item(new SearchResponse(StreamInput.wrap("item1".getBytes())), new Exception());
+        MultiSearchResponse.Item item0 = new MultiSearchResponse.Item(mock(SearchResponse.class), null);
+        MultiSearchResponse.Item item1 = new MultiSearchResponse.Item(mock(SearchResponse.class), new Exception());
         MultiSearchResponse.Item[] itemsRetry0 = new MultiSearchResponse.Item[]{item0, item1};
         MultiSearchResponse.Item[] itemsRetry1 = new MultiSearchResponse.Item[]{item0};
         when(response.getResponses()).thenAnswer(new Answer<MultiSearchResponse.Item[]>() {
