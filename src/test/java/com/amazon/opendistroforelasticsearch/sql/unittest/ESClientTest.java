@@ -43,7 +43,7 @@ public class ESClientTest {
     protected Client client;
 
     @Before
-    public void init() throws IOException {
+    public void init() {
         MockitoAnnotations.initMocks(this);
         ActionFuture<MultiSearchResponse> mockFuture = mock(ActionFuture.class);
         when(client.multiSearch(any())).thenReturn(mockFuture);

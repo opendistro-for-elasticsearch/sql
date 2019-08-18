@@ -81,9 +81,11 @@ public abstract class QueryPlannerTest {
     @Mock
     protected Client client;
 
+    @Mock
     private SearchResponse response1;
     private static final String SCROLL_ID1 = "1";
 
+    @Mock
     private SearchResponse response2;
     private static final String SCROLL_ID2 = "2";
 
@@ -109,11 +111,8 @@ public abstract class QueryPlannerTest {
     }
 
     @Before
-    public void init() throws IOException {
+    public void init() {
         MockitoAnnotations.initMocks(this);
-
-        response1 = mock(SearchResponse.class);
-        response2 = mock(SearchResponse.class);
 
         ActionFuture mockFuture = mock(ActionFuture.class);
         when(client.execute(any(), any())).thenReturn(mockFuture);
