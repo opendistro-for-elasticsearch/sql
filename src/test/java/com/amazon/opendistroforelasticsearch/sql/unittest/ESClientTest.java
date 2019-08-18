@@ -22,6 +22,7 @@ import org.elasticsearch.action.search.MultiSearchResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.io.stream.StreamInput;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +30,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+
+import java.io.IOException;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -40,7 +43,7 @@ public class ESClientTest {
     protected Client client;
 
     @Before
-    public void init() {
+    public void init() throws IOException {
         MockitoAnnotations.initMocks(this);
         ActionFuture<MultiSearchResponse> mockFuture = mock(ActionFuture.class);
         when(client.multiSearch(any())).thenReturn(mockFuture);
@@ -48,8 +51,8 @@ public class ESClientTest {
         MultiSearchResponse response = mock(MultiSearchResponse.class);
         when(mockFuture.actionGet()).thenReturn(response);
 
-        MultiSearchResponse.Item item0 = new MultiSearchResponse.Item(new SearchResponse(), null);
-        MultiSearchResponse.Item item1 = new MultiSearchResponse.Item(new SearchResponse(), new Exception());
+        MultiSearchResponse.Item item0 = new MultiSearchResponse.Item(new SearchResponse(StreamInput.wrap("item0".getBytes())), null);
+        MultiSearchResponse.Item item1 = new MultiSearchResponse.Item(new SearchResponse(StreamInput.wrap("item1".getBytes())), new Exception());
         MultiSearchResponse.Item[] itemsRetry0 = new MultiSearchResponse.Item[]{item0, item1};
         MultiSearchResponse.Item[] itemsRetry1 = new MultiSearchResponse.Item[]{item0};
         when(response.getResponses()).thenAnswer(new Answer<MultiSearchResponse.Item[]>() {

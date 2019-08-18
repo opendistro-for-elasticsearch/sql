@@ -47,6 +47,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.bytes.BytesArray;
+import org.elasticsearch.common.io.stream.StreamInput;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -59,6 +60,7 @@ import org.mockito.Spy;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -67,6 +69,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 /**
@@ -78,12 +81,10 @@ public abstract class QueryPlannerTest {
     @Mock
     protected Client client;
 
-    @Spy
-    private SearchResponse response1 = new SearchResponse();
+    private SearchResponse response1;
     private static final String SCROLL_ID1 = "1";
 
-    @Spy
-    private SearchResponse response2 = new SearchResponse();
+    private SearchResponse response2;
     private static final String SCROLL_ID2 = "2";
 
     @BeforeClass
@@ -108,8 +109,11 @@ public abstract class QueryPlannerTest {
     }
 
     @Before
-    public void init() {
+    public void init() throws IOException {
         MockitoAnnotations.initMocks(this);
+
+        response1 = spy(new SearchResponse(StreamInput.wrap("response1".getBytes())));
+        response2 = spy(new SearchResponse(StreamInput.wrap("response2".getBytes())));
 
         ActionFuture mockFuture = mock(ActionFuture.class);
         when(client.execute(any(), any())).thenReturn(mockFuture);
