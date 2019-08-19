@@ -14,3 +14,6 @@
  */
 
 rootProject.name = 'opendistro-sql'
+
+
+include ':rest-api-spec'
