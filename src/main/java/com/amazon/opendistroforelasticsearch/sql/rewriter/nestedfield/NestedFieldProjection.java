@@ -43,13 +43,93 @@ import static org.elasticsearch.index.query.QueryBuilders.nestedQuery;
 
 /**
  * Nested field projection class to make ES return matched rows in nested field.
+ *
+ * Example:
+ * SQL: SELECT * FROM employees e, e.projects p, p.address a, e.comments c, c.message m
+ * Rewrite: SELECT *, nested(projects.*), nested(projects.address.*), nested(comments.*),
+ *          nested(comments.message.*) FROM employee
+ *
+ *
+ * State transition table (state here means lastPath + DSL)
+ *  ______________________________________________________________________________________
+ *  |    lastPath       |               DSL                                              |
+ *  |------------------------------------------------------------------------------------|
+ *  |       ""          |       "must": [                                                |
+ *  |                   |         "nested": {                                            |
+ *  |                   |            "query":{},                                         |
+ *  |                   |            "path": "projects.address"                          |
+ *  |                   |          }                                                     |
+ *  |                   |       ]                                                        |
+ *  |------------------------------------------------------------------------------------|
+ *  | projects.address  |      "must": [                                                 |
+ *  |                   |        {                                                       |
+ *  |                   |          "nested": {                                           |
+ *  |                   |            "query": {                                          |
+ *  |                   |              "nested": {                                       |
+ *  |                   |                "query":{},                                     |
+ *  |                   |                "path": "projects.address"                      |
+ *  |                   |               }                                                |
+ *  |                   |             },                                                 |
+ *  |                   |          "path": "projects"                                    |
+ *  |                   |          }                                                     |
+ *  |                   |        }                                                       |
+ *  |                   |      ]                                                         |
+ *  |------------------------------------------------------------------------------------|
+ *  | projects          |      "must": [                                                 |
+ *  |                   |        {                                                       |
+ *  |                   |          "nested": {                                           |
+ *  |                   |            "query": {                                          |
+ *  |                   |              "nested": {                                       |
+ *  |                   |                "query":{},                                     |
+ *  |                   |                "path": "projects.address"                      |
+ *  |                   |               }                                                |
+ *  |                   |             },                                                 |
+ *  |                   |          "path": "projects"                                    |
+ *  |                   |          }                                                     |
+ *  |                   |        },                                                      |
+ *  |                   |        {                                                       |
+ *  |                   |          "nested": {                                           |
+ *  |                   |            "query":{},                                         |
+ *  |                   |            "path": "comments.message"                          |
+ *  |                   |          }                                                     |
+ *  |                   |        }                                                       |
+ *  |                   |      ]                                                         |
+ *  |------------------------------------------------------------------------------------|
+ *  | comments.message  |      "must": [                                                 |
+ *  |                   |        {                                                       |
+ *  |                   |          "nested": {                                           |
+ *  |                   |            "query": {                                          |
+ *  |                   |              "nested": {                                       |
+ *  |                   |                "query":{},                                     |
+ *  |                   |                "path": "projects.address"                      |
+ *  |                   |               }                                                |
+ *  |                   |             },                                                 |
+ *  |                   |          "path": "projects"                                    |
+ *  |                   |          }                                                     |
+ *  |                   |        },                                                      |
+ *  |                   |        {                                                       |
+ *  |                   |          "nested": {                                           |
+ *  |                   |            "query": {                                          |
+ *  |                   |              "nested": {                                       |
+ *  |                   |                "query":{},                                     |
+ *  |                   |                "path": "comments.message"                      |
+ *  |                   |               }                                                |
+ *  |                   |             },                                                 |
+ *  |                   |          "path": "comments"                                    |
+ *  |                   |          }                                                     |
+ *  |                   |       }                                                        |
+ *  |                   |     ]                                                          |
+ *  |------------------------------------------------------------------------------------|
+ *
+ *  More Details:
+ *    1) Keep adding nesting layers if the path are nested.
+ *    2) if the path are not nested, Stop adding nesting layers. Instead create new nested domain
  */
 public class NestedFieldProjection {
 
     private final SearchRequestBuilder request;
     private static final String SEPARATOR = ".";
-    private String lastFieldInPath = "";
-    private List<String> lastFieldNames = new ArrayList<>();
+    private String lastPath = "";
 
     public NestedFieldProjection(SearchRequestBuilder request) {
         this.request = request;
@@ -65,16 +145,14 @@ public class NestedFieldProjection {
             // Extract nested query from WHERE clause
             List<NestedQueryBuilder> nestedQueries = extractNestedQueries(query());
             groupFieldNamesByPath(fields).forEach(
-                (path, fieldNames) -> buildInnerHit(fieldNames, findNestedQueryWithSamePath(nestedQueries, path, fieldNames))
+                (path, fieldNames) -> buildInnerHit(fieldNames, findNestedQueryWithSamePath(nestedQueries, path))
             );
         }
     }
 
-    /** Reset values of lastFieldInPath and lastFieldNames to prepare for next check */
-    private void setLastValues(String path, List<String> fieldNames) {
-        int pos = path.lastIndexOf(SEPARATOR);
-        lastFieldInPath = path.substring(pos + 1);
-        lastFieldNames = fieldNames;
+    /** Reset values of lastPath to prepare for next check */
+    private void setLastPath(String path) {
+        lastPath = path;
     }
 
     /** Check via traditional for loop first to avoid lambda performance impact on all queries even though those without nested field */
@@ -96,6 +174,10 @@ public class NestedFieldProjection {
         }
     }
 
+    /** Use TreeMap to generate mapping {path -> list of field domain object} in reverse alphabetical order.
+     *  This order is used to generate nested query from the deepest level to the top level.
+     *  e.g. path 'project.address.city' should be nested in 'project.address', should be nested in 'project'
+     */
     private Map<String, List<String>> groupFieldNamesByPath(List<Field> fields) {
         return fields.stream().
                       filter(Field::isNested).
@@ -136,60 +218,55 @@ public class NestedFieldProjection {
      * Assumption: collected NestedQueryBuilder list should be very small or mostly only one.
      */
     private NestedQueryBuilder findNestedQueryWithSamePath(
-            List<NestedQueryBuilder> nestedQueries, String path, List<String> fieldNames) {
+            List<NestedQueryBuilder> nestedQueries, String path) {
 
         return nestedQueries.stream().
-                filter(query -> isSamePath(path, query, fieldNames)).
+                filter(query -> isSamePath(path, query)).
+                peek(x -> setLastPath(path)).
                 findAny().
-                orElseGet(createNestedQuery(path, fieldNames));
+                orElseGet(createNestedQuery(path));
     }
 
-    /** Check against NestedQuery of WHERE condition */
-    private boolean isSamePath(String path, NestedQueryBuilder query, List<String> fieldNames) {
-        boolean isSamePath = nestedQuery(path, query.query(), query.scoreMode()).equals(query);
-        if (isSamePath) {
-           setLastValues(path, fieldNames);
-        }
-        return isSamePath;
+    private boolean isSamePath(String path, NestedQueryBuilder query) {
+        return nestedQuery(path, query.query(), query.scoreMode()).equals(query);
     }
 
     /**
-     * Since groupFieldNamesByPath() uses TreeMap to maintain reverse alphabetical order. Here we maintain previous
-     * path and fieldName value to compare with current nested query.
+     * groupFieldNamesByPath() uses TreeMap to maintain reverse alphabetical order. Therefore we use previous
+     * path to compare with current path, to help decide if we are done with keeping wrapping nested query
+     * to current nested query.
      * */
-    private boolean hasSameParent(String path, QueryBuilder query) {
-        // query could also be termQueryBuilder
-        if (!lastFieldInPath.isEmpty() && (query instanceof NestedQueryBuilder)) {
-            NestedQueryBuilder nestedQuery = (NestedQueryBuilder) query;
+    private boolean isParentPath(String path, QueryBuilder query) {
+        // query could also be termQueryBuilder, where condition will generate termQueryBuilder
+        if (lastPath.isEmpty() || !(query instanceof NestedQueryBuilder)) {
+            return false;
+        } else {
+            int lastSeparatorIndex = lastPath.lastIndexOf(SEPARATOR);
+            String parentPath = lastSeparatorIndex == -1 ? "" : lastPath.substring(0, lastSeparatorIndex);
 
-            String finalPath = path + "." + lastFieldInPath;
-            NestedQueryBuilder tmp = nestedQuery(finalPath, nestedQuery.query(), nestedQuery.scoreMode());
-            buildInnerHit(lastFieldNames, tmp);
-            return tmp.equals(query);
+            return parentPath.equals(path);
         }
-        return false;
     }
 
     /** Create a nested query with match all filter to place inner hits */
-    private Supplier<NestedQueryBuilder> createNestedQuery(String path, List<String> fieldNames) {
+    private Supplier<NestedQueryBuilder> createNestedQuery(String path) {
         return () -> {
-            NestedQueryBuilder newNestedQuery;
+            final NestedQueryBuilder newNestedQuery;
             List<QueryBuilder> mustList = ((BoolQueryBuilder) query().filter().get(0)).must();
             int lastIndex = mustList.size() - 1;
 
-            if (mustList.isEmpty() || !hasSameParent(path, mustList.get(lastIndex))) {
+            if (mustList.isEmpty() || !isParentPath(path, mustList.get(lastIndex))) {
                 // create empty nested query
                 newNestedQuery = nestedQuery(path, matchAllQuery(), ScoreMode.None);
             } else {
                 // create a nested query containing another nested query
                 NestedQueryBuilder oldNestedQuery = (NestedQueryBuilder) mustList.get(lastIndex);
                 newNestedQuery = nestedQuery(path, oldNestedQuery, ScoreMode.None);
-
                 // remove outdated nested query
                 mustList.remove(lastIndex);
             }
 
-            setLastValues(path, fieldNames);
+            setLastPath(path);
             // include newly-built nestedQuery in must
             ((BoolQueryBuilder) query().filter().get(0)).must(newNestedQuery);
             return newNestedQuery;

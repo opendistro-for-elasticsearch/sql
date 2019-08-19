@@ -52,14 +52,14 @@ class Identifier extends SQLClause<SQLIdentifierExpr> {
     }
 
     String path() {
-        return separatorIndex() == -1 ? "" : expr.getName().substring(0, separatorIndex());
+        return lastSeparatorIndex() == -1 ? "" : expr.getName().substring(0, lastSeparatorIndex());
     }
 
     String name() {
-        return expr.getName().substring(separatorIndex() + 1);
+        return expr.getName().substring(lastSeparatorIndex() + 1);
     }
 
-    private int separatorIndex() {
+    private int lastSeparatorIndex() {
         return expr.getName().lastIndexOf(SEPARATOR);
     }
 
