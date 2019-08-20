@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
+import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.rest.RestStatus;
 import org.joda.time.DateTime;
@@ -787,7 +788,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void testWhereWithBoolCondition() throws IOException {
         JSONObject response = executeQuery(
-                    String.format(Locale.ROOT, "SELECT * " +
+                    StringUtils.format("SELECT * " +
                                     "FROM %s/account " +
                                     "WHERE male = true ORDER BY age LIMIT 5",
                             TestsConstants.TEST_INDEX_BANK)
@@ -810,6 +811,35 @@ public class QueryIT extends SQLIntegTestCase {
         JSONArray buckets = testAgg.getJSONArray("buckets");
         Assert.assertTrue(buckets.length() == 4);
     }
+
+    @Test
+    public void testWhereWithBoolIs() throws IOException {
+        JSONObject response = executeQuery(
+                String.format(Locale.ROOT, "SELECT * " +
+                                "FROM %s/account " +
+                                "WHERE male IS true GROUP BY balance LIMIT 5",
+                        TestsConstants.TEST_INDEX_BANK)
+        );
+
+        JSONObject testAgg = (response.getJSONObject("aggregations")).getJSONObject("balance");
+        JSONArray buckets = testAgg.getJSONArray("buckets");
+        Assert.assertTrue(buckets.length() == 4);
+    }
+
+    @Test
+    public void testWhereWithBoolIsNot() throws IOException {
+        JSONObject response = executeQuery(
+                String.format(Locale.ROOT, "SELECT * " +
+                                "FROM %s/account " +
+                                "WHERE male IS NOT true GROUP BY balance LIMIT 5",
+                        TestsConstants.TEST_INDEX_BANK)
+        );
+
+        JSONObject testAgg = (response.getJSONObject("aggregations")).getJSONObject("balance");
+        JSONArray buckets = testAgg.getJSONArray("buckets");
+        Assert.assertTrue(buckets.length() == 3);
+    }
+
 
     @Test
     public void testMultiPartWhere() throws IOException {
