@@ -98,50 +98,7 @@ public class QueryIT extends SQLIntegTestCase {
         Assert.assertTrue(response.has("hits"));
         Assert.assertEquals(14, getTotalHits(response));
     }
-
-    @Test
-    public void selectAllAndSpecificFieldTest() throws IOException {
-        String[] arr = new String[] {"account_number", "firstname", "address", "birthdate", "gender", "city", "lastname", "balance", "employer", "state", "age", "email", "male"};
-        Set<String> expectedSource = new HashSet<>(Arrays.asList(arr));
-        JSONObject response = executeQuery(String.format(Locale.ROOT,
-                "SELECT *, age FROM %s/account", TestsConstants.TEST_INDEX_BANK));
-        Assert.assertTrue(response.has("hits"));
-        JSONArray hits = getHits(response);
-        for (int i = 0; i < hits.length(); ++i) {
-            JSONObject hit = hits.getJSONObject(i);
-            Assert.assertEquals(expectedSource, getSource(hit).keySet());
-        }
-    }
-
-    @Test
-    public void selectAllAndSpecificFieldwithGroupByTest() throws IOException {
-        String[] arr = new String[] {"account_number", "firstname", "address", "birthdate", "gender", "city", "lastname", "balance", "employer", "state", "age", "email", "male"};
-        Set<String> expectedSource = new HashSet<>(Arrays.asList(arr));
-        JSONObject response = executeQuery(String.format(Locale.ROOT,
-                "SELECT *, age FROM %s/account GROUP BY age", TestsConstants.TEST_INDEX_BANK));
-        Assert.assertTrue(response.has("hits"));
-        JSONArray hits = getHits(response);
-        for (int i = 0; i < hits.length(); ++i) {
-            JSONObject hit = hits.getJSONObject(i);
-            Assert.assertEquals(expectedSource, getSource(hit).keySet());
-        }
-    }
-
-    @Test
-    public void selectAllAndSpecificFieldwithOrderByTest() throws IOException {
-        String[] arr = new String[] {"account_number", "firstname", "address", "birthdate", "gender", "city", "lastname", "balance", "employer", "state", "age", "email", "male"};
-        Set<String> expectedSource = new HashSet<>(Arrays.asList(arr));
-        JSONObject response = executeQuery(String.format(Locale.ROOT,
-                "SELECT *, age FROM %s/account ORDER BY age", TestsConstants.TEST_INDEX_BANK));
-        Assert.assertTrue(response.has("hits"));
-        JSONArray hits = getHits(response);
-        for (int i = 0; i < hits.length(); ++i) {
-            JSONObject hit = hits.getJSONObject(i);
-            Assert.assertEquals(expectedSource, getSource(hit).keySet());
-        }
-    }
-
-
+    
     @Test
     public void indexWithWildcardTest() throws IOException {
         JSONObject response = executeQuery(String.format(Locale.ROOT, "SELECT * FROM %s* LIMIT 1000",
@@ -825,6 +782,33 @@ public class QueryIT extends SQLIntegTestCase {
         ArrayList<Integer> sortedTestFields = (ArrayList<Integer>) testFields.clone();
         Collections.sort(sortedTestFields);
         Assert.assertEquals("The list is not in ascending order", sortedTestFields, testFields);
+    }
+
+    @Test
+    public void testWhereWithBoolCondition() throws IOException {
+        JSONObject response = executeQuery(
+                    String.format(Locale.ROOT, "SELECT * " +
+                                    "FROM %s/account " +
+                                    "WHERE male = true ORDER BY age LIMIT 5",
+                            TestsConstants.TEST_INDEX_BANK)
+        );
+
+        JSONArray hits = getHits(response);
+        Assert.assertTrue(hits.length() == 4);
+    }
+
+    @Test
+    public void testWhereWithBoolAndGroupBy() throws IOException {
+        JSONObject response = executeQuery(
+                String.format(Locale.ROOT, "SELECT * " +
+                                "FROM %s/account " +
+                                "WHERE male = true GROUP BY balance LIMIT 5",
+                        TestsConstants.TEST_INDEX_BANK)
+        );
+
+        JSONObject testAgg = (response.getJSONObject("aggregations")).getJSONObject("balance");
+        JSONArray buckets = testAgg.getJSONArray("buckets");
+        Assert.assertTrue(buckets.length() == 4);
     }
 
     @Test

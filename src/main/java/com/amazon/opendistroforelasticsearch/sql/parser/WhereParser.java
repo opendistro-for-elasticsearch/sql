@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.parser;
 
+import com.alibaba.druid.sql.ast.expr.SQLBooleanExpr;
 import com.amazon.opendistroforelasticsearch.sql.domain.Condition;
 import com.amazon.opendistroforelasticsearch.sql.domain.KVValue;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
@@ -591,6 +592,8 @@ public class WhereParser {
             return expr;
         } else if (expr instanceof SQLPropertyExpr) {
             return expr;
+        } else if (expr instanceof SQLBooleanExpr) {
+            return ((SQLBooleanExpr) expr).getValue();
         } else {
             throw new SqlParseException(
                     String.format("Failed to parse SqlExpression of type %s. expression value: %s", expr.getClass(), expr)
