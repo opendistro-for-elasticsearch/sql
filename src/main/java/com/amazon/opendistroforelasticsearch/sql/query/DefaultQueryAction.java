@@ -134,7 +134,7 @@ public class DefaultQueryAction extends QueryAction {
      */
     public void setFields(List<Field> fields) throws SqlParseException {
 
-        if (!select.getFields().isEmpty() && !select.isSelectAll()) {
+        if (!select.getFields().isEmpty()) {
             ArrayList<String> includeFields = new ArrayList<>();
             ArrayList<String> excludeFields = new ArrayList<>();
 
