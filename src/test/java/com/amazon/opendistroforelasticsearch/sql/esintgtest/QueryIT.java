@@ -98,7 +98,7 @@ public class QueryIT extends SQLIntegTestCase {
         Assert.assertTrue(response.has("hits"));
         Assert.assertEquals(14, getTotalHits(response));
     }
-    
+
     @Test
     public void indexWithWildcardTest() throws IOException {
         JSONObject response = executeQuery(String.format(Locale.ROOT, "SELECT * FROM %s* LIMIT 1000",
