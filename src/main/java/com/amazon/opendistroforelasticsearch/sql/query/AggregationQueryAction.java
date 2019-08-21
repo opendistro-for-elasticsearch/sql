@@ -76,11 +76,10 @@ public class AggregationQueryAction extends QueryAction {
             if (!groupBy.isEmpty()) {
                 Field field = groupBy.get(0);
 
-
                 //make groupby can reference to field alias
                 lastAgg = getGroupAgg(field, select);
 
-                if (lastAgg != null && lastAgg instanceof TermsAggregationBuilder && !(field instanceof MethodField)) {
+                if (lastAgg instanceof TermsAggregationBuilder && !(field instanceof MethodField)) {
                     //if limit size is too small, increasing shard  size is required
                     if (select.getRowCount() < 200) {
                         ((TermsAggregationBuilder) lastAgg).shardSize(2000);
@@ -92,9 +91,13 @@ public class AggregationQueryAction extends QueryAction {
                             }
                         }
                     }
-                    if(select.getRowCount()>0) {
+                    if (select.getRowCount() > 0) {
                         ((TermsAggregationBuilder) lastAgg).size(select.getRowCount());
                     }
+                }
+
+                if (lastAgg instanceof TermsAggregationBuilder && field instanceof ScriptMethodField && select.getRowCount() > 0) {
+                    ((TermsAggregationBuilder) lastAgg).size(select.getRowCount());
                 }
 
                 if (field.isNested()) {

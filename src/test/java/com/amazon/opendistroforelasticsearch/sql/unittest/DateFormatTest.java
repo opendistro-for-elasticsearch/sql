@@ -34,6 +34,7 @@ import org.elasticsearch.common.lucene.BytesRefs;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.hamcrest.*;
 import org.json.JSONObject;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -97,8 +98,9 @@ public class DateFormatTest {
                 "GROUP BY date_format(utc_time, 'dd-MM-YYYY') " +
                 "ORDER BY date_format(utc_time, 'dd-MM-YYYY') DESC";
 
-        JSONObject sort = getAggregationOrder(query);
-        assertThat(sort.getString("_key"), is("desc"));
+        JSONObject aggregation = getAggregation(query);
+        assertThat(aggregation.getInt("size"), is(getSelect(query).getRowCount()));
+        assertThat(aggregation.getJSONObject("order").getString("_key"), is("desc"));
     }
 
     @Test
@@ -108,11 +110,24 @@ public class DateFormatTest {
                 "GROUP BY date_format(utc_time, 'dd-MM-YYYY') " +
                 "ORDER BY date_format(utc_time, 'dd-MM-YYYY')";
 
-        JSONObject sort = getAggregationOrder(query);
-        assertThat(sort.getString("_key"), is("asc"));
+        JSONObject aggregation = getAggregation(query);
+
+        assertThat(aggregation.getJSONObject("order").getString("_key"), is("asc"));
     }
 
-    public JSONObject getAggregationOrder(String query) throws SqlParseException {
+    @Test
+    @Ignore("https://github.com/opendistro-for-elasticsearch/sql/issues/158")
+    public void groupByWithAndAlias() throws SqlParseException {
+        String query = "SELECT date_format(utc_time, 'dd-MM-YYYY') x, count(*) " +
+                "FROM kibana_sample_data_logs " +
+                "GROUP BY x " +
+                "ORDER BY x";
+
+        JSONObject aggregation = getAggregation(query);
+        assertThat(aggregation.getJSONObject("order").getString("_key"), is("asc"));
+    }
+
+    public JSONObject getAggregation(String query) throws SqlParseException {
         Select select = getSelect(query);
 
         Client client = mock(Client.class);
@@ -124,7 +139,7 @@ public class DateFormatTest {
         JSONObject aggregations = elasticQuery.getJSONObject("aggregations");
         String dateFormatAggregationKey = getScriptAggregationKey(aggregations, "date_format");
 
-        return aggregations.getJSONObject(dateFormatAggregationKey).getJSONObject("terms").getJSONObject("order");
+        return aggregations.getJSONObject(dateFormatAggregationKey).getJSONObject("terms");
     }
 
     public static String getScriptAggregationKey(JSONObject aggregation, String prefix) {
