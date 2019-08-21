@@ -39,14 +39,7 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstant
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_GAME_OF_THRONES;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_NESTED_TYPE;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ONLINE;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.hamcrest.Matchers.isOneOf;
-import static org.hamcrest.Matchers.lessThan;
-import static org.hamcrest.Matchers.lessThanOrEqualTo;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 
 public class QueryIT extends SQLIntegTestCase {
 
@@ -786,7 +779,7 @@ public class QueryIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void testWhereWithBoolCondition() throws IOException {
+    public void testWhereWithBoolEqualsTrue() throws IOException {
         JSONObject response = executeQuery(
                     StringUtils.format("SELECT * " +
                                     "FROM %s/account " +
@@ -795,11 +788,11 @@ public class QueryIT extends SQLIntegTestCase {
         );
 
         JSONArray hits = getHits(response);
-        Assert.assertTrue(hits.length() == 4);
+        Assert.assertThat(hits.length(), equalTo(4));
     }
 
     @Test
-    public void testWhereWithBoolAndGroupBy() throws IOException {
+    public void testWhereWithBoolEqualsTrueAndGroupBy() throws IOException {
         JSONObject response = executeQuery(
                 String.format(Locale.ROOT, "SELECT * " +
                                 "FROM %s/account " +
@@ -809,11 +802,24 @@ public class QueryIT extends SQLIntegTestCase {
 
         JSONObject testAgg = (response.getJSONObject("aggregations")).getJSONObject("balance");
         JSONArray buckets = testAgg.getJSONArray("buckets");
-        Assert.assertTrue(buckets.length() == 4);
+        Assert.assertThat(buckets.length(), equalTo(4));
     }
 
     @Test
-    public void testWhereWithBoolIs() throws IOException {
+    public void testWhereWithBoolEqualsTrueAndOrderBy() throws IOException {
+        JSONObject response = executeQuery(
+                String.format(Locale.ROOT, "SELECT * " +
+                                "FROM %s/account " +
+                                "WHERE male = true ORDER BY age LIMIT 5",
+                        TestsConstants.TEST_INDEX_BANK)
+        );
+
+        JSONArray hits = getHits(response);
+        Assert.assertThat(hits.length(), equalTo(4));
+    }
+
+    @Test
+    public void testWhereWithBoolIsTrue() throws IOException {
         JSONObject response = executeQuery(
                 String.format(Locale.ROOT, "SELECT * " +
                                 "FROM %s/account " +
@@ -823,11 +829,11 @@ public class QueryIT extends SQLIntegTestCase {
 
         JSONObject testAgg = (response.getJSONObject("aggregations")).getJSONObject("balance");
         JSONArray buckets = testAgg.getJSONArray("buckets");
-        Assert.assertTrue(buckets.length() == 4);
+        Assert.assertThat(buckets.length(), equalTo(4));
     }
 
     @Test
-    public void testWhereWithBoolIsNot() throws IOException {
+    public void testWhereWithBoolIsNotTrue() throws IOException {
         JSONObject response = executeQuery(
                 String.format(Locale.ROOT, "SELECT * " +
                                 "FROM %s/account " +
@@ -837,9 +843,76 @@ public class QueryIT extends SQLIntegTestCase {
 
         JSONObject testAgg = (response.getJSONObject("aggregations")).getJSONObject("balance");
         JSONArray buckets = testAgg.getJSONArray("buckets");
-        Assert.assertTrue(buckets.length() == 3);
+        Assert.assertThat(buckets.length(), equalTo(3));
     }
 
+    @Test
+    public void testWhereWithBoolEqualsFalse() throws IOException {
+        JSONObject response = executeQuery(
+                StringUtils.format("SELECT * " +
+                                "FROM %s/account " +
+                                "WHERE male = false ORDER BY age LIMIT 5",
+                        TestsConstants.TEST_INDEX_BANK)
+        );
+
+        JSONArray hits = getHits(response);
+        Assert.assertThat(hits.length(), equalTo(3));
+    }
+
+    @Test
+    public void testWhereWithBoolEqualsFalseAndGroupBy() throws IOException {
+        JSONObject response = executeQuery(
+                String.format(Locale.ROOT, "SELECT * " +
+                                "FROM %s/account " +
+                                "WHERE male = false GROUP BY balance LIMIT 5",
+                        TestsConstants.TEST_INDEX_BANK)
+        );
+
+        JSONObject testAgg = (response.getJSONObject("aggregations")).getJSONObject("balance");
+        JSONArray buckets = testAgg.getJSONArray("buckets");
+        Assert.assertThat(buckets.length(), equalTo(3));
+    }
+
+    @Test
+    public void testWhereWithBoolEqualsFalseAndOrderBy() throws IOException {
+        JSONObject response = executeQuery(
+                String.format(Locale.ROOT, "SELECT * " +
+                                "FROM %s/account " +
+                                "WHERE male = false ORDER BY age LIMIT 5",
+                        TestsConstants.TEST_INDEX_BANK)
+        );
+
+        JSONArray hits = getHits(response);
+        Assert.assertThat(hits.length(), equalTo(3));
+    }
+
+    @Test
+    public void testWhereWithBoolIsFalse() throws IOException {
+        JSONObject response = executeQuery(
+                String.format(Locale.ROOT, "SELECT * " +
+                                "FROM %s/account " +
+                                "WHERE male IS false GROUP BY balance LIMIT 5",
+                        TestsConstants.TEST_INDEX_BANK)
+        );
+
+        JSONObject testAgg = (response.getJSONObject("aggregations")).getJSONObject("balance");
+        JSONArray buckets = testAgg.getJSONArray("buckets");
+        Assert.assertThat(buckets.length(), equalTo(3));
+    }
+
+    @Test
+    public void testWhereWithBoolIsNotFalse() throws IOException {
+        JSONObject response = executeQuery(
+                String.format(Locale.ROOT, "SELECT * " +
+                                "FROM %s/account " +
+                                "WHERE male IS NOT false GROUP BY balance LIMIT 5",
+                        TestsConstants.TEST_INDEX_BANK)
+        );
+
+        JSONObject testAgg = (response.getJSONObject("aggregations")).getJSONObject("balance");
+        JSONArray buckets = testAgg.getJSONArray("buckets");
+        Assert.assertThat(buckets.length(), equalTo(4));
+    }
 
     @Test
     public void testMultiPartWhere() throws IOException {
