@@ -21,6 +21,7 @@ import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.query.ESActionFactory;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents;
+import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import org.elasticsearch.client.Client;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -33,39 +34,31 @@ import static org.junit.Assert.assertTrue;
 public class WhereWithBoolConditionTest {
 
     private static final String SELECT_ALL = "SELECT * ";
-    private static final String SELECT_ADDRESS = "SELECT address ";
     private static final String FROM_BANK = "FROM " + TestsConstants.TEST_INDEX_BANK;
-    private static final String ORDER_BY_AGE = "ORDER BY age ";
-    private static final String GROUP_BY_BALANCE = "GROUP BY balance ";
     private static final String WHERE_CONDITION_TRUE = "WHERE male = true";     // 4 hits
     private static final String WHERE_CONDITION_FALSE = "WHERE male = false";   // 3 hits
 
     @Test
-    public void whereWithBoolCompilationTest() {
+    public void whereWithBoolCompilationTest() throws SQLFeatureNotSupportedException, SqlParseException {
        query(FROM_BANK, WHERE_CONDITION_FALSE);
     }
 
     @Test
-    public void selectAllTest() {
-        String matchQuery = "{\"from\":0,\"size\":200," +
-                "\"query\":{\"bool\":{\"filter\":[{\"bool\":{\"must\":" +
-                "[{\"term\":{\"male\":{\"value\":true,\"boost\":1.0}}}],\"adjust_pure_negative\":true,\"boost\":1.0}}],\"adjust_pure_negative\":true,\"boost\":1.0}}}";
+    public void selectAllTest() throws SQLFeatureNotSupportedException, SqlParseException {
+        String matchQuery = StringUtils.format("{\"%s\":%s,\"%s\":%s,\"%s\":{\"%s\":{\"%s\":[{\"%s\":{\"%s\":[{\"%s\":{\"%s\":{\"%s\":%s,\"%s\":%s}}}],\"%s\":%s,\"%s\":%s}}],\"%s\":%s,\"%s\":%s}}}",
+                "from", "0", "size", "200", "query", "bool", "filter", "bool", "must", "term", "male", "value", "true", "boost", "1.0", "adjust_pure_negative", "true", "boost", "1.0", "adjust_pure_negative", "true", "boost", "1.0");
 
         assertTrue(query(FROM_BANK, WHERE_CONDITION_TRUE).equals(matchQuery));
     }
 
-    private String query(String from, String... statements) {
+    private String query(String from, String... statements) throws SQLFeatureNotSupportedException, SqlParseException {
         return explain(SELECT_ALL + from + " " + String.join(" ", statements));
     }
 
-    private String explain(String sql) {
-        try {
-            Client mockClient = Mockito.mock(Client.class);
-            CheckScriptContents.stubMockClient(mockClient);
-            QueryAction queryAction = ESActionFactory.create(mockClient, sql);
-            return queryAction.explain().explain();
-        } catch (SqlParseException | NullPointerException | SQLFeatureNotSupportedException s) {
-            throw new ParserException("Exception found in sql expr: " + sql + " " + s);
-        }
+    private String explain(String sql) throws ParserException, SqlParseException, SQLFeatureNotSupportedException {
+        Client mockClient = Mockito.mock(Client.class);
+        CheckScriptContents.stubMockClient(mockClient);
+        QueryAction queryAction = ESActionFactory.create(mockClient, sql);
+        return queryAction.explain().explain();
     }
 }
