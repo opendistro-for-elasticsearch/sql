@@ -76,24 +76,33 @@ public class AggregationQueryAction extends QueryAction {
             if (!groupBy.isEmpty()) {
                 Field field = groupBy.get(0);
 
-
                 //make groupby can reference to field alias
                 lastAgg = getGroupAgg(field, select);
 
-                if (lastAgg != null && lastAgg instanceof TermsAggregationBuilder && !(field instanceof MethodField)) {
-                    //if limit size is too small, increasing shard  size is required
-                    if (select.getRowCount() < 200) {
-                        ((TermsAggregationBuilder) lastAgg).shardSize(2000);
-                        for (Hint hint : select.getHints()) {
-                            if (hint.getType() == HintType.SHARD_SIZE) {
-                                if (hint.getParams() != null && hint.getParams().length != 0 && hint.getParams()[0] != null) {
-                                    ((TermsAggregationBuilder) lastAgg).shardSize((Integer) hint.getParams()[0]);
+                if (lastAgg instanceof TermsAggregationBuilder) {
+
+                    // TODO: Consider removing that condition
+                    // in theory we should be able to apply this for all types of fiels, but
+                    // this change requires too much of related integration tests (e.g. there are comparisons against
+                    // raw javascript dsl, so I'd like to scope the changes as of now to one particular fix for
+                    // scripted functions
+
+                    if (!(field instanceof MethodField) || field instanceof ScriptMethodField) {
+                        //if limit size is too small, increasing shard  size is required
+                        if (select.getRowCount() < 200) {
+                            ((TermsAggregationBuilder) lastAgg).shardSize(2000);
+                            for (Hint hint : select.getHints()) {
+                                if (hint.getType() == HintType.SHARD_SIZE) {
+                                    if (hint.getParams() != null && hint.getParams().length != 0 && hint.getParams()[0] != null) {
+                                        ((TermsAggregationBuilder) lastAgg).shardSize((Integer) hint.getParams()[0]);
+                                    }
                                 }
                             }
                         }
-                    }
-                    if(select.getRowCount()>0) {
-                        ((TermsAggregationBuilder) lastAgg).size(select.getRowCount());
+
+                        if (select.getRowCount() > 0) {
+                            ((TermsAggregationBuilder) lastAgg).size(select.getRowCount());
+                        }
                     }
                 }
 
