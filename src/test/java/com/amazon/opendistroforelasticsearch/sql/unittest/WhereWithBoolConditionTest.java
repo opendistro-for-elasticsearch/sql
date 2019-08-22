@@ -21,14 +21,18 @@ import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.query.ESActionFactory;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents;
-import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import com.google.common.io.Files;
 import org.elasticsearch.client.Client;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLFeatureNotSupportedException;
 
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 
 
 public class WhereWithBoolConditionTest {
@@ -44,11 +48,12 @@ public class WhereWithBoolConditionTest {
     }
 
     @Test
-    public void selectAllTest() throws SQLFeatureNotSupportedException, SqlParseException {
-        String matchQuery = StringUtils.format("{\"%s\":%s,\"%s\":%s,\"%s\":{\"%s\":{\"%s\":[{\"%s\":{\"%s\":[{\"%s\":{\"%s\":{\"%s\":%s,\"%s\":%s}}}],\"%s\":%s,\"%s\":%s}}],\"%s\":%s,\"%s\":%s}}}",
-                "from", "0", "size", "200", "query", "bool", "filter", "bool", "must", "term", "male", "value", "true", "boost", "1.0", "adjust_pure_negative", "true", "boost", "1.0", "adjust_pure_negative", "true", "boost", "1.0");
+    public void selectAllTest() throws SQLFeatureNotSupportedException, SqlParseException, IOException {
+        String expectedOutput = Files.toString(
+                new File(getResourcePath() + "src/test/resources/expectedOutput/select_where_true.json"), StandardCharsets.UTF_8)
+                .replaceAll("\r", "");
 
-        assertTrue(query(FROM_BANK, WHERE_CONDITION_TRUE).equals(matchQuery));
+        assertThat(removeSpaces(query(FROM_BANK, WHERE_CONDITION_TRUE)), equalTo(removeSpaces(expectedOutput)));
     }
 
     private String query(String from, String... statements) throws SQLFeatureNotSupportedException, SqlParseException {
@@ -60,5 +65,18 @@ public class WhereWithBoolConditionTest {
         CheckScriptContents.stubMockClient(mockClient);
         QueryAction queryAction = ESActionFactory.create(mockClient, sql);
         return queryAction.explain().explain();
+    }
+
+    private String removeSpaces(String s) {
+        return s.replaceAll("\\s+", "");
+    }
+
+    private String getResourcePath() {
+        String projectRoot = System.getProperty("project.root");
+        if ( projectRoot!= null && projectRoot.trim().length() > 0) {
+            return projectRoot.trim() + "/";
+        } else {
+            return "";
+        }
     }
 }

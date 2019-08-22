@@ -39,7 +39,15 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstant
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_GAME_OF_THRONES;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_NESTED_TYPE;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ONLINE;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.isOneOf;
+import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import static org.hamcrest.Matchers.not;
 
 public class QueryIT extends SQLIntegTestCase {
 
@@ -784,8 +792,12 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void testWhereWithBoolEqualsTrue() throws IOException {
         JSONObject response = executeQuery(
-                    StringUtils.format("%s * FROM %s/account %s male = true %s 5",
-                            "SELECT", TestsConstants.TEST_INDEX_BANK, "WHERE", "LIMIT")
+                    StringUtils.format(
+                            "SELECT * " +
+                            "FROM %s/account " +
+                            "WHERE male = true " +
+                            "LIMIT 5",
+                            TestsConstants.TEST_INDEX_BANK)
         );
 
         checkResponseSize(response, BANK_INDEX_MALE_TRUE, false);
@@ -794,8 +806,13 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void testWhereWithBoolEqualsTrueAndGroupBy() throws IOException {
         JSONObject response = executeQuery(
-                StringUtils.format("%s * FROM %s/account %s male = true %s balance %s 5",
-                        "SELECT", TestsConstants.TEST_INDEX_BANK, "WHERE", "GROUP BY", "LIMIT")
+                StringUtils.format(
+                        "SELECT * " +
+                        "FROM %s/account " +
+                        "WHERE male = true " +
+                        "GROUP BY balance " +
+                        "LIMIT 5",
+                        TestsConstants.TEST_INDEX_BANK)
         );
 
         checkResponseSize(response, BANK_INDEX_MALE_TRUE, true);
@@ -804,8 +821,13 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void testWhereWithBoolEqualsTrueAndOrderBy() throws IOException {
         JSONObject response = executeQuery(
-                StringUtils.format("%s * FROM %s/account %s male = true %s age %s 5",
-                        "SELECT", TestsConstants.TEST_INDEX_BANK, "WHERE", "ORDER BY", "LIMIT")
+                StringUtils.format(
+                        "SELECT * " +
+                        "FROM %s/account " +
+                        "WHERE male = true " +
+                        "ORDER BY age " +
+                        "LIMIT 5",
+                        TestsConstants.TEST_INDEX_BANK)
         );
 
         checkResponseSize(response, BANK_INDEX_MALE_TRUE, false);
@@ -814,8 +836,13 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void testWhereWithBoolIsTrue() throws IOException {
         JSONObject response = executeQuery(
-                StringUtils.format("%s * FROM %s/account %s male IS true %s balance %s 5",
-                        "SELECT", TestsConstants.TEST_INDEX_BANK, "WHERE", "GROUP BY", "LIMIT")
+                StringUtils.format(
+                        "SELECT * " +
+                        "FROM %s/account " +
+                        "WHERE male IS true " +
+                        "GROUP BY balance " +
+                        "LIMIT 5",
+                        TestsConstants.TEST_INDEX_BANK)
         );
 
         checkResponseSize(response, BANK_INDEX_MALE_TRUE, true);
@@ -824,8 +851,13 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void testWhereWithBoolIsNotTrue() throws IOException {
         JSONObject response = executeQuery(
-                StringUtils.format("%s * FROM %s/account %s male IS NOT true %s balance %s 5",
-                        "SELECT", TestsConstants.TEST_INDEX_BANK, "WHERE", "GROUP BY", "LIMIT")
+                StringUtils.format(
+                        "SELECT * " +
+                        "FROM %s/account " +
+                        "WHERE male IS NOT true " +
+                        "GROUP BY balance " +
+                        "LIMIT 5",
+                        TestsConstants.TEST_INDEX_BANK)
         );
 
         checkResponseSize(response, BANK_INDEX_MALE_FALSE, true);
@@ -834,8 +866,12 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void testWhereWithBoolEqualsFalse() throws IOException {
         JSONObject response = executeQuery(
-                StringUtils.format("%s * FROM %s/account %s male = false %s 5",
-                        "SELECT", TestsConstants.TEST_INDEX_BANK, "WHERE", "LIMIT")
+                StringUtils.format(
+                        "SELECT * " +
+                        "FROM %s/account " +
+                        "WHERE male = false " +
+                        "LIMIT 5",
+                        TestsConstants.TEST_INDEX_BANK)
         );
 
         checkResponseSize(response, BANK_INDEX_MALE_FALSE, false);
@@ -844,8 +880,13 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void testWhereWithBoolEqualsFalseAndGroupBy() throws IOException {
         JSONObject response = executeQuery(
-                StringUtils.format("%s * FROM %s/account %s male = false %s balance %s 5",
-                        "SELECT", TestsConstants.TEST_INDEX_BANK, "WHERE", "GROUP BY", "LIMIT")
+                StringUtils.format(
+                        "SELECT * " +
+                        "FROM %s/account " +
+                        "WHERE male = false " +
+                        "GROUP BY balance " +
+                        "LIMIT 5",
+                        TestsConstants.TEST_INDEX_BANK)
         );
 
         checkResponseSize(response, BANK_INDEX_MALE_FALSE, true);
@@ -854,8 +895,13 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void testWhereWithBoolEqualsFalseAndOrderBy() throws IOException {
         JSONObject response = executeQuery(
-                StringUtils.format("%s * FROM %s/account %s male = false %s age %s 5",
-                        "SELECT", TestsConstants.TEST_INDEX_BANK, "WHERE", "ORDER BY", "LIMIT")
+                StringUtils.format(
+                        "SELECT * " +
+                        "FROM %s/account " +
+                        "WHERE male = false " +
+                        "ORDER BY age " +
+                        "LIMIT 5",
+                        TestsConstants.TEST_INDEX_BANK)
         );
 
         checkResponseSize(response, BANK_INDEX_MALE_FALSE, false);
@@ -864,8 +910,13 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void testWhereWithBoolIsFalse() throws IOException {
         JSONObject response = executeQuery(
-                StringUtils.format("%s * FROM %s/account %s male IS false %s balance %s 5",
-                        "SELECT", TestsConstants.TEST_INDEX_BANK, "WHERE", "GROUP BY", "LIMIT")
+                StringUtils.format(
+                        "SELECT * " +
+                        "FROM %s/account " +
+                        "WHERE male IS false " +
+                        "GROUP BY balance " +
+                        "LIMIT 5",
+                        TestsConstants.TEST_INDEX_BANK)
         );
 
         checkResponseSize(response, BANK_INDEX_MALE_FALSE, true);
@@ -874,8 +925,13 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void testWhereWithBoolIsNotFalse() throws IOException {
         JSONObject response = executeQuery(
-                StringUtils.format("%s * FROM %s/account %s male IS NOT false %s balance %s 5",
-                        "SELECT", TestsConstants.TEST_INDEX_BANK, "WHERE", "GROUP BY", "LIMIT")
+                StringUtils.format(
+                        "SELECT * " +
+                        "FROM %s/account " +
+                        "WHERE male IS NOT false " +
+                        "GROUP BY balance " +
+                        "LIMIT 5",
+                        TestsConstants.TEST_INDEX_BANK)
         );
 
         checkResponseSize(response, BANK_INDEX_MALE_TRUE, true);
