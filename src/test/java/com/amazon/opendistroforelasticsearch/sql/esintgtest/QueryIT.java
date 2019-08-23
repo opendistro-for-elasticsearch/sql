@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
+import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.rest.RestStatus;
 import org.joda.time.DateTime;
@@ -40,6 +41,7 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstant
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ONLINE;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.isOneOf;
@@ -64,6 +66,9 @@ public class QueryIT extends SQLIntegTestCase {
      *   - twoSubQueriesTest()
      *   - inTermsSubQueryTest()
      */
+
+    final static int BANK_INDEX_MALE_TRUE = 4;
+    final static int BANK_INDEX_MALE_FALSE = 3;
 
     @Override
     protected void init() throws Exception {
@@ -785,6 +790,154 @@ public class QueryIT extends SQLIntegTestCase {
     }
 
     @Test
+    public void testWhereWithBoolEqualsTrue() throws IOException {
+        JSONObject response = executeQuery(
+                    StringUtils.format(
+                            "SELECT * " +
+                            "FROM %s/account " +
+                            "WHERE male = true " +
+                            "LIMIT 5",
+                            TestsConstants.TEST_INDEX_BANK)
+        );
+
+        checkResponseSize(response, BANK_INDEX_MALE_TRUE);
+    }
+
+    @Test
+    public void testWhereWithBoolEqualsTrueAndGroupBy() throws IOException {
+        JSONObject response = executeQuery(
+                StringUtils.format(
+                        "SELECT * " +
+                        "FROM %s/account " +
+                        "WHERE male = true " +
+                        "GROUP BY balance " +
+                        "LIMIT 5",
+                        TestsConstants.TEST_INDEX_BANK)
+        );
+
+        checkAggregationResponseSize(response, BANK_INDEX_MALE_TRUE);
+    }
+
+    @Test
+    public void testWhereWithBoolEqualsTrueAndOrderBy() throws IOException {
+        JSONObject response = executeQuery(
+                StringUtils.format(
+                        "SELECT * " +
+                        "FROM %s/account " +
+                        "WHERE male = true " +
+                        "ORDER BY age " +
+                        "LIMIT 5",
+                        TestsConstants.TEST_INDEX_BANK)
+        );
+
+        checkResponseSize(response, BANK_INDEX_MALE_TRUE);
+    }
+
+    @Test
+    public void testWhereWithBoolIsTrue() throws IOException {
+        JSONObject response = executeQuery(
+                StringUtils.format(
+                        "SELECT * " +
+                        "FROM %s/account " +
+                        "WHERE male IS true " +
+                        "GROUP BY balance " +
+                        "LIMIT 5",
+                        TestsConstants.TEST_INDEX_BANK)
+        );
+
+        checkAggregationResponseSize(response, BANK_INDEX_MALE_TRUE);
+    }
+
+    @Test
+    public void testWhereWithBoolIsNotTrue() throws IOException {
+        JSONObject response = executeQuery(
+                StringUtils.format(
+                        "SELECT * " +
+                        "FROM %s/account " +
+                        "WHERE male IS NOT true " +
+                        "GROUP BY balance " +
+                        "LIMIT 5",
+                        TestsConstants.TEST_INDEX_BANK)
+        );
+
+        checkAggregationResponseSize(response, BANK_INDEX_MALE_FALSE);
+    }
+
+    @Test
+    public void testWhereWithBoolEqualsFalse() throws IOException {
+        JSONObject response = executeQuery(
+                StringUtils.format(
+                        "SELECT * " +
+                        "FROM %s/account " +
+                        "WHERE male = false " +
+                        "LIMIT 5",
+                        TestsConstants.TEST_INDEX_BANK)
+        );
+
+        checkResponseSize(response, BANK_INDEX_MALE_FALSE);
+    }
+
+    @Test
+    public void testWhereWithBoolEqualsFalseAndGroupBy() throws IOException {
+        JSONObject response = executeQuery(
+                StringUtils.format(
+                        "SELECT * " +
+                        "FROM %s/account " +
+                        "WHERE male = false " +
+                        "GROUP BY balance " +
+                        "LIMIT 5",
+                        TestsConstants.TEST_INDEX_BANK)
+        );
+
+        checkAggregationResponseSize(response, BANK_INDEX_MALE_FALSE);
+    }
+
+    @Test
+    public void testWhereWithBoolEqualsFalseAndOrderBy() throws IOException {
+        JSONObject response = executeQuery(
+                StringUtils.format(
+                        "SELECT * " +
+                        "FROM %s/account " +
+                        "WHERE male = false " +
+                        "ORDER BY age " +
+                        "LIMIT 5",
+                        TestsConstants.TEST_INDEX_BANK)
+        );
+
+        checkResponseSize(response, BANK_INDEX_MALE_FALSE);
+    }
+
+    @Test
+    public void testWhereWithBoolIsFalse() throws IOException {
+        JSONObject response = executeQuery(
+                StringUtils.format(
+                        "SELECT * " +
+                        "FROM %s/account " +
+                        "WHERE male IS false " +
+                        "GROUP BY balance " +
+                        "LIMIT 5",
+                        TestsConstants.TEST_INDEX_BANK)
+        );
+
+        checkAggregationResponseSize(response, BANK_INDEX_MALE_FALSE);
+    }
+
+    @Test
+    public void testWhereWithBoolIsNotFalse() throws IOException {
+        JSONObject response = executeQuery(
+                StringUtils.format(
+                        "SELECT * " +
+                        "FROM %s/account " +
+                        "WHERE male IS NOT false " +
+                        "GROUP BY balance " +
+                        "LIMIT 5",
+                        TestsConstants.TEST_INDEX_BANK)
+        );
+
+        checkAggregationResponseSize(response, BANK_INDEX_MALE_TRUE);
+    }
+
+    @Test
     public void testMultiPartWhere() throws IOException {
         JSONObject response = executeQuery(
                         String.format(Locale.ROOT, "SELECT * " +
@@ -1363,5 +1516,15 @@ public class QueryIT extends SQLIntegTestCase {
 
     private String getScrollId(JSONObject response) {
         return response.getString("_scroll_id");
+    }
+
+    private void checkResponseSize(JSONObject response, int sizeCheck) {
+        JSONArray queryResponse = getHits(response);
+        Assert.assertThat(queryResponse.length(), equalTo(sizeCheck));
+    }
+
+    private void checkAggregationResponseSize(JSONObject response, int sizeCheck) {
+        JSONArray queryResponse = (JSONArray)response.query("/aggregations/balance/buckets");
+        Assert.assertThat(queryResponse.length(), equalTo(sizeCheck));
     }
 }

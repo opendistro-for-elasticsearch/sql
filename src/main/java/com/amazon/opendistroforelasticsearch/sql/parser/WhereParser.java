@@ -628,6 +628,8 @@ public class WhereParser {
             return expr;
         } else if (expr instanceof SQLPropertyExpr) {
             return expr;
+        } else if (expr instanceof SQLBooleanExpr) {
+            return ((SQLBooleanExpr) expr).getValue();
         } else {
             throw new SqlParseException(
                     String.format("Failed to parse SqlExpression of type %s. expression value: %s",
