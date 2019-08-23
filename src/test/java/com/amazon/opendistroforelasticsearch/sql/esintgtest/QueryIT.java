@@ -800,7 +800,7 @@ public class QueryIT extends SQLIntegTestCase {
                             TestsConstants.TEST_INDEX_BANK)
         );
 
-        checkResponseSize(response, BANK_INDEX_MALE_TRUE, false);
+        checkResponseSize(response, BANK_INDEX_MALE_TRUE);
     }
 
     @Test
@@ -815,7 +815,7 @@ public class QueryIT extends SQLIntegTestCase {
                         TestsConstants.TEST_INDEX_BANK)
         );
 
-        checkResponseSize(response, BANK_INDEX_MALE_TRUE, true);
+        checkAggregationResponseSize(response, BANK_INDEX_MALE_TRUE);
     }
 
     @Test
@@ -830,7 +830,7 @@ public class QueryIT extends SQLIntegTestCase {
                         TestsConstants.TEST_INDEX_BANK)
         );
 
-        checkResponseSize(response, BANK_INDEX_MALE_TRUE, false);
+        checkResponseSize(response, BANK_INDEX_MALE_TRUE);
     }
 
     @Test
@@ -845,7 +845,7 @@ public class QueryIT extends SQLIntegTestCase {
                         TestsConstants.TEST_INDEX_BANK)
         );
 
-        checkResponseSize(response, BANK_INDEX_MALE_TRUE, true);
+        checkAggregationResponseSize(response, BANK_INDEX_MALE_TRUE);
     }
 
     @Test
@@ -860,7 +860,7 @@ public class QueryIT extends SQLIntegTestCase {
                         TestsConstants.TEST_INDEX_BANK)
         );
 
-        checkResponseSize(response, BANK_INDEX_MALE_FALSE, true);
+        checkAggregationResponseSize(response, BANK_INDEX_MALE_FALSE);
     }
 
     @Test
@@ -874,7 +874,7 @@ public class QueryIT extends SQLIntegTestCase {
                         TestsConstants.TEST_INDEX_BANK)
         );
 
-        checkResponseSize(response, BANK_INDEX_MALE_FALSE, false);
+        checkResponseSize(response, BANK_INDEX_MALE_FALSE);
     }
 
     @Test
@@ -889,7 +889,7 @@ public class QueryIT extends SQLIntegTestCase {
                         TestsConstants.TEST_INDEX_BANK)
         );
 
-        checkResponseSize(response, BANK_INDEX_MALE_FALSE, true);
+        checkAggregationResponseSize(response, BANK_INDEX_MALE_FALSE);
     }
 
     @Test
@@ -904,7 +904,7 @@ public class QueryIT extends SQLIntegTestCase {
                         TestsConstants.TEST_INDEX_BANK)
         );
 
-        checkResponseSize(response, BANK_INDEX_MALE_FALSE, false);
+        checkResponseSize(response, BANK_INDEX_MALE_FALSE);
     }
 
     @Test
@@ -919,7 +919,7 @@ public class QueryIT extends SQLIntegTestCase {
                         TestsConstants.TEST_INDEX_BANK)
         );
 
-        checkResponseSize(response, BANK_INDEX_MALE_FALSE, true);
+        checkAggregationResponseSize(response, BANK_INDEX_MALE_FALSE);
     }
 
     @Test
@@ -934,7 +934,7 @@ public class QueryIT extends SQLIntegTestCase {
                         TestsConstants.TEST_INDEX_BANK)
         );
 
-        checkResponseSize(response, BANK_INDEX_MALE_TRUE, true);
+        checkAggregationResponseSize(response, BANK_INDEX_MALE_TRUE);
     }
 
     @Test
@@ -1518,11 +1518,13 @@ public class QueryIT extends SQLIntegTestCase {
         return response.getString("_scroll_id");
     }
 
-    private void checkResponseSize(JSONObject response, int sizeCheck, boolean isGroupBy) {
+    private void checkResponseSize(JSONObject response, int sizeCheck) {
         JSONArray queryResponse = getHits(response);
-        if (isGroupBy) {
-            queryResponse = (JSONArray)response.query("/aggregations/balance/buckets");
-        }
+        Assert.assertThat(queryResponse.length(), equalTo(sizeCheck));
+    }
+
+    private void checkAggregationResponseSize(JSONObject response, int sizeCheck) {
+        JSONArray queryResponse = (JSONArray)response.query("/aggregations/balance/buckets");
         Assert.assertThat(queryResponse.length(), equalTo(sizeCheck));
     }
 }

@@ -15,12 +15,12 @@
 
 package com.amazon.opendistroforelasticsearch.sql.unittest;
 
-import com.alibaba.druid.sql.parser.ParserException;
 import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.query.ESActionFactory;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents;
+import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import com.google.common.io.Files;
 import org.elasticsearch.client.Client;
 import org.junit.Test;
@@ -37,14 +37,9 @@ import static org.hamcrest.Matchers.equalTo;
 
 public class WhereWithBoolConditionTest {
 
-    private static final String SELECT_ALL = "SELECT * ";
-    private static final String FROM_BANK = "FROM " + TestsConstants.TEST_INDEX_BANK;
-    private static final String WHERE_CONDITION_TRUE = "WHERE male = true";     // 4 hits
-    private static final String WHERE_CONDITION_FALSE = "WHERE male = false";   // 3 hits
-
     @Test
     public void whereWithBoolCompilationTest() throws SQLFeatureNotSupportedException, SqlParseException {
-       query(FROM_BANK, WHERE_CONDITION_FALSE);
+       query(StringUtils.format("SELECT * FROM %s WHERE male = false", TestsConstants.TEST_INDEX_BANK));
     }
 
     @Test
@@ -53,14 +48,23 @@ public class WhereWithBoolConditionTest {
                 new File(getResourcePath() + "src/test/resources/expectedOutput/select_where_true.json"), StandardCharsets.UTF_8)
                 .replaceAll("\r", "");
 
-        assertThat(removeSpaces(query(FROM_BANK, WHERE_CONDITION_TRUE)), equalTo(removeSpaces(expectedOutput)));
+        assertThat(removeSpaces(
+                query(
+                    StringUtils.format(
+                        "SELECT * " +
+                        "FROM %s " +
+                        "WHERE male = true",
+                        TestsConstants.TEST_INDEX_BANK))
+                ),
+                equalTo(removeSpaces(expectedOutput))
+        );
     }
 
-    private String query(String from, String... statements) throws SQLFeatureNotSupportedException, SqlParseException {
-        return explain(SELECT_ALL + from + " " + String.join(" ", statements));
+    private String query(String query) throws SQLFeatureNotSupportedException, SqlParseException {
+        return explain(query);
     }
 
-    private String explain(String sql) throws ParserException, SqlParseException, SQLFeatureNotSupportedException {
+    private String explain(String sql) throws SQLFeatureNotSupportedException, SqlParseException {
         Client mockClient = Mockito.mock(Client.class);
         CheckScriptContents.stubMockClient(mockClient);
         QueryAction queryAction = ESActionFactory.create(mockClient, sql);
