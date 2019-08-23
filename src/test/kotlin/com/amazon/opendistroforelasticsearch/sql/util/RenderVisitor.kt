@@ -15,11 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.util
 
-import com.alibaba.druid.sql.ast.SQLCommentHint
-import com.alibaba.druid.sql.ast.SQLDataType
-import com.alibaba.druid.sql.ast.SQLObject
-import com.alibaba.druid.sql.ast.SQLOrderBy
-import com.alibaba.druid.sql.ast.SQLOver
+import com.alibaba.druid.sql.ast.*
 import com.alibaba.druid.sql.ast.expr.*
 import com.alibaba.druid.sql.ast.statement.*
 import com.alibaba.druid.sql.visitor.SQLASTVisitor
@@ -36,35 +32,33 @@ fun main(args: Array<String>) {
                     """SELECT e.name, (SELECT COUNT(p.name) FROM e.projects p WHERE p.name = 'War games #1') AS project_count
                             FROM employess_with_missing e""",
                     """SELECT e.name, (SELECT p.name FROM e.projects p WHERE p.name = 'War games #1') AS names
+                            FROM employess_with_missing e""",
+                    """SELECT e.project.name
                             FROM employess_with_missing e"""
+
             )
 
     queries.forEach {
-        println(it)
 
-        val parser = ElasticSqlExprParser(it)
-        val expr = parser.expr()
-
-        val render = RenderVisitor()
-        expr.accept(render)
+        val render = RenderVisitor(it)
         println(render.renderDigraph())
     }
 }
 
 
-class RenderVisitor : SQLASTVisitor {
-    internal class Label(val id: String) {
-        private var attributes: MutableMap<String, Any> = HashMap()
+class RenderVisitor(val query:String) : SQLASTVisitor {
 
-        fun addAttribute(key: String, value: Any) {
+    internal class Label(val id: String) {
+        private var attributes: MutableMap<String, Any?> = HashMap()
+
+        fun addAttribute(key: String, value: Any?) {
             attributes[key] = value
         }
 
         fun render() = buildString {
             append(id)
-            append(" ")
 
-            append("[ label=\"")
+            append(" [shape=\"box\"] [ label=\"")
             append(id)
             append("\\l")
 
@@ -88,7 +82,22 @@ class RenderVisitor : SQLASTVisitor {
 
     private val nodesToLabels = HashMap<SQLObject, Label>()
 
-    fun renderDigraph() = "digraph {\n$sb\n}"
+    public var parser : (String) -> SQLExpr = {
+        val parser = ElasticSqlExprParser(it)
+        parser.expr()
+    }
+
+    fun renderDigraph() : String {
+        val expr = parser(query)
+        expr.accept(this)
+
+        return """digraph {
+            query [shape="box"][label="${query.replace("\n", "\\l").trimMargin()}"]
+            
+            query -> ${expr.javaClass.simpleName + "_" + 1}
+            $sb
+        }""".trimMargin()
+    }
 
     override fun preVisit(astNode: SQLObject) {
         id = astNode.javaClass.simpleName + "_" + ++nodeId
@@ -124,7 +133,11 @@ class RenderVisitor : SQLASTVisitor {
 
     override fun visit(x: SQLAllColumnExpr) = true
     override fun visit(x: SQLBetweenExpr) = true
-    override fun visit(x: SQLBinaryOpExpr) = true
+    override fun visit(x: SQLBinaryOpExpr): Boolean {
+        label.addAttribute("operation", x.operator)
+        return true
+    }
+
     override fun visit(x: SQLCaseExpr) = true
     override fun visit(x: SQLCaseExpr.Item) = true
     override fun visit(x: SQLCastExpr) = true
@@ -138,7 +151,10 @@ class RenderVisitor : SQLASTVisitor {
     override fun visit(x: SQLNumberExpr) = true
     override fun visit(x: SQLPropertyExpr) = true
     override fun visit(x: SQLSelectGroupByClause) = true
-    override fun visit(x: SQLSelectItem) = true
+    override fun visit(x: SQLSelectItem) : Boolean {
+        label.addAttribute("alias", x.alias)
+        return true
+    }
     override fun endVisit(x: SQLCastExpr) {}
     override fun visit(astNode: SQLSelectStatement) = true
     override fun endVisit(astNode: SQLAggregateExpr) {}
@@ -154,7 +170,10 @@ class RenderVisitor : SQLASTVisitor {
     override fun endVisit(select: SQLSelect) {}
     override fun visit(x: SQLSelectQueryBlock) = true
     override fun endVisit(x: SQLSelectQueryBlock) {}
-    override fun visit(x: SQLExprTableSource) = true
+    override fun visit(x: SQLExprTableSource) : Boolean {
+        label.addAttribute("alias", x.alias)
+        return true
+    }
     override fun endVisit(x: SQLExprTableSource) {}
     override fun visit(x: SQLOrderBy) = true
     override fun endVisit(x: SQLOrderBy) {}
