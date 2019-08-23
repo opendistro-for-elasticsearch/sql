@@ -63,6 +63,7 @@ version = "${opendistroVersion}.0"
 apply plugin: 'elasticsearch.esplugin'
 apply plugin: 'jacoco'
 apply from: 'build-tools/sqlplugin-coverage.gradle'
+apply plugin: 'antlr'
 
 jacoco {
     toolVersion = "0.8.3"
@@ -131,6 +132,19 @@ integTestCluster {
     distribution = "oss-zip"
 }
 
+generateGrammarSource {
+    arguments += ['-visitor', '-package', 'com.amazon.opendistroforelasticsearch.sql.antlr.parser']
+    source = sourceSets.main.antlr
+    outputDirectory = file("src/main/java/com/amazon/opendistroforelasticsearch/sql/antlr/parser")
+}
+
+// Remove ANTLR plugin jars as it's specified as 'compile' dependency internally
+configurations {
+    compile {
+        extendsFrom = extendsFrom.findAll { it != configurations.antlr }
+    }
+}
+
 check.dependsOn jacocoTestReport
 
 // TODO: fix code style in main and test source code
@@ -174,6 +188,10 @@ dependencies {
     compile group: "org.elasticsearch.plugin", name: 'reindex-client', version: "${es_version}"
     compile group: 'com.google.guava', name: 'guava', version:'15.0'
     compile group: 'org.json', name: 'json', version:'20180813'
+
+    // ANTLR gradle plugin and runtime dependency
+    antlr "org.antlr:antlr4:4.7.1"
+    compile "org.antlr:antlr4-runtime:4.7.1"
 
     //compileOnly group: 'org.locationtech.jts', name: 'jts-core', version:'1.15.0'
     // compileOnly group: 'org.elasticsearch', name: 'elasticsearch', version:'6.5.3'
