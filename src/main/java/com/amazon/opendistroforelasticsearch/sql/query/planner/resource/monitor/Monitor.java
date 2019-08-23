@@ -22,6 +22,7 @@ public interface Monitor {
 
     /**
      * Is resource being monitored exhausted.
+     *
      * @return true if yes
      */
     boolean isHealthy();

@@ -16,9 +16,6 @@
 package com.amazon.opendistroforelasticsearch.sql.query.planner.physical.node.join;
 
 import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource.JoinType;
-import com.google.common.collect.Sets;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.ExecuteParams;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.PlanNode;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.logical.node.Join.JoinCondition;
@@ -26,6 +23,9 @@ import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.Physical
 import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.Row;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.node.BatchPhysicalOperator;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.resource.blocksize.BlockSize;
+import com.google.common.collect.Sets;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,34 +36,51 @@ import static java.util.Collections.emptyList;
 
 /**
  * Join algorithm base class
+ *
  * @param <T>
  */
 public abstract class JoinAlgorithm<T> extends BatchPhysicalOperator<T> {
 
     protected static final Logger LOG = LogManager.getLogger();
 
-    /** Left child operator */
+    /**
+     * Left child operator
+     */
     private final PhysicalOperator<T> left;
 
-    /** Right child operator handled by concrete join algorithm subclass */
+    /**
+     * Right child operator handled by concrete join algorithm subclass
+     */
     protected final PhysicalOperator<T> right;
 
-    /** Join type ex. inner join, left join */
+    /**
+     * Join type ex. inner join, left join
+     */
     private final JoinType type;
 
-    /** Joined columns in ON conditions */
+    /**
+     * Joined columns in ON conditions
+     */
     private final JoinCondition condition;
 
-    /** Block size calculator */
+    /**
+     * Block size calculator
+     */
     private final BlockSize blockSize;
 
-    /** Bookkeeping unmatched rows in current block from left */
+    /**
+     * Bookkeeping unmatched rows in current block from left
+     */
     private final Set<Row<T>> leftMismatch;
 
-    /** Hash table for right table probing */
+    /**
+     * Hash table for right table probing
+     */
     protected HashTable<T> hashTable;
 
-    /** Execute params to reset right side for each left block */
+    /**
+     * Execute params to reset right side for each left block
+     */
     protected ExecuteParams params;
 
     JoinAlgorithm(PhysicalOperator<T> left,
@@ -82,7 +99,7 @@ public abstract class JoinAlgorithm<T> extends BatchPhysicalOperator<T> {
 
     @Override
     public PlanNode[] children() {
-        return new PlanNode[]{ left, right };
+        return new PlanNode[]{left, right};
     }
 
     @Override
@@ -102,13 +119,13 @@ public abstract class JoinAlgorithm<T> extends BatchPhysicalOperator<T> {
 
     /**
      * Build-probe left and right block by block to prefetch next matches (and mismatches if outer join).
-     *
-     *  1) Build hash table and open right side.
-     *  2) Keep probing right to find matched rows (meanwhile update mismatched set)
-     *  3) Check if any row in mismatched set to return in the case of outer join.
-     *  4) Nothing remained now, move on to next block of left. Go back to step 1.
-     *
-     *  This is a new run AND no block from left means algorithm should stop and return empty.
+     * <p>
+     * 1) Build hash table and open right side.
+     * 2) Keep probing right to find matched rows (meanwhile update mismatched set)
+     * 3) Check if any row in mismatched set to return in the case of outer join.
+     * 4) Nothing remained now, move on to next block of left. Go back to step 1.
+     * <p>
+     * This is a new run AND no block from left means algorithm should stop and return empty.
      */
     @Override
     protected Collection<Row<T>> prefetch() throws Exception {
@@ -139,7 +156,9 @@ public abstract class JoinAlgorithm<T> extends BatchPhysicalOperator<T> {
         return emptyList();
     }
 
-    /** Probe right by hash table built from left. Handle matched and mismatched rows. */
+    /**
+     * Probe right by hash table built from left. Handle matched and mismatched rows.
+     */
     private Collection<Row<T>> probeMatchAndBookkeepMismatch() {
         if (hashTable.isEmpty()) {
             throw new IllegalStateException("Hash table is NOT supposed to be empty");
@@ -150,8 +169,7 @@ public abstract class JoinAlgorithm<T> extends BatchPhysicalOperator<T> {
         List<Row<T>> matchRows = new ArrayList<>();
         if (combinedRows.isEmpty()) {
             LOG.debug("No matched row found");
-        }
-        else {
+        } else {
             if (LOG.isTraceEnabled()) {
                 combinedRows.forEach(row -> LOG.trace("Matched row before combined: {}", row));
             }
@@ -189,7 +207,9 @@ public abstract class JoinAlgorithm<T> extends BatchPhysicalOperator<T> {
         return !leftMismatch.isEmpty();
     }
 
-    /** Clone mismatch list and clear it so that we won't return it forever */
+    /**
+     * Clone mismatch list and clear it so that we won't return it forever
+     */
     @SuppressWarnings("unchecked")
     private Collection<Row<T>> returnAndClearMismatch() {
         if (LOG.isTraceEnabled()) {
@@ -210,7 +230,7 @@ public abstract class JoinAlgorithm<T> extends BatchPhysicalOperator<T> {
 
     /**
      * Building phase:
-     *  Build hash table from data block.
+     * Build hash table from data block.
      */
     private void buildHashTableByNextBlock() {
         List<Row<T>> block = loadNextBlockFromLeft(blockSize.size());
@@ -259,7 +279,7 @@ public abstract class JoinAlgorithm<T> extends BatchPhysicalOperator<T> {
     /**
      * Probing phase
      *
-     * @return          matched rows from left and right in
+     * @return matched rows from left and right in
      */
     protected abstract List<CombinedRow<T>> probe();
 
@@ -267,7 +287,7 @@ public abstract class JoinAlgorithm<T> extends BatchPhysicalOperator<T> {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "[ conditions=" + condition
-            + ", type=" + type + ", blockSize=[" + blockSize + "] ]";
+                + ", type=" + type + ", blockSize=[" + blockSize + "] ]";
     }
 
 }

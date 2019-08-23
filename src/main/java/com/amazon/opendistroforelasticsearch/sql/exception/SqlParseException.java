@@ -17,11 +17,11 @@ package com.amazon.opendistroforelasticsearch.sql.exception;
 
 public class SqlParseException extends Exception {
 
-	public SqlParseException(String message) {
-		super(message);
-	}
+    public SqlParseException(String message) {
+        super(message);
+    }
 
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
 }

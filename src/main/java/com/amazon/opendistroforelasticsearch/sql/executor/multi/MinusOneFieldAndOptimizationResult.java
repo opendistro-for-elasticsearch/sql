@@ -13,10 +13,30 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.domain;
+package com.amazon.opendistroforelasticsearch.sql.executor.multi;
+
+import org.elasticsearch.search.SearchHit;
+
+import java.util.Set;
+
 
 /**
- * Identifier interface used to encompass Query and IndexStatements
+ * Created by Eliran on 26/8/2016.
  */
-public interface QueryStatement {
+class MinusOneFieldAndOptimizationResult {
+    private Set<Object> fieldValues;
+    private SearchHit someHit;
+
+    MinusOneFieldAndOptimizationResult(Set<Object> fieldValues, SearchHit someHit) {
+        this.fieldValues = fieldValues;
+        this.someHit = someHit;
+    }
+
+    public Set<Object> getFieldValues() {
+        return fieldValues;
+    }
+
+    public SearchHit getSomeHit() {
+        return someHit;
+    }
 }

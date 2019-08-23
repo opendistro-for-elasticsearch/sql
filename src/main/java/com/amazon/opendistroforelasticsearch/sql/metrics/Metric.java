@@ -29,6 +29,6 @@ public abstract class Metric<T> implements java.io.Serializable {
         return name;
     }
 
-    abstract public T getValue();
+    public abstract T getValue();
 
 }

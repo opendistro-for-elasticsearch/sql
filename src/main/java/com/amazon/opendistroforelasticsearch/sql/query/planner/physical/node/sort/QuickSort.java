@@ -16,13 +16,13 @@
 package com.amazon.opendistroforelasticsearch.sql.query.planner.physical.node.sort;
 
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.ExecuteParams;
+import com.amazon.opendistroforelasticsearch.sql.query.planner.core.PlanNode;
+import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.PhysicalOperator;
+import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.Row;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.estimation.Cost;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.node.BatchPhysicalOperator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.amazon.opendistroforelasticsearch.sql.query.planner.core.PlanNode;
-import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.PhysicalOperator;
-import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.Row;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,11 +36,11 @@ import static java.util.Collections.emptyList;
  * Physical operator to sort by quick sort implementation in JDK.
  * Note that this is all in-memory operator which may be a problem for large index.
  *
- * @param <T>   actual data type, ex.SearchHit
+ * @param <T> actual data type, ex.SearchHit
  */
 public class QuickSort<T> extends BatchPhysicalOperator<T> {
 
-    private final static Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger();
 
     private final PhysicalOperator<T> next;
 

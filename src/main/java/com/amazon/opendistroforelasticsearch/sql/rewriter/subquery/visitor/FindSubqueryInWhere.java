@@ -35,13 +35,14 @@ public class FindSubqueryInWhere extends MySqlASTVisitorAdapter {
 
     /**
      * Return Subquery
+     *
      * @return {@link Subquery}
      */
     public Optional<Subquery> subquery() {
-        if (sqlExistsExprs.isEmpty() && sqlInSubQueryExprs.isEmpty()) return Optional.empty();
-        if (sqlInSubQueryExprs.size() == 1 &&
-                sqlExistsExprs.isEmpty() &&
-                !sqlInSubQueryExprs.get(0).isNot()) {
+        if (sqlExistsExprs.isEmpty() && sqlInSubQueryExprs.isEmpty()) {
+            return Optional.empty();
+        }
+        if (sqlInSubQueryExprs.size() == 1 && sqlExistsExprs.isEmpty() && !sqlInSubQueryExprs.get(0).isNot()) {
             return Optional.of(new Subquery(SubqueryType.IN, sqlInSubQueryExprs.get(0)));
         }
         return Optional.of(new Subquery(SubqueryType.UNSUPPORTED));

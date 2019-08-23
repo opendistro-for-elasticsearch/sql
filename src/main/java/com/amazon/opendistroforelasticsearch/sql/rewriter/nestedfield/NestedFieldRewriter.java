@@ -28,34 +28,34 @@ import java.util.Deque;
  * Visitor to rewrite AST (abstract syntax tree) for nested type fields to support implicit nested() function call.
  * Intuitively, the approach is to implement SQLIdentifier.visit() and wrap nested() function for nested field.
  * The parsing result of FROM clause will be used to determine if an identifier is nested field.
- *
+ * <p>
  * State transition table (state here means Scope + Query AST):
- *  _________________________________________________________________________________________________________________
- *  |    Rewrite   |            Scope              |                        Sample Query                            |
- *  |---------------------------------------------------------------------------------------------------------------|
- *  |   (Start)    |             ()                | SELECT e.lastname, COUNT(*) FROM team t, employees e           |
- *  |              |                               |   WHERE region = 'US' and e.firstname = 'John'                 |
- *  |              |                               |     GROUP BY e.lastname                                        |
- *  |---------------------------------------------------------------------------------------------------------------|
- *  |     FROM     | (parentAlias='t'              | SELECT e.lastname, COUNT(*) FROM team                          |
- *  |              |  aliasFullPaths={e: employees}|   WHERE region = 'US' and e.firstname = 'John'                 |
- *  |              |  conditionTags={})            |     GROUP BY e.lastname                                        |
- *  |---------------------------------------------------------------------------------------------------------------|
- *  |   Identifier | (parentAlias='t'              | SELECT nested(employees.lastname), COUNT(*) FROM team          |
- *  |              |  aliasFullPaths={e: employees}|   WHERE region = 'US' and employees.firstname = 'John'         |
- *  |              |  conditionTags={c: employees})|     GROUP BY nested(employees.lastname)                        |
- *  |---------------------------------------------------------------------------------------------------------------|
- *  |    WHERE     | (parentAlias='t'              | SELECT nested(employees.lastname), COUNT(*) FROM team          |
- *  |              |  aliasFullPaths={e: employees}|   WHERE region = 'US' and nested(employees.firstname) = 'John' |
- *  |              |  conditionTags={c: employees})|     GROUP BY nested(employees.lastname)                        |
- *  |---------------------------------------------------------------------------------------------------------------|
- *
+ * _________________________________________________________________________________________________________________
+ * |    Rewrite   |            Scope              |                        Sample Query                            |
+ * |---------------------------------------------------------------------------------------------------------------|
+ * |   (Start)    |             ()                | SELECT e.lastname, COUNT(*) FROM team t, employees e           |
+ * |              |                               |   WHERE region = 'US' and e.firstname = 'John'                 |
+ * |              |                               |     GROUP BY e.lastname                                        |
+ * |---------------------------------------------------------------------------------------------------------------|
+ * |     FROM     | (parentAlias='t'              | SELECT e.lastname, COUNT(*) FROM team                          |
+ * |              |  aliasFullPaths={e: employees}|   WHERE region = 'US' and e.firstname = 'John'                 |
+ * |              |  conditionTags={})            |     GROUP BY e.lastname                                        |
+ * |---------------------------------------------------------------------------------------------------------------|
+ * |   Identifier | (parentAlias='t'              | SELECT nested(employees.lastname), COUNT(*) FROM team          |
+ * |              |  aliasFullPaths={e: employees}|   WHERE region = 'US' and employees.firstname = 'John'         |
+ * |              |  conditionTags={c: employees})|     GROUP BY nested(employees.lastname)                        |
+ * |---------------------------------------------------------------------------------------------------------------|
+ * |    WHERE     | (parentAlias='t'              | SELECT nested(employees.lastname), COUNT(*) FROM team          |
+ * |              |  aliasFullPaths={e: employees}|   WHERE region = 'US' and nested(employees.firstname) = 'John' |
+ * |              |  conditionTags={c: employees})|     GROUP BY nested(employees.lastname)                        |
+ * |---------------------------------------------------------------------------------------------------------------|
+ * <p>
  * Note 'c' in conditionTag refer to the reference to SQLBinaryOpExpr object of condition 'employees.firstname = 'John'
- *
+ * <p>
  * More details:
- *  1) Manage environment in the case of subquery
- *  2) Add nested field to select for SELECT *
- *  3) Merge conditions of same nested field to single nested() call
+ * 1) Manage environment in the case of subquery
+ * 2) Add nested field to select for SELECT *
+ * 3) Merge conditions of same nested field to single nested() call
  */
 public class NestedFieldRewriter extends MySqlASTVisitorAdapter {
 
@@ -85,7 +85,9 @@ public class NestedFieldRewriter extends MySqlASTVisitorAdapter {
         return true;
     }
 
-    /** Fix null parent problem which is required by SQLIdentifier.visit() */
+    /**
+     * Fix null parent problem which is required by SQLIdentifier.visit()
+     */
     @Override
     public boolean visit(SQLInSubQueryExpr subQuery) {
         subQuery.getExpr().setParent(subQuery);
@@ -112,7 +114,9 @@ public class NestedFieldRewriter extends MySqlASTVisitorAdapter {
         environment.pop();
     }
 
-    /** Current scope which is top of the stack */
+    /**
+     * Current scope which is top of the stack
+     */
     private Scope curScope() {
         return environment.peek();
     }

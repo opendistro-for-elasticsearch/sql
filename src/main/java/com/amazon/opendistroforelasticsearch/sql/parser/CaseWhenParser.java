@@ -21,8 +21,8 @@ import com.alibaba.druid.sql.ast.expr.SQLNullExpr;
 import com.amazon.opendistroforelasticsearch.sql.domain.Condition;
 import com.amazon.opendistroforelasticsearch.sql.domain.Where;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
-import com.google.common.base.Joiner;
 import com.amazon.opendistroforelasticsearch.sql.utils.Util;
+import com.google.common.base.Joiner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +31,7 @@ import java.util.List;
  * Created by allwefantasy on 9/3/16.
  */
 public class CaseWhenParser {
+
     private SQLCaseExpr caseExpr;
     private String alias;
     private String tableAlias;
@@ -39,11 +40,10 @@ public class CaseWhenParser {
         this.alias = alias;
         this.tableAlias = tableAlias;
         this.caseExpr = caseExpr;
-
     }
 
     public String parse() throws SqlParseException {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
 
         for (SQLCaseExpr.Item item : caseExpr.getItems()) {
             SQLExpr conditionExpr = item.getConditionExpr();
@@ -54,9 +54,11 @@ public class CaseWhenParser {
                 scriptCode = scriptCode.substring(3);
             }
             if (result.size() == 0) {
-                result.add("if(" + scriptCode + ")" + "{" + Util.getScriptValueWithQuote(item.getValueExpr(), "'") + "}");
+                result.add("if(" + scriptCode + ")" + "{" + Util.getScriptValueWithQuote(item.getValueExpr(),
+                        "'") + "}");
             } else {
-                result.add("else if(" + scriptCode + ")" + "{" + Util.getScriptValueWithQuote(item.getValueExpr(), "'") + "}");
+                result.add("else if(" + scriptCode + ")" + "{" + Util.getScriptValueWithQuote(item.getValueExpr(),
+                        "'") + "}");
             }
 
         }
@@ -72,7 +74,7 @@ public class CaseWhenParser {
     }
 
     public String explain(Where where) throws SqlParseException {
-        List<String> codes = new ArrayList<String>();
+        List<String> codes = new ArrayList<>();
         while (where.getWheres().size() == 1) {
             where = where.getWheres().getFirst();
         }
@@ -95,15 +97,16 @@ public class CaseWhenParser {
             } else {
                 SQLExpr nameExpr = condition.getNameExpr();
                 SQLExpr valueExpr = condition.getValueExpr();
-                if(valueExpr instanceof SQLNullExpr) {
+                if (valueExpr instanceof SQLNullExpr) {
                     codes.add("(" + "doc['" + nameExpr.toString() + "']" + ".empty)");
                 } else {
-                    codes.add("(" + Util.getScriptValueWithQuote(nameExpr, "'") + condition.getOpertatorSymbol() + Util.getScriptValueWithQuote(valueExpr, "'") + ")");
+                    codes.add("(" + Util.getScriptValueWithQuote(nameExpr, "'") + condition.getOpertatorSymbol()
+                            + Util.getScriptValueWithQuote(valueExpr, "'") + ")");
                 }
             }
         } else {
             for (Where subWhere : where.getWheres()) {
-                List<String> subCodes = new ArrayList<String>();
+                List<String> subCodes = new ArrayList<>();
                 explainWhere(subCodes, subWhere);
                 String relation = subWhere.getConn().name().equals("AND") ? "&&" : "||";
                 codes.add(Joiner.on(relation).join(subCodes));

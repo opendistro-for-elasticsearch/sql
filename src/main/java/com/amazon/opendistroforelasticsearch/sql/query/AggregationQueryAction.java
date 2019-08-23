@@ -47,7 +47,6 @@ import org.elasticsearch.search.sort.SortOrder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Transform SQL query to Elasticsearch aggregations query
@@ -93,7 +92,8 @@ public class AggregationQueryAction extends QueryAction {
                             ((TermsAggregationBuilder) lastAgg).shardSize(2000);
                             for (Hint hint : select.getHints()) {
                                 if (hint.getType() == HintType.SHARD_SIZE) {
-                                    if (hint.getParams() != null && hint.getParams().length != 0 && hint.getParams()[0] != null) {
+                                    if (hint.getParams() != null && hint.getParams().length != 0
+                                            && hint.getParams()[0] != null) {
                                         ((TermsAggregationBuilder) lastAgg).shardSize((Integer) hint.getParams()[0]);
                                     }
                                 }
@@ -133,7 +133,7 @@ public class AggregationQueryAction extends QueryAction {
                 for (int i = 1; i < groupBy.size(); i++) {
                     field = groupBy.get(i);
                     AggregationBuilder subAgg = getGroupAgg(field, select);
-                      //ES5.0 termsaggregation with size = 0 not supported anymore
+                    //ES5.0 termsaggregation with size = 0 not supported anymore
 //                    if (subAgg instanceof TermsAggregationBuilder && !(field instanceof MethodField)) {
 
 //                        //((TermsAggregationBuilder) subAgg).size(0);
@@ -227,8 +227,7 @@ public class AggregationQueryAction extends QueryAction {
         updateRequestWithHighlight(select, request);
         updateRequestWithCollapse(select, request);
         updateRequestWithPostFilter(select, request);
-        SqlElasticSearchRequestBuilder sqlElasticRequestBuilder = new SqlElasticSearchRequestBuilder(request);
-        return sqlElasticRequestBuilder;
+        return new SqlElasticSearchRequestBuilder(request);
     }
 
     private AggregationBuilder getGroupAgg(Field field, Select select) throws SqlParseException {
@@ -247,7 +246,9 @@ public class AggregationQueryAction extends QueryAction {
             }
         }
 
-        if (!refrence) lastAgg = aggMaker.makeGroupAgg(field);
+        if (!refrence) {
+            lastAgg = aggMaker.makeGroupAgg(field);
+        }
 
         // find if we have order for that aggregation. As of now only special case for script fields
         if (field.isScriptField()) {
@@ -257,20 +258,25 @@ public class AggregationQueryAction extends QueryAction {
         return lastAgg;
     }
 
-    private void addOrderByScriptFieldIfPresent(Select select, TermsAggregationBuilder groupByAggregation, SQLExpr groupByExpression) {
+    private void addOrderByScriptFieldIfPresent(Select select, TermsAggregationBuilder groupByAggregation,
+                                                SQLExpr groupByExpression) {
         // TODO: Explore other ways to correlate different fields/functions in the query (params?)
         // This feels like a hacky way, but it's the best that could be done now.
         select
-            .getOrderBys()
-            .stream()
-            .filter(order -> groupByExpression.equals(order.getSortField().getExpression()))
-            .findFirst()
-            .ifPresent(orderForGroupBy -> groupByAggregation.order(BucketOrder.key(isASC(orderForGroupBy))));
+                .getOrderBys()
+                .stream()
+                .filter(order -> groupByExpression.equals(order.getSortField().getExpression()))
+                .findFirst()
+                .ifPresent(orderForGroupBy -> groupByAggregation.order(BucketOrder.key(isASC(orderForGroupBy))));
     }
 
     private AggregationBuilder wrapNestedIfNeeded(AggregationBuilder nestedBuilder, boolean reverseNested) {
-        if (!reverseNested) return nestedBuilder;
-        if (reverseNested && !(nestedBuilder instanceof NestedAggregationBuilder)) return nestedBuilder;
+        if (!reverseNested) {
+            return nestedBuilder;
+        }
+        if (reverseNested && !(nestedBuilder instanceof NestedAggregationBuilder)) {
+            return nestedBuilder;
+        }
         //we need to jump back to root
         return AggregationBuilders.reverseNested(nestedBuilder.getName() + "_REVERSED").subAggregation(nestedBuilder);
     }
@@ -282,8 +288,9 @@ public class AggregationQueryAction extends QueryAction {
 
         if (field.isReverseNested()) {
             if (nestedPath == null || !nestedPath.startsWith("~")) {
-                ReverseNestedAggregationBuilder reverseNestedAggregationBuilder = AggregationBuilders.reverseNested(getNestedAggName(field));
-                if(nestedPath!=null){
+                ReverseNestedAggregationBuilder reverseNestedAggregationBuilder =
+                        AggregationBuilders.reverseNested(getNestedAggName(field));
+                if (nestedPath != null) {
                     reverseNestedAggregationBuilder.path(nestedPath);
                 }
                 return reverseNestedAggregationBuilder;
@@ -291,7 +298,7 @@ public class AggregationQueryAction extends QueryAction {
             nestedPath = nestedPath.substring(1);
         }
 
-        nestedBuilder = AggregationBuilders.nested(getNestedAggName(field),nestedPath);
+        nestedBuilder = AggregationBuilders.nested(getNestedAggName(field), nestedPath);
 
         return nestedBuilder;
     }
@@ -301,7 +308,7 @@ public class AggregationQueryAction extends QueryAction {
 
         String childType = field.getChildType();
 
-        childrenBuilder = JoinAggregationBuilders.children(getChildrenAggName(field),childType);
+        childrenBuilder = JoinAggregationBuilders.children(getChildrenAggName(field), childType);
 
         return childrenBuilder;
     }
@@ -340,19 +347,26 @@ public class AggregationQueryAction extends QueryAction {
         return prefix + "@CHILDREN";
     }
 
-    private boolean insertFilterIfExistsAfter(AggregationBuilder agg, List<Field> groupBy, AggregationBuilder builder, int nextPosition) throws SqlParseException {
-        if (groupBy.size() <= nextPosition) return false;
+    private boolean insertFilterIfExistsAfter(AggregationBuilder agg, List<Field> groupBy, AggregationBuilder builder,
+                                              int nextPosition) throws SqlParseException {
+        if (groupBy.size() <= nextPosition) {
+            return false;
+        }
         Field filterFieldCandidate = groupBy.get(nextPosition);
-        if (!(filterFieldCandidate instanceof MethodField)) return false;
+        if (!(filterFieldCandidate instanceof MethodField)) {
+            return false;
+        }
         MethodField methodField = (MethodField) filterFieldCandidate;
-        if (!methodField.getName().toLowerCase().equals("filter")) return false;
+        if (!methodField.getName().toLowerCase().equals("filter")) {
+            return false;
+        }
         builder.subAggregation(aggMaker.makeGroupAgg(filterFieldCandidate).subAggregation(agg));
         return true;
     }
 
     private AggregationBuilder updateAggIfNested(AggregationBuilder lastAgg, Field field) {
         if (field.isNested()) {
-            lastAgg = AggregationBuilders.nested(field.getName() + "Nested",field.getNestedPath())
+            lastAgg = AggregationBuilders.nested(field.getName() + "Nested", field.getNestedPath())
                     .subAggregation(lastAgg);
         }
         return lastAgg;
@@ -372,11 +386,12 @@ public class AggregationQueryAction extends QueryAction {
                 }
             }
 
-            request.setFetchSource(includeFields.toArray(new String[includeFields.size()]), null);
+            request.setFetchSource(includeFields.toArray(new String[0]), null);
         }
     }
 
-    private void explanFields(SearchRequestBuilder request, List<Field> fields, AggregationBuilder groupByAgg) throws SqlParseException {
+    private void explanFields(SearchRequestBuilder request, List<Field> fields, AggregationBuilder groupByAgg)
+            throws SqlParseException {
         for (Field field : fields) {
             if (field instanceof MethodField) {
 
@@ -395,7 +410,7 @@ public class AggregationQueryAction extends QueryAction {
                 } else {
                     request.addAggregation(makeAgg);
                 }
-            } else if (field instanceof Field) {
+            } else if (field != null) {
                 request.addStoredField(field.getName());
             } else {
                 throw new SqlParseException("it did not support this field method " + field);

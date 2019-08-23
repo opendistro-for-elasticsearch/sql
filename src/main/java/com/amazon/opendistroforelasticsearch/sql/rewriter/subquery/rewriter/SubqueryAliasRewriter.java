@@ -31,7 +31,7 @@ import java.util.Deque;
 /**
  * Add the alias for identifier the subquery query.
  * Use the table alias if it already has one, Auto generate if it doesn't has one.
- *
+ * <p>
  * The following table demonstrate how the rewriter works with scope and query.
  * +-----------------------+-------------+-----------------------------------------------------------------------------------------------------+
  * | Rewrite               | TableScope  | Query                                                                                               |
@@ -50,12 +50,11 @@ import java.util.Deque;
  * | Identifier in Select  | (TbA,TbA_0) | SELECT TbA.* FROM TbA as TbA_0 WHERE TbA_0.a IN (SELECT TbB_0.b FROM TbB as TbB_0) and TbA_0.c > 10 |
  * |                       | (TbB,TbB_0) |                                                                                                     |
  * +-----------------------+-------------+-----------------------------------------------------------------------------------------------------+
- *
  */
 public class SubqueryAliasRewriter extends MySqlASTVisitorAdapter {
     private final Deque<Table> tableScope = new ArrayDeque<>();
     private int aliasSuffix = 0;
-    private final static String DOT = ".";
+    private static final String DOT = ".";
 
     @Override
     public boolean visit(MySqlSelectQueryBlock query) {
@@ -81,7 +80,7 @@ public class SubqueryAliasRewriter extends MySqlASTVisitorAdapter {
 
     @Override
     public boolean visit(SQLAllColumnExpr expr) {
-        if (inSelect(expr) ) {
+        if (inSelect(expr)) {
             ((SQLSelectItem) expr.getParent()).setExpr(createIdentifierExpr(tableScope.peek()));
         }
         return true;
@@ -163,7 +162,7 @@ public class SubqueryAliasRewriter extends MySqlASTVisitorAdapter {
          */
         private String alias;
 
-        public Table(String name, String alias) {
+        Table(String name, String alias) {
             this.name = name;
             this.alias = alias;
         }

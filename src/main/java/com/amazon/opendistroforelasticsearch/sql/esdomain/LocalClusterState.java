@@ -51,31 +51,41 @@ import static org.elasticsearch.common.settings.Settings.EMPTY;
 
 /**
  * Local cluster state information which may be stale but help avoid blocking operation in NIO thread.
- *
- *  1) Why extending TransportAction doesn't work here?
- *      TransportAction enforce implementation to be performed remotely but local cluster state read is expected here.
- *
- *  2) Why injection by AbstractModule doesn't work here?
- *      Because this state needs to be used across the plugin, ex. in rewriter, pretty formatter etc.
+ * <p>
+ * 1) Why extending TransportAction doesn't work here?
+ * TransportAction enforce implementation to be performed remotely but local cluster state read is expected here.
+ * <p>
+ * 2) Why injection by AbstractModule doesn't work here?
+ * Because this state needs to be used across the plugin, ex. in rewriter, pretty formatter etc.
  */
 public class LocalClusterState {
 
     private static final Logger LOG = LogManager.getLogger();
 
-    /** Default types and field filter to match all */
+    /**
+     * Default types and field filter to match all
+     */
     private static final String[] ALL_TYPES = new String[0];
     private static final Function<String, Predicate<String>> ALL_FIELDS = (anyIndex -> (anyField -> true));
 
-    /** Singleton instance */
+    /**
+     * Singleton instance
+     */
     private static LocalClusterState INSTANCE;
 
-    /** Current cluster state on local node */
+    /**
+     * Current cluster state on local node
+     */
     private ClusterService clusterService;
 
-    /** Sql specific settings in ES cluster settings */
+    /**
+     * Sql specific settings in ES cluster settings
+     */
     private SqlSettings sqlSettings;
 
-    /** Index name expression resolver to get concrete index name */
+    /**
+     * Index name expression resolver to get concrete index name
+     */
     private IndexNameExpressionResolver resolver;
 
     /**
@@ -84,7 +94,9 @@ public class LocalClusterState {
      */
     private final Cache<Tuple<List<String>, List<String>>, IndexMappings> cache;
 
-    /** Latest setting value for each registered key. Thread-safe is required. */
+    /**
+     * Latest setting value for each registered key. Thread-safe is required.
+     */
     private final Map<String, Object> latestSettings = new ConcurrentHashMap<>();
 
 
@@ -95,7 +107,9 @@ public class LocalClusterState {
         return INSTANCE;
     }
 
-    /** Give testing code a chance to inject mock object */
+    /**
+     * Give testing code a chance to inject mock object
+     */
     public static synchronized void state(LocalClusterState instance) {
         INSTANCE = instance;
     }
@@ -107,7 +121,8 @@ public class LocalClusterState {
             if (event.metaDataChanged()) {
                 // State in cluster service is already changed to event.state() before listener fired
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Metadata in cluster state changed: {}", new IndexMappings(clusterService.state().metaData()));
+                    LOG.debug("Metadata in cluster state changed: {}",
+                            new IndexMappings(clusterService.state().metaData()));
                 }
                 cache.invalidateAll();
             }
@@ -118,13 +133,13 @@ public class LocalClusterState {
         this.sqlSettings = sqlSettings;
         for (Setting<?> setting : sqlSettings.getSettings()) {
             clusterService.getClusterSettings().addSettingsUpdateConsumer(
-                setting,
-                newVal -> {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("The value of setting [{}] changed to [{}]", setting.getKey(), newVal);
-                    }
-                    latestSettings.put(setting.getKey(), newVal);
-                });
+                    setting,
+                    newVal -> {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("The value of setting [{}] changed to [{}]", setting.getKey(), newVal);
+                        }
+                        latestSettings.put(setting.getKey(), newVal);
+                    });
         }
     }
 
@@ -139,8 +154,8 @@ public class LocalClusterState {
     /**
      * Get setting value by key. Return default value if not configured explicitly.
      *
-     * @param key   setting key registered during plugin launch.
-     * @return      setting value or default
+     * @param key setting key registered during plugin launch.
+     * @return setting value or default
      */
     @SuppressWarnings("unchecked")
     public <T> T getSettingValue(String key) {
@@ -148,28 +163,35 @@ public class LocalClusterState {
         return (T) latestSettings.getOrDefault(key, sqlSettings.getSetting(key).getDefault(EMPTY));
     }
 
-    /** Get field mappings by index expressions. All types and fields are included in response. */
+    /**
+     * Get field mappings by index expressions. All types and fields are included in response.
+     */
     public IndexMappings getFieldMappings(String[] indices) {
         return getFieldMappings(indices, ALL_TYPES, ALL_FIELDS);
     }
 
-    /** Get field mappings by index expressions, type. All fields are included in response. */
+    /**
+     * Get field mappings by index expressions, type. All fields are included in response.
+     */
     public IndexMappings getFieldMappings(String[] indices, String[] types) {
         return getFieldMappings(indices, types, ALL_FIELDS);
     }
 
     /**
-     * Get field mappings by index expressions, type and field filter. Because IndexMetaData/MappingMetaData is hard to convert to FieldMappingMetaData,
-     * custom mapping domain objects are being used here. In future, it should be moved to domain model layer for all ES specific knowledge.
+     * Get field mappings by index expressions, type and field filter. Because IndexMetaData/MappingMetaData
+     * is hard to convert to FieldMappingMetaData, custom mapping domain objects are being used here. In future,
+     * it should be moved to domain model layer for all ES specific knowledge.
+     * <p>
+     * Note that cluster state may be change inside ES so it's possible to read different state in 2 accesses
+     * to ClusterService.state() here.
      *
-     * Note that cluster state may be change inside ES so it's possible to read different state in 2 accesses to ClusterService.state() here.
-     *
-     * @param indices       index name expression
-     * @param types         type name
-     * @param fieldFilter   field filter predicate
-     * @return              index mapping(s)
+     * @param indices     index name expression
+     * @param types       type name
+     * @param fieldFilter field filter predicate
+     * @return index mapping(s)
      */
-    public IndexMappings getFieldMappings(String[] indices, String[] types, Function<String, Predicate<String>> fieldFilter) {
+    public IndexMappings getFieldMappings(String[] indices, String[] types,
+                                          Function<String, Predicate<String>> fieldFilter) {
         Objects.requireNonNull(clusterService, "Cluster service is null");
         Objects.requireNonNull(resolver, "Index name expression resolver is null");
 
@@ -190,8 +212,8 @@ public class LocalClusterState {
             throw e;
         } catch (Exception e) {
             throw new IllegalStateException(
-                "Failed to read mapping in cluster state for indices="
-                    + Arrays.toString(indices) + ", types=" + Arrays.toString(types), e);
+                    "Failed to read mapping in cluster state for indices="
+                            + Arrays.toString(indices) + ", types=" + Arrays.toString(types), e);
         }
     }
 
@@ -200,7 +222,7 @@ public class LocalClusterState {
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Resolved index expression {} to concrete index names {}",
-                Arrays.toString(indices), Arrays.toString(concreteIndices));
+                    Arrays.toString(indices), Arrays.toString(concreteIndices));
         }
         return concreteIndices;
     }
@@ -209,15 +231,16 @@ public class LocalClusterState {
                                        Function<String, Predicate<String>> fieldFilter) throws IOException {
         LOG.debug("Cache didn't help. Load and parse mapping in cluster state");
         return new IndexMappings(
-            state.metaData().findMappings(indices, types, fieldFilter)
+                state.metaData().findMappings(indices, types, fieldFilter)
         );
     }
 
-    private IndexMappings findMappingsInCache(ClusterState state, String[] indices, String[] types) throws ExecutionException {
+    private IndexMappings findMappingsInCache(ClusterState state, String[] indices, String[] types)
+            throws ExecutionException {
         LOG.debug("Looking for mapping in cache: {}", cache.asMap());
         return cache.get(
-            new Tuple<>(sortToList(indices), sortToList(types)),
-            () -> findMappings(state, indices, types, ALL_FIELDS)
+                new Tuple<>(sortToList(indices), sortToList(types)),
+                () -> findMappings(state, indices, types, ALL_FIELDS)
         );
     }
 
@@ -229,7 +252,8 @@ public class LocalClusterState {
 
     /**
      * Mappings interface to provide default implementation (minimal set of Map methods) for subclass in hierarchy.
-     * @param <T>   Type of nested mapping
+     *
+     * @param <T> Type of nested mapping
      */
     public interface Mappings<T> {
 
@@ -262,26 +286,29 @@ public class LocalClusterState {
 
     /**
      * Index mappings in the cluster.
-     *
+     * <p>
      * Sample:
-     *  indexMappings: {
-     *      'accounts': typeMappings1,
-     *      'logs':     typeMappings2
-     *  }
-     *
+     * indexMappings: {
+     * 'accounts': typeMappings1,
+     * 'logs':     typeMappings2
+     * }
+     * <p>
      * Difference between response of getMapping/clusterState and getFieldMapping:
-     *
+     * <p>
      * 1) MappingMetadata:
      * ((Map) ((Map) (mapping.get("bank").get("account").sourceAsMap().get("properties"))).get("balance")).get("type")
-     *
+     * <p>
      * 2) FieldMetadata:
-     * ((Map) client.admin().indices().getFieldMappings(request).actionGet().mappings().get("bank").get("account").get("balance").sourceAsMap().get("balance")).get("type")
+     * ((Map) client.admin().indices().getFieldMappings(request).actionGet().mappings().get("bank")
+     * .get("account").get("balance").sourceAsMap().get("balance")).get("type")
      */
     public static class IndexMappings implements Mappings<TypeMappings> {
 
         public static final IndexMappings EMPTY = new IndexMappings();
 
-        /** Mapping from Index name to mappings of all Types in it */
+        /**
+         * Mapping from Index name to mappings of all Types in it
+         */
         private final Map<String, TypeMappings> indexMappings;
 
         public IndexMappings() {
@@ -289,7 +316,8 @@ public class LocalClusterState {
         }
 
         public IndexMappings(MetaData metaData) {
-            this.indexMappings = buildMappings(metaData.indices(), indexMetaData -> new TypeMappings(indexMetaData.getMappings()));
+            this.indexMappings = buildMappings(metaData.indices(),
+                    indexMetaData -> new TypeMappings(indexMetaData.getMappings()));
         }
 
         public IndexMappings(ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> mappings) {
@@ -303,8 +331,12 @@ public class LocalClusterState {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             IndexMappings that = (IndexMappings) o;
             return Objects.equals(indexMappings, that.indexMappings);
         }
@@ -322,15 +354,17 @@ public class LocalClusterState {
 
     /**
      * Type mappings in a specific index.
-     *
+     * <p>
      * Sample:
-     *  typeMappings: {
-     *      '_doc': fieldMappings
-     *  }
+     * typeMappings: {
+     * '_doc': fieldMappings
+     * }
      */
     public static class TypeMappings implements Mappings<FieldMappings> {
 
-        /** Mapping from Type name to mappings of all Fields in it */
+        /**
+         * Mapping from Type name to mappings of all Fields in it
+         */
         private final Map<String, FieldMappings> typeMappings;
 
         public TypeMappings(ImmutableOpenMap<String, MappingMetaData> mappings) {
@@ -344,8 +378,12 @@ public class LocalClusterState {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             TypeMappings that = (TypeMappings) o;
             return Objects.equals(typeMappings, that.typeMappings);
         }
@@ -363,37 +401,39 @@ public class LocalClusterState {
 
     /**
      * Field mappings in a specific type.
-     *
+     * <p>
      * Sample:
-     *  fieldMappings: {
-     *      'properties': {
-     *          'balance': {
-     *              'type': long
-     *          },
-     *          'age': {
-     *              'type': integer
-     *          },
-     *          'state': {
-     *              'type': text，
-     *          }
-     *          'name': {
-     *              'type': text，
-     *              'fields': {
-     *                  'keyword': {
-     *                      'type': keyword,
-     *                      'ignore_above': 256
-     *                  }
-     *              }
-     *          }
-     *      }
-     *  }
+     * fieldMappings: {
+     * 'properties': {
+     * 'balance': {
+     * 'type': long
+     * },
+     * 'age': {
+     * 'type': integer
+     * },
+     * 'state': {
+     * 'type': text，
+     * }
+     * 'name': {
+     * 'type': text，
+     * 'fields': {
+     * 'keyword': {
+     * 'type': keyword,
+     * 'ignore_above': 256
+     * }
+     * }
+     * }
+     * }
+     * }
      */
     @SuppressWarnings("unchecked")
     public static class FieldMappings implements Mappings<Map<String, Object>> {
 
         private static final String PROPERTIES = "properties";
 
-        /** Mapping from field name to its type */
+        /**
+         * Mapping from field name to its type
+         */
         private final Map<String, Object> fieldMappings;
 
         public FieldMappings(MappingMetaData mappings) {
@@ -411,7 +451,9 @@ public class LocalClusterState {
             return mapping(path) != null;
         }
 
-        /** Different from default implementation that search mapping for path is required */
+        /**
+         * Different from default implementation that search mapping for path is required
+         */
         @Override
         public Map<String, Object> mapping(String path) {
             Map<String, Object> mapping = fieldMappings;
@@ -421,7 +463,7 @@ public class LocalClusterState {
                 }
 
                 mapping = (Map<String, Object>)
-                    ((Map<String, Object>) mapping.get(PROPERTIES)).get(name);
+                        ((Map<String, Object>) mapping.get(PROPERTIES)).get(name);
             }
             return mapping;
         }
@@ -434,8 +476,12 @@ public class LocalClusterState {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             FieldMappings that = (FieldMappings) o;
             return Objects.equals(fieldMappings, that.fieldMappings);
         }
@@ -452,7 +498,9 @@ public class LocalClusterState {
 
     }
 
-    /** Convert ES ImmutableOpenMap<String, T> to JDK Map<String, U> by applying function: U func(T) */
+    /**
+     * Convert ES ImmutableOpenMap<String, T> to JDK Map<String, U> by applying function: U func(T)
+     */
     private static <T, U> Map<String, U> buildMappings(ImmutableOpenMap<String, T> mappings, Function<T, U> func) {
         ImmutableMap.Builder<String, U> builder = ImmutableMap.builder();
         for (ObjectObjectCursor<String, T> mapping : mappings) {

@@ -47,8 +47,8 @@ public class ESNestedLoopsQueryAction extends ESJoinQueryAction {
     @Override
     protected void updateRequestWithHints(JoinRequestBuilder requestBuilder) {
         super.updateRequestWithHints(requestBuilder);
-        for(Hint hint : this.joinSelect.getHints()){
-            if(hint.getType() ==  HintType.NL_MULTISEARCH_SIZE){
+        for (Hint hint : this.joinSelect.getHints()) {
+            if (hint.getType() == HintType.NL_MULTISEARCH_SIZE) {
                 Integer multiSearchMaxSize = (Integer) hint.getParams()[0];
                 ((NestedLoopsElasticRequestBuilder) requestBuilder).setMultiSearchMaxSize(multiSearchMaxSize);
             }
@@ -57,9 +57,10 @@ public class ESNestedLoopsQueryAction extends ESJoinQueryAction {
 
     private String removeAlias(String field) {
         String alias = joinSelect.getFirstTable().getAlias();
-        if(!field.startsWith(alias+"."))
+        if (!field.startsWith(alias + ".")) {
             alias = joinSelect.getSecondTable().getAlias();
-        return field.replace(alias+".","");
+        }
+        return field.replace(alias + ".", "");
     }
 
 }

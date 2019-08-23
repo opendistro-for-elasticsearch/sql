@@ -16,12 +16,12 @@
 package com.amazon.opendistroforelasticsearch.sql.query.planner.physical.node.join;
 
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.ExecuteParams;
+import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.PhysicalOperator;
+import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.Row;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.estimation.Cost;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.resource.blocksize.BlockSize;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.PhysicalOperator;
-import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.Row;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,16 +30,18 @@ import java.util.Map;
 import java.util.Objects;
 
 import static com.alibaba.druid.sql.ast.statement.SQLJoinTableSource.JoinType;
+import static com.amazon.opendistroforelasticsearch.sql.query.planner.logical.node.Join.JoinCondition;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
-import static com.amazon.opendistroforelasticsearch.sql.query.planner.logical.node.Join.JoinCondition;
 
 /**
  * Block-based Hash Join implementation
  */
 public class BlockHashJoin<T> extends JoinAlgorithm<T> {
 
-    /** Use terms filter optimization or not */
+    /**
+     * Use terms filter optimization or not
+     */
     private final boolean isUseTermsFilterOptimization;
 
     public BlockHashJoin(PhysicalOperator<T> left,
@@ -86,7 +88,9 @@ public class BlockHashJoin<T> extends JoinAlgorithm<T> {
         return combinedRows;
     }
 
-    /** Build query for pushed down conditions in ON */
+    /**
+     * Build query for pushed down conditions in ON
+     */
     private BoolQueryBuilder queryForPushedDownOnConds() {
         BoolQueryBuilder orQuery = boolQuery();
         Map<String, Collection<Object>>[] rightNameToLeftValuesGroup = hashTable.rightFieldWithLeftValues();
@@ -94,12 +98,12 @@ public class BlockHashJoin<T> extends JoinAlgorithm<T> {
         for (Map<String, Collection<Object>> rightNameToLeftValues : rightNameToLeftValuesGroup) {
             if (LOG.isTraceEnabled()) {
                 rightNameToLeftValues.forEach((rightName, leftValues) ->
-                    LOG.trace("Right name to left values mapping: {} => {}", rightName, leftValues));
+                        LOG.trace("Right name to left values mapping: {} => {}", rightName, leftValues));
             }
 
             BoolQueryBuilder andQuery = boolQuery();
             rightNameToLeftValues.forEach(
-                (rightName, leftValues) -> andQuery.must(termsQuery(rightName, leftValues))
+                    (rightName, leftValues) -> andQuery.must(termsQuery(rightName, leftValues))
             );
 
             if (LOG.isTraceEnabled()) {

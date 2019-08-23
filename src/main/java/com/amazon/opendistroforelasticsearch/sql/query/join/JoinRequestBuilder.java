@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.query.join;
 
 import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
+import com.amazon.opendistroforelasticsearch.sql.query.SqlElasticRequestBuilder;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.ActionRequestBuilder;
 import org.elasticsearch.action.ActionResponse;
@@ -25,14 +26,13 @@ import org.elasticsearch.common.xcontent.ToXContent;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentType;
-import com.amazon.opendistroforelasticsearch.sql.query.SqlElasticRequestBuilder;
 
 import java.io.IOException;
 
 /**
  * Created by Eliran on 15/9/2015.
  */
-public  class JoinRequestBuilder implements SqlElasticRequestBuilder {
+public class JoinRequestBuilder implements SqlElasticRequestBuilder {
 
     private MultiSearchRequest multi;
     private TableInJoinRequestBuilder firstTable;
@@ -48,8 +48,9 @@ public  class JoinRequestBuilder implements SqlElasticRequestBuilder {
 
     @Override
     public ActionRequest request() {
-        if(multi == null)
+        if (multi == null) {
             buildMulti();
+        }
         return multi;
 
     }
@@ -68,9 +69,9 @@ public  class JoinRequestBuilder implements SqlElasticRequestBuilder {
 
             XContentBuilder secondBuilder = XContentFactory.contentBuilder(XContentType.JSON).prettyPrint();
             secondTable.getRequestBuilder().request().source().toXContent(secondBuilder, ToXContent.EMPTY_PARAMS);
-            String explained = String.format(" first query:\n%s\n second query:\n%s", BytesReference.bytes(firstBuilder).utf8ToString(), BytesReference.bytes(secondBuilder).utf8ToString());
-
-            return explained;
+            return String.format(" first query:\n%s\n second query:\n%s",
+                    BytesReference.bytes(firstBuilder).utf8ToString(),
+                    BytesReference.bytes(secondBuilder).utf8ToString());
         } catch (IOException e) {
             e.printStackTrace();
         }

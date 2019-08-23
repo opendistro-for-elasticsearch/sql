@@ -31,10 +31,10 @@ class Where extends SQLClause<SQLBinaryOpExpr> {
     /**
      * Rewrite if left and right tag is different (or reach root of WHERE).
      * Otherwise continue delaying the rewrite.
-     *
+     * <p>
      * Assumption: there are only 2 forms of condition
-     *              1) BinaryOp: Left=Identifier, right=value
-     *              2) BinaryOp: Left=BinaryOp, right=BinaryOp
+     * 1) BinaryOp: Left=Identifier, right=value
+     * 2) BinaryOp: Left=BinaryOp, right=BinaryOp
      */
     @Override
     void rewrite(Scope scope) {
@@ -63,10 +63,12 @@ class Where extends SQLClause<SQLBinaryOpExpr> {
         scope.addConditionTag(expr, scope.getConditionTag((SQLBinaryOpExpr) expr.getLeft()));
     }
 
-    /** Merge anyway if the root of WHERE clause be reached */
+    /**
+     * Merge anyway if the root of WHERE clause be reached
+     */
     private void mergeIfHaveTagAndIsRootOfWhere(Scope scope) {
-        if (!scope.getConditionTag(expr).isEmpty() &&
-                expr.getParent() instanceof MySqlSelectQueryBlock) {
+        if (!scope.getConditionTag(expr).isEmpty()
+                && expr.getParent() instanceof MySqlSelectQueryBlock) {
             mergeNestedField(scope);
         }
     }
@@ -81,39 +83,39 @@ class Where extends SQLClause<SQLBinaryOpExpr> {
 
     /**
      * There are 2 cases:
-     *  1) For a single condition, just wrap nested() function. That's it.
-     *
-     *              BinaryOp
-     *              /       \
-     *     Identifier       Value
-     *  "employees.age"      "30"
-     *
-     *                to
-     *
-     *              BinaryOp
-     *              /       \
-     *         Method       Value
-     *        "nested"       "30"
-     *          |
-     *     Identifier
-     *  "employees.age"
-     *
-     *  2) For multiple conditions, put entire BinaryOp to the parameter and add function name "nested()" first
-     *
-     *              BinaryOp (a)
-     *             /       \
-     *         BinaryOp   BinaryOp
-     *            |         |
-     *           ...       ...
-     *
-     *                 to
-     *
-     *               Method
-     *              "nested"
-     *                 |
-     *               BinaryOp (a)
-     *               /      \
-     *              ...    ...
+     * 1) For a single condition, just wrap nested() function. That's it.
+     * <p>
+     * BinaryOp
+     * /       \
+     * Identifier       Value
+     * "employees.age"      "30"
+     * <p>
+     * to
+     * <p>
+     * BinaryOp
+     * /       \
+     * Method       Value
+     * "nested"       "30"
+     * |
+     * Identifier
+     * "employees.age"
+     * <p>
+     * 2) For multiple conditions, put entire BinaryOp to the parameter and add function name "nested()" first
+     * <p>
+     * BinaryOp (a)
+     * /       \
+     * BinaryOp   BinaryOp
+     * |         |
+     * ...       ...
+     * <p>
+     * to
+     * <p>
+     * Method
+     * "nested"
+     * |
+     * BinaryOp (a)
+     * /      \
+     * ...    ...
      */
     private void mergeNestedField(Scope scope) {
         String tag = scope.getConditionTag(expr);

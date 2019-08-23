@@ -15,15 +15,15 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
+import com.amazon.opendistroforelasticsearch.sql.domain.IndexStatement;
+import com.amazon.opendistroforelasticsearch.sql.executor.format.DataRows.Row;
+import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema.Column;
+import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema.Type;
 import com.carrotsearch.hppc.cursors.ObjectObjectCursor;
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
-import com.amazon.opendistroforelasticsearch.sql.executor.format.DataRows.Row;
-import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema.Column;
-import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema.Type;
-import com.amazon.opendistroforelasticsearch.sql.domain.IndexStatement;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -146,7 +146,7 @@ public class DescribeResultSet extends ResultSet {
      * To not disrupt old logic, for the time being, ShowQueryAction and DescribeQueryAction are using the same
      * 'GetIndexRequestBuilder' that was used in the old ShowQueryAction. Since the format of the resulting meta data
      * is different, this method is being used to flatten and retrieve types.
-     *
+     * <p>
      * In the future, should look for a way to generalize this since Schema is currently using FieldMappingMetaData
      * whereas here we are using MappingMetaData.
      */
@@ -169,8 +169,9 @@ public class DescribeResultSet extends ResultSet {
     }
 
     private String addToPath(String currPath, String field) {
-        if (currPath.isEmpty())
+        if (currPath.isEmpty()) {
             return field;
+        }
 
         return currPath + "." + field;
     }

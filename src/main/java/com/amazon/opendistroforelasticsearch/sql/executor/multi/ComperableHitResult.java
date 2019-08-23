@@ -15,9 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.multi;
 
+import com.amazon.opendistroforelasticsearch.sql.utils.Util;
 import com.google.common.base.Joiner;
 import org.elasticsearch.search.SearchHit;
-import com.amazon.opendistroforelasticsearch.sql.utils.Util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,24 +31,24 @@ public class ComperableHitResult {
     private SearchHit hit;
     private String comperator;
     private boolean isAllNull;
-    private Map<String,Object> flattenMap;
-    public ComperableHitResult(SearchHit hit , String[] fieldsOrder ,String seperator) {
+    private Map<String, Object> flattenMap;
+
+    public ComperableHitResult(SearchHit hit, String[] fieldsOrder, String seperator) {
         this.hit = hit;
         Map<String, Object> hitAsMap = hit.getSourceAsMap();
         this.flattenMap = new HashMap<>();
         List<String> results = new ArrayList<>();
         this.isAllNull = true;
 
-        for(int i = 0 ; i< fieldsOrder.length ;i++){
+        for (int i = 0; i < fieldsOrder.length; i++) {
             String field = fieldsOrder[i];
-            Object result = Util.deepSearchInMap(hitAsMap,field);
-            if(result == null){
+            Object result = Util.deepSearchInMap(hitAsMap, field);
+            if (result == null) {
                 results.add("");
-            }
-            else {
+            } else {
                 this.isAllNull = false;
                 results.add(result.toString());
-                this.flattenMap.put(field,result);
+                this.flattenMap.put(field, result);
             }
         }
         this.comperator = Joiner.on(seperator).join(results);
@@ -56,12 +56,18 @@ public class ComperableHitResult {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         ComperableHitResult that = (ComperableHitResult) o;
 
-        if (!comperator.equals(that.comperator)) return false;
+        if (!comperator.equals(that.comperator)) {
+            return false;
+        }
 
         return true;
     }
@@ -83,7 +89,7 @@ public class ComperableHitResult {
         return flattenMap;
     }
 
-    public SearchHit getOriginalHit(){
+    public SearchHit getOriginalHit() {
         return hit;
     }
 }

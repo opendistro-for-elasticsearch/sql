@@ -15,12 +15,12 @@
 
 package com.amazon.opendistroforelasticsearch.sql.query.planner.physical.node;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.ExecuteParams;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.PhysicalOperator;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.Row;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.resource.ResourceManager;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -30,16 +30,21 @@ import static com.amazon.opendistroforelasticsearch.sql.query.planner.core.Execu
 
 /**
  * Abstraction for physical operators that load large volume of data and generally prefetch for efficiency.
+ *
  * @param <T>
  */
 public abstract class BatchPhysicalOperator<T> implements PhysicalOperator<T> {
 
     protected static final Logger LOG = LogManager.getLogger();
 
-    /** Resource monitor to avoid consuming too much resource */
+    /**
+     * Resource monitor to avoid consuming too much resource
+     */
     private ResourceManager resourceMgr;
 
-    /** Current batch of data */
+    /**
+     * Current batch of data
+     */
     private Iterator<Row<T>> curBatch;
 
     @Override
@@ -69,7 +74,9 @@ public abstract class BatchPhysicalOperator<T> implements PhysicalOperator<T> {
         return curBatch.next();
     }
 
-    /** Prefetch next batch safely by checking resource monitor */
+    /**
+     * Prefetch next batch safely by checking resource monitor
+     */
     private Collection<Row<T>> prefetchSafely() {
         Objects.requireNonNull(resourceMgr, "ResourceManager is not set so unable to do sanity check");
 
@@ -78,8 +85,7 @@ public abstract class BatchPhysicalOperator<T> implements PhysicalOperator<T> {
         if (isHealthy && !isTimeout) {
             try {
                 return prefetch();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 throw new IllegalStateException("Failed to prefetch next batch", e);
             }
         }
@@ -88,7 +94,8 @@ public abstract class BatchPhysicalOperator<T> implements PhysicalOperator<T> {
 
     /**
      * Prefetch next batch if current is exhausted.
-     * @return  next batch
+     *
+     * @return next batch
      */
     protected abstract Collection<Row<T>> prefetch() throws Exception;
 

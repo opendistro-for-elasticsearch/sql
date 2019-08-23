@@ -22,7 +22,7 @@ import java.util.Objects;
 /**
  * Abstraction for access methods of data object, ex. SearchHit.
  *
- * @param <T>   data object underlying
+ * @param <T> data object underlying
  */
 public interface Row<T> {
 
@@ -31,8 +31,8 @@ public interface Row<T> {
     /**
      * Generate key to represent identity of the row.
      *
-     * @param colNames  column names as keys
-     * @return          row key
+     * @param colNames column names as keys
+     * @return row key
      */
     RowKey key(String[] colNames);
 
@@ -40,8 +40,8 @@ public interface Row<T> {
     /**
      * Combine current row and another row together to generate a new combined row.
      *
-     * @param otherRow  another row
-     * @return          combined row
+     * @param otherRow another row
+     * @return combined row
      */
     Row<T> combine(Row<T> otherRow);
 
@@ -49,13 +49,13 @@ public interface Row<T> {
     /**
      * Retain columns specified and rename to alias if any.
      *
-     * @param colNameAlias  column names to alias mapping
+     * @param colNameAlias column names to alias mapping
      */
     void retain(Map<String, String> colNameAlias);
 
 
     /**
-     * @return  raw data of row wrapped inside
+     * @return raw data of row wrapped inside
      */
     T data();
 
@@ -65,13 +65,19 @@ public interface Row<T> {
      */
     class RowKey implements Comparable<RowKey> {
 
-        /** Represent null key if any joined column value is NULL */
+        /**
+         * Represent null key if any joined column value is NULL
+         */
         public static final RowKey NULL = null;
 
-        /** Values of row key */
+        /**
+         * Values of row key
+         */
         private final Object[] keys;
 
-        /** Cached hash code since this class is intended to be used by hash table */
+        /**
+         * Cached hash code since this class is intended to be used by hash table
+         */
         private final int hashCode;
 
         public RowKey(Object... keys) {
@@ -90,8 +96,7 @@ public interface Row<T> {
 
         @Override
         public boolean equals(Object other) {
-            return other instanceof RowKey &&
-                Arrays.deepEquals(this.keys, ((RowKey) other).keys);
+            return other instanceof RowKey && Arrays.deepEquals(this.keys, ((RowKey) other).keys);
         }
 
         @SuppressWarnings("unchecked")

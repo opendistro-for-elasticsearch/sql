@@ -15,11 +15,11 @@
 
 package com.amazon.opendistroforelasticsearch.sql.query.planner.logical.node;
 
+import com.amazon.opendistroforelasticsearch.sql.query.planner.core.PlanNode;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.logical.LogicalOperator;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.PhysicalOperator;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.node.join.BlockHashJoin;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.resource.blocksize.BlockSize;
-import com.amazon.opendistroforelasticsearch.sql.query.planner.core.PlanNode;
 
 import java.util.Map;
 
@@ -33,16 +33,24 @@ public class Join implements LogicalOperator {
     private final LogicalOperator left;
     private final LogicalOperator right;
 
-    /** Join type, ex inner join, left join */
+    /**
+     * Join type, ex inner join, left join
+     */
     private final JoinType type;
 
-    /** Joined columns in ON condition */
+    /**
+     * Joined columns in ON condition
+     */
     private final JoinCondition condition;
 
-    /** Block size calculator */
+    /**
+     * Block size calculator
+     */
     private final BlockSize blockSize;
 
-    /** Use terms filter optimization or not */
+    /**
+     * Use terms filter optimization or not
+     */
     private final boolean isUseTermsFilterOptimization;
 
 
@@ -62,7 +70,7 @@ public class Join implements LogicalOperator {
 
     @Override
     public PlanNode[] children() {
-        return new PlanNode[]{ left, right };
+        return new PlanNode[]{left, right};
     }
 
     @Override
@@ -70,10 +78,10 @@ public class Join implements LogicalOperator {
         PhysicalOperator<T> optimalLeft = optimalOps.get(left);
         PhysicalOperator<T> optimalRight = optimalOps.get(right);
         return new PhysicalOperator[]{
-            new BlockHashJoin<>(
-                optimalLeft, optimalRight, type, condition,
-                blockSize, isUseTermsFilterOptimization
-            )
+                new BlockHashJoin<>(
+                        optimalLeft, optimalRight, type, condition,
+                        blockSize, isUseTermsFilterOptimization
+                )
         };
     }
 
@@ -88,17 +96,17 @@ public class Join implements LogicalOperator {
 
     /**
      * Join condition in ON clause grouped by OR.
-     *
+     * <p>
      * For example, "ON (a.name = b.id AND a.age = b.age) OR a.location = b.address"
      * => input list: [
-     *              [ (a.name, b.id), (a.age, b.age) ],
-     *              [ (a.location, b.address) ]
-     *          ]
-     *
+     * [ (a.name, b.id), (a.age, b.age) ],
+     * [ (a.location, b.address) ]
+     * ]
+     * <p>
      * => JoinCondition:
-     *      leftTableAlias: "a", rightTableAlias: "b"
-     *      leftColumnNames:  [ ["name", "age"], ["location"] ]
-     *      rightColumnNames: [ ["id", "age"],   ["address" ] ]
+     * leftTableAlias: "a", rightTableAlias: "b"
+     * leftColumnNames:  [ ["name", "age"], ["location"] ]
+     * rightColumnNames: [ ["id", "age"],   ["address" ] ]
      */
     public static class JoinCondition {
 
@@ -161,12 +169,12 @@ public class Join implements LogicalOperator {
                         str.append(" AND ");
                     }
                     str.append(leftTableAlias).
-                        append(".").
-                        append(leftColumnNames[i][j]).
-                        append(" = ").
-                        append(rightTableAlias).
-                        append(".").
-                        append(rightColumnNames[i][j]);
+                            append(".").
+                            append(leftColumnNames[i][j]).
+                            append(" = ").
+                            append(rightTableAlias).
+                            append(".").
+                            append(rightColumnNames[i][j]);
                 }
                 str.append(" )");
             }

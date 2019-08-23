@@ -15,12 +15,12 @@
 
 package com.amazon.opendistroforelasticsearch.sql.query.planner.physical.node.join;
 
+import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.Row;
+import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.Row.RowKey;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.Row;
-import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.Row.RowKey;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,19 +35,25 @@ import static java.util.Collections.emptyList;
  * Hash table implementation.
  * In the case of no join condition, hash table degrades to linked list with all rows in block paired to RowKey.NULL
  *
- * @param <T>   Row data type
+ * @param <T> Row data type
  */
 public class DefaultHashTable<T> implements HashTable<T> {
 
     private static final Logger LOG = LogManager.getLogger();
 
-    /** Hash table implementation */
+    /**
+     * Hash table implementation
+     */
     private final Multimap<RowKey, Row<T>> table = ArrayListMultimap.create();
 
-    /** Left join conditions to generate key to build hash table by left rows from block */
+    /**
+     * Left join conditions to generate key to build hash table by left rows from block
+     */
     private final String[] leftJoinFields;
 
-    /** Right join conditions to generate key to probe hash table by right rows */
+    /**
+     * Right join conditions to generate key to probe hash table by right rows
+     */
     private final String[] rightJoinFields;
 
 
@@ -65,13 +71,14 @@ public class DefaultHashTable<T> implements HashTable<T> {
         RowKey key = row.key(leftJoinFields);
         if (key == RowKey.NULL) {
             LOG.debug("Skip rows with NULL column value during build: row={}, conditions={}", row, leftJoinFields);
-        }
-        else {
+        } else {
             table.put(key, row);
         }
     }
 
-    /** Probe hash table to match right rows by values of right conditions */
+    /**
+     * Probe hash table to match right rows by values of right conditions
+     */
     @Override
     public Collection<Row<T>> match(Row<T> row) {
         RowKey key = row.key(rightJoinFields);
@@ -82,7 +89,9 @@ public class DefaultHashTable<T> implements HashTable<T> {
         return table.get(key); // Multimap returns empty list rather null.
     }
 
-    /** Right joined field name with according column value list to push down */
+    /**
+     * Right joined field name with according column value list to push down
+     */
     @SuppressWarnings("unchecked")
     @Override
     public Map<String, Collection<Object>>[] rightFieldWithLeftValues() {
@@ -91,7 +100,7 @@ public class DefaultHashTable<T> implements HashTable<T> {
             Object[] keys = key.keys();
             for (int i = 0; i < keys.length; i++) {
                 result.computeIfAbsent(rightJoinFields[i], (k -> new HashSet<>())).
-                       add(lowercaseIfStr(keys[i])); // Terms stored in lower case in ES
+                        add(lowercaseIfStr(keys[i])); // Terms stored in lower case in ES
             }
         }
 
@@ -99,7 +108,7 @@ public class DefaultHashTable<T> implements HashTable<T> {
         for (Entry<String, Collection<Object>> entry : result.entrySet()) {
             entry.setValue(new ArrayList<>(entry.getValue()));
         }
-        return new Map[]{ result };
+        return new Map[]{result};
     }
 
     @Override

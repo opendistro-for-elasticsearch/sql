@@ -22,13 +22,15 @@ public interface PlanNode {
 
     /**
      * All child nodes of current node used for traversal.
-     * @return  all children
+     *
+     * @return all children
      */
     PlanNode[] children();
 
     /**
      * Accept a visitor and traverse the plan tree with it.
-     * @param visitor   plan node visitor
+     *
+     * @param visitor plan node visitor
      */
     default void accept(Visitor visitor) {
         if (visitor.visit(this)) {
@@ -46,15 +48,18 @@ public interface PlanNode {
 
         /**
          * To avoid listing all subclasses of PlanNode here, we dispatch manually in concrete visitor.
-         * @param op    plan node being visited
+         *
+         * @param op plan node being visited
          */
         boolean visit(PlanNode op);
 
         /**
          * Re-visit current node before return to parent node
-         * @param op    plan node finished visit
+         *
+         * @param op plan node finished visit
          */
-        default void endVisit(PlanNode op) {}
+        default void endVisit(PlanNode op) {
+        }
     }
 
 }

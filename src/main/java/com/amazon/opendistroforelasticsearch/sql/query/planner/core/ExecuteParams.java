@@ -22,7 +22,9 @@ import java.util.EnumMap;
  */
 public class ExecuteParams {
 
-    /** Mapping from type to parameters */
+    /**
+     * Mapping from type to parameters
+     */
     private EnumMap<ExecuteParamType, Object> params = new EnumMap<>(ExecuteParamType.class);
 
     public <T> void add(ExecuteParamType type, T param) {
