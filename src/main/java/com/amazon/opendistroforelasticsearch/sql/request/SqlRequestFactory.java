@@ -47,7 +47,7 @@ public class SqlRequestFactory {
         String sql;
 
         sql = restRequest.param(SQL_URL_PARAM_KEY);
-        if(sql == null) {
+        if (sql == null) {
             throw new IllegalArgumentException("Cannot find sql parameter from the URL");
         }
         return new SqlRequest(sql, null);
@@ -63,7 +63,7 @@ public class SqlRequestFactory {
             throw new IllegalArgumentException("Failed to parse request payload", e);
         }
         String sql = jsonContent.getString(SQL_FIELD_NAME);
-        if(jsonContent.has(PARAM_FIELD_NAME)) { // is a PreparedStatement
+        if (jsonContent.has(PARAM_FIELD_NAME)) { // is a PreparedStatement
             JSONArray paramArray = jsonContent.getJSONArray(PARAM_FIELD_NAME);
             List<PreparedStatementRequest.PreparedStatementParameter> parameters = parseParameters(paramArray);
             return new PreparedStatementRequest(sql, jsonContent, parameters);
@@ -71,13 +71,15 @@ public class SqlRequestFactory {
         return new SqlRequest(sql, jsonContent);
     }
 
-    private static List<PreparedStatementRequest.PreparedStatementParameter> parseParameters(JSONArray paramsJsonArray) {
+    private static List<PreparedStatementRequest.PreparedStatementParameter> parseParameters(
+            JSONArray paramsJsonArray) {
         List<PreparedStatementRequest.PreparedStatementParameter> parameters = new ArrayList<>();
-        for (int i = 0; i<paramsJsonArray.length(); i++) {
+        for (int i = 0; i < paramsJsonArray.length(); i++) {
             JSONObject paramJson = paramsJsonArray.getJSONObject(i);
             String typeString = paramJson.getString(PARAM_TYPE_FIELD_NAME);
             if (typeString == null) {
-                throw new IllegalArgumentException("Parameter type cannot be null. parameter json: " + paramJson.toString());
+                throw new IllegalArgumentException("Parameter type cannot be null. parameter json: "
+                        + paramJson.toString());
             }
             PreparedStatementRequest.ParameterType type;
             try {
@@ -89,25 +91,29 @@ public class SqlRequestFactory {
                 PreparedStatementRequest.PreparedStatementParameter parameter;
                 switch (type) {
                     case BOOLEAN:
-                        parameter = new PreparedStatementRequest.PreparedStatementParameter<>(paramJson.getBoolean(PARAM_VALUE_FIELD_NAME));
+                        parameter = new PreparedStatementRequest.PreparedStatementParameter<>(
+                                paramJson.getBoolean(PARAM_VALUE_FIELD_NAME));
                         parameters.add(parameter);
                         break;
                     case KEYWORD:
                     case STRING:
                     case DATE:
-                        parameter = new PreparedStatementRequest.StringParameter(paramJson.getString(PARAM_VALUE_FIELD_NAME));
+                        parameter = new PreparedStatementRequest.StringParameter(
+                                paramJson.getString(PARAM_VALUE_FIELD_NAME));
                         parameters.add(parameter);
                         break;
                     case BYTE:
                     case SHORT:
                     case INTEGER:
                     case LONG:
-                        parameter = new PreparedStatementRequest.PreparedStatementParameter<>(paramJson.getLong(PARAM_VALUE_FIELD_NAME));
+                        parameter = new PreparedStatementRequest.PreparedStatementParameter<>(
+                                paramJson.getLong(PARAM_VALUE_FIELD_NAME));
                         parameters.add(parameter);
                         break;
                     case FLOAT:
                     case DOUBLE:
-                        parameter = new PreparedStatementRequest.PreparedStatementParameter<>(paramJson.getDouble(PARAM_VALUE_FIELD_NAME));
+                        parameter = new PreparedStatementRequest.PreparedStatementParameter<>(
+                                paramJson.getDouble(PARAM_VALUE_FIELD_NAME));
                         parameters.add(parameter);
                         break;
                     case NULL:
@@ -117,7 +123,7 @@ public class SqlRequestFactory {
                     default:
                         throw new IllegalArgumentException("Failed to handle parameter type " + type.name());
                 }
-            } catch(JSONException e) {
+            } catch (JSONException e) {
                 throw new IllegalArgumentException("Failed to parse PreparedStatement parameters", e);
             }
         }

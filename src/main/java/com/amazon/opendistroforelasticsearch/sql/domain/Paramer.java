@@ -15,26 +15,31 @@
 
 package com.amazon.opendistroforelasticsearch.sql.domain;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
 import com.alibaba.druid.sql.ast.expr.SQLCharExpr;
 import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
 import com.alibaba.druid.sql.ast.expr.SQLNumericLiteralExpr;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.utils.Util;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.xcontent.ToXContent;
-import org.elasticsearch.index.query.*;
-import com.amazon.opendistroforelasticsearch.sql.utils.Util;
+import org.elasticsearch.index.query.MatchPhraseQueryBuilder;
+import org.elasticsearch.index.query.MatchQueryBuilder;
+import org.elasticsearch.index.query.MultiMatchQueryBuilder;
+import org.elasticsearch.index.query.Operator;
+import org.elasticsearch.index.query.QueryStringQueryBuilder;
+import org.elasticsearch.index.query.WildcardQueryBuilder;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class Paramer {
-	public String analysis;
-	public Float boost;
-	public String value;
+    public String analysis;
+    public Float boost;
+    public String value;
     public Integer slop;
 
     public Map<String, Float> fieldsBoosts = new HashMap<>();
@@ -44,9 +49,9 @@ public class Paramer {
 
     public String default_field;
 
-	public static Paramer parseParamer(SQLMethodInvokeExpr method) throws SqlParseException {
-		Paramer instance = new Paramer();
-		List<SQLExpr> parameters = method.getParameters();
+    public static Paramer parseParamer(SQLMethodInvokeExpr method) throws SqlParseException {
+        Paramer instance = new Paramer();
+        List<SQLExpr> parameters = method.getParameters();
         for (SQLExpr expr : parameters) {
             if (expr instanceof SQLCharExpr) {
                 if (instance.value == null) {
@@ -74,10 +79,12 @@ public class Paramer {
 
                     case "fields":
                         int index;
-                        for (String f : Strings.splitStringByCommaToArray(Util.expr2Object(sqlExpr.getRight()).toString())) {
+                        for (String f : Strings.splitStringByCommaToArray(
+                                Util.expr2Object(sqlExpr.getRight()).toString())) {
                             index = f.lastIndexOf('^');
                             if (-1 < index) {
-                                instance.fieldsBoosts.put(f.substring(0, index), Float.parseFloat(f.substring(index + 1)));
+                                instance.fieldsBoosts.put(f.substring(0, index),
+                                        Float.parseFloat(f.substring(index + 1)));
                             } else {
                                 instance.fieldsBoosts.put(f, 1.0F);
                             }
@@ -103,42 +110,42 @@ public class Paramer {
             }
         }
 
-		return instance;
-	}
+        return instance;
+    }
 
-	public static ToXContent fullParamer(MatchPhraseQueryBuilder query, Paramer paramer) {
-		if (paramer.analysis != null) {
-			query.analyzer(paramer.analysis);
-		}
+    public static ToXContent fullParamer(MatchPhraseQueryBuilder query, Paramer paramer) {
+        if (paramer.analysis != null) {
+            query.analyzer(paramer.analysis);
+        }
 
-		if (paramer.boost != null) {
-			query.boost(paramer.boost);
-		}
+        if (paramer.boost != null) {
+            query.boost(paramer.boost);
+        }
 
         if (paramer.slop != null) {
             query.slop(paramer.slop);
         }
 
-		return query;
-	}
+        return query;
+    }
 
-	public static ToXContent fullParamer(MatchQueryBuilder query, Paramer paramer) {
-		if (paramer.analysis != null) {
-			query.analyzer(paramer.analysis);
-		}
+    public static ToXContent fullParamer(MatchQueryBuilder query, Paramer paramer) {
+        if (paramer.analysis != null) {
+            query.analyzer(paramer.analysis);
+        }
 
-		if (paramer.boost != null) {
-			query.boost(paramer.boost);
-		}
-		return query;
-	}
+        if (paramer.boost != null) {
+            query.boost(paramer.boost);
+        }
+        return query;
+    }
 
-	public static ToXContent fullParamer(WildcardQueryBuilder query, Paramer paramer) {
-		if (paramer.boost != null) {
-			query.boost(paramer.boost);
-		}
-		return query;
-	}
+    public static ToXContent fullParamer(WildcardQueryBuilder query, Paramer paramer) {
+        if (paramer.boost != null) {
+            query.boost(paramer.boost);
+        }
+        return query;
+    }
 
     public static ToXContent fullParamer(QueryStringQueryBuilder query, Paramer paramer) {
         if (paramer.analysis != null) {

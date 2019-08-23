@@ -15,7 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.domain;
 
-/** Class used to differentiate SHOW and DESCRIBE statements */
+/**
+ * Class used to differentiate SHOW and DESCRIBE statements
+ */
 public class IndexStatement implements QueryStatement {
 
     private StatementType statementType;
@@ -76,13 +78,21 @@ public class IndexStatement implements QueryStatement {
         }
     }
 
-    public StatementType getStatementType() { return statementType; }
+    public StatementType getStatementType() {
+        return statementType;
+    }
 
-    public String getQuery() { return query; }
+    public String getQuery() {
+        return query;
+    }
 
-    public String getIndexPattern() { return indexPattern; }
+    public String getIndexPattern() {
+        return indexPattern;
+    }
 
-    public String getColumnPattern() { return columnPattern; }
+    public String getColumnPattern() {
+        return columnPattern;
+    }
 
     public enum StatementType {
         SHOW, DESCRIBE

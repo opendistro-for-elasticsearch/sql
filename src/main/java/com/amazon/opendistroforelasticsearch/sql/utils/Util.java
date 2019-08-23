@@ -15,25 +15,34 @@
 
 package com.amazon.opendistroforelasticsearch.sql.utils;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import com.alibaba.druid.sql.ast.expr.*;
+import com.alibaba.druid.sql.ast.SQLExpr;
+import com.alibaba.druid.sql.ast.SQLObject;
+import com.alibaba.druid.sql.ast.expr.SQLAllColumnExpr;
+import com.alibaba.druid.sql.ast.expr.SQLCharExpr;
+import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
+import com.alibaba.druid.sql.ast.expr.SQLIntegerExpr;
+import com.alibaba.druid.sql.ast.expr.SQLNullExpr;
+import com.alibaba.druid.sql.ast.expr.SQLNumericLiteralExpr;
+import com.alibaba.druid.sql.ast.expr.SQLPropertyExpr;
+import com.alibaba.druid.sql.ast.expr.SQLTextLiteralExpr;
+import com.alibaba.druid.sql.ast.expr.SQLValuableExpr;
+import com.alibaba.druid.sql.ast.expr.SQLVariantRefExpr;
 import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLSelectQueryBlock;
 import com.alibaba.druid.sql.ast.statement.SQLTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLUnionQuery;
+import com.amazon.opendistroforelasticsearch.sql.domain.IndexStatement;
 import com.amazon.opendistroforelasticsearch.sql.domain.KVValue;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequestBuilder;
 import org.elasticsearch.client.Client;
-import com.amazon.opendistroforelasticsearch.sql.domain.IndexStatement;
 
-import com.alibaba.druid.sql.ast.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class Util {
@@ -50,11 +59,6 @@ public class Util {
         }
 
         return sb.toString();
-    }
-
-    public static List<Map<String, Object>> sortByMap(List<Map<String, Object>> lists) {
-
-        return lists;
     }
 
     public static Object removeTableAilasFromField(Object expr, String tableAlias) {
@@ -105,13 +109,14 @@ public class Util {
         } else if (expr instanceof SQLValuableExpr) {
             return ((SQLValuableExpr) expr).getValue();
         }
-        throw new SqlParseException("could not parse sqlBinaryOpExpr need to be identifier/valuable got" + expr.getClass().toString() + " with value:" + expr.toString());
+        throw new SqlParseException("could not parse sqlBinaryOpExpr need to be identifier/valuable got"
+                + expr.getClass().toString() + " with value:" + expr.toString());
     }
 
     public static Object getScriptValueWithQuote(SQLExpr expr, String quote) throws SqlParseException {
         if (expr instanceof SQLIdentifierExpr || expr instanceof SQLPropertyExpr || expr instanceof SQLVariantRefExpr) {
             return "doc['" + expr.toString() + "'].value";
-        }  else if (expr instanceof SQLCharExpr) {
+        } else if (expr instanceof SQLCharExpr) {
             return quote + ((SQLCharExpr) expr).getValue() + quote;
         } else if (expr instanceof SQLIntegerExpr) {
             return ((SQLIntegerExpr) expr).getValue();
@@ -120,15 +125,15 @@ public class Util {
         } else if (expr instanceof SQLNullExpr) {
             return ((SQLNullExpr) expr).toString().toLowerCase();
         }
-        throw new SqlParseException("could not parse sqlBinaryOpExpr need to be identifier/valuable got" + expr.getClass().toString() + " with value:" + expr.toString());
+        throw new SqlParseException("could not parse sqlBinaryOpExpr need to be identifier/valuable got"
+                + expr.getClass().toString() + " with value:" + expr.toString());
     }
 
     public static boolean isFromJoinOrUnionTable(SQLExpr expr) {
         SQLObject temp = expr;
         AtomicInteger counter = new AtomicInteger(10);
-        while (temp != null &&
-                !(expr instanceof SQLSelectQueryBlock) &&
-                !(expr instanceof SQLJoinTableSource) && !(expr instanceof SQLUnionQuery) && counter.get() > 0) {
+        while (temp != null && !(expr instanceof SQLSelectQueryBlock)
+                && !(expr instanceof SQLJoinTableSource) && !(expr instanceof SQLUnionQuery) && counter.get() > 0) {
             counter.decrementAndGet();
             temp = temp.getParent();
             if (temp instanceof SQLSelectQueryBlock) {
@@ -142,15 +147,6 @@ public class Util {
             }
         }
         return false;
-    }
-
-    public static double[] String2DoubleArr(String paramer) {
-        String[] split = paramer.split(",");
-        double[] ds = new double[split.length];
-        for (int i = 0; i < ds.length; i++) {
-            ds[i] = Double.parseDouble(split[i].trim());
-        }
-        return ds;
     }
 
     public static double[] KV2DoubleArr(List<KVValue> params) {
@@ -183,43 +179,48 @@ public class Util {
     }
 
     public static Object searchPathInMap(Map<String, Object> fieldsMap, String[] path) {
-        Map<String,Object> currentObject = fieldsMap;
-        for(int i=0;i<path.length-1 ;i++){
+        Map<String, Object> currentObject = fieldsMap;
+        for (int i = 0; i < path.length - 1; i++) {
             Object valueFromCurrentMap = currentObject.get(path[i]);
-            if(valueFromCurrentMap == null) return null;
-            if(!Map.class.isAssignableFrom(valueFromCurrentMap.getClass())) return null;
+            if (valueFromCurrentMap == null) {
+                return null;
+            }
+            if (!Map.class.isAssignableFrom(valueFromCurrentMap.getClass())) {
+                return null;
+            }
             currentObject = (Map<String, Object>) valueFromCurrentMap;
         }
-        return currentObject.get(path[path.length-1]);
+        return currentObject.get(path[path.length - 1]);
     }
 
-    public static Object deepSearchInMap(Map<String,Object> fieldsMap , String field){
-        if(field.contains(".")){
+    public static Object deepSearchInMap(Map<String, Object> fieldsMap, String field) {
+        if (field.contains(".")) {
             String[] split = field.split("\\.");
-            return searchPathInMap(fieldsMap,split);
+            return searchPathInMap(fieldsMap, split);
         }
         return fieldsMap.get(field);
     }
 
     public static boolean clearEmptyPaths(Map<String, Object> map) {
-        if(map.size() == 0){
+        if (map.size() == 0) {
             return true;
         }
         Set<String> keysToDelete = new HashSet<>();
-        for (Map.Entry<String,Object> entry : map.entrySet()){
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
             Object value = entry.getValue();
-            if(Map.class.isAssignableFrom(value.getClass())){
-                if(clearEmptyPaths((Map<String, Object>) value)){
+            if (Map.class.isAssignableFrom(value.getClass())) {
+                if (clearEmptyPaths((Map<String, Object>) value)) {
                     keysToDelete.add(entry.getKey());
                 }
             }
         }
-        if(keysToDelete.size() != 0){
-            if(map.size() == keysToDelete.size()){
+        if (keysToDelete.size() != 0) {
+            if (map.size() == keysToDelete.size()) {
                 map.clear();
                 return true;
             }
-            for(String key : keysToDelete){
+            for (String key : keysToDelete) {
+                // TODO: seems like a bug, either fix, or just get rid of for loop and remove the first key
                 map.remove(key);
                 return false;
             }

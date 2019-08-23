@@ -29,17 +29,18 @@ import java.util.stream.Stream;
 public class ActionRequestRestExecutorFactory {
 
     /**
-     * Create executor based on the format and wrap with AsyncRestExecutor to async blocking execute() call if necessary.
+     * Create executor based on the format and wrap with AsyncRestExecutor
+     * to async blocking execute() call if necessary.
      *
-     * @param format    format of response
+     * @param format      format of response
      * @param queryAction query action
-     * @return          executor
+     * @return executor
      */
     public static RestExecutor createExecutor(String format, QueryAction queryAction) {
         if (format == null || format.equals("")) {
             return new AsyncRestExecutor(
-                new ElasticDefaultRestExecutor(queryAction),
-                action -> isJoin(action) || isUnionMinus(action)
+                    new ElasticDefaultRestExecutor(queryAction),
+                    action -> isJoin(action) || isUnionMinus(action)
             );
         }
 

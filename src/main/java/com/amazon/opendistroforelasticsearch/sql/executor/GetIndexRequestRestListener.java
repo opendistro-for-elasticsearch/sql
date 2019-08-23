@@ -21,7 +21,6 @@ import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
 import org.elasticsearch.cluster.metadata.AliasMetaData;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
-
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.ToXContent;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -41,7 +40,7 @@ public class GetIndexRequestRestListener extends RestBuilderListener<GetIndexRes
 
     private GetIndexRequest getIndexRequest;
 
-    public GetIndexRequestRestListener(RestChannel channel,GetIndexRequest getIndexRequest) {
+    public GetIndexRequestRestListener(RestChannel channel, GetIndexRequest getIndexRequest) {
         super(channel);
         this.getIndexRequest = getIndexRequest;
     }
@@ -76,7 +75,9 @@ public class GetIndexRequestRestListener extends RestBuilderListener<GetIndexRes
 
         return new BytesRestResponse(RestStatus.OK, builder);
     }
-    private void writeAliases(List<AliasMetaData> aliases, XContentBuilder builder, ToXContent.Params params) throws IOException {
+
+    private void writeAliases(List<AliasMetaData> aliases, XContentBuilder builder, ToXContent.Params params)
+            throws IOException {
         builder.startObject(Fields.ALIASES);
         if (aliases != null) {
             for (AliasMetaData alias : aliases) {
@@ -86,7 +87,8 @@ public class GetIndexRequestRestListener extends RestBuilderListener<GetIndexRes
         builder.endObject();
     }
 
-    private void writeMappings(ImmutableOpenMap<String, MappingMetaData> mappings, XContentBuilder builder, ToXContent.Params params) throws IOException {
+    private void writeMappings(ImmutableOpenMap<String, MappingMetaData> mappings,
+                               XContentBuilder builder, ToXContent.Params params) throws IOException {
         builder.startObject(Fields.MAPPINGS);
         if (mappings != null) {
             for (ObjectObjectCursor<String, MappingMetaData> typeEntry : mappings) {
@@ -97,7 +99,8 @@ public class GetIndexRequestRestListener extends RestBuilderListener<GetIndexRes
         builder.endObject();
     }
 
-    private void writeSettings(Settings settings, XContentBuilder builder, ToXContent.Params params) throws IOException {
+    private void writeSettings(Settings settings, XContentBuilder builder, ToXContent.Params params)
+            throws IOException {
         builder.startObject(Fields.SETTINGS);
         settings.toXContent(builder, params);
         builder.endObject();

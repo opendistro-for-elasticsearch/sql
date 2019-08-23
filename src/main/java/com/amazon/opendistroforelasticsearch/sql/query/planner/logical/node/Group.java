@@ -26,13 +26,19 @@ import java.util.Map;
  */
 public class Group implements LogicalOperator {
 
-    /** Optional pushed down projection */
+    /**
+     * Optional pushed down projection
+     */
     private Project<?> project;
 
-    /** Optional pushed down filter (selection) */
+    /**
+     * Optional pushed down filter (selection)
+     */
     private Filter filter;
 
-    /** Required table scan operator */
+    /**
+     * Required table scan operator
+     */
     private final TableScan tableScan;
 
 
@@ -54,7 +60,7 @@ public class Group implements LogicalOperator {
 
     @Override
     public PlanNode[] children() {
-        return new PlanNode[]{ topNonNullNode() };
+        return new PlanNode[]{topNonNullNode()};
     }
 
     private PlanNode topNonNullNode() {

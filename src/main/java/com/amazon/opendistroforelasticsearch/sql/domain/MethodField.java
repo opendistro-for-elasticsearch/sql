@@ -15,8 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.domain;
 
-import com.amazon.opendistroforelasticsearch.sql.utils.Util;
 import com.amazon.opendistroforelasticsearch.sql.parser.NestedType;
+import com.amazon.opendistroforelasticsearch.sql.utils.Util;
 
 import java.util.HashMap;
 import java.util.List;
@@ -24,57 +24,57 @@ import java.util.Map;
 
 /**
  * 搜索域
- * 
- * @author ansj
  *
+ * @author ansj
  */
 public class MethodField extends Field {
-	private List<KVValue> params = null;
-	private String option;
+    private List<KVValue> params = null;
+    private String option;
 
-	public MethodField(String name, List<KVValue> params, String option, String alias) {
-		super(name, alias);
-		this.params = params;
-		this.option = option;
-		if (alias==null||alias.trim().length()==0) {
+    public MethodField(String name, List<KVValue> params, String option, String alias) {
+        super(name, alias);
+        this.params = params;
+        this.option = option;
+        if (alias == null || alias.trim().length() == 0) {
             Map<String, Object> paramsAsMap = this.getParamsAsMap();
-            if(paramsAsMap.containsKey("alias")){
+            if (paramsAsMap.containsKey("alias")) {
                 this.setAlias(paramsAsMap.get("alias").toString());
-            }
-            else {
+            } else {
                 this.setAlias(this.toString());
             }
-		}
-	}
+        }
+    }
 
-	public List<KVValue> getParams() {
-		return params;
-	}
+    public List<KVValue> getParams() {
+        return params;
+    }
 
-    public Map<String,Object> getParamsAsMap(){
-        Map<String,Object> paramsAsMap = new HashMap<>();
-        if(this.params == null ) return paramsAsMap;
-        for(KVValue kvValue : this.params){
-            paramsAsMap.put(kvValue.key,kvValue.value);
+    public Map<String, Object> getParamsAsMap() {
+        Map<String, Object> paramsAsMap = new HashMap<>();
+        if (this.params == null) {
+            return paramsAsMap;
+        }
+        for (KVValue kvValue : this.params) {
+            paramsAsMap.put(kvValue.key, kvValue.value);
         }
         return paramsAsMap;
     }
 
-	@Override
-	public String toString() {
-		if (option != null) {
-			return this.name + "(" + option + " " + Util.joiner(params, ",") + ")";
-		}
-		return this.name + "(" + Util.joiner(params, ",") + ")";
-	}
+    @Override
+    public String toString() {
+        if (option != null) {
+            return this.name + "(" + option + " " + Util.joiner(params, ",") + ")";
+        }
+        return this.name + "(" + Util.joiner(params, ",") + ")";
+    }
 
-	public String getOption() {
-		return option;
-	}
+    public String getOption() {
+        return option;
+    }
 
-	public void setOption(String option) {
-		this.option = option;
-	}
+    public void setOption(String option) {
+        this.option = option;
+    }
 
     @Override
     public boolean isNested() {
@@ -85,13 +85,14 @@ public class MethodField extends Field {
     @Override
     public boolean isReverseNested() {
         return this.getParamsAsMap().containsKey("reverse_nested");
-
     }
 
     @Override
     public String getNestedPath() {
-        if(!this.isNested()) return null;
-        if(this.isReverseNested()){
+        if (!this.isNested()) {
+            return null;
+        }
+        if (this.isReverseNested()) {
             String reverseNestedPath = this.getParamsAsMap().get("reverse_nested").toString();
             return reverseNestedPath.isEmpty() ? null : reverseNestedPath;
         }
@@ -112,13 +113,15 @@ public class MethodField extends Field {
 
     @Override
     public String getChildType() {
-        if(!this.isChildren()) return null;
+        if (!this.isChildren()) {
+            return null;
+        }
 
         return this.getParamsAsMap().get("children").toString();
     }
 
     @Override
     public boolean isScriptField() {
-	    return "script".equals(getName());
+        return "script".equals(getName());
     }
 }

@@ -18,7 +18,6 @@ package com.amazon.opendistroforelasticsearch.sql.domain;
 import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
 import com.amazon.opendistroforelasticsearch.sql.domain.hints.Hint;
 
-
 import java.util.List;
 
 /**
@@ -62,7 +61,6 @@ public class JoinSelect extends Query {
     public TableOnJoinSelect getSecondTable() {
         return secondTable;
     }
-
 
 
     public SQLJoinTableSource.JoinType getJoinType() {

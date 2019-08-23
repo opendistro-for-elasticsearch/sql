@@ -18,19 +18,19 @@ package com.amazon.opendistroforelasticsearch.sql.query.planner.logical;
 import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.Order;
 import com.amazon.opendistroforelasticsearch.sql.query.join.TableInJoinRequestBuilder;
-import com.amazon.opendistroforelasticsearch.sql.query.planner.core.Plan;
-import com.amazon.opendistroforelasticsearch.sql.query.planner.logical.node.Sort;
-import com.amazon.opendistroforelasticsearch.sql.query.planner.logical.node.Top;
-import com.amazon.opendistroforelasticsearch.sql.query.planner.logical.rule.SelectionPushDown;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.Config;
+import com.amazon.opendistroforelasticsearch.sql.query.planner.core.Plan;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.QueryParams;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.logical.node.Filter;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.logical.node.Group;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.logical.node.Join;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.logical.node.Join.JoinCondition;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.logical.node.Project;
+import com.amazon.opendistroforelasticsearch.sql.query.planner.logical.node.Sort;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.logical.node.TableScan;
+import com.amazon.opendistroforelasticsearch.sql.query.planner.logical.node.Top;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.logical.rule.ProjectionPushDown;
+import com.amazon.opendistroforelasticsearch.sql.query.planner.logical.rule.SelectionPushDown;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,19 +47,27 @@ import static com.amazon.opendistroforelasticsearch.sql.query.planner.logical.no
  */
 public class LogicalPlan implements Plan {
 
-    /** Planner configuration */
+    /**
+     * Planner configuration
+     */
     private final Config config;
 
-    /** Parameters */
+    /**
+     * Parameters
+     */
     private final QueryParams params;
 
-    /** Root node of logical query plan tree */
+    /**
+     * Root node of logical query plan tree
+     */
     private final LogicalOperator root;
 
-    /** Transformation rule */
+    /**
+     * Transformation rule
+     */
     private final List<LogicalPlanVisitor> rules = Arrays.asList(
-        new SelectionPushDown(), //Enforce this run first to simplify Group. Avoid this order dependency in future.
-        new ProjectionPushDown()
+            new SelectionPushDown(), //Enforce this run first to simplify Group. Avoid this order dependency in future.
+            new ProjectionPushDown()
     );
 
     public LogicalPlan(Config config, QueryParams params) {
@@ -80,36 +88,39 @@ public class LogicalPlan implements Plan {
         }
     }
 
-    /** Build logical plan tree */
+    /**
+     * Build logical plan tree
+     */
     private LogicalOperator buildPlanTree() {
         return project(
-            top(
-                sort(
-                    filter(
-                        join(
-                            top(
-                                group(params.firstRequest(), config.scrollPageSize()[0]),
-                                config.tableLimit1()
-                            ),
-                            top(
-                                group(params.secondRequest(), config.scrollPageSize()[1]),
-                                config.tableLimit2()
-                            )
-                        )
-                    )
-                ), config.totalLimit()
-            )
+                top(
+                        sort(
+                                filter(
+                                        join(
+                                                top(
+                                                        group(params.firstRequest(), config.scrollPageSize()[0]),
+                                                        config.tableLimit1()
+                                                ),
+                                                top(
+                                                        group(params.secondRequest(), config.scrollPageSize()[1]),
+                                                        config.tableLimit2()
+                                                )
+                                        )
+                                )
+                        ), config.totalLimit()
+                )
         );
     }
 
-    /** Create projection operator */
+    /**
+     * Create projection operator
+     */
     private LogicalOperator project(LogicalOperator next) {
         Project project = new Project(next);
         for (TableInJoinRequestBuilder req : getRequests()) {
             if (req.getOriginalSelect().isSelectAll()) {
                 project.projectAll(req.getAlias());
-            }
-            else {
+            } else {
                 project.project(req.getAlias(), req.getReturnedFields());
             }
         }
@@ -153,15 +164,17 @@ public class LogicalPlan implements Plan {
 
     private LogicalOperator join(LogicalOperator left, LogicalOperator right) {
         return new Join(
-            left, right,
-            params.joinType(),
-            groupJoinConditionByOr(),
-            config.blockSize(),
-            config.isUseTermsFilterOptimization()
+                left, right,
+                params.joinType(),
+                groupJoinConditionByOr(),
+                config.blockSize(),
+                config.isUseTermsFilterOptimization()
         );
     }
 
-    /** Group conditions in ON by OR because it makes hash table group be required too */
+    /**
+     * Group conditions in ON by OR because it makes hash table group be required too
+     */
     private JoinCondition groupJoinConditionByOr() {
         String leftTableAlias = params.firstRequest().getAlias();
         String rightTableAlias = params.secondRequest().getAlias();
@@ -169,8 +182,7 @@ public class LogicalPlan implements Plan {
         JoinCondition orCond;
         if (params.joinConditions().isEmpty()) {
             orCond = new JoinCondition(leftTableAlias, rightTableAlias, 0);
-        }
-        else {
+        } else {
             orCond = new JoinCondition(leftTableAlias, rightTableAlias, params.joinConditions().size());
             for (int i = 0; i < params.joinConditions().size(); i++) {
                 List<Map.Entry<Field, Field>> andCond = params.joinConditions().get(i);

@@ -61,8 +61,7 @@ public class LogUtils {
      * Wraps a given instance of {@link Runnable} into a new one which gets all the
      * entries from current ThreadContext map.
      *
-     * @param task
-     *          the instance of Runnable to wrap
+     * @param task the instance of Runnable to wrap
      * @return the new task
      */
     public static Runnable withCurrentContext(final Runnable task) {

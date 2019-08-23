@@ -15,50 +15,50 @@
 
 package com.amazon.opendistroforelasticsearch.sql.plugin;
 
-import java.sql.SQLFeatureNotSupportedException;
-import java.util.HashSet;
-import java.util.Set;
-
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.query.ESActionFactory;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import org.elasticsearch.client.Client;
 
+import java.sql.SQLFeatureNotSupportedException;
+import java.util.HashSet;
+import java.util.Set;
+
 
 public class SearchDao {
 
-	private static final Set<String> END_TABLE_MAP = new HashSet<>();
+    private static final Set<String> END_TABLE_MAP = new HashSet<>();
 
-	static {
-		END_TABLE_MAP.add("limit");
-		END_TABLE_MAP.add("order");
-		END_TABLE_MAP.add("where");
-		END_TABLE_MAP.add("group");
+    static {
+        END_TABLE_MAP.add("limit");
+        END_TABLE_MAP.add("order");
+        END_TABLE_MAP.add("where");
+        END_TABLE_MAP.add("group");
 
-	}
+    }
 
-	private Client client = null;
+    private Client client = null;
 
 
-	public SearchDao(Client client) {
-		this.client = client;
-	}
+    public SearchDao(Client client) {
+        this.client = client;
+    }
 
     public Client getClient() {
         return client;
     }
 
     /**
-	 * Prepare action And transform sql
-	 * into ES ActionRequest
-	 * @param sql SQL query to execute.
-	 * @return ES request
-	 * @throws SqlParseException
-	 */
-	public QueryAction explain(String sql) throws SqlParseException, SQLFeatureNotSupportedException {
-		return ESActionFactory.create(client, sql);
-	}
-
+     * Prepare action And transform sql
+     * into ES ActionRequest
+     *
+     * @param sql SQL query to execute.
+     * @return ES request
+     * @throws SqlParseException
+     */
+    public QueryAction explain(String sql) throws SqlParseException, SQLFeatureNotSupportedException {
+        return ESActionFactory.create(client, sql);
+    }
 
 
 }

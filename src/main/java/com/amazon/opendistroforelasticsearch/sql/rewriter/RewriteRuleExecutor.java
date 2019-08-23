@@ -36,7 +36,9 @@ public class RewriteRuleExecutor<T extends SQLQueryExpr> {
      */
     public void executeOn(T expr) throws SQLFeatureNotSupportedException {
         for (RewriteRule<T> rule : rewriteRules) {
-            if (rule.match(expr)) rule.rewrite(expr);
+            if (rule.match(expr)) {
+                rule.rewrite(expr);
+            }
         }
     }
 

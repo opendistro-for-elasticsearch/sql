@@ -28,8 +28,8 @@ import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.model.Subquer
 /**
  * IN Subquery Rewriter.
  * For example,
- *  SELECT * FROM A WHERE a IN (SELECT b FROM B) and c > 10 should be rewritten to
- *  SELECT A.* FROM A JOIN B ON A.a = B.b WHERE c > 10 and B.b IS NOT NULL.
+ * SELECT * FROM A WHERE a IN (SELECT b FROM B) and c > 10 should be rewritten to
+ * SELECT A.* FROM A JOIN B ON A.a = B.b WHERE c > 10 and B.b IS NOT NULL.
  */
 public class InSubqueryRewriter implements SubqueryRewriter {
     private final SQLInSubQueryExpr inSubQueryExpr;
@@ -57,24 +57,24 @@ public class InSubqueryRewriter implements SubqueryRewriter {
 
     /**
      * Build From clause from input query.
-     *
+     * <p>
      * With the input query.
-     *       Query
-     *     /   |   \
+     * Query
+     * /   |   \
      * SELECT FROM     WHERE
-     *    |    |     /   |  \
-     *    *    A  c>10 AND INSubquery
-     *                      /    \
-     *                     a    Query
-     *                          /    \
-     *                       SELECT FROM
-     *                         |     |
-     *                         b     B
-     *
+     * |    |     /   |  \
+     * *    A  c>10 AND INSubquery
+     * /    \
+     * a    Query
+     * /    \
+     * SELECT FROM
+     * |     |
+     * b     B
+     * <p>
      * The FROM logic should be
-     *     JOIN
-     *     / | \
-     *    A  B A.a == B.b
+     * JOIN
+     * / | \
+     * A  B A.a == B.b
      */
     private SQLJoinTableSource buildFrom(MySqlSelectQueryBlock rootQuery) {
         SQLJoinTableSource sqlJoin = new SQLJoinTableSource();
@@ -88,24 +88,24 @@ public class InSubqueryRewriter implements SubqueryRewriter {
 
     /**
      * Build Where clause from input query.
-     *
+     * <p>
      * With the input query.
-     *       Query
-     *     /   |   \
+     * Query
+     * /   |   \
      * SELECT FROM     WHERE
-     *    |    |     /   |  \
-     *    *    A  c>10 AND INSubquery
-     *                      /    \
-     *                     a    Query
-     *                          /    \
-     *                       SELECT FROM
-     *                         |     |
-     *                         b     B
-     *
-     *
-     *     WHERE
-     *     /  |   \
-     *   c>10 AND B.b is NOT NULL
+     * |    |     /   |  \
+     * *    A  c>10 AND INSubquery
+     * /    \
+     * a    Query
+     * /    \
+     * SELECT FROM
+     * |     |
+     * b     B
+     * <p>
+     * <p>
+     * WHERE
+     * /  |   \
+     * c>10 AND B.b is NOT NULL
      */
     private SQLExpr buildWhere(MySqlSelectQueryBlock rootQuery) {
         return rewriteSubquery(rootQuery.getWhere());
@@ -114,8 +114,7 @@ public class InSubqueryRewriter implements SubqueryRewriter {
     private SQLExpr rewriteSubquery(SQLExpr expr) {
         if (expr instanceof SQLInSubQueryExpr) {
             return createSubqueryReplacementCondition();
-        }
-        else if (expr instanceof SQLBinaryOpExpr) {
+        } else if (expr instanceof SQLBinaryOpExpr) {
             ((SQLBinaryOpExpr) expr).setLeft(rewriteSubquery(((SQLBinaryOpExpr) expr).getLeft()));
             ((SQLBinaryOpExpr) expr).setRight(rewriteSubquery(((SQLBinaryOpExpr) expr).getRight()));
             return expr;

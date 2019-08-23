@@ -58,7 +58,7 @@ public class RollingCounter implements Counter<Long> {
     @Override
     public void add(long n) {
         trim();
-        time2CountWin.compute(getKey(clock.millis()), (k, v) -> (v == null) ? n : v+n);
+        time2CountWin.compute(getKey(clock.millis()), (k, v) -> (v == null) ? n : v + n);
     }
 
     @Override
@@ -68,7 +68,9 @@ public class RollingCounter implements Counter<Long> {
 
     public long getValue(long key) {
         Long res = time2CountWin.get(key);
-        if (res == null) return 0;
+        if (res == null) {
+            return 0;
+        }
 
         return res;
     }

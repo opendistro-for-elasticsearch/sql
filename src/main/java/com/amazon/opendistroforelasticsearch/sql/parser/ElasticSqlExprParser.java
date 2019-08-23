@@ -15,17 +15,48 @@
 
 package com.amazon.opendistroforelasticsearch.sql.parser;
 
-import com.alibaba.druid.sql.ast.*;
-import com.alibaba.druid.sql.ast.expr.*;
+import com.alibaba.druid.sql.ast.SQLCommentHint;
+import com.alibaba.druid.sql.ast.SQLDataType;
+import com.alibaba.druid.sql.ast.SQLExpr;
+import com.alibaba.druid.sql.ast.SQLName;
+import com.alibaba.druid.sql.ast.SQLOrderBy;
+import com.alibaba.druid.sql.ast.SQLOrderingSpecification;
+import com.alibaba.druid.sql.ast.expr.SQLAggregateExpr;
+import com.alibaba.druid.sql.ast.expr.SQLBinaryExpr;
+import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
+import com.alibaba.druid.sql.ast.expr.SQLBinaryOperator;
+import com.alibaba.druid.sql.ast.expr.SQLCharExpr;
+import com.alibaba.druid.sql.ast.expr.SQLDefaultExpr;
+import com.alibaba.druid.sql.ast.expr.SQLExistsExpr;
+import com.alibaba.druid.sql.ast.expr.SQLHexExpr;
+import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
+import com.alibaba.druid.sql.ast.expr.SQLIntegerExpr;
+import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
+import com.alibaba.druid.sql.ast.expr.SQLNotExpr;
+import com.alibaba.druid.sql.ast.expr.SQLPropertyExpr;
+import com.alibaba.druid.sql.ast.expr.SQLUnaryExpr;
+import com.alibaba.druid.sql.ast.expr.SQLUnaryOperator;
+import com.alibaba.druid.sql.ast.expr.SQLVariantRefExpr;
 import com.alibaba.druid.sql.ast.statement.SQLAssignItem;
 import com.alibaba.druid.sql.ast.statement.SQLColumnDefinition;
 import com.alibaba.druid.sql.dialect.mysql.ast.MySqlPrimaryKey;
 import com.alibaba.druid.sql.dialect.mysql.ast.MySqlUnique;
 import com.alibaba.druid.sql.dialect.mysql.ast.MysqlForeignKey;
-import com.alibaba.druid.sql.dialect.mysql.ast.expr.*;
+import com.alibaba.druid.sql.dialect.mysql.ast.expr.MySqlCharExpr;
+import com.alibaba.druid.sql.dialect.mysql.ast.expr.MySqlExtractExpr;
+import com.alibaba.druid.sql.dialect.mysql.ast.expr.MySqlIntervalExpr;
+import com.alibaba.druid.sql.dialect.mysql.ast.expr.MySqlIntervalUnit;
+import com.alibaba.druid.sql.dialect.mysql.ast.expr.MySqlMatchAgainstExpr;
+import com.alibaba.druid.sql.dialect.mysql.ast.expr.MySqlOutFileExpr;
+import com.alibaba.druid.sql.dialect.mysql.ast.expr.MySqlSelectGroupByExpr;
+import com.alibaba.druid.sql.dialect.mysql.ast.expr.MySqlUserName;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSQLColumnDefinition;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
-import com.alibaba.druid.sql.parser.*;
+import com.alibaba.druid.sql.parser.Lexer;
+import com.alibaba.druid.sql.parser.ParserException;
+import com.alibaba.druid.sql.parser.SQLExprParser;
+import com.alibaba.druid.sql.parser.SQLSelectParser;
+import com.alibaba.druid.sql.parser.Token;
 import com.alibaba.druid.util.JdbcConstants;
 
 import java.util.List;
@@ -123,8 +154,10 @@ public class ElasticSqlExprParser extends SQLExprParser {
             lexer.nextToken();
             String prefix = "";
             while (lexer.token() != Token.RBRACKET) {
-                if (lexer.token() != Token.IDENTIFIER && lexer.token() != Token.INDEX && lexer.token() != Token.LITERAL_CHARS) {
-                    throw new ParserException("All items between Brackets should be identifiers , got:" + lexer.token());
+                if (lexer.token() != Token.IDENTIFIER && lexer.token() != Token.INDEX
+                        && lexer.token() != Token.LITERAL_CHARS) {
+                    throw new ParserException("All items between Brackets should be identifiers , got:"
+                            + lexer.token());
                 }
                 identifier.append(prefix);
                 identifier.append(lexer.stringVal());
@@ -347,10 +380,8 @@ public class ElasticSqlExprParser extends SQLExprParser {
                 String collate = lexer.stringVal();
                 lexer.nextToken();
 
-                SQLBinaryOpExpr binaryExpr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.COLLATE,
+                expr = new SQLBinaryOpExpr(expr, SQLBinaryOperator.COLLATE,
                         new SQLIdentifierExpr(collate), JdbcConstants.MYSQL);
-
-                expr = binaryExpr;
 
                 return primaryRest(expr);
             } else if (expr instanceof SQLVariantRefExpr) {
@@ -497,9 +528,11 @@ public class ElasticSqlExprParser extends SQLExprParser {
                             lexer.nextToken();
                             acceptIdentifier("QUERY");
                             acceptIdentifier("EXPANSION");
-                            matchAgainstExpr.setSearchModifier(MySqlMatchAgainstExpr.SearchModifier.IN_NATURAL_LANGUAGE_MODE_WITH_QUERY_EXPANSION);
+                            matchAgainstExpr.setSearchModifier(
+                                    MySqlMatchAgainstExpr.SearchModifier.IN_NATURAL_LANGUAGE_MODE_WITH_QUERY_EXPANSION);
                         } else {
-                            matchAgainstExpr.setSearchModifier(MySqlMatchAgainstExpr.SearchModifier.IN_NATURAL_LANGUAGE_MODE);
+                            matchAgainstExpr.setSearchModifier(
+                                    MySqlMatchAgainstExpr.SearchModifier.IN_NATURAL_LANGUAGE_MODE);
                         }
                     } else if (identifierEquals("BOOLEAN")) {
                         lexer.nextToken();

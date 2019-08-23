@@ -37,6 +37,7 @@ public class Subquery {
 
     /**
      * Get Subquery {@link SubqueryType}
+     *
      * @return Subquery Type
      */
     public SubqueryType getSubqueryType() {
@@ -45,6 +46,7 @@ public class Subquery {
 
     /**
      * Get Subquery {@link SQLQueryExpr}
+     *
      * @return Subquery {@link SQLQueryExpr}
      */
     public SQLExpr getSubQueryExpr() {

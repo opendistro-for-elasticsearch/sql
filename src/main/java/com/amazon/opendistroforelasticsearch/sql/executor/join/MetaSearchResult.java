@@ -56,19 +56,19 @@ public class MetaSearchResult {
         this.tookImMilli = tookImMilli;
     }
 
-    public void addFailedShards(int shards){
-        this.failedShards+=shards;
+    public void addFailedShards(int shards) {
+        this.failedShards += shards;
     }
 
-    public void addSuccessfulShards(int shards){
-        this.successfulShards+=shards;
+    public void addSuccessfulShards(int shards) {
+        this.successfulShards += shards;
     }
 
-    public void addTotalNumOfShards(int shards){
-        this.totalNumOfShards+=shards;
+    public void addTotalNumOfShards(int shards) {
+        this.totalNumOfShards += shards;
     }
 
-    public void updateTimeOut(boolean isTimedOut){
+    public void updateTimeOut(boolean isTimedOut) {
         this.isTimedOut = this.isTimedOut || isTimedOut;
     }
 

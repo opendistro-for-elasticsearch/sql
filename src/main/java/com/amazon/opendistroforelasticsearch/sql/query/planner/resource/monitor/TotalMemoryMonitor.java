@@ -15,11 +15,11 @@
 
 package com.amazon.opendistroforelasticsearch.sql.query.planner.resource.monitor;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.Config;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.resource.Stats;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.resource.Stats.MemStats;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Circuit breaker for total memory usage in JVM on current ES node.
@@ -28,10 +28,14 @@ public class TotalMemoryMonitor implements Monitor {
 
     private static final Logger LOG = LogManager.getLogger();
 
-    /** Statistic collector */
+    /**
+     * Statistic collector
+     */
     private final Stats stats;
 
-    /** Upper limit for memory usage percentage */
+    /**
+     * Upper limit for memory usage percentage
+     */
     private final int limit;
 
     public TotalMemoryMonitor(Stats stats, Config config) {

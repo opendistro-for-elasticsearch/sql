@@ -15,8 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor;
 
-import org.elasticsearch.search.SearchHits;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
+import org.elasticsearch.search.SearchHits;
 
 import java.io.IOException;
 
@@ -24,6 +24,7 @@ import java.io.IOException;
  * Created by Eliran on 21/8/2016.
  */
 public interface ElasticHitsExecutor {
-    public void run() throws IOException, SqlParseException ;
-    public SearchHits getHits();
+    void run() throws IOException, SqlParseException;
+
+    SearchHits getHits();
 }

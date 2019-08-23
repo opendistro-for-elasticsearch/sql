@@ -16,19 +16,20 @@
 package com.amazon.opendistroforelasticsearch.sql.query.multi;
 
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
-import org.elasticsearch.client.Client;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
+import org.elasticsearch.client.Client;
 
 /**
  * Created by Eliran on 19/8/2016.
  */
 public class ESMultiQueryActionFactory {
 
-    public static QueryAction createMultiQueryAction(Client client, MultiQuerySelect multiSelect) throws SqlParseException {
-        switch (multiSelect.getOperation()){
+    public static QueryAction createMultiQueryAction(Client client, MultiQuerySelect multiSelect)
+            throws SqlParseException {
+        switch (multiSelect.getOperation()) {
             case UNION_ALL:
             case UNION:
-                return new MultiQueryAction(client,multiSelect);
+                return new MultiQueryAction(client, multiSelect);
             default:
                 throw new SqlParseException("only supports union and union all");
         }

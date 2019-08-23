@@ -15,8 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm;
 
-import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState.IndexMappings;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState.FieldMappings;
+import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState.IndexMappings;
 
 import java.util.HashMap;
 import java.util.Map;

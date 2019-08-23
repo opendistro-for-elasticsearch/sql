@@ -15,15 +15,15 @@
 
 package com.amazon.opendistroforelasticsearch.sql.query.planner.logical;
 
-import com.amazon.opendistroforelasticsearch.sql.query.planner.logical.node.Sort;
-import com.amazon.opendistroforelasticsearch.sql.query.planner.logical.node.Top;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.PlanNode;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.PlanNode.Visitor;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.logical.node.Filter;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.logical.node.Group;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.logical.node.Join;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.logical.node.Project;
+import com.amazon.opendistroforelasticsearch.sql.query.planner.logical.node.Sort;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.logical.node.TableScan;
+import com.amazon.opendistroforelasticsearch.sql.query.planner.logical.node.Top;
 
 /**
  * Transformation rule for logical plan tree optimization implemented by standard Visitor pattern.
@@ -34,23 +34,17 @@ public interface LogicalPlanVisitor extends Visitor {
     default boolean visit(PlanNode op) {
         if (op instanceof Project) {
             return visit((Project) op);
-        }
-        else if (op instanceof Filter) {
+        } else if (op instanceof Filter) {
             return visit((Filter) op);
-        }
-        else if (op instanceof Join) {
+        } else if (op instanceof Join) {
             return visit((Join) op);
-        }
-        else if (op instanceof Group) {
+        } else if (op instanceof Group) {
             return visit((Group) op);
-        }
-        else if (op instanceof TableScan) {
+        } else if (op instanceof TableScan) {
             return visit((TableScan) op);
-        }
-        else if (op instanceof Top) {
+        } else if (op instanceof Top) {
             return visit((Top) op);
-        }
-        else if (op instanceof Sort) {
+        } else if (op instanceof Sort) {
             return visit((Sort) op);
         }
         throw new IllegalArgumentException("Unknown operator type: " + op);
@@ -60,26 +54,19 @@ public interface LogicalPlanVisitor extends Visitor {
     default void endVisit(PlanNode op) {
         if (op instanceof Project) {
             endVisit((Project) op);
-        }
-        else if (op instanceof Filter) {
+        } else if (op instanceof Filter) {
             endVisit((Filter) op);
-        }
-        else if (op instanceof Join) {
+        } else if (op instanceof Join) {
             endVisit((Join) op);
-        }
-        else if (op instanceof Group) {
+        } else if (op instanceof Group) {
             endVisit((Group) op);
-        }
-        else if (op instanceof TableScan) {
+        } else if (op instanceof TableScan) {
             endVisit((TableScan) op);
-        }
-        else if (op instanceof Top) {
+        } else if (op instanceof Top) {
             endVisit((Top) op);
-        }
-        else if (op instanceof Sort) {
+        } else if (op instanceof Sort) {
             endVisit((Sort) op);
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("Unknown operator type: " + op);
         }
     }
@@ -88,41 +75,48 @@ public interface LogicalPlanVisitor extends Visitor {
         return true;
     }
 
-    default void endVisit(Project project) {}
+    default void endVisit(Project project) {
+    }
 
     default boolean visit(Filter filter) {
         return true;
     }
 
-    default void endVisit(Filter filter) {}
+    default void endVisit(Filter filter) {
+    }
 
     default boolean visit(Join join) {
         return true;
     }
 
-    default void endVisit(Join join) {}
+    default void endVisit(Join join) {
+    }
 
     default boolean visit(Group group) {
         return true;
     }
 
-    default void endVisit(Group group) {}
+    default void endVisit(Group group) {
+    }
 
     default boolean visit(TableScan scan) {
         return true;
     }
 
-    default void endVisit(TableScan scan) {}
+    default void endVisit(TableScan scan) {
+    }
 
     default boolean visit(Top top) {
         return true;
     }
 
-    default void endVisit(Top top) {}
+    default void endVisit(Top top) {
+    }
 
     default boolean visit(Sort sort) {
         return true;
     }
 
-    default void endVisit(Sort sort) {}
+    default void endVisit(Sort sort) {
+    }
 }

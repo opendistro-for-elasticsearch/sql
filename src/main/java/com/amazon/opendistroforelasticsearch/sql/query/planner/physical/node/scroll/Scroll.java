@@ -20,6 +20,8 @@ import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.query.join.TableInJoinRequestBuilder;
 import com.amazon.opendistroforelasticsearch.sql.query.maker.QueryMaker;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.ExecuteParams;
+import com.amazon.opendistroforelasticsearch.sql.query.planner.core.PlanNode;
+import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.Row;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.estimation.Cost;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.node.BatchPhysicalOperator;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.resource.ResourceManager;
@@ -33,8 +35,6 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
-import com.amazon.opendistroforelasticsearch.sql.query.planner.core.PlanNode;
-import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.Row;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -45,22 +45,34 @@ import java.util.Objects;
  */
 public class Scroll extends BatchPhysicalOperator<SearchHit> {
 
-    /** Request to submit to ES to scroll over */
+    /**
+     * Request to submit to ES to scroll over
+     */
     private final TableInJoinRequestBuilder request;
 
-    /** Page size to scroll over index */
+    /**
+     * Page size to scroll over index
+     */
     private final int pageSize;
 
-    /** Client connection to ElasticSearch */
+    /**
+     * Client connection to ElasticSearch
+     */
     private Client client;
 
-    /** Currently undergoing Scroll */
+    /**
+     * Currently undergoing Scroll
+     */
     private SearchResponse scrollResponse;
 
-    /** Time out */
+    /**
+     * Time out
+     */
     private Integer timeout;
 
-    /** Resource monitor manager */
+    /**
+     * Resource monitor manager
+     */
     private ResourceManager resourceMgr;
 
 
@@ -89,11 +101,11 @@ public class Scroll extends BatchPhysicalOperator<SearchHit> {
         Object filter = params.get(ExecuteParams.ExecuteParamType.EXTRA_QUERY_FILTER);
         if (filter instanceof BoolQueryBuilder) {
             request.getRequestBuilder().setQuery(
-                generateNewQueryWithExtraFilter((BoolQueryBuilder) filter));
+                    generateNewQueryWithExtraFilter((BoolQueryBuilder) filter));
 
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Received extra query filter, re-build query: {}", Strings.toString(
-                    request.getRequestBuilder().request().source(), true, true
+                        request.getRequestBuilder().request().source(), true, true
                 ));
             }
         }
@@ -104,8 +116,8 @@ public class Scroll extends BatchPhysicalOperator<SearchHit> {
         if (scrollResponse != null) {
             LOG.debug("Closing all scroll resources");
             ClearScrollResponse clearScrollResponse = client.prepareClearScroll().
-                                                             addScrollId(scrollResponse.getScrollId()).
-                                                             get();
+                    addScrollId(scrollResponse.getScrollId()).
+                    get();
             if (!clearScrollResponse.isSucceeded()) {
                 LOG.warn("Failed to close scroll: {}", clearScrollResponse.status());
             }
@@ -148,10 +160,10 @@ public class Scroll extends BatchPhysicalOperator<SearchHit> {
 
     private void loadFirstBatch() {
         scrollResponse = request.getRequestBuilder().
-                                 addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC).
-                                 setSize(pageSize).
-                                 setScroll(TimeValue.timeValueSeconds(timeout)).
-                                 get();
+                addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC).
+                setSize(pageSize).
+                setScroll(TimeValue.timeValueSeconds(timeout)).
+                get();
     }
 
     private void updateMetaResult() {
@@ -163,8 +175,8 @@ public class Scroll extends BatchPhysicalOperator<SearchHit> {
 
     private void loadNextBatchByScrollId() {
         scrollResponse = client.prepareSearchScroll(scrollResponse.getScrollId()).
-                                setScroll(TimeValue.timeValueSeconds(timeout)).
-                                get();
+                setScroll(TimeValue.timeValueSeconds(timeout)).
+                get();
     }
 
     @SuppressWarnings("unchecked")

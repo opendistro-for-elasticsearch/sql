@@ -15,15 +15,15 @@
 
 package com.amazon.opendistroforelasticsearch.sql.query.planner.core;
 
-import org.elasticsearch.client.Client;
 import com.amazon.opendistroforelasticsearch.sql.executor.join.MetaSearchResult;
-import org.elasticsearch.search.SearchHit;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.explain.Explanation;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.explain.JsonExplanationFormat;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.resource.ResourceManager;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.resource.Stats;
+import org.elasticsearch.client.Client;
+import org.elasticsearch.search.SearchHit;
 
 import java.util.List;
 
@@ -36,28 +36,40 @@ import static com.amazon.opendistroforelasticsearch.sql.query.planner.core.Execu
  */
 public class QueryPlanner {
 
-    /** Connection to ElasticSearch */
+    /**
+     * Connection to ElasticSearch
+     */
     private final Client client;
 
-    /** Query plan configuration */
+    /**
+     * Query plan configuration
+     */
     private final Config config;
 
-    /** Optimized logical plan */
+    /**
+     * Optimized logical plan
+     */
     private final LogicalPlan logicalPlan;
 
-    /** Best physical plan to execute */
+    /**
+     * Best physical plan to execute
+     */
     private final PhysicalPlan physicalPlan;
 
-    /** Statistics collector */
+    /**
+     * Statistics collector
+     */
     private Stats stats;
 
-    /** Resource monitor and statistics manager */
+    /**
+     * Resource monitor and statistics manager
+     */
     private ResourceManager resourceMgr;
 
 
     public QueryPlanner(Client client, Config config, QueryParams params) {
         this.client = client;
-        this.config =  config;
+        this.config = config;
         this.stats = new Stats(client);
         this.resourceMgr = new ResourceManager(stats, config);
 
@@ -70,7 +82,8 @@ public class QueryPlanner {
 
     /**
      * Execute query plan
-     * @return  response of the execution
+     *
+     * @return response of the execution
      */
     public List<SearchHit> execute() {
         ExecuteParams params = new ExecuteParams();
@@ -82,12 +95,13 @@ public class QueryPlanner {
 
     /**
      * Explain query plan
-     * @return  explanation string of the plan
+     *
+     * @return explanation string of the plan
      */
     public String explain() {
         return new Explanation(
-            logicalPlan, physicalPlan,
-            new JsonExplanationFormat(4)
+                logicalPlan, physicalPlan,
+                new JsonExplanationFormat(4)
         ).toString();
     }
 
@@ -95,7 +109,9 @@ public class QueryPlanner {
         return resourceMgr.getMetaResult();
     }
 
-    /** Setter for unit test */
+    /**
+     * Setter for unit test
+     */
     public void setStats(Stats stats) {
         this.stats = stats;
         this.resourceMgr = new ResourceManager(stats, config);

@@ -25,7 +25,10 @@ import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.HashJoinQueryPlanRequestBuilder;
 import org.elasticsearch.client.Client;
 
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Eliran on 22/8/2015.
@@ -41,7 +44,8 @@ public class ESHashJoinQueryAction extends ESJoinQueryAction {
         String t1Alias = joinSelect.getFirstTable().getAlias();
         String t2Alias = joinSelect.getSecondTable().getAlias();
 
-        List<List<Map.Entry<Field, Field>>> comparisonFields = getComparisonFields(t1Alias, t2Alias,joinSelect.getConnectedWhere());
+        List<List<Map.Entry<Field, Field>>> comparisonFields = getComparisonFields(t1Alias, t2Alias,
+                joinSelect.getConnectedWhere());
 
         ((HashJoinElasticRequestBuilder) requestBuilder).setT1ToT2FieldsComparison(comparisonFields);
     }
@@ -57,14 +61,16 @@ public class ESHashJoinQueryAction extends ESJoinQueryAction {
     @Override
     protected void updateRequestWithHints(JoinRequestBuilder requestBuilder) {
         super.updateRequestWithHints(requestBuilder);
-        for(Hint hint : joinSelect.getHints()){
-            if(hint.getType() == HintType.HASH_WITH_TERMS_FILTER) {
+        for (Hint hint : joinSelect.getHints()) {
+            if (hint.getType() == HintType.HASH_WITH_TERMS_FILTER) {
                 ((HashJoinElasticRequestBuilder) requestBuilder).setUseTermFiltersOptimization(true);
             }
         }
     }
 
-    /** Keep the option to run legacy hash join algorithm mainly for the comparison */
+    /**
+     * Keep the option to run legacy hash join algorithm mainly for the comparison
+     */
     private boolean isLegacy() {
         for (Hint hint : joinSelect.getHints()) {
             if (hint.getType() == HintType.JOIN_ALGORITHM_USE_LEGACY) {
@@ -74,63 +80,71 @@ public class ESHashJoinQueryAction extends ESJoinQueryAction {
         return false;
     }
 
-    private List<Map.Entry<Field, Field>> getComparisonFields(String t1Alias, String t2Alias, List<Condition> connectedConditions) throws SqlParseException {
-        List<Map.Entry<Field,Field>> comparisonFields = new ArrayList<>();
-        for(Condition condition : connectedConditions){
+    private List<Map.Entry<Field, Field>> getComparisonFields(String t1Alias, String t2Alias,
+                                                              List<Condition> connectedConditions)
+            throws SqlParseException {
+        List<Map.Entry<Field, Field>> comparisonFields = new ArrayList<>();
+        for (Condition condition : connectedConditions) {
 
-            if(condition.getOpear() != Condition.OPEAR.EQ){
-                throw new SqlParseException(String.format("HashJoin should only be with EQ conditions, got:%s on condition:%s", condition.getOpear().name(), condition.toString()));
+            if (condition.getOpear() != Condition.OPEAR.EQ) {
+                throw new SqlParseException(
+                        String.format("HashJoin should only be with EQ conditions, got:%s on condition:%s",
+                                condition.getOpear().name(), condition.toString()));
             }
 
             String firstField = condition.getName();
             String secondField = condition.getValue().toString();
-            Field t1Field,t2Field;
-            if(firstField.startsWith(t1Alias)){
-                t1Field = new Field(removeAlias(firstField,t1Alias),null);
-                t2Field = new Field(removeAlias(secondField,t2Alias),null);
+            Field t1Field, t2Field;
+            if (firstField.startsWith(t1Alias)) {
+                t1Field = new Field(removeAlias(firstField, t1Alias), null);
+                t2Field = new Field(removeAlias(secondField, t2Alias), null);
+            } else {
+                t1Field = new Field(removeAlias(secondField, t1Alias), null);
+                t2Field = new Field(removeAlias(firstField, t2Alias), null);
             }
-            else {
-                t1Field = new Field(removeAlias(secondField,t1Alias),null);
-                t2Field = new Field(removeAlias(firstField,t2Alias),null);
-            }
-            comparisonFields.add(new AbstractMap.SimpleEntry<Field, Field>(t1Field, t2Field));
+            comparisonFields.add(new AbstractMap.SimpleEntry<>(t1Field, t2Field));
         }
         return comparisonFields;
     }
 
-    private List<List<Map.Entry<Field, Field>>> getComparisonFields(String t1Alias, String t2Alias, Where connectedWhere) throws SqlParseException {
-        List<List<Map.Entry<Field,Field>>> comparisonFields = new ArrayList<>();
+    private List<List<Map.Entry<Field, Field>>> getComparisonFields(String t1Alias, String t2Alias,
+                                                                    Where connectedWhere) throws SqlParseException {
+        List<List<Map.Entry<Field, Field>>> comparisonFields = new ArrayList<>();
         //where is AND with lots of conditions.
-        if(connectedWhere == null) return  comparisonFields;
+        if (connectedWhere == null) {
+            return comparisonFields;
+        }
         boolean allAnds = true;
-        for(Where innerWhere : connectedWhere.getWheres()){
-            if(innerWhere.getConn() == Where.CONN.OR) {
+        for (Where innerWhere : connectedWhere.getWheres()) {
+            if (innerWhere.getConn() == Where.CONN.OR) {
                 allAnds = false;
                 break;
             }
         }
-        if(allAnds)
-        {
-            List<Map.Entry<Field, Field>> innerComparisonFields = getComparisonFieldsFromWhere(t1Alias, t2Alias, connectedWhere);
+        if (allAnds) {
+            List<Map.Entry<Field, Field>> innerComparisonFields =
+                    getComparisonFieldsFromWhere(t1Alias, t2Alias, connectedWhere);
             comparisonFields.add(innerComparisonFields);
-        }
-        else {
-            for(Where innerWhere : connectedWhere.getWheres()){
-                comparisonFields.add(getComparisonFieldsFromWhere(t1Alias,t2Alias,innerWhere));
+        } else {
+            for (Where innerWhere : connectedWhere.getWheres()) {
+                comparisonFields.add(getComparisonFieldsFromWhere(t1Alias, t2Alias, innerWhere));
             }
         }
 
         return comparisonFields;
     }
 
-    private List<Map.Entry<Field, Field>> getComparisonFieldsFromWhere(String t1Alias, String t2Alias, Where where) throws SqlParseException {
+    private List<Map.Entry<Field, Field>> getComparisonFieldsFromWhere(String t1Alias, String t2Alias, Where where)
+            throws SqlParseException {
         List<Condition> conditions = new ArrayList<>();
-        if(where instanceof Condition)
+        if (where instanceof Condition) {
             conditions.add((Condition) where);
-        else {
+        } else {
             for (Where innerWhere : where.getWheres()) {
-                if (!(innerWhere instanceof Condition))
-                    throw new SqlParseException("if connectedCondition is AND than all inner wheres should be Conditions ");
+                if (!(innerWhere instanceof Condition)) {
+                    throw new SqlParseException(
+                            "if connectedCondition is AND then all inner wheres should be Conditions");
+                }
                 conditions.add((Condition) innerWhere);
             }
         }
@@ -138,7 +152,7 @@ public class ESHashJoinQueryAction extends ESJoinQueryAction {
     }
 
     private String removeAlias(String field, String alias) {
-        return field.replace(alias+".","");
+        return field.replace(alias + ".", "");
     }
 
 }

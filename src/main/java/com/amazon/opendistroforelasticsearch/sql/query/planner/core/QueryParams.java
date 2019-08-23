@@ -27,22 +27,28 @@ import java.util.Map;
  */
 public class QueryParams {
 
-    /** Request builder for first table */
+    /**
+     * Request builder for first table
+     */
     private final TableInJoinRequestBuilder request1;
 
-    /** Request builder for second table */
+    /**
+     * Request builder for second table
+     */
     private final TableInJoinRequestBuilder request2;
 
-    /** Join type, ex. inner join, left join */
+    /**
+     * Join type, ex. inner join, left join
+     */
     private final SQLJoinTableSource.JoinType joinType;
 
     /**
      * Join conditions in ON clause grouped by OR.
      * For example, "ON (a.name = b.id AND a.age = b.age) OR a.location = b.address"
      * => list: [
-     *              [ (a.name, b.id), (a.age, b.age) ],
-     *              [ (a.location, b.address) ]
-     *          ]
+     * [ (a.name, b.id), (a.age, b.age) ],
+     * [ (a.location, b.address) ]
+     * ]
      */
     private final List<List<Map.Entry<Field, Field>>> joinConditions;
 
@@ -75,11 +81,11 @@ public class QueryParams {
 
     @Override
     public String toString() {
-        return "QueryParams{" +
-            "request1=" + request1 +
-            ", request2=" + request2 +
-            ", joinType=" + joinType +
-            ", joinConditions=" + joinConditions +
-            '}';
+        return "QueryParams{"
+                + "request1=" + request1
+                + ", request2=" + request2
+                + ", joinType=" + joinType
+                + ", joinConditions=" + joinConditions
+                + '}';
     }
 }

@@ -29,7 +29,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.UUID;
 
 public class SqlRequest {
 
@@ -54,7 +53,10 @@ public class SqlRequest {
         return true;
     }
 
-    public String getSql() { return this.sql; }
+    public String getSql() {
+        return this.sql;
+    }
+
     public JSONObject getJsonContent() {
         return this.jsonContent;
     }

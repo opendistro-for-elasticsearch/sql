@@ -32,7 +32,7 @@ class Select extends SQLClause<List<SQLSelectItem>> {
 
     /**
      * Rewrite by adding nested field to SELECT in the case of 'SELECT *'.
-     *
+     * <p>
      * Ex. 'SELECT *' => 'SELECT *, employees.*'
      * So that NestedFieldProjection will add 'employees.*' to includes list in inner_hits.
      */

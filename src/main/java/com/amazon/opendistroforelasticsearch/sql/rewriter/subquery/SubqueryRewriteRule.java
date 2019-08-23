@@ -49,7 +49,9 @@ public class SubqueryRewriteRule implements RewriteRule<SQLQueryExpr> {
 
     @Override
     public void rewrite(SQLQueryExpr expr) {
-        if (subquery == null) subquery = subquery(expr);
+        if (subquery == null) {
+            subquery = subquery(expr);
+        }
         MySqlSelectQueryBlock rootQuery = (MySqlSelectQueryBlock) expr.getSubQuery().getQuery();
         // add the alias for the subquery identifier if missing
         rootQuery.accept(new SubqueryAliasRewriter());

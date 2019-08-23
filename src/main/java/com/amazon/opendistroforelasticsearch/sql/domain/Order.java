@@ -17,8 +17,8 @@ package com.amazon.opendistroforelasticsearch.sql.domain;
 
 /**
  * 排序规则
- * @author ansj
  *
+ * @author ansj
  */
 public class Order {
     private String nestedPath;

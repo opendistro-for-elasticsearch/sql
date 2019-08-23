@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * Combined row to store matched relation from single right row to N left rows.
  *
- * @param <T>   data object underlying, ex. SearchHit
+ * @param <T> data object underlying, ex. SearchHit
  */
 public class CombinedRow<T> {
 
@@ -51,9 +51,6 @@ public class CombinedRow<T> {
 
     @Override
     public String toString() {
-        return "CombinedRow{" +
-            "rightRow=" + rightRow +
-            ", leftRows=" + leftRows +
-            '}';
+        return "CombinedRow{rightRow=" + rightRow + ", leftRows=" + leftRows + '}';
     }
 }
