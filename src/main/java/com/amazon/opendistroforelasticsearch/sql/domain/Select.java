@@ -27,18 +27,20 @@ import static com.amazon.opendistroforelasticsearch.sql.domain.Field.STAR;
 
 /**
  * 将sql语句转换为select 对象
- * 
+ *
  * @author ansj
  */
 public class Select extends Query {
 
-    /** Using this functions will cause query to execute as aggregation. */
-    private final static Set<String> AGGREGATE_FUNCTIONS =
-        ImmutableSet.of(
-            "SUM", "MAX", "MIN", "AVG",
-            "TOPHITS", "COUNT", "STATS", "EXTENDED_STATS",
-            "PERCENTILES", "SCRIPTED_METRIC"
-        );
+    /**
+     * Using this functions will cause query to execute as aggregation.
+     */
+    private static final Set<String> AGGREGATE_FUNCTIONS =
+            ImmutableSet.of(
+                    "SUM", "MAX", "MIN", "AVG",
+                    "TOPHITS", "COUNT", "STATS", "EXTENDED_STATS",
+                    "PERCENTILES", "SCRIPTED_METRIC"
+            );
 
     private List<Hint> hints = new ArrayList<>();
     private List<Field> fields = new ArrayList<>();
@@ -105,18 +107,19 @@ public class Select extends Query {
         return rowCount;
     }
 
-	public void addOrderBy(String nestedPath, String name, String type, Field field) {
-		if ("_score".equals(name)) {
-			isQuery = true;
-		}
-		this.orderBys.add(new Order(nestedPath, name, type, field));
-	}
+    public void addOrderBy(String nestedPath, String name, String type, Field field) {
+        if ("_score".equals(name)) {
+            isQuery = true;
+        }
+        this.orderBys.add(new Order(nestedPath, name, type, field));
+    }
 
     public void addField(Field field) {
         if (field == null) {
             return;
         }
-        if (field == STAR && !isAggregate) { // Ignore GROUP BY since columns present in result are decided by column list in GROUP BY
+        if (field == STAR && !isAggregate) {
+            // Ignore GROUP BY since columns present in result are decided by column list in GROUP BY
             this.selectAll = true;
             return;
         }
@@ -140,26 +143,28 @@ public class Select extends Query {
     }
 
     private void fillSubQueriesFromWhereRecursive(Where where) {
-        if(where == null) return;
-        if(where instanceof Condition){
+        if (where == null) {
+            return;
+        }
+        if (where instanceof Condition) {
             Condition condition = (Condition) where;
-            if ( condition.getValue() instanceof SubQueryExpression){
+            if (condition.getValue() instanceof SubQueryExpression) {
                 this.subQueries.add((SubQueryExpression) condition.getValue());
                 this.containsSubQueries = true;
             }
-            if(condition.getValue() instanceof Object[]){
+            if (condition.getValue() instanceof Object[]) {
 
-                for(Object o : (Object[]) condition.getValue()){
-                    if ( o instanceof SubQueryExpression){
+                for (Object o : (Object[]) condition.getValue()) {
+                    if (o instanceof SubQueryExpression) {
                         this.subQueries.add((SubQueryExpression) o);
                         this.containsSubQueries = true;
                     }
                 }
             }
-        }
-        else {
-            for(Where innerWhere : where.getWheres())
+        } else {
+            for (Where innerWhere : where.getWheres()) {
                 fillSubQueriesFromWhereRecursive(innerWhere);
+            }
         }
     }
 
@@ -171,8 +176,8 @@ public class Select extends Query {
         return subQueries;
     }
 
-    public boolean isOrderdSelect(){
-        return this.getOrderBys()!=null && this.getOrderBys().size() >0 ;
+    public boolean isOrderdSelect() {
+        return this.getOrderBys() != null && this.getOrderBys().size() > 0;
     }
 
     public boolean isSelectAll() {

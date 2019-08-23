@@ -33,7 +33,7 @@ import java.util.List;
 /**
  * Abstract class for SQL clause domain class.
  *
- * @param <T>   concrete type of clause
+ * @param <T> concrete type of clause
  */
 abstract class SQLClause<T> {
 
@@ -45,7 +45,8 @@ abstract class SQLClause<T> {
 
     /**
      * Rewrite nested fields in query according to/fill into information in scope.
-     * @param scope     Scope of current query
+     *
+     * @param scope Scope of current query
      */
     abstract void rewrite(Scope scope);
 
@@ -56,38 +57,33 @@ abstract class SQLClause<T> {
         return nestedFunc;
     }
 
-    /** Replace expr by nested(expr) and set pointer in parent properly */
+    /**
+     * Replace expr by nested(expr) and set pointer in parent properly
+     */
     SQLMethodInvokeExpr replaceByNestedFunction(SQLExpr expr) {
         SQLObject parent = expr.getParent();
         SQLMethodInvokeExpr nestedFunc = wrapNestedFunction(expr);
         if (parent instanceof SQLAggregateExpr) {
             List<SQLExpr> args = ((SQLAggregateExpr) parent).getArguments();
             args.set(args.indexOf(expr), nestedFunc);
-        }
-        else if (parent instanceof SQLSelectItem) {
+        } else if (parent instanceof SQLSelectItem) {
             ((SQLSelectItem) parent).setExpr(nestedFunc);
-        }
-        else if (parent instanceof MySqlSelectGroupByExpr) {
+        } else if (parent instanceof MySqlSelectGroupByExpr) {
             ((MySqlSelectGroupByExpr) parent).setExpr(nestedFunc);
-        }
-        else if (parent instanceof SQLSelectOrderByItem) {
+        } else if (parent instanceof SQLSelectOrderByItem) {
             ((SQLSelectOrderByItem) parent).setExpr(nestedFunc);
-        }
-        else if (parent instanceof SQLInSubQueryExpr) {
+        } else if (parent instanceof SQLInSubQueryExpr) {
             ((SQLInSubQueryExpr) parent).setExpr(nestedFunc);
-        }
-        else if (parent instanceof SQLBinaryOpExpr) {
+        } else if (parent instanceof SQLBinaryOpExpr) {
             SQLBinaryOpExpr parentOp = (SQLBinaryOpExpr) parent;
             if (parentOp.getLeft() == expr) {
                 parentOp.setLeft(nestedFunc);
             } else {
                 parentOp.setRight(nestedFunc);
             }
-        }
-        else if (parent instanceof MySqlSelectQueryBlock) {
+        } else if (parent instanceof MySqlSelectQueryBlock) {
             ((MySqlSelectQueryBlock) parent).setWhere(nestedFunc);
-        }
-        else {
+        } else {
             throw new IllegalStateException("Unsupported place to use nested field under parent: " + parent);
         }
         return nestedFunc;

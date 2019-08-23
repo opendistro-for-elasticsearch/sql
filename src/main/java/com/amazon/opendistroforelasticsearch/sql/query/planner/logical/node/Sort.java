@@ -30,10 +30,14 @@ public class Sort implements LogicalOperator {
 
     private final LogicalOperator next;
 
-    /** Column name list in ORDER BY */
+    /**
+     * Column name list in ORDER BY
+     */
     private final List<String> orderByColNames;
 
-    /** Order by type, ex. ASC, DESC */
+    /**
+     * Order by type, ex. ASC, DESC
+     */
     private final String orderByType;
 
 
@@ -45,13 +49,13 @@ public class Sort implements LogicalOperator {
 
     @Override
     public PlanNode[] children() {
-        return new PlanNode[]{ next };
+        return new PlanNode[]{next};
     }
 
     @Override
     public <T> PhysicalOperator[] toPhysical(Map<LogicalOperator, PhysicalOperator<T>> optimalOps) {
         return new PhysicalOperator[]{
-            new QuickSort<>(optimalOps.get(next), orderByColNames, orderByType)
+                new QuickSort<>(optimalOps.get(next), orderByColNames, orderByType)
         };
     }
 

@@ -15,8 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.plugin;
 
-import com.amazon.opendistroforelasticsearch.sql.executor.AsyncRestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
+import com.amazon.opendistroforelasticsearch.sql.executor.AsyncRestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.metadata.IndexNameExpressionResolver;
@@ -50,53 +50,64 @@ import java.util.function.Supplier;
 
 public class SqlPlug extends Plugin implements ActionPlugin {
 
-	/** Sql plugin specific settings in ES cluster settings */
-	private final SqlSettings sqlSettings = new SqlSettings();
+    /**
+     * Sql plugin specific settings in ES cluster settings
+     */
+    private final SqlSettings sqlSettings = new SqlSettings();
 
-	public SqlPlug() {
-	}
-
-
-	public String name() {
-		return "sql";
-	}
-
-	public String description() {
-		return "Use sql to query elasticsearch.";
-	}
-
-
-	@Override
-	public List<RestHandler> getRestHandlers(Settings settings, RestController restController, ClusterSettings clusterSettings, IndexScopedSettings indexScopedSettings, SettingsFilter settingsFilter, IndexNameExpressionResolver indexNameExpressionResolver, Supplier<DiscoveryNodes> nodesInCluster) {
-	    LocalClusterState.state().setResolver(indexNameExpressionResolver);
-		Metrics.getInstance().registerDefaultMetrics();
-		return Arrays.asList(
-				new RestSqlAction(settings, restController),
-				new RestSqlStatsAction(settings, restController));
-	}
-
-    @Override
-    public Collection<Object> createComponents(Client client, ClusterService clusterService, ThreadPool threadPool, ResourceWatcherService resourceWatcherService, ScriptService scriptService, NamedXContentRegistry xContentRegistry, Environment environment, NodeEnvironment nodeEnvironment, NamedWriteableRegistry namedWriteableRegistry) {
-	    LocalClusterState.state().setClusterService(clusterService);
-	    LocalClusterState.state().setSqlSettings(sqlSettings);
-	    return super.createComponents(client, clusterService, threadPool, resourceWatcherService, scriptService, xContentRegistry, environment, nodeEnvironment, namedWriteableRegistry);
+    public SqlPlug() {
     }
 
-	@Override
-	public List<ExecutorBuilder<?>> getExecutorBuilders(Settings settings) {
-        return Collections.singletonList(
-			new FixedExecutorBuilder(
-			    settings,
-                AsyncRestExecutor.SQL_WORKER_THREAD_POOL_NAME,
-                EsExecutors.numberOfProcessors(settings),
-                1000,
-                null
-            )
-        );
-	}
 
-	@Override
-	public List<Setting<?>> getSettings() {
-	    return sqlSettings.getSettings();
-	}
+    public String name() {
+        return "sql";
+    }
+
+    public String description() {
+        return "Use sql to query elasticsearch.";
+    }
+
+
+    @Override
+    public List<RestHandler> getRestHandlers(Settings settings, RestController restController,
+                                             ClusterSettings clusterSettings, IndexScopedSettings indexScopedSettings,
+                                             SettingsFilter settingsFilter,
+                                             IndexNameExpressionResolver indexNameExpressionResolver,
+                                             Supplier<DiscoveryNodes> nodesInCluster) {
+        LocalClusterState.state().setResolver(indexNameExpressionResolver);
+        Metrics.getInstance().registerDefaultMetrics();
+        return Arrays.asList(
+                new RestSqlAction(settings, restController),
+                new RestSqlStatsAction(settings, restController));
+    }
+
+    @Override
+    public Collection<Object> createComponents(Client client, ClusterService clusterService, ThreadPool threadPool,
+                                               ResourceWatcherService resourceWatcherService,
+                                               ScriptService scriptService, NamedXContentRegistry xContentRegistry,
+                                               Environment environment, NodeEnvironment nodeEnvironment,
+                                               NamedWriteableRegistry namedWriteableRegistry) {
+        LocalClusterState.state().setClusterService(clusterService);
+        LocalClusterState.state().setSqlSettings(sqlSettings);
+        return super.createComponents(client, clusterService, threadPool, resourceWatcherService, scriptService,
+                xContentRegistry, environment, nodeEnvironment, namedWriteableRegistry);
+    }
+
+    @Override
+    public List<ExecutorBuilder<?>> getExecutorBuilders(Settings settings) {
+        return Collections.singletonList(
+                new FixedExecutorBuilder(
+                        settings,
+                        AsyncRestExecutor.SQL_WORKER_THREAD_POOL_NAME,
+                        EsExecutors.numberOfProcessors(settings),
+                        1000,
+                        null
+                )
+        );
+    }
+
+    @Override
+    public List<Setting<?>> getSettings() {
+        return sqlSettings.getSettings();
+    }
 }

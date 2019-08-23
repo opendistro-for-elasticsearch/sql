@@ -43,7 +43,7 @@ public class ListHashTable<T> implements HashTable<T> {
     @SuppressWarnings("unchecked")
     @Override
     public Map<String, Collection<Object>>[] rightFieldWithLeftValues() {
-        return new Map[]{ new HashMap() };
+        return new Map[]{new HashMap()};
     }
 
     @Override

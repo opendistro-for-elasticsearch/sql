@@ -17,7 +17,9 @@ package com.amazon.opendistroforelasticsearch.sql.domain;
 
 import java.util.List;
 
-/** Stores information about function name for script fields */
+/**
+ * Stores information about function name for script fields
+ */
 public class ScriptMethodField extends MethodField {
     private final String functionName;
 

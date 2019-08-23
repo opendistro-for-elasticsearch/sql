@@ -36,7 +36,9 @@ public class ErrorMessage {
         this.details = fetchDetails();
     }
 
-    private String fetchType() { return exception.getClass().getSimpleName(); }
+    private String fetchType() {
+        return exception.getClass().getSimpleName();
+    }
 
     private String fetchReason() {
         return status == RestStatus.BAD_REQUEST.getStatus()
@@ -50,7 +52,9 @@ public class ErrorMessage {
         return emptyStringIfNull(exception.getLocalizedMessage());
     }
 
-    private String emptyStringIfNull(String str) { return str != null ? str : ""; }
+    private String emptyStringIfNull(String str) {
+        return str != null ? str : "";
+    }
 
     @Override
     public String toString() {

@@ -39,13 +39,14 @@ public class ESClient {
 
     public MultiSearchResponse.Item[] multiSearch(MultiSearchRequest multiSearchRequest) {
         MultiSearchResponse.Item[] responses = new MultiSearchResponse.Item[multiSearchRequest.requests().size()];
-        multiSearchRetry(responses, multiSearchRequest, IntStream.range(0, multiSearchRequest.requests().size()).boxed().collect(Collectors.toList()), 0);
+        multiSearchRetry(responses, multiSearchRequest,
+                IntStream.range(0, multiSearchRequest.requests().size()).boxed().collect(Collectors.toList()), 0);
 
         return responses;
     }
 
-    private void multiSearchRetry(MultiSearchResponse.Item[] responses, MultiSearchRequest multiSearchRequest, List<Integer> indices, int retry) {
-
+    private void multiSearchRetry(MultiSearchResponse.Item[] responses, MultiSearchRequest multiSearchRequest,
+                                  List<Integer> indices, int retry) {
         MultiSearchRequest multiSearchRequestRetry = new MultiSearchRequest();
         for (int i : indices) {
             multiSearchRequestRetry.add(multiSearchRequest.requests().get(i));

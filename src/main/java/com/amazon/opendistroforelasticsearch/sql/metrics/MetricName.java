@@ -31,7 +31,7 @@ public enum MetricName {
 
     private String name;
 
-    private MetricName(String name) {
+    MetricName(String name) {
         this.name = name;
     }
 
@@ -44,8 +44,8 @@ public enum MetricName {
     }
 
     public boolean isNumerical() {
-        return this == REQ_TOTAL || this == REQ_COUNT_TOTAL || this == FAILED_REQ_COUNT_SYS ||
-                this == FAILED_REQ_COUNT_CUS || this == FAILED_REQ_COUNT_CB || this == DEFAULT;
+        return this == REQ_TOTAL || this == REQ_COUNT_TOTAL || this == FAILED_REQ_COUNT_SYS
+                || this == FAILED_REQ_COUNT_CUS || this == FAILED_REQ_COUNT_CB || this == DEFAULT;
     }
 
 }

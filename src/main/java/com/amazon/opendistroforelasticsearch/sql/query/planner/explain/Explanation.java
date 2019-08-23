@@ -15,29 +15,35 @@
 
 package com.amazon.opendistroforelasticsearch.sql.query.planner.explain;
 
-import com.google.common.collect.ImmutableMap;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.Plan;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.PlanNode;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.PlanNode.Visitor;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.logical.LogicalOperator;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.logical.node.Group;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.PhysicalOperator;
+import com.google.common.collect.ImmutableMap;
 
 /**
  * Base class for different explanation implementation
  */
 public class Explanation implements Visitor {
 
-    /** Hard coding description to be consistent with old nested join explanation */
+    /**
+     * Hard coding description to be consistent with old nested join explanation
+     */
     private static final String DESCRIPTION =
-        "Hash Join algorithm builds hash table based on result of first query, " +
-        "and then probes hash table to find matched rows for each row returned by second query";
+            "Hash Join algorithm builds hash table based on result of first query, "
+                    + "and then probes hash table to find matched rows for each row returned by second query";
 
-    /** Plans to be explained */
+    /**
+     * Plans to be explained
+     */
     private final Plan logicalPlan;
     private final Plan physicalPlan;
 
-    /** Explanation format */
+    /**
+     * Explanation format
+     */
     private final ExplanationFormat format;
 
     public Explanation(Plan logicalPlan,
@@ -78,18 +84,24 @@ public class Explanation implements Visitor {
         }
     }
 
-    /** Check if node is a valid logical or physical operator */
+    /**
+     * Check if node is a valid logical or physical operator
+     */
     private boolean isValidOp(PlanNode node) {
         return isValidLogical(node) || isPhysical(node);
     }
 
-    /** Valid logical operator means it's Group OR NOT a no-op because Group clarify explanation */
+    /**
+     * Valid logical operator means it's Group OR NOT a no-op because Group clarify explanation
+     */
     private boolean isValidLogical(PlanNode node) {
-        return (node instanceof LogicalOperator) &&
-            (node instanceof Group || !((LogicalOperator) node).isNoOp());
+        return (node instanceof LogicalOperator)
+                && (node instanceof Group || !((LogicalOperator) node).isNoOp());
     }
 
-    /** Right now all physical operators are valid and non-no-op */
+    /**
+     * Right now all physical operators are valid and non-no-op
+     */
     private boolean isPhysical(PlanNode node) {
         return node instanceof PhysicalOperator;
     }

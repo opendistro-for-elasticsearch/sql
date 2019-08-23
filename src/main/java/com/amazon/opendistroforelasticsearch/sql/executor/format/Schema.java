@@ -46,9 +46,13 @@ public class Schema implements Iterable<Schema.Column> {
         this.columns = columns;
     }
 
-    public String getIndexName() { return indexName; }
+    public String getIndexName() {
+        return indexName;
+    }
 
-    public String getTypeName() { return typeName; }
+    public String getTypeName() {
+        return typeName;
+    }
 
     public List<String> getHeaders() {
         return columns.stream()
@@ -127,11 +131,17 @@ public class Schema implements Iterable<Schema.Column> {
             this(name, alias, type, false);
         }
 
-        public String getName() { return name; }
+        public String getName() {
+            return name;
+        }
 
-        public String getAlias() { return alias; }
+        public String getAlias() {
+            return alias;
+        }
 
-        public String getType() { return type.nameLowerCase(); }
+        public String getType() {
+            return type.nameLowerCase();
+        }
 
         /*
          * Some query types (like JOIN) label the data in SearchHit using alias instead of field name if it's given.
@@ -140,12 +150,15 @@ public class Schema implements Iterable<Schema.Column> {
          * the correct identifier is used to access related data in DataRows.
          */
         public String getIdentifier() {
-            if (identifiedByAlias && alias != null)
+            if (identifiedByAlias && alias != null) {
                 return alias;
-            else
+            } else {
                 return name;
+            }
         }
 
-        public Type getEnumType() { return type; }
+        public Type getEnumType() {
+            return type;
+        }
     }
 }

@@ -41,7 +41,8 @@ public class CSVResultRestExecutor implements RestExecutor {
         final BytesRestResponse bytesRestResponse = new BytesRestResponse(RestStatus.OK, csvString);
 
         if (!BackOffRetryStrategy.isHealthy(2 * bytesRestResponse.content().length(), this)) {
-            throw new IllegalStateException("[CSVResultRestExecutor] Memory could be insufficient when sendResponse().");
+            throw new IllegalStateException(
+                    "[CSVResultRestExecutor] Memory could be insufficient when sendResponse().");
         }
 
         channel.sendResponse(bytesRestResponse);
@@ -70,7 +71,7 @@ public class CSVResultRestExecutor implements RestExecutor {
 
     private boolean getBooleanOrDefault(Map<String, String> params, String param, boolean defaultValue) {
         boolean flat = defaultValue;
-        if(params.containsKey(param)){
+        if (params.containsKey(param)) {
             flat = Boolean.parseBoolean(params.get(param));
         }
         return flat;

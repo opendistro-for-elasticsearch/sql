@@ -15,17 +15,16 @@
 
 package com.amazon.opendistroforelasticsearch.sql.domain;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.parser.ChildrenType;
+import com.amazon.opendistroforelasticsearch.sql.parser.NestedType;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
-import com.amazon.opendistroforelasticsearch.sql.parser.ChildrenType;
-import com.amazon.opendistroforelasticsearch.sql.parser.NestedType;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 过滤条件
@@ -35,7 +34,34 @@ import com.amazon.opendistroforelasticsearch.sql.parser.NestedType;
 public class Condition extends Where {
 
     public enum OPEAR {
-        EQ, GT, LT, GTE, LTE, N, LIKE, NLIKE, REGEXP, IS, ISN, IN, NIN, BETWEEN, NBETWEEN, GEO_INTERSECTS, GEO_BOUNDING_BOX, GEO_DISTANCE, GEO_POLYGON, IN_TERMS, TERM, IDS_QUERY, NESTED_COMPLEX, CHILDREN_COMPLEX, SCRIPT,NIN_TERMS,NTERM;
+
+        EQ,
+        GT,
+        LT,
+        GTE,
+        LTE,
+        N,
+        LIKE,
+        NLIKE,
+        REGEXP,
+        IS,
+        ISN,
+        IN,
+        NIN,
+        BETWEEN,
+        NBETWEEN,
+        GEO_INTERSECTS,
+        GEO_BOUNDING_BOX,
+        GEO_DISTANCE,
+        GEO_POLYGON,
+        IN_TERMS,
+        TERM,
+        IDS_QUERY,
+        NESTED_COMPLEX,
+        CHILDREN_COMPLEX,
+        SCRIPT,
+        NIN_TERMS,
+        NTERM;
 
         public static Map<String, OPEAR> methodNameToOpear;
 
@@ -100,7 +126,7 @@ public class Condition extends Where {
             negatives = HashBiMap.create(7);
             negatives.put(EQ, N);
             negatives.put(IN_TERMS, NIN_TERMS);
-			negatives.put(TERM, NTERM);
+            negatives.put(TERM, NTERM);
             negatives.put(GT, LTE);
             negatives.put(LT, GTE);
             negatives.put(LIKE, NLIKE);
@@ -166,16 +192,18 @@ public class Condition extends Where {
     private boolean isChildren;
     private String childType;
 
-    public Condition(CONN conn, String field, SQLExpr nameExpr, String condition, Object obj, SQLExpr valueExpr) throws SqlParseException {
+    public Condition(CONN conn, String field, SQLExpr nameExpr, String condition, Object obj, SQLExpr valueExpr)
+            throws SqlParseException {
         this(conn, field, nameExpr, condition, obj, valueExpr, null);
     }
 
-    public Condition(CONN conn, String field, SQLExpr nameExpr, OPEAR condition, Object obj, SQLExpr valueExpr) throws SqlParseException {
+    public Condition(CONN conn, String field, SQLExpr nameExpr, OPEAR condition, Object obj, SQLExpr valueExpr)
+            throws SqlParseException {
         this(conn, field, nameExpr, condition, obj, valueExpr, null);
     }
 
-    public Condition(CONN conn, String name, SQLExpr nameExpr, String oper, Object value, SQLExpr valueExpr, Object relationshipType) throws
-            SqlParseException {
+    public Condition(CONN conn, String name, SQLExpr nameExpr, String oper,
+                     Object value, SQLExpr valueExpr, Object relationshipType) throws SqlParseException {
         super(conn);
 
         this.opear = null;
@@ -209,10 +237,11 @@ public class Condition extends Where {
             this.childType = "";
         }
 
-        if (OPEAR.operStringToOpear.containsKey(oper))
+        if (OPEAR.operStringToOpear.containsKey(oper)) {
             this.opear = OPEAR.operStringToOpear.get(oper);
-        else
+        } else {
             throw new SqlParseException(oper + " is not a supported operation");
+        }
     }
 
 
@@ -376,8 +405,8 @@ public class Condition extends Where {
     @Override
     public Object clone() throws CloneNotSupportedException {
         try {
-            Condition clonedCondition = new Condition(this.getConn(), this.getName(),this.getNameExpr(), this.getOpear(), this.getValue(),this.getValueExpr(), this.getRelationshipType());
-            return clonedCondition;
+            return new Condition(this.getConn(), this.getName(), this.getNameExpr(),
+                    this.getOpear(), this.getValue(), this.getValueExpr(), this.getRelationshipType());
         } catch (SqlParseException e) {
 
         }

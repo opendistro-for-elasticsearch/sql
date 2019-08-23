@@ -33,10 +33,14 @@ import static java.util.Comparator.comparing;
  */
 public class Estimation<T> implements LogicalPlanVisitor {
 
-    /** Optimal physical operator for logical operator based on completed estimation */
+    /**
+     * Optimal physical operator for logical operator based on completed estimation
+     */
     private Map<LogicalOperator, PhysicalOperator<T>> optimalOps = new IdentityHashMap<>();
 
-    /** Keep tracking of the operator that exit visit() */
+    /**
+     * Keep tracking of the operator that exit visit()
+     */
     private PhysicalOperator<T> root;
 
     @Override
@@ -49,8 +53,9 @@ public class Estimation<T> implements LogicalPlanVisitor {
     public void endVisit(PlanNode node) {
         LogicalOperator op = (LogicalOperator) node;
         PhysicalOperator<T> optimal = Arrays.stream(op.toPhysical(optimalOps)).
-                                             min(comparing(PhysicalOperator::estimate)).
-                                             orElseThrow(() -> new IllegalStateException("No optimal operator found: " + op));
+                min(comparing(PhysicalOperator::estimate)).
+                orElseThrow(() -> new IllegalStateException(
+                        "No optimal operator found: " + op));
         optimalOps.put(op, optimal);
         root = optimal;
     }

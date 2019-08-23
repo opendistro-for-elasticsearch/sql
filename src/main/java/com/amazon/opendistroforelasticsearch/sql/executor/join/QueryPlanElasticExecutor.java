@@ -15,9 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.join;
 
-import org.elasticsearch.search.SearchHit;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.HashJoinQueryPlanRequestBuilder;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.QueryPlanner;
+import org.elasticsearch.search.SearchHit;
 
 import java.util.List;
 

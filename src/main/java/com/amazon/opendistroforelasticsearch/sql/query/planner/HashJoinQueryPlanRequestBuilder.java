@@ -15,12 +15,12 @@
 
 package com.amazon.opendistroforelasticsearch.sql.query.planner;
 
-import com.amazon.opendistroforelasticsearch.sql.query.planner.core.QueryPlanner;
-import org.elasticsearch.client.Client;
-import com.amazon.opendistroforelasticsearch.sql.request.SqlRequest;
 import com.amazon.opendistroforelasticsearch.sql.query.join.HashJoinElasticRequestBuilder;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.Config;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.QueryParams;
+import com.amazon.opendistroforelasticsearch.sql.query.planner.core.QueryPlanner;
+import com.amazon.opendistroforelasticsearch.sql.request.SqlRequest;
+import org.elasticsearch.client.Client;
 
 /**
  * QueryPlanner builder for Hash Join query. In future, different queries could have its own builders to generate
@@ -28,13 +28,19 @@ import com.amazon.opendistroforelasticsearch.sql.query.planner.core.QueryParams;
  */
 public class HashJoinQueryPlanRequestBuilder extends HashJoinElasticRequestBuilder {
 
-    /** Client connection to ES cluster */
+    /**
+     * Client connection to ES cluster
+     */
     private final Client client;
 
-    /** Query request */
+    /**
+     * Query request
+     */
     private final SqlRequest request;
 
-    /** Query planner configuration */
+    /**
+     * Query planner configuration
+     */
     private final Config config;
 
 
@@ -52,25 +58,25 @@ public class HashJoinQueryPlanRequestBuilder extends HashJoinElasticRequestBuild
     /**
      * Planning for the query and create planner for explain/execute later.
      *
-     * @return  query planner
+     * @return query planner
      */
     public QueryPlanner plan() {
         config.configureLimit(
-            getTotalLimit(),
-            getFirstTable().getHintLimit(),
-            getSecondTable().getHintLimit()
+                getTotalLimit(),
+                getFirstTable().getHintLimit(),
+                getSecondTable().getHintLimit()
         );
         config.configureTermsFilterOptimization(isUseTermFiltersOptimization());
 
         return new QueryPlanner(
-            client,
-            config,
-            new QueryParams(
-                getFirstTable(),
-                getSecondTable(),
-                getJoinType(),
-                getT1ToT2FieldsComparison()
-            )
+                client,
+                config,
+                new QueryParams(
+                        getFirstTable(),
+                        getSecondTable(),
+                        getJoinType(),
+                        getT1ToT2FieldsComparison()
+                )
         );
     }
 

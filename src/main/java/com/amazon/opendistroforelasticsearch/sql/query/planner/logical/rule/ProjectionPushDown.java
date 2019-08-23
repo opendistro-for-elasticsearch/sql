@@ -25,8 +25,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
 import static com.amazon.opendistroforelasticsearch.sql.query.planner.logical.node.Join.JoinCondition;
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -34,7 +34,9 @@ import static com.amazon.opendistroforelasticsearch.sql.query.planner.logical.no
  */
 public class ProjectionPushDown implements LogicalPlanVisitor {
 
-    /** Project used to collect column names in SELECT, ON, ORDER BY... */
+    /**
+     * Project used to collect column names in SELECT, ON, ORDER BY...
+     */
     private final Project<?> project = new Project(null);
 
     @Override
@@ -57,7 +59,9 @@ public class ProjectionPushDown implements LogicalPlanVisitor {
         return false; // avoid iterating operators in virtual Group
     }
 
-    /** Note that raw type Project cause generic type of forEach be erased at compile time */
+    /**
+     * Note that raw type Project cause generic type of forEach be erased at compile time
+     */
     private void pushDown(Project<?> project) {
         project.forEach(this::project);
     }
@@ -65,12 +69,12 @@ public class ProjectionPushDown implements LogicalPlanVisitor {
     private void pushDown(JoinCondition orCond) {
         for (int i = 0; i < orCond.groupSize(); i++) {
             project(
-                orCond.leftTableAlias(),
-                columnNamesToFields(orCond.leftColumnNames(i))
+                    orCond.leftTableAlias(),
+                    columnNamesToFields(orCond.leftColumnNames(i))
             );
             project(
-                orCond.rightTableAlias(),
-                columnNamesToFields(orCond.rightColumnNames(i))
+                    orCond.rightTableAlias(),
+                    columnNamesToFields(orCond.rightColumnNames(i))
             );
         }
     }
@@ -79,11 +83,13 @@ public class ProjectionPushDown implements LogicalPlanVisitor {
         project.project(tableAlias, columns); // Bug: Field doesn't implement hashCode() which leads to duplicate
     }
 
-    /** Convert column name string to Field object with empty alias */
+    /**
+     * Convert column name string to Field object with empty alias
+     */
     private List<Field> columnNamesToFields(String[] colNames) {
         return Arrays.stream(colNames).
-                      map(name -> new Field(name, null)). // Alias is useless for pushed down project
-                      collect(toList());
+                map(name -> new Field(name, null)). // Alias is useless for pushed down project
+                collect(toList());
     }
 
 }

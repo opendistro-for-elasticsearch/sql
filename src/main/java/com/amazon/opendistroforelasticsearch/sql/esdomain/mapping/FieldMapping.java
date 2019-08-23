@@ -25,19 +25,25 @@ import static org.elasticsearch.action.admin.indices.mapping.get.GetFieldMapping
 
 /**
  * Field mapping that parses native ES mapping.
- *
+ * <p>
  * NOTE that approaches in this class are NOT reliable because of the ES mapping query API used.
  * We should deprecate this in future and parse field mapping in more solid way.
  */
 public class FieldMapping {
 
-    /** Name of the Field to be parsed */
+    /**
+     * Name of the Field to be parsed
+     */
     private final String fieldName;
 
-    /** Native mapping information returned from ES */
+    /**
+     * Native mapping information returned from ES
+     */
     private final Map<String, FieldMappingMetaData> typeMappings;
 
-    /** Maps a field name to Field object that specified in query explicitly */
+    /**
+     * Maps a field name to Field object that specified in query explicitly
+     */
     private final Map<String, Field> specifiedFieldsByName;
 
     public FieldMapping(String fieldName) {
@@ -55,6 +61,7 @@ public class FieldMapping {
 
     /**
      * Is field specified explicitly in query
+     *
      * @return true if specified
      */
     public boolean isSpecified() {
@@ -63,6 +70,7 @@ public class FieldMapping {
 
     /**
      * Verify if property field matches wildcard pattern specified in query
+     *
      * @return true if matched
      */
     public boolean isWildcardSpecified() {
@@ -71,6 +79,7 @@ public class FieldMapping {
 
     /**
      * Is field a property field, which means either object field or nested field.
+     *
      * @return true for property field
      */
     public boolean isPropertyField() {
@@ -80,6 +89,7 @@ public class FieldMapping {
 
     /**
      * Is field a/in multi-field, for example, field "a.keyword" in field "a"
+     *
      * @return true for multi field
      */
     public boolean isMultiField() {
@@ -88,6 +98,7 @@ public class FieldMapping {
 
     /**
      * Is field meta field, such as _id, _index, _source etc.
+     *
      * @return true for meta field
      */
     public boolean isMetaField() {
@@ -96,6 +107,7 @@ public class FieldMapping {
 
     /**
      * Path of property field, for example "employee" in "employee.manager"
+     *
      * @return path of property field
      */
     public String path() {

@@ -15,11 +15,11 @@
 
 package com.amazon.opendistroforelasticsearch.sql.query.planner.logical.node;
 
-import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.estimation.Cost;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.PlanNode;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.logical.LogicalOperator;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.PhysicalOperator;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.Row;
+import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.estimation.Cost;
 
 import java.util.Map;
 
@@ -32,7 +32,9 @@ public class Top<T> implements LogicalOperator, PhysicalOperator<T> {
 
     private final PlanNode next;
 
-    /** Number of rows to return in total */
+    /**
+     * Number of rows to return in total
+     */
     private int count;
 
     @SuppressWarnings("unchecked")
@@ -43,7 +45,7 @@ public class Top<T> implements LogicalOperator, PhysicalOperator<T> {
 
     @Override
     public PlanNode[] children() {
-        return new PlanNode[]{ next };
+        return new PlanNode[]{next};
     }
 
     @SuppressWarnings("unchecked")
@@ -64,7 +66,7 @@ public class Top<T> implements LogicalOperator, PhysicalOperator<T> {
         if (!(next instanceof LogicalOperator)) {
             throw new IllegalStateException("Only logical operator can perform this toPhysical() operation");
         }
-        return new PhysicalOperator[]{ new Top<>(optimalOps.get(next), count) };
+        return new PhysicalOperator[]{new Top<>(optimalOps.get(next), count)};
     }
 
     @Override

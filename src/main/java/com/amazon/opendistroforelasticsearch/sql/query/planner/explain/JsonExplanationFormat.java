@@ -28,10 +28,14 @@ import java.util.Map;
  */
 public class JsonExplanationFormat implements ExplanationFormat {
 
-    /** JSONObject stack to track the path from root to current ndoe */
+    /**
+     * JSONObject stack to track the path from root to current ndoe
+     */
     private final Deque<JSONObject> jsonObjStack = new ArrayDeque<>();
 
-    /** Indentation in final output string */
+    /**
+     * Indentation in final output string
+     */
     private final int indent;
 
     public JsonExplanationFormat(int indent) {
@@ -77,25 +81,25 @@ public class JsonExplanationFormat implements ExplanationFormat {
             try {
                 JSONObject jsonValue = new JSONObject(json.getString(key));
                 json.put(key, jsonValue);
-            }
-            catch (JSONException e) {
+            } catch (JSONException e) {
                 // Ignore value that is not a valid JSON.
             }
         }
     }
 
     private String nodeName(Object obj) {
-        return obj.toString();//obj.getClass().getSimpleName();
+        return obj.toString(); //obj.getClass().getSimpleName();
     }
 
-    /** Replace JSONObject by JSONArray if key is duplicate */
+    /**
+     * Replace JSONObject by JSONArray if key is duplicate
+     */
     private void appendToArrayIfExist(String name, JSONObject child) {
         JSONObject parent = jsonObjStack.peek();
         Object otherChild = parent.opt(name);
         if (otherChild == null) {
             parent.put(name, child);
-        }
-        else {
+        } else {
             if (!(otherChild instanceof JSONArray)) {
                 parent.remove(name);
                 parent.append(name, otherChild);

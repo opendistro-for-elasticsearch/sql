@@ -16,8 +16,8 @@
 package com.amazon.opendistroforelasticsearch.sql.query.planner.physical;
 
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.ExecuteParams;
-import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.estimation.Cost;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.PlanNode;
+import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.estimation.Cost;
 
 import java.util.Iterator;
 
@@ -29,7 +29,7 @@ public interface PhysicalOperator<T> extends PlanNode, Iterator<Row<T>>, AutoClo
     /**
      * Estimate the cost of current physical operator
      *
-     * @return  cost
+     * @return cost
      */
     Cost estimate();
 
@@ -37,7 +37,7 @@ public interface PhysicalOperator<T> extends PlanNode, Iterator<Row<T>>, AutoClo
     /**
      * Initialize operator.
      *
-     * @param params    exuecution parameters needed
+     * @param params exuecution parameters needed
      */
     default void open(ExecuteParams params) throws Exception {
         for (PlanNode node : children()) {
@@ -49,7 +49,7 @@ public interface PhysicalOperator<T> extends PlanNode, Iterator<Row<T>>, AutoClo
     /**
      * Close resources related to the operator.
      *
-     * @throws Exception    potential exception raised
+     * @throws Exception potential exception raised
      */
     @Override
     default void close() {

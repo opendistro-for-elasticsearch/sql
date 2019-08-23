@@ -15,8 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.query.planner.physical.node.join;
 
-import com.google.common.collect.Sets;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.Row;
+import com.google.common.collect.Sets;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -32,7 +32,9 @@ public class HashTableGroup<T> implements HashTable<T> {
 
     private final HashTable<T>[] hashTables;
 
-    /** Number of rows stored in the hash table (in other words, = block size) */
+    /**
+     * Number of rows stored in the hash table (in other words, = block size)
+     */
     private int numOfRows = 0;
 
     @SuppressWarnings("unchecked")
@@ -40,14 +42,13 @@ public class HashTableGroup<T> implements HashTable<T> {
         int groupSize = condition.groupSize();
         if (groupSize == 0) {
             // Create one hash table (degraded to list) for Cross Join
-            hashTables = new HashTable[]{ new ListHashTable() };
-        }
-        else {
+            hashTables = new HashTable[]{new ListHashTable()};
+        } else {
             hashTables = new HashTable[groupSize];
             for (int i = 0; i < groupSize; i++) {
                 hashTables[i] = new DefaultHashTable<>(
-                    condition.leftColumnNames(i),
-                    condition.rightColumnNames(i)
+                        condition.leftColumnNames(i),
+                        condition.rightColumnNames(i)
                 );
             }
         }
@@ -73,8 +74,8 @@ public class HashTableGroup<T> implements HashTable<T> {
     @SuppressWarnings("unchecked")
     public Map<String, Collection<Object>>[] rightFieldWithLeftValues() {
         return Arrays.stream(hashTables).
-                      map(hashTable -> hashTable.rightFieldWithLeftValues()[0]). // Make interface consistent
-                      toArray(Map[]::new);
+                map(hashTable -> hashTable.rightFieldWithLeftValues()[0]). // Make interface consistent
+                toArray(Map[]::new);
     }
 
     @Override

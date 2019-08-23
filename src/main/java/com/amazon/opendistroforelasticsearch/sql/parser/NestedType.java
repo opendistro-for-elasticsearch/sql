@@ -37,25 +37,31 @@ public class NestedType {
     private boolean simple;
 
     public boolean tryFillFromExpr(SQLExpr expr) throws SqlParseException {
-        if (!(expr instanceof SQLMethodInvokeExpr)) return false;
+        if (!(expr instanceof SQLMethodInvokeExpr)) {
+            return false;
+        }
         SQLMethodInvokeExpr method = (SQLMethodInvokeExpr) expr;
         String methodNameLower = method.getMethodName().toLowerCase();
-        if (!(methodNameLower.equals("nested") || methodNameLower.equals("reverse_nested"))) return false;
+        if (!(methodNameLower.equals("nested") || methodNameLower.equals("reverse_nested"))) {
+            return false;
+        }
 
         reverse = methodNameLower.equals("reverse_nested");
 
         List<SQLExpr> parameters = method.getParameters();
-        if (parameters.size() != 2 && parameters.size() != 1)
-            throw new SqlParseException("on nested object only allowed 2 parameters (field,path)/(path,conditions..) or 1 parameter (field) ");
+        if (parameters.size() != 2 && parameters.size() != 1) {
+            throw new SqlParseException("on nested object only allowed 2 parameters (field,path)/(path,conditions..) "
+                    + "or 1 parameter (field) ");
+        }
 
         String field = Util.extendedToString(parameters.get(0));
         this.field = field;
         if (parameters.size() == 1) {
             //calc path myself..
             if (!field.contains(".")) {
-                if (!reverse)
+                if (!reverse) {
                     throw new SqlParseException("nested should contain . on their field name");
-                else {
+                } else {
                     this.path = null;
                     this.simple = true;
                 }
@@ -68,21 +74,23 @@ public class NestedType {
 
         } else if (parameters.size() == 2) {
             SQLExpr secondParameter = parameters.get(1);
-            if(secondParameter instanceof SQLTextLiteralExpr || secondParameter instanceof SQLIdentifierExpr || secondParameter instanceof SQLPropertyExpr) {
+            if (secondParameter instanceof SQLTextLiteralExpr || secondParameter instanceof SQLIdentifierExpr
+                    || secondParameter instanceof SQLPropertyExpr) {
 
                 String pathString = Util.extendedToString(secondParameter);
-                if(pathString.equals(""))
+                if (pathString.equals("")) {
                     this.path = null;
-                else
+                } else {
                     this.path = pathString;
+                }
                 this.simple = true;
-            }
-            else {
+            } else {
                 this.path = field;
                 Where where = Where.newInstance();
-                new WhereParser(new SqlParser()).parseWhere(secondParameter,where);
-                if(where.getWheres().size() == 0)
+                new WhereParser(new SqlParser()).parseWhere(secondParameter, where);
+                if (where.getWheres().size() == 0) {
                     throw new SqlParseException("unable to parse filter where.");
+                }
                 this.where = where;
                 simple = false;
             }

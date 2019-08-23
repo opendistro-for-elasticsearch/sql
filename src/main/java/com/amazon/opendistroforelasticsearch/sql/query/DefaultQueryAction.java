@@ -80,7 +80,9 @@ public class DefaultQueryAction extends QueryAction {
             }
         }
         if (scrollHint != null && scrollHint.getParams()[0] instanceof String) {
-            return new SqlElasticSearchRequestBuilder(new SearchScrollRequestBuilder(client, SearchScrollAction.INSTANCE, (String) scrollHint.getParams()[0]).setScroll(new TimeValue((Integer) scrollHint.getParams()[1])));
+            return new SqlElasticSearchRequestBuilder(new SearchScrollRequestBuilder(client,
+                    SearchScrollAction.INSTANCE, (String) scrollHint.getParams()[0])
+                    .setScroll(new TimeValue((Integer) scrollHint.getParams()[1])));
         }
 
         this.request = new SearchRequestBuilder(client, SearchAction.INSTANCE);
@@ -93,9 +95,11 @@ public class DefaultQueryAction extends QueryAction {
         setLimit(select.getOffset(), select.getRowCount());
 
         if (scrollHint != null) {
-            if (!select.isOrderdSelect())
+            if (!select.isOrderdSelect()) {
                 request.addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC);
-            request.setSize((Integer) scrollHint.getParams()[0]).setScroll(new TimeValue((Integer) scrollHint.getParams()[1]));
+            }
+            request.setSize((Integer) scrollHint.getParams()[0])
+                    .setScroll(new TimeValue((Integer) scrollHint.getParams()[1]));
         } else {
             request.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
         }
@@ -129,8 +133,7 @@ public class DefaultQueryAction extends QueryAction {
     /**
      * Set source filtering on a search request.
      *
-     * @param fields
-     *            list of fields to source filter.
+     * @param fields list of fields to source filter.
      */
     public void setFields(List<Field> fields) throws SqlParseException {
 
@@ -149,7 +152,7 @@ public class DefaultQueryAction extends QueryAction {
                         }
                     } else if (method.getName().equalsIgnoreCase("exclude")) {
                         for (KVValue kvValue : method.getParams()) {
-                            excludeFields.add(kvValue.value.toString()) ;
+                            excludeFields.add(kvValue.value.toString());
                         }
                     }
                 } else if (field != null) {
@@ -170,8 +173,8 @@ public class DefaultQueryAction extends QueryAction {
         final int numOfParams = params.size();
 
         if (2 != numOfParams && 3 != numOfParams) {
-            throw new SqlParseException("scripted_field only allows 'script(name,script)' " +
-                    "or 'script(name,lang,script)'");
+            throw new SqlParseException("scripted_field only allows 'script(name,script)' "
+                    + "or 'script(name,lang,script)'");
         }
 
         final String fieldName = params.get(0).value.toString();
@@ -186,10 +189,8 @@ public class DefaultQueryAction extends QueryAction {
     /**
      * Create filters or queries based on the Where clause.
      *
-     * @param where
-     *            the 'WHERE' part of the SQL query.
-     * @throws SqlParseException
-     *            if the where clause does not represent valid sql
+     * @param where the 'WHERE' part of the SQL query.
+     * @throws SqlParseException if the where clause does not represent valid sql
      */
     private void setWhere(Where where) throws SqlParseException {
         BoolQueryBuilder boolQuery = null;
@@ -206,8 +207,7 @@ public class DefaultQueryAction extends QueryAction {
     /**
      * Add sorts to the elasticsearch query based on the 'ORDER BY' clause.
      *
-     * @param orderBys
-     *            list of Order object
+     * @param orderBys list of Order object
      */
     private void setSorts(List<Order> orderBys) {
         for (Order order : orderBys) {
@@ -256,10 +256,8 @@ public class DefaultQueryAction extends QueryAction {
     /**
      * Add from and size to the ES query based on the 'LIMIT' clause
      *
-     * @param from
-     *            starts from document at position from
-     * @param size
-     *            number of documents to return.
+     * @param from starts from document at position from
+     * @param size number of documents to return.
      */
     private void setLimit(int from, int size) {
         request.setFrom(from);

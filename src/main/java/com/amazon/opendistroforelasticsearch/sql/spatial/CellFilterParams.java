@@ -30,7 +30,7 @@ public class CellFilterParams {
     }
 
     public CellFilterParams(Point geohashPoint, int precision) {
-        this(geohashPoint, precision,false);
+        this(geohashPoint, precision, false);
     }
 
     public Point getGeohashPoint() {

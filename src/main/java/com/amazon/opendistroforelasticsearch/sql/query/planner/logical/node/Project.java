@@ -42,10 +42,14 @@ public class Project<T> implements LogicalOperator, PhysicalOperator<T> {
 
     private final PlanNode next;
 
-    /** All columns being projected in SELECT in each table */
+    /**
+     * All columns being projected in SELECT in each table
+     */
     private final Multimap<String, Field> tableAliasColumns;
 
-    /** All columns full name (tableAlias.colName) to alias mapping */
+    /**
+     * All columns full name (tableAlias.colName) to alias mapping
+     */
     private final Map<String, String> fullNameAlias;
 
 
@@ -68,7 +72,7 @@ public class Project<T> implements LogicalOperator, PhysicalOperator<T> {
 
     @Override
     public PlanNode[] children() {
-        return new PlanNode[]{ next };
+        return new PlanNode[]{next};
     }
 
     @Override
@@ -77,7 +81,7 @@ public class Project<T> implements LogicalOperator, PhysicalOperator<T> {
             throw new IllegalStateException("Only logical operator can perform this toPhysical() operation");
         }
         return new PhysicalOperator[]{
-            new Project<U>(optimalOps.get(next), tableAliasColumns) // Create physical Project instance
+                new Project<U>(optimalOps.get(next), tableAliasColumns) // Create physical Project instance
         };
     }
 
@@ -127,15 +131,17 @@ public class Project<T> implements LogicalOperator, PhysicalOperator<T> {
         }
     }
 
-    /** Return mapping from column full name ("e.age") and alias ("a" in "SELECT e.age AS a") */
+    /**
+     * Return mapping from column full name ("e.age") and alias ("a" in "SELECT e.age AS a")
+     */
     private Map<String, String> fullNameAndAlias() {
         Map<String, String> fullNamesAlias = new HashMap<>();
         forEach(
-            (tableAlias, fields) -> {
-                for (Field field : fields) {
-                    fullNamesAlias.put(tableAlias + "." + field.getName(), field.getAlias());
+                (tableAlias, fields) -> {
+                    for (Field field : fields) {
+                        fullNamesAlias.put(tableAlias + "." + field.getName(), field.getAlias());
+                    }
                 }
-            }
         );
         return fullNamesAlias;
     }

@@ -15,9 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.query.planner.logical;
 
-import org.json.JSONPropertyIgnore;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.PlanNode;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.PhysicalOperator;
+import org.json.JSONPropertyIgnore;
 
 import java.util.Map;
 
@@ -28,10 +28,10 @@ public interface LogicalOperator extends PlanNode {
 
     /**
      * If current operator is no operation. It depends on specific internal state of operator
-     *
+     * <p>
      * Ignore this field in explanation because all explainable operator are NOT no-op.
      *
-     * @return  true if NoOp
+     * @return true if NoOp
      */
     @JSONPropertyIgnore
     default boolean isNoOp() {
@@ -40,12 +40,12 @@ public interface LogicalOperator extends PlanNode {
 
     /**
      * Map logical operator to physical operators (possibly 1 to N mapping)
-     *
+     * <p>
      * Note that generic type on PhysicalOperator[] would enforce all impl convert array to generic type array
      * because generic type array is unable to be created directly.
      *
-     * @param optimalOps    optimal physical operators estimated so far
-     * @return              list of physical operator
+     * @param optimalOps optimal physical operators estimated so far
+     * @return list of physical operator
      */
     <T> PhysicalOperator[] toPhysical(Map<LogicalOperator, PhysicalOperator<T>> optimalOps);
 

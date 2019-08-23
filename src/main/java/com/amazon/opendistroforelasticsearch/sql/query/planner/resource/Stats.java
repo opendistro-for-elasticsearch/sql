@@ -19,14 +19,16 @@ import org.elasticsearch.client.Client;
 
 /**
  * Statistics collector collects from ES stats, JVM etc for other components:
- *
- *  1) Resource monitor
- *  2) Cost estimation
- *  3) Block size calculation
+ * <p>
+ * 1) Resource monitor
+ * 2) Cost estimation
+ * 3) Block size calculation
  */
 public class Stats {
 
-    /** Client connection to ES cluster (unused now) */
+    /**
+     * Client connection to ES cluster (unused now)
+     */
     private Client client;
 
     public Stats(Client client) {
@@ -35,12 +37,14 @@ public class Stats {
 
     public MemStats collectMemStats() {
         return new MemStats(
-            Runtime.getRuntime().freeMemory(),
-            Runtime.getRuntime().totalMemory()
+                Runtime.getRuntime().freeMemory(),
+                Runtime.getRuntime().totalMemory()
         );
     }
 
-    /** Statistics data class for memory usage */
+    /**
+     * Statistics data class for memory usage
+     */
     public static class MemStats {
         private long free;
         private long total;
