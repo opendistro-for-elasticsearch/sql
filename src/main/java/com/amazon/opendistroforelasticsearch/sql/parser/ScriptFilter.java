@@ -19,8 +19,8 @@ import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
 import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
-import org.elasticsearch.script.ScriptType;
 import com.amazon.opendistroforelasticsearch.sql.utils.Util;
+import org.elasticsearch.script.ScriptType;
 
 import java.util.HashMap;
 import java.util.List;
@@ -31,8 +31,9 @@ import java.util.Map;
  */
 public class ScriptFilter {
     private String script;
-    private Map<String,Object> args;
+    private Map<String, Object> args;
     private ScriptType scriptType;
+
     public ScriptFilter() {
 
         args = null;
@@ -74,10 +75,9 @@ public class ScriptFilter {
             SQLExpr right = binaryOpExpr.getRight();
             Object value = Util.expr2Object(right);
             String key = Util.extendedToString(binaryOpExpr.getLeft());
-            if(key.equals("script_type")){
+            if (key.equals("script_type")) {
                 parseAndUpdateScriptType(value.toString());
-            }
-            else {
+            } else {
                 args.put(key, value);
             }
 
@@ -87,7 +87,7 @@ public class ScriptFilter {
 
     private void parseAndUpdateScriptType(String scriptType) {
         String scriptTypeUpper = scriptType.toUpperCase();
-        switch(scriptTypeUpper){
+        switch (scriptTypeUpper) {
             case "INLINE":
                 this.scriptType = ScriptType.INLINE;
                 break;
@@ -98,8 +98,8 @@ public class ScriptFilter {
         }
     }
 
-    public boolean containsParameters(){
-        return args!=null && args.size() > 0;
+    public boolean containsParameters() {
+        return args != null && args.size() > 0;
     }
 
     public String getScript() {
@@ -114,6 +114,8 @@ public class ScriptFilter {
         return args;
     }
 
-    public void setArgs(Map<String, Object> args) { this.args = args; }
+    public void setArgs(Map<String, Object> args) {
+        this.args = args;
+    }
 
 }

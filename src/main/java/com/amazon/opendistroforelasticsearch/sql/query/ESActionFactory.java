@@ -33,8 +33,6 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.ElasticResultHandler;
 import com.amazon.opendistroforelasticsearch.sql.executor.QueryActionElasticExecutor;
-import com.amazon.opendistroforelasticsearch.sql.rewriter.RewriteRuleExecutor;
-import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.SubqueryRewriteRule;
 import com.amazon.opendistroforelasticsearch.sql.parser.ElasticLexer;
 import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
 import com.amazon.opendistroforelasticsearch.sql.parser.SqlParser;
@@ -42,9 +40,11 @@ import com.amazon.opendistroforelasticsearch.sql.parser.SubQueryExpression;
 import com.amazon.opendistroforelasticsearch.sql.query.join.ESJoinQueryActionFactory;
 import com.amazon.opendistroforelasticsearch.sql.query.multi.MultiQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.multi.MultiQuerySelect;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.RewriteRuleExecutor;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.TermFieldRewriter;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.TermFieldRewriter.TermRewriterFilter;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.nestedfield.NestedFieldRewriter;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.SubqueryRewriteRule;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -64,10 +64,11 @@ public class ESActionFactory {
      * @param sql The SQL query.
      * @return Query object.
      */
-    public static QueryAction create(Client client, String sql) throws SqlParseException, SQLFeatureNotSupportedException {
+    public static QueryAction create(Client client, String sql) throws SqlParseException,
+            SQLFeatureNotSupportedException {
 
         // Linebreak matcher
-        sql = sql.replaceAll("\\R"," ").trim();
+        sql = sql.replaceAll("\\R", " ").trim();
 
         switch (getFirstWord(sql)) {
             case "SELECT":
@@ -78,17 +79,16 @@ public class ESActionFactory {
                         .build();
                 ruleExecutor.executeOn(sqlExpr);
 
-                if(isMulti(sqlExpr)){
+                if (isMulti(sqlExpr)) {
                     sqlExpr.accept(new TermFieldRewriter(client, TermRewriterFilter.MULTI_QUERY));
-                    MultiQuerySelect multiSelect = new SqlParser().parseMultiSelect((SQLUnionQuery) sqlExpr.getSubQuery().getQuery());
+                    MultiQuerySelect multiSelect = new SqlParser()
+                            .parseMultiSelect((SQLUnionQuery) sqlExpr.getSubQuery().getQuery());
                     return new MultiQueryAction(client, multiSelect);
-                }
-                else if(isJoin(sqlExpr,sql)){
+                } else if (isJoin(sqlExpr, sql)) {
                     sqlExpr.accept(new TermFieldRewriter(client, TermRewriterFilter.JOIN));
                     JoinSelect joinSelect = new SqlParser().parseJoinSelect(sqlExpr);
                     return ESJoinQueryActionFactory.createJoinAction(client, joinSelect);
-                }
-                else {
+                } else {
                     sqlExpr.accept(new TermFieldRewriter(client));
                     Select select = new SqlParser().parseSelect(sqlExpr);
                     return handleSelect(client, select);
@@ -121,23 +121,23 @@ public class ESActionFactory {
         return sqlExpr.getSubQuery().getQuery() instanceof SQLUnionQuery;
     }
 
-    private static void executeAndFillSubQuery(Client client , SubQueryExpression subQueryExpression,QueryAction queryAction) throws SqlParseException {
+    private static void executeAndFillSubQuery(Client client, SubQueryExpression subQueryExpression,
+                                               QueryAction queryAction) throws SqlParseException {
         List<Object> values = new ArrayList<>();
         Object queryResult;
         try {
-            queryResult = QueryActionElasticExecutor.executeAnyAction(client,queryAction);
+            queryResult = QueryActionElasticExecutor.executeAnyAction(client, queryAction);
         } catch (Exception e) {
-            throw new SqlParseException("could not execute SubQuery: " +  e.getMessage());
+            throw new SqlParseException("could not execute SubQuery: " + e.getMessage());
         }
 
         String returnField = subQueryExpression.getReturnField();
-        if(queryResult instanceof SearchHits) {
+        if (queryResult instanceof SearchHits) {
             SearchHits hits = (SearchHits) queryResult;
             for (SearchHit hit : hits) {
-                values.add(ElasticResultHandler.getFieldValue(hit,returnField));
+                values.add(ElasticResultHandler.getFieldValue(hit, returnField));
             }
-        }
-        else {
+        } else {
             throw new SqlParseException("on sub queries only support queries that return Hits and not aggregations");
         }
         subQueryExpression.setValues(values.toArray());
@@ -157,9 +157,10 @@ public class ESActionFactory {
         return new MySqlStatementParser(lexer);
     }
 
-    private static boolean isJoin(SQLQueryExpr sqlExpr,String sql) {
+    private static boolean isJoin(SQLQueryExpr sqlExpr, String sql) {
         MySqlSelectQueryBlock query = (MySqlSelectQueryBlock) sqlExpr.getSubQuery().getQuery();
-        return query.getFrom() instanceof SQLJoinTableSource && ((SQLJoinTableSource) query.getFrom()).getJoinType() != SQLJoinTableSource.JoinType.COMMA;
+        return query.getFrom() instanceof SQLJoinTableSource
+                && ((SQLJoinTableSource) query.getFrom()).getJoinType() != SQLJoinTableSource.JoinType.COMMA;
     }
 
     private static SQLExpr toSqlExpr(String sql) {

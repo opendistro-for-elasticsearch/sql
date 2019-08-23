@@ -20,6 +20,10 @@ import com.amazon.opendistroforelasticsearch.sql.executor.join.ElasticJoinExecut
 import com.amazon.opendistroforelasticsearch.sql.executor.join.ElasticUtils;
 import com.amazon.opendistroforelasticsearch.sql.executor.join.MetaSearchResult;
 import com.amazon.opendistroforelasticsearch.sql.executor.multi.MultiRequestExecutorFactory;
+import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
+import com.amazon.opendistroforelasticsearch.sql.query.SqlElasticRequestBuilder;
+import com.amazon.opendistroforelasticsearch.sql.query.join.JoinRequestBuilder;
+import com.amazon.opendistroforelasticsearch.sql.query.multi.MultiQueryRequestBuilder;
 import com.google.common.collect.Maps;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,10 +41,6 @@ import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.rest.action.RestStatusToXContentListener;
 import org.elasticsearch.search.SearchHits;
-import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
-import com.amazon.opendistroforelasticsearch.sql.query.SqlElasticRequestBuilder;
-import com.amazon.opendistroforelasticsearch.sql.query.join.JoinRequestBuilder;
-import com.amazon.opendistroforelasticsearch.sql.query.multi.MultiQueryRequestBuilder;
 
 import java.io.IOException;
 import java.util.Map;
@@ -48,7 +48,9 @@ import java.util.Map;
 
 public class ElasticDefaultRestExecutor implements RestExecutor {
 
-    /** Request builder to generate ES DSL */
+    /**
+     * Request builder to generate ES DSL
+     */
     private final SqlElasticRequestBuilder requestBuilder;
 
     private static final Logger LOG = LogManager.getLogger(ElasticDefaultRestExecutor.class);
@@ -66,7 +68,8 @@ public class ElasticDefaultRestExecutor implements RestExecutor {
      * Execute the ActionRequest and returns the REST response using the channel.
      */
     @Override
-    public void execute(Client client, Map<String, String> params, QueryAction queryAction, RestChannel channel) throws Exception {
+    public void execute(Client client, Map<String, String> params, QueryAction queryAction, RestChannel channel)
+            throws Exception {
         ActionRequest request = requestBuilder.request();
 
         if (requestBuilder instanceof JoinRequestBuilder) {
@@ -74,13 +77,15 @@ public class ElasticDefaultRestExecutor implements RestExecutor {
             executor.run();
             executor.sendResponse(channel);
         } else if (requestBuilder instanceof MultiQueryRequestBuilder) {
-            ElasticHitsExecutor executor = MultiRequestExecutorFactory.createExecutor(client, (MultiQueryRequestBuilder) requestBuilder);
+            ElasticHitsExecutor executor = MultiRequestExecutorFactory.createExecutor(client,
+                    (MultiQueryRequestBuilder) requestBuilder);
             executor.run();
             sendDefaultResponse(executor.getHits(), channel);
         } else if (request instanceof SearchRequest) {
             client.search((SearchRequest) request, new RestStatusToXContentListener<>(channel));
         } else if (request instanceof DeleteByQueryRequest) {
-            requestBuilder.getBuilder().execute(new BulkIndexByScrollResponseContentListener(channel, Maps.newHashMap()));
+            requestBuilder.getBuilder().execute(
+                    new BulkIndexByScrollResponseContentListener(channel, Maps.newHashMap()));
         } else if (request instanceof GetIndexRequest) {
             requestBuilder.getBuilder().execute(new GetIndexRequestRestListener(channel, (GetIndexRequest) request));
         } else if (request instanceof SearchScrollRequest) {
@@ -99,7 +104,8 @@ public class ElasticDefaultRestExecutor implements RestExecutor {
             executor.run();
             return ElasticUtils.hitsAsStringResult(executor.getHits(), new MetaSearchResult());
         } else if (requestBuilder instanceof MultiQueryRequestBuilder) {
-            ElasticHitsExecutor executor = MultiRequestExecutorFactory.createExecutor(client, (MultiQueryRequestBuilder) requestBuilder);
+            ElasticHitsExecutor executor = MultiRequestExecutorFactory.createExecutor(client,
+                    (MultiQueryRequestBuilder) requestBuilder);
             executor.run();
             return ElasticUtils.hitsAsStringResult(executor.getHits(), new MetaSearchResult());
         } else if (request instanceof SearchRequest) {

@@ -62,7 +62,7 @@ public class RestSqlAction extends BaseRestHandler {
 
     private final boolean allowExplicitIndex;
 
-    private final static Predicate<String> CONTAINS_SUBQUERY = Pattern.compile("\\(\\s*select ").asPredicate();
+    private static final Predicate<String> CONTAINS_SUBQUERY = Pattern.compile("\\(\\s*select ").asPredicate();
 
     /**
      * API endpoint path
@@ -131,9 +131,9 @@ public class RestSqlAction extends BaseRestHandler {
     private static QueryAction explainRequest(final NodeClient client, final SqlRequest sqlRequest)
             throws SQLFeatureNotSupportedException, SqlParseException {
 
-            final QueryAction queryAction = new SearchDao(client).explain(sqlRequest.getSql());
-            queryAction.setSqlRequest(sqlRequest);
-            return queryAction;
+        final QueryAction queryAction = new SearchDao(client).explain(sqlRequest.getSql());
+        queryAction.setSqlRequest(sqlRequest);
+        return queryAction;
     }
 
     private void executeSqlRequest(final RestRequest request, final QueryAction queryAction,
@@ -161,14 +161,14 @@ public class RestSqlAction extends BaseRestHandler {
     }
 
     private static boolean isClientError(Exception e) {
-        return e instanceof NullPointerException || // NPE is hard to differentiate but more likely caused by bad query
-                e instanceof SqlParseException ||
-                e instanceof ParserException ||
-                e instanceof SQLFeatureNotSupportedException ||
-                e instanceof SQLFeatureDisabledException ||
-                e instanceof IllegalArgumentException ||
-                e instanceof IndexNotFoundException ||
-                e instanceof VerificationException;
+        return e instanceof NullPointerException // NPE is hard to differentiate but more likely caused by bad query
+                || e instanceof SqlParseException
+                || e instanceof ParserException
+                || e instanceof SQLFeatureNotSupportedException
+                || e instanceof SQLFeatureDisabledException
+                || e instanceof IllegalArgumentException
+                || e instanceof IndexNotFoundException
+                || e instanceof VerificationException;
     }
 
     private void sendResponse(final RestChannel channel, final String message, final RestStatus status) {

@@ -54,7 +54,9 @@ class From extends SQLClause<SQLTableSource> {
         return emptyIfNull(scope.getParentAlias());
     }
 
-    /** Erase alias otherwise NLPchina has problem parsing nested field like 't.employees.name' */
+    /**
+     * Erase alias otherwise NLPchina has problem parsing nested field like 't.employees.name'
+     */
     private void eraseParentAlias() {
         left().expr.setAlias(null);
     }
@@ -68,16 +70,16 @@ class From extends SQLClause<SQLTableSource> {
     /**
      * Collect path alias and full path mapping of nested field in FROM clause.
      * Sample:
-     *  FROM team t, t.employees e ...
-     *
-     *         Join
-     *        /    \
-     *  team t    Join
-     *           /    \
-     *  t.employees e  ...
-     *
-     *  t.employees is nested because path "t" == parentAlias "t"
-     *  Save path alias to full path name mapping {"e": "employees"} to Scope
+     * FROM team t, t.employees e ...
+     * <p>
+     * Join
+     * /    \
+     * team t    Join
+     * /    \
+     * t.employees e  ...
+     * <p>
+     * t.employees is nested because path "t" == parentAlias "t"
+     * Save path alias to full path name mapping {"e": "employees"} to Scope
      */
     private void collectNestedFields(Scope scope) {
         From clause = this;
@@ -100,8 +102,8 @@ class From extends SQLClause<SQLTableSource> {
     }
 
     private void addIfNestedField(Scope scope) {
-        if (!(expr instanceof SQLExprTableSource &&
-                ((SQLExprTableSource) expr).getExpr() instanceof SQLIdentifierExpr)) {
+        if (!(expr instanceof SQLExprTableSource
+                && ((SQLExprTableSource) expr).getExpr() instanceof SQLIdentifierExpr)) {
             return;
         }
 

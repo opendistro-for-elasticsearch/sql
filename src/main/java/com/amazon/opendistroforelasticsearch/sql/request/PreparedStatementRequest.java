@@ -45,14 +45,14 @@ public class PreparedStatementRequest extends SqlRequest {
     }
 
     private String substituteParameters() {
-        if(this.sqlTemplate == null) {
+        if (this.sqlTemplate == null) {
             return null;
         }
 
         StringBuilder sb = new StringBuilder();
         int paramIndex = 0;
         int i = 0;
-        while(i < this.sqlTemplate.length()) {
+        while (i < this.sqlTemplate.length()) {
             char c = this.sqlTemplate.charAt(i);
             if (c == '\'') {
                 // found string starting quote character, skip the string
@@ -62,10 +62,10 @@ public class PreparedStatementRequest extends SqlRequest {
                     char s = this.sqlTemplate.charAt(i);
                     sb.append(s);
                     if (s == '\'') {
-                        if (this.sqlTemplate.charAt(i-1) == '\\') {
+                        if (this.sqlTemplate.charAt(i - 1) == '\\') {
                             // this is an escaped single quote (\') still in the string
                             i++;
-                        } else if ((i + 1) < this.sqlTemplate.length() && this.sqlTemplate.charAt(i+1) == '\'') {
+                        } else if ((i + 1) < this.sqlTemplate.length() && this.sqlTemplate.charAt(i + 1) == '\'') {
                             // found 2 single quote {''} in a string, which is escaped single quote {'}
                             // move to next character
                             sb.append('\'');
@@ -81,7 +81,7 @@ public class PreparedStatementRequest extends SqlRequest {
                 }
             } else if (c == '?') {
                 // question mark "?" not in a string
-                if(paramIndex >= this.parameters.size()) {
+                if (paramIndex >= this.parameters.size()) {
                     throw new IllegalStateException("Placeholder count is greater than parameter number "
                             + parameters.size() + " . Cannot convert PreparedStatement to sql query");
                 }
@@ -100,7 +100,7 @@ public class PreparedStatementRequest extends SqlRequest {
     //////////////////////////////////////////////////
     // Parameter related types below
     //////////////////////////////////////////////////
-    public static enum ParameterType {
+    public enum ParameterType {
         BYTE,
         SHORT,
         INTEGER,
@@ -111,13 +111,13 @@ public class PreparedStatementRequest extends SqlRequest {
         STRING,
         KEYWORD,
         DATE,
-        NULL;
+        NULL
     }
 
     public static class PreparedStatementParameter<T> {
         protected T value;
 
-        public PreparedStatementParameter (T value) {
+        public PreparedStatementParameter(T value) {
             this.value = value;
         }
 
@@ -144,16 +144,29 @@ public class PreparedStatementRequest extends SqlRequest {
             }
             StringBuilder sb = new StringBuilder();
             sb.append('\''); // starting quote
-            for (int i = 0; i<this.value.length(); i++) {
+            for (int i = 0; i < this.value.length(); i++) {
                 char c = this.value.charAt(i);
                 switch (c) {
-                    case 0: sb.append('\\').append(0); break;
-                    case '\n': sb.append('\\').append('n'); break;
-                    case '\r': sb.append('\\').append('r'); break;
-                    case '\\': sb.append('\\').append('\\'); break;
-                    case '\'': sb.append('\\').append('\''); break;
-                    case '\"': sb.append('\\').append('\"'); break;
-                    default: sb.append(c);
+                    case 0:
+                        sb.append('\\').append(0);
+                        break;
+                    case '\n':
+                        sb.append('\\').append('n');
+                        break;
+                    case '\r':
+                        sb.append('\\').append('r');
+                        break;
+                    case '\\':
+                        sb.append('\\').append('\\');
+                        break;
+                    case '\'':
+                        sb.append('\\').append('\'');
+                        break;
+                    case '\"':
+                        sb.append('\\').append('\"');
+                        break;
+                    default:
+                        sb.append(c);
                 }
             }
             sb.append('\''); // ending quote

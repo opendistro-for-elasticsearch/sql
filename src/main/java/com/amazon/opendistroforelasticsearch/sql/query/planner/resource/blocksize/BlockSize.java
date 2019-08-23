@@ -23,12 +23,14 @@ public interface BlockSize {
     /**
      * Get block size configured or dynamically. Integer should be sufficient for single block size.
      *
-     * @return  block size.
+     * @return block size.
      */
     int size();
 
 
-    /** Default implementation with fixed block size */
+    /**
+     * Default implementation with fixed block size
+     */
     class FixedBlockSize implements BlockSize {
 
         private int blockSize;

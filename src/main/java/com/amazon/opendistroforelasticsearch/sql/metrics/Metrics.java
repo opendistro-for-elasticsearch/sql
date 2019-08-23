@@ -30,7 +30,8 @@ public class Metrics {
         return metrics;
     }
 
-    private Metrics() {}
+    private Metrics() {
+    }
 
     public void registerDefaultMetrics() {
         for (MetricName metricName : MetricName.values()) {
@@ -75,7 +76,9 @@ public class Metrics {
         JSONObject metricsJSONObject = new JSONObject();
 
         for (Metric metric : registeredMetricsByName.values()) {
-            if (metric.getName().equals("default")) continue;
+            if (metric.getName().equals("default")) {
+                continue;
+            }
             metricsJSONObject.put(metric.getName(), metric.getValue());
         }
 

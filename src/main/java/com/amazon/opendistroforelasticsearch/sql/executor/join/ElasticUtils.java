@@ -46,17 +46,20 @@ import static org.elasticsearch.common.xcontent.ToXContent.EMPTY_PARAMS;
  */
 public class ElasticUtils {
 
-    public static SearchResponse scrollOneTimeWithHits(Client client, SearchRequestBuilder requestBuilder, Select originalSelect, int resultSize) {
-        SearchResponse responseWithHits;SearchRequestBuilder scrollRequest = requestBuilder
-                .setScroll(new TimeValue(60000))
-                .setSize(resultSize);
+    public static SearchResponse scrollOneTimeWithHits(Client client, SearchRequestBuilder requestBuilder,
+                                                       Select originalSelect, int resultSize) {
+        SearchRequestBuilder scrollRequest = requestBuilder
+                .setScroll(new TimeValue(60000)).setSize(resultSize);
         boolean ordered = originalSelect.isOrderdSelect();
-        if(!ordered) scrollRequest.addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC);
-        responseWithHits = scrollRequest.get();
+        if (!ordered) {
+            scrollRequest.addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC);
+        }
+        SearchResponse responseWithHits = scrollRequest.get();
         //on ordered select - not using SCAN , elastic returns hits on first scroll
         //es5.0 elastic always return docs on scan
 //        if(!ordered) {
-//            responseWithHits = client.prepareSearchScroll(responseWithHits.getScrollId()).setScroll(new TimeValue(600000)).get();
+//            responseWithHits = client.prepareSearchScroll(responseWithHits.getScrollId())
+//            .setScroll(new TimeValue(600000)).get();
 //        }
         return responseWithHits;
     }
@@ -64,50 +67,55 @@ public class ElasticUtils {
 
     //use our deserializer instead of results toXcontent because the source field is different from sourceAsMap.
     public static String hitsAsStringResult(SearchHits results, MetaSearchResult metaResults) throws IOException {
-        if(results == null) return null;
+        if (results == null) {
+            return null;
+        }
         Object[] searchHits;
         searchHits = new Object[Optional.ofNullable(results.getTotalHits()).map(th -> th.value).orElse(0L).intValue()];
         int i = 0;
-        for(SearchHit hit : results) {
-            HashMap<String,Object> value = new HashMap<>();
-            value.put("_id",hit.getId());
+        for (SearchHit hit : results) {
+            HashMap<String, Object> value = new HashMap<>();
+            value.put("_id", hit.getId());
             value.put("_type", hit.getType());
             value.put("_score", hit.getScore());
             value.put("_source", hit.getSourceAsMap());
             searchHits[i] = value;
             i++;
         }
-        HashMap<String,Object> hits = new HashMap<>();
+        HashMap<String, Object> hits = new HashMap<>();
         hits.put("total", ImmutableMap.of(
                 "value", Optional.ofNullable(results.getTotalHits()).map(th -> th.value).orElse(0L),
                 "relation", Optional.ofNullable(results.getTotalHits()).map(th -> th.relation).orElse(Relation.EQUAL_TO)
         ));
-        hits.put("max_score",results.getMaxScore());
-        hits.put("hits",searchHits);
+        hits.put("max_score", results.getMaxScore());
+        hits.put("hits", searchHits);
         XContentBuilder builder = XContentFactory.contentBuilder(XContentType.JSON).prettyPrint();
         builder.startObject();
         builder.field("took", metaResults.getTookImMilli());
-        builder.field("timed_out",metaResults.isTimedOut());
+        builder.field("timed_out", metaResults.isTimedOut());
         builder.field("_shards", ImmutableMap.of("total", metaResults.getTotalNumOfShards(),
                 "successful", metaResults.getSuccessfulShards()
                 , "failed", metaResults.getFailedShards()));
-        builder.field("hits",hits) ;
+        builder.field("hits", hits);
         builder.endObject();
         return BytesReference.bytes(builder).utf8ToString();
     }
 
-    /** Generate string by serializing SearchHits in place without any new HashMap copy */
-    public static XContentBuilder hitsAsStringResultZeroCopy(List<SearchHit> results, MetaSearchResult metaResults, ElasticJoinExecutor executor) throws IOException {
+    /**
+     * Generate string by serializing SearchHits in place without any new HashMap copy
+     */
+    public static XContentBuilder hitsAsStringResultZeroCopy(List<SearchHit> results, MetaSearchResult metaResults,
+                                                             ElasticJoinExecutor executor) throws IOException {
         BytesStreamOutput outputStream = new BytesStreamOutput();
 
         XContentBuilder builder = XContentFactory.contentBuilder(XContentType.JSON, outputStream).prettyPrint();
         builder.startObject();
         builder.field("took", metaResults.getTookImMilli());
-        builder.field("timed_out",metaResults.isTimedOut());
+        builder.field("timed_out", metaResults.isTimedOut());
         builder.field("_shards", ImmutableMap.of(
-            "total", metaResults.getTotalNumOfShards(),
-            "successful", metaResults.getSuccessfulShards(),
-            "failed", metaResults.getFailedShards()
+                "total", metaResults.getTotalNumOfShards(),
+                "successful", metaResults.getSuccessfulShards(),
+                "failed", metaResults.getFailedShards()
         ));
         toXContent(builder, EMPTY_PARAMS, results, executor);
         builder.endObject();
@@ -119,8 +127,11 @@ public class ElasticUtils {
         return builder;
     }
 
-    /** Code copy from SearchHits */
-    private static void toXContent(XContentBuilder builder, Params params, List<SearchHit> hits, ElasticJoinExecutor executor) throws IOException {
+    /**
+     * Code copy from SearchHits
+     */
+    private static void toXContent(XContentBuilder builder, Params params, List<SearchHit> hits,
+                                   ElasticJoinExecutor executor) throws IOException {
         builder.startObject(SearchHits.Fields.HITS);
         builder.field(SearchHits.Fields.TOTAL, ImmutableMap.of(
                 "value", hits.size(),
@@ -130,7 +141,7 @@ public class ElasticUtils {
         builder.field(SearchHits.Fields.HITS);
         builder.startArray();
 
-        for (int i = 0; i < hits.size() ; i++) {
+        for (int i = 0; i < hits.size(); i++) {
             if (i % 10000 == 0 && !BackOffRetryStrategy.isHealthy()) {
                 throw new IllegalStateException("Memory circuit break when generating json builder");
             }
@@ -141,7 +152,9 @@ public class ElasticUtils {
         builder.endObject();
     }
 
-    /** Code copy from SearchHit but only keep fields interested and replace source by sourceMap */
+    /**
+     * Code copy from SearchHit but only keep fields interested and replace source by sourceMap
+     */
     private static void toXContent(XContentBuilder builder, Params params, SearchHit hit) throws IOException {
         builder.startObject();
         if (hit.getType() != null) {

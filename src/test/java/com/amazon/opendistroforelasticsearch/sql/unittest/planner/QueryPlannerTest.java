@@ -20,7 +20,6 @@ import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.alibaba.druid.sql.parser.ParserException;
 import com.alibaba.druid.sql.parser.SQLExprParser;
 import com.alibaba.druid.sql.parser.Token;
-import com.amazon.opendistroforelasticsearch.sql.request.SqlRequest;
 import com.amazon.opendistroforelasticsearch.sql.domain.JoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
@@ -30,6 +29,7 @@ import com.amazon.opendistroforelasticsearch.sql.query.SqlElasticRequestBuilder;
 import com.amazon.opendistroforelasticsearch.sql.query.join.ESJoinQueryActionFactory;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.HashJoinQueryPlanRequestBuilder;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.QueryPlanner;
+import com.amazon.opendistroforelasticsearch.sql.request.SqlRequest;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.apache.logging.log4j.core.config.builder.api.AppenderComponentBuilder;
@@ -55,7 +55,6 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -78,12 +77,12 @@ public abstract class QueryPlannerTest {
     @Mock
     protected Client client;
 
-    @Spy
-    private SearchResponse response1 = new SearchResponse();
+    @Mock
+    private SearchResponse response1;
     private static final String SCROLL_ID1 = "1";
 
-    @Spy
-    private SearchResponse response2 = new SearchResponse();
+    @Mock
+    private SearchResponse response2;
     private static final String SCROLL_ID2 = "2";
 
     @BeforeClass

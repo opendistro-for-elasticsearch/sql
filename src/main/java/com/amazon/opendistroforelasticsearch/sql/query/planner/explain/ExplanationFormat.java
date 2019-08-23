@@ -24,20 +24,23 @@ public interface ExplanationFormat {
 
     /**
      * Initialize internal data structure
-     * @param kvs   key-value pairs
+     *
+     * @param kvs key-value pairs
      */
     void prepare(Map<String, String> kvs);
 
     /**
      * Start a new section in explanation.
-     * @param name  section name
+     *
+     * @param name section name
      */
     void start(String name);
 
 
     /**
      * Explain and add to current section.
-     * @param object    object to be added to explanation
+     *
+     * @param object object to be added to explanation
      */
     void explain(Object object);
 

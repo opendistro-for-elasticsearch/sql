@@ -20,11 +20,11 @@ import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 
 /**
  * Identifier expression in SELECT, FROM, WHERE, GROUP BY, ORDER BY etc.
- *
+ * <p>
  * Ex. To make concepts clear, for "e.firstname AND t.region" in "FROM team t, t.employees e":
- *  parent alias (to erase): 't'
- *  path:                    'e' (full path saved in Scope is 'employees')
- *  name:                    'firstname'
+ * parent alias (to erase): 't'
+ * path:                    'e' (full path saved in Scope is 'employees')
+ * name:                    'firstname'
  */
 class Identifier extends SQLClause<SQLIdentifierExpr> {
 
@@ -46,7 +46,7 @@ class Identifier extends SQLClause<SQLIdentifierExpr> {
             if (isInCondition()) {
                 useFullPathAsTag(scope);
             } else {
-                replaceByNestedFunction(expr);
+                replaceByNestedFunction(expr, pathFromIdentifier(expr));
             }
         }
     }
@@ -64,7 +64,8 @@ class Identifier extends SQLClause<SQLIdentifierExpr> {
     }
 
     /**
-     * Erase parent alias otherwise it's required to specify it everywhere even on nested field (which NLPchina has problem with).
+     * Erase parent alias otherwise it's required to specify it everywhere even on nested
+     * field (which NLPchina has problem with).
      * Sample: "FROM team t, t.employees e WHERE t.region = 'US'" => "WHERE region = 'US'"
      */
     private void eraseParentAlias(Scope scope) {

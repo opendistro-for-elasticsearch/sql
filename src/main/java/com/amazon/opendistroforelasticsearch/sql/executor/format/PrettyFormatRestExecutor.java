@@ -54,7 +54,8 @@ public class PrettyFormatRestExecutor implements RestExecutor {
         }
 
         if (!BackOffRetryStrategy.isHealthy(2 * bytesRestResponse.content().length(), this)) {
-            throw new IllegalStateException("[PrettyFormatRestExecutor] Memory could be insufficient when sendResponse().");
+            throw new IllegalStateException(
+                    "[PrettyFormatRestExecutor] Memory could be insufficient when sendResponse().");
         }
 
         channel.sendResponse(bytesRestResponse);

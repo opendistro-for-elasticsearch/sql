@@ -21,12 +21,12 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.domain.TableOnJoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.domain.hints.Hint;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
-import com.amazon.opendistroforelasticsearch.sql.query.planner.HashJoinQueryPlanRequestBuilder;
-import org.elasticsearch.client.Client;
 import com.amazon.opendistroforelasticsearch.sql.query.DefaultQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.SqlElasticRequestBuilder;
+import com.amazon.opendistroforelasticsearch.sql.query.planner.HashJoinQueryPlanRequestBuilder;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.Config;
+import org.elasticsearch.client.Client;
 
 import java.util.List;
 
@@ -69,8 +69,8 @@ public abstract class ESJoinQueryAction extends QueryAction {
 
     }
 
-    protected void updateRequestWithHints(JoinRequestBuilder requestBuilder){
-        for(Hint hint : joinSelect.getHints()) {
+    protected void updateRequestWithHints(JoinRequestBuilder requestBuilder) {
+        for (Hint hint : joinSelect.getHints()) {
             Object[] params = hint.getParams();
             switch (hint.getType()) {
                 case JOIN_LIMIT:
@@ -110,11 +110,12 @@ public abstract class ESJoinQueryAction extends QueryAction {
         return ((HashJoinQueryPlanRequestBuilder) requestBuilder).getConfig();
     }
 
-    private void fillTableInJoinRequestBuilder(TableInJoinRequestBuilder requestBuilder, TableOnJoinSelect tableOnJoinSelect) throws SqlParseException {
+    private void fillTableInJoinRequestBuilder(TableInJoinRequestBuilder requestBuilder,
+                                               TableOnJoinSelect tableOnJoinSelect) throws SqlParseException {
         List<Field> connectedFields = tableOnJoinSelect.getConnectedFields();
-        addFieldsToSelectIfMissing(tableOnJoinSelect,connectedFields);
+        addFieldsToSelectIfMissing(tableOnJoinSelect, connectedFields);
         requestBuilder.setOriginalSelect(tableOnJoinSelect);
-        DefaultQueryAction queryAction = new DefaultQueryAction(client,tableOnJoinSelect);
+        DefaultQueryAction queryAction = new DefaultQueryAction(client, tableOnJoinSelect);
         queryAction.explain();
         requestBuilder.setRequestBuilder(queryAction.getRequestBuilder());
         requestBuilder.setReturnedFields(tableOnJoinSelect.getSelectedFields());
@@ -123,11 +124,13 @@ public abstract class ESJoinQueryAction extends QueryAction {
 
     private void addFieldsToSelectIfMissing(Select select, List<Field> fields) {
         //this means all fields
-        if(select.getFields() == null || select.getFields().size() == 0) return;
+        if (select.getFields() == null || select.getFields().size() == 0) {
+            return;
+        }
 
         List<Field> selectedFields = select.getFields();
-        for(Field field : fields){
-            if(!selectedFields.contains(field)){
+        for (Field field : fields) {
+            if (!selectedFields.contains(field)) {
                 selectedFields.add(field);
             }
         }

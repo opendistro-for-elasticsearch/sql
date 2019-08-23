@@ -66,7 +66,7 @@ public class NestedLoopsElasticExecutor extends ElasticJoinExecutor {
         Select secondTableSelect = nestedLoopsRequest.getSecondTable().getOriginalSelect();
         Where originalSecondTableWhere = secondTableSelect.getWhere();
 
-        orderConditions(nestedLoopsRequest.getFirstTable().getAlias(),nestedLoopsRequest.getSecondTable().getAlias());
+        orderConditions(nestedLoopsRequest.getFirstTable().getAlias(), nestedLoopsRequest.getSecondTable().getAlias());
 
         if (!BackOffRetryStrategy.isHealthy()) {
             throw new IllegalStateException("Memory circuit is broken");
@@ -78,80 +78,103 @@ public class NestedLoopsElasticExecutor extends ElasticJoinExecutor {
         int currentCombinedResults = 0;
         boolean finishedWithFirstTable = false;
 
-        while (totalLimit > currentCombinedResults && !finishedWithFirstTable){
+        while (totalLimit > currentCombinedResults && !finishedWithFirstTable) {
 
             SearchHit[] hits = firstTableResponse.getHits().getHits();
             boolean finishedMultiSearches = hits.length == 0;
-            int currentHitsIndex = 0 ;
+            int currentHitsIndex = 0;
 
-            while(!finishedMultiSearches){
-                MultiSearchRequest multiSearchRequest = createMultiSearchRequest(multiSearchMaxSize, nestedLoopsRequest.getConnectedWhere(), hits, secondTableSelect, originalSecondTableWhere, currentHitsIndex);
+            while (!finishedMultiSearches) {
+                MultiSearchRequest multiSearchRequest = createMultiSearchRequest(multiSearchMaxSize,
+                        nestedLoopsRequest.getConnectedWhere(), hits, secondTableSelect,
+                        originalSecondTableWhere, currentHitsIndex);
                 int multiSearchSize = multiSearchRequest.requests().size();
                 if (!BackOffRetryStrategy.isHealthy()) {
                     throw new IllegalStateException("Memory circuit is broken");
                 }
-                currentCombinedResults = combineResultsFromMultiResponses(combinedResults, totalLimit, currentCombinedResults, hits, currentHitsIndex, multiSearchRequest);
+                currentCombinedResults = combineResultsFromMultiResponses(combinedResults, totalLimit,
+                        currentCombinedResults, hits, currentHitsIndex, multiSearchRequest);
                 currentHitsIndex += multiSearchSize;
-                finishedMultiSearches = currentHitsIndex >= hits.length-1 || currentCombinedResults >= totalLimit;
+                finishedMultiSearches = currentHitsIndex >= hits.length - 1 || currentCombinedResults >= totalLimit;
             }
 
-            if( hits.length < MAX_RESULTS_ON_ONE_FETCH ) needScrollForFirstTable = false;
+            if (hits.length < MAX_RESULTS_ON_ONE_FETCH) {
+                needScrollForFirstTable = false;
+            }
 
-            if(!finishedWithFirstTable)
-            {
-                if(needScrollForFirstTable) {
+            if (!finishedWithFirstTable) {
+                if (needScrollForFirstTable) {
                     if (!BackOffRetryStrategy.isHealthy()) {
                         throw new IllegalStateException("Memory circuit is broken");
                     }
-                    firstTableResponse = client.prepareSearchScroll(firstTableResponse.getScrollId()).setScroll(new TimeValue(600000)).get();
+                    firstTableResponse = client.prepareSearchScroll(firstTableResponse.getScrollId())
+                            .setScroll(new TimeValue(600000)).get();
+                } else {
+                    finishedWithFirstTable = true;
                 }
-                else finishedWithFirstTable = true;
             }
 
         }
         return combinedResults;
     }
 
-    private int combineResultsFromMultiResponses(List<SearchHit> combinedResults, int totalLimit, int currentCombinedResults, SearchHit[] hits, int currentIndex, MultiSearchRequest multiSearchRequest) {
+    private int combineResultsFromMultiResponses(List<SearchHit> combinedResults, int totalLimit,
+                                                 int currentCombinedResults, SearchHit[] hits, int currentIndex,
+                                                 MultiSearchRequest multiSearchRequest) {
         MultiSearchResponse.Item[] responses = new ESClient(client).multiSearch(multiSearchRequest);
         String t1Alias = nestedLoopsRequest.getFirstTable().getAlias();
         String t2Alias = nestedLoopsRequest.getSecondTable().getAlias();
 
-        for(int j =0 ; j < responses.length && currentCombinedResults < totalLimit ; j++){
-            SearchHit hitFromFirstTable = hits[currentIndex+j];
-            onlyReturnedFields(hitFromFirstTable.getSourceAsMap(), nestedLoopsRequest.getFirstTable().getReturnedFields(),nestedLoopsRequest.getFirstTable().getOriginalSelect().isSelectAll());
+        for (int j = 0; j < responses.length && currentCombinedResults < totalLimit; j++) {
+            SearchHit hitFromFirstTable = hits[currentIndex + j];
+            onlyReturnedFields(hitFromFirstTable.getSourceAsMap(),
+                    nestedLoopsRequest.getFirstTable().getReturnedFields(),
+                    nestedLoopsRequest.getFirstTable().getOriginalSelect().isSelectAll());
 
             SearchResponse multiItemResponse = responses[j].getResponse();
 
-            if (multiItemResponse == null) continue;
+            if (multiItemResponse == null) {
+                continue;
+            }
 
             updateMetaSearchResults(multiItemResponse);
 
             //todo: if responseForHit.getHits.length < responseForHit.getTotalHits(). need to fetch more!
             SearchHits responseForHit = multiItemResponse.getHits();
 
-            if(responseForHit.getHits().length == 0 && nestedLoopsRequest.getJoinType() == SQLJoinTableSource.JoinType.LEFT_OUTER_JOIN){
-                SearchHit unmachedResult = createUnmachedResult(nestedLoopsRequest.getSecondTable().getReturnedFields(), currentCombinedResults, t1Alias, t2Alias, hitFromFirstTable);
+            if (responseForHit.getHits().length == 0 && nestedLoopsRequest.getJoinType()
+                    == SQLJoinTableSource.JoinType.LEFT_OUTER_JOIN) {
+                SearchHit unmachedResult = createUnmachedResult(nestedLoopsRequest.getSecondTable().getReturnedFields(),
+                        currentCombinedResults, t1Alias, t2Alias, hitFromFirstTable);
                 combinedResults.add(unmachedResult);
                 currentCombinedResults++;
                 continue;
             }
 
-            for(SearchHit matchedHit : responseForHit.getHits() ){
-                SearchHit searchHit = getMergedHit(currentCombinedResults, t1Alias, t2Alias, hitFromFirstTable, matchedHit);
+            for (SearchHit matchedHit : responseForHit.getHits()) {
+                SearchHit searchHit = getMergedHit(currentCombinedResults, t1Alias, t2Alias, hitFromFirstTable,
+                        matchedHit);
                 combinedResults.add(searchHit);
                 currentCombinedResults++;
-                if(currentCombinedResults >= totalLimit) break;
+                if (currentCombinedResults >= totalLimit) {
+                    break;
+                }
             }
-            if(currentCombinedResults >= totalLimit) break;
+            if (currentCombinedResults >= totalLimit) {
+                break;
+            }
 
         }
         return currentCombinedResults;
     }
 
-    private SearchHit getMergedHit(int currentCombinedResults, String t1Alias, String t2Alias, SearchHit hitFromFirstTable, SearchHit matchedHit) {
-        onlyReturnedFields(matchedHit.getSourceAsMap(), nestedLoopsRequest.getSecondTable().getReturnedFields(),nestedLoopsRequest.getSecondTable().getOriginalSelect().isSelectAll());
-        SearchHit searchHit = new SearchHit(currentCombinedResults, hitFromFirstTable.getId() + "|" + matchedHit.getId(), new Text(hitFromFirstTable.getType() + "|" + matchedHit.getType()), hitFromFirstTable.getFields());
+    private SearchHit getMergedHit(int currentCombinedResults, String t1Alias, String t2Alias,
+                                   SearchHit hitFromFirstTable, SearchHit matchedHit) {
+        onlyReturnedFields(matchedHit.getSourceAsMap(), nestedLoopsRequest.getSecondTable().getReturnedFields(),
+                nestedLoopsRequest.getSecondTable().getOriginalSelect().isSelectAll());
+        SearchHit searchHit = new SearchHit(currentCombinedResults, hitFromFirstTable.getId() + "|"
+                + matchedHit.getId(), new Text(hitFromFirstTable.getType() + "|" + matchedHit.getType()),
+                hitFromFirstTable.getFields());
         searchHit.sourceRef(hitFromFirstTable.getSourceRef());
         searchHit.getSourceAsMap().clear();
         searchHit.getSourceAsMap().putAll(hitFromFirstTable.getSourceAsMap());
@@ -160,20 +183,24 @@ public class NestedLoopsElasticExecutor extends ElasticJoinExecutor {
         return searchHit;
     }
 
-    private MultiSearchRequest createMultiSearchRequest(int multiSearchMaxSize, Where connectedWhere, SearchHit[] hits, Select secondTableSelect, Where originalWhere, int currentIndex) throws SqlParseException {
+    private MultiSearchRequest createMultiSearchRequest(int multiSearchMaxSize, Where connectedWhere, SearchHit[] hits,
+                                                        Select secondTableSelect, Where originalWhere, int currentIndex)
+            throws SqlParseException {
         MultiSearchRequest multiSearchRequest = new MultiSearchRequest();
-        for(int i = currentIndex  ; i < currentIndex  + multiSearchMaxSize && i< hits.length ; i++ ){
+        for (int i = currentIndex; i < currentIndex + multiSearchMaxSize && i < hits.length; i++) {
             Map<String, Object> hitFromFirstTableAsMap = hits[i].getSourceAsMap();
             Where newWhere = Where.newInstance();
-            if(originalWhere!=null) newWhere.addWhere(originalWhere);
-            if(connectedWhere!=null){
+            if (originalWhere != null) {
+                newWhere.addWhere(originalWhere);
+            }
+            if (connectedWhere != null) {
                 Where connectedWhereCloned = null;
                 try {
                     connectedWhereCloned = (Where) connectedWhere.clone();
                 } catch (CloneNotSupportedException e) {
                     e.printStackTrace();
                 }
-                updateValuesOnWhereConditions(hitFromFirstTableAsMap,connectedWhereCloned);
+                updateValuesOnWhereConditions(hitFromFirstTableAsMap, connectedWhereCloned);
                 newWhere.addWhere(connectedWhereCloned);
             }
 
@@ -183,72 +210,77 @@ public class NestedLoopsElasticExecutor extends ElasticJoinExecutor {
 //                Condition conditionWithValue = new Condition(Where.CONN.AND,c.getName(),c.getOpear(),value);
 //                newWhere.addWhere(conditionWithValue);
 //            }
-            //using the 2nd table select and DefaultAction because we can't just change query on request (need to create lot of requests)
-            if(newWhere.getWheres().size() != 0) {
+            //using the 2nd table select and DefaultAction because we can't just change query on request
+            // (need to create lot of requests)
+            if (newWhere.getWheres().size() != 0) {
                 secondTableSelect.setWhere(newWhere);
             }
-            DefaultQueryAction action = new DefaultQueryAction(this.client , secondTableSelect);
+            DefaultQueryAction action = new DefaultQueryAction(this.client, secondTableSelect);
             action.explain();
             SearchRequestBuilder secondTableRequest = action.getRequestBuilder();
             Integer secondTableHintLimit = this.nestedLoopsRequest.getSecondTable().getHintLimit();
-            if(secondTableHintLimit != null && secondTableHintLimit <= MAX_RESULTS_ON_ONE_FETCH)
+            if (secondTableHintLimit != null && secondTableHintLimit <= MAX_RESULTS_ON_ONE_FETCH) {
                 secondTableRequest.setSize(secondTableHintLimit);
+            }
             multiSearchRequest.add(secondTableRequest);
         }
         return multiSearchRequest;
     }
 
     private void updateValuesOnWhereConditions(Map<String, Object> hit, Where where) {
-        if(where instanceof Condition){
+        if (where instanceof Condition) {
             Condition c = (Condition) where;
-            Object value = deepSearchInMap(hit,c.getValue().toString());
+            Object value = deepSearchInMap(hit, c.getValue().toString());
             if (value == null) {
                 value = Maker.NONE;
             }
             c.setValue(value);
         }
-        for(Where innerWhere : where.getWheres()){
-            updateValuesOnWhereConditions(hit,innerWhere);
+        for (Where innerWhere : where.getWheres()) {
+            updateValuesOnWhereConditions(hit, innerWhere);
         }
     }
 
     private FetchWithScrollResponse firstFetch(TableInJoinRequestBuilder tableRequest) {
-            Integer hintLimit = tableRequest.getHintLimit();
-            boolean needScrollForFirstTable = false;
-            SearchResponse responseWithHits;
-            if(hintLimit != null && hintLimit < MAX_RESULTS_ON_ONE_FETCH){
+        Integer hintLimit = tableRequest.getHintLimit();
+        boolean needScrollForFirstTable = false;
+        SearchResponse responseWithHits;
+        if (hintLimit != null && hintLimit < MAX_RESULTS_ON_ONE_FETCH) {
 
-                responseWithHits = tableRequest.getRequestBuilder().setSize(hintLimit).get();
-                needScrollForFirstTable=false;
+            responseWithHits = tableRequest.getRequestBuilder().setSize(hintLimit).get();
+            needScrollForFirstTable = false;
+        } else {
+            //scroll request with max.
+            responseWithHits = scrollOneTimeWithMax(client, tableRequest);
+            if (responseWithHits.getHits().getTotalHits() != null
+                    && responseWithHits.getHits().getTotalHits().value < MAX_RESULTS_ON_ONE_FETCH) {
+                needScrollForFirstTable = true;
             }
-            else {
-                //scroll request with max.
-                responseWithHits = scrollOneTimeWithMax(client,tableRequest);
-                if(responseWithHits.getHits().getTotalHits() != null && responseWithHits.getHits().getTotalHits().value < MAX_RESULTS_ON_ONE_FETCH)
-                    needScrollForFirstTable = true;
-            }
+        }
 
-            updateMetaSearchResults(responseWithHits);
-            return new FetchWithScrollResponse(responseWithHits,needScrollForFirstTable);
+        updateMetaSearchResults(responseWithHits);
+        return new FetchWithScrollResponse(responseWithHits, needScrollForFirstTable);
     }
 
 
-
     private void orderConditions(String t1Alias, String t2Alias) {
-        orderConditionRecursive(t1Alias,t2Alias,nestedLoopsRequest.getConnectedWhere());
+        orderConditionRecursive(t1Alias, t2Alias, nestedLoopsRequest.getConnectedWhere());
 //        Collection<Condition> conditions = nestedLoopsRequest.getT1FieldToCondition().values();
 //        for(Condition c : conditions){
 //            //TODO: support all orders and for each OPEAR find his related OPEAR (< is > , EQ is EQ ,etc..)
 //            if(!c.getName().startsWith(t2Alias+".") || !c.getValue().toString().startsWith(t1Alias +"."))
-//                throw new RuntimeException("On NestedLoops currently only supported Ordered conditions (t2.field2 OPEAR t1.field1) , badCondition was:" + c);
+//                throw new RuntimeException("On NestedLoops currently only supported Ordered conditions
+//                t2.field2 OPEAR t1.field1) , badCondition was:" + c);
 //            c.setName(c.getName().replaceFirst(t2Alias+".",""));
 //            c.setValue(c.getValue().toString().replaceFirst(t1Alias+ ".", ""));
 //        }
     }
 
     private void orderConditionRecursive(String t1Alias, String t2Alias, Where where) {
-        if(where == null) return;
-        if(where instanceof Condition){
+        if (where == null) {
+            return;
+        }
+        if (where instanceof Condition) {
             Condition c = (Condition) where;
             if (shouldReverse(c, t1Alias, t2Alias)) {
                 try {
@@ -259,27 +291,30 @@ public class NestedLoopsElasticExecutor extends ElasticJoinExecutor {
                     //The condition is not changed here.
                 }
             }
-            if(!c.getName().startsWith(t2Alias+".") || !c.getValue().toString().startsWith(t1Alias +"."))
-                throw new RuntimeException("On NestedLoops currently only supported Ordered conditions (t2.field2 OPEAR t1.field1) , badCondition was:" + c);
-            c.setName(c.getName().replaceFirst(t2Alias+".",""));
-            c.setValue(c.getValue().toString().replaceFirst(t1Alias+ ".", ""));
+            if (!c.getName().startsWith(t2Alias + ".") || !c.getValue().toString().startsWith(t1Alias + ".")) {
+                throw new RuntimeException("On NestedLoops currently only supported Ordered conditions "
+                        + "(t2.field2 OPEAR t1.field1) , badCondition was:" + c);
+            }
+            c.setName(c.getName().replaceFirst(t2Alias + ".", ""));
+            c.setValue(c.getValue().toString().replaceFirst(t1Alias + ".", ""));
             return;
-        }
-        else {
-            for (Where innerWhere : where.getWheres())
-                orderConditionRecursive(t1Alias,t2Alias,innerWhere);
+        } else {
+            for (Where innerWhere : where.getWheres()) {
+                orderConditionRecursive(t1Alias, t2Alias, innerWhere);
+            }
         }
     }
 
     private Boolean shouldReverse(Condition cond, String t1Alias, String t2Alias) {
-        return cond.getName().startsWith(t1Alias+".") && cond.getValue().toString().startsWith(t2Alias +".") && cond.getOpear().isSimpleOperator();
+        return cond.getName().startsWith(t1Alias + ".") && cond.getValue().toString().startsWith(t2Alias + ".")
+                && cond.getOpear().isSimpleOperator();
     }
 
     private void reverseOrderOfCondition(Condition cond, String t1Alias, String t2Alias) throws SqlParseException {
-            cond.setOpear(cond.getOpear().simpleReverse());
-            String name = cond.getName();
-            cond.setName(cond.getValue().toString().replaceFirst(t2Alias + ".", ""));
-            cond.setValue(name.replaceFirst(t1Alias + ".", ""));
+        cond.setOpear(cond.getOpear().simpleReverse());
+        String name = cond.getName();
+        cond.setName(cond.getValue().toString().replaceFirst(t2Alias + ".", ""));
+        cond.setValue(name.replaceFirst(t1Alias + ".", ""));
     }
 
 

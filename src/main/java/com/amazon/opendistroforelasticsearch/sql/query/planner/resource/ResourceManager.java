@@ -15,13 +15,13 @@
 
 package com.amazon.opendistroforelasticsearch.sql.query.planner.resource;
 
+import com.amazon.opendistroforelasticsearch.sql.executor.join.MetaSearchResult;
 import com.amazon.opendistroforelasticsearch.sql.query.join.BackOffRetryStrategy;
+import com.amazon.opendistroforelasticsearch.sql.query.planner.core.Config;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.resource.monitor.Monitor;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.resource.monitor.TotalMemoryMonitor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.amazon.opendistroforelasticsearch.sql.executor.join.MetaSearchResult;
-import com.amazon.opendistroforelasticsearch.sql.query.planner.core.Config;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -35,14 +35,20 @@ public class ResourceManager {
 
     private static final Logger LOG = LogManager.getLogger();
 
-    /** Actual resource monitor list */
+    /**
+     * Actual resource monitor list
+     */
     private final List<Monitor> monitors = new ArrayList<>();
 
-    /** Time out for the execution */
+    /**
+     * Time out for the execution
+     */
     private final int timeout;
     private final Instant startTime;
 
-    /** Meta result of the execution */
+    /**
+     * Meta result of the execution
+     */
     private final MetaSearchResult metaResult;
 
     public ResourceManager(Stats stats, Config config) {
@@ -55,7 +61,7 @@ public class ResourceManager {
     /**
      * Is all resource monitor healthy with strategy.
      *
-     * @return  true for yes
+     * @return true for yes
      */
     public boolean isHealthy() {
         return BackOffRetryStrategy.isHealthy();
@@ -64,7 +70,7 @@ public class ResourceManager {
     /**
      * Is current execution time out?
      *
-     * @return  true for yes
+     * @return true for yes
      */
     public boolean isTimeout() {
         return Duration.between(startTime, Instant.now()).getSeconds() >= timeout;

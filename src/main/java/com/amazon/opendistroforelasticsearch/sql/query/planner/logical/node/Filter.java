@@ -18,9 +18,9 @@ package com.amazon.opendistroforelasticsearch.sql.query.planner.logical.node;
 import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.domain.Where;
 import com.amazon.opendistroforelasticsearch.sql.query.join.TableInJoinRequestBuilder;
+import com.amazon.opendistroforelasticsearch.sql.query.planner.core.PlanNode;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.logical.LogicalOperator;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.PhysicalOperator;
-import com.amazon.opendistroforelasticsearch.sql.query.planner.core.PlanNode;
 
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +33,9 @@ public class Filter implements LogicalOperator {
 
     private final LogicalOperator next;
 
-    /** Alias to WHERE clause mapping */
+    /**
+     * Alias to WHERE clause mapping
+     */
     private final Map<String, Where> aliasWhereMap = new HashMap<>();
 
     public Filter(LogicalOperator next, List<TableInJoinRequestBuilder> tables) {
@@ -53,7 +55,7 @@ public class Filter implements LogicalOperator {
 
     @Override
     public PlanNode[] children() {
-        return new PlanNode[]{ next };
+        return new PlanNode[]{next};
     }
 
     @Override
@@ -63,7 +65,8 @@ public class Filter implements LogicalOperator {
 
     @Override
     public <T> PhysicalOperator[] toPhysical(Map<LogicalOperator, PhysicalOperator<T>> optimalOps) {
-        return new PhysicalOperator[]{ optimalOps.get(next) }; // Always no-op after push down, skip it by returning next
+        // Always no-op after push down, skip it by returning next
+        return new PhysicalOperator[]{optimalOps.get(next)};
     }
 
     public void pushDown(String tableAlias, Filter pushedDownFilter) {

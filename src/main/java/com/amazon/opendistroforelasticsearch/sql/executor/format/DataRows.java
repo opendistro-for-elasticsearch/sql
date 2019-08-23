@@ -37,9 +37,13 @@ public class DataRows implements Iterable<DataRows.Row> {
         this.rows = rows;
     }
 
-    public long getSize() { return size; }
+    public long getSize() {
+        return size;
+    }
 
-    public long getTotalHits() { return totalHits; }
+    public long getTotalHits() {
+        return totalHits;
+    }
 
     // Iterator method for DataRows
     @Override
@@ -73,11 +77,17 @@ public class DataRows implements Iterable<DataRows.Row> {
             this.data = data;
         }
 
-        public Map<String, Object> getContents() { return data; }
+        public Map<String, Object> getContents() {
+            return data;
+        }
 
-        public boolean hasField(String field) { return data.containsKey(field); }
+        public boolean hasField(String field) {
+            return data.containsKey(field);
+        }
 
-        public Object getData(String field) { return data.get(field); }
+        public Object getData(String field) {
+            return data.get(field);
+        }
 
         public Object getDataOrDefault(String field, Object defaultValue) {
             return data.getOrDefault(field, defaultValue);

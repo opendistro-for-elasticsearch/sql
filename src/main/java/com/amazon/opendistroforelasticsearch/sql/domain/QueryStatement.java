@@ -15,6 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.domain;
 
-/** Identifier interface used to encompass Query and IndexStatements */
+/**
+ * Identifier interface used to encompass Query and IndexStatements
+ */
 public interface QueryStatement {
 }

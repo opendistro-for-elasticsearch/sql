@@ -25,7 +25,7 @@ public interface Plan {
     /**
      * Explain current query plan by visitor
      *
-     * @param explanation   visitor to explain the plan
+     * @param explanation visitor to explain the plan
      */
     void traverse(Visitor explanation);
 

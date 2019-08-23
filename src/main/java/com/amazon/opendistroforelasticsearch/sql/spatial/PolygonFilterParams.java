@@ -23,7 +23,7 @@ import java.util.List;
 public class PolygonFilterParams {
     private List<Point> polygon;
 
-    public PolygonFilterParams( List<Point> polygon) {
+    public PolygonFilterParams(List<Point> polygon) {
         this.polygon = polygon;
     }
 

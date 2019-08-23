@@ -23,27 +23,30 @@ import java.util.Map;
 /**
  * Hash table interface
  *
- * @param <T>  data object type
+ * @param <T> data object type
  */
 public interface HashTable<T> {
 
     /**
      * Add one row to the hash table
-     * @param row   row
+     *
+     * @param row row
      */
     void add(Row<T> row);
 
 
     /**
      * Find all matched row(s) in the hash table.
-     * @param row   row to be matched
-     * @return      all matches
+     *
+     * @param row row to be matched
+     * @return all matches
      */
     Collection<Row<T>> match(Row<T> row);
 
 
     /**
      * Mapping from right field to value(s) of left size
+     *
      * @return
      */
     Map<String, Collection<Object>>[] rightFieldWithLeftValues();
@@ -51,14 +54,16 @@ public interface HashTable<T> {
 
     /**
      * Get size of hash table
-     * @return  size of hash table
+     *
+     * @return size of hash table
      */
     int size();
 
 
     /**
      * Is hash table empty?
-     * @return  true for yes
+     *
+     * @return true for yes
      */
     boolean isEmpty();
 

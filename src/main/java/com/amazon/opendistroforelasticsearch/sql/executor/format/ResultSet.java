@@ -28,9 +28,13 @@ public abstract class ResultSet {
     protected Client client;
     protected String clusterName;
 
-    public Schema getSchema() { return schema; }
+    public Schema getSchema() {
+        return schema;
+    }
 
-    public DataRows getDataRows() { return dataRows; }
+    public DataRows getDataRows() {
+        return dataRows;
+    }
 
     protected String getClusterName() {
         return client.admin().cluster()

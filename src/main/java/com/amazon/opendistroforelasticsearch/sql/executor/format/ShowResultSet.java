@@ -15,12 +15,12 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
-import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
-import org.elasticsearch.client.Client;
+import com.amazon.opendistroforelasticsearch.sql.domain.IndexStatement;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.DataRows.Row;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema.Column;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema.Type;
-import com.amazon.opendistroforelasticsearch.sql.domain.IndexStatement;
+import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
+import org.elasticsearch.client.Client;
 
 import java.util.ArrayList;
 import java.util.Arrays;

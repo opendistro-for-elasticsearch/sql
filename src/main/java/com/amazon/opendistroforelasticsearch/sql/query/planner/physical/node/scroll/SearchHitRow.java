@@ -15,42 +15,48 @@
 
 package com.amazon.opendistroforelasticsearch.sql.query.planner.physical.node.scroll;
 
+import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.Row;
 import com.google.common.base.Strings;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.search.SearchHit;
-import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.Row;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Search hit row that implements basic accessor for SearchHit.
- *  Encapsulate all ES specific knowledge: how to parse source including nested path.
- *
+ * Encapsulate all ES specific knowledge: how to parse source including nested path.
+ * <p>
  * State transition:
- *  for example, SELECT e.name.first AS firstName, e.age AS age FROM E e JOIN D d ON ... ORDER BY ...
- *
- *   Stage                  | hit.source                                                | tableAlias | Passed in args
- *   ---------------------------------------------------------------------------------------------------------------------------------
- *   new in Scroll          | {"name":{"first": "Allen", "last": "Hank"}, "age": 30}    | "e"        | new(SearchHit, "e")
- *   ---------------------------------------------------------------------------------------------------------------------------------
- *   key()/combine()        |                                                           |            | key("name.first", "age")
- *   in JoinAlgorithm       | {"e.name": {...}, "e.age": 30, "d..." } (after combined)  | ""         | combine(row of D)
- *   ---------------------------------------------------------------------------------------------------------------------------------
- *   key() in XXSort        | same                                                      | ""         | key("e.name.first", "e.age")
- *   ---------------------------------------------------------------------------------------------------------------------------------
- *   retain() in Project    | {"firstName": "Allen", "age": 30 }                        | ""         | retain("e.name.first", "e.age")
- *   ---------------------------------------------------------------------------------------------------------------------------------
+ * for example, SELECT e.name.first AS firstName, e.age AS age FROM E e JOIN D d ON ... ORDER BY ...
+ * <p>
+ * Stage               | hit.source                                               | tableAlias | Passed in args
+ * ----------------------------------------------------------------------------------------------------------------------
+ * new in Scroll       | {"name":{"first": "Allen", "last": "Hank"}, "age": 30}   | "e"|  new(SearchHit, "e")
+ * ----------------------------------------------------------------------------------------------------------------------
+ * key()/combine()     |                                                          |    | key("name.first", "age")
+ * in JoinAlgorithm    | {"e.name": {...}, "e.age": 30, "d..." } (after combined) | "" | combine(row of D)
+ * ----------------------------------------------------------------------------------------------------------------------
+ * key() in XXSort     | same                                                     | "" | key("e.name.first", "e.age")
+ * ----------------------------------------------------------------------------------------------------------------------
+ * retain() in Project | {"firstName": "Allen", "age": 30 }                       | "" | retain("e.name.first", "e.age")
+ * ----------------------------------------------------------------------------------------------------------------------
  */
 class SearchHitRow implements Row<SearchHit> {
 
-    /** Native ES data object for each row */
+    /**
+     * Native ES data object for each row
+     */
     private final SearchHit hit;
 
-    /** Column and value pairs */
+    /**
+     * Column and value pairs
+     */
     private final Map<String, Object> source;
 
-    /** Table alias owned the row. Empty if this row comes from combination of two other rows */
+    /**
+     * Table alias owned the row. Empty if this row comes from combination of two other rows
+     */
     private final String tableAlias;
 
     SearchHitRow(SearchHit hit, String tableAlias) {
@@ -99,8 +105,7 @@ class SearchHitRow implements Row<SearchHit> {
             if (colName.endsWith(".*")) {
                 String tableAlias = colName.substring(0, colName.length() - 2) + ".";
                 retainAllFieldsFromTable(aliasSource, tableAlias);
-            }
-            else {
+            } else {
                 retainOneField(aliasSource, colName, alias);
             }
         });
@@ -125,8 +130,9 @@ class SearchHitRow implements Row<SearchHit> {
         return getValueOfPath(source, path, Strings.isNullOrEmpty(tableAlias));
     }
 
-    /** Recursively get value for field name path, such as object field a.b.c */
-    @SuppressWarnings("unchecked")
+    /**
+     * Recursively get value for field name path, such as object field a.b.c
+     */
     private Object getValueOfPath(Object source, String path, boolean isIgnoreFirstDot) {
         if (!(source instanceof Map) || path.isEmpty()) {
             return source;
@@ -137,20 +143,20 @@ class SearchHitRow implements Row<SearchHit> {
             return ((Map) source).get(path);
         }
         return getValueOfPath(
-            ((Map) source).get(path.substring(0, dot)),
-            path.substring(dot + 1),
-            false
+                ((Map) source).get(path.substring(0, dot)),
+                path.substring(dot + 1),
+                false
         );
     }
 
     private SearchHit cloneHit(Row<SearchHit> other) {
         SearchHit combined = new SearchHit(
-            hit.docId(),
-            hit.getId() + "|" + (other == NULL ? "0" : ((SearchHitRow) other).hit.getId()),
-            new Text(
-                hit.getType() + "|" + (other == NULL ? null : ((SearchHitRow) other).hit.getType())
-            ),
-            hit.getFields()
+                hit.docId(),
+                hit.getId() + "|" + (other == NULL ? "0" : ((SearchHitRow) other).hit.getId()),
+                new Text(
+                        hit.getType() + "|" + (other == NULL ? null : ((SearchHitRow) other).hit.getType())
+                ),
+                hit.getFields()
         );
         combined.sourceRef(hit.getSourceRef());
         combined.getSourceAsMap().clear();
@@ -163,22 +169,22 @@ class SearchHitRow implements Row<SearchHit> {
 
     private void retainAllFieldsFromTable(Map<String, Object> aliasSource, String tableAlias) {
         source.entrySet().
-               stream().
-               filter(e -> e.getKey().startsWith(tableAlias)).
-               forEach(e -> aliasSource.put(e.getKey(), e.getValue()));
+                stream().
+                filter(e -> e.getKey().startsWith(tableAlias)).
+                forEach(e -> aliasSource.put(e.getKey(), e.getValue()));
     }
 
     /**
      * Note that column here is already prefixed by table alias after combine().
-     *
+     * <p>
      * Meanwhile check if column name with table alias prefix, ex. a.name, is property, namely a.name.lastname.
-     * In this case, split by first second dot and continue searching for the final value in nested map by getValueOfPath(source.get("a.name"), "lastname")
+     * In this case, split by first second dot and continue searching for the final value in nested map
+     * by getValueOfPath(source.get("a.name"), "lastname")
      */
-    @SuppressWarnings("unchecked")
     private void retainOneField(Map<String, Object> aliasSource, String colName, String alias) {
         aliasSource.put(
-            Strings.isNullOrEmpty(alias) ? colName : alias,
-            getValueOfPath(colName)
+                Strings.isNullOrEmpty(alias) ? colName : alias,
+                getValueOfPath(colName)
         );
     }
 

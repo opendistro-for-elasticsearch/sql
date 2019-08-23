@@ -16,11 +16,13 @@
 package com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm;
 
 import com.alibaba.druid.sql.ast.SQLExpr;
+import com.alibaba.druid.sql.ast.SQLObject;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOperator;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInListExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInSubQueryExpr;
+import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
 import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLSelectItem;
@@ -54,7 +56,7 @@ import static com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterSta
 public class TermFieldRewriter extends MySqlASTVisitorAdapter {
 
     private Deque<TermFieldScope> environment = new ArrayDeque<>();
-    private Client client ;
+    private Client client;
     private TermRewriterFilter filterType;
 
     public TermFieldRewriter(Client client) {
@@ -105,7 +107,9 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
         return false;
     }
 
-    /** Fix null parent problem which is required when visiting SQLIdentifier */
+    /**
+     * Fix null parent problem which is required when visiting SQLIdentifier
+     */
     public boolean visit(SQLInListExpr inListExpr) {
         inListExpr.getExpr().setParent(inListExpr);
         return true;
@@ -126,7 +130,9 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
 
             } else if (this.filterType == TermRewriterFilter.JOIN) {
                 String[] arr = expr.getName().split("\\.", 2);
-                if (arr.length < 2)  throw new VerificationException("table alias or field name missing");
+                if (arr.length < 2) {
+                    throw new VerificationException("table alias or field name missing");
+                }
                 String alias = arr[0];
                 String fullFieldName = arr[1];
 
@@ -147,7 +153,7 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
         return true;
     }
 
-    public void collect(SQLTableSource tableSource, Map<String, String> indexToType,  Map<String, String> aliases) {
+    public void collect(SQLTableSource tableSource, Map<String, String> indexToType, Map<String, String> aliases) {
         if (tableSource instanceof SQLExprTableSource) {
 
             String tableName = null;
@@ -167,8 +173,8 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
                     SQLIdentifierExpr right = (SQLIdentifierExpr) rightSideOfExpression;
                     indexToType.put(tableName, right.getName());
                 } else {
-                    throw new ParserException("Right side of the expression [" + rightSideOfExpression.toString() +
-                            "] is expected to be an identifier");
+                    throw new ParserException("Right side of the expression [" + rightSideOfExpression.toString()
+                            + "] is expected to be an identifier");
                 }
             }
             if (tableSource.getAlias() != null) {
@@ -183,7 +189,9 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
         }
     }
 
-    /** Current scope which is top of the stack */
+    /**
+     * Current scope which is top of the stack
+     */
     private TermFieldScope curScope() {
         return environment.peek();
     }
@@ -191,8 +199,8 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
     public String isBothTextAndKeyword(Map<String, Object> source) {
         if (source.containsKey("fields")) {
             for (Object key : ((Map) source.get("fields")).keySet()) {
-                if (key instanceof String &&
-                    ((Map) ((Map) source.get("fields")).get(key)).get("type").equals("keyword")) {
+                if (key instanceof String
+                        && ((Map) ((Map) source.get("fields")).get(key)).get("type").equals("keyword")) {
                     return (String) key;
                 }
             }
@@ -204,7 +212,7 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
         /**
          * Only for following conditions Identifier will be modified
          *  Where:  WHERE identifier = 'something'
-         *  IN list: IN ('Tom', 'Dick', ;'Harry')
+         *  IN list: IN ('Tom', 'Dick', 'Harry')
          *  IN subquery: IN (SELECT firstname from accounts/account where firstname = 'John')
          *  Group by: GROUP BY state , employer , ...
          *  Order by: ORDER BY firstname, lastname , ...
@@ -212,16 +220,27 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
          * NOTE: Does not impact fields on ON condition clause in JOIN as we skip visiting SQLJoinTableSource
          */
         return
-            !expr.getName().startsWith("_")
-            && (
-                (   expr.getParent() instanceof SQLBinaryOpExpr
-                    && ((SQLBinaryOpExpr) expr.getParent()).getOperator() == SQLBinaryOperator.Equality
+                !expr.getName().startsWith("_")
+                        && (isValidIdentifier(expr) || checkIfNestedIdentifier(expr));
+    }
+
+    private boolean checkIfNestedIdentifier(SQLIdentifierExpr expr) {
+        return
+                expr.getParent() instanceof SQLMethodInvokeExpr
+                        && ((SQLMethodInvokeExpr) expr.getParent()).getMethodName().equals("nested")
+                        && isValidIdentifier(expr.getParent());
+    }
+
+    private boolean isValidIdentifier(SQLObject expr) {
+        SQLObject parent = expr.getParent();
+        return
+                (parent instanceof SQLBinaryOpExpr
+                        && ((SQLBinaryOpExpr) parent).getOperator() == SQLBinaryOperator.Equality
                 )
-                || expr.getParent() instanceof SQLInListExpr
-                || expr.getParent() instanceof SQLInSubQueryExpr
-                || expr.getParent() instanceof SQLSelectOrderByItem
-                || expr.getParent() instanceof MySqlSelectGroupByExpr
-            );
+                        || parent instanceof SQLInListExpr
+                        || parent instanceof SQLInSubQueryExpr
+                        || parent instanceof SQLSelectOrderByItem
+                        || parent instanceof MySqlSelectGroupByExpr;
     }
 
     private void checkMappingCompatibility(TermFieldScope scope, Map<String, String> indexToType) {
@@ -230,8 +249,8 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
         }
 
         Set<FieldMappings> indexMappings = curScope().getMapper().allMappings().stream().
-                                 flatMap(typeMappings -> typeMappings.allMappings().stream()).
-                                 collect(Collectors.toSet());
+                flatMap(typeMappings -> typeMappings.allMappings().stream()).
+                collect(Collectors.toSet());
 
         final FieldMappings fieldMappings;
 
@@ -266,8 +285,8 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
                 String firstFieldType = new JSONObject(fieldMapping).toString().replaceAll("\"", "");
                 String secondFieldType = new JSONObject(visitedMapping).toString().replaceAll("\"", "");
 
-                String exceptionReason = String.format(Locale.ROOT,"Different mappings are not allowed " +
-                                "for the same field[%s]: found [%s] and [%s] ",
+                String exceptionReason = String.format(Locale.ROOT, "Different mappings are not allowed "
+                                + "for the same field[%s]: found [%s] and [%s] ",
                         fieldName, firstFieldType, secondFieldType);
 
                 throw new VerificationException(exceptionReason);
@@ -288,7 +307,7 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
 
         public final String name;
 
-        TermRewriterFilter(String name){
+        TermRewriterFilter(String name) {
             this.name = name;
         }
 

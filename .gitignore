@@ -26,3 +26,6 @@ build/
 # various IDE files
 .vscode
 .idea
+
+# git mergetool artifact
+*.orig

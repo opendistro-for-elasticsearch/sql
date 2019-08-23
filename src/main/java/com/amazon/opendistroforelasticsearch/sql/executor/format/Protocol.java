@@ -15,14 +15,14 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
-import org.elasticsearch.client.Client;
-import com.amazon.opendistroforelasticsearch.sql.executor.format.DataRows.Row;
-import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema.Column;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import com.amazon.opendistroforelasticsearch.sql.domain.IndexStatement;
 import com.amazon.opendistroforelasticsearch.sql.domain.Query;
 import com.amazon.opendistroforelasticsearch.sql.domain.QueryStatement;
+import com.amazon.opendistroforelasticsearch.sql.executor.format.DataRows.Row;
+import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema.Column;
+import org.elasticsearch.client.Client;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -76,9 +76,13 @@ public class Protocol {
         );
     }
 
-    public int getStatus() { return status; }
+    public int getStatus() {
+        return status;
+    }
 
-    public ResultSet getResultSet() { return resultSet; }
+    public ResultSet getResultSet() {
+        return resultSet;
+    }
 
     public String format() {
         if (status == OK_STATUS) {
@@ -149,7 +153,9 @@ public class Protocol {
     private JSONObject schemaEntry(String name, String alias, String type) {
         JSONObject entry = new JSONObject();
         entry.put("name", name);
-        if (alias != null) { entry.put("alias", alias); }
+        if (alias != null) {
+            entry.put("alias", alias);
+        }
         entry.put("type", type);
 
         return entry;

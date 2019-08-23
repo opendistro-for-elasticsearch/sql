@@ -19,6 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.query.join;
 import com.amazon.opendistroforelasticsearch.sql.domain.Condition;
 import com.amazon.opendistroforelasticsearch.sql.domain.Where;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.query.maker.QueryMaker;
 import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.common.xcontent.ToXContent;
 import org.elasticsearch.common.xcontent.XContentBuilder;
@@ -26,8 +27,6 @@ import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.json.JSONObject;
 import org.json.JSONStringer;
-
-import com.amazon.opendistroforelasticsearch.sql.query.maker.QueryMaker;
 
 import java.io.IOException;
 
@@ -38,6 +37,7 @@ public class NestedLoopsElasticRequestBuilder extends JoinRequestBuilder {
 
     private Where connectedWhere;
     private int multiSearchMaxSize;
+
     public NestedLoopsElasticRequestBuilder() {
 
         multiSearchMaxSize = 100;
@@ -48,7 +48,7 @@ public class NestedLoopsElasticRequestBuilder extends JoinRequestBuilder {
         String conditions = "";
 
         try {
-            Where where = (Where)this.connectedWhere.clone();
+            Where where = (Where) this.connectedWhere.clone();
             setValueTypeConditionToStringRecursive(where);
             if (where != null) {
                 conditions = QueryMaker.explain(where, false).toString();
@@ -57,11 +57,14 @@ public class NestedLoopsElasticRequestBuilder extends JoinRequestBuilder {
             conditions = "Could not parse conditions due to " + e.getMessage();
         }
 
-        String desc =  "Nested Loops run first query, and for each result run second query with additional conditions as following.";
+        String desc = "Nested Loops run first query, and for each result run "
+                + "second query with additional conditions as following.";
         String[] queries = explainNL();
         JSONStringer jsonStringer = new JSONStringer();
-        jsonStringer.object().key("description").value(desc).key("conditions").value(new JSONObject(conditions)).
-                key("first query").value(new JSONObject(queries[0])).key("second query").value(new JSONObject(queries[1])).endObject();
+        jsonStringer.object().key("description").value(desc)
+                .key("conditions").value(new JSONObject(conditions))
+                .key("first query").value(new JSONObject(queries[0]))
+                .key("second query").value(new JSONObject(queries[1])).endObject();
         return jsonStringer.toString();
     }
 
@@ -82,20 +85,22 @@ public class NestedLoopsElasticRequestBuilder extends JoinRequestBuilder {
     }
 
     private void setValueTypeConditionToStringRecursive(Where where) {
-        if (where == null) return;
+        if (where == null) {
+            return;
+        }
         if (where instanceof Condition) {
             Condition c = (Condition) where;
             c.setValue(c.getValue().toString());
             return;
-        }
-        else {
-            for (Where innerWhere : where.getWheres())
+        } else {
+            for (Where innerWhere : where.getWheres()) {
                 setValueTypeConditionToStringRecursive(innerWhere);
+            }
         }
     }
 
     private String[] explainNL() {
-        return new String[] {explainQuery(this.getFirstTable()), explainQuery(this.getSecondTable())};
+        return new String[]{explainQuery(this.getFirstTable()), explainQuery(this.getSecondTable())};
     }
 
     private String explainQuery(TableInJoinRequestBuilder requestBuilder) {

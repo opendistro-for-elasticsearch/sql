@@ -27,32 +27,48 @@ public class Config {
     public static final int DEFAULT_BLOCK_SIZE = 10000;
     public static final int DEFAULT_SCROLL_PAGE_SIZE = 10000;
     public static final int DEFAULT_CIRCUIT_BREAK_LIMIT = 85;
-    public static final double[] DEFAULT_BACK_OFF_RETRY_INTERVALS = {4, 8+4, 16+4};
+    public static final double[] DEFAULT_BACK_OFF_RETRY_INTERVALS = {4, 8 + 4, 16 + 4};
     public static final int DEFAULT_TIME_OUT = 60;
 
-    /** Block size for join algorithm */
+    /**
+     * Block size for join algorithm
+     */
     private BlockSize blockSize = new FixedBlockSize(DEFAULT_BLOCK_SIZE);
 
-    /** Page size for scroll on each index */
+    /**
+     * Page size for scroll on each index
+     */
     private Integer[] scrollPageSizes = {DEFAULT_SCROLL_PAGE_SIZE, DEFAULT_SCROLL_PAGE_SIZE};
 
-    /** Circuit breaker trigger limit (percentage) */
+    /**
+     * Circuit breaker trigger limit (percentage)
+     */
     private Integer circuitBreakLimit = DEFAULT_CIRCUIT_BREAK_LIMIT;
 
-    /** Intervals for back off retry */
+    /**
+     * Intervals for back off retry
+     */
     private double[] backOffRetryIntervals = DEFAULT_BACK_OFF_RETRY_INTERVALS;
 
-    /** Total number of rows in final result specified by LIMIT */
+    /**
+     * Total number of rows in final result specified by LIMIT
+     */
     private int totalLimit;
 
-    /** Number of rows fetched from each table specified by JOIN_TABLES_LIMIT hint */
+    /**
+     * Number of rows fetched from each table specified by JOIN_TABLES_LIMIT hint
+     */
     private int tableLimit1;
     private int tableLimit2;
 
-    /** Push down column values in ON of first table to query against second table */
+    /**
+     * Push down column values in ON of first table to query against second table
+     */
     private boolean isUseTermsFilterOptimization = false;
 
-    /** Total time out (seconds) for the execution */
+    /**
+     * Total time out (seconds) for the execution
+     */
     private int timeout = DEFAULT_TIME_OUT;
 
 
@@ -65,8 +81,7 @@ public class Config {
             Integer size = (Integer) params[0];
             if (size > 0) {
                 blockSize = new FixedBlockSize(size);
-            }
-            else {
+            } else {
                 blockSize = new AdaptiveBlockSize(0);
             }
         }
@@ -79,11 +94,10 @@ public class Config {
     public void configureScrollPageSize(Object[] params) {
         if (params.length == 1) {
             scrollPageSizes = new Integer[]{
-                (Integer) params[0],
-                (Integer) params[0]
+                    (Integer) params[0],
+                    (Integer) params[0]
             };
-        }
-        else if (params.length >= 2) {
+        } else if (params.length >= 2) {
             scrollPageSizes = (Integer[]) params;
         }
     }

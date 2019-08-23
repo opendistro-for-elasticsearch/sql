@@ -19,19 +19,21 @@ import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLObject;
 import com.alibaba.druid.sql.ast.expr.SQLAggregateExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
+import com.alibaba.druid.sql.ast.expr.SQLCharExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInSubQueryExpr;
 import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
 import com.alibaba.druid.sql.ast.statement.SQLSelectItem;
 import com.alibaba.druid.sql.ast.statement.SQLSelectOrderByItem;
 import com.alibaba.druid.sql.dialect.mysql.ast.expr.MySqlSelectGroupByExpr;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
+import com.amazon.opendistroforelasticsearch.sql.utils.Util;
 
 import java.util.List;
 
 /**
  * Abstract class for SQL clause domain class.
  *
- * @param <T>   concrete type of clause
+ * @param <T> concrete type of clause
  */
 abstract class SQLClause<T> {
 
@@ -43,42 +45,45 @@ abstract class SQLClause<T> {
 
     /**
      * Rewrite nested fields in query according to/fill into information in scope.
-     * @param scope     Scope of current query
+     *
+     * @param scope Scope of current query
      */
     abstract void rewrite(Scope scope);
 
-    /** Replace expr by nested(expr) and set pointer in parent properly */
+    SQLMethodInvokeExpr replaceByNestedFunction(SQLExpr expr, String nestedPath) {
+        final int nestedPathIndex = 1;
+        SQLMethodInvokeExpr nestedFunc = replaceByNestedFunction(expr);
+        nestedFunc.getParameters().add(nestedPathIndex, new SQLCharExpr(nestedPath));
+        return nestedFunc;
+    }
+
+    /**
+     * Replace expr by nested(expr) and set pointer in parent properly
+     */
     SQLMethodInvokeExpr replaceByNestedFunction(SQLExpr expr) {
         SQLObject parent = expr.getParent();
         SQLMethodInvokeExpr nestedFunc = wrapNestedFunction(expr);
         if (parent instanceof SQLAggregateExpr) {
             List<SQLExpr> args = ((SQLAggregateExpr) parent).getArguments();
             args.set(args.indexOf(expr), nestedFunc);
-        }
-        else if (parent instanceof SQLSelectItem) {
+        } else if (parent instanceof SQLSelectItem) {
             ((SQLSelectItem) parent).setExpr(nestedFunc);
-        }
-        else if (parent instanceof MySqlSelectGroupByExpr) {
+        } else if (parent instanceof MySqlSelectGroupByExpr) {
             ((MySqlSelectGroupByExpr) parent).setExpr(nestedFunc);
-        }
-        else if (parent instanceof SQLSelectOrderByItem) {
+        } else if (parent instanceof SQLSelectOrderByItem) {
             ((SQLSelectOrderByItem) parent).setExpr(nestedFunc);
-        }
-        else if (parent instanceof SQLInSubQueryExpr) {
+        } else if (parent instanceof SQLInSubQueryExpr) {
             ((SQLInSubQueryExpr) parent).setExpr(nestedFunc);
-        }
-        else if (parent instanceof SQLBinaryOpExpr) {
+        } else if (parent instanceof SQLBinaryOpExpr) {
             SQLBinaryOpExpr parentOp = (SQLBinaryOpExpr) parent;
             if (parentOp.getLeft() == expr) {
                 parentOp.setLeft(nestedFunc);
             } else {
                 parentOp.setRight(nestedFunc);
             }
-        }
-        else if (parent instanceof MySqlSelectQueryBlock) {
+        } else if (parent instanceof MySqlSelectQueryBlock) {
             ((MySqlSelectQueryBlock) parent).setWhere(nestedFunc);
-        }
-        else {
+        } else {
             throw new IllegalStateException("Unsupported place to use nested field under parent: " + parent);
         }
         return nestedFunc;
@@ -89,6 +94,15 @@ abstract class SQLClause<T> {
         nestedFunc.setParent(expr.getParent());
         nestedFunc.addParameter(expr);  // this will auto set parent of expr
         return nestedFunc;
+    }
+
+    String pathFromIdentifier(SQLExpr identifier) {
+        String field = Util.extendedToString(identifier);
+        int lastDot = field.lastIndexOf(".");
+        if (lastDot == -1) {
+            throw new IllegalStateException("pathFromIdentifier() is being invoked on the wrong field [" + field + "]");
+        }
+        return field.substring(0, lastDot);
     }
 
 }

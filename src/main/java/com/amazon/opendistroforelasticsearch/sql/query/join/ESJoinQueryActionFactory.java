@@ -19,8 +19,8 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Condition;
 import com.amazon.opendistroforelasticsearch.sql.domain.JoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.domain.hints.Hint;
 import com.amazon.opendistroforelasticsearch.sql.domain.hints.HintType;
-import org.elasticsearch.client.Client;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
+import org.elasticsearch.client.Client;
 
 import java.util.List;
 
@@ -38,8 +38,9 @@ public class ESJoinQueryActionFactory {
             }
 
         }
-        if (!allEqual)
+        if (!allEqual) {
             return new ESNestedLoopsQueryAction(client, joinSelect);
+        }
 
         boolean useNestedLoopsHintExist = false;
         for (Hint hint : joinSelect.getHints()) {
@@ -48,8 +49,9 @@ public class ESJoinQueryActionFactory {
                 break;
             }
         }
-        if (useNestedLoopsHintExist)
+        if (useNestedLoopsHintExist) {
             return new ESNestedLoopsQueryAction(client, joinSelect);
+        }
 
         return new ESHashJoinQueryAction(client, joinSelect);
 

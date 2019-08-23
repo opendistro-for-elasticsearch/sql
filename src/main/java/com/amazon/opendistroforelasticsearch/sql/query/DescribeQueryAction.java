@@ -15,23 +15,25 @@
 
 package com.amazon.opendistroforelasticsearch.sql.query;
 
+import com.amazon.opendistroforelasticsearch.sql.domain.IndexStatement;
+import com.amazon.opendistroforelasticsearch.sql.domain.QueryStatement;
 import com.amazon.opendistroforelasticsearch.sql.utils.Util;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequestBuilder;
 import org.elasticsearch.client.Client;
-import com.amazon.opendistroforelasticsearch.sql.domain.IndexStatement;
-import com.amazon.opendistroforelasticsearch.sql.domain.QueryStatement;
 
 public class DescribeQueryAction extends QueryAction {
 
     private final IndexStatement statement;
 
     public DescribeQueryAction(Client client, IndexStatement statement) {
-        super(client,null);
+        super(client, null);
         this.statement = statement;
     }
 
     @Override
-    public QueryStatement getQueryStatement() { return statement; }
+    public QueryStatement getQueryStatement() {
+        return statement;
+    }
 
     @Override
     public SqlElasticSearchRequestBuilder explain() {

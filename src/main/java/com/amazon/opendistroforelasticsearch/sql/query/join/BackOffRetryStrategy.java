@@ -32,15 +32,19 @@ import java.util.function.Supplier;
 
 public class BackOffRetryStrategy {
 
-    private final static Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger();
 
-    /** Interval (ms) between each retry */
-    private final static long[] intervals = milliseconds(new double[]{4, 8+4, 16+4});
+    /**
+     * Interval (ms) between each retry
+     */
+    private static final long[] intervals = milliseconds(new double[]{4, 8 + 4, 16 + 4});
 
-    /** Delta to randomize interval (ms) */
-    private final static long delta = 4 * 1000;
+    /**
+     * Delta to randomize interval (ms)
+     */
+    private static final long delta = 4 * 1000;
 
-    private final static int threshold = 85;
+    private static final int threshold = 85;
 
     private static IdentityHashMap<Object, Tuple<Long, Long>> memUse = new IdentityHashMap<>();
 
@@ -48,13 +52,13 @@ public class BackOffRetryStrategy {
 
     private static long lastTimeoutCleanTime = System.currentTimeMillis();
 
-    private final static long RELTIMEOUT = 1000 * 60 * 30;
+    private static final long RELTIMEOUT = 1000 * 60 * 30;
 
-    private final static int MAXRETRIES = 999;
+    private static final int MAXRETRIES = 999;
 
-    private final static Object obj = new Object();
+    private static final Object obj = new Object();
 
-    public final static Supplier<Integer> GET_CB_STATE = () -> isMemoryHealthy() ? 0 : 1;
+    public static final Supplier<Integer> GET_CB_STATE = () -> isMemoryHealthy() ? 0 : 1;
 
     private BackOffRetryStrategy() {
 
@@ -63,7 +67,8 @@ public class BackOffRetryStrategy {
     private static boolean isMemoryHealthy() {
         final long freeMemory = Runtime.getRuntime().freeMemory();
         final long totalMemory = Runtime.getRuntime().totalMemory();
-        final int memoryUsage = (int) Math.round((double) (totalMemory - freeMemory + mem.get()) / (double) totalMemory * 100);
+        final int memoryUsage = (int) Math.round((double) (totalMemory - freeMemory + mem.get())
+                / (double) totalMemory * 100);
 
         LOG.debug("[MCB1] Memory total, free, allocate: {}, {}, {}", totalMemory, freeMemory, mem.get());
         LOG.debug("[MCB1] Memory usage and limit: {}%, {}%", memoryUsage, threshold);
@@ -77,7 +82,8 @@ public class BackOffRetryStrategy {
                 return true;
             }
 
-            LOG.warn("[MCB1] Memory monitor is unhealthy now, back off retrying: {} attempt, thread id = {}", i, Thread.currentThread().getId());
+            LOG.warn("[MCB1] Memory monitor is unhealthy now, back off retrying: {} attempt, thread id = {}",
+                    i, Thread.currentThread().getId());
             if (ThreadLocalRandom.current().nextBoolean()) {
                 Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_CB).increment();
                 LOG.warn("[MCB1] Directly abort on idx {}.", i);
@@ -111,18 +117,16 @@ public class BackOffRetryStrategy {
 
         final long freeMemory = Runtime.getRuntime().freeMemory();
         final long totalMemory = Runtime.getRuntime().totalMemory();
-        final int memoryUsage = (int) Math.round((double) (totalMemory - freeMemory + logMem) / (double) totalMemory * 100);
+        final int memoryUsage = (int) Math.round((double) (totalMemory - freeMemory + logMem)
+                / (double) totalMemory * 100);
 
         LOG.debug("[MCB] Idx is {}", idx);
-        LOG.debug("[MCB] Memory total, free, allocate: {}, {}, {}, {}", totalMemory, freeMemory, allocateMemory, logMem);
+        LOG.debug("[MCB] Memory total, free, allocate: {}, {}, {}, {}", totalMemory, freeMemory,
+                allocateMemory, logMem);
         LOG.debug("[MCB] Memory usage and limit: {}%, {}%", memoryUsage, threshold);
 
         return memoryUsage < threshold;
 
-    }
-
-    private static boolean isHealthy(Object key) {
-        return isHealthy(0L, key);
     }
 
     public static boolean isHealthy(long allocateMemory, Object key) {
@@ -135,7 +139,8 @@ public class BackOffRetryStrategy {
                 return true;
             }
 
-            LOG.warn("[MCB] Memory monitor is unhealthy now, back off retrying: {} attempt, executor = {}, thread id = {}", i, key, Thread.currentThread().getId());
+            LOG.warn("[MCB] Memory monitor is unhealthy now, back off retrying: {} attempt, "
+                    + "executor = {}, thread id = {}", i, key, Thread.currentThread().getId());
             if (ThreadLocalRandom.current().nextBoolean()) {
                 LOG.warn("[MCB] Directly abort on idx {}, executor is {}.", i, key);
                 return false;
@@ -151,13 +156,14 @@ public class BackOffRetryStrategy {
 
             LOG.info("[MCB] Back off sleeping: {} ms", millis);
             Thread.sleep(millis);
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             LOG.error("[MCB] Sleep interrupted", e);
         }
     }
 
-    /** Generate random interval in [interval-delta, interval+delta) */
+    /**
+     * Generate random interval in [interval-delta, interval+delta)
+     */
     private static long randomize(long interval) {
         // Random number within range generator for JDK 7+
         return ThreadLocalRandom.current().nextLong(
@@ -216,6 +222,8 @@ public class BackOffRetryStrategy {
 
     private static void atomicMinusLowBoundZero(AtomicLong x, Long y) {
         long memRes = x.addAndGet(-y);
-        if (memRes < 0) x.compareAndSet(memRes, 0L);
+        if (memRes < 0) {
+            x.compareAndSet(memRes, 0L);
+        }
     }
 }

@@ -16,7 +16,9 @@
 package com.amazon.opendistroforelasticsearch.sql.query.multi;
 
 import com.alibaba.druid.sql.ast.statement.SQLUnionOperator;
+import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.Select;
+import com.amazon.opendistroforelasticsearch.sql.query.SqlElasticRequestBuilder;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.ActionRequestBuilder;
 import org.elasticsearch.action.ActionResponse;
@@ -26,8 +28,6 @@ import org.elasticsearch.common.xcontent.ToXContent;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentType;
-import com.amazon.opendistroforelasticsearch.sql.domain.Field;
-import com.amazon.opendistroforelasticsearch.sql.query.SqlElasticRequestBuilder;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -37,12 +37,12 @@ import java.util.Map;
 /**
  * Created by Eliran on 19/8/2016.
  */
-public class MultiQueryRequestBuilder implements SqlElasticRequestBuilder{
+public class MultiQueryRequestBuilder implements SqlElasticRequestBuilder {
 
     private SearchRequestBuilder firstSearchRequest;
     private SearchRequestBuilder secondSearchRequest;
-    private Map<String,String> firstTableFieldToAlias;
-    private Map<String,String> secondTableFieldToAlias;
+    private Map<String, String> firstTableFieldToAlias;
+    private Map<String, String> secondTableFieldToAlias;
     private MultiQuerySelect multiQuerySelect;
     private SQLUnionOperator relation;
 
@@ -69,9 +69,10 @@ public class MultiQueryRequestBuilder implements SqlElasticRequestBuilder{
 
             XContentBuilder secondBuilder = XContentFactory.contentBuilder(XContentType.JSON).prettyPrint();
             this.secondSearchRequest.request().source().toXContent(secondBuilder, ToXContent.EMPTY_PARAMS);
-            String explained = String.format("performing %s on :\n left query:\n%s\n right query:\n%s", this.relation.name, BytesReference.bytes(firstBuilder).utf8ToString(), BytesReference.bytes(secondBuilder).utf8ToString());
+            return String.format("performing %s on :\n left query:\n%s\n right query:\n%s",
+                    this.relation.name, BytesReference.bytes(firstBuilder).utf8ToString(),
+                    BytesReference.bytes(secondBuilder).utf8ToString());
 
-            return explained;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -110,14 +111,14 @@ public class MultiQueryRequestBuilder implements SqlElasticRequestBuilder{
     }
 
     public void fillTableAliases(List<Field> firstTableFields, List<Field> secondTableFields) {
-        fillTableToAlias(this.firstTableFieldToAlias,firstTableFields);
-        fillTableToAlias(this.secondTableFieldToAlias,secondTableFields);
+        fillTableToAlias(this.firstTableFieldToAlias, firstTableFields);
+        fillTableToAlias(this.secondTableFieldToAlias, secondTableFields);
     }
 
     private void fillTableToAlias(Map<String, String> fieldToAlias, List<Field> fields) {
-        for(Field field : fields){
-            if(field.getAlias() != null && !field.getAlias().isEmpty()){
-                fieldToAlias.put(field.getName(),field.getAlias());
+        for (Field field : fields) {
+            if (field.getAlias() != null && !field.getAlias().isEmpty()) {
+                fieldToAlias.put(field.getName(), field.getAlias());
             }
         }
     }
@@ -130,11 +131,10 @@ public class MultiQueryRequestBuilder implements SqlElasticRequestBuilder{
         return secondTableFieldToAlias;
     }
 
-    public Select getOriginalSelect(boolean first){
-        if(first){
+    public Select getOriginalSelect(boolean first) {
+        if (first) {
             return this.multiQuerySelect.getFirstSelect();
-        }
-        else {
+        } else {
             return this.multiQuerySelect.getSecondSelect();
         }
     }

@@ -23,6 +23,7 @@ import com.amazon.opendistroforelasticsearch.sql.domain.ScriptMethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.domain.TableOnJoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMapping;
+import com.amazon.opendistroforelasticsearch.sql.exception.SqlFeatureNotImplementedException;
 import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
@@ -35,6 +36,8 @@ import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.NumericMetricsAggregation;
+import org.elasticsearch.search.aggregations.metrics.Percentile;
+import org.elasticsearch.search.aggregations.metrics.Percentiles;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,6 +47,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toSet;
 import static org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse.FieldMappingMetaData;
@@ -85,10 +91,9 @@ public class SelectResultSet extends ResultSet {
         this.dataRows = new DataRows(size, totalHits, rows);
     }
 
-    /***********************************************************
-          Logic for loading Columns to be stored in Schema
-     ***********************************************************/
-
+    //***********************************************************
+    //      Logic for loading Columns to be stored in Schema
+    //***********************************************************
 
     /**
      * Makes a request to local node to receive meta data information and maps each field specified in SELECT to its
@@ -140,7 +145,9 @@ public class SelectResultSet extends ResultSet {
         this.columns.addAll(renameColumnWithTableAlias(query, populateColumns(query, fieldNames, typeMappings)));
     }
 
-    /** Rename column name with table alias as prefix for join query */
+    /**
+     * Rename column name with table alias as prefix for join query
+     */
     private List<Schema.Column> renameColumnWithTableAlias(Query query, List<Schema.Column> columns) {
         List<Schema.Column> renamedCols;
         if ((query instanceof TableOnJoinSelect)
@@ -151,10 +158,10 @@ public class SelectResultSet extends ResultSet {
 
             for (Schema.Column column : columns) {
                 renamedCols.add(new Schema.Column(
-                    joinQuery.getAlias() + "." + column.getName(),
-                    column.getAlias(),
-                    Schema.Type.valueOf(column.getType().toUpperCase()),
-                    true
+                        joinQuery.getAlias() + "." + column.getName(),
+                        column.getAlias(),
+                        Schema.Type.valueOf(column.getType().toUpperCase()),
+                        true
                 ));
             }
         } else {
@@ -163,7 +170,9 @@ public class SelectResultSet extends ResultSet {
         return renamedCols;
     }
 
-    private boolean isSelectAll() { return selectAll; }
+    private boolean isSelectAll() {
+        return selectAll;
+    }
 
     /**
      * Is a simple (non-join/non-group-by) query with SELECT * explicitly
@@ -203,23 +212,28 @@ public class SelectResultSet extends ResultSet {
 
     private boolean containsWildcard(Query query) {
         for (Field field : fetchFields(query)) {
-            if (!(field instanceof MethodField) && field.getName().contains("*"))
+            if (!(field instanceof MethodField) && field.getName().contains("*")) {
                 return true;
+            }
         }
 
         return false;
     }
 
-    private String fetchIndexName(Query query) { return query.getFrom().get(0).getIndex(); }
+    private String fetchIndexName(Query query) {
+        return query.getFrom().get(0).getIndex();
+    }
 
-    private String fetchTypeName(Query query) { return query.getFrom().get(0).getType(); }
+    private String fetchTypeName(Query query) {
+        return query.getFrom().get(0).getType();
+    }
 
     /**
      * queryResult is checked to see if it's of type Aggregation in which case the aggregation fields in GROUP BY
      * are returned as well. This prevents returning a Schema of all fields when SELECT * is called with
      * GROUP BY (since all fields will be retrieved from the typeMappings request when no fields are returned from
      * fetchFields()).
-     *
+     * <p>
      * After getting all of the fields from GROUP BY, the fields from SELECT are iterated and only the fields of type
      * MethodField are added (to prevent duplicate field in Schema for queries like
      * "SELECT age, COUNT(*) FROM bank GROUP BY age" where 'age' is mentioned in both SELECT and GROUP BY).
@@ -228,7 +242,8 @@ public class SelectResultSet extends ResultSet {
         Select select = (Select) query;
 
         if (queryResult instanceof Aggregations) {
-            List<Field> groupByFields = select.getGroupBys().isEmpty() ? new ArrayList<>() : select.getGroupBys().get(0);
+            List<Field> groupByFields = select.getGroupBys().isEmpty() ? new ArrayList<>() :
+                    select.getGroupBys().get(0);
 
             for (Field selectField : select.getFields()) {
                 if (selectField instanceof MethodField && !selectField.isScriptField()) {
@@ -253,8 +268,9 @@ public class SelectResultSet extends ResultSet {
     }
 
     private String getFieldName(Field field) {
-        if (field instanceof MethodField)
+        if (field instanceof MethodField) {
             return field.getAlias();
+        }
 
         return field.getName();
     }
@@ -270,17 +286,19 @@ public class SelectResultSet extends ResultSet {
     }
 
     private String[] selectAllFieldsIfEmpty(String[] fields) {
-        if (isSelectAll())
-            return new String[] {"*"};
+        if (isSelectAll()) {
+            return new String[]{"*"};
+        }
 
         return fields;
     }
 
     private String[] emptyArrayIfNull(String typeName) {
-        if (typeName != null)
-            return new String[] {typeName};
-        else
+        if (typeName != null) {
+            return new String[]{typeName};
+        } else {
             return Strings.EMPTY_ARRAY;
+        }
     }
 
     private Schema.Type fetchMethodReturnType(Field field) {
@@ -291,6 +309,7 @@ public class SelectResultSet extends ResultSet {
             case "avg":
             case "min":
             case "max":
+            case "percentiles":
                 return Schema.Type.DOUBLE;
             case "script": {
                 // TODO: return type information is disconnected from the function definitions in SQLFunctions.
@@ -308,14 +327,15 @@ public class SelectResultSet extends ResultSet {
 
     /**
      * Returns a list of Column objects which contain names identifying the field as well as its type.
-     *
+     * <p>
      * If all fields are being selected (SELECT *) then the order of fields returned will be random, otherwise
      * the output will be in the same order as how they were selected.
-     *
+     * <p>
      * If an alias was given for a field, that will be used to identify the field in Column, otherwise the field name
      * will be used.
      */
-    private List<Schema.Column> populateColumns(Query query, String[] fieldNames, Map<String, FieldMappingMetaData> typeMappings) {
+    private List<Schema.Column> populateColumns(Query query, String[] fieldNames, Map<String,
+            FieldMappingMetaData> typeMappings) {
         List<String> fieldNameList;
 
         if (isSelectAll() || containsWildcard(query)) {
@@ -325,10 +345,10 @@ public class SelectResultSet extends ResultSet {
         }
 
         /*
-         * The reason the 'fieldMap' mapping is needed on top of 'fieldNameList' is because the map would be empty in cases
-         * like 'SELECT *' but List<String> fieldNameList will always be set in either case. That way, 'fieldNameList' is used to
-         * access field names in order that they were selected, if given, and then 'fieldMap' is used to access the
-         * respective Field object to check for aliases.
+         * The reason the 'fieldMap' mapping is needed on top of 'fieldNameList' is because the map would be
+         * empty in cases like 'SELECT *' but List<String> fieldNameList will always be set in either case.
+         * That way, 'fieldNameList' is used to access field names in order that they were selected, if given,
+         * and then 'fieldMap' is used to access the respective Field object to check for aliases.
          */
         Map<String, Field> fieldMap = fetchFieldMap(query);
         List<Schema.Column> columns = new ArrayList<>();
@@ -364,8 +384,12 @@ public class SelectResultSet extends ResultSet {
             FieldMapping field = new FieldMapping(fieldName, typeMappings, fieldMap);
             if (typeMappings.containsKey(fieldName) && !field.isMetaField()) {
 
-                if (field.isMultiField() && !field.isSpecified()) { continue; }
-                if (field.isPropertyField() && !field.isSpecified() && !field.isWildcardSpecified()) { continue; }
+                if (field.isMultiField() && !field.isSpecified()) {
+                    continue;
+                }
+                if (field.isPropertyField() && !field.isSpecified() && !field.isWildcardSpecified()) {
+                    continue;
+                }
 
                 /*
                  * Three cases regarding Type:
@@ -376,15 +400,15 @@ public class SelectResultSet extends ResultSet {
                 String type = field.type().toUpperCase();
                 if (Schema.hasType(type)) {
                     columns.add(
-                        new Schema.Column(
-                            fieldName,
-                            fetchAlias(fieldName, fieldMap),
-                            Schema.Type.valueOf(type)
-                        )
+                            new Schema.Column(
+                                    fieldName,
+                                    fetchAlias(fieldName, fieldMap),
+                                    Schema.Type.valueOf(type)
+                            )
                     );
                 } else if (!isSelectAll()) {
                     throw new IllegalArgumentException(
-                        String.format("%s fieldName types are currently not supported.", type));
+                            String.format("%s fieldName types are currently not supported.", type));
                 }
             }
         }
@@ -409,15 +433,15 @@ public class SelectResultSet extends ResultSet {
      */
     private void populateAllNestedFields(List<Schema.Column> columns, List<String> fields) {
         Set<String> nestedFieldPaths = fields.stream().
-                                              map(FieldMapping::new).
-                                              filter(FieldMapping::isPropertyField).
-                                              filter(f -> !f.isMultiField()).
-                                              map(FieldMapping::path).
-                                              collect(toSet());
+                map(FieldMapping::new).
+                filter(FieldMapping::isPropertyField).
+                filter(f -> !f.isMultiField()).
+                map(FieldMapping::path).
+                collect(toSet());
 
         for (String nestedFieldPath : nestedFieldPaths) {
             columns.add(
-                new Schema.Column(nestedFieldPath, "", Schema.Type.TEXT)
+                    new Schema.Column(nestedFieldPath, "", Schema.Type.TEXT)
             );
         }
     }
@@ -428,22 +452,23 @@ public class SelectResultSet extends ResultSet {
      * that 'SELECT *' was called since the map will be empty.
      */
     private String fetchAlias(String fieldName, Map<String, Field> fieldMap) {
-        if (fieldMap.containsKey(fieldName))
+        if (fieldMap.containsKey(fieldName)) {
             return fieldMap.get(fieldName).getAlias();
+        }
 
         return null;
     }
 
-    /***********************************************************
-          Logic for loading Rows to be stored in DataRows
-     ***********************************************************/
+    //***********************************************************
+    //      Logic for loading Rows to be stored in DataRows
+    //***********************************************************
 
     /**
      * Extract data from query results into Row objects
      * Need to cover two cases:
      * 1. queryResult is a SearchHits object
      * 2. queryResult is an Aggregations object
-     *
+     * <p>
      * Ignoring queryResult being ActionResponse (from executeDeleteAction), there should be no data in this case
      */
     private void extractData() {
@@ -453,7 +478,8 @@ public class SelectResultSet extends ResultSet {
             this.rows = populateRows(searchHits);
             this.size = rows.size();
             this.totalHits = Math.max(size, // size may be greater than totalHits after nested rows be flatten
-                                      Optional.ofNullable(searchHits.getTotalHits()).map(th -> th.value).orElse(0L));
+                    Optional.ofNullable(searchHits.getTotalHits()).map(th -> th.value)
+                            .orElse(0L));
 
         } else if (queryResult instanceof Aggregations) {
             Aggregations aggregations = (Aggregations) queryResult;
@@ -472,7 +498,8 @@ public class SelectResultSet extends ResultSet {
             Map<String, Object> rowSource = hit.getSourceAsMap();
             List<DataRows.Row> result;
 
-            if (!isJoinQuery()) { // Row already flatten in source in join. And join doesn't support nested fields for now.
+            if (!isJoinQuery()) {
+                // Row already flatten in source in join. And join doesn't support nested fields for now.
                 rowSource = flatRow(head, rowSource);
                 rowSource.put(SCORE, hit.getScore());
 
@@ -540,7 +567,7 @@ public class SelectResultSet extends ResultSet {
     /**
      * hasTermAggregations() checks for specific type of aggregation, one that contains Terms. This is the case when the
      * aggregations contains the contents of a GROUP BY field.
-     *
+     * <p>
      * If the aggregation contains the data for an aggregation function (ex. COUNT(*)), the items in the list will
      * be of instance InternalValueCount, InternalSum, etc. (depending on the aggregation function) and will be
      * considered a base case of getAggsData() which will add that data to the Row (if it exists).
@@ -555,8 +582,29 @@ public class SelectResultSet extends ResultSet {
      */
     private Map<String, Object> addNumericAggregation(List<Aggregation> aggs, Map<String, Object> data) {
         for (Aggregation aggregation : aggs) {
-            NumericMetricsAggregation.SingleValue numericAggs = (NumericMetricsAggregation.SingleValue) aggregation;
-            data.put(numericAggs.getName(), numericAggs.value());
+            if (aggregation instanceof NumericMetricsAggregation.SingleValue) {
+                NumericMetricsAggregation.SingleValue singleValueAggregation =
+                        (NumericMetricsAggregation.SingleValue) aggregation;
+                data.put(singleValueAggregation.getName(), !Double.isInfinite(singleValueAggregation.value())
+                        ? singleValueAggregation.getValueAsString() : "null");
+            } else if (aggregation instanceof Percentiles) {
+                Percentiles percentiles = (Percentiles) aggregation;
+
+                data.put(percentiles.getName(), StreamSupport
+                        .stream(percentiles.spliterator(), false)
+                        .collect(
+                                Collectors.toMap(
+                                        Percentile::getPercent,
+                                        Percentile::getValue,
+                                        (v1, v2) -> {
+                                            throw new IllegalArgumentException(
+                                                    String.format("Duplicate key for values %s and %s", v1, v2));
+                                        },
+                                        TreeMap::new)));
+            } else {
+                throw new SqlFeatureNotImplementedException("Aggregation type " + aggregation.getType()
+                        + " is not yet implemented");
+            }
         }
 
         return data;
@@ -566,15 +614,15 @@ public class SelectResultSet extends ResultSet {
      * Simplifies the structure of row's source Map by flattening it, making the full path of an object the key
      * and the Object it refers to the value. This handles the case of regular object since nested objects will not
      * be in hit.source but rather in hit.innerHits
-     *
+     * <p>
      * Sample input:
-     *   keys = ['comments.likes']
-     *   row = comments: {
-     *     likes: 2
-     *   }
-     *
+     * keys = ['comments.likes']
+     * row = comments: {
+     * likes: 2
+     * }
+     * <p>
      * Return:
-     *   flattenedRow = {comment.likes: 2}
+     * flattenedRow = {comment.likes: 2}
      */
     @SuppressWarnings("unchecked")
     private Map<String, Object> flatRow(List<String> keys, Map<String, Object> row) {
@@ -610,24 +658,25 @@ public class SelectResultSet extends ResultSet {
 
     /**
      * If innerHits associated with column name exists, flatten both the inner field name and the inner rows in it.
-     *
+     * <p>
      * Sample input:
-     *   newKeys = {'region', 'employees.age'}, row = {'region': 'US'}
-     *   innerHits = employees: {
-     *     hits: [{
-     *       source: {
-     *         age: 26,
-     *         firstname: 'Hank'
-     *       }
-     *     },{
-     *       source: {
-     *         age: 30,
-     *         firstname: 'John'
-     *       }
-     *     }]
-     *  }
+     * newKeys = {'region', 'employees.age'}, row = {'region': 'US'}
+     * innerHits = employees: {
+     * hits: [{
+     * source: {
+     * age: 26,
+     * firstname: 'Hank'
+     * }
+     * },{
+     * source: {
+     * age: 30,
+     * firstname: 'John'
+     * }
+     * }]
+     * }
      */
-    private List<DataRows.Row> flatNestedField(Set<String> newKeys, Map<String, Object> row, Map<String, SearchHits> innerHits) {
+    private List<DataRows.Row> flatNestedField(Set<String> newKeys, Map<String, Object> row,
+                                               Map<String, SearchHits> innerHits) {
         List<DataRows.Row> result = new ArrayList<>();
         result.add(new DataRows.Row(row));
 
@@ -656,26 +705,26 @@ public class SelectResultSet extends ResultSet {
 
     /**
      * Do Cartesian Product between current outer row and inner rows by nested loop and remove original outer row.
-     *
+     * <p>
      * Sample input:
-     *   colName = 'employees', rows = [{region: 'US'}]
-     *   colValue= [{
-     *     source: {
-     *       age: 26,
-     *       firstname: 'Hank'
-     *     }
-     *   },{
-     *     source: {
-     *       age: 30,
-     *       firstname: 'John'
-     *     }
-     *   }]
-     *
-     *   Return:
-     *   [
-     *     {region:'US', employees.age:26, employees.firstname:'Hank'},
-     *     {region:'US', employees.age:30, employees.firstname:'John'}
-     *   ]
+     * colName = 'employees', rows = [{region: 'US'}]
+     * colValue= [{
+     * source: {
+     * age: 26,
+     * firstname: 'Hank'
+     * }
+     * },{
+     * source: {
+     * age: 30,
+     * firstname: 'John'
+     * }
+     * }]
+     * <p>
+     * Return:
+     * [
+     * {region:'US', employees.age:26, employees.firstname:'Hank'},
+     * {region:'US', employees.age:30, employees.firstname:'John'}
+     * ]
      */
     private List<DataRows.Row> doFlatNestedFieldValue(String colName, SearchHit[] colValue, List<DataRows.Row> rows) {
         List<DataRows.Row> result = new ArrayList<>();

@@ -28,20 +28,13 @@ public class StringUtils {
      * Returns a formatted string using the specified format string and
      * arguments, as well as the {@link Locale#ROOT} locale.
      *
-     * @param  format
-     *         format string
-     *
-     * @param  args
-     *         arguments referenced by the format specifiers in the format string
-     *
-     * @throws  java.util.IllegalFormatException
-     *          If a format string contains an illegal syntax, a format
-     *          specifier that is incompatible with the given arguments,
-     *          insufficient arguments given the format string, or other
-     *          illegal conditions.
-     *
-     * @return  A formatted string
-     *
+     * @param format format string
+     * @param args   arguments referenced by the format specifiers in the format string
+     * @return A formatted string
+     * @throws java.util.IllegalFormatException If a format string contains an illegal syntax, a format
+     *                                          specifier that is incompatible with the given arguments,
+     *                                          insufficient arguments given the format string, or other
+     *                                          illegal conditions.
      * @see java.lang.String#format(Locale, String, Object...)
      */
     public static String format(final String format, Object... args) {
@@ -53,12 +46,9 @@ public class StringUtils {
      * case using the rules of the {@link Locale#ROOT} locale. This is equivalent to calling
      * {@link String#toLowerCase(Locale)} with {@link Locale#ROOT}.
      *
-     * @param input
-     *        the input String
-     *
-     * @return  the {@code String}, converted to lowercase
-     *
-     * @see     java.lang.String#toLowerCase(Locale)
+     * @param input the input String
+     * @return the {@code String}, converted to lowercase
+     * @see java.lang.String#toLowerCase(Locale)
      */
     public static String toLower(final String input) {
         return input.toLowerCase(Locale.ROOT);
@@ -69,12 +59,9 @@ public class StringUtils {
      * case using the rules of the {@link Locale#ROOT} locale. This is equivalent to calling
      * {@link String#toUpperCase(Locale)} with {@link Locale#ROOT}.
      *
-     * @param input
-     *        the input String
-     *
-     * @return  the {@code String}, converted to uppercase
-     *
-     * @see     java.lang.String#toUpperCase(Locale)
+     * @param input the input String
+     * @return the {@code String}, converted to uppercase
+     * @see java.lang.String#toUpperCase(Locale)
      */
     public static String toUpper(final String input) {
         return input.toUpperCase(Locale.ROOT);
@@ -83,14 +70,14 @@ public class StringUtils {
     /**
      * Count how many occurrences of character in this input {@code Sequence}.
      *
-     * @param input  the input string
-     * @param match  char to be matched
-     * @return       number of occurrences
+     * @param input the input string
+     * @param match char to be matched
+     * @return number of occurrences
      */
     public static int countMatches(CharSequence input, char match) {
         return Math.toIntExact(input.chars().
-                                     filter(c -> c == match).
-                                     count());
+                filter(c -> c == match).
+                count());
     }
 
     private StringUtils() {

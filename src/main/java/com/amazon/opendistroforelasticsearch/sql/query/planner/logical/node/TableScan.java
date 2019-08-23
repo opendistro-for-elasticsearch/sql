@@ -16,9 +16,9 @@
 package com.amazon.opendistroforelasticsearch.sql.query.planner.logical.node;
 
 import com.amazon.opendistroforelasticsearch.sql.query.join.TableInJoinRequestBuilder;
+import com.amazon.opendistroforelasticsearch.sql.query.planner.core.PlanNode;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.logical.LogicalOperator;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.PhysicalOperator;
-import com.amazon.opendistroforelasticsearch.sql.query.planner.core.PlanNode;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.node.scroll.Scroll;
 
 import java.util.Map;
@@ -28,10 +28,14 @@ import java.util.Map;
  */
 public class TableScan implements LogicalOperator {
 
-    /** Request builder for the table */
+    /**
+     * Request builder for the table
+     */
     private final TableInJoinRequestBuilder request;
 
-    /** Page size for physical operator */
+    /**
+     * Page size for physical operator
+     */
     private final int pageSize;
 
     public TableScan(TableInJoinRequestBuilder request, int pageSize) {
@@ -47,7 +51,7 @@ public class TableScan implements LogicalOperator {
     @Override
     public <T> PhysicalOperator[] toPhysical(Map<LogicalOperator, PhysicalOperator<T>> optimalOps) {
         return new PhysicalOperator[]{
-            new Scroll(request, pageSize)
+                new Scroll(request, pageSize)
         };
     }
 
