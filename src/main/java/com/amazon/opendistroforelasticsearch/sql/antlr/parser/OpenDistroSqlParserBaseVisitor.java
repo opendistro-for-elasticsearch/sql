@@ -3763,4 +3763,11 @@ public class OpenDistroSqlParserBaseVisitor<T> extends AbstractParseTreeVisitor<
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitFunctionNameBase(OpenDistroSqlParser.FunctionNameBaseContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitEsFunctionNameBase(OpenDistroSqlParser.EsFunctionNameBaseContext ctx) { return visitChildren(ctx); }
 }

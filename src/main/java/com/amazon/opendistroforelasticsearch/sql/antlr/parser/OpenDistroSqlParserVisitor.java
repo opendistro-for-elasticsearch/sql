@@ -3494,4 +3494,10 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitFunctionNameBase(OpenDistroSqlParser.FunctionNameBaseContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link OpenDistroSqlParser#esFunctionNameBase}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitEsFunctionNameBase(OpenDistroSqlParser.EsFunctionNameBaseContext ctx);
 }

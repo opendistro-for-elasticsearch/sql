@@ -21,9 +21,11 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.CaseInsensitiveCha
 import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.SyntaxAnalysisException;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.IntStream;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 /**
@@ -59,9 +61,13 @@ public class OpenDistroSqlAnalyzer {
             @Override
             public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol,
                                     int line, int charPositionInLine, String msg, RecognitionException e) {
+
+                CommonTokenStream tokens = (CommonTokenStream) recognizer.getInputStream();
+                String query = tokens.getText();
+                Token offendingToken = (Token) offendingSymbol;
                 throw new SyntaxAnalysisException(
-                    "Failed to parse query due to syntax error by offending symbol [%s] at position [%d]: ",
-                    offendingSymbol, charPositionInLine
+                    "Failed to parse query due to syntax error by offending symbol [%s] at: '%s...' ",
+                    offendingToken.getText(), query.substring(0, offendingToken.getStopIndex() + 1)
                 );
             }
         });

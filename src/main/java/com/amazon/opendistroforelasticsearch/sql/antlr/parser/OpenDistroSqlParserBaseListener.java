@@ -6443,6 +6443,18 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitFunctionNameBase(OpenDistroSqlParser.FunctionNameBaseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterEsFunctionNameBase(OpenDistroSqlParser.EsFunctionNameBaseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitEsFunctionNameBase(OpenDistroSqlParser.EsFunctionNameBaseContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

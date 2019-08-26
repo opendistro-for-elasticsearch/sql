@@ -772,6 +772,7 @@ CONNECTION_ID:                       'CONNECTION_ID';
 CONV:                                'CONV';
 CONVERT_TZ:                          'CONVERT_TZ';
 COS:                                 'COS';
+COSH:                                'COSH';
 COT:                                 'COT';
 CRC32:                               'CRC32';
 CREATE_ASYMMETRIC_PRIV_KEY:          'CREATE_ASYMMETRIC_PRIV_KEY';
@@ -791,6 +792,7 @@ DES_DECRYPT:                         'DES_DECRYPT';
 DES_ENCRYPT:                         'DES_ENCRYPT';
 DIMENSION:                           'DIMENSION';
 DISJOINT:                            'DISJOINT';
+E:                                   'E';
 ELT:                                 'ELT';
 ENCODE:                              'ENCODE';
 ENCRYPT:                             'ENCRYPT';
@@ -1024,7 +1026,11 @@ YEARWEEK:                            'YEARWEEK';
 Y_FUNCTION:                          'Y';
 X_FUNCTION:                          'X';
 
-
+// Elasticsearch Special functions
+SECOND_OF_MINUTE:                   'SECOND_OF_MINUTE';
+DAY_OF_MONTH:                       'DAY_OF_MONTH';
+HOUR_OF_DAY:                        'HOUR_OF_DAY';
+WEEK_OF_YEAR:                       'WEEK_OF_YEAR';
 
 // Operators
 // Operators. Assigns

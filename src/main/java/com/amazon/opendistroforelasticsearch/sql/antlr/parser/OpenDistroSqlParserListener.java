@@ -5903,4 +5903,14 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitFunctionNameBase(OpenDistroSqlParser.FunctionNameBaseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link OpenDistroSqlParser#esFunctionNameBase}.
+	 * @param ctx the parse tree
+	 */
+	void enterEsFunctionNameBase(OpenDistroSqlParser.EsFunctionNameBaseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link OpenDistroSqlParser#esFunctionNameBase}.
+	 * @param ctx the parse tree
+	 */
+	void exitEsFunctionNameBase(OpenDistroSqlParser.EsFunctionNameBaseContext ctx);
 }
