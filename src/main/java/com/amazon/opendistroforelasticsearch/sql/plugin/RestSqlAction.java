@@ -162,15 +162,15 @@ public class RestSqlAction extends BaseRestHandler {
     }
 
     private static boolean isClientError(Exception e) {
-        return e instanceof NullPointerException || // NPE is hard to differentiate but more likely caused by bad query
-                e instanceof SqlParseException ||
-                e instanceof ParserException ||
-                e instanceof SQLFeatureNotSupportedException ||
-                e instanceof SQLFeatureDisabledException ||
-                e instanceof IllegalArgumentException ||
-                e instanceof IndexNotFoundException ||
-                e instanceof VerificationException ||
-                e instanceof SqlAnalysisException;
+        return e instanceof NullPointerException // NPE is hard to differentiate but more likely caused by bad query
+            || e instanceof SqlParseException
+            || e instanceof ParserException
+            || e instanceof SQLFeatureNotSupportedException
+            || e instanceof SQLFeatureDisabledException
+            || e instanceof IllegalArgumentException
+            || e instanceof IndexNotFoundException
+            || e instanceof VerificationException
+            || e instanceof SqlAnalysisException;
     }
 
     private void sendResponse(final RestChannel channel, final String message, final RestStatus status) {

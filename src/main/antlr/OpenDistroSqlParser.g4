@@ -1979,7 +1979,7 @@ nullNotnull
 constant
     : stringLiteral | decimalLiteral
     | '-' decimalLiteral
-    | hexadecimalLiteral //| booleanLiteral
+    | hexadecimalLiteral | booleanLiteral
     | REAL_LITERAL | BIT_STRING
     | NOT? nullLiteral=(NULL_LITERAL | NULL_SPEC_LITERAL)
     ;
@@ -2283,7 +2283,7 @@ functionArg
 expression
     : notOperator=(NOT | '!') expression                            #notExpression
     | expression logicalOperator expression                         #logicalExpression
-    //| predicate IS NOT? testValue=(TRUE | FALSE | UNKNOWN)          #isExpression
+    | predicate IS NOT? testValue=(TRUE | FALSE | UNKNOWN)          #isExpression
     | predicate                                                     #predicateExpression
     ;
 
@@ -2316,7 +2316,7 @@ expressionAtom
     | '(' selectStatement ')'                                       #subqueryExpessionAtom
     | INTERVAL expression intervalType                              #intervalExpressionAtom
     | left=expressionAtom bitOperator right=expressionAtom          #bitExpressionAtom
-    //| left=expressionAtom mathOperator right=expressionAtom         #mathExpressionAtom
+    | left=expressionAtom mathOperator right=expressionAtom         #mathExpressionAtom
     ;
 
 unaryOperator

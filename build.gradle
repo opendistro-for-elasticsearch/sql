@@ -74,7 +74,12 @@ ext {
     licenseFile = rootProject.file('LICENSE.TXT')
     noticeFile = rootProject.file('NOTICE')
 }
-licenseHeaders.enabled = true
+
+// ANTLR generated parser file is too large to be checked which caused licenseHeaders stuck.
+licenseHeaders {
+    enabled = true
+    excludes = ['com/amazon/opendistroforelasticsearch/sql/antlr/parser/**']
+}
 
 // TODO: need to fix java doc to enable JavaDoc
 javadoc.enabled = false

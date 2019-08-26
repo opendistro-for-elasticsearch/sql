@@ -1,12 +1,25 @@
+/*
+ *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License").
+ *   You may not use this file except in compliance with the License.
+ *   A copy of the License is located at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   or in the "license" file accompanying this file. This file is distributed
+ *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ *   express or implied. See the License for the specific language governing
+ *   permissions and limitations under the License.
+ */
+
 package com.amazon.opendistroforelasticsearch.sql.antlr;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlLexer;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser;
-import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.OpenDistroSemanticAnalyzer;
-import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.CaseChangingCharStream;
+import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.CaseInsensitiveCharStream;
 import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.SyntaxAnalysisException;
 import org.antlr.v4.runtime.BaseErrorListener;
-import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.RecognitionException;
@@ -38,23 +51,24 @@ public class OpenDistroSqlAnalyzer {
 
     private OpenDistroSqlLexer createLexer(String sql) {
          return new OpenDistroSqlLexer(
-                    new CaseChangingCharStream(
-                        CharStreams.fromString(sql), true));
+                    new CaseInsensitiveCharStream(sql));
     }
 
     private ParseTree analyzeSyntax(OpenDistroSqlParser parser) {
         parser.addErrorListener(new BaseErrorListener() {
             @Override
-            public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e) {
+            public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol,
+                                    int line, int charPositionInLine, String msg, RecognitionException e) {
                 throw new SyntaxAnalysisException(
-                    "Failed to parse query due to syntax error by offending symbol [%s] at position [%d]: ", offendingSymbol, charPositionInLine);
+                    "Failed to parse query due to syntax error by offending symbol [%s] at position [%d]: ",
+                    offendingSymbol, charPositionInLine
+                );
             }
         });
         return parser.root();
     }
 
     private void analyzeSemantic(ParseTree tree) {
-        tree.accept(new OpenDistroSemanticAnalyzer());
     }
 
 }
