@@ -18,6 +18,10 @@ package com.amazon.opendistroforelasticsearch.sql.util
 import com.alibaba.druid.sql.ast.*
 import com.alibaba.druid.sql.ast.expr.*
 import com.alibaba.druid.sql.ast.statement.*
+import com.alibaba.druid.sql.dialect.mysql.ast.*
+import com.alibaba.druid.sql.dialect.mysql.ast.expr.*
+import com.alibaba.druid.sql.dialect.mysql.ast.statement.*
+import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitor
 import com.alibaba.druid.sql.visitor.SQLASTVisitor
 import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser
 
@@ -29,12 +33,24 @@ fun main(args: Array<String>) {
             listOf(
                     """SELECT e.name, (SELECT COUNT(p.name) FROM e.projects p) AS project_count
                             FROM employess_with_missing e""",
-                    """SELECT e.name, (SELECT COUNT(p.name) FROM e.projects p WHERE p.name = 'War games #1') AS project_count
-                            FROM employess_with_missing e""",
-                    """SELECT e.name, (SELECT p.name FROM e.projects p WHERE p.name = 'War games #1') AS names
-                            FROM employess_with_missing e""",
-                    """SELECT e.project.name
-                            FROM employess_with_missing e"""
+                    """SELECT e.name, COUNT(p.name) AS project_count
+                            FROM employess_with_missing e
+                            LEFT JOIN e.projects p
+                            GROUP BY e.name
+                            """///,
+
+//                    """SELECT e.name, (SELECT COUNT(p.name) FROM e.projects p WHERE p.name = 'War games #1') AS project_count
+//                            FROM employess_with_missing e""",
+//                    """SELECT e.name, COUNT(p.name) as project_count
+//                            FROM employess_with_missing e
+//                            LEFT JOIN e.projects p
+//                            WHERE p.name = 'War games #1'
+//                            GROUP BY e.name
+               ///             """///,
+//                    """SELECT e.name, (SELECT p.name FROM e.projects p WHERE p.name = 'War games #1') AS names
+//                            FROM employess_with_missing e""",
+//                    """SELECT e.project.name
+//                            FROM employess_with_missing e"""
 
             )
 
@@ -46,7 +62,702 @@ fun main(args: Array<String>) {
 }
 
 
-class RenderVisitor(val query:String) : SQLASTVisitor {
+
+class RenderVisitor(val query:String) : MySqlASTVisitor {
+    override fun visit(x: MySqlTableIndex?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlKey?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlPrimaryKey?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlUnique?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MysqlForeignKey?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlIntervalExpr?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlExtractExpr?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlMatchAgainstExpr?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlPrepareStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlExecuteStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlDeleteStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlInsertStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlLoadDataInFileStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlLoadXmlStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlReplaceStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlSelectGroupBy?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlStartTransactionStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlCommitStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlRollbackStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowColumnsStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowTablesStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowDatabasesStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowWarningsStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowStatusStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowAuthorsStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: CobarShowStatus?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlKillStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlBinlogStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlResetStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlCreateUserStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlCreateUserStatement.UserSpecification?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlPartitionByKey?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlSelectQueryBlock?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlOutFileExpr?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlDescribeStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlUpdateStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlSetTransactionStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlSetNamesStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlSetCharSetStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowBinaryLogsStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowMasterLogsStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowCharacterSetStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowCollationStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowBinLogEventsStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowContributorsStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowCreateDatabaseStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowCreateEventStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowCreateFunctionStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowCreateProcedureStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowCreateTableStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowCreateTriggerStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowCreateViewStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowEngineStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowEnginesStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowErrorsStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowEventsStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowFunctionCodeStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowFunctionStatusStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowGrantsStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlUserName?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowIndexesStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowKeysStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowMasterStatusStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowOpenTablesStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowPluginsStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowPrivilegesStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowProcedureCodeStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowProcedureStatusStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowProcessListStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowProfileStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowProfilesStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowRelayLogEventsStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowSlaveHostsStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowSlaveStatusStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowTableStatusStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowTriggersStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlShowVariantsStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlAlterTableStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlAlterTableAddColumn?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlCreateIndexStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlRenameTableStatement.Item?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlRenameTableStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlUnionQuery?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlUseIndexHint?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlIgnoreIndexHint?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlLockTableStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlUnlockTablesStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlForceIndexHint?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlAlterTableChangeColumn?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlAlterTableCharacter?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlAlterTableOption?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlCreateTableStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlHelpStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlCharExpr?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlAlterTableModifyColumn?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlAlterTableDiscardTablespace?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlAlterTableImportTablespace?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlCreateTableStatement.TableSpaceOption?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlPartitionByHash?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlPartitionByRange?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlPartitionByList?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlPartitioningDef?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlPartitioningDef.LessThanValues?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlPartitioningDef.InValues?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlAnalyzeStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlAlterUserStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlOptimizeStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlSetPasswordStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlHintStatement?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlSelectGroupByExpr?): Boolean {
+        return true
+    }
+
+    override fun visit(x: MySqlBlockStatement?): Boolean {
+        return true
+    }
+
+    override fun endVisit(x: MySqlSelectQueryBlock.Limit?) {
+
+    }
+
+    override fun endVisit(x: MySqlTableIndex?) {
+    }
+
+    override fun endVisit(x: MySqlKey?) {
+
+    }
+
+    override fun endVisit(x: MySqlPrimaryKey?) {
+    }
+
+    override fun endVisit(x: MySqlUnique?) {
+    }
+
+    override fun endVisit(x: MysqlForeignKey?) {
+    }
+
+    override fun endVisit(x: MySqlIntervalExpr?) {
+    }
+
+    override fun endVisit(x: MySqlExtractExpr?) {
+    }
+
+    override fun endVisit(x: MySqlMatchAgainstExpr?) {
+    }
+
+    override fun endVisit(x: MySqlPrepareStatement?) {
+
+    }
+
+    override fun endVisit(x: MySqlExecuteStatement?) {
+    }
+
+    override fun endVisit(x: MySqlDeleteStatement?) {
+    }
+
+    override fun endVisit(x: MySqlInsertStatement?) {
+    }
+
+    override fun endVisit(x: MySqlLoadDataInFileStatement?) {
+    }
+
+    override fun endVisit(x: MySqlLoadXmlStatement?) {
+    }
+
+    override fun endVisit(x: MySqlReplaceStatement?) {
+    }
+
+    override fun endVisit(x: MySqlSelectGroupBy?) {
+    }
+
+    override fun endVisit(x: MySqlStartTransactionStatement?) {
+    }
+
+    override fun endVisit(x: MySqlCommitStatement?) {
+    }
+
+    override fun endVisit(x: MySqlRollbackStatement?) {
+    }
+
+    override fun endVisit(x: MySqlShowColumnsStatement?) {
+    }
+
+    override fun endVisit(x: MySqlShowTablesStatement?) {
+    }
+
+    override fun endVisit(x: MySqlShowDatabasesStatement?) {}
+
+    override fun endVisit(x: MySqlShowWarningsStatement?) {}
+
+    override fun endVisit(x: MySqlShowStatusStatement?) {}
+
+    override fun endVisit(x: MySqlShowAuthorsStatement?) {}
+
+    override fun endVisit(x: CobarShowStatus?) {}
+
+    override fun endVisit(x: MySqlKillStatement?) {}
+
+    override fun endVisit(x: MySqlBinlogStatement?) {}
+
+    override fun endVisit(x: MySqlResetStatement?) {}
+
+    override fun endVisit(x: MySqlCreateUserStatement?) {}
+
+    override fun endVisit(x: MySqlCreateUserStatement.UserSpecification?) {}
+
+    override fun endVisit(x: MySqlPartitionByKey?) {}
+
+    override fun endVisit(x: MySqlSelectQueryBlock?) {}
+
+    override fun endVisit(x: MySqlOutFileExpr?) {}
+
+    override fun endVisit(x: MySqlDescribeStatement?) {}
+
+    override fun endVisit(x: MySqlUpdateStatement?) {}
+
+    override fun endVisit(x: MySqlSetTransactionStatement?) {}
+
+    override fun endVisit(x: MySqlSetNamesStatement?) {}
+
+    override fun endVisit(x: MySqlSetCharSetStatement?) {}
+
+    override fun endVisit(x: MySqlShowBinaryLogsStatement?) {}
+
+    override fun endVisit(x: MySqlShowMasterLogsStatement?) {}
+
+    override fun endVisit(x: MySqlShowCharacterSetStatement?) {}
+
+    override fun endVisit(x: MySqlShowCollationStatement?) {}
+
+    override fun endVisit(x: MySqlShowBinLogEventsStatement?) {}
+
+    override fun endVisit(x: MySqlShowContributorsStatement?) {}
+
+    override fun endVisit(x: MySqlShowCreateDatabaseStatement?) {}
+
+    override fun endVisit(x: MySqlShowCreateEventStatement?) {}
+
+    override fun endVisit(x: MySqlShowCreateFunctionStatement?) {}
+
+    override fun endVisit(x: MySqlShowCreateProcedureStatement?) {}
+
+    override fun endVisit(x: MySqlShowCreateTableStatement?) {}
+
+    override fun endVisit(x: MySqlShowCreateTriggerStatement?) {}
+
+    override fun endVisit(x: MySqlShowCreateViewStatement?) {}
+
+    override fun endVisit(x: MySqlShowEngineStatement?) {}
+
+    override fun endVisit(x: MySqlShowEnginesStatement?) {}
+
+    override fun endVisit(x: MySqlShowErrorsStatement?) {}
+
+    override fun endVisit(x: MySqlShowEventsStatement?) {}
+
+    override fun endVisit(x: MySqlShowFunctionCodeStatement?) {}
+
+    override fun endVisit(x: MySqlShowFunctionStatusStatement?) {}
+
+    override fun endVisit(x: MySqlShowGrantsStatement?) {}
+
+    override fun endVisit(x: MySqlUserName?) {}
+
+    override fun endVisit(x: MySqlShowIndexesStatement?) {}
+
+    override fun endVisit(x: MySqlShowKeysStatement?) {}
+
+    override fun endVisit(x: MySqlShowMasterStatusStatement?) {}
+
+    override fun endVisit(x: MySqlShowOpenTablesStatement?) {}
+
+    override fun endVisit(x: MySqlShowPluginsStatement?) {}
+
+    override fun endVisit(x: MySqlShowPrivilegesStatement?) {}
+
+    override fun endVisit(x: MySqlShowProcedureCodeStatement?) {}
+
+    override fun endVisit(x: MySqlShowProcedureStatusStatement?) {}
+
+    override fun endVisit(x: MySqlShowProcessListStatement?) {}
+
+    override fun endVisit(x: MySqlShowProfileStatement?) {}
+
+    override fun endVisit(x: MySqlShowProfilesStatement?) {}
+
+    override fun endVisit(x: MySqlShowRelayLogEventsStatement?) {}
+
+    override fun endVisit(x: MySqlShowSlaveHostsStatement?) {}
+
+    override fun endVisit(x: MySqlShowSlaveStatusStatement?) {}
+
+    override fun endVisit(x: MySqlShowTableStatusStatement?) {}
+
+    override fun endVisit(x: MySqlShowTriggersStatement?) {}
+
+    override fun endVisit(x: MySqlShowVariantsStatement?) {}
+
+    override fun endVisit(x: MySqlAlterTableStatement?) {}
+
+    override fun endVisit(x: MySqlAlterTableAddColumn?) {}
+
+    override fun endVisit(x: MySqlCreateIndexStatement?) {}
+
+    override fun endVisit(x: MySqlRenameTableStatement.Item?) {}
+
+    override fun endVisit(x: MySqlRenameTableStatement?) {}
+
+    override fun endVisit(x: MySqlUnionQuery?) {}
+
+    override fun endVisit(x: MySqlUseIndexHint?) {}
+
+    override fun endVisit(x: MySqlIgnoreIndexHint?) {}
+
+    override fun endVisit(x: MySqlLockTableStatement?) {}
+
+    override fun endVisit(x: MySqlUnlockTablesStatement?) {}
+
+    override fun endVisit(x: MySqlForceIndexHint?) {}
+
+    override fun endVisit(x: MySqlAlterTableChangeColumn?) {}
+
+    override fun endVisit(x: MySqlAlterTableCharacter?) {}
+
+    override fun endVisit(x: MySqlAlterTableOption?) {}
+
+    override fun endVisit(x: MySqlCreateTableStatement?) {}
+
+    override fun endVisit(x: MySqlHelpStatement?) {}
+
+    override fun endVisit(x: MySqlCharExpr?) {}
+
+    override fun endVisit(x: MySqlAlterTableModifyColumn?) {}
+
+    override fun endVisit(x: MySqlAlterTableDiscardTablespace?) {}
+
+    override fun endVisit(x: MySqlAlterTableImportTablespace?) {}
+
+    override fun endVisit(x: MySqlCreateTableStatement.TableSpaceOption?) {}
+
+    override fun endVisit(x: MySqlPartitionByHash?) {}
+
+    override fun endVisit(x: MySqlPartitionByRange?) {}
+
+    override fun endVisit(x: MySqlPartitionByList?) {}
+
+    override fun endVisit(x: MySqlPartitioningDef?) {}
+
+    override fun endVisit(x: MySqlPartitioningDef.LessThanValues?) {}
+
+    override fun endVisit(x: MySqlPartitioningDef.InValues?) {}
+
+    override fun endVisit(x: MySqlAnalyzeStatement?) {}
+
+    override fun endVisit(x: MySqlAlterUserStatement?) {}
+
+    override fun endVisit(x: MySqlOptimizeStatement?) {}
+
+    override fun endVisit(x: MySqlSetPasswordStatement?) {}
+
+    override fun endVisit(x: MySqlHintStatement?) {}
+
+    override fun endVisit(x: MySqlSelectGroupByExpr?) {}
+
+    override fun endVisit(x: MySqlBlockStatement?) {}
+
+    override fun visit(x: MySqlSelectQueryBlock.Limit?) = true
 
     internal class Label(val id: String) {
         private var attributes: MutableMap<String, Any?> = HashMap()
