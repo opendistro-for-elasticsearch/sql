@@ -133,9 +133,9 @@ public class QueryIT extends SQLIntegTestCase {
 
         JSONObject response = executeQuery(StringUtils.format(
                 "SELECT *, age " +
-                        "FROM %s/account " +
-                        "ORDER BY age " +
-                        "LIMIT 5",
+                "FROM %s/account " +
+                "ORDER BY age " +
+                "LIMIT 5",
                 TestsConstants.TEST_INDEX_BANK
         ));
 
