@@ -82,6 +82,8 @@ public class NestedFieldRewriter extends MySqlASTVisitorAdapter {
         if (curScope().isAnyNestedField() && isNotGroupBy(query)) {
             new Select(query.getSelectList()).rewrite(curScope());
         }
+
+        query.putAttribute("NestedJoinType", curScope().getActualJoinType());
         return true;
     }
 

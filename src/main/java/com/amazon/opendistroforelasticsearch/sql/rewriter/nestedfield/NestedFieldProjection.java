@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.rewriter.nestedfield;
 
 import com.amazon.opendistroforelasticsearch.sql.domain.Field;
+import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -38,6 +39,8 @@ import static java.util.stream.Collectors.toList;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.nestedQuery;
+import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
+import static com.alibaba.druid.sql.ast.statement.SQLJoinTableSource.JoinType;
 
 /**
  * Nested field projection class to make ES return matched rows in nested field.
@@ -45,9 +48,11 @@ import static org.elasticsearch.index.query.QueryBuilders.nestedQuery;
 public class NestedFieldProjection {
 
     private final SearchRequestBuilder request;
+    private Select select;
 
-    public NestedFieldProjection(SearchRequestBuilder request) {
+    public NestedFieldProjection(SearchRequestBuilder request, Select select) {
         this.request = request;
+        this.select = select;
     }
 
     /**
@@ -58,11 +63,21 @@ public class NestedFieldProjection {
     public void project(List<Field> fields) {
         if (isAnyNestedField(fields)) {
             initBoolQueryFilterIfNull();
-
             List<NestedQueryBuilder> nestedQueries = extractNestedQueries(query());
-            groupFieldNamesByPath(fields).forEach(
+
+            if (select.getNestedJoinType() == JoinType.LEFT_OUTER_JOIN) {
+                // for LEFT JOIN on nested field as right table, the query will have only one nested field, so one path
+                Map.Entry<String, List<String>> pathToFields = groupFieldNamesByPath(fields).entrySet().
+                                                                                             iterator().
+                                                                                             next();
+                String path = pathToFields.getKey();
+                List<String> fieldNames = pathToFields.getValue();
+                buildNestedLeftJoinQuery(path, fieldNames);
+            } else {
+                groupFieldNamesByPath(fields).forEach(
                     (path, fieldNames) -> buildInnerHit(fieldNames, findNestedQueryWithSamePath(nestedQueries, path))
-            );
+                );
+            }
         }
     }
 
@@ -156,4 +171,15 @@ public class NestedFieldProjection {
         return predicate.negate();
     }
 
+
+    private void buildNestedLeftJoinQuery(String path, List<String> fieldNames) {
+        BoolQueryBuilder existsNestedQuery = boolQuery();
+        existsNestedQuery.mustNot().add(nestedQuery(path, existsQuery(path), ScoreMode.None));
+
+        NestedQueryBuilder matchAllNestedQuery = nestedQuery(path, matchAllQuery(), ScoreMode.None);
+        buildInnerHit(fieldNames, matchAllNestedQuery);
+
+        ((BoolQueryBuilder) query().filter().get(0)).should().add(existsNestedQuery);
+        ((BoolQueryBuilder) query().filter().get(0)).should().add(matchAllNestedQuery);
+    }
 }

@@ -39,7 +39,6 @@ public class SearchDao {
 
     private Client client = null;
 
-
     public SearchDao(Client client) {
         this.client = client;
     }
@@ -59,6 +58,4 @@ public class SearchDao {
     public QueryAction explain(String sql) throws SqlParseException, SQLFeatureNotSupportedException {
         return ESActionFactory.create(client, sql);
     }
-
-
 }

@@ -23,7 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static com.alibaba.druid.sql.ast.statement.SQLJoinTableSource.JoinType;
 import static com.amazon.opendistroforelasticsearch.sql.domain.Field.STAR;
+
 
 /**
  * 将sql语句转换为select 对象
@@ -51,9 +53,11 @@ public class Select extends Query {
     private int rowCount = 200;
     private boolean containsSubQueries;
     private List<SubQueryExpression> subQueries;
-    public boolean isQuery = false;
     private boolean selectAll = false;
+    private JoinType nestedJoinType = JoinType.COMMA;
 
+    public boolean isQuery = false;
+    public boolean isNested = false;
     public boolean isAggregate = false;
 
     public Select() {
@@ -133,6 +137,15 @@ public class Select extends Query {
 
     public List<Hint> getHints() {
         return hints;
+    }
+
+
+    public JoinType getNestedJoinType() {
+        return nestedJoinType;
+    }
+
+    public void setNestedJoinType(JoinType nestedJoinType) {
+        this.nestedJoinType = nestedJoinType;
     }
 
 

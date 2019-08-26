@@ -79,6 +79,9 @@ public class SqlParser {
         Select select = new Select();
         WhereParser whereParser = new WhereParser(this, query);
 
+        if (query.getAttribute("NestedJoinType") != null) {
+            select.setNestedJoinType((SQLJoinTableSource.JoinType) query.getAttribute("NestedJoinType"));
+        }
 
         findSelect(query, select, query.getFrom().getAlias());
 

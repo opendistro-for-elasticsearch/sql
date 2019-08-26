@@ -158,6 +158,8 @@ public class DefaultQueryAction extends QueryAction {
                 } else if (field != null) {
                     if (isNotNested(field)) {
                         includeFields.add(field.getName());
+                    } else {
+                        select.isNested = true;
                     }
                 }
             }
@@ -276,6 +278,6 @@ public class DefaultQueryAction extends QueryAction {
     }
 
     private void updateRequestWithInnerHits(Select select, SearchRequestBuilder request) {
-        new NestedFieldProjection(request).project(select.getFields());
+        new NestedFieldProjection(request, select).project(select.getFields());
     }
 }

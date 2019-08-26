@@ -38,6 +38,7 @@ import java.util.function.Function;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
@@ -63,9 +64,11 @@ public class NestedFieldQueryIT extends SQLIntegTestCase {
 
     private static final String FROM = "FROM " + TestsConstants.TEST_INDEX_NESTED_TYPE + "/nestedType n, n.message m";
 
+
     @Override
     protected void init() throws Exception {
         loadIndex(Index.NESTED);
+        loadIndex(Index.EMPLOYEE_NESTED);
     }
 
     @Test
@@ -255,6 +258,38 @@ public class NestedFieldQueryIT extends SQLIntegTestCase {
             )
         );
     }
+
+    @Test
+    public void leftJoinSelectAll() throws IOException {
+        String sql = "SELECT * " +
+                     "FROM elasticsearch-sql_test_index_employee_nested e " +
+                     "LEFT JOIN e.projects p ";
+        String explain = explainQuery(sql);
+        assertThat(explain, containsString("{\"bool\":{\"must_not\":[{\"nested\":{\"query\":" +
+            "{\"exists\":{\"field\":\"projects\",\"boost\":1.0}},\"path\":\"projects\""));
+
+        assertThat(explain, containsString("\"_source\":{\"includes\":[]"));
+        assertThat(explain, containsString("\"_source\":{\"includes\":[\"projects.*\""));
+
+        JSONObject results = executeQuery(sql);
+        Assert.assertThat(getTotalHits(results), equalTo(4));
+    }
+
+    @Test
+    public void leftJoinSpecificFields() throws IOException {
+        String sql = "SELECT e.name, p.name, p.started_year " +
+                     "FROM elasticsearch-sql_test_index_employee_nested e " +
+                     "LEFT JOIN e.projects p ";
+        String explain = explainQuery(sql);
+        assertThat(explain, containsString("{\"bool\":{\"must_not\":[{\"nested\":{\"query\":" +
+            "{\"exists\":{\"field\":\"projects\",\"boost\":1.0}},\"path\":\"projects\""));
+        assertThat(explain, containsString("\"_source\":{\"includes\":[\"name\"],"));
+        assertThat(explain, containsString("\"_source\":{\"includes\":[\"projects.name\",\"projects.started_year\"]"));
+
+        JSONObject results = executeQuery(sql);
+        Assert.assertThat(getTotalHits(results), equalTo(4));
+    }
+
 
     @Test
     public void aggregationWithoutGroupBy() throws IOException {
