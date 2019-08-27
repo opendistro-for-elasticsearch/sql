@@ -43,12 +43,14 @@ public class OrderByInliner implements RewriteRule<SQLQueryExpr> {
 
         MySqlSelectQueryBlock selectQuery = (MySqlSelectQueryBlock) sqlSelect.getQuery();
 
-        // Inlining in GROUP BY clauses is not yet supported, ignored
+    // Inlining in GROUP BY clauses is not yet supported, ignored
 
-        // See SQLFunctionsIT.functionFieldAliasAndGroupByAlias() for one of problematic cases: order by SUM for
-        // aggregation where SUM is built-in aggregation
-        if (selectQuery.getGroupBy() != null)
+    // See SQLFunctionsIT.functionFieldAliasAndGroupByAlias() for one of problematic cases: order by
+    // SUM for
+    // aggregation where SUM is built-in aggregation
+        if (selectQuery.getGroupBy() != null) {
             return false;
+        }
 
         SQLOrderBy orderBy = selectQuery.getOrderBy();
         return !(orderBy == null || orderBy.getItems().isEmpty());
