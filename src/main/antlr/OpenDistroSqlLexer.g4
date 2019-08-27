@@ -1026,11 +1026,18 @@ YEARWEEK:                            'YEARWEEK';
 Y_FUNCTION:                          'Y';
 X_FUNCTION:                          'X';
 
-// Elasticsearch Special functions
+// Elasticsearch special functions
 SECOND_OF_MINUTE:                   'SECOND_OF_MINUTE';
 DAY_OF_MONTH:                       'DAY_OF_MONTH';
 HOUR_OF_DAY:                        'HOUR_OF_DAY';
 WEEK_OF_YEAR:                       'WEEK_OF_YEAR';
+MATCH_QUERY:                        'MATCH_QUERY';
+MATCH_PHRASE:                       'MATCH_PHRASE';
+WILDCARD_QUERY:                     'WILDCARD_QUERY';
+MULTI_MATCH:                        'MULTI_MATCH';
+SCORE:                              'SCORE';
+TERMS:                              'TERMS';
+NESTED:                             'NESTED';
 
 // Operators
 // Operators. Assigns
