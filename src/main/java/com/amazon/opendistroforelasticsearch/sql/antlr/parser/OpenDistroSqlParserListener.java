@@ -2674,6 +2674,18 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 */
 	void exitSelectExpressionElement(OpenDistroSqlParser.SelectExpressionElementContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code selectNestedStarElement}
+	 * labeled alternative in {@link OpenDistroSqlParser#selectElement}.
+	 * @param ctx the parse tree
+	 */
+	void enterSelectNestedStarElement(OpenDistroSqlParser.SelectNestedStarElementContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code selectNestedStarElement}
+	 * labeled alternative in {@link OpenDistroSqlParser#selectElement}.
+	 * @param ctx the parse tree
+	 */
+	void exitSelectNestedStarElement(OpenDistroSqlParser.SelectNestedStarElementContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code selectIntoVariables}
 	 * labeled alternative in {@link OpenDistroSqlParser#selectIntoExpression}.
 	 * @param ctx the parse tree
@@ -5221,18 +5233,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitPasswordFunctionCall(OpenDistroSqlParser.PasswordFunctionCallContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code substringFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#functionCall}.
-	 * @param ctx the parse tree
-	 */
-	void enterSubstringFunctionCall(OpenDistroSqlParser.SubstringFunctionCallContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code substringFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#functionCall}.
-	 * @param ctx the parse tree
-	 */
-	void exitSubstringFunctionCall(OpenDistroSqlParser.SubstringFunctionCallContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code simpleFunctionCall}
 	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.

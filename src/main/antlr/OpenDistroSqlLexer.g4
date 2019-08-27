@@ -133,6 +133,7 @@ MASTER_BIND:                         'MASTER_BIND';
 MASTER_SSL_VERIFY_SERVER_CERT:       'MASTER_SSL_VERIFY_SERVER_CERT';
 MATCH:                               'MATCH';
 MAXVALUE:                            'MAXVALUE';
+MISSING:                             'MISSING';
 MODIFIES:                            'MODIFIES';
 NATURAL:                             'NATURAL';
 NOT:                                 'NOT';
@@ -207,6 +208,10 @@ WITH:                                'WITH';
 WRITE:                               'WRITE';
 XOR:                                 'XOR';
 ZEROFILL:                            'ZEROFILL';
+
+
+// OD SQL special keyword
+//MINUS:                               'MINUS';
 
 
 // DATA TYPE Keywords
@@ -800,6 +805,7 @@ ENDPOINT:                            'ENDPOINT';
 ENVELOPE:                            'ENVELOPE';
 EQUALS:                              'EQUALS';
 EXP:                                 'EXP';
+EXPM1:                               'EXPM1';
 EXPORT_SET:                          'EXPORT_SET';
 EXTERIORRING:                        'EXTERIORRING';
 EXTRACTVALUE:                        'EXTRACTVALUE';
@@ -926,6 +932,7 @@ SHA1:                                'SHA1';
 SHA2:                                'SHA2';
 SIGN:                                'SIGN';
 SIN:                                 'SIN';
+SINH:                                'SINH';
 SLEEP:                               'SLEEP';
 SOUNDEX:                             'SOUNDEX';
 SQL_THREAD_WAIT_AFTER_GTIDS:         'SQL_THREAD_WAIT_AFTER_GTIDS';
@@ -1026,18 +1033,50 @@ YEARWEEK:                            'YEARWEEK';
 Y_FUNCTION:                          'Y';
 X_FUNCTION:                          'X';
 
-// Elasticsearch special functions
-SECOND_OF_MINUTE:                   'SECOND_OF_MINUTE';
+D:                                  'D';
+T:                                  'T';
+TS:                                 'TS';
+LEFT_BRACE:                         '{';
+RIGHT_BRACE:                        '}';
+
+// OD SQL special functions
+// Some tokens are already defined elsewhere: QUERY, FILTER, RANGE
+DATE_HISTOGRAM:                     'DATE_HISTOGRAM';
 DAY_OF_MONTH:                       'DAY_OF_MONTH';
+DAY_OF_YEAR:                        'DAY_OF_YEAR';
+DAY_OF_WEEK:                        'DAY_OF_WEEK';
+EXCLUDE:                            'EXCLUDE';
+EXTENDED_STATS:                     'EXTENDED_STATS';
+GEO_BOUNDING_BOX:                   'GEO_BOUNDING_BOX';
+GEO_DISTANCE:                       'GEO_DISTANCE';
+GEO_INTERSECTS:                     'GEO_INTERSECTS';
+GEO_POLYGON:                        'GEO_POLYGON';
+HISTOGRAM:                          'HISTOGRAM';
 HOUR_OF_DAY:                        'HOUR_OF_DAY';
-WEEK_OF_YEAR:                       'WEEK_OF_YEAR';
-MATCH_QUERY:                        'MATCH_QUERY';
+INCLUDE:                            'INCLUDE';
+IN_TERMS:                           'IN_TERMS';
+MATCHPHRASE:                        'MATCHPHRASE';
 MATCH_PHRASE:                       'MATCH_PHRASE';
-WILDCARD_QUERY:                     'WILDCARD_QUERY';
+MATCHQUERY:                         'MATCHQUERY';
+MATCH_QUERY:                        'MATCH_QUERY';
+MINUTE_OF_DAY:                      'MINUTE_OF_DAY';
+MINUTE_OF_HOUR:                     'MINUTE_OF_HOUR';
+MONTH_OF_YEAR:                      'MONTH_OF_YEAR';
+MULTIMATCH:                         'MULTIMATCH';
 MULTI_MATCH:                        'MULTI_MATCH';
-SCORE:                              'SCORE';
-TERMS:                              'TERMS';
 NESTED:                             'NESTED';
+PERCENTILES:                        'PERCENTILES';
+REGEXP_QUERY:                       'REGEXP_QUERY';
+REVERSE_NESTED:                     'REVERSE_NESTED';
+SCORE:                              'SCORE';
+SECOND_OF_MINUTE:                   'SECOND_OF_MINUTE';
+STATS:                              'STATS';
+TERM:                               'TERM';
+TERMS:                              'TERMS';
+TOPHITS:                            'TOPHITS';
+WEEK_OF_YEAR:                       'WEEK_OF_YEAR';
+WILDCARDQUERY:                      'WILDCARDQUERY';
+WILDCARD_QUERY:                     'WILDCARD_QUERY';
 
 // Operators
 // Operators. Assigns

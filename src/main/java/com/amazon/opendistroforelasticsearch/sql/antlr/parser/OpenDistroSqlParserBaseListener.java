@@ -2884,6 +2884,18 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterSelectNestedStarElement(OpenDistroSqlParser.SelectNestedStarElementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSelectNestedStarElement(OpenDistroSqlParser.SelectNestedStarElementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterSelectIntoVariables(OpenDistroSqlParser.SelectIntoVariablesContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -5723,18 +5735,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitPasswordFunctionCall(OpenDistroSqlParser.PasswordFunctionCallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterSubstringFunctionCall(OpenDistroSqlParser.SubstringFunctionCallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitSubstringFunctionCall(OpenDistroSqlParser.SubstringFunctionCallContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

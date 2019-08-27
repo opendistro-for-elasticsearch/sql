@@ -1028,6 +1028,7 @@ selectElement
     | fullColumnName (AS? uid)?                                     #selectColumnElement
     | functionCall (AS? uid)?                                       #selectFunctionElement
     | (LOCAL_ID VAR_ASSIGN)? expression (AS? uid)?                  #selectExpressionElement
+    | NESTED '(' fullId DOT STAR ')'                                #selectNestedStarElement
     ;
 
 selectIntoExpression
@@ -1861,7 +1862,8 @@ fullId
 
 tableName
     : fullId
-    | uid DIVIDE fullId
+    | uid STAR (DOT_ID | '.' uid)?
+    | uid DIVIDE fullId (DOT_ID | '.' uid)?
     ;
 
 fullColumnName
@@ -1983,6 +1985,7 @@ constant
     | hexadecimalLiteral | booleanLiteral
     | REAL_LITERAL | BIT_STRING
     | NOT? nullLiteral=(NULL_LITERAL | NULL_SPEC_LITERAL)
+    | LEFT_BRACE dateType=(D | T | TS | DATE | TIME | TIMESTAMP) stringLiteral RIGHT_BRACE
     ;
 
 
@@ -2125,7 +2128,6 @@ functionCall
     | scalarFunctionName '(' functionArgs? ')'                      #scalarFunctionCall
     //| fullId '(' functionArgs? ')'                                  #udfFunctionCall
     | passwordFunctionClause                                        #passwordFunctionCall
-    | SUBSTRING '(' fullColumnName ',' functionArg ')'              #substringFunctionCall
     ;
 
 specificFunction
@@ -2257,7 +2259,7 @@ scalarFunctionName
     | ASCII | CURDATE | CURRENT_DATE | CURRENT_TIME
     | CURRENT_TIMESTAMP | CURTIME | DATE_ADD | DATE_SUB
     | IF | INSERT | LOCALTIME | LOCALTIMESTAMP | MID | NOW
-    | REPLACE | SUBSTR /*| SUBSTRING */ | SYSDATE | TRIM
+    | REPLACE | SUBSTR | SUBSTRING | SYSDATE | TRIM
     | UTC_DATE | UTC_TIME | UTC_TIMESTAMP
     ;
 
@@ -2284,7 +2286,7 @@ functionArg
 expression
     : notOperator=(NOT | '!') expression                            #notExpression
     | expression logicalOperator expression                         #logicalExpression
-    | predicate IS NOT? testValue=(TRUE | FALSE | UNKNOWN)          #isExpression
+    | predicate IS NOT? testValue=(TRUE | FALSE | UNKNOWN | MISSING)#isExpression
     | predicate                                                     #predicateExpression
     ;
 
@@ -2432,6 +2434,7 @@ keywordsCanBeId
     | UNDO_BUFFER_SIZE | UNINSTALL | UNKNOWN | UNTIL | UPGRADE | USER | USE_FRM | USER_RESOURCES
     | VALIDATION | VALUE | VARIABLES | VIEW | WAIT | WARNINGS | WITHOUT
     | WORK | WRAPPER | X509 | XA | XML
+    | KEY | D | T | TS // OD SQL and ODBC special
     ;
 
 functionNameBase
@@ -2449,7 +2452,7 @@ functionNameBase
     | DATEDIFF | DATE_FORMAT | DAY | DAYNAME | DAYOFMONTH
     | DAYOFWEEK | DAYOFYEAR | DECODE | DEGREES | DES_DECRYPT
     | DES_ENCRYPT | DIMENSION | DISJOINT | E | ELT | ENCODE
-    | ENCRYPT | ENDPOINT | ENVELOPE | EQUALS | EXP | EXPORT_SET
+    | ENCRYPT | ENDPOINT | ENVELOPE | EQUALS | EXP | EXPM1 | EXPORT_SET
     | EXTERIORRING | EXTRACTVALUE | FIELD | FIND_IN_SET | FLOOR
     | FORMAT | FOUND_ROWS | FROM_BASE64 | FROM_DAYS
     | FROM_UNIXTIME | GEOMCOLLFROMTEXT | GEOMCOLLFROMWKB
@@ -2481,7 +2484,7 @@ functionNameBase
     | POSITION| POW | POWER | QUARTER | QUOTE | RADIANS | RAND
     | RANDOM_BYTES | RELEASE_LOCK | REVERSE | RIGHT | ROUND
     | ROW_COUNT | RPAD | RTRIM | SECOND | SEC_TO_TIME
-    | SESSION_USER | SHA | SHA1 | SHA2 | SIGN | SIN | SLEEP
+    | SESSION_USER | SHA | SHA1 | SHA2 | SIGN | SIN | SINH | SLEEP
     | SOUNDEX | SQL_THREAD_WAIT_AFTER_GTIDS | SQRT | SRID
     | STARTPOINT | STRCMP | STR_TO_DATE | ST_AREA | ST_ASBINARY
     | ST_ASTEXT | ST_ASWKB | ST_ASWKT | ST_BUFFER | ST_CENTROID
@@ -2516,8 +2519,11 @@ functionNameBase
     ;
 
 esFunctionNameBase
-    : SECOND_OF_MINUTE | DAY_OF_MONTH | HOUR_OF_DAY | WEEK_OF_YEAR
-    | QUERY | MATCH_QUERY | MATCH_PHRASE | WILDCARD_QUERY | MULTI_MATCH
-    | SCORE | TERMS
-    | NESTED
+    : DATE_HISTOGRAM | DAY_OF_MONTH | DAY_OF_YEAR | DAY_OF_WEEK | EXCLUDE
+    | EXTENDED_STATS | FILTER | GEO_BOUNDING_BOX | GEO_DISTANCE | GEO_INTERSECTS | GEO_POLYGON | INCLUDE | IN_TERMS | HISTOGRAM | HOUR_OF_DAY
+    | MATCHPHRASE | MATCH_PHRASE | MATCHQUERY | MATCH_QUERY | MINUTE_OF_DAY
+    | MINUTE_OF_HOUR | MISSING | MONTH_OF_YEAR | MULTIMATCH | MULTI_MATCH | NESTED
+    | PERCENTILES | QUERY | RANGE | REGEXP_QUERY | REVERSE_NESTED | SCORE
+    | SECOND_OF_MINUTE | STATS | TERM | TERMS | TOPHITS
+    | WEEK_OF_YEAR | WILDCARDQUERY | WILDCARD_QUERY
     ;

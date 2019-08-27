@@ -326,7 +326,7 @@ public class AggregationIT extends SQLIntegTestCase {
         final String dog2 = "rex";
 
         JSONObject result = executeQuery(String.format("SELECT count(*) FROM %s/dog GROUP BY terms" +
-                        "('field'='dog_name', 'alias'='dog_name', order='desc')",
+                        "('field'='dog_name', 'alias'='dog_name', 'order'='desc')",
                 TEST_INDEX_DOG));
         JSONObject dogName = getAggregation(result, "dog_name");
 
@@ -336,7 +336,7 @@ public class AggregationIT extends SQLIntegTestCase {
         Assert.assertThat(secondDog, equalTo(dog2));
 
         result = executeQuery(String.format("SELECT count(*) FROM %s/dog GROUP BY terms" +
-                "('field'='dog_name', 'alias'='dog_name', order='asc')", TEST_INDEX_DOG));
+                "('field'='dog_name', 'alias'='dog_name', 'order'='asc')", TEST_INDEX_DOG));
 
         dogName = getAggregation(result, "dog_name");
 
