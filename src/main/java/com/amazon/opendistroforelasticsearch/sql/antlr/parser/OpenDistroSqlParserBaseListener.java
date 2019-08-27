@@ -2416,6 +2416,18 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterMinusSelect(OpenDistroSqlParser.MinusSelectContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMinusSelect(OpenDistroSqlParser.MinusSelectContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterUpdateStatement(OpenDistroSqlParser.UpdateStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -2807,6 +2819,18 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitUnionStatement(OpenDistroSqlParser.UnionStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterMinusStatement(OpenDistroSqlParser.MinusStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMinusStatement(OpenDistroSqlParser.MinusStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -211,7 +211,7 @@ ZEROFILL:                            'ZEROFILL';
 
 
 // OD SQL special keyword
-//MINUS:                               'MINUS';
+EXCEPT:                              'MINUS';
 
 
 // DATA TYPE Keywords

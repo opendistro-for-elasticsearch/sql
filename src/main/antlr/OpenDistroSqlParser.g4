@@ -834,6 +834,8 @@ selectStatement
           queryExpression
         )?
         orderByClause? limitClause? lockClause?                     #unionParenthesisSelect
+    | querySpecificationNointo minusStatement+
+        orderByClause? limitClause?                                 #minusSelect
     ;
 
 updateStatement
@@ -1007,6 +1009,10 @@ unionParenthesis
 unionStatement
     : UNION unionType=(ALL | DISTINCT)?
       (querySpecificationNointo | queryExpressionNointo)
+    ;
+
+minusStatement
+    : EXCEPT (querySpecificationNointo | queryExpressionNointo)
     ;
 
 // details

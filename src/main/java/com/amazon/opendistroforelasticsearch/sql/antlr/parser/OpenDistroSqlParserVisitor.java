@@ -1336,6 +1336,13 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitUnionParenthesisSelect(OpenDistroSqlParser.UnionParenthesisSelectContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code minusSelect}
+	 * labeled alternative in {@link OpenDistroSqlParser#selectStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMinusSelect(OpenDistroSqlParser.MinusSelectContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link OpenDistroSqlParser#updateStatement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -1542,6 +1549,12 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitUnionStatement(OpenDistroSqlParser.UnionStatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link OpenDistroSqlParser#minusStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMinusStatement(OpenDistroSqlParser.MinusStatementContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link OpenDistroSqlParser#selectSpec}.
 	 * @param ctx the parse tree

@@ -2258,6 +2258,18 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 */
 	void exitUnionParenthesisSelect(OpenDistroSqlParser.UnionParenthesisSelectContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code minusSelect}
+	 * labeled alternative in {@link OpenDistroSqlParser#selectStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterMinusSelect(OpenDistroSqlParser.MinusSelectContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code minusSelect}
+	 * labeled alternative in {@link OpenDistroSqlParser#selectStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitMinusSelect(OpenDistroSqlParser.MinusSelectContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link OpenDistroSqlParser#updateStatement}.
 	 * @param ctx the parse tree
 	 */
@@ -2605,6 +2617,16 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitUnionStatement(OpenDistroSqlParser.UnionStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link OpenDistroSqlParser#minusStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterMinusStatement(OpenDistroSqlParser.MinusStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link OpenDistroSqlParser#minusStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitMinusStatement(OpenDistroSqlParser.MinusStatementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link OpenDistroSqlParser#selectSpec}.
 	 * @param ctx the parse tree
