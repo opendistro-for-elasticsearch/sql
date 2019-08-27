@@ -160,18 +160,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterAssignmentField(OpenDistroSqlParser.AssignmentFieldContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitAssignmentField(OpenDistroSqlParser.AssignmentFieldContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterSingleDeleteStatement(OpenDistroSqlParser.SingleDeleteStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -179,18 +167,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitSingleDeleteStatement(OpenDistroSqlParser.SingleDeleteStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterMultipleDeleteStatement(OpenDistroSqlParser.MultipleDeleteStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitMultipleDeleteStatement(OpenDistroSqlParser.MultipleDeleteStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -376,18 +352,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterQueryExpressionNointo(OpenDistroSqlParser.QueryExpressionNointoContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitQueryExpressionNointo(OpenDistroSqlParser.QueryExpressionNointoContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterQuerySpecification(OpenDistroSqlParser.QuerySpecificationContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -395,18 +359,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitQuerySpecification(OpenDistroSqlParser.QuerySpecificationContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterQuerySpecificationNointo(OpenDistroSqlParser.QuerySpecificationNointoContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitQuerySpecificationNointo(OpenDistroSqlParser.QuerySpecificationNointoContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -527,66 +479,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitSelectNestedStarElement(OpenDistroSqlParser.SelectNestedStarElementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterSelectIntoVariables(OpenDistroSqlParser.SelectIntoVariablesContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitSelectIntoVariables(OpenDistroSqlParser.SelectIntoVariablesContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterSelectIntoDumpFile(OpenDistroSqlParser.SelectIntoDumpFileContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitSelectIntoDumpFile(OpenDistroSqlParser.SelectIntoDumpFileContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterSelectIntoTextFile(OpenDistroSqlParser.SelectIntoTextFileContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitSelectIntoTextFile(OpenDistroSqlParser.SelectIntoTextFileContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterSelectFieldsInto(OpenDistroSqlParser.SelectFieldsIntoContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitSelectFieldsInto(OpenDistroSqlParser.SelectFieldsIntoContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterSelectLinesInto(OpenDistroSqlParser.SelectLinesIntoContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitSelectLinesInto(OpenDistroSqlParser.SelectLinesIntoContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

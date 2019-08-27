@@ -138,16 +138,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 */
 	void exitMinusSelect(OpenDistroSqlParser.MinusSelectContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#assignmentField}.
-	 * @param ctx the parse tree
-	 */
-	void enterAssignmentField(OpenDistroSqlParser.AssignmentFieldContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#assignmentField}.
-	 * @param ctx the parse tree
-	 */
-	void exitAssignmentField(OpenDistroSqlParser.AssignmentFieldContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link OpenDistroSqlParser#singleDeleteStatement}.
 	 * @param ctx the parse tree
 	 */
@@ -157,16 +147,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSingleDeleteStatement(OpenDistroSqlParser.SingleDeleteStatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#multipleDeleteStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterMultipleDeleteStatement(OpenDistroSqlParser.MultipleDeleteStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#multipleDeleteStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitMultipleDeleteStatement(OpenDistroSqlParser.MultipleDeleteStatementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link OpenDistroSqlParser#orderByClause}.
 	 * @param ctx the parse tree
@@ -336,16 +316,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 */
 	void exitQueryExpression(OpenDistroSqlParser.QueryExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#queryExpressionNointo}.
-	 * @param ctx the parse tree
-	 */
-	void enterQueryExpressionNointo(OpenDistroSqlParser.QueryExpressionNointoContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#queryExpressionNointo}.
-	 * @param ctx the parse tree
-	 */
-	void exitQueryExpressionNointo(OpenDistroSqlParser.QueryExpressionNointoContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link OpenDistroSqlParser#querySpecification}.
 	 * @param ctx the parse tree
 	 */
@@ -355,16 +325,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitQuerySpecification(OpenDistroSqlParser.QuerySpecificationContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#querySpecificationNointo}.
-	 * @param ctx the parse tree
-	 */
-	void enterQuerySpecificationNointo(OpenDistroSqlParser.QuerySpecificationNointoContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#querySpecificationNointo}.
-	 * @param ctx the parse tree
-	 */
-	void exitQuerySpecificationNointo(OpenDistroSqlParser.QuerySpecificationNointoContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link OpenDistroSqlParser#unionParenthesis}.
 	 * @param ctx the parse tree
@@ -475,62 +435,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSelectNestedStarElement(OpenDistroSqlParser.SelectNestedStarElementContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code selectIntoVariables}
-	 * labeled alternative in {@link OpenDistroSqlParser#selectIntoExpression}.
-	 * @param ctx the parse tree
-	 */
-	void enterSelectIntoVariables(OpenDistroSqlParser.SelectIntoVariablesContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code selectIntoVariables}
-	 * labeled alternative in {@link OpenDistroSqlParser#selectIntoExpression}.
-	 * @param ctx the parse tree
-	 */
-	void exitSelectIntoVariables(OpenDistroSqlParser.SelectIntoVariablesContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code selectIntoDumpFile}
-	 * labeled alternative in {@link OpenDistroSqlParser#selectIntoExpression}.
-	 * @param ctx the parse tree
-	 */
-	void enterSelectIntoDumpFile(OpenDistroSqlParser.SelectIntoDumpFileContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code selectIntoDumpFile}
-	 * labeled alternative in {@link OpenDistroSqlParser#selectIntoExpression}.
-	 * @param ctx the parse tree
-	 */
-	void exitSelectIntoDumpFile(OpenDistroSqlParser.SelectIntoDumpFileContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code selectIntoTextFile}
-	 * labeled alternative in {@link OpenDistroSqlParser#selectIntoExpression}.
-	 * @param ctx the parse tree
-	 */
-	void enterSelectIntoTextFile(OpenDistroSqlParser.SelectIntoTextFileContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code selectIntoTextFile}
-	 * labeled alternative in {@link OpenDistroSqlParser#selectIntoExpression}.
-	 * @param ctx the parse tree
-	 */
-	void exitSelectIntoTextFile(OpenDistroSqlParser.SelectIntoTextFileContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#selectFieldsInto}.
-	 * @param ctx the parse tree
-	 */
-	void enterSelectFieldsInto(OpenDistroSqlParser.SelectFieldsIntoContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#selectFieldsInto}.
-	 * @param ctx the parse tree
-	 */
-	void exitSelectFieldsInto(OpenDistroSqlParser.SelectFieldsIntoContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#selectLinesInto}.
-	 * @param ctx the parse tree
-	 */
-	void enterSelectLinesInto(OpenDistroSqlParser.SelectLinesIntoContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#selectLinesInto}.
-	 * @param ctx the parse tree
-	 */
-	void exitSelectLinesInto(OpenDistroSqlParser.SelectLinesIntoContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link OpenDistroSqlParser#fromClause}.
 	 * @param ctx the parse tree

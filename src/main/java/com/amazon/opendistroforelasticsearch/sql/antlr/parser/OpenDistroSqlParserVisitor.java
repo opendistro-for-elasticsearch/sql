@@ -88,23 +88,11 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitMinusSelect(OpenDistroSqlParser.MinusSelectContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#assignmentField}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitAssignmentField(OpenDistroSqlParser.AssignmentFieldContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link OpenDistroSqlParser#singleDeleteStatement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitSingleDeleteStatement(OpenDistroSqlParser.SingleDeleteStatementContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#multipleDeleteStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitMultipleDeleteStatement(OpenDistroSqlParser.MultipleDeleteStatementContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link OpenDistroSqlParser#orderByClause}.
 	 * @param ctx the parse tree
@@ -205,23 +193,11 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitQueryExpression(OpenDistroSqlParser.QueryExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#queryExpressionNointo}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitQueryExpressionNointo(OpenDistroSqlParser.QueryExpressionNointoContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link OpenDistroSqlParser#querySpecification}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitQuerySpecification(OpenDistroSqlParser.QuerySpecificationContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#querySpecificationNointo}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitQuerySpecificationNointo(OpenDistroSqlParser.QuerySpecificationNointoContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link OpenDistroSqlParser#unionParenthesis}.
 	 * @param ctx the parse tree
@@ -287,39 +263,6 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitSelectNestedStarElement(OpenDistroSqlParser.SelectNestedStarElementContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code selectIntoVariables}
-	 * labeled alternative in {@link OpenDistroSqlParser#selectIntoExpression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSelectIntoVariables(OpenDistroSqlParser.SelectIntoVariablesContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code selectIntoDumpFile}
-	 * labeled alternative in {@link OpenDistroSqlParser#selectIntoExpression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSelectIntoDumpFile(OpenDistroSqlParser.SelectIntoDumpFileContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code selectIntoTextFile}
-	 * labeled alternative in {@link OpenDistroSqlParser#selectIntoExpression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSelectIntoTextFile(OpenDistroSqlParser.SelectIntoTextFileContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#selectFieldsInto}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSelectFieldsInto(OpenDistroSqlParser.SelectFieldsIntoContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#selectLinesInto}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSelectLinesInto(OpenDistroSqlParser.SelectLinesIntoContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link OpenDistroSqlParser#fromClause}.
 	 * @param ctx the parse tree

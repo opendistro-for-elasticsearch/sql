@@ -70,33 +70,29 @@ intervalType
 //    Primary DML Statements
 
 deleteStatement
-    : singleDeleteStatement | multipleDeleteStatement
+    : singleDeleteStatement
     ;
 
 selectStatement
     : querySpecification                                 #simpleSelect
     | queryExpression                                    #parenthesisSelect
-    | querySpecificationNointo unionStatement+
+    | querySpecification unionStatement+
         (
           UNION unionType=(ALL | DISTINCT)?
           (querySpecification | queryExpression)
         )?
         orderByClause? limitClause?                      #unionSelect
-    | queryExpressionNointo unionParenthesis+
+    | queryExpression unionParenthesis+
         (
           UNION unionType=(ALL | DISTINCT)?
           queryExpression
         )?
         orderByClause? limitClause?                      #unionParenthesisSelect
-    | querySpecificationNointo minusStatement+
-        orderByClause? limitClause?                                 #minusSelect
+    | querySpecification minusStatement+
+        orderByClause? limitClause?                      #minusSelect
     ;
 
 //    Detailed DML Statements
-
-assignmentField
-    : uid | LOCAL_ID
-    ;
 
 singleDeleteStatement
     : DELETE priority=LOW_PRIORITY? QUICK? IGNORE?
@@ -104,18 +100,6 @@ singleDeleteStatement
       (PARTITION '(' uidList ')' )?
       (WHERE expression)?
       orderByClause? (LIMIT decimalLiteral)?
-    ;
-
-multipleDeleteStatement
-    : DELETE priority=LOW_PRIORITY? QUICK? IGNORE?
-      (
-        tableName ('.' '*')? ( ',' tableName ('.' '*')? )*
-            FROM tableSources
-        | FROM
-            tableName ('.' '*')? ( ',' tableName ('.' '*')? )*
-            USING tableSources
-      )
-      (WHERE expression)?
     ;
 
 // details
@@ -181,37 +165,22 @@ queryExpression
     | '(' queryExpression ')'
     ;
 
-queryExpressionNointo
-    : '(' querySpecificationNointo ')'
-    | '(' queryExpressionNointo ')'
-    ;
-
 querySpecification
-    : SELECT selectSpec* selectElements selectIntoExpression?
-    //  fromClause? orderByClause? limitClause?
-      fromClause orderByClause? limitClause?
-    | SELECT selectSpec* selectElements
-    //fromClause? orderByClause? limitClause? selectIntoExpression?
-    fromClause orderByClause? limitClause? selectIntoExpression?
-    ;
-
-querySpecificationNointo
     : SELECT selectSpec* selectElements
-    //  fromClause? orderByClause? limitClause?
       fromClause orderByClause? limitClause?
     ;
 
 unionParenthesis
-    : UNION unionType=(ALL | DISTINCT)? queryExpressionNointo
+    : UNION unionType=(ALL | DISTINCT)? queryExpression
     ;
 
 unionStatement
     : UNION unionType=(ALL | DISTINCT)?
-      (querySpecificationNointo | queryExpressionNointo)
+      (querySpecification | queryExpression)
     ;
 
 minusStatement
-    : EXCEPT (querySpecificationNointo | queryExpressionNointo)
+    : EXCEPT (querySpecification | queryExpression)
     ;
 
 // details
@@ -234,33 +203,6 @@ selectElement
     | functionCall (AS? uid)?                                       #selectFunctionElement
     | (LOCAL_ID VAR_ASSIGN)? expression (AS? uid)?                  #selectExpressionElement
     | NESTED '(' fullId DOT STAR ')'                                #selectNestedStarElement
-    ;
-
-selectIntoExpression
-    : INTO assignmentField (',' assignmentField )*                  #selectIntoVariables
-    | INTO DUMPFILE STRING_LITERAL                                  #selectIntoDumpFile
-    | (
-        INTO OUTFILE filename=STRING_LITERAL
-        (CHARACTER SET charset=charsetName)?
-        (
-          fieldsFormat=(FIELDS | COLUMNS)
-          selectFieldsInto+
-        )?
-        (
-          LINES selectLinesInto+
-        )?
-      )                                                             #selectIntoTextFile
-    ;
-
-selectFieldsInto
-    : TERMINATED BY terminationField=STRING_LITERAL
-    | OPTIONALLY? ENCLOSED BY enclosion=STRING_LITERAL
-    | ESCAPED BY escaping=STRING_LITERAL
-    ;
-
-selectLinesInto
-    : STARTING BY starting=STRING_LITERAL
-    | TERMINATED BY terminationLine=STRING_LITERAL
     ;
 
 fromClause
