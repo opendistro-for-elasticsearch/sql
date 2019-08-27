@@ -41,7 +41,7 @@ public class OrderByInliner implements RewriteRule<SQLQueryExpr> {
         }
 
         MySqlSelectQueryBlock selectQuery = (MySqlSelectQueryBlock) sqlSelect.getQuery();
-
+        
         if (selectQuery.getGroupBy() != null) {
             return false;
         }
