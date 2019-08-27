@@ -132,7 +132,7 @@ public class DateFormatIT extends SQLIntegTestCase {
 
         JSONArray hits =
                 getHits(executeQuery("SELECT all_client, insert_time " +
-                        " FROM elasticsearch-sql_test_index_online" +
+                        " FROM " + TestsConstants.TEST_INDEX_ONLINE +
                         " ORDER BY date_format(insert_time, 'dd-MM-YYYY', 'UTC') DESC, insert_time " +
                         " LIMIT 10"));
 
