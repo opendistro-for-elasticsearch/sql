@@ -34,7 +34,6 @@ import java.util.stream.Collectors;
  */
 public class OrderByInliner implements RewriteRule<SQLQueryExpr> {
 
-    @Override
     public boolean match(SQLQueryExpr expr) {
         SQLSelect sqlSelect = expr.subQuery;
         if (!(sqlSelect.getQuery() instanceof MySqlSelectQueryBlock)) {
