@@ -1861,6 +1861,7 @@ fullId
 
 tableName
     : fullId
+    | uid DIVIDE fullId
     ;
 
 fullColumnName
