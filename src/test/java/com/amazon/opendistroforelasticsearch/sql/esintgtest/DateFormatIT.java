@@ -141,6 +141,18 @@ public class DateFormatIT extends SQLIntegTestCase {
     }
 
     @Test
+    public void sortByAliasedDateFormat() throws IOException {
+        JSONArray hits =
+                getHits(executeQuery("SELECT all_client, insert_time,  date_format(insert_time, 'dd-MM-YYYY', 'UTC') date" +
+                        " FROM " + TestsConstants.TEST_INDEX_ONLINE +
+                        " ORDER BY date DESC, insert_time " +
+                        " LIMIT 10"));
+
+        assertThat(new DateTime(getSource(hits.getJSONObject(0)).get("insert_time"), DateTimeZone.UTC),
+                is(new DateTime("2014-08-24T00:00:41.221Z", DateTimeZone.UTC)));
+    }
+
+    @Test
     public void groupByAndSort() throws IOException {
         JSONObject aggregations = executeQuery(
                 "SELECT date_format(insert_time, 'dd-MM-YYYY') " +
@@ -149,6 +161,10 @@ public class DateFormatIT extends SQLIntegTestCase {
                         "ORDER BY date_format(insert_time, 'dd-MM-YYYY') DESC")
                 .getJSONObject("aggregations");
 
+        checkAggregations(aggregations);
+    }
+
+    private void checkAggregations(JSONObject aggregations) {
         String date = DateFormatTest.getScriptAggregationKey(aggregations, "date_format");
         JSONArray buckets = aggregations.getJSONObject(date).getJSONArray("buckets");
 

@@ -29,14 +29,26 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Scans the query and inlines every ORDER BY expression
+ * Scans the query and inlines every ORDER BY alias by it's source, whether it's an identifier or expression.
+ * The alias defined in query takes precedence over field names in source table.
  */
 public class OrderByInliner implements RewriteRule<SQLQueryExpr> {
 
     @Override
     public boolean match(SQLQueryExpr expr) {
         SQLSelect sqlSelect = expr.subQuery;
+        if (!(sqlSelect.getQuery() instanceof MySqlSelectQueryBlock)) {
+            return false;
+        }
+
         MySqlSelectQueryBlock selectQuery = (MySqlSelectQueryBlock) sqlSelect.getQuery();
+
+        // Inlining in GROUP BY clauses is not yet supported, ignored
+
+        // See SQLFunctionsIT.functionFieldAliasAndGroupByAlias() for one of problematic cases: order by SUM for
+        // aggregation where SUM is built-in aggregation
+        if (selectQuery.getGroupBy() != null)
+            return false;
 
         SQLOrderBy orderBy = selectQuery.getOrderBy();
         return !(orderBy == null || orderBy.getItems().isEmpty());
@@ -47,8 +59,7 @@ public class OrderByInliner implements RewriteRule<SQLQueryExpr> {
             return;
         }
 
-        SQLSelect sqlSelect = queryExpr.subQuery;
-        MySqlSelectQueryBlock selectQuery = (MySqlSelectQueryBlock) sqlSelect.getQuery();
+        MySqlSelectQueryBlock selectQuery = (MySqlSelectQueryBlock) queryExpr.subQuery.getQuery();
 
         Map<String, SQLExpr> aliasesToExpressions = selectQuery
                 .getSelectList()
