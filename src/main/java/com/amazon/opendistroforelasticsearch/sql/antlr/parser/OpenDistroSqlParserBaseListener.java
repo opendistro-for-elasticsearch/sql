@@ -880,30 +880,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDataTypeFunctionCall(OpenDistroSqlParser.DataTypeFunctionCallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitDataTypeFunctionCall(OpenDistroSqlParser.DataTypeFunctionCallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterValuesFunctionCall(OpenDistroSqlParser.ValuesFunctionCallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitValuesFunctionCall(OpenDistroSqlParser.ValuesFunctionCallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterCaseFunctionCall(OpenDistroSqlParser.CaseFunctionCallContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -916,90 +892,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCharFunctionCall(OpenDistroSqlParser.CharFunctionCallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitCharFunctionCall(OpenDistroSqlParser.CharFunctionCallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterPositionFunctionCall(OpenDistroSqlParser.PositionFunctionCallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitPositionFunctionCall(OpenDistroSqlParser.PositionFunctionCallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterSubstrFunctionCall(OpenDistroSqlParser.SubstrFunctionCallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitSubstrFunctionCall(OpenDistroSqlParser.SubstrFunctionCallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterTrimFunctionCall(OpenDistroSqlParser.TrimFunctionCallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitTrimFunctionCall(OpenDistroSqlParser.TrimFunctionCallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterWeightFunctionCall(OpenDistroSqlParser.WeightFunctionCallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitWeightFunctionCall(OpenDistroSqlParser.WeightFunctionCallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterExtractFunctionCall(OpenDistroSqlParser.ExtractFunctionCallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitExtractFunctionCall(OpenDistroSqlParser.ExtractFunctionCallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterGetFormatFunctionCall(OpenDistroSqlParser.GetFormatFunctionCallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitGetFormatFunctionCall(OpenDistroSqlParser.GetFormatFunctionCallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterCaseFuncAlternative(OpenDistroSqlParser.CaseFuncAlternativeContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1007,42 +899,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitCaseFuncAlternative(OpenDistroSqlParser.CaseFuncAlternativeContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterLevelWeightList(OpenDistroSqlParser.LevelWeightListContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitLevelWeightList(OpenDistroSqlParser.LevelWeightListContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterLevelWeightRange(OpenDistroSqlParser.LevelWeightRangeContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitLevelWeightRange(OpenDistroSqlParser.LevelWeightRangeContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterLevelInWeightListElement(OpenDistroSqlParser.LevelInWeightListElementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitLevelInWeightListElement(OpenDistroSqlParser.LevelInWeightListElementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -772,30 +772,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 */
 	void exitSimpleFunctionCall(OpenDistroSqlParser.SimpleFunctionCallContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code dataTypeFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
-	 * @param ctx the parse tree
-	 */
-	void enterDataTypeFunctionCall(OpenDistroSqlParser.DataTypeFunctionCallContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code dataTypeFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
-	 * @param ctx the parse tree
-	 */
-	void exitDataTypeFunctionCall(OpenDistroSqlParser.DataTypeFunctionCallContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code valuesFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
-	 * @param ctx the parse tree
-	 */
-	void enterValuesFunctionCall(OpenDistroSqlParser.ValuesFunctionCallContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code valuesFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
-	 * @param ctx the parse tree
-	 */
-	void exitValuesFunctionCall(OpenDistroSqlParser.ValuesFunctionCallContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code caseFunctionCall}
 	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
 	 * @param ctx the parse tree
@@ -808,90 +784,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 */
 	void exitCaseFunctionCall(OpenDistroSqlParser.CaseFunctionCallContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code charFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
-	 * @param ctx the parse tree
-	 */
-	void enterCharFunctionCall(OpenDistroSqlParser.CharFunctionCallContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code charFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
-	 * @param ctx the parse tree
-	 */
-	void exitCharFunctionCall(OpenDistroSqlParser.CharFunctionCallContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code positionFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
-	 * @param ctx the parse tree
-	 */
-	void enterPositionFunctionCall(OpenDistroSqlParser.PositionFunctionCallContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code positionFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
-	 * @param ctx the parse tree
-	 */
-	void exitPositionFunctionCall(OpenDistroSqlParser.PositionFunctionCallContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code substrFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
-	 * @param ctx the parse tree
-	 */
-	void enterSubstrFunctionCall(OpenDistroSqlParser.SubstrFunctionCallContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code substrFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
-	 * @param ctx the parse tree
-	 */
-	void exitSubstrFunctionCall(OpenDistroSqlParser.SubstrFunctionCallContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code trimFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
-	 * @param ctx the parse tree
-	 */
-	void enterTrimFunctionCall(OpenDistroSqlParser.TrimFunctionCallContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code trimFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
-	 * @param ctx the parse tree
-	 */
-	void exitTrimFunctionCall(OpenDistroSqlParser.TrimFunctionCallContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code weightFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
-	 * @param ctx the parse tree
-	 */
-	void enterWeightFunctionCall(OpenDistroSqlParser.WeightFunctionCallContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code weightFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
-	 * @param ctx the parse tree
-	 */
-	void exitWeightFunctionCall(OpenDistroSqlParser.WeightFunctionCallContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code extractFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
-	 * @param ctx the parse tree
-	 */
-	void enterExtractFunctionCall(OpenDistroSqlParser.ExtractFunctionCallContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code extractFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
-	 * @param ctx the parse tree
-	 */
-	void exitExtractFunctionCall(OpenDistroSqlParser.ExtractFunctionCallContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code getFormatFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
-	 * @param ctx the parse tree
-	 */
-	void enterGetFormatFunctionCall(OpenDistroSqlParser.GetFormatFunctionCallContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code getFormatFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
-	 * @param ctx the parse tree
-	 */
-	void exitGetFormatFunctionCall(OpenDistroSqlParser.GetFormatFunctionCallContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link OpenDistroSqlParser#caseFuncAlternative}.
 	 * @param ctx the parse tree
 	 */
@@ -901,40 +793,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCaseFuncAlternative(OpenDistroSqlParser.CaseFuncAlternativeContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code levelWeightList}
-	 * labeled alternative in {@link OpenDistroSqlParser#levelsInWeightString}.
-	 * @param ctx the parse tree
-	 */
-	void enterLevelWeightList(OpenDistroSqlParser.LevelWeightListContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code levelWeightList}
-	 * labeled alternative in {@link OpenDistroSqlParser#levelsInWeightString}.
-	 * @param ctx the parse tree
-	 */
-	void exitLevelWeightList(OpenDistroSqlParser.LevelWeightListContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code levelWeightRange}
-	 * labeled alternative in {@link OpenDistroSqlParser#levelsInWeightString}.
-	 * @param ctx the parse tree
-	 */
-	void enterLevelWeightRange(OpenDistroSqlParser.LevelWeightRangeContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code levelWeightRange}
-	 * labeled alternative in {@link OpenDistroSqlParser#levelsInWeightString}.
-	 * @param ctx the parse tree
-	 */
-	void exitLevelWeightRange(OpenDistroSqlParser.LevelWeightRangeContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#levelInWeightListElement}.
-	 * @param ctx the parse tree
-	 */
-	void enterLevelInWeightListElement(OpenDistroSqlParser.LevelInWeightListElementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#levelInWeightListElement}.
-	 * @param ctx the parse tree
-	 */
-	void exitLevelInWeightListElement(OpenDistroSqlParser.LevelInWeightListElementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link OpenDistroSqlParser#aggregateWindowedFunction}.
 	 * @param ctx the parse tree

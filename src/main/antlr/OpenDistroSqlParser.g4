@@ -197,7 +197,7 @@ utilityStatement
     ;
 
 simpleDescribeStatement
-    : command=(EXPLAIN | DESCRIBE | DESC) tableName
+    : command=DESCRIBE tableName
       (column=uid | pattern=STRING_LITERAL)?
     ;
 
@@ -379,106 +379,15 @@ specificFunction
       CURRENT_DATE | CURRENT_TIME | CURRENT_TIMESTAMP
       | CURRENT_USER | LOCALTIME
       )                                                             #simpleFunctionCall
-    | CONVERT '(' expression separator=',' convertedDataType ')'    #dataTypeFunctionCall
-    | CONVERT '(' expression USING charsetName ')'                  #dataTypeFunctionCall
-    | CAST '(' expression AS convertedDataType ')'                  #dataTypeFunctionCall
-    | VALUES '(' fullColumnName ')'                                 #valuesFunctionCall
     | CASE expression caseFuncAlternative+
       (ELSE elseArg=functionArg)? END                               #caseFunctionCall
     | CASE caseFuncAlternative+
       (ELSE elseArg=functionArg)? END                               #caseFunctionCall
-    | CHAR '(' functionArgs  (USING charsetName)? ')'               #charFunctionCall
-    | POSITION
-      '('
-          (
-            positionString=stringLiteral
-            | positionExpression=expression
-          )
-          IN
-          (
-            inString=stringLiteral
-            | inExpression=expression
-          )
-      ')'                                                           #positionFunctionCall
-    | (SUBSTR | SUBSTRING)
-      '('
-        (
-          sourceString=stringLiteral
-          | sourceExpression=expression
-        ) FROM
-        (
-          fromDecimal=decimalLiteral
-          | fromExpression=expression
-        )
-        (
-          FOR
-          (
-            forDecimal=decimalLiteral
-            | forExpression=expression
-          )
-        )?
-      ')'                                                           #substrFunctionCall
-    | TRIM
-      '('
-        positioinForm=(BOTH | LEADING | TRAILING)
-        (
-          sourceString=stringLiteral
-          | sourceExpression=expression
-        )?
-        FROM
-        (
-          fromString=stringLiteral
-          | fromExpression=expression
-        )
-      ')'                                                           #trimFunctionCall
-    | TRIM
-      '('
-        (
-          sourceString=stringLiteral
-          | sourceExpression=expression
-        )
-        FROM
-        (
-          fromString=stringLiteral
-          | fromExpression=expression
-        )
-      ')'                                                           #trimFunctionCall
-    | WEIGHT_STRING
-      '('
-        (stringLiteral | expression)
-        (AS stringFormat=(CHAR | BINARY)
-        '(' decimalLiteral ')' )?  levelsInWeightString?
-      ')'                                                           #weightFunctionCall
-    | EXTRACT
-      '('
-        intervalType
-        FROM
-        (
-          sourceString=stringLiteral
-          | sourceExpression=expression
-        )
-      ')'                                                           #extractFunctionCall
-    | GET_FORMAT
-      '('
-        datetimeFormat=(DATE | TIME | DATETIME)
-        ',' stringLiteral
-      ')'                                                           #getFormatFunctionCall
     ;
 
 caseFuncAlternative
     : WHEN condition=functionArg
       THEN consequent=functionArg
-    ;
-
-levelsInWeightString
-    : LEVEL levelInWeightListElement
-      (',' levelInWeightListElement)*                               #levelWeightList
-    | LEVEL
-      firstLevel=decimalLiteral '-' lastLevel=decimalLiteral        #levelWeightRange
-    ;
-
-levelInWeightListElement
-    : decimalLiteral orderType=(ASC | DESC | REVERSE)?
     ;
 
 aggregateWindowedFunction
@@ -500,11 +409,7 @@ aggregateWindowedFunction
 
 scalarFunctionName
     : functionNameBase
-    | ASCII | CURDATE | CURRENT_DATE | CURRENT_TIME
-    | CURRENT_TIMESTAMP | CURTIME | DATE_ADD | DATE_SUB
-    | IF | INSERT | LOCALTIME | LOCALTIMESTAMP | MID | NOW
-    | REPLACE | SUBSTR | SUBSTRING | SYSDATE | TRIM
-    | UTC_DATE | UTC_TIME | UTC_TIMESTAMP
+    | SUBSTRING | TRIM
     ;
 
 functionArgs
@@ -567,7 +472,7 @@ unaryOperator
 
 comparisonOperator
     : '=' | '>' | '<' | '<' '=' | '>' '='
-    | '<' '>' | '!' '=' //| '<' '=' '>'
+    | '<' '>' | '!' '='
     ;
 
 logicalOperator
@@ -670,87 +575,16 @@ keywordsCanBeId
     | VALIDATION | VALUE | VARIABLES | VIEW | WAIT | WARNINGS | WITHOUT
     | WORK | WRAPPER | X509 | XA | XML
     | KEY | D | T | TS // OD SQL and ODBC special
+    | COUNT | FIELD
     ;
 
 functionNameBase
-    : ABS | ACOS | ADDDATE | ADDTIME | AES_DECRYPT | AES_ENCRYPT
-    | AREA | ASBINARY | ASIN | ASTEXT | ASWKB | ASWKT
-    | ASYMMETRIC_DECRYPT | ASYMMETRIC_DERIVE
-    | ASYMMETRIC_ENCRYPT | ASYMMETRIC_SIGN | ASYMMETRIC_VERIFY
-    | ATAN | ATAN2 | BENCHMARK | BIN | BIT_COUNT | BIT_LENGTH
-    | BUFFER | CEIL | CEILING | CENTROID | CHARACTER_LENGTH
-    | CHARSET | CHAR_LENGTH | COERCIBILITY | COLLATION
-    | COMPRESS | CONCAT | CONCAT_WS | CONNECTION_ID | CONV
-    | CONVERT_TZ | COS | COSH | COT | COUNT | CRC32
-    | CREATE_ASYMMETRIC_PRIV_KEY | CREATE_ASYMMETRIC_PUB_KEY
-    | CREATE_DH_PARAMETERS | CREATE_DIGEST | CROSSES | DATABASE | DATE
-    | DATEDIFF | DATE_FORMAT | DAY | DAYNAME | DAYOFMONTH
-    | DAYOFWEEK | DAYOFYEAR | DECODE | DEGREES | DES_DECRYPT
-    | DES_ENCRYPT | DIMENSION | DISJOINT | E | ELT | ENCODE
-    | ENCRYPT | ENDPOINT | ENVELOPE | EQUALS | EXP | EXPM1 | EXPORT_SET
-    | EXTERIORRING | EXTRACTVALUE | FIELD | FIND_IN_SET | FLOOR
-    | FORMAT | FOUND_ROWS | FROM_BASE64 | FROM_DAYS
-    | FROM_UNIXTIME | GEOMCOLLFROMTEXT | GEOMCOLLFROMWKB
-    | GEOMETRYCOLLECTION | GEOMETRYCOLLECTIONFROMTEXT
-    | GEOMETRYCOLLECTIONFROMWKB | GEOMETRYFROMTEXT
-    | GEOMETRYFROMWKB | GEOMETRYN | GEOMETRYTYPE | GEOMFROMTEXT
-    | GEOMFROMWKB | GET_FORMAT | GET_LOCK | GLENGTH | GREATEST
-    | GTID_SUBSET | GTID_SUBTRACT | HEX | HOUR | IFNULL
-    | INET6_ATON | INET6_NTOA | INET_ATON | INET_NTOA | INSTR
-    | INTERIORRINGN | INTERSECTS | ISCLOSED | ISEMPTY | ISNULL
-    | ISSIMPLE | IS_FREE_LOCK | IS_IPV4 | IS_IPV4_COMPAT
-    | IS_IPV4_MAPPED | IS_IPV6 | IS_USED_LOCK | LAST_INSERT_ID
-    | LCASE | LEAST | LEFT | LENGTH | LINEFROMTEXT | LINEFROMWKB
-    | LINESTRING | LINESTRINGFROMTEXT | LINESTRINGFROMWKB | LN
-    | LOAD_FILE | LOCATE | LOG | LOG10 | LOG2 | LOWER | LPAD
-    | LTRIM | MAKEDATE | MAKETIME | MAKE_SET | MASTER_POS_WAIT
-    | MBRCONTAINS | MBRDISJOINT | MBREQUAL | MBRINTERSECTS
-    | MBROVERLAPS | MBRTOUCHES | MBRWITHIN | MD5 | MICROSECOND
-    | MINUTE | MLINEFROMTEXT | MLINEFROMWKB | MONTH | MONTHNAME
-    | MPOINTFROMTEXT | MPOINTFROMWKB | MPOLYFROMTEXT
-    | MPOLYFROMWKB | MULTILINESTRING | MULTILINESTRINGFROMTEXT
-    | MULTILINESTRINGFROMWKB | MULTIPOINT | MULTIPOINTFROMTEXT
-    | MULTIPOINTFROMWKB | MULTIPOLYGON | MULTIPOLYGONFROMTEXT
-    | MULTIPOLYGONFROMWKB | NAME_CONST | NULLIF | NUMGEOMETRIES
-    | NUMINTERIORRINGS | NUMPOINTS | OCT | OCTET_LENGTH | ORD
-    | OVERLAPS | PERIOD_ADD | PERIOD_DIFF | PI | POINT
-    | POINTFROMTEXT | POINTFROMWKB | POINTN | POLYFROMTEXT
-    | POLYFROMWKB | POLYGON | POLYGONFROMTEXT | POLYGONFROMWKB
-    | POSITION| POW | POWER | QUARTER | QUOTE | RADIANS | RAND
-    | RANDOM_BYTES | RELEASE_LOCK | REVERSE | RIGHT | ROUND
-    | ROW_COUNT | RPAD | RTRIM | SECOND | SEC_TO_TIME
-    | SESSION_USER | SHA | SHA1 | SHA2 | SIGN | SIN | SINH | SLEEP
-    | SOUNDEX | SQL_THREAD_WAIT_AFTER_GTIDS | SQRT | SRID
-    | STARTPOINT | STRCMP | STR_TO_DATE | ST_AREA | ST_ASBINARY
-    | ST_ASTEXT | ST_ASWKB | ST_ASWKT | ST_BUFFER | ST_CENTROID
-    | ST_CONTAINS | ST_CROSSES | ST_DIFFERENCE | ST_DIMENSION
-    | ST_DISJOINT | ST_DISTANCE | ST_ENDPOINT | ST_ENVELOPE
-    | ST_EQUALS | ST_EXTERIORRING | ST_GEOMCOLLFROMTEXT
-    | ST_GEOMCOLLFROMTXT | ST_GEOMCOLLFROMWKB
-    | ST_GEOMETRYCOLLECTIONFROMTEXT
-    | ST_GEOMETRYCOLLECTIONFROMWKB | ST_GEOMETRYFROMTEXT
-    | ST_GEOMETRYFROMWKB | ST_GEOMETRYN | ST_GEOMETRYTYPE
-    | ST_GEOMFROMTEXT | ST_GEOMFROMWKB | ST_INTERIORRINGN
-    | ST_INTERSECTION | ST_INTERSECTS | ST_ISCLOSED | ST_ISEMPTY
-    | ST_ISSIMPLE | ST_LINEFROMTEXT | ST_LINEFROMWKB
-    | ST_LINESTRINGFROMTEXT | ST_LINESTRINGFROMWKB
-    | ST_NUMGEOMETRIES | ST_NUMINTERIORRING
-    | ST_NUMINTERIORRINGS | ST_NUMPOINTS | ST_OVERLAPS
-    | ST_POINTFROMTEXT | ST_POINTFROMWKB | ST_POINTN
-    | ST_POLYFROMTEXT | ST_POLYFROMWKB | ST_POLYGONFROMTEXT
-    | ST_POLYGONFROMWKB | ST_SRID | ST_STARTPOINT
-    | ST_SYMDIFFERENCE | ST_TOUCHES | ST_UNION | ST_WITHIN
-    | ST_X | ST_Y | SUBDATE | SUBSTRING_INDEX | SUBTIME
-    | SYSTEM_USER | TAN | TIME | TIMEDIFF | TIMESTAMP
-    | TIMESTAMPADD | TIMESTAMPDIFF | TIME_FORMAT | TIME_TO_SEC
-    | TOUCHES | TO_BASE64 | TO_DAYS | TO_SECONDS | UCASE
-    | UNCOMPRESS | UNCOMPRESSED_LENGTH | UNHEX | UNIX_TIMESTAMP
-    | UPDATEXML | UPPER | UUID | UUID_SHORT
-    | VALIDATE_PASSWORD_STRENGTH | VERSION
-    | WAIT_UNTIL_SQL_THREAD_AFTER_GTIDS | WEEK | WEEKDAY
-    | WEEKOFYEAR | WEIGHT_STRING | WITHIN | YEAR | YEARWEEK
-    | Y_FUNCTION | X_FUNCTION
-    | esFunctionNameBase
+    : esFunctionNameBase
+    | ABS | | ASIN | ATAN | | CEIL | | CONCAT | CONCAT_WS
+    | COS | COSH | DATE | DATE_FORMAT | DAY | | DEGREES
+    | E | EXP | EXPM1 | FLOOR | LOG | LOG10 | LOG2
+    | PI | POW | RADIANS //RANDOM, RINT ?
+    | SIN | SINH | TAN | YEAR
     ;
 
 esFunctionNameBase

@@ -16,28 +16,38 @@
 package com.amazon.opendistroforelasticsearch.sql.antlr;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.SyntaxAnalysisException;
-import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore
 public class SyntaxAnalysisTest {
 
     @Test(expected = SyntaxAnalysisException.class)
     public void unknownKeywordShouldThrowException() {
+        analyze("INSERT INTO accounts VALUES ('a')");
     }
 
-    @Test(expected = SyntaxAnalysisException.class)
+    //@Test(expected = SyntaxAnalysisException.class)
     public void unknownLiteralShouldThrowException() {
     }
 
     @Test(expected = SyntaxAnalysisException.class)
     public void unknownFunctionShouldThrowException() {
+        analyze("SELECT CRC32() FROM accounts");
+    }
+
+    //@Test(expected = SyntaxAnalysisException.class)
+    public void unknownOperatorShouldThrowException() {
+        analyze("SELECT * FROM accounts WHERE age <=> 1");
     }
 
     @Test(expected = SyntaxAnalysisException.class)
-    public void unknownOperatorShouldThrowException() {
+    public void missingFromClauseShouldThrowException() {
+        analyze("SELECT * FROMaccounts");
     }
 
     public void dateLiteralShouldSucceed() {
+    }
+
+    private void analyze(String sql) {
+        new OpenDistroSqlAnalyzer().analyze(sql);
     }
 }

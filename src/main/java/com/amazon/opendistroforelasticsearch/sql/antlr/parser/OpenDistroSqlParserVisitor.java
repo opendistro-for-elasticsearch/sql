@@ -465,20 +465,6 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitSimpleFunctionCall(OpenDistroSqlParser.SimpleFunctionCallContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code dataTypeFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitDataTypeFunctionCall(OpenDistroSqlParser.DataTypeFunctionCallContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code valuesFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitValuesFunctionCall(OpenDistroSqlParser.ValuesFunctionCallContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code caseFunctionCall}
 	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
 	 * @param ctx the parse tree
@@ -486,80 +472,11 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitCaseFunctionCall(OpenDistroSqlParser.CaseFunctionCallContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code charFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCharFunctionCall(OpenDistroSqlParser.CharFunctionCallContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code positionFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitPositionFunctionCall(OpenDistroSqlParser.PositionFunctionCallContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code substrFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSubstrFunctionCall(OpenDistroSqlParser.SubstrFunctionCallContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code trimFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitTrimFunctionCall(OpenDistroSqlParser.TrimFunctionCallContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code weightFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitWeightFunctionCall(OpenDistroSqlParser.WeightFunctionCallContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code extractFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitExtractFunctionCall(OpenDistroSqlParser.ExtractFunctionCallContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code getFormatFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitGetFormatFunctionCall(OpenDistroSqlParser.GetFormatFunctionCallContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link OpenDistroSqlParser#caseFuncAlternative}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitCaseFuncAlternative(OpenDistroSqlParser.CaseFuncAlternativeContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code levelWeightList}
-	 * labeled alternative in {@link OpenDistroSqlParser#levelsInWeightString}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitLevelWeightList(OpenDistroSqlParser.LevelWeightListContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code levelWeightRange}
-	 * labeled alternative in {@link OpenDistroSqlParser#levelsInWeightString}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitLevelWeightRange(OpenDistroSqlParser.LevelWeightRangeContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#levelInWeightListElement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitLevelInWeightListElement(OpenDistroSqlParser.LevelInWeightListElementContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link OpenDistroSqlParser#aggregateWindowedFunction}.
 	 * @param ctx the parse tree
