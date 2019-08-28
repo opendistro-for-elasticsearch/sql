@@ -41,10 +41,6 @@ public class OrderByInliner implements RewriteRule<SQLQueryExpr> {
         }
 
         MySqlSelectQueryBlock selectQuery = (MySqlSelectQueryBlock) sqlSelect.getQuery();
-        
-        if (selectQuery.getGroupBy() != null) {
-            return false;
-        }
 
         SQLOrderBy orderBy = selectQuery.getOrderBy();
         return !(orderBy == null || orderBy.getItems().isEmpty());

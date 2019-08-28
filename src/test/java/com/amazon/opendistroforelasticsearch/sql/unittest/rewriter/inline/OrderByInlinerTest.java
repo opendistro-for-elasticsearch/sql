@@ -17,8 +17,11 @@ package com.amazon.opendistroforelasticsearch.sql.unittest.rewriter.inline;
 
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.RewriteRule;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.inline.OrderByInliner;
 import org.junit.Test;
+
+import java.sql.SQLFeatureNotSupportedException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -31,7 +34,7 @@ public class OrderByInlinerTest {
                 "FROM kibana_sample_data_logs " +
                 "ORDER BY date DESC";
 
-        assertThat(rewrite(query), equalTo(parseQuery(
+        assertThat(rewrite(query, new OrderByInliner()), equalTo(parseQuery(
                 "SELECT utc_time date " +
                 "FROM kibana_sample_data_logs " +
                 "ORDER BY utc_time DESC")));
@@ -43,19 +46,23 @@ public class OrderByInlinerTest {
                 "FROM kibana_sample_data_logs " +
                 "ORDER BY date DESC";
 
-        assertThat(rewrite(query), equalTo(parseQuery(
+        assertThat(rewrite(query, new OrderByInliner()), equalTo(parseQuery(
                 "SELECT date_format(utc_time, 'dd-MM-YYYY') date " +
                         "FROM kibana_sample_data_logs " +
                         "ORDER BY date_format(utc_time, 'dd-MM-YYYY') DESC")));
     }
 
-    private SQLQueryExpr rewrite(String query) {
-        SQLQueryExpr parsed = parseQuery(query);
-        new OrderByInliner().rewrite(parsed);
-        return parsed;
+    static SQLQueryExpr rewrite(String query, RewriteRule<SQLQueryExpr> inliner) {
+        try {
+            SQLQueryExpr parsed = parseQuery(query);
+            inliner.rewrite(parsed);
+            return parsed;
+        } catch(SQLFeatureNotSupportedException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
-    private SQLQueryExpr parseQuery(String query) {
+    static SQLQueryExpr parseQuery(String query) {
         ElasticSqlExprParser parser = new ElasticSqlExprParser(query);
         return (SQLQueryExpr)parser.expr();
     }
