@@ -64,6 +64,8 @@ public class OrderByInlinerTest {
 
     static SQLQueryExpr parseQuery(String query) {
         ElasticSqlExprParser parser = new ElasticSqlExprParser(query);
-        return (SQLQueryExpr)parser.expr();
+        SQLQueryExpr expr = (SQLQueryExpr) parser.expr();
+        expr.hashCode();
+        return expr;
     }
 }
