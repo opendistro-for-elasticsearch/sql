@@ -38,36 +38,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 */
 	void exitDmlStatement(OpenDistroSqlParser.DmlStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#timestampValue}.
-	 * @param ctx the parse tree
-	 */
-	void enterTimestampValue(OpenDistroSqlParser.TimestampValueContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#timestampValue}.
-	 * @param ctx the parse tree
-	 */
-	void exitTimestampValue(OpenDistroSqlParser.TimestampValueContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#intervalExpr}.
-	 * @param ctx the parse tree
-	 */
-	void enterIntervalExpr(OpenDistroSqlParser.IntervalExprContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#intervalExpr}.
-	 * @param ctx the parse tree
-	 */
-	void exitIntervalExpr(OpenDistroSqlParser.IntervalExprContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#intervalType}.
-	 * @param ctx the parse tree
-	 */
-	void enterIntervalType(OpenDistroSqlParser.IntervalTypeContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#intervalType}.
-	 * @param ctx the parse tree
-	 */
-	void exitIntervalType(OpenDistroSqlParser.IntervalTypeContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link OpenDistroSqlParser#deleteStatement}.
 	 * @param ctx the parse tree
 	 */
@@ -113,18 +83,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitUnionSelect(OpenDistroSqlParser.UnionSelectContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code unionParenthesisSelect}
-	 * labeled alternative in {@link OpenDistroSqlParser#selectStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterUnionParenthesisSelect(OpenDistroSqlParser.UnionParenthesisSelectContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code unionParenthesisSelect}
-	 * labeled alternative in {@link OpenDistroSqlParser#selectStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitUnionParenthesisSelect(OpenDistroSqlParser.UnionParenthesisSelectContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code minusSelect}
 	 * labeled alternative in {@link OpenDistroSqlParser#selectStatement}.
@@ -238,26 +196,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 */
 	void exitTableSourcesItem(OpenDistroSqlParser.TableSourcesItemContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#indexHint}.
-	 * @param ctx the parse tree
-	 */
-	void enterIndexHint(OpenDistroSqlParser.IndexHintContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#indexHint}.
-	 * @param ctx the parse tree
-	 */
-	void exitIndexHint(OpenDistroSqlParser.IndexHintContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#indexHintType}.
-	 * @param ctx the parse tree
-	 */
-	void enterIndexHintType(OpenDistroSqlParser.IndexHintTypeContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#indexHintType}.
-	 * @param ctx the parse tree
-	 */
-	void exitIndexHintType(OpenDistroSqlParser.IndexHintTypeContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code innerJoin}
 	 * labeled alternative in {@link OpenDistroSqlParser#joinPart}.
 	 * @param ctx the parse tree
@@ -325,16 +263,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitQuerySpecification(OpenDistroSqlParser.QuerySpecificationContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#unionParenthesis}.
-	 * @param ctx the parse tree
-	 */
-	void enterUnionParenthesis(OpenDistroSqlParser.UnionParenthesisContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#unionParenthesis}.
-	 * @param ctx the parse tree
-	 */
-	void exitUnionParenthesis(OpenDistroSqlParser.UnionParenthesisContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link OpenDistroSqlParser#unionStatement}.
 	 * @param ctx the parse tree
@@ -476,231 +404,55 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 */
 	void exitLimitClauseAtom(OpenDistroSqlParser.LimitClauseAtomContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code showMasterLogs}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
+	 * Enter a parse tree produced by {@link OpenDistroSqlParser#administrationStatement}.
 	 * @param ctx the parse tree
 	 */
-	void enterShowMasterLogs(OpenDistroSqlParser.ShowMasterLogsContext ctx);
+	void enterAdministrationStatement(OpenDistroSqlParser.AdministrationStatementContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code showMasterLogs}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
+	 * Exit a parse tree produced by {@link OpenDistroSqlParser#administrationStatement}.
 	 * @param ctx the parse tree
 	 */
-	void exitShowMasterLogs(OpenDistroSqlParser.ShowMasterLogsContext ctx);
+	void exitAdministrationStatement(OpenDistroSqlParser.AdministrationStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code showLogEvents}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
+	 * Enter a parse tree produced by {@link OpenDistroSqlParser#showStatement}.
 	 * @param ctx the parse tree
 	 */
-	void enterShowLogEvents(OpenDistroSqlParser.ShowLogEventsContext ctx);
+	void enterShowStatement(OpenDistroSqlParser.ShowStatementContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code showLogEvents}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
+	 * Exit a parse tree produced by {@link OpenDistroSqlParser#showStatement}.
 	 * @param ctx the parse tree
 	 */
-	void exitShowLogEvents(OpenDistroSqlParser.ShowLogEventsContext ctx);
+	void exitShowStatement(OpenDistroSqlParser.ShowStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code showObjectFilter}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
+	 * Enter a parse tree produced by {@link OpenDistroSqlParser#utilityStatement}.
 	 * @param ctx the parse tree
 	 */
-	void enterShowObjectFilter(OpenDistroSqlParser.ShowObjectFilterContext ctx);
+	void enterUtilityStatement(OpenDistroSqlParser.UtilityStatementContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code showObjectFilter}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
+	 * Exit a parse tree produced by {@link OpenDistroSqlParser#utilityStatement}.
 	 * @param ctx the parse tree
 	 */
-	void exitShowObjectFilter(OpenDistroSqlParser.ShowObjectFilterContext ctx);
+	void exitUtilityStatement(OpenDistroSqlParser.UtilityStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code showColumns}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
+	 * Enter a parse tree produced by {@link OpenDistroSqlParser#simpleDescribeStatement}.
 	 * @param ctx the parse tree
 	 */
-	void enterShowColumns(OpenDistroSqlParser.ShowColumnsContext ctx);
+	void enterSimpleDescribeStatement(OpenDistroSqlParser.SimpleDescribeStatementContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code showColumns}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
+	 * Exit a parse tree produced by {@link OpenDistroSqlParser#simpleDescribeStatement}.
 	 * @param ctx the parse tree
 	 */
-	void exitShowColumns(OpenDistroSqlParser.ShowColumnsContext ctx);
+	void exitSimpleDescribeStatement(OpenDistroSqlParser.SimpleDescribeStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code showCreateDb}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
+	 * Enter a parse tree produced by {@link OpenDistroSqlParser#helpStatement}.
 	 * @param ctx the parse tree
 	 */
-	void enterShowCreateDb(OpenDistroSqlParser.ShowCreateDbContext ctx);
+	void enterHelpStatement(OpenDistroSqlParser.HelpStatementContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code showCreateDb}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
+	 * Exit a parse tree produced by {@link OpenDistroSqlParser#helpStatement}.
 	 * @param ctx the parse tree
 	 */
-	void exitShowCreateDb(OpenDistroSqlParser.ShowCreateDbContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code showCreateFullIdObject}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterShowCreateFullIdObject(OpenDistroSqlParser.ShowCreateFullIdObjectContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code showCreateFullIdObject}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitShowCreateFullIdObject(OpenDistroSqlParser.ShowCreateFullIdObjectContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code showCreateUser}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterShowCreateUser(OpenDistroSqlParser.ShowCreateUserContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code showCreateUser}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitShowCreateUser(OpenDistroSqlParser.ShowCreateUserContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code showEngine}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterShowEngine(OpenDistroSqlParser.ShowEngineContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code showEngine}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitShowEngine(OpenDistroSqlParser.ShowEngineContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code showGlobalInfo}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterShowGlobalInfo(OpenDistroSqlParser.ShowGlobalInfoContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code showGlobalInfo}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitShowGlobalInfo(OpenDistroSqlParser.ShowGlobalInfoContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code showErrors}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterShowErrors(OpenDistroSqlParser.ShowErrorsContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code showErrors}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitShowErrors(OpenDistroSqlParser.ShowErrorsContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code showCountErrors}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterShowCountErrors(OpenDistroSqlParser.ShowCountErrorsContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code showCountErrors}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitShowCountErrors(OpenDistroSqlParser.ShowCountErrorsContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code showSchemaFilter}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterShowSchemaFilter(OpenDistroSqlParser.ShowSchemaFilterContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code showSchemaFilter}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitShowSchemaFilter(OpenDistroSqlParser.ShowSchemaFilterContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code showRoutine}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterShowRoutine(OpenDistroSqlParser.ShowRoutineContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code showRoutine}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitShowRoutine(OpenDistroSqlParser.ShowRoutineContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code showGrants}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterShowGrants(OpenDistroSqlParser.ShowGrantsContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code showGrants}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitShowGrants(OpenDistroSqlParser.ShowGrantsContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code showIndexes}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterShowIndexes(OpenDistroSqlParser.ShowIndexesContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code showIndexes}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitShowIndexes(OpenDistroSqlParser.ShowIndexesContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code showOpenTables}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterShowOpenTables(OpenDistroSqlParser.ShowOpenTablesContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code showOpenTables}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitShowOpenTables(OpenDistroSqlParser.ShowOpenTablesContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code showProfile}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterShowProfile(OpenDistroSqlParser.ShowProfileContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code showProfile}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitShowProfile(OpenDistroSqlParser.ShowProfileContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code showSlaveStatus}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterShowSlaveStatus(OpenDistroSqlParser.ShowSlaveStatusContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code showSlaveStatus}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitShowSlaveStatus(OpenDistroSqlParser.ShowSlaveStatusContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#showCommonEntity}.
-	 * @param ctx the parse tree
-	 */
-	void enterShowCommonEntity(OpenDistroSqlParser.ShowCommonEntityContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#showCommonEntity}.
-	 * @param ctx the parse tree
-	 */
-	void exitShowCommonEntity(OpenDistroSqlParser.ShowCommonEntityContext ctx);
+	void exitHelpStatement(OpenDistroSqlParser.HelpStatementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link OpenDistroSqlParser#showFilter}.
 	 * @param ctx the parse tree
@@ -712,16 +464,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 */
 	void exitShowFilter(OpenDistroSqlParser.ShowFilterContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#showGlobalInfoClause}.
-	 * @param ctx the parse tree
-	 */
-	void enterShowGlobalInfoClause(OpenDistroSqlParser.ShowGlobalInfoClauseContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#showGlobalInfoClause}.
-	 * @param ctx the parse tree
-	 */
-	void exitShowGlobalInfoClause(OpenDistroSqlParser.ShowGlobalInfoClauseContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link OpenDistroSqlParser#showSchemaEntity}.
 	 * @param ctx the parse tree
 	 */
@@ -732,15 +474,15 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 */
 	void exitShowSchemaEntity(OpenDistroSqlParser.ShowSchemaEntityContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#showProfileType}.
+	 * Enter a parse tree produced by {@link OpenDistroSqlParser#intervalType}.
 	 * @param ctx the parse tree
 	 */
-	void enterShowProfileType(OpenDistroSqlParser.ShowProfileTypeContext ctx);
+	void enterIntervalType(OpenDistroSqlParser.IntervalTypeContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#showProfileType}.
+	 * Exit a parse tree produced by {@link OpenDistroSqlParser#intervalType}.
 	 * @param ctx the parse tree
 	 */
-	void exitShowProfileType(OpenDistroSqlParser.ShowProfileTypeContext ctx);
+	void exitIntervalType(OpenDistroSqlParser.IntervalTypeContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link OpenDistroSqlParser#fullId}.
 	 * @param ctx the parse tree
@@ -781,26 +523,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitIndexColumnName(OpenDistroSqlParser.IndexColumnNameContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#userName}.
-	 * @param ctx the parse tree
-	 */
-	void enterUserName(OpenDistroSqlParser.UserNameContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#userName}.
-	 * @param ctx the parse tree
-	 */
-	void exitUserName(OpenDistroSqlParser.UserNameContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#mysqlVariable}.
-	 * @param ctx the parse tree
-	 */
-	void enterMysqlVariable(OpenDistroSqlParser.MysqlVariableContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#mysqlVariable}.
-	 * @param ctx the parse tree
-	 */
-	void exitMysqlVariable(OpenDistroSqlParser.MysqlVariableContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link OpenDistroSqlParser#charsetName}.
 	 * @param ctx the parse tree
@@ -972,26 +694,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 */
 	void exitUidList(OpenDistroSqlParser.UidListContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#tables}.
-	 * @param ctx the parse tree
-	 */
-	void enterTables(OpenDistroSqlParser.TablesContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#tables}.
-	 * @param ctx the parse tree
-	 */
-	void exitTables(OpenDistroSqlParser.TablesContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#indexColumnNames}.
-	 * @param ctx the parse tree
-	 */
-	void enterIndexColumnNames(OpenDistroSqlParser.IndexColumnNamesContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#indexColumnNames}.
-	 * @param ctx the parse tree
-	 */
-	void exitIndexColumnNames(OpenDistroSqlParser.IndexColumnNamesContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link OpenDistroSqlParser#expressions}.
 	 * @param ctx the parse tree
 	 */
@@ -1001,16 +703,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitExpressions(OpenDistroSqlParser.ExpressionsContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#expressionsWithDefaults}.
-	 * @param ctx the parse tree
-	 */
-	void enterExpressionsWithDefaults(OpenDistroSqlParser.ExpressionsWithDefaultsContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#expressionsWithDefaults}.
-	 * @param ctx the parse tree
-	 */
-	void exitExpressionsWithDefaults(OpenDistroSqlParser.ExpressionsWithDefaultsContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link OpenDistroSqlParser#constants}.
 	 * @param ctx the parse tree
@@ -1031,66 +723,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSimpleStrings(OpenDistroSqlParser.SimpleStringsContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#userVariables}.
-	 * @param ctx the parse tree
-	 */
-	void enterUserVariables(OpenDistroSqlParser.UserVariablesContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#userVariables}.
-	 * @param ctx the parse tree
-	 */
-	void exitUserVariables(OpenDistroSqlParser.UserVariablesContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#defaultValue}.
-	 * @param ctx the parse tree
-	 */
-	void enterDefaultValue(OpenDistroSqlParser.DefaultValueContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#defaultValue}.
-	 * @param ctx the parse tree
-	 */
-	void exitDefaultValue(OpenDistroSqlParser.DefaultValueContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#currentTimestamp}.
-	 * @param ctx the parse tree
-	 */
-	void enterCurrentTimestamp(OpenDistroSqlParser.CurrentTimestampContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#currentTimestamp}.
-	 * @param ctx the parse tree
-	 */
-	void exitCurrentTimestamp(OpenDistroSqlParser.CurrentTimestampContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#expressionOrDefault}.
-	 * @param ctx the parse tree
-	 */
-	void enterExpressionOrDefault(OpenDistroSqlParser.ExpressionOrDefaultContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#expressionOrDefault}.
-	 * @param ctx the parse tree
-	 */
-	void exitExpressionOrDefault(OpenDistroSqlParser.ExpressionOrDefaultContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#ifExists}.
-	 * @param ctx the parse tree
-	 */
-	void enterIfExists(OpenDistroSqlParser.IfExistsContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#ifExists}.
-	 * @param ctx the parse tree
-	 */
-	void exitIfExists(OpenDistroSqlParser.IfExistsContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#ifNotExists}.
-	 * @param ctx the parse tree
-	 */
-	void enterIfNotExists(OpenDistroSqlParser.IfNotExistsContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#ifNotExists}.
-	 * @param ctx the parse tree
-	 */
-	void exitIfNotExists(OpenDistroSqlParser.IfNotExistsContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code specificFunctionCall}
 	 * labeled alternative in {@link OpenDistroSqlParser#functionCall}.
@@ -1127,18 +759,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitScalarFunctionCall(OpenDistroSqlParser.ScalarFunctionCallContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code passwordFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#functionCall}.
-	 * @param ctx the parse tree
-	 */
-	void enterPasswordFunctionCall(OpenDistroSqlParser.PasswordFunctionCallContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code passwordFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#functionCall}.
-	 * @param ctx the parse tree
-	 */
-	void exitPasswordFunctionCall(OpenDistroSqlParser.PasswordFunctionCallContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code simpleFunctionCall}
 	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
@@ -1335,16 +955,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitScalarFunctionName(OpenDistroSqlParser.ScalarFunctionNameContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#passwordFunctionClause}.
-	 * @param ctx the parse tree
-	 */
-	void enterPasswordFunctionClause(OpenDistroSqlParser.PasswordFunctionClauseContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#passwordFunctionClause}.
-	 * @param ctx the parse tree
-	 */
-	void exitPasswordFunctionClause(OpenDistroSqlParser.PasswordFunctionClauseContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link OpenDistroSqlParser#functionArgs}.
 	 * @param ctx the parse tree
@@ -1558,18 +1168,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 */
 	void exitSubqueryExpessionAtom(OpenDistroSqlParser.SubqueryExpessionAtomContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code mysqlVariableExpressionAtom}
-	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
-	 * @param ctx the parse tree
-	 */
-	void enterMysqlVariableExpressionAtom(OpenDistroSqlParser.MysqlVariableExpressionAtomContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code mysqlVariableExpressionAtom}
-	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
-	 * @param ctx the parse tree
-	 */
-	void exitMysqlVariableExpressionAtom(OpenDistroSqlParser.MysqlVariableExpressionAtomContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code nestedExpressionAtom}
 	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
 	 * @param ctx the parse tree
@@ -1749,16 +1347,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCharsetNameBase(OpenDistroSqlParser.CharsetNameBaseContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#transactionLevelBase}.
-	 * @param ctx the parse tree
-	 */
-	void enterTransactionLevelBase(OpenDistroSqlParser.TransactionLevelBaseContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#transactionLevelBase}.
-	 * @param ctx the parse tree
-	 */
-	void exitTransactionLevelBase(OpenDistroSqlParser.TransactionLevelBaseContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link OpenDistroSqlParser#privilegesBase}.
 	 * @param ctx the parse tree

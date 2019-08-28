@@ -73,6 +73,9 @@ public class ESActionFactory {
 
         switch (getFirstWord(sql)) {
             case "SELECT":
+                // Perform analysis for SELECT only now because of extra code changes required for SHOW/DESCRIBE.
+                performAnalysis(sql);
+
                 SQLQueryExpr sqlExpr = (SQLQueryExpr) toSqlExpr(sql);
                 sqlExpr.accept(new NestedFieldRewriter());
                 RewriteRuleExecutor<SQLQueryExpr> ruleExecutor = RewriteRuleExecutor.<SQLQueryExpr>builder()
@@ -164,9 +167,11 @@ public class ESActionFactory {
                 && ((SQLJoinTableSource) query.getFrom()).getJoinType() != SQLJoinTableSource.JoinType.COMMA;
     }
 
-    private static SQLExpr toSqlExpr(String sql) {
+    private static void performAnalysis(String sql) {
         new OpenDistroSqlAnalyzer().analyze(sql);
+    }
 
+    private static SQLExpr toSqlExpr(String sql) {
         SQLExprParser parser = new ElasticSqlExprParser(sql);
         SQLExpr expr = parser.expr();
 

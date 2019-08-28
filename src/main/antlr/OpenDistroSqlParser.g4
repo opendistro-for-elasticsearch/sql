@@ -31,37 +31,18 @@ options { tokenVocab=OpenDistroSqlLexer; }
 // Top Level Description
 
 root
-    : sqlStatement? MINUSMINUS? EOF
+    : sqlStatement? EOF
     ;
 
 
 // Only SELECT and UPDATE DML are supported now
 
 sqlStatement
-    : dmlStatement
+    : dmlStatement | administrationStatement | utilityStatement
     ;
 
 dmlStatement
     : selectStatement | deleteStatement
-    ;
-
-timestampValue
-    : CURRENT_TIMESTAMP
-    | stringLiteral
-    | decimalLiteral
-    | expression
-    ;
-
-intervalExpr
-    : '+' INTERVAL (decimalLiteral | expression) intervalType
-    ;
-
-intervalType
-    : intervalTypeBase
-    | YEAR | YEAR_MONTH | DAY_HOUR | DAY_MINUTE
-    | DAY_SECOND | HOUR_MINUTE | HOUR_SECOND | MINUTE_SECOND
-    | SECOND_MICROSECOND | MINUTE_MICROSECOND
-    | HOUR_MICROSECOND | DAY_MICROSECOND
     ;
 
 
@@ -77,17 +58,7 @@ selectStatement
     : querySpecification                                 #simpleSelect
     | queryExpression                                    #parenthesisSelect
     | querySpecification unionStatement+
-        (
-          UNION unionType=(ALL | DISTINCT)?
-          (querySpecification | queryExpression)
-        )?
         orderByClause? limitClause?                      #unionSelect
-    | queryExpression unionParenthesis+
-        (
-          UNION unionType=(ALL | DISTINCT)?
-          queryExpression
-        )?
-        orderByClause? limitClause?                      #unionParenthesisSelect
     | querySpecification minusStatement+
         orderByClause? limitClause?                      #minusSelect
     ;
@@ -95,9 +66,7 @@ selectStatement
 //    Detailed DML Statements
 
 singleDeleteStatement
-    : DELETE priority=LOW_PRIORITY? QUICK? IGNORE?
-    FROM tableName
-      (PARTITION '(' uidList ')' )?
+    : DELETE FROM tableName
       (WHERE expression)?
       orderByClause? (LIMIT decimalLiteral)?
     ;
@@ -122,25 +91,13 @@ tableSource
     ;
 
 tableSourceItem
-    : tableName
-      (PARTITION '(' uidList ')' )? (AS? alias=uid)?
-      (indexHint (',' indexHint)* )?                                #atomTableItem
+    : tableName (AS? alias=uid)?                                    #atomTableItem
     | (
       selectStatement
       | '(' parenthesisSubquery=selectStatement ')'
       )
       AS? alias=uid                                                 #subqueryTableItem
     | '(' tableSources ')'                                          #tableSourcesItem
-    ;
-
-indexHint
-    : indexHintAction=(USE | IGNORE | FORCE)
-      keyFormat=(INDEX|KEY) ( FOR indexHintType)?
-      '(' uidList ')'
-    ;
-
-indexHintType
-    : JOIN | ORDER BY | GROUP BY
     ;
 
 joinPart
@@ -170,10 +127,6 @@ querySpecification
       fromClause orderByClause? limitClause?
     ;
 
-unionParenthesis
-    : UNION unionType=(ALL | DISTINCT)? queryExpression
-    ;
-
 unionStatement
     : UNION unionType=(ALL | DISTINCT)?
       (querySpecification | queryExpression)
@@ -187,10 +140,6 @@ minusStatement
 
 selectSpec
     : (ALL | DISTINCT | DISTINCTROW)
-    | HIGH_PRIORITY | STRAIGHT_JOIN | SQL_SMALL_RESULT
-    | SQL_BIG_RESULT | SQL_BUFFER_RESULT
-    | (SQL_CACHE | SQL_NO_CACHE)
-    | SQL_CALC_FOUND_ROWS
     ;
 
 selectElements
@@ -229,90 +178,54 @@ limitClause
     ;
 
 limitClauseAtom
-	: decimalLiteral | mysqlVariable
+	: decimalLiteral
 	;
 
 
-//    Set and show statements
+//    Show statements
+administrationStatement
+    : showStatement
+    ;
 
 showStatement
-    : SHOW logFormat=(BINARY | MASTER) LOGS                         #showMasterLogs
-    | SHOW logFormat=(BINLOG | RELAYLOG)
-      EVENTS (IN filename=STRING_LITERAL)?
-        (FROM fromPosition=decimalLiteral)?
-        (LIMIT
-          (offset=decimalLiteral ',')?
-          rowCount=decimalLiteral
-        )?                                                          #showLogEvents
-    | SHOW showCommonEntity showFilter?                             #showObjectFilter
-    | SHOW FULL? columnsFormat=(COLUMNS | FIELDS)
-      tableFormat=(FROM | IN) tableName
-        (schemaFormat=(FROM | IN) uid)? showFilter?                 #showColumns
-    | SHOW CREATE schemaFormat=(DATABASE | SCHEMA)
-      ifNotExists? uid                                              #showCreateDb
-    | SHOW CREATE
-        namedEntity=(
-          EVENT | FUNCTION | PROCEDURE
-          | TABLE | TRIGGER | VIEW
-        )
-        fullId                                                      #showCreateFullIdObject
-    | SHOW CREATE USER userName                                     #showCreateUser
-    | SHOW ENGINE engineName engineOption=(STATUS | MUTEX)          #showEngine
-    | SHOW showGlobalInfoClause                                     #showGlobalInfo
-    | SHOW errorFormat=(ERRORS | WARNINGS)
-        (LIMIT
-          (offset=decimalLiteral ',')?
-          rowCount=decimalLiteral
-        )                                                           #showErrors
-    | SHOW COUNT '(' '*' ')' errorFormat=(ERRORS | WARNINGS)        #showCountErrors
-    | SHOW showSchemaEntity
-        (schemaFormat=(FROM | IN) uid)? showFilter?                 #showSchemaFilter
-    | SHOW routine=(FUNCTION | PROCEDURE) CODE fullId               #showRoutine
-    | SHOW GRANTS (FOR userName)?                                   #showGrants
-    | SHOW indexFormat=(INDEX | INDEXES | KEYS)
-      tableFormat=(FROM | IN) tableName
-        (schemaFormat=(FROM | IN) uid)? (WHERE expression)?         #showIndexes
-    | SHOW OPEN TABLES ( schemaFormat=(FROM | IN) uid)?
-      showFilter?                                                   #showOpenTables
-    | SHOW PROFILE showProfileType (',' showProfileType)*
-        (FOR QUERY queryCount=decimalLiteral)?
-        (LIMIT
-          (offset=decimalLiteral ',')?
-          rowCount=decimalLiteral
-        )                                                           #showProfile
-    | SHOW SLAVE STATUS (FOR CHANNEL STRING_LITERAL)?               #showSlaveStatus
+    : SHOW showSchemaEntity
+        (schemaFormat=(FROM | IN) uid)? showFilter?
+    ;
+
+utilityStatement
+    : simpleDescribeStatement | helpStatement
+    ;
+
+simpleDescribeStatement
+    : command=(EXPLAIN | DESCRIBE | DESC) tableName
+      (column=uid | pattern=STRING_LITERAL)?
+    ;
+
+helpStatement
+    : HELP STRING_LITERAL
     ;
 
 // details
-
-showCommonEntity
-    : CHARACTER SET | COLLATION | DATABASES | SCHEMAS
-    | FUNCTION STATUS | PROCEDURE STATUS
-    | (GLOBAL | SESSION)? (STATUS | VARIABLES)
-    ;
 
 showFilter
     : LIKE STRING_LITERAL
     | WHERE expression
     ;
 
-showGlobalInfoClause
-    : STORAGE? ENGINES | MASTER STATUS | PLUGINS
-    | PRIVILEGES | FULL? PROCESSLIST | PROFILES
-    | SLAVE HOSTS | AUTHORS | CONTRIBUTORS
-    ;
-
 showSchemaEntity
-    : EVENTS | TABLE STATUS | FULL? TABLES | TRIGGERS
-    ;
-
-showProfileType
-    : ALL | BLOCK IO | CONTEXT SWITCHES | CPU | IPC | MEMORY
-    | PAGE FAULTS | SOURCE | SWAPS
+    : FULL? TABLES
     ;
 
 
 // Common Clauses
+
+intervalType
+    : intervalTypeBase
+    | YEAR | YEAR_MONTH | DAY_HOUR | DAY_MINUTE
+    | DAY_SECOND | HOUR_MINUTE | HOUR_SECOND | MINUTE_SECOND
+    | SECOND_MICROSECOND | MINUTE_MICROSECOND
+    | HOUR_MICROSECOND | DAY_MICROSECOND
+    ;
 
 //    DB Objects
 
@@ -332,14 +245,6 @@ fullColumnName
 
 indexColumnName
     : (uid | STRING_LITERAL) ('(' decimalLiteral ')')? sortType=(ASC | DESC)?
-    ;
-
-userName
-    : STRING_USER_NAME | ID | STRING_LITERAL;
-
-mysqlVariable
-    : LOCAL_ID
-    | GLOBAL_ID
     ;
 
 charsetName
@@ -370,7 +275,6 @@ uid
 simpleId
     : ID
     | charsetNameBase
-    | transactionLevelBase
     | engineName
     | privilegesBase
     | intervalTypeBase
@@ -449,20 +353,8 @@ uidList
     : uid (',' uid)*
     ;
 
-tables
-    : tableName (',' tableName)*
-    ;
-
-indexColumnNames
-    : '(' indexColumnName (',' indexColumnName)* ')'
-    ;
-
 expressions
     : expression (',' expression)*
-    ;
-
-expressionsWithDefaults
-    : expressionOrDefault (',' expressionOrDefault)*
     ;
 
 constants
@@ -473,37 +365,6 @@ simpleStrings
     : STRING_LITERAL (',' STRING_LITERAL)*
     ;
 
-userVariables
-    : LOCAL_ID (',' LOCAL_ID)*
-    ;
-
-
-//    Common Expressons
-
-defaultValue
-    : NULL_LITERAL
-    | unaryOperator? constant
-    | currentTimestamp (ON UPDATE currentTimestamp)?
-    ;
-
-currentTimestamp
-    :
-    (
-      (CURRENT_TIMESTAMP | LOCALTIME | LOCALTIMESTAMP) ('(' decimalLiteral? ')')?
-      | NOW '(' decimalLiteral? ')'
-    )
-    ;
-
-expressionOrDefault
-    : expression | DEFAULT
-    ;
-
-ifExists
-    : IF EXISTS;
-
-ifNotExists
-    : IF NOT EXISTS;
-
 
 //    Functions
 
@@ -511,8 +372,6 @@ functionCall
     : specificFunction                                              #specificFunctionCall
     | aggregateWindowedFunction                                     #aggregateFunctionCall
     | scalarFunctionName '(' functionArgs? ')'                      #scalarFunctionCall
-    //| fullId '(' functionArgs? ')'                                  #udfFunctionCall
-    | passwordFunctionClause                                        #passwordFunctionCall
     ;
 
 specificFunction
@@ -648,10 +507,6 @@ scalarFunctionName
     | UTC_DATE | UTC_TIME | UTC_TIMESTAMP
     ;
 
-passwordFunctionClause
-    : functionName=(PASSWORD | OLD_PASSWORD) '(' functionArg ')'
-    ;
-
 functionArgs
     : (constant | fullColumnName | functionCall | expression)
     (
@@ -695,7 +550,6 @@ expressionAtom
     | fullColumnName                                                #fullColumnNameExpressionAtom
     | functionCall                                                  #functionCallExpressionAtom
     | expressionAtom COLLATE collationName                          #collateExpressionAtom
-    | mysqlVariable                                                 #mysqlVariableExpressionAtom
     | unaryOperator expressionAtom                                  #unaryExpressionAtom
     | BINARY expressionAtom                                         #binaryExpressionAtom
     | '(' expression (',' expression)* ')'                          #nestedExpressionAtom
@@ -739,10 +593,6 @@ charsetNameBase
     | KOI8R | KOI8U | LATIN1 | LATIN2 | LATIN5 | LATIN7 | MACCE
     | MACROMAN | SJIS | SWE7 | TIS620 | UCS2 | UJIS | UTF16
     | UTF16LE | UTF32 | UTF8 | UTF8MB3 | UTF8MB4
-    ;
-
-transactionLevelBase
-    : REPEATABLE | COMMITTED | UNCOMMITTED | SERIALIZABLE
     ;
 
 privilegesBase

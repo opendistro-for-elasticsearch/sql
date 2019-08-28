@@ -52,42 +52,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTimestampValue(OpenDistroSqlParser.TimestampValueContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitTimestampValue(OpenDistroSqlParser.TimestampValueContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterIntervalExpr(OpenDistroSqlParser.IntervalExprContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitIntervalExpr(OpenDistroSqlParser.IntervalExprContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterIntervalType(OpenDistroSqlParser.IntervalTypeContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitIntervalType(OpenDistroSqlParser.IntervalTypeContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterDeleteStatement(OpenDistroSqlParser.DeleteStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -131,18 +95,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitUnionSelect(OpenDistroSqlParser.UnionSelectContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterUnionParenthesisSelect(OpenDistroSqlParser.UnionParenthesisSelectContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitUnionParenthesisSelect(OpenDistroSqlParser.UnionParenthesisSelectContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -268,30 +220,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIndexHint(OpenDistroSqlParser.IndexHintContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitIndexHint(OpenDistroSqlParser.IndexHintContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterIndexHintType(OpenDistroSqlParser.IndexHintTypeContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitIndexHintType(OpenDistroSqlParser.IndexHintTypeContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterInnerJoin(OpenDistroSqlParser.InnerJoinContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -359,18 +287,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitQuerySpecification(OpenDistroSqlParser.QuerySpecificationContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterUnionParenthesis(OpenDistroSqlParser.UnionParenthesisContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitUnionParenthesis(OpenDistroSqlParser.UnionParenthesisContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -532,229 +448,61 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterShowMasterLogs(OpenDistroSqlParser.ShowMasterLogsContext ctx) { }
+	@Override public void enterAdministrationStatement(OpenDistroSqlParser.AdministrationStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitShowMasterLogs(OpenDistroSqlParser.ShowMasterLogsContext ctx) { }
+	@Override public void exitAdministrationStatement(OpenDistroSqlParser.AdministrationStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterShowLogEvents(OpenDistroSqlParser.ShowLogEventsContext ctx) { }
+	@Override public void enterShowStatement(OpenDistroSqlParser.ShowStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitShowLogEvents(OpenDistroSqlParser.ShowLogEventsContext ctx) { }
+	@Override public void exitShowStatement(OpenDistroSqlParser.ShowStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterShowObjectFilter(OpenDistroSqlParser.ShowObjectFilterContext ctx) { }
+	@Override public void enterUtilityStatement(OpenDistroSqlParser.UtilityStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitShowObjectFilter(OpenDistroSqlParser.ShowObjectFilterContext ctx) { }
+	@Override public void exitUtilityStatement(OpenDistroSqlParser.UtilityStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterShowColumns(OpenDistroSqlParser.ShowColumnsContext ctx) { }
+	@Override public void enterSimpleDescribeStatement(OpenDistroSqlParser.SimpleDescribeStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitShowColumns(OpenDistroSqlParser.ShowColumnsContext ctx) { }
+	@Override public void exitSimpleDescribeStatement(OpenDistroSqlParser.SimpleDescribeStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterShowCreateDb(OpenDistroSqlParser.ShowCreateDbContext ctx) { }
+	@Override public void enterHelpStatement(OpenDistroSqlParser.HelpStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitShowCreateDb(OpenDistroSqlParser.ShowCreateDbContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterShowCreateFullIdObject(OpenDistroSqlParser.ShowCreateFullIdObjectContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitShowCreateFullIdObject(OpenDistroSqlParser.ShowCreateFullIdObjectContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterShowCreateUser(OpenDistroSqlParser.ShowCreateUserContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitShowCreateUser(OpenDistroSqlParser.ShowCreateUserContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterShowEngine(OpenDistroSqlParser.ShowEngineContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitShowEngine(OpenDistroSqlParser.ShowEngineContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterShowGlobalInfo(OpenDistroSqlParser.ShowGlobalInfoContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitShowGlobalInfo(OpenDistroSqlParser.ShowGlobalInfoContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterShowErrors(OpenDistroSqlParser.ShowErrorsContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitShowErrors(OpenDistroSqlParser.ShowErrorsContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterShowCountErrors(OpenDistroSqlParser.ShowCountErrorsContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitShowCountErrors(OpenDistroSqlParser.ShowCountErrorsContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterShowSchemaFilter(OpenDistroSqlParser.ShowSchemaFilterContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitShowSchemaFilter(OpenDistroSqlParser.ShowSchemaFilterContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterShowRoutine(OpenDistroSqlParser.ShowRoutineContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitShowRoutine(OpenDistroSqlParser.ShowRoutineContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterShowGrants(OpenDistroSqlParser.ShowGrantsContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitShowGrants(OpenDistroSqlParser.ShowGrantsContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterShowIndexes(OpenDistroSqlParser.ShowIndexesContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitShowIndexes(OpenDistroSqlParser.ShowIndexesContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterShowOpenTables(OpenDistroSqlParser.ShowOpenTablesContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitShowOpenTables(OpenDistroSqlParser.ShowOpenTablesContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterShowProfile(OpenDistroSqlParser.ShowProfileContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitShowProfile(OpenDistroSqlParser.ShowProfileContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterShowSlaveStatus(OpenDistroSqlParser.ShowSlaveStatusContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitShowSlaveStatus(OpenDistroSqlParser.ShowSlaveStatusContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterShowCommonEntity(OpenDistroSqlParser.ShowCommonEntityContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitShowCommonEntity(OpenDistroSqlParser.ShowCommonEntityContext ctx) { }
+	@Override public void exitHelpStatement(OpenDistroSqlParser.HelpStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -772,18 +520,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterShowGlobalInfoClause(OpenDistroSqlParser.ShowGlobalInfoClauseContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitShowGlobalInfoClause(OpenDistroSqlParser.ShowGlobalInfoClauseContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterShowSchemaEntity(OpenDistroSqlParser.ShowSchemaEntityContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -796,13 +532,13 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterShowProfileType(OpenDistroSqlParser.ShowProfileTypeContext ctx) { }
+	@Override public void enterIntervalType(OpenDistroSqlParser.IntervalTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitShowProfileType(OpenDistroSqlParser.ShowProfileTypeContext ctx) { }
+	@Override public void exitIntervalType(OpenDistroSqlParser.IntervalTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -851,30 +587,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitIndexColumnName(OpenDistroSqlParser.IndexColumnNameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterUserName(OpenDistroSqlParser.UserNameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitUserName(OpenDistroSqlParser.UserNameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterMysqlVariable(OpenDistroSqlParser.MysqlVariableContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitMysqlVariable(OpenDistroSqlParser.MysqlVariableContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1084,30 +796,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTables(OpenDistroSqlParser.TablesContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitTables(OpenDistroSqlParser.TablesContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterIndexColumnNames(OpenDistroSqlParser.IndexColumnNamesContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitIndexColumnNames(OpenDistroSqlParser.IndexColumnNamesContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterExpressions(OpenDistroSqlParser.ExpressionsContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1115,18 +803,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitExpressions(OpenDistroSqlParser.ExpressionsContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterExpressionsWithDefaults(OpenDistroSqlParser.ExpressionsWithDefaultsContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitExpressionsWithDefaults(OpenDistroSqlParser.ExpressionsWithDefaultsContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1151,78 +827,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitSimpleStrings(OpenDistroSqlParser.SimpleStringsContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterUserVariables(OpenDistroSqlParser.UserVariablesContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitUserVariables(OpenDistroSqlParser.UserVariablesContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterDefaultValue(OpenDistroSqlParser.DefaultValueContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitDefaultValue(OpenDistroSqlParser.DefaultValueContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterCurrentTimestamp(OpenDistroSqlParser.CurrentTimestampContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitCurrentTimestamp(OpenDistroSqlParser.CurrentTimestampContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterExpressionOrDefault(OpenDistroSqlParser.ExpressionOrDefaultContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitExpressionOrDefault(OpenDistroSqlParser.ExpressionOrDefaultContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterIfExists(OpenDistroSqlParser.IfExistsContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitIfExists(OpenDistroSqlParser.IfExistsContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterIfNotExists(OpenDistroSqlParser.IfNotExistsContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitIfNotExists(OpenDistroSqlParser.IfNotExistsContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1259,18 +863,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitScalarFunctionCall(OpenDistroSqlParser.ScalarFunctionCallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterPasswordFunctionCall(OpenDistroSqlParser.PasswordFunctionCallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitPasswordFunctionCall(OpenDistroSqlParser.PasswordFunctionCallContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1475,18 +1067,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitScalarFunctionName(OpenDistroSqlParser.ScalarFunctionNameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterPasswordFunctionClause(OpenDistroSqlParser.PasswordFunctionClauseContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitPasswordFunctionClause(OpenDistroSqlParser.PasswordFunctionClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1708,18 +1288,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterMysqlVariableExpressionAtom(OpenDistroSqlParser.MysqlVariableExpressionAtomContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitMysqlVariableExpressionAtom(OpenDistroSqlParser.MysqlVariableExpressionAtomContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterNestedExpressionAtom(OpenDistroSqlParser.NestedExpressionAtomContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1907,18 +1475,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitCharsetNameBase(OpenDistroSqlParser.CharsetNameBaseContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterTransactionLevelBase(OpenDistroSqlParser.TransactionLevelBaseContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitTransactionLevelBase(OpenDistroSqlParser.TransactionLevelBaseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -29,24 +29,6 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitDmlStatement(OpenDistroSqlParser.DmlStatementContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#timestampValue}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitTimestampValue(OpenDistroSqlParser.TimestampValueContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#intervalExpr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitIntervalExpr(OpenDistroSqlParser.IntervalExprContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#intervalType}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitIntervalType(OpenDistroSqlParser.IntervalTypeContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link OpenDistroSqlParser#deleteStatement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -73,13 +55,6 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitUnionSelect(OpenDistroSqlParser.UnionSelectContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code unionParenthesisSelect}
-	 * labeled alternative in {@link OpenDistroSqlParser#selectStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitUnionParenthesisSelect(OpenDistroSqlParser.UnionParenthesisSelectContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code minusSelect}
 	 * labeled alternative in {@link OpenDistroSqlParser#selectStatement}.
@@ -147,18 +122,6 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitTableSourcesItem(OpenDistroSqlParser.TableSourcesItemContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#indexHint}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitIndexHint(OpenDistroSqlParser.IndexHintContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#indexHintType}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitIndexHintType(OpenDistroSqlParser.IndexHintTypeContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code innerJoin}
 	 * labeled alternative in {@link OpenDistroSqlParser#joinPart}.
 	 * @param ctx the parse tree
@@ -198,12 +161,6 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitQuerySpecification(OpenDistroSqlParser.QuerySpecificationContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#unionParenthesis}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitUnionParenthesis(OpenDistroSqlParser.UnionParenthesisContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link OpenDistroSqlParser#unionStatement}.
 	 * @param ctx the parse tree
@@ -288,137 +245,35 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitLimitClauseAtom(OpenDistroSqlParser.LimitClauseAtomContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code showMasterLogs}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
+	 * Visit a parse tree produced by {@link OpenDistroSqlParser#administrationStatement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitShowMasterLogs(OpenDistroSqlParser.ShowMasterLogsContext ctx);
+	T visitAdministrationStatement(OpenDistroSqlParser.AdministrationStatementContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code showLogEvents}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
+	 * Visit a parse tree produced by {@link OpenDistroSqlParser#showStatement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitShowLogEvents(OpenDistroSqlParser.ShowLogEventsContext ctx);
+	T visitShowStatement(OpenDistroSqlParser.ShowStatementContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code showObjectFilter}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
+	 * Visit a parse tree produced by {@link OpenDistroSqlParser#utilityStatement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitShowObjectFilter(OpenDistroSqlParser.ShowObjectFilterContext ctx);
+	T visitUtilityStatement(OpenDistroSqlParser.UtilityStatementContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code showColumns}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
+	 * Visit a parse tree produced by {@link OpenDistroSqlParser#simpleDescribeStatement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitShowColumns(OpenDistroSqlParser.ShowColumnsContext ctx);
+	T visitSimpleDescribeStatement(OpenDistroSqlParser.SimpleDescribeStatementContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code showCreateDb}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
+	 * Visit a parse tree produced by {@link OpenDistroSqlParser#helpStatement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitShowCreateDb(OpenDistroSqlParser.ShowCreateDbContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code showCreateFullIdObject}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitShowCreateFullIdObject(OpenDistroSqlParser.ShowCreateFullIdObjectContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code showCreateUser}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitShowCreateUser(OpenDistroSqlParser.ShowCreateUserContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code showEngine}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitShowEngine(OpenDistroSqlParser.ShowEngineContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code showGlobalInfo}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitShowGlobalInfo(OpenDistroSqlParser.ShowGlobalInfoContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code showErrors}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitShowErrors(OpenDistroSqlParser.ShowErrorsContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code showCountErrors}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitShowCountErrors(OpenDistroSqlParser.ShowCountErrorsContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code showSchemaFilter}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitShowSchemaFilter(OpenDistroSqlParser.ShowSchemaFilterContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code showRoutine}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitShowRoutine(OpenDistroSqlParser.ShowRoutineContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code showGrants}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitShowGrants(OpenDistroSqlParser.ShowGrantsContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code showIndexes}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitShowIndexes(OpenDistroSqlParser.ShowIndexesContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code showOpenTables}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitShowOpenTables(OpenDistroSqlParser.ShowOpenTablesContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code showProfile}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitShowProfile(OpenDistroSqlParser.ShowProfileContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code showSlaveStatus}
-	 * labeled alternative in {@link OpenDistroSqlParser#showStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitShowSlaveStatus(OpenDistroSqlParser.ShowSlaveStatusContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#showCommonEntity}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitShowCommonEntity(OpenDistroSqlParser.ShowCommonEntityContext ctx);
+	T visitHelpStatement(OpenDistroSqlParser.HelpStatementContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link OpenDistroSqlParser#showFilter}.
 	 * @param ctx the parse tree
@@ -426,23 +281,17 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitShowFilter(OpenDistroSqlParser.ShowFilterContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#showGlobalInfoClause}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitShowGlobalInfoClause(OpenDistroSqlParser.ShowGlobalInfoClauseContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link OpenDistroSqlParser#showSchemaEntity}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitShowSchemaEntity(OpenDistroSqlParser.ShowSchemaEntityContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#showProfileType}.
+	 * Visit a parse tree produced by {@link OpenDistroSqlParser#intervalType}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitShowProfileType(OpenDistroSqlParser.ShowProfileTypeContext ctx);
+	T visitIntervalType(OpenDistroSqlParser.IntervalTypeContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link OpenDistroSqlParser#fullId}.
 	 * @param ctx the parse tree
@@ -467,18 +316,6 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitIndexColumnName(OpenDistroSqlParser.IndexColumnNameContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#userName}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitUserName(OpenDistroSqlParser.UserNameContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#mysqlVariable}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitMysqlVariable(OpenDistroSqlParser.MysqlVariableContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link OpenDistroSqlParser#charsetName}.
 	 * @param ctx the parse tree
@@ -582,29 +419,11 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitUidList(OpenDistroSqlParser.UidListContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#tables}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitTables(OpenDistroSqlParser.TablesContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#indexColumnNames}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitIndexColumnNames(OpenDistroSqlParser.IndexColumnNamesContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link OpenDistroSqlParser#expressions}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitExpressions(OpenDistroSqlParser.ExpressionsContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#expressionsWithDefaults}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitExpressionsWithDefaults(OpenDistroSqlParser.ExpressionsWithDefaultsContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link OpenDistroSqlParser#constants}.
 	 * @param ctx the parse tree
@@ -617,42 +436,6 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitSimpleStrings(OpenDistroSqlParser.SimpleStringsContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#userVariables}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitUserVariables(OpenDistroSqlParser.UserVariablesContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#defaultValue}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitDefaultValue(OpenDistroSqlParser.DefaultValueContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#currentTimestamp}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCurrentTimestamp(OpenDistroSqlParser.CurrentTimestampContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#expressionOrDefault}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitExpressionOrDefault(OpenDistroSqlParser.ExpressionOrDefaultContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#ifExists}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitIfExists(OpenDistroSqlParser.IfExistsContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#ifNotExists}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitIfNotExists(OpenDistroSqlParser.IfNotExistsContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code specificFunctionCall}
 	 * labeled alternative in {@link OpenDistroSqlParser#functionCall}.
@@ -674,13 +457,6 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitScalarFunctionCall(OpenDistroSqlParser.ScalarFunctionCallContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code passwordFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#functionCall}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitPasswordFunctionCall(OpenDistroSqlParser.PasswordFunctionCallContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code simpleFunctionCall}
 	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
@@ -796,12 +572,6 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitScalarFunctionName(OpenDistroSqlParser.ScalarFunctionNameContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#passwordFunctionClause}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitPasswordFunctionClause(OpenDistroSqlParser.PasswordFunctionClauseContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link OpenDistroSqlParser#functionArgs}.
 	 * @param ctx the parse tree
@@ -927,13 +697,6 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitSubqueryExpessionAtom(OpenDistroSqlParser.SubqueryExpessionAtomContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code mysqlVariableExpressionAtom}
-	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitMysqlVariableExpressionAtom(OpenDistroSqlParser.MysqlVariableExpressionAtomContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code nestedExpressionAtom}
 	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
 	 * @param ctx the parse tree
@@ -1039,12 +802,6 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitCharsetNameBase(OpenDistroSqlParser.CharsetNameBaseContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#transactionLevelBase}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitTransactionLevelBase(OpenDistroSqlParser.TransactionLevelBaseContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link OpenDistroSqlParser#privilegesBase}.
 	 * @param ctx the parse tree
