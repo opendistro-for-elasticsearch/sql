@@ -106,7 +106,6 @@ joinPart
         ON expression
         | USING '(' uidList ')'
       )?                                                            #innerJoin
-    | STRAIGHT_JOIN tableSourceItem (ON expression)?                #straightJoin
     | (LEFT | RIGHT) OUTER? JOIN tableSourceItem
         (
           ON expression
@@ -160,7 +159,6 @@ fromClause
       (
         GROUP BY
         groupByItem (',' groupByItem)*
-        (WITH ROLLUP)?
       )?
       (HAVING havingExpr=expression)?
     ;
@@ -236,15 +234,11 @@ fullId
 tableName
     : fullId
     | uid STAR (DOT_ID | '.' uid)?
-    | uid DIVIDE fullId (DOT_ID | '.' uid)?
+    | uid DIVIDE uid (DOT_ID | '.' uid)?
     ;
 
 fullColumnName
     : uid (dottedId dottedId? )?
-    ;
-
-indexColumnName
-    : (uid | STRING_LITERAL) ('(' decimalLiteral ')')? sortType=(ASC | DESC)?
     ;
 
 charsetName
@@ -274,9 +268,9 @@ uid
 
 simpleId
     : ID
+    //| STRING_LITERAL
     | charsetNameBase
     | engineName
-    | privilegesBase
     | intervalTypeBase
     | dataTypeBase
     | keywordsCanBeId
@@ -323,27 +317,6 @@ constant
     | REAL_LITERAL | BIT_STRING
     | NOT? nullLiteral=(NULL_LITERAL | NULL_SPEC_LITERAL)
     | LEFT_BRACE dateType=(D | T | TS | DATE | TIME | TIMESTAMP) stringLiteral RIGHT_BRACE
-    ;
-
-
-convertedDataType
-    : typeName=(BINARY| NCHAR) lengthOneDimension?
-    | typeName=CHAR lengthOneDimension? ((CHARACTER SET | CHARSET) charsetName)?
-    | typeName=(DATE | DATETIME | TIME)
-    | typeName=DECIMAL lengthTwoDimension?
-    | (SIGNED | UNSIGNED) INTEGER?
-    ;
-
-lengthOneDimension
-    : '(' decimalLiteral ')'
-    ;
-
-lengthTwoDimension
-    : '(' decimalLiteral ',' decimalLiteral ')'
-    ;
-
-lengthTwoOptionalDimension
-    : '(' decimalLiteral (',' decimalLiteral)? ')'
     ;
 
 
@@ -399,12 +372,6 @@ aggregateWindowedFunction
         BIT_AND | BIT_OR | BIT_XOR | STD | STDDEV | STDDEV_POP
         | STDDEV_SAMP | VAR_POP | VAR_SAMP | VARIANCE
       ) '(' aggregator=ALL? functionArg ')'
-    | GROUP_CONCAT '('
-        aggregator=DISTINCT? functionArgs
-        (ORDER BY
-          orderByExpression (',' orderByExpression)*
-        )? (SEPARATOR separator=STRING_LITERAL)?
-      ')'
     ;
 
 scalarFunctionName
@@ -431,7 +398,7 @@ functionArg
 expression
     : notOperator=(NOT | '!') expression                            #notExpression
     | expression logicalOperator expression                         #logicalExpression
-    | predicate IS NOT? testValue=(TRUE | FALSE | UNKNOWN | MISSING)#isExpression
+    | predicate IS NOT? testValue=(TRUE | FALSE | MISSING)          #isExpression
     | predicate                                                     #predicateExpression
     ;
 
@@ -442,9 +409,8 @@ predicate
     | predicate comparisonOperator
       quantifier=(ALL | ANY | SOME) '(' selectStatement ')'         #subqueryComparasionPredicate
     | predicate NOT? BETWEEN predicate AND predicate                #betweenPredicate
-    | predicate SOUNDS LIKE predicate                               #soundsLikePredicate
     | predicate NOT? LIKE predicate (ESCAPE STRING_LITERAL)?        #likePredicate
-    | predicate NOT? regex=(REGEXP | RLIKE) predicate               #regexpPredicate
+    | predicate NOT? regex=REGEXP predicate                         #regexpPredicate
     | (LOCAL_ID VAR_ASSIGN)? expressionAtom                         #expressionAtomPredicate
     ;
 
@@ -454,11 +420,8 @@ expressionAtom
     : constant                                                      #constantExpressionAtom
     | fullColumnName                                                #fullColumnNameExpressionAtom
     | functionCall                                                  #functionCallExpressionAtom
-    | expressionAtom COLLATE collationName                          #collateExpressionAtom
     | unaryOperator expressionAtom                                  #unaryExpressionAtom
-    | BINARY expressionAtom                                         #binaryExpressionAtom
     | '(' expression (',' expression)* ')'                          #nestedExpressionAtom
-    | ROW '(' expression (',' expression)+ ')'                      #nestedRowExpressionAtom
     | EXISTS '(' selectStatement ')'                                #existsExpessionAtom
     | '(' selectStatement ')'                                       #subqueryExpessionAtom
     | INTERVAL expression intervalType                              #intervalExpressionAtom
@@ -476,7 +439,7 @@ comparisonOperator
     ;
 
 logicalOperator
-    : AND | '&' '&' | XOR | OR | '|' '|'
+    : AND | '&' '&' | OR | '|' '|'
     ;
 
 bitOperator
@@ -500,11 +463,6 @@ charsetNameBase
     | UTF16LE | UTF32 | UTF8 | UTF8MB3 | UTF8MB4
     ;
 
-privilegesBase
-    : TABLES | ROUTINE | EXECUTE | FILE | PROCESS
-    | RELOAD | SHUTDOWN | SUPER | PRIVILEGES
-    ;
-
 intervalTypeBase
     : QUARTER | MONTH | DAY | HOUR
     | MINUTE | WEEK | SECOND | MICROSECOND
@@ -515,66 +473,12 @@ dataTypeBase
     ;
 
 keywordsCanBeId
-    : ACCOUNT | ACTION | AFTER | AGGREGATE | ALGORITHM | ANY
-    | AT | AUTHORS | AUTOCOMMIT | AUTOEXTEND_SIZE
-    | AUTO_INCREMENT | AVG_ROW_LENGTH | BEGIN | BINLOG | BIT
-    | BLOCK | BOOL | BOOLEAN | BTREE | CACHE | CASCADED | CHAIN | CHANGED
-    | CHANNEL | CHECKSUM | PAGE_CHECKSUM | CIPHER | CLIENT | CLOSE | COALESCE | CODE
-    | COLUMNS | COLUMN_FORMAT | COMMENT | COMMIT | COMPACT
-    | COMPLETION | COMPRESSED | COMPRESSION | CONCURRENT
-    | CONNECTION | CONSISTENT | CONTAINS | CONTEXT
-    | CONTRIBUTORS | COPY | CPU | DATA | DATAFILE | DEALLOCATE
-    | DEFAULT_AUTH | DEFINER | DELAY_KEY_WRITE | DES_KEY_FILE | DIRECTORY
-    | DISABLE | DISCARD | DISK | DO | DUMPFILE | DUPLICATE
-    | DYNAMIC | ENABLE | ENCRYPTION | END | ENDS | ENGINE | ENGINES
-    | ERROR | ERRORS | ESCAPE | EVEN | EVENT | EVENTS | EVERY
-    | EXCHANGE | EXCLUSIVE | EXPIRE | EXPORT | EXTENDED | EXTENT_SIZE | FAST | FAULTS
-    | FIELDS | FILE_BLOCK_SIZE | FILTER | FIRST | FIXED | FLUSH
-    | FOLLOWS | FOUND | FULL | FUNCTION | GENERAL | GLOBAL | GRANTS
-    | GROUP_REPLICATION | HANDLER | HASH | HELP | HOST | HOSTS | IDENTIFIED
-    | IGNORE_SERVER_IDS | IMPORT | INDEXES | INITIAL_SIZE
-    | INPLACE | INSERT_METHOD | INSTALL | INSTANCE | INTERNAL | INVOKER | IO
-    | IO_THREAD | IPC | ISOLATION | ISSUER | JSON | KEY_BLOCK_SIZE
-    | LANGUAGE | LAST | LEAVES | LESS | LEVEL | LIST | LOCAL
-    | LOGFILE | LOGS | MASTER | MASTER_AUTO_POSITION
-    | MASTER_CONNECT_RETRY | MASTER_DELAY
-    | MASTER_HEARTBEAT_PERIOD | MASTER_HOST | MASTER_LOG_FILE
-    | MASTER_LOG_POS | MASTER_PASSWORD | MASTER_PORT
-    | MASTER_RETRY_COUNT | MASTER_SSL | MASTER_SSL_CA
-    | MASTER_SSL_CAPATH | MASTER_SSL_CERT | MASTER_SSL_CIPHER
-    | MASTER_SSL_CRL | MASTER_SSL_CRLPATH | MASTER_SSL_KEY
-    | MASTER_TLS_VERSION | MASTER_USER
-    | MAX_CONNECTIONS_PER_HOUR | MAX_QUERIES_PER_HOUR
-    | MAX_ROWS | MAX_SIZE | MAX_UPDATES_PER_HOUR
-    | MAX_USER_CONNECTIONS | MEDIUM | MEMORY | MERGE | MID | MIGRATE
-    | MIN_ROWS | MODE | MODIFY | MUTEX | MYSQL | NAME | NAMES
-    | NCHAR | NEVER | NEXT | NO | NODEGROUP | NONE | OFFLINE | OFFSET
-    | OJ | OLD_PASSWORD | ONE | ONLINE | ONLY | OPEN | OPTIMIZER_COSTS
-    | OPTIONS | OWNER | PACK_KEYS | PAGE | PARSER | PARTIAL
-    | PARTITIONING | PARTITIONS | PASSWORD | PHASE | PLUGINS
-    | PLUGIN_DIR | PLUGIN | PORT | PRECEDES | PREPARE | PRESERVE | PREV
-    | PROCESSLIST | PROFILE | PROFILES | PROXY | QUERY | QUICK
-    | REBUILD | RECOVER | REDO_BUFFER_SIZE | REDUNDANT
-    | RELAY | RELAYLOG | RELAY_LOG_FILE | RELAY_LOG_POS | REMOVE
-    | REORGANIZE | REPAIR | REPLICATE_DO_DB | REPLICATE_DO_TABLE
-    | REPLICATE_IGNORE_DB | REPLICATE_IGNORE_TABLE
-    | REPLICATE_REWRITE_DB | REPLICATE_WILD_DO_TABLE
-    | REPLICATE_WILD_IGNORE_TABLE | REPLICATION | RESET | RESUME
-    | RETURNS | ROLLBACK | ROLLUP | ROTATE | ROW | ROWS
-    | ROW_FORMAT | SAVEPOINT | SCHEDULE | SECURITY | SERIAL | SERVER
-    | SESSION | SHARE | SHARED | SIGNED | SIMPLE | SLAVE
-    | SLOW | SNAPSHOT | SOCKET | SOME | SONAME | SOUNDS | SOURCE
-    | SQL_AFTER_GTIDS | SQL_AFTER_MTS_GAPS | SQL_BEFORE_GTIDS
-    | SQL_BUFFER_RESULT | SQL_CACHE | SQL_NO_CACHE | SQL_THREAD
-    | START | STARTS | STATS_AUTO_RECALC | STATS_PERSISTENT
-    | STATS_SAMPLE_PAGES | STATUS | STOP | STORAGE | STRING
-    | SUBJECT | SUBPARTITION | SUBPARTITIONS | SUSPEND | SWAPS
-    | SWITCHES | TABLESPACE | TEMPORARY | TEMPTABLE | THAN | TRADITIONAL
-    | TRANSACTION | TRIGGERS | TRUNCATE | UNDEFINED | UNDOFILE
-    | UNDO_BUFFER_SIZE | UNINSTALL | UNKNOWN | UNTIL | UPGRADE | USER | USE_FRM | USER_RESOURCES
-    | VALIDATION | VALUE | VARIABLES | VIEW | WAIT | WARNINGS | WITHOUT
-    | WORK | WRAPPER | X509 | XA | XML
-    | KEY | D | T | TS // OD SQL and ODBC special
+    : ANY
+    | BOOL | BOOLEAN
+    | FULL
+    | HELP
+    | SOME
+    | D | T | TS // OD SQL and ODBC special
     | COUNT | FIELD
     ;
 

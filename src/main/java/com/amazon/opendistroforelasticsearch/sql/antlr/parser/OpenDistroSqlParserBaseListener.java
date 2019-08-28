@@ -232,18 +232,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterStraightJoin(OpenDistroSqlParser.StraightJoinContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitStraightJoin(OpenDistroSqlParser.StraightJoinContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterOuterJoin(OpenDistroSqlParser.OuterJoinContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -580,18 +568,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIndexColumnName(OpenDistroSqlParser.IndexColumnNameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitIndexColumnName(OpenDistroSqlParser.IndexColumnNameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterCharsetName(OpenDistroSqlParser.CharsetNameContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -731,54 +707,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitConstant(OpenDistroSqlParser.ConstantContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterConvertedDataType(OpenDistroSqlParser.ConvertedDataTypeContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitConvertedDataType(OpenDistroSqlParser.ConvertedDataTypeContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterLengthOneDimension(OpenDistroSqlParser.LengthOneDimensionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitLengthOneDimension(OpenDistroSqlParser.LengthOneDimensionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterLengthTwoDimension(OpenDistroSqlParser.LengthTwoDimensionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitLengthTwoDimension(OpenDistroSqlParser.LengthTwoDimensionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterLengthTwoOptionalDimension(OpenDistroSqlParser.LengthTwoOptionalDimensionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitLengthTwoOptionalDimension(OpenDistroSqlParser.LengthTwoOptionalDimensionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1000,18 +928,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterSoundsLikePredicate(OpenDistroSqlParser.SoundsLikePredicateContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitSoundsLikePredicate(OpenDistroSqlParser.SoundsLikePredicateContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterExpressionAtomPredicate(OpenDistroSqlParser.ExpressionAtomPredicateContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1120,18 +1036,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCollateExpressionAtom(OpenDistroSqlParser.CollateExpressionAtomContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitCollateExpressionAtom(OpenDistroSqlParser.CollateExpressionAtomContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterSubqueryExpessionAtom(OpenDistroSqlParser.SubqueryExpessionAtomContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1139,54 +1043,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitSubqueryExpessionAtom(OpenDistroSqlParser.SubqueryExpessionAtomContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterNestedExpressionAtom(OpenDistroSqlParser.NestedExpressionAtomContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitNestedExpressionAtom(OpenDistroSqlParser.NestedExpressionAtomContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterNestedRowExpressionAtom(OpenDistroSqlParser.NestedRowExpressionAtomContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitNestedRowExpressionAtom(OpenDistroSqlParser.NestedRowExpressionAtomContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterMathExpressionAtom(OpenDistroSqlParser.MathExpressionAtomContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitMathExpressionAtom(OpenDistroSqlParser.MathExpressionAtomContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterIntervalExpressionAtom(OpenDistroSqlParser.IntervalExpressionAtomContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitIntervalExpressionAtom(OpenDistroSqlParser.IntervalExpressionAtomContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1228,18 +1084,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterBinaryExpressionAtom(OpenDistroSqlParser.BinaryExpressionAtomContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitBinaryExpressionAtom(OpenDistroSqlParser.BinaryExpressionAtomContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterFullColumnNameExpressionAtom(OpenDistroSqlParser.FullColumnNameExpressionAtomContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1259,6 +1103,42 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitBitExpressionAtom(OpenDistroSqlParser.BitExpressionAtomContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterNestedExpressionAtom(OpenDistroSqlParser.NestedExpressionAtomContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNestedExpressionAtom(OpenDistroSqlParser.NestedExpressionAtomContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterMathExpressionAtom(OpenDistroSqlParser.MathExpressionAtomContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMathExpressionAtom(OpenDistroSqlParser.MathExpressionAtomContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterIntervalExpressionAtom(OpenDistroSqlParser.IntervalExpressionAtomContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitIntervalExpressionAtom(OpenDistroSqlParser.IntervalExpressionAtomContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1331,18 +1211,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitCharsetNameBase(OpenDistroSqlParser.CharsetNameBaseContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterPrivilegesBase(OpenDistroSqlParser.PrivilegesBaseContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitPrivilegesBase(OpenDistroSqlParser.PrivilegesBaseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -208,18 +208,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 */
 	void exitInnerJoin(OpenDistroSqlParser.InnerJoinContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code straightJoin}
-	 * labeled alternative in {@link OpenDistroSqlParser#joinPart}.
-	 * @param ctx the parse tree
-	 */
-	void enterStraightJoin(OpenDistroSqlParser.StraightJoinContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code straightJoin}
-	 * labeled alternative in {@link OpenDistroSqlParser#joinPart}.
-	 * @param ctx the parse tree
-	 */
-	void exitStraightJoin(OpenDistroSqlParser.StraightJoinContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code outerJoin}
 	 * labeled alternative in {@link OpenDistroSqlParser#joinPart}.
 	 * @param ctx the parse tree
@@ -514,16 +502,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 */
 	void exitFullColumnName(OpenDistroSqlParser.FullColumnNameContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#indexColumnName}.
-	 * @param ctx the parse tree
-	 */
-	void enterIndexColumnName(OpenDistroSqlParser.IndexColumnNameContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#indexColumnName}.
-	 * @param ctx the parse tree
-	 */
-	void exitIndexColumnName(OpenDistroSqlParser.IndexColumnNameContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link OpenDistroSqlParser#charsetName}.
 	 * @param ctx the parse tree
 	 */
@@ -643,46 +621,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitConstant(OpenDistroSqlParser.ConstantContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#convertedDataType}.
-	 * @param ctx the parse tree
-	 */
-	void enterConvertedDataType(OpenDistroSqlParser.ConvertedDataTypeContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#convertedDataType}.
-	 * @param ctx the parse tree
-	 */
-	void exitConvertedDataType(OpenDistroSqlParser.ConvertedDataTypeContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#lengthOneDimension}.
-	 * @param ctx the parse tree
-	 */
-	void enterLengthOneDimension(OpenDistroSqlParser.LengthOneDimensionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#lengthOneDimension}.
-	 * @param ctx the parse tree
-	 */
-	void exitLengthOneDimension(OpenDistroSqlParser.LengthOneDimensionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#lengthTwoDimension}.
-	 * @param ctx the parse tree
-	 */
-	void enterLengthTwoDimension(OpenDistroSqlParser.LengthTwoDimensionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#lengthTwoDimension}.
-	 * @param ctx the parse tree
-	 */
-	void exitLengthTwoDimension(OpenDistroSqlParser.LengthTwoDimensionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#lengthTwoOptionalDimension}.
-	 * @param ctx the parse tree
-	 */
-	void enterLengthTwoOptionalDimension(OpenDistroSqlParser.LengthTwoOptionalDimensionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#lengthTwoOptionalDimension}.
-	 * @param ctx the parse tree
-	 */
-	void exitLengthTwoOptionalDimension(OpenDistroSqlParser.LengthTwoOptionalDimensionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link OpenDistroSqlParser#uidList}.
 	 * @param ctx the parse tree
@@ -882,18 +820,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 */
 	void exitPredicateExpression(OpenDistroSqlParser.PredicateExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code soundsLikePredicate}
-	 * labeled alternative in {@link OpenDistroSqlParser#predicate}.
-	 * @param ctx the parse tree
-	 */
-	void enterSoundsLikePredicate(OpenDistroSqlParser.SoundsLikePredicateContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code soundsLikePredicate}
-	 * labeled alternative in {@link OpenDistroSqlParser#predicate}.
-	 * @param ctx the parse tree
-	 */
-	void exitSoundsLikePredicate(OpenDistroSqlParser.SoundsLikePredicateContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code expressionAtomPredicate}
 	 * labeled alternative in {@link OpenDistroSqlParser#predicate}.
 	 * @param ctx the parse tree
@@ -1002,18 +928,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 */
 	void exitUnaryExpressionAtom(OpenDistroSqlParser.UnaryExpressionAtomContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code collateExpressionAtom}
-	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
-	 * @param ctx the parse tree
-	 */
-	void enterCollateExpressionAtom(OpenDistroSqlParser.CollateExpressionAtomContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code collateExpressionAtom}
-	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
-	 * @param ctx the parse tree
-	 */
-	void exitCollateExpressionAtom(OpenDistroSqlParser.CollateExpressionAtomContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code subqueryExpessionAtom}
 	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
 	 * @param ctx the parse tree
@@ -1025,54 +939,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSubqueryExpessionAtom(OpenDistroSqlParser.SubqueryExpessionAtomContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code nestedExpressionAtom}
-	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
-	 * @param ctx the parse tree
-	 */
-	void enterNestedExpressionAtom(OpenDistroSqlParser.NestedExpressionAtomContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code nestedExpressionAtom}
-	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
-	 * @param ctx the parse tree
-	 */
-	void exitNestedExpressionAtom(OpenDistroSqlParser.NestedExpressionAtomContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code nestedRowExpressionAtom}
-	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
-	 * @param ctx the parse tree
-	 */
-	void enterNestedRowExpressionAtom(OpenDistroSqlParser.NestedRowExpressionAtomContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code nestedRowExpressionAtom}
-	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
-	 * @param ctx the parse tree
-	 */
-	void exitNestedRowExpressionAtom(OpenDistroSqlParser.NestedRowExpressionAtomContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code mathExpressionAtom}
-	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
-	 * @param ctx the parse tree
-	 */
-	void enterMathExpressionAtom(OpenDistroSqlParser.MathExpressionAtomContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code mathExpressionAtom}
-	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
-	 * @param ctx the parse tree
-	 */
-	void exitMathExpressionAtom(OpenDistroSqlParser.MathExpressionAtomContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code intervalExpressionAtom}
-	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
-	 * @param ctx the parse tree
-	 */
-	void enterIntervalExpressionAtom(OpenDistroSqlParser.IntervalExpressionAtomContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code intervalExpressionAtom}
-	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
-	 * @param ctx the parse tree
-	 */
-	void exitIntervalExpressionAtom(OpenDistroSqlParser.IntervalExpressionAtomContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code existsExpessionAtom}
 	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
@@ -1110,18 +976,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 */
 	void exitFunctionCallExpressionAtom(OpenDistroSqlParser.FunctionCallExpressionAtomContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code binaryExpressionAtom}
-	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
-	 * @param ctx the parse tree
-	 */
-	void enterBinaryExpressionAtom(OpenDistroSqlParser.BinaryExpressionAtomContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code binaryExpressionAtom}
-	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
-	 * @param ctx the parse tree
-	 */
-	void exitBinaryExpressionAtom(OpenDistroSqlParser.BinaryExpressionAtomContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code fullColumnNameExpressionAtom}
 	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
 	 * @param ctx the parse tree
@@ -1145,6 +999,42 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitBitExpressionAtom(OpenDistroSqlParser.BitExpressionAtomContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code nestedExpressionAtom}
+	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
+	 * @param ctx the parse tree
+	 */
+	void enterNestedExpressionAtom(OpenDistroSqlParser.NestedExpressionAtomContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code nestedExpressionAtom}
+	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
+	 * @param ctx the parse tree
+	 */
+	void exitNestedExpressionAtom(OpenDistroSqlParser.NestedExpressionAtomContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code mathExpressionAtom}
+	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
+	 * @param ctx the parse tree
+	 */
+	void enterMathExpressionAtom(OpenDistroSqlParser.MathExpressionAtomContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code mathExpressionAtom}
+	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
+	 * @param ctx the parse tree
+	 */
+	void exitMathExpressionAtom(OpenDistroSqlParser.MathExpressionAtomContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code intervalExpressionAtom}
+	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
+	 * @param ctx the parse tree
+	 */
+	void enterIntervalExpressionAtom(OpenDistroSqlParser.IntervalExpressionAtomContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code intervalExpressionAtom}
+	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
+	 * @param ctx the parse tree
+	 */
+	void exitIntervalExpressionAtom(OpenDistroSqlParser.IntervalExpressionAtomContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link OpenDistroSqlParser#unaryOperator}.
 	 * @param ctx the parse tree
@@ -1205,16 +1095,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCharsetNameBase(OpenDistroSqlParser.CharsetNameBaseContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#privilegesBase}.
-	 * @param ctx the parse tree
-	 */
-	void enterPrivilegesBase(OpenDistroSqlParser.PrivilegesBaseContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#privilegesBase}.
-	 * @param ctx the parse tree
-	 */
-	void exitPrivilegesBase(OpenDistroSqlParser.PrivilegesBaseContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link OpenDistroSqlParser#intervalTypeBase}.
 	 * @param ctx the parse tree

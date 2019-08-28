@@ -129,13 +129,6 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitInnerJoin(OpenDistroSqlParser.InnerJoinContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code straightJoin}
-	 * labeled alternative in {@link OpenDistroSqlParser#joinPart}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitStraightJoin(OpenDistroSqlParser.StraightJoinContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code outerJoin}
 	 * labeled alternative in {@link OpenDistroSqlParser#joinPart}.
 	 * @param ctx the parse tree
@@ -311,12 +304,6 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFullColumnName(OpenDistroSqlParser.FullColumnNameContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#indexColumnName}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitIndexColumnName(OpenDistroSqlParser.IndexColumnNameContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link OpenDistroSqlParser#charsetName}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -388,30 +375,6 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitConstant(OpenDistroSqlParser.ConstantContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#convertedDataType}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitConvertedDataType(OpenDistroSqlParser.ConvertedDataTypeContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#lengthOneDimension}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitLengthOneDimension(OpenDistroSqlParser.LengthOneDimensionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#lengthTwoDimension}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitLengthTwoDimension(OpenDistroSqlParser.LengthTwoDimensionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#lengthTwoOptionalDimension}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitLengthTwoOptionalDimension(OpenDistroSqlParser.LengthTwoOptionalDimensionContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link OpenDistroSqlParser#uidList}.
 	 * @param ctx the parse tree
@@ -530,13 +493,6 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitPredicateExpression(OpenDistroSqlParser.PredicateExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code soundsLikePredicate}
-	 * labeled alternative in {@link OpenDistroSqlParser#predicate}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSoundsLikePredicate(OpenDistroSqlParser.SoundsLikePredicateContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code expressionAtomPredicate}
 	 * labeled alternative in {@link OpenDistroSqlParser#predicate}.
 	 * @param ctx the parse tree
@@ -600,47 +556,12 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitUnaryExpressionAtom(OpenDistroSqlParser.UnaryExpressionAtomContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code collateExpressionAtom}
-	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCollateExpressionAtom(OpenDistroSqlParser.CollateExpressionAtomContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code subqueryExpessionAtom}
 	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitSubqueryExpessionAtom(OpenDistroSqlParser.SubqueryExpessionAtomContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code nestedExpressionAtom}
-	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitNestedExpressionAtom(OpenDistroSqlParser.NestedExpressionAtomContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code nestedRowExpressionAtom}
-	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitNestedRowExpressionAtom(OpenDistroSqlParser.NestedRowExpressionAtomContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code mathExpressionAtom}
-	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitMathExpressionAtom(OpenDistroSqlParser.MathExpressionAtomContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code intervalExpressionAtom}
-	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitIntervalExpressionAtom(OpenDistroSqlParser.IntervalExpressionAtomContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code existsExpessionAtom}
 	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
@@ -663,13 +584,6 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFunctionCallExpressionAtom(OpenDistroSqlParser.FunctionCallExpressionAtomContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code binaryExpressionAtom}
-	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitBinaryExpressionAtom(OpenDistroSqlParser.BinaryExpressionAtomContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code fullColumnNameExpressionAtom}
 	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
 	 * @param ctx the parse tree
@@ -683,6 +597,27 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitBitExpressionAtom(OpenDistroSqlParser.BitExpressionAtomContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code nestedExpressionAtom}
+	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNestedExpressionAtom(OpenDistroSqlParser.NestedExpressionAtomContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code mathExpressionAtom}
+	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMathExpressionAtom(OpenDistroSqlParser.MathExpressionAtomContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code intervalExpressionAtom}
+	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIntervalExpressionAtom(OpenDistroSqlParser.IntervalExpressionAtomContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link OpenDistroSqlParser#unaryOperator}.
 	 * @param ctx the parse tree
@@ -719,12 +654,6 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitCharsetNameBase(OpenDistroSqlParser.CharsetNameBaseContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#privilegesBase}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitPrivilegesBase(OpenDistroSqlParser.PrivilegesBaseContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link OpenDistroSqlParser#intervalTypeBase}.
 	 * @param ctx the parse tree

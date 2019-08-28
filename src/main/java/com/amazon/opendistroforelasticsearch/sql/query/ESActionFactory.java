@@ -73,7 +73,7 @@ public class ESActionFactory {
 
         switch (getFirstWord(sql)) {
             case "SELECT":
-                // Perform analysis for SELECT only now because of extra code changes required for SHOW/DESCRIBE.
+                // Perform analysis for SELECT only for now because of extra code changes required for SHOW/DESCRIBE.
                 performAnalysis(sql);
 
                 SQLQueryExpr sqlExpr = (SQLQueryExpr) toSqlExpr(sql);
