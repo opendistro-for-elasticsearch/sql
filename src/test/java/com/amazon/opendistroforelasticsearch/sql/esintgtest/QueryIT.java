@@ -105,6 +105,80 @@ public class QueryIT extends SQLIntegTestCase {
     }
 
     @Test
+    public void selectAllWithFieldReturnsAll() throws IOException {
+        JSONObject response = executeQuery(StringUtils.format(
+                "SELECT *, age " +
+                "FROM %s/account " +
+                "LIMIT 5",
+                TestsConstants.TEST_INDEX_BANK
+        ));
+
+        checkSelectAllAndFieldResponseSize(response);
+    }
+
+    @Test
+    public void selectAllWithFieldReverseOrder() throws IOException {
+        JSONObject response = executeQuery(StringUtils.format(
+                "SELECT age, * " +
+                "FROM %s/account " +
+                "LIMIT 5",
+                TestsConstants.TEST_INDEX_BANK
+        ));
+
+        checkSelectAllAndFieldResponseSize(response);
+    }
+
+    @Test
+    public void selectAllWithMultipleFields() throws IOException {
+        JSONObject response = executeQuery(StringUtils.format(
+                "SELECT age, *, address " +
+                "FROM %s/account " +
+                "LIMIT 5",
+                TestsConstants.TEST_INDEX_BANK
+        ));
+
+        checkSelectAllAndFieldResponseSize(response);
+    }
+
+    @Test
+    public void selectAllWithFieldAndOrderBy() throws IOException {
+        JSONObject response = executeQuery(StringUtils.format(
+                "SELECT *, age " +
+                "FROM %s/account " +
+                "ORDER BY age " +
+                "LIMIT 5",
+                TestsConstants.TEST_INDEX_BANK
+        ));
+
+        checkSelectAllAndFieldResponseSize(response);
+    }
+
+    @Test
+    public void selectAllWithFieldAndGroupBy() throws IOException {
+        JSONObject response = executeQuery(StringUtils.format(
+                "SELECT *, age " +
+                "FROM %s/account " +
+                "GROUP BY age " +
+                "LIMIT 10",
+                TestsConstants.TEST_INDEX_BANK
+        ));
+
+        checkSelectAllAndFieldAggregationResponseSize(response, "age");
+    }
+
+    @Test
+    public void selectAllWithFieldAndGroupByReverseOrder() throws IOException {
+        JSONObject response = executeQuery(StringUtils.format(
+                "SELECT age, * " +
+                "FROM %s/account " +
+                "GROUP BY age " +
+                "LIMIT 10",
+                TestsConstants.TEST_INDEX_BANK
+        ));
+
+        checkSelectAllAndFieldAggregationResponseSize(response, "age");
+    }
+
     public void indexWithWildcardTest() throws IOException {
         JSONObject response = executeQuery(String.format(Locale.ROOT, "SELECT * FROM %s* LIMIT 1000",
                 TestsConstants.TEST_INDEX_BANK));
@@ -1526,5 +1600,24 @@ public class QueryIT extends SQLIntegTestCase {
     private void checkAggregationResponseSize(JSONObject response, int sizeCheck) {
         JSONArray queryResponse = (JSONArray)response.query("/aggregations/balance/buckets");
         Assert.assertThat(queryResponse.length(), equalTo(sizeCheck));
+    }
+
+    private void checkSelectAllAndFieldResponseSize(JSONObject response) {
+        String[] arr = new String[] {"account_number", "firstname", "address", "birthdate", "gender", "city", "lastname",
+                "balance", "employer", "state", "age", "email", "male"};
+        Set<String> expectedSource = new HashSet<>(Arrays.asList(arr));
+
+        JSONArray hits = getHits(response);
+        Assert.assertTrue(hits.length() > 0);
+        for (int i = 0; i < hits.length(); ++i) {
+            JSONObject hit = hits.getJSONObject(i);
+            Assert.assertEquals(expectedSource, getSource(hit).keySet());
+        }
+    }
+
+    private void checkSelectAllAndFieldAggregationResponseSize(JSONObject response, String field) {
+        JSONObject fieldAgg = (response.getJSONObject("aggregations")).getJSONObject(field);
+        JSONArray buckets = fieldAgg.getJSONArray("buckets");
+        Assert.assertTrue(buckets.length() == 6);
     }
 }

@@ -28,20 +28,24 @@ import com.amazon.opendistroforelasticsearch.sql.query.AggregationQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.maker.QueryMaker;
 import com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.lucene.BytesRefs;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.common.lucene.BytesRefs;
 import org.elasticsearch.index.query.RangeQueryBuilder;
-import org.hamcrest.*;
+import org.hamcrest.Matcher;
 import org.json.JSONObject;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
 import static com.amazon.opendistroforelasticsearch.sql.util.HasFieldWithValue.hasFieldWithValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasProperty;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 
 public class DateFormatTest {
