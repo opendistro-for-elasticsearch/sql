@@ -268,7 +268,6 @@ public class NestedFieldQueryIT extends SQLIntegTestCase {
         assertThat(explain, containsString("{\"bool\":{\"must_not\":[{\"nested\":{\"query\":" +
             "{\"exists\":{\"field\":\"projects\",\"boost\":1.0}},\"path\":\"projects\""));
 
-        assertThat(explain, containsString("\"_source\":{\"includes\":[]"));
         assertThat(explain, containsString("\"_source\":{\"includes\":[\"projects.*\""));
 
         JSONObject results = executeQuery(sql);

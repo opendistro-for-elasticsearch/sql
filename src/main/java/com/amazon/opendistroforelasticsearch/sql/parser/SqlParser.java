@@ -54,6 +54,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.amazon.opendistroforelasticsearch.sql.utils.Util.NESTED_JOIN_TYPE;
+
 
 /**
  * es sql support
@@ -79,8 +81,8 @@ public class SqlParser {
         Select select = new Select();
         WhereParser whereParser = new WhereParser(this, query);
 
-        if (query.getAttribute("NestedJoinType") != null) {
-            select.setNestedJoinType((SQLJoinTableSource.JoinType) query.getAttribute("NestedJoinType"));
+        if (query.getAttribute(NESTED_JOIN_TYPE) != null) {
+            select.setNestedJoinType((SQLJoinTableSource.JoinType) query.getAttribute(NESTED_JOIN_TYPE));
         }
 
         findSelect(query, select, query.getFrom().getAlias());

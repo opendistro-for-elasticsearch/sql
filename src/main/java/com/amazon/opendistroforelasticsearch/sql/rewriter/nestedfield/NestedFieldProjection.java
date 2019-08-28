@@ -16,7 +16,8 @@
 package com.amazon.opendistroforelasticsearch.sql.rewriter.nestedfield;
 
 import com.amazon.opendistroforelasticsearch.sql.domain.Field;
-import com.amazon.opendistroforelasticsearch.sql.domain.Select;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.VerificationException;
+import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -48,11 +49,9 @@ import static com.alibaba.druid.sql.ast.statement.SQLJoinTableSource.JoinType;
 public class NestedFieldProjection {
 
     private final SearchRequestBuilder request;
-    private Select select;
 
-    public NestedFieldProjection(SearchRequestBuilder request, Select select) {
+    public NestedFieldProjection(SearchRequestBuilder request) {
         this.request = request;
-        this.select = select;
     }
 
     /**
@@ -60,20 +59,30 @@ public class NestedFieldProjection {
      *
      * @param fields list of field domain object
      */
-    public void project(List<Field> fields) {
+    public void project(List<Field> fields, JoinType nestedJoinType) {
         if (isAnyNestedField(fields)) {
             initBoolQueryFilterIfNull();
             List<NestedQueryBuilder> nestedQueries = extractNestedQueries(query());
 
-            if (select.getNestedJoinType() == JoinType.LEFT_OUTER_JOIN) {
+            if (nestedJoinType == JoinType.LEFT_OUTER_JOIN) {
                 // for LEFT JOIN on nested field as right table, the query will have only one nested field, so one path
-                Map.Entry<String, List<String>> pathToFields = groupFieldNamesByPath(fields).entrySet().
-                                                                                             iterator().
-                                                                                             next();
+                Map<String, List<String>> fieldNamesByPath = groupFieldNamesByPath(fields);
+
+                if (fieldNamesByPath.size() > 1) {
+                    String message = StringUtils.format(
+                        "only single nested field is allowed as right table for LEFT JOIN, found %s ",
+                        fieldNamesByPath.keySet()
+                    );
+
+                    throw new VerificationException(message);
+                }
+
+                Map.Entry<String, List<String>> pathToFields = fieldNamesByPath.entrySet().iterator().next();
                 String path = pathToFields.getKey();
                 List<String> fieldNames = pathToFields.getValue();
                 buildNestedLeftJoinQuery(path, fieldNames);
             } else {
+
                 groupFieldNamesByPath(fields).forEach(
                     (path, fieldNames) -> buildInnerHit(fieldNames, findNestedQueryWithSamePath(nestedQueries, path))
                 );

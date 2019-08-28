@@ -409,7 +409,7 @@ public class NestedFieldProjectionTest {
             if (select.getWhere() != null) {
                 request.setQuery(QueryMaker.explain(select.getWhere(), select.isQuery));
             }
-            new NestedFieldProjection(request, select).project(select.getFields());
+            new NestedFieldProjection(request).project(select.getFields(), select.getNestedJoinType());
             return request.request();
         }
         catch (SqlParseException e) {

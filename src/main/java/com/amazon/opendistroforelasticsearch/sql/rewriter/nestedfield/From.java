@@ -38,7 +38,7 @@ class From extends SQLClause<SQLTableSource> {
      */
     @Override
     void rewrite(Scope scope) {
-        if (!isJoinExpression()) {
+        if (!isJoin()) {
             return;
         }
 
@@ -106,7 +106,7 @@ class From extends SQLClause<SQLTableSource> {
         return expr instanceof SQLJoinTableSource && ((SQLJoinTableSource) expr).getJoinType() == COMMA;
     }
 
-    private boolean isJoinExpression() {
+    private boolean isJoin() {
         return expr instanceof SQLJoinTableSource;
     }
 

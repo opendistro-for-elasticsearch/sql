@@ -57,7 +57,6 @@ public class Select extends Query {
     private JoinType nestedJoinType = JoinType.COMMA;
 
     public boolean isQuery = false;
-    public boolean isNested = false;
     public boolean isAggregate = false;
 
     public Select() {
