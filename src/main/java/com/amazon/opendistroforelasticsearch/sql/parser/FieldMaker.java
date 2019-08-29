@@ -49,7 +49,9 @@ import java.util.List;
  * @author ansj
  */
 public class FieldMaker {
-    public static Field makeField(SQLExpr expr, String alias, String tableAlias) throws SqlParseException {
+    SQLFunctions sqlFunctions = new SQLFunctions();
+
+    public Field makeField(SQLExpr expr, String alias, String tableAlias) throws SqlParseException {
         Field field = makeFieldImpl(expr, alias, tableAlias);
 
         // why we may get null as a field???
@@ -60,7 +62,7 @@ public class FieldMaker {
         return field;
     }
 
-    private static Field makeFieldImpl(SQLExpr expr, String alias, String tableAlias) throws SqlParseException {
+    private Field makeFieldImpl(SQLExpr expr, String alias, String tableAlias) throws SqlParseException {
         if (expr instanceof SQLIdentifierExpr || expr instanceof SQLPropertyExpr || expr instanceof SQLVariantRefExpr) {
             return handleIdentifier(expr, alias, tableAlias);
         } else if (expr instanceof SQLQueryExpr) {
@@ -125,7 +127,7 @@ public class FieldMaker {
         return Util.getScriptValue(expr);
     }
 
-    private static Field makeScriptMethodField(SQLBinaryOpExpr binaryExpr, String alias, String tableAlias)
+    private Field makeScriptMethodField(SQLBinaryOpExpr binaryExpr, String alias, String tableAlias)
             throws SqlParseException {
         List<SQLExpr> params = new ArrayList<>();
 
@@ -193,13 +195,13 @@ public class FieldMaker {
 
 
     //binary method can nested
-    public static SQLMethodInvokeExpr makeBinaryMethodField(SQLBinaryOpExpr expr, String alias, boolean first)
+    public SQLMethodInvokeExpr makeBinaryMethodField(SQLBinaryOpExpr expr, String alias, boolean first)
             throws SqlParseException {
         List<SQLExpr> params = new ArrayList<>();
 
         String scriptFieldAlias;
         if (first && (alias == null || alias.equals(""))) {
-            scriptFieldAlias = SQLFunctions.randomize("field");
+            scriptFieldAlias = sqlFunctions.nextId("field");
         } else {
             scriptFieldAlias = alias;
         }
@@ -251,7 +253,7 @@ public class FieldMaker {
         return field;
     }
 
-    public static MethodField makeMethodField(String name, List<SQLExpr> arguments, SQLAggregateOption option,
+    public MethodField makeMethodField(String name, List<SQLExpr> arguments, SQLAggregateOption option,
                                               String alias, String tableAlias, boolean first) throws SqlParseException {
         List<KVValue> paramers = new LinkedList<>();
 
@@ -325,10 +327,10 @@ public class FieldMaker {
         boolean builtInScriptFunction = SQLFunctions.isFunctionTranslatedToScript(name);
         if (builtInScriptFunction) {
             if (alias == null && first) {
-                alias = SQLFunctions.randomize(name);
+                alias = sqlFunctions.nextId(name);
             }
             //should check if field and first .
-            Tuple<String, String> newFunctions = SQLFunctions.function(name.toLowerCase(), paramers,
+            Tuple<String, String> newFunctions = sqlFunctions.function(name.toLowerCase(), paramers,
                     paramers.isEmpty() ? null : paramers.get(0).key, first);
             paramers.clear();
             if (!first) {

@@ -62,7 +62,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     @Test
     public void functionFieldAliasAndGroupByAlias() throws Exception {
         String query = "SELECT " +
-                "floor(substring(address,0,3)*20) as key," +
+                "private Tuple<String, String>,0,3)*20) as key," +
                 "sum(age) cvalue FROM " + TEST_INDEX_ACCOUNT + "/account where address is not null " +
                 "group by key order by cvalue desc limit 10  ";
         final JSONObject result = executeQuery(query);

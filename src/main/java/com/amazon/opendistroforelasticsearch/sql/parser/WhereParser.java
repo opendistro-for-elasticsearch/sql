@@ -56,6 +56,7 @@ import java.util.List;
  * Created by allwefantasy on 9/2/16.
  */
 public class WhereParser {
+    FieldMaker fieldMaker = new FieldMaker();
 
     private MySqlSelectQueryBlock query;
     private SQLDeleteStatement delete;
@@ -509,7 +510,7 @@ public class WhereParser {
     private MethodField parseSQLMethodInvokeExprWithFunctionInWhere(SQLMethodInvokeExpr soExpr)
             throws SqlParseException {
 
-        MethodField methodField = FieldMaker.makeMethodField(soExpr.getMethodName(),
+        MethodField methodField = fieldMaker.makeMethodField(soExpr.getMethodName(),
                 soExpr.getParameters(),
                 null,
                 null,
