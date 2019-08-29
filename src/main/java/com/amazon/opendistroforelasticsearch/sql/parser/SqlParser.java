@@ -241,8 +241,10 @@ public class SqlParser {
             SQLExpr expr = sqlSelectOrderByItem.getExpr();
 
             if (expr instanceof SQLIdentifierExpr) {
-                if (aliasesToExpressions.containsKey(((SQLIdentifierExpr) expr).getName())) {
-                    expr = aliasesToExpressions.get(((SQLIdentifierExpr) expr).getName());
+                if (queryBlock.getGroupBy() == null || queryBlock.getGroupBy().getItems().isEmpty()) {
+                    if (aliasesToExpressions.containsKey(((SQLIdentifierExpr) expr).getName())) {
+                        expr = aliasesToExpressions.get(((SQLIdentifierExpr) expr).getName());
+                    }
                 }
             }
 

@@ -115,7 +115,6 @@ public class AliasInliningTests {
     }
 
     @Test
-    @Ignore
     public void expressionAndOrderByTest2() throws SqlParseException {
         String originalQuery =
                 "SELECT "

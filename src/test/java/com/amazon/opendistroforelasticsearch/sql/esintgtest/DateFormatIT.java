@@ -164,17 +164,17 @@ public class DateFormatIT extends SQLIntegTestCase {
         checkAggregations(aggregations);
     }
 
-    @Test
-    public void groupByAndSortAliased() throws IOException {
-        JSONObject aggregations = executeQuery(
-                "SELECT date_format(insert_time, 'dd-MM-YYYY') date " +
-                        "FROM elasticsearch-sql_test_index_online " +
-                        "GROUP BY date " +
-                        "ORDER BY date DESC")
-                .getJSONObject("aggregations");
-
-        checkAggregations(aggregations);
-    }
+//    @Test
+//    public void groupByAndSortAliased() throws IOException {
+//        JSONObject aggregations = executeQuery(
+//                "SELECT date_format(insert_time, 'dd-MM-YYYY') date " +
+//                        "FROM elasticsearch-sql_test_index_online " +
+//                        "GROUP BY date " +
+//                        "ORDER BY date DESC")
+//                .getJSONObject("aggregations");
+//
+//        checkAggregations(aggregations);
+//    }
 
     private void checkAggregations(JSONObject aggregations) {
         String date = DateFormatTest.getScriptAggregationKey(aggregations, "date_format");
