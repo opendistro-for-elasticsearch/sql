@@ -15,24 +15,21 @@
 
 package com.amazon.opendistroforelasticsearch.sql.unittest.rewriter.inline;
 
-import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
-import com.alibaba.druid.sql.parser.SQLParserUtils;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
-import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
 import com.amazon.opendistroforelasticsearch.sql.parser.SqlParser;
 import com.amazon.opendistroforelasticsearch.sql.query.AggregationQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.DefaultQueryAction;
-import com.amazon.opendistroforelasticsearch.sql.util.SqlParserUtils;
 import org.elasticsearch.client.Client;
 import org.json.JSONObject;
-import org.junit.Ignore;
 import org.junit.Test;
-
-import java.io.IOException;
 
 import static com.amazon.opendistroforelasticsearch.sql.util.SqlParserUtils.parse;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.Matchers.isNotNull;
+import static org.mockito.Matchers.isNull;
+import static org.mockito.Matchers.notNull;
 import static org.mockito.Mockito.mock;
 
 public class AliasInliningTests {
@@ -93,13 +90,17 @@ public class AliasInliningTests {
 
     @Test
     public void groupByAndSortAliased() throws SqlParseException {
-        JSONObject parsedQuery = new JSONObject(parseAsAggregationQuery(
+        String dsl = parseAsAggregationQuery(
                 "SELECT date_format(utc_time, 'dd-MM-YYYY') date " +
                         "FROM kibana_sample_data_logs " +
                         "GROUP BY date " +
-                        "ORDER BY date DESC"));
+                        "ORDER BY date DESC");
+        
+        JSONObject parsedQuery = new JSONObject(dsl);
 
+        JSONObject query = (JSONObject)parsedQuery.query("/aggregations/date/terms/script");
 
+        assertThat(query, notNullValue());
     }
 
 
