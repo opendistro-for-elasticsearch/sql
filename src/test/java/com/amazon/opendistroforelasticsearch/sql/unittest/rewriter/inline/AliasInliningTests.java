@@ -79,36 +79,17 @@ public class AliasInliningTests {
 
         String originalDsl = parseAsAggregationQuery(originalQuery);
 
-        System.out.println(originalDsl);
-
         String rewrittenQuery = "SELECT utc_time date " +
                 "FROM kibana_sample_data_logs " +
                 "GROUP BY utc_time DESC";
 
         String rewrittenDsl = parseAsAggregationQuery(rewrittenQuery);
 
-        System.out.println(rewrittenDsl);
         assertThat(originalDsl, equalTo(rewrittenDsl));
     }
 
     private String parseAsAggregationQuery(String originalQuery) throws SqlParseException {
         return new AggregationQueryAction(mock(Client.class),
                 new SqlParser().parseSelect(parse(originalQuery))).explain().explain();
-    }
-
-    @Test
-    public void groupByAliasedExpressionTest() throws SqlParseException {
-        String originalQuery = "SELECT date_format(utc_time, 'dd-MM-YYYY') date " +
-                "FROM kibana_sample_data_logs " +
-                "GROUP BY date";
-
-        String originalDsl = parseAsAggregationQuery(originalQuery);
-
-        String rewrittenQuery = "SELECT date_format(utc_time, 'dd-MM-YYYY') date " +
-                        "FROM kibana_sample_data_logs " +
-                        "GROUP BY date_format(utc_time, 'dd-MM-YYYY')";
-
-        String rewrittenDsl = parseAsAggregationQuery(rewrittenQuery);
-        assertThat(originalDsl, equalTo(rewrittenDsl));
     }
 }
