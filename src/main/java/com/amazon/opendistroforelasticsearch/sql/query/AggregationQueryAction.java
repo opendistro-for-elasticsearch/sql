@@ -247,6 +247,12 @@ public class AggregationQueryAction extends QueryAction {
         }
 
         if (!refrence) {
+            for (Field f: select.getFields()) {
+                if (f.getAlias()!=null && f.getAlias().equals(field.getName())) {
+                    field = f;
+                }
+            }
+
             lastAgg = aggMaker.makeGroupAgg(field);
         }
 
