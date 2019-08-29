@@ -568,42 +568,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCharsetName(OpenDistroSqlParser.CharsetNameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitCharsetName(OpenDistroSqlParser.CharsetNameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterCollationName(OpenDistroSqlParser.CollationNameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitCollationName(OpenDistroSqlParser.CollationNameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterEngineName(OpenDistroSqlParser.EngineNameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitEngineName(OpenDistroSqlParser.EngineNameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterUid(OpenDistroSqlParser.UidContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -791,18 +755,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitScalarFunctionCall(OpenDistroSqlParser.ScalarFunctionCallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterSimpleFunctionCall(OpenDistroSqlParser.SimpleFunctionCallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitSimpleFunctionCall(OpenDistroSqlParser.SimpleFunctionCallContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

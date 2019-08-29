@@ -138,7 +138,7 @@ minusStatement
 // details
 
 selectSpec
-    : (ALL | DISTINCT | DISTINCTROW)
+    : (ALL | DISTINCT)
     ;
 
 selectElements
@@ -149,7 +149,7 @@ selectElement
     : fullId '.' '*'                                                #selectStarElement
     | fullColumnName (AS? uid)?                                     #selectColumnElement
     | functionCall (AS? uid)?                                       #selectFunctionElement
-    | (LOCAL_ID VAR_ASSIGN)? expression (AS? uid)?                  #selectExpressionElement
+    | expression (AS? uid)?                                         #selectExpressionElement
     | NESTED '(' fullId DOT STAR ')'                                #selectNestedStarElement
     ;
 
@@ -241,24 +241,6 @@ fullColumnName
     : uid (dottedId dottedId? )?
     ;
 
-charsetName
-    : BINARY
-    | charsetNameBase
-    | STRING_LITERAL
-    | CHARSET_REVERSE_QOUTE_STRING
-    ;
-
-collationName
-    : uid | STRING_LITERAL;
-
-engineName
-    : ARCHIVE | BLACKHOLE | CSV | FEDERATED | INNODB | MEMORY
-    | MRG_MYISAM | MYISAM | NDB | NDBCLUSTER | PERFORMANCE_SCHEMA
-    | TOKUDB
-    | ID
-    | STRING_LITERAL | REVERSE_QUOTE_ID
-    ;
-
 uid
     : simpleId
     //| DOUBLE_QUOTE_ID
@@ -268,9 +250,8 @@ uid
 
 simpleId
     : ID
-    //| STRING_LITERAL
+    | STRING_LITERAL
     | charsetNameBase
-    | engineName
     | intervalTypeBase
     | dataTypeBase
     | keywordsCanBeId
@@ -297,7 +278,7 @@ stringLiteral
     | (
         STRING_CHARSET_NAME? STRING_LITERAL
         | START_NATIONAL_STRING_LITERAL
-      ) (COLLATE collationName)?
+      )
     ;
 
 booleanLiteral
@@ -348,11 +329,7 @@ functionCall
     ;
 
 specificFunction
-    : (
-      CURRENT_DATE | CURRENT_TIME | CURRENT_TIMESTAMP
-      | CURRENT_USER | LOCALTIME
-      )                                                             #simpleFunctionCall
-    | CASE expression caseFuncAlternative+
+    : CASE expression caseFuncAlternative+
       (ELSE elseArg=functionArg)? END                               #caseFunctionCall
     | CASE caseFuncAlternative+
       (ELSE elseArg=functionArg)? END                               #caseFunctionCall
@@ -411,7 +388,7 @@ predicate
     | predicate NOT? BETWEEN predicate AND predicate                #betweenPredicate
     | predicate NOT? LIKE predicate (ESCAPE STRING_LITERAL)?        #likePredicate
     | predicate NOT? regex=REGEXP predicate                         #regexpPredicate
-    | (LOCAL_ID VAR_ASSIGN)? expressionAtom                         #expressionAtomPredicate
+    | expressionAtom                                                #expressionAtomPredicate
     ;
 
 
@@ -478,8 +455,8 @@ keywordsCanBeId
     | FULL
     | HELP
     | SOME
-    | D | T | TS // OD SQL and ODBC special
-    | COUNT | FIELD
+    | FIELD | D | T | TS // OD SQL and ODBC special
+    | COUNT | MIN | MAX | AVG | SUM
     ;
 
 functionNameBase

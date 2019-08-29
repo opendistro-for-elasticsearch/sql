@@ -304,24 +304,6 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFullColumnName(OpenDistroSqlParser.FullColumnNameContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#charsetName}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCharsetName(OpenDistroSqlParser.CharsetNameContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#collationName}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCollationName(OpenDistroSqlParser.CollationNameContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#engineName}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitEngineName(OpenDistroSqlParser.EngineNameContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link OpenDistroSqlParser#uid}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -420,13 +402,6 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitScalarFunctionCall(OpenDistroSqlParser.ScalarFunctionCallContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code simpleFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSimpleFunctionCall(OpenDistroSqlParser.SimpleFunctionCallContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code caseFunctionCall}
 	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.

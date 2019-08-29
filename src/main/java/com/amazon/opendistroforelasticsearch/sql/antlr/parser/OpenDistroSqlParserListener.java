@@ -502,36 +502,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 */
 	void exitFullColumnName(OpenDistroSqlParser.FullColumnNameContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#charsetName}.
-	 * @param ctx the parse tree
-	 */
-	void enterCharsetName(OpenDistroSqlParser.CharsetNameContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#charsetName}.
-	 * @param ctx the parse tree
-	 */
-	void exitCharsetName(OpenDistroSqlParser.CharsetNameContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#collationName}.
-	 * @param ctx the parse tree
-	 */
-	void enterCollationName(OpenDistroSqlParser.CollationNameContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#collationName}.
-	 * @param ctx the parse tree
-	 */
-	void exitCollationName(OpenDistroSqlParser.CollationNameContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#engineName}.
-	 * @param ctx the parse tree
-	 */
-	void enterEngineName(OpenDistroSqlParser.EngineNameContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#engineName}.
-	 * @param ctx the parse tree
-	 */
-	void exitEngineName(OpenDistroSqlParser.EngineNameContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link OpenDistroSqlParser#uid}.
 	 * @param ctx the parse tree
 	 */
@@ -697,18 +667,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitScalarFunctionCall(OpenDistroSqlParser.ScalarFunctionCallContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code simpleFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
-	 * @param ctx the parse tree
-	 */
-	void enterSimpleFunctionCall(OpenDistroSqlParser.SimpleFunctionCallContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code simpleFunctionCall}
-	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
-	 * @param ctx the parse tree
-	 */
-	void exitSimpleFunctionCall(OpenDistroSqlParser.SimpleFunctionCallContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code caseFunctionCall}
 	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
