@@ -161,7 +161,19 @@ public class DateFormatIT extends SQLIntegTestCase {
                         "ORDER BY date_format(insert_time, 'dd-MM-YYYY') DESC")
                 .getJSONObject("aggregations");
 
-        checkAggregations(aggregations);
+        checkAggregations(aggregations, "date_format", Ordering.natural().reverse());
+    }
+
+    @Test
+    public void groupByAndSortAliasedReversed() throws IOException {
+        JSONObject aggregations = executeQuery(
+                "SELECT date_format(insert_time, 'dd-MM-YYYY') date " +
+                        "FROM elasticsearch-sql_test_index_online " +
+                        "GROUP BY date " +
+                        "ORDER BY date DESC")
+                .getJSONObject("aggregations");
+
+        checkAggregations(aggregations, "date", Ordering.natural().reverse());
     }
 
     @Test
@@ -170,14 +182,14 @@ public class DateFormatIT extends SQLIntegTestCase {
                 "SELECT date_format(insert_time, 'dd-MM-YYYY') date " +
                         "FROM elasticsearch-sql_test_index_online " +
                         "GROUP BY date " +
-                        "ORDER BY date DESC")
+                        "ORDER BY date ")
                 .getJSONObject("aggregations");
 
-        checkAggregations(aggregations);
+        checkAggregations(aggregations, "date", Ordering.natural());
     }
 
-    private void checkAggregations(JSONObject aggregations) {
-        String date = DateFormatTest.getScriptAggregationKey(aggregations, "date_format");
+    private void checkAggregations(JSONObject aggregations, String key, Ordering<Comparable> ordering) {
+        String date = DateFormatTest.getScriptAggregationKey(aggregations, key);
         JSONArray buckets = aggregations.getJSONObject(date).getJSONArray("buckets");
 
         assertThat(buckets.length(), is(8));
@@ -187,7 +199,7 @@ public class DateFormatIT extends SQLIntegTestCase {
                 .collect(Collectors.toList());
 
         assertTrue("The query result must be sorted by date in descending order",
-                Ordering.natural().reverse().isOrdered(aggregationSortKeys));
+                ordering.isOrdered(aggregationSortKeys));
     }
 
     private Set<Object> dateQuery(String sql) throws SqlParseException {

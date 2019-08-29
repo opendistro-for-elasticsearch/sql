@@ -65,19 +65,20 @@ public class WhereParser {
 
     public WhereParser(SqlParser sqlParser, MySqlSelectQueryBlock query, FieldMaker fieldMaker) {
         this.sqlParser = sqlParser;
-        this.query = query;
         this.where = query.getWhere();
+
+        this.query = query;
         this.fieldMaker = fieldMaker;
     }
 
     public WhereParser(SqlParser sqlParser, SQLDeleteStatement delete) {
-        this.sqlParser = sqlParser;
+        this(sqlParser, delete.getWhere());
+
         this.delete = delete;
-        this.where = delete.getWhere();
     }
 
     public WhereParser(SqlParser sqlParser, SQLExpr expr) {
-        this.sqlParser = sqlParser;
+        this(sqlParser);
         this.where = expr;
     }
 
