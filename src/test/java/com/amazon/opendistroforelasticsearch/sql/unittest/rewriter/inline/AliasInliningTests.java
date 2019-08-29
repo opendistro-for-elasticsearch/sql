@@ -95,7 +95,7 @@ public class AliasInliningTests {
                         "FROM kibana_sample_data_logs " +
                         "GROUP BY date " +
                         "ORDER BY date DESC");
-        
+
         JSONObject parsedQuery = new JSONObject(dsl);
 
         JSONObject query = (JSONObject)parsedQuery.query("/aggregations/date/terms/script");
