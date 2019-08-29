@@ -57,7 +57,7 @@ public class AliasInliningTests {
                 "ORDER BY date";
 
         String originalDsl =
-                new AggregationQueryAction(mock(Client.class), new SqlParser().parseSelect(parseQuery(originalQuery))).explain().explain();
+                new DefaultQueryAction(mock(Client.class), new SqlParser().parseSelect(parseQuery(originalQuery))).explain().explain();
 
         System.out.println(originalDsl);
 
@@ -66,14 +66,13 @@ public class AliasInliningTests {
                 "ORDER BY date_format(utc_time, 'dd-MM-YYYY')";
 
         String rewrittenDsl =
-                new AggregationQueryAction(mock(Client.class), new SqlParser().parseSelect(parseQuery(rewrittenQuery))).explain().explain();
+                new DefaultQueryAction(mock(Client.class), new SqlParser().parseSelect(parseQuery(rewrittenQuery))).explain().explain();
 
         System.out.println(rewrittenDsl);
         assertThat(originalDsl, equalTo(rewrittenDsl));
     }
 
     @Test
-    @Ignore("GROUP BY is not yet supported")
     public void groupByAliasedFieldTest() throws SqlParseException {
         String originalQuery = "SELECT utc_time date " +
                 "FROM kibana_sample_data_logs " +
