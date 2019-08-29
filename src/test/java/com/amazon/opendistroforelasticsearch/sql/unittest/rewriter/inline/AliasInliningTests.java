@@ -24,8 +24,11 @@ import com.amazon.opendistroforelasticsearch.sql.query.AggregationQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.DefaultQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.util.SqlParserUtils;
 import org.elasticsearch.client.Client;
+import org.json.JSONObject;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import java.io.IOException;
 
 import static com.amazon.opendistroforelasticsearch.sql.util.SqlParserUtils.parse;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -87,6 +90,16 @@ public class AliasInliningTests {
 
         assertThat(originalDsl, equalTo(rewrittenDsl));
     }
+
+    @Test
+    public void groupByAndSortAliased() throws SqlParseException {
+        System.out.println(parseAsAggregationQuery(
+                "SELECT date_format(utc_time, 'dd-MM-YYYY') date " +
+                        "FROM kibana_sample_data_logs " +
+                        "GROUP BY date " +
+                        "ORDER BY date DESC"));
+    }
+
 
     private String parseAsAggregationQuery(String originalQuery) throws SqlParseException {
         return new AggregationQueryAction(mock(Client.class),

@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class CastParser {
 
-    int id = 0;
+    private int fieldId = 0;
 
     private enum DataType {
         INT, LONG, FLOAT, DOUBLE, STRING, DATETIME
@@ -49,7 +49,7 @@ public class CastParser {
 
         String dataType = castExpr.getDataType().getName().toUpperCase();
         String fileName = String.format("doc['%s'].value", Util.expr2Object(castExpr.getExpr()));
-        String name = "field" + (++id);
+        String name = "field" + (++fieldId);
 
         try {
             if (DataType.valueOf(dataType) == DataType.INT) {

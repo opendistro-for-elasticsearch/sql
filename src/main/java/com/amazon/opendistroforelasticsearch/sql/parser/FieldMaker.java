@@ -49,7 +49,7 @@ import java.util.List;
  * @author ansj
  */
 public class FieldMaker {
-    SQLFunctions sqlFunctions = new SQLFunctions();
+    private SQLFunctions sqlFunctions = new SQLFunctions();
 
     public Field makeField(SQLExpr expr, String alias, String tableAlias) throws SqlParseException {
         Field field = makeFieldImpl(expr, alias, tableAlias);

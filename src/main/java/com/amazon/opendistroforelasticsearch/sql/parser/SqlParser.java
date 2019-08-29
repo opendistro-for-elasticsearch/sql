@@ -62,7 +62,7 @@ import java.util.stream.Collectors;
  * @author ansj
  */
 public class SqlParser {
-    FieldMaker fieldMaker = new FieldMaker();
+    private FieldMaker fieldMaker = new FieldMaker();
 
     public SqlParser() {
 
@@ -78,7 +78,7 @@ public class SqlParser {
     public Select parseSelect(MySqlSelectQueryBlock query) throws SqlParseException {
 
         Select select = new Select();
-        WhereParser whereParser = new WhereParser(this, query);
+        WhereParser whereParser = new WhereParser(this, query, fieldMaker);
 
 
         findSelect(query, select, query.getFrom().getAlias());
@@ -173,7 +173,7 @@ public class SqlParser {
     }
 
     private void findHaving(MySqlSelectQueryBlock query, Select select) throws SqlParseException {
-        select.setHaving(new Having(query.getGroupBy(), new WhereParser(this, query)));
+        select.setHaving(new Having(query.getGroupBy(), new WhereParser(this, query, fieldMaker)));
     }
 
     private List<Field> convertExprsToFields(List<? extends SQLExpr> exprs, SQLTableSource sqlTableSource)
