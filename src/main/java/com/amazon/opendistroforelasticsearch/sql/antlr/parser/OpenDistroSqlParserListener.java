@@ -432,16 +432,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 */
 	void exitSimpleDescribeStatement(OpenDistroSqlParser.SimpleDescribeStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#helpStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterHelpStatement(OpenDistroSqlParser.HelpStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#helpStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitHelpStatement(OpenDistroSqlParser.HelpStatementContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link OpenDistroSqlParser#showFilter}.
 	 * @param ctx the parse tree
 	 */
@@ -461,16 +451,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitShowSchemaEntity(OpenDistroSqlParser.ShowSchemaEntityContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#intervalType}.
-	 * @param ctx the parse tree
-	 */
-	void enterIntervalType(OpenDistroSqlParser.IntervalTypeContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#intervalType}.
-	 * @param ctx the parse tree
-	 */
-	void exitIntervalType(OpenDistroSqlParser.IntervalTypeContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link OpenDistroSqlParser#fullId}.
 	 * @param ctx the parse tree
@@ -562,16 +542,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 */
 	void exitBooleanLiteral(OpenDistroSqlParser.BooleanLiteralContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#hexadecimalLiteral}.
-	 * @param ctx the parse tree
-	 */
-	void enterHexadecimalLiteral(OpenDistroSqlParser.HexadecimalLiteralContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#hexadecimalLiteral}.
-	 * @param ctx the parse tree
-	 */
-	void exitHexadecimalLiteral(OpenDistroSqlParser.HexadecimalLiteralContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link OpenDistroSqlParser#nullNotnull}.
 	 * @param ctx the parse tree
 	 */
@@ -611,26 +581,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitExpressions(OpenDistroSqlParser.ExpressionsContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#constants}.
-	 * @param ctx the parse tree
-	 */
-	void enterConstants(OpenDistroSqlParser.ConstantsContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#constants}.
-	 * @param ctx the parse tree
-	 */
-	void exitConstants(OpenDistroSqlParser.ConstantsContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#simpleStrings}.
-	 * @param ctx the parse tree
-	 */
-	void enterSimpleStrings(OpenDistroSqlParser.SimpleStringsContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#simpleStrings}.
-	 * @param ctx the parse tree
-	 */
-	void exitSimpleStrings(OpenDistroSqlParser.SimpleStringsContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code specificFunctionCall}
 	 * labeled alternative in {@link OpenDistroSqlParser#functionCall}.
@@ -802,18 +752,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 */
 	void exitInPredicate(OpenDistroSqlParser.InPredicateContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code subqueryComparasionPredicate}
-	 * labeled alternative in {@link OpenDistroSqlParser#predicate}.
-	 * @param ctx the parse tree
-	 */
-	void enterSubqueryComparasionPredicate(OpenDistroSqlParser.SubqueryComparasionPredicateContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code subqueryComparasionPredicate}
-	 * labeled alternative in {@link OpenDistroSqlParser#predicate}.
-	 * @param ctx the parse tree
-	 */
-	void exitSubqueryComparasionPredicate(OpenDistroSqlParser.SubqueryComparasionPredicateContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code betweenPredicate}
 	 * labeled alternative in {@link OpenDistroSqlParser#predicate}.
 	 * @param ctx the parse tree
@@ -982,18 +920,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 */
 	void exitMathExpressionAtom(OpenDistroSqlParser.MathExpressionAtomContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code intervalExpressionAtom}
-	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
-	 * @param ctx the parse tree
-	 */
-	void enterIntervalExpressionAtom(OpenDistroSqlParser.IntervalExpressionAtomContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code intervalExpressionAtom}
-	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
-	 * @param ctx the parse tree
-	 */
-	void exitIntervalExpressionAtom(OpenDistroSqlParser.IntervalExpressionAtomContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link OpenDistroSqlParser#unaryOperator}.
 	 * @param ctx the parse tree
 	 */
@@ -1043,36 +969,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitMathOperator(OpenDistroSqlParser.MathOperatorContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#charsetNameBase}.
-	 * @param ctx the parse tree
-	 */
-	void enterCharsetNameBase(OpenDistroSqlParser.CharsetNameBaseContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#charsetNameBase}.
-	 * @param ctx the parse tree
-	 */
-	void exitCharsetNameBase(OpenDistroSqlParser.CharsetNameBaseContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#intervalTypeBase}.
-	 * @param ctx the parse tree
-	 */
-	void enterIntervalTypeBase(OpenDistroSqlParser.IntervalTypeBaseContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#intervalTypeBase}.
-	 * @param ctx the parse tree
-	 */
-	void exitIntervalTypeBase(OpenDistroSqlParser.IntervalTypeBaseContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#dataTypeBase}.
-	 * @param ctx the parse tree
-	 */
-	void enterDataTypeBase(OpenDistroSqlParser.DataTypeBaseContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#dataTypeBase}.
-	 * @param ctx the parse tree
-	 */
-	void exitDataTypeBase(OpenDistroSqlParser.DataTypeBaseContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link OpenDistroSqlParser#keywordsCanBeId}.
 	 * @param ctx the parse tree

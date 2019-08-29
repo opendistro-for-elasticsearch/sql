@@ -191,16 +191,12 @@ showStatement
     ;
 
 utilityStatement
-    : simpleDescribeStatement | helpStatement
+    : simpleDescribeStatement
     ;
 
 simpleDescribeStatement
     : command=DESCRIBE tableName
       (column=uid | pattern=STRING_LITERAL)?
-    ;
-
-helpStatement
-    : HELP STRING_LITERAL
     ;
 
 // details
@@ -216,14 +212,6 @@ showSchemaEntity
 
 
 // Common Clauses
-
-intervalType
-    : intervalTypeBase
-    | YEAR | YEAR_MONTH | DAY_HOUR | DAY_MINUTE
-    | DAY_SECOND | HOUR_MINUTE | HOUR_SECOND | MINUTE_SECOND
-    | SECOND_MICROSECOND | MINUTE_MICROSECOND
-    | HOUR_MICROSECOND | DAY_MICROSECOND
-    ;
 
 //    DB Objects
 
@@ -243,17 +231,12 @@ fullColumnName
 
 uid
     : simpleId
-    //| DOUBLE_QUOTE_ID
     | REVERSE_QUOTE_ID
-    | CHARSET_REVERSE_QOUTE_STRING
     ;
 
 simpleId
     : ID
     | STRING_LITERAL
-    | charsetNameBase
-    | intervalTypeBase
-    | dataTypeBase
     | keywordsCanBeId
     | functionNameBase
     ;
@@ -272,20 +255,17 @@ decimalLiteral
 
 stringLiteral
     : (
-        STRING_CHARSET_NAME? STRING_LITERAL
+        STRING_LITERAL
         | START_NATIONAL_STRING_LITERAL
       ) STRING_LITERAL+
     | (
-        STRING_CHARSET_NAME? STRING_LITERAL
+        STRING_LITERAL
         | START_NATIONAL_STRING_LITERAL
       )
     ;
 
 booleanLiteral
     : TRUE | FALSE;
-
-hexadecimalLiteral
-    : STRING_CHARSET_NAME? HEXADECIMAL_LITERAL;
 
 nullNotnull
     : NOT? (NULL_LITERAL | NULL_SPEC_LITERAL)
@@ -294,7 +274,7 @@ nullNotnull
 constant
     : stringLiteral | decimalLiteral
     | '-' decimalLiteral
-    | hexadecimalLiteral | booleanLiteral
+    | booleanLiteral
     | REAL_LITERAL | BIT_STRING
     | NOT? nullLiteral=(NULL_LITERAL | NULL_SPEC_LITERAL)
     | LEFT_BRACE dateType=(D | T | TS | DATE | TIME | TIMESTAMP) stringLiteral RIGHT_BRACE
@@ -309,14 +289,6 @@ uidList
 
 expressions
     : expression (',' expression)*
-    ;
-
-constants
-    : constant (',' constant)*
-    ;
-
-simpleStrings
-    : STRING_LITERAL (',' STRING_LITERAL)*
     ;
 
 
@@ -345,10 +317,6 @@ aggregateWindowedFunction
       '(' aggregator=(ALL | DISTINCT)? functionArg ')'
     | COUNT '(' (starArg='*' | aggregator=ALL? functionArg) ')'
     | COUNT '(' aggregator=DISTINCT functionArgs ')'
-    | (
-        BIT_AND | BIT_OR | BIT_XOR | STD | STDDEV | STDDEV_POP
-        | STDDEV_SAMP | VAR_POP | VAR_SAMP | VARIANCE
-      ) '(' aggregator=ALL? functionArg ')'
     ;
 
 scalarFunctionName
@@ -383,8 +351,6 @@ predicate
     : predicate NOT? IN '(' (selectStatement | expressions) ')'     #inPredicate
     | predicate IS nullNotnull                                      #isNullPredicate
     | left=predicate comparisonOperator right=predicate             #binaryComparasionPredicate
-    | predicate comparisonOperator
-      quantifier=(ALL | ANY | SOME) '(' selectStatement ')'         #subqueryComparasionPredicate
     | predicate NOT? BETWEEN predicate AND predicate                #betweenPredicate
     | predicate NOT? LIKE predicate (ESCAPE STRING_LITERAL)?        #likePredicate
     | predicate NOT? regex=REGEXP predicate                         #regexpPredicate
@@ -401,7 +367,6 @@ expressionAtom
     | '(' expression (',' expression)* ')'                          #nestedExpressionAtom
     | EXISTS '(' selectStatement ')'                                #existsExpessionAtom
     | '(' selectStatement ')'                                       #subqueryExpessionAtom
-    | INTERVAL expression intervalType                              #intervalExpressionAtom
     | left=expressionAtom bitOperator right=expressionAtom          #bitExpressionAtom
     | left=expressionAtom mathOperator right=expressionAtom         #mathExpressionAtom
     ;
@@ -431,38 +396,16 @@ mathOperator
 //    Simple id sets
 //     (that keyword, which can be id)
 
-charsetNameBase
-    : ARMSCII8 | ASCII | BIG5 | CP1250 | CP1251 | CP1256 | CP1257
-    | CP850 | CP852 | CP866 | CP932 | DEC8 | EUCJPMS | EUCKR
-    | GB2312 | GBK | GEOSTD8 | GREEK | HEBREW | HP8 | KEYBCS2
-    | KOI8R | KOI8U | LATIN1 | LATIN2 | LATIN5 | LATIN7 | MACCE
-    | MACROMAN | SJIS | SWE7 | TIS620 | UCS2 | UJIS | UTF16
-    | UTF16LE | UTF32 | UTF8 | UTF8MB3 | UTF8MB4
-    ;
-
-intervalTypeBase
-    : QUARTER | MONTH | DAY | HOUR
-    | MINUTE | WEEK | SECOND | MICROSECOND
-    ;
-
-dataTypeBase
-    : DATE | TIME | TIMESTAMP | DATETIME | YEAR | ENUM | TEXT
-    ;
-
 keywordsCanBeId
-    : ANY
-    | BOOL | BOOLEAN
-    | FULL
-    | HELP
-    | SOME
+    : FULL
     | FIELD | D | T | TS // OD SQL and ODBC special
     | COUNT | MIN | MAX | AVG | SUM
     ;
 
 functionNameBase
     : esFunctionNameBase
-    | ABS | | ASIN | ATAN | | CEIL | | CONCAT | CONCAT_WS
-    | COS | COSH | DATE | DATE_FORMAT | DAY | | DEGREES
+    | ABS | ASIN | ATAN | CEIL | CONCAT | CONCAT_WS
+    | COS | COSH | DATE_FORMAT | DEGREES
     | E | EXP | EXPM1 | FLOOR | LOG | LOG10 | LOG2
     | PI | POW | RADIANS //RANDOM, RINT ?
     | SIN | SINH | TAN | YEAR

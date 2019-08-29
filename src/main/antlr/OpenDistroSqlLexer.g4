@@ -69,7 +69,6 @@ LEFT:                                'LEFT';
 LIKE:                                'LIKE';
 LIMIT:                               'LIMIT';
 MATCH:                               'MATCH';
-MISSING:                             'MISSING';
 NATURAL:                             'NATURAL';
 NOT:                                 'NOT';
 NULL_LITERAL:                        'NULL';
@@ -90,87 +89,24 @@ WHERE:                               'WHERE';
 
 
 // OD SQL special keyword
+MISSING:                             'MISSING';
 EXCEPT:                              'MINUS';
-
-
-// DATA TYPE Keywords
-
-TINYINT:                             'TINYINT';
-SMALLINT:                            'SMALLINT';
-MEDIUMINT:                           'MEDIUMINT';
-INT:                                 'INT';
-INTEGER:                             'INTEGER';
-BIGINT:                              'BIGINT';
-REAL:                                'REAL';
-DOUBLE:                              'DOUBLE';
-PRECISION:                           'PRECISION';
-FLOAT:                               'FLOAT';
-DECIMAL:                             'DECIMAL';
-DEC:                                 'DEC';
-NUMERIC:                             'NUMERIC';
-DATE:                                'DATE';
-TIME:                                'TIME';
-TIMESTAMP:                           'TIMESTAMP';
-DATETIME:                            'DATETIME';
-YEAR:                                'YEAR';
-CHAR:                                'CHAR';
-VARCHAR:                             'VARCHAR';
-NVARCHAR:                            'NVARCHAR';
-NATIONAL:                            'NATIONAL';
-BINARY:                              'BINARY';
-VARBINARY:                           'VARBINARY';
-TINYBLOB:                            'TINYBLOB';
-BLOB:                                'BLOB';
-MEDIUMBLOB:                          'MEDIUMBLOB';
-LONGBLOB:                            'LONGBLOB';
-TINYTEXT:                            'TINYTEXT';
-TEXT:                                'TEXT';
-MEDIUMTEXT:                          'MEDIUMTEXT';
-LONGTEXT:                            'LONGTEXT';
-ENUM:                                'ENUM';
-VARYING:                             'VARYING';
-SERIAL:                              'SERIAL';
-
-
-// Interval type Keywords
-
-YEAR_MONTH:                          'YEAR_MONTH';
-DAY_HOUR:                            'DAY_HOUR';
-DAY_MINUTE:                          'DAY_MINUTE';
-DAY_SECOND:                          'DAY_SECOND';
-HOUR_MINUTE:                         'HOUR_MINUTE';
-HOUR_SECOND:                         'HOUR_SECOND';
-MINUTE_SECOND:                       'MINUTE_SECOND'; 
-SECOND_MICROSECOND:                  'SECOND_MICROSECOND';
-MINUTE_MICROSECOND:                  'MINUTE_MICROSECOND';
-HOUR_MICROSECOND:                    'HOUR_MICROSECOND';
-DAY_MICROSECOND:                     'DAY_MICROSECOND';
 
 
 // Group function Keywords
 
 AVG:                                 'AVG';
-BIT_AND:                             'BIT_AND';
-BIT_OR:                              'BIT_OR';
-BIT_XOR:                             'BIT_XOR';
 COUNT:                               'COUNT';
-GROUP_CONCAT:                        'GROUP_CONCAT';
 MAX:                                 'MAX';
 MIN:                                 'MIN';
-STD:                                 'STD';
-STDDEV:                              'STDDEV';
-STDDEV_POP:                          'STDDEV_POP';
-STDDEV_SAMP:                         'STDDEV_SAMP';
 SUM:                                 'SUM';
-VAR_POP:                             'VAR_POP';
-VAR_SAMP:                            'VAR_SAMP';
-VARIANCE:                            'VARIANCE';
 
 
 // Common function Keywords
 
 SUBSTRING:                           'SUBSTRING';
 TRIM:                                'TRIM';
+YEAR:                                'YEAR';
 
 
 // Keywords, but can be ID
@@ -182,70 +118,13 @@ BOOLEAN:                             'BOOLEAN';
 END:                                 'END';
 ESCAPE:                              'ESCAPE';
 FULL:                                'FULL';
-HELP:                                'HELP';
 OFFSET:                              'OFFSET';
 SOME:                                'SOME';
-
-
-// Interval type Keywords
-
-QUARTER:                             'QUARTER';
-MONTH:                               'MONTH';
-DAY:                                 'DAY';
-HOUR:                                'HOUR';
-MINUTE:                              'MINUTE';
-WEEK:                                'WEEK';
-SECOND:                              'SECOND';
-MICROSECOND:                         'MICROSECOND';
 
 
 // PRIVILEGES
 
 TABLES:                              'TABLES';
-
-
-// Charsets
-
-ARMSCII8:                            'ARMSCII8';
-ASCII:                               'ASCII';
-BIG5:                                'BIG5';
-CP1250:                              'CP1250';
-CP1251:                              'CP1251';
-CP1256:                              'CP1256';
-CP1257:                              'CP1257';
-CP850:                               'CP850';
-CP852:                               'CP852';
-CP866:                               'CP866';
-CP932:                               'CP932';
-DEC8:                                'DEC8';
-EUCJPMS:                             'EUCJPMS';
-EUCKR:                               'EUCKR';
-GB2312:                              'GB2312';
-GBK:                                 'GBK';
-GEOSTD8:                             'GEOSTD8';
-GREEK:                               'GREEK';
-HEBREW:                              'HEBREW';
-HP8:                                 'HP8';
-KEYBCS2:                             'KEYBCS2';
-KOI8R:                               'KOI8R';
-KOI8U:                               'KOI8U';
-LATIN1:                              'LATIN1';
-LATIN2:                              'LATIN2';
-LATIN5:                              'LATIN5';
-LATIN7:                              'LATIN7';
-MACCE:                               'MACCE';
-MACROMAN:                            'MACROMAN';
-SJIS:                                'SJIS';
-SWE7:                                'SWE7';
-TIS620:                              'TIS620';
-UCS2:                                'UCS2';
-UJIS:                                'UJIS';
-UTF16:                               'UTF16';
-UTF16LE:                             'UTF16LE';
-UTF32:                               'UTF32';
-UTF8:                                'UTF8';
-UTF8MB3:                             'UTF8MB3';
-UTF8MB4:                             'UTF8MB4';
 
 
 // Common function names
@@ -375,22 +254,12 @@ REVERSE_QUOTE_SYMB:                  '`';
 COLON_SYMB:                          ':';
 
 
-
-// Charsets
-
-CHARSET_REVERSE_QOUTE_STRING:        '`' CHARSET_NAME '`';
-
-
-
 // File's sizes
-
 
 FILESIZE_LITERAL:                    DEC_DIGIT+ ('K'|'M'|'G'|'T');
 
 
-
 // Literal Primitives
-
 
 START_NATIONAL_STRING_LITERAL:       'N' SQUOTA_STRING;
 STRING_LITERAL:                      DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING;
@@ -404,8 +273,6 @@ REAL_LITERAL:                        (DEC_DIGIT+)? '.' DEC_DIGIT+
                                      | DEC_DIGIT+ EXPONENT_NUM_PART;
 NULL_SPEC_LITERAL:                   '\\' 'N';
 BIT_STRING:                          BIT_STRING_L;
-STRING_CHARSET_NAME:                 '_' CHARSET_NAME;
-
 
 
 
@@ -445,16 +312,6 @@ GLOBAL_ID:                           '@' '@'
 
 
 // Fragments for Literal primitives
-
-fragment CHARSET_NAME:               ARMSCII8 | ASCII | BIG5 | BINARY | CP1250 
-                                     | CP1251 | CP1256 | CP1257 | CP850 
-                                     | CP852 | CP866 | CP932 | DEC8 | EUCJPMS 
-                                     | EUCKR | GB2312 | GBK | GEOSTD8 | GREEK 
-                                     | HEBREW | HP8 | KEYBCS2 | KOI8R | KOI8U 
-                                     | LATIN1 | LATIN2 | LATIN5 | LATIN7 
-                                     | MACCE | MACROMAN | SJIS | SWE7 | TIS620 
-                                     | UCS2 | UJIS | UTF16 | UTF16LE | UTF32 
-                                     | UTF8 | UTF8MB3 | UTF8MB4;
 
 fragment EXPONENT_NUM_PART:          'E' [-+]? DEC_DIGIT+;
 fragment ID_LITERAL:                 [A-Z_$0-9]*?[A-Z_$\-]+?[A-Z_$\-0-9]*;

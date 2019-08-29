@@ -262,12 +262,6 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitSimpleDescribeStatement(OpenDistroSqlParser.SimpleDescribeStatementContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#helpStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitHelpStatement(OpenDistroSqlParser.HelpStatementContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link OpenDistroSqlParser#showFilter}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -279,12 +273,6 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitShowSchemaEntity(OpenDistroSqlParser.ShowSchemaEntityContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#intervalType}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitIntervalType(OpenDistroSqlParser.IntervalTypeContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link OpenDistroSqlParser#fullId}.
 	 * @param ctx the parse tree
@@ -340,12 +328,6 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitBooleanLiteral(OpenDistroSqlParser.BooleanLiteralContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#hexadecimalLiteral}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitHexadecimalLiteral(OpenDistroSqlParser.HexadecimalLiteralContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link OpenDistroSqlParser#nullNotnull}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -369,18 +351,6 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitExpressions(OpenDistroSqlParser.ExpressionsContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#constants}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitConstants(OpenDistroSqlParser.ConstantsContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#simpleStrings}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSimpleStrings(OpenDistroSqlParser.SimpleStringsContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code specificFunctionCall}
 	 * labeled alternative in {@link OpenDistroSqlParser#functionCall}.
@@ -482,13 +452,6 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitInPredicate(OpenDistroSqlParser.InPredicateContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code subqueryComparasionPredicate}
-	 * labeled alternative in {@link OpenDistroSqlParser#predicate}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSubqueryComparasionPredicate(OpenDistroSqlParser.SubqueryComparasionPredicateContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code betweenPredicate}
 	 * labeled alternative in {@link OpenDistroSqlParser#predicate}.
 	 * @param ctx the parse tree
@@ -587,13 +550,6 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitMathExpressionAtom(OpenDistroSqlParser.MathExpressionAtomContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code intervalExpressionAtom}
-	 * labeled alternative in {@link OpenDistroSqlParser#expressionAtom}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitIntervalExpressionAtom(OpenDistroSqlParser.IntervalExpressionAtomContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link OpenDistroSqlParser#unaryOperator}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -623,24 +579,6 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitMathOperator(OpenDistroSqlParser.MathOperatorContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#charsetNameBase}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCharsetNameBase(OpenDistroSqlParser.CharsetNameBaseContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#intervalTypeBase}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitIntervalTypeBase(OpenDistroSqlParser.IntervalTypeBaseContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#dataTypeBase}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitDataTypeBase(OpenDistroSqlParser.DataTypeBaseContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link OpenDistroSqlParser#keywordsCanBeId}.
 	 * @param ctx the parse tree
