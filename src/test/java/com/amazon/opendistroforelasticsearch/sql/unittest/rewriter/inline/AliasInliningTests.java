@@ -27,9 +27,6 @@ import static com.amazon.opendistroforelasticsearch.sql.util.SqlParserUtils.pars
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.mockito.Matchers.isNotNull;
-import static org.mockito.Matchers.isNull;
-import static org.mockito.Matchers.notNull;
 import static org.mockito.Mockito.mock;
 
 public class AliasInliningTests {
@@ -51,13 +48,8 @@ public class AliasInliningTests {
         assertThat(originalDsl, equalTo(rewrittenDsl));
     }
 
-    private String parseAsSimpleQuery(String originalQuery) throws SqlParseException {
-        return new DefaultQueryAction(mock(Client.class), new SqlParser().parseSelect(parse(originalQuery))).explain().explain();
-    }
-
     @Test
     public void orderByAliasedScriptedField() throws SqlParseException {
-
         String originalDsl = parseAsSimpleQuery("SELECT date_format(utc_time, 'dd-MM-YYYY') date " +
                 "FROM kibana_sample_data_logs " +
                 "ORDER BY date");
@@ -103,6 +95,10 @@ public class AliasInliningTests {
         assertThat(query, notNullValue());
     }
 
+    private String parseAsSimpleQuery(String originalQuery) throws SqlParseException {
+        return new DefaultQueryAction(mock(Client.class),
+                new SqlParser().parseSelect(parse(originalQuery))).explain().explain();
+    }
 
     private String parseAsAggregationQuery(String originalQuery) throws SqlParseException {
         return new AggregationQueryAction(mock(Client.class),
