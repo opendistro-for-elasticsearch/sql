@@ -49,7 +49,7 @@ public class CastParser {
 
         String dataType = castExpr.getDataType().getName().toUpperCase();
         String fileName = String.format("doc['%s'].value", Util.expr2Object(castExpr.getExpr()));
-        String name = "field" + (++fieldId);
+        String name = "cast_field" + (++fieldId);
 
         try {
             if (DataType.valueOf(dataType) == DataType.INT) {
