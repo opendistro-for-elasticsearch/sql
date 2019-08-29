@@ -202,8 +202,6 @@ public class AggregationQueryAction extends QueryAction {
                             break;
                         case "KEY":
                             termsBuilder.order(BucketOrder.key(isASC(order)));
-                            // add the sort to the request also so the results get sorted as well
-                            request.addSort(order.getName(), SortOrder.valueOf(order.getType()));
                             break;
                         case "FIELD":
                             termsBuilder.order(BucketOrder.aggregation(order.getName(), isASC(order)));
@@ -230,29 +228,33 @@ public class AggregationQueryAction extends QueryAction {
         return new SqlElasticSearchRequestBuilder(request);
     }
 
-    private AggregationBuilder getGroupAgg(Field field, Select select) throws SqlParseException {
-        boolean refrence = false;
+    private AggregationBuilder getGroupAgg(Field groupByField, Select select) throws SqlParseException {
         AggregationBuilder lastAgg = null;
-        for (Field temp : select.getFields()) {
-            if (temp instanceof MethodField && temp.getName().equals("script")) {
-                MethodField scriptField = (MethodField) temp;
+        for (Field selectField : select.getFields()) {
+            if (selectField instanceof MethodField && selectField.getName().equals("script")) {
+                MethodField scriptField = (MethodField) selectField;
                 for (KVValue kv : scriptField.getParams()) {
-                    if (kv.value.equals(field.getName())) {
+                    if (kv.value.equals(groupByField.getName())) {
                         lastAgg = aggMaker.makeGroupAgg(scriptField);
-                        refrence = true;
                         break;
                     }
                 }
             }
         }
 
-        if (!refrence) {
-            lastAgg = aggMaker.makeGroupAgg(field);
+        if (lastAgg == null) {
+            for (Field selectField: select.getFields()) {
+                if (selectField.getAlias() != null && selectField.getAlias().equals(groupByField.getName())) {
+                    groupByField = selectField;
+                }
+            }
+
+            lastAgg = aggMaker.makeGroupAgg(groupByField);
         }
 
         // find if we have order for that aggregation. As of now only special case for script fields
-        if (field.isScriptField()) {
-            addOrderByScriptFieldIfPresent(select, (TermsAggregationBuilder) lastAgg, field.getExpression());
+        if (groupByField.isScriptField()) {
+            addOrderByScriptFieldIfPresent(select, (TermsAggregationBuilder) lastAgg, groupByField.getExpression());
         }
 
         return lastAgg;

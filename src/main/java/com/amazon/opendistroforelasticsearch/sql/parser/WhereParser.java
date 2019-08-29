@@ -56,31 +56,35 @@ import java.util.List;
  * Created by allwefantasy on 9/2/16.
  */
 public class WhereParser {
+    private FieldMaker fieldMaker;
 
     private MySqlSelectQueryBlock query;
     private SQLDeleteStatement delete;
     private SQLExpr where;
     private SqlParser sqlParser;
 
-    public WhereParser(SqlParser sqlParser, MySqlSelectQueryBlock query) {
+    public WhereParser(SqlParser sqlParser, MySqlSelectQueryBlock query, FieldMaker fieldMaker) {
         this.sqlParser = sqlParser;
-        this.query = query;
         this.where = query.getWhere();
+
+        this.query = query;
+        this.fieldMaker = fieldMaker;
     }
 
     public WhereParser(SqlParser sqlParser, SQLDeleteStatement delete) {
-        this.sqlParser = sqlParser;
+        this(sqlParser, delete.getWhere());
+
         this.delete = delete;
-        this.where = delete.getWhere();
     }
 
     public WhereParser(SqlParser sqlParser, SQLExpr expr) {
-        this.sqlParser = sqlParser;
+        this(sqlParser);
         this.where = expr;
     }
 
     public WhereParser(SqlParser sqlParser) {
         this.sqlParser = sqlParser;
+        this.fieldMaker = new FieldMaker();
     }
 
     public Where findWhere() throws SqlParseException {
@@ -509,7 +513,7 @@ public class WhereParser {
     private MethodField parseSQLMethodInvokeExprWithFunctionInWhere(SQLMethodInvokeExpr soExpr)
             throws SqlParseException {
 
-        MethodField methodField = FieldMaker.makeMethodField(soExpr.getMethodName(),
+        MethodField methodField = fieldMaker.makeMethodField(soExpr.getMethodName(),
                 soExpr.getParameters(),
                 null,
                 null,
