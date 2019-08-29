@@ -32,7 +32,7 @@ public class FieldMakerTest {
 
     private static final String TABLE_ALIAS = "t";
 
-    FieldMaker fieldMaker;
+    private FieldMaker fieldMaker;
 
     @Before
     public void init() {

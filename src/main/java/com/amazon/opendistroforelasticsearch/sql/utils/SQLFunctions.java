@@ -253,11 +253,10 @@ public class SQLFunctions {
         return functionStr;
     }
 
-    int generatedId = 0;
+    private int generatedId = 0;
 
     public String nextId(String methodName) {
-        generatedId++;
-        return methodName + "_" + generatedId;
+        return methodName + "_" + (++generatedId);
     }
 
     private static String def(String name, String value) {

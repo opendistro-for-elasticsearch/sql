@@ -93,11 +93,13 @@ public class AliasInliningTests {
 
     @Test
     public void groupByAndSortAliased() throws SqlParseException {
-        System.out.println(parseAsAggregationQuery(
+        JSONObject parsedQuery = new JSONObject(parseAsAggregationQuery(
                 "SELECT date_format(utc_time, 'dd-MM-YYYY') date " +
                         "FROM kibana_sample_data_logs " +
                         "GROUP BY date " +
                         "ORDER BY date DESC"));
+
+
     }
 
 
