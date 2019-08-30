@@ -520,13 +520,37 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTableName(OpenDistroSqlParser.TableNameContext ctx) { }
+	@Override public void enterSimpleTableName(OpenDistroSqlParser.SimpleTableNameContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTableName(OpenDistroSqlParser.TableNameContext ctx) { }
+	@Override public void exitSimpleTableName(OpenDistroSqlParser.SimpleTableNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterTableNamePattern(OpenDistroSqlParser.TableNamePatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTableNamePattern(OpenDistroSqlParser.TableNamePatternContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterTableAndTypeName(OpenDistroSqlParser.TableAndTypeNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTableAndTypeName(OpenDistroSqlParser.TableAndTypeNameContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

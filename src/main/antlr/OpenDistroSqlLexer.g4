@@ -42,7 +42,6 @@ LINE_COMMENT:                        (
 // Common Keywords
 
 ALL:                                 'ALL';
-ALTER:                               'ALTER';
 AND:                                 'AND';
 AS:                                  'AS';
 ASC:                                 'ASC';
@@ -62,7 +61,6 @@ GROUP:                               'GROUP';
 HAVING:                              'HAVING';
 IN:                                  'IN';
 INNER:                               'INNER';
-INTERVAL:                            'INTERVAL';
 IS:                                  'IS';
 JOIN:                                'JOIN';
 LEFT:                                'LEFT';
@@ -215,7 +213,6 @@ STAR:                                '*';
 DIVIDE:                              '/';
 MODULE:                              '%';
 PLUS:                                '+';
-MINUSMINUS:                          '--';
 MINUS:                               '-';
 DIV:                                 'DIV';
 MOD:                                 'MOD';
@@ -252,11 +249,6 @@ SINGLE_QUOTE_SYMB:                   '\'';
 DOUBLE_QUOTE_SYMB:                   '"';
 REVERSE_QUOTE_SYMB:                  '`';
 COLON_SYMB:                          ':';
-
-
-// File's sizes
-
-FILESIZE_LITERAL:                    DEC_DIGIT+ ('K'|'M'|'G'|'T');
 
 
 // Literal Primitives

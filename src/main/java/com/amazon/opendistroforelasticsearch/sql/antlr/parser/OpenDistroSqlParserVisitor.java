@@ -280,11 +280,26 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFullId(OpenDistroSqlParser.FullIdContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#tableName}.
+	 * Visit a parse tree produced by the {@code simpleTableName}
+	 * labeled alternative in {@link OpenDistroSqlParser#tableName}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitTableName(OpenDistroSqlParser.TableNameContext ctx);
+	T visitSimpleTableName(OpenDistroSqlParser.SimpleTableNameContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code tableNamePattern}
+	 * labeled alternative in {@link OpenDistroSqlParser#tableName}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTableNamePattern(OpenDistroSqlParser.TableNamePatternContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code tableAndTypeName}
+	 * labeled alternative in {@link OpenDistroSqlParser#tableName}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTableAndTypeName(OpenDistroSqlParser.TableAndTypeNameContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link OpenDistroSqlParser#fullColumnName}.
 	 * @param ctx the parse tree

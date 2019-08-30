@@ -220,9 +220,9 @@ fullId
     ;
 
 tableName
-    : fullId
-    | uid STAR (DOT_ID | '.' uid)?
-    | uid DIVIDE uid (DOT_ID | '.' uid)?
+    : fullId                                #simpleTableName
+    | uid STAR (DOT_ID | '.' uid)?          #tableNamePattern
+    | uid DIVIDE uid (DOT_ID | '.' uid)?    #tableAndTypeName
     ;
 
 fullColumnName
@@ -389,7 +389,7 @@ bitOperator
     ;
 
 mathOperator
-    : '*' | '/' | '%' | DIV | MOD | '+' | '-' | '--'
+    : '*' | '/' | '%' | DIV | MOD | '+' | '-'
     ;
 
 

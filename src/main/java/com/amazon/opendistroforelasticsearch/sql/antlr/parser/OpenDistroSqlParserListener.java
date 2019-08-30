@@ -462,15 +462,41 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 */
 	void exitFullId(OpenDistroSqlParser.FullIdContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#tableName}.
+	 * Enter a parse tree produced by the {@code simpleTableName}
+	 * labeled alternative in {@link OpenDistroSqlParser#tableName}.
 	 * @param ctx the parse tree
 	 */
-	void enterTableName(OpenDistroSqlParser.TableNameContext ctx);
+	void enterSimpleTableName(OpenDistroSqlParser.SimpleTableNameContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#tableName}.
+	 * Exit a parse tree produced by the {@code simpleTableName}
+	 * labeled alternative in {@link OpenDistroSqlParser#tableName}.
 	 * @param ctx the parse tree
 	 */
-	void exitTableName(OpenDistroSqlParser.TableNameContext ctx);
+	void exitSimpleTableName(OpenDistroSqlParser.SimpleTableNameContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code tableNamePattern}
+	 * labeled alternative in {@link OpenDistroSqlParser#tableName}.
+	 * @param ctx the parse tree
+	 */
+	void enterTableNamePattern(OpenDistroSqlParser.TableNamePatternContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code tableNamePattern}
+	 * labeled alternative in {@link OpenDistroSqlParser#tableName}.
+	 * @param ctx the parse tree
+	 */
+	void exitTableNamePattern(OpenDistroSqlParser.TableNamePatternContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code tableAndTypeName}
+	 * labeled alternative in {@link OpenDistroSqlParser#tableName}.
+	 * @param ctx the parse tree
+	 */
+	void enterTableAndTypeName(OpenDistroSqlParser.TableAndTypeNameContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code tableAndTypeName}
+	 * labeled alternative in {@link OpenDistroSqlParser#tableName}.
+	 * @param ctx the parse tree
+	 */
+	void exitTableAndTypeName(OpenDistroSqlParser.TableAndTypeNameContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link OpenDistroSqlParser#fullColumnName}.
 	 * @param ctx the parse tree
