@@ -352,7 +352,7 @@ predicate
     | predicate IS nullNotnull                                      #isNullPredicate
     | left=predicate comparisonOperator right=predicate             #binaryComparasionPredicate
     | predicate NOT? BETWEEN predicate AND predicate                #betweenPredicate
-    | predicate NOT? LIKE predicate (ESCAPE STRING_LITERAL)?        #likePredicate
+    | predicate NOT? LIKE predicate                                 #likePredicate
     | predicate NOT? regex=REGEXP predicate                         #regexpPredicate
     | expressionAtom                                                #expressionAtomPredicate
     ;
@@ -413,7 +413,8 @@ functionNameBase
 
 esFunctionNameBase
     : DATE_HISTOGRAM | DAY_OF_MONTH | DAY_OF_YEAR | DAY_OF_WEEK | EXCLUDE
-    | EXTENDED_STATS | FILTER | GEO_BOUNDING_BOX | GEO_DISTANCE | GEO_INTERSECTS | GEO_POLYGON | INCLUDE | IN_TERMS | HISTOGRAM | HOUR_OF_DAY
+    | EXTENDED_STATS | FILTER | GEO_BOUNDING_BOX | GEO_DISTANCE | GEO_INTERSECTS
+    | GEO_POLYGON | INCLUDE | IN_TERMS | HISTOGRAM | HOUR_OF_DAY
     | MATCHPHRASE | MATCH_PHRASE | MATCHQUERY | MATCH_QUERY | MINUTE_OF_DAY
     | MINUTE_OF_HOUR | MISSING | MONTH_OF_YEAR | MULTIMATCH | MULTI_MATCH | NESTED
     | PERCENTILES | QUERY | RANGE | REGEXP_QUERY | REVERSE_NESTED | SCORE

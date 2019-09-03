@@ -110,14 +110,9 @@ YEAR:                                'YEAR';
 // Keywords, but can be ID
 // Common Keywords, but can be ID
 
-ANY:                                 'ANY';
-BOOL:                                'BOOL';
-BOOLEAN:                             'BOOLEAN';
 END:                                 'END';
-ESCAPE:                              'ESCAPE';
 FULL:                                'FULL';
 OFFSET:                              'OFFSET';
-SOME:                                'SOME';
 
 
 // PRIVILEGES
