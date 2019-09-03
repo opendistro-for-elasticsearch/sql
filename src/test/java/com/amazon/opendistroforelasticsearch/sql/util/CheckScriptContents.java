@@ -27,6 +27,7 @@ import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
 import com.amazon.opendistroforelasticsearch.sql.parser.ScriptFilter;
 import com.amazon.opendistroforelasticsearch.sql.parser.SqlParser;
+import com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings;
 import com.amazon.opendistroforelasticsearch.sql.query.ESActionFactory;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.SqlElasticRequestBuilder;
@@ -56,10 +57,13 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static java.util.Collections.emptyList;
 import static org.elasticsearch.search.builder.SearchSourceBuilder.ScriptField;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 public class CheckScriptContents {
@@ -229,6 +233,7 @@ public class CheckScriptContents {
     public static void mockLocalClusterState(String mappings) {
         LocalClusterState.state().setClusterService(mockClusterService(mappings));
         LocalClusterState.state().setResolver(mockIndexNameExpressionResolver());
+        LocalClusterState.state().setSqlSettings(mockSqlSettings());
     }
 
     public static ClusterService mockClusterService(String mappings) {
@@ -262,6 +267,15 @@ public class CheckScriptContents {
             }
         );
         return mockResolver;
+    }
+
+    private static SqlSettings mockSqlSettings() {
+        SqlSettings settings = spy(new SqlSettings());
+
+        // Force return empty list to avoid ClusterSettings be invoked which is a final class and hard to mock.
+        // In this case, default value in Setting will be returned all the time.
+        doReturn(emptyList()).when(settings).getSettings();
+        return settings;
     }
 
 }
