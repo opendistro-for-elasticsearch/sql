@@ -30,13 +30,12 @@ options { tokenVocab=OpenDistroSqlLexer; }
 
 // Top Level Description
 
+//    Root rule
 root
     : sqlStatement? EOF
     ;
 
-
-// Only SELECT and UPDATE DML are supported now
-
+//    Only SELECT, DELETE, SHOW and DSCRIBE are supported for now
 sqlStatement
     : dmlStatement | administrationStatement | utilityStatement
     ;
@@ -50,10 +49,6 @@ dmlStatement
 
 //    Primary DML Statements
 
-deleteStatement
-    : singleDeleteStatement
-    ;
-
 selectStatement
     : querySpecification                                 #simpleSelect
     | queryExpression                                    #parenthesisSelect
@@ -63,6 +58,10 @@ selectStatement
         orderByClause? limitClause?                      #minusSelect
     ;
 
+deleteStatement
+    : singleDeleteStatement
+    ;
+
 //    Detailed DML Statements
 
 singleDeleteStatement
@@ -70,8 +69,6 @@ singleDeleteStatement
       (WHERE expression)?
       orderByClause? (LIMIT decimalLiteral)?
     ;
-
-// details
 
 orderByClause
     : ORDER BY orderByExpression (',' orderByExpression)*
@@ -135,8 +132,6 @@ minusStatement
     : EXCEPT (querySpecification | queryExpression)
     ;
 
-// details
-
 selectSpec
     : (ALL | DISTINCT)
     ;
@@ -180,7 +175,8 @@ limitClauseAtom
 	;
 
 
-//    Show statements
+//    SHOW/DESCIRBE statements
+
 administrationStatement
     : showStatement
     ;
@@ -198,8 +194,6 @@ simpleDescribeStatement
     : command=DESCRIBE tableName
       (column=uid | pattern=STRING_LITERAL)?
     ;
-
-// details
 
 showFilter
     : LIKE STRING_LITERAL
@@ -298,6 +292,7 @@ functionCall
     : specificFunction                                              #specificFunctionCall
     | aggregateWindowedFunction                                     #aggregateFunctionCall
     | scalarFunctionName '(' functionArgs? ')'                      #scalarFunctionCall
+    | fullId '(' functionArgs? ')'                                  #udfFunctionCall
     ;
 
 specificFunction

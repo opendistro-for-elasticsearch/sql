@@ -52,18 +52,6 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterDeleteStatement(OpenDistroSqlParser.DeleteStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitDeleteStatement(OpenDistroSqlParser.DeleteStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterSimpleSelect(OpenDistroSqlParser.SimpleSelectContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -107,6 +95,18 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitMinusSelect(OpenDistroSqlParser.MinusSelectContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterDeleteStatement(OpenDistroSqlParser.DeleteStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDeleteStatement(OpenDistroSqlParser.DeleteStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -719,6 +719,18 @@ public class OpenDistroSqlParserBaseListener implements OpenDistroSqlParserListe
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitScalarFunctionCall(OpenDistroSqlParser.ScalarFunctionCallContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUdfFunctionCall(OpenDistroSqlParser.UdfFunctionCallContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUdfFunctionCall(OpenDistroSqlParser.UdfFunctionCallContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

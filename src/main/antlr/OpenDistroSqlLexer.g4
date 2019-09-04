@@ -25,130 +25,131 @@ THE SOFTWARE.
 
 lexer grammar OpenDistroSqlLexer;
 
-channels { MYSQLCOMMENT, ERRORCHANNEL }
+channels { SQLCOMMENT, ERRORCHANNEL }
+
 
 // SKIP
 
-SPACE:                               [ \t\r\n]+    -> channel(HIDDEN);
-SPEC_MYSQL_COMMENT:                  '/*!' .+? '*/' -> channel(MYSQLCOMMENT);
-COMMENT_INPUT:                       '/*' .*? '*/' -> channel(HIDDEN);
-LINE_COMMENT:                        (
-                                       ('-- ' | '#') ~[\r\n]* ('\r'? '\n' | EOF) 
-                                       | '--' ('\r'? '\n' | EOF) 
-                                     ) -> channel(HIDDEN);
+SPACE:                              [ \t\r\n]+    -> channel(HIDDEN);
+SPEC_SQL_COMMENT:                   '/*!' .+? '*/' -> channel(SQLCOMMENT);
+COMMENT_INPUT:                      '/*' .*? '*/' -> channel(HIDDEN);
+LINE_COMMENT:                       (
+                                      ('-- ' | '#') ~[\r\n]* ('\r'? '\n' | EOF)
+                                      | '--' ('\r'? '\n' | EOF)
+                                    ) -> channel(HIDDEN);
 
 
 // Keywords
 // Common Keywords
 
-ALL:                                 'ALL';
-AND:                                 'AND';
-AS:                                  'AS';
-ASC:                                 'ASC';
-BETWEEN:                             'BETWEEN';
-BY:                                  'BY';
-CASE:                                'CASE';
-CROSS:                               'CROSS';
-DELETE:                              'DELETE';
-DESC:                                'DESC';
-DESCRIBE:                            'DESCRIBE';
-DISTINCT:                            'DISTINCT';
-ELSE:                                'ELSE';
-EXISTS:                              'EXISTS';
-FALSE:                               'FALSE';
-FROM:                                'FROM';
-GROUP:                               'GROUP';
-HAVING:                              'HAVING';
-IN:                                  'IN';
-INNER:                               'INNER';
-IS:                                  'IS';
-JOIN:                                'JOIN';
-LEFT:                                'LEFT';
-LIKE:                                'LIKE';
-LIMIT:                               'LIMIT';
-MATCH:                               'MATCH';
-NATURAL:                             'NATURAL';
-NOT:                                 'NOT';
-NULL_LITERAL:                        'NULL';
-ON:                                  'ON';
-OR:                                  'OR';
-ORDER:                               'ORDER';
-OUTER:                               'OUTER';
-REGEXP:                              'REGEXP';
-RIGHT:                               'RIGHT';
-SELECT:                              'SELECT';
-SHOW:                                'SHOW';
-THEN:                                'THEN';
-TRUE:                                'TRUE';
-UNION:                               'UNION';
-USING:                               'USING';
-WHEN:                                'WHEN';
-WHERE:                               'WHERE';
+ALL:                                'ALL';
+AND:                                'AND';
+AS:                                 'AS';
+ASC:                                'ASC';
+BETWEEN:                            'BETWEEN';
+BY:                                 'BY';
+CASE:                               'CASE';
+CROSS:                              'CROSS';
+DELETE:                             'DELETE';
+DESC:                               'DESC';
+DESCRIBE:                           'DESCRIBE';
+DISTINCT:                           'DISTINCT';
+ELSE:                               'ELSE';
+EXISTS:                             'EXISTS';
+FALSE:                              'FALSE';
+FROM:                               'FROM';
+GROUP:                              'GROUP';
+HAVING:                             'HAVING';
+IN:                                 'IN';
+INNER:                              'INNER';
+IS:                                 'IS';
+JOIN:                               'JOIN';
+LEFT:                               'LEFT';
+LIKE:                               'LIKE';
+LIMIT:                              'LIMIT';
+MATCH:                              'MATCH';
+NATURAL:                            'NATURAL';
+NOT:                                'NOT';
+NULL_LITERAL:                       'NULL';
+ON:                                 'ON';
+OR:                                 'OR';
+ORDER:                              'ORDER';
+OUTER:                              'OUTER';
+REGEXP:                             'REGEXP';
+RIGHT:                              'RIGHT';
+SELECT:                             'SELECT';
+SHOW:                               'SHOW';
+THEN:                               'THEN';
+TRUE:                               'TRUE';
+UNION:                              'UNION';
+USING:                              'USING';
+WHEN:                               'WHEN';
+WHERE:                              'WHERE';
 
 
 // OD SQL special keyword
-MISSING:                             'MISSING';
-EXCEPT:                              'MINUS';
+MISSING:                            'MISSING';
+EXCEPT:                             'MINUS';
 
 
 // Group function Keywords
 
-AVG:                                 'AVG';
-COUNT:                               'COUNT';
-MAX:                                 'MAX';
-MIN:                                 'MIN';
-SUM:                                 'SUM';
+AVG:                                'AVG';
+COUNT:                              'COUNT';
+MAX:                                'MAX';
+MIN:                                'MIN';
+SUM:                                'SUM';
 
 
 // Common function Keywords
 
-SUBSTRING:                           'SUBSTRING';
-TRIM:                                'TRIM';
-YEAR:                                'YEAR';
+SUBSTRING:                          'SUBSTRING';
+TRIM:                               'TRIM';
+YEAR:                               'YEAR';
 
 
 // Keywords, but can be ID
 // Common Keywords, but can be ID
 
-END:                                 'END';
-FULL:                                'FULL';
-OFFSET:                              'OFFSET';
+END:                                'END';
+FULL:                               'FULL';
+OFFSET:                             'OFFSET';
 
 
 // PRIVILEGES
 
-TABLES:                              'TABLES';
+TABLES:                             'TABLES';
 
 
 // Common function names
 
-ABS:                                 'ABS';
-ACOS:                                'ACOS';
-ASIN:                                'ASIN';
-ATAN:                                'ATAN';
-ATAN2:                               'ATAN2';
-CEIL:                                'CEIL';
-CONCAT:                              'CONCAT';
-CONCAT_WS:                           'CONCAT_WS';
-COS:                                 'COS';
-COSH:                                'COSH';
-DATE_FORMAT:                         'DATE_FORMAT';
-DEGREES:                             'DEGREES';
-E:                                   'E';
-EXP:                                 'EXP';
-EXPM1:                               'EXPM1';
-FLOOR:                               'FLOOR';
-LOG:                                 'LOG';
-LOG10:                               'LOG10';
-LOG2:                                'LOG2';
-PI:                                  'PI';
-POW:                                 'POW';
-RADIANS:                             'RADIANS';
-ROUND:                               'ROUND';
-SIN:                                 'SIN';
-SINH:                                'SINH';
-SQRT:                                'SQRT';
-TAN:                                 'TAN';
+ABS:                                'ABS';
+ACOS:                               'ACOS';
+ASIN:                               'ASIN';
+ATAN:                               'ATAN';
+ATAN2:                              'ATAN2';
+CEIL:                               'CEIL';
+CONCAT:                             'CONCAT';
+CONCAT_WS:                          'CONCAT_WS';
+COS:                                'COS';
+COSH:                               'COSH';
+DATE_FORMAT:                        'DATE_FORMAT';
+DEGREES:                            'DEGREES';
+E:                                  'E';
+EXP:                                'EXP';
+EXPM1:                              'EXPM1';
+FLOOR:                              'FLOOR';
+LOG:                                'LOG';
+LOG10:                              'LOG10';
+LOG2:                               'LOG2';
+PI:                                 'PI';
+POW:                                'POW';
+RADIANS:                            'RADIANS';
+ROUND:                              'ROUND';
+SIN:                                'SIN';
+SINH:                               'SINH';
+SQRT:                               'SQRT';
+TAN:                                'TAN';
 
 D:                                  'D';
 T:                                  'T';
@@ -204,113 +205,101 @@ WILDCARD_QUERY:                     'WILDCARD_QUERY';
 
 // Operators. Arithmetics
 
-STAR:                                '*';
-DIVIDE:                              '/';
-MODULE:                              '%';
-PLUS:                                '+';
-MINUS:                               '-';
-DIV:                                 'DIV';
-MOD:                                 'MOD';
+STAR:                               '*';
+DIVIDE:                             '/';
+MODULE:                             '%';
+PLUS:                               '+';
+MINUS:                              '-';
+DIV:                                'DIV';
+MOD:                                'MOD';
 
 
 // Operators. Comparation
 
-EQUAL_SYMBOL:                        '=';
-GREATER_SYMBOL:                      '>';
-LESS_SYMBOL:                         '<';
-EXCLAMATION_SYMBOL:                  '!';
+EQUAL_SYMBOL:                       '=';
+GREATER_SYMBOL:                     '>';
+LESS_SYMBOL:                        '<';
+EXCLAMATION_SYMBOL:                 '!';
 
 
 // Operators. Bit
 
-BIT_NOT_OP:                          '~';
-BIT_OR_OP:                           '|';
-BIT_AND_OP:                          '&';
-BIT_XOR_OP:                          '^';
+BIT_NOT_OP:                         '~';
+BIT_OR_OP:                          '|';
+BIT_AND_OP:                         '&';
+BIT_XOR_OP:                         '^';
 
 
 // Constructors symbols
 
-DOT:                                 '.';
-LR_BRACKET:                          '(';
-RR_BRACKET:                          ')';
-COMMA:                               ',';
-SEMI:                                ';';
-AT_SIGN:                             '@';
-ZERO_DECIMAL:                        '0';
-ONE_DECIMAL:                         '1';
-TWO_DECIMAL:                         '2';
-SINGLE_QUOTE_SYMB:                   '\'';
-DOUBLE_QUOTE_SYMB:                   '"';
-REVERSE_QUOTE_SYMB:                  '`';
-COLON_SYMB:                          ':';
+DOT:                                '.';
+LR_BRACKET:                         '(';
+RR_BRACKET:                         ')';
+COMMA:                              ',';
+SEMI:                               ';';
+AT_SIGN:                            '@';
+ZERO_DECIMAL:                       '0';
+ONE_DECIMAL:                        '1';
+TWO_DECIMAL:                        '2';
+SINGLE_QUOTE_SYMB:                  '\'';
+DOUBLE_QUOTE_SYMB:                  '"';
+REVERSE_QUOTE_SYMB:                 '`';
+COLON_SYMB:                         ':';
 
 
 // Literal Primitives
 
-START_NATIONAL_STRING_LITERAL:       'N' SQUOTA_STRING;
-STRING_LITERAL:                      DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING;
-DECIMAL_LITERAL:                     DEC_DIGIT+;
-HEXADECIMAL_LITERAL:                 'X' '\'' (HEX_DIGIT HEX_DIGIT)+ '\''
-                                     | '0X' HEX_DIGIT+;
+START_NATIONAL_STRING_LITERAL:      'N' SQUOTA_STRING;
+STRING_LITERAL:                     DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING;
+DECIMAL_LITERAL:                    DEC_DIGIT+;
+HEXADECIMAL_LITERAL:                'X' '\'' (HEX_DIGIT HEX_DIGIT)+ '\''
+                                    | '0X' HEX_DIGIT+;
 
-REAL_LITERAL:                        (DEC_DIGIT+)? '.' DEC_DIGIT+
-                                     | DEC_DIGIT+ '.' EXPONENT_NUM_PART
-                                     | (DEC_DIGIT+)? '.' (DEC_DIGIT+ EXPONENT_NUM_PART)
-                                     | DEC_DIGIT+ EXPONENT_NUM_PART;
-NULL_SPEC_LITERAL:                   '\\' 'N';
-BIT_STRING:                          BIT_STRING_L;
+REAL_LITERAL:                       (DEC_DIGIT+)? '.' DEC_DIGIT+
+                                    | DEC_DIGIT+ '.' EXPONENT_NUM_PART
+                                    | (DEC_DIGIT+)? '.' (DEC_DIGIT+ EXPONENT_NUM_PART)
+                                    | DEC_DIGIT+ EXPONENT_NUM_PART;
+NULL_SPEC_LITERAL:                  '\\' 'N';
+BIT_STRING:                         BIT_STRING_L;
 
 
 
 // Hack for dotID
-// Prevent recognize string:         .123somelatin AS ((.123), FLOAT_LITERAL), ((somelatin), ID)
-//  it must recoginze:               .123somelatin AS ((.), DOT), (123somelatin, ID)
+// Prevent recognize string:        .123somelatin AS ((.123), FLOAT_LITERAL), ((somelatin), ID)
+//  it must recoginze:              .123somelatin AS ((.), DOT), (123somelatin, ID)
 
-DOT_ID:                              '.' ID_LITERAL;
+DOT_ID:                             '.' ID_LITERAL;
 
 
 
 // Identifiers
 
-ID:                                  ID_LITERAL;
-// DOUBLE_QUOTE_ID:                  '"' ~'"'+ '"';
-REVERSE_QUOTE_ID:                    '`' ~'`'+ '`';
-STRING_USER_NAME:                    (
-                                       SQUOTA_STRING | DQUOTA_STRING 
-                                       | BQUOTA_STRING | ID_LITERAL
-                                     ) '@' 
-                                     (
-                                       SQUOTA_STRING | DQUOTA_STRING 
-                                       | BQUOTA_STRING | ID_LITERAL
-                                     );
-LOCAL_ID:                            '@'
-                                (
-                                  [A-Z0-9._$]+ 
-                                  | SQUOTA_STRING
-                                  | DQUOTA_STRING
-                                  | BQUOTA_STRING
-                                );
-GLOBAL_ID:                           '@' '@' 
-                                (
-                                  [A-Z0-9._$]+ 
-                                  | BQUOTA_STRING
-                                );
+ID:                                 ID_LITERAL;
+// DOUBLE_QUOTE_ID:                 '"' ~'"'+ '"';
+REVERSE_QUOTE_ID:                   '`' ~'`'+ '`';
+STRING_USER_NAME:                   (
+                                        SQUOTA_STRING | DQUOTA_STRING
+                                        | BQUOTA_STRING | ID_LITERAL
+                                    ) '@'
+                                    (
+                                        SQUOTA_STRING | DQUOTA_STRING
+                                        | BQUOTA_STRING | ID_LITERAL
+                                    );
 
 
 // Fragments for Literal primitives
 
-fragment EXPONENT_NUM_PART:          'E' [-+]? DEC_DIGIT+;
-fragment ID_LITERAL:                 [A-Z_$0-9]*?[A-Z_$\-]+?[A-Z_$\-0-9]*;
-fragment DQUOTA_STRING:              '"' ( '\\'. | '""' | ~('"'| '\\') )* '"';
-fragment SQUOTA_STRING:              '\'' ('\\'. | '\'\'' | ~('\'' | '\\'))* '\'';
-fragment BQUOTA_STRING:              '`' ( '\\'. | '``' | ~('`'|'\\'))* '`';
-fragment HEX_DIGIT:                  [0-9A-F];
-fragment DEC_DIGIT:                  [0-9];
-fragment BIT_STRING_L:               'B' '\'' [01]+ '\'';
+fragment EXPONENT_NUM_PART:         'E' [-+]? DEC_DIGIT+;
+fragment ID_LITERAL:                [A-Z_$0-9]*?[A-Z_$\-]+?[A-Z_$\-0-9]*;
+fragment DQUOTA_STRING:             '"' ( '\\'. | '""' | ~('"'| '\\') )* '"';
+fragment SQUOTA_STRING:             '\'' ('\\'. | '\'\'' | ~('\'' | '\\'))* '\'';
+fragment BQUOTA_STRING:             '`' ( '\\'. | '``' | ~('`'|'\\'))* '`';
+fragment HEX_DIGIT:                 [0-9A-F];
+fragment DEC_DIGIT:                 [0-9];
+fragment BIT_STRING_L:              'B' '\'' [01]+ '\'';
 
 
 
 // Last tokens must generate Errors
 
-ERROR_RECONGNIGION:                  .    -> channel(ERRORCHANNEL);
+ERROR_RECONGNIGION:                 .    -> channel(ERRORCHANNEL);

@@ -29,12 +29,6 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitDmlStatement(OpenDistroSqlParser.DmlStatementContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link OpenDistroSqlParser#deleteStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitDeleteStatement(OpenDistroSqlParser.DeleteStatementContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code simpleSelect}
 	 * labeled alternative in {@link OpenDistroSqlParser#selectStatement}.
 	 * @param ctx the parse tree
@@ -62,6 +56,12 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitMinusSelect(OpenDistroSqlParser.MinusSelectContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link OpenDistroSqlParser#deleteStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDeleteStatement(OpenDistroSqlParser.DeleteStatementContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link OpenDistroSqlParser#singleDeleteStatement}.
 	 * @param ctx the parse tree
@@ -387,6 +387,13 @@ public interface OpenDistroSqlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitScalarFunctionCall(OpenDistroSqlParser.ScalarFunctionCallContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code udfFunctionCall}
+	 * labeled alternative in {@link OpenDistroSqlParser#functionCall}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitUdfFunctionCall(OpenDistroSqlParser.UdfFunctionCallContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code caseFunctionCall}
 	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.

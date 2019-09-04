@@ -38,16 +38,6 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 */
 	void exitDmlStatement(OpenDistroSqlParser.DmlStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link OpenDistroSqlParser#deleteStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterDeleteStatement(OpenDistroSqlParser.DeleteStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link OpenDistroSqlParser#deleteStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitDeleteStatement(OpenDistroSqlParser.DeleteStatementContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code simpleSelect}
 	 * labeled alternative in {@link OpenDistroSqlParser#selectStatement}.
 	 * @param ctx the parse tree
@@ -95,6 +85,16 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitMinusSelect(OpenDistroSqlParser.MinusSelectContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link OpenDistroSqlParser#deleteStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterDeleteStatement(OpenDistroSqlParser.DeleteStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link OpenDistroSqlParser#deleteStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitDeleteStatement(OpenDistroSqlParser.DeleteStatementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link OpenDistroSqlParser#singleDeleteStatement}.
 	 * @param ctx the parse tree
@@ -643,6 +643,18 @@ public interface OpenDistroSqlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitScalarFunctionCall(OpenDistroSqlParser.ScalarFunctionCallContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code udfFunctionCall}
+	 * labeled alternative in {@link OpenDistroSqlParser#functionCall}.
+	 * @param ctx the parse tree
+	 */
+	void enterUdfFunctionCall(OpenDistroSqlParser.UdfFunctionCallContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code udfFunctionCall}
+	 * labeled alternative in {@link OpenDistroSqlParser#functionCall}.
+	 * @param ctx the parse tree
+	 */
+	void exitUdfFunctionCall(OpenDistroSqlParser.UdfFunctionCallContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code caseFunctionCall}
 	 * labeled alternative in {@link OpenDistroSqlParser#specificFunction}.
