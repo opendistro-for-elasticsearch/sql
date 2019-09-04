@@ -29,44 +29,29 @@ public class SyntaxAnalysisErrorListener extends BaseErrorListener {
 
     @Override
     public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol,
-                            int line, int charPositionInLine, String msg, RecognitionException e) {
+                            int line, int charPositionInLine, String msg,
+                            RecognitionException e) {
 
         CommonTokenStream tokens = (CommonTokenStream) recognizer.getInputStream();
-        //Token offendingToken = reviseOffendingToken(tokens, (Token) offendingSymbol);
         Token offendingToken = (Token) offendingSymbol;
-
         String query = tokens.getText();
-        IntervalSet followSet = e.getExpectedTokens();
-        //IntervalSet followSet = recognizer.getATN().nextTokens(recognizer.getInterpreter().
-        //      atn.states.get(recognizer.getState()), e.getCtx());
-        //IntervalSet followSet = recognizer.getATN().getExpectedTokens(recognizer.getState(), e.getCtx());
+
+        // As official JavaDoc says, null means parser was able to recover from the error
+        // In other words, "msg" argument includes the information we want.
+        String suggestion;
+        if (e == null) {
+            suggestion = "More details: " + msg;
+        } else {
+            IntervalSet followSet = e.getExpectedTokens();
+            suggestion = "Expecting tokens: " + followSet.toString(recognizer.getVocabulary());
+        }
+
         throw new SyntaxAnalysisException(
-            "Failed to parse query due to syntax error by offending symbol [%s] at: %s <--- HERE. "
-                + "Expecting tokens %s. More details: %s",
-            offendingToken.getText(), query.substring(0, offendingToken.getStopIndex() + 1),
-            followSet.toString(recognizer.getVocabulary()), msg
+            "Failed to parse query due to offending symbol [%s] at: '%s' <--- HERE... %s",
+            offendingToken.getText(),
+            query.substring(0, offendingToken.getStopIndex() + 1),
+            suggestion
         );
-    }
-
-    /** Look backward for more accurate offending symbol. */
-    private Token reviseOffendingToken(CommonTokenStream tokens, Token original) {
-        for (int i = original.getTokenIndex(); i > 0; i--) {
-            if (isValidToken(tokens.get(i))) {
-                return tokens.get(i);
-            }
-        }
-        return tokens.get(0);
-    }
-
-    /** Check if single character token is valid or not, ex. '(', ',', ' ' etc. */
-    private boolean isValidToken(Token token) {
-        String text = token.getText();
-        if (text.length() > 1) {
-            return true;
-        }
-
-        char character = text.charAt(0);
-        return Character.isLetterOrDigit(character); // Should work for unicode too
     }
 
 }

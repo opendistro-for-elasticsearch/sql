@@ -399,10 +399,10 @@ keywordsCanBeId
 
 functionNameBase
     : esFunctionNameBase
-    | ABS | ASIN | ATAN | CEIL | CONCAT | CONCAT_WS
+    | ABS | ASIN | ATAN | CBRT | CEIL | CONCAT | CONCAT_WS
     | COS | COSH | DATE_FORMAT | DEGREES
     | E | EXP | EXPM1 | FLOOR | LOG | LOG10 | LOG2
-    | PI | POW | RADIANS //RANDOM, RINT ?
+    | PI | POW | RADIANS | RANDOM | RINT
     | SIN | SINH | TAN | YEAR
     ;
 

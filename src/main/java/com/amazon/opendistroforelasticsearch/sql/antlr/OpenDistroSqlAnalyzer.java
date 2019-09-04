@@ -24,7 +24,7 @@ import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 /**
- * Facade for ANTLR generated parser to avoid boilerplate code.
+ * Entry point for ANTLR generated parser to perform strict syntax and semantic analysis.
  */
 public class OpenDistroSqlAnalyzer {
 
