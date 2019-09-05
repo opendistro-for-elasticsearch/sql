@@ -41,7 +41,18 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstant
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.hitAny;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvDouble;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvString;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.both;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasValue;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isEmptyOrNullString;
+import static org.hamcrest.Matchers.not;
 
 
 /**
