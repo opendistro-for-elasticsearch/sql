@@ -154,8 +154,6 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
                 "WHERE LOWER(e.lastname)='duke' " +
                 "GROUP BY UPPER(e.firstname) ";
 
-        System.out.println(executeQuery(query));
-
         assertThat(
                 executeQuery(query),
                 hitAny("/aggregations/UPPER_2/buckets", kvString("/key", equalTo("AMBER"))));
