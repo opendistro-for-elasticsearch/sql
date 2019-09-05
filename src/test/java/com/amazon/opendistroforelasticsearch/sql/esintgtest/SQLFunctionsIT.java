@@ -111,15 +111,16 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
     @Test
     public void caseChangeTest() throws IOException {
-        String query = "SELECT LOWER(e.firstname) " +
-                "FROM elasticsearch-sql_test_index_account/account e " +
-                "WHERE UPPER(e.lastname)='DUKE' ";
+        String query = "SELECT LOWER(firstname) " +
+                "FROM elasticsearch-sql_test_index_account/account " +
+                "WHERE UPPER(lastname)='DUKE' " +
+                "ORDER BY UPPER(lastname) ";
 
         assertThat(
                 executeQuery(query),
                 hitAny(
                         kvString("/_source/address", equalTo("880 Holmes Lane")),
-                        kvString("/fields/LOWER_1/0", equalTo("amber")))
+                        kvString("/fields/LOWER_0/0", equalTo("amber")))
         );
     }
 
@@ -131,9 +132,12 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
                 "WHERE LOWER(e.lastname)='duke' " +
                 "GROUP BY UPPER(e.firstname) ";
 
+        System.out.println(executeQuery(query));
+
         assertThat(
                 executeQuery(query),
-                hitAny("/aggregations/UPPER_2/buckets", kvString("/key", equalTo("AMBER"))
+                hitAny("/aggregations/UPPER_1/buckets",
+                        kvString("/key", equalTo("AMBER"))
         ));
     }
 

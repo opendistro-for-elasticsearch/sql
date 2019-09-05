@@ -7,7 +7,7 @@
  *
  *       http://www.apache.org/licenses/LICENSE-2.0
  *
- *   or in the "license" file accompanying this file. This file is distributed
+ *   or in the "license" file accompanying this file. This file is distbuted
  *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
  *   express or implied. See the License for the specific language governing
  *   permissions and limitations under the License.
@@ -89,6 +89,7 @@ public class SQLFunctions {
         return methodName + "_" + val;
     }
 
+
     /**
      * Is the function actually translated into Elastic DSL script during execution?
      */
@@ -103,13 +104,16 @@ public class SQLFunctions {
             case "lower": {
                 functionStr = lower(
                         (SQLExpr) paramers.get(0).value,
-                        getLocaleForCaseChangingFunction(paramers));
+                        getLocaleForCaseChangingFunction(paramers),
+                        name
+                );
                 break;
             }
             case "upper": {
                 functionStr = upper(
                         (SQLExpr) paramers.get(0).value,
-                        getLocaleForCaseChangingFunction(paramers));
+                        getLocaleForCaseChangingFunction(paramers),
+                        name);
                 break;
             }
 
@@ -291,14 +295,26 @@ public class SQLFunctions {
         return locale;
     }
 
-    public Tuple<String, String> upper(SQLExpr field, String locale) {
+    public Tuple<String, String> upper(SQLExpr field, String locale, String valueName) {
         String name = nextId("upper");
-        return new Tuple<>(name, def(name, upper(getPropertyOrValue(field), locale)));
+
+        if (valueName == null) {
+            return new Tuple<>(name, def(name, upper(getPropertyOrValue(field), locale)));
+        } else {
+            return new Tuple<>(name, getPropertyOrValue(field) + "; "
+                    + def(name, valueName + "." + upper(getPropertyOrValue(field), locale)));
+        }
     }
 
-    public Tuple<String, String> lower(SQLExpr field, String locale) {
+    public Tuple<String, String> lower(SQLExpr field, String locale, String valueName) {
         String name = nextId("lower");
-        return new Tuple<>(name, def(name, lower(getPropertyOrValue(field), locale)));
+
+        if (valueName == null) {
+            return new Tuple<>(name, def(name, lower(getPropertyOrValue(field), locale)));
+        } else {
+            return new Tuple<>(name, getPropertyOrValue(field) + "; "
+                    + def(name, valueName + "." + lower(getPropertyOrValue(field), locale)));
+        }
     }
 
     private static String def(String name, String value) {
