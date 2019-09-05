@@ -100,7 +100,6 @@ public class MatcherUtils {
         return hitAny("/hits/hits", matcher);
     }
 
-
     public static Matcher<JSONObject> hitAll(Matcher<JSONObject>... matcher) {
         return featureValueOf("SearchHits", containsInAnyOrder(matcher), actual -> {
             JSONArray array = (JSONArray) (actual.query("/hits/hits"));
