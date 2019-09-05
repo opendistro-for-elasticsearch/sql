@@ -85,9 +85,9 @@ public class MatcherUtils {
         return (Matcher) hasEntry(key, value);
     }
 
-    public static Matcher<JSONObject> hitAny(Matcher<JSONObject>... matcher) {
+    public static Matcher<JSONObject> hitAny(String query, Matcher<JSONObject>... matcher) {
         return featureValueOf("SearchHits", hasItems(matcher), actual -> {
-            JSONArray array = (JSONArray) (actual.query("/hits/hits"));
+            JSONArray array = (JSONArray) (actual.query(query));
             List<JSONObject> results = new ArrayList<>(array.length());
             for (Object element : array) {
                 results.add((JSONObject)element);
@@ -95,6 +95,11 @@ public class MatcherUtils {
             return results;
         });
     }
+
+    public static Matcher<JSONObject> hitAny(Matcher<JSONObject>... matcher) {
+        return hitAny("/hits/hits", matcher);
+    }
+
 
     public static Matcher<JSONObject> hitAll(Matcher<JSONObject>... matcher) {
         return featureValueOf("SearchHits", containsInAnyOrder(matcher), actual -> {

@@ -158,14 +158,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
         assertThat(
                 executeQuery(query),
-                MatcherUtils.featureValueOf("SearchHits", hasItems((Matcher<JSONObject>[]) new Matcher[]{kvString("/key", equalTo("AMBER"))}), actual -> {
-                    JSONArray array = (JSONArray) (actual.query("/aggregations/UPPER_2/buckets"));
-                    List<JSONObject> results = new ArrayList<>(array.length());
-                    for (Object element : array) {
-                        results.add((JSONObject) element);
-                    }
-                    return results;
-                }));
+                hitAny("/aggregations/UPPER_2/buckets", kvString("/key", equalTo("AMBER"))));
     }
 
     @Test
