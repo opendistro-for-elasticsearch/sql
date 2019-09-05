@@ -317,7 +317,7 @@ public class SelectResultSet extends ResultSet {
                 // (similar to Strategy pattern)
 
                 return SQLFunctions.getScriptFunctionReturnType(
-                        ((ScriptMethodField) field).getFunctionName().toLowerCase());
+                        ((ScriptMethodField) field).getFunctionName());
             }
             default:
                 throw new UnsupportedOperationException(
