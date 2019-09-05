@@ -72,6 +72,14 @@ public class TestUtils {
                 "            \"type\": \"text\",\n" +
                 "            \"fielddata\": true\n" +
                 "          }," +
+                "          \"firstname\": {\n" +
+                "            \"type\": \"text\",\n" +
+                "            \"fielddata\": true\n" +
+                "          }," +
+                "          \"lastname\": {\n" +
+                "            \"type\": \"text\",\n" +
+                "            \"fielddata\": true\n" +
+                "          }," +
                 "          \"state\": {\n" +
                 "            \"type\": \"text\",\n" +
                 "            \"fielddata\": true,\n" +
