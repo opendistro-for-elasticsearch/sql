@@ -114,13 +114,13 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         String query = "SELECT LOWER(firstname) " +
                 "FROM elasticsearch-sql_test_index_account/account " +
                 "WHERE UPPER(lastname)='DUKE' " +
-                "ORDER BY UPPER(lastname) ";
+                "ORDER BY upper(lastname) ";
 
         assertThat(
                 executeQuery(query),
                 hitAny(
                         kvString("/_source/address", equalTo("880 Holmes Lane")),
-                        kvString("/fields/LOWER_0/0", equalTo("amber")))
+                        kvString("/fields/LOWER_1/0", equalTo("amber")))
         );
     }
 
@@ -136,7 +136,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
         assertThat(
                 executeQuery(query),
-                hitAny("/aggregations/UPPER_1/buckets",
+                hitAny("/aggregations/UPPER_2/buckets",
                         kvString("/key", equalTo("AMBER"))
         ));
     }
