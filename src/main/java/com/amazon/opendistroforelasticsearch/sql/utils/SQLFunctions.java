@@ -31,6 +31,7 @@ import org.elasticsearch.common.collect.Tuple;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -76,17 +77,14 @@ public class SQLFunctions {
             utilityFunctions)
             .flatMap(Set::stream).collect(Collectors.toSet());
 
-    private HashMap<String, Integer> generatedIds = new HashMap<>();
+    private Map<String, Integer> generatedIds = new HashMap<>();
 
     /**
      * Generates next id for given method name. The id's are increasing for each method name, so
      * nextId("a"), nextId("a"), nextId("b") will return a_1, a_2, b_1
      */
     public String nextId(String methodName) {
-        int val = generatedIds.getOrDefault(methodName, 0);
-        val++;
-        generatedIds.put(methodName, val);
-        return methodName + "_" + val;
+        return methodName + "_" + generatedIds.merge(methodName, 1, Integer::sum);
     }
 
 
