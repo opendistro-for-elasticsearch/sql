@@ -85,19 +85,15 @@ public class MatcherUtils {
         return (Matcher) hasEntry(key, value);
     }
 
-    public static Matcher<JSONObject> hitAny(String query, Matcher<JSONObject>... matcher) {
+    public static Matcher<JSONObject> hitAny(Matcher<JSONObject>... matcher) {
         return featureValueOf("SearchHits", hasItems(matcher), actual -> {
-            JSONArray array = (JSONArray) (actual.query(query));
+            JSONArray array = (JSONArray) (actual.query("/hits/hits"));
             List<JSONObject> results = new ArrayList<>(array.length());
             for (Object element : array) {
                 results.add((JSONObject)element);
             }
             return results;
         });
-    }
-
-    public static Matcher<JSONObject> hitAny(Matcher<JSONObject>... matcher) {
-        return hitAny("/hits/hits", matcher);
     }
 
     public static Matcher<JSONObject> hitAll(Matcher<JSONObject>... matcher) {
