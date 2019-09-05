@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
 
+import com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.xcontent.LoggingDeprecationHandler;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;
@@ -24,12 +25,16 @@ import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.hamcrest.Matcher;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.IntStream;
 
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
@@ -43,6 +48,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasValue;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
@@ -107,6 +113,50 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
                 hitAny(both(kvString("/_source/address", equalTo("863 Wythe Place"))).and(kvString("/fields/key/0",
                         equalTo("863"))))
         );
+    }
+
+    @Test
+    public void caseChangeTest() throws IOException {
+        String query = "SELECT LOWER(firstname) " +
+                "FROM elasticsearch-sql_test_index_account/account " +
+                "WHERE UPPER(lastname)='DUKE' " +
+                "ORDER BY upper(lastname) ";
+
+        assertThat(
+                executeQuery(query),
+                hitAny(
+                        kvString("/_source/address", equalTo("880 Holmes Lane")),
+                        kvString("/fields/LOWER_1/0", equalTo("amber")))
+        );
+    }
+
+    @Test
+    public void caseChangeTestWithLocale() throws IOException {
+        // Uses Turkish locale to check if we pass correct locale for case changing functions
+        // "IL".toLowerCase() in a Turkish locale returns "ıl"
+        // https://stackoverflow.com/questions/11063102/using-locales-with-javas-tolowercase-and-touppercase
+
+        String query = "SELECT LOWER(state.keyword, 'tr') " +
+                "FROM elasticsearch-sql_test_index_account/account " +
+                "WHERE account_number=1";
+
+        assertThat(
+                executeQuery(query),
+                hitAny(
+                        kvString("/fields/LOWER_1/0", equalTo("ıl")))
+        );
+    }
+
+    @Test
+    public void caseChangeWithAggregationTest() throws IOException {
+        String query = "SELECT UPPER(e.firstname), COUNT(*)" +
+                "FROM elasticsearch-sql_test_index_account/account e " +
+                "WHERE LOWER(e.lastname)='duke' " +
+                "GROUP BY UPPER(e.firstname) ";
+
+        assertThat(
+                executeQuery(query),
+                hitAny("/aggregations/UPPER_2/buckets", kvString("/key", equalTo("AMBER"))));
     }
 
     @Test

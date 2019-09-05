@@ -28,7 +28,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.elasticsearch.common.collect.Tuple;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -50,7 +53,7 @@ public class SQLFunctions {
     );
 
     private static final Set<String> stringOperators = Sets.newHashSet(
-            "split", "concat_ws", "substring", "trim"
+            "split", "concat_ws", "substring", "trim", "lower", "upper"
     );
 
     private static final Set<String> binaryOperators = Sets.newHashSet(
@@ -74,6 +77,17 @@ public class SQLFunctions {
             utilityFunctions)
             .flatMap(Set::stream).collect(Collectors.toSet());
 
+    private Map<String, Integer> generatedIds = new HashMap<>();
+
+    /**
+     * Generates next id for given method name. The id's are increasing for each method name, so
+     * nextId("a"), nextId("a"), nextId("b") will return a_1, a_2, b_1
+     */
+    public String nextId(String methodName) {
+        return methodName + "_" + generatedIds.merge(methodName, 1, Integer::sum);
+    }
+
+
     /**
      * Is the function actually translated into Elastic DSL script during execution?
      */
@@ -85,6 +99,22 @@ public class SQLFunctions {
                                                  boolean returnValue) {
         Tuple<String, String> functionStr = null;
         switch (methodName) {
+            case "lower": {
+                functionStr = lower(
+                        (SQLExpr) paramers.get(0).value,
+                        getLocaleForCaseChangingFunction(paramers),
+                        name
+                );
+                break;
+            }
+            case "upper": {
+                functionStr = upper(
+                        (SQLExpr) paramers.get(0).value,
+                        getLocaleForCaseChangingFunction(paramers),
+                        name);
+                break;
+            }
+
             // Split is currently not supported since its using .split() in painless which is not whitelisted
             case "split":
                 if (paramers.size() == 3) {
@@ -253,10 +283,36 @@ public class SQLFunctions {
         return functionStr;
     }
 
-    private int generatedId = 0;
+    public String getLocaleForCaseChangingFunction(List<KVValue> paramers) {
+        String locale;
+        if (paramers.size() == 1) {
+            locale = Locale.getDefault().getLanguage();
+        } else {
+            locale = Util.expr2Object((SQLExpr) paramers.get(1).value).toString();
+        }
+        return locale;
+    }
 
-    public String nextId(String methodName) {
-        return methodName + "_" + (++generatedId);
+    public Tuple<String, String> upper(SQLExpr field, String locale, String valueName) {
+        String name = nextId("upper");
+
+        if (valueName == null) {
+            return new Tuple<>(name, def(name, upper(getPropertyOrValue(field), locale)));
+        } else {
+            return new Tuple<>(name, getPropertyOrValue(field) + "; "
+                    + def(name, valueName + "." + upper(getPropertyOrValue(field), locale)));
+        }
+    }
+
+    public Tuple<String, String> lower(SQLExpr field, String locale, String valueName) {
+        String name = nextId("lower");
+
+        if (valueName == null) {
+            return new Tuple<>(name, def(name, lower(getPropertyOrValue(field), locale)));
+        } else {
+            return new Tuple<>(name, getPropertyOrValue(field) + "; "
+                    + def(name, valueName + "." + lower(getPropertyOrValue(field), locale)));
+        }
     }
 
     private static String def(String name, String value) {
@@ -527,7 +583,14 @@ public class SQLFunctions {
                     + def(name, valueName + "."
                     + func("substring", false, Integer.toString(pos), Integer.toString(len))));
         }
+    }
 
+    private String lower(String property, String culture) {
+        return property + ".toLowerCase(Locale.forLanguageTag(\"" + culture + "\"))";
+    }
+
+    private String upper(String property, String culture) {
+        return property + ".toUpperCase(Locale.forLanguageTag(\"" + culture + "\"))";
     }
 
     /**
