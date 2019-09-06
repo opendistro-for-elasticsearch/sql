@@ -24,9 +24,12 @@ import org.junit.Test;
  */
 public class SyntaxAnalysisTest {
 
+    private OpenDistroSqlAnalyzer analyzer = new OpenDistroSqlAnalyzer();
+
+
     /** In reality exception occurs before reaching new parser for now */
     @Test(expected = SqlSyntaxAnalysisException.class)
-    public void unknownKeywordShouldThrowException() {
+    public void unsupportedKeywordShouldThrowException() {
         analyze("INSERT INTO accounts VALUES ('a')");
     }
 
@@ -37,12 +40,12 @@ public class SyntaxAnalysisTest {
      *  So we let it pass as an UDF and fail in semantic analyzer with meaningful message.
      */
     @Test //(expected = SyntaxAnalysisException.class)
-    public void unknownFunctionShouldThrowException() {
+    public void unsupportedFunctionShouldThrowException() {
         analyze("SELECT * FROM accounts WHERE LOG123(balance) = 1");
     }
 
     @Test(expected = SqlSyntaxAnalysisException.class)
-    public void unknownOperatorShouldThrowException() {
+    public void unsupportedOperatorShouldThrowException() {
         analyze("SELECT * FROM accounts WHERE age <=> 1");
     }
 
@@ -82,6 +85,6 @@ public class SyntaxAnalysisTest {
     }
 
     private void analyze(String sql) {
-        new OpenDistroSqlAnalyzer().analyze(sql);
+        analyzer.analyze(sql);
     }
 }
