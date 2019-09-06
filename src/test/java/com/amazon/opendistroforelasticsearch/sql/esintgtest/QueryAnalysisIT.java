@@ -16,12 +16,16 @@
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.SqlSyntaxAnalysisException;
+import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseException;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_ENABLED;
 import static org.elasticsearch.rest.RestStatus.BAD_REQUEST;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -37,43 +41,99 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void missingFromClauseShouldThrowException() {
-        queryShouldThrowSqlSyntaxAnalysisException(
+    public void missingFromClauseShouldThrowSyntaxException() {
+        queryShouldThrowSyntaxException(
             "SELECT 1"
         );
     }
 
     @Test
-    public void illegalOperatorShouldThrowException() {
-        queryShouldThrowSqlSyntaxAnalysisException(
-            "SELECT * " +
-            "FROM elasticsearch-sql_test_index_bank " +
+    public void unsupportedOperatorShouldThrowSyntaxException() {
+        queryShouldThrowSyntaxException(
+            "SELECT *",
+            "FROM elasticsearch-sql_test_index_bank",
             "WHERE age <=> 1"
         );
     }
 
-    private void queryShouldThrowSqlSyntaxAnalysisException(String query) {
-        queryShouldThrowException(query, SqlSyntaxAnalysisException.class);
+    @Test
+    public void unsupportedOperatorShouldThrowOtherExceptionOnceAnalyzerDisabled() {
+        runWithClusterSetting(
+            new ClusterSetting("transient", QUERY_ANALYSIS_ENABLED, "false"),
+            () -> queryShouldThrowException(
+                SqlParseException.class,
+                "SELECT *",
+                "FROM elasticsearch-sql_test_index_bank",
+                "WHERE age <=> 1"
+            )
+        );
     }
 
-    private <T> void queryShouldThrowException(String query, Class<T> exceptionType) {
+    /** Run the query with cluster setting changed and cleaned after complete */
+    private void runWithClusterSetting(ClusterSetting setting, Runnable query) {
         try {
-            explainQuery(query);
-            Assert.fail("Expected ResponseException, but none was thrown");
-        }
-        catch (ResponseException e) {
-            assertThat(e.getResponse().getStatusLine().getStatusCode(), equalTo(BAD_REQUEST.getStatus()));
-            try {
-                String body = TestUtils.getResponseBody(e.getResponse());
-                assertThat(body, containsString("\"type\": \"" + exceptionType.getSimpleName() + "\""));
-            }
-            catch (IOException ex) {
-                throw new IllegalStateException("Unexpected IOException raised when reading response body");
-            }
+            updateClusterSettings(setting);
+            query.run();
         }
         catch (IOException e) {
-            throw new IllegalStateException("Unexpected IOException raised rather than expected AnalysisException");
+            throw new IllegalStateException(
+                StringUtils.format("Exception raised when running with cluster setting [" + setting + "]"));
+        }
+        finally {
+            // Clean up or ES will throw java.lang.AssertionError: test leaves persistent cluster metadata behind
+            try {
+                updateClusterSettings(setting.nullify());
+            } catch (IOException e) {
+                throw new IllegalStateException(
+                    StringUtils.format("Exception raised when resetting cluster setting to %s=%s", setting));
+            }
         }
     }
+
+    private void queryShouldThrowSyntaxException(String... clauses) {
+        queryShouldThrowException(SqlSyntaxAnalysisException.class, clauses);
+    }
+
+    private <T> void queryShouldThrowException(Class<T> exceptionType, String... clauses) {
+        String query = String.join(" ", clauses);
+        try {
+            explainQuery(query);
+            Assert.fail("Expected ResponseException, but none was thrown for query: " + query);
+        }
+        catch (ResponseException e) {
+            assertResponseStatusAndBody(
+                e.getResponse(),
+                BAD_REQUEST.getStatus(),
+                "\"type\": \"" + exceptionType.getSimpleName() + "\""
+            );
+        }
+        catch (IOException e) {
+            throw new IllegalStateException(
+                "Unexpected IOException raised rather than expected AnalysisException for query: " + query);
+        }
+    }
+
+    private void assertResponseStatusAndBody(Response response, int status, String... contents) {
+        assertResponseStatus(response, status);
+        try {
+            assertResponseBody(response, contents);
+        }
+        catch (IOException ex) {
+            throw new IllegalStateException("Unexpected IOException raised when reading response body");
+        }
+    }
+
+    private void assertResponseStatus(Response response, int status) {
+        assertThat(response.getStatusLine().getStatusCode(), equalTo(status));
+    }
+
+    private void assertResponseBody(Response response, String[] contents) throws IOException {
+        String body = TestUtils.getResponseBody(response);
+        for (String content : contents) {
+            assertThat(body, containsString(content));
+        }
+    }
+
+
 
 }

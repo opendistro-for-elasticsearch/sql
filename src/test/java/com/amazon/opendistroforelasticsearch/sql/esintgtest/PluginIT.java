@@ -15,8 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
-import org.elasticsearch.client.Request;
-import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseException;
 import org.json.JSONObject;
@@ -40,12 +38,12 @@ public class PluginIT extends SQLIntegTestCase {
 
     @Test
     public void sqlEnableSettingsTest() throws IOException {
-        updateClusterSettings(PERSISTENT, "opendistro.sql.enabled", "true");
+        updateClusterSettings(new ClusterSetting(PERSISTENT, "opendistro.sql.enabled", "true"));
         String query = String.format(Locale.ROOT, "SELECT firstname FROM %s/account WHERE account_number=1", TEST_INDEX_ACCOUNT);
         JSONObject queryResult = executeQuery(query);
         Assert.assertThat(getHits(queryResult).length(), equalTo(1));
 
-        updateClusterSettings(PERSISTENT, "opendistro.sql.enabled", "false");
+        updateClusterSettings(new ClusterSetting(PERSISTENT, "opendistro.sql.enabled", "false"));
         Response response = null;
         try {
             queryResult = executeQuery(query);
@@ -62,17 +60,6 @@ public class PluginIT extends SQLIntegTestCase {
         resetClusterSettings(PERSISTENT, "opendistro.sql.enabled");
     }
 
-    private JSONObject updateClusterSettings(String settingType, String setting , String value) throws IOException {
-        Request request = new Request("PUT", "/_cluster/settings?pretty");
-        String persistentSetting = String.format(Locale.ROOT, "{\"%s\": {\"%s\": %s}}", settingType, setting, value);
-        request.setJsonEntity(persistentSetting);
-        RequestOptions.Builder restOptionsBuilder = RequestOptions.DEFAULT.toBuilder();
-        restOptionsBuilder.addHeader("Content-Type", "application/json");
-        request.setOptions(restOptionsBuilder);
-        JSONObject result = new JSONObject(executeRequest(request));
-        return result;
-    }
-
     /**
      * We need to reset all the cluster settings, otherwise ESIntegTestCase will throw
      * java.lang.AssertionError: test leaves persistent cluster metadata behind
@@ -81,6 +68,6 @@ public class PluginIT extends SQLIntegTestCase {
      *       individually resetting of each such setting
      */
     private JSONObject resetClusterSettings(String settingType, String setting) throws IOException {
-        return updateClusterSettings(settingType, setting, "null");
+        return updateClusterSettings(new ClusterSetting(settingType, setting, "null"));
     }
 }

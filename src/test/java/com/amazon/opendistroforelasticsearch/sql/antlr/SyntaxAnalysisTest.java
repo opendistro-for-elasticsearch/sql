@@ -57,7 +57,7 @@ public class SyntaxAnalysisTest {
     }
 
     @Test
-    public void specialIndexNameShouldBeLegal() {
+    public void specialIndexNameShouldPass() {
         analyze("SELECT * FROM accounts/temp");
         analyze("SELECT * FROM account*");
         analyze("SELECT * FROM es-accounts");
@@ -72,6 +72,12 @@ public class SyntaxAnalysisTest {
     @Test(expected = SqlSyntaxAnalysisException.class)
     public void systemIndexNameShouldThrowException() {
         analyze("SELECT * FROM .kibana");
+    }
+
+    /** As the translation is not supported for now, check this in semantic analyzer */
+    @Test
+    public void arithmeticExpressionInWhereClauseShouldPass() {
+        analyze("SELECT * FROM accounts WHERE age + 1 = 10");
     }
 
     private void analyze(String sql) {

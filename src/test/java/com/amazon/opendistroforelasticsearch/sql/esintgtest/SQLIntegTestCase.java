@@ -30,10 +30,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -186,6 +183,42 @@ public abstract class SQLIntegTestCase extends ESIntegTestCase {
         final Request request = buildGetEndpointRequest(sqlQuery);
         final String result = executeRequest(request);
         return new JSONObject(result);
+    }
+
+    protected JSONObject updateClusterSettings(ClusterSetting setting) throws IOException {
+        Request request = new Request("PUT", "/_cluster/settings?pretty");
+        String persistentSetting = String.format(Locale.ROOT,
+            "{\"%s\": {\"%s\": %s}}", setting.type, setting.name, setting.value);
+        request.setJsonEntity(persistentSetting);
+        RequestOptions.Builder restOptionsBuilder = RequestOptions.DEFAULT.toBuilder();
+        restOptionsBuilder.addHeader("Content-Type", "application/json");
+        request.setOptions(restOptionsBuilder);
+        return new JSONObject(executeRequest(request));
+    }
+
+    protected static class ClusterSetting {
+        private String type;
+        private String name;
+        private String value;
+
+        public ClusterSetting(String type, String name, String value) {
+            this.type = type;
+            this.name = name;
+            this.value = value;
+        }
+
+        public ClusterSetting nullify() {
+            return new ClusterSetting(type, name, "null");
+        }
+
+        @Override
+        public String toString() {
+            return "ClusterSetting{" +
+                "type='" + type + '\'' +
+                ", path='" + name + '\'' +
+                ", value='" + value + '\'' +
+                '}';
+        }
     }
 
     protected String makeRequest(String query) {
