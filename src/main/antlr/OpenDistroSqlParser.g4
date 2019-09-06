@@ -215,8 +215,8 @@ fullId
 
 tableName
     : fullId                                #simpleTableName
-    | uid STAR (DOT_ID | '.' uid)?          #tableNamePattern
-    | uid DIVIDE uid (DOT_ID | '.' uid)?    #tableAndTypeName
+    | uid STAR                              #tableNamePattern
+    | uid DIVIDE uid                        #tableAndTypeName
     ;
 
 fullColumnName

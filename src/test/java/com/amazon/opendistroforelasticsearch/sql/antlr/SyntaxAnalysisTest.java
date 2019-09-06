@@ -56,6 +56,24 @@ public class SyntaxAnalysisTest {
         analyze("SELECT AVG(balance) AS avg FROM accounts");
     }
 
+    @Test
+    public void specialIndexNameShouldBeLegal() {
+        analyze("SELECT * FROM accounts/temp");
+        analyze("SELECT * FROM account*");
+        analyze("SELECT * FROM es-accounts");
+        analyze("SELECT * FROM es-account*");
+    }
+
+    @Test(expected = SqlSyntaxAnalysisException.class)
+    public void typeNamePatternShouldThrowException() {
+        analyze("SELECT * FROM accounts/tem*");
+    }
+
+    @Test(expected = SqlSyntaxAnalysisException.class)
+    public void systemIndexNameShouldThrowException() {
+        analyze("SELECT * FROM .kibana");
+    }
+
     private void analyze(String sql) {
         new OpenDistroSqlAnalyzer().analyze(sql);
     }
