@@ -69,6 +69,7 @@ public class SyntaxAnalysisTest {
         analyze("SELECT * FROM accounts/tem*");
     }
 
+    /** This is not supported for now */
     @Test(expected = SqlSyntaxAnalysisException.class)
     public void systemIndexNameShouldThrowException() {
         analyze("SELECT * FROM .kibana");

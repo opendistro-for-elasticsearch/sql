@@ -69,6 +69,7 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
         );
     }
 
+
     /** Run the query with cluster setting changed and cleaned after complete */
     private void runWithClusterSetting(ClusterSetting setting, Runnable query) {
         try {
@@ -77,15 +78,15 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
         }
         catch (IOException e) {
             throw new IllegalStateException(
-                StringUtils.format("Exception raised when running with cluster setting [" + setting + "]"));
+                StringUtils.format("Exception raised when running with cluster setting [%s]", setting));
         }
         finally {
             // Clean up or ES will throw java.lang.AssertionError: test leaves persistent cluster metadata behind
             try {
                 updateClusterSettings(setting.nullify());
-            } catch (IOException e) {
-                throw new IllegalStateException(
-                    StringUtils.format("Exception raised when resetting cluster setting to %s=%s", setting));
+            }
+            catch (IOException e) {
+                // Ignore exception during the cleanup
             }
         }
     }
@@ -101,11 +102,9 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
             Assert.fail("Expected ResponseException, but none was thrown for query: " + query);
         }
         catch (ResponseException e) {
-            assertResponseStatusAndBody(
-                e.getResponse(),
-                BAD_REQUEST.getStatus(),
-                "\"type\": \"" + exceptionType.getSimpleName() + "\""
-            );
+            ResponseAssertion assertion = new ResponseAssertion(e.getResponse());
+            assertion.assertStatusEqualTo(BAD_REQUEST.getStatus());
+            assertion.assertBodyContains("\"type\": \"" + exceptionType.getSimpleName() + "\"");
         }
         catch (IOException e) {
             throw new IllegalStateException(
@@ -113,27 +112,27 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
         }
     }
 
-    private void assertResponseStatusAndBody(Response response, int status, String... contents) {
-        assertResponseStatus(response, status);
-        try {
-            assertResponseBody(response, contents);
-        }
-        catch (IOException ex) {
-            throw new IllegalStateException("Unexpected IOException raised when reading response body");
-        }
-    }
+    private static class ResponseAssertion {
+        private final Response response;
+        private final String body;
 
-    private void assertResponseStatus(Response response, int status) {
-        assertThat(response.getStatusLine().getStatusCode(), equalTo(status));
-    }
+        ResponseAssertion(Response response) {
+            this.response = response;
+            try {
+                this.body = TestUtils.getResponseBody(response);
+            }
+            catch (IOException e) {
+                throw new IllegalStateException("Unexpected IOException raised when reading response body");
+            }
+        }
 
-    private void assertResponseBody(Response response, String[] contents) throws IOException {
-        String body = TestUtils.getResponseBody(response);
-        for (String content : contents) {
+        void assertStatusEqualTo(int expectedStatus) {
+            assertThat(response.getStatusLine().getStatusCode(), equalTo(expectedStatus));
+        }
+
+        void assertBodyContains(String content) {
             assertThat(body, containsString(content));
         }
     }
-
-
 
 }

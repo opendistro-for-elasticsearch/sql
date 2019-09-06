@@ -197,17 +197,17 @@ public abstract class SQLIntegTestCase extends ESIntegTestCase {
     }
 
     protected static class ClusterSetting {
-        private String type;
-        private String name;
-        private String value;
+        private final String type;
+        private final String name;
+        private final String value;
 
-        public ClusterSetting(String type, String name, String value) {
+        ClusterSetting(String type, String name, String value) {
             this.type = type;
             this.name = name;
             this.value = value;
         }
 
-        public ClusterSetting nullify() {
+        ClusterSetting nullify() {
             return new ClusterSetting(type, name, "null");
         }
 
