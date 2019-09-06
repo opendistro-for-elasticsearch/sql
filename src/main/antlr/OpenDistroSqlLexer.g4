@@ -160,8 +160,8 @@ TS:                                 'TS';
 LEFT_BRACE:                         '{';
 RIGHT_BRACE:                        '}';
 
+
 // OD SQL special functions
-// Some tokens are already defined elsewhere: QUERY, FILTER, RANGE
 DATE_HISTOGRAM:                     'DATE_HISTOGRAM';
 DAY_OF_MONTH:                       'DAY_OF_MONTH';
 DAY_OF_YEAR:                        'DAY_OF_YEAR';
