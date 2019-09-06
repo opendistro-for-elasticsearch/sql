@@ -143,6 +143,7 @@ FLOOR:                              'FLOOR';
 LOG:                                'LOG';
 LOG10:                              'LOG10';
 LOG2:                               'LOG2';
+LOWER:                              'LOWER';
 PI:                                 'PI';
 POW:                                'POW';
 RADIANS:                            'RADIANS';
@@ -153,6 +154,7 @@ SIN:                                'SIN';
 SINH:                               'SINH';
 SQRT:                               'SQRT';
 TAN:                                'TAN';
+UPPER:                              'UPPER';
 
 D:                                  'D';
 T:                                  'T';

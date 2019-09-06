@@ -16,7 +16,6 @@
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
 import org.elasticsearch.client.ResponseException;
-import org.elasticsearch.rest.RestStatus;
 import org.junit.Assert;
 import org.junit.Test;
 

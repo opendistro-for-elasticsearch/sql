@@ -119,7 +119,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void selectAllWithFieldReverseOrder() throws IOException {
         JSONObject response = executeQuery(StringUtils.format(
-                "SELECT age, * " +
+                "SELECT *, age " +
                 "FROM %s/account " +
                 "LIMIT 5",
                 TestsConstants.TEST_INDEX_BANK
@@ -131,7 +131,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void selectAllWithMultipleFields() throws IOException {
         JSONObject response = executeQuery(StringUtils.format(
-                "SELECT age, *, address " +
+                "SELECT *, age, address " +
                 "FROM %s/account " +
                 "LIMIT 5",
                 TestsConstants.TEST_INDEX_BANK
@@ -169,7 +169,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void selectAllWithFieldAndGroupByReverseOrder() throws IOException {
         JSONObject response = executeQuery(StringUtils.format(
-                "SELECT age, * " +
+                "SELECT *, age " +
                 "FROM %s/account " +
                 "GROUP BY age " +
                 "LIMIT 10",

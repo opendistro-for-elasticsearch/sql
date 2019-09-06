@@ -401,9 +401,9 @@ functionNameBase
     : esFunctionNameBase
     | ABS | ASIN | ATAN | CBRT | CEIL | CONCAT | CONCAT_WS
     | COS | COSH | DATE_FORMAT | DEGREES
-    | E | EXP | EXPM1 | FLOOR | LOG | LOG10 | LOG2
+    | E | EXP | EXPM1 | FLOOR | LOG | LOG10 | LOG2 | LOWER
     | PI | POW | RADIANS | RANDOM | RINT
-    | SIN | SINH | TAN | YEAR
+    | SIN | SINH | TAN | UPPER | YEAR
     ;
 
 esFunctionNameBase
