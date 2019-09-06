@@ -141,6 +141,18 @@ public class DateFormatIT extends SQLIntegTestCase {
     }
 
     @Test
+    public void sortByAliasedDateFormat() throws IOException {
+        JSONArray hits =
+                getHits(executeQuery("SELECT all_client, insert_time,  date_format(insert_time, 'dd-MM-YYYY', 'UTC') date" +
+                        " FROM " + TestsConstants.TEST_INDEX_ONLINE +
+                        " ORDER BY date DESC, insert_time " +
+                        " LIMIT 10"));
+
+        assertThat(new DateTime(getSource(hits.getJSONObject(0)).get("insert_time"), DateTimeZone.UTC),
+                is(new DateTime("2014-08-24T00:00:41.221Z", DateTimeZone.UTC)));
+    }
+
+    @Test
     public void groupByAndSort() throws IOException {
         JSONObject aggregations = executeQuery(
                 "SELECT date_format(insert_time, 'dd-MM-YYYY') " +
@@ -149,7 +161,35 @@ public class DateFormatIT extends SQLIntegTestCase {
                         "ORDER BY date_format(insert_time, 'dd-MM-YYYY') DESC")
                 .getJSONObject("aggregations");
 
-        String date = DateFormatTest.getScriptAggregationKey(aggregations, "date_format");
+        checkAggregations(aggregations, "date_format", Ordering.natural().reverse());
+    }
+
+    @Test
+    public void groupByAndSortAliasedReversed() throws IOException {
+        JSONObject aggregations = executeQuery(
+                "SELECT date_format(insert_time, 'dd-MM-YYYY') date " +
+                        "FROM elasticsearch-sql_test_index_online " +
+                        "GROUP BY date " +
+                        "ORDER BY date DESC")
+                .getJSONObject("aggregations");
+
+        checkAggregations(aggregations, "date", Ordering.natural().reverse());
+    }
+
+    @Test
+    public void groupByAndSortAliased() throws IOException {
+        JSONObject aggregations = executeQuery(
+                "SELECT date_format(insert_time, 'dd-MM-YYYY') date " +
+                        "FROM elasticsearch-sql_test_index_online " +
+                        "GROUP BY date " +
+                        "ORDER BY date ")
+                .getJSONObject("aggregations");
+
+        checkAggregations(aggregations, "date", Ordering.natural());
+    }
+
+    private void checkAggregations(JSONObject aggregations, String key, Ordering<Comparable> ordering) {
+        String date = DateFormatTest.getScriptAggregationKey(aggregations, key);
         JSONArray buckets = aggregations.getJSONObject(date).getJSONArray("buckets");
 
         assertThat(buckets.length(), is(8));
@@ -159,7 +199,7 @@ public class DateFormatIT extends SQLIntegTestCase {
                 .collect(Collectors.toList());
 
         assertTrue("The query result must be sorted by date in descending order",
-                Ordering.natural().reverse().isOrdered(aggregationSortKeys));
+                ordering.isOrdered(aggregationSortKeys));
     }
 
     private Set<Object> dateQuery(String sql) throws SqlParseException {
