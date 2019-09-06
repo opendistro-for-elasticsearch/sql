@@ -46,7 +46,7 @@ public class SyntaxAnalysisErrorListener extends BaseErrorListener {
             suggestion = "Expecting tokens: " + followSet.toString(recognizer.getVocabulary());
         }
 
-        throw new SyntaxAnalysisException(
+        throw new SqlSyntaxAnalysisException(
             "Failed to parse query due to offending symbol [%s] at: '%s' <--- HERE... %s",
             offendingToken.getText(),
             query.substring(0, offendingToken.getStopIndex() + 1),

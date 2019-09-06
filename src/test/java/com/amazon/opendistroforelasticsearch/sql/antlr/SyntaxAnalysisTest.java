@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr;
 
-import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.SyntaxAnalysisException;
+import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.SqlSyntaxAnalysisException;
 import org.junit.Test;
 
 /**
@@ -25,13 +25,9 @@ import org.junit.Test;
 public class SyntaxAnalysisTest {
 
     /** In reality exception occurs before reaching new parser for now */
-    @Test(expected = SyntaxAnalysisException.class)
+    @Test(expected = SqlSyntaxAnalysisException.class)
     public void unknownKeywordShouldThrowException() {
         analyze("INSERT INTO accounts VALUES ('a')");
-    }
-
-    //@Test(expected = SyntaxAnalysisException.class)
-    public void unknownLiteralShouldThrowException() {
     }
 
     /**
@@ -45,12 +41,12 @@ public class SyntaxAnalysisTest {
         analyze("SELECT * FROM accounts WHERE LOG123(balance) = 1");
     }
 
-    @Test(expected = SyntaxAnalysisException.class)
+    @Test(expected = SqlSyntaxAnalysisException.class)
     public void unknownOperatorShouldThrowException() {
         analyze("SELECT * FROM accounts WHERE age <=> 1");
     }
 
-    @Test(expected = SyntaxAnalysisException.class)
+    @Test(expected = SqlSyntaxAnalysisException.class)
     public void missingFromClauseShouldThrowException() {
         analyze("SELECT 1");
     }
@@ -58,9 +54,6 @@ public class SyntaxAnalysisTest {
     @Test
     public void someKeywordsShouldBeAbleToUseAsIdentifier() {
         analyze("SELECT AVG(balance) AS avg FROM accounts");
-    }
-
-    public void dateLiteralShouldSucceed() {
     }
 
     private void analyze(String sql) {

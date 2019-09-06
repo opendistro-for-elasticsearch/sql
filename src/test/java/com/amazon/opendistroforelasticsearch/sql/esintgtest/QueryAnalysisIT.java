@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
+import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.SqlSyntaxAnalysisException;
 import org.elasticsearch.client.ResponseException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -37,17 +38,25 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
 
     @Test
     public void missingFromClauseShouldThrowException() {
-        queryShouldThrowAnalysisException("SELECT 1");
+        queryShouldThrowSqlSyntaxAnalysisException(
+            "SELECT 1"
+        );
     }
 
     @Test
     public void illegalOperatorShouldThrowException() {
-        queryShouldThrowAnalysisException(
-            "SELECT * FROM elasticsearch-sql_test_index_bank WHERE age <=> 1"
+        queryShouldThrowSqlSyntaxAnalysisException(
+            "SELECT * " +
+            "FROM elasticsearch-sql_test_index_bank " +
+            "WHERE age <=> 1"
         );
     }
 
-    private void queryShouldThrowAnalysisException(String query) {
+    private void queryShouldThrowSqlSyntaxAnalysisException(String query) {
+        queryShouldThrowException(query, SqlSyntaxAnalysisException.class);
+    }
+
+    private <T> void queryShouldThrowException(String query, Class<T> exceptionType) {
         try {
             explainQuery(query);
             Assert.fail("Expected ResponseException, but none was thrown");
@@ -56,7 +65,7 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
             assertThat(e.getResponse().getStatusLine().getStatusCode(), equalTo(BAD_REQUEST.getStatus()));
             try {
                 String body = TestUtils.getResponseBody(e.getResponse());
-                assertThat(body, containsString("\"type\": \"SyntaxAnalysisException\""));
+                assertThat(body, containsString("\"type\": \"" + exceptionType.getSimpleName() + "\""));
             }
             catch (IOException ex) {
                 throw new IllegalStateException("Unexpected IOException raised when reading response body");

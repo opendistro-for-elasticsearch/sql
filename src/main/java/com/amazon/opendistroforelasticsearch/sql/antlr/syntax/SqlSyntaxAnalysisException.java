@@ -20,9 +20,9 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.SqlAnalysisException;
 /**
  * Exception for syntax analysis
  */
-public class SyntaxAnalysisException extends SqlAnalysisException {
+public class SqlSyntaxAnalysisException extends SqlAnalysisException {
 
-    public SyntaxAnalysisException(String template, Object... args) {
+    public SqlSyntaxAnalysisException(String template, Object... args) {
         super(template, args);
     }
 
