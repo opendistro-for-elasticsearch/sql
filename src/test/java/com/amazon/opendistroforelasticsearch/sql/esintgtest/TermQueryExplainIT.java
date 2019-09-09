@@ -359,6 +359,18 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
     }
 
     @Test
+    public void testNestedIsNotNull() throws IOException {
+        String explain = explainQuery(
+                "SELECT e.name " +
+                        "FROM elasticsearch-sql_test_index_employee_nested as e, e.projects as p " +
+                        "WHERE p IS NOT NULL"
+        );
+
+        assertThat(explain, containsString("\"exists\":{\"field\":\"projects\""));
+        assertThat(explain, containsString("\"path\":\"projects\""));
+    }
+
+    @Test
     @Ignore // TODO: enable when subqueries are fixed
     public void testMultiQuery() throws IOException {
         String expectedOutput = TestUtils.fileToString("src/test/resources/expectedOutput/term_union_where", true);
