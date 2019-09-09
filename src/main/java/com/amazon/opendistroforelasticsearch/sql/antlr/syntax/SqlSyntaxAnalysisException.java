@@ -22,8 +22,7 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.SqlAnalysisException;
  */
 public class SqlSyntaxAnalysisException extends SqlAnalysisException {
 
-    public SqlSyntaxAnalysisException(String template, Object... args) {
-        super(template, args);
+    public SqlSyntaxAnalysisException(String message) {
+        super(message);
     }
-
 }

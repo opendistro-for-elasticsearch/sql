@@ -57,7 +57,7 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void unsupportedOperatorShouldThrowOtherExceptionOnceAnalyzerDisabled() {
+    public void unsupportedOperatorShouldThrowOtherExceptionIfAnalyzerDisabled() {
         runWithClusterSetting(
             new ClusterSetting("transient", QUERY_ANALYSIS_ENABLED, "false"),
             () -> queryShouldThrowException(

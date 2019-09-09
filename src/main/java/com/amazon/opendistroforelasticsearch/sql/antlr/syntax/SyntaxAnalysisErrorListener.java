@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.syntax;
 
+import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.RecognitionException;
@@ -36,22 +37,37 @@ public class SyntaxAnalysisErrorListener extends BaseErrorListener {
         Token offendingToken = (Token) offendingSymbol;
         String query = tokens.getText();
 
-        // As official JavaDoc says, null means parser was able to recover from the error
-        // In other words, "msg" argument includes the information we want.
-        String suggestion;
+        throw new SqlSyntaxAnalysisException(
+            StringUtils.format(
+                "Failed to parse query due to offending symbol [%s] at: '%s' <--- HERE... More details: %s",
+                getOffendText(offendingToken),
+                truncateQueryAtOffendingToken(query, offendingToken),
+                getDetails(recognizer, msg, e)
+            )
+        );
+    }
+
+    private String getOffendText(Token offendingToken) {
+        return offendingToken.getText();
+    }
+
+    private String truncateQueryAtOffendingToken(String query, Token offendingToken) {
+        return query.substring(0, offendingToken.getStopIndex() + 1);
+    }
+
+    /**
+     * As official JavaDoc says, e=null means parser was able to recover from the error.
+     * In other words, "msg" argument includes the information we want.
+     */
+    private String getDetails(Recognizer<?, ?> recognizer, String msg, RecognitionException e) {
+        String details;
         if (e == null) {
-            suggestion = "More details: " + msg;
+            details = msg;
         } else {
             IntervalSet followSet = e.getExpectedTokens();
-            suggestion = "Expecting tokens: " + followSet.toString(recognizer.getVocabulary());
+            details = "Expecting tokens in " + followSet.toString(recognizer.getVocabulary());
         }
-
-        throw new SqlSyntaxAnalysisException(
-            "Failed to parse query due to offending symbol [%s] at: '%s' <--- HERE... %s",
-            offendingToken.getText(),
-            query.substring(0, offendingToken.getStopIndex() + 1),
-            suggestion
-        );
+        return details;
     }
 
 }
