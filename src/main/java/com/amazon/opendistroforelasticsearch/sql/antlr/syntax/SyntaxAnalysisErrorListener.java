@@ -40,14 +40,14 @@ public class SyntaxAnalysisErrorListener extends BaseErrorListener {
         throw new SqlSyntaxAnalysisException(
             StringUtils.format(
                 "Failed to parse query due to offending symbol [%s] at: '%s' <--- HERE... More details: %s",
-                getOffendText(offendingToken),
+                getOffendingText(offendingToken),
                 truncateQueryAtOffendingToken(query, offendingToken),
                 getDetails(recognizer, msg, e)
             )
         );
     }
 
-    private String getOffendText(Token offendingToken) {
+    private String getOffendingText(Token offendingToken) {
         return offendingToken.getText();
     }
 
