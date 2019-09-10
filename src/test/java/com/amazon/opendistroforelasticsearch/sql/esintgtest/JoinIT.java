@@ -237,12 +237,14 @@ public class JoinIT extends SQLIntegTestCase {
         hintLimits_firstLimitSecondLimit(true);
     }
 
+    @Ignore("Join limit hint is deprecated and easily broken due to limit on unsorted records")
     @Test
     public void hintLimits_firstLimitSecondLimitOnlyOneNL() throws IOException {
 
         hintLimits_firstLimitSecondLimitOnlyOne(true);
     }
 
+    @Ignore("Join limit hint is deprecated and easily broken due to limit on unsorted records")
     @Test
     public void hintLimits_firstLimitSecondLimitOnlyOneHASH() throws IOException {
 
