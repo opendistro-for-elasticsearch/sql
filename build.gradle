@@ -140,7 +140,7 @@ integTestCluster {
 generateGrammarSource {
     arguments += ['-visitor', '-package', 'com.amazon.opendistroforelasticsearch.sql.antlr.parser']
     source = sourceSets.main.antlr
-    outputDirectory = file("src/main/java/com/amazon/opendistroforelasticsearch/sql/antlr/parser")
+    outputDirectory = file("build/generated-src/antlr/main/com/amazon/opendistroforelasticsearch/sql/antlr/parser")
 }
 
 // Remove ANTLR plugin jars as it's specified as 'compile' dependency internally
