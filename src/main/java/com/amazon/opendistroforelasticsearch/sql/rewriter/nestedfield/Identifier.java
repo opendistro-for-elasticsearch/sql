@@ -53,8 +53,8 @@ class Identifier extends SQLClause<SQLIdentifierExpr> {
 
     /**
      * return the path of the expr name. e.g.
-     * if (expr.name = p.name), return p
-     * if (expr.name = p), return p
+     * expecting p returned as path in both WHERE p.name = 'A' and WHERE p IS NULL cases,
+     * in which expr.name = p.name and p separately
      */
     String path() {
         return separatorIndex() == -1 ? expr.getName() : expr.getName().substring(0, separatorIndex());

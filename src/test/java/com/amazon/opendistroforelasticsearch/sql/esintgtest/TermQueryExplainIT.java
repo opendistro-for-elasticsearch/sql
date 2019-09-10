@@ -359,11 +359,11 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void testNestedIsNotNull() throws IOException {
+    public void testNestedIsNotNullExplain() throws IOException {
         String explain = explainQuery(
                 "SELECT e.name " +
-                        "FROM elasticsearch-sql_test_index_employee_nested as e, e.projects as p " +
-                        "WHERE p IS NOT NULL"
+                         "FROM elasticsearch-sql_test_index_employee_nested as e, e.projects as p " +
+                         "WHERE p IS NOT NULL"
         );
 
         assertThat(explain, containsString("\"exists\":{\"field\":\"projects\""));
