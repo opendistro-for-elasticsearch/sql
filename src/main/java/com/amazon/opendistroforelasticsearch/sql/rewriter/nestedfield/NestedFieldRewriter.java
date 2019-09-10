@@ -17,7 +17,6 @@ package com.amazon.opendistroforelasticsearch.sql.rewriter.nestedfield;
 
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
-import com.alibaba.druid.sql.ast.expr.SQLInSubQueryExpr;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
 
@@ -82,15 +81,6 @@ public class NestedFieldRewriter extends MySqlASTVisitorAdapter {
         if (curScope().isAnyNestedField() && isNotGroupBy(query)) {
             new Select(query.getSelectList()).rewrite(curScope());
         }
-        return true;
-    }
-
-    /**
-     * Fix null parent problem which is required by SQLIdentifier.visit()
-     */
-    @Override
-    public boolean visit(SQLInSubQueryExpr subQuery) {
-        subQuery.getExpr().setParent(subQuery);
         return true;
     }
 
