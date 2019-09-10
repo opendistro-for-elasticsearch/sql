@@ -16,7 +16,10 @@
 package com.amazon.opendistroforelasticsearch.sql.antlr;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.SqlSyntaxAnalysisException;
+import org.hamcrest.Matchers;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 /**
  * Test cases focused on illegal syntax testing (blacklist) along with a few normal cases not covered previously.
@@ -24,13 +27,20 @@ import org.junit.Test;
  */
 public class SyntaxAnalysisTest {
 
+    /** public accessor is required by @Rule annotation */
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
+
     private OpenDistroSqlAnalyzer analyzer = new OpenDistroSqlAnalyzer();
 
 
     /** In reality exception occurs before reaching new parser for now */
-    @Test(expected = SqlSyntaxAnalysisException.class)
+    @Test
     public void unsupportedKeywordShouldThrowException() {
-        analyze("INSERT INTO accounts VALUES ('a')");
+        expectValidationFailWithErrorMessage(
+            "INSERT INTO accounts VALUES ('a')",
+            "offending symbol [INSERT]"
+        );
     }
 
     /**
@@ -41,50 +51,68 @@ public class SyntaxAnalysisTest {
      */
     @Test //(expected = SyntaxAnalysisException.class)
     public void unsupportedFunctionShouldThrowException() {
-        analyze("SELECT * FROM accounts WHERE LOG123(balance) = 1");
+        validate("SELECT * FROM accounts WHERE LOG123(balance) = 1");
     }
 
-    @Test(expected = SqlSyntaxAnalysisException.class)
-    public void unsupportedOperatorShouldThrowException() {
-        analyze("SELECT * FROM accounts WHERE age <=> 1");
+    @Test
+    public void unsupportedOperatorShouldPassSyntaxCheck() {
+        expectValidationFailWithErrorMessage(
+            "SELECT * FROM accounts WHERE age <=> 1",
+            "offending symbol [>]"
+        );
     }
 
-    @Test(expected = SqlSyntaxAnalysisException.class)
+    @Test
     public void missingFromClauseShouldThrowException() {
-        analyze("SELECT 1");
+        expectValidationFailWithErrorMessage(
+            "SELECT 1",
+            "offending symbol [<EOF>]" // parsing was unable to terminate normally
+        );
     }
 
     @Test
     public void someKeywordsShouldBeAbleToUseAsIdentifier() {
-        analyze("SELECT AVG(balance) AS avg FROM accounts");
+        validate("SELECT AVG(balance) AS avg FROM accounts");
     }
 
     @Test
     public void specialIndexNameShouldPass() {
-        analyze("SELECT * FROM accounts/temp");
-        analyze("SELECT * FROM account*");
-        analyze("SELECT * FROM es-accounts");
-        analyze("SELECT * FROM es-account*");
+        validate("SELECT * FROM accounts/temp");
+        validate("SELECT * FROM account*");
+        validate("SELECT * FROM es-accounts");
+        validate("SELECT * FROM es-account*");
     }
 
-    @Test(expected = SqlSyntaxAnalysisException.class)
+    @Test
     public void typeNamePatternShouldThrowException() {
-        analyze("SELECT * FROM accounts/tem*");
+        expectValidationFailWithErrorMessage(
+            "SELECT * FROM accounts/tem*",
+            "offending symbol [*]"
+        );
     }
 
     /** This is not supported for now */
-    @Test(expected = SqlSyntaxAnalysisException.class)
+    @Test
     public void systemIndexNameShouldThrowException() {
-        analyze("SELECT * FROM .kibana");
+        expectValidationFailWithErrorMessage(
+            "SELECT * FROM .kibana",
+            "offending symbol [.kibana]"
+        );
     }
 
     /** As the translation is not supported for now, check this in semantic analyzer */
     @Test
     public void arithmeticExpressionInWhereClauseShouldPass() {
-        analyze("SELECT * FROM accounts WHERE age + 1 = 10");
+        validate("SELECT * FROM accounts WHERE age + 1 = 10");
     }
 
-    private void analyze(String sql) {
+    private void expectValidationFailWithErrorMessage(String query, String message) {
+        exception.expect(SqlSyntaxAnalysisException.class);
+        exception.expectMessage(Matchers.containsString(message));
+        validate(query);
+    }
+
+    private void validate(String sql) {
         analyzer.analyze(sql);
     }
 }
