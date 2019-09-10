@@ -28,8 +28,10 @@ public class SQLFunctionsTest {
 
     @Test
     public void testAssign() {
+        SQLFunctions sqlFunctions = new SQLFunctions();
+
         final SQLIntegerExpr sqlIntegerExpr = new SQLIntegerExpr(10);
-        final Tuple<String, String> assign = SQLFunctions.function("assign",
+        final Tuple<String, String> assign = sqlFunctions.function("assign",
                 ImmutableList.of(new KVValue(null, sqlIntegerExpr)),
                 null,
                 true);

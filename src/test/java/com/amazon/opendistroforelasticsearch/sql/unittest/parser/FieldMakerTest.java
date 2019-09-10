@@ -20,6 +20,7 @@ import com.alibaba.druid.sql.ast.expr.SQLNumberExpr;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.parser.FieldMaker;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -31,10 +32,17 @@ public class FieldMakerTest {
 
     private static final String TABLE_ALIAS = "t";
 
+    private FieldMaker fieldMaker;
+
+    @Before
+    public void init() {
+        fieldMaker = new FieldMaker();
+    }
+
     @Test
     public void makeFieldAssign() throws SqlParseException {
         final SQLIntegerExpr sqlExpr = new SQLIntegerExpr(10);
-        final MethodField field = (MethodField) FieldMaker.makeField(sqlExpr, ALIAS, TABLE_ALIAS);
+        final MethodField field = (MethodField) fieldMaker.makeField(sqlExpr, ALIAS, TABLE_ALIAS);
 
         assertEquals("script", field.getName());
         assertEquals(ALIAS, field.getParams().get(0).value);
@@ -45,7 +53,7 @@ public class FieldMakerTest {
     @Test
     public void makeFieldAssignDouble() throws SqlParseException {
         final SQLNumberExpr sqlExpr = new SQLNumberExpr(10.0);
-        final MethodField field = (MethodField) FieldMaker.makeField(sqlExpr, ALIAS, TABLE_ALIAS);
+        final MethodField field = (MethodField) fieldMaker.makeField(sqlExpr, ALIAS, TABLE_ALIAS);
 
         assertEquals("script", field.getName());
         assertEquals(ALIAS, field.getParams().get(0).value);

@@ -28,8 +28,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.elasticsearch.common.collect.Tuple;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -51,7 +53,7 @@ public class SQLFunctions {
     );
 
     private static final Set<String> stringOperators = Sets.newHashSet(
-            "split", "concat_ws", "substring", "trim"
+            "split", "concat_ws", "substring", "trim", "lower", "upper"
     );
 
     private static final Set<String> binaryOperators = Sets.newHashSet(
@@ -75,6 +77,17 @@ public class SQLFunctions {
             utilityFunctions)
             .flatMap(Set::stream).collect(Collectors.toSet());
 
+    private Map<String, Integer> generatedIds = new HashMap<>();
+
+    /**
+     * Generates next id for given method name. The id's are increasing for each method name, so
+     * nextId("a"), nextId("a"), nextId("b") will return a_1, a_2, b_1
+     */
+    public String nextId(String methodName) {
+        return methodName + "_" + generatedIds.merge(methodName, 1, Integer::sum);
+    }
+
+
     /**
      * Is the function actually translated into Elastic DSL script during execution?
      */
@@ -82,10 +95,26 @@ public class SQLFunctions {
         return builtInFunctions.contains(function.toLowerCase());
     }
 
-    public static Tuple<String, String> function(String methodName, List<KVValue> paramers, String name,
+    public Tuple<String, String> function(String methodName, List<KVValue> paramers, String name,
                                                  boolean returnValue) {
         Tuple<String, String> functionStr = null;
         switch (methodName) {
+            case "lower": {
+                functionStr = lower(
+                        (SQLExpr) paramers.get(0).value,
+                        getLocaleForCaseChangingFunction(paramers),
+                        name
+                );
+                break;
+            }
+            case "upper": {
+                functionStr = upper(
+                        (SQLExpr) paramers.get(0).value,
+                        getLocaleForCaseChangingFunction(paramers),
+                        name);
+                break;
+            }
+
             // Split is currently not supported since its using .split() in painless which is not whitelisted
             case "split":
                 if (paramers.size() == 3) {
@@ -254,12 +283,36 @@ public class SQLFunctions {
         return functionStr;
     }
 
-    private static String random() {
-        return Math.abs(new Random().nextInt()) + "";
+    public String getLocaleForCaseChangingFunction(List<KVValue> paramers) {
+        String locale;
+        if (paramers.size() == 1) {
+            locale = Locale.getDefault().getLanguage();
+        } else {
+            locale = Util.expr2Object((SQLExpr) paramers.get(1).value).toString();
+        }
+        return locale;
     }
 
-    public static String randomize(String methodName) {
-        return methodName + "_" + random();
+    public Tuple<String, String> upper(SQLExpr field, String locale, String valueName) {
+        String name = nextId("upper");
+
+        if (valueName == null) {
+            return new Tuple<>(name, def(name, upper(getPropertyOrValue(field), locale)));
+        } else {
+            return new Tuple<>(name, getPropertyOrValue(field) + "; "
+                    + def(name, valueName + "." + upper(getPropertyOrValue(field), locale)));
+        }
+    }
+
+    public Tuple<String, String> lower(SQLExpr field, String locale, String valueName) {
+        String name = nextId("lower");
+
+        if (valueName == null) {
+            return new Tuple<>(name, def(name, lower(getPropertyOrValue(field), locale)));
+        } else {
+            return new Tuple<>(name, getPropertyOrValue(field) + "; "
+                    + def(name, valueName + "." + lower(getPropertyOrValue(field), locale)));
+        }
     }
 
     private static String def(String name, String value) {
@@ -293,8 +346,8 @@ public class SQLFunctions {
         return Stream.of(params).collect(Collectors.joining("', '", "'", "'"));
     }
 
-    private static Tuple<String, String> concat_ws(String split, List<SQLExpr> columns) {
-        String name = randomize("concat_ws");
+    private Tuple<String, String> concat_ws(String split, List<SQLExpr> columns) {
+        String name = nextId("concat_ws");
         List<String> result = Lists.newArrayList();
 
         for (SQLExpr column : columns) {
@@ -313,8 +366,8 @@ public class SQLFunctions {
 
 
     //split(Column expr, java.lang.String pattern)
-    public static Tuple<String, String> split(SQLExpr field, String pattern, int index, String valueName) {
-        String name = randomize("split");
+    public Tuple<String, String> split(SQLExpr field, String pattern, int index, String valueName) {
+        String name = nextId("split");
         final String script;
         if (valueName == null) {
             script = def(name,
@@ -328,8 +381,8 @@ public class SQLFunctions {
     }
 
     //split(Column expr, java.lang.String pattern)
-    public static Tuple<String, String> split(SQLExpr field, String pattern, String valueName) {
-        String name = randomize("split");
+    public Tuple<String, String> split(SQLExpr field, String pattern, String valueName) {
+        String name = nextId("split");
         if (valueName == null) {
             return new Tuple<>(name,
                     def(name, getPropertyOrValue(field) + "."
@@ -340,8 +393,8 @@ public class SQLFunctions {
         }
     }
 
-    private static Tuple<String, String> date_format(SQLExpr field, String pattern, String zoneId, String valueName) {
-        String name = randomize("date_format");
+    private Tuple<String, String> date_format(SQLExpr field, String pattern, String zoneId, String valueName) {
+        String name = nextId("date_format");
         if (valueName == null) {
             return new Tuple<>(name, "def " + name + " = DateTimeFormatter.ofPattern('" + pattern + "').withZone("
                     + (zoneId != null ? "ZoneId.of('" + zoneId + "')" : "ZoneId.systemDefault()")
@@ -353,44 +406,44 @@ public class SQLFunctions {
         }
     }
 
-    private static Tuple<String, String> dateFunctionTemplate(String methodName, SQLExpr field) {
-        String name = randomize(methodName);
+    private Tuple<String, String> dateFunctionTemplate(String methodName, SQLExpr field) {
+        String name = nextId(methodName);
         return new Tuple<>(name, def(name, doc(field) + ".value." + methodName));
     }
 
-    public static Tuple<String, String> add(SQLExpr a, SQLExpr b) {
+    public Tuple<String, String> add(SQLExpr a, SQLExpr b) {
         return binaryOpertator("add", "+", a, b);
     }
 
-    public static Tuple<String, String> assign(SQLExpr a) {
-        String name = randomize("assign");
+    public Tuple<String, String> assign(SQLExpr a) {
+        String name = nextId("assign");
         return new Tuple<>(name,
                 def(name, extractName(a)));
     }
 
-    private static Tuple<String, String> modulus(SQLExpr a, SQLExpr b) {
+    private Tuple<String, String> modulus(SQLExpr a, SQLExpr b) {
         return binaryOpertator("modulus", "%", a, b);
     }
 
-    public static Tuple<String, String> field(String a) {
-        String name = randomize("field");
+    public Tuple<String, String> field(String a) {
+        String name = nextId("field");
         return new Tuple<>(name, def(name, doc(a) + ".value"));
     }
 
-    private static Tuple<String, String> subtract(SQLExpr a, SQLExpr b) {
+    private Tuple<String, String> subtract(SQLExpr a, SQLExpr b) {
         return binaryOpertator("subtract", "-", a, b);
     }
 
-    private static Tuple<String, String> multiply(SQLExpr a, SQLExpr b) {
+    private Tuple<String, String> multiply(SQLExpr a, SQLExpr b) {
         return binaryOpertator("multiply", "*", a, b);
     }
 
-    private static Tuple<String, String> divide(SQLExpr a, SQLExpr b) {
+    private Tuple<String, String> divide(SQLExpr a, SQLExpr b) {
         return binaryOpertator("divide", "/", a, b);
     }
 
-    private static Tuple<String, String> binaryOpertator(String methodName, String operator, SQLExpr a, SQLExpr b) {
-        String name = randomize(methodName);
+    private Tuple<String, String> binaryOpertator(String methodName, String operator, SQLExpr a, SQLExpr b) {
+        String name = nextId(methodName);
         return new Tuple<>(name,
                 scriptDeclare(a) + scriptDeclare(b) + convertType(a) + convertType(b)
                         + def(name, extractName(a) + " " + operator + " " + extractName(b)));
@@ -454,8 +507,8 @@ public class SQLFunctions {
      * Using exprString() rather than getPropertyOrValue() for "base" since something like "Math.E" gets evaluated
      * incorrectly in getPropertyOrValue(), returning it as a doc value instead of the literal string
      */
-    public static Tuple<String, String> log(SQLExpr base, SQLExpr field, String valueName) {
-        String name = randomize("log");
+    public Tuple<String, String> log(SQLExpr base, SQLExpr field, String valueName) {
+        String name = nextId("log");
         String result;
         if (valueName == null) {
             result = def(name, func("Math.log", false, getPropertyOrValue(field))
@@ -468,23 +521,21 @@ public class SQLFunctions {
         return new Tuple<>(name, result);
     }
 
-    public static Tuple<String, String> trim(SQLExpr field, String valueName) {
-
+    public Tuple<String, String> trim(SQLExpr field, String valueName) {
         return strSingleValueTemplate("trim", field, valueName);
-
     }
 
-    private static Tuple<String, String> degrees(SQLExpr field, String valueName) {
+    private Tuple<String, String> degrees(SQLExpr field, String valueName) {
         return mathSingleValueTemplate("Math.toDegrees", "degrees", field, valueName);
     }
 
-    private static Tuple<String, String> radians(SQLExpr field, String valueName) {
+    private Tuple<String, String> radians(SQLExpr field, String valueName) {
         return mathSingleValueTemplate("Math.toRadians", "radians", field, valueName);
     }
 
-    private static Tuple<String, String> mathDoubleValueTemplate(String methodName, String fieldName, SQLExpr val1,
+    private Tuple<String, String> mathDoubleValueTemplate(String methodName, String fieldName, SQLExpr val1,
                                                                  String val2, String valueName) {
-        String name = randomize(fieldName);
+        String name = nextId(fieldName);
         if (valueName == null) {
             return new Tuple<>(name, def(name, func(methodName, false, getPropertyOrValue(val1), val2)));
         } else {
@@ -493,9 +544,9 @@ public class SQLFunctions {
         }
     }
 
-    private static Tuple<String, String> mathSingleValueTemplate(String methodName, String fieldName, SQLExpr field,
+    private Tuple<String, String> mathSingleValueTemplate(String methodName, String fieldName, SQLExpr field,
                                                                  String valueName) {
-        String name = randomize(fieldName);
+        String name = nextId(fieldName);
         if (valueName == null) {
             return new Tuple<>(name, def(name, func(methodName, false, getPropertyOrValue(field))));
         } else {
@@ -505,13 +556,13 @@ public class SQLFunctions {
 
     }
 
-    private static Tuple<String, String> mathConstantTemplate(String methodName, String fieldName) {
-        String name = randomize(fieldName);
+    private Tuple<String, String> mathConstantTemplate(String methodName, String fieldName) {
+        String name = nextId(fieldName);
         return new Tuple<>(name, def(name, methodName));
     }
 
-    private static Tuple<String, String> strSingleValueTemplate(String methodName, SQLExpr field, String valueName) {
-        String name = randomize(methodName);
+    private Tuple<String, String> strSingleValueTemplate(String methodName, SQLExpr field, String valueName) {
+        String name = nextId(methodName);
         if (valueName == null) {
             return new Tuple<>(name, def(name, getPropertyOrValue(field) + "." + func(methodName, false)));
         } else {
@@ -522,8 +573,8 @@ public class SQLFunctions {
     }
 
     //substring(Column expr, int pos, int len)
-    public static Tuple<String, String> substring(SQLExpr field, int pos, int len, String valueName) {
-        String name = randomize("substring");
+    public Tuple<String, String> substring(SQLExpr field, int pos, int len, String valueName) {
+        String name = nextId("substring");
         if (valueName == null) {
             return new Tuple<>(name, def(name, getPropertyOrValue(field) + "."
                     + func("substring", false, Integer.toString(pos), Integer.toString(len))));
@@ -532,7 +583,14 @@ public class SQLFunctions {
                     + def(name, valueName + "."
                     + func("substring", false, Integer.toString(pos), Integer.toString(len))));
         }
+    }
 
+    private String lower(String property, String culture) {
+        return property + ".toLowerCase(Locale.forLanguageTag(\"" + culture + "\"))";
+    }
+
+    private String upper(String property, String culture) {
+        return property + ".toUpperCase(Locale.forLanguageTag(\"" + culture + "\"))";
     }
 
     /**

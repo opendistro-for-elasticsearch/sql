@@ -17,7 +17,6 @@ package com.amazon.opendistroforelasticsearch.sql.parser;
 
 import com.alibaba.druid.sql.ast.expr.SQLCastExpr;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
-import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
 import com.amazon.opendistroforelasticsearch.sql.utils.Util;
 import com.google.common.base.Joiner;
 
@@ -28,6 +27,8 @@ import java.util.List;
  * Created by leonlu on 2017/9/21.
  */
 public class CastParser {
+
+    private int fieldId = 0;
 
     private enum DataType {
         INT, LONG, FLOAT, DOUBLE, STRING, DATETIME
@@ -48,7 +49,7 @@ public class CastParser {
 
         String dataType = castExpr.getDataType().getName().toUpperCase();
         String fileName = String.format("doc['%s'].value", Util.expr2Object(castExpr.getExpr()));
-        String name = SQLFunctions.randomize("field");
+        String name = "cast_field" + (++fieldId);
 
         try {
             if (DataType.valueOf(dataType) == DataType.INT) {

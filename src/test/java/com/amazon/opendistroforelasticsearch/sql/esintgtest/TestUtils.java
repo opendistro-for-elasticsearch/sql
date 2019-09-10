@@ -72,6 +72,26 @@ public class TestUtils {
                 "            \"type\": \"text\",\n" +
                 "            \"fielddata\": true\n" +
                 "          }," +
+                "          \"firstname\": {\n" +
+                "            \"type\": \"text\",\n" +
+                "            \"fielddata\": true,\n" +
+                "            \"fields\": {\n" +
+                "              \"keyword\": {\n" +
+                "                \"type\": \"keyword\",\n" +
+                "                \"ignore_above\": 256\n" +
+                "              }" +
+                "            }" +
+                "          }," +
+                "          \"lastname\": {\n" +
+                "            \"type\": \"text\",\n" +
+                "            \"fielddata\": true,\n" +
+                "            \"fields\": {\n" +
+                "              \"keyword\": {\n" +
+                "                \"type\": \"keyword\",\n" +
+                "                \"ignore_above\": 256\n" +
+                "              }" +
+                "            }" +
+                "          }," +
                 "          \"state\": {\n" +
                 "            \"type\": \"text\",\n" +
                 "            \"fielddata\": true,\n" +
