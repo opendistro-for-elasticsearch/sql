@@ -307,4 +307,4 @@ fragment BIT_STRING_L:              'B' '\'' [01]+ '\'';
 
 // Last tokens must generate Errors
 
-ERROR_RECONGNIGION:                 .    -> channel(ERRORCHANNEL);
+ERROR_RECOGNITION:                  .    -> channel(ERRORCHANNEL);
