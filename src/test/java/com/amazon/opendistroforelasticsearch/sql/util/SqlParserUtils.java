@@ -20,7 +20,7 @@ import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.alibaba.druid.sql.parser.ParserException;
 import com.alibaba.druid.sql.parser.Token;
 import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
-import com.amazon.opendistroforelasticsearch.sql.rewriter.nestedfield.NestedFieldRewriter;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.parent.SQLExprParentSetter;
 
 /**
  * Test utils class include all SQLExpr related method.
@@ -38,7 +38,8 @@ public class SqlParserUtils {
         if (parser.getLexer().token() != Token.EOF) {
             throw new ParserException("Illegal sql: " + sql);
         }
-        expr.accept(new NestedFieldRewriter());
+        SQLQueryExpr queryExpr = (SQLQueryExpr) expr;
+        queryExpr.accept(new SQLExprParentSetter());
         return (SQLQueryExpr) expr;
     }
 }
