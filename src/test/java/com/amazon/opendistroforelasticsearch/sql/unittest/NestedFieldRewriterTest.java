@@ -249,6 +249,30 @@ public class NestedFieldRewriterTest {
         );
     }
 
+    @Test
+    public void isNotNull() {
+        same(
+                query("SELECT e.name FROM employee as e, e.projects as p WHERE p IS NOT NULL"),
+                query("SELECT name FROM employee WHERE nested(projects, 'projects') IS NOT NULL")
+        );
+    }
+
+    @Test
+    public void isNotNullAndCondition() {
+        same(
+                query("SELECT e.name FROM employee as e, e.projects as p WHERE p IS NOT NULL AND p.name LIKE 'security'"),
+                query("SELECT name FROM employee WHERE nested('projects', projects IS NOT NULL AND projects.name LIKE 'security')")
+        );
+    }
+
+    @Test
+    public void multiCondition() {
+        same(
+                query("SELECT e.name FROM employee as e, e.projects as p WHERE p.year = 2016 and p.name LIKE 'security'"),
+                query("SELECT name FROM employee WHERE nested('projects', projects.year = 2016 AND projects.name LIKE 'security')")
+        );
+    }
+
     private void noImpact(String sql) {
         same(parse(sql), rewrite(parse(sql)));
     }

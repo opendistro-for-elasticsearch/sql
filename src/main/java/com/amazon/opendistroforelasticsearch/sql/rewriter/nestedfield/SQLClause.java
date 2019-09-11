@@ -99,10 +99,7 @@ abstract class SQLClause<T> {
     String pathFromIdentifier(SQLExpr identifier) {
         String field = Util.extendedToString(identifier);
         int lastDot = field.lastIndexOf(".");
-        if (lastDot == -1) {
-            throw new IllegalStateException("pathFromIdentifier() is being invoked on the wrong field [" + field + "]");
-        }
-        return field.substring(0, lastDot);
+        return lastDot == -1 ? field :field.substring(0, lastDot);
     }
 
 }
