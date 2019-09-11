@@ -28,9 +28,9 @@ import static org.junit.Assert.assertTrue;
 public class SQLExprParentSetterRuleTest {
 
     @Mock
-    SQLQueryExpr queryExpr;
+    private SQLQueryExpr queryExpr;
 
-    SQLExprParentSetterRule rule = new SQLExprParentSetterRule();
+    private SQLExprParentSetterRule rule = new SQLExprParentSetterRule();
 
     @Test
     public void match() {
