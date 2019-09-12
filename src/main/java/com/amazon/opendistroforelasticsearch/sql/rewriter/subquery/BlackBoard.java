@@ -64,6 +64,10 @@ public class BlackBoard {
         tableStack.push(joinTableSource);
     }
 
+    public void addJoin(SQLTableSource right, JoinType joinType) {
+        addJoin(right, joinType, null);
+    }
+
     public void addTable(SQLTableSource table) {
         tableStack.push(table);
     }

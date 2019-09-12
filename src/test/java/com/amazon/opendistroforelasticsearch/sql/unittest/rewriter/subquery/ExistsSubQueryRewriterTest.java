@@ -35,8 +35,8 @@ public class ExistsSubQueryRewriterTest extends SubQueryRewriterTestBase {
                         "WHERE p IS NOT NULL")),
                 sqlString(rewrite(expr(
                         "SELECT e.name " +
-                        "FROM employee as e, e.projects as p " +
-                        "WHERE EXISTS (SELECT * FROM p)")))
+                        "FROM employee as e " +
+                        "WHERE EXISTS (SELECT * FROM e.projects as p)")))
         );
     }
 
@@ -49,8 +49,8 @@ public class ExistsSubQueryRewriterTest extends SubQueryRewriterTestBase {
                         "WHERE p IS NOT NULL AND p.name LIKE 'security'")),
                 sqlString(rewrite(expr(
                         "SELECT e.name " +
-                        "FROM employee as e, e.projects as p " +
-                        "WHERE EXISTS (SELECT * FROM p WHERE p.name LIKE 'security')")))
+                        "FROM employee as e " +
+                        "WHERE EXISTS (SELECT * FROM e.projects as p WHERE p.name LIKE 'security')")))
         );
     }
 
@@ -63,8 +63,8 @@ public class ExistsSubQueryRewriterTest extends SubQueryRewriterTestBase {
                         "WHERE p IS NOT NULL AND e.name LIKE 'security'")),
                 sqlString(rewrite(expr(
                         "SELECT e.name " +
-                        "FROM employee as e, e.projects as p " +
-                        "WHERE EXISTS (SELECT * FROM p) AND e.name LIKE 'security'")))
+                        "FROM employee as e " +
+                        "WHERE EXISTS (SELECT * FROM e.projects as p) AND e.name LIKE 'security'")))
         );
     }
 
@@ -77,8 +77,8 @@ public class ExistsSubQueryRewriterTest extends SubQueryRewriterTestBase {
                         "WHERE p IS NOT NULL AND c IS NOT NULL")),
                 sqlString(rewrite(expr(
                         "SELECT e.name " +
-                        "FROM employee as e, e.projects as p, e.comments as c " +
-                        "WHERE EXISTS (SELECT * FROM p) AND EXISTS (SELECT * FROM c)")))
+                        "FROM employee as e " +
+                        "WHERE EXISTS (SELECT * FROM e.projects as p) AND EXISTS (SELECT * FROM e.comments as c)")))
         );
     }
 
@@ -88,8 +88,8 @@ public class ExistsSubQueryRewriterTest extends SubQueryRewriterTestBase {
         exceptionRule.expectMessage("Unsupported subquery");
         rewrite(expr(
                 "SELECT e.name " +
-                "FROM employee as e, e.projects as p " +
-                "WHERE NOT EXISTS (SELECT * FROM p)"));
+                "FROM employee as e " +
+                "WHERE NOT EXISTS (SELECT * FROM e.projects as p)"));
     }
 
 }

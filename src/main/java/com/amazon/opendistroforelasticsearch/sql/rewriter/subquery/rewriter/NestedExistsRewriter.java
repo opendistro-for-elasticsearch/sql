@@ -19,8 +19,10 @@ import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOperator;
 import com.alibaba.druid.sql.ast.expr.SQLExistsExpr;
+import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.expr.SQLNullExpr;
 import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
+import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource.JoinType;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.BlackBoard;
 
@@ -68,8 +70,9 @@ public class NestedExistsRewriter implements Rewriter {
 
     @Override
     public void rewrite() {
-        SQLBinaryOpExpr nullOp = generateNullOp(from.getExpr());
+        bb.addJoin(from, JoinType.COMMA);
 
+        SQLBinaryOpExpr nullOp = generateNullOp();
         if (null == where) {
             bb.addWhere(nullOp);
         } else if (where instanceof SQLBinaryOpExpr) {
@@ -83,9 +86,9 @@ public class NestedExistsRewriter implements Rewriter {
         return new SQLBinaryOpExpr(left, SQLBinaryOperator.BooleanAnd, right);
     }
 
-    private SQLBinaryOpExpr generateNullOp(SQLExpr left) {
+    private SQLBinaryOpExpr generateNullOp() {
         SQLBinaryOpExpr binaryOpExpr = new SQLBinaryOpExpr();
-        binaryOpExpr.setLeft(left);
+        binaryOpExpr.setLeft(new SQLIdentifierExpr(from.getAlias()));
         binaryOpExpr.setRight(new SQLNullExpr());
         binaryOpExpr.setOperator(SQLBinaryOperator.IsNot);
 

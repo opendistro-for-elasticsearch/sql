@@ -164,8 +164,8 @@ public class SubqueryIT extends SQLIntegTestCase {
     public void nonCorrlatedExists() throws IOException {
         String query = String.format(Locale.ROOT,
                                      "SELECT e.name " +
-                                     "FROM %s as e, e.projects as p " +
-                                     "WHERE EXISTS (SELECT * FROM p)",
+                                     "FROM %s as e " +
+                                     "WHERE EXISTS (SELECT * FROM e.projects as p)",
                                      TEST_INDEX_EMPLOYEE_NESTED);
 
         JSONObject response = executeQuery(query);
@@ -182,8 +182,8 @@ public class SubqueryIT extends SQLIntegTestCase {
     public void nonCorrlatedExistsWhere() throws IOException {
         String query = String.format(Locale.ROOT,
                                      "SELECT e.name " +
-                                     "FROM %s as e, e.projects as p " +
-                                     "WHERE EXISTS (SELECT * FROM p WHERE p.name LIKE 'aurora')",
+                                     "FROM %s as e " +
+                                     "WHERE EXISTS (SELECT * FROM e.projects as p WHERE p.name LIKE 'aurora')",
                                      TEST_INDEX_EMPLOYEE_NESTED);
 
         JSONObject response = executeQuery(query);
@@ -199,8 +199,8 @@ public class SubqueryIT extends SQLIntegTestCase {
     public void nonCorrlatedExistsParentWhere() throws IOException {
         String query = String.format(Locale.ROOT,
                                      "SELECT e.name " +
-                                     "FROM %s as e, e.projects as p " +
-                                     "WHERE EXISTS (SELECT * FROM p WHERE p.name LIKE 'security') " +
+                                     "FROM %s as e " +
+                                     "WHERE EXISTS (SELECT * FROM e.projects as p WHERE p.name LIKE 'security') " +
                                      "AND e.name LIKE 'jane'",
                                      TEST_INDEX_EMPLOYEE_NESTED);
 
@@ -219,8 +219,8 @@ public class SubqueryIT extends SQLIntegTestCase {
         exceptionRule.expectMessage("Unsupported subquery");
         String query = String.format(Locale.ROOT,
                                      "SELECT e.name " +
-                                     "FROM %s as e, e.projects as p " +
-                                     "WHERE NOT EXISTS (SELECT * FROM p)",
+                                     "FROM %s as e " +
+                                     "WHERE NOT EXISTS (SELECT * FROM e.projects as p)",
                                      TEST_INDEX_EMPLOYEE_NESTED);
         executeQuery(query);
     }
