@@ -28,6 +28,7 @@ import java.util.Locale;
 
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_DOGSUBQUERY;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_EMPLOYEE_NESTED;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.hitAll;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvInt;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvString;
@@ -44,6 +45,7 @@ public class SubqueryIT extends SQLIntegTestCase {
     protected void init() throws Exception {
         loadIndex(Index.ACCOUNT);
         loadIndex(Index.DOGSSUBQUERY);
+        loadIndex(Index.EMPLOYEE_NESTED);
     }
 
     @Test
@@ -156,5 +158,70 @@ public class SubqueryIT extends SQLIntegTestCase {
                         kvString("/_source/A.dog_name", is("babala"))
                 )
         );
+    }
+
+    @Test
+    public void nonCorrlatedExists() throws IOException {
+        String query = String.format(Locale.ROOT,
+                                     "SELECT e.name " +
+                                     "FROM %s as e, e.projects as p " +
+                                     "WHERE EXISTS (SELECT * FROM p)",
+                                     TEST_INDEX_EMPLOYEE_NESTED);
+
+        JSONObject response = executeQuery(query);
+        assertThat(
+                response,
+                hitAll(
+                        kvString("/_source/name", is("Bob Smith")),
+                        kvString("/_source/name", is("Jane Smith"))
+                )
+        );
+    }
+
+    @Test
+    public void nonCorrlatedExistsWhere() throws IOException {
+        String query = String.format(Locale.ROOT,
+                                     "SELECT e.name " +
+                                     "FROM %s as e, e.projects as p " +
+                                     "WHERE EXISTS (SELECT * FROM p WHERE p.name LIKE 'aurora')",
+                                     TEST_INDEX_EMPLOYEE_NESTED);
+
+        JSONObject response = executeQuery(query);
+        assertThat(
+                response,
+                hitAll(
+                        kvString("/_source/name", is("Bob Smith"))
+                )
+        );
+    }
+
+    @Test
+    public void nonCorrlatedExistsParentWhere() throws IOException {
+        String query = String.format(Locale.ROOT,
+                                     "SELECT e.name " +
+                                     "FROM %s as e, e.projects as p " +
+                                     "WHERE EXISTS (SELECT * FROM p WHERE p.name LIKE 'security') " +
+                                     "AND e.name LIKE 'jane'",
+                                     TEST_INDEX_EMPLOYEE_NESTED);
+
+        JSONObject response = executeQuery(query);
+        assertThat(
+                response,
+                hitAll(
+                        kvString("/_source/name", is("Jane Smith"))
+                )
+        );
+    }
+
+    @Test
+    public void nonCorrlatedNotExistsUnsupported() throws IOException {
+        exceptionRule.expect(ResponseException.class);
+        exceptionRule.expectMessage("Unsupported subquery");
+        String query = String.format(Locale.ROOT,
+                                     "SELECT e.name " +
+                                     "FROM %s as e, e.projects as p " +
+                                     "WHERE NOT EXISTS (SELECT * FROM p)",
+                                     TEST_INDEX_EMPLOYEE_NESTED);
+        executeQuery(query);
     }
 }

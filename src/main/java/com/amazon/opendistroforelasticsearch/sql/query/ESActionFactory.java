@@ -45,7 +45,7 @@ import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.TermFieldR
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.TermFieldRewriter.TermRewriterFilter;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.nestedfield.NestedFieldRewriter;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.parent.SQLExprParentSetterRule;
-import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.SubqueryRewriteRule;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.SubQueryRewriteRule;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -77,7 +77,7 @@ public class ESActionFactory {
 
                 RewriteRuleExecutor<SQLQueryExpr> ruleExecutor = RewriteRuleExecutor.<SQLQueryExpr>builder()
                         .withRule(new SQLExprParentSetterRule())
-                        .withRule(new SubqueryRewriteRule())
+                        .withRule(new SubQueryRewriteRule())
                         .build();
                 ruleExecutor.executeOn(sqlExpr);
                 sqlExpr.accept(new NestedFieldRewriter());

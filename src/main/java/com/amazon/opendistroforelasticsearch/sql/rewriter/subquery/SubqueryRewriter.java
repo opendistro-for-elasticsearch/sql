@@ -15,15 +15,48 @@
 
 package com.amazon.opendistroforelasticsearch.sql.rewriter.subquery;
 
+import com.alibaba.druid.sql.ast.SQLExpr;
+import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
+import com.alibaba.druid.sql.ast.expr.SQLExistsExpr;
+import com.alibaba.druid.sql.ast.expr.SQLInSubQueryExpr;
+import com.alibaba.druid.sql.ast.statement.SQLSelect;
+import com.alibaba.druid.sql.ast.statement.SQLSelectQuery;
+import com.alibaba.druid.sql.ast.statement.SQLTableSource;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
 
-/**
- * Rewrites the query to replace the subquery with a join.
- */
-public interface SubqueryRewriter {
-    /**
-     * Rewrite the subquery with correspond JOIN query.
-     * It is NOT idempotent operation.
-     */
-    void rewrite(MySqlSelectQueryBlock query);
+public class SubQueryRewriter {
+
+    public static void convert(SQLSelect query, BlackBoard bb) {
+        SQLSelectQuery queryExpr = query.getQuery();
+        if (queryExpr instanceof MySqlSelectQueryBlock) {
+            MySqlSelectQueryBlock queryBlock = (MySqlSelectQueryBlock) queryExpr;
+            bb.addTable(queryBlock.getFrom());
+
+            queryBlock.setWhere(convertWhere(queryBlock.getWhere(), bb));
+            queryBlock.setFrom(convertFrom(queryBlock.getFrom(), bb));
+        }
+    }
+
+    private static SQLTableSource convertFrom(SQLTableSource expr, BlackBoard bb) {
+        SQLTableSource join = bb.popJoin();
+        if (join != null) {
+            return join;
+        }
+        return expr;
+    }
+
+    private static SQLExpr convertWhere(SQLExpr expr, BlackBoard bb) {
+        if (expr instanceof SQLExistsExpr) {
+            new Exists((SQLExistsExpr) expr, bb).rewrite();
+            return bb.popWhere();
+        } else if (expr instanceof SQLInSubQueryExpr) {
+            new In((SQLInSubQueryExpr) expr, bb).rewrite();
+            return bb.popWhere();
+        } else if (expr instanceof SQLBinaryOpExpr) {
+            SQLBinaryOpExpr binaryOpExpr = (SQLBinaryOpExpr) expr;
+            binaryOpExpr.setLeft(convertWhere(binaryOpExpr.getLeft(), bb));
+            binaryOpExpr.setRight(convertWhere(binaryOpExpr.getRight(), bb));
+        }
+        return expr;
+    }
 }

@@ -15,32 +15,34 @@
 
 package com.amazon.opendistroforelasticsearch.sql.rewriter.subquery;
 
+import com.alibaba.druid.sql.ast.expr.SQLExistsExpr;
+import com.alibaba.druid.sql.ast.expr.SQLInSubQueryExpr;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
-import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
+import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.RewriteRule;
-import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.model.Subquery;
-import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.model.SubqueryType;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.rewriter.SubqueryAliasRewriter;
-import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.visitor.FindSubqueryInWhere;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.utils.NestedQueryDetector;
 
 import java.sql.SQLFeatureNotSupportedException;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Subquery Optimize Rule.
+ * Subquery Rewriter Rule.
  */
-public class SubqueryRewriteRule implements RewriteRule<SQLQueryExpr> {
-    private Optional<Subquery> subquery;
+public class SubQueryRewriteRule implements RewriteRule<SQLQueryExpr> {
+    private FindAllSubQueryInWhere findAllSubQueryInWhere = new FindAllSubQueryInWhere();
+    private NestedQueryDetector nestedQueryDetector = new NestedQueryDetector();
 
     @Override
     public boolean match(SQLQueryExpr expr) throws SQLFeatureNotSupportedException {
-        subquery = subquery(expr);
-        if (subquery.isPresent()) {
-            SubqueryType subqueryType = subquery.get().getSubqueryType();
-            if (subqueryType.isSupported()) {
+        expr.accept(findAllSubQueryInWhere);
+
+        if (isContainSubQuery(findAllSubQueryInWhere)) {
+            if (isSupportedSubQuery(findAllSubQueryInWhere)) {
                 return true;
             } else {
-                throw new SQLFeatureNotSupportedException("Unsupported subquery. only IN is supported.");
+                throw new SQLFeatureNotSupportedException("Unsupported subquery. Only one EXISTS or IN is supported");
             }
         } else {
             return false;
@@ -49,29 +51,50 @@ public class SubqueryRewriteRule implements RewriteRule<SQLQueryExpr> {
 
     @Override
     public void rewrite(SQLQueryExpr expr) {
-        if (subquery == null) {
-            subquery = subquery(expr);
+        expr.accept(nestedQueryDetector);
+        if (!nestedQueryDetector.hasNestedQuery()) {
+            // add the alias for the IN subquery identifier if missing
+            expr.accept(new SubqueryAliasRewriter());
         }
-        MySqlSelectQueryBlock rootQuery = (MySqlSelectQueryBlock) expr.getSubQuery().getQuery();
-        // add the alias for the subquery identifier if missing
-        rootQuery.accept(new SubqueryAliasRewriter());
-        // handle the SubqueryType.IN
-        if (SubqueryType.IN == subquery.get().getSubqueryType()) {
-            // rootQuery is "SELECT * FROM A WHERE a IN (SELECT b FROM B)"
-            // subquery is "a IN (SELECT b FROM B)"
-            InSubqueryRewriter rewriter = new InSubqueryRewriter(subquery.get());
-            rewriter.rewrite(rootQuery);
+        SubQueryRewriter.convert(expr.getSubQuery(), new BlackBoard(nestedQueryDetector));
+    }
+
+    private boolean isContainSubQuery(FindAllSubQueryInWhere allSubQuery) {
+        return !allSubQuery.getSqlExistsExprs().isEmpty() || !allSubQuery.getSqlInSubQueryExprs().isEmpty();
+    }
+
+    private boolean isSupportedSubQuery(FindAllSubQueryInWhere allSubQuery) {
+        if ((allSubQuery.getSqlInSubQueryExprs().size() == 1 && allSubQuery.getSqlExistsExprs().size() == 0)
+            || (allSubQuery.getSqlInSubQueryExprs().size() == 0 && allSubQuery.getSqlExistsExprs().size() == 1)) {
+            return true;
+        }
+        return false;
+    }
+
+    private class FindAllSubQueryInWhere extends MySqlASTVisitorAdapter {
+        private final List<SQLInSubQueryExpr> sqlInSubQueryExprs = new ArrayList<>();
+        private final List<SQLExistsExpr> sqlExistsExprs = new ArrayList<>();
+
+
+        @Override
+        public boolean visit(SQLInSubQueryExpr query) {
+            sqlInSubQueryExprs.add(query);
+            return true;
+        }
+
+        @Override
+        public boolean visit(SQLExistsExpr query) {
+            sqlExistsExprs.add(query);
+            return true;
+        }
+
+        List<SQLInSubQueryExpr> getSqlInSubQueryExprs() {
+            return sqlInSubQueryExprs;
+        }
+
+        List<SQLExistsExpr> getSqlExistsExprs() {
+            return sqlExistsExprs;
         }
     }
 
-    /**
-     * Retrieve the {@link Subquery} from the {@link SQLQueryExpr}.
-     */
-    private Optional<Subquery> subquery(SQLQueryExpr sqlExpr) {
-        FindSubqueryInWhere whereSubquery = new FindSubqueryInWhere();
-        sqlExpr.accept(whereSubquery);
-        return whereSubquery.subquery();
-    }
 }
-
-

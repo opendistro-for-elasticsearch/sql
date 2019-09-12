@@ -13,23 +13,20 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.unittest.rewriter.subquery;
+package com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.rewriter;
 
-import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.model.SubqueryType;
-import org.junit.Test;
+/**
+ * Interface of SQL Rewriter
+ */
+public interface Rewriter {
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+    /**
+     * Whether the Rewriter can rewrite the SQL?
+     */
+    boolean canRewrite();
 
-public class SubqueryTypeTest {
-
-    @Test
-    public void testSupport() {
-        assertTrue(SubqueryType.IN.isSupported());
-    }
-
-    @Test
-    public void testNotSupport() {
-        assertFalse(SubqueryType.UNSUPPORTED.isSupported());
-    }
+    /**
+     * Rewrite the SQL.
+     */
+    void rewrite();
 }
