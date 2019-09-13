@@ -13,10 +13,33 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.antlr.semantic;
+package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope;
 
 /**
- * SQL semantic analyzer that determines if a syntactical correct query is meaningful.
+ * Symbol in the scope
  */
-public class OpenDistroSqlSemanticAnalyzer {
+public class Symbol {
+
+    private final Namespace namespace;
+
+    private final String name;
+
+    public Symbol(Namespace namespace, String name) {
+        this.namespace = namespace;
+        this.name = name;
+    }
+
+    public Namespace getNamespace() {
+        return namespace;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return namespace + " [" + name + "]";
+    }
+
 }

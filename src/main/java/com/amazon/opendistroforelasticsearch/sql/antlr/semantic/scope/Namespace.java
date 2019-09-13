@@ -13,17 +13,26 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.antlr.semantic;
-
-import com.amazon.opendistroforelasticsearch.sql.antlr.SqlAnalysisException;
+package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope;
 
 /**
- * Exception for semantic analysis
+ * Namespace of symbol to avoid naming conflict
  */
-public class SqlSemanticAnalysisException extends SqlAnalysisException {
+public enum Namespace {
 
-    public SqlSemanticAnalysisException(String message) {
-        super(message);
+    FIELD_NAME("Field"),
+    FUNCTION_NAME("Function"),
+    OPERATOR_NAME("Operator");
+
+    private final String name;
+
+    Namespace(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 
 }

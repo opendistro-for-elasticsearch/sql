@@ -15,17 +15,15 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr;
 
-import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.SqlSemanticAnalysisException;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.SemanticAnalysisException;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.google.common.base.Charsets;
-import com.google.common.io.Files;
 import com.google.common.io.Resources;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
@@ -53,13 +51,13 @@ public class SemanticAnalysisTest {
     }
 
     @Ignore("To be implemented")
-    @Test(expected = SqlSemanticAnalysisException.class)
+    @Test(expected = SemanticAnalysisException.class)
     public void nonExistingIndexNameShouldFail() {
         analyze("SELECT * FROM semantics1");
     }
 
     @Ignore("To be implemented")
-    @Test(expected = SqlSemanticAnalysisException.class)
+    @Test(expected = SemanticAnalysisException.class)
     public void nonNestedFieldInFromClauseShouldFail() {
     }
 
@@ -72,24 +70,24 @@ public class SemanticAnalysisTest {
     }
 
     @Ignore("To be implemented")
-    @Test(expected = SqlSemanticAnalysisException.class)
+    @Test(expected = SemanticAnalysisException.class)
     public void nonExistingFieldNameShouldFail() {
     }
 
     @Ignore("To be implemented")
-    @Test(expected = SqlSemanticAnalysisException.class)
+    @Test(expected = SemanticAnalysisException.class)
     public void unsupportedFunctionInSelectClauseShouldFail() {
         analyze("SELECT NOW() FROM semantics");
     }
 
     @Ignore("To be implemented")
-    @Test(expected = SqlSemanticAnalysisException.class)
+    @Test(expected = SemanticAnalysisException.class)
     public void unsupportedFunctionInWhereClauseShouldFail() {
         //analyze("SELECT * FROM semantics WHERE ");
     }
 
     @Ignore("To be implemented")
-    @Test(expected = SqlSemanticAnalysisException.class)
+    @Test(expected = SemanticAnalysisException.class)
     public void useAggregateFunctionInWhereClauseShouldFail() {
         analyze("SELECT * FROM semantics WHERE AVG(balance) > 10000");
     }
