@@ -34,13 +34,14 @@ import static com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents
  */
 public class SemanticAnalysisTest {
 
+    private static final String TEST_MAPPING_FILE = "mappings/semantic_test.json";
+
     private OpenDistroSqlAnalyzer analyzer = new OpenDistroSqlAnalyzer();
 
     @SuppressWarnings("UnstableApiUsage")
     @Before
     public void init() throws IOException {
-        //String mappings = Files.toString(new File("mappings/semantic_test.json"), Charsets.UTF_8);
-        URL url = Resources.getResource("mappings/semantic_test.json");
+        URL url = Resources.getResource(TEST_MAPPING_FILE);
         String mappings = Resources.toString(url, Charsets.UTF_8);
         mockLocalClusterState(mappings);
     }
@@ -93,6 +94,6 @@ public class SemanticAnalysisTest {
     }
 
     private void analyze(String sql) {
-        analyzer.analyze(sql);
+        analyzer.analyzeSemantic(analyzer.analyzeSyntax(sql), LocalClusterState.state());
     }
 }

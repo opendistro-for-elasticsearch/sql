@@ -170,8 +170,9 @@ public class ESActionFactory {
     }
 
     private static void performAnalysisIfEnabled(String sql) {
-        if (LocalClusterState.state().getSettingValue(QUERY_ANALYSIS_ENABLED)) {
-            new OpenDistroSqlAnalyzer().analyze(sql);
+        LocalClusterState clusterState = LocalClusterState.state();
+        if (clusterState.getSettingValue(QUERY_ANALYSIS_ENABLED)) {
+            new OpenDistroSqlAnalyzer().analyzeSyntax(sql);
         }
     }
 

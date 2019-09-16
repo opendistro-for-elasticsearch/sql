@@ -15,8 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types;
 
+import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.Aggregator;
 import com.google.common.collect.ImmutableMap;
 
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -103,6 +105,11 @@ public enum BaseType implements Type {
             cur = cur.parent;
         }
         return cur != null;
+    }
+
+    @Override
+    public <T extends Aggregator> T aggregate(Collection<T> args) {
+        return null;
     }
 
     /*

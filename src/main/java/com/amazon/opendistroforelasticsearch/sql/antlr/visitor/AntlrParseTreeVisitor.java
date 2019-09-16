@@ -13,14 +13,14 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.antlr.semantic;
+package com.amazon.opendistroforelasticsearch.sql.antlr.visitor;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.QuerySpecificationContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
-import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.AggregateFunctionCallContext;
@@ -40,126 +40,125 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroS
 /**
  * ANTLR parse tree visitor to drive the semantic analysis process.
  */
-public class AntlrParseTreeVisitor extends OpenDistroSqlParserBaseVisitor<Type> {
+public class AntlrParseTreeVisitor<T extends Aggregator> extends OpenDistroSqlParserBaseVisitor<T> {
 
-    /** Original sql query for troubleshooting information */
-    private final String sql;
+    private final ParseTreeVisitor<T> visitor;
 
-    private final SemanticAnalyzer analyzer = new SemanticAnalyzer();
-
-    public AntlrParseTreeVisitor(String sql) {
-        this.sql = sql;
+    public AntlrParseTreeVisitor(ParseTreeVisitor<T> visitor) {
+        this.visitor = visitor;
     }
 
     @Override
-    public Type visitQuerySpecification(QuerySpecificationContext ctx) {
-        return analyzer.visitQuery(() -> {
+    public T visitQuerySpecification(QuerySpecificationContext ctx) {
+        visitor.visitQuery();
 
-            // Always visit FROM clause first to define symbols
-            visit(ctx.fromClause());
+        // Enforce visit order because ANTLR is generic and unaware.
+        // Always visit FROM clause first to define symbols
+        visit(ctx.fromClause());
+        visit(ctx.selectElements());
+        visit(ctx.orderByClause());
+        visit(ctx.limitClause());
 
-            for (int i = 0; i < ctx.getChildCount(); i++) {
-                if (ctx.getChild(i) != ctx.fromClause()) {
-                    visit(ctx.getChild(i));
-                }
-            }
-        });
+        return visitor.endVisitQuery();
     }
 
     @Override
-    public Type visitFromClause(FromClauseContext ctx) {
-        return analyzer.visitWhereClause(() -> {
-            super.visitFromClause(ctx);
-        });
+    public T visitFromClause(FromClauseContext ctx) {
+        visitor.visitFrom();
+        //visitor.visitWhere();
+        super.visitFromClause(ctx);
+        return visitor.endVisitFrom();
     }
 
     @Override
-    public Type visitSimpleTableName(SimpleTableNameContext ctx) {
+    public T visitSimpleTableName(SimpleTableNameContext ctx) {
         String indexName = getTextFrom(ctx.fullId().uid(0));
-        return analyzer.visitIndexName(LocalClusterState.state(), indexName);
+        return visitor.visitIndexName(indexName);
     }
 
     @Override
-    public Type visitTableAndTypeName(TableAndTypeNameContext ctx) {
+    public T visitTableAndTypeName(TableAndTypeNameContext ctx) {
         String indexName = getTextFrom(ctx.uid(0));
-        return analyzer.visitIndexName(LocalClusterState.state(), indexName);
+        return visitor.visitIndexName(indexName);
     }
 
     @Override
-    public Type visitFullColumnName(FullColumnNameContext ctx) {
-        return analyzer.visitFieldName(getTextFrom(ctx.uid()));
+    public T visitFullColumnName(FullColumnNameContext ctx) {
+        return visitor.visitFieldName(getTextFrom(ctx.uid()));
     }
 
     // This check should be able to accomplish in grammar
     @Override
-    public Type visitScalarFunctionCall(ScalarFunctionCallContext ctx) {
-        Type funcType = visit(ctx.scalarFunctionName());
-        List<Type> actualArgTypes = new ArrayList<>();
+    public T visitScalarFunctionCall(ScalarFunctionCallContext ctx) {
+        T func = visit(ctx.scalarFunctionName());
+        List<T> actualArgs = new ArrayList<>();
         for (int i = 1; i < ctx.getChildCount(); i++) {
-            Type type = visit(ctx.getChild(i));
-            if (type != null) {
-                actualArgTypes.add(type);
+            T arg = visit(ctx.getChild(i));
+            if (arg != null) {
+                actualArgs.add(arg);
             }
         }
 
-        Type result = analyzer.visitFunctionCall(funcType, actualArgTypes.toArray(new Type[0]));
+        //Type result = visitor.visitFunctionCall(funcType, actualArgTypes.toArray(new Type[0]));
         /*if (result == TYPE_ERROR) {
             throw semanticException(
                 "[%s] can not work with %s.",
                 funcType.getName(), actualArgTypes
             ).at(sql, ctx).suggestion("Usage: %s.", funcType).build();
         }*/
-        return result;
+        return func.aggregate(actualArgs);
     }
 
     @Override
-    public Type visitSelectElements(SelectElementsContext ctx) {
-        return analyzer.visitSelectClause(() -> {
+    public T visitSelectElements(SelectElementsContext ctx) {
+        //return visitor.visitSelectClause(() -> {
             super.visitSelectElements(ctx);
-        });
+        //});
+        return defaultResult();
     }
 
     @Override
-    public Type visitAggregateFunctionCall(AggregateFunctionCallContext ctx) {
+    public T visitAggregateFunctionCall(AggregateFunctionCallContext ctx) {
         //Type type = analyzer.resolve(new Symbol(FUNCTION_NAME, ctx.getStart().getText()));
         return super.visitAggregateFunctionCall(ctx);
     }
 
     @Override
-    public Type visitFunctionNameBase(FunctionNameBaseContext ctx) {
-        return analyzer.visitFunctionName(ctx.getText());
+    public T visitFunctionNameBase(FunctionNameBaseContext ctx) {
+        return visitor.visitFunctionName(ctx.getText());
     }
 
     @Override
-    public Type visitComparisonOperator(ComparisonOperatorContext ctx) {
-        return analyzer.visitOperatorName(ctx.getText());
+    public T visitComparisonOperator(ComparisonOperatorContext ctx) {
+        //return visitor.visitOperatorName(ctx.getText());
+        return defaultResult();
     }
 
     // Better semantic check example for overloading operator '='
     @Override
-    public Type visitBinaryComparasionPredicate(BinaryComparasionPredicateContext ctx) {
-        Type opType = visit(ctx.comparisonOperator());
-        Type[] actualArgTypes = { visit(ctx.predicate(0)), visit(ctx.predicate(1)) };
-        return analyzer.visitFunctionCall(opType, actualArgTypes);
+    public T visitBinaryComparasionPredicate(BinaryComparasionPredicateContext ctx) {
+        T opType = visit(ctx.comparisonOperator());
+        List<T> actualArgTypes = Arrays.asList(visit(ctx.predicate(0)), visit(ctx.predicate(1)));
+        return opType.aggregate(actualArgTypes);
     }
 
     @Override
-    public Type visitStringLiteral(StringLiteralContext ctx) {
-        return analyzer.visitString(ctx.getText());
+    public T visitStringLiteral(StringLiteralContext ctx) {
+        return visitor.visitString(ctx.getText());
     }
 
     @Override
-    public Type visitDecimalLiteral(DecimalLiteralContext ctx) {
-        return analyzer.visitNumber(ctx.getText());
+    public T visitDecimalLiteral(DecimalLiteralContext ctx) {
+        return visitor.visitNumber(ctx.getText());
     }
 
     @Override
-    protected Type defaultResult() {
+    protected T defaultResult() {
         return null;
     }
 
     @Override
-    protected Type aggregateResult(Type aggregate, Type nextResult) {
+    protected T aggregateResult(T aggregate, T nextResult) {
         if (nextResult != null) { // should call Attribute method for synthesis
             return nextResult;
         }

@@ -20,15 +20,23 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Namespace;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
+import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.ParseTreeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 
 /**
  * SQL semantic analyzer that determines if a syntactical correct query is meaningful.
  */
-public class SemanticAnalyzer {
+public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
 
     /** Environment stack for symbol scope management */
     private Environment environment = new Environment(null);
+
+    /** Local cluster state for mapping query */
+    private final LocalClusterState clusterState;
+
+    public SemanticAnalyzer(LocalClusterState clusterState) {
+        this.clusterState = clusterState;
+    }
 
     /******************************************************************************
      *                              Definition
@@ -45,16 +53,15 @@ public class SemanticAnalyzer {
         return null;
     }
 
-    public Type visitQuery(Runnable visitDeep) {
+    public void visitQuery() {
         //environment = new Environment(environment);
 
-        visitDeep.run();
+        //visitDeep.run();
 
         //environment = environment.getParent();
-        return null;
     }
 
-    public Type visitWhereClause(Runnable visitDeep) {
+    public Type visitWhere(Runnable visitDeep) {
         environment = new Environment(environment);
 
         /*

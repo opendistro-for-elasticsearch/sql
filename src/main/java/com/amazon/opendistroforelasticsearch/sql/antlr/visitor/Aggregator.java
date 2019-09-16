@@ -13,11 +13,20 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types;
+package com.amazon.opendistroforelasticsearch.sql.antlr.visitor;
 
-import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.Aggregator;
+import java.util.Collection;
 
-public interface Type extends Aggregator {
+/**
+ * Abstraction for anything that can be aggregated and used by {@link AntlrParseTreeVisitor}.
+ */
+public interface Aggregator {
 
+    /**
+     * Aggregate current and others to generate a new one
+     * @param args  others
+     * @return      aggregation
+     */
+    <T extends Aggregator> T aggregate(Collection<T> args);
 
 }

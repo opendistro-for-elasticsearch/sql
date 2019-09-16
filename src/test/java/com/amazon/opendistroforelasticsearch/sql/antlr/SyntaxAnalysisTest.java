@@ -113,6 +113,6 @@ public class SyntaxAnalysisTest {
     }
 
     private void validate(String sql) {
-        analyzer.analyze(sql);
+        analyzer.analyzeSyntax(sql);
     }
 }
