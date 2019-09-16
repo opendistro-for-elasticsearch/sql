@@ -17,13 +17,14 @@ package com.amazon.opendistroforelasticsearch.sql.antlr.visitor;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.QuerySpecificationContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParserBaseVisitor;
-import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.AggregateFunctionCallContext;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.AtomTableItemContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.BinaryComparasionPredicateContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.ComparisonOperatorContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.DecimalLiteralContext;
@@ -35,6 +36,7 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroS
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.SimpleTableNameContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.StringLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.TableAndTypeNameContext;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.TableNameContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.UidContext;
 
 /**
@@ -54,10 +56,15 @@ public class AntlrParseTreeVisitor<T extends Aggregator> extends OpenDistroSqlPa
 
         // Enforce visit order because ANTLR is generic and unaware.
         // Always visit FROM clause first to define symbols
-        visit(ctx.fromClause());
-        visit(ctx.selectElements());
-        visit(ctx.orderByClause());
-        visit(ctx.limitClause());
+        visitFromClause(ctx.fromClause());
+        visitSelectElements(ctx.selectElements());
+
+        if (ctx.orderByClause() != null) {
+            visitOrderByClause(ctx.orderByClause());
+        }
+        if (ctx.limitClause() != null) {
+            visitLimitClause(ctx.limitClause());
+        }
 
         return visitor.endVisitQuery();
     }
@@ -71,20 +78,24 @@ public class AntlrParseTreeVisitor<T extends Aggregator> extends OpenDistroSqlPa
     }
 
     @Override
-    public T visitSimpleTableName(SimpleTableNameContext ctx) {
-        String indexName = getTextFrom(ctx.fullId().uid(0));
-        return visitor.visitIndexName(indexName);
-    }
-
-    @Override
-    public T visitTableAndTypeName(TableAndTypeNameContext ctx) {
-        String indexName = getTextFrom(ctx.uid(0));
-        return visitor.visitIndexName(indexName);
+    public T visitAtomTableItem(AtomTableItemContext ctx) {
+        Optional<String> alias = Optional.ofNullable(ctx.alias == null ? null : getTextFromUid(ctx.alias));
+        TableNameContext tableName = ctx.tableName();
+        if (tableName instanceof SimpleTableNameContext) {
+            visitor.visitIndexName(
+                getTextFromUid(((SimpleTableNameContext) tableName).fullId().uid(0)), alias
+            );
+        } else if (tableName instanceof TableAndTypeNameContext) {
+            visitor.visitIndexName(
+                getTextFromUid(((TableAndTypeNameContext) tableName).uid(0)), alias
+            );
+        } // else TODO: skip all analysis if TableNamePattern
+        return defaultResult();
     }
 
     @Override
     public T visitFullColumnName(FullColumnNameContext ctx) {
-        return visitor.visitFieldName(getTextFrom(ctx.uid()));
+        return visitor.visitFieldName(getTextFromUid(ctx.uid()));
     }
 
     // This check should be able to accomplish in grammar
@@ -137,9 +148,10 @@ public class AntlrParseTreeVisitor<T extends Aggregator> extends OpenDistroSqlPa
     // Better semantic check example for overloading operator '='
     @Override
     public T visitBinaryComparasionPredicate(BinaryComparasionPredicateContext ctx) {
-        T opType = visit(ctx.comparisonOperator());
-        List<T> actualArgTypes = Arrays.asList(visit(ctx.predicate(0)), visit(ctx.predicate(1)));
-        return opType.aggregate(actualArgTypes);
+        //T opType = visit(ctx.comparisonOperator());
+        //List<T> actualArgTypes = Arrays.asList(visit(ctx.predicate(0)), visit(ctx.predicate(1)));
+        //return opType.aggregate(actualArgTypes);
+        return super.visitBinaryComparasionPredicate(ctx);
     }
 
     @Override
@@ -165,7 +177,7 @@ public class AntlrParseTreeVisitor<T extends Aggregator> extends OpenDistroSqlPa
         return aggregate;
     }
 
-    private String getTextFrom(UidContext uid) {
+    private String getTextFromUid(UidContext uid) {
         return uid.simpleId().ID().getText(); // NPE possible when ID() = null
     }
 

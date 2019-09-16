@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic;
 
+import com.amazon.opendistroforelasticsearch.sql.antlr.StringSimilarity;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Environment;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Namespace;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Symbol;
@@ -22,6 +23,13 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.ParseTreeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
+import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState.IndexMappings;
+import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+
+import java.util.List;
+import java.util.Optional;
+
+import static com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState.FieldMappings;
 
 /**
  * SQL semantic analyzer that determines if a syntactical correct query is meaningful.
@@ -42,13 +50,15 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
      *                              Definition
      ******************************************************************************/
 
-    public Type visitIndexName(LocalClusterState clusterState, String indexName) {
-        LocalClusterState.IndexMappings indexMappings = clusterState.getFieldMappings(new String[]{ indexName });
-        LocalClusterState.FieldMappings mappings = indexMappings.firstMapping().firstMapping();
+    @Override
+    public Type visitIndexName(String indexName, Optional<String> alias) {
+        IndexMappings indexMappings = clusterState.getFieldMappings(new String[]{ indexName });
+        FieldMappings mappings = indexMappings.firstMapping().firstMapping();
         mappings.data().forEach(
             (fieldName, mapping) -> environment.define(
-                new Symbol(Namespace.FIELD_NAME, fieldName), BaseType.typeIn(mapping))
-            //TODO: table alias and undefined type in our system
+                new Symbol(Namespace.FIELD_NAME, alias.isPresent() ? alias + "." + fieldName : fieldName),
+                BaseType.typeIn(mapping)
+            )
         );
         return null;
     }
@@ -106,10 +116,12 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
      *                              Identifier
      ******************************************************************************/
 
+    @Override
     public Type visitFieldName(String fieldName) {
         return resolve(new Symbol(Namespace.FIELD_NAME, fieldName));
     }
 
+    @Override
     public Type visitFunctionName(String funcName) {
         return resolve(new Symbol(Namespace.FUNCTION_NAME, funcName));
     }
@@ -120,18 +132,15 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
     }
 
     public Type resolve(Symbol symbol) {
-    /*
         Optional<Type> type = environment.resolve(symbol);
         if (!type.isPresent()) {
-            List<String> suggestedWords = new StringSimilarity(
-                environment.allSymbolsIn(symbol.getNamespace())).similarTo(symbol.getName());
-            throw semanticException("%s cannot be found or used here.", symbol).
+            //List<String> suggestedWords = new StringSimilarity(
+            //    environment.allSymbolsIn(symbol.getNamespace())).similarTo(symbol.getName());
+            throw new SemanticAnalysisException(StringUtils.format("%s cannot be found or used here.", symbol));
                 //at(sql, ctx).
-                suggestion("Did you mean [%s]?", String.join(", ", suggestedWords)).build();
+                //suggestion("Did you mean [%s]?", String.join(", ", suggestedWords)).build();
         }
         return type.get();
-    */
-        return null;
     }
 
     /******************************************************************************

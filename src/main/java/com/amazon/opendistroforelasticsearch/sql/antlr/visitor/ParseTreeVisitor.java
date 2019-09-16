@@ -15,6 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.visitor;
 
+import java.util.Optional;
+
 /**
  * Parse tree visitor
  */
@@ -35,7 +37,7 @@ public interface ParseTreeVisitor<T> {
         return defaultValue();
     }
 
-    default T visitIndexName(String indexName) {
+    default T visitIndexName(String indexName, Optional<String> alias) {
         return defaultValue();
     }
 

@@ -70,6 +70,9 @@ public enum BaseType implements Type {
     }
 
     public static Type typeIn(Map<String, Object> mapping) {
+        if (!mapping.containsKey("type")) {
+            return UNKNOWN; //TODO: parse nested and object field
+        }
         String typeStr = ((String) mapping.get("type")).toUpperCase();
         return ALL_BASE_TYPES.getOrDefault(typeStr, UNKNOWN);
     }
