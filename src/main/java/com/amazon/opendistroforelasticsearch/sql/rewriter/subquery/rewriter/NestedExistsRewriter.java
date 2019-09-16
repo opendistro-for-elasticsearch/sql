@@ -24,7 +24,7 @@ import com.alibaba.druid.sql.ast.expr.SQLNullExpr;
 import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource.JoinType;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
-import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.BlackBoard;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.RewriterContext;
 
 /**
  * Nested EXISTS SQL Rewriter.
@@ -43,13 +43,13 @@ import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.BlackBoard;
  */
 public class NestedExistsRewriter implements Rewriter {
     private final SQLExistsExpr existsExpr;
-    private final BlackBoard bb;
+    private final RewriterContext ctx;
     private final SQLExprTableSource from;
     private final SQLExpr where;
 
-    public NestedExistsRewriter(SQLExistsExpr existsExpr, BlackBoard board) {
+    public NestedExistsRewriter(SQLExistsExpr existsExpr, RewriterContext board) {
         this.existsExpr = existsExpr;
-        this.bb = board;
+        this.ctx = board;
         MySqlSelectQueryBlock queryBlock = (MySqlSelectQueryBlock) existsExpr.getSubQuery().getQuery();
         if (queryBlock.getFrom() instanceof SQLExprTableSource) {
             this.from = (SQLExprTableSource) queryBlock.getFrom();
@@ -65,25 +65,21 @@ public class NestedExistsRewriter implements Rewriter {
      */
     @Override
     public boolean canRewrite() {
-        return bb.isNestedQuery(from) && !existsExpr.isNot();
+        return ctx.isNestedQuery(from) && !existsExpr.isNot();
     }
 
     @Override
     public void rewrite() {
-        bb.addJoin(from, JoinType.COMMA);
+        ctx.addJoin(from, JoinType.COMMA);
 
         SQLBinaryOpExpr nullOp = generateNullOp();
         if (null == where) {
-            bb.addWhere(nullOp);
+            ctx.addWhere(nullOp);
         } else if (where instanceof SQLBinaryOpExpr) {
-            bb.addWhere(and(nullOp, (SQLBinaryOpExpr) where));
+            ctx.addWhere(and(nullOp, (SQLBinaryOpExpr) where));
         } else {
             throw new IllegalStateException("unsupported expression in where " + where.getClass());
         }
-    }
-
-    private SQLBinaryOpExpr and(SQLBinaryOpExpr left, SQLBinaryOpExpr right) {
-        return new SQLBinaryOpExpr(left, SQLBinaryOperator.BooleanAnd, right);
     }
 
     private SQLBinaryOpExpr generateNullOp() {

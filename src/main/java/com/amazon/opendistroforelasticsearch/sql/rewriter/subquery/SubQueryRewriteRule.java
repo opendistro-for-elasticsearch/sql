@@ -21,7 +21,6 @@ import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.RewriteRule;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.rewriter.SubqueryAliasRewriter;
-import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.utils.NestedQueryDetector;
 
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.ArrayList;
@@ -32,7 +31,6 @@ import java.util.List;
  */
 public class SubQueryRewriteRule implements RewriteRule<SQLQueryExpr> {
     private FindAllSubQueryInWhere findAllSubQueryInWhere = new FindAllSubQueryInWhere();
-    private NestedQueryDetector nestedQueryDetector = new NestedQueryDetector();
 
     @Override
     public boolean match(SQLQueryExpr expr) throws SQLFeatureNotSupportedException {
@@ -51,12 +49,8 @@ public class SubQueryRewriteRule implements RewriteRule<SQLQueryExpr> {
 
     @Override
     public void rewrite(SQLQueryExpr expr) {
-        expr.accept(nestedQueryDetector);
-        if (!nestedQueryDetector.hasNestedQuery()) {
-            // add the alias for the IN subquery identifier if missing
-            expr.accept(new SubqueryAliasRewriter());
-        }
-        SubQueryRewriter.convert(expr.getSubQuery(), new BlackBoard(nestedQueryDetector));
+        expr.accept(new SubqueryAliasRewriter());
+        new SubQueryRewriter().convert(expr.getSubQuery());
     }
 
     private boolean isContainSubQuery(FindAllSubQueryInWhere allSubQuery) {

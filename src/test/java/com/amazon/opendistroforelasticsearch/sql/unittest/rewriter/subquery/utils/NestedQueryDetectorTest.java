@@ -16,10 +16,10 @@
 package com.amazon.opendistroforelasticsearch.sql.unittest.rewriter.subquery.utils;
 
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
-import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
-import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.utils.NestedQueryDetector;
-import com.amazon.opendistroforelasticsearch.sql.util.SqlParserUtils;
+import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
+import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource.JoinType;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.NestedQueryContext;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -28,51 +28,37 @@ public class NestedQueryDetectorTest {
 
     @Test
     public void isNested() {
-        SQLQueryExpr expr = SqlParserUtils.parse(
-                "SELECT e.name " +
-                "FROM employee as e, e.projects as p " +
-                "WHERE EXISTS (SELECT * FROM p)");
-        NestedQueryDetector nestedQueryDetector = new NestedQueryDetector();
-        expr.accept(nestedQueryDetector);
+        NestedQueryContext nestedQueryDetector = new NestedQueryContext();
+        nestedQueryDetector.add(new SQLExprTableSource(new SQLIdentifierExpr("employee"), "e"));
 
+        assertFalse(nestedQueryDetector.isNested(new SQLExprTableSource(new SQLIdentifierExpr("e"), "e1")));
+        assertTrue(nestedQueryDetector.isNested(new SQLExprTableSource(new SQLIdentifierExpr("e.projects"), "p")));
+
+        nestedQueryDetector.add(new SQLExprTableSource(new SQLIdentifierExpr("e.projects"), "p"));
+        assertTrue(nestedQueryDetector.isNested(new SQLExprTableSource(new SQLIdentifierExpr("p"))));
+    }
+
+    @Test
+    public void isNestedJoin() {
+        NestedQueryContext nestedQueryDetector = new NestedQueryContext();
+        SQLJoinTableSource joinTableSource = new SQLJoinTableSource();
+        joinTableSource.setLeft(new SQLExprTableSource(new SQLIdentifierExpr("employee"), "e"));
+        joinTableSource.setRight(new SQLExprTableSource(new SQLIdentifierExpr("e.projects"), "p"));
+        joinTableSource.setJoinType(JoinType.COMMA);
+        nestedQueryDetector.add(joinTableSource);
+
+        assertFalse(nestedQueryDetector.isNested(new SQLExprTableSource(new SQLIdentifierExpr("e"), "e1")));
         assertTrue(nestedQueryDetector.isNested(new SQLExprTableSource(new SQLIdentifierExpr("e.projects"), "p")));
         assertTrue(nestedQueryDetector.isNested(new SQLExprTableSource(new SQLIdentifierExpr("p"))));
     }
 
     @Test
-    public void hasNestedQuery() {
-        SQLQueryExpr expr = SqlParserUtils.parse(
-                "SELECT e.name " +
-                "FROM employee as e, e.projects as p " +
-                "WHERE EXISTS (SELECT * FROM p)");
-        NestedQueryDetector nestedQueryDetector = new NestedQueryDetector();
-        expr.accept(nestedQueryDetector);
-
-        assertTrue(nestedQueryDetector.hasNestedQuery());
-    }
-
-    @Test
     public void notNested() {
-        SQLQueryExpr expr = SqlParserUtils.parse(
-                "SELECT e.name " +
-                "FROM employee as e, projects as p " +
-                "WHERE EXISTS (SELECT * FROM p)");
-        NestedQueryDetector nestedQueryDetector = new NestedQueryDetector();
-        expr.accept(nestedQueryDetector);
+        NestedQueryContext nestedQueryDetector = new NestedQueryContext();
+        nestedQueryDetector.add(new SQLExprTableSource(new SQLIdentifierExpr("employee"), "e"));
+        nestedQueryDetector.add(new SQLExprTableSource(new SQLIdentifierExpr("projects"), "p"));
 
-        assertFalse(nestedQueryDetector.isNested(new SQLExprTableSource(new SQLIdentifierExpr("e.projects"), "p")));
+        assertFalse(nestedQueryDetector.isNested(new SQLExprTableSource(new SQLIdentifierExpr("e"), "e1")));
         assertFalse(nestedQueryDetector.isNested(new SQLExprTableSource(new SQLIdentifierExpr("p"))));
-    }
-
-    @Test
-    public void noNestedQuery() {
-        SQLQueryExpr expr = SqlParserUtils.parse(
-                "SELECT e.name " +
-                "FROM employee as e, projects as p " +
-                "WHERE EXISTS (SELECT * FROM p)");
-        NestedQueryDetector nestedQueryDetector = new NestedQueryDetector();
-        expr.accept(nestedQueryDetector);
-
-        assertFalse(nestedQueryDetector.hasNestedQuery());
     }
 }

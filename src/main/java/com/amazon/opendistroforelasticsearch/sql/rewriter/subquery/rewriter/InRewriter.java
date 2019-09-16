@@ -23,7 +23,7 @@ import com.alibaba.druid.sql.ast.expr.SQLNullExpr;
 import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource.JoinType;
 import com.alibaba.druid.sql.ast.statement.SQLTableSource;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
-import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.BlackBoard;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.RewriterContext;
 
 /**
  * IN Subquery Rewriter.
@@ -33,16 +33,15 @@ import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.BlackBoard;
  */
 public class InRewriter implements Rewriter {
     private final SQLInSubQueryExpr inExpr;
-    private final BlackBoard bb;
+    private final RewriterContext ctx;
     private final MySqlSelectQueryBlock queryBlock;
 
-    public InRewriter(SQLInSubQueryExpr inExpr, BlackBoard bb) {
+    public InRewriter(SQLInSubQueryExpr inExpr, RewriterContext ctx) {
         this.inExpr = inExpr;
-        this.bb = bb;
+        this.ctx = ctx;
         this.queryBlock = (MySqlSelectQueryBlock) inExpr.getSubQuery().getQuery();
     }
 
-    //
     @Override
     public boolean canRewrite() {
         return !inExpr.isNot();
@@ -73,9 +72,9 @@ public class InRewriter implements Rewriter {
 
         SQLExpr where = queryBlock.getWhere();
         if (null == where) {
-            bb.addWhere(generateNullOp());
+            ctx.addWhere(generateNullOp());
         } else if (where instanceof SQLBinaryOpExpr) {
-            bb.addWhere(and(generateNullOp(), (SQLBinaryOpExpr) where));
+            ctx.addWhere(and(generateNullOp(), (SQLBinaryOpExpr) where));
         } else {
             throw new IllegalStateException("unsupported where class type " + where.getClass());
         }
@@ -95,13 +94,13 @@ public class InRewriter implements Rewriter {
     }
 
     /**
-     * Add the {@link SQLTableSource} with {@link JoinType} and {@link SQLBinaryOpExpr} to the {@link BlackBoard}.
+     * Add the {@link SQLTableSource} with {@link JoinType} and {@link SQLBinaryOpExpr} to the {@link RewriterContext}.
      */
     private void addJoinTable(SQLTableSource right) {
         SQLBinaryOpExpr binaryOpExpr = new SQLBinaryOpExpr(inExpr.getExpr(),
                 SQLBinaryOperator.Equality,
                 fetchJoinExpr());
-        bb.addJoin(right, JoinType.JOIN, binaryOpExpr);
+        ctx.addJoin(right, JoinType.JOIN, binaryOpExpr);
     }
 
     private SQLExpr fetchJoinExpr() {
@@ -109,9 +108,5 @@ public class InRewriter implements Rewriter {
             throw new IllegalStateException("Unsupported subquery with multiple select " + queryBlock.getSelectList());
         }
         return queryBlock.getSelectList().get(0).getExpr();
-    }
-
-    private SQLBinaryOpExpr and(SQLBinaryOpExpr left, SQLBinaryOpExpr right) {
-        return new SQLBinaryOpExpr(left, SQLBinaryOperator.BooleanAnd, right);
     }
 }

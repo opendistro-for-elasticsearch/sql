@@ -13,46 +13,58 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.utils;
+package com.amazon.opendistroforelasticsearch.sql.rewriter.subquery;
 
 import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
-import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
+import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
+import com.alibaba.druid.sql.ast.statement.SQLTableSource;
 import com.google.common.base.Strings;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
- * {@link NestedQueryDetector} build the context with Query to detected the specified table is nested or not.
+ * {@link NestedQueryContext} build the context with Query to detected the specified table is nested or not.
  * Todo current implementation doesn't rely on the index mapping which should be added after the semantics is builded.
  */
-public class NestedQueryDetector extends MySqlASTVisitorAdapter {
+public class NestedQueryContext {
     private static final String SEPARATOR = ".";
     private static final String EMPTY = "";
     // <tableAlias, parentTableAlias>, if parentTable not exist, parentTableAlias = "";
-    private Map<String, String> aliasParents = new HashMap<>();
+    private final Map<String, String> aliasParents = new HashMap<>();
 
-    public boolean hasNestedQuery() {
-        Map<String, String> nestedQuerys = aliasParents.entrySet()
-                .stream()
-                .filter(entry -> !entry.getValue().isEmpty())
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        return nestedQuerys.size() > 0;
-    }
-
+    /**
+     * Is the table refer to the nested field of the parent table.
+     */
     public boolean isNested(SQLExprTableSource table) {
-        return aliasParents.containsKey(alias(table)) && !Strings.isNullOrEmpty(aliasParents.get(alias(table)));
+        String parent = parent(table);
+        if (Strings.isNullOrEmpty(parent)) {
+            return aliasParents.containsKey(alias(table)) && !Strings.isNullOrEmpty(aliasParents.get(alias(table)));
+        } else {
+            return aliasParents.containsKey(parent);
+        }
     }
 
-    @Override
-    public boolean visit(SQLExprTableSource table) {
+    /**
+     * add table to the context.
+     */
+    public void add(SQLTableSource table) {
+        if (table instanceof SQLExprTableSource) {
+            process((SQLExprTableSource) table);
+        } else if (table instanceof SQLJoinTableSource) {
+            add(((SQLJoinTableSource) table).getLeft());
+            add(((SQLJoinTableSource) table).getRight());
+        } else {
+            throw new IllegalStateException("unsupported table source");
+        }
+    }
+
+    private void process(SQLExprTableSource table) {
         String alias = alias(table);
         String parent = parent(table);
         if (!Strings.isNullOrEmpty(alias)) {
             aliasParents.putIfAbsent(alias, parent);
         }
-        return true;
     }
 
     /**

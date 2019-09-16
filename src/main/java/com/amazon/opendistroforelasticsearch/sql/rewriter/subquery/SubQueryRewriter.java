@@ -23,40 +23,94 @@ import com.alibaba.druid.sql.ast.statement.SQLSelect;
 import com.alibaba.druid.sql.ast.statement.SQLSelectQuery;
 import com.alibaba.druid.sql.ast.statement.SQLTableSource;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
+import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.rewriter.Rewriter;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.rewriter.RewriterFactory;
 
 public class SubQueryRewriter {
+    private final RewriterContext ctx = new RewriterContext();
 
-    public static void convert(SQLSelect query, BlackBoard bb) {
+    public void convert(SQLSelect query) {
         SQLSelectQuery queryExpr = query.getQuery();
         if (queryExpr instanceof MySqlSelectQueryBlock) {
             MySqlSelectQueryBlock queryBlock = (MySqlSelectQueryBlock) queryExpr;
-            bb.addTable(queryBlock.getFrom());
+            ctx.addTable(queryBlock.getFrom());
 
-            queryBlock.setWhere(convertWhere(queryBlock.getWhere(), bb));
-            queryBlock.setFrom(convertFrom(queryBlock.getFrom(), bb));
+            queryBlock.setWhere(convertWhere(queryBlock.getWhere()));
+            queryBlock.setFrom(convertFrom(queryBlock.getFrom()));
         }
     }
 
-    private static SQLTableSource convertFrom(SQLTableSource expr, BlackBoard bb) {
-        SQLTableSource join = bb.popJoin();
+    private SQLTableSource convertFrom(SQLTableSource expr) {
+        SQLTableSource join = ctx.popJoin();
         if (join != null) {
             return join;
         }
         return expr;
     }
 
-    private static SQLExpr convertWhere(SQLExpr expr, BlackBoard bb) {
+    private SQLExpr convertWhere(SQLExpr expr) {
         if (expr instanceof SQLExistsExpr) {
-            new Exists((SQLExistsExpr) expr, bb).rewrite();
-            return bb.popWhere();
+            ctx.setExistsSubQuery((SQLExistsExpr) expr);
+            rewriteSubQuery(expr, ((SQLExistsExpr) expr).getSubQuery());
+            return ctx.popWhere();
         } else if (expr instanceof SQLInSubQueryExpr) {
-            new In((SQLInSubQueryExpr) expr, bb).rewrite();
-            return bb.popWhere();
+            ctx.setInSubQuery((SQLInSubQueryExpr) expr);
+            rewriteSubQuery(expr, ((SQLInSubQueryExpr) expr).getSubQuery());
+            return ctx.popWhere();
         } else if (expr instanceof SQLBinaryOpExpr) {
             SQLBinaryOpExpr binaryOpExpr = (SQLBinaryOpExpr) expr;
-            binaryOpExpr.setLeft(convertWhere(binaryOpExpr.getLeft(), bb));
-            binaryOpExpr.setRight(convertWhere(binaryOpExpr.getRight(), bb));
+            binaryOpExpr.setLeft(convertWhere(binaryOpExpr.getLeft()));
+            binaryOpExpr.setRight(convertWhere(binaryOpExpr.getRight()));
         }
         return expr;
+    }
+
+    private void rewriteSubQuery(SQLExpr subQueryExpr, SQLSelect subQuerySelect) {
+        if (containSubQuery(subQuerySelect)) {
+            convert(subQuerySelect);
+        } else if (isSupportedSubQuery(ctx)){
+            for (Rewriter rewriter : RewriterFactory.createRewriterList(subQueryExpr, ctx)) {
+                if (rewriter.canRewrite()) {
+                    rewriter.rewrite();
+                    return;
+                }
+            }
+        }
+        throw new IllegalStateException("Unsupported subquery");
+    }
+
+    private boolean containSubQuery(SQLSelect query) {
+        HasSuQuery hasSuQuery = new HasSuQuery();
+        query.accept(hasSuQuery);
+        return hasSuQuery.hasSubquery();
+    }
+
+    private boolean isSupportedSubQuery(RewriterContext ctx) {
+        if ((ctx.getSqlInSubQueryExprs().size() == 1 && ctx.getSqlExistsExprs().size() == 0)
+            || (ctx.getSqlInSubQueryExprs().size() == 0 && ctx.getSqlExistsExprs().size() == 1)) {
+            return true;
+        }
+        return false;
+    }
+
+    private static class HasSuQuery extends MySqlASTVisitorAdapter {
+        private boolean hasSubQuery = false;
+
+        boolean hasSubquery() {
+            return hasSubQuery;
+        }
+
+        @Override
+        public boolean visit(SQLInSubQueryExpr query) {
+            hasSubQuery = true;
+            return false;
+        }
+
+        @Override
+        public boolean visit(SQLExistsExpr query) {
+            hasSubQuery = true;
+            return false;
+        }
     }
 }

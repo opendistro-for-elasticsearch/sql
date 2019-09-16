@@ -15,6 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.rewriter;
 
+import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
+import com.alibaba.druid.sql.ast.expr.SQLBinaryOperator;
+
 /**
  * Interface of SQL Rewriter
  */
@@ -29,4 +32,8 @@ public interface Rewriter {
      * Rewrite the SQL.
      */
     void rewrite();
+
+    default SQLBinaryOpExpr and(SQLBinaryOpExpr left, SQLBinaryOpExpr right) {
+        return new SQLBinaryOpExpr(left, SQLBinaryOperator.BooleanAnd, right);
+    }
 }

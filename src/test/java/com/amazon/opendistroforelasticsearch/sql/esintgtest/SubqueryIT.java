@@ -161,7 +161,7 @@ public class SubqueryIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void nonCorrlatedExists() throws IOException {
+    public void nonCorrelatedExists() throws IOException {
         String query = String.format(Locale.ROOT,
                                      "SELECT e.name " +
                                      "FROM %s as e " +
@@ -179,7 +179,7 @@ public class SubqueryIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void nonCorrlatedExistsWhere() throws IOException {
+    public void nonCorrelatedExistsWhere() throws IOException {
         String query = String.format(Locale.ROOT,
                                      "SELECT e.name " +
                                      "FROM %s as e " +
@@ -196,7 +196,7 @@ public class SubqueryIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void nonCorrlatedExistsParentWhere() throws IOException {
+    public void nonCorrelatedExistsParentWhere() throws IOException {
         String query = String.format(Locale.ROOT,
                                      "SELECT e.name " +
                                      "FROM %s as e " +
@@ -214,7 +214,7 @@ public class SubqueryIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void nonCorrlatedNotExistsUnsupported() throws IOException {
+    public void nonCorrelatedNotExistsUnsupported() throws IOException {
         exceptionRule.expect(ResponseException.class);
         exceptionRule.expectMessage("Unsupported subquery");
         String query = String.format(Locale.ROOT,

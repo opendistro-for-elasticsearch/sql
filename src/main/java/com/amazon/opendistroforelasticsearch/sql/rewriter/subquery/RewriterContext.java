@@ -17,26 +17,27 @@ package com.amazon.opendistroforelasticsearch.sql.rewriter.subquery;
 
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
+import com.alibaba.druid.sql.ast.expr.SQLExistsExpr;
+import com.alibaba.druid.sql.ast.expr.SQLInSubQueryExpr;
 import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource.JoinType;
 import com.alibaba.druid.sql.ast.statement.SQLTableSource;
-import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.utils.NestedQueryDetector;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
+import java.util.List;
 
 /**
  * Environment for rewriting the SQL.
  */
-public class BlackBoard {
-    private Deque<SQLTableSource> tableStack = new ArrayDeque<>();
-    private Deque<SQLBinaryOpExpr> binaryOpStack = new ArrayDeque<>();
-    private NestedQueryDetector nestedQueryDetector;
-
-    public BlackBoard(NestedQueryDetector nestedQueryDetector) {
-        this.nestedQueryDetector = nestedQueryDetector;
-    }
+public class RewriterContext {
+    private final Deque<SQLTableSource> tableStack = new ArrayDeque<>();
+    private final Deque<SQLBinaryOpExpr> binaryOpStack = new ArrayDeque<>();
+    private final List<SQLInSubQueryExpr> sqlInSubQueryExprs = new ArrayList<>();
+    private final List<SQLExistsExpr> sqlExistsExprs = new ArrayList<>();
+    private final NestedQueryContext nestedQueryDetector = new NestedQueryContext();
 
     public SQLTableSource popJoin() {
         return tableStack.pop();
@@ -70,9 +71,26 @@ public class BlackBoard {
 
     public void addTable(SQLTableSource table) {
         tableStack.push(table);
+        nestedQueryDetector.add(table);
     }
 
     public boolean isNestedQuery(SQLExprTableSource table) {
         return nestedQueryDetector.isNested(table);
+    }
+
+    public void setInSubQuery(SQLInSubQueryExpr expr) {
+        sqlInSubQueryExprs.add(expr);
+    }
+
+    public void setExistsSubQuery(SQLExistsExpr expr) {
+        sqlExistsExprs.add(expr);
+    }
+
+    public List<SQLInSubQueryExpr> getSqlInSubQueryExprs() {
+        return sqlInSubQueryExprs;
+    }
+
+    public List<SQLExistsExpr> getSqlExistsExprs() {
+        return sqlExistsExprs;
     }
 }

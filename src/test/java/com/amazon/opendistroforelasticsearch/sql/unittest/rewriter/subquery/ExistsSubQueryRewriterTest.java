@@ -69,17 +69,23 @@ public class ExistsSubQueryRewriterTest extends SubQueryRewriterTestBase {
     }
 
     @Test
+    public void test() {
+        System.out.println(sqlString(rewrite(expr(
+                "SELECT * " +
+                "FROM elasticsearch-sql_test_index_account " +
+                "WHERE firstname LIKE 'A%%' AND age > 20 " +
+                "GROUP BY gender " +
+                "ORDER BY _score"))));
+    }
+
+    @Test
     public void nonCorrlatedExistsAnd() {
-        assertEquals(
-                sqlString(expr(
-                        "SELECT e.name " +
-                        "FROM employee e, e.projects p, e.comments c " +
-                        "WHERE p IS NOT NULL AND c IS NOT NULL")),
-                sqlString(rewrite(expr(
-                        "SELECT e.name " +
-                        "FROM employee as e " +
-                        "WHERE EXISTS (SELECT * FROM e.projects as p) AND EXISTS (SELECT * FROM e.comments as c)")))
-        );
+        exceptionRule.expect(IllegalStateException.class);
+        exceptionRule.expectMessage("Unsupported subquery");
+        rewrite(expr(
+                "SELECT e.name " +
+                "FROM employee as e " +
+                "WHERE EXISTS (SELECT * FROM e.projects as p) AND EXISTS (SELECT * FROM e.comments as c)"));
     }
 
     @Test
