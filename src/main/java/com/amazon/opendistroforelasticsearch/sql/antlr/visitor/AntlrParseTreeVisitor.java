@@ -83,7 +83,7 @@ public class AntlrParseTreeVisitor<T extends Aggregator> extends OpenDistroSqlPa
         TableNameContext tableName = ctx.tableName();
         if (tableName instanceof SimpleTableNameContext) {
             visitor.visitIndexName(
-                getTextFromUid(((SimpleTableNameContext) tableName).fullId().uid(0)), alias
+                ((SimpleTableNameContext) tableName).fullId().getText(), alias
             );
         } else if (tableName instanceof TableAndTypeNameContext) {
             visitor.visitIndexName(

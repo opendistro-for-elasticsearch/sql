@@ -24,12 +24,17 @@
               }
             }
           },
-          "state": {
-            "type": "text",
-            "fields": {
-              "raw": {
-                "type": "keyword",
-                "ignore_above": 256
+          "projects": {
+            "type": "nested",
+            "properties": {
+              "name": {
+                "type": "text"
+              },
+              "active": {
+                "type": "boolean"
+              },
+              "release": {
+                "type": "date"
               }
             }
           },

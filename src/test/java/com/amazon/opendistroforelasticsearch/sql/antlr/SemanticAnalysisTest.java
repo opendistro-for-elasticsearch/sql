@@ -69,7 +69,15 @@ public class SemanticAnalysisTest {
     }
 
     @Test
-    public void invalidIndexNameAliasShouldFail() {
+    public void invalidIndexNameAliasInFromClauseShouldFail() {
+        expectValidationFailWithErrorMessage(
+            "SELECT * FROM semantics s, a.projects p",
+            "Field [a.projects] cannot be found or used here"
+        );
+    }
+
+    @Test
+    public void invalidIndexNameAliasInWhereClauseShouldFail() {
         expectValidationFailWithErrorMessage(
             "SELECT * FROM semantics s WHERE a.balance = 10000",
             "Field [a.balance] cannot be found or used here"
@@ -77,13 +85,17 @@ public class SemanticAnalysisTest {
     }
 
     @Test
-    public void validIndexNameAliasShouldPass() {
-        validate("SELECT * FROM semantics s WHERE s.balance = 10000");
+    public void nonNestedFieldInFromClauseShouldFail() {
+        expectValidationFailWithErrorMessage(
+            "SELECT * FROM semantics s, s.manager m",
+            "Field [s.manager] is [OBJECT] type but nested type is required"
+        );
     }
 
-    @Ignore("To be implemented")
-    @Test(expected = SemanticAnalysisException.class)
-    public void nonNestedFieldInFromClauseShouldFail() {
+    @Test
+    public void validIndexNameAliasShouldPass() {
+        validate("SELECT * FROM semantics s, s.projects p");
+        validate("SELECT * FROM semantics s WHERE s.balance = 10000");
     }
 
     @Test

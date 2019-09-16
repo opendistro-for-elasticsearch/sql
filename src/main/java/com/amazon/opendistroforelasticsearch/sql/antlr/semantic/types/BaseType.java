@@ -46,7 +46,10 @@ public enum BaseType implements Type {
     //BINARY,
     //RANGE,
 
-    ES_TYPE(NUMBER, STRING, DATE, BOOLEAN);
+    OBJECT, NESTED,
+    COMPLEX(OBJECT, NESTED),
+
+    ES_TYPE(NUMBER, STRING, DATE, BOOLEAN, COMPLEX);
 
 
     private static final Map<String, BaseType> ALL_BASE_TYPES;
@@ -67,14 +70,6 @@ public enum BaseType implements Type {
         for (BaseType subType : subTypes) {
             subType.parent = this;
         }
-    }
-
-    public static Type typeIn(Map<String, Object> mapping) {
-        if (!mapping.containsKey("type")) {
-            return UNKNOWN; //TODO: parse nested and object field
-        }
-        String typeStr = ((String) mapping.get("type")).toUpperCase();
-        return ALL_BASE_TYPES.getOrDefault(typeStr, UNKNOWN);
     }
 
     /*
