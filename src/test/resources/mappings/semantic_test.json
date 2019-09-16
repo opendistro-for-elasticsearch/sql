@@ -9,6 +9,9 @@
           "age": {
             "type": "integer"
           },
+          "balance": {
+            "type": "double"
+          },
           "city": {
             "type": "keyword"
           },

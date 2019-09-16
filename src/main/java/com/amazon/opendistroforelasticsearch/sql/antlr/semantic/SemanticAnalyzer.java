@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic;
 
-import com.amazon.opendistroforelasticsearch.sql.antlr.StringSimilarity;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Environment;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Namespace;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Symbol;
@@ -26,7 +25,6 @@ import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState.IndexMappings;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 
-import java.util.List;
 import java.util.Optional;
 
 import static com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState.FieldMappings;
@@ -46,17 +44,13 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
         this.clusterState = clusterState;
     }
 
-    /******************************************************************************
-     *                              Definition
-     ******************************************************************************/
-
     @Override
     public Type visitIndexName(String indexName, Optional<String> alias) {
         IndexMappings indexMappings = clusterState.getFieldMappings(new String[]{ indexName });
         FieldMappings mappings = indexMappings.firstMapping().firstMapping();
         mappings.data().forEach(
             (fieldName, mapping) -> environment.define(
-                new Symbol(Namespace.FIELD_NAME, alias.isPresent() ? alias + "." + fieldName : fieldName),
+                new Symbol(Namespace.FIELD_NAME, alias.map(s -> s + "." + fieldName).orElse(fieldName)),
                 BaseType.typeIn(mapping)
             )
         );
@@ -101,20 +95,10 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
         return null;
     }
 
-
-    /******************************************************************************
-     *                              Function & Operator
-     ******************************************************************************/
-
     public Type visitFunctionCall(Type constructorType, Type... actualArgTypes) {
         //return constructorType.apply(actualArgTypes);
         return null;
     }
-
-
-    /******************************************************************************
-     *                              Identifier
-     ******************************************************************************/
 
     @Override
     public Type visitFieldName(String fieldName) {
@@ -142,10 +126,6 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
         }
         return type.get();
     }
-
-    /******************************************************************************
-     *                      Constant and literal
-     ******************************************************************************/
 
     public Type visitString(String text) {
         return BaseType.STRING;

@@ -95,7 +95,7 @@ public class AntlrParseTreeVisitor<T extends Aggregator> extends OpenDistroSqlPa
 
     @Override
     public T visitFullColumnName(FullColumnNameContext ctx) {
-        return visitor.visitFieldName(getTextFromUid(ctx.uid()));
+        return visitor.visitFieldName(ctx.getText());
     }
 
     // This check should be able to accomplish in grammar

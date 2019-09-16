@@ -72,16 +72,13 @@ public class SemanticAnalysisTest {
     public void invalidIndexNameAliasShouldFail() {
         expectValidationFailWithErrorMessage(
             "SELECT * FROM semantics s WHERE a.balance = 10000",
-            ""
+            "Field [a.balance] cannot be found or used here"
         );
     }
 
     @Test
-    public void validIndexNameAliasShouldFail() {
-        expectValidationFailWithErrorMessage(
-            "SELECT * FROM semantics s WHERE s.balance = 10000",
-            ""
-        );
+    public void validIndexNameAliasShouldPass() {
+        validate("SELECT * FROM semantics s WHERE s.balance = 10000");
     }
 
     @Ignore("To be implemented")
