@@ -42,9 +42,76 @@ public class SemanticAnalyzerIdentifierTest extends SemanticAnalyzerTestBase {
     }
 
     @Test
+    public void nonExistingFieldNameInWhereClauseShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT * FROM semantics s WHERE s.balce = 10000",
+            "Field [s.balce] cannot be found or used here.",
+            "Did you mean [s.balance]?"
+        );
+    }
+
+    @Test
+    public void nonExistingFieldNameInGroupByClauseShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT * FROM semantics s GROUP BY s.balce",
+            "Field [s.balce] cannot be found or used here.",
+            "Did you mean [s.balance]?"
+        );
+    }
+
+    @Test
+    public void nonExistingFieldNameInOrderByClauseShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT * FROM semantics s ORDER BY s.balce",
+            "Field [s.balce] cannot be found or used here.",
+            "Did you mean [s.balance]?"
+        );
+    }
+
+    @Ignore("To be implemented")
+    @Test
+    public void nonExistingFieldNameInFunctionShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT * FROM semantics s WHERE LOG(s.balce) = 1",
+            "Field [s.balce] cannot be found or used here.",
+            "Did you mean [s.balance]?"
+        );
+    }
+
+    @Test
+    public void nonExistingNestedFieldNameInWhereClauseShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT * FROM semantics s, s.projects p, p.members m WHERE m.nam = 'John'",
+            "Field [m.nam] cannot be found or used here.",
+            "Did you mean [m.name]?"
+        );
+    }
+
+    @Ignore("To be implemented")
+    @Test
+    public void nonExistingNestedFieldNameInFunctionShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT * FROM semantics WHERE nested(projects.actives) = TRUE",
+            "Field [projects.actives] cannot be found or used here.",
+            "Did you mean [projects.active]?"
+        );
+    }
+
+    @Test
     public void useDeepNestedFieldNameShouldPass() {
         validate("SELECT * FROM semantics s, s.projects p WHERE p IS NULL");
         validate("SELECT * FROM semantics s, s.projects p WHERE p.active = TRUE");
         validate("SELECT * FROM semantics s, s.projects p, p.members m WHERE m.name = 'John'");
     }
+
+    /*
+    private void expectValidationFailDueToInvalidField(String query,
+                                                       String actualName,
+                                                       String suggestedName) {
+        expectValidationFailWithErrorMessages(
+            query,
+            StringUtils.format("Field [%s] cannot be found or used here", actualName),
+            StringUtils.format("Did you mean [%s], suggestedName"));
+    }
+    */
 }

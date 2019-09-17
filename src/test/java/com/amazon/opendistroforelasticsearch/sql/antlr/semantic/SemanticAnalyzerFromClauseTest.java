@@ -62,8 +62,9 @@ public class SemanticAnalyzerFromClauseTest extends SemanticAnalyzerTestBase {
     @Test
     public void nonExistingNestedFieldInFromClauseShouldFail() {
         expectValidationFailWithErrorMessages(
-            "SELECT * FROM semantics s, s.people p",
-            "Field [s.people] cannot be found or used here"
+            "SELECT * FROM semantics s, s.project p",
+            "Field [s.project] cannot be found or used here",
+            "Did you mean [s.projects]?"
         );
     }
 
