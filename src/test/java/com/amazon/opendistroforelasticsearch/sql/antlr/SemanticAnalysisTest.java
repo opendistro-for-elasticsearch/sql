@@ -93,6 +93,23 @@ public class SemanticAnalysisTest {
     }
 
     @Test
+    public void duplicateIndexNameAliasInFromClauseShouldFail() {
+        expectValidationFailWithErrorMessage(
+            "SELECT * FROM semantics s, s.projects s",
+            "Field [s] is conflicting with field of same name defined by other index"
+        );
+    }
+
+    @Ignore("To be implemented")
+    @Test
+    public void duplicateFieldAliasInSelectClauseShouldFail() {
+        expectValidationFailWithErrorMessage(
+            "SELECT age a, COUNT(*) a FROM semantics s, a.projects p",
+            "Field [a.projects] cannot be found or used here"
+        );
+    }
+
+    @Test
     public void validIndexNameAliasShouldPass() {
         validate("SELECT * FROM semantics s, s.projects p");
         validate("SELECT * FROM semantics s WHERE s.balance = 10000");

@@ -28,6 +28,7 @@ import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.UNKNOWN;
 import static com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState.FieldMappings;
 
 /**
@@ -73,19 +74,16 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
         else {
             IndexMappings indexMappings = clusterState.getFieldMappings(new String[]{indexName});
             FieldMappings mappings = indexMappings.firstMapping().firstMapping();
-            flatMappings(mappings.data(), alias.orElse(""));
+            alias.ifPresent(s -> defineFieldName(s, UNKNOWN)); //TODO: need a Index type here
+            flatMappings(mappings.data(), alias);
         }
         return null;
     }
 
     private void redefineByAlias(String indexName, Optional<String> alias) {
-        Map<String, Type> map = environment.resolveByPrefix(new Symbol(Namespace.FIELD_NAME, indexName));
-        map.forEach(
-            (fieldName, fieldType) ->
-                environment.define(
-                    new Symbol(Namespace.FIELD_NAME, fieldName.replace(indexName, alias.get())),
-                    fieldType
-                )
+        Map<String, Type> typeByFullName = environment.resolveByPrefix(new Symbol(Namespace.FIELD_NAME, indexName));
+        typeByFullName.forEach(
+            (fieldName, fieldType) -> defineFieldName(fieldName.replace(indexName, alias.get()), fieldType)
         );
     }
 
@@ -94,34 +92,34 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
     }
 
     @SuppressWarnings("unchecked")
-    private void flatMappings(Map<String, Map<String, Object>> mappings, String path) {
+    private void flatMappings(Map<String, Map<String, Object>> mappings, Optional<String> path) {
         mappings.forEach(
             (fieldName, mapping) -> {
-                String fullFieldName = path + "." + fieldName;
+                String fullFieldName = path.map(s -> s + "." + fieldName).orElse(fieldName);
                 String type = (String) mapping.getOrDefault("type", "object");
-
-                if (isFieldAlreadyDefined(fullFieldName)) {
-                    throw new SemanticAnalysisException(StringUtils.format(
-                        "Field [%s] is conflicting with field of same name defined by other index", fullFieldName));
-                }
                 defineFieldName(fullFieldName, type);
 
                 if (mapping.containsKey("properties")) {
                     flatMappings(
                         (Map<String, Map<String, Object>>) mapping.get("properties"),
-                        fullFieldName
+                        Optional.of(fullFieldName)
                     );
                 }
             }
         );
     }
 
-    private boolean isFieldAlreadyDefined(String fieldName) {
-        return environment.resolve(new Symbol(Namespace.FIELD_NAME, fieldName)).isPresent();
+    private void defineFieldName(String fieldName, String type) {
+        defineFieldName(fieldName, BaseType.valueOf(StringUtils.toUpper(type)));
     }
 
-    private void defineFieldName(String fieldName, String type) {
-        environment.define(new Symbol(Namespace.FIELD_NAME, fieldName), BaseType.valueOf(StringUtils.toUpper(type)));
+    private void defineFieldName(String fieldName, Type type) {
+        Symbol symbol = new Symbol(Namespace.FIELD_NAME, fieldName);
+        if (environment.resolve(symbol).isPresent()) {
+            throw new SemanticAnalysisException(StringUtils.format(
+                "%s is conflicting with field of same name defined by other index", symbol));
+        }
+        environment.define(symbol, type);
     }
 
     public void visitQuery() {
