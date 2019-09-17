@@ -19,14 +19,18 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.SemanticAnalysis
 import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.SqlSyntaxAnalysisException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseException;
+import org.elasticsearch.rest.RestStatus;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
 
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_ENABLED;
+import static org.elasticsearch.common.xcontent.XContentType.JSON;
 import static org.elasticsearch.rest.RestStatus.BAD_REQUEST;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -68,6 +72,22 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
                 "WHERE age <=> 1"
             )
         );
+    }
+
+    @Test
+    public void useNewAddFieldShouldPass() throws Exception {
+        // 1.Make sure new add fields not there originally
+        String query = "SELECT salary FROM elasticsearch-sql_test_index_bank WHERE education = 'PhD'";
+        queryShouldThrowSemanticException(query);
+
+        // 2.Index an document with fields not present in mapping previously
+        String docWithNewFields = "{\"account_number\":12345,\"education\":\"PhD\",\"salary\": \"10000\"}";
+        IndexResponse resp = client().index(new IndexRequest().index("elasticsearch-sql_test_index_bank").
+                                                               source(docWithNewFields, JSON)).get();
+        Assert.assertEquals(RestStatus.CREATED, resp.status());
+
+        // 3.Same query should pass
+        executeQuery(query);
     }
 
     @Test
