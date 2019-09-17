@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.SemanticAnalysisException;
 import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.SqlSyntaxAnalysisException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
@@ -69,6 +70,14 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
         );
     }
 
+    @Test
+    public void nonExistingFieldNameShouldThrowSemanticException() {
+        queryShouldThrowSemanticException(
+            "SELECT *",
+            "FROM elasticsearch-sql_test_index_bank",
+            "WHERE balance1 = 1000"
+        );
+    }
 
     /** Run the query with cluster setting changed and cleaned after complete */
     private void runWithClusterSetting(ClusterSetting setting, Runnable query) {
@@ -93,6 +102,10 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
 
     private void queryShouldThrowSyntaxException(String... clauses) {
         queryShouldThrowException(SqlSyntaxAnalysisException.class, clauses);
+    }
+
+    private void queryShouldThrowSemanticException(String... clauses) {
+        queryShouldThrowException(SemanticAnalysisException.class, clauses);
     }
 
     private <T> void queryShouldThrowException(Class<T> exceptionType, String... clauses) {
