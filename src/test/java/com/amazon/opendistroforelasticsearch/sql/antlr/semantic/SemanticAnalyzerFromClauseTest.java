@@ -1,0 +1,102 @@
+/*
+ *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License").
+ *   You may not use this file except in compliance with the License.
+ *   A copy of the License is located at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   or in the "license" file accompanying this file. This file is distributed
+ *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ *   express or implied. See the License for the specific language governing
+ *   permissions and limitations under the License.
+ */
+
+package com.amazon.opendistroforelasticsearch.sql.antlr.semantic;
+
+import org.junit.Ignore;
+import org.junit.Test;
+
+/**
+ * Semantic analyzer tests for FROM clause, including parse single index, multiple indices,
+ * index + (deep) nested field and multiple statements like UNION/MINUS etc. Basically, we
+ * need to make sure the environment be set up properly so that semantic analysis followed
+ * can be performed correctly.
+ */
+public class SemanticAnalyzerFromClauseTest extends SemanticAnalyzerTestBase {
+
+    @Ignore("IndexNotFoundException should be thrown from ES API directly")
+    @Test
+    public void nonExistingIndexNameShouldFail() {
+        expectValidationFailWithErrorMessage(
+            "SELECT * FROM semantics1",
+            ""
+        );
+    }
+
+    @Test
+    public void invalidIndexNameAliasInFromClauseShouldFail() {
+        expectValidationFailWithErrorMessage(
+            "SELECT * FROM semantics s, a.projects p",
+            "Field [a.projects] cannot be found or used here"
+        );
+    }
+
+    @Test
+    public void invalidIndexNameAliasInWhereClauseShouldFail() {
+        expectValidationFailWithErrorMessage(
+            "SELECT * FROM semantics s WHERE a.balance = 10000",
+            "Field [a.balance] cannot be found or used here"
+        );
+    }
+
+    @Test
+    public void nonNestedFieldInFromClauseShouldFail() {
+        expectValidationFailWithErrorMessage(
+            "SELECT * FROM semantics s, s.manager m",
+            "Field [s.manager] is [OBJECT] type but nested type is required"
+        );
+    }
+
+    @Test
+    public void duplicateIndexNameAliasInFromClauseShouldFail() {
+        expectValidationFailWithErrorMessage(
+            "SELECT * FROM semantics s, s.projects s",
+            "Field [s] is conflicting with field of same name defined by other index"
+        );
+    }
+
+    @Test
+    public void duplicateFieldNameFromDifferentIndexShouldFail() {
+        expectValidationFailWithErrorMessage(
+            "SELECT * FROM semantics INNER JOIN semantics",
+            "is conflicting with field of same name defined by other index"
+        );
+    }
+
+    @Test
+    public void validIndexNameAliasShouldPass() {
+        validate("SELECT * FROM semantics s, s.projects p");
+        validate("SELECT * FROM semantics s WHERE s.balance = 10000");
+    }
+
+    @Test
+    public void regularJoinShouldPass() {
+        validate("SELECT * FROM semantics s1, semantics s2");
+        validate("SELECT * FROM semantics s1 JOIN semantics s2");
+        validate("SELECT * FROM semantics s1 LEFT JOIN semantics s2 ON s1.balance = s2.balance");
+    }
+
+    @Test
+    public void deepNestedFieldInFromClauseShouldPass() {
+        validate("SELECT * FROM semantics s, s.projects p, p.members m");
+    }
+
+    @Test
+    public void duplicateFieldNameFromDifferentStatementShouldPass() {
+        validate("SELECT age FROM semantics UNION SELECT age FROM semantic");
+        validate("SELECT s.age FROM semantics s UNION SELECT s.age FROM semantic s");
+    }
+
+}

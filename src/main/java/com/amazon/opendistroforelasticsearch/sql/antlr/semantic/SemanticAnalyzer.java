@@ -46,6 +46,17 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
         this.clusterState = clusterState;
     }
 
+    @Override
+    public void visitQuery() {
+        environment = new Environment(environment);
+    }
+
+    @Override
+    public Type endVisitQuery() {
+        environment = environment.getParent();
+        return null;
+    }
+
     /**
      *
      * Example:
@@ -120,14 +131,6 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
                 "%s is conflicting with field of same name defined by other index", symbol));
         }
         environment.define(symbol, type);
-    }
-
-    public void visitQuery() {
-        //environment = new Environment(environment);
-
-        //visitDeep.run();
-
-        //environment = environment.getParent();
     }
 
     public Type visitWhere(Runnable visitDeep) {

@@ -17,7 +17,6 @@ package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
