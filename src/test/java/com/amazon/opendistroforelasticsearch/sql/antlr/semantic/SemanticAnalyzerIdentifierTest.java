@@ -26,13 +26,25 @@ public class SemanticAnalyzerIdentifierTest extends SemanticAnalyzerTestBase {
     @Ignore("To be implemented")
     @Test
     public void duplicateFieldAliasInSelectClauseShouldFail() {
-        expectValidationFailWithErrorMessage(
+        expectValidationFailWithErrorMessages(
             "SELECT age a, COUNT(*) a FROM semantics s, a.projects p",
             "Field [a.projects] cannot be found or used here"
         );
     }
 
     @Test
-    public void nonExistingFieldNameShouldFail() {
+    public void nonExistingFieldNameInSelectClauseShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT age FROM semantics s",
+            "Field [age] cannot be found or used here.",
+            "Did you mean [s.age]?"
+        );
+    }
+
+    @Test
+    public void useDeepNestedFieldNameShouldPass() {
+        validate("SELECT * FROM semantics s, s.projects p WHERE p IS NULL");
+        validate("SELECT * FROM semantics s, s.projects p WHERE p.active = TRUE");
+        validate("SELECT * FROM semantics s, s.projects p, p.members m WHERE m.name = 'John'");
     }
 }

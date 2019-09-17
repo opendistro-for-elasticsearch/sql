@@ -17,20 +17,14 @@ package com.amazon.opendistroforelasticsearch.sql.antlr.semantic;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.OpenDistroSqlAnalyzer;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
 import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
-import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.io.IOException;
-import java.net.URL;
+import java.util.Arrays;
 
-import static com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents.mockLocalClusterState;
+import static java.util.stream.Collectors.toList;
+import static org.hamcrest.Matchers.allOf;
 
 /**
  * Test cases for semantic analysis focused on semantic check which was missing in the past.
@@ -43,9 +37,11 @@ public abstract class SemanticAnalyzerTestBase {
 
     private OpenDistroSqlAnalyzer analyzer = new OpenDistroSqlAnalyzer();
 
-    protected void expectValidationFailWithErrorMessage(String query, String message) {
+    protected void expectValidationFailWithErrorMessages(String query, String... messages) {
         exception.expect(SemanticAnalysisException.class);
-        exception.expectMessage(Matchers.containsString(message));
+        exception.expectMessage(allOf(Arrays.stream(messages).
+                                      map(Matchers::containsString).
+                                      collect(toList())));
         validate(query);
     }
 

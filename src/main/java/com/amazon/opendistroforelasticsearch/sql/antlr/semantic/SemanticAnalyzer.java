@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic;
 
+import com.amazon.opendistroforelasticsearch.sql.antlr.StringSimilarity;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Environment;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Namespace;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Symbol;
@@ -25,8 +26,10 @@ import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState.IndexMappings;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.UNKNOWN;
 import static com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState.FieldMappings;
@@ -186,9 +189,11 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
     public Type resolve(Symbol symbol) {
         Optional<Type> type = environment.resolve(symbol);
         if (!type.isPresent()) {
-            //List<String> suggestedWords = new StringSimilarity(
-            //    environment.allSymbolsIn(symbol.getNamespace())).similarTo(symbol.getName());
-            throw new SemanticAnalysisException(StringUtils.format("%s cannot be found or used here.", symbol));
+            Set<String> allSymbolsInScope = environment.resolveAll(symbol.getNamespace()).keySet();
+            List<String> suggestedWords = new StringSimilarity(allSymbolsInScope).similarTo(symbol.getName());
+            throw new SemanticAnalysisException(
+                StringUtils.format("%s cannot be found or used here. Did you mean [%s]?",
+                    symbol, suggestedWords.get(0)));
                 //at(sql, ctx).
                 //suggestion("Did you mean [%s]?", String.join(", ", suggestedWords)).build();
         }

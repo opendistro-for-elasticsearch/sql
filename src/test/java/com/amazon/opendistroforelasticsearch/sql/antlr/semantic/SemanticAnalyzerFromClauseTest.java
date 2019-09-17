@@ -29,7 +29,7 @@ public class SemanticAnalyzerFromClauseTest extends SemanticAnalyzerTestBase {
     @Ignore("IndexNotFoundException should be thrown from ES API directly")
     @Test
     public void nonExistingIndexNameShouldFail() {
-        expectValidationFailWithErrorMessage(
+        expectValidationFailWithErrorMessages(
             "SELECT * FROM semantics1",
             ""
         );
@@ -37,7 +37,7 @@ public class SemanticAnalyzerFromClauseTest extends SemanticAnalyzerTestBase {
 
     @Test
     public void invalidIndexNameAliasInFromClauseShouldFail() {
-        expectValidationFailWithErrorMessage(
+        expectValidationFailWithErrorMessages(
             "SELECT * FROM semantics s, a.projects p",
             "Field [a.projects] cannot be found or used here"
         );
@@ -45,7 +45,7 @@ public class SemanticAnalyzerFromClauseTest extends SemanticAnalyzerTestBase {
 
     @Test
     public void invalidIndexNameAliasInWhereClauseShouldFail() {
-        expectValidationFailWithErrorMessage(
+        expectValidationFailWithErrorMessages(
             "SELECT * FROM semantics s WHERE a.balance = 10000",
             "Field [a.balance] cannot be found or used here"
         );
@@ -53,15 +53,23 @@ public class SemanticAnalyzerFromClauseTest extends SemanticAnalyzerTestBase {
 
     @Test
     public void nonNestedFieldInFromClauseShouldFail() {
-        expectValidationFailWithErrorMessage(
+        expectValidationFailWithErrorMessages(
             "SELECT * FROM semantics s, s.manager m",
             "Field [s.manager] is [OBJECT] type but nested type is required"
         );
     }
 
     @Test
+    public void nonExistingNestedFieldInFromClauseShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT * FROM semantics s, s.people p",
+            "Field [s.people] cannot be found or used here"
+        );
+    }
+
+    @Test
     public void duplicateIndexNameAliasInFromClauseShouldFail() {
-        expectValidationFailWithErrorMessage(
+        expectValidationFailWithErrorMessages(
             "SELECT * FROM semantics s, s.projects s",
             "Field [s] is conflicting with field of same name defined by other index"
         );
@@ -69,7 +77,7 @@ public class SemanticAnalyzerFromClauseTest extends SemanticAnalyzerTestBase {
 
     @Test
     public void duplicateFieldNameFromDifferentIndexShouldFail() {
-        expectValidationFailWithErrorMessage(
+        expectValidationFailWithErrorMessages(
             "SELECT * FROM semantics INNER JOIN semantics",
             "is conflicting with field of same name defined by other index"
         );
@@ -79,6 +87,12 @@ public class SemanticAnalyzerFromClauseTest extends SemanticAnalyzerTestBase {
     public void validIndexNameAliasShouldPass() {
         validate("SELECT * FROM semantics s, s.projects p");
         validate("SELECT * FROM semantics s WHERE s.balance = 10000");
+    }
+
+    @Test
+    public void noIndexAliasShouldPass() {
+        validate("SELECT * FROM semantics");
+        //validate("SELECT * FROM semantics, projects"); //TODO: alias should be required for nested field
     }
 
     @Test

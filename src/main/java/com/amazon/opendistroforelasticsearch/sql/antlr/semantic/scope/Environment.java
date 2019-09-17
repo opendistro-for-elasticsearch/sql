@@ -64,11 +64,9 @@ public class Environment {
         return new HashMap<>(symbolTable.lookupByPrefix(prefix)); // TODO: look up in env chain or only current level?
     }
 
-    /*
-    public Collection<String> allSymbolsIn(Namespace namespace) {
+    public Map<String, Type> resolveAll(Namespace namespace) {
         return symbolTable.lookupAll(namespace);
     }
-     */
 
     public Environment getParent() {
         return parent;
