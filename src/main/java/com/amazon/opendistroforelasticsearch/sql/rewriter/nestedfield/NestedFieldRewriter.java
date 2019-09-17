@@ -23,6 +23,8 @@ import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
+import static com.amazon.opendistroforelasticsearch.sql.utils.Util.NESTED_JOIN_TYPE;
+
 /**
  * Visitor to rewrite AST (abstract syntax tree) for nested type fields to support implicit nested() function call.
  * Intuitively, the approach is to implement SQLIdentifier.visit() and wrap nested() function for nested field.
@@ -81,6 +83,8 @@ public class NestedFieldRewriter extends MySqlASTVisitorAdapter {
         if (curScope().isAnyNestedField() && isNotGroupBy(query)) {
             new Select(query.getSelectList()).rewrite(curScope());
         }
+
+        query.putAttribute(NESTED_JOIN_TYPE, curScope().getActualJoinType());
         return true;
     }
 

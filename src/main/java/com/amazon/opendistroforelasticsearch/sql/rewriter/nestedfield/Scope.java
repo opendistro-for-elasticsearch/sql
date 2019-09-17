@@ -22,14 +22,18 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static com.alibaba.druid.sql.ast.statement.SQLJoinTableSource.JoinType;
+
 /**
  * Nested field information in current query being visited.
  */
 class Scope {
 
-    /**
-     * Alias of parent such as alias "t" of parent table "team" in "FROM team t, t.employees e"
-     */
+    /** Join Type as passed in the actual SQL subquery */
+    private JoinType actualJoinType;
+
+    /** Alias of parent such as alias "t" of parent table "team" in "FROM team t, t.employees e" */
+
     private String parentAlias;
 
     /**
@@ -80,4 +84,11 @@ class Scope {
         conditionTags.put(expr, tag);
     }
 
+    JoinType getActualJoinType() {
+        return actualJoinType;
+    }
+
+    void setActualJoinType(JoinType joinType) {
+        actualJoinType = joinType;
+    }
 }

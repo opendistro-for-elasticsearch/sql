@@ -16,11 +16,13 @@
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.common.xcontent.LoggingDeprecationHandler;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
@@ -41,6 +43,7 @@ import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvStri
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
@@ -65,6 +68,7 @@ import static org.hamcrest.Matchers.is;
 public class NestedFieldQueryIT extends SQLIntegTestCase {
 
     private static final String FROM = "FROM " + TestsConstants.TEST_INDEX_NESTED_TYPE + "/nestedType n, n.message m";
+
 
     @Override
     protected void init() throws Exception {
@@ -259,6 +263,54 @@ public class NestedFieldQueryIT extends SQLIntegTestCase {
             )
         );
     }
+
+    @Test
+    public void leftJoinSelectAll() throws IOException {
+        String sql = "SELECT * " +
+                     "FROM elasticsearch-sql_test_index_employee_nested e " +
+                     "LEFT JOIN e.projects p ";
+        String explain = explainQuery(sql);
+        assertThat(explain, containsString("{\"bool\":{\"must_not\":[{\"nested\":{\"query\":" +
+            "{\"exists\":{\"field\":\"projects\",\"boost\":1.0}},\"path\":\"projects\""));
+
+        assertThat(explain, containsString("\"_source\":{\"includes\":[\"projects.*\""));
+
+        JSONObject results = executeQuery(sql);
+        Assert.assertThat(getTotalHits(results), equalTo(4));
+    }
+
+    @Test
+    public void leftJoinSpecificFields() throws IOException {
+        String sql = "SELECT e.name, p.name, p.started_year " +
+                     "FROM elasticsearch-sql_test_index_employee_nested e " +
+                     "LEFT JOIN e.projects p ";
+        String explain = explainQuery(sql);
+        assertThat(explain, containsString("{\"bool\":{\"must_not\":[{\"nested\":{\"query\":" +
+            "{\"exists\":{\"field\":\"projects\",\"boost\":1.0}},\"path\":\"projects\""));
+        assertThat(explain, containsString("\"_source\":{\"includes\":[\"name\"],"));
+        assertThat(explain, containsString("\"_source\":{\"includes\":[\"projects.name\",\"projects.started_year\"]"));
+
+        JSONObject results = executeQuery(sql);
+        Assert.assertThat(getTotalHits(results), equalTo(4));
+    }
+
+    @Test
+    public void leftJoinExceptionOnExtraNestedFields() throws IOException {
+        String sql = "SELECT * " +
+                     "FROM elasticsearch-sql_test_index_employee_nested e " +
+                     "LEFT JOIN e.projects p, e.comments c ";
+
+        try {
+            String explain = explainQuery(sql);
+            Assert.fail("Expected ResponseException, but none was thrown");
+        } catch (ResponseException e) {
+            assertThat(e.getResponse().getStatusLine().getStatusCode(), equalTo(RestStatus.BAD_REQUEST.getStatus()));
+            final String entity = TestUtils.getResponseBody(e.getResponse());
+            assertThat(entity, containsString("only single nested field is allowed as right table for LEFT JOIN"));
+            assertThat(entity, containsString("\"type\":\"verification_exception\""));
+        }
+    }
+
 
     @Test
     public void aggregationWithoutGroupBy() throws IOException {
