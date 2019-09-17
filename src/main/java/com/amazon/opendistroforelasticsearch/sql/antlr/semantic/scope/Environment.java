@@ -18,6 +18,8 @@ package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -34,10 +36,20 @@ public class Environment {
         this.symbolTable = new SymbolTable();
     }
 
+    /**
+     * Define symbol with the type
+     * @param symbol    symbol to define
+     * @param type      type
+     */
     public void define(Symbol symbol, Type type) {
-        symbolTable.put(symbol, type);
+        symbolTable.store(symbol, type);
     }
 
+    /**
+     * Resolve symbol in the environment
+     * @param symbol    symbol to look up
+     * @return          type if exist
+     */
     public Optional<Type> resolve(Symbol symbol) {
         Optional<Type> type = Optional.empty();
         for (Environment cur = this; cur != null; cur = cur.parent) {
@@ -49,9 +61,15 @@ public class Environment {
         return type;
     }
 
+    public Map<String, Type> resolveByPrefix(Symbol prefix) {
+        return new HashMap<>(symbolTable.lookupByPrefix(prefix)); // TODO: look up in env chain or only current level?
+    }
+
+    /*
     public Collection<String> allSymbolsIn(Namespace namespace) {
         return symbolTable.lookupAll(namespace);
     }
+     */
 
     public Environment getParent() {
         return parent;

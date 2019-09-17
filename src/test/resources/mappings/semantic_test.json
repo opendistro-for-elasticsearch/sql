@@ -27,8 +27,13 @@
           "projects": {
             "type": "nested",
             "properties": {
-              "name": {
-                "type": "text"
+              "members": {
+                "type": "nested",
+                "properties": {
+                  "name": {
+                    "type": "text"
+                  }
+                }
               },
               "active": {
                 "type": "boolean"

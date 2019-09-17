@@ -22,7 +22,10 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Optional;
+import java.util.TreeMap;
+import java.util.stream.Stream;
 
 /**
  * Symbol table for symbol definition and resolution.
@@ -30,12 +33,12 @@ import java.util.Optional;
 public class SymbolTable {
 
     /** Two-dimension hash table to manage symbols with type in different namespace */
-    private Map<Namespace, Map<String, Type>> tableByNamespace = new EnumMap<>(Namespace.class);
+    private Map<Namespace, NavigableMap<String, Type>> tableByNamespace = new EnumMap<>(Namespace.class);
 
-    public void put(Symbol symbol, Type type) {
+    public void store(Symbol symbol, Type type) {
         tableByNamespace.computeIfAbsent(
             symbol.getNamespace(),
-            ns -> new HashMap<>()
+            ns -> new TreeMap<>()
         ).put(symbol.getName(), type);
     }
 
@@ -48,8 +51,18 @@ public class SymbolTable {
         return Optional.ofNullable(type);
     }
 
+    public Map<String, Type> lookupByPrefix(Symbol prefix) {
+        NavigableMap<String, Type> table = tableByNamespace.get(prefix.getNamespace());
+        if (table != null) {
+            return table.subMap(prefix.getName(), prefix.getName() + Character.MAX_VALUE);
+        }
+        return Collections.emptyMap();
+    }
+
+    /*
     public Collection<String> lookupAll(Namespace namespace) {
         return tableByNamespace.getOrDefault(namespace, Collections.emptyMap()).keySet();
     }
+    */
 
 }

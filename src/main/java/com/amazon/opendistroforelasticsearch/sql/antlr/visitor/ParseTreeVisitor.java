@@ -41,6 +41,10 @@ public interface ParseTreeVisitor<T> {
         return defaultValue();
     }
 
+    default T visitJoin(String joinType) {
+        return defaultValue();
+    }
+
     default T visitFieldName(String fieldName) {
         return defaultValue();
     }

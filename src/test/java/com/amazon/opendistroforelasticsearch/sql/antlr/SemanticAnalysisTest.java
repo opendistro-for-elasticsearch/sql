@@ -99,11 +99,15 @@ public class SemanticAnalysisTest {
     }
 
     @Test
-    public void regularTwoIndexJoinShouldPass() {
+    public void regularJoinShouldPass() {
+        validate("SELECT * FROM semantics s1, semantics s2");
+        validate("SELECT * FROM semantics s1 JOIN semantics s2");
+        validate("SELECT * FROM semantics s1 LEFT JOIN semantics s2 ON s1.balance = s2.balance");
     }
 
     @Test
     public void deepNestedFieldInFromClauseShouldPass() {
+        validate("SELECT * FROM semantics s, s.projects p, p.members m");
     }
 
     @Ignore("To be implemented")

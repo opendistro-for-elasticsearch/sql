@@ -45,6 +45,18 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
         this.clusterState = clusterState;
     }
 
+    /**
+     *
+     * Example:
+     *
+     * visit(
+     *
+     * visit(
+     *
+     * @param indexName     index name in the FROM clause
+     * @param alias         optional alias
+     * @return              type
+     */
     @Override
     public Type visitIndexName(String indexName, Optional<String> alias) {
         if (isDotId(indexName)) {
@@ -53,12 +65,28 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
                 throw new SemanticAnalysisException(StringUtils.format(
                     "Field [%s] is [%s] type but nested type is required", indexName, type));
             }
-        } else {
+
+            if (alias.isPresent()) {
+                redefineByAlias(indexName, alias);
+            }
+        }
+        else {
             IndexMappings indexMappings = clusterState.getFieldMappings(new String[]{indexName});
             FieldMappings mappings = indexMappings.firstMapping().firstMapping();
             flatMappings(mappings.data(), alias.orElse(""));
         }
         return null;
+    }
+
+    private void redefineByAlias(String indexName, Optional<String> alias) {
+        Map<String, Type> map = environment.resolveByPrefix(new Symbol(Namespace.FIELD_NAME, indexName));
+        map.forEach(
+            (fieldName, fieldType) ->
+                environment.define(
+                    new Symbol(Namespace.FIELD_NAME, fieldName.replace(indexName, alias.get())),
+                    fieldType
+                )
+        );
     }
 
     private boolean isDotId(String indexName) {
@@ -78,7 +106,7 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
                 }
                 defineFieldName(fullFieldName, type);
 
-                if (mappings.containsKey("properties")) {
+                if (mapping.containsKey("properties")) {
                     flatMappings(
                         (Map<String, Map<String, Object>>) mapping.get("properties"),
                         fullFieldName

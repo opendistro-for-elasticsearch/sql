@@ -17,8 +17,23 @@ package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.Reducible;
 
-public interface Type extends Reducible {
+import java.util.Collection;
 
-    String name();
+/**
+ * Type for Elasticsearch index
+ */
+public class Index implements Type {
+
+    //private final
+
+    @Override
+    public String name() {
+        return null;
+    }
+
+    @Override
+    public <T extends Reducible> T reduce(Collection<T> args) {
+        return null;
+    }
 
 }

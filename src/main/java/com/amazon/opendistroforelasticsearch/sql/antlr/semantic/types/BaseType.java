@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types;
 
-import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.Aggregator;
+import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.Reducible;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Collection;
@@ -106,7 +106,7 @@ public enum BaseType implements Type {
     }
 
     @Override
-    public <T extends Aggregator> T aggregate(Collection<T> args) {
+    public <T extends Reducible> T reduce(Collection<T> args) {
         return null;
     }
 

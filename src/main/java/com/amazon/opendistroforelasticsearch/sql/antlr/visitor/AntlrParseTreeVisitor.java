@@ -19,7 +19,6 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParse
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParserBaseVisitor;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,9 +39,9 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroS
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.UidContext;
 
 /**
- * ANTLR parse tree visitor to drive the semantic analysis process.
+ * ANTLR parse tree visitor to drive the analysis process.
  */
-public class AntlrParseTreeVisitor<T extends Aggregator> extends OpenDistroSqlParserBaseVisitor<T> {
+public class AntlrParseTreeVisitor<T extends Reducible> extends OpenDistroSqlParserBaseVisitor<T> {
 
     private final ParseTreeVisitor<T> visitor;
 
@@ -76,6 +75,18 @@ public class AntlrParseTreeVisitor<T extends Aggregator> extends OpenDistroSqlPa
         super.visitFromClause(ctx);
         return visitor.endVisitFrom();
     }
+
+    /*
+    @Override
+    public T visitOuterJoin(OuterJoinContext ctx) {
+        return super.visitOuterJoin(ctx);
+    }
+
+    @Override
+    public T visitInnerJoin(InnerJoinContext ctx) {
+        return super.visitInnerJoin(ctx);
+    }
+    */
 
     @Override
     public T visitAtomTableItem(AtomTableItemContext ctx) {
@@ -117,7 +128,7 @@ public class AntlrParseTreeVisitor<T extends Aggregator> extends OpenDistroSqlPa
                 funcType.getName(), actualArgTypes
             ).at(sql, ctx).suggestion("Usage: %s.", funcType).build();
         }*/
-        return func.aggregate(actualArgs);
+        return func.reduce(actualArgs);
     }
 
     @Override

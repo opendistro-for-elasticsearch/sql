@@ -18,15 +18,15 @@ package com.amazon.opendistroforelasticsearch.sql.antlr.visitor;
 import java.util.Collection;
 
 /**
- * Abstraction for anything that can be aggregated and used by {@link AntlrParseTreeVisitor}.
+ * Abstraction for anything that can be reduced and used by {@link AntlrParseTreeVisitor}.
  */
-public interface Aggregator {
+public interface Reducible {
 
     /**
-     * Aggregate current and others to generate a new one
+     * Reduce current and others to generate a new one
      * @param args  others
-     * @return      aggregation
+     * @return      reduction
      */
-    <T extends Aggregator> T aggregate(Collection<T> args);
+    <T extends Reducible> T reduce(Collection<T> args);
 
 }
