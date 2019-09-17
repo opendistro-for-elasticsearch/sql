@@ -35,6 +35,7 @@ import org.junit.Test;
 
 import java.util.List;
 
+import static com.amazon.opendistroforelasticsearch.sql.util.SqlParserUtils.parse;
 import static java.util.stream.IntStream.range;
 import static org.junit.Assert.assertEquals;
 
@@ -249,6 +250,30 @@ public class NestedFieldRewriterTest {
         );
     }
 
+    @Test
+    public void isNotNull() {
+        same(
+                query("SELECT e.name FROM employee as e, e.projects as p WHERE p IS NOT NULL"),
+                query("SELECT name FROM employee WHERE nested(projects, 'projects') IS NOT NULL")
+        );
+    }
+
+    @Test
+    public void isNotNullAndCondition() {
+        same(
+                query("SELECT e.name FROM employee as e, e.projects as p WHERE p IS NOT NULL AND p.name LIKE 'security'"),
+                query("SELECT name FROM employee WHERE nested('projects', projects IS NOT NULL AND projects.name LIKE 'security')")
+        );
+    }
+
+    @Test
+    public void multiCondition() {
+        same(
+                query("SELECT e.name FROM employee as e, e.projects as p WHERE p.year = 2016 and p.name LIKE 'security'"),
+                query("SELECT name FROM employee WHERE nested('projects', projects.year = 2016 AND projects.name LIKE 'security')")
+        );
+    }
+
     private void noImpact(String sql) {
         same(parse(sql), rewrite(parse(sql)));
     }
@@ -373,15 +398,6 @@ public class NestedFieldRewriterTest {
             return expr;
         }
         return rewrite(expr);
-    }
-
-    private SQLQueryExpr parse(String sql) {
-        ElasticSqlExprParser parser = new ElasticSqlExprParser(sql);
-        SQLExpr expr = parser.expr();
-        if (parser.getLexer().token() != Token.EOF) {
-            throw new ParserException("Illegal sql: " + sql);
-        }
-        return (SQLQueryExpr) expr;
     }
 
     private SQLQueryExpr rewrite(SQLQueryExpr expr) {

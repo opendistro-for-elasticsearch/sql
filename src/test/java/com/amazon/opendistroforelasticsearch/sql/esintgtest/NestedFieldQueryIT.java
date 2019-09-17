@@ -28,6 +28,7 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
+import org.hamcrest.core.Is;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -37,6 +38,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.function.Function;
 
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.hitAll;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvString;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.closeTo;
@@ -353,6 +356,21 @@ public class NestedFieldQueryIT extends SQLIntegTestCase {
         Assert.assertThat((Double) msgInfoBuckets.query("/0/message.dayOfWeek@NESTED/sumDay/value"), closeTo(9.0, 0.01));
         Assert.assertThat(msgInfoBuckets.query("/1/key"), equalTo("b"));
         Assert.assertThat((Double) msgInfoBuckets.query("/1/message.dayOfWeek@NESTED/sumDay/value"), closeTo(10.0, 0.01));
+    }
+
+    @Test
+    public void nestedFiledIsNotNull() throws IOException {
+        String sql = "SELECT e.name " +
+                "FROM elasticsearch-sql_test_index_employee_nested as e, e.projects as p " +
+                "WHERE p IS NOT NULL";
+
+        assertThat(
+                executeQuery(sql),
+                hitAll(
+                        kvString("/_source/name", Is.is("Bob Smith")),
+                        kvString("/_source/name", Is.is("Jane Smith"))
+                )
+        );
     }
 
     // Doesn't support: aggregate function other than COUNT()

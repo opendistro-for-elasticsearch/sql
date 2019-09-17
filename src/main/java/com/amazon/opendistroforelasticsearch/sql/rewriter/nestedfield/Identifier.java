@@ -51,8 +51,13 @@ class Identifier extends SQLClause<SQLIdentifierExpr> {
         }
     }
 
+    /**
+     * return the path of the expr name. e.g.
+     * expecting p returned as path in both WHERE p.name = 'A' and WHERE p IS NULL cases,
+     * in which expr.name = p.name and p separately
+     */
     String path() {
-        return separatorIndex() == -1 ? "" : expr.getName().substring(0, separatorIndex());
+        return separatorIndex() == -1 ? expr.getName() : expr.getName().substring(0, separatorIndex());
     }
 
     String name() {
@@ -87,7 +92,7 @@ class Identifier extends SQLClause<SQLIdentifierExpr> {
         if (fullPath.isEmpty()) {
             throw new IllegalStateException("Full path not found for identifier:" + expr.getName());
         }
-        expr.setName(fullPath + SEPARATOR + name());
+        expr.setName(expr.getName().replaceFirst(path(), fullPath));
     }
 
     private void useFullPathAsTag(Scope scope) {
