@@ -27,7 +27,7 @@ public class ExistsSubQueryRewriterTest extends SubQueryRewriterTestBase {
     public ExpectedException exceptionRule = ExpectedException.none();
 
     @Test
-    public void nonCorrlatedExists() {
+    public void nonCorrelatedExists() {
         assertEquals(
                 sqlString(expr(
                         "SELECT e.name " +
@@ -41,7 +41,7 @@ public class ExistsSubQueryRewriterTest extends SubQueryRewriterTestBase {
     }
 
     @Test
-    public void nonCorrlatedExistsWhere() {
+    public void nonCorrelatedExistsWhere() {
         assertEquals(
                 sqlString(expr(
                         "SELECT e.name " +
@@ -55,7 +55,7 @@ public class ExistsSubQueryRewriterTest extends SubQueryRewriterTestBase {
     }
 
     @Test
-    public void nonCorrlatedExistsParentWhere() {
+    public void nonCorrelatedExistsParentWhere() {
         assertEquals(
                 sqlString(expr(
                         "SELECT e.name " +
@@ -66,16 +66,6 @@ public class ExistsSubQueryRewriterTest extends SubQueryRewriterTestBase {
                         "FROM employee as e " +
                         "WHERE EXISTS (SELECT * FROM e.projects as p) AND e.name LIKE 'security'")))
         );
-    }
-
-    @Test
-    public void test() {
-        System.out.println(sqlString(rewrite(expr(
-                "SELECT * " +
-                "FROM elasticsearch-sql_test_index_account " +
-                "WHERE firstname LIKE 'A%%' AND age > 20 " +
-                "GROUP BY gender " +
-                "ORDER BY _score"))));
     }
 
     @Test

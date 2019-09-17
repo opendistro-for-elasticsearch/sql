@@ -23,9 +23,9 @@ import com.alibaba.druid.sql.ast.statement.SQLSelect;
 import com.alibaba.druid.sql.ast.statement.SQLSelectQuery;
 import com.alibaba.druid.sql.ast.statement.SQLTableSource;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
-import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.rewriter.Rewriter;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.rewriter.RewriterFactory;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.utils.FindSubQuery;
 
 public class SubQueryRewriter {
     private final RewriterContext ctx = new RewriterContext();
@@ -81,9 +81,9 @@ public class SubQueryRewriter {
     }
 
     private boolean containSubQuery(SQLSelect query) {
-        HasSuQuery hasSuQuery = new HasSuQuery();
-        query.accept(hasSuQuery);
-        return hasSuQuery.hasSubquery();
+        FindSubQuery findSubQuery = new FindSubQuery().continueVisitWhenFound(false);
+        query.accept(findSubQuery);
+        return findSubQuery.hasSubQuery();
     }
 
     private boolean isSupportedSubQuery(RewriterContext ctx) {
@@ -92,25 +92,5 @@ public class SubQueryRewriter {
             return true;
         }
         return false;
-    }
-
-    private static class HasSuQuery extends MySqlASTVisitorAdapter {
-        private boolean hasSubQuery = false;
-
-        boolean hasSubquery() {
-            return hasSubQuery;
-        }
-
-        @Override
-        public boolean visit(SQLInSubQueryExpr query) {
-            hasSubQuery = true;
-            return false;
-        }
-
-        @Override
-        public boolean visit(SQLExistsExpr query) {
-            hasSubQuery = true;
-            return false;
-        }
     }
 }

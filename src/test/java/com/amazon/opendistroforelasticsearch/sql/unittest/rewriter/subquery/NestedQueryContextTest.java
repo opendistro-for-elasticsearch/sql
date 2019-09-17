@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.unittest.rewriter.subquery.utils;
+package com.amazon.opendistroforelasticsearch.sql.unittest.rewriter.subquery;
 
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
@@ -22,9 +22,11 @@ import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource.JoinType;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.NestedQueryContext;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-public class NestedQueryDetectorTest {
+
+public class NestedQueryContextTest {
 
     @Test
     public void isNested() {
