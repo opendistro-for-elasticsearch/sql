@@ -43,7 +43,7 @@ import static com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents
 })
 public class SemanticAnalyzerTests {
 
-    private static final String TEST_MAPPING_FILE = "mappings/semantic_test.json";
+    private static final String TEST_MAPPING_FILE = "mappings/semantics.json";
 
     @SuppressWarnings("UnstableApiUsage")
     @BeforeClass

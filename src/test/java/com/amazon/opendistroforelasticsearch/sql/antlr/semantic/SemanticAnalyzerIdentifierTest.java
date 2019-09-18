@@ -117,10 +117,16 @@ public class SemanticAnalyzerIdentifierTest extends SemanticAnalyzerTestBase {
     }
 
     @Test
+    public void useKeywordInMultiFieldShouldPass() {
+        validate("SELECT employer.keyword FROM semantics WHERE employer.keyword LIKE 'AWS' GROUP BY employer.keyword");
+        validate("SELECT * FROM semantics s WHERE s.manager.name.keyword LIKE 'John'");
+    }
+
+    @Test
     public void useDeepNestedFieldNameShouldPass() {
-        validate("SELECT * FROM semantics s, s.projects p WHERE p IS NULL");
-        validate("SELECT * FROM semantics s, s.projects p WHERE p.active = TRUE");
-        validate("SELECT * FROM semantics s, s.projects p, p.members m WHERE m.name = 'John'");
+        validate("SELECT p.* FROM semantics s, s.projects p WHERE p IS NULL");
+        validate("SELECT p.active FROM semantics s, s.projects p WHERE p.active = TRUE");
+        validate("SELECT m.name FROM semantics s, s.projects p, p.members m WHERE m.name = 'John'");
     }
 
     /*

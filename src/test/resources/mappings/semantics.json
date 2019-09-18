@@ -1,5 +1,5 @@
 {
-  "semantics": {
+  "field_mappings": {
     "mappings": {
       "account": {
         "properties": {

@@ -220,7 +220,7 @@ tableName
     ;
 
 fullColumnName
-    : uid (dottedId dottedId? )?
+    : uid dottedId*
     ;
 
 uid

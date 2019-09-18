@@ -113,6 +113,14 @@ public class FieldMappings implements Mappings<Map<String, Object>> {
                 String type = (String) mapping.getOrDefault("type", "object");
                 func.accept(fullFieldName, type);
 
+                if (mapping.containsKey("fields")) {
+                    ((Map<String, Map<String, Object>>) mapping.get("fields")).forEach(
+                        (innerFieldName, innerMapping) ->
+                            func.accept(fullFieldName + "." + innerFieldName,
+                                        (String) innerMapping.getOrDefault("type", "object"))
+                    );
+                }
+
                 if (mapping.containsKey("properties")) {
                     flatMappings(
                         (Map<String, Map<String, Object>>) mapping.get("properties"),
