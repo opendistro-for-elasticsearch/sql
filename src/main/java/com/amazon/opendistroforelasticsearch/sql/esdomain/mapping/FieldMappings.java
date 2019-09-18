@@ -21,6 +21,8 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.BiConsumer;
 
 /**
  * Field mappings in a specific type.
@@ -95,6 +97,31 @@ public class FieldMappings implements Mappings<Map<String, Object>> {
     public Map<String, Map<String, Object>> data() {
         // Is this assumption true? Is it possible mapping of field is NOT a Map<String,Object>?
         return (Map<String, Map<String, Object>>) fieldMappings.get(PROPERTIES);
+    }
+
+    public void flat(BiConsumer<String, String> func) {
+        flatMappings(data(), Optional.empty(), func);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void flatMappings(Map<String, Map<String, Object>> mappings,
+                              Optional<String> path,
+                              BiConsumer<String, String> func) {
+        mappings.forEach(
+            (fieldName, mapping) -> {
+                String fullFieldName = path.map(s -> s + "." + fieldName).orElse(fieldName);
+                String type = (String) mapping.getOrDefault("type", "object");
+                func.accept(fullFieldName, type);
+
+                if (mapping.containsKey("properties")) {
+                    flatMappings(
+                        (Map<String, Map<String, Object>>) mapping.get("properties"),
+                        Optional.of(fullFieldName),
+                        func
+                    );
+                }
+            }
+        );
     }
 
     @Override

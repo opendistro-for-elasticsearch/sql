@@ -94,8 +94,13 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
         else {
             IndexMappings indexMappings = clusterState.getFieldMappings(new String[]{indexName});
             FieldMappings mappings = indexMappings.firstMapping().firstMapping();
-            alias.ifPresent(s -> defineFieldName(s, UNKNOWN)); //TODO: need a Index type here
-            flatMappings(mappings.data(), alias);
+
+            if (alias.isPresent()) {
+                defineFieldName(alias.get(), UNKNOWN); //TODO: need a Index type here
+                mappings.flat((fieldName, type) -> defineFieldName(alias.get() + "." + fieldName, type));
+            } else {
+                mappings.flat(this::defineFieldName);
+            }
         }
         return null;
     }
