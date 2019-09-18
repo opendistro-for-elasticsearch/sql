@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.visitor;
 
+import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.QuerySpecificationContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParserBaseVisitor;
 
@@ -30,12 +31,15 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroS
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FromClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FullColumnNameContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FunctionNameBaseContext;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.RootContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.ScalarFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.SelectElementsContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.SimpleTableNameContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.StringLiteralContext;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.T;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.TableAndTypeNameContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.TableNameContext;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.UdfFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.UidContext;
 
 /**
@@ -47,6 +51,12 @@ public class AntlrParseTreeVisitor<T extends Reducible> extends OpenDistroSqlPar
 
     public AntlrParseTreeVisitor(ParseTreeVisitor<T> visitor) {
         this.visitor = visitor;
+    }
+
+    @Override
+    public T visitRoot(RootContext ctx) {
+        visitor.visitRoot();
+        return super.visitRoot(ctx);
     }
 
     @Override
@@ -109,10 +119,18 @@ public class AntlrParseTreeVisitor<T extends Reducible> extends OpenDistroSqlPar
         return visitor.visitFieldName(ctx.getText());
     }
 
+    @Override
+    public T visitUdfFunctionCall(UdfFunctionCallContext ctx) {
+        return visitFunctionCall(visitor.visitFunctionName(ctx.fullId().getText()), ctx);
+    }
+
     // This check should be able to accomplish in grammar
     @Override
     public T visitScalarFunctionCall(ScalarFunctionCallContext ctx) {
-        T func = visit(ctx.scalarFunctionName());
+        return visitFunctionCall(visit(ctx.scalarFunctionName()), ctx);
+    }
+
+    private T visitFunctionCall(T func, OpenDistroSqlParser.FunctionCallContext ctx) {
         List<T> actualArgs = new ArrayList<>();
         for (int i = 1; i < ctx.getChildCount(); i++) {
             T arg = visit(ctx.getChild(i));

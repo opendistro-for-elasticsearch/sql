@@ -50,6 +50,11 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
     }
 
     @Override
+    public void visitRoot() {
+
+    }
+
+    @Override
     public void visitQuery() {
         environment = new Environment(environment);
     }

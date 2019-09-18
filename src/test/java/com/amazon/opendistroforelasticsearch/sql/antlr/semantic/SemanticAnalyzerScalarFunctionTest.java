@@ -19,20 +19,26 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- *
+ * Semantic analysis tests for scalar function.
  */
 public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase {
 
-    @Ignore("To be implemented")
-    @Test(expected = SemanticAnalysisException.class)
+    @Test
     public void unsupportedFunctionInSelectClauseShouldFail() {
-        validate("SELECT NOW() FROM semantics");
+        expectValidationFailWithErrorMessages(
+            "SELECT NOW() FROM semantics",
+            "Function [NOW] cannot be found or used here."
+        );
     }
 
     @Ignore("To be implemented")
-    @Test(expected = SemanticAnalysisException.class)
+    @Test
     public void unsupportedFunctionInWhereClauseShouldFail() {
-        //analyze("SELECT * FROM semantics WHERE ");
+        expectValidationFailWithErrorMessages(
+            "SELECT * FROM semantics WHERE LOG100(balance) = 1",
+            "Function [LOG100] cannot be found or used here.",
+            "Did you mean [LOG]?"
+        );
     }
 
 }

@@ -22,6 +22,8 @@ import java.util.Optional;
  */
 public interface ParseTreeVisitor<T> {
 
+    default void visitRoot() {}
+
     default void visitQuery() {}
     default T endVisitQuery() {
         return defaultValue();

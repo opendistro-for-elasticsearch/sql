@@ -62,6 +62,16 @@ public class SemanticAnalyzerFromClauseTest extends SemanticAnalyzerTestBase {
         );
     }
 
+    @Ignore("To be implemented")
+    @Test
+    public void invalidIndexNameAliasInHavingClauseShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT * FROM semantics s HAVING COUNT(a.balance) > 5",
+            "Field [a.balance] cannot be found or used here",
+            "Did you mean [s.balance]?"
+        );
+    }
+
     @Test
     public void invalidIndexNameAliasInOrderByClauseShouldFail() {
         expectValidationFailWithErrorMessages(

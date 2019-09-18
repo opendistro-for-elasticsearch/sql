@@ -35,8 +35,11 @@ import static com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents
 @Suite.SuiteClasses({
     SemanticAnalyzerFromClauseTest.class,
     SemanticAnalyzerIdentifierTest.class,
-    //SemanticAnalyzerScalaFunctionTest.class,
+    SemanticAnalyzerScalarFunctionTest.class,
     //SemanticAnalyzerAggregateFunctionTest.class,
+    //SemanticAnalyzerOperatorTest.class,
+    //SemanticAnalyzerSubqueryTest.class,
+    //SemanticAnalyzerMultiQueryTest.class,
 })
 public class SemanticAnalyzerTests {
 
