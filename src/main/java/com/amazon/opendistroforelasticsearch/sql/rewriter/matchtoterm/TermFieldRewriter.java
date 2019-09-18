@@ -44,8 +44,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState.FieldMappings;
-import static com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState.IndexMappings;
+import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMappings;
+
+import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.IndexMappings;
 
 /**
  * Visitor to rewrite AST (abstract syntax tree) for supporting term_query in WHERE and IN condition

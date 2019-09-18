@@ -23,7 +23,7 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.ParseTreeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
-import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState.IndexMappings;
+import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.IndexMappings;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 
 import java.util.List;
@@ -32,7 +32,8 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.UNKNOWN;
-import static com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState.FieldMappings;
+
+import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMappings;
 
 /**
  * SQL semantic analyzer that determines if a syntactical correct query is meaningful.
@@ -197,7 +198,7 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
             Set<String> allSymbolsInScope = environment.resolveAll(symbol.getNamespace()).keySet();
             List<String> suggestedWords = new StringSimilarity(allSymbolsInScope).similarTo(symbol.getName());
             throw new SemanticAnalysisException(
-                StringUtils.format("%s cannot be found or used here. Did you mean [%s]?",
+                StringUtils.format("%s cannot be found or used here. Did you mean [%s]?", // TODO: Give none or different suggestion if suggestion = original symbol
                     symbol, suggestedWords.get(0)));
                 //at(sql, ctx).
                 //suggestion("Did you mean [%s]?", String.join(", ", suggestedWords)).build();
