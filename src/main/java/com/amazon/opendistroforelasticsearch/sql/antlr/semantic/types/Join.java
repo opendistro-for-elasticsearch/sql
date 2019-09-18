@@ -19,7 +19,7 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.SemanticAnalysis
 import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.Reducible;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 
-import java.util.Collection;
+import java.util.List;
 
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.NESTED;
 
@@ -31,7 +31,12 @@ public enum Join implements Type {
     COMMA, CROSS, INNER, LEFT_OUTER, RIGHT_OUTER, FULL_OUTER;
 
     @Override
-    public <T extends Reducible> T reduce(Collection<T> types) {
+    public boolean isCompatible(Type other) {
+        return false;
+    }
+
+    @Override
+    public <T extends Reducible> T reduce(List<T> types) {
         Type result = new Index(); // TODO: singleton?
         for (T type : types) {
             if (type == NESTED) {
@@ -43,6 +48,11 @@ public enum Join implements Type {
             }
         }
         return (T) result;
+    }
+
+    @Override
+    public Type construct(List<Type> others) {
+        return null;
     }
 
 }

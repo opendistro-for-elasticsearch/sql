@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.visitor;
 
-import java.util.Collection;
+import java.util.List;
 
 /**
  * Abstraction for anything that can be reduced and used by {@link AntlrParseTreeVisitor}.
@@ -24,9 +24,9 @@ public interface Reducible {
 
     /**
      * Reduce current and others to generate a new one
-     * @param args  others
+     * @param others  others
      * @return      reduction
      */
-    <T extends Reducible> T reduce(Collection<T> args);
+    <T extends Reducible> T reduce(List<T> others);
 
 }

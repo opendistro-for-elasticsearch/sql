@@ -24,21 +24,32 @@ import org.junit.Test;
 public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase {
 
     @Test
-    public void unsupportedFunctionInSelectClauseShouldFail() {
+    public void unsupportedScalarFunctionInSelectClauseShouldFail() {
         expectValidationFailWithErrorMessages(
             "SELECT NOW() FROM semantics",
             "Function [NOW] cannot be found or used here."
         );
     }
 
-    @Ignore("To be implemented")
     @Test
-    public void unsupportedFunctionInWhereClauseShouldFail() {
+    public void unsupportedScalarFunctionInWhereClauseShouldFail() {
         expectValidationFailWithErrorMessages(
             "SELECT * FROM semantics WHERE LOG100(balance) = 1",
             "Function [LOG100] cannot be found or used here.",
             "Did you mean [LOG]?"
         );
+    }
+
+    @Test
+    public void logFunctionCallShouldPass() {
+        validate("SELECT LOG(age) FROM semantics WHERE LOG(balance) = 1000");
+        validate("SELECT LOG(s.age) FROM semantics s WHERE LOG(s.balance) = 1000");
+    }
+
+    @Ignore
+    @Test
+    public void allSupportedScalarFunctionCallShouldPass() {
+
     }
 
 }

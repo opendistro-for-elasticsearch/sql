@@ -15,10 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types;
 
-import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.Reducible;
 import com.google.common.collect.ImmutableMap;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -87,6 +86,11 @@ public enum BaseType implements Type {
     }
     */
 
+    /**
+     * For base type, compatibility means this (current type) is ancestor of other
+     * in the base type hierarchy.
+     */
+    @Override
     public boolean isCompatible(Type other) {
         // Skip compatibility check if type is unknown
         if (this == UNKNOWN || other == UNKNOWN) {
@@ -106,8 +110,8 @@ public enum BaseType implements Type {
     }
 
     @Override
-    public <T extends Reducible> T reduce(Collection<T> args) {
-        return null;
+    public Type construct(List<Type> others) {
+        return this;
     }
 
     /*

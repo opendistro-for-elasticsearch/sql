@@ -20,6 +20,8 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Environment for symbol and its attribute (type) in the current scope
@@ -65,7 +67,12 @@ public class Environment {
     }
 
     public Map<String, Type> resolveAll(Namespace namespace) {
-        return symbolTable.lookupAll(namespace);
+        Map<String, Type> result = new HashMap<>();
+        for (Environment cur = this; cur != null; cur = cur.parent) {
+            // putIfAbsent ensures inner most definition will be used (shadow outers)
+            cur.symbolTable.lookupAll(namespace).forEach(result::putIfAbsent);
+        }
+        return result;
     }
 
     public Environment getParent() {

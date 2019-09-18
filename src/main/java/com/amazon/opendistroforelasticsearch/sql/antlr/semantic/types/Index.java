@@ -17,7 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.Reducible;
 
-import java.util.Collection;
+import java.util.List;
 
 /**
  * Type for Elasticsearch index
@@ -27,12 +27,17 @@ public class Index implements Type {
     //private final
 
     @Override
-    public String name() {
+    public boolean isCompatible(Type other) {
+        return false;
+    }
+
+    @Override
+    public <T extends Reducible> T reduce(List<T> others) {
         return null;
     }
 
     @Override
-    public <T extends Reducible> T reduce(Collection<T> args) {
+    public Type construct(List<Type> others) {
         return null;
     }
 

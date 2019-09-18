@@ -17,8 +17,28 @@ package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.Reducible;
 
+import java.util.List;
+
+/**
+ * Type
+ */
 public interface Type extends Reducible {
 
-    String name();
+    //String name();
+
+    boolean isCompatible(Type other);
+
+    @SuppressWarnings("unchecked")
+    @Override
+    default <T extends Reducible> T reduce(List<T> others) {
+        return (T) construct((List<Type>) others);
+    }
+
+    /**
+     * Construct a new type by applying current constructor on other types
+     * @param others other types
+     * @return       a new type as result
+     */
+    Type construct(List<Type> others);
 
 }

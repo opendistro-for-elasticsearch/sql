@@ -20,9 +20,11 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Environmen
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Namespace;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.ScalarFunction;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.ParseTreeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
+import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMappings;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.IndexMappings;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 
@@ -32,8 +34,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.UNKNOWN;
-
-import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMappings;
 
 /**
  * SQL semantic analyzer that determines if a syntactical correct query is meaningful.
@@ -52,7 +52,9 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
 
     @Override
     public void visitRoot() {
-
+        for (ScalarFunction func : ScalarFunction.values()) {
+            defineFunctionName(func.name(), func);
+        }
     }
 
     @Override
@@ -80,7 +82,7 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
      */
     @Override
     public Type visitIndexName(String indexName, Optional<String> alias) {
-        if (isDotId(indexName)) {
+        if (isPath(indexName)) {
             Type type = resolve(new Symbol(Namespace.FIELD_NAME, indexName));
             if (type != BaseType.NESTED) {
                 throw new SemanticAnalysisException(StringUtils.format(
@@ -112,26 +114,8 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
         );
     }
 
-    private boolean isDotId(String indexName) {
+    private boolean isPath(String indexName) {
         return indexName.indexOf('.', 1) != -1; // taking care of .kibana
-    }
-
-    @SuppressWarnings("unchecked")
-    private void flatMappings(Map<String, Map<String, Object>> mappings, Optional<String> path) {
-        mappings.forEach(
-            (fieldName, mapping) -> {
-                String fullFieldName = path.map(s -> s + "." + fieldName).orElse(fieldName);
-                String type = (String) mapping.getOrDefault("type", "object");
-                defineFieldName(fullFieldName, type);
-
-                if (mapping.containsKey("properties")) {
-                    flatMappings(
-                        (Map<String, Map<String, Object>>) mapping.get("properties"),
-                        Optional.of(fullFieldName)
-                    );
-                }
-            }
-        );
     }
 
     private void defineFieldName(String fieldName, String type) {
@@ -145,6 +129,10 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
                 "%s is conflicting with field of same name defined by other index", symbol));
         }
         environment.define(symbol, type);
+    }
+
+    private void defineFunctionName(String funcName, Type type) {
+        environment.define(new Symbol(Namespace.FUNCTION_NAME, funcName), type);
     }
 
     public Type visitWhere(Runnable visitDeep) {

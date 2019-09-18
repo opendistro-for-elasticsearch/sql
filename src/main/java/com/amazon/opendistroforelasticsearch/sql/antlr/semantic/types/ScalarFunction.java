@@ -15,22 +15,28 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types;
 
-import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.Reducible;
-
-import java.util.Collection;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.NUMBER;
 
 /**
  * Scalar SQL function
  */
-public class ScalarFunction implements Type {
+public enum ScalarFunction implements TypeExpression {
 
-    @Override
-    public String name() {
-        return null;
+    LOG(func(NUMBER).to(argTypes -> argTypes[0]));
+
+    private final TypeExpressionSpec spec;
+
+    ScalarFunction(TypeExpressionSpec spec) {
+        this.spec = spec;
     }
 
     @Override
-    public <T extends Reducible> T reduce(Collection<T> args) {
-        return null;
+    public TypeExpressionSpec spec() {
+        return spec;
     }
+
+    private static TypeExpressionSpec func(Type... argTypes) {
+        return new TypeExpressionSpec().map(argTypes);
+    }
+
 }
