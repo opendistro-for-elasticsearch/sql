@@ -42,6 +42,15 @@ public class SemanticAnalyzerIdentifierTest extends SemanticAnalyzerTestBase {
     }
 
     @Test
+    public void invalidIndexAliasInFromClauseShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT * FROM semantics s, a.projects p",
+            "Field [a.projects] cannot be found or used here.",
+            "Did you mean [s.projects]?"
+        );
+    }
+
+    @Test
     public void nonExistingFieldNameInWhereClauseShouldFail() {
         expectValidationFailWithErrorMessages(
             "SELECT * FROM semantics s WHERE s.balce = 10000",

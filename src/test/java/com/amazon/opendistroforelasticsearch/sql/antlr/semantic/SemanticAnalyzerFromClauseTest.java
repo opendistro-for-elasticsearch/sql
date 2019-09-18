@@ -39,7 +39,8 @@ public class SemanticAnalyzerFromClauseTest extends SemanticAnalyzerTestBase {
     public void invalidIndexNameAliasInFromClauseShouldFail() {
         expectValidationFailWithErrorMessages(
             "SELECT * FROM semantics s, a.projects p",
-            "Field [a.projects] cannot be found or used here"
+            "Field [a.projects] cannot be found or used here",
+            "Did you mean [s.projects]?"
         );
     }
 
@@ -47,7 +48,35 @@ public class SemanticAnalyzerFromClauseTest extends SemanticAnalyzerTestBase {
     public void invalidIndexNameAliasInWhereClauseShouldFail() {
         expectValidationFailWithErrorMessages(
             "SELECT * FROM semantics s WHERE a.balance = 10000",
-            "Field [a.balance] cannot be found or used here"
+            "Field [a.balance] cannot be found or used here",
+            "Did you mean [s.balance]?"
+        );
+    }
+
+    @Test
+    public void invalidIndexNameAliasInGroupByClauseShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT * FROM semantics s GROUP BY a.balance",
+            "Field [a.balance] cannot be found or used here",
+            "Did you mean [s.balance]?"
+        );
+    }
+
+    @Test
+    public void invalidIndexNameAliasInOrderByClauseShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT * FROM semantics s ORDER BY a.balance",
+            "Field [a.balance] cannot be found or used here",
+            "Did you mean [s.balance]?"
+        );
+    }
+
+    @Test
+    public void invalidIndexNameAliasInOnClauseShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT * FROM semantics sem JOIN semantic tic ON sem.age = t.age",
+            "Field [t.age] cannot be found or used here",
+            "Did you mean [tic.age]?"
         );
     }
 
