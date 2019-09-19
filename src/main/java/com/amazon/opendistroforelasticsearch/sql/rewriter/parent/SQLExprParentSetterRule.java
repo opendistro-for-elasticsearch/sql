@@ -13,22 +13,23 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.model;
+package com.amazon.opendistroforelasticsearch.sql.rewriter.parent;
 
-public enum SubqueryType {
-    /**
-     * SELECT * FROM A WHERE a IN (SELECT * FROM B)
-     */
-    IN(0),
-    UNSUPPORTED(32);
+import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.RewriteRule;
 
-    private int id;
+/**
+ * The {@link RewriteRule} which will apply {@link SQLExprParentSetter} for {@link SQLQueryExpr}
+ */
+public class SQLExprParentSetterRule implements RewriteRule<SQLQueryExpr> {
 
-    SubqueryType(int id) {
-        this.id = id;
+    @Override
+    public boolean match(SQLQueryExpr expr) {
+        return true;
     }
 
-    public boolean isSupported() {
-        return id < SubqueryType.UNSUPPORTED.id;
+    @Override
+    public void rewrite(SQLQueryExpr expr) {
+        expr.accept(new SQLExprParentSetter());
     }
 }

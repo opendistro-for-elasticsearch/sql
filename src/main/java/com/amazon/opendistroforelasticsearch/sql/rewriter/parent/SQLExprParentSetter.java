@@ -13,17 +13,23 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.rewriter.subquery;
+package com.amazon.opendistroforelasticsearch.sql.rewriter.parent;
 
-import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
+import com.alibaba.druid.sql.ast.expr.SQLInSubQueryExpr;
+import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
+import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
 
 /**
- * Rewrites the query to replace the subquery with a join.
+ * Add the parent for the node in {@link SQLQueryExpr} if it is missing.
  */
-public interface SubqueryRewriter {
+public class SQLExprParentSetter extends MySqlASTVisitorAdapter {
+
     /**
-     * Rewrite the subquery with correspond JOIN query.
-     * It is NOT idempotent operation.
+     * Fix null parent problem which is required by SQLIdentifier.visit()
      */
-    void rewrite(MySqlSelectQueryBlock query);
+    @Override
+    public boolean visit(SQLInSubQueryExpr subQuery) {
+        subQuery.getExpr().setParent(subQuery);
+        return true;
+    }
 }

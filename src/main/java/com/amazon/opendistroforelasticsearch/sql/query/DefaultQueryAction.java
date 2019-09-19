@@ -276,6 +276,6 @@ public class DefaultQueryAction extends QueryAction {
     }
 
     private void updateRequestWithInnerHits(Select select, SearchRequestBuilder request) {
-        new NestedFieldProjection(request).project(select.getFields());
+        new NestedFieldProjection(request).project(select.getFields(), select.getNestedJoinType());
     }
 }

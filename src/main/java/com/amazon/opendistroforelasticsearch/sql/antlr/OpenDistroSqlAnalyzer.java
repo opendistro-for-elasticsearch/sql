@@ -59,4 +59,13 @@ public class OpenDistroSqlAnalyzer {
                     new CaseInsensitiveCharStream(sql));
     }
 
+    private ParseTree analyzeSyntax(OpenDistroSqlParser parser) {
+        parser.addErrorListener(new SyntaxAnalysisErrorListener());
+        return parser.root();
+    }
+
+    private void analyzeSemantic(ParseTree tree) {
+        //TODO: implement semantic analysis in next stage
+    }
+
 }

@@ -46,6 +46,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class Util {
+
+    public static final String NESTED_JOIN_TYPE = "NestedJoinType";
+
     public static String joiner(List<KVValue> lists, String oper) {
 
         if (lists.size() == 0) {

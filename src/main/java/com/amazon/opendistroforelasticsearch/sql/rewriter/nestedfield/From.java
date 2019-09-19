@@ -38,7 +38,17 @@ class From extends SQLClause<SQLTableSource> {
      */
     @Override
     void rewrite(Scope scope) {
-        if (!isCommaJoin() || parentAlias(scope).isEmpty()) {
+        if (!isJoin()) {
+            return;
+        }
+
+        // At this point, FROM expr is SQLJoinTableSource.
+        if (!isCommaJoin()) {
+            scope.setActualJoinType(((SQLJoinTableSource) expr).getJoinType());
+            ((SQLJoinTableSource) expr).setJoinType(COMMA);
+        }
+
+        if (parentAlias(scope).isEmpty()) {
             return;
         }
 
@@ -46,6 +56,9 @@ class From extends SQLClause<SQLTableSource> {
         if (scope.isAnyNestedField()) {
             eraseParentAlias();
             keepParentTableOnly();
+        } else if (scope.getActualJoinType() != null){
+            // set back the JoinType to original value if non COMMA JOIN on regular tables
+            ((SQLJoinTableSource) expr).setJoinType(scope.getActualJoinType());
         }
     }
 
@@ -91,6 +104,10 @@ class From extends SQLClause<SQLTableSource> {
 
     private boolean isCommaJoin() {
         return expr instanceof SQLJoinTableSource && ((SQLJoinTableSource) expr).getJoinType() == COMMA;
+    }
+
+    private boolean isJoin() {
+        return expr instanceof SQLJoinTableSource;
     }
 
     private From left() {

@@ -26,6 +26,7 @@ import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
 import com.amazon.opendistroforelasticsearch.sql.parser.SqlParser;
 import com.amazon.opendistroforelasticsearch.sql.query.DefaultQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.maker.QueryMaker;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.nestedfield.NestedFieldRewriter;
 import com.amazon.opendistroforelasticsearch.sql.util.HasFieldWithValue;
 import org.elasticsearch.action.search.SearchAction;
 import org.elasticsearch.action.search.SearchRequest;
@@ -239,6 +240,64 @@ public class NestedFieldProjectionTest {
         );
     }
 
+
+    @Test
+    public void leftJoinWithSelectAll() {
+        assertThat(
+            query("SELECT * FROM team AS t LEFT JOIN t.projects AS p "),
+            source(
+                boolQuery(
+                    filter(
+                        boolQuery(
+                            should(
+                                boolQuery(
+                                    mustNot(
+                                        nestedQuery(
+                                            path("projects")
+                                        )
+                                    )
+                                ),
+                                nestedQuery(
+                                    path("projects"),
+                                    innerHits("projects.*")
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        );
+    }
+
+    @Test
+    public void leftJoinWithSpecificFields() {
+        assertThat(
+            query("SELECT t.name, p.name, p.started_year FROM team AS t LEFT JOIN t.projects AS p "),
+            source(
+                boolQuery(
+                    filter(
+                        boolQuery(
+                            should(
+                                boolQuery(
+                                    mustNot(
+                                        nestedQuery(
+                                            path("projects")
+                                        )
+                                    )
+                                ),
+                                nestedQuery(
+                                    path("projects"),
+                                    innerHits("projects.name", "projects.started_year")
+                                )
+                            )
+                        )
+                    )
+                ),
+                fetchSource("name")
+            )
+        );
+    }
+
     private Matcher<SearchSourceBuilder> source(Matcher<QueryBuilder> queryMatcher) {
         return featureValueOf("query", queryMatcher, SearchSourceBuilder::query);
     }
@@ -272,6 +331,16 @@ public class NestedFieldProjectionTest {
     @SafeVarargs
     private final FeatureMatcher<BoolQueryBuilder, List<QueryBuilder>> must(Matcher<QueryBuilder>... matchers) {
         return hasClauses("must", BoolQueryBuilder::must, matchers);
+    }
+
+    @SafeVarargs
+    private final FeatureMatcher<BoolQueryBuilder, List<QueryBuilder>> mustNot(Matcher<QueryBuilder>... matchers) {
+        return hasClauses("must_not", BoolQueryBuilder::mustNot, matchers);
+    }
+
+    @SafeVarargs
+    private final FeatureMatcher<BoolQueryBuilder, List<QueryBuilder>> should(Matcher<QueryBuilder>... matchers) {
+        return hasClauses("should", BoolQueryBuilder::should, matchers);
     }
 
     /**  Hide contains() assertion to simplify */
@@ -318,7 +387,13 @@ public class NestedFieldProjectionTest {
     }
 
     private SearchSourceBuilder query(String sql) {
-        return translate(parseSql(sql)).source();
+        SQLQueryExpr expr = parseSql(sql);
+        if (sql.contains("nested")) {
+            return translate(expr).source();
+        }
+
+        expr = rewrite(expr);
+        return translate(expr).source();
     }
 
     private SearchRequest translate(SQLQueryExpr expr) {
@@ -334,7 +409,7 @@ public class NestedFieldProjectionTest {
             if (select.getWhere() != null) {
                 request.setQuery(QueryMaker.explain(select.getWhere(), select.isQuery));
             }
-            new NestedFieldProjection(request).project(select.getFields());
+            new NestedFieldProjection(request).project(select.getFields(), select.getNestedJoinType());
             return request.request();
         }
         catch (SqlParseException e) {
@@ -351,4 +426,8 @@ public class NestedFieldProjectionTest {
         return (SQLQueryExpr) expr;
     }
 
+    private SQLQueryExpr rewrite(SQLQueryExpr expr) {
+        expr.accept(new NestedFieldRewriter());
+        return expr;
+    }
 }
