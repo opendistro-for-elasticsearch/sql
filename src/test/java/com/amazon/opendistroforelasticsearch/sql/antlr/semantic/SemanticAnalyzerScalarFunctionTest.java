@@ -24,7 +24,7 @@ import org.junit.Test;
 public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase {
 
     @Test
-    public void unsupportedScalarFunctionInSelectClauseShouldFail() {
+    public void unsupportedScalarFunctionCallInSelectClauseShouldFail() {
         expectValidationFailWithErrorMessages(
             "SELECT NOW() FROM semantics",
             "Function [NOW] cannot be found or used here."
@@ -32,9 +32,28 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
     }
 
     @Test
-    public void unsupportedScalarFunctionInWhereClauseShouldFail() {
+    public void unsupportedScalarFunctionCallInWhereClauseShouldFail() {
         expectValidationFailWithErrorMessages(
             "SELECT * FROM semantics WHERE LOG100(balance) = 1",
+            "Function [LOG100] cannot be found or used here.",
+            "Did you mean [LOG]?"
+        );
+    }
+
+    @Test
+    public void scalarFunctionCallWithLessArgumentsInWhereClauseShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT * FROM semantics WHERE LOG() = 1",
+            "Function [LOG] cannot work with [<None>].",
+            "Usage: LOG(NUMBER) -> NUMBER"
+        );
+    }
+
+    @Ignore
+    @Test
+    public void scalarFunctionCallWithWrongMoreArgumentsInWhereClauseShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT * FROM semantics WHERE LOG(age, balance) = 1",
             "Function [LOG100] cannot be found or used here.",
             "Did you mean [LOG]?"
         );

@@ -90,7 +90,7 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
             }
 
             if (alias.isPresent()) {
-                redefineByAlias(indexName, alias);
+                redefineFieldNameByAlias(indexName, alias);
             }
         }
         else {
@@ -107,7 +107,7 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
         return null;
     }
 
-    private void redefineByAlias(String indexName, Optional<String> alias) {
+    private void redefineFieldNameByAlias(String indexName, Optional<String> alias) {
         Map<String, Type> typeByFullName = environment.resolveByPrefix(new Symbol(Namespace.FIELD_NAME, indexName));
         typeByFullName.forEach(
             (fieldName, fieldType) -> defineFieldName(fieldName.replace(indexName, alias.get()), fieldType)

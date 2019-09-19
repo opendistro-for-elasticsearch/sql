@@ -41,4 +41,9 @@ public class Index implements Type {
         return null;
     }
 
+    @Override
+    public String usage() {
+        return null;
+    }
+
 }

@@ -114,6 +114,11 @@ public enum BaseType implements Type {
         return this;
     }
 
+    @Override
+    public String usage() {
+        return name();
+    }
+
     /*
     @Override
     public String toString() {

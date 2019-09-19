@@ -15,8 +15,12 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types;
 
+import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.TYPE_ERROR;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.UNKNOWN;
@@ -47,7 +51,7 @@ public interface TypeExpression extends Type {
 
         // Arg types are compatible
         for (int i = 0; i < expectArgTypes.length; i++) {
-            if (expectArgTypes[i].isCompatible(actualArgTypes[i])) {
+            if (!expectArgTypes[i].isCompatible(actualArgTypes[i])) {
                 return false;
             }
         }
@@ -67,6 +71,17 @@ public interface TypeExpression extends Type {
             return spec().constructFunc.apply(spec().args);
         }
         return TYPE_ERROR;
+    }
+
+    @Override
+    default String usage() {
+        TypeExpressionSpec spec = spec();
+        String argTypesStr = Arrays.stream(spec.args).
+                                    map(Type::usage).
+                                    collect(Collectors.joining());
+        String returnTypeStr = spec.constructFunc.apply(spec.args).usage();
+
+        return StringUtils.format("%s(%s) -> %s", this, argTypesStr, returnTypeStr);
     }
 
     /*

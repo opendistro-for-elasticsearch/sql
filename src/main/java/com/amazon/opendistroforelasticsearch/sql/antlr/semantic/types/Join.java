@@ -55,4 +55,9 @@ public enum Join implements Type {
         return null;
     }
 
+    @Override
+    public String usage() {
+        return null;
+    }
+
 }

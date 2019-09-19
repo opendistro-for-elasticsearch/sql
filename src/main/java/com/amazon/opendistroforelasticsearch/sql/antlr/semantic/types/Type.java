@@ -15,9 +15,14 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types;
 
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.SemanticAnalysisException;
 import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.Reducible;
+import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.TYPE_ERROR;
 
 /**
  * Type
@@ -26,12 +31,37 @@ public interface Type extends Reducible {
 
     //String name();
 
+    /**
+     * Check if current type is compatible with other of same type.
+     * @param other     other type
+     * @return          true if compatible
+     */
     boolean isCompatible(Type other);
 
+    /**
+     * Hide generic type ugliness and error check here in one place.
+     */
     @SuppressWarnings("unchecked")
     @Override
     default <T extends Reducible> T reduce(List<T> others) {
-        return (T) construct((List<Type>) others);
+        List<Type> actualArgTypes = (List<Type>) others;
+        Type result = construct(actualArgTypes);
+        if (result != TYPE_ERROR) {
+            return (T) result;
+        }
+
+        String actualArgTypesStr;
+        if (actualArgTypes.isEmpty()) {
+            actualArgTypesStr = "<None>";
+        } else {
+            actualArgTypesStr = actualArgTypes.stream().
+                                               map(Type::usage).
+                                               collect(Collectors.joining(","));
+        }
+
+        throw new SemanticAnalysisException(
+            StringUtils.format("Function [%s] cannot work with [%s]. Usage: %s",
+                this, actualArgTypesStr, usage()));
     }
 
     /**
@@ -41,4 +71,5 @@ public interface Type extends Reducible {
      */
     Type construct(List<Type> others);
 
+    String usage();
 }
