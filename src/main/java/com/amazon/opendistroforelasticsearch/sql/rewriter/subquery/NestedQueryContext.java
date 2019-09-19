@@ -39,7 +39,7 @@ public class NestedQueryContext {
     public boolean isNested(SQLExprTableSource table) {
         String parent = parent(table);
         if (Strings.isNullOrEmpty(parent)) {
-            return aliasParents.containsKey(alias(table)) && !Strings.isNullOrEmpty(aliasParents.get(alias(table)));
+            return !Strings.isNullOrEmpty(aliasParents.get(alias(table)));
         } else {
             return aliasParents.containsKey(parent);
         }
