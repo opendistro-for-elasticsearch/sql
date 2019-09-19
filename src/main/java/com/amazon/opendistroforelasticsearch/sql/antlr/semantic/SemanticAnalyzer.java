@@ -88,10 +88,7 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
                 throw new SemanticAnalysisException(StringUtils.format(
                     "Field [%s] is [%s] type but nested type is required", indexName, type));
             }
-
-            if (alias.isPresent()) {
-                redefineFieldNameByAlias(indexName, alias);
-            }
+            alias.ifPresent(s -> redefineFieldNameByPrefixingAlias(indexName, s));
         }
         else {
             IndexMappings indexMappings = clusterState.getFieldMappings(new String[]{indexName});
@@ -107,10 +104,10 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
         return null;
     }
 
-    private void redefineFieldNameByAlias(String indexName, Optional<String> alias) {
+    private void redefineFieldNameByPrefixingAlias(String indexName, String alias) {
         Map<String, Type> typeByFullName = environment.resolveByPrefix(new Symbol(Namespace.FIELD_NAME, indexName));
         typeByFullName.forEach(
-            (fieldName, fieldType) -> defineFieldName(fieldName.replace(indexName, alias.get()), fieldType)
+            (fieldName, fieldType) -> defineFieldName(fieldName.replace(indexName, alias), fieldType)
         );
     }
 

@@ -15,10 +15,12 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.visitor;
 
+import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FunctionArgsContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.QuerySpecificationContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParserBaseVisitor;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,7 +31,6 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroS
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.DecimalLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FromClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FullColumnNameContext;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FunctionNameBaseContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.RootContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.ScalarFunctionCallContext;
@@ -120,31 +121,27 @@ public class AntlrParseTreeVisitor<T extends Reducible> extends OpenDistroSqlPar
 
     @Override
     public T visitUdfFunctionCall(UdfFunctionCallContext ctx) {
-        return visitFunctionCall(visitor.visitFunctionName(ctx.fullId().getText()), ctx);
+        return visitFunctionCall(visitor.visitFunctionName(ctx.fullId().getText()), ctx.functionArgs());
     }
 
     // This check should be able to accomplish in grammar
     @Override
     public T visitScalarFunctionCall(ScalarFunctionCallContext ctx) {
-        return visitFunctionCall(visit(ctx.scalarFunctionName()), ctx);
+        return visitFunctionCall(visit(ctx.scalarFunctionName()), ctx.functionArgs());
     }
 
-    private T visitFunctionCall(T func, FunctionCallContext ctx) {
+    private T visitFunctionCall(T func, FunctionArgsContext ctx) {
+        if (ctx == null) {
+            return func.reduce(Collections.emptyList());
+        }
+
         List<T> actualArgs = new ArrayList<>();
-        for (int i = 1; i < ctx.getChildCount(); i++) {
+        for (int i = 0; i < ctx.getChildCount(); i++) {
             T arg = visit(ctx.getChild(i));
             if (arg != null) {
                 actualArgs.add(arg);
             }
         }
-
-        //Type result = visitor.visitFunctionCall(funcType, actualArgTypes.toArray(new Type[0]));
-        /*if (result == TYPE_ERROR) {
-            throw semanticException(
-                "[%s] can not work with %s.",
-                funcType.getName(), actualArgTypes
-            ).at(sql, ctx).suggestion("Usage: %s.", funcType).build();
-        }*/
         return func.reduce(actualArgs);
     }
 
@@ -170,7 +167,7 @@ public class AntlrParseTreeVisitor<T extends Reducible> extends OpenDistroSqlPar
     @Override
     public T visitComparisonOperator(ComparisonOperatorContext ctx) {
         //return visitor.visitOperatorName(ctx.getText());
-        return defaultResult();
+        return super.visitComparisonOperator(ctx);
     }
 
     // Better semantic check example for overloading operator '='
@@ -194,7 +191,7 @@ public class AntlrParseTreeVisitor<T extends Reducible> extends OpenDistroSqlPar
 
     @Override
     protected T defaultResult() {
-        return null;
+        return visitor.defaultValue();
     }
 
     @Override
