@@ -16,7 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.antlr;
 
 /**
- * SQL query analysis root exception.
+ * SQL query analysis abstract exception.
  */
 public class SqlAnalysisException extends RuntimeException {
 

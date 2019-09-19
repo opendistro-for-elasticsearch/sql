@@ -57,6 +57,7 @@ public class OpenDistroSqlAnalyzer {
     }
 
     private void analyzeSemantic(ParseTree tree) {
+        //TODO: implement semantic analysis in next stage
     }
 
 }
