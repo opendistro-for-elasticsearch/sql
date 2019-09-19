@@ -13,50 +13,52 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.visitor;
+package com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.utils;
 
 import com.alibaba.druid.sql.ast.expr.SQLExistsExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInSubQueryExpr;
-import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
-import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.model.Subquery;
-import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.model.SubqueryType;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
- * Find the {@link SQLInSubQueryExpr} and {@link SQLExistsExpr} in the {@link SQLQueryExpr}
+ * Visitor which try to find the SubQuery.
  */
-public class FindSubqueryInWhere extends MySqlASTVisitorAdapter {
+public class FindSubQuery extends MySqlASTVisitorAdapter {
     private final List<SQLInSubQueryExpr> sqlInSubQueryExprs = new ArrayList<>();
     private final List<SQLExistsExpr> sqlExistsExprs = new ArrayList<>();
+    private boolean continueVisit = true;
+
+    public FindSubQuery continueVisitWhenFound(boolean continueVisit) {
+        this.continueVisit = continueVisit;
+        return this;
+    }
 
     /**
-     * Return Subquery
-     *
-     * @return {@link Subquery}
+     * Return true if has SubQuery.
      */
-    public Optional<Subquery> subquery() {
-        if (sqlExistsExprs.isEmpty() && sqlInSubQueryExprs.isEmpty()) {
-            return Optional.empty();
-        }
-        if (sqlInSubQueryExprs.size() == 1 && sqlExistsExprs.isEmpty() && !sqlInSubQueryExprs.get(0).isNot()) {
-            return Optional.of(new Subquery(SubqueryType.IN, sqlInSubQueryExprs.get(0)));
-        }
-        return Optional.of(new Subquery(SubqueryType.UNSUPPORTED));
+    public boolean hasSubQuery() {
+        return !sqlInSubQueryExprs.isEmpty() || !sqlExistsExprs.isEmpty();
     }
 
     @Override
     public boolean visit(SQLInSubQueryExpr query) {
         sqlInSubQueryExprs.add(query);
-        return true;
+        return continueVisit;
     }
 
     @Override
     public boolean visit(SQLExistsExpr query) {
         sqlExistsExprs.add(query);
-        return true;
+        return continueVisit;
+    }
+
+    public List<SQLInSubQueryExpr> getSqlInSubQueryExprs() {
+        return sqlInSubQueryExprs;
+    }
+
+    public List<SQLExistsExpr> getSqlExistsExprs() {
+        return sqlExistsExprs;
     }
 }

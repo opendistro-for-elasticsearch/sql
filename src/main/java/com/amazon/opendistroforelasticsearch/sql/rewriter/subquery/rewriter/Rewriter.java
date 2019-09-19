@@ -13,23 +13,27 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.unittest.rewriter.subquery;
+package com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.rewriter;
 
-import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.model.SubqueryType;
-import org.junit.Test;
+import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
+import com.alibaba.druid.sql.ast.expr.SQLBinaryOperator;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+/**
+ * Interface of SQL Rewriter
+ */
+public interface Rewriter {
 
-public class SubqueryTypeTest {
+    /**
+     * Whether the Rewriter can rewrite the SQL?
+     */
+    boolean canRewrite();
 
-    @Test
-    public void testSupport() {
-        assertTrue(SubqueryType.IN.isSupported());
-    }
+    /**
+     * Rewrite the SQL.
+     */
+    void rewrite();
 
-    @Test
-    public void testNotSupport() {
-        assertFalse(SubqueryType.UNSUPPORTED.isSupported());
+    default SQLBinaryOpExpr and(SQLBinaryOpExpr left, SQLBinaryOpExpr right) {
+        return new SQLBinaryOpExpr(left, SQLBinaryOperator.BooleanAnd, right);
     }
 }

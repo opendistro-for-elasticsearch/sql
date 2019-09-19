@@ -22,6 +22,7 @@ import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInSubQueryExpr;
 import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLSelectItem;
+import com.alibaba.druid.sql.ast.statement.SQLTableSource;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
 
@@ -58,21 +59,24 @@ public class SubqueryAliasRewriter extends MySqlASTVisitorAdapter {
 
     @Override
     public boolean visit(MySqlSelectQueryBlock query) {
-        SQLExprTableSource from = (SQLExprTableSource) query.getFrom();
-        String tableName = from.getExpr().toString().replaceAll(" ", "");
+        SQLTableSource from = query.getFrom();
+        if (from instanceof SQLExprTableSource) {
+            SQLExprTableSource expr = (SQLExprTableSource) from;
+            String tableName = expr.getExpr().toString().replaceAll(" ", "");
 
-        if (from.getAlias() != null) {
-            tableScope.push(new Table(tableName, from.getAlias()));
-        } else {
-            from.setAlias(createAlias(tableName));
-            tableScope.push(new Table(tableName, from.getAlias()));
+            if (expr.getAlias() != null) {
+                tableScope.push(new Table(tableName, expr.getAlias()));
+            } else {
+                expr.setAlias(createAlias(tableName));
+                tableScope.push(new Table(tableName, expr.getAlias()));
+            }
         }
         return true;
     }
 
     @Override
     public boolean visit(SQLIdentifierExpr expr) {
-        if (inSelect(expr) || inWhere(expr) || inSubquery(expr)) {
+        if (!tableScope.isEmpty() && (inSelect(expr) || inWhere(expr) || inSubquery(expr))) {
             rewrite(tableScope.peek(), expr);
         }
         return true;
@@ -80,7 +84,7 @@ public class SubqueryAliasRewriter extends MySqlASTVisitorAdapter {
 
     @Override
     public boolean visit(SQLAllColumnExpr expr) {
-        if (inSelect(expr)) {
+        if (!tableScope.isEmpty() && inSelect(expr)) {
             ((SQLSelectItem) expr.getParent()).setExpr(createIdentifierExpr(tableScope.peek()));
         }
         return true;
@@ -111,7 +115,9 @@ public class SubqueryAliasRewriter extends MySqlASTVisitorAdapter {
 
     @Override
     public void endVisit(MySqlSelectQueryBlock query) {
-        tableScope.pop();
+        if (!tableScope.isEmpty()) {
+            tableScope.pop();
+        }
     }
 
     private void rewrite(Table table, SQLIdentifierExpr expr) {

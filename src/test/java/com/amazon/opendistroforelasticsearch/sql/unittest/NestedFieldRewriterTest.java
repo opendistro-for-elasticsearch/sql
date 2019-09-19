@@ -35,6 +35,7 @@ import org.junit.Test;
 
 import java.util.List;
 
+import static com.amazon.opendistroforelasticsearch.sql.util.SqlParserUtils.parse;
 import static java.util.stream.IntStream.range;
 import static org.junit.Assert.assertEquals;
 
@@ -397,15 +398,6 @@ public class NestedFieldRewriterTest {
             return expr;
         }
         return rewrite(expr);
-    }
-
-    private SQLQueryExpr parse(String sql) {
-        ElasticSqlExprParser parser = new ElasticSqlExprParser(sql);
-        SQLExpr expr = parser.expr();
-        if (parser.getLexer().token() != Token.EOF) {
-            throw new ParserException("Illegal sql: " + sql);
-        }
-        return (SQLQueryExpr) expr;
     }
 
     private SQLQueryExpr rewrite(SQLQueryExpr expr) {
