@@ -19,10 +19,11 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParse
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.QuerySpecificationContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParserBaseVisitor;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.AggregateFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.AtomTableItemContext;
@@ -131,16 +132,14 @@ public class AntlrParseTreeVisitor<T extends Reducible> extends OpenDistroSqlPar
     }
 
     private T visitFunctionCall(T func, FunctionArgsContext ctx) {
+        List<T> actualArgs;
         if (ctx == null) {
-            return func.reduce(Collections.emptyList());
-        }
-
-        List<T> actualArgs = new ArrayList<>();
-        for (int i = 0; i < ctx.getChildCount(); i++) {
-            T arg = visit(ctx.getChild(i));
-            if (arg != null) {
-                actualArgs.add(arg);
-            }
+            actualArgs = Collections.emptyList();
+        } else {
+            actualArgs = ctx.children.stream().
+                                      map(this::visit).
+                                      filter(Objects::nonNull).
+                                      collect(Collectors.toList());
         }
         return func.reduce(actualArgs);
     }
