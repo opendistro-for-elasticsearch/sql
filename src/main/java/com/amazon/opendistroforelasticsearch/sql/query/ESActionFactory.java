@@ -26,10 +26,12 @@ import com.alibaba.druid.sql.parser.ParserException;
 import com.alibaba.druid.sql.parser.SQLExprParser;
 import com.alibaba.druid.sql.parser.SQLStatementParser;
 import com.alibaba.druid.sql.parser.Token;
+import com.amazon.opendistroforelasticsearch.sql.antlr.OpenDistroSqlAnalyzer;
 import com.amazon.opendistroforelasticsearch.sql.domain.Delete;
 import com.amazon.opendistroforelasticsearch.sql.domain.IndexStatement;
 import com.amazon.opendistroforelasticsearch.sql.domain.JoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.domain.Select;
+import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.ElasticResultHandler;
 import com.amazon.opendistroforelasticsearch.sql.executor.QueryActionElasticExecutor;
@@ -55,6 +57,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.amazon.opendistroforelasticsearch.sql.domain.IndexStatement.StatementType;
+import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_ENABLED;
 
 public class ESActionFactory {
 
@@ -73,6 +76,9 @@ public class ESActionFactory {
 
         switch (getFirstWord(sql)) {
             case "SELECT":
+                // Perform analysis for SELECT only for now because of extra code changes required for SHOW/DESCRIBE.
+                performAnalysisIfEnabled(sql);
+
                 SQLQueryExpr sqlExpr = (SQLQueryExpr) toSqlExpr(sql);
 
                 RewriteRuleExecutor<SQLQueryExpr> ruleExecutor = RewriteRuleExecutor.<SQLQueryExpr>builder()
@@ -164,6 +170,12 @@ public class ESActionFactory {
         MySqlSelectQueryBlock query = (MySqlSelectQueryBlock) sqlExpr.getSubQuery().getQuery();
         return query.getFrom() instanceof SQLJoinTableSource
                 && ((SQLJoinTableSource) query.getFrom()).getJoinType() != SQLJoinTableSource.JoinType.COMMA;
+    }
+
+    private static void performAnalysisIfEnabled(String sql) {
+        if (LocalClusterState.state().getSettingValue(QUERY_ANALYSIS_ENABLED)) {
+            new OpenDistroSqlAnalyzer().analyze(sql);
+        }
     }
 
     private static SQLExpr toSqlExpr(String sql) {

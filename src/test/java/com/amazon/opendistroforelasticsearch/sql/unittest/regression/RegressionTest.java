@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.unittest.regression;
 
-import com.alibaba.druid.sql.parser.ParserException;
+import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.SqlSyntaxAnalysisException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.query.ESActionFactory;
 import org.elasticsearch.client.Client;
@@ -35,7 +35,7 @@ public class RegressionTest {
     @Mock
     Client client;
 
-    @Test(expected = ParserException.class)
+    @Test(expected = SqlSyntaxAnalysisException.class)
     public void missingWhereAndFieldName() throws SQLFeatureNotSupportedException, SqlParseException {
         ESActionFactory.create(client, "select * from products like 'SomeProduct*' limit 10");
     }
