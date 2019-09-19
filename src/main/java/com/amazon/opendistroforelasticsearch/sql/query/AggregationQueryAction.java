@@ -406,7 +406,9 @@ public class AggregationQueryAction extends QueryAction {
                     continue;
                 }
 
-                AggregationBuilder makeAgg = aggMaker.makeFieldAgg((MethodField) field, groupByAgg);
+                AggregationBuilder makeAgg = aggMaker
+                        .withWhere(select.getWhere())
+                        .makeFieldAgg((MethodField) field, groupByAgg);
                 if (groupByAgg != null) {
                     groupByAgg.subAggregation(makeAgg);
                 } else {

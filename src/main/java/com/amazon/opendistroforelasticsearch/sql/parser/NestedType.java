@@ -21,6 +21,8 @@ import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
 import com.alibaba.druid.sql.ast.expr.SQLPropertyExpr;
 import com.alibaba.druid.sql.ast.expr.SQLTextLiteralExpr;
 import com.amazon.opendistroforelasticsearch.sql.domain.Where;
+import com.amazon.opendistroforelasticsearch.sql.domain.bucketpath.BucketPath;
+import com.amazon.opendistroforelasticsearch.sql.domain.bucketpath.Path;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.utils.Util;
 
@@ -35,6 +37,7 @@ public class NestedType {
     public Where where;
     private boolean reverse;
     private boolean simple;
+    private final BucketPath bucketPath = new BucketPath();
 
     public boolean tryFillFromExpr(SQLExpr expr) throws SqlParseException {
         if (!(expr instanceof SQLMethodInvokeExpr)) {
@@ -105,5 +108,48 @@ public class NestedType {
 
     public boolean isReverse() {
         return reverse;
+    }
+
+    /**
+     * Return the name of the Nested Aggregation.
+     */
+    public String getNestedAggName() {
+        return field + "@NESTED";
+    }
+
+    /**
+     * Return the name of the Filter Aggregation
+     */
+    public String getFilterAggName() {
+        return field + "@FILTER";
+    }
+
+    public void addBucketPath(Path path) {
+        bucketPath.add(path);
+    }
+
+    public String getBucketPath() {
+        return bucketPath.getBucketPath();
+    }
+
+    /**
+     * Return true if the filed is the nested filed.
+     * For example, the mapping
+     * {
+     * "projects":{
+     * "type": "nested"
+     * "properties": {
+     * "name": {
+     * "type": "text"
+     * }
+     * }
+     * }
+     * }
+     * <p>
+     * If the filed is projects, return true.
+     * If the filed is projects.name, return false.
+     */
+    public boolean isNestedField() {
+        return !field.contains(".") && field.equalsIgnoreCase(path);
     }
 }

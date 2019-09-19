@@ -35,9 +35,95 @@ import java.nio.charset.StandardCharsets;
 import java.sql.SQLFeatureNotSupportedException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 
 public class JSONRequestTest {
+
+    @Test
+    public void aggWithoutWhere() {
+        String explainSQL = explainSQL("SELECT name, COUNT(nested(projects, 'projects')) AS c " +
+                                       "FROM employee " +
+                                       "GROUP BY name " +
+                                       "HAVING c > 1");
+        assertThat(explainSQL, containsString(
+                "\"projects@NESTED\":{\"nested\":{\"path\":\"projects\"},\"aggregations\":{\"c\":{\"value_count\":{\"field\":\"_index\"}}}"));
+        assertThat(explainSQL, containsString(
+                "\"buckets_path\":{\"c\":\"projects@NESTED.c\"}"));
+    }
+
+    @Test
+    public void aggWithWhereOnParent() {
+        String explainSQL = explainSQL("SELECT name, COUNT(nested(projects, 'projects')) AS c " +
+                                       "FROM employee " +
+                                       "WHERE name LIKE '%smith%' " +
+                                       "GROUP BY name " +
+                                       "HAVING c > 1");
+
+        assertThat(explainSQL, containsString(
+                "\"projects@NESTED\":{\"nested\":{\"path\":\"projects\"},\"aggregations\":{\"c\":{\"value_count\":{\"field\":\"_index\"}}}}"));
+        assertThat(explainSQL, containsString(
+                "\"buckets_path\":{\"c\":\"projects@NESTED.c\"}"));
+    }
+
+    @Test
+    public void aggWithWhereOnNested() {
+        String explainSQL = explainSQL("SELECT name, COUNT(nested(projects, 'projects')) AS c " +
+                                       "FROM employee " +
+                                       "WHERE nested(projects.name, 'projects') LIKE '%security%' " +
+                                       "GROUP BY name " +
+                                       "HAVING c > 1");
+
+        assertThat(explainSQL, containsString("\"aggregations\":{\"projects@NESTED\":{\"nested\":{\"path\":\"projects\"},\"aggregations\":{\"projects@FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"wildcard\":{\"projects.name\":{\"wildcard\":\"*security*\",\"boost\":1.0}}}],\"adjust_pure_negative\":true,\"boost\":1.0}},\"aggregations\":{\"c\":{\"value_count\":{\"field\":\"_index\"}}}}}}"));
+        assertThat(explainSQL, containsString("\"buckets_path\":{\"c\":\"projects@NESTED>projects@FILTER.c\"}"));
+    }
+
+    @Test
+    public void aggWithWhereOnParentOrNested() {
+        String explainSQL = explainSQL("SELECT name, COUNT(nested(projects, 'projects')) AS c " +
+                                       "FROM employee " +
+                                       "WHERE name LIKE '%smith%' OR nested(projects.name, 'projects') LIKE '%security%' " +
+                                       "GROUP BY name " +
+                                       "HAVING c > 1");
+        assertThat(explainSQL, containsString(
+                "\"projects@NESTED\":{\"nested\":{\"path\":\"projects\"},\"aggregations\":{\"c\":{\"value_count\":{\"field\":\"_index\"}}}}"));
+        assertThat(explainSQL, containsString(
+                "\"buckets_path\":{\"c\":\"projects@NESTED.c\"}"));
+    }
+
+    @Test
+    public void aggWithWhereOnParentAndNested() {
+        String explainSQL = explainSQL("SELECT name, COUNT(nested(projects, 'projects')) AS c " +
+                                       "FROM employee " +
+                                       "WHERE name LIKE '%smith%' AND nested(projects.name, 'projects') LIKE '%security%' " +
+                                       "GROUP BY name " +
+                                       "HAVING c > 1");
+        assertThat(explainSQL, containsString(
+                "\"aggregations\":{\"projects@NESTED\":{\"nested\":{\"path\":\"projects\"},\"aggregations\":{\"projects@FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"wildcard\":{\"projects.name\":{\"wildcard\":\"*security*\",\"boost\":1.0}}}],\"adjust_pure_negative\":true,\"boost\":1.0}},\"aggregations\":{\"c\":{\"value_count\":{\"field\":\"_index\"}}}}}"));
+        assertThat(explainSQL, containsString("\"buckets_path\":{\"c\":\"projects@NESTED>projects@FILTER.c\"}"));
+    }
+
+    @Test
+    public void aggWithWhereOnNestedAndNested() {
+        String explainSQL = explainSQL("SELECT name, COUNT(nested(projects, 'projects')) AS c " +
+                                       "FROM employee " +
+                                       "WHERE nested('projects', projects.started_year > 2000 AND projects.name LIKE '%security%') " +
+                                       "GROUP BY name " +
+                                       "HAVING c > 1");
+        assertThat(explainSQL, containsString("\"aggregations\":{\"projects@NESTED\":{\"nested\":{\"path\":\"projects\"},\"aggregations\":{\"projects@FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"bool\":{\"must\":[{\"range\":{\"projects.started_year\":{\"from\":2000,\"to\":null,\"include_lower\":false,\"include_upper\":true,\"boost\":1.0}}},{\"wildcard\":{\"projects.name\":{\"wildcard\":\"*security*\",\"boost\":1.0}}}"));
+        assertThat(explainSQL, containsString("\"buckets_path\":{\"c\":\"projects@NESTED>projects@FILTER.c\"}"));
+    }
+
+    @Test
+    public void aggWithWhereOnNestedOrNested() {
+        String explainSQL = explainSQL("SELECT name, COUNT(nested(projects, 'projects')) AS c " +
+                                       "FROM employee " +
+                                       "WHERE nested('projects', projects.started_year > 2000 OR projects.name LIKE '%security%') " +
+                                       "GROUP BY name " +
+                                       "HAVING c > 1");
+        assertThat(explainSQL, containsString("\"aggregations\":{\"projects@NESTED\":{\"nested\":{\"path\":\"projects\"},\"aggregations\":{\"projects@FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"bool\":{\"should\":[{\"range\":{\"projects.started_year\":{\"from\":2000,\"to\":null,\"include_lower\":false,\"include_upper\":true,\"boost\":1.0}}},{\"wildcard\":{\"projects.name\":{\"wildcard\":\"*security*\",\"boost\":1.0}}}"));
+        assertThat(explainSQL, containsString("\"buckets_path\":{\"c\":\"projects@NESTED>projects@FILTER.c\"}"));
+    }
 
     @Test
     public void searchSanity() throws IOException {
@@ -109,6 +195,10 @@ public class JSONRequestTest {
 
     private String removeSpaces(String s) {
         return s.replaceAll("\\s+", "");
+    }
+
+    private String explainSQL(String sql) {
+        return explain(String.format("{\"query\":\"%s\"}", sql));
     }
 
     private String explain(String request) {

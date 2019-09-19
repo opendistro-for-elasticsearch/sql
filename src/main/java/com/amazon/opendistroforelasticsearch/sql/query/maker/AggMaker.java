@@ -15,10 +15,14 @@
 
 package com.amazon.opendistroforelasticsearch.sql.query.maker;
 
+import com.amazon.opendistroforelasticsearch.sql.domain.Condition;
 import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.KVValue;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Where;
+import com.amazon.opendistroforelasticsearch.sql.domain.Where.CONN;
+import com.amazon.opendistroforelasticsearch.sql.domain.bucketpath.AggPath;
+import com.amazon.opendistroforelasticsearch.sql.domain.bucketpath.MetricPath;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.parser.ChildrenType;
 import com.amazon.opendistroforelasticsearch.sql.parser.NestedType;
@@ -38,6 +42,7 @@ import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.BucketOrder;
 import org.elasticsearch.search.aggregations.InternalOrder;
+import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.geogrid.GeoGridAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
@@ -68,6 +73,7 @@ import java.util.stream.Collectors;
 public class AggMaker {
 
     private Map<String, KVValue> groupMap = new HashMap<>();
+    private Where where;
 
     /**
      * 分组查的聚合函数
@@ -152,6 +158,14 @@ public class AggMaker {
         }
     }
 
+    /**
+     * With {@link Where} Condition.
+     */
+    public AggMaker withWhere(Where where) {
+        this.where = where;
+        return this;
+    }
+
     private void addSpecificPercentiles(PercentilesAggregationBuilder percentilesBuilder, List<KVValue> params) {
         List<Double> percentiles = new ArrayList<>();
         for (KVValue kValue : params) {
@@ -179,7 +193,8 @@ public class AggMaker {
         return alias.replaceAll("\\[", "(").replaceAll("\\]", ")");
     }
 
-    private AggregationBuilder addFieldToAgg(MethodField field, ValuesSourceAggregationBuilder builder) {
+    private AggregationBuilder addFieldToAgg(MethodField field, ValuesSourceAggregationBuilder builder)
+            throws SqlParseException {
         KVValue kvValue = field.getParams().get(0);
         if (kvValue.key != null && kvValue.key.equals("script")) {
             if (kvValue.value instanceof MethodField) {
@@ -192,12 +207,17 @@ public class AggMaker {
             return builder.script(new Script(kvValue.value.toString()));
         } else if (kvValue.key != null && (kvValue.key.equals("nested") || kvValue.key.equals("reverse_nested"))) {
             NestedType nestedType = (NestedType) kvValue.value;
+            nestedType.addBucketPath(new MetricPath(builder.getName()));
 
-            builder.field(nestedType.field);
+            if (nestedType.isNestedField()) {
+                builder.field("_index");
+            } else {
+                builder.field(nestedType.field);
+            }
 
             AggregationBuilder nestedBuilder;
 
-            String nestedAggName = nestedType.field + "@NESTED";
+            String nestedAggName = nestedType.getNestedAggName();
 
             if (nestedType.isReverse()) {
                 if (nestedType.path != null && nestedType.path.startsWith("~")) {
@@ -218,7 +238,11 @@ public class AggMaker {
                 nestedBuilder = AggregationBuilders.nested(nestedAggName, nestedType.path);
             }
 
-            return nestedBuilder.subAggregation(builder);
+            AggregationBuilder aggregation = nestedBuilder.subAggregation(wrapWithFilterAgg(
+                    nestedType,
+                    builder));
+            nestedType.addBucketPath(new AggPath(nestedBuilder.getName()));
+            return aggregation;
         } else if (kvValue.key != null && (kvValue.key.equals("children"))) {
             ChildrenType childrenType = (ChildrenType) kvValue.value;
 
@@ -740,4 +764,40 @@ public class AggMaker {
         return this.groupMap;
     }
 
+    /**
+     * Wrap the Metric Aggregation with Filter Aggregation if necessary.
+     * The Filter Aggregation condition is constructed from the nested condition in where clause.
+     */
+    private AggregationBuilder wrapWithFilterAgg(NestedType nestedType, ValuesSourceAggregationBuilder builder)
+            throws SqlParseException {
+        if (where != null && where.getWheres() != null) {
+            List<Condition> nestedConditionList = where.getWheres().stream()
+                    .filter(condition -> condition instanceof Condition)
+                    .map(condition -> (Condition) condition)
+                    .filter(condition -> condition.isNestedComplex()
+                                         || nestedType.path.equalsIgnoreCase(condition.getNestedPath()))
+                    // ignore the OR condition on nested field.
+                    .filter(condition -> CONN.AND.equals(condition.getConn()))
+                    .collect(Collectors.toList());
+            if (!nestedConditionList.isEmpty()) {
+                Where filterWhere = new Where(where.getConn());
+                nestedConditionList.forEach(condition -> {
+                    if (condition.isNestedComplex()) {
+                        ((Where) condition.getValue()).getWheres().forEach(filterWhere::addWhere);
+                    } else {
+                        // Since the filter condition is used inside Nested Aggregation,remove the nested attribute.
+                        condition.setNested(false);
+                        condition.setNestedPath("");
+                        filterWhere.addWhere(condition);
+                    }
+                });
+                FilterAggregationBuilder filterAgg = AggregationBuilders.filter(
+                        nestedType.getFilterAggName(),
+                        QueryMaker.explain(filterWhere));
+                nestedType.addBucketPath(new AggPath(filterAgg.getName()));
+                return filterAgg.subAggregation(builder);
+            }
+        }
+        return builder;
+    }
 }
