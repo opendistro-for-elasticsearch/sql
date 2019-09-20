@@ -41,10 +41,12 @@ public class Generic implements Type {
         return new Generic(Name.T, type);
     }
 
+    // TODO: this is wrong. we need to know position in T() so we can return actualTypes[pos] here.
     private static Type unbind(Name name, Type[] types) {
         return Arrays.stream(types).
                       filter(type -> type instanceof Generic).
                       filter(type -> ((Generic) type).name == name).
+                      map(type -> ((Generic) type).binding).
                       findFirst().
                       orElseThrow(() -> new IllegalStateException(StringUtils.format(
                           "Type definition is wrong. Could not unbind generic type [%s] in type list %s.",

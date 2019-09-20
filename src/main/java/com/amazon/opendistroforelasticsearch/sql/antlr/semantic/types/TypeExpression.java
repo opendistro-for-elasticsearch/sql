@@ -60,7 +60,7 @@ public interface TypeExpression extends Type {
 
     @Override
     default Type construct(List<Type> others) {
-        // Create a temp expr without result for compatibility check
+        // Create a temp expr without return type for compatibility check
         TypeExpression otherExpr = () -> {
             TypeExpressionSpec spec = new TypeExpressionSpec();
             spec.args = others.toArray(new Type[0]);
@@ -68,7 +68,7 @@ public interface TypeExpression extends Type {
         };
 
         if (isCompatible(otherExpr)) {
-            return spec().constructFunc.apply(spec().args);
+            return spec().constructFunc.apply(others.toArray(new Type[0]));
         }
         return TYPE_ERROR;
     }
@@ -83,12 +83,6 @@ public interface TypeExpression extends Type {
 
         return StringUtils.format("%s(%s) -> %s", this, argTypesStr, returnTypeStr);
     }
-
-    /*
-    default TypeExpressionSpecBuilder construct() {
-        return new TypeExpressionSpecBuilder();
-    }
-    */
 
     TypeExpressionSpec spec();
 
@@ -106,21 +100,5 @@ public interface TypeExpression extends Type {
             return this;
         }
     }
-
-    /*
-    class TypeExpressionSpecBuilder {
-        TypeExpressionSpec spec = new TypeExpressionSpec();
-
-        TypeExpressionSpecBuilder arg(Type type) {
-            spec.args.add(type);
-            return this;
-        }
-
-        TypeExpressionSpec result(Function<List<Type>, Type> constructFunc) {
-            spec.constructFunc = constructFunc;
-            return spec;
-        }
-    }
-    */
 
 }
