@@ -36,7 +36,7 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
         expectValidationFailWithErrorMessages(
             "SELECT * FROM semantics WHERE LOG100(balance) = 1",
             "Function [LOG100] cannot be found or used here.",
-            "Did you mean [LOG]?"
+            "Did you mean [LOG10]?"
         );
     }
 
