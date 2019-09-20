@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.executor;
 
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.executor.format.ErrorMessage;
 import com.amazon.opendistroforelasticsearch.sql.executor.join.ElasticJoinExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.join.ElasticUtils;
 import com.amazon.opendistroforelasticsearch.sql.executor.join.MetaSearchResult;
@@ -23,19 +24,25 @@ import com.amazon.opendistroforelasticsearch.sql.executor.multi.MultiRequestExec
 import com.google.common.collect.Maps;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.elasticsearch.ElasticsearchSecurityException;
 import org.elasticsearch.action.ActionFuture;
+import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
+import org.elasticsearch.action.search.SearchPhaseExecutionException;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.index.reindex.BulkIndexByScrollResponseContentListener;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.rest.action.RestStatusToXContentListener;
+import org.elasticsearch.script.ScriptException;
 import org.elasticsearch.search.SearchHits;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.SqlElasticRequestBuilder;
@@ -78,7 +85,27 @@ public class ElasticDefaultRestExecutor implements RestExecutor {
             executor.run();
             sendDefaultResponse(executor.getHits(), channel);
         } else if (request instanceof SearchRequest) {
-            client.search((SearchRequest) request, new RestStatusToXContentListener<>(channel));
+            final RestStatusToXContentListener<SearchResponse> delegate = new RestStatusToXContentListener<>(channel);
+            client.search((SearchRequest) request, new ActionListener<SearchResponse>() {
+                @Override
+                public void onResponse(SearchResponse searchResponse) {
+                    delegate.onResponse(searchResponse);
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    if (e instanceof ElasticsearchSecurityException) {
+                        //delegate.onFailure(new IndexNotFoundException("no such index [abc]"));
+                        channel.sendResponse(new BytesRestResponse(RestStatus.BAD_REQUEST,
+                            new ErrorMessage(new IndexNotFoundException("abc"), 400).toString()));
+                    } else if (e instanceof SearchPhaseExecutionException) {
+                        channel.sendResponse(new BytesRestResponse(RestStatus.BAD_REQUEST,
+                            new ErrorMessage(new IndexNotFoundException("abc"), 400).toString()));
+                    } else {
+                        delegate.onFailure(e);
+                    }
+                }
+            });
         } else if (request instanceof DeleteByQueryRequest) {
             requestBuilder.getBuilder().execute(new BulkIndexByScrollResponseContentListener(channel, Maps.newHashMap()));
         } else if (request instanceof GetIndexRequest) {
