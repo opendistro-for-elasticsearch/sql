@@ -38,13 +38,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
+import static com.amazon.opendistroforelasticsearch.sql.util.HasFieldWithValue.hasFieldWithValue;
 import static java.util.stream.Collectors.toMap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.both;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
-import static com.amazon.opendistroforelasticsearch.sql.util.HasFieldWithValue.hasFieldWithValue;
 
 
 public class HavingTest {
@@ -228,7 +228,7 @@ public class HavingTest {
                             .withWhere(select.getWhere())
                             .makeFieldAgg((MethodField) field, AggregationBuilders.terms(""));
                 } catch (SqlParseException e) {
-                    e.printStackTrace();
+                    throw new RuntimeException(e);
                 }
             });
             AggregationBuilder agg = AggregationBuilders.terms("");

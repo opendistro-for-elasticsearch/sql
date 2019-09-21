@@ -15,9 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.unittest.parser;
 
-import com.amazon.opendistroforelasticsearch.sql.domain.bucketpath.AggPath;
 import com.amazon.opendistroforelasticsearch.sql.domain.bucketpath.BucketPath;
-import com.amazon.opendistroforelasticsearch.sql.domain.bucketpath.MetricPath;
+import com.amazon.opendistroforelasticsearch.sql.domain.bucketpath.Path;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -29,12 +28,16 @@ public class BucketPathTest {
     @Rule
     public ExpectedException exceptionRule = ExpectedException.none();
 
+    private final Path agg1 = Path.getAggPath("projects@NESTED");
+    private final Path agg2 = Path.getAggPath("projects@FILTERED");
+    private final Path metric = Path.getMetricPath("c");
+
     @Test
     public void bucketPath() {
         BucketPath bucketPath = new BucketPath();
-        bucketPath.add(new MetricPath("c"));
-        bucketPath.add(new AggPath("projects@FILTERED"));
-        bucketPath.add(new AggPath("projects@NESTED"));
+        bucketPath.add(metric);
+        bucketPath.add(agg2);
+        bucketPath.add(agg1);
 
         assertEquals("projects@NESTED>projects@FILTERED.c", bucketPath.getBucketPath());
     }
@@ -52,7 +55,7 @@ public class BucketPathTest {
 
         exceptionRule.expect(AssertionError.class);
         exceptionRule.expectMessage("The last path in the bucket path must be Metric");
-        bucketPath.add(new AggPath("projects@NESTED"));
+        bucketPath.add(agg1);
     }
 
     @Test
@@ -61,17 +64,7 @@ public class BucketPathTest {
 
         exceptionRule.expect(AssertionError.class);
         exceptionRule.expectMessage("All the other path in the bucket path must be Agg");
-        bucketPath.add(new MetricPath("c"));
-        bucketPath.add(new MetricPath("c"));
-    }
-
-    @Test
-    public void atLeastIncludeAggAndMetric() {
-        BucketPath bucketPath = new BucketPath();
-
-        exceptionRule.expect(AssertionError.class);
-        exceptionRule.expectMessage("The bucket path should as least include agg and metric");
-        bucketPath.add(new MetricPath("c"));
-        bucketPath.getBucketPath();
+        bucketPath.add(metric);
+        bucketPath.add(metric);
     }
 }

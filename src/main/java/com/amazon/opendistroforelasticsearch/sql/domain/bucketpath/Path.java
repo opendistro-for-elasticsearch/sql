@@ -15,13 +15,46 @@
 
 package com.amazon.opendistroforelasticsearch.sql.domain.bucketpath;
 
-public interface Path {
+public class Path {
+    private final String path;
+    private final String separator;
+    private final PathType type;
 
-    String name();
+    private Path(String path, String separator, PathType type) {
+        this.path = path;
+        this.separator = separator;
+        this.type = type;
+    }
 
-    String separator();
+    public String getPath() {
+        return path;
+    }
 
-    boolean isAggPath();
+    public String getSeparator() {
+        return separator;
+    }
 
-    boolean isMetricPath();
+    public PathType getType() {
+        return type;
+    }
+
+    public boolean isMetricPath() {
+        return type == PathType.METRIC;
+    }
+
+    public boolean isAggPath() {
+        return type == PathType.AGG;
+    }
+
+    public static Path getAggPath(String path) {
+        return new Path(path, ">", PathType.AGG);
+    }
+
+    public static Path getMetricPath(String path) {
+        return new Path(path, ".", PathType.METRIC);
+    }
+
+    public enum PathType {
+        AGG, METRIC
+    }
 }

@@ -42,10 +42,9 @@ public class BucketPath {
      * Return "", if there is no agg or metric available
      */
     public String getBucketPath() {
-        assert pathStack.size() != 1 : "The bucket path should as least include agg and metric";
-        String aggPath = pathStack.isEmpty() ? "" : pathStack.pop().name();
+        String bucketPath = pathStack.isEmpty() ? "" : pathStack.pop().getPath();
         return pathStack.stream()
-                .map(path -> path.separator() + path.name())
-                .reduce(aggPath, String::concat);
+                .map(path -> path.getSeparator() + path.getPath())
+                .reduce(bucketPath, String::concat);
     }
 }

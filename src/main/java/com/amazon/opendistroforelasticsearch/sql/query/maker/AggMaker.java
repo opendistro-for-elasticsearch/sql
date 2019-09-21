@@ -21,8 +21,7 @@ import com.amazon.opendistroforelasticsearch.sql.domain.KVValue;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Where;
 import com.amazon.opendistroforelasticsearch.sql.domain.Where.CONN;
-import com.amazon.opendistroforelasticsearch.sql.domain.bucketpath.AggPath;
-import com.amazon.opendistroforelasticsearch.sql.domain.bucketpath.MetricPath;
+import com.amazon.opendistroforelasticsearch.sql.domain.bucketpath.Path;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.parser.ChildrenType;
 import com.amazon.opendistroforelasticsearch.sql.parser.NestedType;
@@ -207,7 +206,7 @@ public class AggMaker {
             return builder.script(new Script(kvValue.value.toString()));
         } else if (kvValue.key != null && (kvValue.key.equals("nested") || kvValue.key.equals("reverse_nested"))) {
             NestedType nestedType = (NestedType) kvValue.value;
-            nestedType.addBucketPath(new MetricPath(builder.getName()));
+            nestedType.addBucketPath(Path.getMetricPath(builder.getName()));
 
             if (nestedType.isNestedField()) {
                 builder.field("_index");
@@ -241,7 +240,7 @@ public class AggMaker {
             AggregationBuilder aggregation = nestedBuilder.subAggregation(wrapWithFilterAgg(
                     nestedType,
                     builder));
-            nestedType.addBucketPath(new AggPath(nestedBuilder.getName()));
+            nestedType.addBucketPath(Path.getAggPath(nestedBuilder.getName()));
             return aggregation;
         } else if (kvValue.key != null && (kvValue.key.equals("children"))) {
             ChildrenType childrenType = (ChildrenType) kvValue.value;
@@ -794,7 +793,7 @@ public class AggMaker {
                 FilterAggregationBuilder filterAgg = AggregationBuilders.filter(
                         nestedType.getFilterAggName(),
                         QueryMaker.explain(filterWhere));
-                nestedType.addBucketPath(new AggPath(filterAgg.getName()));
+                nestedType.addBucketPath(Path.getAggPath(filterAgg.getName()));
                 return filterAgg.subAggregation(builder);
             }
         }
