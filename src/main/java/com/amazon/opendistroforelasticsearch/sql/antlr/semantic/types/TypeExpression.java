@@ -41,8 +41,8 @@ public interface TypeExpression extends Type {
         }
 
         TypeExpression otherExpr = (TypeExpression) other;
-        Type[] expectArgTypes = spec().args;
-        Type[] actualArgTypes = otherExpr.spec().args;
+        Type[] expectArgTypes = spec().argTypes;
+        Type[] actualArgTypes = otherExpr.spec().argTypes;
 
         // Arg numbers exactly match
         if (expectArgTypes.length != actualArgTypes.length) {
@@ -59,16 +59,16 @@ public interface TypeExpression extends Type {
     }
 
     @Override
-    default Type construct(List<Type> others) {
+    default Type construct(List<Type> actualArgs) {
         // Create a temp expr without return type for compatibility check
         TypeExpression otherExpr = () -> {
             TypeExpressionSpec spec = new TypeExpressionSpec();
-            spec.args = others.toArray(new Type[0]);
+            spec.argTypes = actualArgs.toArray(new Type[0]);
             return spec;
         };
 
         if (isCompatible(otherExpr)) {
-            return spec().constructFunc.apply(others.toArray(new Type[0]));
+            return spec().constructFunc.apply(actualArgs.toArray(new Type[0]));
         }
         return TYPE_ERROR;
     }
@@ -76,10 +76,10 @@ public interface TypeExpression extends Type {
     @Override
     default String usage() {
         TypeExpressionSpec spec = spec();
-        String argTypesStr = Arrays.stream(spec.args).
+        String argTypesStr = Arrays.stream(spec.argTypes).
                                     map(Type::usage).
                                     collect(Collectors.joining());
-        String returnTypeStr = spec.constructFunc.apply(spec.args).usage();
+        String returnTypeStr = spec.constructFunc.apply(spec.argTypes).usage();
 
         return StringUtils.format("%s(%s) -> %s", this, argTypesStr, returnTypeStr);
     }
@@ -87,16 +87,16 @@ public interface TypeExpression extends Type {
     TypeExpressionSpec spec();
 
     class TypeExpressionSpec {
-        Type[] args;
+        Type[] argTypes;
         Function<Type[], Type> constructFunc;
 
         public TypeExpressionSpec map(Type... args) {
-            this.args = args;
+            this.argTypes = args;
             return this;
         }
 
         public TypeExpressionSpec to(Function<Type[], Type> constructFunc) {
-            this.constructFunc = constructFunc;
+            this.constructFunc = Generic.generify(constructFunc, argTypes);
             return this;
         }
     }

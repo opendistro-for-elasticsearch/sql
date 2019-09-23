@@ -27,7 +27,7 @@ import java.util.function.Function;
 public class Generic implements Type {
 
     private enum Name { T }
-    public static final Function<Type[], Type> T = types -> unbind(Name.T, types);
+    public static final Function<Type[], Type> T = types -> findSameGenericType(Name.T, types);
 
     private final Name name;
     private final Type binding;
@@ -41,12 +41,21 @@ public class Generic implements Type {
         return new Generic(Name.T, type);
     }
 
+    public static Function<Type[], Type> generify(Function<Type[], Type> func, Type[] types) {
+        if (func != T) {
+            return func;
+        }
+
+        Type genericType = func.apply(types);
+        int genericTypeIndex = Arrays.asList(types).indexOf(genericType);
+        return actualTypes -> actualTypes[genericTypeIndex];
+    }
+
     // TODO: this is wrong. we need to know position in T() so we can return actualTypes[pos] here.
-    private static Type unbind(Name name, Type[] types) {
+    private static Type findSameGenericType(Name name, Type[] types) {
         return Arrays.stream(types).
                       filter(type -> type instanceof Generic).
                       filter(type -> ((Generic) type).name == name).
-                      map(type -> ((Generic) type).binding).
                       findFirst().
                       orElseThrow(() -> new IllegalStateException(StringUtils.format(
                           "Type definition is wrong. Could not unbind generic type [%s] in type list %s.",

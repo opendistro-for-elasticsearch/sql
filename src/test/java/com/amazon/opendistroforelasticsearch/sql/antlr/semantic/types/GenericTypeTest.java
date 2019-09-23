@@ -22,6 +22,7 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Bas
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.LONG;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.NUMBER;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.TEXT;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.TYPE_ERROR;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.ScalarFunction.LOG;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
@@ -47,13 +48,13 @@ public class GenericTypeTest {
     }
 
     @Test
-    public void passTextArgToLogShouldReturnText() {
-        assertEquals(TEXT, LOG.construct(singletonList(TEXT)));
+    public void passTextArgToLogShouldReturnTypeError() {
+        assertEquals(TYPE_ERROR, LOG.construct(singletonList(TEXT)));
     }
 
     @Test
-    public void passKeywordArgToLogShouldReturnKeyword() {
-        assertEquals(KEYWORD, LOG.construct(singletonList(KEYWORD)));
+    public void passKeywordArgToLogShouldReturnTypeError() {
+        assertEquals(TYPE_ERROR, LOG.construct(singletonList(KEYWORD)));
     }
 
 }
