@@ -27,6 +27,7 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Bas
 
 /**
  * Type expression by constructor such as function, operator etc.
+ * Type expression has to be an interface because some subclass needs to be Enum.
  */
 public interface TypeExpression extends Type {
 

@@ -63,6 +63,7 @@ public class Generic implements Type {
                       );
     }
 
+    @Override
     public String name() {
         return this.name.name();
     }

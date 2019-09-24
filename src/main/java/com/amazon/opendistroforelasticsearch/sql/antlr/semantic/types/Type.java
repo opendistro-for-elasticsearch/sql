@@ -29,7 +29,9 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Bas
  */
 public interface Type extends Reducible {
 
-    //String name();
+    default String name() {
+        return "UNKNOWN";
+    }
 
     /**
      * Check if current type is compatible with other of same type.

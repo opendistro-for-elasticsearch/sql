@@ -20,6 +20,7 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Environmen
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Namespace;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.ESScalarFunction;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.ScalarFunction;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.ParseTreeVisitor;
@@ -53,6 +54,9 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
     @Override
     public void visitRoot() {
         for (ScalarFunction func : ScalarFunction.values()) {
+            defineFunctionName(func.name(), func);
+        }
+        for (ESScalarFunction func : ESScalarFunction.values()) {
             defineFunctionName(func.name(), func);
         }
     }
