@@ -17,7 +17,9 @@ package com.amazon.opendistroforelasticsearch.sql.domain;
 
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.statement.SQLSelectGroupByClause;
+import com.alibaba.druid.util.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.parser.NestedType;
 import com.amazon.opendistroforelasticsearch.sql.parser.WhereParser;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
@@ -106,7 +108,7 @@ public class Having {
         for (Field field : fields) {
             if (field instanceof MethodField) {
                 // It's required to add to context even if alias in SELECT is exactly same name as that in script
-                context.put(field.getAlias(), field.getAlias());
+                context.put(field.getAlias(), bucketsPath(field.getAlias(), ((MethodField) field).getParams()));
             }
         }
         return context;
@@ -196,6 +198,22 @@ public class Having {
 
     private String expr(String name, String operator, Object value) {
         return String.join(" ", PARAMS + name, operator, value.toString());
+    }
+
+    /**
+     * Build the buckets_path.
+     * If the field is nested field, using the bucket path.
+     * else using the alias.
+     */
+    private String bucketsPath(String alias, List<KVValue> kvValueList) {
+        if (kvValueList.size() == 1) {
+            KVValue kvValue = kvValueList.get(0);
+            if (StringUtils.equals(kvValue.key, "nested")
+                && kvValue.value instanceof NestedType) {
+                return ((NestedType) kvValue.value).getBucketPath();
+            }
+        }
+        return alias;
     }
 
 }

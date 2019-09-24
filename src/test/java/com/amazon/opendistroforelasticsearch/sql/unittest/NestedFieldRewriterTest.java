@@ -27,10 +27,7 @@ import com.alibaba.druid.sql.ast.statement.SQLSelectQueryBlock;
 import com.alibaba.druid.sql.ast.statement.SQLTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLUnionQuery;
 import com.alibaba.druid.sql.dialect.mysql.ast.expr.MySqlSelectGroupByExpr;
-import com.alibaba.druid.sql.parser.ParserException;
-import com.alibaba.druid.sql.parser.Token;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.nestedfield.NestedFieldRewriter;
-import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
 import org.junit.Test;
 
 import java.util.List;
@@ -271,6 +268,103 @@ public class NestedFieldRewriterTest {
         same(
                 query("SELECT e.name FROM employee as e, e.projects as p WHERE p.year = 2016 and p.name LIKE 'security'"),
                 query("SELECT name FROM employee WHERE nested('projects', projects.year = 2016 AND projects.name LIKE 'security')")
+        );
+    }
+
+    @Test
+    public void aggWithWhereOnParent() {
+        same(
+                query("SELECT e.name, COUNT(p) as c " +
+                      "FROM employee AS e, e.projects AS p " +
+                      "WHERE e.name like '%smith%' " +
+                      "GROUP BY e.name " +
+                      "HAVING c > 1"),
+                query("SELECT name, COUNT(nested(projects, 'projects')) AS c " +
+                      "FROM employee " +
+                      "WHERE name LIKE '%smith%' " +
+                      "GROUP BY name " +
+                      "HAVING c > 1")
+        );
+
+    }
+
+    @Test
+    public void aggWithWhereOnNested() {
+        same(
+                query("SELECT e.name, COUNT(p) as c " +
+                      "FROM employee AS e, e.projects AS p " +
+                      "WHERE p.name LIKE '%security%' " +
+                      "GROUP BY e.name " +
+                      "HAVING c > 1"),
+                query("SELECT name, COUNT(nested(projects, 'projects')) AS c " +
+                      "FROM employee " +
+                      "WHERE nested(projects.name, 'projects') LIKE '%security%' " +
+                      "GROUP BY name " +
+                      "HAVING c > 1")
+        );
+    }
+
+    @Test
+    public void aggWithWhereOnParentOrNested() {
+        same(
+                query("SELECT e.name, COUNT(p) as c " +
+                      "FROM employee AS e, e.projects AS p " +
+                      "WHERE e.name like '%smith%' or p.name LIKE '%security%' " +
+                      "GROUP BY e.name " +
+                      "HAVING c > 1"),
+                query("SELECT name, COUNT(nested(projects, 'projects')) AS c " +
+                      "FROM employee " +
+                      "WHERE name LIKE '%smith%' OR nested(projects.name, 'projects') LIKE '%security%' " +
+                      "GROUP BY name " +
+                      "HAVING c > 1")
+        );
+    }
+
+    @Test
+    public void aggWithWhereOnParentAndNested() {
+        same(
+                query("SELECT e.name, COUNT(p) as c " +
+                      "FROM employee AS e, e.projects AS p " +
+                      "WHERE e.name like '%smith%' AND p.name LIKE '%security%' " +
+                      "GROUP BY e.name " +
+                      "HAVING c > 1"),
+                query("SELECT name, COUNT(nested(projects, 'projects')) AS c " +
+                      "FROM employee " +
+                      "WHERE name LIKE '%smith%' AND nested(projects.name, 'projects') LIKE '%security%' " +
+                      "GROUP BY name " +
+                      "HAVING c > 1")
+        );
+    }
+
+    @Test
+    public void aggWithWhereOnNestedAndNested() {
+        same(
+                query("SELECT e.name, COUNT(p) as c " +
+                      "FROM employee AS e, e.projects AS p " +
+                      "WHERE p.started_year > 1990 AND p.name LIKE '%security%' " +
+                      "GROUP BY e.name " +
+                      "HAVING c > 1"),
+                query("SELECT name, COUNT(nested(projects, 'projects')) AS c " +
+                      "FROM employee " +
+                      "WHERE nested('projects', projects.started_year > 1990 AND projects.name LIKE '%security%') " +
+                      "GROUP BY name " +
+                      "HAVING c > 1")
+        );
+    }
+
+    @Test
+    public void aggWithWhereOnNestedOrNested() {
+        same(
+                query("SELECT e.name, COUNT(p) as c " +
+                      "FROM employee AS e, e.projects AS p " +
+                      "WHERE p.started_year > 1990 OR p.name LIKE '%security%' " +
+                      "GROUP BY e.name " +
+                      "HAVING c > 1"),
+                query("SELECT name, COUNT(nested(projects, 'projects')) AS c " +
+                      "FROM employee " +
+                      "WHERE nested('projects', projects.started_year > 1990 OR projects.name LIKE '%security%') " +
+                      "GROUP BY name " +
+                      "HAVING c > 1")
         );
     }
 
