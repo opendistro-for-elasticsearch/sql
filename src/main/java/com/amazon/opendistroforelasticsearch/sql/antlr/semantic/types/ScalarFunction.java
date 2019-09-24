@@ -26,7 +26,6 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Gen
 public enum ScalarFunction implements TypeExpression {
 
     ABS(func(T(NUMBER)).to(T)),
-    ACOS(func(T(NUMBER)).to(T)),
     ASIN(func(T(NUMBER)).to(T)),
     ATAN(func(T(NUMBER)).to(T)),
     ATAN2(func(T(NUMBER)).to(T)),

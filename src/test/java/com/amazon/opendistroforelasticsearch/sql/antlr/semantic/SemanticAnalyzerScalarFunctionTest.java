@@ -65,10 +65,39 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
         validate("SELECT LOG(s.age) FROM semantics s WHERE LOG(s.balance) = 1000");
     }
 
-    @Ignore
     @Test
-    public void allSupportedScalarFunctionCallShouldPass() {
+    public void allSupportedMathFunctionCallShouldPass() {
+        validate(
+            "SELECT * FROM semantics WHERE " +
+            " ABS(age) = 1 AND " +
+            " ASIN(age) = 1 AND " +
+            " ATAN(age) = 1 AND " +
+            " ATAN2(age) = 1 AND " +
+            " CBRT(age) = 1 AND " +
+            " CEIL(age) = 1 AND " +
+            " COS(age) = 1 AND " +
+            " COSH(age) = 1 AND " +
+            " DEGREES(age) = 1 AND " +
+            " EXP(age) = 1 AND " +
+            " EXPM1(age) = 1 AND " +
+            " FLOOR(age) = 1 AND " +
+            " LOG(age) = 1 AND " +
+            " LOG2(age) = 1 AND " +
+            " LOG10(age) = 1 AND " +
+            " POW(age) = 1 AND " +
+            " RADIANS(age) = 1 AND " +
+            " RINT(age) = 1 AND " +
+            " ROUND(age) = 1 AND " +
+            " SIN(age) = 1 AND " +
+            " SINH(age) = 1 AND " +
+            " SQRT(age) = 1 AND " +
+            " TAN(age) = 1 "
+        );
+    }
 
+    @Test
+    public void allSupportedConstantsUseShouldPass() {
+        validate("SELECT * FROM semantics WHERE E() > 1 OR PI() > 1");
     }
 
 }
