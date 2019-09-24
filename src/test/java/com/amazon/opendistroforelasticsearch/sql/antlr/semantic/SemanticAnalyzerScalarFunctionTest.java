@@ -45,7 +45,7 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
         expectValidationFailWithErrorMessages(
             "SELECT * FROM semantics WHERE LOG() = 1",
             "Function [LOG] cannot work with [<None>].",
-            "Usage: LOG(NUMBER) -> NUMBER"
+            "Usage: LOG(NUMBER T) -> T"
         );
     }
 
@@ -55,7 +55,7 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
         expectValidationFailWithErrorMessages(
             "SELECT * FROM semantics WHERE LOG(age, city) = 1",
             "Function [LOG] cannot work with [INTEGER, KEYWORD].",
-            "Usage: LOG(NUMBER) -> NUMBER"
+            "Usage: LOG(NUMBER T) -> T"
         );
     }
 

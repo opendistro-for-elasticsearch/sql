@@ -79,7 +79,10 @@ public interface TypeExpression extends Type {
         String argTypesStr = Arrays.stream(spec.argTypes).
                                     map(Type::usage).
                                     collect(Collectors.joining());
-        String returnTypeStr = spec.constructFunc.apply(spec.argTypes).usage();
+
+        // Only show generic type name in return value for clarity
+        Type returnType = spec.constructFunc.apply(spec.argTypes);
+        String returnTypeStr = (returnType instanceof Generic) ? ((Generic) returnType).name() : returnType.usage();
 
         return StringUtils.format("%s(%s) -> %s", this, argTypesStr, returnTypeStr);
     }
@@ -97,6 +100,13 @@ public interface TypeExpression extends Type {
 
         public TypeExpressionSpec to(Function<Type[], Type> constructFunc) {
             this.constructFunc = Generic.generify(constructFunc, argTypes);
+            return this;
+        }
+
+        /** Return a base type no matter what's the arg types
+            Mostly this is used for empty arg types */
+        public TypeExpressionSpec to(Type returnType) {
+            this.constructFunc = x -> returnType;
             return this;
         }
     }

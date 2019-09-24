@@ -63,6 +63,10 @@ public class Generic implements Type {
                       );
     }
 
+    public String name() {
+        return this.name.name();
+    }
+
     @Override
     public boolean isCompatible(Type other) {
         return binding.isCompatible(other);
