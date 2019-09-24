@@ -56,6 +56,9 @@
               },
               "address": {
                 "type": "keyword"
+              },
+              "salary": {
+                "type": "long"
               }
             }
           }

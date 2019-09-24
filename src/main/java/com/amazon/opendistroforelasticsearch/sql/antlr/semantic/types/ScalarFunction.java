@@ -31,7 +31,7 @@ public enum ScalarFunction implements TypeExpression {
     ATAN2(func(T(NUMBER)).to(T)),
     CBRT(func(T(NUMBER)).to(T)),
     CEIL(func(T(NUMBER)).to(T)),
-    CONCAT(func(T(NUMBER)).to(T)),
+    CONCAT(func(STRING).to(STRING)), // TODO: varargs support required
     CONCAT_WS(func(T(NUMBER)).to(T)),
     COS(func(T(NUMBER)).to(T)),
     COSH(func(T(NUMBER)).to(T)),

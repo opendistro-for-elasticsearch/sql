@@ -60,9 +60,28 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
     }
 
     @Test
-    public void logFunctionCallShouldPass() {
-        validate("SELECT LOG(age) FROM semantics WHERE LOG(balance) = 1000");
-        validate("SELECT LOG(s.age) FROM semantics s WHERE LOG(s.balance) = 1000");
+    public void logFunctionCallWithOneNestedInSelectClauseShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT LOG(projects) FROM semantics",
+            "Function [LOG] cannot work with [NESTED].",
+            "Usage: LOG(NUMBER T) -> T"
+        );
+    }
+
+    @Test
+    public void logFunctionCallWithOneTextInWhereClauseShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT * FROM semantics WHERE LOG(city) = 1",
+            "Function [LOG] cannot work with [KEYWORD].",
+            "Usage: LOG(NUMBER T) -> T"
+        );
+    }
+
+    @Test
+    public void logFunctionCallWithOneNumberShouldPass() {
+        validate("SELECT LOG(age) FROM semantics");
+        validate("SELECT * FROM semantics s WHERE LOG(s.balance) = 1000");
+        validate("SELECT LOG(s.manager.salary) FROM semantics s");
     }
 
     @Test
@@ -100,4 +119,19 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
         validate("SELECT * FROM semantics WHERE E() > 1 OR PI() > 1");
     }
 
+    @Test
+    public void allSupportedStringFunctionCallShouldPass() {
+        validate(
+            "SELECT * FROM semantics WHERE " +
+            " UPPER(city) = 'SEATTLE' AND " +
+            " LOWER(city) = 'seattle'"
+            // TODO: add concat
+        );
+    }
+
+    @Ignore("To be implemented")
+    @Test
+    public void allSupportedDateFunctionCallShouldPass() {
+
+    }
 }
