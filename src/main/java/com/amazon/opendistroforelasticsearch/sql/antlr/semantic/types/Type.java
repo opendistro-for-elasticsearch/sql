@@ -56,7 +56,7 @@ public interface Type extends Reducible {
         } else {
             actualArgTypesStr = actualArgTypes.stream().
                                                map(Type::usage).
-                                               collect(Collectors.joining(","));
+                                               collect(Collectors.joining(", "));
         }
 
         throw new SemanticAnalysisException(

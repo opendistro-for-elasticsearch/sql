@@ -49,9 +49,8 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
         );
     }
 
-    @Ignore
     @Test
-    public void scalarFunctionCallWithWrongMoreArgumentsInWhereClauseShouldFail() {
+    public void scalarFunctionCallWithMoreArgumentsInWhereClauseShouldFail() {
         expectValidationFailWithErrorMessages(
             "SELECT * FROM semantics WHERE LOG(age, city) = 1",
             "Function [LOG] cannot work with [INTEGER, KEYWORD].",
