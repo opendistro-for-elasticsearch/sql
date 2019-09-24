@@ -174,7 +174,8 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
 
     @Override
     public Type visitFunctionName(String funcName) {
-        return resolve(new Symbol(Namespace.FUNCTION_NAME, funcName));
+        // Ignore case for function name
+        return resolve(new Symbol(Namespace.FUNCTION_NAME, funcName.toUpperCase()));
     }
 
     public Type visitOperatorName(String opName) {

@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types;
 
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.DATE;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.NUMBER;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.STRING;
@@ -35,7 +36,7 @@ public enum ScalarFunction implements TypeExpression {
     CONCAT_WS(func(T(NUMBER)).to(T)),
     COS(func(T(NUMBER)).to(T)),
     COSH(func(T(NUMBER)).to(T)),
-    DATE_FORMAT(func(T(NUMBER)).to(T)),
+    DATE_FORMAT(func(T(DATE), STRING).to(T)),
     DEGREES(func(T(NUMBER)).to(T)),
     E(func().to(DOUBLE)),
     EXP(func(T(NUMBER)).to(T)),

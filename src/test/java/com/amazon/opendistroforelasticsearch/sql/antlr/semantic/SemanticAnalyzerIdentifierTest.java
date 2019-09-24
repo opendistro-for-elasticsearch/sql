@@ -33,6 +33,15 @@ public class SemanticAnalyzerIdentifierTest extends SemanticAnalyzerTestBase {
     }
 
     @Test
+    public void fieldWithDifferentCaseInSelectClauseShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT Age a FROM semantics",
+            "Field [Age] cannot be found or used here",
+            "Did you mean [age]?"
+        );
+    }
+
+    @Test
     public void nonExistingFieldNameInSelectClauseShouldFail() {
         expectValidationFailWithErrorMessages(
             "SELECT age FROM semantics s",

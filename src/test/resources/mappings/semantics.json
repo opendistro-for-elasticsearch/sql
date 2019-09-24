@@ -15,6 +15,9 @@
           "city": {
             "type": "keyword"
           },
+          "birthday": {
+            "type": "date"
+          },
           "employer": {
             "type": "text",
             "fields": {

@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -84,7 +83,45 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
     }
 
     @Test
-    public void allSupportedMathFunctionCallShouldPass() {
+    public void logFunctionCallInDifferentCaseShouldPass() {
+        validate("SELECT log(age) FROM semantics");
+        validate("SELECT Log(age) FROM semantics");
+        validate("SELECT loG(age) FROM semantics");
+    }
+
+    @Test
+    public void allSupportedMathFunctionCallInSelectClauseShouldPass() {
+        validate(
+            "SELECT" +
+            " ABS(age), " +
+            " ASIN(age), " +
+            " ATAN(age), " +
+            " ATAN2(age), " +
+            " CBRT(age), " +
+            " CEIL(age), " +
+            " COS(age), " +
+            " COSH(age), " +
+            " DEGREES(age), " +
+            " EXP(age), " +
+            " EXPM1(age), " +
+            " FLOOR(age), " +
+            " LOG(age), " +
+            " LOG2(age), " +
+            " LOG10(age), " +
+            " POW(age), " +
+            " RADIANS(age), " +
+            " RINT(age), " +
+            " ROUND(age), " +
+            " SIN(age), " +
+            " SINH(age), " +
+            " SQRT(age), " +
+            " TAN(age) " +
+            "FROM semantics"
+        );
+    }
+
+    @Test
+    public void allSupportedMathFunctionCallInWhereClauseShouldPass() {
         validate(
             "SELECT * FROM semantics WHERE " +
             " ABS(age) = 1 AND " +
@@ -114,23 +151,54 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
     }
 
     @Test
-    public void allSupportedConstantsUseShouldPass() {
-        validate("SELECT * FROM semantics WHERE E() > 1 OR PI() > 1");
+    public void allSupportedConstantsUseInSelectClauseShouldPass() {
+        validate(
+            "SELECT " +
+            " E(), " +
+            " PI() " +
+            "FROM semantics"
+        );
     }
 
     @Test
-    public void allSupportedStringFunctionCallShouldPass() {
+    public void allSupportedConstantsUseInWhereClauseShouldPass() {
         validate(
             "SELECT * FROM semantics WHERE " +
-            " UPPER(city) = 'SEATTLE' AND " +
-            " LOWER(city) = 'seattle'"
+            " E() > 1 OR " +
+            " PI() > 1"
+        );
+    }
+
+    @Test
+    public void allSupportedStringFunctionCallInSelectClauseShouldPass() {
+        validate(
+            "SELECT * FROM semantics WHERE " +
+                " UPPER(city) = 'SEATTLE' AND " +
+                " LOWER(city) = 'seattle'"
             // TODO: add concat
         );
     }
 
-    @Ignore("To be implemented")
+    @Test
+    public void allSupportedStringFunctionCallInWhereClauseShouldPass() {
+        validate(
+            "SELECT" +
+            " UPPER(address), " +
+            " LOWER(manager.name) " +
+            "FROM semantics "
+            // TODO: add concat
+        );
+    }
+
     @Test
     public void allSupportedDateFunctionCallShouldPass() {
-
+        validate(
+            "SELECT date_format(birthday, 'yyyy-MM') " +
+            "FROM semantics " +
+            "WHERE date_format(birthday, 'yyyy-MM') > '1980-01' " +
+            "GROUP BY date_format(birthday, 'yyyy-MM') " +
+            "ORDER BY date_format(birthday, 'yyyy-MM') DESC"
+        );
     }
+
 }
