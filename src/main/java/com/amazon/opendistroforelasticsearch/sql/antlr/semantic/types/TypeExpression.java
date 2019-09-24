@@ -78,7 +78,7 @@ public interface TypeExpression extends Type {
         TypeExpressionSpec spec = spec();
         String argTypesStr = Arrays.stream(spec.argTypes).
                                     map(Type::usage).
-                                    collect(Collectors.joining());
+                                    collect(Collectors.joining(", "));
 
         // Only show generic type name in return value for clarity
         Type returnType = spec.constructFunc.apply(spec.argTypes);

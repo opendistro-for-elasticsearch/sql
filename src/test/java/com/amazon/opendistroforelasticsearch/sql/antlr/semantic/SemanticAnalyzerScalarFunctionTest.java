@@ -191,6 +191,15 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
     }
 
     @Test
+    public void dateFormatFunctionCallWithKeywordShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT DATE_FORMAT(address, 'yyyy-MM') FROM semantics",
+            "Function [DATE_FORMAT] cannot work with [TEXT, STRING].",
+            "Usage: DATE_FORMAT(DATE, STRING) -> STRING"
+        );
+    }
+
+    @Test
     public void allSupportedDateFunctionCallShouldPass() {
         validate(
             "SELECT date_format(birthday, 'yyyy-MM') " +
