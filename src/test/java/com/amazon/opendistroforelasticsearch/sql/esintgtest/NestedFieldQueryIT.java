@@ -269,7 +269,7 @@ public class NestedFieldQueryIT extends SQLIntegTestCase {
     public void leftJoinSelectAll() throws IOException {
         String sql = "SELECT * " +
                      "FROM elasticsearch-sql_test_index_employee_nested e " +
-                     "LEFT JOIN e.projects p ON e.name = p.name";
+                     "LEFT JOIN e.projects p";
         String explain = explainQuery(sql);
         assertThat(explain, containsString("{\"bool\":{\"must_not\":[{\"nested\":{\"query\":" +
             "{\"exists\":{\"field\":\"projects\",\"boost\":1.0}},\"path\":\"projects\""));
@@ -284,7 +284,7 @@ public class NestedFieldQueryIT extends SQLIntegTestCase {
     public void leftJoinSpecificFields() throws IOException {
         String sql = "SELECT e.name, p.name, p.started_year " +
                      "FROM elasticsearch-sql_test_index_employee_nested e " +
-                     "LEFT JOIN e.projects p ON e.name = p.name";
+                     "LEFT JOIN e.projects p";
         String explain = explainQuery(sql);
         assertThat(explain, containsString("{\"bool\":{\"must_not\":[{\"nested\":{\"query\":" +
             "{\"exists\":{\"field\":\"projects\",\"boost\":1.0}},\"path\":\"projects\""));
@@ -301,7 +301,7 @@ public class NestedFieldQueryIT extends SQLIntegTestCase {
     public void leftJoinExceptionOnExtraNestedFields() throws IOException {
         String sql = "SELECT * " +
                      "FROM elasticsearch-sql_test_index_employee_nested e " +
-                     "LEFT JOIN e.projects p, e.comments c ON e.name = p.name";
+                     "LEFT JOIN e.projects p, e.comments c";
 
         try {
             String explain = explainQuery(sql);
