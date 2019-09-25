@@ -18,6 +18,9 @@
           "birthday": {
             "type": "date"
           },
+          "location": {
+            "type": "geo_point"
+          },
           "employer": {
             "type": "text",
             "fields": {

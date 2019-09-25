@@ -48,7 +48,9 @@ public enum BaseType implements Type {
     OBJECT, NESTED,
     COMPLEX(OBJECT, NESTED),
 
-    ES_TYPE(NUMBER, STRING, DATE, BOOLEAN, COMPLEX);
+    GEO_POINT,
+
+    ES_TYPE(NUMBER, STRING, DATE, BOOLEAN, COMPLEX, GEO_POINT);
 
 
     private static final Map<String, BaseType> ALL_BASE_TYPES;
