@@ -49,9 +49,9 @@ public class SemanticAnalyzerIdentifierTest extends SemanticAnalyzerTestBase {
     @Test
     public void nonExistingFieldNameInSelectClauseShouldFail() {
         expectValidationFailWithErrorMessages(
-            "SELECT age FROM semantics s",
-            "Field [age] cannot be found or used here.",
-            "Did you mean [s.age]?"
+            "SELECT age1 FROM semantics s",
+            "Field [age1] cannot be found or used here.",
+            "Did you mean [age]?"
         );
     }
 

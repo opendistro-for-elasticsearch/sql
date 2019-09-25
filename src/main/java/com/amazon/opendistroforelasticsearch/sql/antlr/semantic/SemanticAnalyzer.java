@@ -98,12 +98,10 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
             IndexMappings indexMappings = clusterState.getFieldMappings(new String[]{indexName});
             FieldMappings mappings = indexMappings.firstMapping().firstMapping();
 
-            if (alias.isPresent()) {
-                defineFieldName(alias.get(), UNKNOWN); //TODO: need a Index type here
-                mappings.flat((fieldName, type) -> defineFieldName(alias.get() + "." + fieldName, type));
-            } else {
-                mappings.flat(this::defineFieldName);
-            }
+            String aliasName = alias.orElse(indexName);
+            defineFieldName(aliasName, UNKNOWN); //TODO: need a Index type here
+            mappings.flat(this::defineFieldName);
+            mappings.flat((fieldName, type) -> defineFieldName(aliasName + "." + fieldName, type));
         }
         return null;
     }
@@ -125,11 +123,11 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
 
     private void defineFieldName(String fieldName, Type type) {
         Symbol symbol = new Symbol(Namespace.FIELD_NAME, fieldName);
-        if (environment.resolve(symbol).isPresent()) {
-            throw new SemanticAnalysisException(StringUtils.format(
-                "%s is conflicting with field of same name defined by other index", symbol));
+        if (!environment.resolve(symbol).isPresent()) {
+            //throw new SemanticAnalysisException(StringUtils.format(
+            //    "%s is conflicting with field of same name defined by other index", symbol));
+            environment.define(symbol, type);
         }
-        environment.define(symbol, type);
     }
 
     private void defineFunctionName(String funcName, Type type) {
