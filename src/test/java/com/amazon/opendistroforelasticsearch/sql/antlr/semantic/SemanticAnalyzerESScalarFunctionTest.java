@@ -55,6 +55,12 @@ public class SemanticAnalyzerESScalarFunctionTest extends SemanticAnalyzerTestBa
     @Test
     public void fullTextMatchFunctionCallWithStringInWhereClauseShouldPass() {
         validate("SELECT * FROM semantics WHERE MATCH_PHRASE(address, 'Seattle')");
+        validate("SELECT * FROM semantics WHERE MATCHPHRASE(employer, 'Seattle')");
+        validate("SELECT * FROM semantics WHERE MATCH_QUERY(manager.name, 'Seattle')");
+        validate("SELECT * FROM semantics WHERE MATCHQUERY(manager.name, 'Seattle')");
+        validate("SELECT * FROM semantics WHERE QUERY('Seattle')");
+        validate("SELECT * FROM semantics WHERE WILDCARD_QUERY(manager.name, 'Sea*')");
+        validate("SELECT * FROM semantics WHERE WILDCARDQUERY(manager.name, 'Sea*')");
     }
 
 }
