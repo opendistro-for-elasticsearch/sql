@@ -100,6 +100,11 @@ public class SyntaxAnalysisTest {
         );
     }
 
+    @Test
+    public void useMetadataFieldShouldPass() {
+        validate("SELECT @timestamp FROM accounts");
+    }
+
     /** As the translation is not supported for now, check this in semantic analyzer */
     @Test
     public void arithmeticExpressionInWhereClauseShouldPass() {
