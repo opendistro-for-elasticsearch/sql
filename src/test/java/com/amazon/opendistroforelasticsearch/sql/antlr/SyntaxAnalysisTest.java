@@ -21,6 +21,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.Arrays;
+
+import static java.util.stream.Collectors.toList;
+import static org.hamcrest.Matchers.allOf;
+
 /**
  * Test cases focused on illegal syntax testing (blacklist) along with a few normal cases not covered previously.
  * All other normal cases should be covered in existing unit test and IT.
@@ -67,6 +72,15 @@ public class SyntaxAnalysisTest {
         expectValidationFailWithErrorMessage(
             "SELECT 1",
             "offending symbol [<EOF>]" // parsing was unable to terminate normally
+        );
+    }
+
+    @Test
+    public void missingWhereKeywordShouldThrowException() {
+        expectValidationFailWithErrorMessage(
+            "SELECT * FROM accounts age = 1",
+            "offending symbol [=]", // parser thought 'age' is alias of 'accounts' and failed at '='
+            "Expecting", "'WHERE'"  // "Expecting tokens in {<EOF>, 'INNER', 'JOIN', ... 'WHERE', ','}"
         );
     }
 
@@ -121,9 +135,11 @@ public class SyntaxAnalysisTest {
         validate("SELECT * FROM accounts WHERE age + 1 = 10");
     }
 
-    private void expectValidationFailWithErrorMessage(String query, String message) {
+    private void expectValidationFailWithErrorMessage(String query, String... messages) {
         exception.expect(SqlSyntaxAnalysisException.class);
-        exception.expectMessage(Matchers.containsString(message));
+        exception.expectMessage(allOf(Arrays.stream(messages).
+                                      map(Matchers::containsString).
+                                      collect(toList())));
         validate(query);
     }
 
