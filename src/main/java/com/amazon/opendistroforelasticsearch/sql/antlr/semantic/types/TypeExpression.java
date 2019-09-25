@@ -33,63 +33,49 @@ public interface TypeExpression extends Type {
 
     @Override
     default boolean isCompatible(Type other) {
-        if (other == UNKNOWN) { // this == UNKNOWN ?
-            return true;
-        }
-
-        if (!(other instanceof TypeExpression)) {
-            return false;
-        }
-
-        TypeExpression otherExpr = (TypeExpression) other;
-        Type[] expectArgTypes = spec().argTypes;
-        Type[] actualArgTypes = otherExpr.spec().argTypes;
-
-        // Arg numbers exactly match
-        if (expectArgTypes.length != actualArgTypes.length) {
-            return false;
-        }
-
-        // Arg types are compatible
-        for (int i = 0; i < expectArgTypes.length; i++) {
-            if (!expectArgTypes[i].isCompatible(actualArgTypes[i])) {
-                return false;
-            }
-        }
-        return true;
+        // It doesn't make much sense to actually compare 2 type expression
+        // in each which may include multiple overloaded specifications.
+        // So here we just check equality for simplicity.
+        return other == UNKNOWN || this == other;
     }
 
     @Override
     default Type construct(List<Type> actualArgs) {
-        // Create a temp expr without return type for compatibility check
-        TypeExpression otherExpr = () -> {
-            TypeExpressionSpec spec = new TypeExpressionSpec();
-            spec.argTypes = actualArgs.toArray(new Type[0]);
-            return spec;
-        };
+        TypeExpressionSpec[] specifications = specifications();
+        if (specifications.length == 0) {
+            // Type check for this type expression is not implemented yet. Return this to be compatible with everything.
+            return UNKNOWN;
+        }
 
-        if (isCompatible(otherExpr)) {
-            return spec().constructFunc.apply(actualArgs.toArray(new Type[0]));
+        TypeExpressionSpec actualSpec = new TypeExpressionSpec();
+        actualSpec.argTypes = actualArgs.toArray(new Type[0]);
+
+        for (TypeExpressionSpec spec : specifications) {
+            if (spec.isCompatible(actualSpec)) {
+                return spec.constructFunc.apply(actualArgs.toArray(new Type[0]));
+            }
         }
         return TYPE_ERROR;
     }
 
     @Override
     default String usage() {
-        TypeExpressionSpec spec = spec();
-        String argTypesStr = Arrays.stream(spec.argTypes).
-                                    map(Type::usage).
-                                    collect(Collectors.joining(", "));
-
-        // Only show generic type name in return value for clarity
-        Type returnType = spec.constructFunc.apply(spec.argTypes);
-        String returnTypeStr = (returnType instanceof Generic) ? ((Generic) returnType).name() : returnType.usage();
-
-        return StringUtils.format("%s(%s) -> %s", this, argTypesStr, returnTypeStr);
+        return name() + Arrays.stream(specifications()).
+                               map(TypeExpressionSpec::toString).
+                               collect(Collectors.joining(" or "));
     }
 
-    TypeExpressionSpec spec();
 
+    /**
+     * Each type expression may be overloaded and include multiple specifications.
+     * @return  all valid specifications or empty which means not implemented yet
+     */
+    TypeExpressionSpec[] specifications();
+
+
+    /**
+     * A specification is combination of a construct function and arg types for a type expression (represent a constructor)
+     */
     class TypeExpressionSpec {
         Type[] argTypes;
         Function<Type[], Type> constructFunc;
@@ -109,6 +95,37 @@ public interface TypeExpression extends Type {
         public TypeExpressionSpec to(Type returnType) {
             this.constructFunc = x -> returnType;
             return this;
+        }
+
+        public boolean isCompatible(TypeExpressionSpec otherSpec) {
+            Type[] expectArgTypes = this.argTypes;
+            Type[] actualArgTypes = otherSpec.argTypes;
+
+            // Arg numbers exactly match
+            if (expectArgTypes.length != actualArgTypes.length) {
+                return false;
+            }
+
+            // Arg types are compatible
+            for (int i = 0; i < expectArgTypes.length; i++) {
+                if (!expectArgTypes[i].isCompatible(actualArgTypes[i])) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        @Override
+        public String toString() {
+            String argTypesStr = Arrays.stream(argTypes).
+                                        map(Type::usage).
+                                        collect(Collectors.joining(", "));
+
+            // Only show generic type name in return value for clarity
+            Type returnType = constructFunc.apply(argTypes);
+            String returnTypeStr = (returnType instanceof Generic) ? returnType.name() : returnType.usage();
+
+            return StringUtils.format("(%s) -> %s", argTypesStr, returnTypeStr);
         }
     }
 

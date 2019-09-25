@@ -46,9 +46,9 @@ public enum ESScalarFunction implements TypeExpression {
     //INCLUDE(esFunc().to()), // same as exclude
     //IN_TERMS(esFunc().to()),// varargs
     MATCHPHRASE(func(STRING, STRING).to(BOOLEAN)), //slop arg is optional
-    MATCH_PHRASE(MATCHPHRASE.spec()),
+    MATCH_PHRASE(MATCHPHRASE.specifications()),
     MATCHQUERY(func(STRING, STRING).to(BOOLEAN)),
-    MATCH_QUERY(MATCHQUERY.spec()),
+    MATCH_QUERY(MATCHQUERY.specifications()),
     MINUTE_OF_DAY(func(DATE).to(INTEGER)), // or long?
     MINUTE_OF_HOUR(func(DATE).to(INTEGER)),
     MONTH_OF_YEAR(func(DATE).to(INTEGER)),
@@ -68,18 +68,18 @@ public enum ESScalarFunction implements TypeExpression {
     //TOPHITS(func().to()), // only available in SELECT
     WEEK_OF_YEAR(func(DATE).to(INTEGER)),
     WILDCARDQUERY(func(STRING, STRING).to(BOOLEAN)),
-    WILDCARD_QUERY(WILDCARDQUERY.spec());
+    WILDCARD_QUERY(WILDCARDQUERY.specifications());
 
 
-    private final TypeExpressionSpec spec;
+    private final TypeExpressionSpec[] specifications;
 
-    ESScalarFunction(TypeExpressionSpec spec) {
-        this.spec = spec;
+    ESScalarFunction(TypeExpressionSpec... specifications) {
+        this.specifications = specifications;
     }
 
     @Override
-    public TypeExpressionSpec spec() {
-        return spec;
+    public TypeExpressionSpec[] specifications() {
+        return specifications;
     }
 
     private static TypeExpressionSpec func(Type... argTypes) {

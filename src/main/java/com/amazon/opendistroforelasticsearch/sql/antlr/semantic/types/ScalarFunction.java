@@ -58,15 +58,15 @@ public enum ScalarFunction implements TypeExpression {
     TAN(func(T(NUMBER)).to(T)),
     UPPER(func(T(STRING)).to(T));
 
-    private final TypeExpressionSpec spec;
+    private final TypeExpressionSpec[] specifications;
 
-    ScalarFunction(TypeExpressionSpec spec) {
-        this.spec = spec;
+    ScalarFunction(TypeExpressionSpec... specifications) {
+        this.specifications = specifications;
     }
 
     @Override
-    public TypeExpressionSpec spec() {
-        return spec;
+    public TypeExpressionSpec[] specifications() {
+        return specifications;
     }
 
     private static TypeExpressionSpec func(Type... argTypes) {
