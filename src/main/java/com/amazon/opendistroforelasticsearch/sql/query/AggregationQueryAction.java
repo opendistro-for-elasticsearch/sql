@@ -169,8 +169,14 @@ public class AggregationQueryAction extends QueryAction {
                 }
             }
 
+            // explain the field from SELECT and HAVING clause
+            List<Field> combinedList = new ArrayList<>();
+            combinedList.addAll(select.getFields());
+            if (select.getHaving() != null) {
+                combinedList.addAll(select.getHaving().getHavingFields());
+            }
             // add aggregation function to each groupBy
-            explanFields(request, select.getFields(), lastAgg);
+            explanFields(request, combinedList, lastAgg);
 
             explainHaving(lastAgg);
         }

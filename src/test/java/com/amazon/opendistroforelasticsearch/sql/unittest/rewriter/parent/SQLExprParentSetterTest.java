@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.unittest.rewriter.parent;
 
+import com.alibaba.druid.sql.ast.expr.SQLInListExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInSubQueryExpr;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
@@ -34,9 +35,24 @@ public class SQLExprParentSetterTest {
         expr.accept(new SQLExprParentExistsValidator());
     }
 
+    @Test
+    public void testSQLInListExprHasParent() {
+        String sql =
+                "SELECT * FROM TbA " +
+                "WHERE a in (10, 20)";
+        SQLQueryExpr expr = SqlParserUtils.parse(sql);
+        expr.accept(new SQLExprParentExistsValidator());
+    }
+
     static class SQLExprParentExistsValidator extends MySqlASTVisitorAdapter {
         @Override
         public boolean visit(SQLInSubQueryExpr expr) {
+            assertNotNull(expr.getExpr().getParent());
+            return true;
+        }
+
+        @Override
+        public boolean visit(SQLInListExpr expr) {
             assertNotNull(expr.getExpr().getParent());
             return true;
         }

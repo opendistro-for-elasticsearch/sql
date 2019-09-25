@@ -126,6 +126,139 @@ public class JSONRequestTest {
     }
 
     @Test
+    public void aggInHavingWithoutWhere() {
+        JSONObject explainSQL = explainSQLToJson("SELECT name " +
+                                                 "FROM employee " +
+                                                 "GROUP BY name " +
+                                                 "HAVING COUNT(nested(projects, 'projects')) > 1");
+        assertThat(
+                query(explainSQL, "/aggregations/name/aggregations/projects@NESTED/aggregations/count_0/value_count"),
+                equalTo("{\"field\":\"_index\"}"));
+        assertThat(
+                query(explainSQL, "/aggregations/name/aggregations/bucket_filter/bucket_selector/buckets_path"),
+                equalTo("{\"count_0\":\"projects@NESTED.count_0\"}"));
+    }
+
+    @Test
+    public void aggInHavingWithWhereOnParent() {
+        JSONObject explainSQL = explainSQLToJson("SELECT name " +
+                                                 "FROM employee " +
+                                                 "WHERE name LIKE '%smith%' " +
+                                                 "GROUP BY name " +
+                                                 "HAVING COUNT(nested(projects, 'projects')) > 1");
+        assertThat(
+                query(explainSQL, "/aggregations/name/aggregations/projects@NESTED/aggregations/count_0/value_count"),
+                equalTo("{\"field\":\"_index\"}"));
+        assertThat(
+                query(explainSQL, "/aggregations/name/aggregations/bucket_filter/bucket_selector/buckets_path"),
+                equalTo("{\"count_0\":\"projects@NESTED.count_0\"}"));
+    }
+
+    @Test
+    public void aggInHavingWithWhereOnNested() {
+        JSONObject explainSQL = explainSQLToJson("SELECT name " +
+                                                 "FROM employee " +
+                                                 "WHERE nested(projects.name, 'projects') LIKE '%security%' " +
+                                                 "GROUP BY name " +
+                                                 "HAVING COUNT(nested(projects, 'projects')) > 1");
+        assertThat(
+                query(
+                        explainSQL,
+                        "/aggregations/name/aggregations/projects@NESTED/aggregations/projects@FILTER/aggregations/count_0/value_count"),
+                equalTo("{\"field\":\"_index\"}"));
+        assertThat(
+                query(explainSQL, "/aggregations/name/aggregations/bucket_filter/bucket_selector/buckets_path"),
+                equalTo("{\"count_0\":\"projects@NESTED>projects@FILTER.count_0\"}"));
+        assertThat(
+                query(
+                        explainSQL,
+                        "/aggregations/name/aggregations/projects@NESTED/aggregations/projects@FILTER/filter/bool/must"),
+                equalTo("[{\"wildcard\":{\"projects.name\":{\"boost\":1,\"wildcard\":\"*security*\"}}}]"));
+    }
+
+    @Test
+    public void aggInHavingWithWhereOnParentOrNested() {
+        JSONObject explainSQL = explainSQLToJson("SELECT name " +
+                                                 "FROM employee " +
+                                                 "WHERE name LIKE '%smith%' OR nested(projects.name, 'projects') LIKE '%security%' " +
+                                                 "GROUP BY name " +
+                                                 "HAVING COUNT(nested(projects, 'projects')) > 1");
+        assertThat(
+                query(explainSQL, "/aggregations/name/aggregations/projects@NESTED/aggregations/count_0/value_count"),
+                equalTo("{\"field\":\"_index\"}"));
+        assertThat(
+                query(explainSQL, "/aggregations/name/aggregations/bucket_filter/bucket_selector/buckets_path"),
+                equalTo("{\"count_0\":\"projects@NESTED.count_0\"}"));
+    }
+
+    @Test
+    public void aggInHavingWithWhereOnParentAndNested() {
+        JSONObject explainSQL = explainSQLToJson("SELECT name " +
+                                                 "FROM employee " +
+                                                 "WHERE name LIKE '%smith%' AND nested(projects.name, 'projects') LIKE '%security%' " +
+                                                 "GROUP BY name " +
+                                                 "HAVING COUNT(nested(projects, 'projects')) > 1");
+        assertThat(
+                query(
+                        explainSQL,
+                        "/aggregations/name/aggregations/projects@NESTED/aggregations/projects@FILTER/aggregations/count_0/value_count"),
+                equalTo("{\"field\":\"_index\"}"));
+        assertThat(
+                query(explainSQL, "/aggregations/name/aggregations/bucket_filter/bucket_selector/buckets_path"),
+                equalTo("{\"count_0\":\"projects@NESTED>projects@FILTER.count_0\"}"));
+        assertThat(
+                query(
+                        explainSQL,
+                        "/aggregations/name/aggregations/projects@NESTED/aggregations/projects@FILTER/filter/bool/must"),
+                equalTo("[{\"wildcard\":{\"projects.name\":{\"boost\":1,\"wildcard\":\"*security*\"}}}]"));
+    }
+
+    @Test
+    public void aggInHavingWithWhereOnNestedAndNested() {
+        JSONObject explainSQL = explainSQLToJson("SELECT name " +
+                                                 "FROM employee " +
+                                                 "WHERE nested('projects', projects.started_year > 2000 AND projects.name LIKE '%security%') " +
+                                                 "GROUP BY name " +
+                                                 "HAVING COUNT(nested(projects, 'projects')) > 1");
+
+        assertThat(
+                query(
+                        explainSQL,
+                        "/aggregations/name/aggregations/projects@NESTED/aggregations/projects@FILTER/aggregations/count_0/value_count"),
+                equalTo("{\"field\":\"_index\"}"));
+        assertThat(
+                query(explainSQL, "/aggregations/name/aggregations/bucket_filter/bucket_selector/buckets_path"),
+                equalTo("{\"count_0\":\"projects@NESTED>projects@FILTER.count_0\"}"));
+        assertThat(
+                query(
+                        explainSQL,
+                        "/aggregations/name/aggregations/projects@NESTED/aggregations/projects@FILTER/filter/bool/must"),
+                equalTo("[{\"bool\":{\"adjust_pure_negative\":true,\"must\":[{\"range\":{\"projects.started_year\":{\"include_lower\":false,\"include_upper\":true,\"from\":2000,\"boost\":1,\"to\":null}}},{\"wildcard\":{\"projects.name\":{\"boost\":1,\"wildcard\":\"*security*\"}}}],\"boost\":1}}]"));
+    }
+
+    @Test
+    public void aggInHavingWithWhereOnNestedOrNested() {
+        JSONObject explainSQL = explainSQLToJson("SELECT name " +
+                                                 "FROM employee " +
+                                                 "WHERE nested('projects', projects.started_year > 2000 OR projects.name LIKE '%security%') " +
+                                                 "GROUP BY name " +
+                                                 "HAVING COUNT(nested(projects, 'projects')) > 1");
+        assertThat(
+                query(
+                        explainSQL,
+                        "/aggregations/name/aggregations/projects@NESTED/aggregations/projects@FILTER/aggregations/count_0/value_count"),
+                equalTo("{\"field\":\"_index\"}"));
+        assertThat(
+                query(explainSQL, "/aggregations/name/aggregations/bucket_filter/bucket_selector/buckets_path"),
+                equalTo("{\"count_0\":\"projects@NESTED>projects@FILTER.count_0\"}"));
+        assertThat(
+                query(
+                        explainSQL,
+                        "/aggregations/name/aggregations/projects@NESTED/aggregations/projects@FILTER/filter/bool/must"),
+                equalTo("[{\"bool\":{\"adjust_pure_negative\":true,\"should\":[{\"range\":{\"projects.started_year\":{\"include_lower\":false,\"include_upper\":true,\"from\":2000,\"boost\":1,\"to\":null}}},{\"wildcard\":{\"projects.name\":{\"boost\":1,\"wildcard\":\"*security*\"}}}],\"boost\":1}}]"));
+    }
+
+    @Test
     public void searchSanity() throws IOException {
         String result = explain(String.format("{\"query\":\"" +
                 "SELECT * " +
@@ -199,6 +332,14 @@ public class JSONRequestTest {
 
     private String explainSQL(String sql) {
         return explain(String.format("{\"query\":\"%s\"}", sql));
+    }
+
+    private JSONObject explainSQLToJson(String sql) {
+        return new JSONObject(explain(String.format("{\"query\":\"%s\"}", sql)));
+    }
+
+    private String query(JSONObject jsonObject, String jsonPath) {
+        return jsonObject.query(jsonPath).toString();
     }
 
     private String explain(String request) {

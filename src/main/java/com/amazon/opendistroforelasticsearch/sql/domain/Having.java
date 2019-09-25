@@ -19,16 +19,20 @@ import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.statement.SQLSelectGroupByClause;
 import com.alibaba.druid.util.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.parser.HavingParser;
 import com.amazon.opendistroforelasticsearch.sql.parser.NestedType;
 import com.amazon.opendistroforelasticsearch.sql.parser.WhereParser;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.joining;
 import static org.elasticsearch.search.aggregations.PipelineAggregatorBuilders.bucketSelector;
@@ -52,6 +56,12 @@ public class Having {
      */
     private final List<Where> conditions;
 
+    private List<Field> havingFields;
+
+    public List<Field> getHavingFields() {
+        return havingFields;
+    }
+
     /**
      * Construct by HAVING expression
      *
@@ -60,7 +70,8 @@ public class Having {
      * @throws SqlParseException exception thrown by where parser
      */
     public Having(SQLExpr havingExpr, WhereParser parser) throws SqlParseException {
-        this.conditions = parseHavingExprToConditions(havingExpr, parser);
+        this.havingFields = new ArrayList<>();
+        this.conditions = parseHavingExprToConditions(havingExpr, new HavingParser(parser, havingFields));
     }
 
     /**
@@ -87,12 +98,16 @@ public class Having {
             return;
         }
 
+        // parsing the fields from SELECT and HAVING clause
+        List<Field> combinedFields = Stream.of(fields, getHavingFields())
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
         groupByAgg.subAggregation(bucketSelector(BUCKET_SELECTOR_NAME,
-                contextForFieldsInSelect(fields),
+                contextForFieldsInSelect(combinedFields),
                 explainConditions()));
     }
 
-    private List<Where> parseHavingExprToConditions(SQLExpr havingExpr, WhereParser parser)
+    private List<Where> parseHavingExprToConditions(SQLExpr havingExpr, HavingParser parser)
             throws SqlParseException {
         if (havingExpr == null) {
             return Collections.emptyList();
@@ -215,5 +230,4 @@ public class Having {
         }
         return alias;
     }
-
 }
