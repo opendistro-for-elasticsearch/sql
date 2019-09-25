@@ -173,6 +173,10 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
 
     @Override
     public Type visitFieldName(String fieldName) {
+        // Bypass hidden fields which is not present in mapping, ex. _id, _type.
+        if (fieldName.startsWith("_")) {
+            return UNKNOWN;
+        }
         return resolve(new Symbol(Namespace.FIELD_NAME, fieldName));
     }
 

@@ -27,7 +27,7 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Bas
  */
 public enum ESScalarFunction implements TypeExpression {
 
-    //DATE_HISTOGRAM(esFunc().to()), // this is aggregate function
+    DATE_HISTOGRAM(), // this is aggregate function
     DAY_OF_MONTH(func(DATE).to(INTEGER)),
     DAY_OF_YEAR(func(DATE).to(INTEGER)),
     DAY_OF_WEEK(func(DATE).to(INTEGER)),
@@ -39,9 +39,9 @@ public enum ESScalarFunction implements TypeExpression {
     GEO_CELL(), // optional arg or overloaded spec is required.
     GEO_DISTANCE(func(GEO_POINT, STRING, NUMBER, NUMBER).to(BOOLEAN)),
     GEO_DISTANCE_RANGE(func(GEO_POINT, STRING, NUMBER, NUMBER).to(BOOLEAN)),
-    //GEO_INTERSECTS(func(GEO_POINT, STRING).to(BOOLEAN)),
-    //GEO_POLYGON(esFunc(GEO_POINT, )) // varargs is required for 2nd arg
-    //HISTOGRAM(esFunc().to()), // same as date_histogram
+    GEO_INTERSECTS(), //?
+    GEO_POLYGON(), // varargs is required for 2nd arg
+    HISTOGRAM(), // same as date_histogram
     HOUR_OF_DAY(func(DATE).to(INTEGER)),
     INCLUDE(), // same as exclude
     IN_TERMS(),// varargs

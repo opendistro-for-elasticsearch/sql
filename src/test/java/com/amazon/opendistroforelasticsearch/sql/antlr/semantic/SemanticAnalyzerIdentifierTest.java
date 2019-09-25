@@ -42,6 +42,11 @@ public class SemanticAnalyzerIdentifierTest extends SemanticAnalyzerTestBase {
     }
 
     @Test
+    public void useHiddenFieldShouldPass() {
+        validate("SELECT _score FROM semantics WHERE _id = 1 AND _type = '_doc'");
+    }
+
+    @Test
     public void nonExistingFieldNameInSelectClauseShouldFail() {
         expectValidationFailWithErrorMessages(
             "SELECT age FROM semantics s",
