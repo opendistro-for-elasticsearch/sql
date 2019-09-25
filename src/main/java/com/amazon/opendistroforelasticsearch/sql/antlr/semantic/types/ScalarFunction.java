@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types;
 
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.DATE;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.DOUBLE;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.NUMBER;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Generic.T;
@@ -32,8 +33,8 @@ public enum ScalarFunction implements TypeExpression {
     ATAN2(func(T(NUMBER)).to(T)),
     CBRT(func(T(NUMBER)).to(T)),
     CEIL(func(T(NUMBER)).to(T)),
-    CONCAT(func(STRING).to(STRING)), // TODO: varargs support required
-    CONCAT_WS(func(T(NUMBER)).to(T)),
+    CONCAT(), // TODO: varargs support required
+    CONCAT_WS(),
     COS(func(T(NUMBER)).to(T)),
     COSH(func(T(NUMBER)).to(T)),
     DATE_FORMAT(func(DATE, STRING).to(STRING)),
@@ -42,12 +43,21 @@ public enum ScalarFunction implements TypeExpression {
     EXP(func(T(NUMBER)).to(T)),
     EXPM1(func(T(NUMBER)).to(T)),
     FLOOR(func(T(NUMBER)).to(T)),
-    LOG(func(T(NUMBER)).to(T)),
+    LOG(
+        func(T(NUMBER)).to(T),
+        func(T(NUMBER), NUMBER).to(T)
+    ),
     LOG2(func(T(NUMBER)).to(T)),
     LOG10(func(T(NUMBER)).to(T)),
-    LOWER(func(T(STRING)).to(T)),
+    LOWER(
+        func(T(STRING)).to(T),
+        func(T(STRING), STRING).to(T)
+    ),
     PI(func().to(DOUBLE)),
-    POW(func(T(NUMBER)).to(T)),
+    POW(
+        func(T(NUMBER)).to(T),
+        func(T(NUMBER), NUMBER).to(T)
+    ),
     RADIANS(func(T(NUMBER)).to(T)),
     RANDOM(func(T(NUMBER)).to(T)),
     RINT(func(T(NUMBER)).to(T)),
@@ -56,7 +66,11 @@ public enum ScalarFunction implements TypeExpression {
     SINH(func(T(NUMBER)).to(T)),
     SQRT(func(T(NUMBER)).to(T)),
     TAN(func(T(NUMBER)).to(T)),
-    UPPER(func(T(STRING)).to(T));
+    UPPER(
+        func(T(STRING)).to(T),
+        func(T(STRING), STRING).to(T)
+    ),
+    YEAR(func(DATE).to(INTEGER));
 
     private final TypeExpressionSpec[] specifications;
 

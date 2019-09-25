@@ -27,7 +27,6 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.ParseTreeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMappings;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.IndexMappings;
-import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -35,6 +34,8 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.UNKNOWN;
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.format;
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.toUpper;
 
 /**
  * SQL semantic analyzer that determines if a syntactical correct query is meaningful.
@@ -89,7 +90,7 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
         if (isPath(indexName)) {
             Type type = resolve(new Symbol(Namespace.FIELD_NAME, indexName));
             if (type != BaseType.NESTED) {
-                throw new SemanticAnalysisException(StringUtils.format(
+                throw new SemanticAnalysisException(format(
                     "Field [%s] is [%s] type but nested type is required", indexName, type));
             }
             alias.ifPresent(s -> redefineFieldNameByPrefixingAlias(indexName, s));
@@ -118,7 +119,7 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
     }
 
     private void defineFieldName(String fieldName, String type) {
-        defineFieldName(fieldName, BaseType.valueOf(StringUtils.toUpper(type)));
+        defineFieldName(fieldName, BaseType.valueOf(toUpper(type))); // TODO: return UNKNOWN and avoid enum not found exception
     }
 
     private void defineFieldName(String fieldName, Type type) {
@@ -195,7 +196,7 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
             Set<String> allSymbolsInScope = environment.resolveAll(symbol.getNamespace()).keySet();
             List<String> suggestedWords = new StringSimilarity(allSymbolsInScope).similarTo(symbol.getName());
             throw new SemanticAnalysisException(
-                StringUtils.format("%s cannot be found or used here. Did you mean [%s]?", // TODO: Give none or different suggestion if suggestion = original symbol
+                format("%s cannot be found or used here. Did you mean [%s]?", // TODO: Give none or different suggestion if suggestion = original symbol
                     symbol, suggestedWords.get(0)));
                 //at(sql, ctx).
                 //suggestion("Did you mean [%s]?", String.join(", ", suggestedWords)).build();

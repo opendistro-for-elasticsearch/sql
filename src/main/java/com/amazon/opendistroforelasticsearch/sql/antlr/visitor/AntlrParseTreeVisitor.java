@@ -43,7 +43,6 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroS
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.TableAndTypeNameContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.TableNameContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.UdfFunctionCallContext;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.UidContext;
 
 /**
  * ANTLR parse tree visitor to drive the analysis process.
@@ -103,7 +102,7 @@ public class AntlrParseTreeVisitor<T extends Reducible> extends OpenDistroSqlPar
 
     @Override
     public T visitAtomTableItem(AtomTableItemContext ctx) {
-        Optional<String> alias = Optional.ofNullable(ctx.alias == null ? null : getTextFromUid(ctx.alias));
+        Optional<String> alias = Optional.ofNullable(ctx.alias == null ? null : ctx.alias.getText());
         TableNameContext tableName = ctx.tableName();
         if (tableName instanceof SimpleTableNameContext) {
             visitor.visitIndexName(
@@ -111,7 +110,7 @@ public class AntlrParseTreeVisitor<T extends Reducible> extends OpenDistroSqlPar
             );
         } else if (tableName instanceof TableAndTypeNameContext) {
             visitor.visitIndexName(
-                getTextFromUid(((TableAndTypeNameContext) tableName).uid(0)), alias
+                ((TableAndTypeNameContext) tableName).uid(0).getText(), alias
             );
         } // else TODO: skip all analysis if TableNamePattern
         return defaultResult();
@@ -214,10 +213,6 @@ public class AntlrParseTreeVisitor<T extends Reducible> extends OpenDistroSqlPar
             return nextResult;
         }
         return aggregate;
-    }
-
-    private String getTextFromUid(UidContext uid) {
-        return uid.simpleId().ID().getText(); // NPE possible when ID() = null
     }
 
 }

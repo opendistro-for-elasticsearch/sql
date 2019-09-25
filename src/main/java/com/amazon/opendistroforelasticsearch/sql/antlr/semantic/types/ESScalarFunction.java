@@ -45,9 +45,15 @@ public enum ESScalarFunction implements TypeExpression {
     HOUR_OF_DAY(func(DATE).to(INTEGER)),
     INCLUDE(), // same as exclude
     IN_TERMS(),// varargs
-    MATCHPHRASE(func(STRING, STRING).to(BOOLEAN)), //slop arg is optional
+    MATCHPHRASE(
+        func(STRING, STRING).to(BOOLEAN),
+        func(STRING).to(STRING)
+    ), //slop arg is optional
     MATCH_PHRASE(MATCHPHRASE.specifications()),
-    MATCHQUERY(func(STRING, STRING).to(BOOLEAN)),
+    MATCHQUERY(
+        func(STRING, STRING).to(BOOLEAN),
+        func(STRING).to(STRING)
+    ),
     MATCH_QUERY(MATCHQUERY.specifications()),
     MINUTE_OF_DAY(func(DATE).to(INTEGER)), // or long?
     MINUTE_OF_HOUR(func(DATE).to(INTEGER)),
@@ -67,7 +73,10 @@ public enum ESScalarFunction implements TypeExpression {
     TERMS(), // semantic problem
     TOPHITS(), // only available in SELECT
     WEEK_OF_YEAR(func(DATE).to(INTEGER)),
-    WILDCARDQUERY(func(STRING, STRING).to(BOOLEAN)),
+    WILDCARDQUERY(
+        func(STRING, STRING).to(BOOLEAN),
+        func(STRING).to(STRING)
+    ),
     WILDCARD_QUERY(WILDCARDQUERY.specifications());
 
 
