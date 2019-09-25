@@ -105,6 +105,16 @@ public class SyntaxAnalysisTest {
         validate("SELECT @timestamp FROM accounts");
     }
 
+    @Test
+    public void leftJoinOnNestedFieldWithoutOnClauseShouldPass() {
+        validate("SELECT * FROM accounts a LEFT JOIN a.projects p");
+    }
+
+    @Test
+    public void useDeepNestedFieldShouldPass() {
+        validate("SELECT a.projects.name FROM accounts a");
+    }
+
     /** As the translation is not supported for now, check this in semantic analyzer */
     @Test
     public void arithmeticExpressionInWhereClauseShouldPass() {
