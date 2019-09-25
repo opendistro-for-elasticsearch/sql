@@ -60,9 +60,9 @@ public interface TypeExpression extends Type {
 
     @Override
     default String usage() {
-        return name() + Arrays.stream(specifications()).
-                               map(TypeExpressionSpec::toString).
-                               collect(Collectors.joining(" or "));
+        return Arrays.stream(specifications()).
+                      map(spec -> name() + spec).
+                      collect(Collectors.joining(" or "));
     }
 
 
