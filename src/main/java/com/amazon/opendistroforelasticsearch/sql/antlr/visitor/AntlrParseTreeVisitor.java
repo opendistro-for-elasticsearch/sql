@@ -28,7 +28,9 @@ import java.util.stream.Collectors;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.AggregateFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.AtomTableItemContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.BinaryComparasionPredicateContext;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.BooleanLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.ComparisonOperatorContext;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.ConstantContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.DecimalLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FromClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FullColumnNameContext;
@@ -179,6 +181,14 @@ public class AntlrParseTreeVisitor<T extends Reducible> extends OpenDistroSqlPar
     }
 
     @Override
+    public T visitConstant(ConstantContext ctx) {
+        if (ctx.REAL_LITERAL() != null) {
+            return visitor.visitNumber(ctx.getText());
+        }
+        return super.visitConstant(ctx);
+    }
+
+    @Override
     public T visitStringLiteral(StringLiteralContext ctx) {
         return visitor.visitString(ctx.getText());
     }
@@ -186,6 +196,11 @@ public class AntlrParseTreeVisitor<T extends Reducible> extends OpenDistroSqlPar
     @Override
     public T visitDecimalLiteral(DecimalLiteralContext ctx) {
         return visitor.visitNumber(ctx.getText());
+    }
+
+    @Override
+    public T visitBooleanLiteral(BooleanLiteralContext ctx) {
+        return visitor.visitBoolean(ctx.getText());
     }
 
     @Override

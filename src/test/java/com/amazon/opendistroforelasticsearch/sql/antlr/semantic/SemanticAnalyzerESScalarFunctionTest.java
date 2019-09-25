@@ -45,7 +45,6 @@ public class SemanticAnalyzerESScalarFunctionTest extends SemanticAnalyzerTestBa
         validate("SELECT * FROM semantics WHERE WEEK_OF_YEAR(birthday) = 1");
     }
 
-    @Ignore("Fix multi-literal visit issue")
     @Test
     public void geoFunctionCallWithGeoPointInWhereClauseShouldPass() {
         validate("SELECT * FROM semantics WHERE GEO_BOUNDING_BOX(location, 100.0, 1.0, 101, 0.0)");
