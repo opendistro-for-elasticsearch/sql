@@ -107,7 +107,7 @@ joinPart
         (
           ON expression
           | USING '(' uidList ')'
-        )                                                           #outerJoin
+        )?                                                          #outerJoin
     | NATURAL ((LEFT | RIGHT) OUTER?)? JOIN tableSourceItem         #naturalJoin
     ;
 

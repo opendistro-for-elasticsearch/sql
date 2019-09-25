@@ -19,10 +19,12 @@ import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.alibaba.druid.sql.parser.ParserException;
 import com.alibaba.druid.sql.parser.Token;
+import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
 import com.amazon.opendistroforelasticsearch.sql.parser.SqlParser;
+import com.amazon.opendistroforelasticsearch.sql.query.maker.AggMaker;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -36,13 +38,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
+import static com.amazon.opendistroforelasticsearch.sql.util.HasFieldWithValue.hasFieldWithValue;
 import static java.util.stream.Collectors.toMap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.both;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
-import static com.amazon.opendistroforelasticsearch.sql.util.HasFieldWithValue.hasFieldWithValue;
 
 
 public class HavingTest {
@@ -55,6 +57,8 @@ public class HavingTest {
     private static final String SELECT_CNT_FROM_BANK_GROUP_BY_AGE = SELECT_CNT + FROM_BANK + GROUP_BY_AGE;
     private static final String SELECT_CNT_AVG_FROM_BANK_GROUP_BY_AGE = SELECT_CNT_AVG + FROM_BANK + GROUP_BY_AGE;
     private static final String SELECT_CNT_AVG_SUM_FROM_BANK_GROUP_BY_AGE = SELECT_CNT_AVG_SUM + FROM_BANK + GROUP_BY_AGE;
+    private static final String NESTED_SELECT_COUNT = "SELECT COUNT(nested(income, 'income')) as c ";
+    private static final String NESTED_SELECT_CNT_FROM_BANK_GROUP_BY_AGE = NESTED_SELECT_COUNT + FROM_BANK + GROUP_BY_AGE;
 
     @Test
     public void singleCondition() {
@@ -66,6 +70,18 @@ public class HavingTest {
                     hasScript("params.a > 30")
                 )
             ));
+    }
+
+    @Test
+    public void nestedSingleCondition() {
+        assertThat(
+                query(NESTED_SELECT_CNT_FROM_BANK_GROUP_BY_AGE + "HAVING c > 30"),
+                contains(
+                        bucketSelector(
+                                hasBucketPath("c: income@NESTED.c"),
+                                hasScript("params.c > 30")
+                        )
+                ));
     }
 
     @Test
@@ -206,6 +222,15 @@ public class HavingTest {
     private Collection<PipelineAggregationBuilder> translate(SQLQueryExpr expr) {
         try {
             Select select = new SqlParser().parseSelect(expr);
+            select.getFields().forEach(field -> {
+                try {
+                    new AggMaker()
+                            .withWhere(select.getWhere())
+                            .makeFieldAgg((MethodField) field, AggregationBuilders.terms(""));
+                } catch (SqlParseException e) {
+                    throw new RuntimeException(e);
+                }
+            });
             AggregationBuilder agg = AggregationBuilders.terms("");
             select.getHaving().explain(agg, select.getFields());
             return agg.getPipelineAggregations();

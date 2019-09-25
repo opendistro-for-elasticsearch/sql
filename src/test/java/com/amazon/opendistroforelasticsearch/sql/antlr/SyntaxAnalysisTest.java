@@ -21,6 +21,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.Arrays;
+
+import static java.util.stream.Collectors.toList;
+import static org.hamcrest.Matchers.allOf;
+
 /**
  * Test cases focused on illegal syntax testing (blacklist) along with a few normal cases not covered previously.
  * All other normal cases should be covered in existing unit test and IT.
@@ -71,6 +76,15 @@ public class SyntaxAnalysisTest {
     }
 
     @Test
+    public void missingWhereKeywordShouldThrowException() {
+        expectValidationFailWithErrorMessage(
+            "SELECT * FROM accounts age = 1",
+            "offending symbol [=]", // parser thought 'age' is alias of 'accounts' and failed at '='
+            "Expecting", "'WHERE'"  // "Expecting tokens in {<EOF>, 'INNER', 'JOIN', ... 'WHERE', ','}"
+        );
+    }
+
+    @Test
     public void someKeywordsShouldBeAbleToUseAsIdentifier() {
         validate("SELECT AVG(balance) AS avg FROM accounts");
     }
@@ -100,15 +114,32 @@ public class SyntaxAnalysisTest {
         );
     }
 
+    @Test
+    public void useMetadataFieldShouldPass() {
+        validate("SELECT @timestamp FROM accounts");
+    }
+
+    @Test
+    public void leftJoinOnNestedFieldWithoutOnClauseShouldPass() {
+        validate("SELECT * FROM accounts a LEFT JOIN a.projects p");
+    }
+
+    @Test
+    public void useDeepNestedFieldShouldPass() {
+        validate("SELECT a.projects.name FROM accounts a");
+    }
+
     /** As the translation is not supported for now, check this in semantic analyzer */
     @Test
     public void arithmeticExpressionInWhereClauseShouldPass() {
         validate("SELECT * FROM accounts WHERE age + 1 = 10");
     }
 
-    private void expectValidationFailWithErrorMessage(String query, String message) {
+    private void expectValidationFailWithErrorMessage(String query, String... messages) {
         exception.expect(SqlSyntaxAnalysisException.class);
-        exception.expectMessage(Matchers.containsString(message));
+        exception.expectMessage(allOf(Arrays.stream(messages).
+                                      map(Matchers::containsString).
+                                      collect(toList())));
         validate(query);
     }
 

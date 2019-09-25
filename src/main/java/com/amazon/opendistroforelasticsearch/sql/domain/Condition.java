@@ -376,6 +376,15 @@ public class Condition extends Where {
         this.childType = childType;
     }
 
+    /**
+     * Return true if the opear is {@link OPEAR#NESTED_COMPLEX}
+     * For example, the opear is {@link OPEAR#NESTED_COMPLEX} when condition is
+     * nested('projects', projects.started_year > 2000 OR projects.name LIKE '%security%')
+     */
+    public boolean isNestedComplex() {
+        return OPEAR.NESTED_COMPLEX == opear;
+    }
+
     @Override
     public String toString() {
         String result = "";
