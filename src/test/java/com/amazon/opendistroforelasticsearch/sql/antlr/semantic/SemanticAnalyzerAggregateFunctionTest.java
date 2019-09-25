@@ -29,4 +29,30 @@ public class SemanticAnalyzerAggregateFunctionTest extends SemanticAnalyzerTestB
         validate("SELECT * FROM semantics WHERE AVG(balance) > 10000");
     }
 
+    @Test
+    public void useAggregateFunctionInSelectClauseShouldPass() {
+        validate(
+            "SELECT" +
+            " city," +
+            " COUNT(*)," +
+            " MAX(age)," +
+            " MIN(balance)," +
+            " AVG(manager.salary)," +
+            " SUM(balance)" +
+            "FROM semantics " +
+            "GROUP BY city");
+    }
+
+    @Test
+    public void useAggregateFunctionInSelectClauseWithoutGroupByShouldPass() {
+        validate(
+            "SELECT" +
+            " COUNT(*)," +
+            " MAX(age)," +
+            " MIN(balance)," +
+            " AVG(manager.salary)," +
+            " SUM(balance)" +
+            "FROM semantics");
+    }
+
 }

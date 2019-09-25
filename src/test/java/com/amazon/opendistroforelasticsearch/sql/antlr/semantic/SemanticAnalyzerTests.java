@@ -37,7 +37,7 @@ import static com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents
     SemanticAnalyzerIdentifierTest.class,
     SemanticAnalyzerScalarFunctionTest.class,
     SemanticAnalyzerESScalarFunctionTest.class,
-    //SemanticAnalyzerAggregateFunctionTest.class,
+    SemanticAnalyzerAggregateFunctionTest.class,
     //SemanticAnalyzerOperatorTest.class,
     //SemanticAnalyzerSubqueryTest.class,
     //SemanticAnalyzerMultiQueryTest.class,
