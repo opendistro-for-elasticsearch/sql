@@ -42,6 +42,7 @@ import static org.junit.Assert.assertThat;
 
 /**
  * Semantic analysis test cases focused on basic scope building logic which is the cornerstone of analysis followed.
+ * The low abstraction here enumerating all present field names in each test case is intentional for better demonstration.
  */
 public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
 
@@ -379,6 +380,110 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
                 // Valid because of deep nested field alias specified
                 hasEntry("m", NESTED),
                 hasEntry("m.name", TEXT)
+            )
+        );
+    }
+
+    @Test
+    public void contextShouldIncludeMoreFieldsPrefixedByNestedFieldAliasAfterVisitingNestedFieldWithAliasInSubqueryFromClause() {
+        analyzer.visitIndexName("semantics", Optional.of("s"));
+        analyzer.visitQuery();
+        analyzer.visitIndexName("s.projects", Optional.of("p"));
+
+        assertThat(
+            context.peek().resolveAll(Namespace.FIELD_NAME),
+            allOf(
+                aMapWithSize(42),
+                // These are also valid because alias is optional in SQL
+                hasEntry("address", TEXT),
+                hasEntry("age", INTEGER),
+                hasEntry("balance", DOUBLE),
+                hasEntry("city", KEYWORD),
+                hasEntry("birthday", DATE),
+                hasEntry("location", GEO_POINT),
+                hasEntry("employer", TEXT),
+                hasEntry("employer.keyword", KEYWORD),
+                hasEntry("projects", NESTED),
+                hasEntry("projects.active", BOOLEAN),
+                hasEntry("projects.release", DATE),
+                hasEntry("projects.members", NESTED),
+                hasEntry("projects.members.name", TEXT),
+                hasEntry("manager", OBJECT),
+                hasEntry("manager.name", TEXT),
+                hasEntry("manager.name.keyword", KEYWORD),
+                hasEntry("manager.address", KEYWORD),
+                hasEntry("manager.salary", LONG),
+                // These are valid because of alias specified
+                hasEntry("s.address", TEXT),
+                hasEntry("s.age", INTEGER),
+                hasEntry("s.balance", DOUBLE),
+                hasEntry("s.city", KEYWORD),
+                hasEntry("s.birthday", DATE),
+                hasEntry("s.location", GEO_POINT),
+                hasEntry("s.employer", TEXT),
+                hasEntry("s.employer.keyword", KEYWORD),
+                hasEntry("s.projects", NESTED),
+                hasEntry("s.projects.active", BOOLEAN),
+                hasEntry("s.projects.release", DATE),
+                hasEntry("s.projects.members", NESTED),
+                hasEntry("s.projects.members.name", TEXT),
+                hasEntry("s.manager", OBJECT),
+                hasEntry("s.manager.name", TEXT),
+                hasEntry("s.manager.name.keyword", KEYWORD),
+                hasEntry("s.manager.address", KEYWORD),
+                hasEntry("s.manager.salary", LONG),
+                // Valid because of nested field alias specified
+                hasEntry("p", NESTED),
+                hasEntry("p.active", BOOLEAN),
+                hasEntry("p.release", DATE),
+                hasEntry("p.members", NESTED),
+                hasEntry("p.members.name", TEXT)
+            )
+        );
+
+        analyzer.endVisitQuery();
+        assertThat(
+            context.peek().resolveAll(Namespace.FIELD_NAME),
+            allOf(
+                aMapWithSize(37),
+                // These are also valid because alias is optional in SQL
+                hasEntry("address", TEXT),
+                hasEntry("age", INTEGER),
+                hasEntry("balance", DOUBLE),
+                hasEntry("city", KEYWORD),
+                hasEntry("birthday", DATE),
+                hasEntry("location", GEO_POINT),
+                hasEntry("employer", TEXT),
+                hasEntry("employer.keyword", KEYWORD),
+                hasEntry("projects", NESTED),
+                hasEntry("projects.active", BOOLEAN),
+                hasEntry("projects.release", DATE),
+                hasEntry("projects.members", NESTED),
+                hasEntry("projects.members.name", TEXT),
+                hasEntry("manager", OBJECT),
+                hasEntry("manager.name", TEXT),
+                hasEntry("manager.name.keyword", KEYWORD),
+                hasEntry("manager.address", KEYWORD),
+                hasEntry("manager.salary", LONG),
+                // These are valid because of alias specified
+                hasEntry("s.address", TEXT),
+                hasEntry("s.age", INTEGER),
+                hasEntry("s.balance", DOUBLE),
+                hasEntry("s.city", KEYWORD),
+                hasEntry("s.birthday", DATE),
+                hasEntry("s.location", GEO_POINT),
+                hasEntry("s.employer", TEXT),
+                hasEntry("s.employer.keyword", KEYWORD),
+                hasEntry("s.projects", NESTED),
+                hasEntry("s.projects.active", BOOLEAN),
+                hasEntry("s.projects.release", DATE),
+                hasEntry("s.projects.members", NESTED),
+                hasEntry("s.projects.members.name", TEXT),
+                hasEntry("s.manager", OBJECT),
+                hasEntry("s.manager.name", TEXT),
+                hasEntry("s.manager.name.keyword", KEYWORD),
+                hasEntry("s.manager.address", KEYWORD),
+                hasEntry("s.manager.salary", LONG)
             )
         );
     }

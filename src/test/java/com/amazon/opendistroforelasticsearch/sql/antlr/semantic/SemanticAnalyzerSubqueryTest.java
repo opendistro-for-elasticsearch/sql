@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -23,7 +22,6 @@ import org.junit.Test;
  */
 public class SemanticAnalyzerSubqueryTest extends SemanticAnalyzerTestBase {
 
-    @Ignore("Environment seems not right. Troubleshooting.")
     @Test
     public void useExistOnNestedFieldShouldPass() {
         validate(
@@ -31,7 +29,7 @@ public class SemanticAnalyzerSubqueryTest extends SemanticAnalyzerTestBase {
             "WHERE EXISTS " +
             " ( " +
             "  SELECT * FROM s.projects AS p " +
-            "  WHERE p.address LIKE 'Seattle'" +
+            "  WHERE p.active IS TRUE " +
             " ) " +
             " AND s.age > 10"
         );
