@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.antlr;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlLexer;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.SemanticAnalyzer;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.SemanticContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.CaseInsensitiveCharStream;
 import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.SyntaxAnalysisErrorListener;
 import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.AntlrParseTreeVisitor;
@@ -31,21 +32,34 @@ import org.antlr.v4.runtime.tree.ParseTree;
  */
 public class OpenDistroSqlAnalyzer {
 
+    /** Original sql query */
+    private final String sql;
+
+    public OpenDistroSqlAnalyzer(String sql) {
+        this.sql = sql;
+    }
+
+    public void analyze(LocalClusterState clusterState) {
+        analyzeSemantic(
+            analyzeSyntax(),
+            clusterState
+        );
+    }
+
     /**
      * Build lexer and parser to perform syntax analysis.
      * Runtime exception with clear message is thrown for any verification error.
      *
-     * @param sql   original query
      * @return      parse tree
      */
-    public ParseTree analyzeSyntax(String sql) {
+    public ParseTree analyzeSyntax() {
         OpenDistroSqlParser parser = createParser(createLexer(sql));
         parser.addErrorListener(new SyntaxAnalysisErrorListener());
         return parser.root();
     }
 
     public ParseTree analyzeSemantic(ParseTree tree, LocalClusterState clusterState) {
-        tree.accept(new AntlrParseTreeVisitor<>(new SemanticAnalyzer(clusterState)));
+        tree.accept(new AntlrParseTreeVisitor<>(new SemanticAnalyzer(new SemanticContext(), clusterState)));
         return tree;
     }
 
@@ -57,15 +71,6 @@ public class OpenDistroSqlAnalyzer {
     private OpenDistroSqlLexer createLexer(String sql) {
          return new OpenDistroSqlLexer(
                     new CaseInsensitiveCharStream(sql));
-    }
-
-    private ParseTree analyzeSyntax(OpenDistroSqlParser parser) {
-        parser.addErrorListener(new SyntaxAnalysisErrorListener());
-        return parser.root();
-    }
-
-    private void analyzeSemantic(ParseTree tree) {
-        //TODO: implement semantic analysis in next stage
     }
 
 }

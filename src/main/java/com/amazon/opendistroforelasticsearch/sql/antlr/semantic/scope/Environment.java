@@ -20,8 +20,6 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  * Environment for symbol and its attribute (type) in the current scope

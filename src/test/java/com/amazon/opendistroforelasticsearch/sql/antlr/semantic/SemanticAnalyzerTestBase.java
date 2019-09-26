@@ -35,8 +35,6 @@ public abstract class SemanticAnalyzerTestBase {
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
-    private OpenDistroSqlAnalyzer analyzer = new OpenDistroSqlAnalyzer();
-
     protected void expectValidationFailWithErrorMessages(String query, String... messages) {
         exception.expect(SemanticAnalysisException.class);
         exception.expectMessage(allOf(Arrays.stream(messages).
@@ -46,6 +44,6 @@ public abstract class SemanticAnalyzerTestBase {
     }
 
     protected void validate(String sql) {
-        analyzer.analyzeSemantic(analyzer.analyzeSyntax(sql), LocalClusterState.state());
+        new OpenDistroSqlAnalyzer(sql).analyze(LocalClusterState.state());
     }
 }

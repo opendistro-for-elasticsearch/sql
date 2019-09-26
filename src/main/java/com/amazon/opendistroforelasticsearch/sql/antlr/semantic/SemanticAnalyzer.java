@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.antlr.semantic;
 import com.amazon.opendistroforelasticsearch.sql.antlr.StringSimilarity;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Environment;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Namespace;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.SemanticContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType;
@@ -44,13 +45,14 @@ import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.toUppe
  */
 public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
 
-    /** Environment stack for symbol scope management */
-    private Environment environment = new Environment(null);
+    /** Semantic context for symbol scope management */
+    private final SemanticContext context;
 
     /** Local cluster state for mapping query */
     private final LocalClusterState clusterState;
 
-    public SemanticAnalyzer(LocalClusterState clusterState) {
+    public SemanticAnalyzer(SemanticContext context, LocalClusterState clusterState) {
+        this.context = context;
         this.clusterState = clusterState;
     }
 
@@ -61,35 +63,17 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
         defineFunctionNames(AggregateFunction.values());
     }
 
-    private void defineFunctionNames(TypeExpression[] expressions) {
-        for (TypeExpression expr : expressions) {
-            defineFunctionName(expr.name(), expr);
-        }
-    }
-
     @Override
     public void visitQuery() {
-        environment = new Environment(environment);
+        context.push();
     }
 
     @Override
     public Type endVisitQuery() {
-        environment = environment.getParent();
+        context.pop();
         return null;
     }
 
-    /**
-     *
-     * Example:
-     *
-     * visit(
-     *
-     * visit(
-     *
-     * @param indexName     index name in the FROM clause
-     * @param alias         optional alias
-     * @return              type
-     */
     @Override
     public Type visitIndexName(String indexName, Optional<String> alias) {
         if (isPath(indexName)) {
@@ -109,69 +93,6 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
             mappings.flat(this::defineFieldName);
             mappings.flat((fieldName, type) -> defineFieldName(aliasName + "." + fieldName, type));
         }
-        return null;
-    }
-
-    private void redefineFieldNameByPrefixingAlias(String indexName, String alias) {
-        Map<String, Type> typeByFullName = environment.resolveByPrefix(new Symbol(Namespace.FIELD_NAME, indexName));
-        typeByFullName.forEach(
-            (fieldName, fieldType) -> defineFieldName(fieldName.replace(indexName, alias), fieldType)
-        );
-    }
-
-    private boolean isPath(String indexName) {
-        return indexName.indexOf('.', 1) != -1; // taking care of .kibana
-    }
-
-    private void defineFieldName(String fieldName, String type) {
-        defineFieldName(fieldName, BaseType.valueOf(toUpper(type))); // TODO: return UNKNOWN and avoid enum not found exception
-    }
-
-    private void defineFieldName(String fieldName, Type type) {
-        Symbol symbol = new Symbol(Namespace.FIELD_NAME, fieldName);
-        if (!environment.resolve(symbol).isPresent()) {
-            //throw new SemanticAnalysisException(StringUtils.format(
-            //    "%s is conflicting with field of same name defined by other index", symbol));
-            environment.define(symbol, type);
-        }
-    }
-
-    private void defineFunctionName(String funcName, Type type) {
-        environment.define(new Symbol(Namespace.FUNCTION_NAME, funcName), type);
-    }
-
-    public Type visitWhere(Runnable visitDeep) {
-        environment = new Environment(environment);
-
-        /*
-        for (ScalarFunctionTypeExpression type : ScalarFunctionTypeExpression.values()) {
-            environment.define(new Symbol(Namespace.FUNCTION_NAME, type.getName()), type);
-        }
-        */
-
-        visitDeep.run();
-
-        //environment = environment.getParent();
-        return null;
-    }
-
-    public Type visitSelectClause(Runnable visitDeep) {
-        environment = new Environment(environment);
-
-        /*
-        for (AggregateFunctionType type : AggregateFunctionType.values()) {
-            environment.define(new Symbol(Namespace.FUNCTION_NAME, type.getName()), type);
-        }
-        */
-
-        visitDeep.run();
-
-        environment = environment.getParent();
-        return null;
-    }
-
-    public Type visitFunctionCall(Type constructorType, Type... actualArgTypes) {
-        //return constructorType.apply(actualArgTypes);
         return null;
     }
 
@@ -196,9 +117,9 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
     }
 
     public Type resolve(Symbol symbol) {
-        Optional<Type> type = environment.resolve(symbol);
+        Optional<Type> type = environment().resolve(symbol);
         if (!type.isPresent()) {
-            Set<String> allSymbolsInScope = environment.resolveAll(symbol.getNamespace()).keySet();
+            Set<String> allSymbolsInScope = environment().resolveAll(symbol.getNamespace()).keySet();
             List<String> suggestedWords = new StringSimilarity(allSymbolsInScope).similarTo(symbol.getName());
             throw new SemanticAnalysisException(
                 format("%s cannot be found or used here. Did you mean [%s]?", // TODO: Give none or different suggestion if suggestion = original symbol
@@ -219,6 +140,43 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
 
     public Type visitBoolean(String text) {
         return BaseType.BOOLEAN;
+    }
+
+
+    private boolean isPath(String indexName) {
+        return indexName.indexOf('.', 1) != -1; // taking care of .kibana
+    }
+
+    private void redefineFieldNameByPrefixingAlias(String indexName, String alias) {
+        Map<String, Type> typeByFullName = environment().resolveByPrefix(new Symbol(Namespace.FIELD_NAME, indexName));
+        typeByFullName.forEach(
+            (fieldName, fieldType) -> defineFieldName(fieldName.replace(indexName, alias), fieldType)
+        );
+    }
+
+    private void defineFieldName(String fieldName, String type) {
+        defineFieldName(fieldName, BaseType.valueOf(toUpper(type))); // TODO: return UNKNOWN and avoid enum not found exception
+    }
+
+    private void defineFieldName(String fieldName, Type type) {
+        Symbol symbol = new Symbol(Namespace.FIELD_NAME, fieldName);
+        if (!environment().resolve(symbol).isPresent()) {
+            environment().define(symbol, type);
+        }
+    }
+
+    private void defineFunctionNames(TypeExpression[] expressions) {
+        for (TypeExpression expr : expressions) {
+            defineFunctionName(expr.name(), expr);
+        }
+    }
+
+    private void defineFunctionName(String funcName, Type type) {
+        environment().define(new Symbol(Namespace.FUNCTION_NAME, funcName), type);
+    }
+
+    private Environment environment() {
+        return context.peek();
     }
 
 }

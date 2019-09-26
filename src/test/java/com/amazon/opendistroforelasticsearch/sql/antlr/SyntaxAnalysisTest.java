@@ -36,9 +36,6 @@ public class SyntaxAnalysisTest {
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
-    private OpenDistroSqlAnalyzer analyzer = new OpenDistroSqlAnalyzer();
-
-
     /** In reality exception occurs before reaching new parser for now */
     @Test
     public void unsupportedKeywordShouldThrowException() {
@@ -144,6 +141,6 @@ public class SyntaxAnalysisTest {
     }
 
     private void validate(String sql) {
-        analyzer.analyzeSyntax(sql);
+        new OpenDistroSqlAnalyzer(sql).analyzeSyntax();
     }
 }
