@@ -116,28 +116,17 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
         return null;
     }
 
-    public Type resolve(Symbol symbol) {
-        Optional<Type> type = environment().resolve(symbol);
-        if (!type.isPresent()) {
-            Set<String> allSymbolsInScope = environment().resolveAll(symbol.getNamespace()).keySet();
-            List<String> suggestedWords = new StringSimilarity(allSymbolsInScope).similarTo(symbol.getName());
-            throw new SemanticAnalysisException(
-                format("%s cannot be found or used here. Did you mean [%s]?", // TODO: Give none or different suggestion if suggestion = original symbol
-                    symbol, suggestedWords.get(0)));
-                //at(sql, ctx).
-                //suggestion("Did you mean [%s]?", String.join(", ", suggestedWords)).build();
-        }
-        return type.get();
-    }
-
+    @Override
     public Type visitString(String text) {
         return BaseType.STRING;
     }
 
+    @Override
     public Type visitNumber(String text) { //TODO: float or integer?
         return BaseType.NUMBER;
     }
 
+    @Override
     public Type visitBoolean(String text) {
         return BaseType.BOOLEAN;
     }
@@ -173,6 +162,20 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
 
     private void defineFunctionName(String funcName, Type type) {
         environment().define(new Symbol(Namespace.FUNCTION_NAME, funcName), type);
+    }
+
+    private Type resolve(Symbol symbol) {
+        Optional<Type> type = environment().resolve(symbol);
+        if (!type.isPresent()) {
+            Set<String> allSymbolsInScope = environment().resolveAll(symbol.getNamespace()).keySet();
+            List<String> suggestedWords = new StringSimilarity(allSymbolsInScope).similarTo(symbol.getName());
+            throw new SemanticAnalysisException(
+                format("%s cannot be found or used here. Did you mean [%s]?", // TODO: Give none or different suggestion if suggestion = original symbol
+                    symbol, suggestedWords.get(0)));
+            //at(sql, ctx).
+            //suggestion("Did you mean [%s]?", String.join(", ", suggestedWords)).build();
+        }
+        return type.get();
     }
 
     private Environment environment() {

@@ -66,7 +66,7 @@ public class EnvironmentTest {
         environment().define(new Symbol(Namespace.FIELD_NAME, "s.projects.active"), BOOLEAN);
         environment().define(new Symbol(Namespace.FIELD_NAME, "s.address"), TEXT);
         environment().define(new Symbol(Namespace.FIELD_NAME, "s.city"), KEYWORD);
-        environment().define(new Symbol(Namespace.FIELD_NAME, "s.manager.name"), BOOLEAN);
+        environment().define(new Symbol(Namespace.FIELD_NAME, "s.manager.name"), TEXT);
 
         Map<String, Type> typeByName = environment().resolveByPrefix(new Symbol(Namespace.FIELD_NAME, "s.projects"));
         assertThat(
@@ -142,6 +142,58 @@ public class EnvironmentTest {
         environment().define(manager, OBJECT);
 
         Map<String, Type> typeByName = environment().resolveByPrefix(new Symbol(Namespace.FIELD_NAME, "s"));
+        assertThat(
+            typeByName,
+            allOf(
+                aMapWithSize(3),
+                hasEntry("s.birthday", DATE),
+                hasEntry("s.city", KEYWORD),
+                hasEntry("s.manager", OBJECT)
+            )
+        );
+    }
+
+    @Test
+    public void defineFieldSymbolShouldBeAbleToResolveAll() {
+        environment().define(new Symbol(Namespace.FIELD_NAME, "s.projects"), NESTED);
+        environment().define(new Symbol(Namespace.FIELD_NAME, "s.projects.release"), DATE);
+        environment().define(new Symbol(Namespace.FIELD_NAME, "s.projects.active"), BOOLEAN);
+        environment().define(new Symbol(Namespace.FIELD_NAME, "s.address"), TEXT);
+        environment().define(new Symbol(Namespace.FIELD_NAME, "s.city"), KEYWORD);
+        environment().define(new Symbol(Namespace.FIELD_NAME, "s.manager.name"), TEXT);
+
+        Map<String, Type> typeByName = environment().resolveAll(Namespace.FIELD_NAME);
+        assertThat(
+            typeByName,
+            allOf(
+                aMapWithSize(6),
+                hasEntry("s.projects", NESTED),
+                hasEntry("s.projects.release", DATE),
+                hasEntry("s.projects.active", BOOLEAN),
+                hasEntry("s.address", TEXT),
+                hasEntry("s.city", KEYWORD),
+                hasEntry("s.manager.name", TEXT)
+            )
+        );
+    }
+
+    @Test
+    public void defineFieldSymbolInDifferentEnvironmentsShouldBeAbleToResolveAll() {
+        // Root environment
+        Symbol birthday = new Symbol(Namespace.FIELD_NAME, "s.birthday");
+        environment().define(birthday, DATE);
+
+        // New environment 1
+        context.push();
+        Symbol city = new Symbol(Namespace.FIELD_NAME, "s.city");
+        environment().define(city, KEYWORD);
+
+        // New environment 2
+        context.push();
+        Symbol manager = new Symbol(Namespace.FIELD_NAME, "s.manager");
+        environment().define(manager, OBJECT);
+
+        Map<String, Type> typeByName = environment().resolveAll(Namespace.FIELD_NAME);
         assertThat(
             typeByName,
             allOf(
