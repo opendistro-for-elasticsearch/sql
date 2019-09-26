@@ -18,6 +18,8 @@ package com.amazon.opendistroforelasticsearch.sql.antlr.visitor;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FunctionArgsContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.QuerySpecificationContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParserBaseVisitor;
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.Collections;
 import java.util.List;
@@ -25,7 +27,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.AggregateFunctionCallContext;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.AggregateWindowedFunctionContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.AtomTableItemContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.BinaryComparasionPredicateContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.BooleanLiteralContext;
@@ -132,9 +134,9 @@ public class AntlrParseTreeVisitor<T extends Reducible> extends OpenDistroSqlPar
         return visitFunctionCall(visit(ctx.scalarFunctionName()), ctx.functionArgs());
     }
 
-    private T visitFunctionCall(T func, FunctionArgsContext ctx) {
+    private T visitFunctionCall(T func, ParserRuleContext ctx) {
         List<T> actualArgs;
-        if (ctx == null) {
+        if (ctx == null || ctx.children == null) {
             actualArgs = Collections.emptyList();
         } else {
             actualArgs = ctx.children.stream().
@@ -154,9 +156,11 @@ public class AntlrParseTreeVisitor<T extends Reducible> extends OpenDistroSqlPar
     }
 
     @Override
-    public T visitAggregateFunctionCall(AggregateFunctionCallContext ctx) {
-        //Type type = analyzer.resolve(new Symbol(FUNCTION_NAME, ctx.getStart().getText()));
-        return super.visitAggregateFunctionCall(ctx);
+    public T visitAggregateWindowedFunction(AggregateWindowedFunctionContext ctx) {
+        return visitFunctionCall(
+            visitor.visitFunctionName(ctx.getChild(0).getText()),
+            ctx.functionArg()
+        );
     }
 
     @Override

@@ -55,4 +55,25 @@ public class SemanticAnalyzerAggregateFunctionTest extends SemanticAnalyzerTestB
             "FROM semantics");
     }
 
+    @Test
+    public void countFunctionCallOnAnyFieldShouldPass() {
+        validate(
+            "SELECT" +
+            " COUNT(address)," +
+            " COUNT(age)," +
+            " COUNT(birthday)," +
+            " COUNT(location)," +
+            " COUNT(manager.address)," +
+            " COUNT(employer)" +
+            "FROM semantics");
+    }
+
+    @Test
+    public void maxFunctionCallOnTextFieldShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT MAX(address) FROM semantics",
+            ""
+        );
+    }
+
 }

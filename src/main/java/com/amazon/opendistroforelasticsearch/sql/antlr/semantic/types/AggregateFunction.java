@@ -24,7 +24,10 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Gen
  * Aggregate function
  */
 public enum AggregateFunction implements TypeExpression {
-    COUNT(func(ES_TYPE).to(INTEGER)),
+    COUNT(
+        func().to(INTEGER), // COUNT(*)
+        func(ES_TYPE).to(INTEGER)
+    ),
     MAX(func(T(NUMBER)).to(T)),
     MIN(func(T(NUMBER)).to(T)),
     AVG(func(T(NUMBER)).to(T)),

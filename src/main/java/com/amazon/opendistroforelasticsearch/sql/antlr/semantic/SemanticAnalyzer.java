@@ -19,10 +19,12 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.StringSimilarity;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Environment;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Namespace;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Symbol;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.ESScalarFunction;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.ScalarFunction;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.TypeExpression;
 import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.ParseTreeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMappings;
@@ -54,11 +56,14 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
 
     @Override
     public void visitRoot() {
-        for (ScalarFunction func : ScalarFunction.values()) {
-            defineFunctionName(func.name(), func);
-        }
-        for (ESScalarFunction func : ESScalarFunction.values()) {
-            defineFunctionName(func.name(), func);
+        defineFunctionNames(ScalarFunction.values());
+        defineFunctionNames(ESScalarFunction.values());
+        defineFunctionNames(AggregateFunction.values());
+    }
+
+    private void defineFunctionNames(TypeExpression[] expressions) {
+        for (TypeExpression expr : expressions) {
+            defineFunctionName(expr.name(), expr);
         }
     }
 
