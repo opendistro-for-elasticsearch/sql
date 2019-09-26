@@ -15,8 +15,26 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic;
 
+import org.junit.Ignore;
+import org.junit.Test;
+
 /**
- *
+ * Semantic analysis test for subquery
  */
 public class SemanticAnalyzerSubqueryTest extends SemanticAnalyzerTestBase {
+
+    @Ignore("Environment seems not right. Troubleshooting.")
+    @Test
+    public void useExistOnNestedFieldShouldPass() {
+        validate(
+            "SELECT * FROM semantics AS s " +
+            "WHERE EXISTS " +
+            " ( " +
+            "  SELECT * FROM s.projects AS p " +
+            "  WHERE p.address LIKE 'Seattle'" +
+            " ) " +
+            " AND s.age > 10"
+        );
+    }
+
 }

@@ -63,7 +63,11 @@ public class Environment {
     }
 
     public Map<String, Type> resolveByPrefix(Symbol prefix) {
-        return new HashMap<>(symbolTable.lookupByPrefix(prefix)); // TODO: look up in env chain or only current level?
+        Map<String, Type> typeByName = new HashMap<>();
+        for (Environment cur = this; cur != null; cur = cur.parent) {
+            typeByName.putAll(cur.symbolTable.lookupByPrefix(prefix));
+        }
+        return typeByName;
     }
 
     public Map<String, Type> resolveAll(Namespace namespace) {
