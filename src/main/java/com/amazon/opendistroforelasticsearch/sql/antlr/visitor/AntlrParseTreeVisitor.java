@@ -99,7 +99,7 @@ public class AntlrParseTreeVisitor<T extends Reducible> extends OpenDistroSqlPar
             visitor.visitIndexName(
                 ((TableAndTypeNameContext) tableName).uid(0).getText(), alias
             );
-        } // else TODO: skip all analysis if TableNamePattern
+        } // else { Skip all analysis if TableNamePattern }
         return defaultResult();
     }
 

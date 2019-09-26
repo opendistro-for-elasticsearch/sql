@@ -77,6 +77,16 @@ public class Environment {
         return result;
     }
 
+    /** Current environment is root and no any symbol defined */
+    public boolean isEmpty(Namespace namespace) {
+        for (Environment cur = this; cur != null; cur = cur.parent) {
+            if (!cur.symbolTable.isEmpty(namespace)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public Environment getParent() {
         return parent;
     }

@@ -17,12 +17,14 @@ package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 
-import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Optional;
 import java.util.TreeMap;
+
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.emptyNavigableMap;
 
 /**
  * Symbol table for symbol definition and resolution.
@@ -53,11 +55,14 @@ public class SymbolTable {
         if (table != null) {
             return table.subMap(prefix.getName(), prefix.getName() + Character.MAX_VALUE);
         }
-        return Collections.emptyMap();
+        return emptyMap();
     }
 
     public Map<String, Type> lookupAll(Namespace namespace) {
-        return tableByNamespace.getOrDefault(namespace, Collections.emptyNavigableMap());
+        return tableByNamespace.getOrDefault(namespace, emptyNavigableMap());
     }
 
+    public boolean isEmpty(Namespace namespace) {
+        return tableByNamespace.getOrDefault(namespace, emptyNavigableMap()).isEmpty();
+    }
 }
