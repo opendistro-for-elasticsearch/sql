@@ -19,7 +19,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- *
+ * Semantic analysis test for aggregate functions.
  */
 public class SemanticAnalyzerAggregateFunctionTest extends SemanticAnalyzerTestBase {
 
@@ -72,7 +72,35 @@ public class SemanticAnalyzerAggregateFunctionTest extends SemanticAnalyzerTestB
     public void maxFunctionCallOnTextFieldShouldFail() {
         expectValidationFailWithErrorMessages(
             "SELECT MAX(address) FROM semantics",
-            ""
+            "Function [MAX] cannot work with [TEXT].",
+            "Usage: MAX(NUMBER T) -> T"
+        );
+    }
+
+    @Test
+    public void minFunctionCallOnDateFieldShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT MIN(birthday) FROM semantics",
+            "Function [MIN] cannot work with [DATE].",
+            "Usage: MIN(NUMBER T) -> T"
+        );
+    }
+
+    @Test
+    public void avgFunctionCallOnBooleanFieldShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT AVG(p.active) FROM semantics s, s.projects p",
+            "Function [AVG] cannot work with [BOOLEAN].",
+            "Usage: AVG(NUMBER T) -> T"
+        );
+    }
+
+    @Test
+    public void sumFunctionCallOnBooleanFieldShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT SUM(city) FROM semantics",
+            "Function [SUM] cannot work with [KEYWORD].",
+            "Usage: SUM(NUMBER T) -> T"
         );
     }
 

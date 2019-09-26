@@ -15,11 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.visitor;
 
-import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FunctionArgsContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.QuerySpecificationContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParserBaseVisitor;
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.Collections;
 import java.util.List;
@@ -85,22 +83,9 @@ public class AntlrParseTreeVisitor<T extends Reducible> extends OpenDistroSqlPar
     @Override
     public T visitFromClause(FromClauseContext ctx) {
         visitor.visitFrom();
-        //visitor.visitWhere();
         super.visitFromClause(ctx);
         return visitor.endVisitFrom();
     }
-
-    /*
-    @Override
-    public T visitOuterJoin(OuterJoinContext ctx) {
-        return super.visitOuterJoin(ctx);
-    }
-
-    @Override
-    public T visitInnerJoin(InnerJoinContext ctx) {
-        return super.visitInnerJoin(ctx);
-    }
-    */
 
     @Override
     public T visitAtomTableItem(AtomTableItemContext ctx) {
