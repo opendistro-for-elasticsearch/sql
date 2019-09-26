@@ -63,7 +63,11 @@ public interface ParseTreeVisitor<T> {
         return defaultValue();
     }
 
-    default T visitNumber(String text) {
+    default T visitInteger(String text) {
+        return defaultValue();
+    }
+
+    default T visitFloat(String text) {
         return defaultValue();
     }
 

@@ -316,7 +316,6 @@ aggregateWindowedFunction
 
 scalarFunctionName
     : functionNameBase
-    | SUBSTRING | TRIM
     ;
 
 functionArgs
@@ -403,7 +402,7 @@ functionNameBase
     | COS | COSH | DATE_FORMAT | DEGREES
     | E | EXP | EXPM1 | FLOOR | LOG | LOG10 | LOG2 | LOWER
     | PI | POW | RADIANS | RANDOM | RINT | ROUND
-    | SIN | SINH | SQRT | TAN | UPPER | YEAR
+    | SIN | SINH | SQRT | SUBSTRING | TAN | TRIM | UPPER | YEAR
     ;
 
 esFunctionNameBase

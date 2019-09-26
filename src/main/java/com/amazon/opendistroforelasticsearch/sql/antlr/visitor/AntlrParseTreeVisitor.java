@@ -21,7 +21,6 @@ import org.antlr.v4.runtime.ParserRuleContext;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -126,7 +125,7 @@ public class AntlrParseTreeVisitor<T extends Reducible> extends OpenDistroSqlPar
         } else {
             actualArgs = ctx.children.stream().
                                       map(this::visit).
-                                      filter(Objects::nonNull).
+                                      filter(type -> type != defaultResult()).
                                       collect(Collectors.toList());
         }
         return func.reduce(actualArgs);
@@ -171,7 +170,7 @@ public class AntlrParseTreeVisitor<T extends Reducible> extends OpenDistroSqlPar
     @Override
     public T visitConstant(ConstantContext ctx) {
         if (ctx.REAL_LITERAL() != null) {
-            return visitor.visitNumber(ctx.getText());
+            return visitor.visitFloat(ctx.getText());
         }
         return super.visitConstant(ctx);
     }
@@ -183,7 +182,7 @@ public class AntlrParseTreeVisitor<T extends Reducible> extends OpenDistroSqlPar
 
     @Override
     public T visitDecimalLiteral(DecimalLiteralContext ctx) {
-        return visitor.visitNumber(ctx.getText());
+        return visitor.visitInteger(ctx.getText());
     }
 
     @Override

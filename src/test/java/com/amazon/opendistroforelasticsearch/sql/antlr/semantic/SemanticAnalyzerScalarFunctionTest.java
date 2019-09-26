@@ -173,6 +173,7 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
     public void allSupportedStringFunctionCallInSelectClauseShouldPass() {
         validate(
             "SELECT * FROM semantics WHERE " +
+                " SUBSTRING(city, 0, 3) = 'Sea' AND " +
                 " UPPER(city) = 'SEATTLE' AND " +
                 " LOWER(city) = 'seattle'"
             // TODO: add concat
@@ -183,6 +184,7 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
     public void allSupportedStringFunctionCallInWhereClauseShouldPass() {
         validate(
             "SELECT" +
+            " SUBSTRING(city, 0, 3), " +
             " UPPER(address), " +
             " LOWER(manager.name) " +
             "FROM semantics "
@@ -195,7 +197,7 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
         expectValidationFailWithErrorMessages(
             "SELECT DATE_FORMAT(address, 'yyyy-MM') FROM semantics",
             "Function [DATE_FORMAT] cannot work with [TEXT, STRING].",
-            "Usage: DATE_FORMAT(DATE, STRING) -> STRING"
+            "Usage: DATE_FORMAT(DATE, STRING) -> STRING or DATE_FORMAT(DATE, STRING, STRING) -> STRING"
         );
     }
 

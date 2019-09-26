@@ -45,6 +45,23 @@ import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.toUppe
  */
 public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
 
+    private static final Type DEFAULT = new Type() {
+        @Override
+        public boolean isCompatible(Type other) {
+            throw new IllegalStateException("Compatibility check on NULL type");
+        }
+
+        @Override
+        public Type construct(List<Type> others) {
+            throw new IllegalStateException("Construct operation on NULL type");
+        }
+
+        @Override
+        public String usage() {
+            throw new IllegalStateException("Usage print operation on NULL type");
+        }
+    };
+
     /** Semantic context for symbol scope management */
     private final SemanticContext context;
 
@@ -111,19 +128,19 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
         return resolve(new Symbol(Namespace.FUNCTION_NAME, funcName.toUpperCase()));
     }
 
-    public Type visitOperatorName(String opName) {
-        //return new OperatorType(opName);
-        return null;
-    }
-
     @Override
     public Type visitString(String text) {
         return BaseType.STRING;
     }
 
     @Override
-    public Type visitNumber(String text) { //TODO: float or integer?
-        return BaseType.NUMBER;
+    public Type visitInteger(String text) {
+        return BaseType.INTEGER;
+    }
+
+    @Override
+    public Type visitFloat(String text) {
+        return BaseType.FLOAT;
     }
 
     @Override
@@ -131,6 +148,10 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
         return BaseType.BOOLEAN;
     }
 
+    @Override
+    public Type defaultValue() {
+        return DEFAULT;
+    }
 
     private boolean isPath(String indexName) {
         return indexName.indexOf('.', 1) != -1; // taking care of .kibana

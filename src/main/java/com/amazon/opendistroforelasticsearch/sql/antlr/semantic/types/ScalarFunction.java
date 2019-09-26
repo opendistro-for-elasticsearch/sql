@@ -68,6 +68,7 @@ public enum ScalarFunction implements TypeExpression {
     SIN(func(T(NUMBER)).to(T)),
     SINH(func(T(NUMBER)).to(T)),
     SQRT(func(T(NUMBER)).to(T)),
+    SUBSTRING(func(T(STRING), INTEGER, INTEGER).to(T)),
     TAN(func(T(NUMBER)).to(T)),
     UPPER(
         func(T(STRING)).to(T),

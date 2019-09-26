@@ -29,6 +29,10 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Bas
  */
 public interface Type extends Reducible {
 
+    /**
+     * Type descriptive name
+     * @return  name
+     */
     default String name() {
         return "UNKNOWN";
     }
@@ -73,5 +77,9 @@ public interface Type extends Reducible {
      */
     Type construct(List<Type> others);
 
+    /**
+     * Return typical usage of type
+     * @return  usage string
+     */
     String usage();
 }
