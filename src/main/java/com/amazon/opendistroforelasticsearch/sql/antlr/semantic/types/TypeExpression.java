@@ -43,7 +43,8 @@ public interface TypeExpression extends Type {
     default Type construct(List<Type> actualArgs) {
         TypeExpressionSpec[] specifications = specifications();
         if (specifications.length == 0) {
-            // Type check for this type expression is not implemented yet. Return this to be compatible with everything.
+            // Type check for this type expression is not implemented yet.
+            // Return this to be compatible with everything.
             return UNKNOWN;
         }
 
@@ -74,7 +75,8 @@ public interface TypeExpression extends Type {
 
 
     /**
-     * A specification is combination of a construct function and arg types for a type expression (represent a constructor)
+     * A specification is combination of a construct function and arg types
+     * for a type expression (represent a constructor)
      */
     class TypeExpressionSpec {
         Type[] argTypes;

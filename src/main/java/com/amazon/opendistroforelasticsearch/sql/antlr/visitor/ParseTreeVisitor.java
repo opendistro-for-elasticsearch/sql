@@ -15,8 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.visitor;
 
-import java.util.Optional;
-
 /**
  * Parse tree visitor
  */
@@ -25,21 +23,12 @@ public interface ParseTreeVisitor<T> {
     default void visitRoot() {}
 
     default void visitQuery() {}
+
     default T endVisitQuery() {
         return defaultValue();
     }
 
     default T visitSelectItem(T type, String alias) {
-        return defaultValue();
-    }
-
-    default void visitFrom() {}
-    default T endVisitFrom() {
-        return defaultValue();
-    }
-
-    default void visitWhere() {}
-    default T endVisitWhere() {
         return defaultValue();
     }
 
@@ -52,10 +41,6 @@ public interface ParseTreeVisitor<T> {
     }
 
     default T visitIndexPattern(String indexPattern, String alias) {
-        return defaultValue();
-    }
-
-    default T visitJoin(String joinType) {
         return defaultValue();
     }
 

@@ -44,7 +44,7 @@ public enum ESScalarFunction implements TypeExpression {
     HISTOGRAM(), // same as date_histogram
     HOUR_OF_DAY(func(DATE).to(INTEGER)),
     INCLUDE(), // same as exclude
-    IN_TERMS(),// varargs
+    IN_TERMS(), // varargs
     MATCHPHRASE(
         func(STRING, STRING).to(BOOLEAN),
         func(STRING).to(STRING)

@@ -103,14 +103,12 @@ public class AntlrParseTreeVisitor<T extends Reducible> extends OpenDistroSqlPar
             } else {
                 result = visitor.visitIndexName(tableName, alias);
             }
-        }
-        else if (ctx.tableName() instanceof TableAndTypeNameContext) {
+        } else if (ctx.tableName() instanceof TableAndTypeNameContext) {
             result = visitor.visitIndexName(
                 ((TableAndTypeNameContext) ctx.tableName()).uid(0).getText(),
                 alias
             );
-        }
-        else {
+        } else {
             result = visitor.visitIndexPattern(ctx.tableName().getText(), alias);
         }
         return result;

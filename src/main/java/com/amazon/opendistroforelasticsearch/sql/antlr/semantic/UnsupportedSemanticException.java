@@ -16,7 +16,8 @@
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic;
 
 /**
- * Exception for valid but unsupported semantic, for example stop analysis when seeing table name pattern in FROM clause.
+ * Exception for valid but unsupported semantic, for example stop analysis
+ * when seeing table name pattern in FROM clause.
  */
 public class UnsupportedSemanticException extends IllegalStateException {
 

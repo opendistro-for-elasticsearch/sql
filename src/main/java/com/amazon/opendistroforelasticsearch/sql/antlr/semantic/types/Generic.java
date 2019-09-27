@@ -26,10 +26,16 @@ import java.util.function.Function;
  */
 public class Generic implements Type {
 
+    /** Generic type placeholder namespace */
     private enum Name { T }
+
+    /** Construct function to find generic type in argument list with same name */
     public static final Function<Type[], Type> T = types -> findSameGenericType(Name.T, types);
 
+    /** Generic type name */
     private final Name name;
+
+    /** Actual type binding to current generic type */
     private final Type binding;
 
     public Generic(Name name, Type type) {
