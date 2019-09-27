@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.rewriter.nestedfield;
 
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
 import com.alibaba.druid.sql.ast.expr.SQLCharExpr;
+import com.alibaba.druid.sql.ast.expr.SQLNotExpr;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
 
 /**
@@ -67,8 +68,9 @@ class Where extends SQLClause<SQLBinaryOpExpr> {
      * Merge anyway if the root of WHERE clause be reached
      */
     private void mergeIfHaveTagAndIsRootOfWhere(Scope scope) {
-        if (!scope.getConditionTag(expr).isEmpty()
-                && expr.getParent() instanceof MySqlSelectQueryBlock) {
+        if ((!scope.getConditionTag(expr).isEmpty()
+             && expr.getParent() instanceof MySqlSelectQueryBlock)
+            || expr.getParent() instanceof SQLNotExpr) {
             mergeNestedField(scope);
         }
     }

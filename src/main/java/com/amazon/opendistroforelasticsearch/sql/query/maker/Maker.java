@@ -23,6 +23,7 @@ import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
 import com.alibaba.druid.sql.ast.expr.SQLNumericLiteralExpr;
 import com.amazon.opendistroforelasticsearch.sql.domain.Condition;
+import com.amazon.opendistroforelasticsearch.sql.domain.Condition.OPEAR;
 import com.amazon.opendistroforelasticsearch.sql.domain.Paramer;
 import com.amazon.opendistroforelasticsearch.sql.domain.Where;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
@@ -88,7 +89,7 @@ public abstract class Maker {
 
     private static final Set<Condition.OPEAR> NOT_OPEAR_SET = ImmutableSet.of(
             Condition.OPEAR.N, Condition.OPEAR.NIN, Condition.OPEAR.ISN, Condition.OPEAR.NBETWEEN,
-            Condition.OPEAR.NLIKE, Condition.OPEAR.NIN_TERMS, Condition.OPEAR.NTERM
+            Condition.OPEAR.NLIKE, Condition.OPEAR.NIN_TERMS, Condition.OPEAR.NTERM, OPEAR.NE_NESTED_COMPLEX
     );
 
     protected Maker(Boolean isQuery) {
@@ -319,6 +320,7 @@ public abstract class Maker {
                 toXContent = QueryBuilders.idsQuery(type).addIds(ids);
                 break;
             case NESTED_COMPLEX:
+            case NE_NESTED_COMPLEX:
                 if (value == null || !(value instanceof Where)) {
                     throw new SqlParseException("unsupported nested condition");
                 }

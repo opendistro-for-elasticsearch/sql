@@ -60,8 +60,12 @@ public class SubQueryRewriter {
             return ctx.popWhere();
         } else if (expr instanceof SQLBinaryOpExpr) {
             SQLBinaryOpExpr binaryOpExpr = (SQLBinaryOpExpr) expr;
-            binaryOpExpr.setLeft(convertWhere(binaryOpExpr.getLeft()));
-            binaryOpExpr.setRight(convertWhere(binaryOpExpr.getRight()));
+            SQLExpr left = convertWhere(binaryOpExpr.getLeft());
+            left.setParent(binaryOpExpr);
+            binaryOpExpr.setLeft(left);
+            SQLExpr right = convertWhere(binaryOpExpr.getRight());
+            right.setParent(binaryOpExpr);
+            binaryOpExpr.setRight(right);
         }
         return expr;
     }

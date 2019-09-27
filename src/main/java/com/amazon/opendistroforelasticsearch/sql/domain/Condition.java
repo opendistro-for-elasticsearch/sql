@@ -58,6 +58,7 @@ public class Condition extends Where {
         TERM,
         IDS_QUERY,
         NESTED_COMPLEX,
+        NE_NESTED_COMPLEX, // NOT EXISTS NESTED_COMPLEX
         CHILDREN_COMPLEX,
         SCRIPT,
         NIN_TERMS,
@@ -133,6 +134,7 @@ public class Condition extends Where {
             negatives.put(IS, ISN);
             negatives.put(IN, NIN);
             negatives.put(BETWEEN, NBETWEEN);
+            negatives.put(NESTED_COMPLEX, NE_NESTED_COMPLEX);
         }
 
         static {
