@@ -69,8 +69,8 @@ public class ExplainIT extends SQLIntegTestCase {
         String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8)
                 .replaceAll("\r","");
 
-        String result = explainQuery(String.format("SELECT a, CASE WHEN gender='0' then 'aaa' else 'bbb'end a2345," +
-                        "count(c) FROM %s GROUP BY terms('field'='a','execution_hint'='global_ordinals'),a2345",
+        String result = explainQuery(String.format("SELECT address, CASE WHEN gender='0' then 'aaa' else 'bbb'end a2345," +
+                        "count(age) FROM %s GROUP BY terms('field'='address','execution_hint'='global_ordinals'),a2345",
                 TEST_INDEX_ACCOUNT));
         Assert.assertThat(result.replaceAll("\\s+",""), equalTo(expectedOutput.replaceAll("\\s+","")));
     }
@@ -84,7 +84,7 @@ public class ExplainIT extends SQLIntegTestCase {
                 .replaceAll("\r","");
 
         String result = explainQuery(String.format("SELECT case when gender is null then 'aaa' " +
-                "else gender  end  test , cust_code FROM %s", TEST_INDEX_ACCOUNT));
+                "else gender  end  test , account_number FROM %s", TEST_INDEX_ACCOUNT));
         Assert.assertThat(result.replaceAll("\\s+",""), equalTo(expectedOutput.replaceAll("\\s+","")));
     }
 
@@ -158,7 +158,7 @@ public class ExplainIT extends SQLIntegTestCase {
         String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8)
                 .replaceAll("\r", "");
 
-        String result = explainQuery(String.format("SELECT * FROM %s WHERE 'q'=multimatch('query'='this is a test'," +
+        String result = explainQuery(String.format("SELECT * FROM %s WHERE multimatch('query'='this is a test'," +
                 "'fields'='subject^3,message','analyzer'='standard','type'='best_fields','boost'=1.0," +
                 "'slop'=0,'tie_breaker'=0.3,'operator'='and')", TEST_INDEX_ACCOUNT));
         Assert.assertThat(result.replaceAll("\\s+", ""), equalTo(expectedOutput.replaceAll("\\s+", "")));
