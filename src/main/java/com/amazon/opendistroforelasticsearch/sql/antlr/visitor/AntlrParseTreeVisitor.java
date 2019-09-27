@@ -22,7 +22,6 @@ import org.antlr.v4.runtime.ParserRuleContext;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.AggregateWindowedFunctionContext;
@@ -43,7 +42,6 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroS
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.SimpleTableNameContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.StringLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.TableAndTypeNameContext;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.TableNameContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.UdfFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.UidContext;
 
@@ -72,6 +70,7 @@ public class AntlrParseTreeVisitor<T extends Reducible> extends OpenDistroSqlPar
         // Always visit FROM clause first to define symbols
         FromClauseContext fromClause = ctx.fromClause();
         visit(fromClause.tableSources());
+
         if (fromClause.whereExpr != null) {
             visit(fromClause.whereExpr);
         }
@@ -95,18 +94,26 @@ public class AntlrParseTreeVisitor<T extends Reducible> extends OpenDistroSqlPar
 
     @Override
     public T visitAtomTableItem(AtomTableItemContext ctx) {
-        Optional<String> alias = Optional.ofNullable(ctx.alias == null ? null : ctx.alias.getText());
-        TableNameContext tableName = ctx.tableName();
-        if (tableName instanceof SimpleTableNameContext) {
-            visitor.visitIndexName(
-                ((SimpleTableNameContext) tableName).fullId().getText(), alias
+        String alias = (ctx.alias == null) ? "" : ctx.alias.getText();
+        T result;
+        if (ctx.tableName() instanceof SimpleTableNameContext) {
+            String tableName = ctx.tableName().getText();
+            if (isPath(tableName)) {
+                result = visitor.visitNestedIndexName(tableName, alias);
+            } else {
+                result = visitor.visitIndexName(tableName, alias);
+            }
+        }
+        else if (ctx.tableName() instanceof TableAndTypeNameContext) {
+            result = visitor.visitIndexName(
+                ((TableAndTypeNameContext) ctx.tableName()).uid(0).getText(),
+                alias
             );
-        } else if (tableName instanceof TableAndTypeNameContext) {
-            visitor.visitIndexName(
-                ((TableAndTypeNameContext) tableName).uid(0).getText(), alias
-            );
-        } // else { Skip all analysis if TableNamePattern }
-        return defaultResult();
+        }
+        else {
+            result = visitor.visitIndexPattern(ctx.tableName().getText(), alias);
+        }
+        return result;
     }
 
     @Override
@@ -207,6 +214,10 @@ public class AntlrParseTreeVisitor<T extends Reducible> extends OpenDistroSqlPar
             return nextResult;
         }
         return aggregate;
+    }
+
+    private boolean isPath(String indexName) {
+        return indexName.indexOf('.', 1) != -1; // taking care of .kibana
     }
 
     private T visitSelectItem(ParserRuleContext item, UidContext uid) {

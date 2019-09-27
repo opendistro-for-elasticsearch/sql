@@ -43,7 +43,15 @@ public interface ParseTreeVisitor<T> {
         return defaultValue();
     }
 
-    default T visitIndexName(String indexName, Optional<String> alias) {
+    default T visitIndexName(String indexName, String alias) {
+        return defaultValue();
+    }
+
+    default T visitNestedIndexName(String indexName, String alias) {
+        return defaultValue();
+    }
+
+    default T visitIndexPattern(String indexPattern, String alias) {
         return defaultValue();
     }
 

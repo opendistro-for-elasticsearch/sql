@@ -38,6 +38,8 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.UNKNOWN;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Index.INDEX;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Index.NESTED_INDEX;
 
 /**
  * SQL semantic analyzer that determines if a syntactical correct query is meaningful.
@@ -99,25 +101,34 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
     }
 
     @Override
-    public Type visitIndexName(String indexName, Optional<String> alias) {
-        if (isPath(indexName)) {
-            Type type = resolve(new Symbol(Namespace.FIELD_NAME, indexName));
-            if (type != BaseType.NESTED) {
-                throw new SemanticAnalysisException(StringUtils.format(
-                    "Field [%s] is [%s] type but nested type is required", indexName, type));
-            }
-            alias.ifPresent(s -> redefineFieldNameByPrefixingAlias(indexName, s));
-        }
-        else {
-            IndexMappings indexMappings = clusterState.getFieldMappings(new String[]{indexName});
-            FieldMappings mappings = indexMappings.firstMapping().firstMapping();
+    public Type visitIndexName(String indexName, String alias) {
+        IndexMappings indexMappings = clusterState.getFieldMappings(new String[]{indexName});
+        FieldMappings mappings = indexMappings.firstMapping().firstMapping();
+        String aliasName = alias.isEmpty() ? indexName : alias;
 
-            String aliasName = alias.orElse(indexName);
-            defineFieldName(aliasName, UNKNOWN); //TODO: need a Index type here
-            mappings.flat(this::defineFieldName);
-            mappings.flat((fieldName, type) -> defineFieldName(aliasName + "." + fieldName, type));
+        defineFieldName(aliasName, INDEX);
+        mappings.flat(this::defineFieldName);
+        mappings.flat((fieldName, type) -> defineFieldName(aliasName + "." + fieldName, type));
+        return INDEX;
+    }
+
+    @Override
+    public Type visitNestedIndexName(String indexName, String alias) {
+        Type type = resolve(new Symbol(Namespace.FIELD_NAME, indexName));
+        if (type != BaseType.NESTED) {
+            throw new SemanticAnalysisException(StringUtils.format(
+                "Field [%s] is [%s] type but nested type is required", indexName, type));
         }
-        return null;
+
+        if (!alias.isEmpty()) {
+            redefineFieldNameByPrefixingAlias(indexName, alias);
+        }
+        return NESTED_INDEX;
+    }
+
+    @Override
+    public Type visitIndexPattern(String indexPattern, String alias) {
+        throw new UnsupportedSemanticException("Index pattern is valid but current semantic analyzer cannot parse it");
     }
 
     @Override
@@ -160,9 +171,7 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
         return DEFAULT;
     }
 
-    private boolean isPath(String indexName) {
-        return indexName.indexOf('.', 1) != -1; // taking care of .kibana
-    }
+
 
     private void redefineFieldNameByPrefixingAlias(String indexName, String alias) {
         Map<String, Type> typeByFullName = environment().resolveByPrefix(new Symbol(Namespace.FIELD_NAME, indexName));

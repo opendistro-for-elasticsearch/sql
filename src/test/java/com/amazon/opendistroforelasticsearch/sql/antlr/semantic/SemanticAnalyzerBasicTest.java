@@ -60,7 +60,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
 
     @Test
     public void contextShouldIncludeAllFieldsAfterVisitingIndexNameInFromClause() {
-        analyzer.visitIndexName("semantics", Optional.empty());
+        analyzer.visitIndexName("semantics", "");
 
         Map<String, Type> typeByName = context.peek().resolveAll(Namespace.FIELD_NAME);
         assertThat(
@@ -114,7 +114,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
 
     @Test
     public void contextShouldIncludeAllFieldsPrefixedByIndexAliasAfterVisitingIndexNameWithAliasInFromClause() {
-        analyzer.visitIndexName("semantics", Optional.of("s"));
+        analyzer.visitIndexName("semantics", "s");
 
         Map<String, Type> typeByName = context.peek().resolveAll(Namespace.FIELD_NAME);
         assertThat(
@@ -169,8 +169,8 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
 
     @Test
     public void contextShouldIncludeSameFieldsAfterVisitingNestedFieldWithoutAliasInFromClause() {
-        analyzer.visitIndexName("semantics", Optional.of("s")); // This should be required
-        analyzer.visitIndexName("s.projects", Optional.empty());
+        analyzer.visitIndexName("semantics", "s"); // This should be required
+        analyzer.visitNestedIndexName("s.projects", "");
 
         Map<String, Type> typeByName = context.peek().resolveAll(Namespace.FIELD_NAME);
         assertThat(
@@ -225,8 +225,8 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
 
     @Test
     public void contextShouldIncludeMoreFieldsPrefixedByNestedFieldAliasAfterVisitingNestedFieldWithAliasInFromClause() {
-        analyzer.visitIndexName("semantics", Optional.of("s"));
-        analyzer.visitIndexName("s.projects", Optional.of("p"));
+        analyzer.visitIndexName("semantics", "s");
+        analyzer.visitNestedIndexName("s.projects", "p");
 
         Map<String, Type> typeByName = context.peek().resolveAll(Namespace.FIELD_NAME);
         assertThat(
@@ -287,8 +287,8 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
 
     @Test
     public void contextShouldIncludeMoreFieldsPrefixedByNestedFieldAliasAfterVisitingDeepNestedFieldWithAliasInFromClause() {
-        analyzer.visitIndexName("semantics", Optional.of("s"));
-        analyzer.visitIndexName("s.projects.members", Optional.of("m"));
+        analyzer.visitIndexName("semantics", "s");
+        analyzer.visitNestedIndexName("s.projects.members", "m");
 
         Map<String, Type> typeByName = context.peek().resolveAll(Namespace.FIELD_NAME);
         assertThat(
@@ -346,9 +346,9 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
 
     @Test
     public void contextShouldIncludeMoreFieldsPrefixedByNestedFieldAliasAfterVisitingAllNestedFieldsWithAliasInFromClause() {
-        analyzer.visitIndexName("semantics", Optional.of("s"));
-        analyzer.visitIndexName("s.projects", Optional.of("p"));
-        analyzer.visitIndexName("s.projects.members", Optional.of("m"));
+        analyzer.visitIndexName("semantics", "s");
+        analyzer.visitNestedIndexName("s.projects", "p");
+        analyzer.visitNestedIndexName("s.projects.members", "m");
 
         Map<String, Type> typeByName = context.peek().resolveAll(Namespace.FIELD_NAME);
         assertThat(
@@ -412,9 +412,9 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
 
     @Test
     public void contextShouldIncludeMoreFieldsPrefixedByNestedFieldAliasAfterVisitingNestedFieldWithAliasInSubqueryFromClause() {
-        analyzer.visitIndexName("semantics", Optional.of("s"));
+        analyzer.visitIndexName("semantics", "s");
         analyzer.visitQuery();
-        analyzer.visitIndexName("s.projects", Optional.of("p"));
+        analyzer.visitNestedIndexName("s.projects", "p");
 
         assertThat(
             context.peek().resolveAll(Namespace.FIELD_NAME),
@@ -524,13 +524,13 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
 
     @Test
     public void fieldWithUnknownEsTypeShouldPass() {
-        analyzer.visitIndexName("semantics", Optional.empty());
+        analyzer.visitIndexName("semantics", "");
         Assert.assertEquals(UNKNOWN, analyzer.visitFieldName("new_field"));
     }
 
     @Test
     public void fieldWithSpacesInNameShouldPass() {
-        analyzer.visitIndexName("semantics", Optional.empty());
+        analyzer.visitIndexName("semantics", "");
         Assert.assertEquals(TEXT, analyzer.visitFieldName("field with spaces"));
     }
 

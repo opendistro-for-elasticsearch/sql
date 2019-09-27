@@ -36,7 +36,7 @@ public enum Index implements Type {
             return INDEX_PATTERN;
         }
     },
-    NESTED_FIELD {
+    NESTED_INDEX {
         @Override
         public Type construct(List<Type> others) {
             Index otherIndex = ((Index) super.construct(others));

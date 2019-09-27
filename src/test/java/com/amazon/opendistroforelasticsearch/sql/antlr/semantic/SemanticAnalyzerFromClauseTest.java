@@ -35,6 +35,11 @@ public class SemanticAnalyzerFromClauseTest extends SemanticAnalyzerTestBase {
         );
     }
 
+    @Test
+    public void useIndexPatternShouldSkipAllCheck() {
+        validate("SELECT abc FROM semant* WHERE def = 1");
+    }
+
     /**
      * As shown below, there are multiple cases for alias:
      *  1. Alias is not present: either use full index name as prefix or not.
@@ -153,9 +158,16 @@ public class SemanticAnalyzerFromClauseTest extends SemanticAnalyzerTestBase {
     }
 
     @Test
+    public void indexNameWithTypeShouldPass() {
+        validate("SELECT * FROM semantics/docs WHERE balance = 10000");
+        validate("SELECT * FROM semantics/docs s WHERE s.balance = 10000");
+        validate("SELECT * FROM semantics/docs s, s.projects p WHERE p.active IS TRUE");
+    }
+
+    @Test
     public void noIndexAliasShouldPass() {
         validate("SELECT * FROM semantics");
-        //validate("SELECT * FROM semantics, projects"); //TODO: alias should be required for nested field
+        validate("SELECT * FROM semantics, semantics.projects");
     }
 
     @Test

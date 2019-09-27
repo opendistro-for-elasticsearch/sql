@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.antlr;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlLexer;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.SemanticAnalyzer;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.UnsupportedSemanticException;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.SemanticContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.CaseInsensitiveCharStream;
 import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.SyntaxAnalysisErrorListener;
@@ -26,11 +27,15 @@ import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Entry point for ANTLR generated parser to perform strict syntax and semantic analysis.
  */
 public class OpenDistroSqlAnalyzer {
+
+    private static final Logger LOG = LogManager.getLogger();
 
     /** Original sql query */
     private final String sql;
@@ -40,10 +45,14 @@ public class OpenDistroSqlAnalyzer {
     }
 
     public void analyze(LocalClusterState clusterState) {
-        analyzeSemantic(
-            analyzeSyntax(),
-            clusterState
-        );
+        try {
+            analyzeSemantic(
+                analyzeSyntax(),
+                clusterState
+            );
+        } catch (UnsupportedSemanticException e) {
+            LOG.error("Skip analysis because of valid but unsupported semantic", e);
+        }
     }
 
     /**
