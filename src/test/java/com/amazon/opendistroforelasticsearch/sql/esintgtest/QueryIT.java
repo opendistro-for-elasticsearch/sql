@@ -201,6 +201,7 @@ public class QueryIT extends SQLIntegTestCase {
         }
     }
 
+    @Ignore("Will fix this in issue https://github.com/opendistro-for-elasticsearch/sql/issues/121")
     @Test
     public void selectFieldWithSpace() throws IOException {
         String[] arr = new String[] {"test field"};

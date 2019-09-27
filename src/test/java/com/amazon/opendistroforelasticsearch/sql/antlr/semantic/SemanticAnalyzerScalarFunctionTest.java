@@ -90,6 +90,16 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
     }
 
     @Test
+    public void logFunctionCallWithUnknownFieldShouldPass() {
+        validate("SELECT LOG(new_field) FROM semantics");
+    }
+
+    @Test
+    public void substringWithLogFunctionCallWithUnknownFieldShouldPass() {
+        validate("SELECT SUBSTRING(LOG(new_field), 0, 1) FROM semantics");
+    }
+
+    @Test
     public void logFunctionCallWithResultOfAbsFunctionCallWithOneNumberShouldPass() {
         validate("SELECT LOG(ABS(age)) FROM semantics");
     }

@@ -22,7 +22,10 @@
             "type": "geo_point"
           },
           "new_field": {
-            "type": "some_new_es_type_we"
+            "type": "some_new_es_type_outside_type_system"
+          },
+          "field with spaces": {
+            "type": "text"
           },
           "employer": {
             "type": "text",

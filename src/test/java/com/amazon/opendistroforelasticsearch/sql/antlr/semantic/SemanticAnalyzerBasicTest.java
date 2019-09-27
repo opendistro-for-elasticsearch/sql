@@ -66,7 +66,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
         assertThat(
             typeByName,
             allOf(
-                aMapWithSize(39),
+                aMapWithSize(41),
                 hasEntry("address", TEXT),
                 hasEntry("age", INTEGER),
                 hasEntry("balance", DOUBLE),
@@ -74,6 +74,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
                 hasEntry("birthday", DATE),
                 hasEntry("location", GEO_POINT),
                 hasEntry("new_field", UNKNOWN),
+                hasEntry("field with spaces", TEXT),
                 hasEntry("employer", TEXT),
                 hasEntry("employer.keyword", KEYWORD),
                 hasEntry("projects", NESTED),
@@ -94,6 +95,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
                 hasEntry("semantics.birthday", DATE),
                 hasEntry("semantics.location", GEO_POINT),
                 hasEntry("semantics.new_field", UNKNOWN),
+                hasEntry("semantics.field with spaces", TEXT),
                 hasEntry("semantics.employer", TEXT),
                 hasEntry("semantics.employer.keyword", KEYWORD),
                 hasEntry("semantics.projects", NESTED),
@@ -118,7 +120,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
         assertThat(
             typeByName,
             allOf(
-                aMapWithSize(39),
+                aMapWithSize(41),
                 // These are also valid because alias is optional in SQL
                 hasEntry("address", TEXT),
                 hasEntry("age", INTEGER),
@@ -127,6 +129,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
                 hasEntry("birthday", DATE),
                 hasEntry("location", GEO_POINT),
                 hasEntry("new_field", UNKNOWN),
+                hasEntry("field with spaces", TEXT),
                 hasEntry("employer", TEXT),
                 hasEntry("employer.keyword", KEYWORD),
                 hasEntry("projects", NESTED),
@@ -147,6 +150,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
                 hasEntry("s.birthday", DATE),
                 hasEntry("s.location", GEO_POINT),
                 hasEntry("s.new_field", UNKNOWN),
+                hasEntry("s.field with spaces", TEXT),
                 hasEntry("s.employer", TEXT),
                 hasEntry("s.employer.keyword", KEYWORD),
                 hasEntry("s.projects", NESTED),
@@ -172,7 +176,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
         assertThat(
             typeByName,
             allOf(
-                aMapWithSize(39),
+                aMapWithSize(41),
                 // These are also valid because alias is optional in SQL
                 hasEntry("address", TEXT),
                 hasEntry("age", INTEGER),
@@ -181,6 +185,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
                 hasEntry("birthday", DATE),
                 hasEntry("location", GEO_POINT),
                 hasEntry("new_field", UNKNOWN),
+                hasEntry("field with spaces", TEXT),
                 hasEntry("employer", TEXT),
                 hasEntry("employer.keyword", KEYWORD),
                 hasEntry("projects", NESTED),
@@ -201,6 +206,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
                 hasEntry("s.birthday", DATE),
                 hasEntry("s.location", GEO_POINT),
                 hasEntry("s.new_field", UNKNOWN),
+                hasEntry("s.field with spaces", TEXT),
                 hasEntry("s.employer", TEXT),
                 hasEntry("s.employer.keyword", KEYWORD),
                 hasEntry("s.projects", NESTED),
@@ -226,7 +232,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
         assertThat(
             typeByName,
             allOf(
-                aMapWithSize(44),
+                aMapWithSize(46),
                 // These are also valid because alias is optional in SQL
                 hasEntry("address", TEXT),
                 hasEntry("age", INTEGER),
@@ -235,6 +241,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
                 hasEntry("birthday", DATE),
                 hasEntry("location", GEO_POINT),
                 hasEntry("new_field", UNKNOWN),
+                hasEntry("field with spaces", TEXT),
                 hasEntry("employer", TEXT),
                 hasEntry("employer.keyword", KEYWORD),
                 hasEntry("projects", NESTED),
@@ -255,6 +262,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
                 hasEntry("s.birthday", DATE),
                 hasEntry("s.location", GEO_POINT),
                 hasEntry("s.new_field", UNKNOWN),
+                hasEntry("s.field with spaces", TEXT),
                 hasEntry("s.employer", TEXT),
                 hasEntry("s.employer.keyword", KEYWORD),
                 hasEntry("s.projects", NESTED),
@@ -286,7 +294,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
         assertThat(
             typeByName,
             allOf(
-                aMapWithSize(41),
+                aMapWithSize(43),
                 // These are also valid because alias is optional in SQL
                 hasEntry("address", TEXT),
                 hasEntry("age", INTEGER),
@@ -295,6 +303,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
                 hasEntry("birthday", DATE),
                 hasEntry("location", GEO_POINT),
                 hasEntry("new_field", UNKNOWN),
+                hasEntry("field with spaces", TEXT),
                 hasEntry("employer", TEXT),
                 hasEntry("employer.keyword", KEYWORD),
                 hasEntry("projects", NESTED),
@@ -315,6 +324,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
                 hasEntry("s.birthday", DATE),
                 hasEntry("s.location", GEO_POINT),
                 hasEntry("s.new_field", UNKNOWN),
+                hasEntry("s.field with spaces", TEXT),
                 hasEntry("s.employer", TEXT),
                 hasEntry("s.employer.keyword", KEYWORD),
                 hasEntry("s.projects", NESTED),
@@ -344,7 +354,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
         assertThat(
             typeByName,
             allOf(
-                aMapWithSize(46),
+                aMapWithSize(48),
                 // These are also valid because alias is optional in SQL
                 hasEntry("address", TEXT),
                 hasEntry("age", INTEGER),
@@ -353,6 +363,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
                 hasEntry("birthday", DATE),
                 hasEntry("location", GEO_POINT),
                 hasEntry("new_field", UNKNOWN),
+                hasEntry("field with spaces", TEXT),
                 hasEntry("employer", TEXT),
                 hasEntry("employer.keyword", KEYWORD),
                 hasEntry("projects", NESTED),
@@ -373,6 +384,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
                 hasEntry("s.birthday", DATE),
                 hasEntry("s.location", GEO_POINT),
                 hasEntry("s.new_field", UNKNOWN),
+                hasEntry("s.field with spaces", TEXT),
                 hasEntry("s.employer", TEXT),
                 hasEntry("s.employer.keyword", KEYWORD),
                 hasEntry("s.projects", NESTED),
@@ -407,7 +419,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
         assertThat(
             context.peek().resolveAll(Namespace.FIELD_NAME),
             allOf(
-                aMapWithSize(44),
+                aMapWithSize(46),
                 // These are also valid because alias is optional in SQL
                 hasEntry("address", TEXT),
                 hasEntry("age", INTEGER),
@@ -416,6 +428,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
                 hasEntry("birthday", DATE),
                 hasEntry("location", GEO_POINT),
                 hasEntry("new_field", UNKNOWN),
+                hasEntry("field with spaces", TEXT),
                 hasEntry("employer", TEXT),
                 hasEntry("employer.keyword", KEYWORD),
                 hasEntry("projects", NESTED),
@@ -436,6 +449,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
                 hasEntry("s.birthday", DATE),
                 hasEntry("s.location", GEO_POINT),
                 hasEntry("s.new_field", UNKNOWN),
+                hasEntry("s.field with spaces", TEXT),
                 hasEntry("s.employer", TEXT),
                 hasEntry("s.employer.keyword", KEYWORD),
                 hasEntry("s.projects", NESTED),
@@ -461,7 +475,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
         assertThat(
             context.peek().resolveAll(Namespace.FIELD_NAME),
             allOf(
-                aMapWithSize(39),
+                aMapWithSize(41),
                 // These are also valid because alias is optional in SQL
                 hasEntry("address", TEXT),
                 hasEntry("age", INTEGER),
@@ -470,6 +484,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
                 hasEntry("birthday", DATE),
                 hasEntry("location", GEO_POINT),
                 hasEntry("new_field", UNKNOWN),
+                hasEntry("field with spaces", TEXT),
                 hasEntry("employer", TEXT),
                 hasEntry("employer.keyword", KEYWORD),
                 hasEntry("projects", NESTED),
@@ -490,6 +505,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
                 hasEntry("s.birthday", DATE),
                 hasEntry("s.location", GEO_POINT),
                 hasEntry("s.new_field", UNKNOWN),
+                hasEntry("s.field with spaces", TEXT),
                 hasEntry("s.employer", TEXT),
                 hasEntry("s.employer.keyword", KEYWORD),
                 hasEntry("s.projects", NESTED),
@@ -510,6 +526,12 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
     public void fieldWithUnknownEsTypeShouldPass() {
         analyzer.visitIndexName("semantics", Optional.empty());
         Assert.assertEquals(UNKNOWN, analyzer.visitFieldName("new_field"));
+    }
+
+    @Test
+    public void fieldWithSpacesInNameShouldPass() {
+        analyzer.visitIndexName("semantics", Optional.empty());
+        Assert.assertEquals(TEXT, analyzer.visitFieldName("field with spaces"));
     }
 
 }

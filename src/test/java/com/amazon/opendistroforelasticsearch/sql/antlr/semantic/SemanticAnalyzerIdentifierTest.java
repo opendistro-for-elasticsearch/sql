@@ -46,6 +46,13 @@ public class SemanticAnalyzerIdentifierTest extends SemanticAnalyzerTestBase {
         validate("SELECT _score FROM semantics WHERE _id = 1 AND _type = '_doc'");
     }
 
+    @Ignore("Need to remove single quote or back ticks")
+    @Test
+    public void useFieldNameWithSpaceShouldPass() {
+        validate("SELECT ['field with spaces'] FROM semantics");
+        validate("SELECT `field with spaces` FROM semantics");
+    }
+
     @Test
     public void nonExistingFieldNameInSelectClauseShouldFail() {
         expectValidationFailWithErrorMessages(
