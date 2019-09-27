@@ -105,8 +105,45 @@ public class SemanticAnalyzerAggregateFunctionTest extends SemanticAnalyzerTestB
     }
 
     @Test
-    public void avgFunctionCallAsAliasShouldPass() {
+    public void useAvgFunctionCallAliasInHavingShouldPass() {
         validate("SELECT city, AVG(age) AS avg FROM semantics GROUP BY city HAVING avg > 10");
+    }
+
+    @Test
+    public void useAvgAndMaxFunctionCallAliasInHavingShouldPass() {
+        validate(
+            "SELECT city, AVG(age) AS avg, MAX(balance) AS bal FROM semantics " +
+            "GROUP BY city HAVING avg > 10 AND bal > 10000"
+        );
+    }
+
+    @Test
+    public void useAvgFunctionCallWithoutAliasInHavingShouldPass() {
+        validate("SELECT city, AVG(age) FROM semantics GROUP BY city HAVING AVG(age) > 10");
+    }
+
+    @Test
+    public void useAvgFunctionCallAliasInOrderByShouldPass() {
+        validate("SELECT city, AVG(age) AS avg FROM semantics GROUP BY city ORDER BY avg");
+    }
+
+    @Test
+    public void useColumnNameAliasInOrderByShouldPass() {
+        validate("SELECT age AS a, AVG(balance) FROM semantics GROUP BY age ORDER BY a");
+    }
+
+    @Test
+    public void useExpressionAliasInOrderByShouldPass() {
+        validate("SELECT age + 1 AS a FROM semantics GROUP BY age ORDER BY a");
+    }
+
+    @Test
+    public void useAvgFunctionCallOnTextFieldInHavingShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT city FROM semantics GROUP BY city HAVING AVG(address) > 10",
+            "Function [AVG] cannot work with [TEXT].",
+            "Usage: AVG(NUMBER T) -> T"
+        );
     }
 
 }
