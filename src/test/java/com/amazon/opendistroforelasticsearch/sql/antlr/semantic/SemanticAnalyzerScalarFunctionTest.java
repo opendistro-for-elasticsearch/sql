@@ -90,6 +90,39 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
     }
 
     @Test
+    public void logFunctionCallWithResultOfAbsFunctionCallWithOneNumberShouldPass() {
+        validate("SELECT LOG(ABS(age)) FROM semantics");
+    }
+
+    @Test
+    public void logFunctionCallWithMoreNestedFunctionCallWithOneNumberShouldPass() {
+        validate("SELECT LOG(ABS(SQRT(balance))) FROM semantics");
+    }
+
+    @Test
+    public void substringFunctionCallWithResultOfAnotherSubstringAndAbsFunctionCallShouldPass() {
+        validate("SELECT SUBSTRING(SUBSTRING(city, ABS(age), 1), 2, ABS(1)) FROM semantics");
+    }
+
+    @Test
+    public void substringFunctionCallWithResultOfMathFunctionCallShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT SUBSTRING(LOG(balance), 2, 3) FROM semantics",
+            "Function [SUBSTRING] cannot work with [DOUBLE, INTEGER, INTEGER].",
+            "Usage: SUBSTRING(STRING T, INTEGER, INTEGER) -> T"
+        );
+    }
+
+    @Test
+    public void logFunctionCallWithResultOfSubstringFunctionCallShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT LOG(SUBSTRING(address, 0, 1)) FROM semantics",
+            "Function [LOG] cannot work with [TEXT].",
+            "Usage: LOG(NUMBER T) -> T or LOG(NUMBER T, NUMBER) -> T"
+        );
+    }
+
+    @Test
     public void allSupportedMathFunctionCallInSelectClauseShouldPass() {
         validate(
             "SELECT" +
