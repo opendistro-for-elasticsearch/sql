@@ -23,16 +23,26 @@ import org.junit.Test;
 public class SemanticAnalyzerSubqueryTest extends SemanticAnalyzerTestBase {
 
     @Test
-    public void useExistOnNestedFieldShouldPass() {
+    public void useExistClauseOnNestedFieldShouldPass() {
         validate(
-            "SELECT * FROM semantics AS s " +
-            "WHERE EXISTS " +
-            " ( " +
-            "  SELECT * FROM s.projects AS p " +
-            "  WHERE p.active IS TRUE " +
-            " ) " +
+            "SELECT * FROM semantics AS s WHERE EXISTS " +
+            " ( SELECT * FROM s.projects AS p WHERE p.active IS TRUE ) " +
             " AND s.age > 10"
         );
+    }
+
+    @Test
+    public void useNotExistClauseOnNestedFieldShouldPass() {
+        validate(
+            "SELECT * FROM semantics AS s WHERE NOT EXISTS " +
+            " ( SELECT * FROM s.projects AS p WHERE p.active IS TRUE ) " +
+            " AND s.age > 10"
+        );
+    }
+
+    @Test
+    public void useInClauseOnAgeWithIntegerLiteralListShouldPass() {
+        validate("SELECT * FROM semantics WHERE age IN (30, 40)");
     }
 
 }
