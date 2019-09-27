@@ -21,6 +21,9 @@
           "location": {
             "type": "geo_point"
           },
+          "new_field": {
+            "type": "some_new_es_type_we"
+          },
           "employer": {
             "type": "text",
             "fields": {

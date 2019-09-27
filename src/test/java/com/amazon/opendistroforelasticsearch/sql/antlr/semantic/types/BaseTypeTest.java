@@ -30,6 +30,7 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Bas
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.TEXT;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.UNKNOWN;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -37,6 +38,16 @@ import static org.junit.Assert.assertTrue;
  * Test base type compatibility
  */
 public class BaseTypeTest {
+
+    @Test
+    public void unknownTypeNameShouldReturnUnknown() {
+        assertEquals(UNKNOWN, BaseType.typeOf("this_is_a_new_es_type_we_arent_aware"));
+    }
+
+    @Test
+    public void typeOfShouldIgnoreCase() {
+        assertEquals(INTEGER, BaseType.typeOf("Integer"));
+    }
 
     @Test
     public void sameBaseTypeShouldBeCompatible() {

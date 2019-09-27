@@ -20,6 +20,8 @@ import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.toUpper;
+
 /**
  * Base type hierarchy based on Elasticsearch data type
  */
@@ -53,6 +55,11 @@ public enum BaseType implements Type {
     ES_TYPE(NUMBER, STRING, DATE, BOOLEAN, COMPLEX, GEO_POINT);
 
 
+    /**
+     * Java Enum's valueOf() may thrown "enum constant not found" exception.
+     * And Java doesn't provide a contains method.
+     * So this static map is necessary for check and efficiency.
+     */
     private static final Map<String, BaseType> ALL_BASE_TYPES;
     static {
         ImmutableMap.Builder<String, BaseType> builder = new ImmutableMap.Builder<>();
@@ -60,6 +67,10 @@ public enum BaseType implements Type {
             builder.put(type.name(), type);
         }
         ALL_BASE_TYPES = builder.build();
+    }
+
+    public static BaseType typeOf(String str) {
+        return ALL_BASE_TYPES.getOrDefault(toUpper(str), UNKNOWN);
     }
 
     private BaseType parent;
@@ -72,21 +83,6 @@ public enum BaseType implements Type {
             subType.parent = this;
         }
     }
-
-    /*
-    @Override
-    public String getName() {
-        return name();
-    }
-
-    @Override
-    public Type apply(Type... actualTypes) {
-        if (actualTypes.length != 1) {
-            return TYPE_ERROR;
-        }
-        return isCompatible(actualTypes[0]) ? actualTypes[0] : TYPE_ERROR;
-    }
-    */
 
     /**
      * For base type, compatibility means this (current type) is ancestor of other
@@ -120,12 +116,5 @@ public enum BaseType implements Type {
     public String usage() {
         return name();
     }
-
-    /*
-    @Override
-    public String toString() {
-        return getName();
-    }
-     */
 
 }
