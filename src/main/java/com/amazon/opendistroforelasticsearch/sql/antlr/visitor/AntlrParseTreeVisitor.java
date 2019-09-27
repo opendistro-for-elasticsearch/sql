@@ -71,14 +71,13 @@ public class AntlrParseTreeVisitor<T extends Reducible> extends OpenDistroSqlPar
         // Always visit FROM clause first to define symbols
         FromClauseContext fromClause = ctx.fromClause();
         visit(fromClause.tableSources());
-
         if (fromClause.whereExpr != null) {
             visit(fromClause.whereExpr);
         }
-        fromClause.groupByItem().forEach(this::visit);
 
-        // Visit HAVING later than SELECT for defining alias for aggregate function
+        // Visit GROUP BY and HAVING later than SELECT for alias definition
         visitSelectElements(ctx.selectElements());
+        fromClause.groupByItem().forEach(this::visit);
         if (fromClause.havingExpr != null) {
             visit(fromClause.havingExpr);
         }

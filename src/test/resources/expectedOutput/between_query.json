@@ -3,14 +3,14 @@
     "size" : 200,
     "_source" : {
         "includes" : [
-            "cust_code"
+            "account_number"
         ],
         "excludes" : [ ]
     },
     "script_fields" : {
         "test" : {
             "script" : {
-                "source" : "if((doc['value'].value >= 100 && doc['value'].value <=200)){'aaa'} else {doc['value'].value}",
+                "source" : "if((doc['balance'].value >= 100 && doc['balance'].value <=200)){'aaa'} else {doc['balance'].value}",
                 "lang" : "painless"
             },
             "ignore_failure" : false

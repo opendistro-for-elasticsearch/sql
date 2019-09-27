@@ -96,8 +96,8 @@ public class ExplainIT extends SQLIntegTestCase {
         String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8)
                 .replaceAll("\r","");
 
-        String result = explainQuery(String.format("SELECT  case when value between 100 and 200 then 'aaa' " +
-                "else value  end  test, cust_code FROM %s", TEST_INDEX_ACCOUNT));
+        String result = explainQuery(String.format("SELECT  case when balance between 100 and 200 then 'aaa' " +
+                "else balance  end  test, account_number FROM %s", TEST_INDEX_ACCOUNT));
         Assert.assertThat(result.replaceAll("\\s+",""), equalTo(expectedOutput.replaceAll("\\s+","")));
     }
 
@@ -158,9 +158,9 @@ public class ExplainIT extends SQLIntegTestCase {
         String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8)
                 .replaceAll("\r", "");
 
-        String result = explainQuery(String.format("SELECT * FROM %s WHERE q=multimatch(query='this is a test'," +
-                "fields='subject^3,message',analyzer='standard',type='best_fields',boost=1.0," +
-                "slop=0,tie_breaker=0.3,operator='and')", TEST_INDEX_ACCOUNT));
+        String result = explainQuery(String.format("SELECT * FROM %s WHERE 'q'=multimatch('query'='this is a test'," +
+                "'fields'='subject^3,message','analyzer'='standard','type'='best_fields','boost'=1.0," +
+                "'slop'=0,'tie_breaker'=0.3,'operator'='and')", TEST_INDEX_ACCOUNT));
         Assert.assertThat(result.replaceAll("\\s+", ""), equalTo(expectedOutput.replaceAll("\\s+", "")));
     }
 
@@ -172,17 +172,17 @@ public class ExplainIT extends SQLIntegTestCase {
         final String expected2 = "\"include\":[\"honda\",\"mazda\"],\"exclude\":[\"jensen\",\"rover\"]";
         final String expected3 = "\"include\":{\"partition\":0,\"num_partitions\":20}";
 
-        String result = explainQuery(queryPrefix + " terms(field='correspond_brand_name',size='10'," +
-                "alias='correspond_brand_name',include='\\\".*sport.*\\\"',exclude='\\\"water_.*\\\"')");
+        String result = explainQuery(queryPrefix + " terms('field'='correspond_brand_name','size'='10'," +
+                "'alias'='correspond_brand_name','include'='\\\".*sport.*\\\"','exclude'='\\\"water_.*\\\"')");
         Assert.assertThat(result, containsString(expected1));
 
-        result = explainQuery(queryPrefix + "terms(field='correspond_brand_name',size='10'," +
-                "alias='correspond_brand_name',include='[\\\"mazda\\\", \\\"honda\\\"]'," +
-                "exclude='[\\\"rover\\\", \\\"jensen\\\"]')");
+        result = explainQuery(queryPrefix + "terms('field'='correspond_brand_name','size'='10'," +
+                "'alias'='correspond_brand_name','include'='[\\\"mazda\\\", \\\"honda\\\"]'," +
+                "'exclude'='[\\\"rover\\\", \\\"jensen\\\"]')");
         Assert.assertThat(result, containsString(expected2));
 
-        result = explainQuery(queryPrefix + "terms(field='correspond_brand_name',size='10'," +
-                "alias='correspond_brand_name',include='{\\\"partition\\\":0,\\\"num_partitions\\\":20}')");
+        result = explainQuery(queryPrefix + "terms('field'='correspond_brand_name','size'='10'," +
+                "'alias'='correspond_brand_name','include'='{\\\"partition\\\":0,\\\"num_partitions\\\":20}')");
         Assert.assertThat(result, containsString(expected3));
     }
 

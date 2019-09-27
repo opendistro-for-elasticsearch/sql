@@ -128,6 +128,11 @@ public class SemanticAnalyzerAggregateFunctionTest extends SemanticAnalyzerTestB
     }
 
     @Test
+    public void useAvgFunctionCallAliasInGroupByAndOrderByShouldPass() {
+        validate("SELECT SUBSTRING(address, 0, 3) AS add FROM semantics GROUP BY add ORDER BY add");
+    }
+
+    @Test
     public void useColumnNameAliasInOrderByShouldPass() {
         validate("SELECT age AS a, AVG(balance) FROM semantics GROUP BY age ORDER BY a");
     }

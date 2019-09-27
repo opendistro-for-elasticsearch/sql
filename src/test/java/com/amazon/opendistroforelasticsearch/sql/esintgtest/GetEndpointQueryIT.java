@@ -41,7 +41,7 @@ public class GetEndpointQueryIT extends SQLIntegTestCase {
 
         // NOTE: There are unicode characters in name, not just whitespace.
         final String name = "盛虹";
-        final String query = String.format(Locale.ROOT, "SELECT id, firstname FROM %s " +
+        final String query = String.format(Locale.ROOT, "SELECT _id, firstname FROM %s " +
                 "WHERE firstname=matchQuery('%s') LIMIT 2", TEST_INDEX_ACCOUNT, name);
 
         final JSONObject result = executeQueryWithGetRequest(query);
