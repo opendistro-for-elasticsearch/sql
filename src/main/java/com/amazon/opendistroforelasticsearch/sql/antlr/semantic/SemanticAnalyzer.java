@@ -92,6 +92,14 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
     }
 
     @Override
+    public Type visitSelectItem(Type type, String alias) {
+        if (!alias.isEmpty()) {
+            defineFieldName(alias, type);
+        }
+        return type;
+    }
+
+    @Override
     public Type visitIndexName(String indexName, Optional<String> alias) {
         if (isPath(indexName)) {
             Type type = resolve(new Symbol(Namespace.FIELD_NAME, indexName));

@@ -104,4 +104,9 @@ public class SemanticAnalyzerAggregateFunctionTest extends SemanticAnalyzerTestB
         );
     }
 
+    @Test
+    public void avgFunctionCallAsAliasShouldPass() {
+        validate("SELECT city, AVG(age) AS avg FROM semantics GROUP BY city HAVING avg > 10");
+    }
+
 }

@@ -29,6 +29,10 @@ public interface ParseTreeVisitor<T> {
         return defaultValue();
     }
 
+    default T visitSelectItem(T type, String alias) {
+        return defaultValue();
+    }
+
     default void visitFrom() {}
     default T endVisitFrom() {
         return defaultValue();
@@ -48,10 +52,6 @@ public interface ParseTreeVisitor<T> {
     }
 
     default T visitFieldName(String fieldName) {
-        return defaultValue();
-    }
-
-    default T visitFunctionCall() {
         return defaultValue();
     }
 
