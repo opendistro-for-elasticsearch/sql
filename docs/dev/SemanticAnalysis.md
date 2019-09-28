@@ -9,6 +9,8 @@ With the new semantic analyzer, we manage to perform various verification in ter
 
 Here are a few examples of semantic check with our analyzer implemented:
 
+a) Field doesn't exist:
+
 ```
 
 ```

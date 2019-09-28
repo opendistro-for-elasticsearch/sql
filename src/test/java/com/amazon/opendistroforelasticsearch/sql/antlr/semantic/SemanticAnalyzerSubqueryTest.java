@@ -45,4 +45,13 @@ public class SemanticAnalyzerSubqueryTest extends SemanticAnalyzerTestBase {
         validate("SELECT * FROM semantics WHERE age IN (30, 40)");
     }
 
+    @Test
+    public void useAliasInSubqueryShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT * FROM semantics s WHERE EXISTS (SELECT * FROM s.projects p) AND p.active IS TRUE",
+            "Field [p.active] cannot be found or used here.",
+            "Did you mean [projects.active]?"
+        );
+    }
+
 }

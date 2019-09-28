@@ -189,7 +189,7 @@ public class SemanticAnalyzer implements GenericSqlParseTreeVisitor<Type> {
         Type type = resolve(new Symbol(Namespace.FIELD_NAME, indexName));
         if (type != BaseType.NESTED) {
             throw new SemanticAnalysisException(StringUtils.format(
-                "Field [%s] is [%s] type but nested type is required", indexName, type));
+                "Field [%s] is [%s] type but nested type is required.", indexName, type));
         }
 
         if (!alias.isEmpty()) {

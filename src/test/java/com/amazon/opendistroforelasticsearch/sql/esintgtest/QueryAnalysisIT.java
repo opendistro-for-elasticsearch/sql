@@ -47,17 +47,13 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
 
     @Test
     public void missingFromClauseShouldThrowSyntaxException() {
-        queryShouldThrowSyntaxException(
-            "SELECT 1"
-        );
+        queryShouldThrowSyntaxException("SELECT 1");
     }
 
     @Test
     public void unsupportedOperatorShouldThrowSyntaxException() {
         queryShouldThrowSyntaxException(
-            "SELECT *",
-            "FROM elasticsearch-sql_test_index_bank",
-            "WHERE age <=> 1"
+            "SELECT * FROM elasticsearch-sql_test_index_bank WHERE age <=> 1"
         );
     }
 
@@ -66,19 +62,17 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
         runWithClusterSetting(
             new ClusterSetting("transient", QUERY_ANALYSIS_ENABLED, "false"),
             () -> queryShouldThrowException(
-                SqlParseException.class,
-                "SELECT *",
-                "FROM elasticsearch-sql_test_index_bank",
-                "WHERE age <=> 1"
+                "SELECT * FROM elasticsearch-sql_test_index_bank WHERE age <=> 1",
+                SqlParseException.class
             )
         );
     }
 
     @Test
-    public void useNewAddFieldShouldPass() throws Exception {
+    public void useNewAddedFieldShouldPass() throws Exception {
         // 1.Make sure new add fields not there originally
         String query = "SELECT salary FROM elasticsearch-sql_test_index_bank WHERE education = 'PhD'";
-        queryShouldThrowSemanticException(query);
+        queryShouldThrowSemanticException(query, "Field [education] cannot be found or used here.");
 
         // 2.Index an document with fields not present in mapping previously
         String docWithNewFields = "{\"account_number\":12345,\"education\":\"PhD\",\"salary\": \"10000\"}";
@@ -93,9 +87,16 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
     @Test
     public void nonExistingFieldNameShouldThrowSemanticException() {
         queryShouldThrowSemanticException(
-            "SELECT *",
-            "FROM elasticsearch-sql_test_index_bank",
-            "WHERE balance1 = 1000"
+            "SELECT * FROM elasticsearch-sql_test_index_bank WHERE balance1 = 1000",
+            "Field [balance1] cannot be found or used here. Did you mean [balance]?"
+        );
+    }
+
+    @Test
+    public void indexJoinNonNestedFieldShouldThrowSemanticException() {
+        queryShouldThrowSemanticException(
+            "SELECT * FROM elasticsearch-sql_test_index_bank b1, b1.firstname f1",
+            "Field [b1.firstname] is [TEXT] type but nested type is required."
         );
     }
 
@@ -120,16 +121,15 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
         }
     }
 
-    private void queryShouldThrowSyntaxException(String... clauses) {
-        queryShouldThrowException(SqlSyntaxAnalysisException.class, clauses);
+    private void queryShouldThrowSyntaxException(String query, String... expectedMsgs) {
+        queryShouldThrowException(query, SqlSyntaxAnalysisException.class, expectedMsgs);
     }
 
-    private void queryShouldThrowSemanticException(String... clauses) {
-        queryShouldThrowException(SemanticAnalysisException.class, clauses);
+    private void queryShouldThrowSemanticException(String query, String... expectedMsgs) {
+        queryShouldThrowException(query, SemanticAnalysisException.class, expectedMsgs);
     }
 
-    private <T> void queryShouldThrowException(Class<T> exceptionType, String... clauses) {
-        String query = String.join(" ", clauses);
+    private <T> void queryShouldThrowException(String query, Class<T> exceptionType, String... expectedMsgs) {
         try {
             explainQuery(query);
             Assert.fail("Expected ResponseException, but none was thrown for query: " + query);
@@ -138,6 +138,9 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
             ResponseAssertion assertion = new ResponseAssertion(e.getResponse());
             assertion.assertStatusEqualTo(BAD_REQUEST.getStatus());
             assertion.assertBodyContains("\"type\": \"" + exceptionType.getSimpleName() + "\"");
+            for (String msg : expectedMsgs) {
+                assertion.assertBodyContains(msg);
+            }
         }
         catch (IOException e) {
             throw new IllegalStateException(
