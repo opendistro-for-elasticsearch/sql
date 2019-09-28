@@ -26,8 +26,8 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Bas
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.UNKNOWN;
 
 /**
- * Type expression by constructor such as function, operator etc.
- * Type expression has to be an interface because some subclass needs to be Enum.
+ * Type expression representing specification(s) of constructor such as function, operator etc.
+ * Type expression has to be an interface with default methods because most subclass needs to be Enum.
  */
 public interface TypeExpression extends Type {
 
@@ -43,14 +43,18 @@ public interface TypeExpression extends Type {
     default Type construct(List<Type> actualArgs) {
         TypeExpressionSpec[] specifications = specifications();
         if (specifications.length == 0) {
-            // Type check for this type expression is not implemented yet.
+            // Empty spec means type check for this type expression is not implemented yet.
             // Return this to be compatible with everything.
             return UNKNOWN;
         }
 
+        // Create a temp specification for compatibility check.
         TypeExpressionSpec actualSpec = new TypeExpressionSpec();
         actualSpec.argTypes = actualArgs.toArray(new Type[0]);
 
+        // Perform compatibility check between actual spec (argument types) and expected.
+        // If found any compatible spec, it means actual spec is legal and thus apply to get result type.
+        // Ex. Actual=[INTEGER], Specs=[NUMBER->NUMBER], [STRING->NUMBER]. So first spec matches and return NUMBER.
         for (TypeExpressionSpec spec : specifications) {
             if (spec.isCompatible(actualSpec)) {
                 return spec.constructFunc.apply(actualArgs.toArray(new Type[0]));
@@ -66,13 +70,11 @@ public interface TypeExpression extends Type {
                       collect(Collectors.joining(" or "));
     }
 
-
     /**
      * Each type expression may be overloaded and include multiple specifications.
      * @return  all valid specifications or empty which means not implemented yet
      */
     TypeExpressionSpec[] specifications();
-
 
     /**
      * A specification is combination of a construct function and arg types
@@ -88,7 +90,9 @@ public interface TypeExpression extends Type {
         }
 
         public TypeExpressionSpec to(Function<Type[], Type> constructFunc) {
-            this.constructFunc = Generic.generify(constructFunc, argTypes);
+            // Required for generic type to replace placeholder ex.T with actual position in argument list.
+            // So construct function of generic type can return binding type finally.
+            this.constructFunc = Generic.specialize(constructFunc, argTypes);
             return this;
         }
 
@@ -103,12 +107,12 @@ public interface TypeExpression extends Type {
             Type[] expectArgTypes = this.argTypes;
             Type[] actualArgTypes = otherSpec.argTypes;
 
-            // Arg numbers exactly match
+            // Check if arg numbers exactly match
             if (expectArgTypes.length != actualArgTypes.length) {
                 return false;
             }
 
-            // Arg types are compatible
+            // Check if all arg types are compatible
             for (int i = 0; i < expectArgTypes.length; i++) {
                 if (!expectArgTypes[i].isCompatible(actualArgTypes[i])) {
                     return false;

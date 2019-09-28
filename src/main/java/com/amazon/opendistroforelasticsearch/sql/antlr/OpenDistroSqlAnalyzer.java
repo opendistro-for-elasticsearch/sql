@@ -18,7 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.antlr;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlLexer;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.SemanticAnalyzer;
-import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.UnsupportedSemanticException;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.SemanticUnsupportedException;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.SemanticContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.CaseInsensitiveCharStream;
 import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.SyntaxAnalysisErrorListener;
@@ -50,7 +50,7 @@ public class OpenDistroSqlAnalyzer {
                 analyzeSyntax(),
                 clusterState
             );
-        } catch (UnsupportedSemanticException e) {
+        } catch (SemanticUnsupportedException e) {
             LOG.error("Skip analysis because of valid but unsupported semantic", e);
         }
     }

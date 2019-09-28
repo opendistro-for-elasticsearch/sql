@@ -47,17 +47,25 @@ public class Generic implements Type {
         return new Generic(Name.T, type);
     }
 
-    public static Function<Type[], Type> generify(Function<Type[], Type> func, Type[] types) {
+    /**
+     * Return a function for replacing generic type in argument list with binding type.
+     * Ex. after T instance found in argument list [T(NUMBER), STRING], create function to return actualTypes[0]
+     *
+     * @param func              function for finding generic type in argument list (namely, function T above)
+     * @param actualArgTypes    actual argument types
+     */
+    public static Function<Type[], Type> specialize(Function<Type[], Type> func,
+                                                    Type[] actualArgTypes) {
         if (func != T) {
             return func;
         }
 
-        Type genericType = func.apply(types);
-        int genericTypeIndex = Arrays.asList(types).indexOf(genericType);
+        Type genericType = func.apply(actualArgTypes);
+        int genericTypeIndex = Arrays.asList(actualArgTypes).indexOf(genericType);
         return actualTypes -> actualTypes[genericTypeIndex];
     }
 
-    // TODO: this is wrong. we need to know position in T() so we can return actualTypes[pos] here.
+    /** Find placeholder in argument list, ex. in [T(NUMBER), STRING] -> T, return instance at first T */
     private static Type findSameGenericType(Name name, Type[] types) {
         return Arrays.stream(types).
                       filter(type -> type instanceof Generic).

@@ -22,7 +22,7 @@ import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.IndexMappings;
 import java.util.Objects;
 
 /**
- * Semantic context responsible for environment chain (stack) management.
+ * Semantic context responsible for environment chain (stack) management and everything required for analysis.
  * This context should be shared by different stages in future, particularly
  * from semantic analysis to logical planning to physical planning.
  */

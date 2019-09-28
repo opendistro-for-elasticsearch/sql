@@ -94,6 +94,54 @@ public class SemanticAnalyzer implements GenericSqlParseTreeVisitor<Type> {
         return type;
     }
 
+    /**
+     * Visit index name by initializing environment (scope).
+     *
+     * For example: "SELECT * FROM accounts [a]".
+     * Suppose accounts includes 'name', 'age' and nested field 'projects'
+     *  and projects includes 'name' and 'active'.
+     *
+     *  1. Define itself:
+     *      ----- new definitions -----
+     *      accounts or a -> INDEX
+     *
+     *  2. Define without alias no matter if alias given:
+     *      'accounts' or 'a' -> INDEX
+     *      ----- new definitions -----
+     *      'name' -> TEXT
+     *      'age' -> INTEGER
+     *      'projects' -> NESTED
+     *      'projects.name' -> KEYWORD
+     *      'projects.active' -> BOOLEAN
+     *
+     *  3.1 Define with alias if given:
+     *      'accounts' or 'a' -> INDEX
+     *      'name' -> TEXT
+     *      'age' -> INTEGER
+     *      'projects' -> NESTED
+     *      'projects.name' -> KEYWORD
+     *      'projects.active' -> BOOLEAN
+     *      ----- new definitions -----
+     *      'a.name' -> TEXT
+     *      'a.age' -> INTEGER
+     *      'a.projects' -> NESTED
+     *      'a.projects.name' -> KEYWORD
+     *      'a.projects.active' -> BOOLEAN
+     *
+     *  3.2 Otherwise define by index full name:
+     *      'accounts' or 'a' -> INDEX
+     *      'name' -> TEXT
+     *      'age' -> INTEGER
+     *      'projects' -> NESTED
+     *      'projects.name' -> KEYWORD
+     *      'projects.active' -> BOOLEAN
+     *      ----- new definitions -----
+     *      'accounts.name' -> TEXT
+     *      'accounts.age' -> INTEGER
+     *      'accounts.projects' -> NESTED
+     *      'accounts.projects.name' -> KEYWORD
+     *      'accounts.projects.active' -> BOOLEAN
+     */
     @Override
     public Type visitIndexName(String indexName, String alias) {
         FieldMappings mappings = context.getMapping(indexName);
@@ -105,6 +153,37 @@ public class SemanticAnalyzer implements GenericSqlParseTreeVisitor<Type> {
         return INDEX;
     }
 
+    /**
+     * Visit nested index (field) name by defining more by its alias.
+     *
+     * For example: "SELECT * FROM accounts a, a.projects p".
+     * Suppose projects includes 'name' and 'active'
+     *  and environment is like this after visiting 'accounts a':
+     *      'accounts' or 'a' -> INDEX
+     *      'name' -> TEXT
+     *      'age' -> INTEGER
+     *      'projects' -> NESTED
+     *      'a.name' -> TEXT
+     *      'a.age' -> INTEGER
+     *      'a.projects' -> NESTED
+     *      'a.projects.name' -> KEYWORD
+     *      'a.projects.active' -> BOOLEAN
+     *
+     * Environment changed as below after visiting 'a.projects p':
+     *      'accounts' or 'a' -> INDEX
+     *      'name' -> TEXT
+     *      'age' -> INTEGER
+     *      'projects' -> NESTED
+     *      'a.name' -> TEXT
+     *      'a.age' -> INTEGER
+     *      'a.projects' -> NESTED
+     *      'a.projects.name' -> KEYWORD
+     *      'a.projects.active' -> BOOLEAN
+     *      ----- new definitions -----
+     *      'p' -> NESTED
+     *      'p.name' -> KEYWORD
+     *      'p.active' -> BOOLEAN
+     */
     @Override
     public Type visitNestedIndexName(String indexName, String alias) {
         Type type = resolve(new Symbol(Namespace.FIELD_NAME, indexName));
@@ -121,7 +200,7 @@ public class SemanticAnalyzer implements GenericSqlParseTreeVisitor<Type> {
 
     @Override
     public Type visitIndexPattern(String indexPattern, String alias) {
-        throw new UnsupportedSemanticException("Index pattern is valid but current semantic analyzer cannot parse it");
+        throw new SemanticUnsupportedException("Index pattern is valid but current semantic analyzer cannot parse it");
     }
 
     @Override
@@ -164,7 +243,7 @@ public class SemanticAnalyzer implements GenericSqlParseTreeVisitor<Type> {
         return DEFAULT;
     }
 
-
+    /** Define by replace with alias */
     private void redefineFieldNameByPrefixingAlias(String indexName, String alias) {
         Map<String, Type> typeByFullName = environment().resolveByPrefix(new Symbol(Namespace.FIELD_NAME, indexName));
         typeByFullName.forEach(
@@ -198,12 +277,11 @@ public class SemanticAnalyzer implements GenericSqlParseTreeVisitor<Type> {
         if (!type.isPresent()) {
             Set<String> allSymbolsInScope = environment().resolveAll(symbol.getNamespace()).keySet();
             List<String> suggestedWords = new StringSimilarity(allSymbolsInScope).similarTo(symbol.getName());
+
+            // TODO: Give none or different suggestion if suggestion = original symbol
             throw new SemanticAnalysisException(
                 StringUtils.format("%s cannot be found or used here. Did you mean [%s]?",
-                    // TODO: Give none or different suggestion if suggestion = original symbol
                     symbol, suggestedWords.get(0)));
-            //at(sql, ctx).
-            //suggestion("Did you mean [%s]?", String.join(", ", suggestedWords)).build();
         }
         return type.get();
     }

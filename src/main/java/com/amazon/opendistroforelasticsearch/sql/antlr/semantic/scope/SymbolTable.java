@@ -34,6 +34,11 @@ public class SymbolTable {
     /** Two-dimension hash table to manage symbols with type in different namespace */
     private Map<Namespace, NavigableMap<String, Type>> tableByNamespace = new EnumMap<>(Namespace.class);
 
+    /**
+     * Store symbol with the type. Create new map for namespace for the first time.
+     * @param symbol    symbol to define
+     * @param type      symbol type
+     */
     public void store(Symbol symbol, Type type) {
         tableByNamespace.computeIfAbsent(
             symbol.getNamespace(),
@@ -41,6 +46,11 @@ public class SymbolTable {
         ).put(symbol.getName(), type);
     }
 
+    /**
+     * Look up symbol in the namespace map.
+     * @param symbol    symbol to look up
+     * @return          symbol type which is optional
+     */
     public Optional<Type> lookup(Symbol symbol) {
         Map<String, Type> table = tableByNamespace.get(symbol.getNamespace());
         Type type = null;
@@ -50,6 +60,11 @@ public class SymbolTable {
         return Optional.ofNullable(type);
     }
 
+    /**
+     * Look up symbols by a prefix.
+     * @param prefix    a symbol prefix
+     * @return          symbols starting with the prefix
+     */
     public Map<String, Type> lookupByPrefix(Symbol prefix) {
         NavigableMap<String, Type> table = tableByNamespace.get(prefix.getNamespace());
         if (table != null) {
@@ -58,10 +73,20 @@ public class SymbolTable {
         return emptyMap();
     }
 
+    /**
+     * Look up all symbols in the namespace.
+     * @param namespace     a namespace
+     * @return              all symbols in the namespace map
+     */
     public Map<String, Type> lookupAll(Namespace namespace) {
         return tableByNamespace.getOrDefault(namespace, emptyNavigableMap());
     }
 
+    /**
+     * Check if namespace map in empty (none definition)
+     * @param namespace     a namespace
+     * @return              true for empty
+     */
     public boolean isEmpty(Namespace namespace) {
         return tableByNamespace.getOrDefault(namespace, emptyNavigableMap()).isEmpty();
     }

@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.TYPE_ERROR;
 
 /**
- * Type
+ * Type interface which represents any type of symbol in the SQL.
  */
 public interface Type extends Reducible {
 
@@ -56,6 +56,8 @@ public interface Type extends Reducible {
             return (T) result;
         }
 
+        // Generate error message by current type name, argument types and usage of current type
+        // For example, 'Function [LOG] cannot work with [TEXT, INTEGER]. Usage: LOG(NUMBER) -> NUMBER
         String actualArgTypesStr;
         if (actualArgTypes.isEmpty()) {
             actualArgTypesStr = "<None>";
@@ -71,14 +73,16 @@ public interface Type extends Reducible {
     }
 
     /**
-     * Construct a new type by applying current constructor on other types
+     * Construct a new type by applying current constructor on other types.
+     * Constructor is a generic conception that could be function, operator, join etc.
+     *
      * @param others other types
-     * @return       a new type as result
+     * @return  a new type as result
      */
     Type construct(List<Type> others);
 
     /**
-     * Return typical usage of type
+     * Return typical usage of current type
      * @return  usage string
      */
     String usage();

@@ -73,7 +73,10 @@ public enum BaseType implements Type {
         return ALL_BASE_TYPES.getOrDefault(toUpper(str), UNKNOWN);
     }
 
+    /** Parent of current base type */
     private BaseType parent;
+
+    /** Direct children of current base type */
     private final BaseType[] subTypes;
 
 
@@ -99,7 +102,7 @@ public enum BaseType implements Type {
             return false;
         }
 
-        // One way compatibility
+        // One way compatibility: parent base type is compatible with children
         BaseType cur = (BaseType) other;
         while (cur != null && cur != this) {
             cur = cur.parent;

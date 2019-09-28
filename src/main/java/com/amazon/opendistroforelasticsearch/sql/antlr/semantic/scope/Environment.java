@@ -60,6 +60,11 @@ public class Environment {
         return type;
     }
 
+    /**
+     * Resolve symbol definitions by a prefix.
+     * @param prefix    a prefix of symbol
+     * @return          all symbols with types that starts with the prefix
+     */
     public Map<String, Type> resolveByPrefix(Symbol prefix) {
         Map<String, Type> typeByName = new HashMap<>();
         for (Environment cur = this; cur != null; cur = cur.parent) {
@@ -68,6 +73,11 @@ public class Environment {
         return typeByName;
     }
 
+    /**
+     * Resolve all symbols in the namespace.
+     * @param namespace     a namespace
+     * @return              all symbols in the namespace
+     */
     public Map<String, Type> resolveAll(Namespace namespace) {
         Map<String, Type> result = new HashMap<>();
         for (Environment cur = this; cur != null; cur = cur.parent) {
