@@ -40,6 +40,11 @@ public class SemanticAnalyzerFromClauseTest extends SemanticAnalyzerTestBase {
         validate("SELECT abc FROM semant* WHERE def = 1");
     }
 
+    @Test
+    public void useIndexAndIndexPatternShouldSkipAllCheck() {
+        validate("SELECT abc FROM semantics, semant* WHERE def = 1");
+    }
+
     /**
      * As shown below, there are multiple cases for alias:
      *  1. Alias is not present: either use full index name as prefix or not.

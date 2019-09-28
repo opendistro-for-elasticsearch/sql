@@ -150,14 +150,4 @@ public class SemanticAnalyzerIdentifierTest extends SemanticAnalyzerTestBase {
         validate("SELECT m.name FROM semantics s, s.projects p, p.members m WHERE m.name = 'John'");
     }
 
-    /*
-    private void expectValidationFailDueToInvalidField(String query,
-                                                       String actualName,
-                                                       String suggestedName) {
-        expectValidationFailWithErrorMessages(
-            query,
-            StringUtils.format("Field [%s] cannot be found or used here", actualName),
-            StringUtils.format("Did you mean [%s], suggestedName"));
-    }
-    */
 }

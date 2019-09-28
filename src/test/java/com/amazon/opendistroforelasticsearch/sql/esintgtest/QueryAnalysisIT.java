@@ -100,6 +100,24 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
         );
     }
 
+    @Test
+    public void scalarFunctionCallWithWrongTypeArgumentShouldThrowSemanticException() {
+        queryShouldThrowSemanticException(
+            "SELECT * FROM elasticsearch-sql_test_index_bank WHERE LOG(lastname) = 1",
+            "Function [LOG] cannot work with [KEYWORD].",
+            "Usage: LOG(NUMBER T) -> T or LOG(NUMBER T, NUMBER) -> T"
+        );
+    }
+
+    @Test
+    public void aggregateFunctionCallWithWrongNumberOfArgumentShouldThrowSemanticException() {
+        queryShouldThrowSemanticException(
+            "SELECT city FROM elasticsearch-sql_test_index_bank GROUP BY city HAVING MAX(age, birthdate) > 1",
+            "Function [MAX] cannot work with [INTEGER, DATE].",
+            "Usage: MAX(NUMBER T) -> T"
+        );
+    }
+
     /** Run the query with cluster setting changed and cleaned after complete */
     private void runWithClusterSetting(ClusterSetting setting, Runnable query) {
         try {
