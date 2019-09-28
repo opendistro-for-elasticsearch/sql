@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Map;
-import java.util.Optional;
 
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.BOOLEAN;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.DATE;
@@ -54,8 +53,8 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
 
     @Before
     public void setUp() {
-        context = new SemanticContext();
-        analyzer = new SemanticAnalyzer(context, LocalClusterState.state());
+        context = new SemanticContext(LocalClusterState.state());
+        analyzer = new SemanticAnalyzer(context);
     }
 
     @Test

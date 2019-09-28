@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.TypeExpression;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.TypeExpression.TypeExpressionSpec;
+import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -35,6 +36,7 @@ import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * Test cases for environment
@@ -42,7 +44,7 @@ import static org.junit.Assert.assertThat;
 public class EnvironmentTest {
 
     /** Use context class for push/pop */
-    private SemanticContext context = new SemanticContext();
+    private SemanticContext context = new SemanticContext(mock(LocalClusterState.class));
 
     @Test
     public void defineFieldSymbolShouldBeAbleToResolve() {

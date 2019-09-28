@@ -26,9 +26,7 @@ import java.util.stream.Collectors;
 
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.AggregateWindowedFunctionContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.AtomTableItemContext;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.BinaryComparasionPredicateContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.BooleanLiteralContext;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.ComparisonOperatorContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.ConstantContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.DecimalLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FromClauseContext;
@@ -48,11 +46,12 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroS
 /**
  * ANTLR parse tree visitor to drive the analysis process.
  */
-public class AntlrParseTreeVisitor<T extends Reducible> extends OpenDistroSqlParserBaseVisitor<T> {
+public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSqlParserBaseVisitor<T> {
 
-    private final ParseTreeVisitor<T> visitor;
+    /** Generic visitor to perform the real action on parse tree */
+    private final GenericSqlParseTreeVisitor<T> visitor;
 
-    public AntlrParseTreeVisitor(ParseTreeVisitor<T> visitor) {
+    public AntlrSqlParseTreeVisitor(GenericSqlParseTreeVisitor<T> visitor) {
         this.visitor = visitor;
     }
 
@@ -62,11 +61,22 @@ public class AntlrParseTreeVisitor<T extends Reducible> extends OpenDistroSqlPar
         return super.visitRoot(ctx);
     }
 
-    @Override
+    /**
+     * Enforce visit order because ANTLR is generic and unaware.
+     *
+     * Visiting order is:
+     *  FROM
+     *  => WHERE
+     *   => SELECT
+     *    => GROUP BY
+     *     => HAVING
+     *      => ORDER BY
+     *       => LIMIT
+     */
+     @Override
     public T visitQuerySpecification(QuerySpecificationContext ctx) {
         visitor.visitQuery();
 
-        // Enforce visit order because ANTLR is generic and unaware.
         // Always visit FROM clause first to define symbols
         FromClauseContext fromClause = ctx.fromClause();
         visit(fromClause.tableSources());
@@ -75,7 +85,7 @@ public class AntlrParseTreeVisitor<T extends Reducible> extends OpenDistroSqlPar
             visit(fromClause.whereExpr);
         }
 
-        // Visit GROUP BY and HAVING later than SELECT for alias definition
+        // Note visit GROUP BY and HAVING later than SELECT for alias definition
         visitSelectElements(ctx.selectElements());
         fromClause.groupByItem().forEach(this::visit);
         if (fromClause.havingExpr != null) {
@@ -164,21 +174,6 @@ public class AntlrParseTreeVisitor<T extends Reducible> extends OpenDistroSqlPar
     }
 
     @Override
-    public T visitComparisonOperator(ComparisonOperatorContext ctx) {
-        //return visitor.visitOperatorName(ctx.getText());
-        return super.visitComparisonOperator(ctx);
-    }
-
-    // Better semantic check example for overloading operator '='
-    @Override
-    public T visitBinaryComparasionPredicate(BinaryComparasionPredicateContext ctx) {
-        //T opType = visit(ctx.comparisonOperator());
-        //List<T> actualArgTypes = Arrays.asList(visit(ctx.predicate(0)), visit(ctx.predicate(1)));
-        //return opType.aggregate(actualArgTypes);
-        return super.visitBinaryComparasionPredicate(ctx);
-    }
-
-    @Override
     public T visitConstant(ConstantContext ctx) {
         if (ctx.REAL_LITERAL() != null) {
             return visitor.visitFloat(ctx.getText());
@@ -208,21 +203,28 @@ public class AntlrParseTreeVisitor<T extends Reducible> extends OpenDistroSqlPar
 
     @Override
     protected T aggregateResult(T aggregate, T nextResult) {
-        if (nextResult != null) { // should call Attribute method for synthesis
+        if (nextResult != null) { // Simply return non-null but should call Attribute method for synthesis
             return nextResult;
         }
         return aggregate;
     }
 
+    /**
+     * If index name is nested, for example.
+     *  false for 'accounts' or '.kibana'
+     *  but true for 'a.projects'
+     */
     private boolean isPath(String indexName) {
         return indexName.indexOf('.', 1) != -1; // taking care of .kibana
     }
 
+    /** Visit select items for type check and alias definition */
     private T visitSelectItem(ParserRuleContext item, UidContext uid) {
         String alias = uid == null ? "" : uid.getText();
         return visitor.visitSelectItem(visit(item), alias);
     }
 
+    /** Make function apply arguments */
     private T visitFunctionCall(T func, ParserRuleContext ctx) {
         List<T> actualArgs;
         if (ctx == null || ctx.children == null) {

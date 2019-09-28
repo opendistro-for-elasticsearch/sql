@@ -15,6 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope;
 
+import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
+import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMappings;
+import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.IndexMappings;
+
 import java.util.Objects;
 
 /**
@@ -24,8 +28,15 @@ import java.util.Objects;
  */
 public class SemanticContext {
 
+    /** Local cluster state for mapping query */
+    private final LocalClusterState clusterState;
+
     /** Environment stack for symbol scope management */
     private Environment environment = new Environment(null);
+
+    public SemanticContext(LocalClusterState clusterState) {
+        this.clusterState = clusterState;
+    }
 
     /**
      * Push a new environment
@@ -52,6 +63,16 @@ public class SemanticContext {
         Environment curEnv = environment;
         environment = curEnv.getParent();
         return curEnv;
+    }
+
+    /**
+     * Return field mappings for an index
+     * @param indexName     index name
+     * @return              field mappings
+     */
+    public FieldMappings getMapping(String indexName) {
+        IndexMappings indexMappings = clusterState.getFieldMappings(new String[]{indexName});
+        return indexMappings.firstMapping().firstMapping();
     }
 
 }

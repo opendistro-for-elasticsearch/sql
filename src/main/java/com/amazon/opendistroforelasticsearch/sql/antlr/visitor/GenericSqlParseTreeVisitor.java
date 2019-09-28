@@ -16,9 +16,9 @@
 package com.amazon.opendistroforelasticsearch.sql.antlr.visitor;
 
 /**
- * Parse tree visitor
+ * Generic parse tree visitor without dependency on concrete parse tree class.
  */
-public interface ParseTreeVisitor<T> {
+public interface GenericSqlParseTreeVisitor<T> {
 
     default void visitRoot() {}
 

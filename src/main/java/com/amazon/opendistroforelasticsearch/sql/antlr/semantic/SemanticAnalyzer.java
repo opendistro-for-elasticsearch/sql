@@ -26,10 +26,8 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.ESScalarFu
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.ScalarFunction;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.TypeExpression;
-import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.ParseTreeVisitor;
-import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
+import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.GenericSqlParseTreeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMappings;
-import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.IndexMappings;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 
 import java.util.List;
@@ -44,7 +42,7 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Ind
 /**
  * SQL semantic analyzer that determines if a syntactical correct query is meaningful.
  */
-public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
+public class SemanticAnalyzer implements GenericSqlParseTreeVisitor<Type> {
 
     private static final Type DEFAULT = new Type() {
         @Override
@@ -66,12 +64,8 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
     /** Semantic context for symbol scope management */
     private final SemanticContext context;
 
-    /** Local cluster state for mapping query */
-    private final LocalClusterState clusterState;
-
-    public SemanticAnalyzer(SemanticContext context, LocalClusterState clusterState) {
+    public SemanticAnalyzer(SemanticContext context) {
         this.context = context;
-        this.clusterState = clusterState;
     }
 
     @Override
@@ -89,7 +83,7 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
     @Override
     public Type endVisitQuery() {
         context.pop();
-        return null;
+        return null; // TODO: return production of type of select items
     }
 
     @Override
@@ -102,8 +96,7 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
 
     @Override
     public Type visitIndexName(String indexName, String alias) {
-        IndexMappings indexMappings = clusterState.getFieldMappings(new String[]{indexName});
-        FieldMappings mappings = indexMappings.firstMapping().firstMapping();
+        FieldMappings mappings = context.getMapping(indexName);
         String aliasName = alias.isEmpty() ? indexName : alias;
 
         defineFieldName(aliasName, INDEX);
@@ -170,7 +163,6 @@ public class SemanticAnalyzer implements ParseTreeVisitor<Type> {
     public Type defaultValue() {
         return DEFAULT;
     }
-
 
 
     private void redefineFieldNameByPrefixingAlias(String indexName, String alias) {

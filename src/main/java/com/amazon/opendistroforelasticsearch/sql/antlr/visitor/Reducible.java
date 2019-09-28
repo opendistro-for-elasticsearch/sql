@@ -18,7 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.antlr.visitor;
 import java.util.List;
 
 /**
- * Abstraction for anything that can be reduced and used by {@link AntlrParseTreeVisitor}.
+ * Abstraction for anything that can be reduced and used by {@link AntlrSqlParseTreeVisitor}.
  */
 public interface Reducible {
 

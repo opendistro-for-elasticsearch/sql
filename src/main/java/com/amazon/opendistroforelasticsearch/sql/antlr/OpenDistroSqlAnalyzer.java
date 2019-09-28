@@ -22,7 +22,7 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.UnsupportedSeman
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.SemanticContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.CaseInsensitiveCharStream;
 import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.SyntaxAnalysisErrorListener;
-import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.AntlrParseTreeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.AntlrSqlParseTreeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Lexer;
@@ -56,7 +56,7 @@ public class OpenDistroSqlAnalyzer {
     }
 
     /**
-     * Build lexer and parser to perform syntax analysis.
+     * Build lexer and parser to perform syntax analysis only.
      * Runtime exception with clear message is thrown for any verification error.
      *
      * @return      parse tree
@@ -67,9 +67,16 @@ public class OpenDistroSqlAnalyzer {
         return parser.root();
     }
 
-    public ParseTree analyzeSemantic(ParseTree tree, LocalClusterState clusterState) {
-        tree.accept(new AntlrParseTreeVisitor<>(new SemanticAnalyzer(new SemanticContext(), clusterState)));
-        return tree;
+    /**
+     * Perform semantic analysis based on syntax analysis output - parse tree.
+     * @param tree          parse tree
+     * @param clusterState  cluster state required for index mapping query
+     */
+    public void analyzeSemantic(ParseTree tree, LocalClusterState clusterState) {
+        tree.accept(
+            new AntlrSqlParseTreeVisitor<>(
+                new SemanticAnalyzer(
+                    new SemanticContext(clusterState))));
     }
 
     private OpenDistroSqlParser createParser(Lexer lexer) {
