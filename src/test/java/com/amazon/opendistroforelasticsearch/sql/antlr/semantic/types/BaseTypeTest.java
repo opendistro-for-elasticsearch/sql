@@ -57,8 +57,9 @@ public class BaseTypeTest {
 
     @Test
     public void parentBaseTypeShouldBeCompatibleWithSubBaseType() {
-        assertTrue(NUMBER.isCompatible(INTEGER));
-        assertTrue(NUMBER.isCompatible(FLOAT));
+        assertTrue(NUMBER.isCompatible(DOUBLE));
+        assertTrue(DOUBLE.isCompatible(FLOAT));
+        assertTrue(FLOAT.isCompatible(INTEGER));
         assertTrue(INTEGER.isCompatible(SHORT));
         assertTrue(INTEGER.isCompatible(LONG));
         assertTrue(STRING.isCompatible(TEXT));
@@ -69,6 +70,7 @@ public class BaseTypeTest {
     public void ancestorBaseTypeShouldBeCompatibleWithSubBaseType() {
         assertTrue(NUMBER.isCompatible(LONG));
         assertTrue(NUMBER.isCompatible(DOUBLE));
+        assertTrue(DOUBLE.isCompatible(INTEGER));
         assertTrue(INTEGER.isCompatible(SHORT));
         assertTrue(INTEGER.isCompatible(LONG));
     }

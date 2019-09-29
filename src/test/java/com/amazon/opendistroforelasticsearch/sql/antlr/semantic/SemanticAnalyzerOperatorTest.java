@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -23,7 +22,6 @@ import org.junit.Test;
  */
 public class SemanticAnalyzerOperatorTest extends SemanticAnalyzerTestBase {
 
-    @Ignore("To be implemented")
     @Test
     public void checkNumberIsBooleanShouldFail() {
         expectValidationFailWithErrorMessages(
@@ -32,10 +30,23 @@ public class SemanticAnalyzerOperatorTest extends SemanticAnalyzerTestBase {
     }
 
     @Test
+    public void checkTextIsNotBooleanShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT * FROM semantics WHERE address IS NOT TRUE"
+        );
+    }
+
+    @Test
     public void checkNumberEqualsToStringShouldFail() {
         expectValidationFailWithErrorMessages(
             "SELECT * FROM semantics WHERE balance = 'test'"
         );
+    }
+
+    @Test
+    public void comparisonOperatorWithCompatibleTypesShouldPass() {
+        validate("SELECT * FROM semantics WHERE balance >= 1000");
+        validate("SELECT * FROM semantics WHERE manager.name = 'John'");
     }
 
 }
