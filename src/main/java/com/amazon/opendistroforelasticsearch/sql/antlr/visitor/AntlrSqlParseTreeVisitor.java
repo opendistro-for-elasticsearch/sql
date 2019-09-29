@@ -20,18 +20,22 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParse
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParserBaseVisitor;
 import org.antlr.v4.runtime.ParserRuleContext;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.AggregateWindowedFunctionContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.AtomTableItemContext;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.BinaryComparisonPredicateContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.BooleanLiteralContext;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.ComparisonOperatorContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.ConstantContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.DecimalLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FromClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FullColumnNameContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FunctionNameBaseContext;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.IsExpressionContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.RootContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.ScalarFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.SelectElementsContext;
@@ -172,6 +176,25 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
     @Override
     public T visitFunctionNameBase(FunctionNameBaseContext ctx) {
         return visitor.visitFunctionName(ctx.getText());
+    }
+
+    @Override
+    public T visitBinaryComparisonPredicate(BinaryComparisonPredicateContext ctx) {
+         T opType = visit(ctx.comparisonOperator());
+         return opType.reduce(Arrays.asList(visit(ctx.left), visit(ctx.right)));
+    }
+
+    @Override
+    public T visitIsExpression(IsExpressionContext ctx) {
+         T opType = visitor.visitComparisonOperator("IS");
+         return opType.reduce(Arrays.asList(
+             visit(ctx.predicate()), visitor.visitBoolean(ctx.testValue.getText())) // TODO: support missing later
+        );
+    }
+
+    @Override
+    public T visitComparisonOperator(ComparisonOperatorContext ctx) {
+        return visitor.visitComparisonOperator(ctx.getText());
     }
 
     @Override

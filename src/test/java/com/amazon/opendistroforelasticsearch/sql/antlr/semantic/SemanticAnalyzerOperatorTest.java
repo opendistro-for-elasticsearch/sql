@@ -31,7 +31,6 @@ public class SemanticAnalyzerOperatorTest extends SemanticAnalyzerTestBase {
         );
     }
 
-    @Ignore("To be implemented")
     @Test
     public void checkNumberEqualsToStringShouldFail() {
         expectValidationFailWithErrorMessages(

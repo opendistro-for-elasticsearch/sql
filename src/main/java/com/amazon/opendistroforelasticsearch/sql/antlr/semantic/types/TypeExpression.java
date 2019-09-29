@@ -66,7 +66,7 @@ public interface TypeExpression extends Type {
     @Override
     default String usage() {
         return Arrays.stream(specifications()).
-                      map(spec -> name() + spec).
+                      map(spec -> getName() + spec).
                       collect(Collectors.joining(" or "));
     }
 
@@ -129,7 +129,7 @@ public interface TypeExpression extends Type {
 
             // Only show generic type name in return value for clarity
             Type returnType = constructFunc.apply(argTypes);
-            String returnTypeStr = (returnType instanceof Generic) ? returnType.name() : returnType.usage();
+            String returnTypeStr = (returnType instanceof Generic) ? returnType.getName() : returnType.usage();
 
             return StringUtils.format("(%s) -> %s", argTypesStr, returnTypeStr);
         }

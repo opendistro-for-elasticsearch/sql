@@ -40,11 +40,21 @@ public enum AggregateFunction implements TypeExpression {
     }
 
     @Override
+    public String getName() {
+        return name();
+    }
+
+    @Override
     public TypeExpressionSpec[] specifications() {
         return specifications;
     }
 
     private static TypeExpressionSpec func(Type... argTypes) {
         return new TypeExpressionSpec().map(argTypes);
+    }
+
+    @Override
+    public String toString() {
+        return "Function [" + name() + "]";
     }
 }

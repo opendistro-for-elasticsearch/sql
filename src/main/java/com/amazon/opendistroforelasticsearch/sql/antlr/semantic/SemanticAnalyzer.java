@@ -22,6 +22,7 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.SemanticCo
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.ComparisonOperator;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.ESScalarFunction;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.ScalarFunction;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
@@ -73,6 +74,7 @@ public class SemanticAnalyzer implements GenericSqlParseTreeVisitor<Type> {
         defineFunctionNames(ScalarFunction.values());
         defineFunctionNames(ESScalarFunction.values());
         defineFunctionNames(AggregateFunction.values());
+        defineOperatorNames(ComparisonOperator.values());
     }
 
     @Override
@@ -214,7 +216,12 @@ public class SemanticAnalyzer implements GenericSqlParseTreeVisitor<Type> {
     @Override
     public Type visitFunctionName(String funcName) {
         // Ignore case for function name
-        return resolve(new Symbol(Namespace.FUNCTION_NAME, funcName.toUpperCase()));
+        return resolve(new Symbol(Namespace.FUNCTION_NAME, StringUtils.toUpper(funcName)));
+    }
+
+    @Override
+    public Type visitComparisonOperator(String opName) {
+        return resolve(new Symbol(Namespace.OPERATOR_NAME, StringUtils.toUpper(opName)));
     }
 
     @Override
@@ -263,12 +270,22 @@ public class SemanticAnalyzer implements GenericSqlParseTreeVisitor<Type> {
 
     private void defineFunctionNames(TypeExpression[] expressions) {
         for (TypeExpression expr : expressions) {
-            defineFunctionName(expr.name(), expr);
+            defineFunctionName(expr.getName(), expr);
         }
     }
 
     private void defineFunctionName(String funcName, Type type) {
         environment().define(new Symbol(Namespace.FUNCTION_NAME, funcName), type);
+    }
+
+    private void defineOperatorNames(TypeExpression[] expressions) {
+        for (TypeExpression expr : expressions) {
+            defineOperatorName(expr.getName(), expr);
+        }
+    }
+
+    private void defineOperatorName(String opName, Type type) {
+        environment().define(new Symbol(Namespace.OPERATOR_NAME, opName), type);
     }
 
     private Type resolve(Symbol symbol) {

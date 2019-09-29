@@ -87,6 +87,11 @@ public enum ESScalarFunction implements TypeExpression {
     }
 
     @Override
+    public String getName() {
+        return name();
+    }
+
+    @Override
     public TypeExpressionSpec[] specifications() {
         return specifications;
     }
@@ -94,4 +99,10 @@ public enum ESScalarFunction implements TypeExpression {
     private static TypeExpressionSpec func(Type... argTypes) {
         return new TypeExpressionSpec().map(argTypes);
     }
+
+    @Override
+    public String toString() {
+        return "Function [" + name() + "]";
+    }
+
 }

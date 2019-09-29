@@ -40,7 +40,7 @@ public class TypeExpressionTest {
     private final TypeExpression test123 = new TypeExpression() {
 
         @Override
-        public String name() {
+        public String getName() {
             return "TEST123";
         }
 

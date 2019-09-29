@@ -83,6 +83,11 @@ public enum ScalarFunction implements TypeExpression {
     }
 
     @Override
+    public String getName() {
+        return name();
+    }
+
+    @Override
     public TypeExpressionSpec[] specifications() {
         return specifications;
     }
@@ -91,4 +96,8 @@ public enum ScalarFunction implements TypeExpression {
         return new TypeExpressionSpec().map(argTypes);
     }
 
+    @Override
+    public String toString() {
+        return "Function [" + name() + "]";
+    }
 }

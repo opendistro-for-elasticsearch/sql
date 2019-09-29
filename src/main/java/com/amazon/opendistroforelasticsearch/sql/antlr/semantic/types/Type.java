@@ -33,7 +33,7 @@ public interface Type extends Reducible {
      * Type descriptive name
      * @return  name
      */
-    default String name() {
+    default String getName() {
         return "UNKNOWN";
     }
 
@@ -68,7 +68,7 @@ public interface Type extends Reducible {
         }
 
         throw new SemanticAnalysisException(
-            StringUtils.format("Function [%s] cannot work with [%s]. Usage: %s",
+            StringUtils.format("%s cannot work with [%s]. Usage: %s",
                 this, actualArgTypesStr, usage()));
     }
 

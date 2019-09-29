@@ -32,9 +32,9 @@ public enum BaseType implements Type {
 
     SHORT, LONG,
     INTEGER(SHORT, LONG),
-    DOUBLE,
-    FLOAT(DOUBLE),
-    NUMBER(INTEGER, FLOAT),
+    FLOAT(INTEGER),
+    DOUBLE(FLOAT),
+    NUMBER(DOUBLE),
 
     TEXT, KEYWORD,
     STRING(TEXT, KEYWORD),
@@ -76,13 +76,13 @@ public enum BaseType implements Type {
     /** Parent of current base type */
     private BaseType parent;
 
-    /** Direct children of current base type */
-    private final BaseType[] subTypes;
+    /** Direct children (compatible types) of current base type */
+    private final BaseType[] compatibleTypes;
 
 
-    BaseType(BaseType... subTypes) {
-        this.subTypes = subTypes;
-        for (BaseType subType : subTypes) {
+    BaseType(BaseType... compatibleTypes) {
+        this.compatibleTypes = compatibleTypes;
+        for (BaseType subType : compatibleTypes) {
             subType.parent = this;
         }
     }

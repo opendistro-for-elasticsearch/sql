@@ -50,6 +50,10 @@ public interface GenericSqlParseTreeVisitor<T> {
         return defaultValue();
     }
 
+    default T visitComparisonOperator(String opName) {
+        return defaultValue();
+    }
+
     default T visitString(String text) {
         return defaultValue();
     }
