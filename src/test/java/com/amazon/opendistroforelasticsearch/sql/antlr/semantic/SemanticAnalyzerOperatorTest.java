@@ -15,8 +15,28 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic;
 
+import org.junit.Ignore;
+import org.junit.Test;
+
 /**
- *
+ * Semantic analysis test cases for operator
  */
 public class SemanticAnalyzerOperatorTest extends SemanticAnalyzerTestBase {
+
+    @Ignore("To be implemented")
+    @Test
+    public void checkNumberIsBooleanShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT * FROM semantics WHERE age IS FALSE"
+        );
+    }
+
+    @Ignore("To be implemented")
+    @Test
+    public void checkNumberEqualsToStringShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT * FROM semantics WHERE balance = 'test'"
+        );
+    }
+
 }

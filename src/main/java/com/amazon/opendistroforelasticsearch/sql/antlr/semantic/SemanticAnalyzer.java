@@ -81,9 +81,8 @@ public class SemanticAnalyzer implements GenericSqlParseTreeVisitor<Type> {
     }
 
     @Override
-    public Type endVisitQuery() {
+    public void endVisitQuery() {
         context.pop();
-        return null; // TODO: return production of type of select items
     }
 
     @Override

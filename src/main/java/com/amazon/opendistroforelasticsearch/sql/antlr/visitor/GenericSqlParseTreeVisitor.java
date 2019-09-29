@@ -24,9 +24,7 @@ public interface GenericSqlParseTreeVisitor<T> {
 
     default void visitQuery() {}
 
-    default T endVisitQuery() {
-        return defaultValue();
-    }
+    default void endVisitQuery() {}
 
     default T visitSelectItem(T type, String alias) {
         return defaultValue();

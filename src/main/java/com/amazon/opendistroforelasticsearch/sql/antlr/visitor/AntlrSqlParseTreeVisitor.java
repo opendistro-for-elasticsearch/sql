@@ -86,8 +86,8 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
         }
 
         // Note visit GROUP BY and HAVING later than SELECT for alias definition
-        visitSelectElements(ctx.selectElements());
-        fromClause.groupByItem().forEach(this::visit);
+         T result = visitSelectElements(ctx.selectElements());
+         fromClause.groupByItem().forEach(this::visit);
         if (fromClause.havingExpr != null) {
             visit(fromClause.havingExpr);
         }
@@ -99,7 +99,8 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
             visitLimitClause(ctx.limitClause());
         }
 
-        return visitor.endVisitQuery();
+        visitor.endVisitQuery();
+        return result;
     }
 
     @Override
