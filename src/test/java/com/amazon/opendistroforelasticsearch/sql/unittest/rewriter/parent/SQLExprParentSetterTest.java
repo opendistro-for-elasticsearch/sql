@@ -30,7 +30,7 @@ public class SQLExprParentSetterTest {
     public void testSQLInSubQueryExprHasParent() {
         String sql =
                 "SELECT * FROM TbA " +
-                "WHERE a in (SELECT b FROM TbB)";
+                "WHERE a IN (SELECT b FROM TbB)";
         SQLQueryExpr expr = SqlParserUtils.parse(sql);
         expr.accept(new SQLExprParentExistsValidator());
     }
@@ -39,7 +39,7 @@ public class SQLExprParentSetterTest {
     public void testSQLInListExprHasParent() {
         String sql =
                 "SELECT * FROM TbA " +
-                "WHERE a in (10, 20)";
+                "WHERE a IN (10, 20)";
         SQLQueryExpr expr = SqlParserUtils.parse(sql);
         expr.accept(new SQLExprParentExistsValidator());
     }

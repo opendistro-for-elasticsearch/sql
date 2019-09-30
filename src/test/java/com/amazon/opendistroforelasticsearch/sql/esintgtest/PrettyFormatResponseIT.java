@@ -402,6 +402,23 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
         assertContainsData(getDataRows(response), fields);
     }
 
+    @Test
+    public void aggregationFunctionInHaving() throws IOException {
+        JSONObject response = executeQuery(String.format(Locale.ROOT,
+                                                         "SELECT gender " +
+                                                         "FROM %s " +
+                                                         "GROUP BY gender " +
+                                                         "HAVING count(*) > 500",
+                                                         TestsConstants.TEST_INDEX_ACCOUNT));
+
+        String ageSum = "gender";
+        assertContainsColumns(getSchema(response), Collections.singletonList(ageSum));
+
+        JSONArray dataRows = getDataRows(response);
+        assertEquals(1, dataRows.length());
+        assertEquals("m", dataRows.getJSONArray(0).getString(0));
+    }
+
     /**
      * This case doesn't seem to be supported by the plugin at the moment.
      * Looks like the painless script of the inner function is put inside the aggregation function but

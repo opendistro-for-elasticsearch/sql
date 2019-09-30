@@ -22,6 +22,7 @@ import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.parser.HavingParser;
 import com.amazon.opendistroforelasticsearch.sql.parser.NestedType;
 import com.amazon.opendistroforelasticsearch.sql.parser.WhereParser;
+import com.google.common.collect.Iterables;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 
@@ -31,8 +32,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.joining;
 import static org.elasticsearch.search.aggregations.PipelineAggregatorBuilders.bucketSelector;
@@ -99,11 +98,8 @@ public class Having {
         }
 
         // parsing the fields from SELECT and HAVING clause
-        List<Field> combinedFields = Stream.of(fields, getHavingFields())
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
         groupByAgg.subAggregation(bucketSelector(BUCKET_SELECTOR_NAME,
-                contextForFieldsInSelect(combinedFields),
+                contextForFieldsInSelect(Iterables.concat(fields, getHavingFields())),
                 explainConditions()));
     }
 
@@ -118,7 +114,7 @@ public class Having {
         return where.getWheres();
     }
 
-    private Map<String, String> contextForFieldsInSelect(List<Field> fields) {
+    private Map<String, String> contextForFieldsInSelect(Iterable<Field> fields) {
         Map<String, String> context = new HashMap<>();
         for (Field field : fields) {
             if (field instanceof MethodField) {

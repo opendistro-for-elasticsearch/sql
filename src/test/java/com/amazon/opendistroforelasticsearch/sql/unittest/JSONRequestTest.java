@@ -162,17 +162,13 @@ public class JSONRequestTest {
                                                  "GROUP BY name " +
                                                  "HAVING COUNT(nested(projects, 'projects')) > 1");
         assertThat(
-                query(
-                        explainSQL,
-                        "/aggregations/name/aggregations/projects@NESTED/aggregations/projects@FILTER/aggregations/count_0/value_count"),
+                query(explainSQL, "/aggregations/name/aggregations/projects@NESTED/aggregations/projects@FILTER/aggregations/count_0/value_count"),
                 equalTo("{\"field\":\"_index\"}"));
         assertThat(
                 query(explainSQL, "/aggregations/name/aggregations/bucket_filter/bucket_selector/buckets_path"),
                 equalTo("{\"count_0\":\"projects@NESTED>projects@FILTER.count_0\"}"));
         assertThat(
-                query(
-                        explainSQL,
-                        "/aggregations/name/aggregations/projects@NESTED/aggregations/projects@FILTER/filter/bool/must"),
+                query(explainSQL, "/aggregations/name/aggregations/projects@NESTED/aggregations/projects@FILTER/filter/bool/must"),
                 equalTo("[{\"wildcard\":{\"projects.name\":{\"boost\":1,\"wildcard\":\"*security*\"}}}]"));
     }
 
@@ -199,17 +195,13 @@ public class JSONRequestTest {
                                                  "GROUP BY name " +
                                                  "HAVING COUNT(nested(projects, 'projects')) > 1");
         assertThat(
-                query(
-                        explainSQL,
-                        "/aggregations/name/aggregations/projects@NESTED/aggregations/projects@FILTER/aggregations/count_0/value_count"),
+                query(explainSQL, "/aggregations/name/aggregations/projects@NESTED/aggregations/projects@FILTER/aggregations/count_0/value_count"),
                 equalTo("{\"field\":\"_index\"}"));
         assertThat(
                 query(explainSQL, "/aggregations/name/aggregations/bucket_filter/bucket_selector/buckets_path"),
                 equalTo("{\"count_0\":\"projects@NESTED>projects@FILTER.count_0\"}"));
         assertThat(
-                query(
-                        explainSQL,
-                        "/aggregations/name/aggregations/projects@NESTED/aggregations/projects@FILTER/filter/bool/must"),
+                query(explainSQL, "/aggregations/name/aggregations/projects@NESTED/aggregations/projects@FILTER/filter/bool/must"),
                 equalTo("[{\"wildcard\":{\"projects.name\":{\"boost\":1,\"wildcard\":\"*security*\"}}}]"));
     }
 
@@ -222,17 +214,13 @@ public class JSONRequestTest {
                                                  "HAVING COUNT(nested(projects, 'projects')) > 1");
 
         assertThat(
-                query(
-                        explainSQL,
-                        "/aggregations/name/aggregations/projects@NESTED/aggregations/projects@FILTER/aggregations/count_0/value_count"),
+                query(explainSQL, "/aggregations/name/aggregations/projects@NESTED/aggregations/projects@FILTER/aggregations/count_0/value_count"),
                 equalTo("{\"field\":\"_index\"}"));
         assertThat(
                 query(explainSQL, "/aggregations/name/aggregations/bucket_filter/bucket_selector/buckets_path"),
                 equalTo("{\"count_0\":\"projects@NESTED>projects@FILTER.count_0\"}"));
         assertThat(
-                query(
-                        explainSQL,
-                        "/aggregations/name/aggregations/projects@NESTED/aggregations/projects@FILTER/filter/bool/must"),
+                query(explainSQL, "/aggregations/name/aggregations/projects@NESTED/aggregations/projects@FILTER/filter/bool/must"),
                 equalTo("[{\"bool\":{\"adjust_pure_negative\":true,\"must\":[{\"range\":{\"projects.started_year\":{\"include_lower\":false,\"include_upper\":true,\"from\":2000,\"boost\":1,\"to\":null}}},{\"wildcard\":{\"projects.name\":{\"boost\":1,\"wildcard\":\"*security*\"}}}],\"boost\":1}}]"));
     }
 
@@ -244,16 +232,14 @@ public class JSONRequestTest {
                                                  "GROUP BY name " +
                                                  "HAVING COUNT(nested(projects, 'projects')) > 1");
         assertThat(
-                query(
-                        explainSQL,
+                query(explainSQL,
                         "/aggregations/name/aggregations/projects@NESTED/aggregations/projects@FILTER/aggregations/count_0/value_count"),
                 equalTo("{\"field\":\"_index\"}"));
         assertThat(
                 query(explainSQL, "/aggregations/name/aggregations/bucket_filter/bucket_selector/buckets_path"),
                 equalTo("{\"count_0\":\"projects@NESTED>projects@FILTER.count_0\"}"));
         assertThat(
-                query(
-                        explainSQL,
+                query(explainSQL,
                         "/aggregations/name/aggregations/projects@NESTED/aggregations/projects@FILTER/filter/bool/must"),
                 equalTo("[{\"bool\":{\"adjust_pure_negative\":true,\"should\":[{\"range\":{\"projects.started_year\":{\"include_lower\":false,\"include_upper\":true,\"from\":2000,\"boost\":1,\"to\":null}}},{\"wildcard\":{\"projects.name\":{\"boost\":1,\"wildcard\":\"*security*\"}}}],\"boost\":1}}]"));
     }
