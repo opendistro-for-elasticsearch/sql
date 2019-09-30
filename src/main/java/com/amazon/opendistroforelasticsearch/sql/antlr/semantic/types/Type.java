@@ -30,21 +30,6 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Bas
 public interface Type extends Reducible {
 
     /**
-     * Type descriptive name
-     * @return  name
-     */
-    default String getName() {
-        return "UNKNOWN";
-    }
-
-    /**
-     * Check if current type is compatible with other of same type.
-     * @param other     other type
-     * @return          true if compatible
-     */
-    boolean isCompatible(Type other);
-
-    /**
      * Hide generic type ugliness and error check here in one place.
      */
     @SuppressWarnings("unchecked")
@@ -71,6 +56,21 @@ public interface Type extends Reducible {
             StringUtils.format("%s cannot work with [%s]. Usage: %s",
                 this, actualArgTypesStr, usage()));
     }
+
+    /**
+     * Type descriptive name
+     * @return  name
+     */
+    default String getName() {
+        return "UNKNOWN";
+    }
+
+    /**
+     * Check if current type is compatible with other of same type.
+     * @param other     other type
+     * @return          true if compatible
+     */
+    boolean isCompatible(Type other);
 
     /**
      * Construct a new type by applying current constructor on other types.

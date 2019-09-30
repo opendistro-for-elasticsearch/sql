@@ -250,6 +250,7 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
         return indexName.indexOf('.', 1) != -1; // taking care of .kibana
     }
 
+    /** Named argument, ex. TOPHITS('size'=3), is under FunctionArgs -> Predicate */
     private boolean isNamedArgument(BinaryComparisonPredicateContext ctx) {
         return ctx.getParent() != null && ctx.getParent().getParent() != null
             && ctx.getParent().getParent() instanceof FunctionArgsContext;

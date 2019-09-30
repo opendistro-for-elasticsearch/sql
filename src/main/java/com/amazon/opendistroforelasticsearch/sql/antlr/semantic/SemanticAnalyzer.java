@@ -284,8 +284,8 @@ public class SemanticAnalyzer implements GenericSqlParseTreeVisitor<Type> {
         environment().define(new Symbol(Namespace.FUNCTION_NAME, funcName), type);
     }
 
-    private void defineOperatorNames(TypeExpression[] expressions) {
-        for (TypeExpression expr : expressions) {
+    private void defineOperatorNames(Type[] expressions) {
+        for (Type expr : expressions) {
             defineOperatorName(expr.getName(), expr);
         }
     }

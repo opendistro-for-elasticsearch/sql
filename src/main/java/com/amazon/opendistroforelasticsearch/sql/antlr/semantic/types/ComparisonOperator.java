@@ -19,11 +19,12 @@ import java.util.List;
 
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.BOOLEAN;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.TYPE_ERROR;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.UNKNOWN;
 
 /**
  * Type for comparison operator
  */
-public enum ComparisonOperator implements TypeExpression {
+public enum ComparisonOperator implements Type {
 
     EQUAL("="),
     NOT_EQUAL("<>"),
@@ -47,6 +48,11 @@ public enum ComparisonOperator implements TypeExpression {
     }
 
     @Override
+    public boolean isCompatible(Type other) {
+        return other == UNKNOWN || this == other;
+    }
+
+    @Override
     public Type construct(List<Type> actualArgs) {
         if (actualArgs.size() != 2) {
             return TYPE_ERROR;
@@ -63,11 +69,6 @@ public enum ComparisonOperator implements TypeExpression {
     @Override
     public String usage() {
         return "Please use compatible types from each side.";
-    }
-
-    @Override
-    public TypeExpressionSpec[] specifications() {
-        return new TypeExpressionSpec[0];
     }
 
     @Override
