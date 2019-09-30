@@ -118,6 +118,15 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
         );
     }
 
+    @Test
+    public void compareIntegerFieldWithBooleanShouldThrowSemanticException() {
+        queryShouldThrowSemanticException(
+            "SELECT * FROM elasticsearch-sql_test_index_bank b WHERE b.age IS FALSE",
+            "Operator [IS] cannot work with [INTEGER, BOOLEAN].",
+            "Usage: Please use compatible types from each side."
+        );
+    }
+
     /** Run the query with cluster setting changed and cleaned after complete */
     private void runWithClusterSetting(ClusterSetting setting, Runnable query) {
         try {

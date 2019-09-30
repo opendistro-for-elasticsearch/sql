@@ -96,13 +96,18 @@ POST _opendistro/_sql
 ```
 
 ---
-## 3.Design
+## 3.High Level Design
 
 The semantic analyzer consists of 2 core components: semantic context and type system.
 
 ### 3.1 Semantic Context
 
-Semantic context manages Environment in a stack for scope management for nested subquery. Precisely, an Environment is the storage of symbols associated with its type. To perform type analysis, looking up in the environments in the semantic context is first step.
+Semantic context manages Environment in a stack for scope management for nested subquery. Precisely, an Environment is the storage of symbols associated with its type. To perform analysis, looking up in the environments in the semantic context is first step. Only after determining the symbol exists and what's its type, further analysis like type checking can happen. We use the same terminology in compiler theory:
+
+ * **Define**: stores symbol name along with its attribute (type only for now) to the current environment in context.
+ * **Resolve**: looks up symbol name to find its attribute associated.
+
+Here is a simple diagram showing what Semantic Context looks like at runtime:
 
 ### 3.2 Type System
 
@@ -119,8 +124,124 @@ What needs to be covered:
  * **Named argument**:
  * **Optional argument**:
 
-### 3.3 Parse Tree Visitor
+### 3.3 String Similarity
+
+Apart from the core components above, another interesting part is the string similarity algorithm that provides suggestion when semantic analysis error occurred. Currently we make use of classic edit distance algorithm in Lucene library to guess a similar symbol when we suspect user put wrong name. That's why you can see the "Did you mean XXX?" in the examples in Use Cases section.
 
 
 ---
-## 4.What's Next
+## 4.Detailed Design
+
+### 4.1 Parse Tree Visitor
+
+Parse Tree Visitor that walks through the SQL parse tree is driver of the whole semantic analysis process. So this section tries to make clear how Semantic Context, Type System and other parts work together by providing an example.
+Suppose an index `accounts` has mapping as below:
+
+```
+"mappings": {
+  "account": {
+    "properties": {
+      "age": {
+        "type": "integer"
+      },
+      "city": {
+        "type": "keyword"
+      },
+      "birthday": {
+        "type": "date"
+      },
+      "employer": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "projects": {
+        "type": "nested",
+        "properties": {
+          "members": {
+            "type": "nested",
+            "properties": {
+              "name": {
+                "type": "text"
+              }
+            }
+          },
+          "active": {
+            "type": "boolean"
+          }
+        }
+      },
+      "manager": {
+        "properties": {
+          "name": {
+            "type": "text"
+          }
+        }
+      }
+    }
+  }
+}
+``` 
+
+Firstly, visitor needs to enforce the visiting order of SQL query. Because some clause like FROM is essentially the definition of symbol, it is required to be visited before other clause such as WHERE which is the resolution of symbol. Currently the visiting process is being performed in the following order:
+
+ 1. **FROM**: define all symbols in index mapping in context for later resolution
+ 2. **WHERE**
+ 3. **SELECT**: the reason why SELECT visiting is so early is alias in SELECT could be used in GROUP BY, ex. SELECT SUBSTRING(city) substr ... GROUP BY substr
+ 4. **GROUP BY**
+ 5. **HAVING**
+ 6. **ORDER BY**
+ 7. **LIMIT**
+
+### 4.2 Context Initialization
+
+Take query `SELECT * FROM accounts a, a.projects p WHERE age > 20 AND p.active IS TRUE` for example. After visiting the FROM clause, the context completes the initialization with symbol well defined as follows:
+
+```
+ # field names without alias prefix because alias is optional
+ age -> INTEGER
+ city -> KEYWORD
+ birthday -> DATE
+ employer -> TEXT
+ employer.keyword -> KEYWORD
+ projects -> NESTED
+ projects.active -> BOOLEAN
+ projects.members -> NESTED
+ projects.members.name -> TEXT
+ manager -> OBJECT
+ manager.name -> TEXT
+
+ # field names with alias prefix
+ a.age -> INTEGER
+ a.city -> KEYWORD
+ a.birthday -> DATE
+ a.employer -> TEXT
+ a.employer.keyword -> KEYWORD
+ a.projects -> NESTED
+ a.projects.active -> BOOLEAN
+ a.projects.members -> NESTED
+ a.projects.members.name -> TEXT
+ a.manager -> OBJECT
+ a.manager.name -> TEXT
+
+ # nested field names with nested field alias prefix
+ p -> NESTED
+ p.active -> BOOLEAN
+ p.members -> NESTED
+ p.members.name -> TEXT
+```
+
+And then when we meet symbol in WHERE clause or elsewhere, we resolve the symbol, ex. `age` and `p.active`, in the context and identify its type. If not found, semantic analysis will end up throwing exception with root cause and suggestion.
+
+### 4.3 Type Checking
+
+The trivial field name symbol resolution is very straightforward. Let's take a look at how type checking works for function and operator.
+
+TODO
+
+---
+## 5.What's Next
