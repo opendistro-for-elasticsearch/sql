@@ -188,7 +188,8 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
     public T visitIsExpression(IsExpressionContext ctx) {
          T opType = visitor.visitComparisonOperator("IS");
          return opType.reduce(Arrays.asList(
-             visit(ctx.predicate()), visitor.visitBoolean(ctx.testValue.getText())) // TODO: support missing later
+             visit(ctx.predicate()),
+             visitor.visitBoolean(ctx.testValue.getText()))
         );
     }
 
@@ -201,6 +202,9 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
     public T visitConstant(ConstantContext ctx) {
         if (ctx.REAL_LITERAL() != null) {
             return visitor.visitFloat(ctx.getText());
+        }
+        if (ctx.dateType != null) {
+            return visitor.visitDate(ctx.getText());
         }
         return super.visitConstant(ctx);
     }

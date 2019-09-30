@@ -64,6 +64,7 @@ public class BaseTypeTest {
         assertTrue(INTEGER.isCompatible(LONG));
         assertTrue(STRING.isCompatible(TEXT));
         assertTrue(STRING.isCompatible(KEYWORD));
+        assertTrue(DATE.isCompatible(STRING));
     }
 
     @Test

@@ -70,7 +70,12 @@ public interface GenericSqlParseTreeVisitor<T> {
         return defaultValue();
     }
 
+    default T visitDate(String text) {
+        return defaultValue();
+    }
+
     default T defaultValue() {
         return null;
     }
+
 }

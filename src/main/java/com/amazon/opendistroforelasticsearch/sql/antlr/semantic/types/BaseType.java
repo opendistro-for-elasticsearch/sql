@@ -40,7 +40,7 @@ public enum BaseType implements Type {
     STRING(TEXT, KEYWORD),
 
     DATE_NANOS,
-    DATE(DATE_NANOS),
+    DATE(DATE_NANOS, STRING),
 
     BOOLEAN,
 
@@ -52,7 +52,7 @@ public enum BaseType implements Type {
 
     GEO_POINT,
 
-    ES_TYPE(NUMBER, STRING, DATE, BOOLEAN, COMPLEX, GEO_POINT);
+    ES_TYPE(NUMBER, /*STRING,*/ DATE, BOOLEAN, COMPLEX, GEO_POINT);
 
 
     /**
@@ -76,12 +76,7 @@ public enum BaseType implements Type {
     /** Parent of current base type */
     private BaseType parent;
 
-    /** Direct children (compatible types) of current base type */
-    private final BaseType[] compatibleTypes;
-
-
     BaseType(BaseType... compatibleTypes) {
-        this.compatibleTypes = compatibleTypes;
         for (BaseType subType : compatibleTypes) {
             subType.parent = this;
         }

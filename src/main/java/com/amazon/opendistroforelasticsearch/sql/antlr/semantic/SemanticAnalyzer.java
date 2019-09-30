@@ -241,7 +241,13 @@ public class SemanticAnalyzer implements GenericSqlParseTreeVisitor<Type> {
 
     @Override
     public Type visitBoolean(String text) {
-        return BaseType.BOOLEAN;
+        // "IS [NOT] MISSING" can be used on any data type
+        return text.equalsIgnoreCase("MISSING") ? UNKNOWN : BaseType.BOOLEAN;
+    }
+
+    @Override
+    public Type visitDate(String text) {
+        return BaseType.DATE;
     }
 
     @Override
