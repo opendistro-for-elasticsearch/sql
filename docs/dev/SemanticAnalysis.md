@@ -10,7 +10,7 @@ With the new semantic analyzer, we manage to perform various verification in ter
 ---
 ## 2.Use Cases
 
-Here are a few examples of semantic check with our analyzer implemented:
+Here are a few examples of semantic check with our analyzer implemented. You could get a taste of what is the benefit of new semantic analyzer:
 
 ### 2.1 Field Does Not Exist
 
@@ -110,6 +110,14 @@ Type system allows for type check for all symbols present in the SQL query. Firs
 
  * **Base type**: is based on Elasticsearch data type and organized into hierarchy with "class" type internally. For example, INTEGER and LONG belongs to NUMBER, TEXT and KEYWORD belongs to STRING.
  * **Type expression**: is expression of multiple base type as argument type along with a constructor, for example, array constructor can construct integer to integer array, struct constructor can construct couple of base type into a new struct type. Similarly, function and comparison operator accepts arguments and generate result type. 
+
+What needs to be covered:
+
+ * **Generic type**:
+ * **Vararg**:
+ * **Overloaded**:
+ * **Named argument**:
+ * **Optional argument**:
 
 ### 3.3 Parse Tree Visitor
 

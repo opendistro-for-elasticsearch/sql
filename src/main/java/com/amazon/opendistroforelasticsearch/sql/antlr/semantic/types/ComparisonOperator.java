@@ -15,8 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types;
 
-import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
-
 import java.util.List;
 
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.BOOLEAN;
@@ -64,7 +62,7 @@ public enum ComparisonOperator implements TypeExpression {
 
     @Override
     public String usage() {
-        return StringUtils.format( "T1 %s T2 (T1/T2 is compatible with T2/T1)", getName());
+        return "Please use compatible types from each side.";
     }
 
     @Override

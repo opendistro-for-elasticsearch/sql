@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.visitor;
 
+import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FunctionArgsContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.QuerySpecificationContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.SelectColumnElementContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParserBaseVisitor;
@@ -90,8 +91,8 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
         }
 
         // Note visit GROUP BY and HAVING later than SELECT for alias definition
-         T result = visitSelectElements(ctx.selectElements());
-         fromClause.groupByItem().forEach(this::visit);
+        T result = visitSelectElements(ctx.selectElements());
+        fromClause.groupByItem().forEach(this::visit);
         if (fromClause.havingExpr != null) {
             visit(fromClause.havingExpr);
         }
@@ -180,6 +181,9 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
 
     @Override
     public T visitBinaryComparisonPredicate(BinaryComparisonPredicateContext ctx) {
+         if (isNamedArgument(ctx)) { // Essentially named argument is assign instead of comparison
+             return defaultResult();
+         }
          T opType = visit(ctx.comparisonOperator());
          return opType.reduce(Arrays.asList(visit(ctx.left), visit(ctx.right)));
     }
@@ -244,6 +248,11 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
      */
     private boolean isPath(String indexName) {
         return indexName.indexOf('.', 1) != -1; // taking care of .kibana
+    }
+
+    private boolean isNamedArgument(BinaryComparisonPredicateContext ctx) {
+        return ctx.getParent() != null && ctx.getParent().getParent() != null
+            && ctx.getParent().getParent() instanceof FunctionArgsContext;
     }
 
     /** Visit select items for type check and alias definition */

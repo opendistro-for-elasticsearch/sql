@@ -23,30 +23,39 @@ import org.junit.Test;
 public class SemanticAnalyzerOperatorTest extends SemanticAnalyzerTestBase {
 
     @Test
-    public void checkNumberIsBooleanShouldFail() {
+    public void compareNumberIsBooleanShouldFail() {
         expectValidationFailWithErrorMessages(
             "SELECT * FROM semantics WHERE age IS FALSE"
         );
     }
 
     @Test
-    public void checkTextIsNotBooleanShouldFail() {
+    public void compareTextIsNotBooleanShouldFail() {
         expectValidationFailWithErrorMessages(
             "SELECT * FROM semantics WHERE address IS NOT TRUE"
         );
     }
 
     @Test
-    public void checkNumberEqualsToStringShouldFail() {
+    public void compareNumberEqualsToStringShouldFail() {
         expectValidationFailWithErrorMessages(
             "SELECT * FROM semantics WHERE balance = 'test'"
         );
     }
 
     @Test
-    public void comparisonOperatorWithCompatibleTypesShouldPass() {
+    public void compareDoubleWithIntegerShouldPass() {
         validate("SELECT * FROM semantics WHERE balance >= 1000");
-        validate("SELECT * FROM semantics WHERE manager.name = 'John'");
+    }
+
+    @Test
+    public void compareDateWithStringShouldPass() {
+        validate("SELECT * FROM semantics WHERE birthday = '2019-09-30'");
+    }
+
+    @Test
+    public void namedArgumentShouldSkipOperatorTypeCheck() {
+        validate("SELECT TOPHITS('size'=3, age='desc') FROM semantics GROUP BY city");
     }
 
 }

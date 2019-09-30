@@ -236,10 +236,10 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
     }
 
     @Test
-    public void dateFormatFunctionCallWithKeywordShouldFail() {
+    public void dateFormatFunctionCallWithNumberShouldFail() {
         expectValidationFailWithErrorMessages(
-            "SELECT DATE_FORMAT(address, 'yyyy-MM') FROM semantics",
-            "Function [DATE_FORMAT] cannot work with [TEXT, STRING].",
+            "SELECT DATE_FORMAT(balance, 'yyyy-MM') FROM semantics",
+            "Function [DATE_FORMAT] cannot work with [DOUBLE, STRING].",
             "Usage: DATE_FORMAT(DATE, STRING) -> STRING or DATE_FORMAT(DATE, STRING, STRING) -> STRING"
         );
     }
