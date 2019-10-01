@@ -19,7 +19,7 @@ import com.alibaba.druid.sql.parser.ParserException;
 import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils;
 import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
-import com.amazon.opendistroforelasticsearch.sql.executor.format.JsonPrettyFormatter;
+import com.amazon.opendistroforelasticsearch.sql.utils.JsonPrettyFormatter;
 import com.amazon.opendistroforelasticsearch.sql.query.ESActionFactory;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.SqlElasticRequestBuilder;
@@ -41,11 +41,6 @@ import static org.hamcrest.Matchers.equalTo;
 
 public class ExplainTest {
 
-    /*
-    executeSqlRequest(final RestRequest request, final QueryAction queryAction,
-                                   final Client client, final RestChannel channel) throws Exception {
-    */
-
     @Test
     public void assertExplainRequestShouldBeJson() throws IOException {
 
@@ -57,7 +52,7 @@ public class ExplainTest {
         String explainResult = explain(String.format("{\"query\":\"" +
                 "SELECT firstname " +
                 "FROM %s\"}", TestsConstants.TEST_INDEX_ACCOUNT));
-        String result = (new JsonPrettyFormatter()).formatter(explainResult);
+        String result = (new JsonPrettyFormatter()).format(explainResult);
 
         assertThat(result.replaceAll("\\s", ""),
                 equalTo(expectedOutput.replaceAll("\\s", "")));
@@ -75,7 +70,7 @@ public class ExplainTest {
         String explainResult = explain(String.format("{\"query\":\"" +
                 "SELECT firstname " +
                 "FROM %s\"}", TestsConstants.TEST_INDEX_ACCOUNT));
-        String result = (new JsonPrettyFormatter()).formatter(explainResult);
+        String result = (new JsonPrettyFormatter()).format(explainResult);
         removeBlank(result);
         replaceReturn(result);
 
@@ -97,7 +92,7 @@ public class ExplainTest {
                 "FROM %s b1 " +
                 "LEFT JOIN %s b2 " +
                 "ON b1.age = b2.age AND b1.state = b2.state\"}", bank, bank));
-        String result = (new JsonPrettyFormatter()).formatter(explainResult);
+        String result = (new JsonPrettyFormatter()).format(explainResult);
         removeBlank(result);
         replaceReturn(result);
 

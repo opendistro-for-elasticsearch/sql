@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
-import com.amazon.opendistroforelasticsearch.sql.executor.format.JsonPrettyFormatter;
+import com.amazon.opendistroforelasticsearch.sql.utils.JsonPrettyFormatter;
 import com.google.common.io.Files;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
@@ -222,7 +222,7 @@ public class ExplainIT extends SQLIntegTestCase {
 
         String query = "SELECT firstname FROM " + TEST_INDEX_ACCOUNT;
         String explain = explainQuery(query);
-        String result = (new JsonPrettyFormatter()).formatter(explain);
+        String result = (new JsonPrettyFormatter()).format(explain);
 
         Assert.assertThat(result.replaceAll("\\s", "").replaceAll("\\n", "*"),
                 equalTo(expectedOutput.replaceAll("\\s", "").replaceAll("\\n", "*")));

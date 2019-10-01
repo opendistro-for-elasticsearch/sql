@@ -16,7 +16,12 @@
 package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
 import org.elasticsearch.common.Strings;
-import org.elasticsearch.common.xcontent.*;
+import org.elasticsearch.common.xcontent.LoggingDeprecationHandler;
+import org.elasticsearch.common.xcontent.NamedXContentRegistry;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.common.xcontent.XContentParser;
+import org.elasticsearch.common.xcontent.XContentType;
 
 import java.io.IOException;
 
