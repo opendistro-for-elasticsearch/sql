@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.executor.format;
+package com.amazon.opendistroforelasticsearch.sql.utils;
 
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.xcontent.LoggingDeprecationHandler;
@@ -30,7 +30,7 @@ public class JsonPrettyFormatter {
     public JsonPrettyFormatter() {
     }
 
-    public String formatter(String jsonString) throws IOException {
+    public String format(String jsonString) throws IOException {
         //turn _explain response into pretty formatted Json
         XContentBuilder contentBuilder = XContentFactory.jsonBuilder().prettyPrint();
         try (
