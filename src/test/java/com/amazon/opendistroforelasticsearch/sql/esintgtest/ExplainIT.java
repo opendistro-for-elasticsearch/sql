@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
+import com.amazon.opendistroforelasticsearch.sql.executor.format.JsonPrettyFormatter;
 import com.google.common.io.Files;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
@@ -210,5 +211,20 @@ public class ExplainIT extends SQLIntegTestCase {
         Response response = restClient.performRequest(request);
 
         assertEquals("application/json; charset=UTF-8", response.getHeader("content-type"));
+    }
+
+    @Test
+    public void testExplainRequestPrettyFormatted() throws IOException {
+
+        String expectedOutputFilePath = TestUtils.getResourceFilePath(
+                "src/test/resources/expectedOutput/explain_format_pretty.json");
+        String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8);
+
+        String query = "SELECT firstname FROM " + TEST_INDEX_ACCOUNT;
+        String explain = explainQuery(query);
+        String result = (new JsonPrettyFormatter()).formatter(explain);
+
+        Assert.assertThat(result.replaceAll("\\s", "").replaceAll("\\n", "*"),
+                equalTo(expectedOutput.replaceAll("\\s", "").replaceAll("\\n", "*")));
     }
 }
