@@ -269,9 +269,9 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
             actualArgs = Collections.emptyList();
         } else {
             actualArgs = ctx.children.stream().
-                map(this::visit).
-                filter(type -> type != defaultResult()).
-                collect(Collectors.toList());
+                                      map(this::visit).
+                                      filter(type -> type != defaultResult()).
+                                      collect(Collectors.toList());
         }
         return func.reduce(actualArgs);
     }

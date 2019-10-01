@@ -107,6 +107,12 @@ Semantic context manages Environment in a stack for scope management for nested 
  * **Define**: stores symbol name along with its attribute (type only for now) to the current environment in context.
  * **Resolve**: looks up symbol name to find its attribute associated.
 
+To avoid naming conflict, we need to introduce one more layer inside each environment - namespace. For example, it's supposed to be allowed to have field name or alias in SQL query which has the same name as built-in function such as `SUM`. To implement this, we divide each environment into 3 namespaces for better management:
+
+ * **Field namespace**: field name loaded from index mapping.
+ * **Function namespace**: built-in function names.
+ * **Operator namespace**: mainly comparison operator such as `=`, `>`, `IS` etc.
+
 Here is a simple diagram showing what Semantic Context looks like at runtime:
 
 ### 3.2 Type System
@@ -131,6 +137,10 @@ Apart from the core components above, another interesting part is the string sim
 
 ---
 ## 4.Detailed Design
+
+Basically the components of semantic analysis works together in the manner shown in the following diagram:
+
+![How Semantic Analysis Works](img/how-semantic-analysis-works.png)
 
 ### 4.1 Parse Tree Visitor
 
