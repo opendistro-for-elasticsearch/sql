@@ -52,7 +52,7 @@ public class ExplainTest {
         String explainResult = explain(String.format("{\"query\":\"" +
                 "SELECT firstname " +
                 "FROM %s\"}", TestsConstants.TEST_INDEX_ACCOUNT));
-        String result = (new JsonPrettyFormatter()).format(explainResult);
+        String result = new JsonPrettyFormatter().format(explainResult);
 
         assertThat(result.replaceAll("\\s", ""),
                 equalTo(expectedOutput.replaceAll("\\s", "")));
@@ -70,7 +70,7 @@ public class ExplainTest {
         String explainResult = explain(String.format("{\"query\":\"" +
                 "SELECT firstname " +
                 "FROM %s\"}", TestsConstants.TEST_INDEX_ACCOUNT));
-        String result = (new JsonPrettyFormatter()).format(explainResult);
+        String result = new JsonPrettyFormatter().format(explainResult);
         removeBlank(result);
         replaceReturn(result);
 
@@ -92,7 +92,7 @@ public class ExplainTest {
                 "FROM %s b1 " +
                 "LEFT JOIN %s b2 " +
                 "ON b1.age = b2.age AND b1.state = b2.state\"}", bank, bank));
-        String result = (new JsonPrettyFormatter()).format(explainResult);
+        String result = new JsonPrettyFormatter().format(explainResult);
         removeBlank(result);
         replaceReturn(result);
 

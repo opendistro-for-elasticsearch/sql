@@ -222,7 +222,7 @@ public class ExplainIT extends SQLIntegTestCase {
 
         String query = "SELECT firstname FROM " + TEST_INDEX_ACCOUNT;
         String explain = explainQuery(query);
-        String result = (new JsonPrettyFormatter()).format(explain);
+        String result = new JsonPrettyFormatter().format(explain);
 
         Assert.assertThat(result.replaceAll("\\s", "").replaceAll("\\n", "*"),
                 equalTo(expectedOutput.replaceAll("\\s", "").replaceAll("\\n", "*")));
