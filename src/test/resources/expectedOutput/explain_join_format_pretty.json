@@ -1,0 +1,66 @@
+{
+  "Physical Plan" : {
+    "Project [ columns=[b2.age, b1.firstname, b1.lastname] ]" : {
+      "Top [ count=200 ]" : {
+        "BlockHashJoin[ conditions=( b1.age = b2.age AND b1.state = b2.state ), type=LEFT_OUTER_JOIN, blockSize=[FixedBlockSize with size=10000] ]" : {
+          "Scroll [ elasticsearch-sql_test_index_bank as b2, pageSize=10000 ]" : {
+            "request" : {
+              "size" : 200,
+              "from" : 0,
+              "_source" : {
+                "excludes" : [ ],
+                "includes" : [
+                  "age",
+                  "state"
+                ]
+              }
+            }
+          },
+          "Scroll [ elasticsearch-sql_test_index_bank as b1, pageSize=10000 ]" : {
+            "request" : {
+              "size" : 200,
+              "from" : 0,
+              "_source" : {
+                "excludes" : [ ],
+                "includes" : [
+                  "firstname",
+                  "lastname",
+                  "age",
+                  "state"
+                ]
+              }
+            }
+          },
+          "useTermsFilterOptimization" : false
+        }
+      }
+    }
+  },
+  "description" : "Hash Join algorithm builds hash table based on result of first query, and then probes hash table to find matched rows for each row returned by second query",
+  "Logical Plan" : {
+    "Project [ columns=[b2.age, b1.firstname, b1.lastname] ]" : {
+      "Top [ count=200 ]" : {
+        "Join [ conditions=( b1.age = b2.age AND b1.state = b2.state ) type=LEFT_OUTER_JOIN ]" : {
+          "Group" : [
+            {
+              "Project [ columns=[b1.firstname, b1.lastname, b1.state, b1.age] ]" : {
+                "TableScan" : {
+                  "tableAlias" : "b1",
+                  "tableName" : "elasticsearch-sql_test_index_bank"
+                }
+              }
+            },
+            {
+              "Project [ columns=[b2.state, b2.age] ]" : {
+                "TableScan" : {
+                  "tableAlias" : "b2",
+                  "tableName" : "elasticsearch-sql_test_index_bank"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}
