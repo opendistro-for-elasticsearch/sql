@@ -46,7 +46,7 @@ public class AntlrSqlParseTreeVisitorTest {
                 }
             }
         );
-        ParseTree parseTree = createParseTree("SELECT age FROM test WHERE active IS FALSE");
+        ParseTree parseTree = createParseTree("SELECT age FROM test");
         Type result = parseTree.accept(visitor);
         Assert.assertEquals(INTEGER, result);
     }

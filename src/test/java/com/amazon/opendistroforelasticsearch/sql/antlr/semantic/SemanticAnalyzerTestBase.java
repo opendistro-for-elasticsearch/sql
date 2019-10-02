@@ -17,12 +17,19 @@ package com.amazon.opendistroforelasticsearch.sql.antlr.semantic;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.OpenDistroSqlAnalyzer;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
 import org.hamcrest.Matchers;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.Arrays;
 
+import static com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents.mockLocalClusterState;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.Matchers.allOf;
 
@@ -31,9 +38,25 @@ import static org.hamcrest.Matchers.allOf;
  */
 public abstract class SemanticAnalyzerTestBase {
 
+    private static final String TEST_MAPPING_FILE = "mappings/semantics.json";
+
     /** public accessor is required by @Rule annotation */
     @Rule
     public ExpectedException exception = ExpectedException.none();
+
+    @SuppressWarnings("UnstableApiUsage")
+    @BeforeClass
+    public static void init() throws IOException {
+        URL url = Resources.getResource(TEST_MAPPING_FILE);
+        String mappings = Resources.toString(url, Charsets.UTF_8);
+        LocalClusterState.state(null);
+        mockLocalClusterState(mappings);
+    }
+
+    @AfterClass
+    public static void cleanUp() {
+        LocalClusterState.state(null);
+    }
 
     protected void expectValidationFailWithErrorMessages(String query, String... messages) {
         exception.expect(SemanticAnalysisException.class);

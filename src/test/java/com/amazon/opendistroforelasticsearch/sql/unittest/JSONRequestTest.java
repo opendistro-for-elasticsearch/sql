@@ -143,9 +143,9 @@ public class JSONRequestTest {
     @Test
     public void aggregationQuery() throws IOException {
         String result = explain(String.format("{\"query\":\"" +
-                "SELECT a, CASE WHEN gender='0' THEN 'aaa' ELSE 'bbb' END AS a2345, count(c) " +
+                "SELECT address, CASE WHEN gender='0' THEN 'aaa' ELSE 'bbb' END AS a2345, count(age) " +
                 "FROM %s " +
-                "GROUP BY terms('field'='a','execution_hint'='global_ordinals'), a2345\"}", TestsConstants.TEST_INDEX_ACCOUNT));
+                "GROUP BY terms('field'='address','execution_hint'='global_ordinals'), a2345\"}", TestsConstants.TEST_INDEX_ACCOUNT));
         String expectedOutput = Files.toString(
                 new File(getResourcePath() + "src/test/resources/expectedOutput/aggregation_query_explain.json"), StandardCharsets.UTF_8)
                 .replaceAll("\r", "");

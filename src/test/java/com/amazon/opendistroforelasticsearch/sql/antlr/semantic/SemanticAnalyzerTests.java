@@ -15,21 +15,13 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic;
 
-import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
-import java.io.IOException;
-import java.net.URL;
-
-import static com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents.mockLocalClusterState;
-
 /**
  * Semantic analyzer test suite to prepare mapping and avoid load from file every time.
+ * But Gradle seems not work well with suite. So move common logic to test base class
+ * and keep this for quick testing in IDE.
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -44,20 +36,4 @@ import static com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents
     //SemanticAnalyzerMultiQueryTest.class,
 })
 public class SemanticAnalyzerTests {
-
-    private static final String TEST_MAPPING_FILE = "mappings/semantics.json";
-
-    @SuppressWarnings("UnstableApiUsage")
-    @BeforeClass
-    public static void init() throws IOException {
-        URL url = Resources.getResource(TEST_MAPPING_FILE);
-        String mappings = Resources.toString(url, Charsets.UTF_8);
-        mockLocalClusterState(mappings);
-    }
-
-    @AfterClass
-    public static void cleanUp() {
-        LocalClusterState.state(null);
-    }
-
 }
