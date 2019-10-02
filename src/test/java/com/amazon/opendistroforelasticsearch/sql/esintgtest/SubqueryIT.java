@@ -222,7 +222,6 @@ public class SubqueryIT extends SQLIntegTestCase {
                                      TEST_INDEX_EMPLOYEE_NESTED);
 
         JSONObject response = executeQuery(query);
-        System.out.println(response);
         assertThat(
                 response,
                 hitAll(
@@ -241,7 +240,6 @@ public class SubqueryIT extends SQLIntegTestCase {
                                      TEST_INDEX_EMPLOYEE_NESTED);
 
         JSONObject response = executeQuery(query);
-        System.out.println(response);
         assertThat(
                 response,
                 hitAll(
@@ -262,7 +260,6 @@ public class SubqueryIT extends SQLIntegTestCase {
                                      TEST_INDEX_EMPLOYEE_NESTED);
 
         JSONObject response = executeQuery(query);
-        System.out.println(response);
         assertThat(
                 response,
                 hitAll(
@@ -270,16 +267,4 @@ public class SubqueryIT extends SQLIntegTestCase {
                 )
         );
     }
-
-//    @Test
-//    public void nonCorrelatedNotExistsUnsupported() throws IOException {
-//        exceptionRule.expect(ResponseException.class);
-//        exceptionRule.expectMessage("Unsupported subquery");
-//        String query = String.format(Locale.ROOT,
-//                                     "SELECT e.name " +
-//                                     "FROM %s as e " +
-//                                     "WHERE NOT EXISTS (SELECT * FROM e.projects as p)",
-//                                     TEST_INDEX_EMPLOYEE_NESTED);
-//        executeQuery(query);
-//    }
 }
