@@ -12,7 +12,7 @@ With the new semantic analyzer, we manage to perform various verification in ter
 
 Here are a few examples of semantic check with our analyzer implemented. You could get a taste of what is the benefit of new semantic analyzer:
 
-### 2.1 Field Does Not Exist
+### 2.1 Field Name Typo
 
 ```
 POST _opendistro/_sql

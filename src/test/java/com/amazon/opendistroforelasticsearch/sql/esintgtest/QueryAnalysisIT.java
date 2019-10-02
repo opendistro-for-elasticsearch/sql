@@ -93,6 +93,14 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
     }
 
     @Test
+    public void nonExistingIndexAliasShouldThrowSemanticException() {
+        queryShouldThrowSemanticException(
+            "SELECT * FROM elasticsearch-sql_test_index_bank b WHERE a.balance = 1000",
+            "Field [a.balance] cannot be found or used here. Did you mean [b.balance]?"
+        );
+    }
+
+    @Test
     public void indexJoinNonNestedFieldShouldThrowSemanticException() {
         queryShouldThrowSemanticException(
             "SELECT * FROM elasticsearch-sql_test_index_bank b1, b1.firstname f1",
@@ -119,10 +127,27 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
     }
 
     @Test
+    public void aggregateFunctionCallWithWrongScalarFunctionCallShouldThrowSemanticException() {
+        queryShouldThrowSemanticException(
+            "SELECT MAX(LOG(firstname)) FROM elasticsearch-sql_test_index_bank GROUP BY city",
+            "Function [LOG] cannot work with [TEXT]."
+        );
+    }
+
+    @Test
     public void compareIntegerFieldWithBooleanShouldThrowSemanticException() {
         queryShouldThrowSemanticException(
             "SELECT * FROM elasticsearch-sql_test_index_bank b WHERE b.age IS FALSE",
             "Operator [IS] cannot work with [INTEGER, BOOLEAN].",
+            "Usage: Please use compatible types from each side."
+        );
+    }
+
+    @Test
+    public void compareNumberFieldWithStringShouldThrowSemanticException() {
+        queryShouldThrowSemanticException(
+            "SELECT * FROM elasticsearch-sql_test_index_bank b WHERE b.age >= 'test'",
+            "Operator [>=] cannot work with [INTEGER, STRING].",
             "Usage: Please use compatible types from each side."
         );
     }

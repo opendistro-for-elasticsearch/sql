@@ -89,7 +89,6 @@ public class SemanticAnalyzerIdentifierTest extends SemanticAnalyzerTestBase {
         );
     }
 
-    @Ignore("To be implemented")
     @Test
     public void nonExistingFieldNameInHavingClauseShouldFail() {
         expectValidationFailWithErrorMessages(
@@ -108,7 +107,6 @@ public class SemanticAnalyzerIdentifierTest extends SemanticAnalyzerTestBase {
         );
     }
 
-    @Ignore("To be implemented")
     @Test
     public void nonExistingFieldNameInFunctionShouldFail() {
         expectValidationFailWithErrorMessages(
@@ -127,7 +125,6 @@ public class SemanticAnalyzerIdentifierTest extends SemanticAnalyzerTestBase {
         );
     }
 
-    @Ignore("To be implemented")
     @Test
     public void nonExistingNestedFieldNameInFunctionShouldFail() {
         expectValidationFailWithErrorMessages(
