@@ -60,13 +60,13 @@ public class Product implements Type {
 
     @Override
     public Type construct(List<Type> others) {
-        return null;
+        return this;
     }
 
     @Override
     public String usage() {
         return types.stream().
                      map(Type::usage).
-                     collect(Collectors.joining(", "));
+                     collect(Collectors.joining(", ", "(", ")"));
     }
 }

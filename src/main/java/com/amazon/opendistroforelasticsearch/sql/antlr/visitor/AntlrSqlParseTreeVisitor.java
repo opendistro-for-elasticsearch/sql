@@ -15,14 +15,18 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.visitor;
 
+import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FunctionArgsContext;
+import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.MinusStatementContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.QuerySpecificationContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.SelectColumnElementContext;
+import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.UnionStatementContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParserBaseVisitor;
+import com.google.common.collect.Lists;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,6 +52,7 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroS
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.UdfFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.UidContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.UnionSelectContext;
+import static java.util.Collections.emptyList;
 
 /**
  * ANTLR parse tree visitor to drive the analysis process.
@@ -70,12 +75,23 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
     @Override
     public T visitUnionSelect(UnionSelectContext ctx) {
         T union = visitor.visitSetOperator("UNION");
-        List<T> results = ctx.unionStatement().
-                              stream().
-                              map(this::visit).
-                              collect(Collectors.toList());
-        results.add(0, visit(ctx.querySpecification()));
-        return union.reduce(results);
+        return reduce(union,
+            Lists.asList(
+                ctx.querySpecification(),
+                ctx.unionStatement().toArray(new UnionStatementContext[0])
+            )
+        );
+    }
+
+    @Override
+    public T visitMinusSelect(OpenDistroSqlParser.MinusSelectContext ctx) {
+        T minus = visitor.visitSetOperator("MINUS");
+        return reduce(minus,
+            Lists.asList(
+                ctx.querySpecification(),
+                ctx.minusStatement().toArray(new MinusStatementContext[0])
+            )
+        );
     }
 
     /**
@@ -149,13 +165,16 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
 
     @Override
     public T visitUdfFunctionCall(UdfFunctionCallContext ctx) {
-        return visitFunctionCall(visitor.visitFunctionName(ctx.fullId().getText()), ctx.functionArgs());
+        String funcName = ctx.fullId().getText();
+        T func = visitor.visitFunctionName(funcName);
+        return reduce(func, ctx.functionArgs());
     }
 
     // This check should be able to accomplish in grammar
     @Override
     public T visitScalarFunctionCall(ScalarFunctionCallContext ctx) {
-        return visitFunctionCall(visit(ctx.scalarFunctionName()), ctx.functionArgs());
+        T func = visit(ctx.scalarFunctionName());
+        return reduce(func, ctx.functionArgs());
     }
 
     @Override
@@ -183,10 +202,9 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
 
     @Override
     public T visitAggregateWindowedFunction(AggregateWindowedFunctionContext ctx) {
-        return visitFunctionCall(
-            visitor.visitFunctionName(ctx.getChild(0).getText()),
-            ctx.functionArg()
-        );
+        String funcName = ctx.getChild(0).getText();
+        T func = visitor.visitFunctionName(funcName);
+        return reduce(func, ctx.functionArg());
     }
 
     @Override
@@ -196,19 +214,20 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
 
     @Override
     public T visitBinaryComparisonPredicate(BinaryComparisonPredicateContext ctx) {
-         if (isNamedArgument(ctx)) { // Essentially named argument is assign instead of comparison
-             return defaultResult();
-         }
-         T opType = visit(ctx.comparisonOperator());
-         return opType.reduce(Arrays.asList(visit(ctx.left), visit(ctx.right)));
+        if (isNamedArgument(ctx)) { // Essentially named argument is assign instead of comparison
+            return defaultResult();
+        }
+
+        T op = visit(ctx.comparisonOperator());
+        return reduce(op, Arrays.asList(ctx.left, ctx.right));
     }
 
     @Override
     public T visitIsExpression(IsExpressionContext ctx) {
-         T opType = visitor.visitComparisonOperator("IS");
-         return opType.reduce(Arrays.asList(
-             visit(ctx.predicate()),
-             visitor.visitBoolean(ctx.testValue.getText()))
+        T op = visitor.visitComparisonOperator("IS");
+        return op.reduce(Arrays.asList(
+            visit(ctx.predicate()),
+            visitor.visitBoolean(ctx.testValue.getText()))
         );
     }
 
@@ -277,18 +296,22 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
         return visitor.visitSelectItem(visit(item), alias);
     }
 
-    /** Make function apply arguments */
-    private T visitFunctionCall(T func, ParserRuleContext ctx) {
-        List<T> actualArgs;
-        if (ctx == null || ctx.children == null) {
-            actualArgs = Collections.emptyList();
+    private T reduce(T reducer, ParserRuleContext ctx) {
+        return reduce(reducer, (ctx == null) ? emptyList() : ctx.children);
+    }
+
+    /** Make constructor apply arguments and return result type */
+    private <Node extends ParseTree> T reduce(T reducer, List<Node> nodes) {
+        List<T> args;
+        if (nodes == null) {
+            args = emptyList();
         } else {
-            actualArgs = ctx.children.stream().
-                                      map(this::visit).
-                                      filter(type -> type != defaultResult()).
-                                      collect(Collectors.toList());
+            args = nodes.stream().
+                         map(this::visit).
+                         filter(type -> type != defaultResult()).
+                         collect(Collectors.toList());
         }
-        return func.reduce(actualArgs);
+        return reducer.reduce(args);
     }
 
 }

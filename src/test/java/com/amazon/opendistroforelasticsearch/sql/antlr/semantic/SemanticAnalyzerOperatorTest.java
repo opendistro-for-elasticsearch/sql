@@ -25,21 +25,24 @@ public class SemanticAnalyzerOperatorTest extends SemanticAnalyzerTestBase {
     @Test
     public void compareNumberIsBooleanShouldFail() {
         expectValidationFailWithErrorMessages(
-            "SELECT * FROM semantics WHERE age IS FALSE"
+            "SELECT * FROM semantics WHERE age IS FALSE",
+            "Operator [IS] cannot work with [INTEGER, BOOLEAN]."
         );
     }
 
     @Test
     public void compareTextIsNotBooleanShouldFail() {
         expectValidationFailWithErrorMessages(
-            "SELECT * FROM semantics WHERE address IS NOT TRUE"
+            "SELECT * FROM semantics WHERE address IS NOT TRUE",
+            "Operator [IS] cannot work with [TEXT, BOOLEAN]."
         );
     }
 
     @Test
     public void compareNumberEqualsToStringShouldFail() {
         expectValidationFailWithErrorMessages(
-            "SELECT * FROM semantics WHERE balance = 'test'"
+            "SELECT * FROM semantics WHERE balance = 'test'",
+            "Operator [=] cannot work with [DOUBLE, STRING]."
         );
     }
 

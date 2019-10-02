@@ -23,7 +23,8 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Bas
  * Set operator between queries.
  */
 public enum SetOperator implements Type {
-    UNION;
+    UNION,
+    MINUS;
 
     @Override
     public String getName() {
@@ -36,6 +37,7 @@ public enum SetOperator implements Type {
             throw new IllegalStateException("");
         }
 
+        // Compare each type and return anyone for now if pass
         for (int i = 0; i < others.size() - 1; i++) {
             if (!others.get(i).isCompatible(others.get(i + 1))) {
                 return TYPE_ERROR;
@@ -47,7 +49,11 @@ public enum SetOperator implements Type {
     @Override
     public String usage() {
         return "SELECT field_list1 FROM ... UNION [ALL] SELECT field_list2 FROM ... "
-            + "(each field in field list 1 and 2 is compatible)";
+                + "Each field in field list 1 and 2 is required to be compatible.";
     }
 
+    @Override
+    public String toString() {
+        return "Operator [" + getName() + "]";
+    }
 }
