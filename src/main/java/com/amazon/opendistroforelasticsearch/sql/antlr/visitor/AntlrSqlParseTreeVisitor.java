@@ -269,7 +269,7 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
 
     @Override
     protected T aggregateResult(T aggregate, T nextResult) {
-        if (nextResult != null) { // Simply return non-null but should call Attribute method for synthesis
+        if (nextResult != defaultResult()) { // Simply return non-default value for now
             return nextResult;
         }
         return aggregate;

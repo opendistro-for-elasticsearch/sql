@@ -67,4 +67,26 @@ public class SemanticAnalyzerMultiQueryTest extends SemanticAnalyzerTestBase {
         validate("SELECT address FROM semantics MINUS SELECT manager.name.keyword FROM semantics");
     }
 
+    @Test
+    public void unionSelectStarWithExtraFieldOfTwoQueriesShouldPass() {
+        expectValidationFailWithErrorMessages(
+            "SELECT * FROM semantics UNION SELECT *, city FROM semantics",
+            "Operator [UNION] cannot work with [(), (KEYWORD)]."
+        );
+    }
+
+    @Test
+    public void minusSelectStarWithExtraFieldOfTwoQueriesShouldPass() {
+        expectValidationFailWithErrorMessages(
+            "SELECT *, address, balance FROM semantics MINUS SELECT * FROM semantics",
+            "Operator [MINUS] cannot work with [(TEXT, DOUBLE), ()]."
+        );
+    }
+
+    @Test
+    public void unionSelectStarOfTwoQueriesShouldPass() {
+        validate("SELECT * FROM semantics UNION SELECT * FROM semantics");
+        validate("SELECT *, age FROM semantics UNION SELECT *, balance FROM semantics");
+    }
+
 }

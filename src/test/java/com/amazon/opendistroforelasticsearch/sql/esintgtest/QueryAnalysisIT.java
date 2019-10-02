@@ -152,6 +152,33 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
         );
     }
 
+    @Test
+    public void compareLogFunctionCallWithNumberFieldWithStringShouldThrowSemanticException() {
+        queryShouldThrowSemanticException(
+            "SELECT * FROM elasticsearch-sql_test_index_bank b WHERE LOG(b.balance) != 'test'",
+            "Operator [!=] cannot work with [LONG, STRING].",
+            "Usage: Please use compatible types from each side."
+        );
+    }
+
+    @Test
+    public void unionNumberFieldWithStringShouldThrowSemanticException() {
+        queryShouldThrowSemanticException(
+            "SELECT age FROM elasticsearch-sql_test_index_bank" +
+            " UNION SELECT address FROM elasticsearch-sql_test_index_bank",
+            "Operator [UNION] cannot work with [(INTEGER), (TEXT)]."
+        );
+    }
+
+    @Test
+    public void minusBooleanFieldWithDateShouldThrowSemanticException() {
+        queryShouldThrowSemanticException(
+            "SELECT male FROM elasticsearch-sql_test_index_bank" +
+            " MINUS SELECT birthdate FROM elasticsearch-sql_test_index_bank",
+            "Operator [MINUS] cannot work with [(BOOLEAN), (DATE)]."
+        );
+    }
+
     /** Run the query with cluster setting changed and cleaned after complete */
     private void runWithClusterSetting(ClusterSetting setting, Runnable query) {
         try {

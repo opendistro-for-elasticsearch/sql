@@ -16,7 +16,6 @@
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.visitor;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.OpenDistroSqlAnalyzer;
-import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.QuerySpecificationContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.SemanticAnalyzer;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.SemanticContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Product;
@@ -26,43 +25,50 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.UNKNOWN;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 
 /**
  * Test cases for AntlrSqlParseTreeVisitor
  */
 public class AntlrSqlParseTreeVisitorTest {
 
+    private SemanticAnalyzer analyzer = new SemanticAnalyzer(new SemanticContext(null)) {
+        @Override
+        public Type visitIndexName(String indexName, String alias) {
+            return null; // avoid querying mapping on null LocalClusterState
+        }
+
+        @Override
+        public Type visitFieldName(String fieldName) {
+            return fieldName.equals("age") ? INTEGER : UNKNOWN;
+        }
+    };
+
     @Test
-    public void selectClauseVisitingResultShouldReturnAsQueryVisitingResult() {
-        SemanticAnalyzer analyzer = new SemanticAnalyzer(new SemanticContext(null)) {
-            @Override
-            public Type visitIndexName(String indexName, String alias) {
-                return null; // avoid querying mapping on null LocalClusterState
-            }
+    public void selectNumberShouldReturnProductOfNumberAsQueryVisitingResult() {
+        Type result = visit("SELECT age FROM test");
+        Assert.assertTrue(result instanceof Product);
+        Assert.assertTrue(result.isCompatible(new Product(singletonList(DOUBLE))));
+    }
 
-            @Override
-            public Type visitFieldName(String fieldName) {
-                return fieldName.equals("age") ? INTEGER : UNKNOWN;
-            }
-        };
-
-        AntlrSqlParseTreeVisitor<Type> visitor = new AntlrSqlParseTreeVisitor<Type>(analyzer) {
-            @Override
-            public Type visitQuerySpecification(QuerySpecificationContext ctx) {
-                Type result = super.visitQuerySpecification(ctx);
-                Assert.assertTrue(result instanceof Product);
-                return result;
-            }
-        };
-
-        ParseTree parseTree = createParseTree("SELECT age FROM test");
-        parseTree.accept(visitor);
+    @Test
+    public void selectStarShouldReturnEmptyProductAsQueryVisitingResult() {
+        Type result = visit("SELECT * FROM test");
+        Assert.assertTrue(result instanceof Product);
+        Assert.assertTrue(result.isCompatible(new Product(emptyList())));
     }
 
     private ParseTree createParseTree(String sql) {
         return new OpenDistroSqlAnalyzer(sql).analyzeSyntax();
+    }
+
+    private Type visit(String sql) {
+        ParseTree parseTree = createParseTree(sql);
+        return parseTree.accept(new AntlrSqlParseTreeVisitor<>(analyzer));
     }
 
 }

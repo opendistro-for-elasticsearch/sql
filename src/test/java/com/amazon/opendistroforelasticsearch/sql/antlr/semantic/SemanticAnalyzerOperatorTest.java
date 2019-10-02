@@ -47,8 +47,26 @@ public class SemanticAnalyzerOperatorTest extends SemanticAnalyzerTestBase {
     }
 
     @Test
+    public void compareSubstringFunctionCallEqualsToNumberShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT * FROM semantics WHERE SUBSTRING(address, 0, 3) = 1",
+            "Operator [=] cannot work with [TEXT, INTEGER]."
+        );
+    }
+
+    @Test
+    public void compareLogAndAbsFunctionCallWithIntegerSmallerThanStringShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT * FROM semantics WHERE LOG(ABS(age)) < 'test'",
+            "Operator [<] cannot work with [INTEGER, STRING]."
+        );
+    }
+
+    @Test
     public void compareDoubleWithIntegerShouldPass() {
         validate("SELECT * FROM semantics WHERE balance >= 1000");
+        validate("SELECT * FROM semantics WHERE balance <> 1000");
+        validate("SELECT * FROM semantics WHERE balance != 1000");
     }
 
     @Test

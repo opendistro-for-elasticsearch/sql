@@ -48,8 +48,7 @@ public enum SetOperator implements Type {
 
     @Override
     public String usage() {
-        return "SELECT field_list1 FROM ... UNION [ALL] SELECT field_list2 FROM ... "
-                + "Each field in field list 1 and 2 is required to be compatible.";
+        return "Please return field(s) of compatible type from each query.";
     }
 
     @Override
