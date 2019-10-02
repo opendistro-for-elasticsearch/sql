@@ -28,6 +28,7 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.Where;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,15 +39,19 @@ public class HavingParser {
     private final List<Field> havingFields;
     private final HavingConditionRewriter havingConditionRewriter;
 
-    public HavingParser(WhereParser whereParser, List<Field> havingFields) {
+    public HavingParser(WhereParser whereParser) {
         this.whereParser = whereParser;
-        this.havingFields = havingFields;
+        this.havingFields = new ArrayList<>();
         this.havingConditionRewriter = new HavingConditionRewriter();
     }
 
     public void parseWhere(SQLExpr expr, Where where) throws SqlParseException {
         expr.accept(havingConditionRewriter);
         whereParser.parseWhere(expr, where);
+    }
+
+    public List<Field> getHavingFields() {
+        return havingFields;
     }
 
     private class HavingConditionRewriter extends MySqlASTVisitorAdapter {

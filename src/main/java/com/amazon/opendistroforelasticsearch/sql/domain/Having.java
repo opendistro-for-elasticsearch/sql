@@ -26,7 +26,6 @@ import com.google.common.collect.Iterables;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -55,10 +54,10 @@ public class Having {
      */
     private final List<Where> conditions;
 
-    private List<Field> havingFields;
+    private HavingParser havingParser;
 
     public List<Field> getHavingFields() {
-        return havingFields;
+        return havingParser.getHavingFields();
     }
 
     /**
@@ -69,8 +68,8 @@ public class Having {
      * @throws SqlParseException exception thrown by where parser
      */
     public Having(SQLExpr havingExpr, WhereParser parser) throws SqlParseException {
-        this.havingFields = new ArrayList<>();
-        this.conditions = parseHavingExprToConditions(havingExpr, new HavingParser(parser, havingFields));
+        havingParser = new HavingParser(parser);
+        conditions = parseHavingExprToConditions(havingExpr, havingParser);
     }
 
     /**

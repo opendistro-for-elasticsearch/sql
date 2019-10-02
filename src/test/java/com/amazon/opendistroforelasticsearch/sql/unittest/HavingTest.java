@@ -30,6 +30,7 @@ import org.elasticsearch.search.aggregations.PipelineAggregationBuilder;
 import org.elasticsearch.search.aggregations.pipeline.BucketSelectorPipelineAggregationBuilder;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -70,6 +71,19 @@ public class HavingTest {
             ));
     }
 
+    @Ignore
+    @Test
+    public void singleConditionWithTwoAggExpr() {
+        assertThat(
+                query(SELECT_CNT_AVG_FROM_BANK_GROUP_BY_AGE + "HAVING a > c"),
+                contains(
+                        bucketSelector(
+                                hasBucketPath("c: c", "a: a"),
+                                hasScript("params.a > params.c")
+                        )
+                ));
+    }
+
     @Test
     public void singleConditionWithHavingAgg() {
         assertThat(
@@ -78,6 +92,19 @@ public class HavingTest {
                         bucketSelector(
                                 hasBucketPath("c: c", "a: a", "avg_0: avg_0"),
                                 hasScript("params.avg_0 > 30")
+                        )
+                ));
+    }
+
+    @Ignore
+    @Test
+    public void singleConditionWithHavingTwoAggExpr() {
+        assertThat(
+                query(SELECT_CNT_AVG_FROM_BANK_GROUP_BY_AGE + "HAVING AVG(age) > COUNT(*)"),
+                contains(
+                        bucketSelector(
+                                hasBucketPath("c: c", "a: a", "avg_0: avg_0", "count_0: count_0"),
+                                hasScript("params.avg_0 > count_0")
                         )
                 ));
     }
