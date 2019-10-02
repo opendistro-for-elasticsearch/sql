@@ -89,4 +89,10 @@ public class SemanticAnalyzerMultiQueryTest extends SemanticAnalyzerTestBase {
         validate("SELECT *, age FROM semantics UNION SELECT *, balance FROM semantics");
     }
 
+    @Test
+    public void unionSelectFunctionCallWithSameReturnTypeOfTwoQueriesShouldPass() {
+        validate("SELECT LOG(balance) FROM semantics UNION SELECT ABS(age) FROM semantics");
+    }
+
+
 }

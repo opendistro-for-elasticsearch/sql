@@ -30,8 +30,7 @@ public class SemanticAnalyzerFromClauseTest extends SemanticAnalyzerTestBase {
     @Test
     public void nonExistingIndexNameShouldFail() {
         expectValidationFailWithErrorMessages(
-            "SELECT * FROM semantics1",
-            ""
+            "SELECT * FROM semantics1"
         );
     }
 
@@ -93,7 +92,6 @@ public class SemanticAnalyzerFromClauseTest extends SemanticAnalyzerTestBase {
         );
     }
 
-    @Ignore("To be implemented")
     @Test
     public void invalidIndexNameAliasInHavingClauseShouldFail() {
         expectValidationFailWithErrorMessages(

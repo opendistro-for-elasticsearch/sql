@@ -147,4 +147,12 @@ public class SemanticAnalyzerIdentifierTest extends SemanticAnalyzerTestBase {
         validate("SELECT m.name FROM semantics s, s.projects p, p.members m WHERE m.name = 'John'");
     }
 
+    @Test
+    public void useConstantLiteralInSelectClauseShouldPass() {
+        validate("SELECT 1 FROM semantics");
+        validate("SELECT 2.0 FROM semantics");
+        //validate("SELECT 'test' FROM semantics"); TODO: why 'test' goes to fullColumnName that can be string literal
+        validate("SELECT TRUE FROM semantics");
+    }
+
 }
