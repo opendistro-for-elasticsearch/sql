@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.TYPE_ERROR;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.UNKNOWN;
 
 /**
  * Type interface which represents any type of symbol in the SQL.
@@ -61,16 +62,16 @@ public interface Type extends Reducible {
      * Type descriptive name
      * @return  name
      */
-    default String getName() {
-        return "UNKNOWN";
-    }
+    String getName();
 
     /**
      * Check if current type is compatible with other of same type.
      * @param other     other type
      * @return          true if compatible
      */
-    boolean isCompatible(Type other);
+    default boolean isCompatible(Type other) {
+        return other == UNKNOWN || this == other;
+    }
 
     /**
      * Construct a new type by applying current constructor on other types.

@@ -55,7 +55,17 @@ public class TypeExpressionTest {
 
     @Test
     public void emptySpecificationShouldAlwaysReturnUnknown() {
-        TypeExpression expr = () -> new TypeExpressionSpec[0];
+        TypeExpression expr = new TypeExpression() {
+            @Override
+            public TypeExpressionSpec[] specifications() {
+                return new TypeExpressionSpec[0];
+            }
+
+            @Override
+            public String getName() {
+                return "Temp type expression with empty specification";
+            }
+        };
         assertEquals(UNKNOWN, expr.construct(Arrays.asList(NUMBER)));
         assertEquals(UNKNOWN, expr.construct(Arrays.asList(STRING, BOOLEAN)));
         assertEquals(UNKNOWN, expr.construct(Arrays.asList(INTEGER, DOUBLE, GEO_POINT)));

@@ -19,7 +19,6 @@ import java.util.List;
 
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.BOOLEAN;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.TYPE_ERROR;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.UNKNOWN;
 
 /**
  * Type for comparison operator
@@ -45,11 +44,6 @@ public enum ComparisonOperator implements Type {
     @Override
     public String getName() {
         return name;
-    }
-
-    @Override
-    public boolean isCompatible(Type other) {
-        return other == UNKNOWN || this == other;
     }
 
     @Override

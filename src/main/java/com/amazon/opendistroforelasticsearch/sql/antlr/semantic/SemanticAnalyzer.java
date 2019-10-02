@@ -24,7 +24,9 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.AggregateF
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.ComparisonOperator;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.ESScalarFunction;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Product;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.ScalarFunction;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.SetOperator;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.TypeExpression;
 import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.GenericSqlParseTreeVisitor;
@@ -45,15 +47,20 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Ind
  */
 public class SemanticAnalyzer implements GenericSqlParseTreeVisitor<Type> {
 
-    private static final Type DEFAULT = new Type() {
+    private static final Type NULL_TYPE = new Type() {
+        @Override
+        public String getName() {
+            return "NULL";
+        }
+
         @Override
         public boolean isCompatible(Type other) {
-            throw new IllegalStateException("Compatibility check on NULL type");
+            throw new IllegalStateException("Compatibility check on NULL type with " + other);
         }
 
         @Override
         public Type construct(List<Type> others) {
-            throw new IllegalStateException("Construct operation on NULL type");
+            throw new IllegalStateException("Construct operation on NULL type with " + others);
         }
 
         @Override
@@ -75,6 +82,7 @@ public class SemanticAnalyzer implements GenericSqlParseTreeVisitor<Type> {
         defineFunctionNames(ESScalarFunction.values());
         defineFunctionNames(AggregateFunction.values());
         defineOperatorNames(ComparisonOperator.values());
+        defineOperatorNames(SetOperator.values());
     }
 
     @Override
@@ -85,6 +93,11 @@ public class SemanticAnalyzer implements GenericSqlParseTreeVisitor<Type> {
     @Override
     public void endVisitQuery() {
         context.pop();
+    }
+
+    @Override
+    public Type visitSelect(List<Type> itemTypes) {
+        return new Product(itemTypes);
     }
 
     @Override
@@ -220,6 +233,11 @@ public class SemanticAnalyzer implements GenericSqlParseTreeVisitor<Type> {
     }
 
     @Override
+    public Type visitSetOperator(String opName) {
+        return resolve(new Symbol(Namespace.OPERATOR_NAME, StringUtils.toUpper(opName)));
+    }
+
+    @Override
     public Type visitComparisonOperator(String opName) {
         return resolve(new Symbol(Namespace.OPERATOR_NAME, StringUtils.toUpper(opName)));
     }
@@ -252,7 +270,7 @@ public class SemanticAnalyzer implements GenericSqlParseTreeVisitor<Type> {
 
     @Override
     public Type defaultValue() {
-        return DEFAULT;
+        return NULL_TYPE;
     }
 
     /** Define by replace with alias */

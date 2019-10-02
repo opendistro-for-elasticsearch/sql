@@ -15,8 +15,36 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic;
 
+import org.junit.Test;
+
 /**
  * Semantic analyzer tests for multi query like UNION and MINUS
  */
 public class SemanticAnalyzerMultiQueryTest extends SemanticAnalyzerTestBase {
+
+    @Test
+    public void unionDifferentResultTypeOfTwoQueriesShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT balance FROM semantics UNION SELECT address FROM semantics"
+        );
+    }
+
+    @Test
+    public void unionDifferentNumberOfResultTypeOfTwoQueriesShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT balance FROM semantics UNION SELECT balance, age FROM semantics"
+        );
+    }
+
+    @Test
+    public void unionSameResultTypeOfTwoQueriesShouldPass() {
+        validate("SELECT balance FROM semantics UNION SELECT balance FROM semantics");
+    }
+
+    @Test
+    public void unionCompatibleResultTypeOfTwoQueriesShouldPass() {
+        validate("SELECT balance FROM semantics UNION SELECT age FROM semantics");
+        validate("SELECT address FROM semantics UNION ALL SELECT city FROM semantics");
+    }
+
 }

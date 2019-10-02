@@ -32,14 +32,6 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Bas
 public interface TypeExpression extends Type {
 
     @Override
-    default boolean isCompatible(Type other) {
-        // It doesn't make much sense to actually compare 2 type expression
-        // in each which may include multiple overloaded specifications.
-        // So here we just check equality for simplicity.
-        return other == UNKNOWN || this == other;
-    }
-
-    @Override
     default Type construct(List<Type> actualArgs) {
         TypeExpressionSpec[] specifications = specifications();
         if (specifications.length == 0) {

@@ -54,8 +54,18 @@ public class EnvironmentTest {
     @Test
     public void defineFunctionSymbolShouldBeAbleToResolve() {
         String funcName = "LOG";
-        Type expectedType = (TypeExpression) () -> new TypeExpressionSpec[] {
-            new TypeExpressionSpec().map(NUMBER).to(NUMBER)
+        Type expectedType = new TypeExpression() {
+            @Override
+            public String getName() {
+                return "Temp type expression with [NUMBER] -> NUMBER specification";
+            }
+
+            @Override
+            public TypeExpressionSpec[] specifications() {
+                return new TypeExpressionSpec[] {
+                    new TypeExpressionSpec().map(NUMBER).to(NUMBER)
+                };
+            }
         };
         Symbol symbol = new Symbol(Namespace.FUNCTION_NAME, funcName);
         defineSymbolShouldBeAbleToResolve(symbol, expectedType);

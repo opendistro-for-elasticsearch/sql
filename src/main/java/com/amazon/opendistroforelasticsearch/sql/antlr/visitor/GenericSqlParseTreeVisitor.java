@@ -15,6 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.visitor;
 
+import java.util.List;
+
 /**
  * Generic parse tree visitor without dependency on concrete parse tree class.
  */
@@ -25,6 +27,10 @@ public interface GenericSqlParseTreeVisitor<T> {
     default void visitQuery() {}
 
     default void endVisitQuery() {}
+
+    default T visitSelect(List<T> items) {
+        return defaultValue();
+    }
 
     default T visitSelectItem(T type, String alias) {
         return defaultValue();
@@ -47,6 +53,10 @@ public interface GenericSqlParseTreeVisitor<T> {
     }
 
     default T visitFunctionName(String funcName) {
+        return defaultValue();
+    }
+
+    default T visitSetOperator(String opName) {
         return defaultValue();
     }
 

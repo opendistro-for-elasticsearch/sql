@@ -45,6 +45,11 @@ public enum Index implements Type {
     };
 
     @Override
+    public String getName() {
+        return name();
+    }
+
+    @Override
     public boolean isCompatible(Type other) {
         return false;
     }

@@ -47,6 +47,7 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroS
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.TableAndTypeNameContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.UdfFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.UidContext;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.UnionSelectContext;
 
 /**
  * ANTLR parse tree visitor to drive the analysis process.
@@ -64,6 +65,17 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
     public T visitRoot(RootContext ctx) {
         visitor.visitRoot();
         return super.visitRoot(ctx);
+    }
+
+    @Override
+    public T visitUnionSelect(UnionSelectContext ctx) {
+        T union = visitor.visitSetOperator("UNION");
+        List<T> results = ctx.unionStatement().
+                              stream().
+                              map(this::visit).
+                              collect(Collectors.toList());
+        results.add(0, visit(ctx.querySpecification()));
+        return union.reduce(results);
     }
 
     /**
@@ -148,7 +160,10 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
 
     @Override
     public T visitSelectElements(SelectElementsContext ctx) {
-        return super.visitSelectElements(ctx); // TODO: combine and return all elements type for multi-query type check
+        return visitor.visitSelect(ctx.selectElement().
+                                       stream().
+                                       map(this::visit).
+                                       collect(Collectors.toList()));
     }
 
     @Override

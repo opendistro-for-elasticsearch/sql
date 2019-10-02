@@ -33,7 +33,7 @@ import org.junit.runners.Suite;
     SemanticAnalyzerAggregateFunctionTest.class,
     SemanticAnalyzerOperatorTest.class,
     SemanticAnalyzerSubqueryTest.class,
-    //SemanticAnalyzerMultiQueryTest.class,
+    SemanticAnalyzerMultiQueryTest.class,
 })
 public class SemanticAnalyzerTests {
 }

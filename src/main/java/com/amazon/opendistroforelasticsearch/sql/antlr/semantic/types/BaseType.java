@@ -36,8 +36,9 @@ public enum BaseType implements Type {
     DOUBLE(FLOAT),
     NUMBER(DOUBLE),
 
-    TEXT, KEYWORD,
-    STRING(TEXT, KEYWORD),
+    KEYWORD,
+    TEXT(KEYWORD),
+    STRING(TEXT),
 
     DATE_NANOS,
     DATE(DATE_NANOS, STRING),
@@ -80,6 +81,11 @@ public enum BaseType implements Type {
         for (BaseType subType : compatibleTypes) {
             subType.parent = this;
         }
+    }
+
+    @Override
+    public String getName() {
+        return name();
     }
 
     /**
