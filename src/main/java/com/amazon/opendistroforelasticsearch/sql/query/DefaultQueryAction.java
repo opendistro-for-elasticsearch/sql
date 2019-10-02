@@ -15,6 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.query;
 
+import com.alibaba.druid.sql.ast.SQLExpr;
+import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
+import com.alibaba.druid.sql.ast.expr.SQLBinaryOperator;
 import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.KVValue;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
@@ -226,10 +229,24 @@ public class DefaultQueryAction extends QueryAction {
                                     .scriptSort(new Script(order.getName()), getScriptSortType(order))
                                     .order(SortOrder.valueOf(order.getType())));
                 } else {
-                    request.addSort(order.getName(), SortOrder.valueOf(order.getType()));
+
+                    SQLExpr expr = order.getSortField().getExpression();
+                    FieldSortBuilder fieldSortBuilder = SortBuilders.fieldSort(order.getName())
+                        .order(SortOrder.valueOf(order.getType()));
+
+                    if (expr instanceof SQLBinaryOpExpr) {
+                        // we set SQLBinaryOpExpr in Field.setExpression() to support ORDER by IS NULL/IS NOT NULL
+                        fieldSortBuilder.missing(getNullOrderString((SQLBinaryOpExpr) expr));
+                    }
+                    request.addSort(fieldSortBuilder);
                 }
             }
         }
+    }
+
+    private String getNullOrderString(SQLBinaryOpExpr expr) {
+        SQLBinaryOperator operator = expr.getOperator();
+        return operator == SQLBinaryOperator.IsNot ? "_first" : "_last";
     }
 
     private ScriptSortType getScriptSortType(Order order) {

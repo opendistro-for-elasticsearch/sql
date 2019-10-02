@@ -66,7 +66,7 @@ public class FieldMaker {
         if (expr instanceof SQLIdentifierExpr || expr instanceof SQLPropertyExpr || expr instanceof SQLVariantRefExpr) {
             return handleIdentifier(expr, alias, tableAlias);
         } else if (expr instanceof SQLQueryExpr) {
-            throw new SqlParseException("unknow field name : " + expr);
+            throw new SqlParseException("unknown field name : " + expr);
         } else if (expr instanceof SQLBinaryOpExpr) {
             //make a SCRIPT method field;
             return makeFieldImpl(makeBinaryMethodField((SQLBinaryOpExpr) expr, alias, true), alias, tableAlias);

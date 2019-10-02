@@ -235,7 +235,11 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
         SQLObject parent = expr.getParent();
         return
                 (parent instanceof SQLBinaryOpExpr
-                        && ((SQLBinaryOpExpr) parent).getOperator() == SQLBinaryOperator.Equality
+                 && (
+                    ((SQLBinaryOpExpr) parent).getOperator() == SQLBinaryOperator.Equality
+                    || ((SQLBinaryOpExpr) parent).getOperator() == SQLBinaryOperator.Is
+                    || ((SQLBinaryOpExpr) parent).getOperator() == SQLBinaryOperator.IsNot
+                    )
                 )
                         || parent instanceof SQLInListExpr
                         || parent instanceof SQLInSubQueryExpr
