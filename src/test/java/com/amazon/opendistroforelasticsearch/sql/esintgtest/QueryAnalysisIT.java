@@ -16,7 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.SemanticAnalysisException;
-import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.SqlSyntaxAnalysisException;
+import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.SyntaxAnalysisException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import org.elasticsearch.action.index.IndexRequest;
@@ -174,7 +174,7 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
     }
 
     private void queryShouldThrowSyntaxException(String query, String... expectedMsgs) {
-        queryShouldThrowException(query, SqlSyntaxAnalysisException.class, expectedMsgs);
+        queryShouldThrowException(query, SyntaxAnalysisException.class, expectedMsgs);
     }
 
     private void queryShouldThrowSemanticException(String query, String... expectedMsgs) {

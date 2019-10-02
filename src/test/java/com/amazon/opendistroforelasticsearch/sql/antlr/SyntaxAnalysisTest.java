@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr;
 
-import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.SqlSyntaxAnalysisException;
+import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.SyntaxAnalysisException;
 import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
@@ -133,7 +133,7 @@ public class SyntaxAnalysisTest {
     }
 
     private void expectValidationFailWithErrorMessage(String query, String... messages) {
-        exception.expect(SqlSyntaxAnalysisException.class);
+        exception.expect(SyntaxAnalysisException.class);
         exception.expectMessage(allOf(Arrays.stream(messages).
                                       map(Matchers::containsString).
                                       collect(toList())));
