@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.visitor;
 
-import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FunctionArgsContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.MinusStatementContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.QuerySpecificationContext;
@@ -40,7 +39,10 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroS
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FromClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FullColumnNameContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FunctionNameBaseContext;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.InPredicateContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.IsExpressionContext;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.MinusSelectContext;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.PredicateContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.RootContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.ScalarFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.SelectElementsContext;
@@ -84,7 +86,7 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
     }
 
     @Override
-    public T visitMinusSelect(OpenDistroSqlParser.MinusSelectContext ctx) {
+    public T visitMinusSelect(MinusSelectContext ctx) {
         T minus = visitor.visitSetOperator("MINUS");
         return reduce(minus,
             Lists.asList(
@@ -92,6 +94,14 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
                 ctx.minusStatement().toArray(new MinusStatementContext[0])
             )
         );
+    }
+
+    @Override
+    public T visitInPredicate(InPredicateContext ctx) {
+        T in = visitor.visitSetOperator("IN");
+        PredicateContext field = ctx.predicate();
+        ParserRuleContext subquery = (ctx.selectStatement() != null) ? ctx.selectStatement() : ctx.expressions();
+        return reduce(in, Arrays.asList(field, subquery));
     }
 
     /**

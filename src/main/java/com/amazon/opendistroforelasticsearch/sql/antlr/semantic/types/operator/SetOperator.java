@@ -26,7 +26,8 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.bas
  */
 public enum SetOperator implements Type {
     UNION,
-    MINUS;
+    MINUS,
+    IN;
 
     @Override
     public String getName() {
@@ -41,7 +42,11 @@ public enum SetOperator implements Type {
 
         // Compare each type and return anyone for now if pass
         for (int i = 0; i < others.size() - 1; i++) {
-            if (!others.get(i).isCompatible(others.get(i + 1))) {
+            Type type1 = others.get(i);
+            Type type2 = others.get(i + 1);
+
+            // Do it again as in Product because single base type won't be wrapped in Product
+            if (!type1.isCompatible(type2) && !type2.isCompatible(type1)) {
                 return TYPE_ERROR;
             }
         }

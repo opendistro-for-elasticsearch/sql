@@ -26,6 +26,7 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.bas
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.KEYWORD;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.NUMBER;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.STRING;
+import static java.util.Collections.singletonList;
 
 /**
  * Test cases fro product type
@@ -34,16 +35,16 @@ public class ProductTypeTest {
 
     @Test
     public void singleSameTypeInTwoProductsShouldPass() {
-        Product product1 = new Product(Arrays.asList(INTEGER));
-        Product product2 = new Product(Arrays.asList(INTEGER));
+        Product product1 = new Product(singletonList(INTEGER));
+        Product product2 = new Product(singletonList(INTEGER));
         Assert.assertTrue(product1.isCompatible(product2));
         Assert.assertTrue(product2.isCompatible(product1));
     }
 
     @Test
     public void singleCompatibleTypeInTwoProductsShouldPass() {
-        Product product1 = new Product(Arrays.asList(NUMBER));
-        Product product2 = new Product(Arrays.asList(INTEGER));
+        Product product1 = new Product(singletonList(NUMBER));
+        Product product2 = new Product(singletonList(INTEGER));
         Assert.assertTrue(product1.isCompatible(product2));
         Assert.assertTrue(product2.isCompatible(product1));
     }
@@ -57,9 +58,9 @@ public class ProductTypeTest {
     }
 
     @Test
-    public void inCompatibleTypesInTwoProductsShouldFail() {
-        Product product1 = new Product(Arrays.asList(BOOLEAN));
-        Product product2 = new Product(Arrays.asList(STRING));
+    public void incompatibleTypesInTwoProductsShouldFail() {
+        Product product1 = new Product(singletonList(BOOLEAN));
+        Product product2 = new Product(singletonList(STRING));
         Assert.assertFalse(product1.isCompatible(product2));
         Assert.assertFalse(product2.isCompatible(product1));
     }
@@ -67,9 +68,16 @@ public class ProductTypeTest {
     @Test
     public void compatibleButDifferentTypeNumberInTwoProductsShouldFail() {
         Product product1 = new Product(Arrays.asList(KEYWORD, INTEGER));
-        Product product2 = new Product(Arrays.asList(STRING));
+        Product product2 = new Product(singletonList(STRING));
         Assert.assertFalse(product1.isCompatible(product2));
         Assert.assertFalse(product2.isCompatible(product1));
+    }
+
+    @Test
+    public void baseTypeShouldBeIncompatibleWithProductType() {
+        Product product = new Product(singletonList(INTEGER));
+        Assert.assertFalse(INTEGER.isCompatible(product));
+        Assert.assertFalse(product.isCompatible(INTEGER));
     }
 
 }

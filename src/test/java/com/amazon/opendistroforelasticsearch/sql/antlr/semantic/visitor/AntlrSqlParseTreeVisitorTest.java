@@ -18,18 +18,19 @@ package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.visitor;
 import com.amazon.opendistroforelasticsearch.sql.antlr.OpenDistroSqlAnalyzer;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.SemanticAnalyzer;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.SemanticContext;
-import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.special.Product;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.special.Product;
 import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.AntlrSqlParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.DOUBLE;
+import java.util.Arrays;
+
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.DATE;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.UNKNOWN;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 
 /**
  * Test cases for AntlrSqlParseTreeVisitor
@@ -44,15 +45,25 @@ public class AntlrSqlParseTreeVisitorTest {
 
         @Override
         public Type visitFieldName(String fieldName) {
-            return fieldName.equals("age") ? INTEGER : UNKNOWN;
+            switch (fieldName) {
+                case "age": return INTEGER;
+                case "birthday": return DATE;
+                default: return UNKNOWN;
+            }
         }
     };
 
     @Test
-    public void selectNumberShouldReturnProductOfNumberAsQueryVisitingResult() {
+    public void selectNumberShouldReturnNumberAsQueryVisitingResult() {
         Type result = visit("SELECT age FROM test");
-        Assert.assertTrue(result instanceof Product);
-        Assert.assertTrue(result.isCompatible(new Product(singletonList(DOUBLE))));
+        Assert.assertSame(result, INTEGER);
+    }
+
+    @Test
+    public void selectNumberAndDateShouldReturnProductOfThemAsQueryVisitingResult() {
+        Type result = visit("SELECT age, birthday FROM test");
+        Assert.assertTrue(result instanceof Product );
+        Assert.assertTrue(result.isCompatible(new Product(Arrays.asList(INTEGER, DATE))));
     }
 
     @Test

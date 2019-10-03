@@ -97,6 +97,10 @@ public class SemanticAnalyzer implements GenericSqlParseTreeVisitor<Type> {
 
     @Override
     public Type visitSelect(List<Type> itemTypes) {
+        if (itemTypes.size() == 1) {
+            return itemTypes.get(0);
+        }
+        // Return product for empty (SELECT *) and #items > 1
         return new Product(itemTypes);
     }
 

@@ -26,7 +26,7 @@ public class SemanticAnalyzerMultiQueryTest extends SemanticAnalyzerTestBase {
     public void unionDifferentResultTypeOfTwoQueriesShouldFail() {
         expectValidationFailWithErrorMessages(
             "SELECT balance FROM semantics UNION SELECT address FROM semantics",
-            "Operator [UNION] cannot work with [(DOUBLE), (TEXT)]."
+            "Operator [UNION] cannot work with [DOUBLE, TEXT]."
         );
     }
 
@@ -34,7 +34,7 @@ public class SemanticAnalyzerMultiQueryTest extends SemanticAnalyzerTestBase {
     public void unionDifferentNumberOfResultTypeOfTwoQueriesShouldFail() {
         expectValidationFailWithErrorMessages(
             "SELECT balance FROM semantics UNION SELECT balance, age FROM semantics",
-            "Operator [UNION] cannot work with [(DOUBLE), (DOUBLE, INTEGER)]."
+            "Operator [UNION] cannot work with [DOUBLE, (DOUBLE, INTEGER)]."
         );
     }
 
@@ -42,7 +42,7 @@ public class SemanticAnalyzerMultiQueryTest extends SemanticAnalyzerTestBase {
     public void minusDifferentResultTypeOfTwoQueriesShouldFail() {
         expectValidationFailWithErrorMessages(
             "SELECT p.active FROM semantics s, s.projects p MINUS SELECT address FROM semantics",
-            "Operator [MINUS] cannot work with [(BOOLEAN), (TEXT)]."
+            "Operator [MINUS] cannot work with [BOOLEAN, TEXT]."
         );
     }
 
@@ -71,7 +71,7 @@ public class SemanticAnalyzerMultiQueryTest extends SemanticAnalyzerTestBase {
     public void unionSelectStarWithExtraFieldOfTwoQueriesShouldPass() {
         expectValidationFailWithErrorMessages(
             "SELECT * FROM semantics UNION SELECT *, city FROM semantics",
-            "Operator [UNION] cannot work with [(), (KEYWORD)]."
+            "Operator [UNION] cannot work with [(*), KEYWORD]."
         );
     }
 
@@ -79,7 +79,7 @@ public class SemanticAnalyzerMultiQueryTest extends SemanticAnalyzerTestBase {
     public void minusSelectStarWithExtraFieldOfTwoQueriesShouldPass() {
         expectValidationFailWithErrorMessages(
             "SELECT *, address, balance FROM semantics MINUS SELECT * FROM semantics",
-            "Operator [MINUS] cannot work with [(TEXT, DOUBLE), ()]."
+            "Operator [MINUS] cannot work with [(TEXT, DOUBLE), (*)]."
         );
     }
 

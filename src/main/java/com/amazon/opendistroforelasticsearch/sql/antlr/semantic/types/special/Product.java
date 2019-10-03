@@ -51,9 +51,7 @@ public class Product implements Type {
         for (int i = 0; i < types.size(); i++) {
             Type type = types.get(i);
             Type otherType = otherProd.types.get(i);
-
-            // Perform two-way compatibility check here which is different from normal type expression
-            if (!type.isCompatible(otherType) && !otherType.isCompatible(type)) {
+            if (!isCompatibleEitherWay(type, otherType)) {
                 return false;
             }
         }
@@ -67,8 +65,17 @@ public class Product implements Type {
 
     @Override
     public String usage() {
+        if (types.isEmpty()) {
+            return "(*)";
+        }
         return types.stream().
                      map(Type::usage).
                      collect(Collectors.joining(", ", "(", ")"));
     }
+
+    /** Perform two-way compatibility check here which is different from normal type expression */
+    private boolean isCompatibleEitherWay(Type type1, Type type2) {
+        return type1.isCompatible(type2) || type2.isCompatible(type1);
+    }
+
 }

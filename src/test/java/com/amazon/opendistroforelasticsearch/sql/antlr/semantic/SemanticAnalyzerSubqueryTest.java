@@ -54,4 +54,25 @@ public class SemanticAnalyzerSubqueryTest extends SemanticAnalyzerTestBase {
         );
     }
 
+    @Test
+    public void useInClauseWithIncompatibleFieldTypesShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT * FROM semantics s WHERE age IN (SELECT p.active FROM s.projects p)",
+            "Operator [IN] cannot work with [INTEGER, BOOLEAN]."
+        );
+    }
+
+    @Test
+    public void useInClauseWithCompatibleFieldTypesShouldPass() {
+        validate("SELECT * FROM semantics s WHERE address IN (SELECT city FROM s.projects p)");
+    }
+
+    @Test
+    public void useInClauseWithSelectStarShouldFail() {
+        expectValidationFailWithErrorMessages(
+            "SELECT * FROM semantics s WHERE address IN (SELECT * FROM s.projects p)",
+            "Operator [IN] cannot work with [TEXT, (*)]"
+        );
+    }
+
 }

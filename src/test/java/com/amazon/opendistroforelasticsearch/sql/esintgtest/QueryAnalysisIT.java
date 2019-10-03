@@ -166,7 +166,7 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
         queryShouldThrowSemanticException(
             "SELECT age FROM elasticsearch-sql_test_index_bank" +
             " UNION SELECT address FROM elasticsearch-sql_test_index_bank",
-            "Operator [UNION] cannot work with [(INTEGER), (TEXT)]."
+            "Operator [UNION] cannot work with [INTEGER, TEXT]."
         );
     }
 
@@ -175,7 +175,15 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
         queryShouldThrowSemanticException(
             "SELECT male FROM elasticsearch-sql_test_index_bank" +
             " MINUS SELECT birthdate FROM elasticsearch-sql_test_index_bank",
-            "Operator [MINUS] cannot work with [(BOOLEAN), (DATE)]."
+            "Operator [MINUS] cannot work with [BOOLEAN, DATE]."
+        );
+    }
+
+    @Test
+    public void useInClauseWithIncompatibleFieldTypesShouldFail() {
+        queryShouldThrowSemanticException(
+            "SELECT * FROM elasticsearch-sql_test_index_bank WHERE male IN (SELECT 1 FROM elasticsearch-sql_test_index_bank)",
+            "Operator [IN] cannot work with [BOOLEAN, INTEGER]."
         );
     }
 
