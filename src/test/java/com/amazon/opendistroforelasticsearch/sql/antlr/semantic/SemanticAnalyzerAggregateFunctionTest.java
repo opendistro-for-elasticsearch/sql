@@ -105,12 +105,12 @@ public class SemanticAnalyzerAggregateFunctionTest extends SemanticAnalyzerTestB
     }
 
     @Test
-    public void useAvgFunctionCallAliasInHavingShouldPass() {
+    public void useAvgFunctionCallAliasInHavingClauseShouldPass() {
         validate("SELECT city, AVG(age) AS avg FROM semantics GROUP BY city HAVING avg > 10");
     }
 
     @Test
-    public void useAvgAndMaxFunctionCallAliasInHavingShouldPass() {
+    public void useAvgAndMaxFunctionCallAliasInHavingClauseShouldPass() {
         validate(
             "SELECT city, AVG(age) AS avg, MAX(balance) AS bal FROM semantics " +
             "GROUP BY city HAVING avg > 10 AND bal > 10000"
@@ -123,32 +123,43 @@ public class SemanticAnalyzerAggregateFunctionTest extends SemanticAnalyzerTestB
     }
 
     @Test
-    public void useAvgFunctionCallAliasInOrderByShouldPass() {
+    public void useDifferentAggregateFunctionInHavingClauseShouldPass() {
+        validate("SELECT city, AVG(age) FROM semantics GROUP BY city HAVING COUNT(*) > 10 AND SUM(balance) <= 10000");
+    }
+
+    @Test
+    public void useAvgFunctionCallAliasInOrderByClauseShouldPass() {
         validate("SELECT city, AVG(age) AS avg FROM semantics GROUP BY city ORDER BY avg");
     }
 
     @Test
-    public void useAvgFunctionCallAliasInGroupByAndOrderByShouldPass() {
+    public void useAvgFunctionCallAliasInGroupByAndOrderByClauseShouldPass() {
         validate("SELECT SUBSTRING(address, 0, 3) AS add FROM semantics GROUP BY add ORDER BY add");
     }
 
     @Test
-    public void useColumnNameAliasInOrderByShouldPass() {
+    public void useColumnNameAliasInOrderByClauseShouldPass() {
         validate("SELECT age AS a, AVG(balance) FROM semantics GROUP BY age ORDER BY a");
     }
 
     @Test
-    public void useExpressionAliasInOrderByShouldPass() {
+    public void useExpressionAliasInOrderByClauseShouldPass() {
         validate("SELECT age + 1 AS a FROM semantics GROUP BY age ORDER BY a");
     }
 
     @Test
-    public void useAvgFunctionCallOnTextFieldInHavingShouldFail() {
+    public void useAvgFunctionCallWithTextFieldInHavingClauseShouldFail() {
         expectValidationFailWithErrorMessages(
             "SELECT city FROM semantics GROUP BY city HAVING AVG(address) > 10",
             "Function [AVG] cannot work with [TEXT].",
             "Usage: AVG(NUMBER T) -> T"
         );
+    }
+
+    @Test
+    public void useCountFunctionCallWithNestedFieldShouldPass() {
+        validate("SELECT * FROM semantics s, s.projects p GROUP BY city HAVING COUNT(p) > 1");
+        validate("SELECT * FROM semantics s, s.projects p, p.members m GROUP BY city HAVING COUNT(m) > 1");
     }
 
 }
