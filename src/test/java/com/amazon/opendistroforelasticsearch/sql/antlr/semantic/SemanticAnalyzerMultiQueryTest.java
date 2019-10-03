@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -68,7 +69,7 @@ public class SemanticAnalyzerMultiQueryTest extends SemanticAnalyzerTestBase {
     }
 
     @Test
-    public void unionSelectStarWithExtraFieldOfTwoQueriesShouldPass() {
+    public void unionSelectStarWithExtraFieldOfTwoQueriesShouldFail() {
         expectValidationFailWithErrorMessages(
             "SELECT * FROM semantics UNION SELECT *, city FROM semantics",
             "Operator [UNION] cannot work with [(*), KEYWORD]."
@@ -76,7 +77,7 @@ public class SemanticAnalyzerMultiQueryTest extends SemanticAnalyzerTestBase {
     }
 
     @Test
-    public void minusSelectStarWithExtraFieldOfTwoQueriesShouldPass() {
+    public void minusSelectStarWithExtraFieldOfTwoQueriesShouldFail() {
         expectValidationFailWithErrorMessages(
             "SELECT *, address, balance FROM semantics MINUS SELECT * FROM semantics",
             "Operator [MINUS] cannot work with [(TEXT, DOUBLE), (*)]."
@@ -94,5 +95,10 @@ public class SemanticAnalyzerMultiQueryTest extends SemanticAnalyzerTestBase {
         validate("SELECT LOG(balance) FROM semantics UNION SELECT ABS(age) FROM semantics");
     }
 
+    @Ignore("* is empty and ignored in product of select items for now")
+    @Test
+    public void unionSelectFieldWithExtraStarOfTwoQueriesShouldFail() {
+        expectValidationFailWithErrorMessages("SELECT age FROM semantics UNION SELECT *, age FROM semantics");
+    }
 
 }
