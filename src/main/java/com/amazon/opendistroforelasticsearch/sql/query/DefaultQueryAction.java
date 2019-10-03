@@ -44,14 +44,17 @@ import org.elasticsearch.script.Script;
 import org.elasticsearch.script.ScriptType;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.NestedSortBuilder;
+import org.elasticsearch.search.sort.ScoreSortBuilder;
 import org.elasticsearch.search.sort.ScriptSortBuilder.ScriptSortType;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -213,11 +216,17 @@ public class DefaultQueryAction extends QueryAction {
      * @param orderBys list of Order object
      */
     private void setSorts(List<Order> orderBys) {
+        Map<String, FieldSortBuilder> sortBuilderMap = new HashMap<>();
+
         for (Order order : orderBys) {
+
+            String orderByName = order.getName();
+            SortOrder sortOrder = SortOrder.valueOf(order.getType());
+
             if (order.getNestedPath() != null) {
                 request.addSort(
-                        SortBuilders.fieldSort(order.getName())
-                                .order(SortOrder.valueOf(order.getType()))
+                        SortBuilders.fieldSort(orderByName)
+                                .order(sortOrder)
                                 .setNestedSort(new NestedSortBuilder(order.getNestedPath())));
             } else {
                 if (order.isScript()) {
@@ -226,22 +235,38 @@ public class DefaultQueryAction extends QueryAction {
 
                     request.addSort(
                             SortBuilders
-                                    .scriptSort(new Script(order.getName()), getScriptSortType(order))
-                                    .order(SortOrder.valueOf(order.getType())));
+                                    .scriptSort(new Script(orderByName), getScriptSortType(order))
+                                    .order(sortOrder));
                 } else {
-
-                    SQLExpr expr = order.getSortField().getExpression();
-                    FieldSortBuilder fieldSortBuilder = SortBuilders.fieldSort(order.getName())
-                        .order(SortOrder.valueOf(order.getType()));
-
-                    if (expr instanceof SQLBinaryOpExpr) {
-                        // we set SQLBinaryOpExpr in Field.setExpression() to support ORDER by IS NULL/IS NOT NULL
-                        fieldSortBuilder.missing(getNullOrderString((SQLBinaryOpExpr) expr));
+                    if (orderByName.equals(ScoreSortBuilder.NAME)) {
+                        request.addSort(orderByName, sortOrder);
+                    } else {
+                        FieldSortBuilder fieldSortBuilder;
+                        if (sortBuilderMap.containsKey(orderByName)) {
+                            fieldSortBuilder = sortBuilderMap.get(orderByName);
+                            setSortParmas(fieldSortBuilder, order);
+                        } else {
+                            fieldSortBuilder = SortBuilders.fieldSort(orderByName);
+                            setSortParmas(fieldSortBuilder, order);
+                            sortBuilderMap.put(orderByName, fieldSortBuilder);
+                            request.addSort(fieldSortBuilder);
+                        }
                     }
-                    request.addSort(fieldSortBuilder);
                 }
             }
         }
+    }
+
+
+    private void setSortParmas(FieldSortBuilder fieldSortBuilder, Order order) {
+        fieldSortBuilder.order(SortOrder.valueOf(order.getType()));
+
+        SQLExpr expr = order.getSortField().getExpression();
+        if (expr instanceof SQLBinaryOpExpr) {
+            // we set SQLBinaryOpExpr in Field.setExpression() to support ORDER by IS NULL/IS NOT NULL
+            fieldSortBuilder.missing(getNullOrderString((SQLBinaryOpExpr) expr));
+        }
+
     }
 
     private String getNullOrderString(SQLBinaryOpExpr expr) {
