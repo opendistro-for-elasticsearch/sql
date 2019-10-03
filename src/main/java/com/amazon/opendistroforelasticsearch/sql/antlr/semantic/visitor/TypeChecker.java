@@ -13,9 +13,11 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.antlr.semantic;
+package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.visitor;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.StringSimilarity;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.SemanticAnalysisException;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.SemanticUnsupportedException;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Environment;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Namespace;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.SemanticContext;
@@ -45,7 +47,7 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.bas
 /**
  * SQL semantic analyzer that determines if a syntactical correct query is meaningful.
  */
-public class SemanticAnalyzer implements GenericSqlParseTreeVisitor<Type> {
+public class TypeChecker implements GenericSqlParseTreeVisitor<Type> {
 
     private static final Type NULL_TYPE = new Type() {
         @Override
@@ -75,12 +77,12 @@ public class SemanticAnalyzer implements GenericSqlParseTreeVisitor<Type> {
     /** Should suggestion provided. Disabled by default for security concern. */
     private final boolean isSuggestEnabled;
 
-    public SemanticAnalyzer(SemanticContext context) {
+    public TypeChecker(SemanticContext context) {
         this.context = context;
         this.isSuggestEnabled = false;
     }
 
-    public SemanticAnalyzer(SemanticContext context, boolean isSuggestEnabled) {
+    public TypeChecker(SemanticContext context, boolean isSuggestEnabled) {
         this.context = context;
         this.isSuggestEnabled = isSuggestEnabled;
     }

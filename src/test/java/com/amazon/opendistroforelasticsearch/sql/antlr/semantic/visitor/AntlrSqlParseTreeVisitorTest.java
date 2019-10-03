@@ -16,7 +16,6 @@
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.visitor;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.OpenDistroSqlAnalyzer;
-import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.SemanticAnalyzer;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.SemanticContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.special.Product;
@@ -37,7 +36,7 @@ import static java.util.Collections.emptyList;
  */
 public class AntlrSqlParseTreeVisitorTest {
 
-    private SemanticAnalyzer analyzer = new SemanticAnalyzer(new SemanticContext(null)) {
+    private TypeChecker analyzer = new TypeChecker(new SemanticContext(null)) {
         @Override
         public Type visitIndexName(String indexName, String alias) {
             return null; // avoid querying mapping on null LocalClusterState

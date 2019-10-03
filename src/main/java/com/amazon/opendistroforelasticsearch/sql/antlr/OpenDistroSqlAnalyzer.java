@@ -17,7 +17,9 @@ package com.amazon.opendistroforelasticsearch.sql.antlr;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlLexer;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser;
-import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.SemanticAnalyzer;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.visitor.ESMappingLoader;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.visitor.SemanticAnalyzer;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.visitor.TypeChecker;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.SemanticUnsupportedException;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.SemanticContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.CaseInsensitiveCharStream;
@@ -73,14 +75,19 @@ public class OpenDistroSqlAnalyzer {
      * @param clusterState  cluster state required for index mapping query
      */
     public void analyzeSemantic(ParseTree tree, LocalClusterState clusterState, boolean isSuggestEnabled) {
-        tree.accept(
-            new AntlrSqlParseTreeVisitor<>(
-                new SemanticAnalyzer(
-                    new SemanticContext(clusterState), isSuggestEnabled)));
+        tree.accept(new AntlrSqlParseTreeVisitor<>(createAnalyzer(clusterState, isSuggestEnabled)));
     }
 
     public void analyzeSemantic(ParseTree tree, LocalClusterState clusterState) {
         analyzeSemantic(tree, clusterState, false);
+    }
+
+    /** Factory method for semantic analyzer to help assemble all required components together */
+    private SemanticAnalyzer createAnalyzer(LocalClusterState clusterState, boolean isSuggestEnabled) {
+        SemanticContext context = new SemanticContext(clusterState);
+        ESMappingLoader mappingLoader = new ESMappingLoader(context, clusterState);
+        TypeChecker typeChecker = new TypeChecker(context, isSuggestEnabled);
+        return new SemanticAnalyzer(mappingLoader, typeChecker);
     }
 
     private OpenDistroSqlParser createParser(Lexer lexer) {

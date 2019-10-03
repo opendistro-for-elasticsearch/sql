@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.antlr.semantic;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Namespace;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.SemanticContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.visitor.TypeChecker;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import org.junit.Assert;
 import org.junit.Before;
@@ -49,12 +50,12 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
 
     private SemanticContext context;
 
-    private SemanticAnalyzer analyzer;
+    private TypeChecker analyzer;
 
     @Before
     public void setUp() {
         context = new SemanticContext(LocalClusterState.state());
-        analyzer = new SemanticAnalyzer(context);
+        analyzer = new TypeChecker(context);
     }
 
     @Test

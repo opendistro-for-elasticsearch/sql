@@ -30,7 +30,7 @@ POST _opendistro/_sql
 }
 ```
 
-### 2.2 Function Call on Wrong Field Type
+### 2.2 Function Call on Incompatible Field Type
 
 ```
 POST _opendistro/_sql
@@ -84,7 +84,7 @@ POST _opendistro/_sql
 }
 ```
 
-### 2.5 Operator Use on Wrong Field Type
+### 2.5 Operator Use on Incompatible Field Type
 
 ```
 POST _opendistro/_sql
@@ -92,6 +92,18 @@ POST _opendistro/_sql
   "query": "SELECT * FROM accounts WHERE lastname IS FALSE"
 }
 
+
+```
+
+### 2.6 Subquery Return Incompatible Type
+
+```
+
+```
+
+### 2.7 Multi-query On Incompatible Type
+
+```
 
 ```
 
