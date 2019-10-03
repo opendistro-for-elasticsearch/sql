@@ -68,8 +68,10 @@ class Where extends SQLClause<SQLBinaryOpExpr> {
      * Merge anyway if the root of WHERE clause or {@link SQLNotExpr} be reached.
      */
     private void mergeIfHaveTagAndIsRootOfWhereOrNot(Scope scope) {
-        if ((!scope.getConditionTag(expr).isEmpty()
-             && expr.getParent() instanceof MySqlSelectQueryBlock)
+        if (scope.getConditionTag(expr).isEmpty()) {
+            return;
+        }
+        if (expr.getParent() instanceof MySqlSelectQueryBlock
             || expr.getParent() instanceof SQLNotExpr) {
             mergeNestedField(scope);
         }
