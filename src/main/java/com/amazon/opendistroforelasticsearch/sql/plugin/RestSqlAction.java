@@ -23,6 +23,7 @@ import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.ActionRequestRestExecutorFactory;
 import com.amazon.opendistroforelasticsearch.sql.executor.RestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.ErrorMessage;
+import com.amazon.opendistroforelasticsearch.sql.utils.JsonPrettyFormatter;
 import com.amazon.opendistroforelasticsearch.sql.metrics.MetricName;
 import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
@@ -141,7 +142,8 @@ public class RestSqlAction extends BaseRestHandler {
                                    final Client client, final RestChannel channel) throws Exception {
         if (isExplainRequest(request)) {
             final String jsonExplanation = queryAction.explain().explain();
-            channel.sendResponse(new BytesRestResponse(OK, "application/json; charset=UTF-8", jsonExplanation));
+            final String jsonPretty = new JsonPrettyFormatter().format(jsonExplanation);
+            channel.sendResponse(new BytesRestResponse(OK, "application/json; charset=UTF-8", jsonPretty));
         } else {
             Map<String, String> params = request.params();
             RestExecutor restExecutor = ActionRequestRestExecutorFactory.createExecutor(params.get("format"),
