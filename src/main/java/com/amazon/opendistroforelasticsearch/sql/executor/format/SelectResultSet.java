@@ -399,11 +399,22 @@ public class SelectResultSet extends ResultSet {
                  */
                 String type = field.type().toUpperCase();
                 if (Schema.hasType(type)) {
+
+                    // If the current field is a group key, we should use alias as the identifier
+                    boolean isGroupKey = false;
+                    Select select = (Select) query;
+                    if (null != select.getGroupBys()
+                            && !select.getGroupBys().isEmpty()
+                            && select.getGroupBys().get(0).contains(fieldMap.get(fieldName))) {
+                        isGroupKey = true;
+                    }
+
                     columns.add(
                             new Schema.Column(
                                     fieldName,
                                     fetchAlias(fieldName, fieldMap),
-                                    Schema.Type.valueOf(type)
+                                    Schema.Type.valueOf(type),
+                                    isGroupKey
                             )
                     );
                 } else if (!isSelectAll()) {

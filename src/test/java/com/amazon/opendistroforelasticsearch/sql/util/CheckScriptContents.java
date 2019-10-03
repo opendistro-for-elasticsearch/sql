@@ -87,7 +87,7 @@ public class CheckScriptContents {
             return scriptFields.get(0);
 
         } catch (SQLFeatureNotSupportedException | SqlParseException e) {
-            throw new ParserException("Unable to parse query: " + query);
+            throw new ParserException("Unable to parse query: " + query, e);
         }
     }
 
