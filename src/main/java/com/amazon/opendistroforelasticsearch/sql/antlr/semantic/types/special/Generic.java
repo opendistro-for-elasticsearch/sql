@@ -13,8 +13,9 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types;
+package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.special;
 
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 
 import java.util.Arrays;

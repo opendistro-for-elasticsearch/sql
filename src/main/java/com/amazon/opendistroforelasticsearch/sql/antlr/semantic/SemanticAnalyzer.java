@@ -20,13 +20,13 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Environmen
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Namespace;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.SemanticContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Symbol;
-import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.AggregateFunction;
-import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType;
-import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.ComparisonOperator;
-import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.ESScalarFunction;
-import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Product;
-import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.ScalarFunction;
-import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.SetOperator;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.function.AggregateFunction;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.operator.ComparisonOperator;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.function.ESScalarFunction;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.special.Product;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.function.ScalarFunction;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.operator.SetOperator;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.TypeExpression;
 import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.GenericSqlParseTreeVisitor;
@@ -38,9 +38,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.UNKNOWN;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Index.INDEX;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Index.NESTED_INDEX;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.UNKNOWN;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.Index.INDEX;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.Index.NESTED_INDEX;
 
 /**
  * SQL semantic analyzer that determines if a syntactical correct query is meaningful.

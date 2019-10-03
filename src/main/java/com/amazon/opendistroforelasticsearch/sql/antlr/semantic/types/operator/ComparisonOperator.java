@@ -13,12 +13,14 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types;
+package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.operator;
+
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 
 import java.util.List;
 
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.BOOLEAN;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.BaseType.TYPE_ERROR;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.BOOLEAN;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.TYPE_ERROR;
 
 /**
  * Type for comparison operator
