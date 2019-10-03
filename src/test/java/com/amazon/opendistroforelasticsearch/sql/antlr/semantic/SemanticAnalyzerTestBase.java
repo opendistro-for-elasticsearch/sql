@@ -19,6 +19,7 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.OpenDistroSqlAnalyzer;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.hamcrest.Matchers;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -67,6 +68,8 @@ public abstract class SemanticAnalyzerTestBase {
     }
 
     protected void validate(String sql) {
-        new OpenDistroSqlAnalyzer(sql).analyze(LocalClusterState.state());
+        OpenDistroSqlAnalyzer analyzer = new OpenDistroSqlAnalyzer(sql);
+        ParseTree parseTree = analyzer.analyzeSyntax();
+        analyzer.analyzeSemantic(parseTree, LocalClusterState.state(), true);
     }
 }

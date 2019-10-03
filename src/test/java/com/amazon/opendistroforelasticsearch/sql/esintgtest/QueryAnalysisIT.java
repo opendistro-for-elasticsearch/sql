@@ -88,7 +88,8 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
     public void nonExistingFieldNameShouldThrowSemanticException() {
         queryShouldThrowSemanticException(
             "SELECT * FROM elasticsearch-sql_test_index_bank WHERE balance1 = 1000",
-            "Field [balance1] cannot be found or used here. Did you mean [balance]?"
+            "Field [balance1] cannot be found or used here."
+            //"Did you mean [balance]?"
         );
     }
 
@@ -96,7 +97,8 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
     public void nonExistingIndexAliasShouldThrowSemanticException() {
         queryShouldThrowSemanticException(
             "SELECT * FROM elasticsearch-sql_test_index_bank b WHERE a.balance = 1000",
-            "Field [a.balance] cannot be found or used here. Did you mean [b.balance]?"
+            "Field [a.balance] cannot be found or used here."
+            //"Did you mean [b.balance]?"
         );
     }
 
@@ -105,6 +107,15 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
         queryShouldThrowSemanticException(
             "SELECT * FROM elasticsearch-sql_test_index_bank b1, b1.firstname f1",
             "Field [b1.firstname] is [TEXT] type but nested type is required."
+        );
+    }
+
+    @Test
+    public void scalarFunctionCallWithTypoInNameShouldThrowSemanticException() {
+        queryShouldThrowSemanticException(
+            "SELECT * FROM elasticsearch-sql_test_index_bank WHERE ABSa(age) = 1",
+            "Function [ABSA] cannot be found or used here.",
+            "Did you mean [ABS]?"
         );
     }
 
@@ -182,7 +193,8 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
     @Test
     public void useInClauseWithIncompatibleFieldTypesShouldFail() {
         queryShouldThrowSemanticException(
-            "SELECT * FROM elasticsearch-sql_test_index_bank WHERE male IN (SELECT 1 FROM elasticsearch-sql_test_index_bank)",
+            "SELECT * FROM elasticsearch-sql_test_index_bank WHERE male " +
+            " IN (SELECT 1 FROM elasticsearch-sql_test_index_bank)",
             "Operator [IN] cannot work with [BOOLEAN, INTEGER]."
         );
     }

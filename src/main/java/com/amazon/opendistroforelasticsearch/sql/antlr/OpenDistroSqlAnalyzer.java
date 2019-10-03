@@ -72,11 +72,15 @@ public class OpenDistroSqlAnalyzer {
      * @param tree          parse tree
      * @param clusterState  cluster state required for index mapping query
      */
-    public void analyzeSemantic(ParseTree tree, LocalClusterState clusterState) {
+    public void analyzeSemantic(ParseTree tree, LocalClusterState clusterState, boolean isSuggestEnabled) {
         tree.accept(
             new AntlrSqlParseTreeVisitor<>(
                 new SemanticAnalyzer(
-                    new SemanticContext(clusterState))));
+                    new SemanticContext(clusterState), isSuggestEnabled)));
+    }
+
+    public void analyzeSemantic(ParseTree tree, LocalClusterState clusterState) {
+        analyzeSemantic(tree, clusterState, false);
     }
 
     private OpenDistroSqlParser createParser(Lexer lexer) {

@@ -20,15 +20,15 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Environmen
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Namespace;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.SemanticContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Symbol;
-import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.function.AggregateFunction;
-import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType;
-import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.operator.ComparisonOperator;
-import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.function.ESScalarFunction;
-import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.special.Product;
-import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.function.ScalarFunction;
-import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.operator.SetOperator;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.TypeExpression;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.function.AggregateFunction;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.function.ESScalarFunction;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.function.ScalarFunction;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.operator.ComparisonOperator;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.operator.SetOperator;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.special.Product;
 import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.GenericSqlParseTreeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMappings;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
@@ -72,8 +72,17 @@ public class SemanticAnalyzer implements GenericSqlParseTreeVisitor<Type> {
     /** Semantic context for symbol scope management */
     private final SemanticContext context;
 
+    /** Should suggestion provided. Disabled by default for security concern. */
+    private final boolean isSuggestEnabled;
+
     public SemanticAnalyzer(SemanticContext context) {
         this.context = context;
+        this.isSuggestEnabled = false;
+    }
+
+    public SemanticAnalyzer(SemanticContext context, boolean isSuggestEnabled) {
+        this.context = context;
+        this.isSuggestEnabled = isSuggestEnabled;
     }
 
     @Override
@@ -318,16 +327,18 @@ public class SemanticAnalyzer implements GenericSqlParseTreeVisitor<Type> {
 
     private Type resolve(Symbol symbol) {
         Optional<Type> type = environment().resolve(symbol);
-        if (!type.isPresent()) {
+        if (type.isPresent()) {
+            return type.get();
+        }
+
+        String errorMsg = StringUtils.format("%s cannot be found or used here.", symbol);
+
+        if (isSuggestEnabled || symbol.getNamespace() != Namespace.FIELD_NAME) {
             Set<String> allSymbolsInScope = environment().resolveAll(symbol.getNamespace()).keySet();
             List<String> suggestedWords = new StringSimilarity(allSymbolsInScope).similarTo(symbol.getName());
-
-            // TODO: Give none or different suggestion if suggestion = original symbol
-            throw new SemanticAnalysisException(
-                StringUtils.format("%s cannot be found or used here. Did you mean [%s]?",
-                    symbol, suggestedWords.get(0)));
+            errorMsg += StringUtils.format(" Did you mean [%s]?", suggestedWords.get(0));
         }
-        return type.get();
+        throw new SemanticAnalysisException(errorMsg);
     }
 
     private Environment environment() {

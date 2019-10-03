@@ -34,12 +34,12 @@ public class SemanticAnalyzerFromClauseTest extends SemanticAnalyzerTestBase {
         );
     }
 
-    @Test
+    @Test(expected = SemanticUnsupportedException.class)
     public void useIndexPatternShouldSkipAllCheck() {
         validate("SELECT abc FROM semant* WHERE def = 1");
     }
 
-    @Test
+    @Test(expected = SemanticUnsupportedException.class)
     public void useIndexAndIndexPatternShouldSkipAllCheck() {
         validate("SELECT abc FROM semantics, semant* WHERE def = 1");
     }
