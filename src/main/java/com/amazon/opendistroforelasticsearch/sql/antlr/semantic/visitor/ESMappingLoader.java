@@ -88,13 +88,13 @@ public class ESMappingLoader implements GenericSqlParseTreeVisitor<Type> {
 
         ESIndex index = (ESIndex) type;
         String indexName = type.getName();
-        String aliasName = alias.isEmpty() ? indexName : alias;
 
         if (index.type() == INDEX) {
+            String aliasName = alias.isEmpty() ? indexName : alias;
             defineAllFieldNamesByAppendingAliasPrefix(indexName, aliasName);
         } else if (index.type() == NESTED_FIELD) {
             if (!alias.isEmpty()) {
-                defineNestedFieldNamesByReplacingWithAlias(indexName, aliasName);
+                defineNestedFieldNamesByReplacingWithAlias(indexName, alias);
             }
         } // else Do nothing for index pattern
     }

@@ -119,7 +119,7 @@ public class TypeChecker implements GenericSqlParseTreeVisitor<Type> {
 
     @Override
     public Type visitIndexName(String indexName) {
-        return resolve(new Symbol(Namespace.FIELD_NAME, indexName)); // TODO: FIELD_NAME?
+        return resolve(new Symbol(Namespace.FIELD_NAME, indexName));
     }
 
     @Override

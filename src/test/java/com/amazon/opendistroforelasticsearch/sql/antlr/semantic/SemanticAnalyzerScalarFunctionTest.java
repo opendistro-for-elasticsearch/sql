@@ -219,7 +219,6 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
                 " SUBSTRING(city, 0, 3) = 'Sea' AND " +
                 " UPPER(city) = 'SEATTLE' AND " +
                 " LOWER(city) = 'seattle'"
-            // TODO: add concat
         );
     }
 
@@ -231,7 +230,6 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
             " UPPER(address), " +
             " LOWER(manager.name) " +
             "FROM semantics "
-            // TODO: add concat
         );
     }
 
@@ -253,6 +251,13 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
             "GROUP BY date_format(birthday, 'yyyy-MM') " +
             "ORDER BY date_format(birthday, 'yyyy-MM') DESC"
         );
+    }
+
+    @Test
+    public void concatRequiresVarargSupportShouldPassAnyway() {
+        validate("SELECT CONCAT('aaa') FROM semantics");
+        validate("SELECT CONCAT('aaa', 'bbb') FROM semantics");
+        validate("SELECT CONCAT('aaa', 'bbb', 123) FROM semantics");
     }
 
 }
