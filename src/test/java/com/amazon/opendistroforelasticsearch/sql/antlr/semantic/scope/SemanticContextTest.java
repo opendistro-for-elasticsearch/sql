@@ -15,18 +15,15 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope;
 
-import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import org.junit.Assert;
 import org.junit.Test;
-
-import static org.mockito.Mockito.mock;
 
 /**
  * Test cases for semantic context
  */
 public class SemanticContextTest {
 
-    private final SemanticContext context = new SemanticContext(mock(LocalClusterState.class));
+    private final SemanticContext context = new SemanticContext();
 
     @Test
     public void rootEnvironmentShouldBeThereInitially() {

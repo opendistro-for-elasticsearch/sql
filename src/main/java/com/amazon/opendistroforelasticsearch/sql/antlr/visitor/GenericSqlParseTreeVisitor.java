@@ -32,19 +32,9 @@ public interface GenericSqlParseTreeVisitor<T> {
         return defaultValue();
     }
 
-    default T visitSelectItem(T type, String alias) {
-        return defaultValue();
-    }
+    default void visitAs(String alias, T type) {}
 
-    default T visitIndexName(String indexName, String alias) {
-        return defaultValue();
-    }
-
-    default T visitNestedIndexName(String indexName, String alias) {
-        return defaultValue();
-    }
-
-    default T visitIndexPattern(String indexPattern, String alias) {
+    default T visitIndexName(String indexName) {
         return defaultValue();
     }
 
@@ -56,11 +46,7 @@ public interface GenericSqlParseTreeVisitor<T> {
         return defaultValue();
     }
 
-    default T visitSetOperator(String opName) {
-        return defaultValue();
-    }
-
-    default T visitComparisonOperator(String opName) {
+    default T visitOperator(String opName) {
         return defaultValue();
     }
 

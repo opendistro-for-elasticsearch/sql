@@ -15,17 +15,32 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.visitor;
 
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Environment;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Namespace;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.SemanticContext;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Symbol;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESIndex;
 import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.GenericSqlParseTreeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
+import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMappings;
+import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.IndexMappings;
+
+import java.util.Map;
+
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESIndex.IndexType.INDEX;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESIndex.IndexType.NESTED_FIELD;
 
 /**
  * Load index and nested field mapping into semantic context
  */
-public class ESMappingLoader implements GenericSqlParseTreeVisitor<Void> {
+public class ESMappingLoader implements GenericSqlParseTreeVisitor<Type> {
 
+    /** Semantic context shared in the semantic analysis process */
     private final SemanticContext context;
 
+    /** Local cluster state for mapping query */
     private final LocalClusterState clusterState;
 
     public ESMappingLoader(SemanticContext context, LocalClusterState clusterState) {
@@ -33,8 +48,149 @@ public class ESMappingLoader implements GenericSqlParseTreeVisitor<Void> {
         this.clusterState = clusterState;
     }
 
+    /*
+     * Suppose index 'accounts' includes 'name', 'age' and nested field 'projects'
+     *  which includes 'name' and 'active'.
+     *
+     *  1. Define itself:
+     *      ----- new definitions -----
+     *      accounts -> INDEX
+     *
+     *  2. Define without alias no matter if alias given:
+     *      'accounts' -> INDEX
+     *      ----- new definitions -----
+     *      'name' -> TEXT
+     *      'age' -> INTEGER
+     *      'projects' -> NESTED
+     *      'projects.name' -> KEYWORD
+     *      'projects.active' -> BOOLEAN
+     */
     @Override
-    public Void visitIndexName(String indexName, String alias) {
-        return null;
+    public Type visitIndexName(String indexName) {
+        if (isNotNested(indexName)) {
+            defineIndexType(indexName);
+            loadAllFieldsWithType(indexName);
+        }
+        return defaultValue();
+    }
+
+    @Override
+    public void visitAs(String alias, Type type) {
+        if (!(type instanceof ESIndex)) {
+            return;
+        }
+
+        ESIndex index = (ESIndex) type;
+        String indexName = type.getName();
+        String aliasName = alias.isEmpty() ? indexName : alias;
+
+        if (index.type() == INDEX) {
+            defineAllFieldNamesByAppendingAliasPrefix(indexName, aliasName);
+        } else if (index.type() == NESTED_FIELD) {
+            if (!alias.isEmpty()) {
+                defineNestedFieldNamesByReplacingWithAlias(indexName, aliasName);
+            }
+        } // else Do nothing for index pattern
+    }
+
+    private void defineIndexType(String indexName) {
+        environment().define(new Symbol(Namespace.FIELD_NAME, indexName), new ESIndex(indexName, INDEX));
+    }
+
+    private void loadAllFieldsWithType(String indexName) {
+        FieldMappings mappings = getFieldMappings(indexName);
+        mappings.flat(this::defineFieldName);
+    }
+
+    /*
+     *  3.1 Define with alias if given: ex."SELECT * FROM accounts a".
+     *      'accounts' -> INDEX
+     *      'name' -> TEXT
+     *      'age' -> INTEGER
+     *      'projects' -> NESTED
+     *      'projects.name' -> KEYWORD
+     *      'projects.active' -> BOOLEAN
+     *      ----- new definitions -----
+     *      ['a' -> INDEX]  -- this is done in semantic analyzer
+     *      'a.name' -> TEXT
+     *      'a.age' -> INTEGER
+     *      'a.projects' -> NESTED
+     *      'a.projects.name' -> KEYWORD
+     *      'a.projects.active' -> BOOLEAN
+     *
+     *  3.2 Otherwise define by index full name: ex."SELECT * FROM account"
+     *      'accounts' -> INDEX
+     *      'name' -> TEXT
+     *      'age' -> INTEGER
+     *      'projects' -> NESTED
+     *      'projects.name' -> KEYWORD
+     *      'projects.active' -> BOOLEAN
+     *      ----- new definitions -----
+     *      'accounts.name' -> TEXT
+     *      'accounts.age' -> INTEGER
+     *      'accounts.projects' -> NESTED
+     *      'accounts.projects.name' -> KEYWORD
+     *      'accounts.projects.active' -> BOOLEAN
+     */
+    private void defineAllFieldNamesByAppendingAliasPrefix(String indexName, String alias) {
+        FieldMappings mappings = getFieldMappings(indexName);
+        mappings.flat((fieldName, type) -> defineFieldName(alias + "." + fieldName, type));
+    }
+
+    /*
+     *  3.3 Define with alias if given: ex."SELECT * FROM accounts a, a.project p"
+     *      'accounts' -> INDEX
+     *      'name' -> TEXT
+     *      'age' -> INTEGER
+     *      'projects' -> NESTED
+     *      'projects.name' -> KEYWORD
+     *      'projects.active' -> BOOLEAN
+     *      'a.name' -> TEXT
+     *      'a.age' -> INTEGER
+     *      'a.projects' -> NESTED
+     *      'a.projects.name' -> KEYWORD
+     *      'a.projects.active' -> BOOLEAN
+     *      ----- new definitions -----
+     *      ['p' -> NESTED] -- this is done in semantic analyzer
+     *      'p.name' -> KEYWORD
+     *      'p.active' -> BOOLEAN
+     */
+    private void defineNestedFieldNamesByReplacingWithAlias(String indexName, String alias) {
+        Map<String, Type> typeByFullName = environment().resolveByPrefix(new Symbol(Namespace.FIELD_NAME, indexName));
+        typeByFullName.forEach(
+            (fieldName, fieldType) -> defineFieldName(fieldName.replace(indexName, alias), fieldType)
+        );
+    }
+
+    /**
+     * Check if index name is NOT nested, for example. return true for index 'accounts' or '.kibana'
+     *  but return false for nested field name 'a.projects'.
+     */
+    private boolean isNotNested(String indexName) {
+        return indexName.indexOf('.', 1) == -1; // taking care of .kibana
+    }
+
+    private FieldMappings getFieldMappings(String indexName) {
+        IndexMappings indexMappings = clusterState.getFieldMappings(new String[]{indexName});
+        return indexMappings.firstMapping().firstMapping();
+    }
+
+    private void defineFieldName(String fieldName, String type) {
+        if ("NESTED".equalsIgnoreCase(type)) {
+            defineFieldName(fieldName, new ESIndex(fieldName, NESTED_FIELD));
+        } else {
+            defineFieldName(fieldName, ESDataType.typeOf(type));
+        }
+    }
+
+    private void defineFieldName(String fieldName, Type type) {
+        Symbol symbol = new Symbol(Namespace.FIELD_NAME, fieldName);
+        if (!environment().resolve(symbol).isPresent()) { // TODO: why? add test for name shadow
+            environment().define(symbol, type);
+        }
+    }
+
+    private Environment environment() {
+        return context.peek();
     }
 }

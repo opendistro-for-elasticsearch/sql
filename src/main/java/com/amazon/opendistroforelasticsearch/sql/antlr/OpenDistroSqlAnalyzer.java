@@ -17,14 +17,14 @@ package com.amazon.opendistroforelasticsearch.sql.antlr;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlLexer;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.SemanticContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.visitor.ESMappingLoader;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.visitor.SemanticAnalyzer;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.visitor.TypeChecker;
-import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.SemanticUnsupportedException;
-import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.SemanticContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.CaseInsensitiveCharStream;
 import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.SyntaxAnalysisErrorListener;
 import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.AntlrSqlParseTreeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.EarlyExitVisitorException;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Lexer;
@@ -52,8 +52,8 @@ public class OpenDistroSqlAnalyzer {
                 analyzeSyntax(),
                 clusterState
             );
-        } catch (SemanticUnsupportedException e) {
-            LOG.error("Skip analysis because of valid but unsupported semantic", e);
+        } catch (EarlyExitVisitorException e) {
+            LOG.error("Skip analysis because of unsupported semantics", e);
         }
     }
 
@@ -84,7 +84,7 @@ public class OpenDistroSqlAnalyzer {
 
     /** Factory method for semantic analyzer to help assemble all required components together */
     private SemanticAnalyzer createAnalyzer(LocalClusterState clusterState, boolean isSuggestEnabled) {
-        SemanticContext context = new SemanticContext(clusterState);
+        SemanticContext context = new SemanticContext();
         ESMappingLoader mappingLoader = new ESMappingLoader(context, clusterState);
         TypeChecker typeChecker = new TypeChecker(context, isSuggestEnabled);
         return new SemanticAnalyzer(mappingLoader, typeChecker);

@@ -26,9 +26,9 @@ import org.junit.Test;
 
 import java.util.Arrays;
 
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.DATE;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.INTEGER;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.UNKNOWN;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.DATE;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.UNKNOWN;
 import static java.util.Collections.emptyList;
 
 /**
@@ -36,9 +36,9 @@ import static java.util.Collections.emptyList;
  */
 public class AntlrSqlParseTreeVisitorTest {
 
-    private TypeChecker analyzer = new TypeChecker(new SemanticContext(null)) {
+    private TypeChecker analyzer = new TypeChecker(new SemanticContext()) {
         @Override
-        public Type visitIndexName(String indexName, String alias) {
+        public Type visitIndexName(String indexName) {
             return null; // avoid querying mapping on null LocalClusterState
         }
 

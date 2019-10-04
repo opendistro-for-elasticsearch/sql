@@ -22,8 +22,8 @@ import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.TYPE_ERROR;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.UNKNOWN;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.TYPE_ERROR;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.UNKNOWN;
 
 /**
  * Type interface which represents any type of symbol in the SQL.

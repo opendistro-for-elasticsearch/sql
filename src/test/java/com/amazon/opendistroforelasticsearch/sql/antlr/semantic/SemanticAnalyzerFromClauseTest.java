@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic;
 
+import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.EarlyExitVisitorException;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -34,12 +35,12 @@ public class SemanticAnalyzerFromClauseTest extends SemanticAnalyzerTestBase {
         );
     }
 
-    @Test(expected = SemanticUnsupportedException.class)
+    @Test(expected = EarlyExitVisitorException.class)
     public void useIndexPatternShouldSkipAllCheck() {
         validate("SELECT abc FROM semant* WHERE def = 1");
     }
 
-    @Test(expected = SemanticUnsupportedException.class)
+    @Test(expected = EarlyExitVisitorException.class)
     public void useIndexAndIndexPatternShouldSkipAllCheck() {
         validate("SELECT abc FROM semantics, semant* WHERE def = 1");
     }
@@ -123,7 +124,7 @@ public class SemanticAnalyzerFromClauseTest extends SemanticAnalyzerTestBase {
     public void nonNestedFieldInFromClauseShouldFail() {
         expectValidationFailWithErrorMessages(
             "SELECT * FROM semantics s, s.manager m",
-            "Field [s.manager] is [OBJECT] type but nested type is required"
+            "Operator [JOIN] cannot work with [INDEX, OBJECT]."
         );
     }
 

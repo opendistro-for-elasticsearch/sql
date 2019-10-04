@@ -16,15 +16,15 @@
 package com.amazon.opendistroforelasticsearch.sql.antlr.visitor;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FunctionArgsContext;
-import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.MinusStatementContext;
+import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.InnerJoinContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.QuerySpecificationContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.SelectColumnElementContext;
-import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.UnionStatementContext;
+import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.TableNamePatternContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParserBaseVisitor;
-import com.google.common.collect.Lists;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,6 +42,7 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroS
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.InPredicateContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.IsExpressionContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.MinusSelectContext;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.OuterJoinContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.PredicateContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.RootContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.ScalarFunctionCallContext;
@@ -51,10 +52,14 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroS
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.SimpleTableNameContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.StringLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.TableAndTypeNameContext;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.TableSourceBaseContext;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.TableSourceItemContext;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.TableSourcesContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.UdfFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.UidContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.UnionSelectContext;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singleton;
 
 /**
  * ANTLR parse tree visitor to drive the analysis process.
@@ -76,32 +81,55 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
 
     @Override
     public T visitUnionSelect(UnionSelectContext ctx) {
-        T union = visitor.visitSetOperator("UNION");
+        T union = visitor.visitOperator("UNION");
         return reduce(union,
-            Lists.asList(
+            asList(
                 ctx.querySpecification(),
-                ctx.unionStatement().toArray(new UnionStatementContext[0])
+                ctx.unionStatement()
             )
         );
     }
 
     @Override
     public T visitMinusSelect(MinusSelectContext ctx) {
-        T minus = visitor.visitSetOperator("MINUS");
-        return reduce(minus,
-            Lists.asList(
-                ctx.querySpecification(),
-                ctx.minusStatement().toArray(new MinusStatementContext[0])
-            )
-        );
+        T minus = visitor.visitOperator("MINUS");
+        return reduce(minus, asList(ctx.querySpecification(), ctx.minusStatement()));
     }
 
     @Override
     public T visitInPredicate(InPredicateContext ctx) {
-        T in = visitor.visitSetOperator("IN");
+        T in = visitor.visitOperator("IN");
         PredicateContext field = ctx.predicate();
         ParserRuleContext subquery = (ctx.selectStatement() != null) ? ctx.selectStatement() : ctx.expressions();
         return reduce(in, Arrays.asList(field, subquery));
+    }
+
+    @Override
+    public T visitTableSources(TableSourcesContext ctx) {
+        if (ctx.tableSource().size() < 2) {
+            return super.visitTableSources(ctx);
+        }
+        T commaJoin = visitor.visitOperator("JOIN");
+        return reduce(commaJoin, ctx.tableSource());
+    }
+
+    @Override
+    public T visitTableSourceBase(TableSourceBaseContext ctx) {
+        if (ctx.joinPart().isEmpty()) {
+            return super.visitTableSourceBase(ctx);
+        }
+        T join = visitor.visitOperator("JOIN");
+        return reduce(join, asList(ctx.tableSourceItem(), ctx.joinPart()));
+    }
+
+    @Override
+    public T visitInnerJoin(InnerJoinContext ctx) {
+        return visitJoin(ctx.children, ctx.tableSourceItem());
+    }
+
+    @Override
+    public T visitOuterJoin(OuterJoinContext ctx) {
+        return visitJoin(ctx.children, ctx.tableSourceItem());
     }
 
     /**
@@ -146,26 +174,28 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
         return result;
     }
 
+    /** Visit here instead of tableName because we need alias */
     @Override
     public T visitAtomTableItem(AtomTableItemContext ctx) {
         String alias = (ctx.alias == null) ? "" : ctx.alias.getText();
-        T result;
-        if (ctx.tableName() instanceof SimpleTableNameContext) {
-            String tableName = ctx.tableName().getText();
-            if (isPath(tableName)) {
-                result = visitor.visitNestedIndexName(tableName, alias);
-            } else {
-                result = visitor.visitIndexName(tableName, alias);
-            }
-        } else if (ctx.tableName() instanceof TableAndTypeNameContext) {
-            result = visitor.visitIndexName(
-                ((TableAndTypeNameContext) ctx.tableName()).uid(0).getText(),
-                alias
-            );
-        } else {
-            result = visitor.visitIndexPattern(ctx.tableName().getText(), alias);
-        }
+        T result = visit(ctx.tableName());
+        visitor.visitAs(alias, result);
         return result;
+    }
+
+    @Override
+    public T visitSimpleTableName(SimpleTableNameContext ctx) {
+        return visitor.visitIndexName(ctx.getText());
+    }
+
+    @Override
+    public T visitTableNamePattern(TableNamePatternContext ctx) {
+        throw new EarlyExitVisitorException("Exit when meeting index pattern");
+    }
+
+    @Override
+    public T visitTableAndTypeName(TableAndTypeNameContext ctx) {
+        return visitor.visitIndexName(ctx.uid(0).getText());
     }
 
     @Override
@@ -234,7 +264,7 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
 
     @Override
     public T visitIsExpression(IsExpressionContext ctx) {
-        T op = visitor.visitComparisonOperator("IS");
+        T op = visitor.visitOperator("IS");
         return op.reduce(Arrays.asList(
             visit(ctx.predicate()),
             visitor.visitBoolean(ctx.testValue.getText()))
@@ -243,7 +273,7 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
 
     @Override
     public T visitComparisonOperator(ComparisonOperatorContext ctx) {
-        return visitor.visitComparisonOperator(ctx.getText());
+        return visitor.visitOperator(ctx.getText());
     }
 
     @Override
@@ -285,25 +315,32 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
         return aggregate;
     }
 
-    /**
-     * If index name is nested, for example.
-     *  false for 'accounts' or '.kibana'
-     *  but true for 'a.projects'
-     */
-    private boolean isPath(String indexName) {
-        return indexName.indexOf('.', 1) != -1; // taking care of .kibana
-    }
-
     /** Named argument, ex. TOPHITS('size'=3), is under FunctionArgs -> Predicate */
     private boolean isNamedArgument(BinaryComparisonPredicateContext ctx) {
         return ctx.getParent() != null && ctx.getParent().getParent() != null
             && ctx.getParent().getParent() instanceof FunctionArgsContext;
     }
 
+    /** Enforce visiting result of table instead of ON clause as result */
+    private T visitJoin(List<ParseTree> children, TableSourceItemContext tableCtx) {
+        T result = defaultResult();
+        for (ParseTree child : children) {
+            if (child == tableCtx) {
+                result = visit(tableCtx);
+            } else {
+                visit(child);
+            }
+        }
+        return result;
+    }
+
     /** Visit select items for type check and alias definition */
     private T visitSelectItem(ParserRuleContext item, UidContext uid) {
-        String alias = uid == null ? "" : uid.getText();
-        return visitor.visitSelectItem(visit(item), alias);
+        T result = visit(item);
+        if (uid != null) {
+            visitor.visitAs(uid.getText(), result);
+        }
+        return result;
     }
 
     private T reduce(T reducer, ParserRuleContext ctx) {
@@ -322,6 +359,16 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
                          collect(Collectors.toList());
         }
         return reducer.reduce(args);
+    }
+
+    /** Combine an item and a list of items to a single list */
+    private <Node1 extends ParseTree,
+             Node2 extends ParseTree>
+             List<ParseTree> asList(Node1 first, List<Node2> rest) {
+
+        List<ParseTree> result = new ArrayList<>(singleton(first));
+        result.addAll(rest);
+        return result;
     }
 
 }

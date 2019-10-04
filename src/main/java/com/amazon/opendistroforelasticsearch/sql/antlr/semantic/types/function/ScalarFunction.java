@@ -18,11 +18,11 @@ package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.function;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.TypeExpression;
 
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.DATE;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.DOUBLE;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.INTEGER;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.NUMBER;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.STRING;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.DATE;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.DOUBLE;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.NUMBER;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.special.Generic.T;
 
 /**

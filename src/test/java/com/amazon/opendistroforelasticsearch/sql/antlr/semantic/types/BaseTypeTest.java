@@ -15,22 +15,26 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types;
 
-import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESIndex;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.BOOLEAN;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.DATE;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.DOUBLE;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.FLOAT;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.INTEGER;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.KEYWORD;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.LONG;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.NUMBER;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.SHORT;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.STRING;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.TEXT;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.UNKNOWN;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.BOOLEAN;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.DATE;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.DOUBLE;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.ES_TYPE;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.FLOAT;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.KEYWORD;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.LONG;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.NESTED;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.NUMBER;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.SHORT;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.STRING;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.TEXT;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.UNKNOWN;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESIndex.IndexType.NESTED_FIELD;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -42,12 +46,12 @@ public class BaseTypeTest {
 
     @Test
     public void unknownTypeNameShouldReturnUnknown() {
-        assertEquals(UNKNOWN, BaseType.typeOf("this_is_a_new_es_type_we_arent_aware"));
+        assertEquals(UNKNOWN, ESDataType.typeOf("this_is_a_new_es_type_we_arent_aware"));
     }
 
     @Test
     public void typeOfShouldIgnoreCase() {
-        assertEquals(INTEGER, BaseType.typeOf("Integer"));
+        assertEquals(INTEGER, ESDataType.typeOf("Integer"));
     }
 
     @Test
@@ -101,6 +105,12 @@ public class BaseTypeTest {
         assertTrue(LONG.isCompatible(UNKNOWN));
         assertTrue(TEXT.isCompatible(UNKNOWN));
         assertTrue(DATE.isCompatible(UNKNOWN));
+    }
+
+    @Test
+    public void nestedIndexTypeShouldBeCompatibleWithNestedDataType() {
+        assertTrue(NESTED.isCompatible(new ESIndex("test", NESTED_FIELD)));
+        assertTrue(ES_TYPE.isCompatible(new ESIndex("test", NESTED_FIELD)));
     }
 
 }

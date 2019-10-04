@@ -17,12 +17,12 @@ package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types;
 
 import org.junit.Test;
 
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.INTEGER;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.KEYWORD;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.LONG;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.NUMBER;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.TEXT;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.TYPE_ERROR;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.KEYWORD;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.LONG;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.NUMBER;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.TEXT;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.TYPE_ERROR;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.function.ScalarFunction.LOG;
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;

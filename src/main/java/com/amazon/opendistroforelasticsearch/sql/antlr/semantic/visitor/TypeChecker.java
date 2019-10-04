@@ -17,32 +17,28 @@ package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.visitor;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.StringSimilarity;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.SemanticAnalysisException;
-import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.SemanticUnsupportedException;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Environment;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Namespace;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.SemanticContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.TypeExpression;
-import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.function.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.function.ESScalarFunction;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.function.ScalarFunction;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.operator.ComparisonOperator;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.operator.JoinOperator;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.operator.SetOperator;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.special.Product;
 import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.GenericSqlParseTreeVisitor;
-import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMappings;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.UNKNOWN;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.Index.INDEX;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.Index.NESTED_INDEX;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.UNKNOWN;
 
 /**
  * SQL semantic analyzer that determines if a syntactical correct query is meaningful.
@@ -94,6 +90,7 @@ public class TypeChecker implements GenericSqlParseTreeVisitor<Type> {
         defineFunctionNames(AggregateFunction.values());
         defineOperatorNames(ComparisonOperator.values());
         defineOperatorNames(SetOperator.values());
+        defineOperatorNames(JoinOperator.values());
     }
 
     @Override
@@ -116,120 +113,13 @@ public class TypeChecker implements GenericSqlParseTreeVisitor<Type> {
     }
 
     @Override
-    public Type visitSelectItem(Type type, String alias) {
-        if (!alias.isEmpty()) {
-            defineFieldName(alias, type);
-        }
-        return type;
-    }
-
-    /**
-     * Visit index name by initializing environment (scope).
-     *
-     * For example: "SELECT * FROM accounts [a]".
-     * Suppose accounts includes 'name', 'age' and nested field 'projects'
-     *  and projects includes 'name' and 'active'.
-     *
-     *  1. Define itself:
-     *      ----- new definitions -----
-     *      accounts or a -> INDEX
-     *
-     *  2. Define without alias no matter if alias given:
-     *      'accounts' or 'a' -> INDEX
-     *      ----- new definitions -----
-     *      'name' -> TEXT
-     *      'age' -> INTEGER
-     *      'projects' -> NESTED
-     *      'projects.name' -> KEYWORD
-     *      'projects.active' -> BOOLEAN
-     *
-     *  3.1 Define with alias if given:
-     *      'accounts' or 'a' -> INDEX
-     *      'name' -> TEXT
-     *      'age' -> INTEGER
-     *      'projects' -> NESTED
-     *      'projects.name' -> KEYWORD
-     *      'projects.active' -> BOOLEAN
-     *      ----- new definitions -----
-     *      'a.name' -> TEXT
-     *      'a.age' -> INTEGER
-     *      'a.projects' -> NESTED
-     *      'a.projects.name' -> KEYWORD
-     *      'a.projects.active' -> BOOLEAN
-     *
-     *  3.2 Otherwise define by index full name:
-     *      'accounts' or 'a' -> INDEX
-     *      'name' -> TEXT
-     *      'age' -> INTEGER
-     *      'projects' -> NESTED
-     *      'projects.name' -> KEYWORD
-     *      'projects.active' -> BOOLEAN
-     *      ----- new definitions -----
-     *      'accounts.name' -> TEXT
-     *      'accounts.age' -> INTEGER
-     *      'accounts.projects' -> NESTED
-     *      'accounts.projects.name' -> KEYWORD
-     *      'accounts.projects.active' -> BOOLEAN
-     */
-    @Override
-    public Type visitIndexName(String indexName, String alias) {
-        FieldMappings mappings = context.getMapping(indexName);
-        String aliasName = alias.isEmpty() ? indexName : alias;
-
-        defineFieldName(aliasName, INDEX);
-        mappings.flat(this::defineFieldName);
-        mappings.flat((fieldName, type) -> defineFieldName(aliasName + "." + fieldName, type));
-        return INDEX;
-    }
-
-    /**
-     * Visit nested index (field) name by defining more by its alias.
-     *
-     * For example: "SELECT * FROM accounts a, a.projects p".
-     * Suppose projects includes 'name' and 'active'
-     *  and environment is like this after visiting 'accounts a':
-     *      'accounts' or 'a' -> INDEX
-     *      'name' -> TEXT
-     *      'age' -> INTEGER
-     *      'projects' -> NESTED
-     *      'a.name' -> TEXT
-     *      'a.age' -> INTEGER
-     *      'a.projects' -> NESTED
-     *      'a.projects.name' -> KEYWORD
-     *      'a.projects.active' -> BOOLEAN
-     *
-     * Environment changed as below after visiting 'a.projects p':
-     *      'accounts' or 'a' -> INDEX
-     *      'name' -> TEXT
-     *      'age' -> INTEGER
-     *      'projects' -> NESTED
-     *      'a.name' -> TEXT
-     *      'a.age' -> INTEGER
-     *      'a.projects' -> NESTED
-     *      'a.projects.name' -> KEYWORD
-     *      'a.projects.active' -> BOOLEAN
-     *      ----- new definitions -----
-     *      'p' -> NESTED
-     *      'p.name' -> KEYWORD
-     *      'p.active' -> BOOLEAN
-     */
-    @Override
-    public Type visitNestedIndexName(String indexName, String alias) {
-        Type type = resolve(new Symbol(Namespace.FIELD_NAME, indexName));
-        if (type != BaseType.NESTED) {
-            throw new SemanticAnalysisException(StringUtils.format(
-                "Field [%s] is [%s] type but nested type is required.", indexName, type));
-        }
-
-        if (!alias.isEmpty()) {
-            redefineFieldNameByPrefixingAlias(indexName, alias);
-        }
-        return NESTED_INDEX;
+    public void visitAs(String alias, Type type) {
+        defineFieldName(alias, type);
     }
 
     @Override
-    public Type visitIndexPattern(String indexPattern, String alias) {
-        throw new SemanticUnsupportedException("Index pattern is valid but current semantic analyzer cannot parse it");
+    public Type visitIndexName(String indexName) {
+        return resolve(new Symbol(Namespace.FIELD_NAME, indexName)); // TODO: FIELD_NAME?
     }
 
     @Override
@@ -238,66 +128,49 @@ public class TypeChecker implements GenericSqlParseTreeVisitor<Type> {
         if (fieldName.startsWith("_")) {
             return UNKNOWN;
         }
+        // Ignore case for function/operator though field name is case sensitive
         return resolve(new Symbol(Namespace.FIELD_NAME, fieldName));
     }
 
     @Override
     public Type visitFunctionName(String funcName) {
-        // Ignore case for function name
         return resolve(new Symbol(Namespace.FUNCTION_NAME, StringUtils.toUpper(funcName)));
     }
 
     @Override
-    public Type visitSetOperator(String opName) {
-        return resolve(new Symbol(Namespace.OPERATOR_NAME, StringUtils.toUpper(opName)));
-    }
-
-    @Override
-    public Type visitComparisonOperator(String opName) {
+    public Type visitOperator(String opName) {
         return resolve(new Symbol(Namespace.OPERATOR_NAME, StringUtils.toUpper(opName)));
     }
 
     @Override
     public Type visitString(String text) {
-        return BaseType.STRING;
+        return ESDataType.STRING;
     }
 
     @Override
     public Type visitInteger(String text) {
-        return BaseType.INTEGER;
+        return ESDataType.INTEGER;
     }
 
     @Override
     public Type visitFloat(String text) {
-        return BaseType.FLOAT;
+        return ESDataType.FLOAT;
     }
 
     @Override
     public Type visitBoolean(String text) {
         // "IS [NOT] MISSING" can be used on any data type
-        return text.equalsIgnoreCase("MISSING") ? UNKNOWN : BaseType.BOOLEAN;
+        return "MISSING".equalsIgnoreCase(text) ? UNKNOWN : ESDataType.BOOLEAN;
     }
 
     @Override
     public Type visitDate(String text) {
-        return BaseType.DATE;
+        return ESDataType.DATE;
     }
 
     @Override
     public Type defaultValue() {
         return NULL_TYPE;
-    }
-
-    /** Define by replace with alias */
-    private void redefineFieldNameByPrefixingAlias(String indexName, String alias) {
-        Map<String, Type> typeByFullName = environment().resolveByPrefix(new Symbol(Namespace.FIELD_NAME, indexName));
-        typeByFullName.forEach(
-            (fieldName, fieldType) -> defineFieldName(fieldName.replace(indexName, alias), fieldType)
-        );
-    }
-
-    private void defineFieldName(String fieldName, String type) {
-        defineFieldName(fieldName, BaseType.typeOf(type));
     }
 
     private void defineFieldName(String fieldName, Type type) {
@@ -309,22 +182,14 @@ public class TypeChecker implements GenericSqlParseTreeVisitor<Type> {
 
     private void defineFunctionNames(TypeExpression[] expressions) {
         for (TypeExpression expr : expressions) {
-            defineFunctionName(expr.getName(), expr);
+            environment().define(new Symbol(Namespace.FUNCTION_NAME, expr.getName()), expr);
         }
-    }
-
-    private void defineFunctionName(String funcName, Type type) {
-        environment().define(new Symbol(Namespace.FUNCTION_NAME, funcName), type);
     }
 
     private void defineOperatorNames(Type[] expressions) {
         for (Type expr : expressions) {
-            defineOperatorName(expr.getName(), expr);
+            environment().define(new Symbol(Namespace.OPERATOR_NAME, expr.getName()), expr);
         }
-    }
-
-    private void defineOperatorName(String opName, Type type) {
-        environment().define(new Symbol(Namespace.OPERATOR_NAME, opName), type);
     }
 
     private Type resolve(Symbol symbol) {

@@ -13,15 +13,14 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.antlr.semantic;
+package com.amazon.opendistroforelasticsearch.sql.antlr.visitor;
 
 /**
- * Exception for valid but unsupported semantic, for example stop analysis
- * when seeing table name pattern in FROM clause.
+ * Exit visitor early due to some reason.
  */
-public class SemanticUnsupportedException extends IllegalStateException {
+public class EarlyExitVisitorException extends RuntimeException {
 
-    public SemanticUnsupportedException(String s) {
-        super(s);
+    public EarlyExitVisitorException(String message) {
+        super(message);
     }
 }

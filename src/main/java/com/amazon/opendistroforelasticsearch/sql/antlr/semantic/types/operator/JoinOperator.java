@@ -16,18 +16,18 @@
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.operator;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESIndex;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.TYPE_ERROR;
 
 /**
- * Set operator between queries.
+ * Join operator
  */
-public enum SetOperator implements Type {
-    UNION,
-    MINUS,
-    IN;
+public enum JoinOperator implements Type {
+    JOIN;
 
     @Override
     public String getName() {
@@ -36,26 +36,18 @@ public enum SetOperator implements Type {
 
     @Override
     public Type construct(List<Type> others) {
-        if (others.size() < 2) {
-            throw new IllegalStateException("");
-        }
-
-        // Compare each type and return anyone for now if pass
-        for (int i = 0; i < others.size() - 1; i++) {
-            Type type1 = others.get(i);
-            Type type2 = others.get(i + 1);
-
-            // Do it again as in Product because single base type won't be wrapped in Product
-            if (!type1.isCompatible(type2) && !type2.isCompatible(type1)) {
-                return TYPE_ERROR;
-            }
+        Optional<Type> isAnyNonIndexType = others.stream().
+                                                  filter(type -> !(type instanceof ESIndex)).
+                                                  findAny();
+        if (isAnyNonIndexType.isPresent()) {
+            return TYPE_ERROR;
         }
         return others.get(0);
     }
 
     @Override
     public String usage() {
-        return "Please return field(s) of compatible type from each query.";
+        return "Please join index with other index or its nested field.";
     }
 
     @Override

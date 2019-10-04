@@ -61,7 +61,7 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
     public void logFunctionCallWithOneNestedInSelectClauseShouldFail() {
         expectValidationFailWithErrorMessages(
             "SELECT LOG(projects) FROM semantics",
-            "Function [LOG] cannot work with [NESTED].",
+            "Function [LOG] cannot work with [NESTED_FIELD].",
             "Usage: LOG(NUMBER T) -> T"
         );
     }

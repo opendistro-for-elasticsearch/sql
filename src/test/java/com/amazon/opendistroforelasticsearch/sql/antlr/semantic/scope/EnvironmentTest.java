@@ -17,25 +17,24 @@ package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.TypeExpression;
-import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESIndex;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Map;
 import java.util.Optional;
 
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.BOOLEAN;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.DATE;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.KEYWORD;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.NESTED;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.NUMBER;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.OBJECT;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.BaseType.TEXT;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.BOOLEAN;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.DATE;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.KEYWORD;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.NUMBER;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.OBJECT;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.TEXT;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESIndex.IndexType.NESTED_FIELD;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 
 /**
  * Test cases for environment
@@ -43,7 +42,7 @@ import static org.mockito.Mockito.mock;
 public class EnvironmentTest {
 
     /** Use context class for push/pop */
-    private SemanticContext context = new SemanticContext(mock(LocalClusterState.class));
+    private SemanticContext context = new SemanticContext();
 
     @Test
     public void defineFieldSymbolShouldBeAbleToResolve() {
@@ -72,7 +71,7 @@ public class EnvironmentTest {
 
     @Test
     public void defineFieldSymbolShouldBeAbleToResolveByPrefix() {
-        environment().define(new Symbol(Namespace.FIELD_NAME, "s.projects"), NESTED);
+        environment().define(new Symbol(Namespace.FIELD_NAME, "s.projects"), new ESIndex("s.projects", NESTED_FIELD));
         environment().define(new Symbol(Namespace.FIELD_NAME, "s.projects.release"), DATE);
         environment().define(new Symbol(Namespace.FIELD_NAME, "s.projects.active"), BOOLEAN);
         environment().define(new Symbol(Namespace.FIELD_NAME, "s.address"), TEXT);
@@ -84,7 +83,7 @@ public class EnvironmentTest {
             typeByName,
             allOf(
                 aMapWithSize(3),
-                hasEntry("s.projects", NESTED),
+                hasEntry("s.projects", (Type) new ESIndex("s.projects", NESTED_FIELD)),
                 hasEntry("s.projects.release", DATE),
                 hasEntry("s.projects.active", BOOLEAN)
             )
@@ -166,7 +165,7 @@ public class EnvironmentTest {
 
     @Test
     public void defineFieldSymbolShouldBeAbleToResolveAll() {
-        environment().define(new Symbol(Namespace.FIELD_NAME, "s.projects"), NESTED);
+        environment().define(new Symbol(Namespace.FIELD_NAME, "s.projects"), new ESIndex("s.projects", NESTED_FIELD));
         environment().define(new Symbol(Namespace.FIELD_NAME, "s.projects.release"), DATE);
         environment().define(new Symbol(Namespace.FIELD_NAME, "s.projects.active"), BOOLEAN);
         environment().define(new Symbol(Namespace.FIELD_NAME, "s.address"), TEXT);
@@ -178,7 +177,7 @@ public class EnvironmentTest {
             typeByName,
             allOf(
                 aMapWithSize(6),
-                hasEntry("s.projects", NESTED),
+                hasEntry("s.projects", (Type) new ESIndex("s.projects", NESTED_FIELD)),
                 hasEntry("s.projects.release", DATE),
                 hasEntry("s.projects.active", BOOLEAN),
                 hasEntry("s.address", TEXT),

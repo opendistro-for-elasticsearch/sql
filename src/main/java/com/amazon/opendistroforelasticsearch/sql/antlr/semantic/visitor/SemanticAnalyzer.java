@@ -54,32 +54,20 @@ public class SemanticAnalyzer implements GenericSqlParseTreeVisitor<Type> {
 
     @Override
     public Type visitSelect(List<Type> itemTypes) {
-        //mappingLoader.visitSelect(itemTypes); ESMappingLoader's generic type is Void
+        mappingLoader.visitSelect(itemTypes);
         return typeChecker.visitSelect(itemTypes);
     }
 
     @Override
-    public Type visitSelectItem(Type type, String alias) {
-        //mappingLoader.visitSelectItem(type, alias);
-        return typeChecker.visitSelectItem(type, alias);
+    public void visitAs(String alias, Type type) {
+        mappingLoader.visitAs(alias, type);
+        typeChecker.visitAs(alias, type);
     }
 
     @Override
-    public Type visitIndexName(String indexName, String alias) {
-        mappingLoader.visitIndexName(indexName, alias);
-        return typeChecker.visitIndexName(indexName, alias);
-    }
-
-    @Override
-    public Type visitNestedIndexName(String indexName, String alias) {
-        mappingLoader.visitNestedIndexName(indexName, alias);
-        return typeChecker.visitNestedIndexName(indexName, alias);
-    }
-
-    @Override
-    public Type visitIndexPattern(String indexPattern, String alias) {
-        mappingLoader.visitIndexPattern(indexPattern, alias);
-        return typeChecker.visitIndexPattern(indexPattern, alias);
+    public Type visitIndexName(String indexName) {
+        mappingLoader.visitIndexName(indexName);
+        return typeChecker.visitIndexName(indexName);
     }
 
     @Override
@@ -95,15 +83,9 @@ public class SemanticAnalyzer implements GenericSqlParseTreeVisitor<Type> {
     }
 
     @Override
-    public Type visitSetOperator(String opName) {
-        mappingLoader.visitSetOperator(opName);
-        return typeChecker.visitSetOperator(opName);
-    }
-
-    @Override
-    public Type visitComparisonOperator(String opName) {
-        mappingLoader.visitComparisonOperator(opName);
-        return typeChecker.visitComparisonOperator(opName);
+    public Type visitOperator(String opName) {
+        mappingLoader.visitOperator(opName);
+        return typeChecker.visitOperator(opName);
     }
 
     @Override

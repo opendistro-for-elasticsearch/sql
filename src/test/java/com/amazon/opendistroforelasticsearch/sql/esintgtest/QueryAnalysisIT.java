@@ -106,7 +106,7 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
     public void indexJoinNonNestedFieldShouldThrowSemanticException() {
         queryShouldThrowSemanticException(
             "SELECT * FROM elasticsearch-sql_test_index_bank b1, b1.firstname f1",
-            "Field [b1.firstname] is [TEXT] type but nested type is required."
+            "Operator [JOIN] cannot work with [INDEX, TEXT]."
         );
     }
 
