@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.rewriter.parent;
 
+import com.alibaba.druid.sql.ast.expr.SQLInListExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInSubQueryExpr;
 import com.alibaba.druid.sql.ast.expr.SQLNotExpr;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
@@ -31,6 +32,15 @@ public class SQLExprParentSetter extends MySqlASTVisitorAdapter {
     @Override
     public boolean visit(SQLInSubQueryExpr subQuery) {
         subQuery.getExpr().setParent(subQuery);
+        return true;
+    }
+
+    /**
+     * Fix null parent problem which is required by SQLIdentifier.visit()
+     */
+    @Override
+    public boolean visit(SQLInListExpr expr) {
+        expr.getExpr().setParent(expr);
         return true;
     }
 

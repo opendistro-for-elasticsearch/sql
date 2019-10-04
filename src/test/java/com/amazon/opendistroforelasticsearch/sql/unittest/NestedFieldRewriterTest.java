@@ -390,6 +390,103 @@ public class NestedFieldRewriterTest {
     }
 
     @Test
+    public void aggInHavingWithWhereOnParent() {
+        same(
+                query("SELECT e.name " +
+                      "FROM employee AS e, e.projects AS p " +
+                      "WHERE e.name like '%smith%' " +
+                      "GROUP BY e.name " +
+                      "HAVING COUNT(p) > 1"),
+                query("SELECT name " +
+                      "FROM employee " +
+                      "WHERE name LIKE '%smith%' " +
+                      "GROUP BY name " +
+                      "HAVING COUNT(nested(projects, 'projects')) > 1")
+        );
+
+    }
+
+    @Test
+    public void aggInHavingWithWhereOnNested() {
+        same(
+                query("SELECT e.name " +
+                      "FROM employee AS e, e.projects AS p " +
+                      "WHERE p.name LIKE '%security%' " +
+                      "GROUP BY e.name " +
+                      "HAVING COUNT(p) > 1"),
+                query("SELECT name " +
+                      "FROM employee " +
+                      "WHERE nested(projects.name, 'projects') LIKE '%security%' " +
+                      "GROUP BY name " +
+                      "HAVING COUNT(nested(projects, 'projects')) > 1")
+        );
+    }
+
+    @Test
+    public void aggInHavingWithWhereOnParentOrNested() {
+        same(
+                query("SELECT e.name " +
+                      "FROM employee AS e, e.projects AS p " +
+                      "WHERE e.name like '%smith%' or p.name LIKE '%security%' " +
+                      "GROUP BY e.name " +
+                      "HAVING COUNT(p) > 1"),
+                query("SELECT name " +
+                      "FROM employee " +
+                      "WHERE name LIKE '%smith%' OR nested(projects.name, 'projects') LIKE '%security%' " +
+                      "GROUP BY name " +
+                      "HAVING COUNT(nested(projects, 'projects')) > 1")
+        );
+    }
+
+    @Test
+    public void aggInHavingWithWhereOnParentAndNested() {
+        same(
+                query("SELECT e.name " +
+                      "FROM employee AS e, e.projects AS p " +
+                      "WHERE e.name like '%smith%' AND p.name LIKE '%security%' " +
+                      "GROUP BY e.name " +
+                      "HAVING COUNT(p) > 1"),
+                query("SELECT name " +
+                      "FROM employee " +
+                      "WHERE name LIKE '%smith%' AND nested(projects.name, 'projects') LIKE '%security%' " +
+                      "GROUP BY name " +
+                      "HAVING COUNT(nested(projects, 'projects')) > 1")
+        );
+    }
+
+    @Test
+    public void aggInHavingWithWhereOnNestedAndNested() {
+        same(
+                query("SELECT e.name " +
+                      "FROM employee AS e, e.projects AS p " +
+                      "WHERE p.started_year > 1990 AND p.name LIKE '%security%' " +
+                      "GROUP BY e.name " +
+                      "HAVING COUNT(p) > 1"),
+                query("SELECT name " +
+                      "FROM employee " +
+                      "WHERE nested('projects', projects.started_year > 1990 AND projects.name LIKE '%security%') " +
+                      "GROUP BY name " +
+                      "HAVING COUNT(nested(projects, 'projects')) > 1")
+        );
+    }
+
+    @Test
+    public void aggInHavingWithWhereOnNestedOrNested() {
+        same(
+                query("SELECT e.name " +
+                      "FROM employee AS e, e.projects AS p " +
+                      "WHERE p.started_year > 1990 OR p.name LIKE '%security%' " +
+                      "GROUP BY e.name " +
+                      "HAVING COUNT(p) > 1"),
+                query("SELECT name " +
+                      "FROM employee " +
+                      "WHERE nested('projects', projects.started_year > 1990 OR projects.name LIKE '%security%') " +
+                      "GROUP BY name " +
+                      "HAVING COUNT(nested(projects, 'projects')) > 1")
+        );
+    }
+
+    @Test
     public void notIsNotNull() {
         same(
                 query("SELECT name " +
