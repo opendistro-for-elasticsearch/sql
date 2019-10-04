@@ -202,8 +202,8 @@ public class TypeChecker implements GenericSqlParseTreeVisitor<Type> {
 
         if (isSuggestEnabled || symbol.getNamespace() != Namespace.FIELD_NAME) {
             Set<String> allSymbolsInScope = environment().resolveAll(symbol.getNamespace()).keySet();
-            List<String> suggestedWords = new StringSimilarity(allSymbolsInScope).similarTo(symbol.getName());
-            errorMsg += StringUtils.format(" Did you mean [%s]?", suggestedWords.get(0));
+            String suggestedWord = new StringSimilarity(allSymbolsInScope).similarTo(symbol.getName());
+            errorMsg += StringUtils.format(" Did you mean [%s]?", suggestedWord);
         }
         throw new SemanticAnalysisException(errorMsg);
     }

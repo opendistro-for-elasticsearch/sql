@@ -30,7 +30,7 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.spe
  */
 public enum ScalarFunction implements TypeExpression {
 
-    ABS(func(T(NUMBER)).to(T)),
+    ABS(func(T(NUMBER)).to(T)), // translate to Java: <T extends Number> T ABS(T)
     ASIN(func(T(NUMBER)).to(T)),
     ATAN(func(T(NUMBER)).to(T)),
     ATAN2(func(T(NUMBER)).to(T)),

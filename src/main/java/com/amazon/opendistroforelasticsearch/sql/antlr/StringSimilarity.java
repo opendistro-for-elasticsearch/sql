@@ -18,13 +18,11 @@ package com.amazon.opendistroforelasticsearch.sql.antlr;
 import org.apache.lucene.search.spell.LevenshteinDistance;
 import org.apache.lucene.search.spell.StringDistance;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 /**
- * String similarity for similar string(s) computation
+ * String similarity for finding most similar string.
  */
 public class StringSimilarity {
 
@@ -37,11 +35,13 @@ public class StringSimilarity {
     }
 
     /**
-     * Calculate similarity distance between target and candidate strings.
-     * @param target string to match
-     * @return       one or more most similar strings
+     * Find most similar string in candidates by calculating similarity distance
+     * among target and candidate strings.
+     *
+     * @param target    string to match
+     * @return          most similar string to the target
      */
-    public List<String> similarTo(String target) {
+    public String similarTo(String target) {
         float max = -1;
         String result = target; // get only one for now
         for (String name : candidates) {
@@ -51,7 +51,6 @@ public class StringSimilarity {
                 max = dist;
             }
         }
-        return Arrays.asList(result);
+        return result;
     }
-
 }
