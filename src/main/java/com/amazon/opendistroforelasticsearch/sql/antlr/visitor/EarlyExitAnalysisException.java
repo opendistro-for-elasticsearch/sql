@@ -18,9 +18,9 @@ package com.amazon.opendistroforelasticsearch.sql.antlr.visitor;
 /**
  * Exit visitor early due to some reason.
  */
-public class EarlyExitVisitorException extends RuntimeException {
+public class EarlyExitAnalysisException extends RuntimeException {
 
-    public EarlyExitVisitorException(String message) {
+    public EarlyExitAnalysisException(String message) {
         super(message);
     }
 }

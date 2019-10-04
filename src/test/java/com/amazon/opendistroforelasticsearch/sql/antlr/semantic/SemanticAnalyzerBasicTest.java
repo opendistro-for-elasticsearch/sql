@@ -59,7 +59,7 @@ public class SemanticAnalyzerBasicTest extends SemanticAnalyzerTestBase {
     @Before
     public void setUp() {
         context = new SemanticContext();
-        analyzer = new ESMappingLoader(context, LocalClusterState.state());
+        analyzer = new ESMappingLoader(context, LocalClusterState.state(), 1000);
     }
 
     @Test

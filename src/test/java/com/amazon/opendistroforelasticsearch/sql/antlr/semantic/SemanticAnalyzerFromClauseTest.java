@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic;
 
-import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.EarlyExitVisitorException;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -35,12 +34,12 @@ public class SemanticAnalyzerFromClauseTest extends SemanticAnalyzerTestBase {
         );
     }
 
-    @Test(expected = EarlyExitVisitorException.class)
+    @Test
     public void useIndexPatternShouldSkipAllCheck() {
         validate("SELECT abc FROM semant* WHERE def = 1");
     }
 
-    @Test(expected = EarlyExitVisitorException.class)
+    @Test
     public void useIndexAndIndexPatternShouldSkipAllCheck() {
         validate("SELECT abc FROM semantics, semant* WHERE def = 1");
     }

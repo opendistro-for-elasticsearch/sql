@@ -7,10 +7,18 @@ Previously SQL plugin didn't do semantic analysis, for example field doesn't exi
 This led to bad user experience because of missing careful verification, cost of actual execution and confusing error message. In this work, we built a new semantic analyzer based on the new ANTLR generated parser introduced recently.
 With the new semantic analyzer, we manage to perform various verification in terms of meaning of the query and return clear and helpful message to user for troubleshoot.
 
+So in this work our initial goal is to add capability to perform basic semantic analysis including:
+
+ 1. Check field name and found if any typo.
+ 2. Check if function is in use with correct arguments.
+ 3. Apart from basic check above, it would be nice to do some simple check for JOIN, subquery and multi-query etc.
+
+For both exception, we want to return useful message to customer and even suggest to change the wrong symbol to possibly right one.
+
 ---
 ## 2.Use Cases
 
-Here are a few examples of semantic check with our analyzer implemented. You could get a taste of what is the benefit of new semantic analyzer:
+Firstly, you could go through the following examples of semantic check with our new analyzer. In the use cases, you should be able to get a taste of what benefits the new semantic analyzer is bring to us:
 
 ### 2.1 Field Name Typo
 
@@ -318,4 +326,4 @@ Beside improvement on semantic analyzer itself, there are other things we can be
 
  1. **A `HELP` command**: which gets information in type system so customer doesn't necessarily learn what's right until they fail their query.
  2. **Correctness testing**: Generate test cases from grammar. Those cases can be used either for finding gaps between grammar/semantic and our backend code or for performing correctness testing by comparing with other based database.
- 3. **The symbol table**: is useful for the entire process from semantic analysis here to logical and physical planning. So it should be either kept (flat to single table or avoid real popping when exit visit query) or annotated into Abstract Syntax Tree and pass to backend.
+ 3. **Symbol table**: is useful for the entire process from semantic analysis here to logical and physical planning. So it should be either kept (flat to single table or avoid real popping when exit visit query) or annotated into Abstract Syntax Tree and pass to backend.

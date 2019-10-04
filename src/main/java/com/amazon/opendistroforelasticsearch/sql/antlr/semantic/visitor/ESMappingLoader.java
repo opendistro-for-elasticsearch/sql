@@ -22,10 +22,12 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESIndex;
+import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.EarlyExitAnalysisException;
 import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.GenericSqlParseTreeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMappings;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.IndexMappings;
+import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 
 import java.util.Map;
 
@@ -43,9 +45,13 @@ public class ESMappingLoader implements GenericSqlParseTreeVisitor<Type> {
     /** Local cluster state for mapping query */
     private final LocalClusterState clusterState;
 
-    public ESMappingLoader(SemanticContext context, LocalClusterState clusterState) {
+    /** Threshold to decide if continue the analysis */
+    private final int threshold;
+
+    public ESMappingLoader(SemanticContext context, LocalClusterState clusterState, int threshold) {
         this.context = context;
         this.clusterState = clusterState;
+        this.threshold = threshold;
     }
 
     /*
@@ -172,7 +178,14 @@ public class ESMappingLoader implements GenericSqlParseTreeVisitor<Type> {
 
     private FieldMappings getFieldMappings(String indexName) {
         IndexMappings indexMappings = clusterState.getFieldMappings(new String[]{indexName});
-        return indexMappings.firstMapping().firstMapping();
+        FieldMappings fieldMappings = indexMappings.firstMapping().firstMapping();
+
+        int size = fieldMappings.data().size();
+        if (size > threshold) {
+            throw new EarlyExitAnalysisException(StringUtils.format(
+                "Index [%s] has [%d] fields more than threshold [%d]", indexName, size, threshold));
+        }
+        return fieldMappings;
     }
 
     private void defineFieldName(String fieldName, String type) {

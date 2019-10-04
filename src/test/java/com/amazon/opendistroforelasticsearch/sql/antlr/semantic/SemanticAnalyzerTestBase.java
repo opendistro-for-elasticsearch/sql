@@ -16,10 +16,10 @@
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.OpenDistroSqlAnalyzer;
+import com.amazon.opendistroforelasticsearch.sql.antlr.SqlAnalysisConfig;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
-import org.antlr.v4.runtime.tree.ParseTree;
 import org.hamcrest.Matchers;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -45,6 +45,8 @@ public abstract class SemanticAnalyzerTestBase {
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
+    private OpenDistroSqlAnalyzer analyzer = new OpenDistroSqlAnalyzer(new SqlAnalysisConfig(true, true, 1000));
+
     @SuppressWarnings("UnstableApiUsage")
     @BeforeClass
     public static void init() throws IOException {
@@ -68,8 +70,6 @@ public abstract class SemanticAnalyzerTestBase {
     }
 
     protected void validate(String sql) {
-        OpenDistroSqlAnalyzer analyzer = new OpenDistroSqlAnalyzer(sql);
-        ParseTree parseTree = analyzer.analyzeSyntax();
-        analyzer.analyzeSemantic(parseTree, LocalClusterState.state(), true);
+        analyzer.analyze(sql, LocalClusterState.state());
     }
 }

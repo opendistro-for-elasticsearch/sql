@@ -190,7 +190,7 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
 
     @Override
     public T visitTableNamePattern(TableNamePatternContext ctx) {
-        throw new EarlyExitVisitorException("Exit when meeting index pattern");
+        throw new EarlyExitAnalysisException("Exit when meeting index pattern");
     }
 
     @Override

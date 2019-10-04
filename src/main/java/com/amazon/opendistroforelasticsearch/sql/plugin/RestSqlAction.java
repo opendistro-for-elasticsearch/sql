@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.plugin;
 
 import com.alibaba.druid.sql.parser.ParserException;
 import com.amazon.opendistroforelasticsearch.sql.antlr.OpenDistroSqlAnalyzer;
+import com.amazon.opendistroforelasticsearch.sql.antlr.SqlAnalysisConfig;
 import com.amazon.opendistroforelasticsearch.sql.antlr.SqlAnalysisException;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.exception.SQLFeatureDisabledException;
@@ -54,6 +55,8 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_ENABLED;
+import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_SEMANTIC_SUGGESTION;
+import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_SEMANTIC_THRESHOLD;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.SQL_ENABLED;
 import static org.elasticsearch.rest.RestStatus.BAD_REQUEST;
 import static org.elasticsearch.rest.RestStatus.OK;
@@ -134,7 +137,7 @@ public class RestSqlAction extends BaseRestHandler {
     private static QueryAction explainRequest(final NodeClient client, final SqlRequest sqlRequest)
             throws SQLFeatureNotSupportedException, SqlParseException {
 
-        performAnalysisIfEnabled(sqlRequest.getSql());
+        performAnalysis(sqlRequest.getSql());
 
         final QueryAction queryAction = new SearchDao(client).explain(sqlRequest.getSql());
         queryAction.setSqlRequest(sqlRequest);
@@ -190,22 +193,15 @@ public class RestSqlAction extends BaseRestHandler {
         return allowExplicitIndex && isSqlEnabled;
     }
 
-    private static void performAnalysisIfEnabled(String sql) {
-        // Perform analysis for SELECT only for now because of extra code changes required for SHOW/DESCRIBE.
-        if (!isSelectStatement(sql)) {
-            return;
-        }
-
+    private static void performAnalysis(String sql) {
         LocalClusterState clusterState = LocalClusterState.state();
-        if (clusterState.getSettingValue(QUERY_ANALYSIS_ENABLED)) {
-            OpenDistroSqlAnalyzer analyzer = new OpenDistroSqlAnalyzer(sql);
-            analyzer.analyze(clusterState);
-        }
-    }
+        SqlAnalysisConfig config = new SqlAnalysisConfig(
+            clusterState.getSettingValue(QUERY_ANALYSIS_ENABLED),
+            clusterState.getSettingValue(QUERY_ANALYSIS_SEMANTIC_SUGGESTION),
+            clusterState.getSettingValue(QUERY_ANALYSIS_SEMANTIC_THRESHOLD)
+        );
 
-    private static boolean isSelectStatement(String sql) {
-        int endOfFirstWord = sql.indexOf(' ');
-        String firstWord = sql.substring(0, endOfFirstWord > 0 ? endOfFirstWord : sql.length());
-        return "SELECT".equalsIgnoreCase(firstWord);
+        OpenDistroSqlAnalyzer analyzer = new OpenDistroSqlAnalyzer(config);
+        analyzer.analyze(sql, clusterState);
     }
 }

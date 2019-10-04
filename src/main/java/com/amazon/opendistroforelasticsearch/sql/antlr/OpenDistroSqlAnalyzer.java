@@ -24,7 +24,7 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.visitor.TypeChec
 import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.CaseInsensitiveCharStream;
 import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.SyntaxAnalysisErrorListener;
 import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.AntlrSqlParseTreeVisitor;
-import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.EarlyExitVisitorException;
+import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.EarlyExitAnalysisException;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Lexer;
@@ -40,20 +40,25 @@ public class OpenDistroSqlAnalyzer {
     private static final Logger LOG = LogManager.getLogger();
 
     /** Original sql query */
-    private final String sql;
+    private final SqlAnalysisConfig config;
 
-    public OpenDistroSqlAnalyzer(String sql) {
-        this.sql = sql;
+    public OpenDistroSqlAnalyzer(SqlAnalysisConfig config) {
+        this.config = config;
     }
 
-    public void analyze(LocalClusterState clusterState) {
+    public void analyze(String sql, LocalClusterState clusterState) {
+        // Perform analysis for SELECT only for now because of extra code changes required for SHOW/DESCRIBE.
+        if (!isSelectStatement(sql) || !config.isAnalyzerEnabled()) {
+            return;
+        }
+
         try {
             analyzeSemantic(
-                analyzeSyntax(),
+                analyzeSyntax(sql),
                 clusterState
             );
-        } catch (EarlyExitVisitorException e) {
-            LOG.error("Skip analysis because of unsupported semantics", e);
+        } catch (EarlyExitAnalysisException e) {
+            LOG.error("Analysis exits early and will skip remaining process", e);
         }
     }
 
@@ -63,7 +68,7 @@ public class OpenDistroSqlAnalyzer {
      *
      * @return      parse tree
      */
-    public ParseTree analyzeSyntax() {
+    public ParseTree analyzeSyntax(String sql) {
         OpenDistroSqlParser parser = createParser(createLexer(sql));
         parser.addErrorListener(new SyntaxAnalysisErrorListener());
         return parser.root();
@@ -71,22 +76,19 @@ public class OpenDistroSqlAnalyzer {
 
     /**
      * Perform semantic analysis based on syntax analysis output - parse tree.
+     *
      * @param tree          parse tree
      * @param clusterState  cluster state required for index mapping query
      */
-    public void analyzeSemantic(ParseTree tree, LocalClusterState clusterState, boolean isSuggestEnabled) {
-        tree.accept(new AntlrSqlParseTreeVisitor<>(createAnalyzer(clusterState, isSuggestEnabled)));
-    }
-
     public void analyzeSemantic(ParseTree tree, LocalClusterState clusterState) {
-        analyzeSemantic(tree, clusterState, false);
+        tree.accept(new AntlrSqlParseTreeVisitor<>(createAnalyzer(clusterState)));
     }
 
     /** Factory method for semantic analyzer to help assemble all required components together */
-    private SemanticAnalyzer createAnalyzer(LocalClusterState clusterState, boolean isSuggestEnabled) {
+    private SemanticAnalyzer createAnalyzer(LocalClusterState clusterState) {
         SemanticContext context = new SemanticContext();
-        ESMappingLoader mappingLoader = new ESMappingLoader(context, clusterState);
-        TypeChecker typeChecker = new TypeChecker(context, isSuggestEnabled);
+        ESMappingLoader mappingLoader = new ESMappingLoader(context, clusterState, config.getAnalysisThreshold());
+        TypeChecker typeChecker = new TypeChecker(context, config.isFieldSuggestionEnabled());
         return new SemanticAnalyzer(mappingLoader, typeChecker);
     }
 
@@ -98,6 +100,12 @@ public class OpenDistroSqlAnalyzer {
     private OpenDistroSqlLexer createLexer(String sql) {
          return new OpenDistroSqlLexer(
                     new CaseInsensitiveCharStream(sql));
+    }
+
+    private boolean isSelectStatement(String sql) {
+        int endOfFirstWord = sql.indexOf(' ');
+        String firstWord = sql.substring(0, endOfFirstWord > 0 ? endOfFirstWord : sql.length());
+        return "SELECT".equalsIgnoreCase(firstWord);
     }
 
 }
