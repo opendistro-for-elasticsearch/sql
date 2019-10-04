@@ -1127,7 +1127,8 @@ public class AggregationIT extends SQLIntegTestCase {
         String result = explainQuery(query);
 
         Assert.assertThat(result, containsString("Math.ceil(doc['timestamp'].value);"));
-        Assert.assertThat(result, containsString("\"aggregations\" : {"));
+        Assert.assertThat(result.replaceAll("\\s", ""),
+                containsString("\"script\":{\"source\""));
     }
 
     @Test
@@ -1137,7 +1138,8 @@ public class AggregationIT extends SQLIntegTestCase {
         String result = explainQuery(query);
 
         Assert.assertThat(result, containsString("Math.pow(doc['field'].value, 1)"));
-        Assert.assertThat(result, containsString("\"aggregations\" : {"));
+        Assert.assertThat(result.replaceAll("\\s", ""),
+                containsString("\"script\":{\"source\""));
     }
 
 
