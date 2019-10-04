@@ -1116,7 +1116,7 @@ public class AggregationIT extends SQLIntegTestCase {
                 "'interval'='20d ', 'format'='yyyy-MM-dd') limit 1000", TEST_INDEX_ONLINE);
         String result = explainQuery(query);
 
-        Assert.assertThat(result, containsString("\"script\":{\"source\""));
+        Assert.assertThat(result, containsString("\"aggregations\" : {"));
         Assert.assertThat(result, containsString("substring(0, 1)"));
     }
 
@@ -1127,7 +1127,7 @@ public class AggregationIT extends SQLIntegTestCase {
         String result = explainQuery(query);
 
         Assert.assertThat(result, containsString("Math.ceil(doc['timestamp'].value);"));
-        Assert.assertThat(result, containsString("\"script\":{\"source\""));
+        Assert.assertThat(result, containsString("\"aggregations\" : {"));
     }
 
     @Test
@@ -1137,7 +1137,7 @@ public class AggregationIT extends SQLIntegTestCase {
         String result = explainQuery(query);
 
         Assert.assertThat(result, containsString("Math.pow(doc['field'].value, 1)"));
-        Assert.assertThat(result, containsString("\"script\":{\"source\""));
+        Assert.assertThat(result, containsString("\"aggregations\" : {"));
     }
 
 

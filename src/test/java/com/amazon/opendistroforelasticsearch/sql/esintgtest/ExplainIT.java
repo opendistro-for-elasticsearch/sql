@@ -175,16 +175,19 @@ public class ExplainIT extends SQLIntegTestCase {
 
         String result = explainQuery(queryPrefix + " terms(field='correspond_brand_name',size='10'," +
                 "alias='correspond_brand_name',include='\\\".*sport.*\\\"',exclude='\\\"water_.*\\\"')");
-        Assert.assertThat(result, containsString(expected1));
+        Assert.assertThat(result.replaceAll("\\s", ""),
+                containsString(expected1));
 
         result = explainQuery(queryPrefix + "terms(field='correspond_brand_name',size='10'," +
                 "alias='correspond_brand_name',include='[\\\"mazda\\\", \\\"honda\\\"]'," +
                 "exclude='[\\\"rover\\\", \\\"jensen\\\"]')");
-        Assert.assertThat(result, containsString(expected2));
+        Assert.assertThat(result.replaceAll("\\s", ""),
+                containsString(expected2));
 
         result = explainQuery(queryPrefix + "terms(field='correspond_brand_name',size='10'," +
                 "alias='correspond_brand_name',include='{\\\"partition\\\":0,\\\"num_partitions\\\":20}')");
-        Assert.assertThat(result, containsString(expected3));
+        Assert.assertThat(result.replaceAll("\\s", ""),
+                containsString(expected3));
     }
 
     @Test
@@ -224,7 +227,6 @@ public class ExplainIT extends SQLIntegTestCase {
         String explain = explainQuery(query);
         String result = (new JsonPrettyFormatter()).format(explain);
 
-        Assert.assertThat(result.replaceAll("\\s", "").replaceAll("\\n", "*"),
-                equalTo(expectedOutput.replaceAll("\\s", "").replaceAll("\\n", "*")));
+        Assert.assertThat(result, equalTo(expectedOutput));
     }
 }

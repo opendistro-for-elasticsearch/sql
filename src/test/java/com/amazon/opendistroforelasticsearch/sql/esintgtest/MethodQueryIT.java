@@ -47,8 +47,8 @@ public class MethodQueryIT extends SQLIntegTestCase {
         final String result = explainQuery(String.format(Locale.ROOT,
                 "select address from %s where q= query('address:880 Holmes Lane') limit 3",
                 TestsConstants.TEST_INDEX_ACCOUNT));
-        Assert.assertThat(result,
-                containsString("query_string\":{\"query\":\"address:880 Holmes Lane"));
+        Assert.assertThat(result.replaceAll("\\s", ""),
+                containsString("query_string\":{\"query\":\"address:880HolmesLane"));
 
     }
 
@@ -63,8 +63,8 @@ public class MethodQueryIT extends SQLIntegTestCase {
         final String result = explainQuery(String.format(Locale.ROOT,
                 "select address from %s where address= matchQuery('880 Holmes Lane') limit 3",
                 TestsConstants.TEST_INDEX_ACCOUNT));
-        Assert.assertThat(result,
-                containsString("{\"match\":{\"address\":{\"query\":\"880 Holmes Lane\""));
+        Assert.assertThat(result.replaceAll("\\s", ""),
+                containsString("{\"match\":{\"address\":{\"query\":\"880HolmesLane\""));
     }
 
     /**
@@ -84,7 +84,7 @@ public class MethodQueryIT extends SQLIntegTestCase {
                         "where score(matchQuery(address, 'Lane'),100) " +
                         "or score(matchQuery(address,'Street'),0.5)  order by _score desc limit 3",
                 TestsConstants.TEST_INDEX_ACCOUNT));
-        Assert.assertThat(result,
+        Assert.assertThat(result.replaceAll("\\s", ""),
                 both(containsString("{\"constant_score\":" +
                         "{\"filter\":{\"match\":{\"address\":{\"query\":\"Lane\"")).and(
                         containsString("{\"constant_score\":" +
@@ -102,7 +102,7 @@ public class MethodQueryIT extends SQLIntegTestCase {
         final String result = explainQuery(String.format(Locale.ROOT,
                 "select address from %s where address= wildcardQuery('l*e')  order by _score desc limit 3",
                 TestsConstants.TEST_INDEX_ACCOUNT));
-        Assert.assertThat(result,
+        Assert.assertThat(result.replaceAll("\\s", ""),
                 containsString("{\"wildcard\":{\"address\":{\"wildcard\":\"l*e\""));
     }
 
@@ -121,7 +121,7 @@ public class MethodQueryIT extends SQLIntegTestCase {
                 "select address from %s " +
                         "where address= matchPhrase('671 Bristol Street')  order by _score desc limit 3",
                 TestsConstants.TEST_INDEX_ACCOUNT));
-        Assert.assertThat(result,
-                containsString("{\"match_phrase\":{\"address\":{\"query\":\"671 Bristol Street\""));
+        Assert.assertThat(result.replaceAll("\\s", ""),
+                containsString("{\"match_phrase\":{\"address\":{\"query\":\"671BristolStreet\""));
     }
 }

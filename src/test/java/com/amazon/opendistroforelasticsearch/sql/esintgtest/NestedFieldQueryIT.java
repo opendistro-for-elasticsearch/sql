@@ -271,10 +271,12 @@ public class NestedFieldQueryIT extends SQLIntegTestCase {
                      "FROM elasticsearch-sql_test_index_employee_nested e " +
                      "LEFT JOIN e.projects p";
         String explain = explainQuery(sql);
-        assertThat(explain, containsString("{\"bool\":{\"must_not\":[{\"nested\":{\"query\":" +
+        assertThat(explain.replaceAll("\\s", ""),
+                containsString("{\"bool\":{\"must_not\":[{\"nested\":{\"query\":" +
             "{\"exists\":{\"field\":\"projects\",\"boost\":1.0}},\"path\":\"projects\""));
 
-        assertThat(explain, containsString("\"_source\":{\"includes\":[\"projects.*\""));
+        assertThat(explain.replaceAll("\\s", ""),
+                containsString("\"_source\":{\"includes\":[\"projects.*\""));
 
         JSONObject results = executeQuery(sql);
         Assert.assertThat(getTotalHits(results), equalTo(4));
@@ -286,10 +288,13 @@ public class NestedFieldQueryIT extends SQLIntegTestCase {
                      "FROM elasticsearch-sql_test_index_employee_nested e " +
                      "LEFT JOIN e.projects p";
         String explain = explainQuery(sql);
-        assertThat(explain, containsString("{\"bool\":{\"must_not\":[{\"nested\":{\"query\":" +
-            "{\"exists\":{\"field\":\"projects\",\"boost\":1.0}},\"path\":\"projects\""));
-        assertThat(explain, containsString("\"_source\":{\"includes\":[\"name\"],"));
-        assertThat(explain, containsString("\"_source\":{\"includes\":[\"projects.name\",\"projects.started_year\"]"));
+        assertThat(explain.replaceAll("\\s", ""),
+                containsString("{\"bool\":{\"must_not\":[{\"nested\":{\"query\":"+
+                "{\"exists\":{\"field\":\"projects\",\"boost\":1.0}},\"path\":\"projects\""));
+        assertThat(explain.replaceAll("\\s", ""),
+                containsString("\"_source\":{\"includes\":[\"name\"],"));
+        assertThat(explain.replaceAll("\\s", ""),
+                containsString("\"_source\":{\"includes\":[\"projects.name\",\"projects.started_year\"]"));
 
         JSONObject results = executeQuery(sql);
         Assert.assertThat(getTotalHits(results), equalTo(4));

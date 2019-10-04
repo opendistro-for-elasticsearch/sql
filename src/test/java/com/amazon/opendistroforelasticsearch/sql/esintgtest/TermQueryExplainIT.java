@@ -22,7 +22,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Locale;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -82,7 +81,8 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
                             "SELECT * " +
                             "FROM elasticsearch_sql_test_blah_blah*, elasticsearch-sql_test_index_bank " +
                             "WHERE state = 'DC'");
-        assertThat(result, containsString("\"term\":{\"state.keyword\""));
+        assertThat(result.replaceAll("\\s", ""),
+                containsString("\"term\":{\"state.keyword\""));
     }
 
     @Test
@@ -250,8 +250,10 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
             "FROM elasticsearch-sql_test_index_bank " +
             "ORDER BY state, lastname "
         );
-        assertThat(result, containsString("\"state.keyword\":{\"order\":\"asc\""));
-        assertThat(result, containsString("\"lastname\":{\"order\":\"asc\"}"));
+        assertThat(result.replaceAll("\\s", ""),
+                containsString("\"state.keyword\":{\"order\":\"asc\""));
+        assertThat(result.replaceAll("\\s", ""),
+                containsString("\"lastname\":{\"order\":\"asc\"}"));
     }
 
     @Test
@@ -296,8 +298,10 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
             "FROM elasticsearch-sql_test_index_employee_nested e, e.projects p " +
             "WHERE p.name = 'something' "
         );
-        assertThat(result, containsString("\"term\":{\"projects.name.keyword\":{\"value\":\"something\""));
-        assertThat(result, containsString("\"path\":\"projects\""));
+        assertThat(result.replaceAll("\\s", ""),
+                containsString("\"term\":{\"projects.name.keyword\":{\"value\":\"something\""));
+        assertThat(result.replaceAll("\\s", ""),
+                containsString("\"path\":\"projects\""));
     }
 
     @Test
@@ -307,9 +311,12 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
             "FROM elasticsearch-sql_test_index_employee_nested e, e.projects p " +
             "WHERE p.name = 'something' and p.started_year = 1990 "
             );
-        assertThat(result, containsString("\"term\":{\"projects.name.keyword\":{\"value\":\"something\""));
-        assertThat(result, containsString("\"term\":{\"projects.started_year\":{\"value\":1990"));
-        assertThat(result, containsString("\"path\":\"projects\""));
+        assertThat(result.replaceAll("\\s", ""),
+                containsString("\"term\":{\"projects.name.keyword\":{\"value\":\"something\""));
+        assertThat(result.replaceAll("\\s", ""),
+                containsString("\"term\":{\"projects.started_year\":{\"value\":1990"));
+        assertThat(result.replaceAll("\\s", ""),
+                containsString("\"path\":\"projects\""));
     }
 
     @Test
@@ -319,10 +326,14 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
             "FROM elasticsearch-sql_test_index_employee_nested e, e.projects p, e.comments c " +
             "WHERE p.name = 'something' or c.likes = 56 "
             );
-        assertThat(result, containsString("\"term\":{\"projects.name.keyword\":{\"value\":\"something\""));
-        assertThat(result, containsString("\"term\":{\"comments.likes\":{\"value\":56"));
-        assertThat(result, containsString("\"path\":\"projects\""));
-        assertThat(result, containsString("\"path\":\"comments\""));
+        assertThat(result.replaceAll("\\s", ""),
+                containsString("\"term\":{\"projects.name.keyword\":{\"value\":\"something\""));
+        assertThat(result.replaceAll("\\s", ""),
+                containsString("\"term\":{\"comments.likes\":{\"value\":56"));
+        assertThat(result.replaceAll("\\s", ""),
+                containsString("\"path\":\"projects\""));
+        assertThat(result.replaceAll("\\s", ""),
+                containsString("\"path\":\"comments\""));
     }
 
     @Test
@@ -332,9 +343,12 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
             "FROM elasticsearch-sql_test_index_employee_nested e, e.projects p " +
             "WHERE p.name = 'hello' or p.name = 'world' "
             );
-        assertThat(result, containsString("\"term\":{\"projects.name.keyword\":{\"value\":\"hello\""));
-        assertThat(result, containsString("\"term\":{\"projects.name.keyword\":{\"value\":\"world\""));
-        assertThat(result, containsString("\"path\":\"projects\""));
+        assertThat(result.replaceAll("\\s", ""),
+                containsString("\"term\":{\"projects.name.keyword\":{\"value\":\"hello\""));
+        assertThat(result.replaceAll("\\s", ""),
+                containsString("\"term\":{\"projects.name.keyword\":{\"value\":\"world\""));
+        assertThat(result.replaceAll("\\s", ""),
+                containsString("\"path\":\"projects\""));
     }
 
     @Test
@@ -343,8 +357,10 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
             "SELECT e.id, p.name " +
             "FROM elasticsearch-sql_test_index_employee_nested e, e.projects p " +
             "GROUP BY  p.name ");
-        assertThat(result, containsString("\"terms\":{\"field\":\"projects.name.keyword\""));
-        assertThat(result, containsString("\"nested\":{\"path\":\"projects\""));
+        assertThat(result.replaceAll("\\s", ""),
+                containsString("\"terms\":{\"field\":\"projects.name.keyword\""));
+        assertThat(result.replaceAll("\\s", ""),
+                containsString("\"nested\":{\"path\":\"projects\""));
     }
 
     @Test
@@ -354,8 +370,10 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
             "FROM elasticsearch-sql_test_index_employee_nested e, e.projects p " +
             "ORDER BY p.name "
         );
-        assertThat(result, containsString("\"sort\":[{\"projects.name.keyword\""));
-        assertThat(result, containsString("\"nested\":{\"path\":\"projects\""));
+        assertThat(result.replaceAll("\\s", ""),
+                containsString("\"sort\":[{\"projects.name.keyword\""));
+        assertThat(result.replaceAll("\\s", ""),
+                containsString("\"nested\":{\"path\":\"projects\""));
     }
 
     @Test
@@ -366,8 +384,10 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
                          "WHERE p IS NOT NULL"
         );
 
-        assertThat(explain, containsString("\"exists\":{\"field\":\"projects\""));
-        assertThat(explain, containsString("\"path\":\"projects\""));
+        assertThat(explain.replaceAll("\\s", ""),
+                containsString("\"exists\":{\"field\":\"projects\""));
+        assertThat(explain.replaceAll("\\s", ""),
+                containsString("\"path\":\"projects\""));
     }
 
     @Test
