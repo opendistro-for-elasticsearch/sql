@@ -29,7 +29,9 @@ public class SqlAnalysisConfig {
     /** Skip entire analysis for index mapping larger than this threhold */
     private final int analysisThreshold;
 
-    public SqlAnalysisConfig(boolean isAnalyzerEnabled, boolean isFieldSuggestionEnabled, int analysisThreshold) {
+    public SqlAnalysisConfig(boolean isAnalyzerEnabled,
+                             boolean isFieldSuggestionEnabled,
+                             int analysisThreshold) {
         this.isAnalyzerEnabled = isAnalyzerEnabled;
         this.isFieldSuggestionEnabled = isFieldSuggestionEnabled;
         this.analysisThreshold = analysisThreshold;

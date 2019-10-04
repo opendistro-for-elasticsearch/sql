@@ -21,17 +21,23 @@ import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseException;
+import org.elasticsearch.client.RestClient;
 import org.elasticsearch.rest.RestStatus;
+import org.elasticsearch.test.ESIntegTestCase;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
 
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_ENABLED;
+import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_SEMANTIC_SUGGESTION;
+import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_SEMANTIC_THRESHOLD;
 import static org.elasticsearch.common.xcontent.XContentType.JSON;
 import static org.elasticsearch.rest.RestStatus.BAD_REQUEST;
+import static org.elasticsearch.rest.RestStatus.OK;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -58,13 +64,33 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void unsupportedOperatorShouldThrowOtherExceptionIfAnalyzerDisabled() {
+    public void unsupportedOperatorShouldSkipAnalysisAndThrowOtherExceptionIfAnalyzerDisabled() {
         runWithClusterSetting(
             new ClusterSetting("transient", QUERY_ANALYSIS_ENABLED, "false"),
             () -> queryShouldThrowException(
                 "SELECT * FROM elasticsearch-sql_test_index_bank WHERE age <=> 1",
                 SqlParseException.class
             )
+        );
+    }
+
+    @Test
+    public void suggestionForWrongFieldNameShouldBeProvidedIfSuggestionEnabled() {
+        runWithClusterSetting(
+            new ClusterSetting("transient", QUERY_ANALYSIS_SEMANTIC_SUGGESTION, "true"),
+            () -> queryShouldThrowSemanticException(
+                "SELECT * FROM elasticsearch-sql_test_index_bank b WHERE a.balance = 1000",
+                "Field [a.balance] cannot be found or used here.",
+                "Did you mean [b.balance]?"
+            )
+        );
+    }
+
+    @Test
+    public void wrongFieldNameShouldPassIfIndexMappingIsVeryLarge() {
+        runWithClusterSetting(
+            new ClusterSetting("transient", QUERY_ANALYSIS_SEMANTIC_THRESHOLD, "5"),
+            () -> queryShouldPassAnalysis("SELECT * FROM elasticsearch-sql_test_index_bank WHERE age123 = 1")
         );
     }
 
@@ -230,7 +256,7 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
 
     private <T> void queryShouldThrowException(String query, Class<T> exceptionType, String... expectedMsgs) {
         try {
-            explainQuery(query);
+            executeQuery(query);
             Assert.fail("Expected ResponseException, but none was thrown for query: " + query);
         }
         catch (ResponseException e) {
@@ -244,6 +270,22 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
         catch (IOException e) {
             throw new IllegalStateException(
                 "Unexpected IOException raised rather than expected AnalysisException for query: " + query);
+        }
+    }
+
+    private void queryShouldPassAnalysis(String query) {
+        String endpoint = "/_opendistro/_sql?";
+        String requestBody = makeRequest(query);
+        Request sqlRequest = new Request("POST", endpoint);
+        sqlRequest.setJsonEntity(requestBody);
+
+        try {
+            RestClient restClient = ESIntegTestCase.getRestClient();
+            Response response = restClient.performRequest(sqlRequest);
+            ResponseAssertion assertion = new ResponseAssertion(response);
+            assertion.assertStatusEqualTo(OK.getStatus());
+        } catch (IOException e) {
+            throw new IllegalStateException("Unexpected IOException raised for query: " + query);
         }
     }
 

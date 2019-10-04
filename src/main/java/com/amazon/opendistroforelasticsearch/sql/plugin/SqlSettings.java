@@ -51,12 +51,13 @@ public class SqlSettings {
         settings.put(SQL_ENABLED, Setting.boolSetting(SQL_ENABLED, true, NodeScope, Dynamic));
         settings.put(QUERY_SLOWLOG, Setting.intSetting(QUERY_SLOWLOG, 2, NodeScope, Dynamic));
 
+        // Settings for new ANTLR query analyzer
         settings.put(QUERY_ANALYSIS_ENABLED, Setting.boolSetting(
                      QUERY_ANALYSIS_ENABLED, true, NodeScope, Dynamic));
         settings.put(QUERY_ANALYSIS_SEMANTIC_SUGGESTION, Setting.boolSetting(
                      QUERY_ANALYSIS_SEMANTIC_SUGGESTION, false, NodeScope, Dynamic));
         settings.put(QUERY_ANALYSIS_SEMANTIC_THRESHOLD, Setting.intSetting(
-                     QUERY_ANALYSIS_SEMANTIC_THRESHOLD, 100, NodeScope, Dynamic));
+                     QUERY_ANALYSIS_SEMANTIC_THRESHOLD, 200, NodeScope, Dynamic));
 
         settings.put(METRICS_ROLLING_WINDOW, Setting.longSetting(METRICS_ROLLING_WINDOW, 3600L, 2L,
                 NodeScope, Dynamic));

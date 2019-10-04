@@ -26,6 +26,7 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
     SemanticAnalyzerBasicTest.class,
+    SemanticAnalyzerConfigTest.class,
     SemanticAnalyzerFromClauseTest.class,
     SemanticAnalyzerIdentifierTest.class,
     SemanticAnalyzerScalarFunctionTest.class,
