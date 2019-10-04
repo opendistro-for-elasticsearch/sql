@@ -34,7 +34,7 @@ import java.util.List;
  */
 public class RewriterContext {
     private final Deque<SQLTableSource> tableStack = new ArrayDeque<>();
-    private final Deque<SQLBinaryOpExpr> binaryOpStack = new ArrayDeque<>();
+    private final Deque<SQLExpr> conditionStack = new ArrayDeque<>();
     private final List<SQLInSubQueryExpr> sqlInSubQueryExprs = new ArrayList<>();
     private final List<SQLExistsExpr> sqlExistsExprs = new ArrayList<>();
     private final NestedQueryContext nestedQueryDetector = new NestedQueryContext();
@@ -44,11 +44,11 @@ public class RewriterContext {
     }
 
     public SQLExpr popWhere() {
-        return binaryOpStack.pop();
+        return conditionStack.pop();
     }
 
-    public void addWhere(SQLBinaryOpExpr expr) {
-        binaryOpStack.push(expr);
+    public void addWhere(SQLExpr expr) {
+        conditionStack.push(expr);
     }
 
     /**

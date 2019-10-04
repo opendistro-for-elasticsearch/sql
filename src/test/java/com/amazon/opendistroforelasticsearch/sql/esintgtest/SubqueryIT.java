@@ -214,14 +214,57 @@ public class SubqueryIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void nonCorrelatedNotExistsUnsupported() throws IOException {
-        exceptionRule.expect(ResponseException.class);
-        exceptionRule.expectMessage("Unsupported subquery");
+    public void nonCorrelatedNotExists() throws IOException {
         String query = String.format(Locale.ROOT,
                                      "SELECT e.name " +
                                      "FROM %s as e " +
                                      "WHERE NOT EXISTS (SELECT * FROM e.projects as p)",
                                      TEST_INDEX_EMPLOYEE_NESTED);
-        executeQuery(query);
+
+        JSONObject response = executeQuery(query);
+        assertThat(
+                response,
+                hitAll(
+                        kvString("/_source/name", is("Susan Smith")),
+                        kvString("/_source/name", is("John Doe"))
+                )
+        );
+    }
+
+    @Test
+    public void nonCorrelatedNotExistsWhere() throws IOException {
+        String query = String.format(Locale.ROOT,
+                                     "SELECT e.name " +
+                                     "FROM %s as e " +
+                                     "WHERE NOT EXISTS (SELECT * FROM e.projects as p WHERE p.name LIKE 'aurora')",
+                                     TEST_INDEX_EMPLOYEE_NESTED);
+
+        JSONObject response = executeQuery(query);
+        assertThat(
+                response,
+                hitAll(
+                        kvString("/_source/name", is("Susan Smith")),
+                        kvString("/_source/name", is("Jane Smith")),
+                        kvString("/_source/name", is("John Doe"))
+                )
+        );
+    }
+
+    @Test
+    public void nonCorrelatedNotExistsParentWhere() throws IOException {
+        String query = String.format(Locale.ROOT,
+                                     "SELECT e.name " +
+                                     "FROM %s as e " +
+                                     "WHERE NOT EXISTS (SELECT * FROM e.projects as p WHERE p.name LIKE 'security') " +
+                                     "AND e.name LIKE 'smith'",
+                                     TEST_INDEX_EMPLOYEE_NESTED);
+
+        JSONObject response = executeQuery(query);
+        assertThat(
+                response,
+                hitAll(
+                        kvString("/_source/name", is("Susan Smith"))
+                )
+        );
     }
 }

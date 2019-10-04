@@ -22,6 +22,7 @@ import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
 import com.alibaba.druid.sql.ast.expr.SQLCharExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInSubQueryExpr;
 import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
+import com.alibaba.druid.sql.ast.expr.SQLNotExpr;
 import com.alibaba.druid.sql.ast.statement.SQLSelectItem;
 import com.alibaba.druid.sql.ast.statement.SQLSelectOrderByItem;
 import com.alibaba.druid.sql.dialect.mysql.ast.expr.MySqlSelectGroupByExpr;
@@ -83,6 +84,8 @@ abstract class SQLClause<T> {
             }
         } else if (parent instanceof MySqlSelectQueryBlock) {
             ((MySqlSelectQueryBlock) parent).setWhere(nestedFunc);
+        } else if (parent instanceof SQLNotExpr) {
+              ((SQLNotExpr) parent).setExpr(nestedFunc);
         } else {
             throw new IllegalStateException("Unsupported place to use nested field under parent: " + parent);
         }
