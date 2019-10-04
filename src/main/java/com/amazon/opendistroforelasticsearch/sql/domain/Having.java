@@ -19,8 +19,10 @@ import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.statement.SQLSelectGroupByClause;
 import com.alibaba.druid.util.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.parser.HavingParser;
 import com.amazon.opendistroforelasticsearch.sql.parser.NestedType;
 import com.amazon.opendistroforelasticsearch.sql.parser.WhereParser;
+import com.google.common.collect.Iterables;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 
@@ -52,6 +54,12 @@ public class Having {
      */
     private final List<Where> conditions;
 
+    private HavingParser havingParser;
+
+    public List<Field> getHavingFields() {
+        return havingParser.getHavingFields();
+    }
+
     /**
      * Construct by HAVING expression
      *
@@ -60,7 +68,8 @@ public class Having {
      * @throws SqlParseException exception thrown by where parser
      */
     public Having(SQLExpr havingExpr, WhereParser parser) throws SqlParseException {
-        this.conditions = parseHavingExprToConditions(havingExpr, parser);
+        havingParser = new HavingParser(parser);
+        conditions = parseHavingExprToConditions(havingExpr, havingParser);
     }
 
     /**
@@ -87,12 +96,13 @@ public class Having {
             return;
         }
 
+        // parsing the fields from SELECT and HAVING clause
         groupByAgg.subAggregation(bucketSelector(BUCKET_SELECTOR_NAME,
-                contextForFieldsInSelect(fields),
+                contextForFieldsInSelect(Iterables.concat(fields, getHavingFields())),
                 explainConditions()));
     }
 
-    private List<Where> parseHavingExprToConditions(SQLExpr havingExpr, WhereParser parser)
+    private List<Where> parseHavingExprToConditions(SQLExpr havingExpr, HavingParser parser)
             throws SqlParseException {
         if (havingExpr == null) {
             return Collections.emptyList();
@@ -103,7 +113,7 @@ public class Having {
         return where.getWheres();
     }
 
-    private Map<String, String> contextForFieldsInSelect(List<Field> fields) {
+    private Map<String, String> contextForFieldsInSelect(Iterable<Field> fields) {
         Map<String, String> context = new HashMap<>();
         for (Field field : fields) {
             if (field instanceof MethodField) {
@@ -215,5 +225,4 @@ public class Having {
         }
         return alias;
     }
-
 }

@@ -15,16 +15,14 @@
 
 package com.amazon.opendistroforelasticsearch.sql.unittest;
 
-import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.alibaba.druid.sql.parser.ParserException;
-import com.alibaba.druid.sql.parser.Token;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
-import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
 import com.amazon.opendistroforelasticsearch.sql.parser.SqlParser;
 import com.amazon.opendistroforelasticsearch.sql.query.maker.AggMaker;
+import com.amazon.opendistroforelasticsearch.sql.util.SqlParserUtils;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -32,6 +30,7 @@ import org.elasticsearch.search.aggregations.PipelineAggregationBuilder;
 import org.elasticsearch.search.aggregations.pipeline.BucketSelectorPipelineAggregationBuilder;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -72,6 +71,44 @@ public class HavingTest {
             ));
     }
 
+    @Ignore
+    @Test
+    public void singleConditionWithTwoAggExpr() {
+        assertThat(
+                query(SELECT_CNT_AVG_FROM_BANK_GROUP_BY_AGE + "HAVING a > c"),
+                contains(
+                        bucketSelector(
+                                hasBucketPath("c: c", "a: a"),
+                                hasScript("params.a > params.c")
+                        )
+                ));
+    }
+
+    @Test
+    public void singleConditionWithHavingAgg() {
+        assertThat(
+                query(SELECT_CNT_AVG_FROM_BANK_GROUP_BY_AGE + "HAVING AVG(age) > 30"),
+                contains(
+                        bucketSelector(
+                                hasBucketPath("c: c", "a: a", "avg_0: avg_0"),
+                                hasScript("params.avg_0 > 30")
+                        )
+                ));
+    }
+
+    @Ignore
+    @Test
+    public void singleConditionWithHavingTwoAggExpr() {
+        assertThat(
+                query(SELECT_CNT_AVG_FROM_BANK_GROUP_BY_AGE + "HAVING AVG(age) > COUNT(*)"),
+                contains(
+                        bucketSelector(
+                                hasBucketPath("c: c", "a: a", "avg_0: avg_0", "count_0: count_0"),
+                                hasScript("params.avg_0 > count_0")
+                        )
+                ));
+    }
+
     @Test
     public void nestedSingleCondition() {
         assertThat(
@@ -96,6 +133,18 @@ public class HavingTest {
     }
 
     @Test
+    public void singleConditionWithOneFieldInSelectWithHavingAgg() {
+        assertThat(
+                query(SELECT_CNT_FROM_BANK_GROUP_BY_AGE + "HAVING AVG(a) > 30"),
+                contains(
+                        bucketSelector(
+                                hasBucketPath("c: c", "avg_0: avg_0"),
+                                hasScript("params.avg_0 > 30")
+                        )
+                ));
+    }
+
+    @Test
     public void singleConditionWithThreeFieldsInSelect() {
         assertThat(
             query(SELECT_CNT_AVG_SUM_FROM_BANK_GROUP_BY_AGE + "HAVING a > 30"),
@@ -104,6 +153,18 @@ public class HavingTest {
                     hasBucketPath("c: c", "a: a", "i: i")
                 )
             ));
+    }
+
+    @Test
+    public void singleConditionWithThreeFieldsInSelectWithHavingAgg() {
+        assertThat(
+                query(SELECT_CNT_AVG_SUM_FROM_BANK_GROUP_BY_AGE + "HAVING AVG(a) > 30"),
+                contains(
+                        bucketSelector(
+                                hasBucketPath("c: c", "a: a", "i: i", "avg_0: avg_0"),
+                                hasScript("params.avg_0 > 30")
+                        )
+                ));
     }
 
     @Test
@@ -118,6 +179,17 @@ public class HavingTest {
     }
 
     @Test
+    public void notEqualConditionWithHavingAgg() {
+        assertThat(
+                query(SELECT_CNT_AVG_FROM_BANK_GROUP_BY_AGE + "HAVING AVG(a) <> 30"),
+                contains(
+                        bucketSelector(
+                                hasScript("params.avg_0 != 30")
+                        )
+                ));
+    }
+
+    @Test
     public void notCondition() {
         assertThat(
             query(SELECT_CNT_AVG_FROM_BANK_GROUP_BY_AGE + "HAVING NOT (a > 30)"),
@@ -126,6 +198,17 @@ public class HavingTest {
                     hasScript("params.a <= 30")
                 )
             ));
+    }
+
+    @Test
+    public void notConditionWithHavingAgg() {
+        assertThat(
+                query(SELECT_CNT_AVG_FROM_BANK_GROUP_BY_AGE + "HAVING NOT (AVG(a) > 30)"),
+                contains(
+                        bucketSelector(
+                                hasScript("params.avg_0 <= 30")
+                        )
+                ));
     }
 
     @Test
@@ -140,6 +223,17 @@ public class HavingTest {
     }
 
     @Test
+    public void andConditionsWithHavingAgg() {
+        assertThat(
+                query(SELECT_CNT_AVG_FROM_BANK_GROUP_BY_AGE + "HAVING AVG(a) > 30 AND SUM(c) <= 10"),
+                contains(
+                        bucketSelector(
+                                hasScript("params.avg_0 > 30 && params.sum_1 <= 10")
+                        )
+                ));
+    }
+
+    @Test
     public void orConditions() {
         assertThat(
             query(SELECT_CNT_AVG_FROM_BANK_GROUP_BY_AGE + "HAVING a > 30 OR c <= 10"),
@@ -148,6 +242,17 @@ public class HavingTest {
                     hasScript("params.a > 30 || params.c <= 10")
                 )
             ));
+    }
+
+    @Test
+    public void orConditionsWithHavingAgg() {
+        assertThat(
+                query(SELECT_CNT_AVG_FROM_BANK_GROUP_BY_AGE + "HAVING AVG(a) > 30 OR SUM(c) <= 10"),
+                contains(
+                        bucketSelector(
+                                hasScript("params.avg_0 > 30 || params.sum_1 <= 10")
+                        )
+                ));
     }
 
     @Test
@@ -162,6 +267,17 @@ public class HavingTest {
     }
 
     @Test
+    public void betweenConditionWithHavingAgg() {
+        assertThat(
+                query(SELECT_CNT_AVG_FROM_BANK_GROUP_BY_AGE + "HAVING AVG(a) BETWEEN 30 AND 50"),
+                contains(
+                        bucketSelector(
+                                hasScript("params.avg_0 >= 30 && params.avg_0 <= 50")
+                        )
+                ));
+    }
+
+    @Test
     public void notBetweenCondition() {
         assertThat(
             query(SELECT_CNT_AVG_FROM_BANK_GROUP_BY_AGE + "HAVING a NOT BETWEEN 30 AND 50"),
@@ -170,6 +286,17 @@ public class HavingTest {
                     hasScript("params.a < 30 || params.a > 50")
                 )
             ));
+    }
+
+    @Test
+    public void notBetweenConditionWithHavingAgg() {
+        assertThat(
+                query(SELECT_CNT_AVG_FROM_BANK_GROUP_BY_AGE + "HAVING AVG(a) NOT BETWEEN 30 AND 50"),
+                contains(
+                        bucketSelector(
+                                hasScript("params.avg_0 < 30 || params.avg_0 > 50")
+                        )
+                ));
     }
 
     @Test
@@ -184,6 +311,17 @@ public class HavingTest {
     }
 
     @Test
+    public void inConditionWithHavingAgg() {
+        assertThat(
+                query(SELECT_CNT_AVG_FROM_BANK_GROUP_BY_AGE + "HAVING AVG(a) IN (30, 40, 50)"),
+                contains(
+                        bucketSelector(
+                                hasScript("params.avg_0 == 30 || params.avg_0 == 40 || params.avg_0 == 50")
+                        )
+                ));
+    }
+
+    @Test
     public void notInCondition() {
         assertThat(
             query(SELECT_CNT_AVG_FROM_BANK_GROUP_BY_AGE + "HAVING a NOT IN (30, 40, 50)"),
@@ -192,6 +330,17 @@ public class HavingTest {
                     hasScript("params.a != 30 && params.a != 40 && params.a != 50")
                 )
             ));
+    }
+
+    @Test
+    public void notInConditionWithHavingAgg() {
+        assertThat(
+                query(SELECT_CNT_AVG_FROM_BANK_GROUP_BY_AGE + "HAVING AVG(a) NOT IN (30, 40, 50)"),
+                contains(
+                        bucketSelector(
+                                hasScript("params.avg_0 != 30 && params.avg_0 != 40 && params.avg_0 != 50")
+                        )
+                ));
     }
 
     @Test
@@ -210,13 +359,8 @@ public class HavingTest {
         query(SELECT_CNT_AVG_SUM_FROM_BANK_GROUP_BY_AGE + "HAVING 10 < a");
     }
 
-    @Test(expected = ParserException.class)
-    public void aggregationFunctionInHavingRatherThanAlias() {
-        query(SELECT_CNT_AVG_SUM_FROM_BANK_GROUP_BY_AGE + "HAVING AVG(age) > 10");
-    }
-
     private Collection<PipelineAggregationBuilder> query(String sql) {
-        return translate(parseSql(sql));
+        return translate(SqlParserUtils.parse(sql));
     }
 
     private Collection<PipelineAggregationBuilder> translate(SQLQueryExpr expr) {
@@ -237,15 +381,6 @@ public class HavingTest {
         } catch (SqlParseException e) {
             throw new ParserException("Illegal sql expr: " + expr.toString());
         }
-    }
-
-    private SQLQueryExpr parseSql(String sql) {
-        ElasticSqlExprParser parser = new ElasticSqlExprParser(sql);
-        SQLExpr expr = parser.expr();
-        if (parser.getLexer().token() != Token.EOF) {
-            throw new ParserException("Illegal sql: " + sql);
-        }
-        return (SQLQueryExpr) expr;
     }
 
     @SafeVarargs
