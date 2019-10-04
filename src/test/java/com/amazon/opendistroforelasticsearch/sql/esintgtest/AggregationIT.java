@@ -1116,7 +1116,7 @@ public class AggregationIT extends SQLIntegTestCase {
                 "'interval'='20d ', 'format'='yyyy-MM-dd') limit 1000", TEST_INDEX_ONLINE);
         String result = explainQuery(query);
 
-        Assert.assertThat(result, containsString("\"aggregations\" : {"));
+        Assert.assertThat(result.replaceAll("\\s", ""), containsString("\"script\":{\"source\""));
         Assert.assertThat(result, containsString("substring(0, 1)"));
     }
 
