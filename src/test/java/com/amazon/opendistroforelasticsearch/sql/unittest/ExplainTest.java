@@ -46,13 +46,12 @@ public class ExplainTest {
 
         String expectedOutputFilePath = TestUtils.getResourceFilePath(
                 "src/test/resources/expectedOutput/explain_format_pretty.json");
-        String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8)
-                .replaceAll("\r", "");
+        String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8);
 
         String explainResult = explain(String.format("{\"query\":\"" +
                 "SELECT firstname " +
                 "FROM %s\"}", TestsConstants.TEST_INDEX_ACCOUNT));
-        String result = (new JsonPrettyFormatter()).format(explainResult);
+        String result = new JsonPrettyFormatter().format(explainResult);
 
         assertThat(result.replaceAll("\\s", ""),
                 equalTo(expectedOutput.replaceAll("\\s", "")));
@@ -64,15 +63,11 @@ public class ExplainTest {
         String expectedOutputFilePath = TestUtils.getResourceFilePath(
                 "src/test/resources/expectedOutput/explain_format_pretty.json");
         String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8);
-        removeBlank(expectedOutput);
-        replaceReturn(expectedOutput);
 
         String explainResult = explain(String.format("{\"query\":\"" +
                 "SELECT firstname " +
                 "FROM %s\"}", TestsConstants.TEST_INDEX_ACCOUNT));
-        String result = (new JsonPrettyFormatter()).format(explainResult);
-        removeBlank(result);
-        replaceReturn(result);
+        String result = new JsonPrettyFormatter().format(explainResult);
 
         assertThat(result, equalTo(expectedOutput));
     }
@@ -83,8 +78,6 @@ public class ExplainTest {
         String expectedOutPutFilePath = TestUtils.getResourceFilePath(
                 "src/test/resources/expectedOutput/explain_join_format_pretty.json");
         String expectedOutput = Files.toString(new File(expectedOutPutFilePath), StandardCharsets.UTF_8);
-        removeBlank(expectedOutput);
-        replaceReturn(expectedOutput);
 
         String bank = TestsConstants.TEST_INDEX_BANK;
         String explainResult = explain(String.format("{\"query\":\"" +
@@ -92,16 +85,10 @@ public class ExplainTest {
                 "FROM %s b1 " +
                 "LEFT JOIN %s b2 " +
                 "ON b1.age = b2.age AND b1.state = b2.state\"}", bank, bank));
-        String result = (new JsonPrettyFormatter()).format(explainResult);
-        removeBlank(result);
-        replaceReturn(result);
+        String result = new JsonPrettyFormatter().format(explainResult);
 
         assertThat(result, equalTo(expectedOutput));
     }
-
-    public void removeBlank(String string) {string.replaceAll("\\s", "");}
-
-    private void replaceReturn(String string) {string.replaceAll("\\n", "#");}
 
     private String explain(String request) {
         try {
