@@ -142,7 +142,7 @@ public class RestSqlAction extends BaseRestHandler {
                                    final Client client, final RestChannel channel) throws Exception {
         if (isExplainRequest(request)) {
             final String jsonExplanation = queryAction.explain().explain();
-            final String jsonPretty = (new JsonPrettyFormatter()).format(jsonExplanation);
+            final String jsonPretty = new JsonPrettyFormatter().format(jsonExplanation);
             channel.sendResponse(new BytesRestResponse(OK, "application/json; charset=UTF-8", jsonPretty));
         } else {
             Map<String, String> params = request.params();
