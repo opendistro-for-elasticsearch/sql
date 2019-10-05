@@ -140,12 +140,18 @@ public class RestSqlAction extends BaseRestHandler {
 
     private void executeSqlRequest(final RestRequest request, final QueryAction queryAction,
                                    final Client client, final RestChannel channel) throws Exception {
+        Map<String, String> params = request.params();
         if (isExplainRequest(request)) {
             final String jsonExplanation = queryAction.explain().explain();
-            final String jsonPretty = new JsonPrettyFormatter().format(jsonExplanation);
-            channel.sendResponse(new BytesRestResponse(OK, "application/json; charset=UTF-8", jsonPretty));
+            String result;
+            if (params.containsKey("pretty")
+                    && ("".equals(params.get("pretty")) || "true".equals(params.get("pretty")))) {
+                result = new JsonPrettyFormatter().format(jsonExplanation);
+            } else {
+                result = jsonExplanation;
+            }
+            channel.sendResponse(new BytesRestResponse(OK, "application/json; charset=UTF-8", result));
         } else {
-            Map<String, String> params = request.params();
             RestExecutor restExecutor = ActionRequestRestExecutorFactory.createExecutor(params.get("format"),
                     queryAction);
             //doing this hack because elasticsearch throws exception for un-consumed props
