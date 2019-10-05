@@ -15,32 +15,19 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
-import com.alibaba.druid.sql.parser.ParserException;
-import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
-import com.amazon.opendistroforelasticsearch.sql.query.ESActionFactory;
-import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
-import com.amazon.opendistroforelasticsearch.sql.query.SqlElasticRequestBuilder;
-import com.amazon.opendistroforelasticsearch.sql.request.SqlRequest;
-import com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents;
-import com.amazon.opendistroforelasticsearch.sql.utils.JsonPrettyFormatter;
 import com.google.common.io.Files;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.test.ESIntegTestCase;
-import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.sql.SQLFeatureNotSupportedException;
 
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_BANK;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_DOG;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_LOCATION;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_NESTED_TYPE;
@@ -226,54 +213,35 @@ public class ExplainIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void assertExplainRequestPrettyFormatted() throws IOException {
-        String expectedOutputFilePath = TestUtils.getResourceFilePath(
-                "src/test/resources/expectedOutput/explain_format_pretty.json");
-        String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8);
+    public void assertExplainPrettyFormatted() throws IOException {
+        String query = String.format("SELECT firstname FROM %s", TestsConstants.TEST_INDEX_ACCOUNT);
 
-        String explainResult = explain(String.format("{\"query\":\"" +
-                "SELECT firstname FROM %s\"}", TestsConstants.TEST_INDEX_ACCOUNT));
-        String result = new JsonPrettyFormatter().format(explainResult);
+        String notPrettyExplainOutputFilePath = TestUtils.getResourceFilePath(
+                "src/test/resources/expectedOutput/explainIT_format_not_pretty.json");
+        String notPrettyExplainOutput = Files.toString(new File(notPrettyExplainOutputFilePath), StandardCharsets.UTF_8);
 
-        Assert.assertThat(result, equalTo(expectedOutput));
+        assertThat(executeExplainRequest(query, ""), equalTo(notPrettyExplainOutput));
+        assertThat(executeExplainRequest(query, "pretty=false"), equalTo(notPrettyExplainOutput));
+
+        String prettyExplainOutputFilePath = TestUtils.getResourceFilePath(
+                "src/test/resources/expectedOutput/explainIT_format_pretty.json");
+        String prettyExplainOutput = Files.toString(new File(prettyExplainOutputFilePath), StandardCharsets.UTF_8);
+
+        assertThat(executeExplainRequest(query, "pretty"), equalTo(prettyExplainOutput));
+        assertThat(executeExplainRequest(query, "pretty=true"), equalTo(prettyExplainOutput));
     }
 
-    @Test
-    public void assertExplainJoinRequestPrettyFormatted() throws IOException {
-        String expectedOutPutFilePath = TestUtils.getResourceFilePath(
-                "src/test/resources/expectedOutput/explain_join_format_pretty.json");
-        String expectedOutput = Files.toString(new File(expectedOutPutFilePath), StandardCharsets.UTF_8);
+    private String executeExplainRequest(String query, String explainParam) throws IOException {
+        String endpoint = "/_opendistro/_sql/_explain?" + explainParam;
+        String request = makeRequest(query);
 
-        String explainResult = explain(String.format("{\"query\":\"" +
-                "SELECT b1.firstname, b1.lastname, b2.age  " +
-                "FROM %s b1 " +
-                "LEFT JOIN %s b2 " +
-                "ON b1.age = b2.age AND b1.state = b2.state\"}", TEST_INDEX_BANK, TEST_INDEX_BANK));
-        String result = new JsonPrettyFormatter().format(explainResult);
+        Request sqlRequest = new Request("POST", endpoint);
+        sqlRequest.setJsonEntity(request);
 
-        Assert.assertThat(result, equalTo(expectedOutput));
-    }
+        RestClient restClient = ESIntegTestCase.getRestClient();
+        Response response = restClient.performRequest(sqlRequest);
+        String responseString = TestUtils.getResponseBody(response, true);
 
-    private String explain(String request) {
-        try {
-            JSONObject jsonRequest = new JSONObject(request);
-            String sql = jsonRequest.getString("query");
-
-            return translate(sql, jsonRequest);
-        } catch (SqlParseException | SQLFeatureNotSupportedException e) {
-            throw new ParserException("Illegal sql expr in request: " + request);
-        }
-    }
-
-    private String translate(String sql, JSONObject jsonRequest) throws SQLFeatureNotSupportedException, SqlParseException {
-        Client mockClient = Mockito.mock(Client.class);
-        CheckScriptContents.stubMockClient(mockClient);
-        QueryAction queryAction = ESActionFactory.create(mockClient, sql);
-
-        SqlRequest sqlRequest = new SqlRequest(sql, jsonRequest);
-        queryAction.setSqlRequest(sqlRequest);
-
-        SqlElasticRequestBuilder requestBuilder = queryAction.explain();
-        return requestBuilder.explain();
+        return responseString;
     }
 }
