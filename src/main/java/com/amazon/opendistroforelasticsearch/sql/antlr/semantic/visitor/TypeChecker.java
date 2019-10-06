@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.visitor;
 
-import com.amazon.opendistroforelasticsearch.sql.antlr.StringSimilarity;
+import com.amazon.opendistroforelasticsearch.sql.antlr.SimilarSymbols;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.SemanticAnalysisException;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Environment;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.Namespace;
@@ -202,7 +202,7 @@ public class TypeChecker implements GenericSqlParseTreeVisitor<Type> {
 
         if (isSuggestEnabled || symbol.getNamespace() != Namespace.FIELD_NAME) {
             Set<String> allSymbolsInScope = environment().resolveAll(symbol.getNamespace()).keySet();
-            String suggestedWord = new StringSimilarity(allSymbolsInScope).similarTo(symbol.getName());
+            String suggestedWord = new SimilarSymbols(allSymbolsInScope).mostSimilarTo(symbol.getName());
             errorMsg += StringUtils.format(" Did you mean [%s]?", suggestedWord);
         }
         throw new SemanticAnalysisException(errorMsg);
