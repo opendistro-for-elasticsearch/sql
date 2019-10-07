@@ -16,6 +16,8 @@
 package com.amazon.opendistroforelasticsearch.sql.plugin;
 
 import com.alibaba.druid.sql.parser.ParserException;
+import com.amazon.opendistroforelasticsearch.sql.antlr.OpenDistroSqlAnalyzer;
+import com.amazon.opendistroforelasticsearch.sql.antlr.SqlAnalysisConfig;
 import com.amazon.opendistroforelasticsearch.sql.antlr.SqlAnalysisException;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.exception.SQLFeatureDisabledException;
@@ -53,6 +55,9 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
+import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_ENABLED;
+import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_SEMANTIC_SUGGESTION;
+import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_SEMANTIC_THRESHOLD;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.SQL_ENABLED;
 import static org.elasticsearch.rest.RestStatus.BAD_REQUEST;
 import static org.elasticsearch.rest.RestStatus.OK;
@@ -133,6 +138,8 @@ public class RestSqlAction extends BaseRestHandler {
     private static QueryAction explainRequest(final NodeClient client, final SqlRequest sqlRequest)
             throws SQLFeatureNotSupportedException, SqlParseException {
 
+        performAnalysis(sqlRequest.getSql());
+
         final QueryAction queryAction = new SearchDao(client).explain(sqlRequest.getSql());
         queryAction.setSqlRequest(sqlRequest);
         return queryAction;
@@ -192,5 +199,17 @@ public class RestSqlAction extends BaseRestHandler {
     private boolean isSQLFeatureEnabled() {
         boolean isSqlEnabled = LocalClusterState.state().getSettingValue(SQL_ENABLED);
         return allowExplicitIndex && isSqlEnabled;
+    }
+
+    private static void performAnalysis(String sql) {
+        LocalClusterState clusterState = LocalClusterState.state();
+        SqlAnalysisConfig config = new SqlAnalysisConfig(
+            clusterState.getSettingValue(QUERY_ANALYSIS_ENABLED),
+            clusterState.getSettingValue(QUERY_ANALYSIS_SEMANTIC_SUGGESTION),
+            clusterState.getSettingValue(QUERY_ANALYSIS_SEMANTIC_THRESHOLD)
+        );
+
+        OpenDistroSqlAnalyzer analyzer = new OpenDistroSqlAnalyzer(config);
+        analyzer.analyze(sql, clusterState);
     }
 }

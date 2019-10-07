@@ -174,7 +174,7 @@ public class QueryFunctionsIT extends SQLIntegTestCase {
             query(
                 "SELECT firstname",
                 FROM_ACCOUNTS,
-                "WHERE MULTI_MATCH(query='Ayers', fields='firstname')"
+                "WHERE MULTI_MATCH('query'='Ayers', 'fields'='firstname')"
             ),
             hits(
                 hasValueForFields("Ayers", "firstname")
@@ -188,7 +188,7 @@ public class QueryFunctionsIT extends SQLIntegTestCase {
             query(
                 "SELECT firstname, lastname",
                 FROM_ACCOUNTS,
-                "WHERE MULTI_MATCH(query='Bradshaw', fields='*name')"
+                "WHERE MULTI_MATCH('query'='Bradshaw', 'fields'='*name')"
             ),
             hits(
                 hasValueForFields("Bradshaw", "firstname", "lastname")

@@ -220,7 +220,7 @@ tableName
     ;
 
 fullColumnName
-    : uid (dottedId dottedId? )?
+    : uid dottedId*
     ;
 
 uid
@@ -316,7 +316,6 @@ aggregateWindowedFunction
 
 scalarFunctionName
     : functionNameBase
-    | SUBSTRING | TRIM
     ;
 
 functionArgs
@@ -345,7 +344,7 @@ expression
 predicate
     : predicate NOT? IN '(' (selectStatement | expressions) ')'     #inPredicate
     | predicate IS nullNotnull                                      #isNullPredicate
-    | left=predicate comparisonOperator right=predicate             #binaryComparasionPredicate
+    | left=predicate comparisonOperator right=predicate             #binaryComparisonPredicate
     | predicate NOT? BETWEEN predicate AND predicate                #betweenPredicate
     | predicate NOT? LIKE predicate                                 #likePredicate
     | predicate NOT? regex=REGEXP predicate                         #regexpPredicate
@@ -399,16 +398,16 @@ keywordsCanBeId
 
 functionNameBase
     : esFunctionNameBase
-    | ABS | ASIN | ATAN | CBRT | CEIL | CONCAT | CONCAT_WS
+    | ABS | ASIN | ATAN | ATAN2 | CBRT | CEIL | CONCAT | CONCAT_WS
     | COS | COSH | DATE_FORMAT | DEGREES
     | E | EXP | EXPM1 | FLOOR | LOG | LOG10 | LOG2 | LOWER
-    | PI | POW | RADIANS | RANDOM | RINT
-    | SIN | SINH | TAN | UPPER | YEAR
+    | PI | POW | RADIANS | RANDOM | RINT | ROUND
+    | SIN | SINH | SQRT | SUBSTRING | TAN | TRIM | UPPER | YEAR
     ;
 
 esFunctionNameBase
     : DATE_HISTOGRAM | DAY_OF_MONTH | DAY_OF_YEAR | DAY_OF_WEEK | EXCLUDE
-    | EXTENDED_STATS | FILTER | GEO_BOUNDING_BOX | GEO_DISTANCE | GEO_INTERSECTS
+    | EXTENDED_STATS | FILTER | GEO_BOUNDING_BOX | GEO_CELL | GEO_DISTANCE | GEO_DISTANCE_RANGE | GEO_INTERSECTS
     | GEO_POLYGON | INCLUDE | IN_TERMS | HISTOGRAM | HOUR_OF_DAY
     | MATCHPHRASE | MATCH_PHRASE | MATCHQUERY | MATCH_QUERY | MINUTE_OF_DAY
     | MINUTE_OF_HOUR | MISSING | MONTH_OF_YEAR | MULTIMATCH | MULTI_MATCH | NESTED

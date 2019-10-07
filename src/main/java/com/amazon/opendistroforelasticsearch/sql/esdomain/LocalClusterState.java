@@ -15,29 +15,22 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esdomain;
 
+import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.IndexMappings;
 import com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings;
-import com.carrotsearch.hppc.cursors.ObjectObjectCursor;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.ImmutableMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.cluster.ClusterState;
 import org.elasticsearch.cluster.metadata.IndexNameExpressionResolver;
-import org.elasticsearch.cluster.metadata.MappingMetaData;
-import org.elasticsearch.cluster.metadata.MetaData;
 import org.elasticsearch.cluster.service.ClusterService;
-import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.collect.Tuple;
 import org.elasticsearch.common.settings.Setting;
 import org.elasticsearch.index.IndexNotFoundException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -46,7 +39,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static java.util.Collections.emptyMap;
 import static org.elasticsearch.common.settings.Settings.EMPTY;
 
 /**
@@ -248,265 +240,6 @@ public class LocalClusterState {
         // Mostly array has single element
         Arrays.sort(array);
         return Arrays.asList(array);
-    }
-
-    /**
-     * Mappings interface to provide default implementation (minimal set of Map methods) for subclass in hierarchy.
-     *
-     * @param <T> Type of nested mapping
-     */
-    public interface Mappings<T> {
-
-        default boolean has(String name) {
-            return data().containsKey(name);
-        }
-
-        default Collection<String> allNames() {
-            return data().keySet();
-        }
-
-        default T mapping(String name) {
-            return data().get(name);
-        }
-
-        default T firstMapping() {
-            return allMappings().iterator().next();
-        }
-
-        default Collection<T> allMappings() {
-            return data().values();
-        }
-
-        default boolean isEmpty() {
-            return data().isEmpty();
-        }
-
-        Map<String, T> data();
-    }
-
-    /**
-     * Index mappings in the cluster.
-     * <p>
-     * Sample:
-     * indexMappings: {
-     * 'accounts': typeMappings1,
-     * 'logs':     typeMappings2
-     * }
-     * <p>
-     * Difference between response of getMapping/clusterState and getFieldMapping:
-     * <p>
-     * 1) MappingMetadata:
-     * ((Map) ((Map) (mapping.get("bank").get("account").sourceAsMap().get("properties"))).get("balance")).get("type")
-     * <p>
-     * 2) FieldMetadata:
-     * ((Map) client.admin().indices().getFieldMappings(request).actionGet().mappings().get("bank")
-     * .get("account").get("balance").sourceAsMap().get("balance")).get("type")
-     */
-    public static class IndexMappings implements Mappings<TypeMappings> {
-
-        public static final IndexMappings EMPTY = new IndexMappings();
-
-        /**
-         * Mapping from Index name to mappings of all Types in it
-         */
-        private final Map<String, TypeMappings> indexMappings;
-
-        public IndexMappings() {
-            this.indexMappings = emptyMap();
-        }
-
-        public IndexMappings(MetaData metaData) {
-            this.indexMappings = buildMappings(metaData.indices(),
-                    indexMetaData -> new TypeMappings(indexMetaData.getMappings()));
-        }
-
-        public IndexMappings(ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> mappings) {
-            this.indexMappings = buildMappings(mappings, TypeMappings::new);
-        }
-
-        @Override
-        public Map<String, TypeMappings> data() {
-            return indexMappings;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            IndexMappings that = (IndexMappings) o;
-            return Objects.equals(indexMappings, that.indexMappings);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(indexMappings);
-        }
-
-        @Override
-        public String toString() {
-            return "IndexMappings{" + indexMappings + '}';
-        }
-    }
-
-    /**
-     * Type mappings in a specific index.
-     * <p>
-     * Sample:
-     * typeMappings: {
-     * '_doc': fieldMappings
-     * }
-     */
-    public static class TypeMappings implements Mappings<FieldMappings> {
-
-        /**
-         * Mapping from Type name to mappings of all Fields in it
-         */
-        private final Map<String, FieldMappings> typeMappings;
-
-        public TypeMappings(ImmutableOpenMap<String, MappingMetaData> mappings) {
-            typeMappings = buildMappings(mappings, FieldMappings::new);
-        }
-
-        @Override
-        public Map<String, FieldMappings> data() {
-            return typeMappings;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            TypeMappings that = (TypeMappings) o;
-            return Objects.equals(typeMappings, that.typeMappings);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(typeMappings);
-        }
-
-        @Override
-        public String toString() {
-            return "TypeMappings{" + typeMappings + '}';
-        }
-    }
-
-    /**
-     * Field mappings in a specific type.
-     * <p>
-     * Sample:
-     * fieldMappings: {
-     * 'properties': {
-     * 'balance': {
-     * 'type': long
-     * },
-     * 'age': {
-     * 'type': integer
-     * },
-     * 'state': {
-     * 'type': text，
-     * }
-     * 'name': {
-     * 'type': text，
-     * 'fields': {
-     * 'keyword': {
-     * 'type': keyword,
-     * 'ignore_above': 256
-     * }
-     * }
-     * }
-     * }
-     * }
-     */
-    @SuppressWarnings("unchecked")
-    public static class FieldMappings implements Mappings<Map<String, Object>> {
-
-        private static final String PROPERTIES = "properties";
-
-        /**
-         * Mapping from field name to its type
-         */
-        private final Map<String, Object> fieldMappings;
-
-        public FieldMappings(MappingMetaData mappings) {
-            fieldMappings = mappings.sourceAsMap();
-        }
-
-        public FieldMappings(Map<String, Map<String, Object>> mapping) {
-            Map<String, Object> finalMapping = new HashMap<>();
-            finalMapping.put(PROPERTIES, mapping);
-            fieldMappings = finalMapping;
-        }
-
-        @Override
-        public boolean has(String path) {
-            return mapping(path) != null;
-        }
-
-        /**
-         * Different from default implementation that search mapping for path is required
-         */
-        @Override
-        public Map<String, Object> mapping(String path) {
-            Map<String, Object> mapping = fieldMappings;
-            for (String name : path.split("\\.")) {
-                if (mapping == null || !mapping.containsKey(PROPERTIES)) {
-                    return null;
-                }
-
-                mapping = (Map<String, Object>)
-                        ((Map<String, Object>) mapping.get(PROPERTIES)).get(name);
-            }
-            return mapping;
-        }
-
-        @Override
-        public Map<String, Map<String, Object>> data() {
-            // Is this assumption true? Is it possible mapping of field is NOT a Map<String,Object>?
-            return (Map<String, Map<String, Object>>) fieldMappings.get(PROPERTIES);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            FieldMappings that = (FieldMappings) o;
-            return Objects.equals(fieldMappings, that.fieldMappings);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(fieldMappings);
-        }
-
-        @Override
-        public String toString() {
-            return "FieldMappings" + new JSONObject(fieldMappings).toString(2);
-        }
-
-    }
-
-    /**
-     * Convert ES ImmutableOpenMap<String, T> to JDK Map<String, U> by applying function: U func(T)
-     */
-    private static <T, U> Map<String, U> buildMappings(ImmutableOpenMap<String, T> mappings, Function<T, U> func) {
-        ImmutableMap.Builder<String, U> builder = ImmutableMap.builder();
-        for (ObjectObjectCursor<String, T> mapping : mappings) {
-            builder.put(mapping.key, func.apply(mapping.value));
-        }
-        return builder.build();
     }
 
 }

@@ -17,28 +17,80 @@ package com.amazon.opendistroforelasticsearch.sql.antlr;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlLexer;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.SemanticContext;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.visitor.ESMappingLoader;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.visitor.SemanticAnalyzer;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.visitor.TypeChecker;
 import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.CaseInsensitiveCharStream;
 import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.SyntaxAnalysisErrorListener;
+import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.AntlrSqlParseTreeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.EarlyExitAnalysisException;
+import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Entry point for ANTLR generated parser to perform strict syntax and semantic analysis.
  */
 public class OpenDistroSqlAnalyzer {
 
+    private static final Logger LOG = LogManager.getLogger();
+
+    /** Original sql query */
+    private final SqlAnalysisConfig config;
+
+    public OpenDistroSqlAnalyzer(SqlAnalysisConfig config) {
+        this.config = config;
+    }
+
+    public void analyze(String sql, LocalClusterState clusterState) {
+        // Perform analysis for SELECT only for now because of extra code changes required for SHOW/DESCRIBE.
+        if (!isSelectStatement(sql) || !config.isAnalyzerEnabled()) {
+            return;
+        }
+
+        try {
+            analyzeSemantic(
+                analyzeSyntax(sql),
+                clusterState
+            );
+        } catch (EarlyExitAnalysisException e) {
+            // Expected if configured so log on debug level to avoid always logging stack trace
+            LOG.debug("Analysis exits early and will skip remaining process", e);
+        }
+    }
+
     /**
-     * Generate parse tree for the query to perform syntax and semantic analysis.
+     * Build lexer and parser to perform syntax analysis only.
      * Runtime exception with clear message is thrown for any verification error.
      *
-     * @param sql   original query
+     * @return      parse tree
      */
-    public void analyze(String sql) {
-        analyzeSemantic(
-            analyzeSyntax(
-                createParser(
-                    createLexer(sql))));
+    public ParseTree analyzeSyntax(String sql) {
+        OpenDistroSqlParser parser = createParser(createLexer(sql));
+        parser.addErrorListener(new SyntaxAnalysisErrorListener());
+        return parser.root();
+    }
+
+    /**
+     * Perform semantic analysis based on syntax analysis output - parse tree.
+     *
+     * @param tree          parse tree
+     * @param clusterState  cluster state required for index mapping query
+     */
+    public void analyzeSemantic(ParseTree tree, LocalClusterState clusterState) {
+        tree.accept(new AntlrSqlParseTreeVisitor<>(createAnalyzer(clusterState)));
+    }
+
+    /** Factory method for semantic analyzer to help assemble all required components together */
+    private SemanticAnalyzer createAnalyzer(LocalClusterState clusterState) {
+        SemanticContext context = new SemanticContext();
+        ESMappingLoader mappingLoader = new ESMappingLoader(context, clusterState, config.getAnalysisThreshold());
+        TypeChecker typeChecker = new TypeChecker(context, config.isFieldSuggestionEnabled());
+        return new SemanticAnalyzer(mappingLoader, typeChecker);
     }
 
     private OpenDistroSqlParser createParser(Lexer lexer) {
@@ -51,13 +103,10 @@ public class OpenDistroSqlAnalyzer {
                     new CaseInsensitiveCharStream(sql));
     }
 
-    private ParseTree analyzeSyntax(OpenDistroSqlParser parser) {
-        parser.addErrorListener(new SyntaxAnalysisErrorListener());
-        return parser.root();
-    }
-
-    private void analyzeSemantic(ParseTree tree) {
-        //TODO: implement semantic analysis in next stage
+    private boolean isSelectStatement(String sql) {
+        int endOfFirstWord = sql.indexOf(' ');
+        String firstWord = sql.substring(0, endOfFirstWord > 0 ? endOfFirstWord : sql.length());
+        return "SELECT".equalsIgnoreCase(firstWord);
     }
 
 }
