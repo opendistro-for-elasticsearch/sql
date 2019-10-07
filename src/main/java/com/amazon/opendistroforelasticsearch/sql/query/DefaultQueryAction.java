@@ -227,31 +227,22 @@ public class DefaultQueryAction extends QueryAction {
                         SortBuilders.fieldSort(orderByName)
                                 .order(sortOrder)
                                 .setNestedSort(new NestedSortBuilder(order.getNestedPath())));
+            } else if (order.isScript()) {
+                // TODO: Investigate how to find the type of expression (string or number)
+                // As of now this shouldn't be a problem, because the support is for date_format function
+                request.addSort(
+                    SortBuilders
+                        .scriptSort(new Script(orderByName), getScriptSortType(order))
+                        .order(sortOrder));
+            } else if (orderByName.equals(ScoreSortBuilder.NAME)) {
+                request.addSort(orderByName, sortOrder);
             } else {
-                if (order.isScript()) {
-                    // TODO: Investigate how to find the type of expression (string or number)
-                    // As of now this shouldn't be a problem, because the support is for date_format function
-
-                    request.addSort(
-                            SortBuilders
-                                    .scriptSort(new Script(orderByName), getScriptSortType(order))
-                                    .order(sortOrder));
-                } else {
-                    if (orderByName.equals(ScoreSortBuilder.NAME)) {
-                        request.addSort(orderByName, sortOrder);
-                    } else {
-                        FieldSortBuilder fieldSortBuilder;
-                        if (sortBuilderMap.containsKey(orderByName)) {
-                            fieldSortBuilder = sortBuilderMap.get(orderByName);
-                            setSortParams(fieldSortBuilder, order);
-                        } else {
-                            fieldSortBuilder = SortBuilders.fieldSort(orderByName);
-                            setSortParams(fieldSortBuilder, order);
-                            sortBuilderMap.put(orderByName, fieldSortBuilder);
-                            request.addSort(fieldSortBuilder);
-                        }
-                    }
-                }
+                FieldSortBuilder fieldSortBuilder = sortBuilderMap.computeIfAbsent(orderByName, key -> {
+                    FieldSortBuilder fs = SortBuilders.fieldSort(key);
+                    request.addSort(fs);
+                    return fs;
+                });
+                setSortParams(fieldSortBuilder, order);
             }
         }
     }

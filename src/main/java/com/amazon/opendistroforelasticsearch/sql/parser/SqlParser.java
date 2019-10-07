@@ -260,7 +260,8 @@ public class SqlParser {
 
             SQLExpr sqlExpr = sqlSelectOrderByItem.getExpr();
             if (sqlExpr instanceof SQLBinaryOpExpr && hasNullOrderInBinaryOrderExpr(sqlExpr)) {
-                //override SQLIdentifier set by FieldMaker.makeField to SQLBinaryOpExpr
+                // override Field.expression to SQLBinaryOpExpr,
+                // which was set by FieldMaker.makeField() to SQLIdentifierExpr above
                 field.setExpression(sqlExpr);
             }
 
@@ -293,18 +294,41 @@ public class SqlParser {
     }
 
     private boolean hasNullOrderInBinaryOrderExpr(SQLExpr expr) {
-        if (expr instanceof SQLBinaryOpExpr) {
-            SQLBinaryOpExpr binaryExpr = (SQLBinaryOpExpr) expr;
-            SQLBinaryOperator operator = binaryExpr.getOperator();
+        /**
+         * Valid AST that meets ORDER BY IS NULL/NOT NULL condition (true)
+         *
+         *            SQLSelectOrderByItem
+         *                      |
+         *             SQLBinaryOpExpr (Is || IsNot)
+         *                    /  \
+         *    SQLIdentifierExpr  SQLNullExpr
+         */
 
-            return (
-                binaryExpr.getRight() instanceof SQLNullExpr
-                && binaryExpr.getLeft() instanceof SQLIdentifierExpr
-                && (operator == SQLBinaryOperator.Is || operator == SQLBinaryOperator.IsNot)
-            );
+//        if (expr instanceof SQLBinaryOpExpr) {
+//            SQLBinaryOpExpr binaryExpr = (SQLBinaryOpExpr) expr;
+//            SQLBinaryOperator operator = binaryExpr.getOperator();
+//
+//            return (
+//                binaryExpr.getRight() instanceof SQLNullExpr
+//                && binaryExpr.getLeft() instanceof SQLIdentifierExpr
+//                && (operator == SQLBinaryOperator.Is || operator == SQLBinaryOperator.IsNot)
+//            );
+//        }
 
+        if (!(expr instanceof SQLBinaryOpExpr)) {
+            return false;
         }
-        return false;
+
+        // check "shape of expression": <identifier> <operator> <NULL>
+        SQLBinaryOpExpr binaryExpr = (SQLBinaryOpExpr) expr;
+        if (!(binaryExpr.getLeft() instanceof SQLIdentifierExpr)|| !(binaryExpr.getRight() instanceof SQLNullExpr)) {
+            return false;
+        }
+
+        // check that operator IS or IS NOT
+        SQLBinaryOperator operator = binaryExpr.getOperator();
+        return operator == SQLBinaryOperator.Is || operator == SQLBinaryOperator.IsNot;
+
     }
 
     private void findLimit(MySqlSelectQueryBlock.Limit limit, Select select) {

@@ -36,7 +36,7 @@ public class OrderIT extends SQLIntegTestCase {
         JSONArray result = getSortExplain(query);
         assertThat(result.length(), equalTo(1));
         JSONObject jsonObject = getSortByField(result, "id");
-        assertThat((getOrderTypeForSortAtIndex(result, 0, "id"), equalTo("asc"));
+        assertThat(getOrderTypeForSortAtIndex(result, 0, "id"), equalTo("asc"));
         assertFalse(jsonObject.getJSONObject("id").has("missing"));
     }
 
