@@ -189,6 +189,30 @@ public class AggregationIT extends SQLIntegTestCase {
         Assert.assertThat(gender.query(femaleBucketPrefix + "/COUNT(*)/value"), equalTo(493));
     }
 
+    @Test
+    public void groupByHavingTest() throws Exception {
+
+        JSONObject result = executeQuery(String.format("SELECT gender " +
+                                                       "FROM %s/account " +
+                                                       "GROUP BY gender " +
+                                                       "HAVING COUNT(*) > 0", TEST_INDEX_ACCOUNT));
+        Assert.assertThat(getTotalHits(result), equalTo(1000));
+        JSONObject gender = getAggregation(result, "gender");
+        Assert.assertThat(gender.getJSONArray("buckets").length(), equalTo(2));
+
+        final boolean isMaleFirst = gender.optQuery("/buckets/0/key").equals("m");
+        final int maleBucketId = isMaleFirst ? 0 : 1;
+        final int femaleBucketId = isMaleFirst ? 1 : 0;
+
+        final String maleBucketPrefix = String.format(Locale.ROOT, "/buckets/%d", maleBucketId);
+        final String femaleBucketPrefix = String.format(Locale.ROOT, "/buckets/%d", femaleBucketId);
+
+        Assert.assertThat(gender.query(maleBucketPrefix + "/key"), equalTo("m"));
+        Assert.assertThat(gender.query(maleBucketPrefix + "/count_0/value"), equalTo(507));
+        Assert.assertThat(gender.query(femaleBucketPrefix + "/key"), equalTo("f"));
+        Assert.assertThat(gender.query(femaleBucketPrefix + "/count_0/value"), equalTo(493));
+    }
+
     @Ignore //todo VerificationException: table alias or field name missing
     @Test
     public void groupBySubqueryTest() throws Exception {

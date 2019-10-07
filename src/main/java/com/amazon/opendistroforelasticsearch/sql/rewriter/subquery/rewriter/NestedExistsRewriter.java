@@ -20,7 +20,7 @@ import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOperator;
 import com.alibaba.druid.sql.ast.expr.SQLExistsExpr;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
-import com.alibaba.druid.sql.ast.expr.SQLNullExpr;
+import com.alibaba.druid.sql.ast.expr.SQLNotExpr;
 import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource.JoinType;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
@@ -60,32 +60,43 @@ public class NestedExistsRewriter implements Rewriter {
     }
 
     /**
-     * The from table must be nested field and
-     * The NOT EXISTS is not supported yet.
+     * The from table must be nested field.
      */
     @Override
     public boolean canRewrite() {
-        return ctx.isNestedQuery(from) && !existsExpr.isNot();
+        return ctx.isNestedQuery(from);
     }
 
     @Override
     public void rewrite() {
         ctx.addJoin(from, JoinType.COMMA);
+        ctx.addWhere(rewriteExistsWhere());
+    }
 
-        SQLBinaryOpExpr nullOp = generateNullOp();
+    private SQLExpr rewriteExistsWhere() {
+        SQLBinaryOpExpr translatedWhere;
+        SQLBinaryOpExpr notMissingOp = buildNotMissingOp();
         if (null == where) {
-            ctx.addWhere(nullOp);
+            translatedWhere = notMissingOp;
         } else if (where instanceof SQLBinaryOpExpr) {
-            ctx.addWhere(and(nullOp, (SQLBinaryOpExpr) where));
+            translatedWhere = and(notMissingOp, (SQLBinaryOpExpr) where);
         } else {
             throw new IllegalStateException("unsupported expression in where " + where.getClass());
         }
+
+        if (existsExpr.isNot()) {
+            SQLNotExpr sqlNotExpr = new SQLNotExpr(translatedWhere);
+            translatedWhere.setParent(sqlNotExpr);
+            return sqlNotExpr;
+        } else {
+            return translatedWhere;
+        }
     }
 
-    private SQLBinaryOpExpr generateNullOp() {
+    private SQLBinaryOpExpr buildNotMissingOp() {
         SQLBinaryOpExpr binaryOpExpr = new SQLBinaryOpExpr();
         binaryOpExpr.setLeft(new SQLIdentifierExpr(from.getAlias()));
-        binaryOpExpr.setRight(new SQLNullExpr());
+        binaryOpExpr.setRight(new SQLIdentifierExpr("MISSING"));
         binaryOpExpr.setOperator(SQLBinaryOperator.IsNot);
 
         return binaryOpExpr;
