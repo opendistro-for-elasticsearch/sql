@@ -161,10 +161,11 @@ public class ESMappingLoader implements GenericSqlParseTreeVisitor<Type> {
      *      'p.name' -> KEYWORD
      *      'p.active' -> BOOLEAN
      */
-    private void defineNestedFieldNamesByReplacingWithAlias(String indexName, String alias) {
-        Map<String, Type> typeByFullName = environment().resolveByPrefix(new Symbol(Namespace.FIELD_NAME, indexName));
+    private void defineNestedFieldNamesByReplacingWithAlias(String nestedFieldName, String alias) {
+        Map<String, Type> typeByFullName = environment().resolveByPrefix(
+            new Symbol(Namespace.FIELD_NAME, nestedFieldName));
         typeByFullName.forEach(
-            (fieldName, fieldType) -> defineFieldName(fieldName.replace(indexName, alias), fieldType)
+            (fieldName, fieldType) -> defineFieldName(fieldName.replace(nestedFieldName, alias), fieldType)
         );
     }
 

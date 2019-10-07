@@ -58,7 +58,8 @@ public class OpenDistroSqlAnalyzer {
                 clusterState
             );
         } catch (EarlyExitAnalysisException e) {
-            LOG.error("Analysis exits early and will skip remaining process", e);
+            // Expected if configured so log on debug level to avoid always logging stack trace
+            LOG.debug("Analysis exits early and will skip remaining process", e);
         }
     }
 

@@ -35,9 +35,15 @@ public class SemanticAnalyzerConfigTest extends SemanticAnalyzerTestBase {
     public ExpectedException exceptionWithoutSuggestion = ExpectedException.none();
 
     @Test
+    public void noAnalysisShouldPerformForNonSelectStatement() {
+        String sql = "DELETE FROM semantics WHERE age12 = 123";
+        expectValidationPassWithConfig(sql, new SqlAnalysisConfig(true, true, 1000));
+    }
+
+    @Test
     public void noAnalysisShouldPerformIfDisabledAnalysis() {
-        String sql = "SELECT * FROM semantics WHERE test = 123";
-        expectValidationFailWithErrorMessages(sql, "Field [test] cannot be found or used here.");
+        String sql = "SELECT * FROM semantics WHERE age12 = 123";
+        expectValidationFailWithErrorMessages(sql, "Field [age12] cannot be found or used here.");
         expectValidationPassWithConfig(sql, new SqlAnalysisConfig(false, true, 1000));
     }
 
