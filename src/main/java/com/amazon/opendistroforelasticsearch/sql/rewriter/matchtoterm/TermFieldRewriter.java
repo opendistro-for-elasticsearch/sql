@@ -219,16 +219,14 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
          *
          * NOTE: Does not impact fields on ON condition clause in JOIN as we skip visiting SQLJoinTableSource
          */
-        return
-                !expr.getName().startsWith("_")
-                        && (isValidIdentifier(expr) || checkIfNestedIdentifier(expr));
+        return !expr.getName().startsWith("_") && (isValidIdentifier(expr) || checkIfNestedIdentifier(expr));
     }
 
     private boolean checkIfNestedIdentifier(SQLIdentifierExpr expr) {
         return
-                expr.getParent() instanceof SQLMethodInvokeExpr
-                        && ((SQLMethodInvokeExpr) expr.getParent()).getMethodName().equals("nested")
-                        && isValidIdentifier(expr.getParent());
+            expr.getParent() instanceof SQLMethodInvokeExpr
+                && ((SQLMethodInvokeExpr) expr.getParent()).getMethodName().equals("nested")
+                && isValidIdentifier(expr.getParent());
     }
 
     private boolean isValidIdentifier(SQLObject expr) {
