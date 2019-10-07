@@ -23,6 +23,7 @@ import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.ActionRequestRestExecutorFactory;
 import com.amazon.opendistroforelasticsearch.sql.executor.RestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.ErrorMessage;
+import com.amazon.opendistroforelasticsearch.sql.utils.JsonPrettyFormatter;
 import com.amazon.opendistroforelasticsearch.sql.metrics.MetricName;
 import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
@@ -139,11 +140,18 @@ public class RestSqlAction extends BaseRestHandler {
 
     private void executeSqlRequest(final RestRequest request, final QueryAction queryAction,
                                    final Client client, final RestChannel channel) throws Exception {
+        Map<String, String> params = request.params();
         if (isExplainRequest(request)) {
             final String jsonExplanation = queryAction.explain().explain();
-            channel.sendResponse(new BytesRestResponse(OK, "application/json; charset=UTF-8", jsonExplanation));
+            String result;
+            if (params.containsKey("pretty")
+                    && ("".equals(params.get("pretty")) || "true".equals(params.get("pretty")))) {
+                result = JsonPrettyFormatter.format(jsonExplanation);
+            } else {
+                result = jsonExplanation;
+            }
+            channel.sendResponse(new BytesRestResponse(OK, "application/json; charset=UTF-8", result));
         } else {
-            Map<String, String> params = request.params();
             RestExecutor restExecutor = ActionRequestRestExecutorFactory.createExecutor(params.get("format"),
                     queryAction);
             //doing this hack because elasticsearch throws exception for un-consumed props
