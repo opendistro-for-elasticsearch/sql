@@ -16,18 +16,15 @@
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
-import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.TypeExpression;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESIndex;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Map;
-import java.util.Optional;
 
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.BOOLEAN;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.DATE;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.KEYWORD;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.NUMBER;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.OBJECT;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.TEXT;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESIndex.IndexType.NESTED_FIELD;
@@ -43,52 +40,6 @@ public class EnvironmentTest {
 
     /** Use context class for push/pop */
     private SemanticContext context = new SemanticContext();
-
-    @Test
-    public void defineFieldSymbolShouldBeAbleToResolve() {
-        defineSymbolShouldBeAbleToResolve(new Symbol(Namespace.FIELD_NAME, "birthday"), DATE);
-    }
-
-    @Test
-    public void defineFunctionSymbolShouldBeAbleToResolve() {
-        String funcName = "LOG";
-        Type expectedType = new TypeExpression() {
-            @Override
-            public String getName() {
-                return "Temp type expression with [NUMBER] -> NUMBER specification";
-            }
-
-            @Override
-            public TypeExpressionSpec[] specifications() {
-                return new TypeExpressionSpec[] {
-                    new TypeExpressionSpec().map(NUMBER).to(NUMBER)
-                };
-            }
-        };
-        Symbol symbol = new Symbol(Namespace.FUNCTION_NAME, funcName);
-        defineSymbolShouldBeAbleToResolve(symbol, expectedType);
-    }
-
-    @Test
-    public void defineFieldSymbolShouldBeAbleToResolveByPrefix() {
-        environment().define(new Symbol(Namespace.FIELD_NAME, "s.projects"), new ESIndex("s.projects", NESTED_FIELD));
-        environment().define(new Symbol(Namespace.FIELD_NAME, "s.projects.release"), DATE);
-        environment().define(new Symbol(Namespace.FIELD_NAME, "s.projects.active"), BOOLEAN);
-        environment().define(new Symbol(Namespace.FIELD_NAME, "s.address"), TEXT);
-        environment().define(new Symbol(Namespace.FIELD_NAME, "s.city"), KEYWORD);
-        environment().define(new Symbol(Namespace.FIELD_NAME, "s.manager.name"), TEXT);
-
-        Map<String, Type> typeByName = environment().resolveByPrefix(new Symbol(Namespace.FIELD_NAME, "s.projects"));
-        assertThat(
-            typeByName,
-            allOf(
-                aMapWithSize(3),
-                hasEntry("s.projects", (Type) new ESIndex("s.projects", NESTED_FIELD)),
-                hasEntry("s.projects.release", DATE),
-                hasEntry("s.projects.active", BOOLEAN)
-            )
-        );
-    }
 
     @Test
     public void defineFieldSymbolInDifferentEnvironmentsShouldBeAbleToResolve() {
@@ -213,14 +164,6 @@ public class EnvironmentTest {
                 hasEntry("s.manager", OBJECT)
             )
         );
-    }
-
-    private void defineSymbolShouldBeAbleToResolve(Symbol symbol, Type expectedType) {
-        environment().define(symbol, expectedType);
-
-        Optional<Type> actualType = environment().resolve(symbol);
-        Assert.assertTrue(actualType.isPresent());
-        Assert.assertEquals(expectedType, actualType.get());
     }
 
     private Environment environment() {

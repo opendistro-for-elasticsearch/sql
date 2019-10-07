@@ -13,13 +13,14 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.visitor;
+package com.amazon.opendistroforelasticsearch.sql.antlr.visitor;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.OpenDistroSqlAnalyzer;
 import com.amazon.opendistroforelasticsearch.sql.antlr.SqlAnalysisConfig;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.SemanticContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.special.Product;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.visitor.TypeChecker;
 import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.AntlrSqlParseTreeVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.Assert;
