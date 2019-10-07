@@ -39,7 +39,6 @@ import org.elasticsearch.client.Client;
 import org.json.JSONObject;
 
 import java.util.ArrayDeque;
-import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Locale;
