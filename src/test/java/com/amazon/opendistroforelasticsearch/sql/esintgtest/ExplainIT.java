@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
-import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import com.google.common.io.Files;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
@@ -211,38 +210,5 @@ public class ExplainIT extends SQLIntegTestCase {
         Response response = restClient.performRequest(request);
 
         assertEquals("application/json; charset=UTF-8", response.getHeader("content-type"));
-    }
-
-    @Test
-    public void assertExplainPrettyFormatted() throws IOException {
-        String query = StringUtils.format("SELECT firstname FROM %s", TEST_INDEX_ACCOUNT);
-
-        String notPrettyExplainOutputFilePath = TestUtils.getResourceFilePath(
-                "src/test/resources/expectedOutput/explainIT_format_not_pretty.json");
-        String notPrettyExplainOutput = Files.toString(new File(notPrettyExplainOutputFilePath), StandardCharsets.UTF_8);
-
-        assertThat(executeExplainRequest(query, ""), equalTo(notPrettyExplainOutput));
-        assertThat(executeExplainRequest(query, "pretty=false"), equalTo(notPrettyExplainOutput));
-
-        String prettyExplainOutputFilePath = TestUtils.getResourceFilePath(
-                "src/test/resources/expectedOutput/explainIT_format_pretty.json");
-        String prettyExplainOutput = Files.toString(new File(prettyExplainOutputFilePath), StandardCharsets.UTF_8);
-
-        assertThat(executeExplainRequest(query, "pretty"), equalTo(prettyExplainOutput));
-        assertThat(executeExplainRequest(query, "pretty=true"), equalTo(prettyExplainOutput));
-    }
-
-    private String executeExplainRequest(String query, String explainParam) throws IOException {
-        String endpoint = "/_opendistro/_sql/_explain?" + explainParam;
-        String request = makeRequest(query);
-
-        Request sqlRequest = new Request("POST", endpoint);
-        sqlRequest.setJsonEntity(request);
-
-        RestClient restClient = ESIntegTestCase.getRestClient();
-        Response response = restClient.performRequest(sqlRequest);
-        String responseString = TestUtils.getResponseBody(response, true);
-
-        return responseString;
     }
 }
