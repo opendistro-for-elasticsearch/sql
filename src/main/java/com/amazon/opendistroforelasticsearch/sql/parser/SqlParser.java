@@ -287,8 +287,12 @@ public class SqlParser {
 
     private SQLExpr extractExprFromOrderExpr(SQLSelectOrderByItem sqlSelectOrderByItem) {
         SQLExpr expr = sqlSelectOrderByItem.getExpr();
+
+        // extract SQLIdentifier from Order IS NULL/NOT NULL expression to generate Field
+        // else passing SQLBinaryOpExpr to FieldMaker.makeFieldImpl tries to convert to SQLMethodInvokeExpr
+        // and throws SQLParserException
         if (hasNullOrderInBinaryOrderExpr(expr)) {
-                return ((SQLBinaryOpExpr) expr).getLeft();
+            return ((SQLBinaryOpExpr) expr).getLeft();
         }
         return expr;
     }
@@ -303,18 +307,6 @@ public class SqlParser {
          *                    /  \
          *    SQLIdentifierExpr  SQLNullExpr
          */
-
-//        if (expr instanceof SQLBinaryOpExpr) {
-//            SQLBinaryOpExpr binaryExpr = (SQLBinaryOpExpr) expr;
-//            SQLBinaryOperator operator = binaryExpr.getOperator();
-//
-//            return (
-//                binaryExpr.getRight() instanceof SQLNullExpr
-//                && binaryExpr.getLeft() instanceof SQLIdentifierExpr
-//                && (operator == SQLBinaryOperator.Is || operator == SQLBinaryOperator.IsNot)
-//            );
-//        }
-
         if (!(expr instanceof SQLBinaryOpExpr)) {
             return false;
         }
