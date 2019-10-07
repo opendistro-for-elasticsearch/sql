@@ -39,12 +39,14 @@ import org.elasticsearch.client.Client;
 import org.json.JSONObject;
 
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Visitor to rewrite AST (abstract syntax tree) for supporting term_query in WHERE and IN condition
@@ -232,18 +234,22 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
 
     private boolean isValidIdentifier(SQLObject expr) {
         SQLObject parent = expr.getParent();
-        return
-                (parent instanceof SQLBinaryOpExpr
-                 && (
-                    ((SQLBinaryOpExpr) parent).getOperator() == SQLBinaryOperator.Equality
-                    || ((SQLBinaryOpExpr) parent).getOperator() == SQLBinaryOperator.Is
-                    || ((SQLBinaryOpExpr) parent).getOperator() == SQLBinaryOperator.IsNot
-                    )
-                )
-                        || parent instanceof SQLInListExpr
-                        || parent instanceof SQLInSubQueryExpr
-                        || parent instanceof SQLSelectOrderByItem
-                        || parent instanceof MySqlSelectGroupByExpr;
+        return isBinaryExprWithValidOperators(parent)
+                || parent instanceof SQLInListExpr
+                || parent instanceof SQLInSubQueryExpr
+                || parent instanceof SQLSelectOrderByItem
+                || parent instanceof MySqlSelectGroupByExpr;
+    }
+
+    private boolean isBinaryExprWithValidOperators(SQLObject expr) {
+        if (!(expr instanceof SQLBinaryOpExpr)) {
+            return false;
+        }
+        return Stream.of(
+            SQLBinaryOperator.Equality,
+            SQLBinaryOperator.Is,
+            SQLBinaryOperator.IsNot
+        ).anyMatch(operator -> operator == ((SQLBinaryOpExpr) expr).getOperator());
     }
 
     private void checkMappingCompatibility(TermFieldScope scope, Map<String, String> indexToType) {
