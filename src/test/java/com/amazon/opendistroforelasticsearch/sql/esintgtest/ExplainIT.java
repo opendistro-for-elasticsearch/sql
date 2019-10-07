@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
+import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import com.google.common.io.Files;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
@@ -214,7 +215,7 @@ public class ExplainIT extends SQLIntegTestCase {
 
     @Test
     public void assertExplainPrettyFormatted() throws IOException {
-        String query = String.format("SELECT firstname FROM %s", TestsConstants.TEST_INDEX_ACCOUNT);
+        String query = StringUtils.format("SELECT firstname FROM %s", TEST_INDEX_ACCOUNT);
 
         String notPrettyExplainOutputFilePath = TestUtils.getResourceFilePath(
                 "src/test/resources/expectedOutput/explainIT_format_not_pretty.json");
