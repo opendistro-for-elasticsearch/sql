@@ -3,14 +3,14 @@
     "size" : 0,
     "_source" : {
         "includes" : [
-            "a",
+            "address",
             "script",
             "COUNT"
         ],
         "excludes" : [ ]
     },
     "stored_fields" : [
-        "a",
+        "address",
         "a2345"
     ],
     "script_fields" : {
@@ -23,9 +23,9 @@
         }
     },
     "aggregations" : {
-        "terms(field=a,execution_hint=global_ordinals)" : {
+        "terms(field=address,execution_hint=global_ordinals)" : {
             "terms" : {
-                "field" : "a",
+                "field" : "address",
                 "size" : 10,
                 "min_doc_count" : 1,
                 "shard_min_doc_count" : 0,
@@ -61,9 +61,9 @@
                         ]
                     },
                     "aggregations" : {
-                        "COUNT(c)" : {
+                        "COUNT(age)" : {
                             "value_count" : {
-                                "field" : "c"
+                                "field" : "age"
                             }
                         }
                     }

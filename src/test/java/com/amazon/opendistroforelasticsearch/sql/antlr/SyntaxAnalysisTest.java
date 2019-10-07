@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr;
 
-import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.SqlSyntaxAnalysisException;
+import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.SyntaxAnalysisException;
 import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,8 +36,7 @@ public class SyntaxAnalysisTest {
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
-    private OpenDistroSqlAnalyzer analyzer = new OpenDistroSqlAnalyzer();
-
+    private OpenDistroSqlAnalyzer analyzer = new OpenDistroSqlAnalyzer(new SqlAnalysisConfig(true, true, 1000));
 
     /** In reality exception occurs before reaching new parser for now */
     @Test
@@ -136,7 +135,7 @@ public class SyntaxAnalysisTest {
     }
 
     private void expectValidationFailWithErrorMessage(String query, String... messages) {
-        exception.expect(SqlSyntaxAnalysisException.class);
+        exception.expect(SyntaxAnalysisException.class);
         exception.expectMessage(allOf(Arrays.stream(messages).
                                       map(Matchers::containsString).
                                       collect(toList())));
@@ -144,6 +143,6 @@ public class SyntaxAnalysisTest {
     }
 
     private void validate(String sql) {
-        analyzer.analyze(sql);
+        analyzer.analyzeSyntax(sql);
     }
 }

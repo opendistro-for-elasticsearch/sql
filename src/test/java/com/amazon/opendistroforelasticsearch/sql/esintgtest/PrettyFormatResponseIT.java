@@ -118,6 +118,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
         assertContainsData(getDataRows(response), nameFields);
     }
 
+    @Ignore("Semantic analysis takes care of this")
     @Test
     public void selectWrongField() throws IOException {
         JSONObject response = executeQuery(

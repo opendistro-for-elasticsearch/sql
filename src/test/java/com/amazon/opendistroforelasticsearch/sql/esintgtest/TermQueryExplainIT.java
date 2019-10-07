@@ -130,7 +130,7 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
         String result = explainQuery(
                 "SELECT firstname, birthdate, state " +
                 "FROM elasticsearch-sql_test_index_bank, elasticsearch-sql_test_index_bank_two " +
-                "WHERE state = 'WA' OR male = 'true'"
+                "WHERE state = 'WA' OR male = true"
                 );
         assertThat(result, containsString("term"));
         assertThat(result, containsString("state.keyword"));
@@ -142,7 +142,7 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
         String result = explainQuery(
             "SELECT firstname, birthdate, state " +
             "FROM elasticsearch-sql_test_index_bank/account, elasticsearch-sql_test_index_bank_two/account_two " +
-            "WHERE state = 'WA' OR male = 'true'"
+            "WHERE state = 'WA' OR male = true"
         );
         assertThat(result, containsString("term"));
         assertThat(result, containsString("state.keyword"));
@@ -155,7 +155,7 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
         String result = explainQuery(
             "SELECT firstname, birthdate, state " +
             "FROM elasticsearch-sql_test_index_bank/account, elasticsearch-sql_test_index_bank_two " +
-            "WHERE state = 'WA' OR male = 'true'"
+            "WHERE state = 'WA' OR male = true"
         );
         assertThat(result, containsString("term"));
         assertThat(result, containsString("state.keyword"));
@@ -189,7 +189,7 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
     @Test
     public void testBooleanFieldNoKeywordAlias() throws IOException {
 
-        String result = explainQuery("SELECT * FROM elasticsearch-sql_test_index_bank WHERE male = 'false'");
+        String result = explainQuery("SELECT * FROM elasticsearch-sql_test_index_bank WHERE male = false");
         assertThat(result, containsString("term"));
         assertThat(result, not(containsString("male.")));
     }

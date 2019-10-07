@@ -33,6 +33,8 @@ import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
 import com.alibaba.druid.sql.parser.ParserException;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
+import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMappings;
+import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.IndexMappings;
 import org.elasticsearch.client.Client;
 import org.json.JSONObject;
 
@@ -43,9 +45,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState.FieldMappings;
-import static com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState.IndexMappings;
 
 /**
  * Visitor to rewrite AST (abstract syntax tree) for supporting term_query in WHERE and IN condition
