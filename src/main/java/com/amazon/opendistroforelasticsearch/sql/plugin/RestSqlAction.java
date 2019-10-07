@@ -146,7 +146,7 @@ public class RestSqlAction extends BaseRestHandler {
             String result;
             if (params.containsKey("pretty")
                     && ("".equals(params.get("pretty")) || "true".equals(params.get("pretty")))) {
-                result = new JsonPrettyFormatter().format(jsonExplanation);
+                result = JsonPrettyFormatter.format(jsonExplanation);
             } else {
                 result = jsonExplanation;
             }

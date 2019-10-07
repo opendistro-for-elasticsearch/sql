@@ -27,13 +27,13 @@ import java.nio.charset.StandardCharsets;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-public class JsonFormatterTest {
+public class PrettyFormatterTest {
 
     @Test
     public void assertFormatterWithoutContentInside() throws IOException {
         String noContentInput = "{ }";
         String expectedOutput = "{ }";
-        String result = new JsonPrettyFormatter().format(noContentInput);
+        String result = JsonPrettyFormatter.format(noContentInput);
         assertThat(result, equalTo(expectedOutput));
     }
 
@@ -46,23 +46,23 @@ public class JsonFormatterTest {
         String explainFormattedOnelineFilePath = TestUtils.getResourceFilePath(
                 "/src/test/resources/explain_format_oneline.json");
         String explainFormattedOneline = Files.toString(new File(explainFormattedOnelineFilePath), StandardCharsets.UTF_8);
-        String result = new JsonPrettyFormatter().format(explainFormattedOneline);
+        String result = JsonPrettyFormatter.format(explainFormattedOneline);
 
         assertThat(result, equalTo(explainFormattedPretty));
     }
 
     @Test(expected = IOException.class)
     public void illegalInputOfNull() throws IOException {
-        new JsonPrettyFormatter().format("");
+        JsonPrettyFormatter.format("");
     }
 
     @Test(expected = IOException.class)
     public void illegalInputOfUnpairedBrace() throws IOException {
-        new JsonPrettyFormatter().format("{\"key\" : \"value\"");
+        JsonPrettyFormatter.format("{\"key\" : \"value\"");
     }
 
     @Test(expected = IOException.class)
     public void illegalInputOfWrongBraces() throws IOException {
-        new JsonPrettyFormatter().format("<\"key\" : \"value\">");
+        JsonPrettyFormatter.format("<\"key\" : \"value\">");
     }
 }

@@ -25,12 +25,17 @@ import org.elasticsearch.common.xcontent.XContentType;
 
 import java.io.IOException;
 
+/**
+ * Utility Class for formatting Json string pretty.
+ */
 public class JsonPrettyFormatter {
 
-    public JsonPrettyFormatter() {
-    }
-
-    public String format(String jsonString) throws IOException {
+    /**
+     * @param jsonString Json string without/with pretty format
+     * @return A standard and pretty formatted json string
+     * @throws IOException
+     */
+    public static String format(String jsonString) throws IOException {
         //turn _explain response into pretty formatted Json
         XContentBuilder contentBuilder = XContentFactory.jsonBuilder().prettyPrint();
         try (
@@ -40,5 +45,9 @@ public class JsonPrettyFormatter {
             contentBuilder.copyCurrentStructure(contentParser);
         }
         return Strings.toString(contentBuilder);
+    }
+
+    private JsonPrettyFormatter() {
+        throw new AssertionError(getClass().getCanonicalName() + " is a utility class and must not be initialized");
     }
 }
