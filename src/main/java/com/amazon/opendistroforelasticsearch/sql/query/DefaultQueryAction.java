@@ -219,7 +219,6 @@ public class DefaultQueryAction extends QueryAction {
         Map<String, FieldSortBuilder> sortBuilderMap = new HashMap<>();
 
         for (Order order : orderBys) {
-
             String orderByName = order.getName();
             SortOrder sortOrder = SortOrder.valueOf(order.getType());
 
@@ -244,10 +243,10 @@ public class DefaultQueryAction extends QueryAction {
                         FieldSortBuilder fieldSortBuilder;
                         if (sortBuilderMap.containsKey(orderByName)) {
                             fieldSortBuilder = sortBuilderMap.get(orderByName);
-                            setSortParmas(fieldSortBuilder, order);
+                            setSortParams(fieldSortBuilder, order);
                         } else {
                             fieldSortBuilder = SortBuilders.fieldSort(orderByName);
-                            setSortParmas(fieldSortBuilder, order);
+                            setSortParams(fieldSortBuilder, order);
                             sortBuilderMap.put(orderByName, fieldSortBuilder);
                             request.addSort(fieldSortBuilder);
                         }
@@ -258,7 +257,7 @@ public class DefaultQueryAction extends QueryAction {
     }
 
 
-    private void setSortParmas(FieldSortBuilder fieldSortBuilder, Order order) {
+    private void setSortParams(FieldSortBuilder fieldSortBuilder, Order order) {
         fieldSortBuilder.order(SortOrder.valueOf(order.getType()));
 
         SQLExpr expr = order.getSortField().getExpression();
@@ -266,7 +265,6 @@ public class DefaultQueryAction extends QueryAction {
             // we set SQLBinaryOpExpr in Field.setExpression() to support ORDER by IS NULL/IS NOT NULL
             fieldSortBuilder.missing(getNullOrderString((SQLBinaryOpExpr) expr));
         }
-
     }
 
     private String getNullOrderString(SQLBinaryOpExpr expr) {

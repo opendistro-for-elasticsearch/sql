@@ -17,7 +17,6 @@ package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -35,98 +34,90 @@ public class OrderIT extends SQLIntegTestCase {
     public void simpleOrder() throws IOException {
         String query = "SELECT id, name FROM elasticsearch-sql_test_index_order ORDER BY id";
         JSONArray result = getSortExplain(query);
-        Assert.assertThat(1, equalTo(result.length()));
+        assertThat(result.length(), equalTo(1));
         JSONObject jsonObject = getSortByField(result, "id");
-        Assert.assertThat("asc", equalTo(getOrderTypeForSortAtIdex(result, 0, "id")));
-        Assert.assertFalse(jsonObject.getJSONObject("id").has("missing"));
+        assertThat((getOrderTypeForSortAtIndex(result, 0, "id"), equalTo("asc"));
+        assertFalse(jsonObject.getJSONObject("id").has("missing"));
     }
 
     @Test
     public void orderByScore() throws IOException {
         String query = "SELECT * FROM elasticsearch-sql_test_index_order ORDER BY _score";
         JSONArray result = getSortExplain(query);
-        Assert.assertThat(1, equalTo(result.length()));
+        assertThat(result.length(), equalTo(1));
         JSONObject jsonObject = getSortByField(result, "_score");
-        Assert.assertThat("asc", equalTo(getOrderTypeForSortAtIdex(result, 0, "_score")));
-        Assert.assertFalse(jsonObject.getJSONObject("_score").has("missing"));
+        assertThat(getOrderTypeForSortAtIndex(result, 0, "_score"), equalTo("asc"));
+        assertFalse(jsonObject.getJSONObject("_score").has("missing"));
 
         JSONObject response = executeQuery(query);
         JSONArray hits = getHits(response);
-        Assert.assertThat(7, equalTo(hits.length()));
+        assertThat(hits.length(), equalTo(7));
     }
 
     @Test
     public void simpleOrderMultipleFields() throws IOException {
         String query = "SELECT id, name FROM elasticsearch-sql_test_index_order ORDER BY id, name";
         JSONArray result = getSortExplain(query);
-        Assert.assertThat(2, equalTo(result.length()));
-        Assert.assertTrue(result.getJSONObject(0).has("id"));
-        Assert.assertTrue(result.getJSONObject(1).has("name.keyword"));
+        assertThat(result.length(), equalTo(2));
+        assertTrue(result.getJSONObject(0).has("id"));
+        assertTrue(result.getJSONObject(1).has("name.keyword"));
     }
 
     @Test
     public void explicitOrderType() throws IOException {
         String query = "SELECT id, name FROM elasticsearch-sql_test_index_order ORDER BY id ASC, name DESC";
         JSONArray result = getSortExplain(query);
-        Assert.assertThat(2, equalTo(result.length()));
-        Assert.assertThat("asc", equalTo(getOrderTypeForSortAtIdex(result, 0, "id")));
-        Assert.assertThat("desc", equalTo(getOrderTypeForSortAtIdex(result, 1, "name.keyword")));
+        assertThat(result.length(), equalTo(2));
+        assertThat(getOrderTypeForSortAtIndex(result, 0, "id"), equalTo("asc"));
+        assertThat(getOrderTypeForSortAtIndex(result, 1, "name.keyword"), equalTo("desc"));
     }
 
     @Test
     public void orderByIsNull() throws IOException {
         String query = "SELECT * FROM elasticsearch-sql_test_index_order ORDER BY id IS NULL, id DESC";
         JSONArray result = getSortExplain(query);
-        String explain_one = explainQuery(query);
-        Assert.assertThat(1, equalTo(result.length()));
-        Assert.assertThat("desc", equalTo(getOrderTypeForSortAtIdex(result, 0, "id")));
-        Assert.assertThat(
-            "_last", equalTo((result.getJSONObject(0)).getJSONObject("id").getString("missing"))
-        );
+        String explainOne = explainQuery(query);
+        assertThat(result.length(), equalTo(1));
+        assertThat(getOrderTypeForSortAtIndex(result, 0, "id"), equalTo("desc"));
+        assertThat(result.getJSONObject(0).getJSONObject("id").getString("missing"), equalTo("_last"));
 
         JSONObject response = executeQuery(query);
         JSONArray hits = getHits(response);
-        Assert.assertThat(5, equalTo(hits.getJSONObject(0).getJSONObject("_source").getInt("id")));
+        assertThat(hits.getJSONObject(0).getJSONObject("_source").getInt("id"), equalTo(5));
 
         // Another equivalent syntax
         query = "SELECT * FROM elasticsearch-sql_test_index_order ORDER BY id IS NULL DESC";
-        String explain_two = explainQuery(query);
-        Assert.assertThat(explain_one, equalTo(explain_two));
+        String explainTwo = explainQuery(query);
+        assertThat(explainTwo, equalTo(explainOne));
     }
 
     @Test
     public void orderByIsNotNull() throws IOException {
         String query = "SELECT id, name FROM elasticsearch-sql_test_index_order ORDER BY name IS NOT NULL";
         JSONArray result = getSortExplain(query);
-        String explain_one = explainQuery(query);
-        Assert.assertThat(1, equalTo(result.length()));
-        Assert.assertThat("asc", equalTo(getOrderTypeForSortAtIdex(result, 0, "name.keyword")));
-        Assert.assertThat(
-            "_first", equalTo((result.getJSONObject(0)).getJSONObject("name.keyword").getString("missing"))
-        );
+        String explainOne = explainQuery(query);
+        assertThat(1, equalTo(result.length()));
+        assertThat(getOrderTypeForSortAtIndex(result, 0, "name.keyword"), equalTo("asc"));
+        assertThat((result.getJSONObject(0)).getJSONObject("name.keyword").getString("missing"), equalTo("_first"));
 
         JSONObject response = executeQuery(query);
         JSONArray hits = getHits(response);
-        Assert.assertFalse(hits.getJSONObject(0).getJSONObject("_source").has("name"));
-        Assert.assertThat("f", equalTo(hits.getJSONObject(hits.length()-1).getJSONObject("_source").getString("name")));
+        assertFalse(hits.getJSONObject(0).getJSONObject("_source").has("name"));
+        assertThat(hits.getJSONObject(hits.length()-1).getJSONObject("_source").getString("name"), equalTo("f"));
 
         // Another equivalent syntax
         query = "SELECT id, name FROM elasticsearch-sql_test_index_order ORDER BY name IS NOT NULL ASC";
-        String explain_two = explainQuery(query);
-        Assert.assertThat(explain_one, equalTo(explain_two));
+        String explainTwo = explainQuery(query);
+        assertThat(explainTwo, equalTo(explainOne));
     }
 
     @Test
     public void multipleOrderByWithNulls() throws IOException {
         String query = "SELECT id, name FROM elasticsearch-sql_test_index_order ORDER BY id IS NULL, name IS NOT NULL";
         JSONArray result = getSortExplain(query);
-        Assert.assertThat(2, equalTo(result.length()));
-        Assert.assertThat(
-            "_last", equalTo((result.getJSONObject(0)).getJSONObject("id").getString("missing"))
-        );
-        Assert.assertThat(
-            "_first", equalTo((result.getJSONObject(1)).getJSONObject("name.keyword").getString("missing"))
-        );
+        assertThat(result.length(), equalTo(2));
+        assertThat((result.getJSONObject(0)).getJSONObject("id").getString("missing"), equalTo("_last"));
+        assertThat((result.getJSONObject(1)).getJSONObject("name.keyword").getString("missing"), equalTo("_first"));
     }
 
     @Test
@@ -134,18 +125,14 @@ public class OrderIT extends SQLIntegTestCase {
         String query = "SELECT * FROM elasticsearch-sql_test_index_order " +
                        "ORDER BY id IS NULL, name DESC, id DESC, id IS NOT NULL, name IS NULL";
         JSONArray result = getSortExplain(query);
-        Assert.assertThat(2, equalTo(result.length()));
-        Assert.assertThat("asc", equalTo(getOrderTypeForSortAtIdex(result, 0 , "id")));
-        Assert.assertThat(
-            "_first", equalTo(((JSONObject)result.get(0)).getJSONObject("id").getString("missing"))
-        );
-        Assert.assertThat("asc", equalTo(getOrderTypeForSortAtIdex(result, 1, "name.keyword")));
-        Assert.assertThat(
-            "_last", equalTo(((JSONObject)result.get(1)).getJSONObject("name.keyword").getString("missing"))
-        );
+        assertThat(2, equalTo(result.length()));
+        assertThat(getOrderTypeForSortAtIndex(result, 0 , "id"), equalTo("asc"));
+        assertThat(((JSONObject)result.get(0)).getJSONObject("id").getString("missing"), equalTo("_first"));
+        assertThat(getOrderTypeForSortAtIndex(result, 1, "name.keyword"), equalTo("asc"));
+        assertThat(((JSONObject)result.get(1)).getJSONObject("name.keyword").getString("missing"), equalTo("_last"));
     }
 
-    private String getOrderTypeForSortAtIdex(JSONArray jsonArray, int index, String field) {
+    private String getOrderTypeForSortAtIndex(JSONArray jsonArray, int index, String field) {
         return jsonArray.getJSONObject(index).getJSONObject(field).getString("order");
     }
 

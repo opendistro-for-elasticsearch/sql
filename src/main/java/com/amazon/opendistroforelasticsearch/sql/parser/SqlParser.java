@@ -288,7 +288,7 @@ public class SqlParser {
         SQLExpr expr = sqlSelectOrderByItem.getExpr();
         if (hasNullOrderInBinaryOrderExpr(expr)) {
                 return ((SQLBinaryOpExpr) expr).getLeft();
-            }
+        }
         return expr;
     }
 
