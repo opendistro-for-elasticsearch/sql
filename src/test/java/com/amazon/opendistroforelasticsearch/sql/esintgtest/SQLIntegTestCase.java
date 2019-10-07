@@ -327,7 +327,11 @@ public abstract class SQLIntegTestCase extends ESIntegTestCase {
         BANK_TWO(TestsConstants.TEST_INDEX_BANK_TWO,
                 "account_two",
                 TestUtils.getBankIndexMapping("account_two"),
-                "src/test/resources/bank_two.json");
+                "src/test/resources/bank_two.json"),
+        ORDER(TestsConstants.TEST_INDEX_ORDER,
+                "_doc",
+                 TestUtils.getOrderIndexMapping(),
+                "src/test/resources/order.json");
 
         private final String name;
         private final String type;

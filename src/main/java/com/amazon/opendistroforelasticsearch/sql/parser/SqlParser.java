@@ -19,9 +19,12 @@ import com.alibaba.druid.sql.ast.SQLCommentHint;
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLOrderBy;
 import com.alibaba.druid.sql.ast.SQLOrderingSpecification;
+import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
+import com.alibaba.druid.sql.ast.expr.SQLBinaryOperator;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.expr.SQLListExpr;
 import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
+import com.alibaba.druid.sql.ast.expr.SQLNullExpr;
 import com.alibaba.druid.sql.ast.expr.SQLPropertyExpr;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.alibaba.druid.sql.ast.statement.SQLDeleteStatement;
@@ -243,7 +246,7 @@ public class SqlParser {
                 sqlSelectOrderByItem.setType(SQLOrderingSpecification.ASC);
             }
             String type = sqlSelectOrderByItem.getType().toString();
-            SQLExpr expr = sqlSelectOrderByItem.getExpr();
+            SQLExpr expr = extractExprFromOrderExpr(sqlSelectOrderByItem);
 
             if (expr instanceof SQLIdentifierExpr) {
                 if (queryBlock.getGroupBy() == null || queryBlock.getGroupBy().getItems().isEmpty()) {
@@ -254,6 +257,13 @@ public class SqlParser {
             }
 
             Field field = fieldMaker.makeField(expr, null, null);
+
+            SQLExpr sqlExpr = sqlSelectOrderByItem.getExpr();
+            if (sqlExpr instanceof SQLBinaryOpExpr && hasNullOrderInBinaryOrderExpr(sqlExpr)) {
+                // override Field.expression to SQLBinaryOpExpr,
+                // which was set by FieldMaker.makeField() to SQLIdentifierExpr above
+                field.setExpression(sqlExpr);
+            }
 
             String orderByName;
             if (field.isScriptField()) {
@@ -273,6 +283,44 @@ public class SqlParser {
             }
             select.addOrderBy(field.getNestedPath(), orderByName, type, field);
         }
+    }
+
+    private SQLExpr extractExprFromOrderExpr(SQLSelectOrderByItem sqlSelectOrderByItem) {
+        SQLExpr expr = sqlSelectOrderByItem.getExpr();
+
+        // extract SQLIdentifier from Order IS NULL/NOT NULL expression to generate Field
+        // else passing SQLBinaryOpExpr to FieldMaker.makeFieldImpl tries to convert to SQLMethodInvokeExpr
+        // and throws SQLParserException
+        if (hasNullOrderInBinaryOrderExpr(expr)) {
+            return ((SQLBinaryOpExpr) expr).getLeft();
+        }
+        return expr;
+    }
+
+    private boolean hasNullOrderInBinaryOrderExpr(SQLExpr expr) {
+        /**
+         * Valid AST that meets ORDER BY IS NULL/NOT NULL condition (true)
+         *
+         *            SQLSelectOrderByItem
+         *                      |
+         *             SQLBinaryOpExpr (Is || IsNot)
+         *                    /  \
+         *    SQLIdentifierExpr  SQLNullExpr
+         */
+        if (!(expr instanceof SQLBinaryOpExpr)) {
+            return false;
+        }
+
+        // check "shape of expression": <identifier> <operator> <NULL>
+        SQLBinaryOpExpr binaryExpr = (SQLBinaryOpExpr) expr;
+        if (!(binaryExpr.getLeft() instanceof SQLIdentifierExpr)|| !(binaryExpr.getRight() instanceof SQLNullExpr)) {
+            return false;
+        }
+
+        // check that operator IS or IS NOT
+        SQLBinaryOperator operator = binaryExpr.getOperator();
+        return operator == SQLBinaryOperator.Is || operator == SQLBinaryOperator.IsNot;
+
     }
 
     private void findLimit(MySqlSelectQueryBlock.Limit limit, Select select) {

@@ -15,6 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.query;
 
+import com.alibaba.druid.sql.ast.SQLExpr;
+import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
+import com.alibaba.druid.sql.ast.expr.SQLBinaryOperator;
 import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.KVValue;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
@@ -41,14 +44,17 @@ import org.elasticsearch.script.Script;
 import org.elasticsearch.script.ScriptType;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.NestedSortBuilder;
+import org.elasticsearch.search.sort.ScoreSortBuilder;
 import org.elasticsearch.search.sort.ScriptSortBuilder.ScriptSortType;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -210,26 +216,51 @@ public class DefaultQueryAction extends QueryAction {
      * @param orderBys list of Order object
      */
     private void setSorts(List<Order> orderBys) {
+        Map<String, FieldSortBuilder> sortBuilderMap = new HashMap<>();
+
         for (Order order : orderBys) {
+            String orderByName = order.getName();
+            SortOrder sortOrder = SortOrder.valueOf(order.getType());
+
             if (order.getNestedPath() != null) {
                 request.addSort(
-                        SortBuilders.fieldSort(order.getName())
-                                .order(SortOrder.valueOf(order.getType()))
+                        SortBuilders.fieldSort(orderByName)
+                                .order(sortOrder)
                                 .setNestedSort(new NestedSortBuilder(order.getNestedPath())));
+            } else if (order.isScript()) {
+                // TODO: Investigate how to find the type of expression (string or number)
+                // As of now this shouldn't be a problem, because the support is for date_format function
+                request.addSort(
+                    SortBuilders
+                        .scriptSort(new Script(orderByName), getScriptSortType(order))
+                        .order(sortOrder));
+            } else if (orderByName.equals(ScoreSortBuilder.NAME)) {
+                request.addSort(orderByName, sortOrder);
             } else {
-                if (order.isScript()) {
-                    // TODO: Investigate how to find the type of expression (string or number)
-                    // As of now this shouldn't be a problem, because the support is for date_format function
-
-                    request.addSort(
-                            SortBuilders
-                                    .scriptSort(new Script(order.getName()), getScriptSortType(order))
-                                    .order(SortOrder.valueOf(order.getType())));
-                } else {
-                    request.addSort(order.getName(), SortOrder.valueOf(order.getType()));
-                }
+                FieldSortBuilder fieldSortBuilder = sortBuilderMap.computeIfAbsent(orderByName, key -> {
+                    FieldSortBuilder fs = SortBuilders.fieldSort(key);
+                    request.addSort(fs);
+                    return fs;
+                });
+                setSortParams(fieldSortBuilder, order);
             }
         }
+    }
+
+
+    private void setSortParams(FieldSortBuilder fieldSortBuilder, Order order) {
+        fieldSortBuilder.order(SortOrder.valueOf(order.getType()));
+
+        SQLExpr expr = order.getSortField().getExpression();
+        if (expr instanceof SQLBinaryOpExpr) {
+            // we set SQLBinaryOpExpr in Field.setExpression() to support ORDER by IS NULL/IS NOT NULL
+            fieldSortBuilder.missing(getNullOrderString((SQLBinaryOpExpr) expr));
+        }
+    }
+
+    private String getNullOrderString(SQLBinaryOpExpr expr) {
+        SQLBinaryOperator operator = expr.getOperator();
+        return operator == SQLBinaryOperator.IsNot ? "_first" : "_last";
     }
 
     private ScriptSortType getScriptSortType(Order order) {

@@ -473,6 +473,27 @@ public class TestUtils {
                 "}";
     }
 
+    public static String getOrderIndexMapping() {
+        return "{\n" +
+            "  \"_doc\": {\n" +
+            "    \"properties\": {\n" +
+            "      \"id\": {\n" +
+            "        \"type\": \"long\"\n" +
+            "      },\n" +
+            "      \"name\": {\n" +
+            "        \"type\": \"text\",\n" +
+            "        \"fields\": {\n" +
+            "          \"keyword\": {\n" +
+            "            \"type\": \"keyword\",\n" +
+            "            \"ignore_above\": 256\n" +
+            "          }\n" +
+            "        }\n" +
+            "      }\n" +
+            "    }\n" +
+            "  }\n" +
+            "}";
+    }
+
     public static void loadBulk(Client client, String jsonPath, String defaultIndex) throws Exception {
         System.out.println(String.format("Loading file %s into elasticsearch cluster", jsonPath));
         String absJsonPath = getResourceFilePath(jsonPath);
