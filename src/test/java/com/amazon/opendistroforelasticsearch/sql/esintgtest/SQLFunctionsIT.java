@@ -156,7 +156,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
         assertThat(
                 executeQuery(query),
-                hitAny("/aggregations/UPPER_2/buckets", kvString("/key", equalTo("AMBER"))));
+                hitAny("/aggregations/UPPER_1/buckets", kvString("/key", equalTo("AMBER"))));
     }
 
     @Test

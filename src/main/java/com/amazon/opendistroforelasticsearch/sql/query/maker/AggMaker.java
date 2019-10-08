@@ -28,6 +28,7 @@ import com.amazon.opendistroforelasticsearch.sql.parser.NestedType;
 import com.amazon.opendistroforelasticsearch.sql.utils.Util;
 import com.fasterxml.jackson.core.JsonFactory;
 import org.elasticsearch.common.ParsingException;
+import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.xcontent.LoggingDeprecationHandler;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;
 import org.elasticsearch.common.xcontent.XContentParser;
@@ -103,8 +104,9 @@ public class AggMaker {
             }
             return makeRangeGroup(methodField);
         } else {
-            TermsAggregationBuilder termsBuilder = AggregationBuilders.terms(field.getName()).field(field.getName());
-            groupMap.put(field.getName(), new KVValue("KEY", termsBuilder));
+            String termName = (Strings.isNullOrEmpty(field.getAlias())) ? field.getName() : field.getAlias();
+            TermsAggregationBuilder termsBuilder = AggregationBuilders.terms(termName).field(field.getName());
+            groupMap.put(termName, new KVValue("KEY", termsBuilder));
             return termsBuilder;
         }
     }

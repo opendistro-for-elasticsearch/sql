@@ -236,27 +236,37 @@ public class AggregationQueryAction extends QueryAction {
 
     private AggregationBuilder getGroupAgg(Field groupByField, Select select) throws SqlParseException {
         AggregationBuilder lastAgg = null;
+        Field shadowField = null;
+
         for (Field selectField : select.getFields()) {
             if (selectField instanceof MethodField && selectField.getName().equals("script")) {
                 MethodField scriptField = (MethodField) selectField;
                 for (KVValue kv : scriptField.getParams()) {
                     if (kv.value.equals(groupByField.getName())) {
-                        lastAgg = aggMaker.makeGroupAgg(scriptField);
+                        shadowField = scriptField;
                         break;
                     }
                 }
             }
         }
 
-        if (lastAgg == null) {
+        if (shadowField == null) {
             for (Field selectField: select.getFields()) {
-                if (selectField.getAlias() != null && selectField.getAlias().equals(groupByField.getName())) {
-                    groupByField = selectField;
+                if (selectField.getAlias() != null
+                        && (groupByField.getName().equals(selectField.getAlias())
+                            || groupByField.getExpression().equals(selectField.getExpression()))) {
+                    shadowField = selectField;
                 }
             }
 
-            lastAgg = aggMaker.makeGroupAgg(groupByField);
         }
+
+        if (null != shadowField) {
+            groupByField.setAlias(shadowField.getAlias());
+            groupByField = shadowField;
+        }
+
+        lastAgg = aggMaker.makeGroupAgg(groupByField);
 
         // find if we have order for that aggregation. As of now only special case for script fields
         if (groupByField.isScriptField()) {

@@ -81,6 +81,21 @@ public class AliasInliningTests {
     }
 
     @Test
+    public void groupAndSortBySameExprAlias() throws SqlParseException {
+        String query = "SELECT date_format(timestamp, 'yyyy-MM') es-table.timestamp_tg, COUNT(*) count, COUNT(DistanceKilometers) es-table.DistanceKilometers_count\n" +
+                "FROM kibana_sample_data_flights\n" +
+                "GROUP BY date_format(timestamp, 'yyyy-MM')\n" +
+                "ORDER BY date_format(timestamp, 'yyyy-MM') DESC\n" +
+                "LIMIT 2500";
+        String dsl = parseAsAggregationQuery(query);
+
+        JSONObject parseQuery = new JSONObject(dsl);
+
+        assertThat(parseQuery.query("/aggregations/es-table.timestamp_tg/terms/script"), notNullValue());
+
+    }
+
+    @Test
     public void groupByAndSortAliased() throws SqlParseException {
         String dsl = parseAsAggregationQuery(
                 "SELECT date_format(utc_time, 'dd-MM-YYYY') date " +
