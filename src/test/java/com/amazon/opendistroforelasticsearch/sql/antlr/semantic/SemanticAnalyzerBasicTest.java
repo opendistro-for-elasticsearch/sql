@@ -41,7 +41,7 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.bas
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.UNKNOWN;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESIndex.IndexType.INDEX;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESIndex.IndexType.NESTED_FIELD;
-import static org.hamcrest.Matchers.aMapWithSize;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.aMapWithSize;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.junit.Assert.assertThat;

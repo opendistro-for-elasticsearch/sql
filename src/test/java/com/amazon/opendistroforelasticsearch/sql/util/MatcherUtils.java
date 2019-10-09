@@ -34,6 +34,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.is;
 
 public class MatcherUtils {
 
@@ -121,5 +122,9 @@ public class MatcherUtils {
 
     public static Matcher<JSONObject> kvInt(String key, Matcher<Integer> matcher) {
         return featureValueOf("Json Match", matcher, actual -> (Integer) actual.query(key));
+    }
+
+    public static <K, V> Matcher<Map<? extends K, ? extends V>> aMapWithSize(int expectedSize) {
+        return featureValueOf("Map size match", is(expectedSize), Map::size);
     }
 }
