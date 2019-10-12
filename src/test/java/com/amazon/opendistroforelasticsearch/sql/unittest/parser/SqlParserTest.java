@@ -546,6 +546,14 @@ public class SqlParserTest {
     }
 
     @Test
+    public void systemIndexNameTest() throws SqlParseException {
+        String query = "SELECT * FROM .kibana";
+        SQLExpr sqlExpr = queryToExpr(query);
+        Select select = parser.parseSelect((SQLQueryExpr) sqlExpr);
+        Assert.assertEquals(".kibana", select.getFrom().get(0).getIndex());
+    }
+
+    @Test
     public void indexWithSemiColons() throws SqlParseException {
         String query = "select * from some;index";
         SQLExpr sqlExpr = queryToExpr(query);
