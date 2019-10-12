@@ -230,6 +230,7 @@ uid
 
 simpleId
     : ID
+    | DOT_ID
     | STRING_LITERAL
     | keywordsCanBeId
     | functionNameBase
