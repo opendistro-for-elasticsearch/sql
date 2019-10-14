@@ -16,7 +16,7 @@
 buildscript {
 
     ext {
-        es_version = System.getProperty("es.version", "7.2.0")
+        es_version = System.getProperty("es.version", "7.2.1")
     }
     // This isn't applying from repositories.gradle so repeating it here
     repositories {
@@ -46,7 +46,7 @@ repositories {
 }
 
 ext {
-    opendistroVersion = '1.2.0'
+    opendistroVersion = '1.2.1'
     isSnapshot = "true" == System.getProperty("build.snapshot", "true")
 }
 
