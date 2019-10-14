@@ -230,7 +230,7 @@ uid
 
 simpleId
     : ID
-    | DOT_ID
+    | DOT_ID  // note: the current scope by adding DOT_ID to simpleId is large, move DOT_ID upwards tablename if needed
     | STRING_LITERAL
     | keywordsCanBeId
     | functionNameBase
