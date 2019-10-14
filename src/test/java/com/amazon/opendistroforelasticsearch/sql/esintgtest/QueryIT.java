@@ -16,6 +16,8 @@
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.rest.RestStatus;
 import org.joda.time.DateTime;
@@ -34,11 +36,13 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_GAME_OF_THRONES;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_NESTED_TYPE;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ONLINE;
+import static org.elasticsearch.common.xcontent.XContentType.JSON;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -1161,6 +1165,19 @@ public class QueryIT extends SQLIntegTestCase {
         JSONObject hit = getHits(response).getJSONObject(0);
         Assert.assertEquals("Summer", hit.get("@wolf"));
         Assert.assertEquals("Brandon", hit.query("name/firstname"));
+    }
+
+    @Test
+    public void queryWithDotAtStartOfIndexName() throws IOException, ExecutionException, InterruptedException {
+        String index = "{\"account_number\":12345,\"education\":\"PhD\",\"salary\": \"10000\"}";
+        IndexResponse resp = client().index(new IndexRequest().index(".bank").
+                source(index, JSON)).get();
+        Assert.assertEquals(RestStatus.CREATED, resp.status());
+
+        JSONObject response = executeQuery("SELECT education FROM .bank WHERE account_number = 12345");
+        JSONObject hit = getHits(response).getJSONObject(0);
+        Assert.assertEquals(1, getTotalHits(response));
+        Assert.assertEquals("PhD", hit.query("/_source/education"));
     }
 
     @Test
