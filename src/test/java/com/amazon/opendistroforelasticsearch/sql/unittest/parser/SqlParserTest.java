@@ -546,7 +546,7 @@ public class SqlParserTest {
     }
 
     @Test
-    public void systemIndexNameTest() throws SqlParseException {
+    public void indexNameWithDotAtTheStart() throws SqlParseException {
         String query = "SELECT * FROM .kibana";
         SQLExpr sqlExpr = queryToExpr(query);
         Select select = parser.parseSelect((SQLQueryExpr) sqlExpr);
