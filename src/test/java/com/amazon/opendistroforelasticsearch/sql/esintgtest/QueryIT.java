@@ -16,8 +16,11 @@
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.client.AdminClient;
 import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.rest.RestStatus;
+import org.elasticsearch.test.ESIntegTestCase;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -39,6 +42,7 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstant
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_GAME_OF_THRONES;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_NESTED_TYPE;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ONLINE;
+import static org.elasticsearch.common.xcontent.XContentType.JSON;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -1161,6 +1165,17 @@ public class QueryIT extends SQLIntegTestCase {
         JSONObject hit = getHits(response).getJSONObject(0);
         Assert.assertEquals("Summer", hit.get("@wolf"));
         Assert.assertEquals("Brandon", hit.query("name/firstname"));
+    }
+
+    @Test
+    public void queryWithDotAtStartOfIndexName() throws Exception {
+        AdminClient adminClient = this.admin();
+        TestUtils.createTestIndex(adminClient, ".bank", "dotIndex", null);
+        TestUtils.loadBulk(ESIntegTestCase.client(), "/src/test/resources/.bank.json", ".bank");
+
+        String response = executeQuery("SELECT education FROM .bank WHERE account_number = 12345",
+                "jdbc");
+        Assert.assertTrue(response.contains("PhD"));
     }
 
     @Test

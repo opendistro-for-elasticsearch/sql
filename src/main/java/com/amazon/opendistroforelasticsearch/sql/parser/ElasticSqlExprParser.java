@@ -296,6 +296,9 @@ public class ElasticSqlExprParser extends SQLExprParser {
             case GROUP:
                 lexer.nextToken();
                 return primaryRest(new SQLIdentifierExpr(lexer.stringVal()));
+            case DOT:
+                lexer.nextToken();
+                return primaryRest(new SQLIdentifierExpr("." + lexer.stringVal()));
             default:
                 return super.primary();
         }
