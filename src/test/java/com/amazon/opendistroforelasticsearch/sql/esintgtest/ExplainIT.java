@@ -202,6 +202,17 @@ public class ExplainIT extends SQLIntegTestCase {
         Assert.assertThat(result.replaceAll("\\s+", ""), equalTo(expectedOutput.replaceAll("\\s+", "")));
     }
 
+    @Test
+    public void columnAliasInWhere() throws IOException {
+        String query = "SELECT a.email, a.age " +
+                       "FROM elasticsearch-sql_test_index_account a " +
+                       "WHERE a.age > 33 OR a.lastname LIKE 'Nels%'";
+        String result = explainQuery(query);
+        assertThat(result, containsString("range\":{\"age"));
+        assertThat(result, containsString("wildcard\":{\"lastname\":{\"wildcard\":\"Nels*"));
+        assertThat(result, containsString("\"includes\":[\"email\",\"age\"]"));
+    }
+
     public void testContentTypeOfExplainRequestShouldBeJson() throws IOException {
         String query = makeRequest("SELECT firstname FROM elasticsearch-sql_test_index_account");
         Request request = getSqlRequest(query, true);

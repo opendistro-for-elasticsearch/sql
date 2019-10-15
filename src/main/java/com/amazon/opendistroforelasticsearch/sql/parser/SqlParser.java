@@ -95,6 +95,10 @@ public class SqlParser {
 
         select.setWhere(whereParser.findWhere());
 
+        if (select.getWhere() != null) {
+            removeAliasPrefix(select.getWhere(), query.getFrom().getAlias());
+        }
+
         select.fillSubQueries();
 
         select.getHints().addAll(parseHints(query.getHints()));
@@ -320,7 +324,6 @@ public class SqlParser {
         // check that operator IS or IS NOT
         SQLBinaryOperator operator = binaryExpr.getOperator();
         return operator == SQLBinaryOperator.Is || operator == SQLBinaryOperator.IsNot;
-
     }
 
     private void findLimit(MySqlSelectQueryBlock.Limit limit, Select select) {
@@ -562,7 +565,9 @@ public class SqlParser {
         if (where instanceof Condition) {
             Condition cond = (Condition) where;
             String aliasPrefix = alias + ".";
-            cond.setName(cond.getName().replaceFirst(aliasPrefix, ""));
+            if (cond.getName() != null) {
+                cond.setName(cond.getName().replaceFirst(aliasPrefix, ""));
+            }
             return;
         }
         for (Where innerWhere : where.getWheres()) {

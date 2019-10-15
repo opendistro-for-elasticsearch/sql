@@ -118,7 +118,7 @@ public class WhereParser {
             parseWhere(((SQLNotExpr) expr).getExpr(), where);
             negateWhere(where);
         } else {
-            explanCond("AND", expr, where);
+            explainCond("AND", expr, where);
         }
     }
 
@@ -150,7 +150,7 @@ public class WhereParser {
                             + " " + operator + " " + Util.expr2Object(bExpr.getRight(), "'"))
             );
 
-            explanCond("AND", sqlMethodInvokeExpr, where);
+            explainCond("AND", sqlMethodInvokeExpr, where);
             return true;
         }
         return false;
@@ -185,7 +185,7 @@ public class WhereParser {
             sqlMethodInvokeExpr.addParameter(new SQLCharExpr(
                     "doc['" + leftProperty + "'].value " + operator + " doc['" + rightProperty + "'].value"));
 
-            explanCond("AND", sqlMethodInvokeExpr, where);
+            explainCond("AND", sqlMethodInvokeExpr, where);
             return true;
         }
         return false;
@@ -226,11 +226,11 @@ public class WhereParser {
             parseWhere(((SQLNotExpr) sub).getExpr(), subWhere);
             negateWhere(subWhere);
         } else {
-            explanCond(bExpr.getOperator().name, sub, where);
+            explainCond(bExpr.getOperator().name, sub, where);
         }
     }
 
-    private void explanCond(String opear, SQLExpr expr, Where where) throws SqlParseException {
+    private void explainCond(String opear, SQLExpr expr, Where where) throws SqlParseException {
         if (expr instanceof SQLBinaryOpExpr) {
             SQLBinaryOpExpr soExpr = (SQLBinaryOpExpr) expr;
             boolean methodAsOpear = false;
@@ -506,7 +506,7 @@ public class WhereParser {
 
             where.addWhere(condition);
         } else {
-            throw new SqlParseException("err find condition " + expr.getClass());
+            throw new SqlParseException("error parsing condition for " + expr.getClass());
         }
     }
 
