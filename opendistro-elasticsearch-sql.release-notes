@@ -1,4 +1,10 @@
-## 2019-07-23, Version 1.2.0 (Current)
+## 2019-10-15, Version 1.2.1 (Current)
+
+### Notable changes
+* Feature [#202](https://github.com/opendistro-for-elasticsearch/sql/issues/202): Elasticsearch 7.2.1 compatibility
+
+
+## 2019-07-23, Version 1.2.0 
 
 ### Notable changes
 * Feature [#125](https://github.com/opendistro-for-elasticsearch/sql/issues/125): Elasticsearch 7.2.0 compatibility
