@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.client.AdminClient;
 import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.test.ESIntegTestCase;
@@ -1167,9 +1168,10 @@ public class QueryIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void queryWithDotAtStartOfIndexName() {
-        String index = "{\"account_number\":12345,\"education\":\"PhD\",\"salary\": \"10000\"}";
-        ESIntegTestCase.client().index(new IndexRequest().index(".bank").source(index, JSON)).actionGet();
+    public void queryWithDotAtStartOfIndexName() throws Exception {
+        AdminClient adminClient = this.admin();
+        TestUtils.createTestIndex(adminClient, ".bank", "dotIndex", null);
+        TestUtils.loadBulk(ESIntegTestCase.client(), "/src/test/resources/.bank.json", ".bank");
 
         String response = executeQuery("SELECT education FROM .bank WHERE account_number = 12345",
                 "jdbc");
