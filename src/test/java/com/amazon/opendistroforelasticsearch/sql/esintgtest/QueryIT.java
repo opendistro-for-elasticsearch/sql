@@ -17,9 +17,9 @@ package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.rest.RestStatus;
+import org.elasticsearch.test.ESIntegTestCase;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -36,7 +36,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_GAME_OF_THRONES;
@@ -1168,15 +1167,13 @@ public class QueryIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void queryWithDotAtStartOfIndexName() throws IOException, ExecutionException, InterruptedException {
+    public void queryWithDotAtStartOfIndexName() {
         String index = "{\"account_number\":12345,\"education\":\"PhD\",\"salary\": \"10000\"}";
-        IndexResponse resp = client().index(new IndexRequest().index(".bank").
-                source(index, JSON)).get();
-        Assert.assertEquals(RestStatus.CREATED, resp.status());
+        ESIntegTestCase.client().index(new IndexRequest().index(".bank").source(index, JSON)).actionGet();
 
-        JSONObject response = executeQuery("SELECT education FROM .bank WHERE account_number = 12345");
-        JSONObject hit = getHits(response).getJSONObject(0);
-        Assert.assertEquals("PhD", hit.query("/_source/education"));
+        String response = executeQuery("SELECT education FROM .bank WHERE account_number = 12345",
+                "jdbc");
+        Assert.assertTrue(response.contains("PhD"));
     }
 
     @Test
