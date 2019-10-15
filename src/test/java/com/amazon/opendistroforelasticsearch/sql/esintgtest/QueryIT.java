@@ -1176,7 +1176,6 @@ public class QueryIT extends SQLIntegTestCase {
 
         JSONObject response = executeQuery("SELECT education FROM .bank WHERE account_number = 12345");
         JSONObject hit = getHits(response).getJSONObject(0);
-        Assert.assertEquals(1, getTotalHits(response));
         Assert.assertEquals("PhD", hit.query("/_source/education"));
     }
 
