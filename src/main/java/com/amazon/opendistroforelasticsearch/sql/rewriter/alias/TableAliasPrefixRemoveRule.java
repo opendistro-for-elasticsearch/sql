@@ -81,7 +81,10 @@ public class TableAliasPrefixRemoveRule implements RewriteRule<SQLQueryExpr> {
         root.accept(new MySqlASTVisitorAdapter() {
             @Override
             public boolean visit(SQLJoinTableSource x) {
-                return false; // Avoid visiting table name in any join clause
+                // Avoid visiting table name in any JOIN including comma/inner/left join
+                //  between 2 indices or between index and nested field.
+                // For the latter case, alias is taken care of in {@link NestedFieldRewriter}.
+                return false;
             }
 
             @Override
