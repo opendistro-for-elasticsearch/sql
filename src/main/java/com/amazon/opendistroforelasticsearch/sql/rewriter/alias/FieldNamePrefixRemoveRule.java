@@ -15,13 +15,11 @@
 
 package com.amazon.opendistroforelasticsearch.sql.rewriter.alias;
 
-import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.RewriteRule;
-import com.google.common.base.Strings;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -58,7 +56,7 @@ public class FieldNamePrefixRemoveRule implements RewriteRule<SQLQueryExpr> {
     private void removeUnAliasedTableNamePrefix(SQLQueryExpr root) {
         visitIdentifier(root, idExpr -> {
             Identifier field = new Identifier(idExpr);
-            if (unAliasedTableNames.contains(field.prefix())) {
+            if (field.hasPrefix() && unAliasedTableNames.contains(field.prefix())) {
                 field.removePrefix();
             }
         });
@@ -82,54 +80,6 @@ public class FieldNamePrefixRemoveRule implements RewriteRule<SQLQueryExpr> {
                 visit.accept(idExpr);
             }
         });
-    }
-
-    /** Util class for table expression parsing */
-    private static class Table {
-
-        private final SQLExprTableSource tableExpr;
-
-        private Table(SQLExprTableSource tableExpr) {
-            this.tableExpr = tableExpr;
-        }
-
-        public boolean isNotAliased() {
-            return Strings.isNullOrEmpty(tableExpr.getAlias());
-        }
-
-        public String name() {
-            SQLExpr expr = tableExpr.getExpr();
-            if (expr instanceof SQLIdentifierExpr) {
-                return ((SQLIdentifierExpr) expr).getName();
-            }
-            return expr.toString();
-        }
-    }
-
-    /** Util class for identifier expression parsing */
-    private static class Identifier {
-
-        private final SQLIdentifierExpr idExpr;
-
-        private Identifier(SQLIdentifierExpr idExpr) {
-            this.idExpr = idExpr;
-        }
-
-        public String name() {
-            return idExpr.getName();
-        }
-
-        public String prefix() {
-            int firstDotIndex = name().indexOf('.');
-            if (firstDotIndex != -1) {
-                return name().substring(0, firstDotIndex);
-            }
-            return "";
-        }
-
-        public void removePrefix() {
-            idExpr.setName(name().substring(prefix().length() + 1));
-        }
     }
 
 }

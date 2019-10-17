@@ -13,11 +13,10 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.unittest.rewriter.alias;
+package com.amazon.opendistroforelasticsearch.sql.rewriter.alias;
 
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
-import com.amazon.opendistroforelasticsearch.sql.rewriter.alias.FieldNamePrefixRemoveRule;
 import com.amazon.opendistroforelasticsearch.sql.util.SqlParserUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -37,6 +36,13 @@ public class FieldNamePrefixRemoveRuleTest {
         query(
             "SELECT * FROM test t WHERE t.name IN (SELECT accounts.name FROM accounts)"
         ).shouldMatchRule();
+    }
+
+    @Test
+    public void joinQueryWithoutUnAliasedTableNameShouldNotMatch() {
+        query(
+            "SELECT * FROM accounts a1 JOIN accounts a2 ON a1.city = a2.city"
+        ).shouldNotMatchRule();
     }
 
     @Test
@@ -74,19 +80,19 @@ public class FieldNamePrefixRemoveRuleTest {
 
         private final SQLQueryExpr expr;
 
-        private QueryAssertion(String sql) {
+        QueryAssertion(String sql) {
             this.expr = SqlParserUtils.parse(sql);
         }
 
-        public void shouldMatchRule() {
+        void shouldMatchRule() {
             Assert.assertTrue(match());
         }
 
-        public void shouldNotMatchRule() {
+        void shouldNotMatchRule() {
             Assert.assertFalse(match());
         }
 
-        public void shouldBeAfterRewrite(String expected) {
+        void shouldBeAfterRewrite(String expected) {
             shouldMatchRule();
             rule.rewrite(expr);
             Assert.assertEquals(
