@@ -28,7 +28,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 /**
- * Un-alias field name if it's using full table name as prefix.
+ * Rewrite rule for removing table alias or table name prefix in field name.
  */
 public class TableAliasPrefixRemoveRule implements RewriteRule<SQLQueryExpr> {
 
@@ -46,7 +46,7 @@ public class TableAliasPrefixRemoveRule implements RewriteRule<SQLQueryExpr> {
 
     @Override
     public void rewrite(SQLQueryExpr root) {
-        removeUnAliasedTableNamePrefix(root);
+        removeTableAliasPrefixInColumnName(root);
     }
 
     private boolean hasSubQuery(SQLQueryExpr root) {
@@ -67,7 +67,7 @@ public class TableAliasPrefixRemoveRule implements RewriteRule<SQLQueryExpr> {
         });
     }
 
-    private void removeUnAliasedTableNamePrefix(SQLQueryExpr root) {
+    private void removeTableAliasPrefixInColumnName(SQLQueryExpr root) {
         visitColumnName(root, idExpr -> {
             Identifier field = new Identifier(idExpr);
             if (field.hasPrefix() && tableAliasesToRemove.contains(field.prefix())) {
