@@ -169,9 +169,28 @@ public class AggregationIT extends SQLIntegTestCase {
 
     @Test
     public void groupByTest() throws Exception {
-
         JSONObject result = executeQuery(String.format("SELECT COUNT(*) FROM %s/account GROUP BY gender",
-                TEST_INDEX_ACCOUNT));
+            TEST_INDEX_ACCOUNT));
+        assertResultForGroupByTest(result);
+    }
+
+    @Test
+    public void groupByUsingTableAliasTest() throws Exception {
+        JSONObject result = executeQuery(String.format("SELECT COUNT(*) FROM %s/account a GROUP BY a.gender",
+            TEST_INDEX_ACCOUNT));
+        assertResultForGroupByTest(result);
+    }
+
+    @Test
+    public void groupByUsingTableNamePrefixTest() throws Exception {
+        JSONObject result = executeQuery(String.format(
+            "SELECT COUNT(*) FROM %s/account GROUP BY elasticsearch-sql_test_index_account.gender",
+            TEST_INDEX_ACCOUNT
+        ));
+        assertResultForGroupByTest(result);
+    }
+
+    private void assertResultForGroupByTest(JSONObject result) {
         Assert.assertThat(getTotalHits(result), equalTo(1000));
         JSONObject gender = getAggregation(result, "gender");
         Assert.assertThat(gender.getJSONArray("buckets").length(), equalTo(2));
@@ -191,11 +210,35 @@ public class AggregationIT extends SQLIntegTestCase {
 
     @Test
     public void groupByHavingTest() throws Exception {
+        JSONObject result = executeQuery(String.format(
+            "SELECT gender " +
+            "FROM %s/account " +
+            "GROUP BY gender " +
+            "HAVING COUNT(*) > 0", TEST_INDEX_ACCOUNT));
+        assertResultForGroupByHavingTest(result);
+    }
 
-        JSONObject result = executeQuery(String.format("SELECT gender " +
-                                                       "FROM %s/account " +
-                                                       "GROUP BY gender " +
-                                                       "HAVING COUNT(*) > 0", TEST_INDEX_ACCOUNT));
+    @Test
+    public void groupByHavingUsingTableAliasTest() throws Exception {
+        JSONObject result = executeQuery(String.format(
+            "SELECT a.gender " +
+            "FROM %s/account a " +
+            "GROUP BY a.gender " +
+            "HAVING COUNT(*) > 0", TEST_INDEX_ACCOUNT));
+        assertResultForGroupByHavingTest(result);
+    }
+
+    @Test
+    public void groupByHavingUsingTableNamePrefixTest() throws Exception {
+        JSONObject result = executeQuery(String.format(
+            "SELECT elasticsearch-sql_test_index_account.gender " +
+            "FROM %s/account " +
+            "GROUP BY elasticsearch-sql_test_index_account.gender " +
+            "HAVING COUNT(*) > 0", TEST_INDEX_ACCOUNT));
+        assertResultForGroupByHavingTest(result);
+    }
+
+    private void assertResultForGroupByHavingTest(JSONObject result) {
         Assert.assertThat(getTotalHits(result), equalTo(1000));
         JSONObject gender = getAggregation(result, "gender");
         Assert.assertThat(gender.getJSONArray("buckets").length(), equalTo(2));

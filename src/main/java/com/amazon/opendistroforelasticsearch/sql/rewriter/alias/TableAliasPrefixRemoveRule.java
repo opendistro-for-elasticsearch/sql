@@ -37,7 +37,7 @@ public class TableAliasPrefixRemoveRule implements RewriteRule<SQLQueryExpr> {
 
     @Override
     public boolean match(SQLQueryExpr root) {
-        if (isSubQuery(root)) {
+        if (hasSubQuery(root)) {
             return false;
         }
         collectTableAliasesThatCanBeRemoved(root);
@@ -49,7 +49,7 @@ public class TableAliasPrefixRemoveRule implements RewriteRule<SQLQueryExpr> {
         removeUnAliasedTableNamePrefix(root);
     }
 
-    private boolean isSubQuery(SQLQueryExpr root) {
+    private boolean hasSubQuery(SQLQueryExpr root) {
         FindSubQuery visitor = new FindSubQuery();
         root.accept(visitor);
         return visitor.hasSubQuery();
