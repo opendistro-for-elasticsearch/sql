@@ -25,6 +25,7 @@ import com.google.common.base.Strings;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * Un-alias field name if it's using full table name as prefix.
@@ -42,30 +43,48 @@ public class FieldNamePrefixRemoveRule implements RewriteRule<SQLQueryExpr> {
 
     @Override
     public void rewrite(SQLQueryExpr root) {
+        removeUnAliasedTableNamePrefix(root);
+    }
+
+    private void collectUnAliasedTableNames(SQLQueryExpr root) {
+        visitTable(root, tableExpr -> {
+            Table table = new Table(tableExpr);
+            if (table.isNotAliased()) {
+                unAliasedTableNames.add(table.name());
+            }
+        });
+    }
+
+    private void removeUnAliasedTableNamePrefix(SQLQueryExpr root) {
+        visitIdentifier(root, idExpr -> {
+            Identifier field = new Identifier(idExpr);
+            if (unAliasedTableNames.contains(field.prefix())) {
+                field.removePrefix();
+            }
+        });
+    }
+
+    private void visitTable(SQLQueryExpr root,
+                            Consumer<SQLExprTableSource> visit) {
         root.accept(new MySqlASTVisitorAdapter() {
             @Override
-            public void endVisit(SQLIdentifierExpr idExpr) {
-                Identifier field = new Identifier(idExpr);
-                if (unAliasedTableNames.contains(field.prefix())) {
-                    field.removePrefix();
-                }
+            public void endVisit(SQLExprTableSource tableExpr) {
+                visit.accept(tableExpr);
             }
         });
     }
 
-    private void collectUnAliasedTableNames(SQLQueryExpr expr) {
+    private void visitIdentifier(SQLQueryExpr expr,
+                                 Consumer<SQLIdentifierExpr> visit) {
         expr.accept(new MySqlASTVisitorAdapter() {
             @Override
-            public boolean visit(SQLExprTableSource tableExpr) {
-                Table table = new Table(tableExpr);
-                if (table.isUnAliased()) {
-                    unAliasedTableNames.add(table.name());
-                }
-                return true;
+            public void endVisit(SQLIdentifierExpr idExpr) {
+                visit.accept(idExpr);
             }
         });
     }
 
+    /** Util class for table expression parsing */
     private static class Table {
 
         private final SQLExprTableSource tableExpr;
@@ -74,7 +93,7 @@ public class FieldNamePrefixRemoveRule implements RewriteRule<SQLQueryExpr> {
             this.tableExpr = tableExpr;
         }
 
-        public boolean isUnAliased() {
+        public boolean isNotAliased() {
             return Strings.isNullOrEmpty(tableExpr.getAlias());
         }
 
@@ -87,6 +106,7 @@ public class FieldNamePrefixRemoveRule implements RewriteRule<SQLQueryExpr> {
         }
     }
 
+    /** Util class for identifier expression parsing */
     private static class Identifier {
 
         private final SQLIdentifierExpr idExpr;
