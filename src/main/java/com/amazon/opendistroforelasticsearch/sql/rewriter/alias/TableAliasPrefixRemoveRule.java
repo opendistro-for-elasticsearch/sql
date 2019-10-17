@@ -18,8 +18,10 @@ package com.amazon.opendistroforelasticsearch.sql.rewriter.alias;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
+import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.RewriteRule;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.utils.FindSubQuery;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -28,15 +30,18 @@ import java.util.function.Consumer;
 /**
  * Un-alias field name if it's using full table name as prefix.
  */
-public class FieldNamePrefixRemoveRule implements RewriteRule<SQLQueryExpr> {
+public class TableAliasPrefixRemoveRule implements RewriteRule<SQLQueryExpr> {
 
-    /** Table names without alias in FROM clause */
-    private final Set<String> unAliasedTableNames = new HashSet<>();
+    /** Table aliases in FROM clause. Store table name for those without alias. */
+    private final Set<String> tableAliasesToRemove = new HashSet<>();
 
     @Override
     public boolean match(SQLQueryExpr root) {
-        collectUnAliasedTableNames(root);
-        return !unAliasedTableNames.isEmpty();
+        if (isSubQuery(root)) {
+            return false;
+        }
+        collectTableAliasesThatCanBeRemoved(root);
+        return !tableAliasesToRemove.isEmpty();
     }
 
     @Override
@@ -44,27 +49,41 @@ public class FieldNamePrefixRemoveRule implements RewriteRule<SQLQueryExpr> {
         removeUnAliasedTableNamePrefix(root);
     }
 
-    private void collectUnAliasedTableNames(SQLQueryExpr root) {
-        visitTable(root, tableExpr -> {
+    private boolean isSubQuery(SQLQueryExpr root) {
+        FindSubQuery visitor = new FindSubQuery();
+        root.accept(visitor);
+        return visitor.hasSubQuery();
+    }
+
+    private void collectTableAliasesThatCanBeRemoved(SQLQueryExpr root) {
+        visitNonJoinedTable(root, tableExpr -> {
             Table table = new Table(tableExpr);
-            if (table.isNotAliased()) {
-                unAliasedTableNames.add(table.name());
+            if (table.hasAlias()) {
+                tableAliasesToRemove.add(table.alias());
+                table.removeAlias();
+            } else {
+                tableAliasesToRemove.add(table.name());
             }
         });
     }
 
     private void removeUnAliasedTableNamePrefix(SQLQueryExpr root) {
-        visitIdentifier(root, idExpr -> {
+        visitColumnName(root, idExpr -> {
             Identifier field = new Identifier(idExpr);
-            if (field.hasPrefix() && unAliasedTableNames.contains(field.prefix())) {
+            if (field.hasPrefix() && tableAliasesToRemove.contains(field.prefix())) {
                 field.removePrefix();
             }
         });
     }
 
-    private void visitTable(SQLQueryExpr root,
-                            Consumer<SQLExprTableSource> visit) {
+    private void visitNonJoinedTable(SQLQueryExpr root,
+                                     Consumer<SQLExprTableSource> visit) {
         root.accept(new MySqlASTVisitorAdapter() {
+            @Override
+            public boolean visit(SQLJoinTableSource x) {
+                return false; // Avoid visiting table name in any join clause
+            }
+
             @Override
             public void endVisit(SQLExprTableSource tableExpr) {
                 visit.accept(tableExpr);
@@ -72,9 +91,14 @@ public class FieldNamePrefixRemoveRule implements RewriteRule<SQLQueryExpr> {
         });
     }
 
-    private void visitIdentifier(SQLQueryExpr expr,
+    private void visitColumnName(SQLQueryExpr expr,
                                  Consumer<SQLIdentifierExpr> visit) {
         expr.accept(new MySqlASTVisitorAdapter() {
+            @Override
+            public boolean visit(SQLExprTableSource x) {
+                return false; // Avoid rewriting identifier in table name
+            }
+
             @Override
             public void endVisit(SQLIdentifierExpr idExpr) {
                 visit.accept(idExpr);

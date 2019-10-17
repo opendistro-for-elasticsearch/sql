@@ -41,7 +41,7 @@ import com.amazon.opendistroforelasticsearch.sql.query.join.ESJoinQueryActionFac
 import com.amazon.opendistroforelasticsearch.sql.query.multi.MultiQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.multi.MultiQuerySelect;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.RewriteRuleExecutor;
-import com.amazon.opendistroforelasticsearch.sql.rewriter.alias.FieldNamePrefixRemoveRule;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.alias.TableAliasPrefixRemoveRule;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.TermFieldRewriter;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.TermFieldRewriter.TermRewriterFilter;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.nestedfield.NestedFieldRewriter;
@@ -78,7 +78,7 @@ public class ESActionFactory {
 
                 RewriteRuleExecutor<SQLQueryExpr> ruleExecutor = RewriteRuleExecutor.builder()
                         .withRule(new SQLExprParentSetterRule())
-                        .withRule(new FieldNamePrefixRemoveRule())
+                        .withRule(new TableAliasPrefixRemoveRule())
                         .withRule(new SubQueryRewriteRule())
                         .build();
                 ruleExecutor.executeOn(sqlExpr);

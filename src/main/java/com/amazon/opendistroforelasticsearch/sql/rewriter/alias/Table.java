@@ -34,9 +34,16 @@ class Table {
         this.tableExpr = tableExpr;
     }
 
-    /** Return true if table expression doesn't have alias */
-    boolean isNotAliased() {
-        return Strings.isNullOrEmpty(tableExpr.getAlias());
+    boolean hasAlias() {
+        return !alias().isEmpty();
+    }
+
+    String alias() {
+        return Strings.nullToEmpty(tableExpr.getAlias());
+    }
+
+    void removeAlias() {
+        tableExpr.setAlias(null);
     }
 
     /** Extract table name in table expression */

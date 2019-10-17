@@ -28,13 +28,13 @@ import org.junit.Test;
 public class TableTest {
 
     @Test
-    public void identifierTableNameShouldReturnTheTableName() {
+    public void identifierOfTableNameShouldReturnTheTableName() {
         Table table = new Table(new SQLExprTableSource(new SQLIdentifierExpr("accounts")));
         Assert.assertEquals("accounts", table.name());
     }
 
     @Test
-    public void identifierTableAndTypeNameShouldReturnTheTableNameOnly() {
+    public void identifierOfTableAndTypeNameShouldReturnTheTableNameOnly() {
         Table table = new Table(new SQLExprTableSource(
             new SQLBinaryOpExpr(
                 new SQLIdentifierExpr("accounts"),
