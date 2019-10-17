@@ -43,6 +43,8 @@ public class FieldNamePrefixRemoveRuleTest {
     public void queryWithoutUnAliasedTableNameShouldNotMatch() {
         query("SELECT a.age FROM accounts a").shouldNotMatchRule();
         query("SELECT accounts.age FROM accounts accounts").shouldNotMatchRule();
+        query("SELECT age FROM accounts/_doc a").shouldNotMatchRule();
+        query("SELECT age FROM account* a").shouldNotMatchRule();
     }
 
     @Test
