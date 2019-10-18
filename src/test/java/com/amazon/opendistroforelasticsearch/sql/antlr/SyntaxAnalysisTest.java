@@ -104,13 +104,9 @@ public class SyntaxAnalysisTest {
         );
     }
 
-    /** This is not supported for now */
     @Test
-    public void systemIndexNameShouldThrowException() {
-        expectValidationFailWithErrorMessage(
-            "SELECT * FROM .kibana",
-            "offending symbol [.kibana]"
-        );
+    public void systemIndexNameShouldPass() {
+        validate("SELECT * FROM .kibana");
     }
 
     @Test
