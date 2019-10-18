@@ -16,7 +16,6 @@
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
-import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.AdminClient;
 import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.rest.RestStatus;
@@ -42,7 +41,6 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstant
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_GAME_OF_THRONES;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_NESTED_TYPE;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ONLINE;
-import static org.elasticsearch.common.xcontent.XContentType.JSON;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -192,12 +190,37 @@ public class QueryIT extends SQLIntegTestCase {
 
     @Test
     public void selectSpecificFields() throws IOException {
-        String[] arr = new String[] {"age", "account_number"};
+        String[] arr = new String[]{"age", "account_number"};
         Set<String> expectedSource = new HashSet<>(Arrays.asList(arr));
 
         JSONObject response = executeQuery(String.format(Locale.ROOT, "SELECT age, account_number FROM %s/account",
-                TEST_INDEX_ACCOUNT));
+            TEST_INDEX_ACCOUNT));
+        assertResponseForSelectSpecificFields(response, expectedSource);
+    }
 
+    @Test
+    public void selectSpecificFieldsUsingTableAlias() throws IOException {
+        String[] arr = new String[]{"age", "account_number"};
+        Set<String> expectedSource = new HashSet<>(Arrays.asList(arr));
+
+        JSONObject response = executeQuery(String.format(Locale.ROOT, "SELECT a.age, a.account_number FROM %s/account a",
+            TEST_INDEX_ACCOUNT));
+        assertResponseForSelectSpecificFields(response, expectedSource);
+    }
+
+    @Test
+    public void selectSpecificFieldsUsingTableNamePrefix() throws IOException {
+        String[] arr = new String[]{"age", "account_number"};
+        Set<String> expectedSource = new HashSet<>(Arrays.asList(arr));
+
+        JSONObject response = executeQuery(String.format(Locale.ROOT,
+            "SELECT elasticsearch-sql_test_index_account.age, elasticsearch-sql_test_index_account.account_number" +
+            " FROM %s/account",
+            TEST_INDEX_ACCOUNT));
+        assertResponseForSelectSpecificFields(response, expectedSource);
+    }
+
+    private void assertResponseForSelectSpecificFields(JSONObject response, Set<String> expectedSource) {
         JSONArray hits = getHits(response);
         for (int i = 0; i < hits.length(); i++) {
             JSONObject hit = hits.getJSONObject(i);
@@ -237,6 +260,38 @@ public class QueryIT extends SQLIntegTestCase {
             JSONObject hit = (JSONObject)hitObj;
             Assert.assertEquals(expectedSource, hit.getJSONObject("_source").keySet());
         });
+    }
+
+    @Test
+    public void useTableAliasInWhereClauseTest() throws IOException {
+        JSONObject response = executeQuery(String.format(Locale.ROOT,
+            "SELECT * FROM %s/account a WHERE a.city = 'Nogal' LIMIT 1000", TEST_INDEX_ACCOUNT));
+
+        JSONArray hits = getHits(response);
+        Assert.assertEquals(1, getTotalHits(response));
+        Assert.assertEquals("Nogal", getSource(hits.getJSONObject(0)).get("city"));
+    }
+
+    @Test
+    public void notUseTableAliasInWhereClauseTest() throws IOException {
+        JSONObject response = executeQuery(String.format(Locale.ROOT,
+            "SELECT * FROM %s/account a WHERE city = 'Nogal' LIMIT 1000", TEST_INDEX_ACCOUNT));
+
+        JSONArray hits = getHits(response);
+        Assert.assertEquals(1, getTotalHits(response));
+        Assert.assertEquals("Nogal", getSource(hits.getJSONObject(0)).get("city"));
+    }
+
+    @Test
+    public void useTableNamePrefixInWhereClauseTest() throws IOException {
+        JSONObject response = executeQuery(String.format(Locale.ROOT,
+            "SELECT * FROM %s/account WHERE elasticsearch-sql_test_index_account.city = 'Nogal' LIMIT 1000",
+            TEST_INDEX_ACCOUNT
+        ));
+
+        JSONArray hits = getHits(response);
+        Assert.assertEquals(1, getTotalHits(response));
+        Assert.assertEquals("Nogal", getSource(hits.getJSONObject(0)).get("city"));
     }
 
     @Test
@@ -824,12 +879,23 @@ public class QueryIT extends SQLIntegTestCase {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void orderByDescTest() throws IOException {
         JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT age FROM %s/account ORDER BY age DESC LIMIT 1000",
-                                TEST_INDEX_ACCOUNT));
+            String.format(Locale.ROOT, "SELECT age FROM %s/account ORDER BY age DESC LIMIT 1000",
+                TEST_INDEX_ACCOUNT));
+        assertResponseForOrderByTest(response);
+    }
 
+    @Test
+    public void orderByDescUsingTableAliasTest() throws IOException {
+        JSONObject response = executeQuery(
+            String.format(Locale.ROOT, "SELECT a.age FROM %s/account a ORDER BY a.age DESC LIMIT 1000",
+                TEST_INDEX_ACCOUNT));
+        assertResponseForOrderByTest(response);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void assertResponseForOrderByTest(JSONObject response) {
         JSONArray hits = getHits(response);
         ArrayList<Integer> ages = new ArrayList<>();
         for (int i = 0; i < hits.length(); i++) {
