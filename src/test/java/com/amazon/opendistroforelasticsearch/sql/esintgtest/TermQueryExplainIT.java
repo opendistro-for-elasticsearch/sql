@@ -240,7 +240,16 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
             "GROUP BY firstname, state");
         assertThat(result, containsString("term"));
         assertThat(result, containsString("state.keyword"));
-        assertThat(result, not(containsString("lastname.")));
+    }
+
+    @Test
+    public void testKeywordAliasGroupByUsingTableAlias() throws IOException {
+        String result = explainQuery(
+            "SELECT a.firstname, a.state " +
+            "FROM elasticsearch-sql_test_index_bank/account a " +
+            "GROUP BY a.firstname, a.state");
+        assertThat(result, containsString("term"));
+        assertThat(result, containsString("state.keyword"));
     }
 
     @Test
@@ -249,6 +258,17 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
             "SELECT * " +
             "FROM elasticsearch-sql_test_index_bank " +
             "ORDER BY state, lastname "
+        );
+        assertThat(result, containsString("\"state.keyword\":{\"order\":\"asc\""));
+        assertThat(result, containsString("\"lastname\":{\"order\":\"asc\"}"));
+    }
+
+    @Test
+    public void testKeywordAliasOrderByUsingTableAlias() throws IOException {
+        String result = explainQuery(
+            "SELECT * " +
+            "FROM elasticsearch-sql_test_index_bank b " +
+            "ORDER BY b.state, b.lastname "
         );
         assertThat(result, containsString("\"state.keyword\":{\"order\":\"asc\""));
         assertThat(result, containsString("\"lastname\":{\"order\":\"asc\"}"));

@@ -55,6 +55,7 @@ public class TableAliasPrefixRemoveRuleTest {
     public void selectedFieldNamePrefixedByUnAliasedTableNameShouldRemoveTableNamePrefix() {
         query("SELECT accounts.age FROM accounts").shouldBeAfterRewrite("SELECT age FROM accounts");
         query("SELECT accounts.age FROM accounts/temp").shouldBeAfterRewrite("SELECT age FROM accounts/temp");
+        query("SELECT age FROM accounts/temp a").shouldBeAfterRewrite("SELECT age FROM accounts/temp");
     }
 
     @Test

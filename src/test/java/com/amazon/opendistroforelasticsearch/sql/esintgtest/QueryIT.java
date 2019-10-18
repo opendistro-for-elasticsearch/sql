@@ -273,6 +273,16 @@ public class QueryIT extends SQLIntegTestCase {
     }
 
     @Test
+    public void notUseTableAliasInWhereClauseTest() throws IOException {
+        JSONObject response = executeQuery(String.format(Locale.ROOT,
+            "SELECT * FROM %s/account a WHERE city = 'Nogal' LIMIT 1000", TEST_INDEX_ACCOUNT));
+
+        JSONArray hits = getHits(response);
+        Assert.assertEquals(1, getTotalHits(response));
+        Assert.assertEquals("Nogal", getSource(hits.getJSONObject(0)).get("city"));
+    }
+
+    @Test
     public void useTableNamePrefixInWhereClauseTest() throws IOException {
         JSONObject response = executeQuery(String.format(Locale.ROOT,
             "SELECT * FROM %s/account WHERE elasticsearch-sql_test_index_account.city = 'Nogal' LIMIT 1000",
