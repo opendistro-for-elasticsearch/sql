@@ -24,6 +24,9 @@ import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.RewriteRule;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 
+/**
+ * Quoted Identifiers Rewriter Rule
+ */
 public class UnquoteIdentifierRule extends MySqlASTVisitorAdapter implements RewriteRule<SQLQueryExpr> {
 
     /**
