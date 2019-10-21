@@ -1671,6 +1671,40 @@ public class QueryIT extends SQLIntegTestCase {
         Assert.assertEquals(21, hits.length());
     }
 
+    @Test
+    public void backticksQuotedIndexNameTest() throws Exception {
+        AdminClient adminClient = this.admin();
+        TestUtils.createTestIndex(adminClient, "bank_two", "bank_two", null);
+        TestUtils.loadBulk(ESIntegTestCase.client(), "/src/test/resources/bank_two.json", "bank");
+
+        final String query = "SELECT lastname FROM `bank` ORDER BY age LIMIT 3";
+        JSONObject response = executeQuery(query);
+        JSONArray hits = getHits(response);
+
+        assertThat("bank", equalTo(((JSONObject) hits.get(0)).query("/_index")));
+    }
+
+    @Test
+    public void backticksQuotedFieldNamesTest() {
+        final String basicQuery = StringUtils.format("SELECT b.lastname FROM %s " +
+                "AS b ORDER BY age LIMIT 3", TestsConstants.TEST_INDEX_BANK);
+        final String queryWithQuotedAlias = StringUtils.format("SELECT `b`.lastname FROM %s" +
+                " AS `b` ORDER BY age LIMIT 3", TestsConstants.TEST_INDEX_BANK);
+        final String queryWithQuotedFieldName = StringUtils.format("SELECT b.`lastname` FROM %s " +
+                "AS b ORDER BY age LIMIT 3", TestsConstants.TEST_INDEX_BANK);
+        final String queryWithQuotedAliasAndFieldName = StringUtils.format("SELECT `b`.`lastname` FROM %s " +
+                "AS `b` ORDER BY age LIMIT 3", TestsConstants.TEST_INDEX_BANK);
+        final String queryWithQuotedAliasContainingSpecialChars = StringUtils.format("SELECT `b k`.lastname FROM %s " +
+                "AS `b k` ORDER BY age LIMIT 3", TestsConstants.TEST_INDEX_BANK);
+
+        final String expectedResponse = executeQuery(basicQuery, "jdbc");
+
+        assertThat(expectedResponse, equalTo(executeQuery(queryWithQuotedAlias, "jdbc")));
+        assertThat(expectedResponse, equalTo(executeQuery(queryWithQuotedFieldName, "jdbc")));
+        assertThat(expectedResponse, equalTo(executeQuery(queryWithQuotedAliasAndFieldName, "jdbc")));
+        assertThat(expectedResponse, equalTo(executeQuery(queryWithQuotedAliasContainingSpecialChars, "jdbc")));
+    }
+
     private String getScrollId(JSONObject response) {
         return response.getString("_scroll_id");
     }
