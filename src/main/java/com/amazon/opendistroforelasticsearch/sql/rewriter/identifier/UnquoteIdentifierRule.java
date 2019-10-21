@@ -26,13 +26,11 @@ import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 
 public class UnquoteIdentifierRule extends MySqlASTVisitorAdapter implements RewriteRule<SQLQueryExpr> {
 
-    private String identifier = null;
-
     /**
      *
      * This method is to adjust the AST in the cases where the field is quoted,
      * and the full name in the SELECT field is in the format of indexAlias.fieldName
-     * (e.g. SE:ECT b.`lastname` FROM bank AS b).
+     * (e.g. SELECT b.`lastname` FROM bank AS b).
      *
      * In this case, the druid parser constructs a SQLSelectItem for the field "b.`lastname`", with SQLIdentifierExpr of
      * "b." and alias of "`lastname`".
@@ -42,13 +40,14 @@ public class UnquoteIdentifierRule extends MySqlASTVisitorAdapter implements Rew
     @Override
     public boolean visit(SQLSelectItem selectItem) {
         if (selectItem.getExpr() instanceof SQLIdentifierExpr) {
-            String identifier = ((SQLIdentifierExpr) selectItem.getExpr()).getName();
+            final String identifier = ((SQLIdentifierExpr) selectItem.getExpr()).getName();
             if (identifier.endsWith(".")) {
-                this.identifier = identifier + StringUtils.unquoteSingleField(selectItem.getAlias(), "`");
-                selectItem.setExpr(new SQLIdentifierExpr(this.identifier));
+                final String correctedIdentifier = identifier + StringUtils.unquoteSingleField(selectItem.getAlias(), "`");
+                selectItem.setExpr(new SQLIdentifierExpr(correctedIdentifier));
                 selectItem.setAlias(null);
             }
         }
+        selectItem.setAlias(StringUtils.unquoteSingleField(selectItem.getAlias(), "`"));
         return true;
     }
 
@@ -68,34 +67,20 @@ public class UnquoteIdentifierRule extends MySqlASTVisitorAdapter implements Rew
      */
     @Override
     public boolean visit(SQLPropertyExpr propertyExpr) {
-        String fieldName = ((SQLIdentifierExpr) propertyExpr.getOwner()).getName();
+        final String fieldName = ((SQLIdentifierExpr) propertyExpr.getOwner()).getName();
         if (!StringUtils.isQuoted(fieldName, "`")) {
             return true;
         }
-        this.identifier = StringUtils.unquoteSingleField(fieldName, "`") + "."
+        final String correctedIdentifier = StringUtils.unquoteSingleField(fieldName, "`") + "."
                 + StringUtils.unquoteSingleField(propertyExpr.getName(), "`");
         SQLSelectItem selectItem = (SQLSelectItem) propertyExpr.getParent();
-        selectItem.setExpr(new SQLIdentifierExpr(this.identifier));
-        this.identifier = null;
+        selectItem.setExpr(new SQLIdentifierExpr(correctedIdentifier));
         return false;
     }
 
     @Override
-    public boolean visit(SQLIdentifierExpr identifierExpr) {
-        if (identifier != null) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
     public void endVisit(SQLIdentifierExpr identifierExpr) {
-        if (identifier != null) {
-            identifierExpr.setName(identifier);
-            identifier = null;
-        } else {
-            identifierExpr.setName(StringUtils.unquoteFullColumn(identifierExpr.getName(), "`"));
-        }
+        identifierExpr.setName(StringUtils.unquoteFullColumn(identifierExpr.getName(), "`"));
     }
 
     @Override
