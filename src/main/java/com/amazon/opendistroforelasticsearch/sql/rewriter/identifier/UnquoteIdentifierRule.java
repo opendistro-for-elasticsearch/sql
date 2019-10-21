@@ -44,18 +44,15 @@ public class UnquoteIdentifierRule extends MySqlASTVisitorAdapter implements Rew
 
     @Override
     public boolean visit(SQLSelectItem selectItem) {
-        try {
+        if (selectItem.getExpr() instanceof SQLIdentifierExpr) {
             String identifier = ((SQLIdentifierExpr) selectItem.getExpr()).getName();
             if (identifier.endsWith(".")) {
                 this.identifier = identifier + StringUtils.unquoteSingleField(selectItem.getAlias(), "`");
                 selectItem.setExpr(new SQLIdentifierExpr(this.identifier));
                 selectItem.setAlias(null);
             }
-        } catch (ClassCastException e) {
-            e.printStackTrace();
-        } finally {
-            return true;
         }
+        return true;
     }
 
     @Override
