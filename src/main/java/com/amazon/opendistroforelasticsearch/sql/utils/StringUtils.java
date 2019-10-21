@@ -15,6 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.utils;
 
+import jdk.internal.joptsimple.internal.Strings;
+
 import java.util.Locale;
 
 /**
@@ -99,7 +101,7 @@ public class StringUtils {
      * @return A string whose each dot-seperated field has been unquoted from back-ticks (if any)
      */
     public static String unquoteFullColumn(String text, String quote) {
-        if (text == null) {
+        if (Strings.isNullOrEmpty(text)) {
             return null;
         }
         String[] strs = text.split("\\.");
@@ -114,7 +116,7 @@ public class StringUtils {
     }
 
     public static boolean isQuoted(String text, String quote) {
-        if (text != null && text.startsWith(quote) && text.endsWith(quote)) {
+        if (!Strings.isNullOrEmpty(text) && text.startsWith(quote) && text.endsWith(quote)) {
             return true;
         }
         return false;
