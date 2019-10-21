@@ -41,7 +41,7 @@ import com.amazon.opendistroforelasticsearch.sql.query.join.ESJoinQueryActionFac
 import com.amazon.opendistroforelasticsearch.sql.query.multi.MultiQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.multi.MultiQuerySelect;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.RewriteRuleExecutor;
-import com.amazon.opendistroforelasticsearch.sql.rewriter.UnquoteIdentifierRule;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.identifier.UnquoteIdentifierRule;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.alias.TableAliasPrefixRemoveRule;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.TermFieldRewriter;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.TermFieldRewriter.TermRewriterFilter;
