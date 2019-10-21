@@ -90,7 +90,7 @@ public class StringUtils {
      */
     public static String unquoteSingleField(String text, String quote) {
         if (isQuoted(text, quote)) {
-            return text.substring(1, text.length() - 1);
+            return text.substring(quote.length(), text.length() - quote.length());
         }
         return text;
     }
@@ -106,10 +106,7 @@ public class StringUtils {
         }
         String[] strs = text.split("\\.");
         for (int i = 0; i < strs.length; i++) {
-            String unquotedSubstr = strs[i];
-            if (isQuoted(unquotedSubstr, quote)) {
-                unquotedSubstr = strs[i].substring(1, strs[i].length() - 1);
-            }
+            String unquotedSubstr = unquoteSingleField(strs[i], quote);
             strs[i] = unquotedSubstr;
         }
         return String.join(".", strs);
