@@ -28,20 +28,17 @@ public class UnquoteIdentifierRule extends MySqlASTVisitorAdapter implements Rew
 
     String identifier = null;
 
-    @Override
-    public boolean visit(SQLPropertyExpr propertyExpr) {
-        String identifier = ((SQLIdentifierExpr) propertyExpr.getOwner()).getName();
-        if (!StringUtils.isQuoted(identifier, "`")) {
-            return true;
-        }
-        this.identifier = StringUtils.unquoteSingleField(identifier, "`") + "."
-                + StringUtils.unquoteSingleField(propertyExpr.getName(), "`");
-        SQLSelectItem selectItem = (SQLSelectItem) propertyExpr.getParent();
-        selectItem.setExpr(new SQLIdentifierExpr(this.identifier));
-        this.identifier = null;
-        return false;
-    }
-
+    /**
+     *
+     * This method is to adjust the AST in the cases where the field is quoted,
+     * and the full name in the SELECT field is in the format of indexAlias.fieldName
+     * (e.g. SE:ECT b.`lastname` FROM bank AS b).
+     *
+     * In this case, the druid parser constructs a SQLSelectItem for the field "b.`lastname`", with SQLIdentifierExpr of
+     * "b." and alias of "`lastname`".
+     *
+     * This method corrects the SQLSelectItem object to have SQLIdentifier of "b.lastname" and alias of null.
+     */
     @Override
     public boolean visit(SQLSelectItem selectItem) {
         if (selectItem.getExpr() instanceof SQLIdentifierExpr) {
@@ -53,6 +50,34 @@ public class UnquoteIdentifierRule extends MySqlASTVisitorAdapter implements Rew
             }
         }
         return true;
+    }
+
+    /**
+     *
+     * This method is to adjust the AST in the cases where the alias of index is quoted
+     * (e.g. SELECT `b`.lastname FROM bank AS `b`).
+     *
+     * In this case, the druid parser constructs a SQLPropertyExpr for the field "`b`.lastname", with owner of a
+     * SQLIdentifierExpr "`b`" and name of "lastname".
+     *
+     * This method prevent the visitor from visitin the SQLPropertyExpr in this case,
+     * and corrects AST with a SQLSelectItem object to have SQLIdentifier of "b.lastname".
+     *
+     * Used in the case where alias of index and the field name are both quoted
+     * (e.g. SELECT `b`.`lastname` FROM bank AS `b`).
+     */
+    @Override
+    public boolean visit(SQLPropertyExpr propertyExpr) {
+        String fieldName = ((SQLIdentifierExpr) propertyExpr.getOwner()).getName();
+        if (!StringUtils.isQuoted(fieldName, "`")) {
+            return true;
+        }
+        this.identifier = StringUtils.unquoteSingleField(fieldName, "`") + "."
+                + StringUtils.unquoteSingleField(propertyExpr.getName(), "`");
+        SQLSelectItem selectItem = (SQLSelectItem) propertyExpr.getParent();
+        selectItem.setExpr(new SQLIdentifierExpr(this.identifier));
+        this.identifier = null;
+        return false;
     }
 
     @Override
