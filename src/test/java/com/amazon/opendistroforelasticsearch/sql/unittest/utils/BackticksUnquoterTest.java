@@ -29,9 +29,9 @@ public class BackticksUnquoterTest {
 
     @Test
     public void assertNotQuotedStringShouldKeepTheSame() {
-        final String originalText = "identifier";
-        final String resultForUnquotingSingleField = StringUtils.unquoteSingleField(originalText, "`");
-        final String resultForUnquotingFullColumn = StringUtils.unquoteFullColumn(originalText, "`");
+        String originalText = "identifier";
+        String resultForUnquotingSingleField = StringUtils.unquoteSingleField(originalText, "`");
+        String resultForUnquotingFullColumn = StringUtils.unquoteFullColumn(originalText, "`");
 
         assertThat(resultForUnquotingSingleField, equalTo(originalText));
         assertThat(resultForUnquotingFullColumn, equalTo(originalText));

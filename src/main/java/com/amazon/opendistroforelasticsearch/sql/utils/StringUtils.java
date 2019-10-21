@@ -114,7 +114,7 @@ public class StringUtils {
     }
 
     public static boolean isQuoted(String text, String quote) {
-        if (text.length() > 1 && text.startsWith(quote) && text.endsWith(quote)) {
+        if (text != null && text.startsWith(quote) && text.endsWith(quote)) {
             return true;
         }
         return false;
