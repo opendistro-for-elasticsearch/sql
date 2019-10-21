@@ -26,7 +26,7 @@ import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 
 public class UnquoteIdentifierRule extends MySqlASTVisitorAdapter implements RewriteRule<SQLQueryExpr> {
 
-    String identifier = null;
+    private String identifier = null;
 
     /**
      *
