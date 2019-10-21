@@ -1674,8 +1674,9 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void backticksQuotedIndexNameTest() throws Exception {
         AdminClient adminClient = this.admin();
-        TestUtils.createTestIndex(adminClient, "bank_two", "bank_two", null);
-        TestUtils.loadBulk(ESIntegTestCase.client(), "/src/test/resources/bank_two.json", "bank");
+        TestUtils.createTestIndex(adminClient, "bank_unquote", "bank_unquote", null);
+        TestUtils.loadBulk(ESIntegTestCase.client(),
+                "/src/test/resources/bank_for_unquote_test.json", "bank");
 
         final String query = "SELECT lastname FROM `bank` ORDER BY age LIMIT 3";
         JSONObject response = executeQuery(query);
