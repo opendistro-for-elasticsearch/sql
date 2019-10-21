@@ -80,6 +80,46 @@ public class StringUtils {
                 count());
     }
 
+    /**
+     *
+     * @param text string
+     * @param quote
+     * @return An unquoted string whose outer pair of back-ticks (if any) has been removed
+     */
+    public static String unquoteSingleField(String text, String quote) {
+        if (isQuoted(text, quote)) {
+            return text.substring(1, text.length() - 1);
+        }
+        return text;
+    }
+
+    /**
+     *
+     * @param text
+     * @return A string whose each dot-seperated field has been unquoted from back-ticks (if any)
+     */
+    public static String unquoteFullColumn(String text, String quote) {
+        if (text == null) {
+            return null;
+        }
+        String[] strs = text.split("\\.");
+        for (int i = 0; i < strs.length; i++) {
+            String unquotedSubstr = strs[i];
+            if (isQuoted(unquotedSubstr, quote)) {
+                unquotedSubstr = strs[i].substring(1, strs[i].length() - 1);
+            }
+            strs[i] = unquotedSubstr;
+        }
+        return String.join(".", strs);
+    }
+
+    public static boolean isQuoted(String text, String quote) {
+        if (text.length() > 1 && text.startsWith(quote) && text.endsWith(quote)) {
+            return true;
+        }
+        return false;
+    }
+
     private StringUtils() {
         throw new AssertionError(getClass().getCanonicalName() + " is a utility class and must not be initialized");
     }

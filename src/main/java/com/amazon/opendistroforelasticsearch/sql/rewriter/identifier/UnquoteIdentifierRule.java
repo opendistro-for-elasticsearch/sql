@@ -22,7 +22,7 @@ import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLSelectItem;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.RewriteRule;
-import com.amazon.opendistroforelasticsearch.sql.utils.BackticksUnquoter;
+import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 
 public class UnquoteIdentifierRule extends MySqlASTVisitorAdapter implements RewriteRule<SQLQueryExpr> {
 
@@ -31,15 +31,15 @@ public class UnquoteIdentifierRule extends MySqlASTVisitorAdapter implements Rew
     @Override
     public boolean visit(SQLPropertyExpr propertyExpr) {
         String identifier = ((SQLIdentifierExpr) propertyExpr.getOwner()).getName();
-        if (identifier.startsWith("`") && identifier.endsWith("`")) {
-            this.identifier = new BackticksUnquoter().unquoteSingleField(identifier) + "."
-                    + new BackticksUnquoter().unquoteSingleField(propertyExpr.getName());
-            SQLSelectItem selectItem = (SQLSelectItem) propertyExpr.getParent();
-            selectItem.setExpr(new SQLIdentifierExpr(this.identifier));
-            this.identifier = null;
-            return false;
+        if (!StringUtils.isQuoted(identifier, "`")) {
+            return true;
         }
-        return true;
+        this.identifier = StringUtils.unquoteSingleField(identifier, "`") + "."
+                + StringUtils.unquoteSingleField(propertyExpr.getName(), "`");
+        SQLSelectItem selectItem = (SQLSelectItem) propertyExpr.getParent();
+        selectItem.setExpr(new SQLIdentifierExpr(this.identifier));
+        this.identifier = null;
+        return false;
     }
 
     @Override
@@ -47,10 +47,12 @@ public class UnquoteIdentifierRule extends MySqlASTVisitorAdapter implements Rew
         try {
             String identifier = ((SQLIdentifierExpr) selectItem.getExpr()).getName();
             if (identifier.endsWith(".")) {
-                this.identifier = identifier + new BackticksUnquoter().unquoteSingleField(selectItem.getAlias());
+                this.identifier = identifier + StringUtils.unquoteSingleField(selectItem.getAlias(), "`");
                 selectItem.setExpr(new SQLIdentifierExpr(this.identifier));
                 selectItem.setAlias(null);
             }
+        } catch (ClassCastException e) {
+            e.printStackTrace();
         } finally {
             return true;
         }
@@ -70,13 +72,13 @@ public class UnquoteIdentifierRule extends MySqlASTVisitorAdapter implements Rew
             identifierExpr.setName(identifier);
             identifier = null;
         } else {
-            identifierExpr.setName(new BackticksUnquoter().unquoteFullColumn(identifierExpr.getName()));
+            identifierExpr.setName(StringUtils.unquoteFullColumn(identifierExpr.getName(), "`"));
         }
     }
 
     @Override
     public void endVisit(SQLExprTableSource tableSource) {
-        tableSource.setAlias(new BackticksUnquoter().unquoteSingleField(tableSource.getAlias()));
+        tableSource.setAlias(StringUtils.unquoteSingleField(tableSource.getAlias(), "`"));
     }
 
     @Override

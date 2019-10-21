@@ -15,19 +15,23 @@
 
 package com.amazon.opendistroforelasticsearch.sql.unittest.utils;
 
-import com.amazon.opendistroforelasticsearch.sql.utils.BackticksUnquoter;
+import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 
+/**
+ * To test the functionality of {@link StringUtils#unquoteSingleField}
+ * and {@link StringUtils#unquoteFullColumn(String, String)}
+ */
 public class BackticksUnquoterTest {
 
     @Test
     public void assertNotQuotedStringShouldKeepTheSame() {
         final String originalText = "identifier";
-        final String resultForUnquotingSingleField = new BackticksUnquoter().unquoteSingleField(originalText);
-        final String resultForUnquotingFullColumn = new BackticksUnquoter().unquoteFullColumn(originalText);
+        final String resultForUnquotingSingleField = StringUtils.unquoteSingleField(originalText, "`");
+        final String resultForUnquotingFullColumn = StringUtils.unquoteFullColumn(originalText, "`");
 
         assertThat(resultForUnquotingSingleField, equalTo(originalText));
         assertThat(resultForUnquotingFullColumn, equalTo(originalText));
@@ -35,9 +39,9 @@ public class BackticksUnquoterTest {
 
     @Test
     public void assertStringWithOneBackTickShouldKeepTheSame() {
-        final String originalText = "`identifier";
-        final String result1 = new BackticksUnquoter().unquoteSingleField(originalText);
-        final String result2 = new BackticksUnquoter().unquoteFullColumn(originalText);
+        String originalText = "`identifier";
+        String result1 = StringUtils.unquoteSingleField(originalText, "`");
+        String result2 = StringUtils.unquoteFullColumn(originalText, "`");
 
         assertThat(result1, equalTo(originalText));
         assertThat(result2, equalTo(originalText));
@@ -45,16 +49,19 @@ public class BackticksUnquoterTest {
 
     @Test
     public void assertBackticksQuotedStringShouldBeUnquoted() {
-        final String originalText1 = "`identifier`";
-        final String originalText2 = "`identifier1`.`identifier2`";
+        String originalText1 = "`identifier`";
+        String originalText2 = "`identifier1`.`identifier2`";
+        String originalText3 = "`identifier1`.identifier2";
 
-        final String expectedResult1 = "identifier";
-        final String expectedResult2 = "identifier1.identifier2";
+        String expectedResult1 = "identifier";
+        String expectedResult2 = "identifier1.identifier2";
 
-        final String result1 = new BackticksUnquoter().unquoteSingleField(originalText1);
-        final String result2 = new BackticksUnquoter().unquoteFullColumn(originalText2);
+        String result1 = StringUtils.unquoteSingleField(originalText1, "`");
+        String result2 = StringUtils.unquoteFullColumn(originalText2, "`");
+        String result3 = StringUtils.unquoteFullColumn(originalText3, "`");
 
         assertThat(expectedResult1, equalTo(result1));
         assertThat(expectedResult2, equalTo(result2));
+        assertThat(expectedResult2, equalTo(result3));
     }
 }
