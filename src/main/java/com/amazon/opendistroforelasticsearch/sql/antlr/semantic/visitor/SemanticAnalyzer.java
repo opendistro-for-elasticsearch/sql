@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.visitor;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.GenericSqlParseTreeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.utils.BackticksUnquoter;
 
 import java.util.List;
 
@@ -60,20 +61,20 @@ public class SemanticAnalyzer implements GenericSqlParseTreeVisitor<Type> {
 
     @Override
     public void visitAs(String alias, Type type) {
-        mappingLoader.visitAs(alias, type);
-        typeChecker.visitAs(alias, type);
+        mappingLoader.visitAs(new BackticksUnquoter().unquoteSingleField(alias), type);
+        typeChecker.visitAs(new BackticksUnquoter().unquoteSingleField(alias), type);
     }
 
     @Override
     public Type visitIndexName(String indexName) {
-        mappingLoader.visitIndexName(indexName);
-        return typeChecker.visitIndexName(indexName);
+        mappingLoader.visitIndexName(new BackticksUnquoter().unquoteSingleField(indexName));
+        return typeChecker.visitIndexName(new BackticksUnquoter().unquoteSingleField(indexName));
     }
 
     @Override
     public Type visitFieldName(String fieldName) {
-        mappingLoader.visitFieldName(fieldName);
-        return typeChecker.visitFieldName(fieldName);
+        mappingLoader.visitFieldName(new BackticksUnquoter().unquoteFullColumn(fieldName));
+        return typeChecker.visitFieldName(new BackticksUnquoter().unquoteFullColumn(fieldName));
     }
 
     @Override
