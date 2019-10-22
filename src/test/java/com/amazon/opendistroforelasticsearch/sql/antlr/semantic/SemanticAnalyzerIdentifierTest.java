@@ -155,4 +155,21 @@ public class SemanticAnalyzerIdentifierTest extends SemanticAnalyzerTestBase {
         validate("SELECT TRUE FROM semantics");
     }
 
+    @Test
+    public void queryWithBackticksQuotedIndexShouldPass() {
+        validate("SELECT age FROM `semantics`");
+    }
+
+    @Test
+    public void queryWithBackticksQuotedIndexAliasShouldPass() {
+        validate("SELECT `s`.age FROM semantics AS `s`");
+        validate("SELECT `s t`.age FROM semantics AS `s t`");
+    }
+
+    @Test
+    public void queryWithBackticksQuotedFieldNameShouldPass() {
+        validate("SELECT `age` FROM semantics");
+        validate("SELECT s.`age` FROM semantics AS s");
+        validate("SELECT `s`.`age` FROM semantics AS `s`");
+    }
 }
