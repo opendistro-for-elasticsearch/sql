@@ -1678,10 +1678,14 @@ public class QueryIT extends SQLIntegTestCase {
         TestUtils.loadBulk(ESIntegTestCase.client(),
                 "/src/test/resources/bank_for_unquote_test.json", "bank");
 
-        String query = "SELECT lastname FROM `bank` ORDER BY age LIMIT 3";
-        JSONArray hits = getHits(executeQuery(query));
+        JSONArray hits = getHits(executeQuery("SELECT lastname FROM `bank`"));
+        Object responseIndex = ((JSONObject) hits.get(0)).query("/_index");
+        assertEquals("bank", responseIndex);
 
-        assertThat("bank", equalTo(((JSONObject) hits.get(0)).query("/_index")));
+        assertEquals(
+                executeQuery("SELECT lastname FROM bank", "jdbc"),
+                executeQuery("SELECT `bank`.`lastname` FROM `bank`", "jdbc")
+        );
     }
 
     @Test
