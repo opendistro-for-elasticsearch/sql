@@ -17,7 +17,6 @@ package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.visitor;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.GenericSqlParseTreeVisitor;
-import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 
 import java.util.List;
 
