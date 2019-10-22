@@ -17,14 +17,11 @@ package com.amazon.opendistroforelasticsearch.sql.unittest.rewriter.identifier;
 
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
-import com.amazon.opendistroforelasticsearch.sql.rewriter.RewriteRule;
-import com.amazon.opendistroforelasticsearch.sql.rewriter.alias.TableAliasPrefixRemoveRule;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.identifier.UnquoteIdentifierRule;
 import com.amazon.opendistroforelasticsearch.sql.util.SqlParserUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.sql.SQLFeatureNotSupportedException;
 
 /**
  * Test cases for backticks quoted identifiers
@@ -59,10 +56,9 @@ public class UnquoteIdentifierRuleTest {
     }
 
     @Test
-    public void selectSpecificFieldsUsingQuotedTableNamePrefix() throws SQLFeatureNotSupportedException {
+    public void selectSpecificFieldsUsingQuotedTableNamePrefix() {
         query("SELECT `bank`.`lastname` FROM `bank`"
-        ).shouldBeAfterRewrite("SELECT bank.lastname FROM bank",
-                new TableAliasPrefixRemoveRule());
+        ).shouldBeAfterRewrite("SELECT bank.lastname FROM bank");
     }
 
     private QueryAssertion query(String sql) {
@@ -80,15 +76,6 @@ public class UnquoteIdentifierRuleTest {
 
         void shouldBeAfterRewrite(String expected) {
             rule.rewrite(expr);
-            Assert.assertEquals(
-                    SQLUtils.toMySqlString(SqlParserUtils.parse(expected)),
-                    SQLUtils.toMySqlString(expr)
-            );
-        }
-
-        void shouldBeAfterRewrite(String expected, RewriteRule extraRule) throws SQLFeatureNotSupportedException {
-            rule.rewrite(expr);
-            extraRule.rewrite(expr);
             Assert.assertEquals(
                     SQLUtils.toMySqlString(SqlParserUtils.parse(expected)),
                     SQLUtils.toMySqlString(expr)
