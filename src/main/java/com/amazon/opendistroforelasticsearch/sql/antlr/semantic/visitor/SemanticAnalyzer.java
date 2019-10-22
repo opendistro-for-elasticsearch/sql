@@ -21,6 +21,9 @@ import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 
 import java.util.List;
 
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.unquoteFullColumn;
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.unquoteSingleField;
+
 /**
  * Main visitor implementation to drive the entire semantic analysis.
  */
@@ -61,20 +64,20 @@ public class SemanticAnalyzer implements GenericSqlParseTreeVisitor<Type> {
 
     @Override
     public void visitAs(String alias, Type type) {
-        mappingLoader.visitAs(StringUtils.unquoteSingleField(alias, "`"), type);
-        typeChecker.visitAs(StringUtils.unquoteSingleField(alias, "`"), type);
+        mappingLoader.visitAs(unquoteSingleField(alias), type);
+        typeChecker.visitAs(unquoteSingleField(alias), type);
     }
 
     @Override
     public Type visitIndexName(String indexName) {
-        mappingLoader.visitIndexName(StringUtils.unquoteSingleField(indexName, "`"));
-        return typeChecker.visitIndexName(StringUtils.unquoteSingleField(indexName, "`"));
+        mappingLoader.visitIndexName(unquoteSingleField(indexName));
+        return typeChecker.visitIndexName(unquoteSingleField(indexName));
     }
 
     @Override
     public Type visitFieldName(String fieldName) {
-        mappingLoader.visitFieldName(StringUtils.unquoteFullColumn(fieldName, "`"));
-        return typeChecker.visitFieldName(StringUtils.unquoteFullColumn(fieldName, "`"));
+        mappingLoader.visitFieldName(unquoteFullColumn(fieldName));
+        return typeChecker.visitFieldName(unquoteFullColumn(fieldName));
     }
 
     @Override

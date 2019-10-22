@@ -1678,55 +1678,50 @@ public class QueryIT extends SQLIntegTestCase {
         TestUtils.loadBulk(ESIntegTestCase.client(),
                 "/src/test/resources/bank_for_unquote_test.json", "bank");
 
-        final String query = "SELECT lastname FROM `bank` ORDER BY age LIMIT 3";
-        JSONObject response = executeQuery(query);
-        JSONArray hits = getHits(response);
+        String query = "SELECT lastname FROM `bank` ORDER BY age LIMIT 3";
+        JSONArray hits = getHits(executeQuery(query));
 
         assertThat("bank", equalTo(((JSONObject) hits.get(0)).query("/_index")));
     }
 
     @Test
     public void backticksQuotedFieldNamesTest() {
-        final String basicQuery = StringUtils.format("SELECT b.lastname FROM %s " +
-                "AS b ORDER BY age LIMIT 3", TestsConstants.TEST_INDEX_BANK);
-        final String expectedResponse = executeQuery(basicQuery, "jdbc");
+        String expected = executeQuery(StringUtils.format("SELECT b.lastname FROM %s " +
+                "AS b ORDER BY age LIMIT 3", TestsConstants.TEST_INDEX_BANK), "jdbc");
+        String quotedFieldResult = executeQuery(StringUtils.format("SELECT b.`lastname` FROM %s " +
+                "AS b ORDER BY age LIMIT 3", TestsConstants.TEST_INDEX_BANK), "jdbc");
 
-        final String queryWithQuotedFieldName = StringUtils.format("SELECT b.`lastname` FROM %s " +
-                "AS b ORDER BY age LIMIT 3", TestsConstants.TEST_INDEX_BANK);
-        assertThat(expectedResponse, equalTo(executeQuery(queryWithQuotedFieldName, "jdbc")));
+        assertEquals(expected, quotedFieldResult);
     }
 
     @Test
     public void backticksQuotedAliasTest() {
-        final String basicQuery = StringUtils.format("SELECT b.lastname FROM %s " +
-                "AS b ORDER BY age LIMIT 3", TestsConstants.TEST_INDEX_BANK);
-        final String expectedResponse = executeQuery(basicQuery, "jdbc");
+        String expected = executeQuery(StringUtils.format("SELECT b.lastname FROM %s " +
+                "AS b ORDER BY age LIMIT 3", TestsConstants.TEST_INDEX_BANK), "jdbc");
+        String quotedAliasResult = executeQuery(StringUtils.format("SELECT `b`.lastname FROM %s" +
+                " AS `b` ORDER BY age LIMIT 3", TestsConstants.TEST_INDEX_BANK), "jdbc");
+        String quotedAliasAndFieldResult = executeQuery(StringUtils.format("SELECT `b`.`lastname` FROM %s " +
+                "AS `b` ORDER BY age LIMIT 3", TestsConstants.TEST_INDEX_BANK), "jdbc");
 
-        final String queryWithQuotedAlias = StringUtils.format("SELECT `b`.lastname FROM %s" +
-                " AS `b` ORDER BY age LIMIT 3", TestsConstants.TEST_INDEX_BANK);
-        final String queryWithQuotedAliasAndFieldName = StringUtils.format("SELECT `b`.`lastname` FROM %s " +
-                "AS `b` ORDER BY age LIMIT 3", TestsConstants.TEST_INDEX_BANK);
-
-        assertThat(expectedResponse, equalTo(executeQuery(queryWithQuotedAlias, "jdbc")));
-        assertThat(expectedResponse, equalTo(executeQuery(queryWithQuotedAliasAndFieldName, "jdbc")));
+        assertEquals(expected, quotedAliasResult);
+        assertEquals(expected, quotedAliasAndFieldResult);
     }
 
     @Test
     public void backticksQuotedAliasWithSpecialCharactersTest() {
-        final String basicQuery = StringUtils.format("SELECT b.lastname FROM %s " +
-                "AS b ORDER BY age LIMIT 3", TestsConstants.TEST_INDEX_BANK);
-        final String expectedResponse = executeQuery(basicQuery, "jdbc");
+        String expected = executeQuery(StringUtils.format("SELECT b.lastname FROM %s " +
+                "AS b ORDER BY age LIMIT 3", TestsConstants.TEST_INDEX_BANK), "jdbc");
+        String specialCharAliasResult = executeQuery(StringUtils.format("SELECT `b k`.lastname FROM %s " +
+                "AS `b k` ORDER BY age LIMIT 3", TestsConstants.TEST_INDEX_BANK), "jdbc");
 
-        final String queryWithQuotedAliasContainingSpecialChars = StringUtils.format("SELECT `b k`.lastname FROM %s " +
-                "AS `b k` ORDER BY age LIMIT 3", TestsConstants.TEST_INDEX_BANK);
-        assertThat(expectedResponse, equalTo(executeQuery(queryWithQuotedAliasContainingSpecialChars, "jdbc")));
+        assertEquals(expected, specialCharAliasResult);
     }
 
     @Test
     public void backticksQuotedAliasInJDBCResponseTest() {
-        final String query = StringUtils.format("SELECT `b`.`lastname` AS `name` FROM %s AS `b` " +
+        String query = StringUtils.format("SELECT `b`.`lastname` AS `name` FROM %s AS `b` " +
                 "ORDER BY age LIMIT 3", TestsConstants.TEST_INDEX_BANK);
-        final String response = executeQuery(query, "jdbc");
+        String response = executeQuery(query, "jdbc");
 
         assertTrue(response.contains("\"alias\": \"name\""));
     }

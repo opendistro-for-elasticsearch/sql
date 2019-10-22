@@ -95,6 +95,10 @@ public class StringUtils {
         return text;
     }
 
+    public static String unquoteSingleField(String text) {
+        return unquoteSingleField(text, "`");
+    }
+
     /**
      *
      * @param text
@@ -107,6 +111,10 @@ public class StringUtils {
             strs[i] = unquotedSubstr;
         }
         return String.join(".", strs);
+    }
+
+    public static String unquoteFullColumn(String text) {
+        return unquoteFullColumn(text, "`");
     }
 
     public static boolean isQuoted(String text, String quote) {

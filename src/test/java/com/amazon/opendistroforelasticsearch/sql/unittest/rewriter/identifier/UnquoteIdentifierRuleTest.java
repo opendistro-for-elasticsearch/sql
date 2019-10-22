@@ -13,13 +13,13 @@ import org.junit.Test;
 public class UnquoteIdentifierRuleTest {
 
     @Test
-    public void queryWithBackticksQuotedIndex() {
+    public void queryWithQuotedIndex() {
         query("SELECT lastname FROM `bank` WHERE balance > 1000 ORDER BY age"
         ).shouldBeAfterRewrite("SELECT lastname FROM bank WHERE balance > 1000 ORDER BY age");
     }
 
     @Test
-    public void queryWithBackticksQuotedField() {
+    public void queryWithQuotedField() {
         query("SELECT `lastname` FROM bank ORDER BY age"
         ).shouldBeAfterRewrite("SELECT lastname FROM bank ORDER BY age");
 
@@ -28,15 +28,15 @@ public class UnquoteIdentifierRuleTest {
     }
 
     @Test
-    public void queryWithBackticksQuotedAlias() {
-        query("SELECT `b`.lastname FROM bank as `b` ORDER BY age"
-        ).shouldBeAfterRewrite("SELECT b.lastname FROM bank as b ORDER BY age");
+    public void queryWithQuotedAlias() {
+        query("SELECT `b`.lastname FROM bank AS `b` ORDER BY age"
+        ).shouldBeAfterRewrite("SELECT b.lastname FROM bank AS b ORDER BY age");
 
-        query("SELECT `b`.`lastname` FROM `bank` as `b` ORDER BY age"
-        ).shouldBeAfterRewrite("SELECT b.lastname FROM bank as b ORDER BY age");
+        query("SELECT `b`.`lastname` FROM bank AS `b` ORDER BY age"
+        ).shouldBeAfterRewrite("SELECT b.lastname FROM bank AS b ORDER BY age");
 
-        query("SELECT `b`.`lastname` AS `name` FROM bank as `b` ORDER BY age"
-        ).shouldBeAfterRewrite("SELECT b.lastname AS name FROM bank as b ORDER BY age");
+        query("SELECT `b`.`lastname` AS `name` FROM bank AS `b` ORDER BY age"
+        ).shouldBeAfterRewrite("SELECT b.lastname AS name FROM bank AS b ORDER BY age");
     }
 
     private QueryAssertion query(String sql) {
@@ -45,8 +45,8 @@ public class UnquoteIdentifierRuleTest {
 
     private static class QueryAssertion {
 
-        private final UnquoteIdentifierRule rule = new UnquoteIdentifierRule();
-        private final SQLQueryExpr expr;
+        private UnquoteIdentifierRule rule = new UnquoteIdentifierRule();
+        private SQLQueryExpr expr;
 
         QueryAssertion(String sql) {
             this.expr = SqlParserUtils.parse(sql);
