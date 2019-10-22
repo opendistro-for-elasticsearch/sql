@@ -20,6 +20,9 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.GenericSqlParseTr
 
 import java.util.List;
 
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.unquoteFullColumn;
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.unquoteSingleField;
+
 /**
  * Main visitor implementation to drive the entire semantic analysis.
  */
@@ -60,20 +63,20 @@ public class SemanticAnalyzer implements GenericSqlParseTreeVisitor<Type> {
 
     @Override
     public void visitAs(String alias, Type type) {
-        mappingLoader.visitAs(alias, type);
-        typeChecker.visitAs(alias, type);
+        mappingLoader.visitAs(unquoteSingleField(alias), type);
+        typeChecker.visitAs(unquoteSingleField(alias), type);
     }
 
     @Override
     public Type visitIndexName(String indexName) {
-        mappingLoader.visitIndexName(indexName);
-        return typeChecker.visitIndexName(indexName);
+        mappingLoader.visitIndexName(unquoteSingleField(indexName));
+        return typeChecker.visitIndexName(unquoteSingleField(indexName));
     }
 
     @Override
     public Type visitFieldName(String fieldName) {
-        mappingLoader.visitFieldName(fieldName);
-        return typeChecker.visitFieldName(fieldName);
+        mappingLoader.visitFieldName(unquoteFullColumn(fieldName));
+        return typeChecker.visitFieldName(unquoteFullColumn(fieldName));
     }
 
     @Override
