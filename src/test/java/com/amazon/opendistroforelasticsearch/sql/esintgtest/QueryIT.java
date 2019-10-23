@@ -1686,6 +1686,16 @@ public class QueryIT extends SQLIntegTestCase {
                 executeQuery("SELECT lastname FROM bank", "jdbc"),
                 executeQuery("SELECT `bank`.`lastname` FROM `bank`", "jdbc")
         );
+
+        assertEquals(
+                executeQuery(
+                        "SELECT `b`.`age` AS `hello world`, AVG(`b`.`balance`) FROM `bank` AS `b` " +
+                                "WHERE ABS(`b`.`age`) > 20 GROUP BY `b`.`gender` ORDER BY `b`.`age`",
+                "jdbc"),
+                executeQuery("SELECT age , AVG(balance) FROM bank " +
+                                "WHERE ABS(age) > 20 GROUP BY gender ORDER BY age",
+                        "jdbc")
+        );
     }
 
     @Test
