@@ -76,13 +76,17 @@ public class OrdinalRewriterRuleTest {
     public void multipleGroupByOrdinal() throws SQLFeatureNotSupportedException {
         query("SELECT lastname, age FROM bank GROUP BY 1, 2 "
         ).shouldBeAfterRewrite("SELECT lastname, age FROM bank GROUP BY lastname, age");
-    }
 
-    @Test
-    public void multipleGroupByOrdinalDifferentorder() throws SQLFeatureNotSupportedException {
         query("SELECT lastname, age FROM bank GROUP BY 2, 1"
         ).shouldBeAfterRewrite("SELECT lastname, age FROM bank GROUP BY age, lastname");
+
+        query("SELECT lastname, age, firstname FROM bank GROUP BY 2, firstname, 1"
+        ).shouldBeAfterRewrite("SELECT lastname, age, firstname FROM bank GROUP BY age, firstname, lastname");
+
+        query("SELECT lastname, age, firstname FROM bank GROUP BY 2, something, 1"
+        ).shouldBeAfterRewrite("SELECT lastname, age, firstname FROM bank GROUP BY age, something, lastname");
     }
+
 
     @Test
     public void simpleOrderByOrdinal() throws SQLFeatureNotSupportedException {
@@ -94,14 +98,17 @@ public class OrdinalRewriterRuleTest {
     public void multipleOrderByOrdinal() throws SQLFeatureNotSupportedException {
         query("SELECT lastname, age FROM bank ORDER BY 1, 2 "
         ).shouldBeAfterRewrite("SELECT lastname, age FROM bank ORDER BY lastname, age");
-    }
 
-    @Test
-    public void multipleOrderByOrdinalDifferentorder() throws SQLFeatureNotSupportedException {
         query("SELECT lastname, age FROM bank ORDER BY 2, 1"
         ).shouldBeAfterRewrite("SELECT lastname, age FROM bank ORDER BY age, lastname");
+
+        query("SELECT lastname, age, firstname FROM bank ORDER BY 2, firstname, 1"
+        ).shouldBeAfterRewrite("SELECT lastname, age, firstname FROM bank ORDER BY age, firstname, lastname");
+
+        query("SELECT lastname, age, firstname FROM bank ORDER BY 2, department, 1"
+        ).shouldBeAfterRewrite("SELECT lastname, age, firstname FROM bank ORDER BY age, department, lastname");
     }
-    
+
 
     // TODO: Some more Tests
 
