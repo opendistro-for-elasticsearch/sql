@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
 
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_NESTED_TYPE;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ONLINE;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_PHRASE;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.everyItem;
@@ -51,6 +52,7 @@ public class QueryFunctionsIT extends SQLIntegTestCase {
     private static final String FROM_ACCOUNTS = "FROM " + TEST_INDEX_ACCOUNT + "/account";
     private static final String FROM_NESTED = "FROM " + TEST_INDEX_NESTED_TYPE + "/nestedType";
     private static final String FROM_PHRASE = "FROM " + TEST_INDEX_PHRASE + "/phrase";
+    private static final String FROM_ONLINE = "FROM " + TEST_INDEX_ONLINE;
 
     /**
      * TODO Looks like Math/Date Functions test all use the same query() and execute() functions
@@ -62,6 +64,7 @@ public class QueryFunctionsIT extends SQLIntegTestCase {
         loadIndex(Index.ACCOUNT);
         loadIndex(Index.NESTED);
         loadIndex(Index.PHRASE);
+        loadIndex(Index.ONLINE);
     }
 
     @Test
@@ -193,6 +196,56 @@ public class QueryFunctionsIT extends SQLIntegTestCase {
             hits(
                 hasValueForFields("Bradshaw", "firstname", "lastname")
             )
+        );
+    }
+
+    @Test
+    public void numberOperatorNumberCaseInsensitiveTest() {
+        assertEquals(
+                executeQuery("SELECT ABS(age) " + FROM_ACCOUNTS + " WHERE age IS NOT NULL LIMIT 5",
+                        "jdbc"),
+                executeQuery("SELECT abs(age) " + FROM_ACCOUNTS + " WHERE age IS NOT NULL LIMIT 5",
+                        "jdbc")
+        );
+    }
+
+    @Test
+    public void trigFunctionNameCaseInsensitiveTest() {
+        assertEquals(
+                executeQuery("SELECT Cos(age) " + FROM_ACCOUNTS + " WHERE age is NOT NULL LIMIT 5",
+                        "jdbc"),
+                executeQuery("SELECT cos(age) " + FROM_ACCOUNTS + " WHERE age is NOT NULL LIMIT 5",
+                        "jdbc")
+        );
+    }
+
+    @Test
+    public void stringOperatorNameCaseInsensitiveTest() {
+        assertEquals(
+                executeQuery("SELECT SubStrinG(lastname, 0, 2) " + FROM_ACCOUNTS + " ORDER BY age LIMIT 5",
+                        "jdbc"),
+                executeQuery("SELECT substring(lastname, 0, 2) " + FROM_ACCOUNTS + " ORDER BY age LIMIT 5",
+                        "jdbc")
+        );
+    }
+
+    @Test
+    public void binaryOperatorNameCaseInsensitiveTest() {
+        assertEquals(
+                executeQuery("SELECT lastname " + FROM_ACCOUNTS +
+                        " WHERE (age IS NOT NULL) AND (gender = 'M') ORDER BY age LIMIT 5", "jdbc"),
+                executeQuery("SELECT lastname " + FROM_ACCOUNTS +
+                        " WHERE (age IS NOT NULL) and (gender = 'M') ORDER by age LIMIT 5", "jdbc")
+        );
+    }
+
+    @Test
+    public void dateFunctionNameCaseInsensitiveTest() {
+        assertEquals(
+                executeQuery("SELECT insert_time " + FROM_ONLINE +
+                        " WHERE date_FORMAT(insert_time, 'yyyy-MM-dd', 'UTC') > '2014-01-01'", "jdbc"),
+                executeQuery("SELECT insert_time " + FROM_ONLINE +
+                        " WHERE date_format(insert_time, 'yyyy-MM-dd', 'UTC') > '2014-01-01'", "jdbc")
         );
     }
 
