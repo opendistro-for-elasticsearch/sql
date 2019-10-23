@@ -15,6 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.utils;
 
+import com.google.common.base.Strings;
+
 import java.util.Locale;
 
 /**
@@ -78,6 +80,45 @@ public class StringUtils {
         return Math.toIntExact(input.chars().
                 filter(c -> c == match).
                 count());
+    }
+
+    /**
+     *
+     * @param text string
+     * @param quote
+     * @return An unquoted string whose outer pair of back-ticks (if any) has been removed
+     */
+    public static String unquoteSingleField(String text, String quote) {
+        if (isQuoted(text, quote)) {
+            return text.substring(quote.length(), text.length() - quote.length());
+        }
+        return text;
+    }
+
+    public static String unquoteSingleField(String text) {
+        return unquoteSingleField(text, "`");
+    }
+
+    /**
+     *
+     * @param text
+     * @return A string whose each dot-seperated field has been unquoted from back-ticks (if any)
+     */
+    public static String unquoteFullColumn(String text, String quote) {
+        String[] strs = text.split("\\.");
+        for (int i = 0; i < strs.length; i++) {
+            String unquotedSubstr = unquoteSingleField(strs[i], quote);
+            strs[i] = unquotedSubstr;
+        }
+        return String.join(".", strs);
+    }
+
+    public static String unquoteFullColumn(String text) {
+        return unquoteFullColumn(text, "`");
+    }
+
+    public static boolean isQuoted(String text, String quote) {
+        return !Strings.isNullOrEmpty(text) && text.startsWith(quote) && text.endsWith(quote);
     }
 
     private StringUtils() {
