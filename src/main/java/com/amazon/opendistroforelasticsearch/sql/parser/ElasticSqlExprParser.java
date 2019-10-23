@@ -61,6 +61,8 @@ import com.alibaba.druid.util.JdbcConstants;
 
 import java.util.List;
 
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.isQuoted;
+
 /**
  * Created by Eliran on 18/8/2015.
  */
@@ -620,6 +622,14 @@ public class ElasticSqlExprParser extends SQLExprParser {
         if (lexer.token() == Token.ERROR) {
             throw new ParserException("syntax error, token: " + lexer.token() + " " + lexer.stringVal() + ", pos : "
                     + lexer.pos());
+        }
+
+        if (lexer.token() == Token.DOT && expr instanceof SQLIdentifierExpr) {
+            if (isQuoted(((SQLIdentifierExpr) expr).getName(), "`")) {
+                lexer.nextToken();
+                ((SQLIdentifierExpr) expr).setName(((SQLIdentifierExpr) expr).getName() + "." + lexer.stringVal());
+                lexer.nextToken();
+            }
         }
 
         return super.primaryRest(expr);
