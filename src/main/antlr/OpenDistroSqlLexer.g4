@@ -49,6 +49,7 @@ ASC:                                'ASC';
 BETWEEN:                            'BETWEEN';
 BY:                                 'BY';
 CASE:                               'CASE';
+CAST:                               'CAST';
 CROSS:                              'CROSS';
 DELETE:                             'DELETE';
 DESC:                               'DESC';
