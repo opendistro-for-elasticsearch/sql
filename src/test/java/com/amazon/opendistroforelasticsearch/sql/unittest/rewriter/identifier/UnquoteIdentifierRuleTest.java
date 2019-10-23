@@ -65,10 +65,10 @@ public class UnquoteIdentifierRuleTest {
     public void queryWithQuotedAggrAndFunc() {
         query("" +
                 "SELECT `b`.`lastname` AS `name`, AVG(`b`.`balance`) FROM `bank` AS `b` " +
-                "WHERE ABS(`b`.`age`) > 20 GROUP BY `b`.`gender` ORDER BY `b`.`age`"
+                "WHERE ABS(`b`.`age`) > 20 GROUP BY `b`.`age` ORDER BY `b`.`age`"
         ).shouldBeAfterRewrite(
                 "SELECT b.lastname AS name, AVG(b.balance) FROM bank AS b " +
-                        "WHERE ABS(b.age) > 20 GROUP BY b.gender ORDER BY b.age"
+                        "WHERE ABS(b.age) > 20 GROUP BY b.age ORDER BY b.age"
         );
     }
 
