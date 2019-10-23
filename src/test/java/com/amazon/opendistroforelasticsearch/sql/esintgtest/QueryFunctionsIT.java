@@ -62,7 +62,6 @@ public class QueryFunctionsIT extends SQLIntegTestCase {
         loadIndex(Index.ACCOUNT);
         loadIndex(Index.NESTED);
         loadIndex(Index.PHRASE);
-        loadIndex(Index.ONLINE);
     }
 
     @Test
