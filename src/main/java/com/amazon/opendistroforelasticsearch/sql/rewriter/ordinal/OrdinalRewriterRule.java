@@ -66,7 +66,7 @@ public class OrdinalRewriterRule implements RewriteRule<SQLQueryExpr> {
 
         MySqlSelectQueryBlock query = (MySqlSelectQueryBlock) sqlSelectQuery;
 
-        if (!hasGroupBy(query) && !hasOrderBy(query)) {
+        if (!hasGroupByWithOrdinals(query) && !hasOrderByWithOrdinals(query)) {
             return false;
         }
 
@@ -100,7 +100,7 @@ public class OrdinalRewriterRule implements RewriteRule<SQLQueryExpr> {
         changeOrdinalAliasInGroupAndOrderBy(root);
     }
 
-    private boolean hasGroupBy(MySqlSelectQueryBlock query) {
+    private boolean hasGroupByWithOrdinals(MySqlSelectQueryBlock query) {
         if (query.getGroupBy() == null) {
             return false;
         } else if (query.getGroupBy().getItems().isEmpty()){
@@ -112,7 +112,7 @@ public class OrdinalRewriterRule implements RewriteRule<SQLQueryExpr> {
         );
     }
 
-    private boolean hasOrderBy(MySqlSelectQueryBlock query) {
+    private boolean hasOrderByWithOrdinals(MySqlSelectQueryBlock query) {
         if (query.getOrderBy() == null) {
             return false;
         } else if (query.getOrderBy().getItems().isEmpty()){
@@ -143,17 +143,16 @@ public class OrdinalRewriterRule implements RewriteRule<SQLQueryExpr> {
     private void changeOrdinalAliasInGroupAndOrderBy(SQLQueryExpr root) {
         root.accept(new MySqlASTVisitorAdapter() {
 
+            private String groupException = "Invalid ordinal [%s] specified in [GROUP BY %s]";
+            private String orderException = "Invalid ordinal [%s] specified in [ORDER BY %s]";
+
             @Override
             public boolean visit(MySqlSelectGroupByExpr groupByExpr) {
                 SQLExpr expr = groupByExpr.getExpr();
                 if (expr instanceof SQLIntegerExpr) {
                     Integer ordinalValue = ((SQLIntegerExpr) expr).getNumber().intValue();
                     SQLExpr newExpr = groupOrdinalToExpr.get(ordinalValue);
-                    if (newExpr == null) {
-                        throw new VerificationException(
-                            "Invalid ordinal [" + ordinalValue + "] specified in [GROUP BY " + ordinalValue +"] "
-                        );
-                    }
+                    checkInvalidOrdinal(newExpr, ordinalValue, groupException);
                     groupByExpr.setExpr(newExpr);
                     newExpr.setParent(groupByExpr);
                 }
@@ -164,16 +163,11 @@ public class OrdinalRewriterRule implements RewriteRule<SQLQueryExpr> {
             public boolean visit(SQLSelectOrderByItem orderByItem) {
                 SQLExpr expr = orderByItem.getExpr();
                 Integer ordinalValue;
-                String exception = "Invalid ordinal [%s] specified in [ORDER BY %s]";
 
                 if (expr instanceof SQLIntegerExpr) {
                     ordinalValue = ((SQLIntegerExpr) expr).getNumber().intValue();
                     SQLExpr newExpr = orderOrdinalToExpr.get(ordinalValue);
-
-                    if (newExpr == null) {
-                        throw new VerificationException(String.format(exception, ordinalValue, ordinalValue));
-                    }
-
+                    checkInvalidOrdinal(newExpr, ordinalValue, orderException);
                     orderByItem.setExpr(newExpr);
                     newExpr.setParent(orderByItem);
                 }else if (expr instanceof SQLBinaryOpExpr
@@ -184,10 +178,7 @@ public class OrdinalRewriterRule implements RewriteRule<SQLQueryExpr> {
 
                     ordinalValue = integerExpr.getNumber().intValue();
                     SQLExpr newExpr = orderOrdinalToExpr.get(ordinalValue);
-                    if (newExpr == null) {
-                        throw new VerificationException(String.format(exception, ordinalValue, ordinalValue));
-                    }
-
+                    checkInvalidOrdinal(newExpr, ordinalValue, orderException);
                     binaryOpExpr.setLeft(newExpr);
                     newExpr.setParent(binaryOpExpr);
                 }
@@ -209,5 +200,11 @@ public class OrdinalRewriterRule implements RewriteRule<SQLQueryExpr> {
             throw new ParserException("Illegal SQL expression : " + sql);
         }
         return expr;
+    }
+
+    private void checkInvalidOrdinal(SQLExpr expr, Integer ordinal, String exception){
+        if (expr == null) {
+            throw new VerificationException(String.format(exception, ordinal, ordinal));
+        }
     }
 }
