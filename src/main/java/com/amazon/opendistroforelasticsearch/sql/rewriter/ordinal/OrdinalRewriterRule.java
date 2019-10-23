@@ -33,6 +33,7 @@ import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.RewriteRule;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.RewriteRuleExecutor;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.alias.TableAliasPrefixRemoveRule;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.VerificationException;
 
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.HashMap;
@@ -146,6 +147,11 @@ public class OrdinalRewriterRule implements RewriteRule<SQLQueryExpr> {
                 if (expr instanceof SQLIntegerExpr) {
                     Integer ordinalValue = ((SQLIntegerExpr) expr).getNumber().intValue();
                     SQLExpr newExpr = groupOrdinalToExpr.get(ordinalValue);
+                    if (newExpr == null) {
+                        throw new VerificationException(
+                            "Invalid ordinal [" + ordinalValue + "] specified in [GROUP BY " + ordinalValue +"] "
+                        );
+                    }
                     groupByExpr.setExpr(newExpr);
                     newExpr.setParent(groupByExpr);
                 }
@@ -156,10 +162,15 @@ public class OrdinalRewriterRule implements RewriteRule<SQLQueryExpr> {
             public boolean visit(SQLSelectOrderByItem orderByItem) {
                 SQLExpr expr = orderByItem.getExpr();
                 Integer ordinalValue;
+                String exception = "Invalid ordinal [%s] specified in [ORDER BY %s]";
 
                 if (expr instanceof SQLIntegerExpr) {
                     ordinalValue = ((SQLIntegerExpr) expr).getNumber().intValue();
                     SQLExpr newExpr = orderOrdinalToExpr.get(ordinalValue);
+
+                    if (newExpr == null) {
+                        throw new VerificationException(String.format(exception, ordinalValue, ordinalValue));
+                    }
 
                     orderByItem.setExpr(newExpr);
                     newExpr.setParent(orderByItem);
@@ -171,6 +182,10 @@ public class OrdinalRewriterRule implements RewriteRule<SQLQueryExpr> {
 
                     ordinalValue = integerExpr.getNumber().intValue();
                     SQLExpr newExpr = orderOrdinalToExpr.get(ordinalValue);
+                    if (newExpr == null) {
+                        throw new VerificationException(String.format(exception, ordinalValue, ordinalValue));
+                    }
+
                     binaryOpExpr.setLeft(newExpr);
                     newExpr.setParent(binaryOpExpr);
                 }
