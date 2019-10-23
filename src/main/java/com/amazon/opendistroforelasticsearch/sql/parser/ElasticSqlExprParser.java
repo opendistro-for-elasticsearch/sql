@@ -61,6 +61,8 @@ import com.alibaba.druid.util.JdbcConstants;
 
 import java.util.List;
 
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.isQuoted;
+
 /**
  * Created by Eliran on 18/8/2015.
  */
@@ -620,6 +622,23 @@ public class ElasticSqlExprParser extends SQLExprParser {
         if (lexer.token() == Token.ERROR) {
             throw new ParserException("syntax error, token: " + lexer.token() + " " + lexer.stringVal() + ", pos : "
                     + lexer.pos());
+        }
+
+        /**
+         * When the druid parser parses the quoted field in SELECT clause, e.g. SELECT `b`.`lastname` FROM bank AS `b`,
+         * "`b`" is recognized as an identifier expr, and the token is DOT, then the next identifier "`lastname`" would
+         * be recognized as the property name of "`b`". The parser creates a SQLPropertyExpr with owner of "`b`" and
+         * property name of "`lastname`".
+         *
+         * The following block of code prevents this specific case to generate SQLPropertyExpr, but corrects the parser
+         * to generate a SQLIdentifierExpr with expr = "`b`.`lastname`".
+         */
+        if (lexer.token() == Token.DOT && expr instanceof SQLIdentifierExpr) {
+            if (isQuoted(((SQLIdentifierExpr) expr).getName(), "`")) {
+                lexer.nextToken();
+                ((SQLIdentifierExpr) expr).setName(((SQLIdentifierExpr) expr).getName() + "." + lexer.stringVal());
+                lexer.nextToken();
+            }
         }
 
         return super.primaryRest(expr);
