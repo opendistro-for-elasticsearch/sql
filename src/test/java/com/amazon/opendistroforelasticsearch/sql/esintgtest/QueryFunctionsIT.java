@@ -200,7 +200,7 @@ public class QueryFunctionsIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void numberOperatorNumberCaseInsensitiveTest() {
+    public void numberOperatorNameCaseInsensitiveTest() {
         assertEquals(
                 executeQuery("SELECT ABS(age) " + FROM_ACCOUNTS + " WHERE age IS NOT NULL LIMIT 5",
                         "jdbc"),
