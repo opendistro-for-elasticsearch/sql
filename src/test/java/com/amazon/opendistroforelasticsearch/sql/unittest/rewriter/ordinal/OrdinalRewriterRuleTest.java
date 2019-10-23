@@ -18,12 +18,16 @@ package com.amazon.opendistroforelasticsearch.sql.unittest.rewriter.ordinal;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 
+import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.VerificationException;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.ordinal.OrdinalRewriterRule;
 import com.amazon.opendistroforelasticsearch.sql.util.SqlParserUtils;
+
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.sql.SQLFeatureNotSupportedException;
+
+import static org.hamcrest.Matchers.containsString;
 
 /**
  * Test cases for ordinal aliases in GROUP BY and ORDER BY
@@ -97,23 +101,9 @@ public class OrdinalRewriterRuleTest {
         query("SELECT lastname, age FROM bank ORDER BY 2, 1"
         ).shouldBeAfterRewrite("SELECT lastname, age FROM bank ORDER BY age, lastname");
     }
+    
 
-
-    //Tests with table aliases
-
-
-
-
-    //Tests with quoted identifiers
-
-
-
-    //Tests with invalid ordinals
-
-
-
-    // Some more Tests
-
+    // TODO: Some more Tests
 
     private QueryAssertion query(String sql) {
         return new QueryAssertion(sql);
@@ -143,6 +133,16 @@ public class OrdinalRewriterRuleTest {
 
         void shouldNotMatchRule() throws SQLFeatureNotSupportedException {
             Assert.assertFalse(match());
+        }
+
+        void shouldThrowException(int ordinal) throws SQLFeatureNotSupportedException {
+            try {
+                shouldMatchRule();
+                rule.rewrite(expr);
+                Assert.fail("Expected VerificationException, but none was thrown");
+            } catch (VerificationException e) {
+                Assert.assertThat(e.getMessage(), containsString("Invalid ordinal ["+ ordinal +"] specified in"));
+            }
         }
 
         private boolean match() throws SQLFeatureNotSupportedException {
