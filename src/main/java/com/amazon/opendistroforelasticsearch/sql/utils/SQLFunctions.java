@@ -600,7 +600,9 @@ public class SQLFunctions {
      * it might be safely treated as INTEGER.
      */
     public static Schema.Type getScriptFunctionReturnType(String functionName) {
-        if (dateFunctions.contains(functionName) || stringOperators.contains(functionName.toLowerCase())) {
+        functionName = functionName.toLowerCase();
+
+        if (dateFunctions.contains(functionName) || stringOperators.contains(functionName)) {
             return Schema.Type.TEXT;
         }
 
