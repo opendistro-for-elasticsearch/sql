@@ -33,6 +33,7 @@ import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.RewriteRule;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.RewriteRuleExecutor;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.alias.TableAliasPrefixRemoveRule;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.identifier.UnquoteIdentifierRule;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.VerificationException;
 
 import java.sql.SQLFeatureNotSupportedException;
@@ -85,6 +86,7 @@ public class OrdinalRewriterRule implements RewriteRule<SQLQueryExpr> {
 
         // we need to rewrite the generated syntax tree to match the original syntax tree Select clause
         ruleExecutor = RewriteRuleExecutor.builder()
+            .withRule(new UnquoteIdentifierRule())
             .withRule(new TableAliasPrefixRemoveRule())
             .build();
 
