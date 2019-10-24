@@ -40,6 +40,7 @@ public enum ScalarFunction implements TypeExpression {
     CONCAT_WS(),
     COS(func(T(NUMBER)).to(T)),
     COSH(func(T(NUMBER)).to(T)),
+    COT(func(T(NUMBER)).to(T)),
     DATE_FORMAT(
         func(DATE, STRING).to(STRING),
         func(DATE, STRING, STRING).to(STRING)

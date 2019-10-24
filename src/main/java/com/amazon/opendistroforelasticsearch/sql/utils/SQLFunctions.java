@@ -49,7 +49,7 @@ public class SQLFunctions {
     private static final Set<String> mathConstants = Sets.newHashSet("e", "pi");
 
     private static final Set<String> trigFunctions = Sets.newHashSet(
-            "degrees", "radians", "sin", "cos", "tan", "asin", "acos", "atan", "atan2", "sinh", "cosh"
+            "degrees", "radians", "sin", "cos", "tan", "asin", "acos", "atan", "atan2", "sinh", "cosh", "cot"
     );
 
     private static final Set<String> stringOperators = Sets.newHashSet(
@@ -202,6 +202,12 @@ public class SQLFunctions {
             case "sinh":
             case "cosh":
                 functionStr = mathSingleValueTemplate("Math." + methodName, methodName,
+                        (SQLExpr) paramers.get(0).value, name);
+                break;
+
+            case "cot":
+                // ES does not support the function name cot
+                functionStr = mathSingleValueTemplate("1 / Math.tan", methodName,
                         (SQLExpr) paramers.get(0).value, name);
                 break;
 
