@@ -50,13 +50,6 @@ public class OrdinalAliasRewriterIT extends SQLIntegTestCase {
         assertThat(actual, equalTo(expected));
     }
 
-
-    @Test
-    public void sometest() {
-        String expected = executeQuery(StringUtils.format(
-            "SELECT `lastname` FROM %s AS b GROUP BY `lastname` LIMIT 3", TestsConstants.TEST_INDEX_ACCOUNT), "jdbc");
-    }
-
     @Test
     public void selectFieldiWithBacticksGroupByOrdinal() {
         String expected = executeQuery(StringUtils.format(
