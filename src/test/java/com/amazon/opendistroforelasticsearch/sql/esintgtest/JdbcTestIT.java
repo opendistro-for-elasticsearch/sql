@@ -116,11 +116,11 @@ public class JdbcTestIT extends SQLIntegTestCase {
     @Test
     public void dateFunctionNameCaseInsensitiveTest() {
         assertEquals(
-                executeQuery("SELECT insert_time FROM elasticsearch-sql_test_index_online/online " +
+                executeQuery("SELECT DATE_FORMAT(insert_time, 'yyyy-MM-dd', 'UTC') FROM elasticsearch-sql_test_index_online/online " +
                         "WHERE date_FORMAT(insert_time, 'yyyy-MM-dd', 'UTC') > '2014-01-01' " +
                         "GROUP BY DAte_format(insert_time, 'yyyy-MM-dd', 'UTC') " +
                         "ORDER BY date_forMAT(insert_time, 'yyyy-MM-dd', 'UTC')", "jdbc"),
-                executeQuery("SELECT insert_time FROM elasticsearch-sql_test_index_online/online " +
+                executeQuery("SELECT date_format(insert_time, 'yyyy-MM-dd', 'UTC') FROM elasticsearch-sql_test_index_online/online " +
                         "WHERE date_format(insert_time, 'yyyy-MM-dd', 'UTC') > '2014-01-01' " +
                         "GROUP BY date_format(insert_time, 'yyyy-MM-dd', 'UTC') " +
                         "ORDER BY date_format(insert_time, 'yyyy-MM-dd', 'UTC')", "jdbc")
