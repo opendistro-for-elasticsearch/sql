@@ -321,9 +321,12 @@ caseFuncAlternative
 convertedDataType
     : typeName=(BINARY| NCHAR) lengthOneDimension?
     | typeName=CHAR lengthOneDimension? ((CHARACTER SET | CHARSET) charsetName)?
-    | typeName=(DATE | DATETIME | TIME)
-    | typeName=DECIMAL lengthTwoDimension?
-    | (SIGNED | UNSIGNED) INTEGER?
+    | typeName=DATETIME
+    | typeName=INT
+    | typeName=DOUBLE
+    | typeName=LONG
+    | typeName=FLOAT
+    | typeName=STRING
     ;
 
 lengthOneDimension
