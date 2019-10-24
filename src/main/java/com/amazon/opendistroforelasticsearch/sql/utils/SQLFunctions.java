@@ -42,7 +42,7 @@ import java.util.stream.Stream;
 public class SQLFunctions {
 
     private static final Set<String> numberOperators = Sets.newHashSet(
-            "exp", "expm1", "log", "log2", "log10", "sqrt", "cbrt", "ceil", "floor", "rint", "pow",
+            "exp", "expm1", "log", "log2", "log10", "sqrt", "cbrt", "ceil", "floor", "rint", "pow", "power",
             "round", "random", "abs"
     );
 
@@ -206,6 +206,8 @@ public class SQLFunctions {
                 break;
 
             case "pow":
+            case "power":
+                methodName = "pow";
                 functionStr = mathDoubleValueTemplate("Math." + methodName, methodName,
                         (SQLExpr) paramers.get(0).value, Util.expr2Object((SQLExpr) paramers.get(1).value).toString(),
                         name);
