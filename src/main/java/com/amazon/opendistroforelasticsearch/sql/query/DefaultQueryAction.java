@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.query;
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOperator;
+import com.alibaba.druid.sql.ast.expr.SQLCastExpr;
 import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.KVValue;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
@@ -95,7 +96,7 @@ public class DefaultQueryAction extends QueryAction {
         setIndicesAndTypes();
 
         setFields(select.getFields());
-
+        // if cast, add casting field to include list, should do the trick bb
         setWhere(select.getWhere());
         setSorts(select.getOrderBys());
         setLimit(select.getOffset(), select.getRowCount());
@@ -152,6 +153,9 @@ public class DefaultQueryAction extends QueryAction {
                     MethodField method = (MethodField) field;
                     if (method.getName().toLowerCase().equals("script")) {
                         handleScriptField(method);
+                        if (method.getExpression() instanceof SQLCastExpr) {
+                            includeFields.add(method.getParams().get(0).toString());
+                        }
                     } else if (method.getName().equalsIgnoreCase("include")) {
                         for (KVValue kvValue : method.getParams()) {
                             includeFields.add(kvValue.value.toString());

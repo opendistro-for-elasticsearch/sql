@@ -160,6 +160,15 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     }
 
     @Test
+    public void castFieldWithoutAliasTest() throws IOException {
+        String query = "SELECT CAST(age AS DOUBLE) FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " /account limit 5";
+
+        JSONObject response = executeQuery(query);
+        JSONArray hits = getHits(response);
+        System.out.println(hits.toString());
+    }
+
+    @Test
     public void concat_ws_field_and_string() throws Exception {
         //here is a bug,csv field with spa
         String query = "SELECT " +
