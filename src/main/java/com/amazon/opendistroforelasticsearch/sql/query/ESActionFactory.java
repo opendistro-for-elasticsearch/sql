@@ -46,6 +46,7 @@ import com.amazon.opendistroforelasticsearch.sql.rewriter.alias.TableAliasPrefix
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.TermFieldRewriter;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.TermFieldRewriter.TermRewriterFilter;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.nestedfield.NestedFieldRewriter;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.ordinal.OrdinalRewriterRule;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.parent.SQLExprParentSetterRule;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.SubQueryRewriteRule;
 import org.elasticsearch.client.Client;
@@ -79,6 +80,7 @@ public class ESActionFactory {
 
                 RewriteRuleExecutor<SQLQueryExpr> ruleExecutor = RewriteRuleExecutor.builder()
                         .withRule(new SQLExprParentSetterRule())
+                        .withRule(new OrdinalRewriterRule(sql))
                         .withRule(new UnquoteIdentifierRule())
                         .withRule(new TableAliasPrefixRemoveRule())
                         .withRule(new SubQueryRewriteRule())
@@ -175,9 +177,8 @@ public class ESActionFactory {
         SQLExpr expr = parser.expr();
 
         if (parser.getLexer().token() != Token.EOF) {
-            throw new ParserException("illegal sql expr : " + sql);
+            throw new ParserException("Illegal SQL expression : " + sql);
         }
-
         return expr;
     }
 }
