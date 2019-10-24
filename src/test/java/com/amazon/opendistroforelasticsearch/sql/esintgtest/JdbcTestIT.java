@@ -128,8 +128,8 @@ public class JdbcTestIT extends SQLIntegTestCase {
         assertEquals(
                 executeQuery("SELECT insert_time FROM elasticsearch-sql_test_index_online/online " +
                         "WHERE date_FORMAT(insert_time, 'yyyy-MM-dd', 'UTC') > '2014-01-01' " +
-                        "group by DAte_format(insert_time, 'yyyy-MM-dd', 'UTC') " +
-                        "oRDEr By date_forMAT(insert_time, 'yyyy-MM-dd', 'UTC')", "jdbc"),
+                        "GROUP BY DAte_format(insert_time, 'yyyy-MM-dd', 'UTC') " +
+                        "ORDER BY date_forMAT(insert_time, 'yyyy-MM-dd', 'UTC')", "jdbc"),
                 executeQuery("SELECT insert_time FROM elasticsearch-sql_test_index_online/online " +
                         "WHERE date_format(insert_time, 'yyyy-MM-dd', 'UTC') > '2014-01-01' " +
                         "GROUP BY date_format(insert_time, 'yyyy-MM-dd', 'UTC') " +
