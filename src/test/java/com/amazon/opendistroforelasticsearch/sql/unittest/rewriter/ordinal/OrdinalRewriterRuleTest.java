@@ -23,15 +23,18 @@ import com.amazon.opendistroforelasticsearch.sql.rewriter.ordinal.OrdinalRewrite
 import com.amazon.opendistroforelasticsearch.sql.util.SqlParserUtils;
 
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
-
-import static org.hamcrest.Matchers.containsString;
+import org.junit.rules.ExpectedException;
 
 /**
  * Test cases for ordinal aliases in GROUP BY and ORDER BY
  */
 
 public class OrdinalRewriterRuleTest {
+
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
 
     @Test
     public void ordinalInGroupByShouldMatch() {
@@ -42,7 +45,6 @@ public class OrdinalRewriterRuleTest {
     public void ordinalInOrderByShouldMatch() {
         query("SELECT lastname FROM bank ORDER BY 1").shouldMatchRule();
     }
-
 
     @Test
     public void ordinalInGroupAndOrderByShouldMatch() {
@@ -83,8 +85,8 @@ public class OrdinalRewriterRuleTest {
 
         query("SELECT lastname, age, firstname FROM bank GROUP BY 2, something, 1"
         ).shouldBeAfterRewrite("SELECT lastname, age, firstname FROM bank GROUP BY age, something, lastname");
-    }
 
+    }
 
     @Test
     public void simpleOrderByOrdinal() {
@@ -107,8 +109,21 @@ public class OrdinalRewriterRuleTest {
         ).shouldBeAfterRewrite("SELECT lastname, age, firstname FROM bank ORDER BY age, department, lastname");
     }
 
+    // Tests invalid Ordinals, non-positive ordinal values are already validated by semantic analyzer
+    @Test
+    public void invalidGroupByOrdinalShouldThrowException() {
+        exception.expect(VerificationException.class);
+        exception.expectMessage("Invalid ordinal [3] specified in [GROUP BY 3]");
+        query("SELECT lastname, MAX(lastname) FROM bank GROUP BY 3 ").rewrite();
+    }
 
-    // TODO: Some more Tests
+    @Test
+    public void invalidOrderByOrdinalShouldThrowException() {
+        exception.expect(VerificationException.class);
+        exception.expectMessage("Invalid ordinal [4] specified in [ORDER BY 4]");
+        query("SELECT `lastname`, `age`, `firstname` FROM bank ORDER BY 4 IS NOT NULL").rewrite();
+    }
+
 
     private QueryAssertion query(String sql) {
         return new QueryAssertion(sql);
@@ -140,14 +155,9 @@ public class OrdinalRewriterRuleTest {
             Assert.assertFalse(match());
         }
 
-        void shouldThrowException(int ordinal) {
-            try {
-                shouldMatchRule();
-                rule.rewrite(expr);
-                Assert.fail("Expected VerificationException, but none was thrown");
-            } catch (VerificationException e) {
-                Assert.assertThat(e.getMessage(), containsString("Invalid ordinal ["+ ordinal +"] specified in"));
-            }
+        void rewrite() {
+            shouldMatchRule();
+            rule.rewrite(expr);
         }
 
         private boolean match() {

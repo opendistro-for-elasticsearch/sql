@@ -34,7 +34,14 @@ import java.util.List;
 
 /**
  * Rewrite rule for changing ordinal alias in order by and group by to actual select field.
+ * Since we cannot clone or deepcopy the Druid SQL objects, we need to generate the
+ * two syntax tree from the  original query to map Group By and Order By fields with ordinal alias
+ * to Select fields in newly generated syntax tree.
+ *
+ * This rewriter assumes that all the backticks have been removed from identifiers.
+ * It also assumes that table alias have been removed from SELECT, WHERE, GROUP BY, ORDER BY fields.
  */
+
 public class OrdinalRewriterRule implements RewriteRule<SQLQueryExpr> {
 
     private final String sql;
@@ -52,7 +59,6 @@ public class OrdinalRewriterRule implements RewriteRule<SQLQueryExpr> {
          }
 
         MySqlSelectQueryBlock query = (MySqlSelectQueryBlock) sqlSelectQuery;
-
         if (!hasGroupByWithOrdinals(query) && !hasOrderByWithOrdinals(query)) {
             return false;
         }
@@ -61,7 +67,6 @@ public class OrdinalRewriterRule implements RewriteRule<SQLQueryExpr> {
 
     @Override
     public void rewrite(SQLQueryExpr root) {
-
         // we cannot clone SQLSelectItem, so we need similar objects to assign to GroupBy and OrderBy items
         SQLQueryExpr sqlExprGroupCopy = toSqlExpr();
         SQLQueryExpr sqlExprOrderCopy = toSqlExpr();
