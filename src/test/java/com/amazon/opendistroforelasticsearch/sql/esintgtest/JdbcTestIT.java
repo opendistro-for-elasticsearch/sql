@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
 import org.json.JSONObject;
+import org.junit.Test;
 
 import static org.hamcrest.Matchers.equalTo;
 
@@ -25,6 +26,7 @@ public class JdbcTestIT extends SQLIntegTestCase {
     protected void init() throws Exception {
         loadIndex(Index.ONLINE);
         loadIndex(Index.PEOPLE);
+        loadIndex(Index.ACCOUNT);
     }
 
     public void testPercentilesQuery() {
@@ -77,5 +79,51 @@ public class JdbcTestIT extends SQLIntegTestCase {
 
     private JSONObject executeJdbcRequest(String query){
         return new JSONObject(executeQuery(query, "jdbc"));
+    }
+
+    @Test
+    public void numberOperatorNameCaseInsensitiveTest() {
+        assertEquals(
+                executeQuery("SELECT ABS(age) FROM elasticsearch-sql_test_index_account/account " +
+                                "WHERE age IS NOT NULL LIMIT 5", "jdbc"),
+                executeQuery("SELECT abs(age) FROM elasticsearch-sql_test_index_account/account " +
+                                "WHERE age IS NOT NULL LIMIT 5", "jdbc")
+        );
+    }
+
+    @Test
+    public void trigFunctionNameCaseInsensitiveTest() {
+        assertEquals(
+                executeQuery("SELECT Cos(age) FROM elasticsearch-sql_test_index_account/account " +
+                                "WHERE age is NOT NULL LIMIT 5", "jdbc"),
+                executeQuery("SELECT cos(age) FROM elasticsearch-sql_test_index_account/account " +
+                                "WHERE age is NOT NULL LIMIT 5", "jdbc")
+        );
+    }
+
+    @Test
+    public void stringOperatorNameCaseInsensitiveTest() {
+        assertEquals(
+                executeQuery(
+                        "SELECT SubStrinG(lastname, 0, 2) FROM elasticsearch-sql_test_index_account/account " +
+                                "ORDER BY age LIMIT 5", "jdbc"),
+                executeQuery(
+                        "SELECT substring(lastname, 0, 2) FROM elasticsearch-sql_test_index_account/account " +
+                                "ORDER BY age LIMIT 5", "jdbc")
+        );
+    }
+
+    @Test
+    public void dateFunctionNameCaseInsensitiveTest() {
+        assertEquals(
+                executeQuery("SELECT DATE_FORMAT(insert_time, 'yyyy-MM-dd', 'UTC') FROM elasticsearch-sql_test_index_online/online " +
+                        "WHERE date_FORMAT(insert_time, 'yyyy-MM-dd', 'UTC') > '2014-01-01' " +
+                        "GROUP BY DAte_format(insert_time, 'yyyy-MM-dd', 'UTC') " +
+                        "ORDER BY date_forMAT(insert_time, 'yyyy-MM-dd', 'UTC')", "jdbc"),
+                executeQuery("SELECT date_format(insert_time, 'yyyy-MM-dd', 'UTC') FROM elasticsearch-sql_test_index_online/online " +
+                        "WHERE date_format(insert_time, 'yyyy-MM-dd', 'UTC') > '2014-01-01' " +
+                        "GROUP BY date_format(insert_time, 'yyyy-MM-dd', 'UTC') " +
+                        "ORDER BY date_format(insert_time, 'yyyy-MM-dd', 'UTC')", "jdbc")
+        );
     }
 }
