@@ -49,7 +49,7 @@ public class SQLFunctions {
     private static final Set<String> mathConstants = Sets.newHashSet("e", "pi");
 
     private static final Set<String> trigFunctions = Sets.newHashSet(
-            "degrees", "radians", "sin", "cos", "tan", "asin", "acos", "atan", "sinh", "cosh"
+            "degrees", "radians", "sin", "cos", "tan", "asin", "acos", "atan", "atan2", "sinh", "cosh"
     );
 
     private static final Set<String> stringOperators = Sets.newHashSet(
@@ -211,6 +211,11 @@ public class SQLFunctions {
                 functionStr = mathDoubleValueTemplate("Math." + methodName, methodName,
                         (SQLExpr) paramers.get(0).value, Util.expr2Object((SQLExpr) paramers.get(1).value).toString(),
                         name);
+                break;
+
+            case "atan2":
+                functionStr = mathDoubleValueTemplate("Math." + methodName, methodName,
+                        (SQLExpr) paramers.get(0).value, (SQLExpr) paramers.get(1).value);
                 break;
 
             case "substring":
@@ -544,6 +549,13 @@ public class SQLFunctions {
             return new Tuple<>(name, getPropertyOrValue(val1) + "; "
                     + def(name, func(methodName, false, valueName, val2)));
         }
+    }
+
+    private Tuple<String, String> mathDoubleValueTemplate(String methodName, String fieldName, SQLExpr val1,
+                                                          SQLExpr val2) {
+        String name = nextId(fieldName);
+        return new Tuple<>(name, def(name, func(methodName, false,
+                getPropertyOrValue(val1), getPropertyOrValue(val2))));
     }
 
     private Tuple<String, String> mathSingleValueTemplate(String methodName, String fieldName, SQLExpr field,
