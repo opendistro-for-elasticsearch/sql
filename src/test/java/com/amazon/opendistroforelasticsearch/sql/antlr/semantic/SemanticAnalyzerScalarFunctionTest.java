@@ -139,7 +139,7 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
             " ABS(age), " +
             " ASIN(age), " +
             " ATAN(age), " +
-            " ATAN2(age), " +
+            " ATAN2(age, age), " +
             " CBRT(age), " +
             " CEIL(age), " +
             " COS(age), " +
@@ -170,7 +170,7 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
             " ABS(age) = 1 AND " +
             " ASIN(age) = 1 AND " +
             " ATAN(age) = 1 AND " +
-            " ATAN2(age) = 1 AND " +
+            " ATAN2(age, age) = 1 AND " +
             " CBRT(age) = 1 AND " +
             " CEIL(age) = 1 AND " +
             " COS(age) = 1 AND " +
