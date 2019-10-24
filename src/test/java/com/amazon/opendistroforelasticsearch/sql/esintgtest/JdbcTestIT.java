@@ -114,16 +114,6 @@ public class JdbcTestIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void binaryOperatorNameCaseInsensitiveTest() {
-        assertEquals(
-                executeQuery("SELECT lastname FROM elasticsearch-sql_test_index_account/account " +
-                        "WHERE (age IS NOT NULL) AND (gender = 'M') ORDER BY age LIMIT 5", "jdbc"),
-                executeQuery("SELECT lastname FROM elasticsearch-sql_test_index_account/account " +
-                        "WHERE (age IS NOT NULL) and (gender = 'M') ORDER by age LIMIT 5", "jdbc")
-        );
-    }
-
-    @Test
     public void dateFunctionNameCaseInsensitiveTest() {
         assertEquals(
                 executeQuery("SELECT insert_time FROM elasticsearch-sql_test_index_online/online " +
