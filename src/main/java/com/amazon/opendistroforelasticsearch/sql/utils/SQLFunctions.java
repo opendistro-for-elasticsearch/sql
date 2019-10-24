@@ -98,7 +98,7 @@ public class SQLFunctions {
     public Tuple<String, String> function(String methodName, List<KVValue> paramers, String name,
                                                  boolean returnValue) {
         Tuple<String, String> functionStr = null;
-        switch (methodName) {
+        switch (methodName.toLowerCase()) {
             case "lower": {
                 functionStr = lower(
                         (SQLExpr) paramers.get(0).value,
@@ -600,6 +600,8 @@ public class SQLFunctions {
      * it might be safely treated as INTEGER.
      */
     public static Schema.Type getScriptFunctionReturnType(String functionName) {
+        functionName = functionName.toLowerCase();
+
         if (dateFunctions.contains(functionName) || stringOperators.contains(functionName)) {
             return Schema.Type.TEXT;
         }
