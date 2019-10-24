@@ -315,4 +315,46 @@ public class MathFunctionsTest {
                         "Math.cosh(0)"));
     }
 
+    @Test
+    public void powerWithPropertyArgument() {
+        String query = "SELECT POWER(age, 2) " +
+                "FROM bank";
+        ScriptField scriptField = CheckScriptContents.getScriptFieldFromQuery(query);
+        assertTrue(
+                CheckScriptContents.scriptContainsString(
+                        scriptField,
+                        "Math.pow(doc['age'].value, 2)"));
+    }
+
+    @Test
+    public void atan2WithValueArgument() {
+        String query = "SELECT ATAN2(2, 3) " +
+                "FROM bank";
+        ScriptField scriptField = CheckScriptContents.getScriptFieldFromQuery(query);
+        assertTrue(
+                CheckScriptContents.scriptContainsString(
+                        scriptField,
+                        "Math.atan2(2, 3)"));
+    }
+
+    @Test
+    public void cotWithValueArgument() {
+        String query = "SELECT COT(0.5) " +
+                "FROM bank";
+        ScriptField scriptField = CheckScriptContents.getScriptFieldFromQuery(query);
+        assertTrue(CheckScriptContents.scriptContainsString(
+                scriptField,
+                "1 / Math.tan(0.5)"));
+    }
+
+    @Test
+    public void signWithFunctionPropertyArgument() {
+        String query = "SELECT SIGN(age) " +
+                "FROM bank WHERE age IS NOT NULL";
+        ScriptField scriptField = CheckScriptContents.getScriptFieldFromQuery(query);
+        assertTrue(CheckScriptContents.scriptContainsString(
+                scriptField,
+                "Math.signum(doc['age'].value)"));
+    }
+
 }
