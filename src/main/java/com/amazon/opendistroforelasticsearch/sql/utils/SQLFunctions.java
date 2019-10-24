@@ -43,7 +43,7 @@ public class SQLFunctions {
 
     private static final Set<String> numberOperators = Sets.newHashSet(
             "exp", "expm1", "log", "log2", "log10", "sqrt", "cbrt", "ceil", "floor", "rint", "pow", "power",
-            "round", "random", "abs"
+            "round", "random", "abs", "sign", "signum"
     );
 
     private static final Set<String> mathConstants = Sets.newHashSet("e", "pi");
@@ -208,6 +208,13 @@ public class SQLFunctions {
             case "cot":
                 // ES does not support the function name cot
                 functionStr = mathSingleValueTemplate("1 / Math.tan", methodName,
+                        (SQLExpr) paramers.get(0).value, name);
+                break;
+
+            case "sign":
+            case "signum":
+                methodName = "signum";
+                functionStr = mathSingleValueTemplate("Math." + methodName, methodName,
                         (SQLExpr) paramers.get(0).value, name);
                 break;
 

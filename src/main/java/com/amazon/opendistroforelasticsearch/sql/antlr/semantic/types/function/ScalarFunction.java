@@ -69,6 +69,8 @@ public enum ScalarFunction implements TypeExpression {
     RANDOM(func(T(NUMBER)).to(T)),
     RINT(func(T(NUMBER)).to(T)),
     ROUND(func(T(NUMBER)).to(T)),
+    SIGN(func(T(NUMBER)).to(T)),
+    SIGNUM(func(T(NUMBER)).to(T)),
     SIN(func(T(NUMBER)).to(T)),
     SINH(func(T(NUMBER)).to(T)),
     SQRT(func(T(NUMBER)).to(T)),
