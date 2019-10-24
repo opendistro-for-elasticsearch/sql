@@ -80,10 +80,10 @@ public class ESActionFactory {
 
                 RewriteRuleExecutor<SQLQueryExpr> ruleExecutor = RewriteRuleExecutor.builder()
                         .withRule(new SQLExprParentSetterRule())
+                        .withRule(new OrdinalRewriterRule(sql))
                         .withRule(new UnquoteIdentifierRule())
                         .withRule(new TableAliasPrefixRemoveRule())
                         .withRule(new SubQueryRewriteRule())
-                        .withRule(new OrdinalRewriterRule(sql))
                         .build();
                 ruleExecutor.executeOn(sqlExpr);
                 sqlExpr.accept(new NestedFieldRewriter());

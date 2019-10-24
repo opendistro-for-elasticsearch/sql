@@ -25,8 +25,6 @@ import com.amazon.opendistroforelasticsearch.sql.util.SqlParserUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.sql.SQLFeatureNotSupportedException;
-
 import static org.hamcrest.Matchers.containsString;
 
 /**
@@ -36,44 +34,44 @@ import static org.hamcrest.Matchers.containsString;
 public class OrdinalRewriterRuleTest {
 
     @Test
-    public void ordinalInGroupByShouldMatch() throws SQLFeatureNotSupportedException {
+    public void ordinalInGroupByShouldMatch() {
         query("SELECT lastname FROM bank GROUP BY 1").shouldMatchRule();
     }
 
     @Test
-    public void ordinalInOrderByShouldMatch() throws SQLFeatureNotSupportedException {
+    public void ordinalInOrderByShouldMatch() {
         query("SELECT lastname FROM bank ORDER BY 1").shouldMatchRule();
     }
 
 
     @Test
-    public void ordinalInGroupAndOrderByShouldMatch() throws SQLFeatureNotSupportedException {
+    public void ordinalInGroupAndOrderByShouldMatch() {
         query("SELECT lastname, age FROM bank GROUP BY 2, 1 ORDER BY 1").shouldMatchRule();
     }
 
     @Test
-    public void noOrdinalInGroupByShouldNotMatch() throws SQLFeatureNotSupportedException {
+    public void noOrdinalInGroupByShouldNotMatch() {
         query("SELECT lastname FROM bank GROUP BY lastname").shouldNotMatchRule();
     }
 
     @Test
-    public void noOrdinalInOrderByShouldNotMatch() throws SQLFeatureNotSupportedException {
+    public void noOrdinalInOrderByShouldNotMatch() {
         query("SELECT lastname, age FROM bank ORDER BY age").shouldNotMatchRule();
     }
 
     @Test
-    public void noOrdinalInGroupAndOrderByShouldNotMatch() throws SQLFeatureNotSupportedException {
+    public void noOrdinalInGroupAndOrderByShouldNotMatch() {
         query("SELECT lastname, age FROM bank GROUP BY lastname, age ORDER BY age").shouldNotMatchRule();
     }
 
     @Test
-    public void simpleGroupByOrdinal() throws SQLFeatureNotSupportedException {
+    public void simpleGroupByOrdinal() {
         query("SELECT lastname FROM bank GROUP BY 1"
         ).shouldBeAfterRewrite("SELECT lastname FROM bank GROUP BY lastname");
     }
 
     @Test
-    public void multipleGroupByOrdinal() throws SQLFeatureNotSupportedException {
+    public void multipleGroupByOrdinal() {
         query("SELECT lastname, age FROM bank GROUP BY 1, 2 "
         ).shouldBeAfterRewrite("SELECT lastname, age FROM bank GROUP BY lastname, age");
 
@@ -89,13 +87,13 @@ public class OrdinalRewriterRuleTest {
 
 
     @Test
-    public void simpleOrderByOrdinal() throws SQLFeatureNotSupportedException {
+    public void simpleOrderByOrdinal() {
         query("SELECT lastname FROM bank ORDER BY 1"
         ).shouldBeAfterRewrite("SELECT lastname FROM bank ORDER BY lastname");
     }
 
     @Test
-    public void multipleOrderByOrdinal() throws SQLFeatureNotSupportedException {
+    public void multipleOrderByOrdinal() {
         query("SELECT lastname, age FROM bank ORDER BY 1, 2 "
         ).shouldBeAfterRewrite("SELECT lastname, age FROM bank ORDER BY lastname, age");
 
@@ -125,7 +123,7 @@ public class OrdinalRewriterRuleTest {
             this.rule = new OrdinalRewriterRule(sql);
         }
 
-        void shouldBeAfterRewrite(String expected) throws SQLFeatureNotSupportedException {
+        void shouldBeAfterRewrite(String expected) {
             shouldMatchRule();
             rule.rewrite(expr);
             Assert.assertEquals(
@@ -134,15 +132,15 @@ public class OrdinalRewriterRuleTest {
             );
         }
 
-        void shouldMatchRule() throws SQLFeatureNotSupportedException {
+        void shouldMatchRule() {
             Assert.assertTrue(match());
         }
 
-        void shouldNotMatchRule() throws SQLFeatureNotSupportedException {
+        void shouldNotMatchRule() {
             Assert.assertFalse(match());
         }
 
-        void shouldThrowException(int ordinal) throws SQLFeatureNotSupportedException {
+        void shouldThrowException(int ordinal) {
             try {
                 shouldMatchRule();
                 rule.rewrite(expr);
@@ -152,7 +150,7 @@ public class OrdinalRewriterRuleTest {
             }
         }
 
-        private boolean match() throws SQLFeatureNotSupportedException {
+        private boolean match() {
             return rule.match(expr);
         }
     }

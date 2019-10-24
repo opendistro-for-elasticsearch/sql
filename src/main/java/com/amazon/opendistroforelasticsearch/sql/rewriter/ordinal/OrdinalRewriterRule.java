@@ -13,7 +13,6 @@
  *   permissions and limitations under the License.
  */
 
-
 package com.amazon.opendistroforelasticsearch.sql.rewriter.ordinal;
 
 import com.alibaba.druid.sql.ast.SQLExpr;
@@ -29,26 +28,16 @@ import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
 import com.alibaba.druid.sql.parser.SQLExprParser;
 import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.RewriteRule;
-import com.amazon.opendistroforelasticsearch.sql.rewriter.RewriteRuleExecutor;
-import com.amazon.opendistroforelasticsearch.sql.rewriter.alias.TableAliasPrefixRemoveRule;
-import com.amazon.opendistroforelasticsearch.sql.rewriter.identifier.UnquoteIdentifierRule;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.VerificationException;
 
-import java.sql.SQLFeatureNotSupportedException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 /**
  * Rewrite rule for changing ordinal alias in order by and group by to actual select field.
  */
 public class OrdinalRewriterRule implements RewriteRule<SQLQueryExpr> {
 
-    private SQLQueryExpr sqlExprGroupCopy;
-    private SQLQueryExpr sqlExprOrderCopy;
     private final String sql;
-    private final Map<Integer, SQLExpr> groupOrdinalToExpr = new HashMap<>();
-    private final Map<Integer, SQLExpr> orderOrdinalToExpr = new HashMap<>();
-    private RewriteRuleExecutor<SQLQueryExpr> ruleExecutor;
 
     public OrdinalRewriterRule(String sql) {
         this.sql = sql;
@@ -67,52 +56,39 @@ public class OrdinalRewriterRule implements RewriteRule<SQLQueryExpr> {
         if (!hasGroupByWithOrdinals(query) && !hasOrderByWithOrdinals(query)) {
             return false;
         }
-
         return true;
     }
 
     @Override
-    public void rewrite(SQLQueryExpr root) throws SQLFeatureNotSupportedException {
+    public void rewrite(SQLQueryExpr root) {
 
         // we cannot clone SQLSelectItem, so we need similar objects to assign to GroupBy and OrderBy items
-        sqlExprGroupCopy = toSqlExpr();
-        sqlExprOrderCopy = toSqlExpr();
+        SQLQueryExpr sqlExprGroupCopy = toSqlExpr();
+        SQLQueryExpr sqlExprOrderCopy = toSqlExpr();
 
-        mapOrdinalIndexesToSelectItems(sqlExprGroupCopy, groupOrdinalToExpr);
-        mapOrdinalIndexesToSelectItems(sqlExprOrderCopy, orderOrdinalToExpr);
-
-        if (groupOrdinalToExpr.isEmpty()) {
-            // orderOrdinalToExpr and groupOrdinalToExpr should be identical
-            // because they are generated from similar syntax trees
-            // checking for groupOrdinalToExpr or orderOrdinalToExpr is enough
-            return false;
-        }
-
-        // we need to rewrite the generated syntax tree to match the original syntax tree Select clause
-        ruleExecutor = RewriteRuleExecutor.builder()
-            .withRule(new UnquoteIdentifierRule())
-            .withRule(new TableAliasPrefixRemoveRule())
-            .build();
-
-        ruleExecutor.executeOn(sqlExprGroupCopy);
-        ruleExecutor.executeOn(sqlExprOrderCopy);
-
-        changeOrdinalAliasInGroupAndOrderBy(root);
+        changeOrdinalAliasInGroupAndOrderBy(root, sqlExprGroupCopy, sqlExprOrderCopy);
     }
 
-    private void changeOrdinalAliasInGroupAndOrderBy(SQLQueryExpr root) {
+    private void changeOrdinalAliasInGroupAndOrderBy(SQLQueryExpr root,
+                                                     SQLQueryExpr exprGroup,
+                                                     SQLQueryExpr exprOrder) {
         root.accept(new MySqlASTVisitorAdapter() {
 
             private String groupException = "Invalid ordinal [%s] specified in [GROUP BY %s]";
             private String orderException = "Invalid ordinal [%s] specified in [ORDER BY %s]";
+
+            private List<SQLSelectItem> groupSelectList = ((MySqlSelectQueryBlock) exprGroup.getSubQuery().getQuery())
+                                                            .getSelectList();
+
+            private List<SQLSelectItem> orderSelectList = ((MySqlSelectQueryBlock) exprOrder.getSubQuery().getQuery())
+                                                            .getSelectList();
 
             @Override
             public boolean visit(MySqlSelectGroupByExpr groupByExpr) {
                 SQLExpr expr = groupByExpr.getExpr();
                 if (expr instanceof SQLIntegerExpr) {
                     Integer ordinalValue = ((SQLIntegerExpr) expr).getNumber().intValue();
-                    SQLExpr newExpr = groupOrdinalToExpr.get(ordinalValue);
-                    checkInvalidOrdinal(newExpr, ordinalValue, groupException);
+                    SQLExpr newExpr = checkAndGet(groupSelectList, ordinalValue, groupException);
                     groupByExpr.setExpr(newExpr);
                     newExpr.setParent(groupByExpr);
                 }
@@ -126,8 +102,7 @@ public class OrdinalRewriterRule implements RewriteRule<SQLQueryExpr> {
 
                 if (expr instanceof SQLIntegerExpr) {
                     ordinalValue = ((SQLIntegerExpr) expr).getNumber().intValue();
-                    SQLExpr newExpr = orderOrdinalToExpr.get(ordinalValue);
-                    checkInvalidOrdinal(newExpr, ordinalValue, orderException);
+                    SQLExpr newExpr = checkAndGet(orderSelectList, ordinalValue, orderException);
                     orderByItem.setExpr(newExpr);
                     newExpr.setParent(orderByItem);
                 } else if (expr instanceof SQLBinaryOpExpr
@@ -137,8 +112,7 @@ public class OrdinalRewriterRule implements RewriteRule<SQLQueryExpr> {
                     SQLIntegerExpr integerExpr = (SQLIntegerExpr) binaryOpExpr.getLeft();
 
                     ordinalValue = integerExpr.getNumber().intValue();
-                    SQLExpr newExpr = orderOrdinalToExpr.get(ordinalValue);
-                    checkInvalidOrdinal(newExpr, ordinalValue, orderException);
+                    SQLExpr newExpr = checkAndGet(orderSelectList, ordinalValue, orderException);
                     binaryOpExpr.setLeft(newExpr);
                     newExpr.setParent(binaryOpExpr);
                 }
@@ -148,16 +122,12 @@ public class OrdinalRewriterRule implements RewriteRule<SQLQueryExpr> {
         });
     }
 
-    private void mapOrdinalIndexesToSelectItems(SQLQueryExpr root, Map<Integer, SQLExpr> map) {
-        root.accept(new MySqlASTVisitorAdapter() {
-            private Integer count = 0;
+    private SQLExpr checkAndGet(List<SQLSelectItem> selectList, Integer ordinal, String exception) {
+        if (ordinal > selectList.size()) {
+            throw new VerificationException(String.format(exception, ordinal, ordinal));
+        }
 
-            @Override
-            public boolean visit(SQLSelectItem select) {
-                map.put(++count, select.getExpr());
-                return false;
-            }
-        });
+        return selectList.get(ordinal-1).getExpr();
     }
 
     private boolean hasGroupByWithOrdinals(MySqlSelectQueryBlock query) {
@@ -201,11 +171,5 @@ public class OrdinalRewriterRule implements RewriteRule<SQLQueryExpr> {
         SQLExprParser parser = new ElasticSqlExprParser(sql);
         SQLExpr expr = parser.expr();
         return (SQLQueryExpr) expr;
-    }
-
-    private void checkInvalidOrdinal(SQLExpr expr, Integer ordinal, String exception){
-        if (expr == null) {
-            throw new VerificationException(String.format(exception, ordinal, ordinal));
-        }
     }
 }
