@@ -138,6 +138,42 @@ public class MathFunctionsIT extends SQLIntegTestCase {
         assertThat(sinh, equalTo(Math.sinh(Math.PI)));
     }
 
+    @Test
+    public void power() throws IOException {
+        SearchHit[] hits = query(
+                "SELECT POWER(PI(), 2) AS power"
+        );
+        double power = (double) getField(hits[0], "power");
+        assertThat(power, equalTo(Math.pow(Math.PI, 2)));
+    }
+
+    @Test
+    public void atan2() throws IOException {
+        SearchHit[] hits = query(
+                "SELECT ATAN2(age, age) AS atan2", "WHERE age IS NOT NULL"
+        );
+        double atan2 = (double) getField(hits[0], "atan2");
+        assertThat(atan2, equalTo(Math.atan2(1, 1)));
+    }
+
+    @Test
+    public void cot() throws IOException {
+        SearchHit[] hits = query(
+                "SELECT COT(PI()) AS cot"
+        );
+        double cot = (double) getField(hits[0], "cot");
+        assertThat(cot, equalTo(1 / Math.tan(Math.PI)));
+    }
+
+    @Test
+    public void sign() throws IOException {
+        SearchHit[] hits = query(
+                "SELECT SIGN(E()) AS sign"
+        );
+        double sign = (double) getField(hits[0], "sign");
+        assertThat(sign, equalTo(Math.signum(Math.E)));
+    }
+
     private SearchHit[] query(String select, String... statements) throws IOException {
         final String response = executeQueryWithStringOutput(select + " " + FROM + " " + String.join(" ", statements));
 
