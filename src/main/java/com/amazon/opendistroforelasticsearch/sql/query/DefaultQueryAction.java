@@ -96,7 +96,6 @@ public class DefaultQueryAction extends QueryAction {
         setIndicesAndTypes();
 
         setFields(select.getFields());
-        // if cast, add casting field to include list, should do the trick bb
         setWhere(select.getWhere());
         setSorts(select.getOrderBys());
         setLimit(select.getOffset(), select.getRowCount());

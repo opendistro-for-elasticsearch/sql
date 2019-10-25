@@ -241,12 +241,6 @@ dottedId
     | '.' uid
     ;
 
-charsetName
-    : BINARY
-    | STRING_LITERAL
-    | CHARSET_REVERSE_QUOTE_STRING
-    ;
-
 //    Literals
 
 decimalLiteral
@@ -302,9 +296,7 @@ functionCall
     ;
 
 specificFunction
-    : CONVERT '(' expression separator=',' convertedDataType ')'    #dataTypeFunctionCall
-    | CONVERT '(' expression USING charsetName ')'                  #dataTypeFunctionCall
-    | CAST '(' expression AS convertedDataType ')'                  #dataTypeFunctionCall
+    : CAST '(' expression AS convertedDataType ')'                  #dataTypeFunctionCall
     | CASE expression caseFuncAlternative+
       (ELSE elseArg=functionArg)? END                               #caseFunctionCall
     | CASE caseFuncAlternative+
