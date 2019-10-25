@@ -33,7 +33,7 @@ public enum ScalarFunction implements TypeExpression {
     ABS(func(T(NUMBER)).to(T)), // translate to Java: <T extends Number> T ABS(T)
     ASIN(func(T(NUMBER)).to(T)),
     ATAN(func(T(NUMBER)).to(T)),
-    ATAN2(func(T(NUMBER), T(NUMBER)).to(T)),
+    ATAN2(func(T(NUMBER), NUMBER).to(T)),
     CBRT(func(T(NUMBER)).to(T)),
     CEIL(func(T(NUMBER)).to(T)),
     CONCAT(), // TODO: varargs support required
