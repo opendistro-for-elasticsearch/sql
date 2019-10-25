@@ -23,8 +23,6 @@ import org.junit.Test;
 
 import static org.elasticsearch.search.builder.SearchSourceBuilder.ScriptField;
 import static org.junit.Assert.assertTrue;
-import static com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents.scriptContainsString;
-import static com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents.scriptHasPattern;
 
 public class MathFunctionsTest {
 
@@ -317,40 +315,64 @@ public class MathFunctionsTest {
 
     @Test
     public void powerWithPropertyArgument() {
-        String query = "SELECT POWER(age, 2) FROM bank WHERE POWER(age, 2) > 0";
+        String query = "SELECT POWER(age, 2) FROM bank WHERE POWER(balance, 3) > 0";
         ScriptField scriptField = CheckScriptContents.getScriptFieldFromQuery(query);
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
                         "Math.pow(doc['age'].value, 2)"));
+
+        ScriptFilter scriptFilter = CheckScriptContents.getScriptFilterFromQuery(query, parser);
+        assertTrue(
+                CheckScriptContents.scriptContainsString(
+                        scriptFilter,
+                        "Math.pow(doc['balance'].value, 3)"));
     }
 
     @Test
-    public void atan2WithValueArgument() {
-        String query = "SELECT ATAN2(2, 3) FROM bank";
+    public void atan2WithPropertyArgument() {
+        String query = "SELECT ATAN2(age, 2) FROM bank WHERE ATAN2(balance, 3) > 0";
         ScriptField scriptField = CheckScriptContents.getScriptFieldFromQuery(query);
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "Math.atan2(2, 3)"));
+                        "Math.atan2(doc['age'].value, 2)"));
+
+        ScriptFilter scriptFilter = CheckScriptContents.getScriptFilterFromQuery(query, parser);
+        assertTrue(
+                CheckScriptContents.scriptContainsString(
+                        scriptFilter,
+                        "Math.atan2(doc['balance'].value, 3)"));
     }
 
     @Test
-    public void cotWithValueArgument() {
-        String query = "SELECT COT(0.5) FROM bank";
+    public void cotWithPropertyArgument() {
+        String query = "SELECT COT(age) FROM bank WHERE COT(balance) > 0";
         ScriptField scriptField = CheckScriptContents.getScriptFieldFromQuery(query);
-        assertTrue(CheckScriptContents.scriptContainsString(
-                scriptField,
-                "1 / Math.tan(0.5)"));
+        assertTrue(
+                CheckScriptContents.scriptContainsString(
+                        scriptField,
+                        "1 / Math.tan(doc['age'].value)"));
+
+        ScriptFilter scriptFilter = CheckScriptContents.getScriptFilterFromQuery(query, parser);
+        assertTrue(
+                CheckScriptContents.scriptContainsString(
+                        scriptFilter,
+                        "1 / Math.tan(doc['balance'].value)"));
     }
 
     @Test
     public void signWithFunctionPropertyArgument() {
-        String query = "SELECT SIGN(age) FROM bank WHERE age IS NOT NULL";
+        String query = "SELECT SIGN(age) FROM bank WHERE SIGNUM(balance) = 1";
         ScriptField scriptField = CheckScriptContents.getScriptFieldFromQuery(query);
         assertTrue(CheckScriptContents.scriptContainsString(
                 scriptField,
                 "Math.signum(doc['age'].value)"));
-    }
 
+        ScriptFilter scriptFilter = CheckScriptContents.getScriptFilterFromQuery(query, parser);
+        assertTrue(
+                CheckScriptContents.scriptContainsString(
+                        scriptFilter,
+                        "Math.signum(doc['balance'].value)"));
+    }
 }

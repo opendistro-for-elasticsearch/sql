@@ -142,16 +142,18 @@ public class MathFunctionsIT extends SQLIntegTestCase {
     @Test
     public void power() throws IOException {
         SearchHit[] hits = query(
-                "SELECT POWER(PI(), 2) AS power", "WHERE POWER(PI(), 2) > 0"
+                "SELECT POWER(age, 2) AS power",
+                "WHERE (age IS NOT NULL) AND (balance IS NOT NULL) and (POWER(balance, 3) > 0)"
         );
         double power = (double) getField(hits[0], "power");
-        assertThat(power, equalTo(Math.pow(Math.PI, 2)));
+        assertTrue(power >= 0);
     }
 
     @Test
     public void atan2() throws IOException {
         SearchHit[] hits = query(
-                "SELECT ATAN2(age, age) AS atan2", "WHERE age IS NOT NULL"
+                "SELECT ATAN2(age, age) AS atan2",
+                "WHERE (age IS NOT NULL) AND (ATAN2(age, age) > 0)"
         );
         double atan2 = (double) getField(hits[0], "atan2");
         assertThat(atan2, equalTo(Math.atan2(1, 1)));
