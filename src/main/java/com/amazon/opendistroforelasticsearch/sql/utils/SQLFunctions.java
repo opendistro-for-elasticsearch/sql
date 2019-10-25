@@ -42,14 +42,14 @@ import java.util.stream.Stream;
 public class SQLFunctions {
 
     private static final Set<String> numberOperators = Sets.newHashSet(
-            "exp", "expm1", "log", "log2", "log10", "sqrt", "cbrt", "ceil", "floor", "rint", "pow",
-            "round", "random", "abs"
+            "exp", "expm1", "log", "log2", "log10", "sqrt", "cbrt", "ceil", "floor", "rint", "pow", "power",
+            "round", "random", "abs", "sign", "signum"
     );
 
     private static final Set<String> mathConstants = Sets.newHashSet("e", "pi");
 
     private static final Set<String> trigFunctions = Sets.newHashSet(
-            "degrees", "radians", "sin", "cos", "tan", "asin", "acos", "atan", "sinh", "cosh"
+            "degrees", "radians", "sin", "cos", "tan", "asin", "acos", "atan", "atan2", "sinh", "cosh", "cot"
     );
 
     private static final Set<String> stringOperators = Sets.newHashSet(
@@ -205,10 +205,30 @@ public class SQLFunctions {
                         (SQLExpr) paramers.get(0).value, name);
                 break;
 
+            case "cot":
+                // ES does not support the function name cot
+                functionStr = mathSingleValueTemplate("1 / Math.tan", methodName,
+                        (SQLExpr) paramers.get(0).value, name);
+                break;
+
+            case "sign":
+            case "signum":
+                methodName = "signum";
+                functionStr = mathSingleValueTemplate("Math." + methodName, methodName,
+                        (SQLExpr) paramers.get(0).value, name);
+                break;
+
             case "pow":
+            case "power":
+                methodName = "pow";
                 functionStr = mathDoubleValueTemplate("Math." + methodName, methodName,
                         (SQLExpr) paramers.get(0).value, Util.expr2Object((SQLExpr) paramers.get(1).value).toString(),
                         name);
+                break;
+
+            case "atan2":
+                functionStr = mathDoubleValueTemplate("Math." + methodName, methodName,
+                        (SQLExpr) paramers.get(0).value, (SQLExpr) paramers.get(1).value);
                 break;
 
             case "substring":
@@ -542,6 +562,13 @@ public class SQLFunctions {
             return new Tuple<>(name, getPropertyOrValue(val1) + "; "
                     + def(name, func(methodName, false, valueName, val2)));
         }
+    }
+
+    private Tuple<String, String> mathDoubleValueTemplate(String methodName, String fieldName, SQLExpr val1,
+                                                          SQLExpr val2) {
+        String name = nextId(fieldName);
+        return new Tuple<>(name, def(name, func(methodName, false,
+                getPropertyOrValue(val1), getPropertyOrValue(val2))));
     }
 
     private Tuple<String, String> mathSingleValueTemplate(String methodName, String fieldName, SQLExpr field,
