@@ -317,8 +317,7 @@ public class MathFunctionsTest {
 
     @Test
     public void powerWithPropertyArgument() {
-        String query = "SELECT POWER(age, 2) " +
-                "FROM bank";
+        String query = "SELECT POWER(age, 2) FROM bank WHERE POWER(age, 2) > 0";
         ScriptField scriptField = CheckScriptContents.getScriptFieldFromQuery(query);
         assertTrue(
                 CheckScriptContents.scriptContainsString(
@@ -328,8 +327,7 @@ public class MathFunctionsTest {
 
     @Test
     public void atan2WithValueArgument() {
-        String query = "SELECT ATAN2(2, 3) " +
-                "FROM bank";
+        String query = "SELECT ATAN2(2, 3) FROM bank";
         ScriptField scriptField = CheckScriptContents.getScriptFieldFromQuery(query);
         assertTrue(
                 CheckScriptContents.scriptContainsString(
@@ -339,8 +337,7 @@ public class MathFunctionsTest {
 
     @Test
     public void cotWithValueArgument() {
-        String query = "SELECT COT(0.5) " +
-                "FROM bank";
+        String query = "SELECT COT(0.5) FROM bank";
         ScriptField scriptField = CheckScriptContents.getScriptFieldFromQuery(query);
         assertTrue(CheckScriptContents.scriptContainsString(
                 scriptField,
@@ -349,8 +346,7 @@ public class MathFunctionsTest {
 
     @Test
     public void signWithFunctionPropertyArgument() {
-        String query = "SELECT SIGN(age) " +
-                "FROM bank WHERE age IS NOT NULL";
+        String query = "SELECT SIGN(age) FROM bank WHERE age IS NOT NULL";
         ScriptField scriptField = CheckScriptContents.getScriptFieldFromQuery(query);
         assertTrue(CheckScriptContents.scriptContainsString(
                 scriptField,

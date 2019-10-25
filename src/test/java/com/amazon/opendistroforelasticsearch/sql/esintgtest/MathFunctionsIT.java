@@ -26,6 +26,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 
@@ -141,7 +142,7 @@ public class MathFunctionsIT extends SQLIntegTestCase {
     @Test
     public void power() throws IOException {
         SearchHit[] hits = query(
-                "SELECT POWER(PI(), 2) AS power"
+                "SELECT POWER(PI(), 2) AS power", "WHERE POWER(PI(), 2) > 0"
         );
         double power = (double) getField(hits[0], "power");
         assertThat(power, equalTo(Math.pow(Math.PI, 2)));
@@ -162,7 +163,7 @@ public class MathFunctionsIT extends SQLIntegTestCase {
                 "SELECT COT(PI()) AS cot"
         );
         double cot = (double) getField(hits[0], "cot");
-        assertThat(cot, equalTo(1 / Math.tan(Math.PI)));
+        assertThat(cot, closeTo(1 / Math.tan(Math.PI), 0.001));
     }
 
     @Test
