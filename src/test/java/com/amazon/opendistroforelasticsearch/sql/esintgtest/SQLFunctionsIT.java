@@ -50,6 +50,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasValue;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.not;
@@ -160,12 +161,41 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void castFieldWithoutAliasTest() throws IOException {
-        String query = "SELECT CAST(age AS DOUBLE) FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " /account limit 5";
+    public void castIntFieldToDoubleWithoutAliasTest() throws IOException {
+        String query = "SELECT CAST(age AS DOUBLE) FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " /account limit 1";
 
-        JSONObject response = executeQuery(query);
-        JSONArray hits = getHits(response);
-        System.out.println(hits.toString());
+        final SearchHit[] hits = query(query).getHits();
+        assertTrue(hits[0].getFields().containsKey("cast_age"));
+        assertTrue(hits[0].getFields().get("cast_age").getValue() instanceof Double);
+    }
+
+    @Test
+    public void castIntFieldToDoubleWithAliasTest() throws IOException {
+        String query = "SELECT CAST(age AS DOUBLE) AS test_alias " +
+                       "FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " /account limit 1";
+
+        final SearchHit[] hits = query(query).getHits();
+        assertTrue(hits[0].getFields().containsKey("test_alias"));
+        assertTrue(hits[0].getFields().get("test_alias").getValue() instanceof Double);
+    }
+
+    @Test
+    public void castIntFieldToStringWithoutAliasTest() throws IOException {
+        String query = "SELECT CAST(balance AS STRING) FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " /account limit 1";
+
+        final SearchHit[] hits = query(query).getHits();
+        assertTrue(hits[0].getFields().containsKey("cast_balance"));
+        assertTrue(hits[0].getFields().get("cast_balance").getValue() instanceof String);
+    }
+
+    @Test
+    public void castIntFieldToStringWithAliasTest() throws IOException {
+        String query = "SELECT CAST(balance AS STRING) AS cast_string_alias " +
+                       "FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " /account limit 1";
+
+        final SearchHit[] hits = query(query).getHits();
+        assertTrue(hits[0].getFields().containsKey("cast_string_alias"));
+        assertTrue(hits[0].getFields().get("cast_string_alias").getValue() instanceof String);
     }
 
     @Test

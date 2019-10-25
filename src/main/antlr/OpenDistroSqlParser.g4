@@ -319,22 +319,12 @@ caseFuncAlternative
     ;
 
 convertedDataType
-    : typeName=(BINARY| NCHAR) lengthOneDimension?
-    | typeName=CHAR lengthOneDimension? ((CHARACTER SET | CHARSET) charsetName)?
-    | typeName=DATETIME
+    : typeName=DATETIME
     | typeName=INT
     | typeName=DOUBLE
     | typeName=LONG
     | typeName=FLOAT
     | typeName=STRING
-    ;
-
-lengthOneDimension
-    : '(' decimalLiteral ')'
-    ;
-
-lengthTwoDimension
-    : '(' decimalLiteral ',' decimalLiteral ')'
     ;
 
 aggregateWindowedFunction
