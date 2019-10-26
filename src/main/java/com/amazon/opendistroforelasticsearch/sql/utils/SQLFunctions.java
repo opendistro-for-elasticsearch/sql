@@ -53,7 +53,8 @@ public class SQLFunctions {
     );
 
     private static final Set<String> stringOperators = Sets.newHashSet(
-            "split", "concat_ws", "substring", "trim", "lower", "upper"
+            "split", "concat_ws", "substring", "trim", "lower", "upper", "ascii", "rtrim", "locate",
+            "length", "replace", "left", "right"
     );
 
     private static final Set<String> binaryOperators = Sets.newHashSet(
@@ -291,6 +292,8 @@ public class SQLFunctions {
             case "assign":
                 functionStr = assign((SQLExpr) paramers.get(0).value);
                 break;
+            case "length":
+                functionStr = length((SQLExpr) paramers.get(0).value);
             default:
 
         }
@@ -618,6 +621,11 @@ public class SQLFunctions {
 
     private String upper(String property, String culture) {
         return property + ".toUpperCase(Locale.forLanguageTag(\"" + culture + "\"))";
+    }
+
+    private Tuple<String, String> length(SQLExpr field) {
+        String name = nextId("length");
+        return new Tuple<>(name, def(name, doc(field) + ".value" + ".length()"));
     }
 
     /**

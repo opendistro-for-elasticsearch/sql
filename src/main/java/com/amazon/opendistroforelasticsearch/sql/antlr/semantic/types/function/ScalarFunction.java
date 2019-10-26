@@ -49,6 +49,7 @@ public enum ScalarFunction implements TypeExpression {
     E(func().to(DOUBLE)),
     EXP(func(T(NUMBER)).to(T)),
     EXPM1(func(T(NUMBER)).to(T)),
+    LENGTH(func(T(STRING)).to(INTEGER)),
     FLOOR(func(T(NUMBER)).to(T)),
     LOG(
         func(T(NUMBER)).to(T),
