@@ -33,13 +33,14 @@ public enum ScalarFunction implements TypeExpression {
     ABS(func(T(NUMBER)).to(T)), // translate to Java: <T extends Number> T ABS(T)
     ASIN(func(T(NUMBER)).to(T)),
     ATAN(func(T(NUMBER)).to(T)),
-    ATAN2(func(T(NUMBER)).to(T)),
+    ATAN2(func(T(NUMBER), NUMBER).to(T)),
     CBRT(func(T(NUMBER)).to(T)),
     CEIL(func(T(NUMBER)).to(T)),
     CONCAT(), // TODO: varargs support required
     CONCAT_WS(),
     COS(func(T(NUMBER)).to(T)),
     COSH(func(T(NUMBER)).to(T)),
+    COT(func(T(NUMBER)).to(T)),
     DATE_FORMAT(
         func(DATE, STRING).to(STRING),
         func(DATE, STRING, STRING).to(STRING)
@@ -60,7 +61,7 @@ public enum ScalarFunction implements TypeExpression {
         func(T(STRING), STRING).to(T)
     ),
     PI(func().to(DOUBLE)),
-    POW(
+    POW, POWER(
         func(T(NUMBER)).to(T),
         func(T(NUMBER), NUMBER).to(T)
     ),
@@ -68,6 +69,8 @@ public enum ScalarFunction implements TypeExpression {
     RANDOM(func(T(NUMBER)).to(T)),
     RINT(func(T(NUMBER)).to(T)),
     ROUND(func(T(NUMBER)).to(T)),
+    SIGN(func(T(NUMBER)).to(T)),
+    SIGNUM(func(T(NUMBER)).to(T)),
     SIN(func(T(NUMBER)).to(T)),
     SINH(func(T(NUMBER)).to(T)),
     SQRT(func(T(NUMBER)).to(T)),
