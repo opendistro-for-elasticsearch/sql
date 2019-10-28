@@ -625,8 +625,8 @@ public class SQLFunctions {
 
     }
 
-    //substring(Column expr, int pos, int len)
-    //in painless language: substring(int begin, int end)
+    // query: substring(Column expr, int pos, int len)
+    // painless script: substring(int begin, int end)
     public Tuple<String, String> substring(SQLExpr field, int pos, int len, String valueName) {
         String name = nextId("substring");
         if (valueName == null) {
