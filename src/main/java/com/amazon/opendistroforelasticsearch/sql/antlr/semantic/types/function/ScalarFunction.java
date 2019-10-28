@@ -67,6 +67,7 @@ public enum ScalarFunction implements TypeExpression {
         func(T(STRING)).to(T),
         func(T(STRING), STRING).to(T)
     ),
+    LTRIM(func(T(STRING)).to(T)),
     PI(func().to(DOUBLE)),
     POW, POWER(
         func(T(NUMBER)).to(T),

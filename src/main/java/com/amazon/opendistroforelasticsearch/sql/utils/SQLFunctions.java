@@ -54,7 +54,7 @@ public class SQLFunctions {
     );
 
     private static final Set<String> stringOperators = Sets.newHashSet(
-            "split", "concat_ws", "substring", "trim", "lower", "upper", "ascii", "rtrim", "locate",
+            "split", "concat_ws", "substring", "trim", "lower", "upper", "ascii", "rtrim", "ltrim", "locate",
             "length", "replace", "left", "right"
     );
 
@@ -309,6 +309,10 @@ public class SQLFunctions {
                 break;
             case "rtrim":
                 functionStr = rtrim((SQLExpr) paramers.get(0).value);
+                break;
+            case "ltrim":
+                functionStr = ltrim((SQLExpr) paramers.get(0).value);
+                break;
             default:
 
         }
@@ -687,10 +691,20 @@ public class SQLFunctions {
         String fieldString = getPropertyOrStringValue(field);
         return new Tuple<>(name, StringUtils.format(
                 "int pos=%s.length();"
-                + "while(%s.substring(pos-1, pos) == ' ' && pos > 0) {pos --;} "
-                + def(name, "%s.substring(0, pos)")
-                ,
+                + "while(%s.substring(pos-1, pos)==' ' && pos > 0) {pos --;} "
+                + def(name, "%s.substring(0, pos)"),
                 fieldString, fieldString, fieldString
+        ));
+    }
+
+    private Tuple<String, String> ltrim(SQLExpr field) {
+        String name = nextId("ltrim");
+        String fieldString = getPropertyOrStringValue(field);
+        return new Tuple<>(name, StringUtils.format(
+                "int pos=0;"
+                + "while(%s.substring(pos, pos+1)==' ' && pos < %s.length()) {pos ++;} "
+                + def(name, "%s.substring(pos, %s.length())"),
+                fieldString, fieldString, fieldString, fieldString
         ));
     }
 
