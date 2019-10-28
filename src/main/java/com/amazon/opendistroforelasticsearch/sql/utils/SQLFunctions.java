@@ -24,6 +24,7 @@ import com.alibaba.druid.sql.ast.expr.SQLVariantRefExpr;
 import com.amazon.opendistroforelasticsearch.sql.domain.KVValue;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema;
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.elasticsearch.common.collect.Tuple;
@@ -293,12 +294,21 @@ public class SQLFunctions {
                 functionStr = assign((SQLExpr) paramers.get(0).value);
                 break;
             case "length":
-                functionStr = length((SQLExpr) paramers.get(0).value);
+                functionStr = length((SQLExpr) paramers.get(0).value, name);
                 break;
             case "replace":
-                functionStr = replace(paramers.get(0).value.toString(), paramers.get(1).value.toString(),
-                        paramers.get(2).value.toString());
+                functionStr = replace((SQLExpr) paramers.get(0).value, paramers.get(1).value.toString(),
+                        paramers.get(2).value.toString(), name);
                 break;
+//            case "left":
+//                functionStr = substring((SQLExpr) paramers.get(0).value, 0,
+//                        Integer.parseInt(paramers.get(1).value.toString()), null);
+            case "locate":
+                int start = 0;
+                if (paramers.size() > 2) {
+                    start = Integer.parseInt(paramers.get(2).value.toString());
+                }
+                functionStr = locate(paramers.get(0).value.toString(), (SQLExpr) paramers.get(1).value, start);
             default:
 
         }
@@ -490,6 +500,14 @@ public class SQLFunctions {
         }
     }
 
+    private static String getPropertyOrStringValue(SQLExpr expr) {
+        if (isProperty(expr)) {
+            return doc(expr) + ".value";
+        } else {
+            return "'" + exprString(expr) + "'";
+        }
+    }
+
     private static String scriptDeclare(SQLExpr a) {
 
         if (isProperty(a) || a instanceof SQLNumericLiteralExpr) {
@@ -608,15 +626,18 @@ public class SQLFunctions {
     }
 
     //substring(Column expr, int pos, int len)
+    //in painless language: substring(int begin, int end)
     public Tuple<String, String> substring(SQLExpr field, int pos, int len, String valueName) {
         String name = nextId("substring");
         if (valueName == null) {
-            return new Tuple<>(name, def(name, getPropertyOrValue(field) + "."
-                    + func("substring", false, Integer.toString(pos), Integer.toString(len))));
+            return new Tuple<>(name, def(name, getPropertyOrStringValue(field) + "."
+                    + func("substring", false,
+                    Integer.toString(pos), Integer.toString(pos + len))));
         } else {
-            return new Tuple<>(name, getPropertyOrValue(field) + "; "
+            return new Tuple<>(name, getPropertyOrStringValue(field) + "; "
                     + def(name, valueName + "."
-                    + func("substring", false, Integer.toString(pos), Integer.toString(len))));
+                    + func("substring", false,
+                    Integer.toString(pos), Integer.toString(pos + len))));
         }
     }
 
@@ -628,15 +649,37 @@ public class SQLFunctions {
         return property + ".toUpperCase(Locale.forLanguageTag(\"" + culture + "\"))";
     }
 
-    private Tuple<String, String> length(SQLExpr field) {
+    private Tuple<String, String> length(SQLExpr field, String valueName) {
         String name = nextId("length");
-        return new Tuple<>(name, def(name, doc(field) + ".value" + ".length()"));
+        if (Strings.isNullOrEmpty(valueName)) {
+            return new Tuple<>(name, def(name, getPropertyOrStringValue(field) + ".length()"));
+        } else {
+            return new Tuple<>(name, getPropertyOrValue(field) + ";" + def(name, valueName + ".length()"));
+        }
     }
 
-    private Tuple<String, String> replace(String original, String target, String replacement) {
+    private Tuple<String, String> replace(SQLExpr field, String target, String replacement, String valueName) {
         String  name = nextId("replace");
-        return new Tuple<>(name, def(name,
-                original + ".replace(" + target + ", " + replacement + ")"));
+        if (Strings.isNullOrEmpty(valueName)) {
+            return new Tuple<>(name, def(name, getPropertyOrStringValue(field)
+                    + ".replace(" + target + "," + replacement + ")"));
+        } else {
+            return new Tuple<>(name, getPropertyOrStringValue(field) + ";"
+                    + def(name, valueName + ".replace(\" + target + \",\" + replacement + \")"));
+        }
+    }
+
+    private Tuple<String, String> locate(String pattern, SQLExpr source, int start) {
+        String name = nextId("locate");
+        String docSource = getPropertyOrStringValue(source);
+        return new Tuple<>(name, StringUtils.format(
+                "int count=%d;int res=-1;" + "while(count< %s.length() - %s.length()) {"
+                        + "if (%s == %s.substring(count, count+%s.length())) {"
+                        + "res = count;break;} "
+                        + "else {count++;}}"
+                        + def(name, "res"),
+                start, docSource, pattern, pattern, docSource, pattern)
+                );
     }
 
     /**

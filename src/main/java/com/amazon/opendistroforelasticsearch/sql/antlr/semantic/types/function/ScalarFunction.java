@@ -49,8 +49,14 @@ public enum ScalarFunction implements TypeExpression {
     E(func().to(DOUBLE)),
     EXP(func(T(NUMBER)).to(T)),
     EXPM1(func(T(NUMBER)).to(T)),
-    LENGTH(func(T(STRING)).to(INTEGER)),
     FLOOR(func(T(NUMBER)).to(T)),
+//    LEFT(func(T(STRING), INTEGER).to(T)),
+    LENGTH(func(T(STRING)).to(INTEGER)
+),
+    LOCATE(
+            func(STRING, T(STRING), INTEGER).to(INTEGER),
+            func(STRING, T(STRING)).to(INTEGER)
+    ),
     LOG(
         func(T(NUMBER)).to(T),
         func(T(NUMBER), NUMBER).to(T)
@@ -68,7 +74,7 @@ public enum ScalarFunction implements TypeExpression {
     ),
     RADIANS(func(T(NUMBER)).to(T)),
     RANDOM(func(T(NUMBER)).to(T)),
-    REPLACE(func(STRING, STRING, STRING).to(STRING)),
+    REPLACE(func(T(STRING), STRING, STRING).to(T)),
     RINT(func(T(NUMBER)).to(T)),
     ROUND(func(T(NUMBER)).to(T)),
     SIGN(func(T(NUMBER)).to(T)),
