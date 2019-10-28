@@ -65,7 +65,7 @@ public class SQLFunctions {
             "day_of_week", "hour_of_day", "minute_of_day", "minute_of_hour", "second_of_minute"
     );
 
-    private static final Set<String> utilityFunctions = Sets.newHashSet("field", "assign", "cast");
+    private static final Set<String> utilityFunctions = Sets.newHashSet("field", "assign");
 
     public static final Set<String> builtInFunctions = Stream.of(
             numberOperators,
@@ -271,8 +271,6 @@ public class SQLFunctions {
             case "assign":
                 functionStr = assign((SQLExpr) paramers.get(0).value);
                 break;
-            case "cast":
-                System.out.println("in SQLFunctions.java, successfully know that we're doing some casting");
             default:
 
         }
