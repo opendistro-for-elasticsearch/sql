@@ -26,6 +26,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 
@@ -136,6 +137,44 @@ public class MathFunctionsIT extends SQLIntegTestCase {
         );
         double sinh = (double) getField(hits[0], "sinh");
         assertThat(sinh, equalTo(Math.sinh(Math.PI)));
+    }
+
+    @Test
+    public void power() throws IOException {
+        SearchHit[] hits = query(
+                "SELECT POWER(age, 2) AS power",
+                "WHERE (age IS NOT NULL) AND (balance IS NOT NULL) and (POWER(balance, 3) > 0)"
+        );
+        double power = (double) getField(hits[0], "power");
+        assertTrue(power >= 0);
+    }
+
+    @Test
+    public void atan2() throws IOException {
+        SearchHit[] hits = query(
+                "SELECT ATAN2(age, age) AS atan2",
+                "WHERE (age IS NOT NULL) AND (ATAN2(age, age) > 0)"
+        );
+        double atan2 = (double) getField(hits[0], "atan2");
+        assertThat(atan2, equalTo(Math.atan2(1, 1)));
+    }
+
+    @Test
+    public void cot() throws IOException {
+        SearchHit[] hits = query(
+                "SELECT COT(PI()) AS cot"
+        );
+        double cot = (double) getField(hits[0], "cot");
+        assertThat(cot, closeTo(1 / Math.tan(Math.PI), 0.001));
+    }
+
+    @Test
+    public void sign() throws IOException {
+        SearchHit[] hits = query(
+                "SELECT SIGN(E()) AS sign"
+        );
+        double sign = (double) getField(hits[0], "sign");
+        assertThat(sign, equalTo(Math.signum(Math.E)));
     }
 
     private SearchHit[] query(String select, String... statements) throws IOException {
