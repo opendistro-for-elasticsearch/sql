@@ -200,13 +200,13 @@ public class QueryFunctionsIT extends SQLIntegTestCase {
     @Test
     public void numberLiteralInSelectField() {
         assertTrue(
-                executeQuery(StringUtils.format("SELECT 2 AS number from %s", TEST_INDEX_ACCOUNT), "jdbc")
-                .contains("\"type\": \"double\"")
+                executeQuery(StringUtils.format("SELECT 234234 AS number from %s", TEST_INDEX_ACCOUNT), "jdbc")
+                .contains("234234")
         );
 
         assertTrue(
-                executeQuery(StringUtils.format("SELECT 2.1 AS number FROM %s", TEST_INDEX_ACCOUNT), "jdbc")
-                .contains("\"type\": \"double\"")
+                executeQuery(StringUtils.format("SELECT 2.34234 AS number FROM %s", TEST_INDEX_ACCOUNT), "jdbc")
+                .contains("2.34234")
         );
     }
 
