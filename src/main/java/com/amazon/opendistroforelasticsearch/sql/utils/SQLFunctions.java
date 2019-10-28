@@ -294,6 +294,11 @@ public class SQLFunctions {
                 break;
             case "length":
                 functionStr = length((SQLExpr) paramers.get(0).value);
+                break;
+//            case "replace":
+//                functionStr = replace((SQLExpr) paramers.get(0).value, (CharSequence) paramers.get(1),
+//                        (CharSequence) paramers.get(1).value);
+                break;
             default:
 
         }
@@ -626,6 +631,12 @@ public class SQLFunctions {
     private Tuple<String, String> length(SQLExpr field) {
         String name = nextId("length");
         return new Tuple<>(name, def(name, doc(field) + ".value" + ".length()"));
+    }
+
+    private Tuple<String, String> replace(SQLExpr field, CharSequence original, CharSequence replacement) {
+        String  name = nextId("replace");
+        return new Tuple<>(name, def(name,
+                doc(field) + ".value" + ".replace(" + original + ", " + replacement + ")"));
     }
 
     /**
