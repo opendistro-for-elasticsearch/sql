@@ -300,15 +300,15 @@ public class SQLFunctions {
                 functionStr = replace((SQLExpr) paramers.get(0).value, paramers.get(1).value.toString(),
                         paramers.get(2).value.toString(), name);
                 break;
-//            case "left":
-//                functionStr = substring((SQLExpr) paramers.get(0).value, 0,
-//                        Integer.parseInt(paramers.get(1).value.toString()), null);
             case "locate":
                 int start = 0;
                 if (paramers.size() > 2) {
                     start = Integer.parseInt(paramers.get(2).value.toString());
                 }
                 functionStr = locate(paramers.get(0).value.toString(), (SQLExpr) paramers.get(1).value, start);
+                break;
+            case "rtrim":
+                functionStr = rtrim((SQLExpr) paramers.get(0).value);
             default:
 
         }
@@ -680,6 +680,18 @@ public class SQLFunctions {
                         + def(name, "res"),
                 start, docSource, pattern, pattern, docSource, pattern)
                 );
+    }
+
+    private Tuple<String, String> rtrim(SQLExpr field) {
+        String name = nextId("rtrim");
+        String fieldString = getPropertyOrStringValue(field);
+        return new Tuple<>(name, StringUtils.format(
+                "int pos=%s.length();"
+                + "while(%s.substring(pos-1, pos) == ' ' && pos > 0) {pos --;} "
+                + def(name, "%s.substring(0, pos)")
+                ,
+                fieldString, fieldString, fieldString
+        ));
     }
 
     /**
