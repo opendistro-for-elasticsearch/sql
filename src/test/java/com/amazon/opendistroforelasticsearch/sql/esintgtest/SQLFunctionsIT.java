@@ -210,12 +210,22 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void castIntFieldToFloatWithoutAliasJdbcFormatTest() throws IOException {
+    public void castIntFieldToFloatWithoutAliasJdbcFormatTest() {
         JSONObject response = executeJdbcRequest(
-                "SELECT CAST(balance AS FLOAT) FROM " + TestsConstants.TEST_INDEX_ACCOUNT + "/account limit 1");
+                "SELECT CAST(balance AS FLOAT) FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " limit 1");
 
-        System.out.println(response.toString());
-//        assertTrue(response.getJSONArray("schema").get(1).equals("float"));
+        String float_type_cast = "{\"name\":\"cast_balance\",\"type\":\"float\"}";
+        assertEquals(response.getJSONArray("schema").get(0).toString(), float_type_cast);
+    }
+
+    @Test
+    public void castIntFieldToFloatWithAliasJdbcFormatTest() {
+        JSONObject response = executeJdbcRequest(
+                "SELECT CAST(balance AS FLOAT) AS jdbc_float_alias " +
+                        "FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " limit 1");
+
+        String float_type_cast = "{\"name\":\"jdbc_float_alias\",\"type\":\"float\"}";
+        assertEquals(response.getJSONArray("schema").get(0).toString(), float_type_cast);
     }
 
     @Test
