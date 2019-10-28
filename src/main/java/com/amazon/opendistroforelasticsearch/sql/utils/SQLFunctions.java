@@ -65,7 +65,7 @@ public class SQLFunctions {
             "day_of_week", "hour_of_day", "minute_of_day", "minute_of_hour", "second_of_minute"
     );
 
-    private static final Set<String> utilityFunctions = Sets.newHashSet("field", "assign");
+    private static final Set<String> utilityFunctions = Sets.newHashSet("field", "assign", "cast");
 
     public static final Set<String> builtInFunctions = Stream.of(
             numberOperators,
@@ -271,6 +271,8 @@ public class SQLFunctions {
             case "assign":
                 functionStr = assign((SQLExpr) paramers.get(0).value);
                 break;
+            case "cast":
+                System.out.println("in SQLFunctions.java, successfully know that we're doing some casting");
             default:
 
         }
@@ -613,5 +615,25 @@ public class SQLFunctions {
                 String.format(
                         "The following method is not supported in Schema: %s",
                         functionName));
+    }
+
+    public static Schema.Type getCastFunctionReturnType(String castType) {
+        if (castType.toUpperCase().equals("FLOAT")) {
+            return Schema.Type.FLOAT;
+        } else if (castType.toUpperCase().equals("DOUBLE")) {
+            return Schema.Type.DOUBLE;
+        } else if (castType.toUpperCase().equals("INT")) {
+            return Schema.Type.INTEGER;
+        } else if (castType.toUpperCase().equals("STRING")) {
+            return Schema.Type.TEXT;
+        } else if (castType.toUpperCase().equals("DATETIME")) {
+            return Schema.Type.DATE;
+        } else if (castType.toUpperCase().equals("LONG")) {
+            return Schema.Type.LONG;
+        }
+
+        throw new UnsupportedOperationException(
+                StringUtils.format("The following type is not supported by cast(): %s", castType)
+        );
     }
 }

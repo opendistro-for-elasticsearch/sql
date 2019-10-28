@@ -198,6 +198,26 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         assertTrue(hits[0].getFields().get("cast_string_alias").getValue() instanceof String);
     }
 
+    @Ignore
+    @Test
+    public void castIntFieldToFloatWithoutAliasTest() throws IOException {
+        String query = "SELECT CAST(balance AS FLOAT) FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " /account limit 1";
+
+        final SearchHit[] hits = query(query).getHits();
+        System.out.println(hits[0].getFields().toString());
+        assertTrue(hits[0].getFields().containsKey("cast_balance"));
+        assertTrue(hits[0].getFields().get("cast_balance").getValue() instanceof Double);
+    }
+
+    @Test
+    public void castIntFieldToFloatWithoutAliasJdbcFormatTest() throws IOException {
+        JSONObject response = executeJdbcRequest(
+                "SELECT CAST(balance AS FLOAT) FROM " + TestsConstants.TEST_INDEX_ACCOUNT + "/account limit 1");
+
+        System.out.println(response.toString());
+//        assertTrue(response.getJSONArray("schema").get(1).equals("float"));
+    }
+
     @Test
     public void concat_ws_field_and_string() throws Exception {
         //here is a bug,csv field with spa
@@ -340,5 +360,9 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
                 LoggingDeprecationHandler.INSTANCE,
                 rsp);
         return SearchResponse.fromXContent(parser).getHits();
+    }
+
+    private JSONObject executeJdbcRequest(String query) {
+        return new JSONObject(executeQuery(query, "jdbc"));
     }
 }
