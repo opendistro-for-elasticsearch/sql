@@ -15,8 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
-
-import com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.xcontent.LoggingDeprecationHandler;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;
@@ -25,21 +23,18 @@ import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
-import org.hamcrest.Matcher;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.IntStream;
 
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.hitAny;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvDouble;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvInt;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvString;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.both;
@@ -48,7 +43,6 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasValue;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
@@ -243,14 +237,76 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     }
 
     @Test
-//    public void operatorLength() throws Exception {
-//        String query = "SELECT LENGTH(lastname) AS length, age FROM " + TEST_INDEX_ACCOUNT
-//                + "WHERE lastname IS NOT NULL GRUOP BY age ORDER BY age";
-//        assertThat(
-//                executeQuery(query, "jdbc"),
-//                contains()
-//        );
-//    }
+    public void operatorLength() throws IOException {
+        assertThat(
+                executeQuery("SELECT LENGTH(lastname) FROM " + TEST_INDEX_ACCOUNT
+                                + " WHERE lastname IS NOT NULL GROUP BY LENGTH(lastname) ORDER BY LENGTH(lastname)", "jdbc"),
+                containsString("\"type\": \"integer\"")
+        );
+
+        assertThat(
+                executeQuery("SELECT LENGTH('sampleName') AS length FROM " + TEST_INDEX_ACCOUNT),
+                hitAny(kvInt("/fields/length/0", equalTo(10)))
+        );
+
+    }
+
+    @Test
+    public void operatorReplace() {
+        String query = "SELECT REPLACE('elastic', 'el', 'fant') FROM " + TEST_INDEX_ACCOUNT;
+        assertThat(
+                executeQuery(query, "jdbc"),
+                containsString("fantastic")
+        );
+    }
+
+    @Test
+    public void operatorLocate() throws IOException {
+        String query = "SELECT LOCATE('a', lastname, 0) FROM " + TEST_INDEX_ACCOUNT
+                + " WHERE lastname IS NOT NULL GROUP BY LOCATE('a', lastname, 0) ORDER BY LOCATE('a', lastname, 0)";
+        assertThat(
+                executeQuery(query, "jdbc"), containsString("\"type\": \"integer\"")
+        );
+
+        assertThat(
+                executeQuery("SELECT LOCATE('a', 'sampleName', 2) AS locate FROM " + TEST_INDEX_ACCOUNT),
+                hitAny(kvInt("/fields/locate/0", equalTo(7)))
+        );
+        assertThat(
+                executeQuery("SELECT LOCATE('a', 'sampleName') AS locate FROM " + TEST_INDEX_ACCOUNT),
+                hitAny(kvInt("/fields/locate/0", equalTo(1)))
+        );
+    }
+
+    @Test
+    public void rtrim() {
+        assertThat(
+                executeQuery("SELECT RTRIM(' sampleName  ') FROM " + TEST_INDEX_ACCOUNT, "jdbc"),
+                containsString(" sampleName")
+        );
+    }
+
+    @Test
+    public void ltrim() {
+        assertThat(
+                executeQuery("SELECT LTRIM(' sampleName  ') FROM " + TEST_INDEX_ACCOUNT, "jdbc"),
+                containsString("sampleName  ")
+        );
+    }
+
+    @Test
+    public void ascii() throws IOException {
+        assertThat(
+                executeQuery("SELECT ASCII(lastname) FROM " + TEST_INDEX_ACCOUNT
+                        + " WHERE lastname IS NOT NULL GROUP BY ASCII(lastname) ORDER BY ASCII(lastname) LIMIT 5",
+                        "jdbc"),
+                containsString("\"type\": \"integer\"")
+        );
+        assertThat(
+                executeQuery("SELECT ASCII('sampleName') AS ascii FROM " + TEST_INDEX_ACCOUNT),
+                hitAny(kvInt("/fields/ascii/0", equalTo(115)))
+        );
+    }
 
     /**
      * Ignore this test case because painless doesn't whitelist String.split function.
