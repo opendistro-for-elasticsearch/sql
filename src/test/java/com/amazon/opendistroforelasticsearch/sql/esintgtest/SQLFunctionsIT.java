@@ -242,6 +242,16 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         );
     }
 
+    @Test
+//    public void operatorLength() throws Exception {
+//        String query = "SELECT LENGTH(lastname) AS length, age FROM " + TEST_INDEX_ACCOUNT
+//                + "WHERE lastname IS NOT NULL GRUOP BY age ORDER BY age";
+//        assertThat(
+//                executeQuery(query, "jdbc"),
+//                contains()
+//        );
+//    }
+
     /**
      * Ignore this test case because painless doesn't whitelist String.split function.
      * @see <a href="https://www.elastic.co/guide/en/elasticsearch/painless/7.0/painless-api-reference.html">https://www.elastic.co/guide/en/elasticsearch/painless/7.0/painless-api-reference.html</a>

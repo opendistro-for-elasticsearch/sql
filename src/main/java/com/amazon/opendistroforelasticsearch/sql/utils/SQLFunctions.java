@@ -54,8 +54,12 @@ public class SQLFunctions {
     );
 
     private static final Set<String> stringOperators = Sets.newHashSet(
-            "split", "concat_ws", "substring", "trim", "lower", "upper", "ascii", "rtrim", "ltrim", "locate",
-            "length", "replace", "left", "right"
+            "split", "concat_ws", "substring", "trim", "lower", "upper",  "rtrim", "ltrim", "replace",
+            "left", "right"
+    );
+
+    private static final Set<String> stringFunctions = Sets.newHashSet(
+            "length", "locate", "ascii"
     );
 
     private static final Set<String> binaryOperators = Sets.newHashSet(
@@ -74,6 +78,7 @@ public class SQLFunctions {
             mathConstants,
             trigFunctions,
             stringOperators,
+            stringFunctions,
             binaryOperators,
             dateFunctions,
             utilityFunctions)
@@ -731,6 +736,10 @@ public class SQLFunctions {
         if (mathConstants.contains(functionName) || numberOperators.contains(functionName)
                 || trigFunctions.contains(functionName) || binaryOperators.contains(functionName)) {
             return Schema.Type.DOUBLE;
+        }
+
+        if (stringFunctions.contains(functionName)) {
+            return Schema.Type.INTEGER;
         }
 
         throw new UnsupportedOperationException(
