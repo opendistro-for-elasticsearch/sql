@@ -313,6 +313,8 @@ public class SQLFunctions {
             case "ltrim":
                 functionStr = ltrim((SQLExpr) paramers.get(0).value);
                 break;
+            case "ascii":
+                functionStr = ascii((SQLExpr) paramers.get(0).value);
             default:
 
         }
@@ -706,6 +708,11 @@ public class SQLFunctions {
                 + def(name, "%s.substring(pos, %s.length())"),
                 fieldString, fieldString, fieldString, fieldString
         ));
+    }
+
+    private Tuple<String, String> ascii(SQLExpr field) {
+        String name = nextId("ascii");
+        return new Tuple<>(name, def(name, "(int) " + getPropertyOrStringValue(field) + ".charAt(0)"));
     }
 
     /**
