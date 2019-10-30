@@ -237,6 +237,21 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     }
 
     @Test
+    public void operatorSubstring() {
+        assertThat(
+                executeQuery("SELECT substring('sampleName', 1, 4) FROM " + TEST_INDEX_ACCOUNT,
+                        "jdbc"),
+                containsString("samp")
+        );
+
+        assertThat(
+                executeQuery("SELECT substring('sampleName', 0, 20) FROM " + TEST_INDEX_ACCOUNT,
+                        "jdbc"),
+                containsString("sampleName")
+        );
+    }
+
+    @Test
     public void operatorLength() throws IOException {
         assertThat(
                 executeQuery("SELECT LENGTH(lastname) FROM " + TEST_INDEX_ACCOUNT
@@ -269,12 +284,12 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         );
 
         assertThat(
-                executeQuery("SELECT LOCATE('a', 'sampleName', 2) AS locate FROM " + TEST_INDEX_ACCOUNT),
-                hitAny(kvInt("/fields/locate/0", equalTo(7)))
+                executeQuery("SELECT LOCATE('a', 'sampleName', 3) AS locate FROM " + TEST_INDEX_ACCOUNT),
+                hitAny(kvInt("/fields/locate/0", equalTo(8)))
         );
         assertThat(
                 executeQuery("SELECT LOCATE('a', 'sampleName') AS locate FROM " + TEST_INDEX_ACCOUNT),
-                hitAny(kvInt("/fields/locate/0", equalTo(1)))
+                hitAny(kvInt("/fields/locate/0", equalTo(2)))
         );
     }
 
