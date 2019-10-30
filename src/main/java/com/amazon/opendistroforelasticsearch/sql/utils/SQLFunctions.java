@@ -299,11 +299,11 @@ public class SQLFunctions {
                 functionStr = assign((SQLExpr) paramers.get(0).value);
                 break;
             case "length":
-                functionStr = length((SQLExpr) paramers.get(0).value, name);
+                functionStr = length((SQLExpr) paramers.get(0).value);
                 break;
             case "replace":
                 functionStr = replace((SQLExpr) paramers.get(0).value, paramers.get(1).value.toString(),
-                        paramers.get(2).value.toString(), name);
+                        paramers.get(2).value.toString());
                 break;
             case "locate":
                 int start = 0;
@@ -665,24 +665,15 @@ public class SQLFunctions {
         return property + ".toUpperCase(Locale.forLanguageTag(\"" + culture + "\"))";
     }
 
-    private Tuple<String, String> length(SQLExpr field, String valueName) {
+    private Tuple<String, String> length(SQLExpr field) {
         String name = nextId("length");
-        if (Strings.isNullOrEmpty(valueName)) {
-            return new Tuple<>(name, def(name, getPropertyOrStringValue(field) + ".length()"));
-        } else {
-            return new Tuple<>(name, getPropertyOrValue(field) + ";" + def(name, valueName + ".length()"));
-        }
+        return new Tuple<>(name, def(name, getPropertyOrStringValue(field) + ".length()"));
     }
 
-    private Tuple<String, String> replace(SQLExpr field, String target, String replacement, String valueName) {
+    private Tuple<String, String> replace(SQLExpr field, String target, String replacement) {
         String name = nextId("replace");
-        if (Strings.isNullOrEmpty(valueName)) {
-            return new Tuple<>(name, def(name, getPropertyOrStringValue(field)
-                    + ".replace(" + target + "," + replacement + ")"));
-        } else {
-            return new Tuple<>(name, getPropertyOrStringValue(field) + ";"
-                    + def(name, valueName + ".replace(\" + target + \",\" + replacement + \")"));
-        }
+        return new Tuple<>(name, def(name, getPropertyOrStringValue(field)
+                + ".replace(" + target + "," + replacement + ")"));
     }
 
     // es behavior: both 'start' and return value are 1-index; return 0 if pattern does not exist;
