@@ -638,17 +638,22 @@ public class SQLFunctions {
 
     // query: substring(Column expr, int pos, int len)
     // painless script: substring(int begin, int end)
+    // es behavior: 1-index, supports out-of-bound index
     public Tuple<String, String> substring(SQLExpr field, int pos, int len, String valueName) {
         String name = nextId("substring");
+
+        // start and end are 0-indexes
+        int start = pos < 1 ? 0 : pos - 1;
+        int end = Math.min(start + len, getPropertyOrValue(field).length());
         if (valueName == null) {
             return new Tuple<>(name, def(name, getPropertyOrStringValue(field) + "."
                     + func("substring", false,
-                    Integer.toString(pos), Integer.toString(pos + len))));
+                    Integer.toString(start), Integer.toString(end))));
         } else {
             return new Tuple<>(name, getPropertyOrStringValue(field) + "; "
                     + def(name, valueName + "."
                     + func("substring", false,
-                    Integer.toString(pos), Integer.toString(pos + len))));
+                    Integer.toString(start), Integer.toString(end))));
         }
     }
 
