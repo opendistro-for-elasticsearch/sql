@@ -116,7 +116,7 @@ public class StringOperatorsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "if ('a' == doc['lastname'].value.substring("
+                        "doc['lastname'].value.indexOf('a',0)+1"
                 )
         );
 
@@ -124,7 +124,7 @@ public class StringOperatorsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptFilter,
-                        "if ('a' == doc['lastname'].value.substring("
+                        "doc['lastname'].value.indexOf('a',0)+1"
                 )
         );
     }
@@ -138,7 +138,7 @@ public class StringOperatorsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "doc['lastname'].value.substring(pos, doc['lastname'].value.length())"
+                        "Character.isWhitespace(doc['lastname'].value.charAt(pos))"
                 )
         );
 
@@ -146,7 +146,7 @@ public class StringOperatorsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptFilter,
-                        "doc['lastname'].value.substring(pos, doc['lastname'].value.length())"
+                        "Character.isWhitespace(doc['lastname'].value.charAt(pos))"
                 )
         );
     }
@@ -160,7 +160,7 @@ public class StringOperatorsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "doc['lastname'].value.substring(0, pos)"
+                        "Character.isWhitespace(doc['lastname'].value.charAt(pos))"
                 )
         );
 
@@ -168,7 +168,7 @@ public class StringOperatorsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptFilter,
-                        "doc['lastname'].value.substring(0, pos)"
+                        "Character.isWhitespace(doc['lastname'].value.charAt(pos))"
                 )
         );
     }

@@ -691,23 +691,16 @@ public class SQLFunctions {
         String name = nextId("locate");
         String docSource = getPropertyOrStringValue(source);
         start = start < 1 ? 0 : start - 1;
-        return new Tuple<>(name, StringUtils.format(
-                "int count=%d;int res=-1;" + "while(count< %s.length() - %s.length()) {"
-                        + "if (%s == %s.substring(count, count+%s.length())) {"
-                        + "res = count;break;} "
-                        + "else {count++;}}"
-                        + def(name, "res+1"),
-                start, docSource, pattern, pattern, docSource, pattern)
-                );
+        return new Tuple<>(name, def(name, StringUtils.format("%s.indexOf(%s,%d)+1", docSource, pattern, start)));
     }
 
     private Tuple<String, String> rtrim(SQLExpr field) {
         String name = nextId("rtrim");
         String fieldString = getPropertyOrStringValue(field);
         return new Tuple<>(name, StringUtils.format(
-                "int pos=%s.length();"
-                + "while(%s.substring(pos-1, pos)==' ' && pos > 0) {pos --;} "
-                + def(name, "%s.substring(0, pos)"),
+                "int pos=%s.length()-1;"
+                + "while(pos >= 0 && Character.isWhitespace(%s.charAt(pos))) {pos --;} "
+                + def(name, "%s.substring(0, pos+1)"),
                 fieldString, fieldString, fieldString
         ));
     }
@@ -717,7 +710,7 @@ public class SQLFunctions {
         String fieldString = getPropertyOrStringValue(field);
         return new Tuple<>(name, StringUtils.format(
                 "int pos=0;"
-                + "while(%s.substring(pos, pos+1)==' ' && pos < %s.length()) {pos ++;} "
+                + "while(pos < %s.length() && Character.isWhitespace(%s.charAt(pos))) {pos ++;} "
                 + def(name, "%s.substring(pos, %s.length())"),
                 fieldString, fieldString, fieldString, fieldString
         ));
