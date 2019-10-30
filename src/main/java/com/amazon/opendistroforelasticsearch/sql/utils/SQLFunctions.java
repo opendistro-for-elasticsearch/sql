@@ -685,15 +685,18 @@ public class SQLFunctions {
         }
     }
 
+    // es behavior: both 'start' and return value are 1-index; return 0 if pattern does not exist;
+    // support out-of-bound index
     private Tuple<String, String> locate(String pattern, SQLExpr source, int start) {
         String name = nextId("locate");
         String docSource = getPropertyOrStringValue(source);
+        start = start < 1 ? 0 : start - 1;
         return new Tuple<>(name, StringUtils.format(
                 "int count=%d;int res=-1;" + "while(count< %s.length() - %s.length()) {"
                         + "if (%s == %s.substring(count, count+%s.length())) {"
                         + "res = count;break;} "
                         + "else {count++;}}"
-                        + def(name, "res"),
+                        + def(name, "res+1"),
                 start, docSource, pattern, pattern, docSource, pattern)
                 );
     }
