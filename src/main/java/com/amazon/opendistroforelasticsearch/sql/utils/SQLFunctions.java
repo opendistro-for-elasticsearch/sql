@@ -54,7 +54,7 @@ public class SQLFunctions {
     );
 
     private static final Set<String> stringOperators = Sets.newHashSet(
-            "split", "concat_ws", "substring", "trim", "lower", "upper",  "rtrim", "ltrim", "replace",
+            "split", "concat_ws", "substring", "trim", "lower", "upper", "rtrim", "ltrim", "replace",
             "left", "right"
     );
 
@@ -675,7 +675,7 @@ public class SQLFunctions {
     }
 
     private Tuple<String, String> replace(SQLExpr field, String target, String replacement, String valueName) {
-        String  name = nextId("replace");
+        String name = nextId("replace");
         if (Strings.isNullOrEmpty(valueName)) {
             return new Tuple<>(name, def(name, getPropertyOrStringValue(field)
                     + ".replace(" + target + "," + replacement + ")"));
