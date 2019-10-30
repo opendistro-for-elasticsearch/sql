@@ -237,17 +237,15 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void operatorSubstring() {
+    public void operatorSubstring() throws IOException {
         assertThat(
-                executeQuery("SELECT substring('sampleName', 1, 4) FROM " + TEST_INDEX_ACCOUNT,
-                        "jdbc"),
-                containsString("samp")
+                executeQuery("SELECT substring('sampleName', 1, 4) AS substring FROM " + TEST_INDEX_ACCOUNT),
+                hitAny(kvString("/fields/substring/0", equalTo("samp")))
         );
 
         assertThat(
-                executeQuery("SELECT substring('sampleName', 0, 20) FROM " + TEST_INDEX_ACCOUNT,
-                        "jdbc"),
-                containsString("sampleName")
+                executeQuery("SELECT substring('sampleName', 0, 20) AS substring FROM " + TEST_INDEX_ACCOUNT),
+                hitAny(kvString("/fields/substring/0", equalTo("sampleName")))
         );
     }
 
@@ -294,18 +292,18 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void rtrim() {
+    public void rtrim() throws IOException {
         assertThat(
-                executeQuery("SELECT RTRIM(' sampleName  ') FROM " + TEST_INDEX_ACCOUNT, "jdbc"),
-                containsString(" sampleName")
+                executeQuery("SELECT RTRIM(' sampleName  ') AS rtrim FROM " + TEST_INDEX_ACCOUNT),
+                hitAny(kvString("/fields/rtrim/0", equalTo(" sampleName")))
         );
     }
 
     @Test
-    public void ltrim() {
+    public void ltrim() throws IOException {
         assertThat(
-                executeQuery("SELECT LTRIM(' sampleName  ') FROM " + TEST_INDEX_ACCOUNT, "jdbc"),
-                containsString("sampleName  ")
+                executeQuery("SELECT LTRIM(' sampleName  ') AS ltrim FROM " + TEST_INDEX_ACCOUNT),
+                hitAny(kvString("/fields/ltrim/0",equalTo( "sampleName  ")))
         );
     }
 
