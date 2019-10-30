@@ -102,10 +102,10 @@ public class WhereParser {
 
         if (expr instanceof SQLBinaryOpExpr) {
             SQLBinaryOpExpr bExpr = (SQLBinaryOpExpr) expr;
-            if (explanSpecialCondWithBothSidesAreLiterals(bExpr, where)) {
+            if (explainSpecialCondWithBothSidesAreLiterals(bExpr, where)) {
                 return;
             }
-            if (explanSpecialCondWithBothSidesAreProperty(bExpr, where)) {
+            if (explainSpecialCondWithBothSidesAreProperty(bExpr, where)) {
                 return;
             }
         }
@@ -135,7 +135,7 @@ public class WhereParser {
     }
 
     //some where conditions eg. 1=1 or 3>2 or 'a'='b'
-    private boolean explanSpecialCondWithBothSidesAreLiterals(SQLBinaryOpExpr bExpr, Where where)
+    private boolean explainSpecialCondWithBothSidesAreLiterals(SQLBinaryOpExpr bExpr, Where where)
             throws SqlParseException {
         if ((bExpr.getLeft() instanceof SQLNumericLiteralExpr || bExpr.getLeft() instanceof SQLCharExpr)
                 && (bExpr.getRight() instanceof SQLNumericLiteralExpr || bExpr.getRight() instanceof SQLCharExpr)
@@ -157,7 +157,7 @@ public class WhereParser {
     }
 
     //some where conditions eg. field1=field2 or field1>field2
-    private boolean explanSpecialCondWithBothSidesAreProperty(SQLBinaryOpExpr bExpr, Where where)
+    private boolean explainSpecialCondWithBothSidesAreProperty(SQLBinaryOpExpr bExpr, Where where)
             throws SqlParseException {
         //join is not support
         if ((bExpr.getLeft() instanceof SQLPropertyExpr || bExpr.getLeft() instanceof SQLIdentifierExpr)
