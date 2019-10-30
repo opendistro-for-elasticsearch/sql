@@ -734,7 +734,8 @@ public class SQLFunctions {
         }
 
         if (mathConstants.contains(functionName) || numberOperators.contains(functionName)
-                || trigFunctions.contains(functionName) || binaryOperators.contains(functionName)) {
+                || trigFunctions.contains(functionName) || binaryOperators.contains(functionName)
+                || utilityFunctions.contains(functionName)) {
             return Schema.Type.DOUBLE;
         }
 

@@ -26,6 +26,7 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.index.query.AbstractQueryBuilder;
 import org.elasticsearch.index.query.MultiMatchQueryBuilder;
+import org.elasticsearch.search.builder.SearchSourceBuilder.ScriptField;
 import org.hamcrest.Matcher;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -41,6 +42,7 @@ import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.elasticsearch.index.query.QueryBuilders.wildcardQuery;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.junit.Assert.assertTrue;
 
 public class QueryFunctionsTest {
 
@@ -198,6 +200,18 @@ public class QueryFunctionsTest {
         );
     }
 
+    @Test
+    public void numberLiteralInSelectField() {
+        String query = "SELECT 2 AS number FROM bank WHERE age > 20";
+        ScriptField scriptField = CheckScriptContents.getScriptFieldFromQuery(query);
+        assertTrue(
+                CheckScriptContents.scriptContainsString(
+                     scriptField,
+                     "def assign"
+                )
+        );
+    }
+
     @Test(expected = SQLFeatureNotSupportedException.class)
     public void emptyQueryShouldThrowSQLFeatureNotSupportedException() throws SQLFeatureNotSupportedException, SqlParseException {
         ESActionFactory.create(Mockito.mock(Client.class), "");
@@ -225,6 +239,10 @@ public class QueryFunctionsTest {
 
     private String query(String from, String... statements) {
         return explain(SELECT_ALL + " " + from + " " + String.join(" ", statements));
+    }
+
+    private String query(String sql) {
+        return explain(sql);
     }
 
     private String explain(String sql) {
