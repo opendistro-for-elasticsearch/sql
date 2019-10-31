@@ -316,8 +316,12 @@ public class SelectResultSet extends ResultSet {
                 // Refactor SQLFunctions to have functions self-explanatory (types, scripts) and pluggable
                 // (similar to Strategy pattern)
 
-                return SQLFunctions.getScriptFunctionReturnType(
-                        ((ScriptMethodField) field).getFunctionName());
+                if (field instanceof ScriptMethodField) {
+                    return SQLFunctions.getScriptFunctionReturnType(
+                            ((ScriptMethodField) field).getFunctionName());
+                } else {
+                    return Schema.Type.TEXT;
+                }
             }
             default:
                 throw new UnsupportedOperationException(
