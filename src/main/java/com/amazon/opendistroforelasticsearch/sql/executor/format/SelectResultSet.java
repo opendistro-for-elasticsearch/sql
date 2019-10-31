@@ -320,6 +320,7 @@ public class SelectResultSet extends ResultSet {
                     return SQLFunctions.getScriptFunctionReturnType(
                             ((ScriptMethodField) field).getFunctionName());
                 } else {
+                    // only the case statement will come to the following line so far
                     return Schema.Type.TEXT;
                 }
             }
