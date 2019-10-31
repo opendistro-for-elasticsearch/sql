@@ -616,7 +616,7 @@ public class SQLFunctions {
     }
 
     public static Schema.Type getCastFunctionReturnType(String castType) {
-        switch (castType) {
+        switch (StringUtils.toUpper(castType)) {
             case "FLOAT":
                 return Schema.Type.FLOAT;
             case "DOUBLE":
