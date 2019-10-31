@@ -269,7 +269,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         String query = "SELECT REPLACE('elastic', 'el', 'fant') FROM " + TEST_INDEX_ACCOUNT;
         assertThat(
                 executeQuery(query, "jdbc"),
-                equalTo("fantastic")
+                containsString("fantastic")
         );
     }
 
