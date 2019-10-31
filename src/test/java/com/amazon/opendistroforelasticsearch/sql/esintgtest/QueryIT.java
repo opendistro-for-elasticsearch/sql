@@ -1740,6 +1740,19 @@ public class QueryIT extends SQLIntegTestCase {
         assertTrue(response.contains("\"alias\": \"name\""));
     }
 
+    @Test
+    public void caseWhenSwitchTest() throws IOException {
+        JSONObject response = executeQuery("SELECT CASE age " +
+                "WHEN '30' THEN '1' " +
+                "WHEN '40' THEN 2 " +
+                "ELSE '0' END AS cases FROM " + TEST_INDEX_ACCOUNT + " WHERE age IS NOT NULL");
+        JSONObject hit = getHits(response).getJSONObject(0);
+        String age = hit.query("/_source/age").toString();
+        String cases = age.equals("30") ? "1" : age.equals("40") ? "2" : "0";
+
+        assertThat(cases, equalTo(hit.query("/fields/cases/0")));
+    }
+
     private String getScrollId(JSONObject response) {
         return response.getString("_scroll_id");
     }
