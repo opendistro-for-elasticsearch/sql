@@ -323,7 +323,6 @@ public class SelectResultSet extends ResultSet {
                 // TODO: return type information is disconnected from the function definitions in SQLFunctions.
                 // Refactor SQLFunctions to have functions self-explanatory (types, scripts) and pluggable
                 // (similar to Strategy pattern)
-                MethodField methodField = (MethodField) field;
                 if (field.getExpression() instanceof SQLCastExpr) {
                     return SQLFunctions.getCastFunctionReturnType(
                             ((SQLCastExpr) field.getExpression()).getDataType().getName());
