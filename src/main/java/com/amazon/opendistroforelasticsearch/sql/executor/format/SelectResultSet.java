@@ -125,6 +125,9 @@ public class SelectResultSet extends ResultSet {
         // Assumption is all indices share the same mapping which is validated in TermFieldRewriter.
         Map<String, Map<String, FieldMappingMetaData>> indexMappings = mappings.values().iterator().next();
 
+        // if index mappings size is 0 and the expression is a cast: that means that we are casting by alias
+        // if so, add the original field that was being looked at to the mapping (how?)
+
         /*
          * There are three cases regarding type name to consider:
          * 1. If the correct type name was given, its typeMapping is retrieved
@@ -246,9 +249,13 @@ public class SelectResultSet extends ResultSet {
             List<Field> groupByFields = select.getGroupBys().isEmpty() ? new ArrayList<>() :
                     select.getGroupBys().get(0);
 
+
             for (Field selectField : select.getFields()) {
                 if (selectField instanceof MethodField && !selectField.isScriptField()) {
                     groupByFields.add(selectField);
+                } else if (selectField.isScriptField()
+                        && selectField.getAlias().equals(groupByFields.get(0).getName())) {
+                    return select.getFields();
                 }
             }
             return groupByFields;

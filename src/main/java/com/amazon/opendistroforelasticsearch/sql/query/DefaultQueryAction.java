@@ -268,8 +268,15 @@ public class DefaultQueryAction extends QueryAction {
 
     private ScriptSortType getScriptSortType(Order order) {
         ScriptSortType scriptSortType;
-        ScriptMethodField smf = (ScriptMethodField) order.getSortField();
-        Schema.Type scriptFunctionReturnType = SQLFunctions.getScriptFunctionReturnType(smf.getFunctionName());
+        Schema.Type scriptFunctionReturnType;
+        if (order.getSortField().getExpression() instanceof SQLCastExpr) {
+            scriptFunctionReturnType = SQLFunctions.getCastFunctionReturnType(
+                    ((SQLCastExpr) order.getSortField().getExpression()).getDataType().getName());
+        } else {
+            ScriptMethodField smf = (ScriptMethodField) order.getSortField();
+            scriptFunctionReturnType = SQLFunctions.getScriptFunctionReturnType(smf.getFunctionName());
+        }
+
 
         // as of now script function return type returns only text and double
         switch (scriptFunctionReturnType) {
@@ -278,9 +285,11 @@ public class DefaultQueryAction extends QueryAction {
                 break;
 
             case DOUBLE:
+            case FLOAT:
+            case INTEGER:
+            case LONG:
                 scriptSortType = ScriptSortType.NUMBER;
                 break;
-
             default:
                 throw new RuntimeException("unknown");
         }

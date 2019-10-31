@@ -616,22 +616,23 @@ public class SQLFunctions {
     }
 
     public static Schema.Type getCastFunctionReturnType(String castType) {
-        if (castType.toUpperCase().equals("FLOAT")) {
-            return Schema.Type.FLOAT;
-        } else if (castType.toUpperCase().equals("DOUBLE")) {
-            return Schema.Type.DOUBLE;
-        } else if (castType.toUpperCase().equals("INT")) {
-            return Schema.Type.INTEGER;
-        } else if (castType.toUpperCase().equals("STRING")) {
-            return Schema.Type.TEXT;
-        } else if (castType.toUpperCase().equals("DATETIME")) {
-            return Schema.Type.DATE;
-        } else if (castType.toUpperCase().equals("LONG")) {
-            return Schema.Type.LONG;
+        switch (castType) {
+            case "FLOAT":
+                return Schema.Type.FLOAT;
+            case "DOUBLE":
+                return Schema.Type.DOUBLE;
+            case "INT":
+                return Schema.Type.INTEGER;
+            case "STRING":
+                return Schema.Type.TEXT;
+            case "DATETIME":
+                return Schema.Type.DATE;
+            case "LONG":
+                return Schema.Type.LONG;
+            default:
+                throw new UnsupportedOperationException(
+                    StringUtils.format("The following type is not supported by cast(): %s", castType)
+                );
         }
-
-        throw new UnsupportedOperationException(
-                StringUtils.format("The following type is not supported by cast(): %s", castType)
-        );
     }
 }

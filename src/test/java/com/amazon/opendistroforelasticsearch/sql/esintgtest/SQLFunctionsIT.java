@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.hit;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.hitAny;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvDouble;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvString;
@@ -198,17 +199,6 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         assertTrue(hits[0].getFields().get("cast_string_alias").getValue() instanceof String);
     }
 
-    @Ignore
-    @Test
-    public void castIntFieldToFloatWithoutAliasTest() throws IOException {
-        String query = "SELECT CAST(balance AS FLOAT) FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " /account limit 1";
-
-        final SearchHit[] hits = query(query).getHits();
-        System.out.println(hits[0].getFields().toString());
-        assertTrue(hits[0].getFields().containsKey("cast_balance"));
-        assertTrue(hits[0].getFields().get("cast_balance").getValue() instanceof Double);
-    }
-
     @Test
     public void castIntFieldToFloatWithoutAliasJdbcFormatTest() {
         JSONObject response = executeJdbcRequest(
@@ -225,6 +215,56 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
                         "FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " limit 1");
 
         String float_type_cast = "{\"name\":\"jdbc_float_alias\",\"type\":\"float\"}";
+        assertEquals(response.getJSONArray("schema").get(0).toString(), float_type_cast);
+    }
+
+    @Test
+    public void castIntFieldToDoubleWithoutAliasOrderByTest() throws IOException {
+        String query = "SELECT CAST(age AS DOUBLE) FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " /account " +
+                       "ORDER BY age limit 1";
+
+        final SearchHit[] hits = query(query).getHits();
+        assertTrue(hits[0].getFields().containsKey("cast_age"));
+        assertTrue(hits[0].getFields().get("cast_age").getValue() instanceof Double);
+    }
+
+    @Test
+    public void castIntFieldToDoubleWithAliasOrderByTest() throws IOException {
+        String query = "SELECT CAST(age AS DOUBLE) AS alias FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " /account " +
+                       "ORDER BY alias limit 1";
+
+        final SearchHit[] hits = query(query).getHits();
+        assertTrue(hits[0].getFields().containsKey("alias"));
+        assertTrue(hits[0].getFields().get("alias").getValue() instanceof Double);
+    }
+
+    @Test
+    public void castIntFieldToFloatWithoutAliasJdbcFormatGroupByTest() {
+        JSONObject response = executeJdbcRequest(
+                "SELECT CAST(balance AS FLOAT) AS jdbc_float_alias " +
+                        "FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " GROUP BY balance LIMIT 5");
+
+        String float_type_cast = "{\"name\":\"balance\",\"type\":\"long\"}";
+        assertEquals(response.getJSONArray("schema").get(0).toString(), float_type_cast);
+    }
+
+    @Test
+    public void castIntFieldToFloatWithAliasJdbcFormatGroupByTest() {
+        JSONObject response = executeJdbcRequest(
+                "SELECT CAST(balance AS FLOAT) AS jdbc_float_alias " +
+                        "FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " GROUP BY jdbc_float_alias LIMIT 5");
+
+        String float_type_cast = "{\"name\":\"jdbc_float_alias\",\"type\":\"float\"}";
+        assertEquals(response.getJSONArray("schema").get(0).toString(), float_type_cast);
+    }
+
+    @Test
+    public void castIntFieldToDoubleWithAliasJdbcFormatGroupByTest() {
+        JSONObject response = executeJdbcRequest(
+                "SELECT CAST(balance AS DOUBLE) AS jdbc_double_alias " +
+                        "FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " GROUP BY jdbc_double_alias LIMIT 5");
+
+        String float_type_cast = "{\"name\":\"jdbc_double_alias\",\"type\":\"double\"}";
         assertEquals(response.getJSONArray("schema").get(0).toString(), float_type_cast);
     }
 
