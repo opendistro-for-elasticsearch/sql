@@ -24,6 +24,8 @@ import org.elasticsearch.client.Client;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -40,6 +42,12 @@ public class Protocol {
     private long total;
     private ResultSet resultSet;
     private ErrorMessage error;
+
+    /** Optional fields only for JSON format which is supposed to be
+     *  factored out along with other fields of specific format
+     */
+    private final Map<String, Object> options = new HashMap<>();
+
 
     public Protocol(Client client, QueryStatement query, Object queryResult, String formatType) {
         this.formatType = formatType;
@@ -102,6 +110,12 @@ public class Protocol {
         return error.toString();
     }
 
+    /** Add optional fields to the protocol */
+    public void addOption(String key, Object value) {
+        options.put(key, value);
+    }
+
+
     private String outputInJdbcFormat() {
         JSONObject formattedOutput = new JSONObject();
 
@@ -111,6 +125,8 @@ public class Protocol {
 
         formattedOutput.put("schema", getSchemaAsJson());
         formattedOutput.put("datarows", getDataRowsAsJson());
+
+        options.forEach(formattedOutput::put);
 
         return formattedOutput.toString(2);
     }

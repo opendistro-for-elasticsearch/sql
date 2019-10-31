@@ -57,6 +57,21 @@ public class SqlRequest {
         return this.sql;
     }
 
+    public String cursor() {
+        return fieldValue("cursor");
+    }
+
+    public int fetchSize() {
+        String size = fieldValue("fetch_size");
+        return size.isEmpty() ? 0 : Integer.parseInt(size);
+    }
+
+
+    private String fieldValue(String fieldName) {
+        return (jsonContent == null) ? "" : jsonContent.optString(fieldName);
+    }
+
+
     public JSONObject getJsonContent() {
         return this.jsonContent;
     }

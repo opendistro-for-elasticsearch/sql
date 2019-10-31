@@ -25,8 +25,8 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Order;
 import com.amazon.opendistroforelasticsearch.sql.domain.ScriptMethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.domain.Where;
-import com.amazon.opendistroforelasticsearch.sql.domain.hints.Hint;
-import com.amazon.opendistroforelasticsearch.sql.domain.hints.HintType;
+//import com.amazon.opendistroforelasticsearch.sql.domain.hints.Hint;
+//import com.amazon.opendistroforelasticsearch.sql.domain.hints.HintType;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema;
 import com.amazon.opendistroforelasticsearch.sql.query.maker.QueryMaker;
@@ -55,12 +55,15 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * Transform SQL query to standard Elasticsearch search query
  */
 public class DefaultQueryAction extends QueryAction {
+
+    public static final int SCROLL_TIMEOUT = 60 * 1000;
 
     private final Select select;
     private SearchRequestBuilder request;
@@ -78,44 +81,74 @@ public class DefaultQueryAction extends QueryAction {
 
     @Override
     public SqlElasticSearchRequestBuilder explain() throws SqlParseException {
-        Hint scrollHint = null;
-        for (Hint hint : select.getHints()) {
-            if (hint.getType() == HintType.USE_SCROLL) {
-                scrollHint = hint;
-                break;
-            }
-        }
-        if (scrollHint != null && scrollHint.getParams()[0] instanceof String) {
-            return new SqlElasticSearchRequestBuilder(new SearchScrollRequestBuilder(client,
-                    SearchScrollAction.INSTANCE, (String) scrollHint.getParams()[0])
-                    .setScroll(new TimeValue((Integer) scrollHint.getParams()[1])));
-        }
+//        Hint scrollHint = null;
+//        for (Hint hint : select.getHints()) {
+//            if (hint.getType() == HintType.USE_SCROLL) {
+//                scrollHint = hint;
+//                break;
+//            }
+//        }
+//        if (scrollHint != null && scrollHint.getParams()[0] instanceof String) {
+//            return new SqlElasticSearchRequestBuilder(new SearchScrollRequestBuilder(client,
+//                    SearchScrollAction.INSTANCE, (String) scrollHint.getParams()[0])
+//                    .setScroll(new TimeValue((Integer) scrollHint.getParams()[1])));
+//        }
 
+        Objects.requireNonNull(sqlRequest, "SqlRequest is required for ES request build");
+
+        String cursorId = sqlRequest.cursor();
+        if (cursorId.isEmpty()) {
+            buildESRequestBuilder();
+            openScrollIfFetchSizePresent();
+            return new SqlElasticSearchRequestBuilder(request);
+        }
+        return createSqlRequestBuilderByCursorId(cursorId);
+    }
+
+
+    private void buildESRequestBuilder() throws SqlParseException {
         this.request = new SearchRequestBuilder(client, SearchAction.INSTANCE);
         setIndicesAndTypes();
-
         setFields(select.getFields());
-
         setWhere(select.getWhere());
         setSorts(select.getOrderBys());
         setLimit(select.getOffset(), select.getRowCount());
 
-        if (scrollHint != null) {
-            if (!select.isOrderdSelect()) {
-                request.addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC);
-            }
-            request.setSize((Integer) scrollHint.getParams()[0])
-                    .setScroll(new TimeValue((Integer) scrollHint.getParams()[1]));
-        } else {
-            request.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-        }
+//        if (scrollHint != null) {
+//            if (!select.isOrderdSelect()) {
+//                request.addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC);
+//            }
+//            request.setSize((Integer) scrollHint.getParams()[0])
+//                .setScroll(new TimeValue((Integer) scrollHint.getParams()[1]));
+//        } else {
+//            request.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
+//        }
         updateRequestWithIndexAndRoutingOptions(select, request);
         updateRequestWithHighlight(select, request);
         updateRequestWithCollapse(select, request);
         updateRequestWithPostFilter(select, request);
         updateRequestWithInnerHits(select, request);
+    }
 
-        return new SqlElasticSearchRequestBuilder(request);
+    private void openScrollIfFetchSizePresent() {
+        int fetchSize = sqlRequest.fetchSize();
+        if (fetchSize > 0) {
+            if (!select.isOrderdSelect()) {
+                request.addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC);
+            }
+            request.setSize(fetchSize).setScroll(new TimeValue(SCROLL_TIMEOUT));
+        } else {
+            request.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
+        }
+    }
+
+    /**
+     * Create request builder directly if cursor ID is present in the request.
+     */
+    private SqlElasticSearchRequestBuilder createSqlRequestBuilderByCursorId(String cursorId) {
+        return new SqlElasticSearchRequestBuilder(
+            new SearchScrollRequestBuilder(client, SearchScrollAction.INSTANCE, cursorId).
+                setScroll(new TimeValue(SCROLL_TIMEOUT)));
     }
 
     @Override
