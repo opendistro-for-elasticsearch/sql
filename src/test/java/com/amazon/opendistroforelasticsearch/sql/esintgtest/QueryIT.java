@@ -1753,6 +1753,19 @@ public class QueryIT extends SQLIntegTestCase {
         assertThat(cases, equalTo(hit.query("/fields/cases/0")));
     }
 
+    @Test
+    public void caseWhenJdbcResponseTest() {
+        String response = executeQuery("SELECT CASE age " +
+                "WHEN '30' THEN 'age is 30' " +
+                "WHEN '40' THEN 'age is 40' " +
+                "ELSE 'NA' END AS cases FROM " + TEST_INDEX_ACCOUNT + " WHERE age is not null", "jdbc");
+        assertTrue(
+                response.contains("age is 30") ||
+                        response.contains("age is 40") ||
+                        response.contains("NA")
+        );
+    }
+
     private String getScrollId(JSONObject response) {
         return response.getString("_scroll_id");
     }
