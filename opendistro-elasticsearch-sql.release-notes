@@ -34,6 +34,10 @@
 * BugFix [#121](https://github.com/opendistro-for-elasticsearch/sql/issues/121): Dot/period at start of index name fails to parse
 * BugFix [#111](https://github.com/opendistro-for-elasticsearch/sql/issues/111): JDBC format of aggregation query with date_format adds unnecessary column bug
 
+## 2019-10-15, Version 1.2.1 
+
+### Notable changes
+* Feature [#202](https://github.com/opendistro-for-elasticsearch/sql/issues/202): Elasticsearch 7.2.1 compatibility
 
 ## 2019-07-23, Version 1.2.0
 
