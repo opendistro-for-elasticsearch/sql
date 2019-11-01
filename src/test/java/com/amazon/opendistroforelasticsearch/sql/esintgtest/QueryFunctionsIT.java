@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
+import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.xcontent.LoggingDeprecationHandler;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;
@@ -193,6 +194,19 @@ public class QueryFunctionsIT extends SQLIntegTestCase {
             hits(
                 hasValueForFields("Bradshaw", "firstname", "lastname")
             )
+        );
+    }
+
+    @Test
+    public void numberLiteralInSelectField() {
+        assertTrue(
+                executeQuery(StringUtils.format("SELECT 234234 AS number from %s", TEST_INDEX_ACCOUNT), "jdbc")
+                .contains("234234")
+        );
+
+        assertTrue(
+                executeQuery(StringUtils.format("SELECT 2.34234 AS number FROM %s", TEST_INDEX_ACCOUNT), "jdbc")
+                .contains("2.34234")
         );
     }
 

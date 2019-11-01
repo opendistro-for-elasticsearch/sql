@@ -18,7 +18,7 @@ buildscript {
     ext {
         // When upgrading to version after 7.3.0, must remove also
         // project substitution from configurations.all (line 39)
-        es_version = System.getProperty("es.version", "7.3.0")
+        es_version = System.getProperty("es.version", "7.3.2")
     }
     // This isn't applying from repositories.gradle so repeating it here
     repositories {

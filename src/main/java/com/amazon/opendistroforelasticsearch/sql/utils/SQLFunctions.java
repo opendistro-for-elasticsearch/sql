@@ -42,18 +42,23 @@ import java.util.stream.Stream;
 public class SQLFunctions {
 
     private static final Set<String> numberOperators = Sets.newHashSet(
-            "exp", "expm1", "log", "log2", "log10", "sqrt", "cbrt", "ceil", "floor", "rint", "pow",
-            "round", "random", "abs"
+            "exp", "expm1", "log", "log2", "log10", "sqrt", "cbrt", "ceil", "floor", "rint", "pow", "power",
+            "round", "random", "abs", "sign", "signum"
     );
 
     private static final Set<String> mathConstants = Sets.newHashSet("e", "pi");
 
     private static final Set<String> trigFunctions = Sets.newHashSet(
-            "degrees", "radians", "sin", "cos", "tan", "asin", "acos", "atan", "sinh", "cosh"
+            "degrees", "radians", "sin", "cos", "tan", "asin", "acos", "atan", "atan2", "sinh", "cosh", "cot"
     );
 
     private static final Set<String> stringOperators = Sets.newHashSet(
-            "split", "concat_ws", "substring", "trim", "lower", "upper"
+            "split", "concat_ws", "substring", "trim", "lower", "upper", "rtrim", "ltrim", "replace",
+            "left", "right"
+    );
+
+    private static final Set<String> stringFunctions = Sets.newHashSet(
+            "length", "locate", "ascii"
     );
 
     private static final Set<String> binaryOperators = Sets.newHashSet(
@@ -72,6 +77,7 @@ public class SQLFunctions {
             mathConstants,
             trigFunctions,
             stringOperators,
+            stringFunctions,
             binaryOperators,
             dateFunctions,
             utilityFunctions)
@@ -98,7 +104,7 @@ public class SQLFunctions {
     public Tuple<String, String> function(String methodName, List<KVValue> paramers, String name,
                                                  boolean returnValue) {
         Tuple<String, String> functionStr = null;
-        switch (methodName) {
+        switch (methodName.toLowerCase()) {
             case "lower": {
                 functionStr = lower(
                         (SQLExpr) paramers.get(0).value,
@@ -205,10 +211,30 @@ public class SQLFunctions {
                         (SQLExpr) paramers.get(0).value, name);
                 break;
 
+            case "cot":
+                // ES does not support the function name cot
+                functionStr = mathSingleValueTemplate("1 / Math.tan", methodName,
+                        (SQLExpr) paramers.get(0).value, name);
+                break;
+
+            case "sign":
+            case "signum":
+                methodName = "signum";
+                functionStr = mathSingleValueTemplate("Math." + methodName, methodName,
+                        (SQLExpr) paramers.get(0).value, name);
+                break;
+
             case "pow":
+            case "power":
+                methodName = "pow";
                 functionStr = mathDoubleValueTemplate("Math." + methodName, methodName,
                         (SQLExpr) paramers.get(0).value, Util.expr2Object((SQLExpr) paramers.get(1).value).toString(),
                         name);
+                break;
+
+            case "atan2":
+                functionStr = mathDoubleValueTemplate("Math." + methodName, methodName,
+                        (SQLExpr) paramers.get(0).value, (SQLExpr) paramers.get(1).value);
                 break;
 
             case "substring":
@@ -271,6 +297,28 @@ public class SQLFunctions {
             case "assign":
                 functionStr = assign((SQLExpr) paramers.get(0).value);
                 break;
+            case "length":
+                functionStr = length((SQLExpr) paramers.get(0).value);
+                break;
+            case "replace":
+                functionStr = replace((SQLExpr) paramers.get(0).value, paramers.get(1).value.toString(),
+                        paramers.get(2).value.toString());
+                break;
+            case "locate":
+                int start = 0;
+                if (paramers.size() > 2) {
+                    start = Integer.parseInt(paramers.get(2).value.toString());
+                }
+                functionStr = locate(paramers.get(0).value.toString(), (SQLExpr) paramers.get(1).value, start);
+                break;
+            case "rtrim":
+                functionStr = rtrim((SQLExpr) paramers.get(0).value);
+                break;
+            case "ltrim":
+                functionStr = ltrim((SQLExpr) paramers.get(0).value);
+                break;
+            case "ascii":
+                functionStr = ascii((SQLExpr) paramers.get(0).value);
             default:
 
         }
@@ -462,6 +510,14 @@ public class SQLFunctions {
         }
     }
 
+    private static String getPropertyOrStringValue(SQLExpr expr) {
+        if (isProperty(expr)) {
+            return doc(expr) + ".value";
+        } else {
+            return "'" + exprString(expr) + "'";
+        }
+    }
+
     private static String scriptDeclare(SQLExpr a) {
 
         if (isProperty(a) || a instanceof SQLNumericLiteralExpr) {
@@ -544,6 +600,13 @@ public class SQLFunctions {
         }
     }
 
+    private Tuple<String, String> mathDoubleValueTemplate(String methodName, String fieldName, SQLExpr val1,
+                                                          SQLExpr val2) {
+        String name = nextId(fieldName);
+        return new Tuple<>(name, def(name, func(methodName, false,
+                getPropertyOrValue(val1), getPropertyOrValue(val2))));
+    }
+
     private Tuple<String, String> mathSingleValueTemplate(String methodName, String fieldName, SQLExpr field,
                                                                  String valueName) {
         String name = nextId(fieldName);
@@ -572,16 +635,24 @@ public class SQLFunctions {
 
     }
 
-    //substring(Column expr, int pos, int len)
+    // query: substring(Column expr, int pos, int len)
+    // painless script: substring(int begin, int end)
+    // es behavior: 1-index, supports out-of-bound index
     public Tuple<String, String> substring(SQLExpr field, int pos, int len, String valueName) {
         String name = nextId("substring");
+
+        // start and end are 0-indexes
+        int start = pos < 1 ? 0 : pos - 1;
+        int end = Math.min(start + len, getPropertyOrValue(field).length());
         if (valueName == null) {
-            return new Tuple<>(name, def(name, getPropertyOrValue(field) + "."
-                    + func("substring", false, Integer.toString(pos), Integer.toString(len))));
+            return new Tuple<>(name, def(name, getPropertyOrStringValue(field) + "."
+                    + func("substring", false,
+                    Integer.toString(start), Integer.toString(end))));
         } else {
-            return new Tuple<>(name, getPropertyOrValue(field) + "; "
+            return new Tuple<>(name, getPropertyOrStringValue(field) + "; "
                     + def(name, valueName + "."
-                    + func("substring", false, Integer.toString(pos), Integer.toString(len))));
+                    + func("substring", false,
+                    Integer.toString(start), Integer.toString(end))));
         }
     }
 
@@ -593,6 +664,53 @@ public class SQLFunctions {
         return property + ".toUpperCase(Locale.forLanguageTag(\"" + culture + "\"))";
     }
 
+    private Tuple<String, String> length(SQLExpr field) {
+        String name = nextId("length");
+        return new Tuple<>(name, def(name, getPropertyOrStringValue(field) + ".length()"));
+    }
+
+    private Tuple<String, String> replace(SQLExpr field, String target, String replacement) {
+        String name = nextId("replace");
+        return new Tuple<>(name, def(name, getPropertyOrStringValue(field)
+                + ".replace(" + target + "," + replacement + ")"));
+    }
+
+    // es behavior: both 'start' and return value are 1-index; return 0 if pattern does not exist;
+    // support out-of-bound index
+    private Tuple<String, String> locate(String pattern, SQLExpr source, int start) {
+        String name = nextId("locate");
+        String docSource = getPropertyOrStringValue(source);
+        start = start < 1 ? 0 : start - 1;
+        return new Tuple<>(name, def(name, StringUtils.format("%s.indexOf(%s,%d)+1", docSource, pattern, start)));
+    }
+
+    private Tuple<String, String> rtrim(SQLExpr field) {
+        String name = nextId("rtrim");
+        String fieldString = getPropertyOrStringValue(field);
+        return new Tuple<>(name, StringUtils.format(
+                "int pos=%s.length()-1;"
+                + "while(pos >= 0 && Character.isWhitespace(%s.charAt(pos))) {pos --;} "
+                + def(name, "%s.substring(0, pos+1)"),
+                fieldString, fieldString, fieldString
+        ));
+    }
+
+    private Tuple<String, String> ltrim(SQLExpr field) {
+        String name = nextId("ltrim");
+        String fieldString = getPropertyOrStringValue(field);
+        return new Tuple<>(name, StringUtils.format(
+                "int pos=0;"
+                + "while(pos < %s.length() && Character.isWhitespace(%s.charAt(pos))) {pos ++;} "
+                + def(name, "%s.substring(pos, %s.length())"),
+                fieldString, fieldString, fieldString, fieldString
+        ));
+    }
+
+    private Tuple<String, String> ascii(SQLExpr field) {
+        String name = nextId("ascii");
+        return new Tuple<>(name, def(name, "(int) " + getPropertyOrStringValue(field) + ".charAt(0)"));
+    }
+
     /**
      * Returns return type of script function. This is simple approach, that might be not the best solution in the long
      * term. For example - for JDBC, if the column type in index is INTEGER, and the query is "select column+5", current
@@ -600,13 +718,20 @@ public class SQLFunctions {
      * it might be safely treated as INTEGER.
      */
     public static Schema.Type getScriptFunctionReturnType(String functionName) {
+        functionName = functionName.toLowerCase();
+
         if (dateFunctions.contains(functionName) || stringOperators.contains(functionName)) {
             return Schema.Type.TEXT;
         }
 
         if (mathConstants.contains(functionName) || numberOperators.contains(functionName)
-                || trigFunctions.contains(functionName) || binaryOperators.contains(functionName)) {
+                || trigFunctions.contains(functionName) || binaryOperators.contains(functionName)
+                || utilityFunctions.contains(functionName)) {
             return Schema.Type.DOUBLE;
+        }
+
+        if (stringFunctions.contains(functionName)) {
+            return Schema.Type.INTEGER;
         }
 
         throw new UnsupportedOperationException(
