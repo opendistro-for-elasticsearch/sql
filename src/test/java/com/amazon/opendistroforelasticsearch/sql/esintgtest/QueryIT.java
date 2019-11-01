@@ -1744,7 +1744,7 @@ public class QueryIT extends SQLIntegTestCase {
     public void caseWhenSwitchTest() throws IOException {
         JSONObject response = executeQuery("SELECT CASE age " +
                 "WHEN '30' THEN '1' " +
-                "WHEN '40' THEN 2 " +
+                "WHEN '40' THEN '2' " +
                 "ELSE '0' END AS cases FROM " + TEST_INDEX_ACCOUNT + " WHERE age IS NOT NULL");
         JSONObject hit = getHits(response).getJSONObject(0);
         String age = hit.query("/_source/age").toString();

@@ -36,7 +36,9 @@ import com.amazon.opendistroforelasticsearch.sql.parser.ScriptFilter;
 import com.amazon.opendistroforelasticsearch.sql.parser.SqlParser;
 import com.amazon.opendistroforelasticsearch.sql.query.maker.QueryMaker;
 import com.amazon.opendistroforelasticsearch.sql.query.multi.MultiQuerySelect;
+import com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.search.builder.SearchSourceBuilder.ScriptField;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -1117,33 +1119,19 @@ public class SqlParserTest {
     }
 
     @Test
-    public void caseWhenSwitchTest() throws SqlParseException {
+    public void caseWhenSwitchTest()  {
         String query = "SELECT CASE weather "
                 + "WHEN 'Sunny' THEN '0' "
                 + "WHEN 'Rainy' THEN '1' "
                 + "ELSE 'NA' END AS case "
                 + "FROM t";
-        SQLExpr sqlExpr = queryToExpr(query);
-        Select select = parser.parseSelect((SQLQueryExpr) sqlExpr);
-        for (Field field : select.getFields()) {
-            if (field instanceof MethodField) {
-                MethodField methodField = (MethodField) field;
-                String alias = (String) methodField.getParams().get(0).value;
-                String scriptCode = (String) methodField.getParams().get(1).value;
-                Assert.assertEquals(alias, "case");
-                Matcher docValue = Pattern.compile("doc\\['weather'].value").matcher(scriptCode);
-                Matcher number = Pattern.compile(" (\\s+'Sunny') | (\\s+'Rainy')").matcher(scriptCode);
-
-                AtomicInteger docValueCounter = new AtomicInteger();
-
-                while (docValue.find()) {
-                    docValueCounter.incrementAndGet();
-                }
-
-                Assert.assertThat(docValueCounter.get(), equalTo(2));
-                Assert.assertThat(number.groupCount(), equalTo(2));
-            }
-        }
+        ScriptField scriptField = CheckScriptContents.getScriptFieldFromQuery(query);
+        Assert.assertTrue(
+                CheckScriptContents.scriptContainsString(
+                        scriptField,
+                        "doc['weather'].value=='Sunny'"
+                )
+        );
     }
 
     @Test
