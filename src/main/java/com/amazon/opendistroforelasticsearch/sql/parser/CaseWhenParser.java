@@ -48,13 +48,14 @@ public class CaseWhenParser {
     public String parse() throws SqlParseException {
         List<String> result = new ArrayList<>();
 
-        if (caseExpr.getValueExpr() instanceof SQLIdentifierExpr) {
+        if (caseExpr.getValueExpr() != null) {
             for (SQLCaseExpr.Item item : caseExpr.getItems()) {
                 SQLExpr left = caseExpr.getValueExpr();
                 SQLExpr right = item.getConditionExpr();
                 SQLBinaryOpExpr conditionExpr = new SQLBinaryOpExpr(left, SQLBinaryOperator.Equality, right);
                 item.setConditionExpr(conditionExpr);
             }
+            caseExpr.setValueExpr(null);
         }
 
         for (SQLCaseExpr.Item item : caseExpr.getItems()) {
