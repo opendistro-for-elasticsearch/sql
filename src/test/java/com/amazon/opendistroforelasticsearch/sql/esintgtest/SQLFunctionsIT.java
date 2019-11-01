@@ -42,6 +42,7 @@ import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvInt;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvString;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.both;
+import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
@@ -366,6 +367,20 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         assertThat(
                 executeQuery(query),
                 hitAny(kvString("/fields/combine/0", containsString("-")))
+        );
+    }
+
+    @Test
+    public void functionLogs() throws Exception {
+        String query = "SELECT log10(100) as a, log(1) as b, log(2, 4) as c, log2(8) as d from "
+                + TEST_INDEX_ACCOUNT + "/account limit 1";
+
+        assertThat(
+                executeQuery(query),
+                hitAny(both(kvDouble("/fields/a/0", equalTo(Math.log10(100))))
+                        .and(kvDouble("/fields/b/0", equalTo(Math.log(1))))
+                        .and(kvDouble("/fields/c/0", closeTo(Math.log(4)/Math.log(2), 0.0001)))
+                        .and(kvDouble("/fields/d/0", closeTo(Math.log(8)/Math.log(2), 0.0001))))
         );
     }
 
