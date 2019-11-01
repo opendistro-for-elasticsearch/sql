@@ -218,7 +218,7 @@ public class MathFunctionsIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void lnInAggretaionShouldPass() {
+    public void lnInAggregationShouldPass() {
         assertThat(
                 executeQuery(
                         "SELECT LN(age) FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
