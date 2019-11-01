@@ -212,20 +212,6 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void functionLogs() throws Exception {
-        String query = "SELECT log10(100) as a, log(1) as b, log(2, 4) as c, log2(8) as d from "
-                + TEST_INDEX_ACCOUNT + "/account limit 1";
-
-        assertThat(
-                executeQuery(query),
-                hitAny(both(kvDouble("/fields/a/0", equalTo(2.0)))
-                        .and(kvDouble("/fields/b/0", equalTo(0.0)))
-                        .and(kvDouble("/fields/c/0", equalTo(1.0)))
-                        .and(kvDouble("/fields/d/0", equalTo(3.0))))
-        );
-    }
-
-    @Test
     public void functionPow() throws Exception {
         String query = "SELECT pow(account_number, 2) as key,"+
                 "abs(age - 60) as new_age from " + TEST_INDEX_ACCOUNT + "/account WHERE firstname = 'Virginia' and lastname='Ayala' limit 1";
