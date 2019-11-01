@@ -63,6 +63,7 @@ public enum ScalarFunction implements TypeExpression {
     ),
     LOG2(func(T(NUMBER)).to(T)),
     LOG10(func(T(NUMBER)).to(T)),
+    LN(func(T(NUMBER)).to(T)),
     LOWER(
         func(T(STRING)).to(T),
         func(T(STRING), STRING).to(T)
