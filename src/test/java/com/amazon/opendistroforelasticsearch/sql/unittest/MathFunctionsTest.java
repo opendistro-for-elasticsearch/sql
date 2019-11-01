@@ -375,4 +375,52 @@ public class MathFunctionsTest {
                         scriptFilter,
                         "Math.signum(doc['balance'].value)"));
     }
+
+    @Test
+    public void logWithOneParam() {
+        String query = "SELECT LOG(age) FROM bank WHERE LOG(age) = 5.0";
+        ScriptField scriptField = CheckScriptContents.getScriptFieldFromQuery(query);
+        assertTrue(
+                CheckScriptContents.scriptContainsString(
+                        scriptField,
+                        "Math.log(doc['age'].value)"));
+
+        ScriptFilter scriptFilter = CheckScriptContents.getScriptFilterFromQuery(query, parser);
+        assertTrue(
+                CheckScriptContents.scriptContainsString(
+                        scriptFilter,
+                        "Math.log(doc['age'].value)"));
+    }
+
+    @Test
+    public void logWithTwoParams() {
+        String query = "SELECT LOG(3, age) FROM bank WHERE LOG(3, age) = 5.0";
+        ScriptField scriptField = CheckScriptContents.getScriptFieldFromQuery(query);
+        assertTrue(
+                CheckScriptContents.scriptContainsString(
+                        scriptField,
+                        "Math.log(doc['age'].value)/Math.log(3)"));
+
+        ScriptFilter scriptFilter = CheckScriptContents.getScriptFilterFromQuery(query, parser);
+        assertTrue(
+                CheckScriptContents.scriptContainsString(
+                        scriptFilter,
+                        "Math.log(doc['age'].value)/Math.log(3)"));
+    }
+
+    @Test
+    public void lnTest() {
+        String query = "SELECT LN(age) FROM age WHERE LN(age) = 5.0";
+        ScriptField scriptField = CheckScriptContents.getScriptFieldFromQuery(query);
+        assertTrue(
+                CheckScriptContents.scriptContainsString(
+                        scriptField,
+                        "Math.log(doc['age'].value)"));
+
+        ScriptFilter scriptFilter = CheckScriptContents.getScriptFilterFromQuery(query, parser);
+        assertTrue(
+                CheckScriptContents.scriptContainsString(
+                        scriptFilter,
+                        "Math.log(doc['age'].value)"));
+    }
 }

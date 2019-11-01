@@ -42,7 +42,7 @@ import java.util.stream.Stream;
 public class SQLFunctions {
 
     private static final Set<String> numberOperators = Sets.newHashSet(
-            "exp", "expm1", "log", "log2", "log10", "sqrt", "cbrt", "ceil", "floor", "rint", "pow", "power",
+            "exp", "expm1", "log", "log2", "log10", "ln", "sqrt", "cbrt", "ceil", "floor", "rint", "pow", "power",
             "round", "random", "abs", "sign", "signum"
     );
 
@@ -284,15 +284,14 @@ public class SQLFunctions {
                 functionStr = log(SQLUtils.toSQLExpr("10"), (SQLExpr) paramers.get(0).value, name);
                 break;
             case "log":
-                List<SQLExpr> logs = Lists.newArrayList();
-                for (int i = 0; i < paramers.size(); i++) {
-                    logs.add((SQLExpr) paramers.get(0).value);
-                }
-                if (logs.size() > 1) {
-                    functionStr = log(logs.get(0), logs.get(1), name);
+                if (paramers.size() > 1) {
+                    functionStr = log((SQLExpr) paramers.get(0).value, (SQLExpr) paramers.get(1).value, name);
                 } else {
-                    functionStr = log(SQLUtils.toSQLExpr("Math.E"), logs.get(0), name);
+                    functionStr = log((SQLUtils.toSQLExpr("Math.E")), (SQLExpr) paramers.get(0).value, name);
                 }
+                break;
+            case "ln":
+                functionStr = log(SQLUtils.toSQLExpr("Math.E"), (SQLExpr) paramers.get(0).value, name);
                 break;
             case "assign":
                 functionStr = assign((SQLExpr) paramers.get(0).value);
