@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
+import com.alibaba.druid.sql.ast.expr.SQLCastExpr;
 import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.JoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
@@ -123,6 +124,9 @@ public class SelectResultSet extends ResultSet {
 
         // Assumption is all indices share the same mapping which is validated in TermFieldRewriter.
         Map<String, Map<String, FieldMappingMetaData>> indexMappings = mappings.values().iterator().next();
+
+        // if index mappings size is 0 and the expression is a cast: that means that we are casting by alias
+        // if so, add the original field that was being looked at to the mapping (how?)
 
         /*
          * There are three cases regarding type name to consider:
@@ -245,9 +249,13 @@ public class SelectResultSet extends ResultSet {
             List<Field> groupByFields = select.getGroupBys().isEmpty() ? new ArrayList<>() :
                     select.getGroupBys().get(0);
 
+
             for (Field selectField : select.getFields()) {
                 if (selectField instanceof MethodField && !selectField.isScriptField()) {
                     groupByFields.add(selectField);
+                } else if (selectField.isScriptField()
+                        && selectField.getAlias().equals(groupByFields.get(0).getName())) {
+                    return select.getFields();
                 }
             }
             return groupByFields;
@@ -315,7 +323,10 @@ public class SelectResultSet extends ResultSet {
                 // TODO: return type information is disconnected from the function definitions in SQLFunctions.
                 // Refactor SQLFunctions to have functions self-explanatory (types, scripts) and pluggable
                 // (similar to Strategy pattern)
-
+                if (field.getExpression() instanceof SQLCastExpr) {
+                    return SQLFunctions.getCastFunctionReturnType(
+                            ((SQLCastExpr) field.getExpression()).getDataType().getName());
+                }
                 return SQLFunctions.getScriptFunctionReturnType(
                         ((ScriptMethodField) field).getFunctionName());
             }

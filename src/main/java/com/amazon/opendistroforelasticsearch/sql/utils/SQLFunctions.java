@@ -739,4 +739,25 @@ public class SQLFunctions {
                         "The following method is not supported in Schema: %s",
                         functionName));
     }
+
+    public static Schema.Type getCastFunctionReturnType(String castType) {
+        switch (StringUtils.toUpper(castType)) {
+            case "FLOAT":
+                return Schema.Type.FLOAT;
+            case "DOUBLE":
+                return Schema.Type.DOUBLE;
+            case "INT":
+                return Schema.Type.INTEGER;
+            case "STRING":
+                return Schema.Type.TEXT;
+            case "DATETIME":
+                return Schema.Type.DATE;
+            case "LONG":
+                return Schema.Type.LONG;
+            default:
+                throw new UnsupportedOperationException(
+                    StringUtils.format("The following type is not supported by cast(): %s", castType)
+                );
+        }
+    }
 }

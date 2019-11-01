@@ -241,7 +241,6 @@ dottedId
     | '.' uid
     ;
 
-
 //    Literals
 
 decimalLiteral
@@ -297,7 +296,8 @@ functionCall
     ;
 
 specificFunction
-    : CASE expression caseFuncAlternative+
+    : CAST '(' expression AS convertedDataType ')'                  #dataTypeFunctionCall
+    | CASE expression caseFuncAlternative+
       (ELSE elseArg=functionArg)? END                               #caseFunctionCall
     | CASE caseFuncAlternative+
       (ELSE elseArg=functionArg)? END                               #caseFunctionCall
@@ -306,6 +306,15 @@ specificFunction
 caseFuncAlternative
     : WHEN condition=functionArg
       THEN consequent=functionArg
+    ;
+
+convertedDataType
+    : typeName=DATETIME
+    | typeName=INT
+    | typeName=DOUBLE
+    | typeName=LONG
+    | typeName=FLOAT
+    | typeName=STRING
     ;
 
 aggregateWindowedFunction
