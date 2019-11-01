@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
+import com.alibaba.druid.sql.ast.expr.SQLCaseExpr;
 import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.JoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
@@ -316,12 +317,11 @@ public class SelectResultSet extends ResultSet {
                 // Refactor SQLFunctions to have functions self-explanatory (types, scripts) and pluggable
                 // (similar to Strategy pattern)
 
-                if (field instanceof ScriptMethodField) {
+                if (field.getExpression() instanceof SQLCaseExpr) {
+                    return Schema.Type.TEXT;
+                } else {
                     return SQLFunctions.getScriptFunctionReturnType(
                             ((ScriptMethodField) field).getFunctionName());
-                } else {
-                    // only the case statement will come to the following line so far
-                    return Schema.Type.TEXT;
                 }
             }
             default:
