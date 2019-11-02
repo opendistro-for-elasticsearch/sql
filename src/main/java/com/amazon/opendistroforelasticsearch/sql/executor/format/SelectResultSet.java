@@ -331,7 +331,7 @@ public class SelectResultSet extends ResultSet {
                     return Schema.Type.TEXT;
                 }
                 return SQLFunctions.getScriptFunctionReturnType(
-                            ((ScriptMethodField) field).getFunctionName());
+                        ((ScriptMethodField) field).getFunctionName());
             }
             default:
                 throw new UnsupportedOperationException(
