@@ -1121,10 +1121,10 @@ public class SqlParserTest {
     @Test
     public void caseWhenSwitchTest()  {
         String query = "SELECT CASE weather "
-                + "WHEN 'Sunny' THEN '0' "
-                + "WHEN 'Rainy' THEN '1' "
-                + "ELSE 'NA' END AS case "
-                + "FROM t";
+                     + "WHEN 'Sunny' THEN '0' "
+                     + "WHEN 'Rainy' THEN '1' "
+                     + "ELSE 'NA' END AS case "
+                     + "FROM t";
         ScriptField scriptField = CheckScriptContents.getScriptFieldFromQuery(query);
         Assert.assertTrue(
                 CheckScriptContents.scriptContainsString(
