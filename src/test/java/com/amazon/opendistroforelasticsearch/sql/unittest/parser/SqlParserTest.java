@@ -36,7 +36,9 @@ import com.amazon.opendistroforelasticsearch.sql.parser.ScriptFilter;
 import com.amazon.opendistroforelasticsearch.sql.parser.SqlParser;
 import com.amazon.opendistroforelasticsearch.sql.query.maker.QueryMaker;
 import com.amazon.opendistroforelasticsearch.sql.query.multi.MultiQuerySelect;
+import com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.search.builder.SearchSourceBuilder.ScriptField;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -1114,6 +1116,22 @@ public class SqlParserTest {
             }
         }
 
+    }
+
+    @Test
+    public void caseWhenSwitchTest()  {
+        String query = "SELECT CASE weather "
+                     + "WHEN 'Sunny' THEN '0' "
+                     + "WHEN 'Rainy' THEN '1' "
+                     + "ELSE 'NA' END AS case "
+                     + "FROM t";
+        ScriptField scriptField = CheckScriptContents.getScriptFieldFromQuery(query);
+        Assert.assertTrue(
+                CheckScriptContents.scriptContainsString(
+                        scriptField,
+                        "doc['weather'].value=='Sunny'"
+                )
+        );
     }
 
     @Test

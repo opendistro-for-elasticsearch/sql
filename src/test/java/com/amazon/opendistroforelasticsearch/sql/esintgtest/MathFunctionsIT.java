@@ -27,6 +27,7 @@ import org.junit.Test;
 import java.io.IOException;
 
 import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 
@@ -175,6 +176,56 @@ public class MathFunctionsIT extends SQLIntegTestCase {
         );
         double sign = (double) getField(hits[0], "sign");
         assertThat(sign, equalTo(Math.signum(Math.E)));
+    }
+
+    @Test
+    public void logWithOneParam() throws IOException {
+        SearchHit[] hits = query("SELECT LOG(3) AS log");
+        double log = (double) getField(hits[0], "log");
+        assertThat(log, equalTo(Math.log(3)));
+    }
+
+    @Test
+    public void logWithTwoParams() throws IOException {
+        SearchHit[] hits = query("SELECT LOG(2, 3) AS log");
+        double log = (double) getField(hits[0], "log");
+        assertThat(log, closeTo(Math.log(3)/Math.log(2), 0.0001));
+    }
+
+    @Test
+    public void logInAggregationShouldPass() {
+        assertThat(
+                executeQuery(
+                        "SELECT LOG(age) FROM " + TestsConstants.TEST_INDEX_ACCOUNT
+                                + " WHERE age IS NOT NULL GROUP BY LOG(age) ORDER BY LOG(age)", "jdbc"
+                ),
+                containsString("\"type\": \"double\"")
+        );
+        assertThat(
+                executeQuery(
+                        "SELECT LOG(2, age) FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
+                                " WHERE age IS NOT NULL GROUP BY LOG(2, age) ORDER BY LOG(2, age)", "jdbc"
+                ),
+                containsString("\"type\": \"double\"")
+        );
+    }
+
+    @Test
+    public void ln() throws IOException {
+        SearchHit[] hits = query("SELECT LN(5) AS ln");
+        double ln = (double) getField(hits[0], "ln");
+        assertThat(ln, equalTo(Math.log(5)));
+    }
+
+    @Test
+    public void lnInAggregationShouldPass() {
+        assertThat(
+                executeQuery(
+                        "SELECT LN(age) FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
+                                " WHERE age IS NOT NULL GROUP BY LN(age) ORDER BY LN(age)", "jdbc"
+                ),
+                containsString("\"type\": \"double\"")
+        );
     }
 
     private SearchHit[] query(String select, String... statements) throws IOException {
