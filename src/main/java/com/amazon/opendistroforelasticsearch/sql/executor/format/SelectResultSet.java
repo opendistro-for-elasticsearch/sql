@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
+import com.alibaba.druid.sql.ast.expr.SQLCaseExpr;
 import com.alibaba.druid.sql.ast.expr.SQLCastExpr;
 import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.JoinSelect;
@@ -326,6 +327,8 @@ public class SelectResultSet extends ResultSet {
                 if (field.getExpression() instanceof SQLCastExpr) {
                     return SQLFunctions.getCastFunctionReturnType(
                             ((SQLCastExpr) field.getExpression()).getDataType().getName());
+                } else if (field.getExpression() instanceof SQLCaseExpr) {
+                    return Schema.Type.TEXT;
                 }
                 return SQLFunctions.getScriptFunctionReturnType(
                         ((ScriptMethodField) field).getFunctionName());
