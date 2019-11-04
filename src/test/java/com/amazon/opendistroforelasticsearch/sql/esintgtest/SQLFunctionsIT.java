@@ -23,12 +23,16 @@ import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.hamcrest.collection.IsMapContaining;
+
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Date;
+
 import java.util.stream.IntStream;
 
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
@@ -38,6 +42,7 @@ import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvInt;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvString;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.both;
+import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
@@ -154,6 +159,160 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     }
 
     @Test
+    public void castIntFieldToDoubleWithoutAliasTest() throws IOException {
+        String query = "SELECT CAST(age AS DOUBLE) FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
+                        " ORDER BY age DESC LIMIT 5";
+
+        SearchHit[] hits = query(query).getHits();
+        checkSuccessfulFieldCast(hits, "cast_age", "DOUBLE");
+        for (int i = 0; i < hits.length; ++i) {
+            Assert.assertThat(hits[i].getFields().get("cast_age").getValue(), is(40.0));
+        }
+    }
+
+    @Test
+    public void castIntFieldToDoubleWithAliasTest() throws IOException {
+        String query = "SELECT CAST(age AS DOUBLE) AS test_alias FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
+                        " ORDER BY age LIMIT 5";
+
+        SearchHit[] hits = query(query).getHits();
+        checkSuccessfulFieldCast(hits, "test_alias", "DOUBLE");
+        for (int i = 0; i < hits.length; ++i) {
+            Assert.assertThat(hits[i].getFields().get("test_alias").getValue(), is(20.0));
+        }
+    }
+
+    @Test
+    public void castIntFieldToStringWithoutAliasTest() throws IOException {
+        String query = "SELECT CAST(balance AS STRING) FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
+                        " ORDER BY balance LIMIT 1";
+
+        SearchHit[] hits = query(query).getHits();
+        checkSuccessfulFieldCast(hits, "cast_balance", "STRING");
+        for (int i = 0; i < hits.length; ++i) {
+            Assert.assertThat(hits[i].getFields().get("cast_balance").getValue(), is("1011"));
+        }
+    }
+
+    @Test
+    public void castIntFieldToStringWithAliasTest() throws IOException {
+        String query = "SELECT CAST(balance AS STRING) AS cast_string_alias FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
+                        " ORDER BY cast_string_alias DESC LIMIT 1";
+
+        SearchHit[] hits = query(query).getHits();
+        checkSuccessfulFieldCast(hits, "cast_string_alias", "STRING");
+        for (int i = 0; i < hits.length; ++i) {
+            Assert.assertThat(hits[i].getFields().get("cast_string_alias").getValue(), is("9838"));
+        }
+    }
+
+    @Test
+    public void castIntFieldToFloatWithoutAliasJdbcFormatTest() {
+        JSONObject response = executeJdbcRequest(
+                "SELECT CAST(balance AS FLOAT) FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
+                        " ORDER BY balance DESC LIMIT 1");
+
+        String float_type_cast = "{\"name\":\"cast_balance\",\"type\":\"float\"}";
+        assertEquals(response.getJSONArray("schema").get(0).toString(), float_type_cast);
+        Assert.assertThat(
+                response.getJSONArray("datarows")
+                        .getJSONArray(0).getFloat(0),
+                equalTo(49989.0F));
+    }
+
+    @Test
+    public void castIntFieldToFloatWithAliasJdbcFormatTest() {
+        JSONObject response = executeJdbcRequest(
+                "SELECT CAST(balance AS FLOAT) AS jdbc_float_alias " +
+                        "FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY jdbc_float_alias LIMIT 1");
+
+        String float_type_cast = "{\"name\":\"jdbc_float_alias\",\"type\":\"float\"}";
+        assertEquals(response.getJSONArray("schema").get(0).toString(), float_type_cast);
+        Assert.assertThat(
+                response.getJSONArray("datarows")
+                        .getJSONArray(0).getFloat(0),
+                equalTo(1011.0F));
+
+    }
+
+    @Test
+    public void castIntFieldToDoubleWithoutAliasOrderByTest() throws IOException {
+        String query = "SELECT CAST(age AS DOUBLE) FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY age LIMIT 1";
+
+        SearchHit[] hits = query(query).getHits();
+        checkSuccessfulFieldCast(hits, "cast_age", "DOUBLE");
+        for (int i = 0; i < hits.length; ++i) {
+            Assert.assertThat(hits[i].getFields().get("cast_age").getValue(), is(20.0));
+        }
+    }
+
+    @Test
+    public void castIntFieldToDoubleWithAliasOrderByTest() throws IOException {
+        String query = "SELECT CAST(age AS DOUBLE) AS alias FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
+                        " ORDER BY alias DESC LIMIT 1";
+
+        SearchHit[] hits = query(query).getHits();
+        checkSuccessfulFieldCast(hits, "alias", "DOUBLE");
+        for (int i = 0; i < hits.length; ++i) {
+            Assert.assertThat(hits[i].getFields().get("alias").getValue(), is(40.0));
+        }
+    }
+
+    @Test
+    public void castIntFieldToFloatWithoutAliasJdbcFormatGroupByTest() {
+        JSONObject response = executeJdbcRequest(
+                "SELECT CAST(balance AS FLOAT) FROM " +
+                        TestsConstants.TEST_INDEX_ACCOUNT + " GROUP BY balance DESC LIMIT 5");
+
+        String float_type_cast = "{\"name\":\"balance\",\"type\":\"long\"}";
+        assertEquals(response.getJSONArray("schema").get(0).toString(), float_type_cast);
+        Float[] expectedOutput = new Float[] {22026.0F, 23285.0F, 36038.0F, 39063.0F, 45493.0F};
+
+        for (int i = 0; i < response.getJSONArray("datarows").length(); ++i) {
+            Assert.assertThat(
+                    response.getJSONArray("datarows")
+                            .getJSONArray(i).getFloat(0),
+                    equalTo(expectedOutput[i]));
+        }
+    }
+
+    @Test
+    public void castIntFieldToFloatWithAliasJdbcFormatGroupByTest() {
+        JSONObject response = executeJdbcRequest(
+                "SELECT CAST(balance AS FLOAT) AS jdbc_float_alias " +
+                        "FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " GROUP BY jdbc_float_alias ASC LIMIT 5");
+
+        String float_type_cast = "{\"name\":\"jdbc_float_alias\",\"type\":\"float\"}";
+        assertEquals(response.getJSONArray("schema").get(0).toString(), float_type_cast);
+        Float[] expectedOutput = new Float[] {22026.0F, 23285.0F, 36038.0F, 39063.0F, 45493.0F};
+
+        for (int i = 0; i < response.getJSONArray("datarows").length(); ++i) {
+            Assert.assertThat(
+                    response.getJSONArray("datarows")
+                            .getJSONArray(i).getFloat(0),
+                    equalTo(expectedOutput[i]));
+        }
+    }
+
+    @Test
+    public void castIntFieldToDoubleWithAliasJdbcFormatGroupByTest() {
+        JSONObject response = executeJdbcRequest(
+                "SELECT CAST(age AS DOUBLE) AS jdbc_double_alias " +
+                        "FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " GROUP BY jdbc_double_alias DESC LIMIT 5");
+
+        String float_type_cast = "{\"name\":\"jdbc_double_alias\",\"type\":\"double\"}";
+        assertEquals(response.getJSONArray("schema").get(0).toString(), float_type_cast);
+        Double[] expectedOutput = new Double[] {31.0, 39.0, 26.0, 32.0, 35.0};
+
+        for (int i = 0; i < response.getJSONArray("datarows").length(); ++i) {
+            Assert.assertThat(
+                    response.getJSONArray("datarows")
+                            .getJSONArray(i).getDouble(0),
+                    equalTo(expectedOutput[i]));
+        }
+    }
+
+    @Test
     public void concat_ws_field_and_string() throws Exception {
         //here is a bug,csv field with spa
         String query = "SELECT " +
@@ -218,10 +377,10 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
         assertThat(
                 executeQuery(query),
-                hitAny(both(kvDouble("/fields/a/0", equalTo(2.0)))
-                        .and(kvDouble("/fields/b/0", equalTo(0.0)))
-                        .and(kvDouble("/fields/c/0", equalTo(1.0)))
-                        .and(kvDouble("/fields/d/0", equalTo(3.0))))
+                hitAny(both(kvDouble("/fields/a/0", equalTo(Math.log10(100))))
+                        .and(kvDouble("/fields/b/0", equalTo(Math.log(1))))
+                        .and(kvDouble("/fields/c/0", closeTo(Math.log(4)/Math.log(2), 0.0001)))
+                        .and(kvDouble("/fields/d/0", closeTo(Math.log(8)/Math.log(2), 0.0001))))
         );
     }
 
@@ -269,7 +428,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         String query = "SELECT REPLACE('elastic', 'el', 'fant') FROM " + TEST_INDEX_ACCOUNT;
         assertThat(
                 executeQuery(query, "jdbc"),
-                equalTo("fantastic")
+                containsString("fantastic")
         );
     }
 
@@ -380,5 +539,35 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
                 LoggingDeprecationHandler.INSTANCE,
                 rsp);
         return SearchResponse.fromXContent(parser).getHits();
+    }
+
+    private void checkSuccessfulFieldCast(SearchHit[] hits, String field, String castType) {
+        for (int i = 0; i < hits.length; ++i) {
+            Assert.assertThat(hits[i].getFields(), IsMapContaining.hasKey(field));
+            switch (castType) {
+                case "FLOAT":
+                    assertTrue(hits[i].getFields().get(field).getValue() instanceof Float);
+                    break;
+                case "DOUBLE":
+                    assertTrue(hits[i].getFields().get(field).getValue() instanceof Double);
+                    break;
+                case "INT":
+                    assertTrue(hits[i].getFields().get(field).getValue() instanceof Integer);
+                    break;
+                case "STRING":
+                    assertTrue(hits[i].getFields().get(field).getValue() instanceof String);
+                    break;
+                case "DATETIME":
+                    assertTrue(hits[i].getFields().get(field).getValue() instanceof Date);
+                    break;
+                case "LONG":
+                    assertTrue(hits[i].getFields().get(field).getValue() instanceof Long);
+                    break;
+            }
+        }
+    }
+
+    private JSONObject executeJdbcRequest(String query) {
+        return new JSONObject(executeQuery(query, "jdbc"));
     }
 }
