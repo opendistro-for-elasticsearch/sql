@@ -70,6 +70,10 @@ public class SQLFunctions {
             "day_of_week", "hour_of_day", "minute_of_day", "minute_of_hour", "second_of_minute"
     );
 
+    private static final Set<String> conditionalFunctions = Sets.newHashSet(
+            "if", "iif", "ifnull", "isnull"
+    );
+
     private static final Set<String> utilityFunctions = Sets.newHashSet("field", "assign");
 
     public static final Set<String> builtInFunctions = Stream.of(
@@ -80,6 +84,7 @@ public class SQLFunctions {
             stringFunctions,
             binaryOperators,
             dateFunctions,
+            conditionalFunctions,
             utilityFunctions)
             .flatMap(Set::stream).collect(Collectors.toSet());
 
@@ -318,6 +323,24 @@ public class SQLFunctions {
                 break;
             case "ascii":
                 functionStr = ascii((SQLExpr) paramers.get(0).value);
+                break;
+
+            case "if":
+            case "iif":
+                if (paramers.size() > 2) {
+                    functionStr = iif((SQLExpr) paramers.get(0).value, (SQLExpr) paramers.get(1).value,
+                            (SQLExpr) paramers.get(2).value);
+                } else {
+                    functionStr = iif((SQLExpr) paramers.get(0).value, (SQLExpr) paramers.get(1).value,
+                            null);
+                }
+                break;
+
+            case "ifnull":
+            case "isnull":
+                functionStr = ifnull((SQLExpr) paramers.get(0).value, (SQLExpr) paramers.get(1).value);
+                break;
+
             default:
 
         }
@@ -710,6 +733,18 @@ public class SQLFunctions {
         return new Tuple<>(name, def(name, "(int) " + getPropertyOrStringValue(field) + ".charAt(0)"));
     }
 
+    private Tuple<String, String> iif(SQLExpr condition, SQLExpr expr1, SQLExpr expr2) {
+        String name = nextId("iif");
+        String conditionStr = getPropertyOrValue(condition);
+        return new Tuple<>(name, def(name, conditionStr + " ? " + expr1.toString() + " : " + expr2.toString()));
+    }
+
+    private Tuple<String, String> ifnull(SQLExpr condition, SQLExpr expr) {
+        String name = nextId("ifnull");
+        return new Tuple<>(name, def(name, doc(condition) + ".size()==0 ? " + expr.toString()
+                + " : " + getPropertyOrValue(condition)));
+    }
+
     /**
      * Returns return type of script function. This is simple approach, that might be not the best solution in the long
      * term. For example - for JDBC, if the column type in index is INTEGER, and the query is "select column+5", current
@@ -731,6 +766,10 @@ public class SQLFunctions {
 
         if (stringFunctions.contains(functionName)) {
             return Schema.Type.INTEGER;
+        }
+
+        if (conditionalFunctions.contains(functionName)) {
+            return Schema.Type.KEYWORD;
         }
 
         throw new UnsupportedOperationException(

@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.function;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.TypeExpression;
 
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.BOOLEAN;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.DATE;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.INTEGER;
@@ -51,6 +52,22 @@ public enum ScalarFunction implements TypeExpression {
     EXP(func(T(NUMBER)).to(T)),
     EXPM1(func(T(NUMBER)).to(T)),
     FLOOR(func(T(NUMBER)).to(T)),
+    IF(
+            func(BOOLEAN, T(STRING), T(STRING)).to(T),
+            func(BOOLEAN, T(STRING)).to(T)
+    ),
+    IIF(
+            func(BOOLEAN, T(STRING), T(STRING)).to(T),
+            func(BOOLEAN, T(STRING)).to(T)
+    ),
+    IFNULL(
+            func(T(NUMBER), NUMBER).to(T),
+            func(T(STRING), STRING).to(T)
+    ),
+    ISNULL(
+            func(T(NUMBER), NUMBER).to(T),
+            func(T(STRING), STRING).to(T)
+    ),
     LENGTH(func(STRING).to(INTEGER)
 ),
     LOCATE(
