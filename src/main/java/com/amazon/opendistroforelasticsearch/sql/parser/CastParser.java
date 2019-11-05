@@ -63,15 +63,14 @@ public class CastParser {
             } else if (DataType.valueOf(dataType) == DataType.STRING) {
                 result.add(String.format("def %s = %s.toString()", name, fileName));
             } else if (DataType.valueOf(dataType) == DataType.DATETIME) {
-                result.add(String.format("def %s = new Date(Double.parseDouble(%s.toString()).longValue())",
-                        name, fileName));
+                result.add(String.format("def %s = new SimpleDateFormat(\"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'\")"
+                                + ".parse(%s.toString())", name, fileName));
             } else {
                 throw new SqlParseException("not support cast to data type:" + dataType);
             }
             if (isReturn) {
                 result.add("return " + name);
             }
-
             return Joiner.on("; ").join(result);
         } catch (Exception ex) {
             throw new SqlParseException(String.format("field cast to type: %s failed. error:%s",

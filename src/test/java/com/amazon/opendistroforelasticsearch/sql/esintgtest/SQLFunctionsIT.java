@@ -25,17 +25,21 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.hamcrest.collection.IsMapContaining;
 
+import org.joda.time.DateTime;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import java.util.stream.IntStream;
 
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ONLINE;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.hitAny;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvDouble;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvInt;
@@ -62,6 +66,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     @Override
     protected void init() throws Exception {
         loadIndex(Index.ACCOUNT);
+        loadIndex(Index.ONLINE);
     }
 
     @Test
@@ -313,6 +318,86 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     }
 
     @Test
+    public void castFieldToDatetimeWithoutAliasTest() throws IOException {
+        String query = "SELECT CAST(insert_time AS DATETIME) FROM " + TestsConstants.TEST_INDEX_ONLINE +
+                        " ORDER BY insert_time LIMIT 3";
+
+        SearchHit[] hits = query(query).getHits();
+        checkSuccessfulFieldCast(hits, "cast_insert_time", "DATETIME");
+        String[] expectedOutput = new String[] {"2014-08-17T23:00:05.442Z",
+                                                "2014-08-17T23:01:06.591Z",
+                                                "2014-08-17T23:02:07.143Z"};
+
+        for (int i = 0; i < hits.length; ++i) {
+            Assert.assertThat(
+                    hits[i].getFields().get("cast_insert_time").getValue(),
+                    equalTo(expectedOutput[i])
+            );
+        }
+    }
+
+    @Test
+    public void castFieldToDatetimeWithAliasTest() throws IOException {
+        String query = "SELECT CAST(insert_time AS DATETIME) AS test FROM " + TestsConstants.TEST_INDEX_ONLINE +
+                " ORDER BY insert_time LIMIT 3";
+
+        SearchHit[] hits = query(query).getHits();
+        checkSuccessfulFieldCast(hits, "test", "DATETIME");
+        String[] expectedOutput = new String[] {"2014-08-17T23:00:05.442Z",
+                "2014-08-17T23:01:06.591Z",
+                "2014-08-17T23:02:07.143Z"};
+
+        for (int i = 0; i < hits.length; ++i) {
+            Assert.assertThat(
+                    hits[i].getFields().get("test").getValue(),
+                    equalTo(expectedOutput[i])
+            );
+        }
+    }
+
+    @Test
+    public void castFieldToDatetimeWithoutAliasGroupByTest() {
+        JSONObject response = executeJdbcRequest(
+                "SELECT CAST(insert_time AS DATETIME) FROM " + TEST_INDEX_ONLINE +
+                        " GROUP BY insert_time ASC LIMIT 5");
+
+        String date_type_cast = "{\"name\":\"insert_time\",\"type\":\"date\"}";
+        assertEquals(response.getJSONArray("schema").get(0).toString(), date_type_cast);
+        Long[] expectedOutput = new Long[] {1408291205442L,
+                                            1408291266591L,
+                                            1408291327143L,
+                                            1408291387945L,
+                                            1408291448482L};
+        for (int i = 0; i < response.getJSONArray("datarows").length(); ++i) {
+            Assert.assertThat(
+                    response.getJSONArray("datarows")
+                            .getJSONArray(i).getLong(0),
+                    equalTo(expectedOutput[i]));
+        }
+    }
+
+    @Test
+    public void castFieldToDatetimeWithAliasGroupByTest() {
+        JSONObject response = executeJdbcRequest(
+                "SELECT CAST(insert_time AS DATETIME) AS test_alias FROM " + TEST_INDEX_ONLINE +
+                        " GROUP BY test_alias ASC LIMIT 5");
+
+        String date_type_cast = "{\"name\":\"test_alias\",\"type\":\"date\"}";
+        assertEquals(response.getJSONArray("schema").get(0).toString(), date_type_cast);
+        String[] expectedOutput = new String[] {"Fri Aug 22 00:00:27 PDT 2014",
+                                                "Fri Aug 22 00:01:27 PDT 2014",
+                                                "Fri Aug 22 00:02:27 PDT 2014",
+                                                "Fri Aug 22 00:03:27 PDT 2014",
+                                                "Fri Aug 22 00:04:28 PDT 2014"};
+        for (int i = 0; i < response.getJSONArray("datarows").length(); ++i) {
+            Assert.assertThat(
+                    response.getJSONArray("datarows")
+                            .getJSONArray(i).getString(0),
+                    equalTo(expectedOutput[i]));
+        }
+    }
+
+    @Test
     public void concat_ws_field_and_string() throws Exception {
         //here is a bug,csv field with spa
         String query = "SELECT " +
@@ -558,7 +643,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
                     assertTrue(hits[i].getFields().get(field).getValue() instanceof String);
                     break;
                 case "DATETIME":
-                    assertTrue(hits[i].getFields().get(field).getValue() instanceof Date);
+                    assertTrue(isValidDateFormat(hits[i].getFields().get(field).getValue()));
                     break;
                 case "LONG":
                     assertTrue(hits[i].getFields().get(field).getValue() instanceof Long);
@@ -566,6 +651,19 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
             }
         }
     }
+
+
+    private boolean isValidDateFormat(String date) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        format.setLenient(false);
+        try {
+            format.parse(date.trim());
+        } catch (ParseException p) {
+            return false;
+        }
+        return true;
+    }
+
 
     private JSONObject executeJdbcRequest(String query) {
         return new JSONObject(executeQuery(query, "jdbc"));

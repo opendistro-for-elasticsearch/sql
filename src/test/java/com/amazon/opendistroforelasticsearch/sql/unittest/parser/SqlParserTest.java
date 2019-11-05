@@ -39,6 +39,7 @@ import com.amazon.opendistroforelasticsearch.sql.query.multi.MultiQuerySelect;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.LinkedList;
@@ -1220,7 +1221,8 @@ public class SqlParserTest {
         String scriptCode = (String) methodField.getParams().get(1).value;
         Assert.assertEquals("cast_age",alias);
         Assert.assertTrue(scriptCode.contains("doc['age'].value"));
-        Assert.assertTrue(scriptCode.contains("new Date(Double.parseDouble(doc['age'].value.toString()).longValue())"));
+        Assert.assertTrue(scriptCode.contains("new SimpleDateFormat(\"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'\")"
+                                                + ".parse(doc['age'].value.toString())"));
     }
 
     @Test
