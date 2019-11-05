@@ -344,8 +344,8 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         SearchHit[] hits = query(query).getHits();
         checkSuccessfulFieldCast(hits, "test", "DATETIME");
         String[] expectedOutput = new String[] {"2014-08-17T23:00:05.442Z",
-                "2014-08-17T23:01:06.591Z",
-                "2014-08-17T23:02:07.143Z"};
+                                                "2014-08-17T23:01:06.591Z",
+                                                "2014-08-17T23:02:07.143Z"};
 
         for (int i = 0; i < hits.length; ++i) {
             Assert.assertThat(
