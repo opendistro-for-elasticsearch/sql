@@ -25,6 +25,7 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.hamcrest.collection.IsMapContaining;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -52,6 +53,7 @@ import static org.hamcrest.Matchers.hasValue;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 
 
 /**
@@ -478,6 +480,58 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
                 executeQuery("SELECT ASCII('sampleName') AS ascii FROM " + TEST_INDEX_ACCOUNT),
                 hitAny(kvInt("/fields/ascii/0", equalTo(115)))
         );
+    }
+
+    @Test
+    public void ifWithThreeParams() throws IOException {
+        assertThat(
+                executeQuery("SELECT if(age > 30, 'True', 'False') AS Ages FROM " + TEST_INDEX_ACCOUNT
+                        + " WHERE age IS NOT NULL GROUP BY Ages", "jdbc"),
+                containsString("\"type\": \"keyword\"")
+        );
+        assertThat(
+                executeQuery("SELECT if(2 > 0, 'hello', 'world') AS iif FROM " + TEST_INDEX_ACCOUNT),
+                hitAny(kvString("/fields/iif/0", equalTo("hello")))
+        );
+        assertThat(
+                getHits(
+                executeQuery("SELECT iif(2 = 0, 'hello') AS iif FROM " + TEST_INDEX_ACCOUNT)
+                ).getJSONObject(0).query("/fields/iif/0"),
+                equalTo(null)
+        );
+    }
+
+    @Test
+    public void ifWithTwoParams() throws IOException {
+        assertThat(
+                executeQuery("SELECT if(age > 30, 'True') AS Ages FROM " + TEST_INDEX_ACCOUNT
+                        + " WHERE age IS NOT NULL GROUP BY Ages", "jdbc"),
+                containsString("\"type\": \"keyword\"")
+        );
+
+        JSONObject response = executeQuery("SELECT iif(2 = 0, 'hello') AS iif FROM " + TEST_INDEX_ACCOUNT);
+        JSONObject hit = getHits(response).getJSONObject(0);
+        assertThat(
+                ((JSONArray) hit.query("/fields/iif")).get(0),
+                equalTo(null)
+        );
+    }
+
+    @Test
+    public void ifnull() throws IOException {
+        assertThat(
+                executeQuery("SELECT IFNULL(lastname, 'unknown') AS name FROM " + TEST_INDEX_ACCOUNT
+                        + " GROUP BY name", "jdbc"),
+                containsString("\"type\": \"keyword\"")
+        );
+        assertThat(
+                executeQuery("SELECT IFNULL('sample', 'IsNull') AS name FROM " + TEST_INDEX_ACCOUNT),
+                hitAny(kvString("/fields/name/0", equalTo("sample")))
+        );
+//        assertThat(
+//                executeQuery("SELECT ISNULL(null, 'IsNull') AS name FROM " + TEST_INDEX_ACCOUNT),
+//                hitAny(kvString("/fields/name/0", equalTo("IsNull")))
+//        );
     }
 
     /**
