@@ -13,14 +13,19 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.rewriter.join;
+package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
-import com.amazon.opendistroforelasticsearch.sql.esintgtest.SQLIntegTestCase;
+import org.junit.Test;
 
 /**
  * Test cases for writing missing join table aliases.
  */
-public class JoinRewriterRuleTest extends SQLIntegTestCase {
+public class JoinAliasWriterRuleTestIT extends SQLIntegTestCase {
 
+    protected void init() throws Exception {
+        loadIndex(Index.ACCOUNT);
+    }
 
+    @Test
+    public void testNonExistingIndex() { }
 }
