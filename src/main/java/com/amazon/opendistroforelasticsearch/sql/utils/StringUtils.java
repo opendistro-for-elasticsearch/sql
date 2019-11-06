@@ -121,6 +121,15 @@ public class StringUtils {
         return !Strings.isNullOrEmpty(text) && text.startsWith(quote) && text.endsWith(quote);
     }
 
+    public static boolean isNumeric(String text) {
+        try {
+            Double.parseDouble(text);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
     private StringUtils() {
         throw new AssertionError(getClass().getCanonicalName() + " is a utility class and must not be initialized");
     }

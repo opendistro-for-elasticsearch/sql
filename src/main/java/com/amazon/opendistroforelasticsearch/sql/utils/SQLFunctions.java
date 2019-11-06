@@ -530,6 +530,16 @@ public class SQLFunctions {
         }
     }
 
+    private static String getPropertyOrValue(String expr) {
+        if (expr.startsWith("'") && expr.endsWith("'")) {
+            return expr;
+        } else if (StringUtils.isNumeric(expr)) {
+            return expr;
+        } else {
+            return doc(expr) + ".value";
+        }
+    }
+
     private static String getPropertyOrStringValue(SQLExpr expr) {
         if (isProperty(expr)) {
             return doc(expr) + ".value";
@@ -742,8 +752,10 @@ public class SQLFunctions {
             Boolean condition = ((SQLBooleanExpr) paramers.get(0).value).getValue();
             return iif(condition, expr1, expr2);
         } else {
-            // (KVValue instance) parameters.get(0) is the condition: key == value
-            String condition = paramers.get(0).key + "==" + paramers.get(0).value.toString();
+            // (KVValue instance) parameters.get(0) is the parsed condition: key (String) == value (Object)
+            String key = getPropertyOrValue(paramers.get(0).key);
+            String value = getPropertyOrValue(paramers.get(0).value.toString());
+            String condition = key + " == " + value;
             return iif(condition, expr1, expr2);
         }
     }
