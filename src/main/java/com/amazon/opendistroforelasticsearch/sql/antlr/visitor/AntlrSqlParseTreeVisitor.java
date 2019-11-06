@@ -254,9 +254,9 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
 
     @Override
     public T visitBinaryComparisonPredicate(BinaryComparisonPredicateContext ctx) {
-        if (isNamedArgument(ctx)) { // Essentially named argument is assign instead of comparison
-            return defaultResult();
-        }
+//        if (isNamedArgument(ctx)) { // Essentially named argument is assign instead of comparison
+//            return defaultResult();
+//        }
 
         T op = visit(ctx.comparisonOperator());
         return reduce(op, Arrays.asList(ctx.left, ctx.right));

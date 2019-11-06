@@ -17,13 +17,17 @@ package com.amazon.opendistroforelasticsearch.sql.utils;
 
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLExpr;
+import com.alibaba.druid.sql.ast.expr.SQLBooleanExpr;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.expr.SQLNumericLiteralExpr;
 import com.alibaba.druid.sql.ast.expr.SQLPropertyExpr;
+import com.alibaba.druid.sql.ast.expr.SQLTextLiteralExpr;
 import com.alibaba.druid.sql.ast.expr.SQLVariantRefExpr;
 import com.amazon.opendistroforelasticsearch.sql.domain.KVValue;
+import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema;
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.elasticsearch.common.collect.Tuple;
@@ -327,13 +331,7 @@ public class SQLFunctions {
 
             case "if":
             case "iif":
-                if (paramers.size() > 2) {
-                    functionStr = iif((SQLExpr) paramers.get(0).value, (SQLExpr) paramers.get(1).value,
-                            (SQLExpr) paramers.get(2).value);
-                } else {
-                    functionStr = iif((SQLExpr) paramers.get(0).value, (SQLExpr) paramers.get(1).value,
-                            null);
-                }
+                functionStr = iif(paramers);
                 break;
 
             case "ifnull":
@@ -733,16 +731,52 @@ public class SQLFunctions {
         return new Tuple<>(name, def(name, "(int) " + getPropertyOrStringValue(field) + ".charAt(0)"));
     }
 
-    private Tuple<String, String> iif(SQLExpr condition, SQLExpr expr1, SQLExpr expr2) {
+    private Tuple<String, String> iif(List<KVValue> paramers) {
+        String expr1 = paramers.get(1).value.toString();
+        String expr2 = paramers.size() > 2 ? paramers.get(2).value.toString() : null;
+
+        if (paramers.get(0).value instanceof MethodField) {
+            String condition = getScriptText((MethodField) paramers.get(0).value);
+            return iif(condition, expr1, expr2);
+        } else if (paramers.get(0).value instanceof SQLBooleanExpr) {
+            Boolean condition = ((SQLBooleanExpr) paramers.get(0).value).getValue();
+            return iif(condition, expr1, expr2);
+        } else {
+            // (KVValue instance) parameters.get(0) is the condition: key == value
+            String condition = paramers.get(0).key + "==" + paramers.get(0).value.toString();
+            return iif(condition, expr1, expr2);
+        }
+    }
+
+    private Tuple<String, String> iif(String condition, String expr1, String expr2) {
         String name = nextId("iif");
-        String conditionStr = getPropertyOrValue(condition);
-        return new Tuple<>(name, def(name, conditionStr + " ? " + expr1.toString() + " : " + expr2.toString()));
+        return new Tuple<>(name, "boolean cond = " + condition + ";"
+                + def(name, "cond ? " + expr1 + " : " + expr2));
+    }
+
+    private Tuple<String, String> iif(Boolean condition, String expr1, String expr2) {
+        String name = nextId("iff");
+        if (condition) {
+            return new Tuple<>(name, def(name, expr1));
+        } else {
+            return new Tuple<>(name, def(name, expr2));
+        }
+    }
+
+    private String getScriptText(MethodField field) {
+        String content = ((SQLTextLiteralExpr) field.getParams().get(1).value).getText();
+        return content;
     }
 
     private Tuple<String, String> ifnull(SQLExpr condition, SQLExpr expr) {
         String name = nextId("ifnull");
-        return new Tuple<>(name, def(name, doc(condition) + ".size()==0 ? " + expr.toString()
-                + " : " + getPropertyOrValue(condition)));
+        if (isProperty(condition)) {
+            return new Tuple<>(name, def(name, doc(condition) + ".size()==0 ? " + expr.toString() + " : "
+                    + getPropertyOrValue(condition)));
+        } else {
+            String condStr = Strings.isNullOrEmpty(condition.toString()) ? null : getPropertyOrStringValue(condition);
+            return new Tuple<>(name, def(name, condStr));
+        }
     }
 
     /**
