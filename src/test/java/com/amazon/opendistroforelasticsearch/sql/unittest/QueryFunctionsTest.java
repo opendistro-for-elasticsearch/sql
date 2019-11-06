@@ -212,6 +212,42 @@ public class QueryFunctionsTest {
         );
     }
 
+    @Test
+    public void ifFunctionWithConditionStatement() {
+        String query = "SELECT IF(age > 35, 'elastic', 'search') AS Ages FROM accounts";
+        ScriptField scriptField = CheckScriptContents.getScriptFieldFromQuery(query);
+        assertTrue(
+                CheckScriptContents.scriptContainsString(
+                        scriptField,
+                        "boolean cond = doc['age'].value > 35;"
+                )
+        );
+    }
+
+    @Test
+    public void ifFunctionWithEquationConditionStatement() {
+        String query = "SELECT IF(age = 35, 'elastic', 'search') AS Ages FROM accounts";
+        ScriptField scriptField = CheckScriptContents.getScriptFieldFromQuery(query);
+        assertTrue(
+                CheckScriptContents.scriptContainsString(
+                        scriptField,
+                        "boolean cond = doc['age'].value == 35;"
+                )
+        );
+    }
+
+    @Test
+    public void ifFunctionWithConstantConditionStatement() {
+        String query = "SELECT IF(1 = 2, 'elastic', 'search') FROM accounts";
+        ScriptField scriptField = CheckScriptContents.getScriptFieldFromQuery(query);
+        assertTrue(
+                CheckScriptContents.scriptContainsString(
+                        scriptField,
+                        "boolean cond = 1 == 2;"
+                )
+        );
+    }
+
     @Test(expected = SQLFeatureNotSupportedException.class)
     public void emptyQueryShouldThrowSQLFeatureNotSupportedException() throws SQLFeatureNotSupportedException, SqlParseException {
         ESActionFactory.create(Mockito.mock(Client.class), "");
