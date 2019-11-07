@@ -32,6 +32,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.elasticsearch.common.collect.Tuple;
 
+import java.math.MathContext;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -75,7 +76,7 @@ public class SQLFunctions {
     );
 
     private static final Set<String> conditionalFunctions = Sets.newHashSet(
-            "if", "iif", "ifnull", "isnull"
+            "if", "ifnull", "isnull"
     );
 
     private static final Set<String> utilityFunctions = Sets.newHashSet("field", "assign");
@@ -329,14 +330,14 @@ public class SQLFunctions {
                 functionStr = ascii((SQLExpr) paramers.get(0).value);
                 break;
 
-            case "if":
             case "iif":
-                functionStr = iif(paramers);
+                functionStr = ifFunc(paramers);
                 break;
-
             case "ifnull":
-            case "isnull":
                 functionStr = ifnull((SQLExpr) paramers.get(0).value, (SQLExpr) paramers.get(1).value);
+                break;
+            case "isnull":
+                functionStr = isnull((SQLExpr) paramers.get(0).value);
                 break;
 
             default:
@@ -746,32 +747,32 @@ public class SQLFunctions {
         return new Tuple<>(name, def(name, "(int) " + getPropertyOrStringValue(field) + ".charAt(0)"));
     }
 
-    private Tuple<String, String> iif(List<KVValue> paramers) {
+    private Tuple<String, String> ifFunc(List<KVValue> paramers) {
         String expr1 = paramers.get(1).value.toString();
         String expr2 = paramers.size() > 2 ? paramers.get(2).value.toString() : null;
 
         if (paramers.get(0).value instanceof MethodField) {
             String condition = getScriptText((MethodField) paramers.get(0).value);
-            return iif(condition, expr1, expr2);
+            return ifFunc(condition, expr1, expr2);
         } else if (paramers.get(0).value instanceof SQLBooleanExpr) {
             Boolean condition = ((SQLBooleanExpr) paramers.get(0).value).getValue();
-            return iif(condition, expr1, expr2);
+            return ifFunc(condition, expr1, expr2);
         } else {
             // (KVValue instance) parameters.get(0) is the parsed condition: key (String) == value (Object)
             String key = getPropertyOrValue(paramers.get(0).key);
             String value = getPropertyOrValue(paramers.get(0).value.toString());
             String condition = key + " == " + value;
-            return iif(condition, expr1, expr2);
+            return ifFunc(condition, expr1, expr2);
         }
     }
 
-    private Tuple<String, String> iif(String condition, String expr1, String expr2) {
+    private Tuple<String, String> ifFunc(String condition, String expr1, String expr2) {
         String name = nextId("iif");
         return new Tuple<>(name, "boolean cond = " + condition + ";"
                 + def(name, "cond ? " + expr1 + " : " + expr2));
     }
 
-    private Tuple<String, String> iif(Boolean condition, String expr1, String expr2) {
+    private Tuple<String, String> ifFunc(Boolean condition, String expr1, String expr2) {
         String name = nextId("iff");
         if (condition) {
             return new Tuple<>(name, def(name, expr1));
@@ -788,6 +789,24 @@ public class SQLFunctions {
         } else {
             String condStr = Strings.isNullOrEmpty(condition.toString()) ? null : getPropertyOrStringValue(condition);
             return new Tuple<>(name, def(name, condStr));
+        }
+    }
+
+    private Tuple<String, String> isnull(SQLExpr expr) {
+        String name = nextId("isnull");
+        if (isProperty(expr)) {
+            return new Tuple<>(name, def(name, doc(expr) + ".size()==0 ? 1 : 0"));
+        } else {
+            // cases that return 1:
+            // expr is null || expr is math func but tends to throw "divided by zero" arithmetic exception
+            String resultStr = "0";
+            if (Strings.isNullOrEmpty(expr.toString())) {
+                resultStr = "1";
+            }
+            if (this.generatedIds.containsKey("divide")) {
+                //TODO: detect divided by zero exception --> set resultStr to 1
+            }
+            return new Tuple<>(name, def(name, resultStr));
         }
     }
 

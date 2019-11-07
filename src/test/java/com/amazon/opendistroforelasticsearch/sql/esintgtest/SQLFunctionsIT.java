@@ -524,14 +524,18 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
                 containsString("\"type\": \"keyword\"")
         );
         assertThat(
-                executeQuery("SELECT IFNULL('sample', 'IsNull') AS name FROM " + TEST_INDEX_ACCOUNT),
+                executeQuery("SELECT IFNULL('sample', 'IsNull') AS ifnull FROM " + TEST_INDEX_ACCOUNT),
                 hitAny(kvString("/fields/name/0", equalTo("sample")))
         );
+
+        //TODO: let null pass the verification of semantic analyzer
 //        assertThat(
-//                executeQuery("SELECT ISNULL(null, 'IsNull') AS name FROM " + TEST_INDEX_ACCOUNT),
+//                executeQuery("SELECT IFNULL(null, 'IsNull') AS ifnull FROM " + TEST_INDEX_ACCOUNT),
 //                hitAny(kvString("/fields/name/0", equalTo("IsNull")))
 //        );
     }
+
+    //TODO: add tests for isnull function
 
     /**
      * Ignore this test case because painless doesn't whitelist String.split function.

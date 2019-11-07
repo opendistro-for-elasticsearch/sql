@@ -260,6 +260,8 @@ public class QueryFunctionsTest {
         );
     }
 
+    // TODO: add a test for isnull function
+
     @Test(expected = SQLFeatureNotSupportedException.class)
     public void emptyQueryShouldThrowSQLFeatureNotSupportedException() throws SQLFeatureNotSupportedException, SqlParseException {
         ESActionFactory.create(Mockito.mock(Client.class), "");

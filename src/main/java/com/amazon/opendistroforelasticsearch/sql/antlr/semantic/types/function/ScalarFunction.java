@@ -56,17 +56,13 @@ public enum ScalarFunction implements TypeExpression {
             func(BOOLEAN, T(STRING), T(STRING)).to(T),
             func(BOOLEAN, T(STRING)).to(T)
     ),
-    IIF(
-            func(BOOLEAN, T(STRING), T(STRING)).to(T),
-            func(BOOLEAN, T(STRING)).to(T)
-    ),
     IFNULL(
             func(T(NUMBER), NUMBER).to(T),
             func(T(STRING), STRING).to(T)
     ),
     ISNULL(
-            func(T(NUMBER), NUMBER).to(T),
-            func(T(STRING), STRING).to(T)
+            func(NUMBER).to(INTEGER),
+            func(STRING).to(INTEGER)
     ),
     LENGTH(func(STRING).to(INTEGER)
 ),
