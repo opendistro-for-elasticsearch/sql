@@ -27,7 +27,7 @@ import static org.hamcrest.Matchers.equalTo;
 /**
  * Test cases for writing missing join table aliases.
  */
-public class JoinAliasWriterRuleTestIT extends SQLIntegTestCase {
+public class JoinAliasWriterRuleIT extends SQLIntegTestCase {
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -40,7 +40,7 @@ public class JoinAliasWriterRuleTestIT extends SQLIntegTestCase {
 
     @Test
     public void noTableAliasNoCommonColumns() throws IOException {
-        same(
+        sameExplain(
             query(
                 "SELECT id, firstname" ,
                 "FROM elasticsearch-sql_test_index_order",
@@ -57,7 +57,7 @@ public class JoinAliasWriterRuleTestIT extends SQLIntegTestCase {
 
     @Test
     public void oneTableAliasNoCommonColumns() throws IOException {
-        same(
+        sameExplain(
             query(
                 "SELECT id, firstname ",
                 "FROM elasticsearch-sql_test_index_order a ",
@@ -74,7 +74,7 @@ public class JoinAliasWriterRuleTestIT extends SQLIntegTestCase {
 
     @Test
     public void bothTableAliasNoCommonColumns() throws IOException {
-        same(
+        sameExplain(
             query(
                 "SELECT id, firstname ",
                 "FROM elasticsearch-sql_test_index_order a ",
@@ -91,7 +91,7 @@ public class JoinAliasWriterRuleTestIT extends SQLIntegTestCase {
 
     @Test
     public void tableNamesWithTypeName() throws IOException {
-        same(
+        sameExplain(
             query(
                 "SELECT id, firstname ",
                 "FROM elasticsearch-sql_test_index_order/_doc ",
@@ -108,7 +108,7 @@ public class JoinAliasWriterRuleTestIT extends SQLIntegTestCase {
 
     @Test
     public void tableNamesWithTypeNameExplicitTableAlias() throws IOException {
-        same(
+        sameExplain(
             query(
                 "SELECT id, firstname " ,
                 "FROM elasticsearch-sql_test_index_order/_doc a " ,
@@ -125,7 +125,7 @@ public class JoinAliasWriterRuleTestIT extends SQLIntegTestCase {
 
     @Test
     public void actualTableNameAsAliasOnColumnFields() throws IOException {
-        same(
+        sameExplain(
             query(
                 "SELECT elasticsearch-sql_test_index_order.id, b.firstname " ,
                 "FROM elasticsearch-sql_test_index_order/_doc " ,
@@ -142,7 +142,7 @@ public class JoinAliasWriterRuleTestIT extends SQLIntegTestCase {
 
     @Test
     public void actualTableNameAsAliasOnColumnFieldsTwo() throws IOException {
-        same(
+        sameExplain(
             query(
                 "SELECT elasticsearch-sql_test_index_order.id, elasticsearch-sql_test_index_bank.firstname " ,
                 "FROM elasticsearch-sql_test_index_order/_doc " ,
@@ -160,7 +160,7 @@ public class JoinAliasWriterRuleTestIT extends SQLIntegTestCase {
 
     @Test
     public void columnsWithTableAliasNotAffected() throws IOException {
-        same(
+        sameExplain(
             query(
                 "SELECT a.id, firstname ",
                 "FROM elasticsearch-sql_test_index_order a ",
@@ -187,7 +187,7 @@ public class JoinAliasWriterRuleTestIT extends SQLIntegTestCase {
             ));
     }
 
-    private void same(String actualQuery, String expectedQuery) throws IOException {
+    private void sameExplain(String actualQuery, String expectedQuery) throws IOException {
         assertThat(explainQuery(actualQuery), equalTo(explainQuery(expectedQuery)));
     }
 
