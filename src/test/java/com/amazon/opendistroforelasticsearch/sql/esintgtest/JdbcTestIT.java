@@ -132,7 +132,8 @@ public class JdbcTestIT extends SQLIntegTestCase {
     @Test
     public void ipTypeShouldPassJdbcFormatter() {
         assertThat(
-                executeQuery("SELECT host FROM " + TestsConstants.TEST_INDEX_WEBLOG, "jdbc"),
+                executeQuery("SELECT host AS hostIP FROM " + TestsConstants.TEST_INDEX_WEBLOG
+                        + " ORDER BY hostIP", "jdbc"),
                 containsString("\"type\": \"ip\"")
         );
     }
