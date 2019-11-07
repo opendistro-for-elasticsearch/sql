@@ -589,6 +589,11 @@ public class SQLFunctions {
 
     }
 
+    private String getScriptText(MethodField field) {
+        String content = ((SQLTextLiteralExpr) field.getParams().get(1).value).getText();
+        return content;
+    }
+
     /**
      * Using exprString() rather than getPropertyOrValue() for "base" since something like "Math.E" gets evaluated
      * incorrectly in getPropertyOrValue(), returning it as a doc value instead of the literal string
@@ -773,11 +778,6 @@ public class SQLFunctions {
         } else {
             return new Tuple<>(name, def(name, expr2));
         }
-    }
-
-    private String getScriptText(MethodField field) {
-        String content = ((SQLTextLiteralExpr) field.getParams().get(1).value).getText();
-        return content;
     }
 
     private Tuple<String, String> ifnull(SQLExpr condition, SQLExpr expr) {
