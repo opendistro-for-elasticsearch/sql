@@ -413,6 +413,7 @@ functionNameBase
     | E | EXP | EXPM1 | FLOOR | LOG | LOG10 | LOG2 | LOWER
     | PI | POW | RADIANS | RANDOM | RINT | ROUND
     | SIN | SINH | SQRT | SUBSTRING | TAN | TRIM | UPPER | YEAR
+    | IF
     ;
 
 esFunctionNameBase

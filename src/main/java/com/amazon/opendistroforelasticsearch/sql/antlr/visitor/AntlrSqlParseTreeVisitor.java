@@ -316,9 +316,14 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
 
     /** Named argument, ex. TOPHITS('size'=3), is under FunctionArgs -> Predicate */
     private boolean isNamedArgument(BinaryComparisonPredicateContext ctx) {
-        return ctx.getParent() != null && ctx.getParent().getParent() != null
+        if (ctx.getParent() != null && ctx.getParent().getParent() != null
                 && ctx.getParent().getParent().getParent() != null
-                && ctx.getParent().getParent().getParent() instanceof ScalarFunctionCallContext;
+                && ctx.getParent().getParent().getParent() instanceof ScalarFunctionCallContext) {
+
+            ScalarFunctionCallContext parent = (ScalarFunctionCallContext) ctx.getParent().getParent().getParent();
+            return parent.scalarFunctionName().functionNameBase().esFunctionNameBase() != null;
+        }
+        return false;
     }
 
     /** Enforce visiting result of table instead of ON clause as result */
