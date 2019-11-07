@@ -248,6 +248,18 @@ public class QueryFunctionsTest {
         );
     }
 
+    @Test
+    public void ifNull() {
+        String query = "SELECT IFNULL(lastname, 'Unknown') FROM accounts";
+        ScriptField scriptField = CheckScriptContents.getScriptFieldFromQuery(query);
+        assertTrue(
+                CheckScriptContents.scriptContainsString(
+                        scriptField,
+                        "doc['lastname'].size()==0"
+                )
+        );
+    }
+
     @Test(expected = SQLFeatureNotSupportedException.class)
     public void emptyQueryShouldThrowSQLFeatureNotSupportedException() throws SQLFeatureNotSupportedException, SqlParseException {
         ESActionFactory.create(Mockito.mock(Client.class), "");

@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.visitor;
 
-import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FunctionArgsContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.InnerJoinContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.QuerySpecificationContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.SelectColumnElementContext;
@@ -254,9 +253,9 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
 
     @Override
     public T visitBinaryComparisonPredicate(BinaryComparisonPredicateContext ctx) {
-//        if (isNamedArgument(ctx)) { // Essentially named argument is assign instead of comparison
-//            return defaultResult();
-//        }
+        if (isNamedArgument(ctx)) { // Essentially named argument is assign instead of comparison
+            return defaultResult();
+        }
 
         T op = visit(ctx.comparisonOperator());
         return reduce(op, Arrays.asList(ctx.left, ctx.right));
@@ -318,7 +317,8 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
     /** Named argument, ex. TOPHITS('size'=3), is under FunctionArgs -> Predicate */
     private boolean isNamedArgument(BinaryComparisonPredicateContext ctx) {
         return ctx.getParent() != null && ctx.getParent().getParent() != null
-            && ctx.getParent().getParent() instanceof FunctionArgsContext;
+                && ctx.getParent().getParent().getParent() != null
+                && ctx.getParent().getParent().getParent() instanceof ScalarFunctionCallContext;
     }
 
     /** Enforce visiting result of table instead of ON clause as result */
