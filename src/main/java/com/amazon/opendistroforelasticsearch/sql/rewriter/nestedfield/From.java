@@ -49,6 +49,10 @@ class From extends SQLClause<SQLTableSource> {
         }
 
         if (parentAlias(scope).isEmpty()) {
+            // Could also be empty now since normal JOIN tables may not have alias
+            if (scope.getActualJoinType() != null) {
+                ((SQLJoinTableSource) expr).setJoinType(scope.getActualJoinType());
+            }
             return;
         }
 
