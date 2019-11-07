@@ -758,7 +758,15 @@ public class SQLFunctions {
             Boolean condition = ((SQLBooleanExpr) paramers.get(0).value).getValue();
             return ifFunc(condition, expr1, expr2);
         } else {
-            // (KVValue instance) parameters.get(0) is the parsed condition: key (String) == value (Object)
+            // Detailed explanation of cases that come here:
+            // the condition expression would be in the format of a=b:
+            // a is parsed as the key (String) of a KVValue (get from paramers.get(0))
+            // and b is parsed as the value (Object) of this KVValue.
+            //
+            // Either a or b could be a column name, literal, or a number:
+            // - if isNumeric is true --> number
+            // - else if this string is single quoted --> literal
+            // - else --> column name
             String key = getPropertyOrValue(paramers.get(0).key);
             String value = getPropertyOrValue(paramers.get(0).value.toString());
             String condition = key + " == " + value;
