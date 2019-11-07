@@ -32,9 +32,7 @@ import com.google.common.collect.Multimap;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -71,7 +69,6 @@ public class JoinRewriteRule implements RewriteRule<SQLQueryExpr> {
     public void rewrite(SQLQueryExpr root) {
 
         final Multimap<String, Table> tableByFieldName = ArrayListMultimap.create();
-        final Set<String> tableNameAndAlias = new HashSet<>();
         final Map<String, String> tableNameToAlias = new HashMap<>();
 
         visitTable(root, tableExpr -> {
@@ -85,8 +82,6 @@ public class JoinRewriteRule implements RewriteRule<SQLQueryExpr> {
 
             Table table = new Table(tableName, tableExpr.getAlias());
 
-            tableNameAndAlias.add(table.getName());
-            tableNameAndAlias.add(table.getAlias());
             tableNameToAlias.put(table.getName(), table.getAlias());
 
             FieldMappings fieldMappings = clusterState.getFieldMappings(
@@ -144,11 +139,6 @@ public class JoinRewriteRule implements RewriteRule<SQLQueryExpr> {
         });
     }
 
-    private boolean startsWithAlias(String columnName, Collection<String> aliases) {
-       return aliases.stream().map(c -> c + DOT).anyMatch(columnName::startsWith);
-    }
-
-    // All copy-pasted
     private String createAlias(String alias) {
         return String.format("%s_%d", alias, next());
     }
