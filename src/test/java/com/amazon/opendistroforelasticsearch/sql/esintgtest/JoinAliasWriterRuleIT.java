@@ -176,7 +176,7 @@ public class JoinAliasWriterRuleIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void commonColumnWithoutTableAlias() throws IOException {
+    public void commonColumnWithoutTableAliasDifferentTables() throws IOException {
         exception.expect(ResponseException.class);
         exception.expectMessage("Field name [firstname] is ambiguous");
         String explain = explainQuery(query(
@@ -185,6 +185,68 @@ public class JoinAliasWriterRuleIT extends SQLIntegTestCase {
             "LEFT JOIN elasticsearch-sql_test_index_bank_two ",
             "ON firstname = lastname WHERE state = 'VA' "
             ));
+    }
+
+    @Test
+    public void sameTablesNoAliasAndNoAliasOnColumns() throws IOException {
+        exception.expect(ResponseException.class);
+        exception.expectMessage("Not unique table/alias: [elasticsearch-sql_test_index_bank]");
+        String explain = explainQuery(query(
+            "SELECT firstname, lastname ",
+            "FROM elasticsearch-sql_test_index_bank ",
+            "LEFT JOIN elasticsearch-sql_test_index_bank ",
+            "ON firstname = lastname WHERE state = 'VA' "
+        ));
+    }
+
+    @Test
+    public void sameTablesNoAliasWithTableNameAsAliasOnColumns() throws IOException {
+        exception.expect(ResponseException.class);
+        exception.expectMessage("Not unique table/alias: [elasticsearch-sql_test_index_bank]");
+        String explain = explainQuery(query(
+            "SELECT elasticsearch-sql_test_index_bank.firstname",
+            "FROM elasticsearch-sql_test_index_bank ",
+            "JOIN elasticsearch-sql_test_index_bank ",
+            "ON elasticsearch-sql_test_index_bank.firstname = elasticsearch-sql_test_index_bank.lastname"
+        ));
+    }
+
+    @Test
+    public void sameTablesWithExplicitAliasOnFirst() throws IOException {
+        sameExplain(
+            query(
+                "SELECT elasticsearch-sql_test_index_bank.firstname, a.lastname ",
+                "FROM elasticsearch-sql_test_index_bank a",
+                "JOIN elasticsearch-sql_test_index_bank ",
+                "ON elasticsearch-sql_test_index_bank.firstname = a.lastname "
+            ),
+            query(
+                "SELECT elasticsearch-sql_test_index_bank_0.firstname, a.lastname ",
+                "FROM elasticsearch-sql_test_index_bank a",
+                "JOIN  elasticsearch-sql_test_index_bank elasticsearch-sql_test_index_bank_0",
+                "ON elasticsearch-sql_test_index_bank_0.firstname = a.lastname "
+            )
+
+        );
+    }
+
+    @Test
+    public void sameTablesWithExplicitAliasOnSecond() throws IOException {
+        sameExplain(
+            query(
+                "SELECT elasticsearch-sql_test_index_bank.firstname, a.lastname ",
+                "FROM elasticsearch-sql_test_index_bank ",
+                "JOIN elasticsearch-sql_test_index_bank a",
+                "ON elasticsearch-sql_test_index_bank.firstname = a.lastname "
+            ),
+            query(
+                "SELECT elasticsearch-sql_test_index_bank_0.firstname, a.lastname ",
+                "FROM elasticsearch-sql_test_index_bank elasticsearch-sql_test_index_bank_0",
+                "JOIN  elasticsearch-sql_test_index_bank a",
+                "ON elasticsearch-sql_test_index_bank_0.firstname = a.lastname "
+            )
+
+        );
     }
 
     private void sameExplain(String actualQuery, String expectedQuery) throws IOException {

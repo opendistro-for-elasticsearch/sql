@@ -32,7 +32,9 @@ import com.google.common.collect.Multimap;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -71,13 +73,17 @@ public class JoinRewriteRule implements RewriteRule<SQLQueryExpr> {
         final Multimap<String, Table> tableByFieldName = ArrayListMultimap.create();
         final Map<String, String> tableNameToAlias = new HashMap<>();
 
+        // Used to handle case of same tableNames in JOIN
+        final Set<String> explicitAliases = new HashSet<>();
+
         visitTable(root, tableExpr -> {
             // Copied from SubqueryAliasRewriter ; Removes index type name if any
             String tableName = tableExpr.getExpr().toString().replaceAll(" ", "").split("/")[0];
 
             if (tableExpr.getAlias() == null) {
-                // Could we not directly use table name as alias?
-                tableExpr.setAlias(createAlias(tableName));
+                String alias = createAlias(tableName);
+                tableExpr.setAlias(alias);
+                explicitAliases.add(alias);
             }
 
             Table table = new Table(tableName, tableExpr.getAlias());
@@ -88,6 +94,19 @@ public class JoinRewriteRule implements RewriteRule<SQLQueryExpr> {
                 new String[]{tableName}).firstMapping().firstMapping();
             fieldMappings.flat((fieldName, type) -> tableByFieldName.put(fieldName, table));
         });
+
+        //Handling cases for same tableName on either side of JOIN
+        if (tableNameToAlias.size() == 1) {
+            String tableName = tableNameToAlias.keySet().iterator().next();
+            if (explicitAliases.size() == 2) {
+                // Neither table has explicit alias
+                throw new VerificationException(StringUtils.format("Not unique table/alias: [%s]", tableName));
+            } else if (explicitAliases.size() == 1) {
+                // One table has explicit alias; use created alias for other table as alias to override fields
+                // starting with actual tableName as alias to explicit alias
+                tableNameToAlias.put(tableName, explicitAliases.iterator().next());
+            }
+        }
 
         visitColumnName(root, idExpr -> {
             String columnName = idExpr.getName();
