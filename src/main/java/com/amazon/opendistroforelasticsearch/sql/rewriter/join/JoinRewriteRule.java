@@ -29,8 +29,6 @@ import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.Verificati
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -44,18 +42,8 @@ import java.util.function.Consumer;
  */
 public class JoinRewriteRule implements RewriteRule<SQLQueryExpr> {
 
-    private static final Logger logger = LogManager.getLogger();
-
     private static final String DOT = ".";
-
     private int aliasSuffix = 0;
-
-    private final Multimap<String, Table> tableByFieldName = ArrayListMultimap.create();
-
-    private final Set<String> tableNameAndAlias = new HashSet<>();
-
-    private final Map<String, String> tableNameToAlias = new HashMap<>();
-
     private final LocalClusterState clusterState;
 
     public JoinRewriteRule(LocalClusterState clusterState) {
@@ -64,8 +52,7 @@ public class JoinRewriteRule implements RewriteRule<SQLQueryExpr> {
 
     @Override
     public boolean match(SQLQueryExpr root) {
-        // Since this Rewriter rule is executed inside JOIN block
-        return true;
+        return isJoin(root);
     }
 
     private boolean isJoin(SQLQueryExpr sqlExpr) {
@@ -83,14 +70,16 @@ public class JoinRewriteRule implements RewriteRule<SQLQueryExpr> {
     @Override
     public void rewrite(SQLQueryExpr root) {
 
+        final Multimap<String, Table> tableByFieldName = ArrayListMultimap.create();
+        final Set<String> tableNameAndAlias = new HashSet<>();
+        final Map<String, String> tableNameToAlias = new HashMap<>();
+
         visitTable(root, tableExpr -> {
-            // Copy from SubqueryAliasRewriter, remove index type name if any
+            // Copied from SubqueryAliasRewriter ; Removes index type name if any
             String tableName = tableExpr.getExpr().toString().replaceAll(" ", "").split("/")[0];
-            logger.warn("tableExpr.getExpr().toString():  " + tableExpr.getExpr().toString());
-            logger.warn("tableName : " + tableName);
-            logger.warn("===============================================");
 
             if (tableExpr.getAlias() == null) {
+                // Could we not directly use table name as alias?
                 tableExpr.setAlias(createAlias(tableName));
             }
 
@@ -98,7 +87,6 @@ public class JoinRewriteRule implements RewriteRule<SQLQueryExpr> {
 
             tableNameAndAlias.add(table.getName());
             tableNameAndAlias.add(table.getAlias());
-
             tableNameToAlias.put(table.getName(), table.getAlias());
 
             FieldMappings fieldMappings = clusterState.getFieldMappings(
@@ -106,39 +94,26 @@ public class JoinRewriteRule implements RewriteRule<SQLQueryExpr> {
             fieldMappings.flat((fieldName, type) -> tableByFieldName.put(fieldName, table));
         });
 
-        logger.warn("multimap: " + tableByFieldName);
-        logger.warn("===============================================");
-        logger.warn("tableNameAndAlias set: " + tableNameAndAlias);
-        logger.warn("===============================================");
-        logger.warn("tableNameToAlias map: " + tableNameToAlias);
-
-
         visitColumnName(root, idExpr -> {
-            String columnName = idExpr.getName(); // TODO: Assume field doesn't have alias or table name prefix.
+            String columnName = idExpr.getName();
             Collection<Table> tables = tableByFieldName.get(columnName);
             if (tables.size() > 1) {
-                throw new VerificationException(StringUtils.format(
-                    "Field name [%s] is ambiguous", columnName));
+                // columnName without alias present in both tables
+                throw new VerificationException(StringUtils.format("Field name [%s] is ambiguous", columnName));
             } else if (tables.isEmpty()) {
-                // size() == 0, either the columnName does not exist or columnName starts with alias
-                // if columnName starts with some alias, do nothing else columnName does not exist
-                if (!startsWithAlias(columnName, tableNameAndAlias)) {
-                    throw new VerificationException(StringUtils.format(
-                        "Field name [%s] does not exist in either table", columnName));
-                }
+                // size() == 0?
+                // 1. Either the columnName does not exist (handled by SemanticAnalyzer [SemanticAnalysisException])
+                // 2. Or column starts with tableName as alias or explicit alias
+                //    If starts with tableName as alias change to explicit alias
+                tableNameToAlias.keySet().stream().forEach(tableName -> {
+                    if (columnName.startsWith(tableName + DOT)) {
+                        idExpr.setName(columnName.replace(tableName + DOT, tableNameToAlias.get(tableName) + DOT));
+                    }
+                });
             } else {
-                // fieldname is unique to one table
+                // columnName with any alias and unique to one table
                 Table table = tables.iterator().next();
-                String tableAlias = table.getAlias();
-                String tableName = table.getName();
-
-                // Copy
-                if (columnName.startsWith(tableName + DOT) || columnName.startsWith(tableAlias + DOT)) {
-                    // TODO: do we need this condition?
-                    idExpr.setName(columnName.replace(tableName + DOT, tableAlias + DOT));
-                } else {
-                    idExpr.setName(String.join(DOT, tableAlias, columnName));
-                }
+                idExpr.setName(String.join(DOT, table.getAlias(), columnName));
             }
         });
     }
@@ -158,7 +133,8 @@ public class JoinRewriteRule implements RewriteRule<SQLQueryExpr> {
         expr.accept(new MySqlASTVisitorAdapter() {
             @Override
             public boolean visit(SQLExprTableSource x) {
-                return false; // Avoid rewriting identifier in table name
+                // Avoid rewriting identifier in table name
+                return false;
             }
 
             @Override
@@ -168,11 +144,8 @@ public class JoinRewriteRule implements RewriteRule<SQLQueryExpr> {
         });
     }
 
-
     private boolean startsWithAlias(String columnName, Collection<String> aliases) {
-        boolean b = aliases.stream().map(c -> c + DOT).anyMatch(columnName::startsWith);
-        logger.warn(columnName + " startsWithAlias: " + b);
-        return b;
+       return aliases.stream().map(c -> c + DOT).anyMatch(columnName::startsWith);
     }
 
     // All copy-pasted
@@ -209,9 +182,10 @@ public class JoinRewriteRule implements RewriteRule<SQLQueryExpr> {
             this.alias = alias;
         }
 
+        // Added for debugging
         @Override
         public String toString() {
-            return this.name + ":" + this.alias;
+            return this.name + "-->" + this.alias;
         }
     }
 }
