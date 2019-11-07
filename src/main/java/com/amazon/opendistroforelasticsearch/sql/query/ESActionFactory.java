@@ -70,7 +70,6 @@ public class ESActionFactory {
      * @param sql The SQL query.
      * @return Query object.
      */
-
     public static QueryAction create(Client client, String sql) throws SqlParseException,
             SQLFeatureNotSupportedException {
 
@@ -89,7 +88,6 @@ public class ESActionFactory {
                         .withRule(new SubQueryRewriteRule())
                         .build();
                 ruleExecutor.executeOn(sqlExpr);
-
                 sqlExpr.accept(new NestedFieldRewriter());
 
                 if (isMulti(sqlExpr)) {
