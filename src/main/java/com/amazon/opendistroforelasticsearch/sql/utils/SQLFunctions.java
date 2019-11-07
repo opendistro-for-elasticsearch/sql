@@ -330,7 +330,7 @@ public class SQLFunctions {
                 functionStr = ascii((SQLExpr) paramers.get(0).value);
                 break;
 
-            case "iif":
+            case "if":
                 functionStr = ifFunc(paramers);
                 break;
             case "ifnull":
