@@ -38,7 +38,34 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 /**
- * Rewrite rule for query involved JOIN.
+ *  Rewrite rule to add table alias to columnNames for JOIN queries without table alias.
+ * <p>
+ *  We use a map from columnName to tableName. This is required to remove any ambiguity
+ *  while mapping fields to right table. If there is no explicit alias we create one and use that
+ *  to prefix columnName.
+ *
+ *  Different tableName on either side of join:
+ *  Case a: If columnName(without alias) present in both tables, throw error.
+ *  Case b: If columnName already has some alias, and that alias is a table name,
+ *          change it to explicit alias of that table.
+ *  Case c: If columnName is unique to a table
+ *
+ *  Same tableName on either side of join:
+ *  Case a: If neither has explicit alias, throw error.
+ *  Case b: If any one table has explicit alias,
+ *          use explicit alias of other table for columnNames with tableName as prefix. (See below example)
+ * <pre>
+ *       ex: SELECT table.field_a , a.field_b  | SELECT table.field_a , a.field_b
+ *            FROM table a                     |  FROM table
+ *             JOIN table                      |   JOIN table a
+ *              ON table.field_c = a.field_d   |    ON table.field_c = a.field_d
+ *
+ *       both after rewrite: SELECT table_0.field_a , a.field_b
+ *                            FROM table a
+ *                             JOIN table table_0
+ *                              ON table_0.field_c = a.field_d
+ *</pre>
+ * </p>
  */
 public class JoinRewriteRule implements RewriteRule<SQLQueryExpr> {
 
