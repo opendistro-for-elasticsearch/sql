@@ -98,11 +98,6 @@ public class ESActionFactory {
                             .parseMultiSelect((SQLUnionQuery) sqlExpr.getSubQuery().getQuery());
                     return new MultiQueryAction(client, multiSelect);
                 } else if (isJoin(sqlExpr, sql)) {
-//                    ruleExecutor = RewriteRuleExecutor.builder()
-//                        .withRule(new JoinRewriteRule(LocalClusterState.state()))
-//                        .build();
-//                    ruleExecutor.executeOn(sqlExpr);
-//
                     new JoinRewriteRule(LocalClusterState.state()).rewrite(sqlExpr);
                     sqlExpr.accept(new TermFieldRewriter(client, TermRewriterFilter.JOIN));
                     JoinSelect joinSelect = new SqlParser().parseJoinSelect(sqlExpr);
