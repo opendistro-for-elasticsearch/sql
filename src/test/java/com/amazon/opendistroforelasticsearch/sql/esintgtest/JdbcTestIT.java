@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 import org.json.JSONObject;
 import org.junit.Test;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 
 public class JdbcTestIT extends SQLIntegTestCase {
@@ -27,6 +28,7 @@ public class JdbcTestIT extends SQLIntegTestCase {
         loadIndex(Index.ONLINE);
         loadIndex(Index.PEOPLE);
         loadIndex(Index.ACCOUNT);
+        loadIndex(Index.WEBLOG);
     }
 
     public void testPercentilesQuery() {
@@ -124,6 +126,15 @@ public class JdbcTestIT extends SQLIntegTestCase {
                         "WHERE date_format(insert_time, 'yyyy-MM-dd', 'UTC') > '2014-01-01' " +
                         "GROUP BY date_format(insert_time, 'yyyy-MM-dd', 'UTC') " +
                         "ORDER BY date_format(insert_time, 'yyyy-MM-dd', 'UTC')", "jdbc")
+        );
+    }
+
+    @Test
+    public void ipTypeShouldPassJdbcFormatter() {
+        assertThat(
+                executeQuery("SELECT host AS hostIP FROM " + TestsConstants.TEST_INDEX_WEBLOG
+                        + " ORDER BY hostIP", "jdbc"),
+                containsString("\"type\": \"ip\"")
         );
     }
 }

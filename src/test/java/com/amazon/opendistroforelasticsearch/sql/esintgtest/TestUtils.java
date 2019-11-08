@@ -494,6 +494,30 @@ public class TestUtils {
             "}";
     }
 
+    public static String getWeblogsIndexMapping() {
+        return "{\n" +
+                "  \"weblog\": {\n" +
+                "    \"properties\": {\n" +
+                "      \"host\": {\n" +
+                "        \"type\": \"ip\"\n" +
+                "      },\n" +
+                "      \"method\": {\n" +
+                "        \"type\": \"text\"\n" +
+                "      },\n" +
+                "      \"url\": {\n" +
+                "        \"type\": \"text\"\n" +
+                "      },\n" +
+                "      \"response\": {\n" +
+                "        \"type\": \"text\"\n" +
+                "      },\n" +
+                "      \"bytes\": {\n" +
+                "        \"type\": \"text\"\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }\n" +
+                "}";
+    }
+
     public static void loadBulk(Client client, String jsonPath, String defaultIndex) throws Exception {
         System.out.println(String.format("Loading file %s into elasticsearch cluster", jsonPath));
         String absJsonPath = getResourceFilePath(jsonPath);

@@ -43,6 +43,7 @@ public class TestsConstants {
     public final static String TEST_INDEX_BANK = TEST_INDEX + "_bank";
     public final static String TEST_INDEX_BANK_TWO = TEST_INDEX_BANK + "_two";
     public final static String TEST_INDEX_ORDER = TEST_INDEX + "_order";
+    public final static String TEST_INDEX_WEBLOG = TEST_INDEX + "_weblog";
 
     public final static String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     public final static String TS_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
