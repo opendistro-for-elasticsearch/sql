@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.utils;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBooleanExpr;
+import com.alibaba.druid.sql.ast.expr.SQLCharExpr;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.expr.SQLNumericLiteralExpr;
 import com.alibaba.druid.sql.ast.expr.SQLPropertyExpr;
@@ -32,7 +33,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.elasticsearch.common.collect.Tuple;
 
-import java.math.MathContext;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -749,7 +749,7 @@ public class SQLFunctions {
 
     private Tuple<String, String> ifFunc(List<KVValue> paramers) {
         String expr1 = paramers.get(1).value.toString();
-        String expr2 = paramers.size() > 2 ? paramers.get(2).value.toString() : null;
+        String expr2 = paramers.get(2).value.toString();
 
         if (paramers.get(0).value instanceof MethodField) {
             String condition = getScriptText((MethodField) paramers.get(0).value);
@@ -811,8 +811,16 @@ public class SQLFunctions {
             if (Strings.isNullOrEmpty(expr.toString())) {
                 resultStr = "1";
             }
-            if (this.generatedIds.containsKey("divide")) {
-                //TODO: detect divided by zero exception --> set resultStr to 1
+            if (expr instanceof SQLCharExpr && this.generatedIds.size() > 1) {
+                // the expr is a math expression
+                String mathExpr = ((SQLCharExpr) expr).getText();
+                return new Tuple<>(name, StringUtils.format(
+                        "try {%s;} " +
+                                "catch(Exception e) " +
+                                "{def %s; if(e instanceof ArithmeticException){%s=1;} else{%s=0;} return %s;} " +
+                                "def %s=0",
+                        mathExpr, name, name, name, name, name)
+                );
             }
             return new Tuple<>(name, def(name, resultStr));
         }

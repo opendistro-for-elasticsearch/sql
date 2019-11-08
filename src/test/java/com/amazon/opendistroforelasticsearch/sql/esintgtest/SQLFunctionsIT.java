@@ -483,7 +483,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void ifWithThreeParams() throws IOException {
+    public void ifTest() throws IOException {
         assertThat(
                 executeQuery("SELECT IF(age > 30, 'True', 'False') AS Ages FROM " + TEST_INDEX_ACCOUNT
                         + " WHERE age IS NOT NULL GROUP BY Ages", "jdbc"),
@@ -497,22 +497,6 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
                 getHits(
                 executeQuery("SELECT IF(2 = 0, 'hello') AS if FROM " + TEST_INDEX_ACCOUNT)
                 ).getJSONObject(0).query("/fields/if/0"),
-                equalTo(null)
-        );
-    }
-
-    @Test
-    public void ifWithTwoParams() throws IOException {
-        assertThat(
-                executeQuery("SELECT IF(age > 30, 'True') AS Ages FROM " + TEST_INDEX_ACCOUNT
-                        + " WHERE age IS NOT NULL GROUP BY Ages", "jdbc"),
-                containsString("\"type\": \"keyword\"")
-        );
-
-        JSONObject response = executeQuery("SELECT IF(2 = 0, 'hello') AS if FROM " + TEST_INDEX_ACCOUNT);
-        JSONObject hit = getHits(response).getJSONObject(0);
-        assertThat(
-                ((JSONArray) hit.query("/fields/if")).get(0),
                 equalTo(null)
         );
     }
@@ -559,7 +543,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
                 hitAny(kvInt("/fields/isnull/0", equalTo(0)))
         );
         assertThat(
-                executeQuery("SELECT ISNULL(1/0) AS isnull FROM " + TEST_INDEX_ACCOUNT),
+                executeQuery("SELECT ISNULL(1+1*1/0) AS isnull FROM " + TEST_INDEX_ACCOUNT),
                 hitAny(kvInt("/fields/isnull/0", equalTo(1)))
         );
     }
