@@ -30,6 +30,7 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Delete;
 import com.amazon.opendistroforelasticsearch.sql.domain.IndexStatement;
 import com.amazon.opendistroforelasticsearch.sql.domain.JoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.domain.Select;
+import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.ElasticResultHandler;
 import com.amazon.opendistroforelasticsearch.sql.executor.QueryActionElasticExecutor;
@@ -43,6 +44,7 @@ import com.amazon.opendistroforelasticsearch.sql.query.multi.MultiQuerySelect;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.RewriteRuleExecutor;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.identifier.UnquoteIdentifierRule;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.alias.TableAliasPrefixRemoveRule;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.join.JoinRewriteRule;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.TermFieldRewriter;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.TermFieldRewriter.TermRewriterFilter;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.nestedfield.NestedFieldRewriter;
@@ -94,6 +96,7 @@ public class ESActionFactory {
                             .parseMultiSelect((SQLUnionQuery) sqlExpr.getSubQuery().getQuery());
                     return new MultiQueryAction(client, multiSelect);
                 } else if (isJoin(sqlExpr, sql)) {
+                    new JoinRewriteRule(LocalClusterState.state()).rewrite(sqlExpr);
                     sqlExpr.accept(new TermFieldRewriter(client, TermRewriterFilter.JOIN));
                     JoinSelect joinSelect = new SqlParser().parseJoinSelect(sqlExpr);
                     return ESJoinQueryActionFactory.createJoinAction(client, joinSelect);
