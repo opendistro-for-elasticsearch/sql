@@ -15,8 +15,12 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
-import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
+import com.google.common.collect.Ordering;
 import org.elasticsearch.client.ResponseException;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -24,6 +28,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
@@ -33,6 +39,7 @@ import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.hitAll
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvInt;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvString;
 import static org.hamcrest.Matchers.both;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
 
 public class SubqueryIT extends SQLIntegTestCase {
@@ -266,5 +273,102 @@ public class SubqueryIT extends SQLIntegTestCase {
                         kvString("/_source/name", is("Susan Smith"))
                 )
         );
+    }
+
+    @Test
+    public void selectFromSubqueryWithCountShouldPass() throws IOException {
+        JSONObject result = executeQuery(
+                String.format("SELECT t.TEMP as count " +
+                              "FROM (SELECT COUNT(*) as TEMP FROM %s/account) t", TEST_INDEX_ACCOUNT));
+
+        assertThat(result.query("/aggregations/count/value"), equalTo(1000));
+    }
+
+    @Test
+    public void selectFromSubqueryWithWhereAndCountShouldPass() throws IOException {
+        JSONObject result = executeQuery(
+                String.format("SELECT t.TEMP as count " +
+                              "FROM (SELECT COUNT(*) as TEMP FROM %s/account WHERE age > 30) t", TEST_INDEX_ACCOUNT));
+
+        assertThat(result.query("/aggregations/count/value"), equalTo(502));
+    }
+
+    @Test
+    public void selectFromSubqueryWithCountAndGroupByShouldPass() throws Exception {
+        JSONObject result = executeQuery(
+                String.format("SELECT t.TEMP as count " +
+                              "FROM (SELECT COUNT(*) as TEMP FROM %s/account GROUP BY gender) t", TEST_INDEX_ACCOUNT));
+
+        assertThat(getTotalHits(result), equalTo(1000));
+        JSONObject gender = (JSONObject) result.query("/aggregations/gender");
+        assertThat(gender.getJSONArray("buckets").length(), equalTo(2));
+
+        boolean isMaleFirst = gender.optQuery("/buckets/0/key").equals("m");
+        int maleBucketId = isMaleFirst ? 0 : 1;
+        int femaleBucketId = isMaleFirst ? 1 : 0;
+
+        String maleBucketPrefix = String.format(Locale.ROOT, "/buckets/%d", maleBucketId);
+        String femaleBucketPrefix = String.format(Locale.ROOT, "/buckets/%d", femaleBucketId);
+
+        assertThat(gender.query(maleBucketPrefix + "/key"), equalTo("m"));
+        assertThat(gender.query(maleBucketPrefix + "/count/value"), equalTo(507));
+        assertThat(gender.query(femaleBucketPrefix + "/key"), equalTo("f"));
+        assertThat(gender.query(femaleBucketPrefix + "/count/value"), equalTo(493));
+    }
+
+    @Test
+    public void selectFromSubqueryWithCountAndGroupByAndOrderByShouldPass() throws IOException {
+        JSONObject result = executeQuery(
+                String.format(
+                        "SELECT t.TEMP as count " +
+                        "FROM (SELECT COUNT(*) as TEMP FROM %s/account GROUP BY age ORDER BY TEMP) t",
+                        TEST_INDEX_ACCOUNT));
+        JSONArray buckets = (JSONArray) result.query("/aggregations/age/buckets");
+        List<Integer> countList = new ArrayList<>();
+        for (int i = 0; i < buckets.length(); ++i) {
+            countList.add((int) buckets.query(String.format(Locale.ROOT, "/%d/count/value", i)));
+        }
+
+        assertThat(countList, isInOrder(true));
+    }
+
+    @Test
+    public void selectFromSubqueryWithCountAndGroupByAndHavingShouldPass() throws Exception {
+        JSONObject result = executeQuery(
+                String.format("SELECT t.T1 as g, t.T2 as c " +
+                              "FROM (SELECT gender as T1, COUNT(*) as T2 " +
+                              "      FROM %s/account " +
+                              "      GROUP BY gender " +
+                              "      HAVING T2 > 500) t", TEST_INDEX_ACCOUNT));
+        assertThat(result.query("/aggregations/g/buckets/0/c/value"), equalTo(507));
+    }
+
+    @Test
+    public void selectFromSubqueryCountAndSum() throws IOException {
+        JSONObject result = executeQuery(
+                String.format(
+                        "SELECT t.TEMP1 as count, t.TEMP2 as balance " +
+                        "FROM (SELECT COUNT(*) as TEMP1, SUM(balance) as TEMP2 " +
+                        "      FROM %s/account) t",
+                        TEST_INDEX_ACCOUNT));
+
+        assertThat(result.query("/aggregations/count/value"), equalTo(1000));
+        assertThat(result.query("/aggregations/balance/value"), equalTo(25714837.0));
+    }
+
+    private Matcher<? super List<? extends Comparable>> isInOrder(boolean asc) {
+        return new TypeSafeMatcher<List<? extends Comparable>>() {
+            @Override
+            public void describeTo(Description description) {
+                description.appendText(
+                        String.format(Locale.ROOT,
+                                      "the element in list should in %s order", asc ? "ascend" : "descend"));
+            }
+
+            @Override
+            protected boolean matchesSafely(List<? extends Comparable> item) {
+                return asc ? Ordering.natural().isOrdered(item) : Ordering.natural().reverse().isOrdered(item);
+            }
+        };
     }
 }

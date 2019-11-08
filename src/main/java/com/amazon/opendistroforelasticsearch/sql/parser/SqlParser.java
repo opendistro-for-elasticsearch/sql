@@ -74,10 +74,13 @@ public class SqlParser {
     }
 
     public Select parseSelect(SQLQueryExpr mySqlExpr) throws SqlParseException {
-
         MySqlSelectQueryBlock query = (MySqlSelectQueryBlock) mySqlExpr.getSubQuery().getQuery();
-
-        return parseSelect(query);
+        SubQueryParser subQueryParser = new SubQueryParser(this);
+        if (subQueryParser.containSubqueryInFrom(query)) {
+            return subQueryParser.parseSubQueryInFrom(query);
+        } else {
+            return parseSelect(query);
+        }
     }
 
     public Select parseSelect(MySqlSelectQueryBlock query) throws SqlParseException {
