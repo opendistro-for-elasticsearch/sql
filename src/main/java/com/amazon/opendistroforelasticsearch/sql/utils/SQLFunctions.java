@@ -41,6 +41,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.isQuoted;
+
 /**
  * Created by allwefantasy on 8/19/16.
  */
@@ -532,7 +534,7 @@ public class SQLFunctions {
     }
 
     private static String getPropertyOrValue(String expr) {
-        if (expr.startsWith("'") && expr.endsWith("'")) {
+        if (isQuoted(expr, "'")) {
             return expr;
         } else if (StringUtils.isNumeric(expr)) {
             return expr;
@@ -758,15 +760,17 @@ public class SQLFunctions {
             Boolean condition = ((SQLBooleanExpr) paramers.get(0).value).getValue();
             return ifFunc(condition, expr1, expr2);
         } else {
-            // Detailed explanation of cases that come here:
-            // the condition expression would be in the format of a=b:
-            // a is parsed as the key (String) of a KVValue (get from paramers.get(0))
-            // and b is parsed as the value (Object) of this KVValue.
-            //
-            // Either a or b could be a column name, literal, or a number:
-            // - if isNumeric is true --> number
-            // - else if this string is single quoted --> literal
-            // - else --> column name
+            /**
+             * Detailed explanation of cases that come here:
+             * the condition expression would be in the format of a=b:
+             * a is parsed as the key (String) of a KVValue (get from paramers.get(0))
+             * and b is parsed as the value (Object) of this KVValue.
+             *
+             * Either a or b could be a column name, literal, or a number:
+             * - if isNumeric is true --> number
+             * - else if this string is single quoted --> literal
+             * - else --> column name
+             */
             String key = getPropertyOrValue(paramers.get(0).key);
             String value = getPropertyOrValue(paramers.get(0).value.toString());
             String condition = key + " == " + value;
@@ -815,10 +819,10 @@ public class SQLFunctions {
                 // the expr is a math expression
                 String mathExpr = ((SQLCharExpr) expr).getText();
                 return new Tuple<>(name, StringUtils.format(
-                        "try {%s;} " +
-                                "catch(Exception e) " +
-                                "{def %s; if(e instanceof ArithmeticException){%s=1;} else{%s=0;} return %s;} " +
-                                "def %s=0",
+                        "try {%s;} "
+                                + "catch(Exception e) "
+                                + "{def %s; if(e instanceof ArithmeticException){%s=1;} else{%s=0;} return %s;} "
+                                + "def %s=0",
                         mathExpr, name, name, name, name, name)
                 );
             }

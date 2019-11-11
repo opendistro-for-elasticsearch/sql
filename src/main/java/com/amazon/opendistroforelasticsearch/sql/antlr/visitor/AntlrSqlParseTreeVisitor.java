@@ -314,7 +314,10 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
         return aggregate;
     }
 
-    /** Named argument, ex. TOPHITS('size'=3), is under FunctionArgs -> Predicate */
+    /**
+     * Named argument, ex. TOPHITS('size'=3), is under FunctionArgs -> Predicate
+     * And the function name should be contained in esFunctionNameBase
+     */
     private boolean isNamedArgument(BinaryComparisonPredicateContext ctx) {
         if (ctx.getParent() != null && ctx.getParent().getParent() != null
                 && ctx.getParent().getParent().getParent() != null
