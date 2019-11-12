@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
+import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import com.google.common.collect.Ordering;
 import org.elasticsearch.client.ResponseException;
 import org.hamcrest.Description;
@@ -278,7 +279,7 @@ public class SubqueryIT extends SQLIntegTestCase {
     @Test
     public void selectFromSubqueryWithCountShouldPass() throws IOException {
         JSONObject result = executeQuery(
-                String.format("SELECT t.TEMP as count " +
+                StringUtils.format("SELECT t.TEMP as count " +
                               "FROM (SELECT COUNT(*) as TEMP FROM %s/account) t", TEST_INDEX_ACCOUNT));
 
         assertThat(result.query("/aggregations/count/value"), equalTo(1000));
@@ -287,7 +288,7 @@ public class SubqueryIT extends SQLIntegTestCase {
     @Test
     public void selectFromSubqueryWithWhereAndCountShouldPass() throws IOException {
         JSONObject result = executeQuery(
-                String.format("SELECT t.TEMP as count " +
+                StringUtils.format("SELECT t.TEMP as count " +
                               "FROM (SELECT COUNT(*) as TEMP FROM %s/account WHERE age > 30) t", TEST_INDEX_ACCOUNT));
 
         assertThat(result.query("/aggregations/count/value"), equalTo(502));
@@ -296,7 +297,7 @@ public class SubqueryIT extends SQLIntegTestCase {
     @Test
     public void selectFromSubqueryWithCountAndGroupByShouldPass() throws Exception {
         JSONObject result = executeQuery(
-                String.format("SELECT t.TEMP as count " +
+                StringUtils.format("SELECT t.TEMP as count " +
                               "FROM (SELECT COUNT(*) as TEMP FROM %s/account GROUP BY gender) t", TEST_INDEX_ACCOUNT));
 
         assertThat(getTotalHits(result), equalTo(1000));
@@ -319,7 +320,7 @@ public class SubqueryIT extends SQLIntegTestCase {
     @Test
     public void selectFromSubqueryWithCountAndGroupByAndOrderByShouldPass() throws IOException {
         JSONObject result = executeQuery(
-                String.format(
+                StringUtils.format(
                         "SELECT t.TEMP as count " +
                         "FROM (SELECT COUNT(*) as TEMP FROM %s/account GROUP BY age ORDER BY TEMP) t",
                         TEST_INDEX_ACCOUNT));
@@ -329,13 +330,13 @@ public class SubqueryIT extends SQLIntegTestCase {
             countList.add((int) buckets.query(String.format(Locale.ROOT, "/%d/count/value", i)));
         }
 
-        assertThat(countList, isInOrder(true));
+        assertTrue(Ordering.natural().isOrdered(countList));
     }
 
     @Test
     public void selectFromSubqueryWithCountAndGroupByAndHavingShouldPass() throws Exception {
         JSONObject result = executeQuery(
-                String.format("SELECT t.T1 as g, t.T2 as c " +
+                StringUtils.format("SELECT t.T1 as g, t.T2 as c " +
                               "FROM (SELECT gender as T1, COUNT(*) as T2 " +
                               "      FROM %s/account " +
                               "      GROUP BY gender " +
@@ -346,7 +347,7 @@ public class SubqueryIT extends SQLIntegTestCase {
     @Test
     public void selectFromSubqueryCountAndSum() throws IOException {
         JSONObject result = executeQuery(
-                String.format(
+                StringUtils.format(
                         "SELECT t.TEMP1 as count, t.TEMP2 as balance " +
                         "FROM (SELECT COUNT(*) as TEMP1, SUM(balance) as TEMP2 " +
                         "      FROM %s/account) t",
@@ -354,21 +355,5 @@ public class SubqueryIT extends SQLIntegTestCase {
 
         assertThat(result.query("/aggregations/count/value"), equalTo(1000));
         assertThat(result.query("/aggregations/balance/value"), equalTo(25714837.0));
-    }
-
-    private Matcher<? super List<? extends Comparable>> isInOrder(boolean asc) {
-        return new TypeSafeMatcher<List<? extends Comparable>>() {
-            @Override
-            public void describeTo(Description description) {
-                description.appendText(
-                        String.format(Locale.ROOT,
-                                      "the element in list should in %s order", asc ? "ascend" : "descend"));
-            }
-
-            @Override
-            protected boolean matchesSafely(List<? extends Comparable> item) {
-                return asc ? Ordering.natural().isOrdered(item) : Ordering.natural().reverse().isOrdered(item);
-            }
-        };
     }
 }

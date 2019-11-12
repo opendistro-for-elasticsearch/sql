@@ -28,6 +28,7 @@ import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.google.common.base.Strings;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -62,7 +63,9 @@ public class SubQueryParser {
                 subQueryAlias);
 
         //1. rewrite field in select list
-        for (Field field : subquerySelect.getFields()) {
+        Iterator<Field> fieldIterator = subquerySelect.getFields().iterator();
+        while (fieldIterator.hasNext()) {
+            Field field = fieldIterator.next();
             /*
              * return true if the subquerySelectItem in the final select list.
              * for example, subquerySelectItem is "SUM(emp.empno) as TEMP",
@@ -70,6 +73,8 @@ public class SubQueryParser {
              */
             if (fieldAliasRewriter.containsKey(field.getAlias())) {
                 field.setAlias(fieldAliasRewriter.get(field.getAlias()).apply(field.getAlias()));
+            } else {
+                fieldIterator.remove();
             }
         }
 
@@ -100,7 +105,7 @@ public class SubQueryParser {
         HashMap<String, Function<String, String>> selectMap = new HashMap<>();
         for (SQLSelectItem item : selectItems) {
             if (Strings.isNullOrEmpty(item.getAlias())) {
-                selectMap.put(getFieldName(item.getExpr(), owner), s -> s);
+                selectMap.put(getFieldName(item.getExpr(), owner), Function.identity());
             } else {
                 selectMap.put(getFieldName(item.getExpr(), owner), s -> item.getAlias());
             }
