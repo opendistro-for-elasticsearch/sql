@@ -20,6 +20,7 @@ import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBooleanExpr;
 import com.alibaba.druid.sql.ast.expr.SQLCharExpr;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
+import com.alibaba.druid.sql.ast.expr.SQLNullExpr;
 import com.alibaba.druid.sql.ast.expr.SQLNumericLiteralExpr;
 import com.alibaba.druid.sql.ast.expr.SQLPropertyExpr;
 import com.alibaba.druid.sql.ast.expr.SQLTextLiteralExpr;
@@ -753,6 +754,10 @@ public class SQLFunctions {
         String expr1 = paramers.get(1).value.toString();
         String expr2 = paramers.get(2).value.toString();
 
+        /** Input with null is regarded as false */
+        if (paramers.get(0).value instanceof SQLNullExpr) {
+            return ifFunc(false, expr1, expr2);
+        }
         if (paramers.get(0).value instanceof MethodField) {
             String condition = getScriptText((MethodField) paramers.get(0).value);
             return ifFunc(condition, expr1, expr2);
@@ -779,13 +784,13 @@ public class SQLFunctions {
     }
 
     private Tuple<String, String> ifFunc(String condition, String expr1, String expr2) {
-        String name = nextId("iif");
+        String name = nextId("if");
         return new Tuple<>(name, "boolean cond = " + condition + ";"
                 + def(name, "cond ? " + expr1 + " : " + expr2));
     }
 
     private Tuple<String, String> ifFunc(Boolean condition, String expr1, String expr2) {
-        String name = nextId("iff");
+        String name = nextId("if");
         if (condition) {
             return new Tuple<>(name, def(name, expr1));
         } else {
@@ -795,6 +800,9 @@ public class SQLFunctions {
 
     private Tuple<String, String> ifnull(SQLExpr condition, SQLExpr expr) {
         String name = nextId("ifnull");
+        if (condition instanceof SQLNullExpr) {
+            return new Tuple<>(name, def(name, expr.toString()));
+        }
         if (isProperty(condition)) {
             return new Tuple<>(name, def(name, doc(condition) + ".size()==0 ? " + expr.toString() + " : "
                     + getPropertyOrValue(condition)));
@@ -806,28 +814,30 @@ public class SQLFunctions {
 
     private Tuple<String, String> isnull(SQLExpr expr) {
         String name = nextId("isnull");
+        if (expr instanceof SQLNullExpr) {
+            return new Tuple<>(name, def(name, "1"));
+        }
         if (isProperty(expr)) {
             return new Tuple<>(name, def(name, doc(expr) + ".size()==0 ? 1 : 0"));
-        } else {
-            // cases that return 1:
-            // expr is null || expr is math func but tends to throw "divided by zero" arithmetic exception
-            String resultStr = "0";
-            if (Strings.isNullOrEmpty(expr.toString())) {
-                resultStr = "1";
-            }
-            if (expr instanceof SQLCharExpr && this.generatedIds.size() > 1) {
-                // the expr is a math expression
-                String mathExpr = ((SQLCharExpr) expr).getText();
-                return new Tuple<>(name, StringUtils.format(
-                        "try {%s;} "
-                                + "catch(Exception e) "
-                                + "{def %s; if(e instanceof ArithmeticException){%s=1;} else{%s=0;} return %s;} "
-                                + "def %s=0",
-                        mathExpr, name, name, name, name, name)
-                );
-            }
-            return new Tuple<>(name, def(name, resultStr));
         }
+        // cases that return 1:
+        // expr is null || expr is math func but tends to throw "divided by zero" arithmetic exception
+        String resultStr = "0";
+        if (Strings.isNullOrEmpty(expr.toString())) {
+            resultStr = "1";
+        }
+        if (expr instanceof SQLCharExpr && this.generatedIds.size() > 1) {
+            // the expr is a math expression
+            String mathExpr = ((SQLCharExpr) expr).getText();
+            return new Tuple<>(name, StringUtils.format(
+                    "try {%s;} "
+                            + "catch(Exception e) "
+                            + "{def %s; if(e instanceof ArithmeticException){%s=1;} else{%s=0;} return %s;} "
+                            + "def %s=0",
+                    mathExpr, name, name, name, name, name)
+            );
+        }
+        return new Tuple<>(name, def(name, resultStr));
     }
 
     /**

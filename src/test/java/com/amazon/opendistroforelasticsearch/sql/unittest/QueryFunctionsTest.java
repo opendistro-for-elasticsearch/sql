@@ -260,7 +260,18 @@ public class QueryFunctionsTest {
         );
     }
 
-    // TODO: add a test for isnull function
+    @Test
+    public void isNullWithMathExpr() {
+        String query = "SELECT ISNULL(1+1) FROM accounts";
+        ScriptField scriptField = CheckScriptContents.getScriptFieldFromQuery(query);
+        assertTrue(
+                CheckScriptContents.scriptContainsString(
+                        scriptField,
+                        "catch(Exception e)"
+                )
+        );
+
+    }
 
     @Test(expected = SQLFeatureNotSupportedException.class)
     public void emptyQueryShouldThrowSQLFeatureNotSupportedException() throws SQLFeatureNotSupportedException, SqlParseException {

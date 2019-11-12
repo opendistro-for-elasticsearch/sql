@@ -283,6 +283,9 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
         if (ctx.dateType != null) {
             return visitor.visitDate(ctx.getText());
         }
+        if (ctx.nullLiteral != null) {
+            return visitor.visitNull();
+        }
         return super.visitConstant(ctx);
     }
 

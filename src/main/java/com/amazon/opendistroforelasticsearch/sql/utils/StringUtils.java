@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.utils;
 
 import com.google.common.base.Strings;
+import com.google.common.primitives.Doubles;
 
 import java.util.Locale;
 
@@ -122,12 +123,7 @@ public class StringUtils {
     }
 
     public static boolean isNumeric(String text) {
-        try {
-            Double.parseDouble(text);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
+        return Doubles.tryParse(text) != null;
     }
 
     private StringUtils() {

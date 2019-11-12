@@ -483,55 +483,96 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void ifTest() throws IOException {
+    public void ifFuncShouldPassJDBC() {
         assertThat(
                 executeQuery("SELECT IF(age > 30, 'True', 'False') AS Ages FROM " + TEST_INDEX_ACCOUNT
                         + " WHERE age IS NOT NULL GROUP BY Ages", "jdbc"),
                 containsString("\"type\": \"keyword\"")
         );
+    }
+
+    @Test
+    public void ifFuncWithBinaryComparisonAsConditionTest() throws IOException {
         assertThat(
-                executeQuery("SELECT IF(2 > 0, 'hello', 'world') AS if FROM " + TEST_INDEX_ACCOUNT),
-                hitAny(kvString("/fields/if/0", equalTo("hello")))
+                executeQuery("SELECT IF(2 > 0, 'hello', 'world') AS ifTrue FROM " + TEST_INDEX_ACCOUNT),
+                hitAny(kvString("/fields/ifTrue/0", equalTo("hello")))
         );
         assertThat(
-                getHits(
-                executeQuery("SELECT IF(2 = 0, 'hello') AS if FROM " + TEST_INDEX_ACCOUNT)
-                ).getJSONObject(0).query("/fields/if/0"),
-                equalTo(null)
+                executeQuery("SELECT IF(2 = 0, 'hello', 'world') AS ifFalse FROM " + TEST_INDEX_ACCOUNT),
+                hitAny(kvString("/fields/ifFalse/0", equalTo("world")))
         );
     }
 
     @Test
-    public void ifnull() throws IOException {
+    public void ifFuncWithBooleanExprInputAsConditionTest() throws IOException {
+        assertThat(
+                executeQuery("SELECT IF(true, 1, 0) AS ifBoolean FROM " + TEST_INDEX_ACCOUNT),
+                hitAny(kvInt("/fields/ifBoolean/0", equalTo(1)))
+        );
+    }
+
+    @Test
+    public void ifFuncWithNullInputAsConditionTest() throws IOException {
+        assertThat(
+                executeQuery("SELECT IF(null, 1, 0) AS ifNull FROM " + TEST_INDEX_ACCOUNT),
+                hitAny(kvInt("/fields/ifNull/0", equalTo(0)))
+        );
+    }
+
+    @Test
+    public void ifnullShouldPassJDBC() throws IOException {
         assertThat(
                 executeQuery("SELECT IFNULL(lastname, 'unknown') AS name FROM " + TEST_INDEX_ACCOUNT
                         + " GROUP BY name", "jdbc"),
                 containsString("\"type\": \"keyword\"")
         );
-        assertThat(
-                executeQuery("SELECT IFNULL('sample', 'IsNull') AS ifnull FROM " + TEST_INDEX_ACCOUNT),
-                hitAny(kvString("/fields/name/0", equalTo("sample")))
-        );
 
-        //TODO: let null pass the verification of semantic analyzer
-//        assertThat(
-//                executeQuery("SELECT IFNULL(null, 'IsNull') AS ifnull FROM " + TEST_INDEX_ACCOUNT),
-//                hitAny(kvString("/fields/name/0", equalTo("IsNull")))
-//        );
     }
 
     @Test
-    public void isnull() throws IOException {
+    public void ifnullWithNotNullInputTest() throws IOException {
         assertThat(
-                executeQuery("SELECT ISNULL(lastname) AS name FROM " + TEST_INDEX_ACCOUNT + "ORDER BY name", "jdbc"),
+                executeQuery("SELECT IFNULL('sample', 'IsNull') AS ifnull FROM " + TEST_INDEX_ACCOUNT),
+                hitAny(kvString("/fields/ifnull/0", equalTo("sample")))
+        );
+    }
+
+    @Test
+    public void ifnullWithNullInputTest() throws IOException {
+        assertThat(
+                executeQuery("SELECT IFNULL(null, 10) AS ifnull FROM " + TEST_INDEX_ACCOUNT),
+                hitAny(kvInt("/fields/ifnull/0", equalTo(10)))
+        );
+        assertThat(
+                executeQuery("SELECT IFNULL('', 10) AS ifnull FROM " + TEST_INDEX_ACCOUNT),
+                hitAny(kvString("/fields/ifnull/0", equalTo("")))
+        );
+    }
+
+    @Test
+    public void isnullShouldPassJDBC() {
+        assertThat(
+                executeQuery("SELECT ISNULL(lastname) AS name FROM " + TEST_INDEX_ACCOUNT + " GROUP BY name", "jdbc"),
                 containsString("\"type\": \"keyword\"")
         );
+    }
+
+    @Test
+    public void isnullWithNotNullInputTest() throws IOException {
         assertThat(
                 executeQuery("SELECT ISNULL('elastic') AS isnull FROM " + TEST_INDEX_ACCOUNT),
                 hitAny(kvInt("/fields/isnull/0", equalTo(0)))
         );
         assertThat(
                 executeQuery("SELECT ISNULL('') AS isnull FROM " + TEST_INDEX_ACCOUNT),
+                hitAny(kvInt("/fields/isnull/0", equalTo(0)))
+        );
+    }
+
+    @Test
+    public void isnullWithNullInputTest() throws IOException {
+        assertThat(
+                executeQuery("SELECT ISNULL(null) AS isnull FROM " + TEST_INDEX_ACCOUNT),
                 hitAny(kvInt("/fields/isnull/0", equalTo(1)))
         );
     }
@@ -547,15 +588,6 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
                 hitAny(kvInt("/fields/isnull/0", equalTo(1)))
         );
     }
-
-    //TODO: let null pass the verification of semantic analyzer
-//    @Test
-//    public void isnullInputNull() throws IOException {
-//        assertThat(
-//                executeQuery("SELECT ISNULL() AS isnull FROM " + TEST_INDEX_ACCOUNT),
-//                hitAny(kvInt("/fields/isnull/0", equalTo(1)))
-//        );
-//    }
 
     /**
      * Ignore this test case because painless doesn't whitelist String.split function.

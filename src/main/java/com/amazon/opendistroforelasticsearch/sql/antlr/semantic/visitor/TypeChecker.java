@@ -169,6 +169,11 @@ public class TypeChecker implements GenericSqlParseTreeVisitor<Type> {
     }
 
     @Override
+    public Type visitNull() {
+        return UNKNOWN;
+    }
+
+    @Override
     public Type defaultValue() {
         return NULL_TYPE;
     }
