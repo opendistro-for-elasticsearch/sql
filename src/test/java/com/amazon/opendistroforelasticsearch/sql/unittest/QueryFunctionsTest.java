@@ -267,7 +267,7 @@ public class QueryFunctionsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "catch(Exception e)"
+                        "catch(ArithmeticException e)"
                 )
         );
 

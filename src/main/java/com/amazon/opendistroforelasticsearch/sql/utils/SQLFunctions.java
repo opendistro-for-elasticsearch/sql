@@ -753,17 +753,23 @@ public class SQLFunctions {
     private Tuple<String, String> ifFunc(List<KVValue> paramers) {
         String expr1 = paramers.get(1).value.toString();
         String expr2 = paramers.get(2).value.toString();
+        String name = nextId("if");
 
         /** Input with null is regarded as false */
         if (paramers.get(0).value instanceof SQLNullExpr) {
-            return ifFunc(false, expr1, expr2);
+            return new Tuple<>(name, def(name, expr2));
         }
         if (paramers.get(0).value instanceof MethodField) {
             String condition = getScriptText((MethodField) paramers.get(0).value);
-            return ifFunc(condition, expr1, expr2);
+            return new Tuple<>(name, "boolean cond = " + condition + ";"
+                    + def(name, "cond ? " + expr1 + " : " + expr2));
         } else if (paramers.get(0).value instanceof SQLBooleanExpr) {
             Boolean condition = ((SQLBooleanExpr) paramers.get(0).value).getValue();
-            return ifFunc(condition, expr1, expr2);
+            if (condition) {
+                return new Tuple<>(name, def(name, expr1));
+            } else {
+                return new Tuple<>(name, def(name, expr2));
+            }
         } else {
             /**
              * Detailed explanation of cases that come here:
@@ -779,22 +785,8 @@ public class SQLFunctions {
             String key = getPropertyOrValue(paramers.get(0).key);
             String value = getPropertyOrValue(paramers.get(0).value.toString());
             String condition = key + " == " + value;
-            return ifFunc(condition, expr1, expr2);
-        }
-    }
-
-    private Tuple<String, String> ifFunc(String condition, String expr1, String expr2) {
-        String name = nextId("if");
-        return new Tuple<>(name, "boolean cond = " + condition + ";"
-                + def(name, "cond ? " + expr1 + " : " + expr2));
-    }
-
-    private Tuple<String, String> ifFunc(Boolean condition, String expr1, String expr2) {
-        String name = nextId("if");
-        if (condition) {
-            return new Tuple<>(name, def(name, expr1));
-        } else {
-            return new Tuple<>(name, def(name, expr2));
+            return new Tuple<>(name, "boolean cond = " + condition + ";"
+                    + def(name, "cond ? " + expr1 + " : " + expr2));
         }
     }
 
@@ -831,10 +823,10 @@ public class SQLFunctions {
             String mathExpr = ((SQLCharExpr) expr).getText();
             return new Tuple<>(name, StringUtils.format(
                     "try {%s;} "
-                            + "catch(Exception e) "
-                            + "{def %s; if(e instanceof ArithmeticException){%s=1;} else{%s=0;} return %s;} "
+                            + "catch(ArithmeticException e) "
+                            + "{return 1;} "
                             + "def %s=0",
-                    mathExpr, name, name, name, name, name)
+                    mathExpr, name, name)
             );
         }
         return new Tuple<>(name, def(name, resultStr));
