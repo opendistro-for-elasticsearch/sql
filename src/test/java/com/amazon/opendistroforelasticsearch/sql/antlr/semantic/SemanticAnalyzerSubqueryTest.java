@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic;
 
+import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.EarlyExitAnalysisException;
 import org.junit.Test;
 
 /**
@@ -105,4 +106,11 @@ public class SemanticAnalyzerSubqueryTest extends SemanticAnalyzerTestBase {
         validate("SELECT * FROM semantics s WHERE EXISTS (SELECT 1 FROM s.projects p)");
     }
 
+    /**
+     * Ignore the semantic analyzer by using {@link EarlyExitAnalysisException}
+     */
+    @Test
+    public void useSubqueryInFromClauseWithSelectConstantShouldPass() {
+        validate("SELECT t.TEMP as count FROM (SELECT COUNT(*) as TEMP FROM semantics) t");
+    }
 }

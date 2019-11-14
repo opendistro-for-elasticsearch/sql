@@ -331,7 +331,11 @@ public abstract class SQLIntegTestCase extends ESIntegTestCase {
         ORDER(TestsConstants.TEST_INDEX_ORDER,
                 "_doc",
                  TestUtils.getOrderIndexMapping(),
-                "src/test/resources/order.json");
+                "src/test/resources/order.json"),
+        WEBLOG(TestsConstants.TEST_INDEX_WEBLOG,
+                "weblog",
+                TestUtils.getWeblogsIndexMapping(),
+                "src/test/resources/weblogs.json");
 
         private final String name;
         private final String type;

@@ -99,7 +99,7 @@ public class Schema implements Iterable<Schema.Column> {
 
     // Only core ES datatypes currently supported
     public enum Type {
-        TEXT, KEYWORD, // String types
+        TEXT, KEYWORD, IP, // String types
         LONG, INTEGER, SHORT, BYTE, DOUBLE, FLOAT, HALF_FLOAT, SCALED_FLOAT, // Numeric types
         DATE, // Date types
         BOOLEAN, // Boolean types

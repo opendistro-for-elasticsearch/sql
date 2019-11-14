@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.antlr.visitor;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.InnerJoinContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.QuerySpecificationContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.SelectColumnElementContext;
+import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.SubqueryTableItemContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.TableNamePatternContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParserBaseVisitor;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -171,6 +172,11 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
 
         visitor.endVisitQuery();
         return result;
+    }
+
+    @Override
+    public T visitSubqueryTableItem(SubqueryTableItemContext ctx) {
+        throw new EarlyExitAnalysisException("Exit when meeting subquery in from");
     }
 
     /** Visit here instead of tableName because we need alias */
