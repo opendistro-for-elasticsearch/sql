@@ -122,12 +122,8 @@ public class LocalClusterStateTest {
 
     @Before
     public void init() {
-        mockLocalClusterState(MAPPING);
-    }
-
-    @After
-    public void cleanUp() {
         LocalClusterState.state(null);
+        mockLocalClusterState(MAPPING);
     }
 
     @Test
