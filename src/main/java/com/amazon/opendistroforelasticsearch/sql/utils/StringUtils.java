@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.utils;
 
 import com.google.common.base.Strings;
+import com.google.common.primitives.Doubles;
 
 import java.util.Locale;
 
@@ -119,6 +120,10 @@ public class StringUtils {
 
     public static boolean isQuoted(String text, String quote) {
         return !Strings.isNullOrEmpty(text) && text.startsWith(quote) && text.endsWith(quote);
+    }
+
+    public static boolean isNumeric(String text) {
+        return Doubles.tryParse(text) != null;
     }
 
     private StringUtils() {

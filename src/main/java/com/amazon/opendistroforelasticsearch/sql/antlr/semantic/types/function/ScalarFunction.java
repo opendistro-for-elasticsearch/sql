@@ -19,7 +19,9 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.TypeExpression;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType;
 
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.BOOLEAN;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.DOUBLE;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.ES_TYPE;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.NUMBER;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.STRING;
@@ -51,6 +53,9 @@ public enum ScalarFunction implements TypeExpression {
     EXP(func(T(NUMBER)).to(T)),
     EXPM1(func(T(NUMBER)).to(T)),
     FLOOR(func(T(NUMBER)).to(T)),
+    IF(func(BOOLEAN, ES_TYPE, ES_TYPE).to(ES_TYPE)),
+    IFNULL(func(ES_TYPE, ES_TYPE).to(ES_TYPE)),
+    ISNULL(func(ES_TYPE).to(INTEGER)),
     LENGTH(func(STRING).to(INTEGER)
 ),
     LOCATE(

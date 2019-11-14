@@ -415,6 +415,7 @@ functionNameBase
     | SIN | SINH | SQRT | SUBSTRING | TAN | TRIM | UPPER | YEAR
     | MONTH | DAYOFMONTH | DATE | MONTHNAME | TIMESTAMP
     | MAKETIME | NOW | CURDATE
+    | IF | IFNULL | ISNULL
     ;
 
 esFunctionNameBase
