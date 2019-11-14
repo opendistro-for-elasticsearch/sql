@@ -30,14 +30,14 @@ import org.elasticsearch.test.ESIntegTestCase.ClusterScope;
 import java.nio.file.Path;
 import java.util.Comparator;
 
-import static org.elasticsearch.test.ESIntegTestCase.Scope;
+import static org.elasticsearch.test.ESIntegTestCase.Scope.SUITE;
 
 /**
  * Documentation test base class
  */
 @TestMethodProviders({DocTest.SectionMethod.class})
 @TestCaseOrdering(value = DocTest.SectionOrder.class)
-@ClusterScope(scope= Scope.SUITE, numDataNodes=1, supportsDedicatedMasters=false, transportClientRatio=1)
+@ClusterScope(scope= SUITE, numDataNodes=1, supportsDedicatedMasters=false, transportClientRatio=1)
 public abstract class DocTest extends SQLIntegTestCase implements DocBuilder {
 
     @Override

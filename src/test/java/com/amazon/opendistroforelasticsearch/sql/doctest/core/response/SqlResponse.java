@@ -34,7 +34,7 @@ public class SqlResponse {
 
     String body() {
         try {
-            return TestUtils.getResponseBody(response);
+            return TestUtils.getResponseBody(response, true);
         } catch (IOException e) {
             throw new IllegalStateException("Failed to read response body", e);
         }

@@ -27,6 +27,7 @@ import java.util.Arrays;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.Document.Example;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.RequestFormat.KIBANA;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.RequestFormat.NO_REQUEST;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequest.UrlParam;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.ResponseFormat.NO_RESPONSE;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.ResponseFormat.PRETTY_JSON;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.ResponseFormat.TABLE;
@@ -79,31 +80,31 @@ public interface DocBuilder {
         }
     }
 
-    default Example example(String description, SqlRequest[] request) {
+    default Example example(String description, SqlRequest[] requests) {
         return example(
-            description, request,
+            description, requests,
             new RequestFormat[] { KIBANA, NO_REQUEST },
             new ResponseFormat[] { TABLE, PRETTY_JSON }
         );
     }
 
     default Example example(String description,
-                            SqlRequest[] request,
+                            SqlRequest[] requests,
                             RequestFormat[] requestFormats,
                             ResponseFormat[] responseFormats) {
         Example example = new Example();
         example.setDescription(description);
         if (requestFormats[0] != NO_REQUEST) {
-            example.setQuery(requestFormats[0].format(request[0]));
+            example.setQuery(requestFormats[0].format(requests[0]));
         }
         if (responseFormats[0] != NO_RESPONSE) {
-            example.setResult(responseFormats[0].format(request[0].send(restClient())));
+            example.setResult(responseFormats[0].format(requests[0].send(restClient())));
         }
         if (requestFormats[1] != NO_REQUEST) {
-            example.setExplainQuery(requestFormats[1].format(request[1]));
+            example.setExplainQuery(requestFormats[1].format(requests[1]));
         }
         if (responseFormats[1] != NO_RESPONSE) {
-            example.setExplainResult(responseFormats[1].format(request[1].send(restClient())));
+            example.setExplainResult(responseFormats[1].format(requests[1].send(restClient())));
         }
         return example;
     }
@@ -120,14 +121,14 @@ public interface DocBuilder {
         return String.join(" ", sentences);
     }
 
-    default RequestFormat[] format(RequestFormat... formats) {
+    default RequestFormat[] requestFormat(RequestFormat... formats) {
         if (formats.length != 2) {
             throw new IllegalArgumentException("Please provide request formats for both query and explain");
         }
         return formats;
     }
 
-    default ResponseFormat[] format(ResponseFormat... formats) {
+    default ResponseFormat[] responseFormat(ResponseFormat... formats) {
         if (formats.length != 2) {
             throw new IllegalArgumentException("Please provide response formats for both query and explain");
         }
@@ -135,14 +136,18 @@ public interface DocBuilder {
     }
 
     default SqlRequest[] query(String sql, String... keyValues) {
-        SqlRequest.UrlParam[] params;
-        if (keyValues.length == 0) {
-            params = new SqlRequest.UrlParam[]{ new SqlRequest.UrlParam("format", "jdbc") };
+        UrlParam[] params;
+        if (keyValues.length == 0 ) {
+            params = new UrlParam[]{ new UrlParam("format", "jdbc") };
         } else {
-            params = Arrays.stream(keyValues).map(SqlRequest.UrlParam::new).toArray(SqlRequest.UrlParam[]::new);
+            if (keyValues[0].isEmpty()) { //TODO: hack to get DSL although jdbc is default
+                params = new UrlParam[0];
+            } else {
+                params = Arrays.stream(keyValues).map(UrlParam::new).toArray(UrlParam[]::new);
+            }
         }
 
-        String body = String.format("{\n" + "  \"query\": \"%s\"\n" + "}", sql);;
+        String body = String.format("{\n  \"query\": \"%s\"\n}", sql);
         return new SqlRequest[]{
             new SqlRequest("POST", QUERY_API_ENDPOINT, body, params),
             new SqlRequest("POST", EXPLAIN_API_ENDPOINT, body)

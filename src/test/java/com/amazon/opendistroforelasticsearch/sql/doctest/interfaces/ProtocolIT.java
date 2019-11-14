@@ -23,6 +23,7 @@ import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.Req
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.RequestFormat.NO_REQUEST;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.ResponseFormat.NO_RESPONSE;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.ResponseFormat.ORIGINAL;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.ResponseFormat.PRETTY_JSON;
 
 @DocTestConfig(
     template = "interfaces/protocol.rst",
@@ -34,15 +35,16 @@ public class ProtocolIT extends DocTest {
     public void getOriginalDSLResponse() {
         section(
             title("Elasticsearch DSL"),
+            description(
+                "By default the plugin returns original response from Elasticsearch in JSON. Because this is the native response",
+                "from Elasticsearch, extra efforts are needed to parse and interpret it. Meanwhile mutation like field alias will",
+                "not be present in it."
+            ),
             example(
-                description(
-                    "By default the plugin returns original response from Elasticsearch in JSON. Because this is the native response ",
-                    "from Elasticsearch, extra efforts are needed to parse and interpret it. Meanwhile mutation like field alias will ",
-                    "not be present inside."
-                ),
-                query("SELECT firstname, lastname, age, city FROM accounts LIMIT 2"),//TODO how to pass default format
-                format(CURL, NO_REQUEST),
-                format(ORIGINAL, NO_RESPONSE)
+                description(),
+                query("SELECT firstname, lastname, age, city FROM accounts LIMIT 2", ""),
+                requestFormat(CURL, NO_REQUEST),
+                responseFormat(PRETTY_JSON, NO_RESPONSE)
             )
         );
     }
@@ -51,11 +53,12 @@ public class ProtocolIT extends DocTest {
     public void getResponseInJDBCFormat() {
         section(
             title("JDBC Format"),
+            description("JDBC format is provided for JDBC driver and client side that needs both schema and result set well formatted."),
             example(
-                description("JDBC format is provided for JDBC driver and client side that needs both schema and result set formatted"),
+                description(),
                 query("SELECT firstname, lastname, age, city FROM accounts LIMIT 2", "format=jdbc"),
-                format(CURL, NO_REQUEST),
-                format(ORIGINAL, NO_RESPONSE)
+                requestFormat(CURL, NO_REQUEST),
+                responseFormat(PRETTY_JSON, NO_RESPONSE)
             )
         );
     }
@@ -64,11 +67,12 @@ public class ProtocolIT extends DocTest {
     public void getResponseInCsvFormat() {
         section(
             title("CSV Format"),
+            description("You can also use CSV format to download result set in csv format."),
             example(
-                description("You can also use CSV format to download result set in csv format"),
+                description(),
                 query("SELECT firstname, lastname, age, city FROM accounts", "format=csv"),
-                format(CURL, NO_REQUEST),
-                format(ORIGINAL, NO_RESPONSE)
+                requestFormat(CURL, NO_REQUEST),
+                responseFormat(ORIGINAL, NO_RESPONSE)
             )
         );
     }
@@ -77,11 +81,12 @@ public class ProtocolIT extends DocTest {
     public void getResponseInRawFormat() {
         section(
             title("Raw Format"),
+            description("Additionally you can also use RAW format to pipe the result with other command line tool for post processing."),
             example(
-                description("Additionally you can also use RAW format to pipe the result with other command line tool for post processing"),
+                description(),
                 query("SELECT firstname, lastname, age, city FROM accounts", "format=raw"),
-                format(CURL, NO_REQUEST),
-                format(ORIGINAL, NO_RESPONSE)
+                requestFormat(CURL, NO_REQUEST),
+                responseFormat(ORIGINAL, NO_RESPONSE)
             )
         );
     }
