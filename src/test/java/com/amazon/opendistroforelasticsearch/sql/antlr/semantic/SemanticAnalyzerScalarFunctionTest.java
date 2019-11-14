@@ -25,8 +25,8 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
     @Test
     public void unsupportedScalarFunctionCallInSelectClauseShouldFail() {
         expectValidationFailWithErrorMessages(
-            "SELECT NOW() FROM semantics",
-            "Function [NOW] cannot be found or used here."
+            "SELECT DAY() FROM semantics",
+            "Function [DAY] cannot be found or used here."
         );
     }
 
