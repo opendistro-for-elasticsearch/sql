@@ -75,7 +75,8 @@ public class SQLFunctions {
 
     private static final Set<String> dateFunctions = Sets.newHashSet(
             "date_format", "year", "month_of_year", "week_of_year", "day_of_year", "day_of_month",
-            "day_of_week", "hour_of_day", "minute_of_day", "minute_of_hour", "second_of_minute"
+            "day_of_week", "hour_of_day", "minute_of_day", "minute_of_hour", "second_of_minute", "month", "dayofmonth",
+            "date", "monthname", "timestamp", "maketime", "now", "curdate"
     );
 
     private static final Set<String> conditionalFunctions = Sets.newHashSet(
@@ -170,7 +171,11 @@ public class SQLFunctions {
                 functionStr = dateFunctionTemplate("year", (SQLExpr) paramers.get(0).value);
                 break;
             case "month_of_year":
+            case "month":
                 functionStr = dateFunctionTemplate("monthOfYear", (SQLExpr) paramers.get(0).value);
+                break;
+            case "monthname":
+                functionStr = dateFunctionTemplate("month", (SQLExpr) paramers.get(0).value);
                 break;
             case "week_of_year":
                 functionStr = dateFunctionTemplate("weekOfWeekyear", (SQLExpr) paramers.get(0).value);
@@ -179,10 +184,14 @@ public class SQLFunctions {
                 functionStr = dateFunctionTemplate("dayOfYear", (SQLExpr) paramers.get(0).value);
                 break;
             case "day_of_month":
+            case "dayofmonth":
                 functionStr = dateFunctionTemplate("dayOfMonth", (SQLExpr) paramers.get(0).value);
                 break;
             case "day_of_week":
                 functionStr = dateFunctionTemplate("dayOfWeek", (SQLExpr) paramers.get(0).value);
+                break;
+            case "date":
+                functionStr = date((SQLExpr) paramers.get(0).value);
                 break;
             case "hour_of_day":
                 functionStr = dateFunctionTemplate("hourOfDay", (SQLExpr) paramers.get(0).value);
@@ -195,6 +204,19 @@ public class SQLFunctions {
                 break;
             case "second_of_minute":
                 functionStr = dateFunctionTemplate("secondOfMinute", (SQLExpr) paramers.get(0).value);
+                break;
+            case "timestamp":
+                functionStr = timestamp((SQLExpr) paramers.get(0).value);
+                break;
+            case "maketime":
+                functionStr = maketime((SQLExpr) paramers.get(0).value, (SQLExpr) paramers.get(1).value,
+                        (SQLExpr) paramers.get(2).value);
+                break;
+            case "now":
+                functionStr = now();
+                break;
+            case "curdate":
+                functionStr = curdate();
                 break;
 
             case "e":
@@ -748,6 +770,38 @@ public class SQLFunctions {
     private Tuple<String, String> ascii(SQLExpr field) {
         String name = nextId("ascii");
         return new Tuple<>(name, def(name, "(int) " + getPropertyOrStringValue(field) + ".charAt(0)"));
+    }
+
+    private Tuple<String, String> date(SQLExpr field) {
+        String name = nextId("date");
+        return new Tuple<>(name, def(name,
+                "LocalDate.parse(" + getPropertyOrStringValue(field) + ".toString(),"
+                        + "DateTimeFormatter.ISO_DATE_TIME)"));
+    }
+
+    private Tuple<String, String> timestamp(SQLExpr field) {
+        String name = nextId("timestamp");
+        return new Tuple<>(name, def(name,
+                "DateTimeFormatter.ofPattern('yyyy-MM-dd HH:mm:ss').format("
+                        + "DateTimeFormatter.ISO_DATE_TIME.parse("
+                        + getPropertyOrStringValue(field) + ".toString()))"));
+    }
+
+    private Tuple<String, String> maketime(SQLExpr hr, SQLExpr min, SQLExpr sec) {
+        String name = nextId("maketime");
+        return new Tuple<>(name, def(name, StringUtils.format(
+                "LocalTime.of(%s, %s, %s).format(DateTimeFormatter.ofPattern('HH:mm:ss'))",
+                hr.toString(), min.toString(), sec.toString())));
+    }
+
+    private Tuple<String, String> now() {
+        String name = nextId("now");
+        return new Tuple<>(name, def(name, "new SimpleDateFormat('HH:mm:ss').format(System.currentTimeMillis())"));
+    }
+
+    private Tuple<String, String> curdate() {
+        String name = nextId("curdate");
+        return new Tuple<>(name, def(name, "new SimpleDateFormat('yyyy-MM-dd').format(System.currentTimeMillis())"));
     }
 
     private Tuple<String, String> ifFunc(List<KVValue> paramers) {

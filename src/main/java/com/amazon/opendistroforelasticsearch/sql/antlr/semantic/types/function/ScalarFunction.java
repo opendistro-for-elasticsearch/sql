@@ -17,9 +17,9 @@ package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.function;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.TypeExpression;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType;
 
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.BOOLEAN;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.DATE;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.ES_TYPE;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.INTEGER;
@@ -45,8 +45,8 @@ public enum ScalarFunction implements TypeExpression {
     COSH(func(T(NUMBER)).to(T)),
     COT(func(T(NUMBER)).to(T)),
     DATE_FORMAT(
-        func(DATE, STRING).to(STRING),
-        func(DATE, STRING, STRING).to(STRING)
+        func(ESDataType.DATE, STRING).to(STRING),
+        func(ESDataType.DATE, STRING, STRING).to(STRING)
     ),
     DEGREES(func(T(NUMBER)).to(T)),
     E(func().to(DOUBLE)),
@@ -96,7 +96,15 @@ public enum ScalarFunction implements TypeExpression {
         func(T(STRING)).to(T),
         func(T(STRING), STRING).to(T)
     ),
-    YEAR(func(DATE).to(INTEGER));
+    YEAR(func(ESDataType.DATE).to(INTEGER)),
+    MONTH(func(ESDataType.DATE).to(INTEGER)),
+    MONTHNAME(func(ESDataType.DATE).to(STRING)),
+    DAYOFMONTH(func(ESDataType.DATE).to(INTEGER)),
+    DATE(func(ESDataType.DATE).to(ESDataType.DATE)),
+    TIMESTAMP(func(ESDataType.DATE).to(ESDataType.DATE)),
+    MAKETIME(func(INTEGER, INTEGER, INTEGER).to(ESDataType.DATE)),
+    NOW(func().to(ESDataType.DATE)),
+    CURDATE(func().to(ESDataType.DATE));
 
     private final TypeExpressionSpec[] specifications;
 
