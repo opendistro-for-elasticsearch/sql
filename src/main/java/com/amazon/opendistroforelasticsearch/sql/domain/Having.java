@@ -72,6 +72,10 @@ public class Having {
         conditions = parseHavingExprToConditions(havingExpr, havingParser);
     }
 
+    public List<Where> getConditions() {
+        return conditions;
+    }
+
     /**
      * Construct by GROUP BY expression with null check
      *
