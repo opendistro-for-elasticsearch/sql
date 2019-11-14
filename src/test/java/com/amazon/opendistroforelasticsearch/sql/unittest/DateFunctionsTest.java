@@ -127,4 +127,91 @@ public class DateFunctionsTest {
                         "doc['creationDate'].value.secondOfMinute"));
     }
 
+    @Test
+    public void month() {
+        String query = "SELECT MONTH(creationDate) " +
+                "FROM dates";
+        ScriptField scriptField = getScriptFieldFromQuery(query);
+        assertTrue(
+                scriptContainsString(
+                        scriptField,
+                        "doc['creationDate'].value.monthOfYear"));
+    }
+
+    @Test
+    public void dayofmonth() {
+        String query = "SELECT DAY_OF_MONTH(creationDate) " +
+                "FROM dates";
+        ScriptField scriptField = getScriptFieldFromQuery(query);
+        assertTrue(
+                scriptContainsString(
+                        scriptField,
+                        "doc['creationDate'].value.dayOfMonth"));
+    }
+
+    @Test
+    public void date() {
+        String query = "SELECT DATE(creationDate) " +
+                "FROM dates";
+        ScriptField scriptField = getScriptFieldFromQuery(query);
+        assertTrue(
+                scriptContainsString(
+                        scriptField,
+                        "LocalDate.parse(doc['creationDate'].value.toString(),DateTimeFormatter.ISO_DATE_TIME)"));
+    }
+
+    @Test
+    public void monthname() {
+        String query = "SELECT MONTHNAME(creationDate) " +
+                "FROM dates";
+        ScriptField scriptField = getScriptFieldFromQuery(query);
+        assertTrue(
+                scriptContainsString(
+                        scriptField,
+                        "doc['creationDate'].value.month"));
+    }
+
+    @Test
+    public void timestamp() {
+        String query = "SELECT TIMESTAMP(creationDate) " +
+                "FROM dates";
+        ScriptField scriptField = getScriptFieldFromQuery(query);
+        assertTrue(
+                scriptContainsString(
+                        scriptField,
+                        "DateTimeFormatter.ofPattern('yyyy-MM-dd HH:mm:ss')"));
+    }
+
+    @Test
+    public void maketime() {
+        String query = "SELECT MAKETIME(1, 1, 1) " +
+                "FROM dates";
+        ScriptField scriptField = getScriptFieldFromQuery(query);
+        assertTrue(
+                scriptContainsString(
+                        scriptField,
+                        "LocalTime.of(1, 1, 1).format(DateTimeFormatter.ofPattern('HH:mm:ss'))"));
+    }
+
+    @Test
+    public void now() {
+        String query = "SELECT NOW() " +
+                "FROM dates";
+        ScriptField scriptField = getScriptFieldFromQuery(query);
+        assertTrue(
+                scriptContainsString(
+                        scriptField,
+                        "System.currentTimeMillis()"));
+    }
+
+    @Test
+    public void curdate() {
+        String query = "SELECT CURDATE() " +
+                "FROM dates";
+        ScriptField scriptField = getScriptFieldFromQuery(query);
+        assertTrue(
+                scriptContainsString(
+                        scriptField,
+                        "System.currentTimeMillis()"));
+    }
 }

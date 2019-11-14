@@ -29,6 +29,7 @@ import org.json.JSONObject;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.time.Month;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
@@ -205,6 +206,73 @@ public class DateFunctionsIT extends SQLIntegTestCase {
             DateTime insertTime = getDateFromSource(hit, "insert_time");
             assertThat(secondOfMinute, equalTo(insertTime.secondOfMinute().get()));
         }
+    }
+
+    @Test
+    public void month() throws IOException {
+        SearchHit[] hits = query(
+                "SELECT MONTH(insert_time) AS month", "LIMIT 500"
+        );
+        for (SearchHit hit: hits) {
+            int month = (int) getField(hit, "month");
+            DateTime dateTime = getDateFromSource(hit, "insert_time");
+            assertThat(month, equalTo(dateTime.monthOfYear().get()));
+        }
+    }
+
+    @Test
+    public void dayofmonth() throws IOException {
+        SearchHit[] hits = query(
+                "SELECT DAYOFMONTH(insert_time) AS dayofmonth", "LIMIT 500"
+        );
+        for (SearchHit hit: hits) {
+            int dayofmonth = (int) getField(hit, "dayofmonth");
+            DateTime dateTime = getDateFromSource(hit, "insert_time");
+            assertThat(dayofmonth, equalTo(dateTime.dayOfMonth().get()));
+        }
+    }
+
+    @Test
+    public void date() throws IOException {
+        SearchHit[] hits = query(
+                "SELECT DATE(insert_time) AS date", "LIMIT 500"
+        );
+        for (SearchHit hit: hits) {
+            String date = (String) getField(hit, "date");
+            DateTime dateTime = getDateFromSource(hit, "insert_time");
+            assertThat(date, equalTo(dateTime.toString("yyyy-MM-dd")));
+        }
+    }
+
+    @Test
+    public void monthname() throws IOException {
+        SearchHit[] hits = query(
+                "SELECT MONTHNAME(insert_time) AS monthname", "LIMIT 500"
+        );
+        for (SearchHit hit: hits) {
+            String monthname = (String) getField(hit, "monthname");
+            DateTime dateTime = getDateFromSource(hit, "insert_time");
+            assertThat(Month.valueOf(monthname), equalTo(Month.of(dateTime.getMonthOfYear())));
+        }
+    }
+
+    @Test
+    public void timestamp() throws IOException {
+        SearchHit[] hits = query(
+                "SELECT TIMESTAMP(insert_time) AS timestamp", "LIMIT 500"
+        );
+        for (SearchHit hit: hits) {
+            String timastamp = (String) getField(hit, "timestamp");
+            DateTime dateTime = getDateFromSource(hit, "insert_time");
+            assertThat(timastamp, equalTo(dateTime.toString("yyyy-MM-dd HH:mm:ss")));
+        }
+    }
+
+    @Test
+    public void maketime() throws IOException {
+        SearchHit[] hits = query("SELECT MAKETIME(13, 1, 1) AS maketime");
+        String maketime = (String) getField(hits[0], "maketime");
+        assertThat(maketime, equalTo("13:01:01"));
     }
 
     private SearchHit[] query(String select, String... statements) throws IOException {
