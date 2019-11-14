@@ -98,8 +98,8 @@ public enum ScalarFunction implements TypeExpression {
     DATE(func(ESDataType.DATE).to(ESDataType.DATE)),
     TIMESTAMP(func(ESDataType.DATE).to(ESDataType.DATE)),
     MAKETIME(func(INTEGER, INTEGER, INTEGER).to(ESDataType.DATE)),
-    NOW(),
-    CURDATE();
+    NOW(func().to(ESDataType.DATE)),
+    CURDATE(func().to(ESDataType.DATE));
 
     private final TypeExpressionSpec[] specifications;
 
