@@ -148,8 +148,14 @@ public interface DocBuilder {
         return query(new Body("\"query\":\"" + sql + "\""), params);
     }
 
+    default SqlRequest[] put(String name, Object value) {
+        String setting = StringUtils.format("\"%s\": {\"%s\": %s}", "transient", name, value);
+        return new SqlRequest[] {
+            new SqlRequest("PUT", "/_cluster/settings", new Body(setting).toString())
+        };
+    }
+
     default SqlRequest[] query(Body body, UrlParam... params) {
-        //String body = String.format("{\n  \"query\": \"%s\"\n}", sql);
         String bodyStr = body.toString();
         return new SqlRequest[] {
             new SqlRequest("POST", QUERY_API_ENDPOINT, bodyStr, params),

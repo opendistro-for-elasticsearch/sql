@@ -28,13 +28,10 @@ import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.Re
 /**
  * Doc test for plugin supported protocols.
  */
-@DocTestConfig(
-    template = "interfaces/protocol.rst",
-    testData = {"accounts.json"}
-)
+@DocTestConfig(template = "interfaces/protocol.rst", testData = {"accounts.json"})
 public class ProtocolIT extends DocTest {
 
-    @Section(order = 1)
+    @Section(1)
     public void requestFormat() {
         section(
             title("Request Format"),
@@ -68,7 +65,7 @@ public class ProtocolIT extends DocTest {
         );
     }
 
-    @Section(order = 2)
+    @Section(2)
     public void originalDSLResponse() {
         section(
             title("Elasticsearch DSL"),
@@ -86,7 +83,7 @@ public class ProtocolIT extends DocTest {
         );
     }
 
-    @Section(order = 3)
+    @Section(3)
     public void responseInJDBCFormat() {
         section(
             title("JDBC Format"),
@@ -112,7 +109,7 @@ public class ProtocolIT extends DocTest {
         );
     }
 
-    @Section(order = 4)
+    @Section(4)
     public void responseInCSVFormat() {
         section(
             title("CSV Format"),
@@ -126,7 +123,7 @@ public class ProtocolIT extends DocTest {
         );
     }
 
-    @Section(order = 5)
+    @Section(5)
     public void responseInRawFormat() {
         section(
             title("Raw Format"),

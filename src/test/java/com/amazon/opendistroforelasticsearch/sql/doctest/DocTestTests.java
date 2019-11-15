@@ -13,25 +13,16 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.doctest.core.dsl;
+package com.amazon.opendistroforelasticsearch.sql.doctest;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
 /**
- * This annotation is used to indicate current method is a valid method for doc generation
- * and it is supposed to run in the specified order.
+ * Suite to run all doc tests in one shot for local testing
  */
-@Retention(RUNTIME)
-@Target(value = METHOD)
-public @interface Section {
-
-    /**
-     * @return section order
-     */
-    int value() default 0;
-
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+})
+public class DocTestTests {
 }

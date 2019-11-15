@@ -27,13 +27,10 @@ import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.Re
 /**
  * Doc test for endpoints to access the plugin.
  */
-@DocTestConfig(
-    template = "interfaces/endpoint.rst",
-    testData = {"accounts.json"}
-)
+@DocTestConfig(template = "interfaces/endpoint.rst", testData = {"accounts.json"})
 public class EndpointIT extends DocTest {
 
-    @Section(order = 1)
+    @Section(1)
     public void queryByGet() {
         section(
             title("GET"),
@@ -47,7 +44,7 @@ public class EndpointIT extends DocTest {
         );
     }
 
-    @Section(order = 2)
+    @Section(2)
     public void queryByPost() {
         section(
             title("POST"),
@@ -61,7 +58,7 @@ public class EndpointIT extends DocTest {
         );
     }
 
-    @Section(order = 3)
+    @Section(3)
     public void explainQuery() {
         section(
             title("Explain"),

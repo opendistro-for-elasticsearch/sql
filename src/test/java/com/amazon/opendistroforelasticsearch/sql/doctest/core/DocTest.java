@@ -78,7 +78,7 @@ public abstract class DocTest extends SQLIntegTestCase implements DocBuilder {
 
         private int order(TestMethodAndParams method) {
             Section section = method.getTestMethod().getAnnotation(Section.class);
-            return section.order();
+            return section.value();
         }
     }
 

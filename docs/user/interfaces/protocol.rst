@@ -153,11 +153,11 @@ SQL query::
 Result set::
 
 	{
-	  "took" : 280,
+	  "took" : 189,
 	  "timed_out" : false,
 	  "_shards" : {
-	    "total" : 4,
-	    "successful" : 4,
+	    "total" : 2,
+	    "successful" : 2,
 	    "skipped" : 0,
 	    "failed" : 0
 	  },
