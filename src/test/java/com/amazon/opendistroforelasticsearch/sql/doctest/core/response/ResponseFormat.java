@@ -34,13 +34,13 @@ public enum ResponseFormat {
             throw new UnsupportedOperationException();
         }
     },
-    ORIGINAL {
+    ORIGINAL_RESPONSE {
         @Override
         public String format(SqlResponse sqlResponse) {
             return sqlResponse.body();
         }
     },
-    PRETTY_JSON {
+    PRETTY_JSON_RESPONSE {
         @Override
         public String format(SqlResponse sqlResponse) {
             String body = sqlResponse.body();
@@ -52,7 +52,7 @@ public enum ResponseFormat {
             }
         }
     },
-    TABLE {
+    TABLE_RESPONSE {
         @Override
         public String format(SqlResponse sqlResponse) {
             JSONObject body = new JSONObject(sqlResponse.body());

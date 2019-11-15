@@ -24,7 +24,7 @@ import org.elasticsearch.client.RestClient;
 
 import java.io.IOException;
 
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.RequestFormat.KIBANA;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.RequestFormat.KIBANA_REQUEST;
 
 /**
  * Request to SQL plugin
@@ -48,7 +48,7 @@ public class SqlRequest {
             }
 
             throw new IllegalStateException(StringUtils.format(
-                "Exception occurred during sending request %s", KIBANA.format(this)), e);
+                "Exception occurred during sending request %s", KIBANA_REQUEST.format(this)), e);
         }
     }
 

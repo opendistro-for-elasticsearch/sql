@@ -19,11 +19,11 @@ import com.amazon.opendistroforelasticsearch.sql.doctest.core.DocTest;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.dsl.DocTestConfig;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.dsl.Section;
 
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.RequestFormat.CURL;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.RequestFormat.CURL_REQUEST;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.RequestFormat.NO_REQUEST;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.ResponseFormat.NO_RESPONSE;
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.ResponseFormat.ORIGINAL;
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.ResponseFormat.PRETTY_JSON;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.ResponseFormat.ORIGINAL_RESPONSE;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.ResponseFormat.PRETTY_JSON_RESPONSE;
 
 /**
  * Doc test for plugin supported protocols.
@@ -51,8 +51,8 @@ public class ProtocolIT extends DocTest {
                         "\"filter\":{\"range\":{\"balance\":{\"lt\":10000}}}"
                     )
                 ),
-                requestFormat(CURL, NO_REQUEST),
-                responseFormat(NO_RESPONSE, PRETTY_JSON)
+                queryFormat(CURL_REQUEST, NO_RESPONSE),
+                explainFormat(NO_REQUEST, PRETTY_JSON_RESPONSE)
             ),
             example(
                 description("Use `parameters` for actual value for placeholder in prepared SQL query to be replaced."),
@@ -62,8 +62,8 @@ public class ProtocolIT extends DocTest {
                         "\"parameters\": [{\"type\": \"integer\", \"value\": 30}]"
                     )
                 ),
-                requestFormat(CURL, NO_REQUEST),
-                responseFormat(NO_RESPONSE, PRETTY_JSON)
+                queryFormat(CURL_REQUEST, NO_RESPONSE),
+                explainFormat(NO_REQUEST, PRETTY_JSON_RESPONSE)
             )
         );
     }
@@ -80,8 +80,8 @@ public class ProtocolIT extends DocTest {
             example(
                 description(),
                 query("SELECT firstname, lastname, age FROM accounts ORDER BY age LIMIT 2", params("")),
-                requestFormat(CURL, NO_REQUEST),
-                responseFormat(PRETTY_JSON, NO_RESPONSE)
+                queryFormat(CURL_REQUEST, PRETTY_JSON_RESPONSE),
+                explainFormat(NO_REQUEST, NO_RESPONSE)
             )
         );
     }
@@ -100,14 +100,14 @@ public class ProtocolIT extends DocTest {
                     "and `datarows` includes the result set."
                 ),
                 query("SELECT firstname, lastname, age FROM accounts ORDER BY age LIMIT 2", params("format=jdbc")),
-                requestFormat(CURL, NO_REQUEST),
-                responseFormat(PRETTY_JSON, NO_RESPONSE)
+                queryFormat(CURL_REQUEST, PRETTY_JSON_RESPONSE),
+                explainFormat(NO_REQUEST, NO_RESPONSE)
             ),
             example(
                 description("If any error occurred, error message and the cause will be returned instead."),
                 query("SELECT unknown FROM accounts", params("format=jdbc")),
-                requestFormat(CURL, NO_REQUEST),
-                responseFormat(PRETTY_JSON, NO_RESPONSE)
+                queryFormat(CURL_REQUEST, PRETTY_JSON_RESPONSE),
+                explainFormat(NO_REQUEST, NO_RESPONSE)
             )
         );
     }
@@ -120,8 +120,8 @@ public class ProtocolIT extends DocTest {
             example(
                 description(),
                 query("SELECT firstname, lastname, age FROM accounts ORDER BY age", params("format=csv")),
-                requestFormat(CURL, NO_REQUEST),
-                responseFormat(ORIGINAL, NO_RESPONSE)
+                queryFormat(CURL_REQUEST, ORIGINAL_RESPONSE),
+                explainFormat(NO_REQUEST, NO_RESPONSE)
             )
         );
     }
@@ -137,8 +137,8 @@ public class ProtocolIT extends DocTest {
             example(
                 description(),
                 query("SELECT firstname, lastname, age FROM accounts ORDER BY age", params("format=raw")),
-                requestFormat(CURL, NO_REQUEST),
-                responseFormat(ORIGINAL, NO_RESPONSE)
+                queryFormat(CURL_REQUEST, ORIGINAL_RESPONSE),
+                explainFormat(NO_REQUEST, NO_RESPONSE)
             )
         );
     }

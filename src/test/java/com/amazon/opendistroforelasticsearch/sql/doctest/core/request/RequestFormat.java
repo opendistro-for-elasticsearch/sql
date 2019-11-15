@@ -32,7 +32,7 @@ public enum RequestFormat {
             throw new UnsupportedOperationException();
         }
     },
-    CURL {
+    CURL_REQUEST {
         @Override
         public String format(SqlRequest sqlRequest) {
             Request request = sqlRequest.request();
@@ -57,7 +57,7 @@ public enum RequestFormat {
             return str.toString();
         }
     },
-    KIBANA {
+    KIBANA_REQUEST {
         @Override
         public String format(SqlRequest sqlRequest) {
             Request request = sqlRequest.request();

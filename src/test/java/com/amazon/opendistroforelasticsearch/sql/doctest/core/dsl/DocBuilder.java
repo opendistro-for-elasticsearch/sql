@@ -28,12 +28,12 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.Document.Example;
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.RequestFormat.KIBANA;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.RequestFormat.KIBANA_REQUEST;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.RequestFormat.NO_REQUEST;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequest.UrlParam;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.ResponseFormat.NO_RESPONSE;
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.ResponseFormat.PRETTY_JSON;
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.ResponseFormat.TABLE;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.ResponseFormat.PRETTY_JSON_RESPONSE;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.ResponseFormat.TABLE_RESPONSE;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.EXPLAIN_API_ENDPOINT;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.QUERY_API_ENDPOINT;
 
@@ -90,28 +90,28 @@ public interface DocBuilder {
     default Example example(String description, SqlRequest[] requests) {
         return example(
             description, requests,
-            new RequestFormat[] { KIBANA, NO_REQUEST },
-            new ResponseFormat[] { TABLE, PRETTY_JSON }
+            queryFormat(KIBANA_REQUEST, TABLE_RESPONSE),
+            explainFormat(NO_REQUEST, PRETTY_JSON_RESPONSE)
         );
     }
 
     default Example example(String description,
                             SqlRequest[] requests,
-                            RequestFormat[] requestFormats,
-                            ResponseFormat[] responseFormats) {
+                            Format queryFormat,
+                            Format explainFormat) {
         Example example = new Example();
         example.setDescription(description);
-        if (requestFormats[0] != NO_REQUEST) {
-            example.setQuery(requestFormats[0].format(requests[0]));
+        if (queryFormat.request() != NO_REQUEST) {
+            example.setQuery(queryFormat.request().format(requests[0]));
         }
-        if (responseFormats[0] != NO_RESPONSE) {
-            example.setResult(responseFormats[0].format(requests[0].send(restClient())));
+        if (queryFormat.response() != NO_RESPONSE) {
+            example.setResult(queryFormat.response().format(requests[0].send(restClient())));
         }
-        if (requestFormats[1] != NO_REQUEST) {
-            example.setExplainQuery(requestFormats[1].format(requests[1]));
+        if (explainFormat.request() != NO_REQUEST) {
+            example.setExplainQuery(explainFormat.request().format(requests[1]));
         }
-        if (responseFormats[1] != NO_RESPONSE) {
-            example.setExplainResult(responseFormats[1].format(requests[1].send(restClient())));
+        if (explainFormat.response() != NO_RESPONSE) {
+            example.setExplainResult(explainFormat.response().format(requests[1].send(restClient())));
         }
         return example;
     }
@@ -128,18 +128,12 @@ public interface DocBuilder {
         return String.join(" ", sentences);
     }
 
-    default RequestFormat[] requestFormat(RequestFormat... formats) {
-        if (formats.length != 2) {
-            throw new IllegalArgumentException("Please provide request formats for both query and explain");
-        }
-        return formats;
+    default Format queryFormat(RequestFormat requestFormat, ResponseFormat responseFormat) {
+        return new Format(requestFormat, responseFormat);
     }
 
-    default ResponseFormat[] responseFormat(ResponseFormat... formats) {
-        if (formats.length != 2) {
-            throw new IllegalArgumentException("Please provide response formats for both query and explain");
-        }
-        return formats;
+    default Format explainFormat(RequestFormat requestFormat, ResponseFormat responseFormat) {
+        return new Format(requestFormat, responseFormat);
     }
 
     default SqlRequest[] get(String sql, UrlParam... params) {
@@ -184,7 +178,7 @@ public interface DocBuilder {
     class Body {
         private final String[] fieldValues;
 
-        public Body(String... fieldValues) {
+        Body(String... fieldValues) {
             this.fieldValues = fieldValues;
         }
 
@@ -196,6 +190,24 @@ public interface DocBuilder {
                 throw new IllegalStateException(StringUtils.format(
                     "Failed to jsonify body for fields %s", Arrays.toString(fieldValues), e));
             }
+        }
+    }
+
+    class Format {
+        private final RequestFormat requestFormat;
+        private final ResponseFormat responseFormat;
+
+        Format(RequestFormat requestFormat, ResponseFormat responseFormat) {
+            this.requestFormat = requestFormat;
+            this.responseFormat = responseFormat;
+        }
+
+        RequestFormat request() {
+            return requestFormat;
+        }
+
+        ResponseFormat response() {
+            return responseFormat;
         }
     }
 
