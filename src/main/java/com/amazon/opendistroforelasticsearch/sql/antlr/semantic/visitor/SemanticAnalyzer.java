@@ -122,6 +122,12 @@ public class SemanticAnalyzer implements GenericSqlParseTreeVisitor<Type> {
     }
 
     @Override
+    public Type visitNull() {
+        mappingLoader.visitNull();
+        return typeChecker.visitNull();
+    }
+
+    @Override
     public Type defaultValue() {
         mappingLoader.defaultValue();
         return typeChecker.defaultValue();

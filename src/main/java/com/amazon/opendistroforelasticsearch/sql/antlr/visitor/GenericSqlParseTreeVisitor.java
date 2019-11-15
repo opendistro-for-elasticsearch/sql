@@ -70,6 +70,10 @@ public interface GenericSqlParseTreeVisitor<T> {
         return defaultValue();
     }
 
+    default T visitNull() {
+        return defaultValue();
+    }
+
     default T defaultValue() {
         return null;
     }

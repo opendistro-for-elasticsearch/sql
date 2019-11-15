@@ -25,6 +25,7 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.hamcrest.collection.IsMapContaining;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -36,6 +37,7 @@ import java.util.Date;
 import java.util.stream.IntStream;
 
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.hit;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.hitAny;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvDouble;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvInt;
@@ -477,6 +479,113 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         assertThat(
                 executeQuery("SELECT ASCII('sampleName') AS ascii FROM " + TEST_INDEX_ACCOUNT),
                 hitAny(kvInt("/fields/ascii/0", equalTo(115)))
+        );
+    }
+
+    @Test
+    public void ifFuncShouldPassJDBC() {
+        assertThat(
+                executeQuery("SELECT IF(age > 30, 'True', 'False') AS Ages FROM " + TEST_INDEX_ACCOUNT
+                        + " WHERE age IS NOT NULL GROUP BY Ages", "jdbc"),
+                containsString("\"type\": \"keyword\"")
+        );
+    }
+
+    @Test
+    public void ifFuncWithBinaryComparisonAsConditionTest() throws IOException {
+        assertThat(
+                executeQuery("SELECT IF(2 > 0, 'hello', 'world') AS ifTrue FROM " + TEST_INDEX_ACCOUNT),
+                hitAny(kvString("/fields/ifTrue/0", equalTo("hello")))
+        );
+        assertThat(
+                executeQuery("SELECT IF(2 = 0, 'hello', 'world') AS ifFalse FROM " + TEST_INDEX_ACCOUNT),
+                hitAny(kvString("/fields/ifFalse/0", equalTo("world")))
+        );
+    }
+
+    @Test
+    public void ifFuncWithBooleanExprInputAsConditionTest() throws IOException {
+        assertThat(
+                executeQuery("SELECT IF(true, 1, 0) AS ifBoolean FROM " + TEST_INDEX_ACCOUNT),
+                hitAny(kvInt("/fields/ifBoolean/0", equalTo(1)))
+        );
+    }
+
+    @Test
+    public void ifFuncWithNullInputAsConditionTest() throws IOException {
+        assertThat(
+                executeQuery("SELECT IF(null, 1, 0) AS ifNull FROM " + TEST_INDEX_ACCOUNT),
+                hitAny(kvInt("/fields/ifNull/0", equalTo(0)))
+        );
+    }
+
+    @Test
+    public void ifnullShouldPassJDBC() throws IOException {
+        assertThat(
+                executeQuery("SELECT IFNULL(lastname, 'unknown') AS name FROM " + TEST_INDEX_ACCOUNT
+                        + " GROUP BY name", "jdbc"),
+                containsString("\"type\": \"keyword\"")
+        );
+
+    }
+
+    @Test
+    public void ifnullWithNotNullInputTest() throws IOException {
+        assertThat(
+                executeQuery("SELECT IFNULL('sample', 'IsNull') AS ifnull FROM " + TEST_INDEX_ACCOUNT),
+                hitAny(kvString("/fields/ifnull/0", equalTo("sample")))
+        );
+    }
+
+    @Test
+    public void ifnullWithNullInputTest() throws IOException {
+        assertThat(
+                executeQuery("SELECT IFNULL(null, 10) AS ifnull FROM " + TEST_INDEX_ACCOUNT),
+                hitAny(kvInt("/fields/ifnull/0", equalTo(10)))
+        );
+        assertThat(
+                executeQuery("SELECT IFNULL('', 10) AS ifnull FROM " + TEST_INDEX_ACCOUNT),
+                hitAny(kvString("/fields/ifnull/0", equalTo("")))
+        );
+    }
+
+    @Test
+    public void isnullShouldPassJDBC() {
+        assertThat(
+                executeQuery("SELECT ISNULL(lastname) AS name FROM " + TEST_INDEX_ACCOUNT + " GROUP BY name", "jdbc"),
+                containsString("\"type\": \"keyword\"")
+        );
+    }
+
+    @Test
+    public void isnullWithNotNullInputTest() throws IOException {
+        assertThat(
+                executeQuery("SELECT ISNULL('elastic') AS isnull FROM " + TEST_INDEX_ACCOUNT),
+                hitAny(kvInt("/fields/isnull/0", equalTo(0)))
+        );
+        assertThat(
+                executeQuery("SELECT ISNULL('') AS isnull FROM " + TEST_INDEX_ACCOUNT),
+                hitAny(kvInt("/fields/isnull/0", equalTo(0)))
+        );
+    }
+
+    @Test
+    public void isnullWithNullInputTest() throws IOException {
+        assertThat(
+                executeQuery("SELECT ISNULL(null) AS isnull FROM " + TEST_INDEX_ACCOUNT),
+                hitAny(kvInt("/fields/isnull/0", equalTo(1)))
+        );
+    }
+
+    @Test
+    public void isnullWithMathExpr() throws IOException{
+        assertThat(
+                executeQuery("SELECT ISNULL(1+1) AS isnull FROM " + TEST_INDEX_ACCOUNT),
+                hitAny(kvInt("/fields/isnull/0", equalTo(0)))
+        );
+        assertThat(
+                executeQuery("SELECT ISNULL(1+1*1/0) AS isnull FROM " + TEST_INDEX_ACCOUNT),
+                hitAny(kvInt("/fields/isnull/0", equalTo(1)))
         );
     }
 

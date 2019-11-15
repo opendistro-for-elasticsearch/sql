@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.visitor;
 
-import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FunctionArgsContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.InnerJoinContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.QuerySpecificationContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.SelectColumnElementContext;
@@ -290,6 +289,9 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
         if (ctx.dateType != null) {
             return visitor.visitDate(ctx.getText());
         }
+        if (ctx.nullLiteral != null) {
+            return visitor.visitNull();
+        }
         return super.visitConstant(ctx);
     }
 
@@ -321,10 +323,19 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
         return aggregate;
     }
 
-    /** Named argument, ex. TOPHITS('size'=3), is under FunctionArgs -> Predicate */
+    /**
+     * Named argument, ex. TOPHITS('size'=3), is under FunctionArgs -> Predicate
+     * And the function name should be contained in esFunctionNameBase
+     */
     private boolean isNamedArgument(BinaryComparisonPredicateContext ctx) {
-        return ctx.getParent() != null && ctx.getParent().getParent() != null
-            && ctx.getParent().getParent() instanceof FunctionArgsContext;
+        if (ctx.getParent() != null && ctx.getParent().getParent() != null
+                && ctx.getParent().getParent().getParent() != null
+                && ctx.getParent().getParent().getParent() instanceof ScalarFunctionCallContext) {
+
+            ScalarFunctionCallContext parent = (ScalarFunctionCallContext) ctx.getParent().getParent().getParent();
+            return parent.scalarFunctionName().functionNameBase().esFunctionNameBase() != null;
+        }
+        return false;
     }
 
     /** Enforce visiting result of table instead of ON clause as result */
