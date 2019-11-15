@@ -19,6 +19,7 @@ import com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlRespon
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.client.RestClient;
 
 import java.io.IOException;
@@ -41,6 +42,11 @@ public class SqlRequest {
         try {
             return new SqlResponse(client.performRequest(request));
         } catch (IOException e) {
+            // Some test may expect failure
+            if (e instanceof ResponseException) {
+                return new SqlResponse(((ResponseException) e).getResponse());
+            }
+
             throw new IllegalStateException(StringUtils.format(
                 "Exception occurred during sending request %s", KIBANA.format(this)), e);
         }

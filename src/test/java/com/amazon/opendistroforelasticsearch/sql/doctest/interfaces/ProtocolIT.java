@@ -39,7 +39,7 @@ public class ProtocolIT extends DocTest {
             //syntax(""),
             example(
                 description(
-                    "Use filter to work with Elasticsearch DSL directly. Note that the content is present in",
+                    "Use `filter` to work with Elasticsearch DSL directly. Note that the content is present in",
                     "final Elasticsearch request DSL as it is."
                 ),
                 query(
@@ -52,7 +52,7 @@ public class ProtocolIT extends DocTest {
                 responseFormat(NO_RESPONSE, PRETTY_JSON)
             ),
             example(
-                description("Use parameters for placeholder in prepared SQL query to be replaced."),
+                description("Use `parameters` for actual value for placeholder in prepared SQL query to be replaced."),
                 query(
                     body(
                         "\"query\": \"SELECT * FROM accounts WHERE age = ?\"",
@@ -76,7 +76,7 @@ public class ProtocolIT extends DocTest {
             ),
             example(
                 description(),
-                query("SELECT firstname, lastname, age, city FROM accounts ORDER BY age LIMIT 2", params("")),
+                query("SELECT firstname, lastname, age FROM accounts ORDER BY age LIMIT 2", params("")),
                 requestFormat(CURL, NO_REQUEST),
                 responseFormat(PRETTY_JSON, NO_RESPONSE)
             )
@@ -92,8 +92,17 @@ public class ProtocolIT extends DocTest {
                 "result set well formatted."
             ),
             example(
-                description(),
-                query("SELECT firstname, lastname, age, city FROM accounts ORDER BY age LIMIT 2", params("format=jdbc")),
+                description(
+                    "Here is an example for normal response. The `schema` includes field name and its type",
+                    "and `datarows` includes the result set."
+                ),
+                query("SELECT firstname, lastname, age FROM accounts ORDER BY age LIMIT 2", params("format=jdbc")),
+                requestFormat(CURL, NO_REQUEST),
+                responseFormat(PRETTY_JSON, NO_RESPONSE)
+            ),
+            example(
+                description("If any error occurred, error message and the cause will be returned instead."),
+                query("SELECT unknown FROM accounts", params("format=jdbc")),
                 requestFormat(CURL, NO_REQUEST),
                 responseFormat(PRETTY_JSON, NO_RESPONSE)
             )
@@ -104,10 +113,10 @@ public class ProtocolIT extends DocTest {
     public void responseInCSVFormat() {
         section(
             title("CSV Format"),
-            description("You can also use CSV format to download result set in csv format."),
+            description("You can also use CSV format to download result set as CSV."),
             example(
                 description(),
-                query("SELECT firstname, lastname, age, city FROM accounts ORDER BY age", params("format=csv")),
+                query("SELECT firstname, lastname, age FROM accounts ORDER BY age", params("format=csv")),
                 requestFormat(CURL, NO_REQUEST),
                 responseFormat(ORIGINAL, NO_RESPONSE)
             )
@@ -119,12 +128,12 @@ public class ProtocolIT extends DocTest {
         section(
             title("Raw Format"),
             description(
-                "Additionally you can also use RAW format to pipe the result with other command line tool",
+                "Additionally you can also use raw format to pipe the result with other command line tool.",
                 "for post processing."
             ),
             example(
                 description(),
-                query("SELECT firstname, lastname, age, city FROM accounts ORDER BY age", params("format=raw")),
+                query("SELECT firstname, lastname, age FROM accounts ORDER BY age", params("format=raw")),
                 requestFormat(CURL, NO_REQUEST),
                 responseFormat(ORIGINAL, NO_RESPONSE)
             )

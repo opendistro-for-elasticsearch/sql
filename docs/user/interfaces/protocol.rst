@@ -28,7 +28,7 @@ Request body by HTTP POST accepts a few more fields than SQL query.
 Example 1
 ---------
 
-Use filter to work with Elasticsearch DSL directly. Note that the content is present in final Elasticsearch request DSL as it is.
+Use `filter` to work with Elasticsearch DSL directly. Note that the content is present in final Elasticsearch request DSL as it is.
 
 SQL query::
 
@@ -88,7 +88,7 @@ Explain::
 Example 2
 ---------
 
-Use parameters for placeholder in prepared SQL query to be replaced.
+Use `parameters` for actual value for placeholder in prepared SQL query to be replaced.
 
 SQL query::
 
@@ -147,17 +147,17 @@ Example
 SQL query::
 
 	>> curl -H 'Content-Type: application/json' -X POST localhost:9200/_opendistro/_sql -d '{
-	  "query" : "SELECT firstname, lastname, age, city FROM accounts ORDER BY age LIMIT 2"
+	  "query" : "SELECT firstname, lastname, age FROM accounts ORDER BY age LIMIT 2"
 	}'
 
 Result set::
 
 	{
-	  "took" : 310,
+	  "took" : 179,
 	  "timed_out" : false,
 	  "_shards" : {
-	    "total" : 4,
-	    "successful" : 4,
+	    "total" : 1,
+	    "successful" : 1,
 	    "skipped" : 0,
 	    "failed" : 0
 	  },
@@ -175,7 +175,6 @@ Result set::
 	        "_score" : null,
 	        "_source" : {
 	          "firstname" : "Nanette",
-	          "city" : "Nogal",
 	          "age" : 28,
 	          "lastname" : "Bates"
 	        },
@@ -190,7 +189,6 @@ Result set::
 	        "_score" : null,
 	        "_source" : {
 	          "firstname" : "Amber",
-	          "city" : "Brogan",
 	          "age" : 32,
 	          "lastname" : "Duke"
 	        },
@@ -210,13 +208,15 @@ Description
 
 JDBC format is provided for JDBC driver and client side that needs both schema and result set well formatted.
 
-Example
--------
+Example 1
+---------
+
+Here is an example for normal response. The `schema` includes field name and its type and `datarows` includes the result set.
 
 SQL query::
 
 	>> curl -H 'Content-Type: application/json' -X POST localhost:9200/_opendistro/_sql?format=jdbc -d '{
-	  "query" : "SELECT firstname, lastname, age, city FROM accounts ORDER BY age LIMIT 2"
+	  "query" : "SELECT firstname, lastname, age FROM accounts ORDER BY age LIMIT 2"
 	}'
 
 Result set::
@@ -234,10 +234,6 @@ Result set::
 	    {
 	      "name" : "age",
 	      "type" : "long"
-	    },
-	    {
-	      "name" : "city",
-	      "type" : "text"
 	    }
 	  ],
 	  "total" : 4,
@@ -245,18 +241,38 @@ Result set::
 	    [
 	      "Nanette",
 	      "Bates",
-	      28,
-	      "Nogal"
+	      28
 	    ],
 	    [
 	      "Amber",
 	      "Duke",
-	      32,
-	      "Brogan"
+	      32
 	    ]
 	  ],
 	  "size" : 2,
 	  "status" : 200
+	}
+
+Example 2
+---------
+
+If any error occurred, error message and the cause will be returned instead.
+
+SQL query::
+
+	>> curl -H 'Content-Type: application/json' -X POST localhost:9200/_opendistro/_sql?format=jdbc -d '{
+	  "query" : "SELECT unknown FROM accounts"
+	}'
+
+Result set::
+
+	{
+	  "error" : {
+	    "reason" : "Invalid SQL query",
+	    "details" : "Field [unknown] cannot be found or used here.",
+	    "type" : "SemanticAnalysisException"
+	  },
+	  "status" : 400
 	}
 
 CSV Format
@@ -265,7 +281,7 @@ CSV Format
 Description
 -----------
 
-You can also use CSV format to download result set in csv format.
+You can also use CSV format to download result set as CSV.
 
 Example
 -------
@@ -273,16 +289,16 @@ Example
 SQL query::
 
 	>> curl -H 'Content-Type: application/json' -X POST localhost:9200/_opendistro/_sql?format=csv -d '{
-	  "query" : "SELECT firstname, lastname, age, city FROM accounts ORDER BY age"
+	  "query" : "SELECT firstname, lastname, age FROM accounts ORDER BY age"
 	}'
 
 Result set::
 
-	firstname,lastname,age,city
-	Nanette,Bates,28,Nogal
-	Amber,Duke,32,Brogan
-	Dale,Adams,33,Orick
-	Hattie,Bond,36,Dante
+	firstname,lastname,age
+	Nanette,Bates,28
+	Amber,Duke,32
+	Dale,Adams,33
+	Hattie,Bond,36
 	
 
 Raw Format
@@ -291,7 +307,7 @@ Raw Format
 Description
 -----------
 
-Additionally you can also use RAW format to pipe the result with other command line tool for post processing.
+Additionally you can also use raw format to pipe the result with other command line tool. for post processing.
 
 Example
 -------
@@ -299,14 +315,14 @@ Example
 SQL query::
 
 	>> curl -H 'Content-Type: application/json' -X POST localhost:9200/_opendistro/_sql?format=raw -d '{
-	  "query" : "SELECT firstname, lastname, age, city FROM accounts ORDER BY age"
+	  "query" : "SELECT firstname, lastname, age FROM accounts ORDER BY age"
 	}'
 
 Result set::
 
-	Nanette|Bates|28|Nogal
-	Amber|Duke|32|Brogan
-	Dale|Adams|33|Orick
-	Hattie|Bond|36|Dante
+	Nanette|Bates|28
+	Amber|Duke|32
+	Dale|Adams|33
+	Hattie|Bond|36
 	
 
