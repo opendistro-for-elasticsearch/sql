@@ -80,6 +80,7 @@ public interface DocBuilder {
                 }
 
                 document.codeBlock("SQL query", example.getQuery()).
+                         codeBlock("Explain query", example.getExplainQuery()).
                          codeBlock("Explain", example.getExplainResult()).
                          codeBlock("Result set", example.getResultSet());
             }
@@ -141,6 +142,14 @@ public interface DocBuilder {
         return formats;
     }
 
+    default SqlRequest[] get(String sql, UrlParam... params) {
+        Body body = new Body("\"query\":\"" + sql + "\"");
+        return new SqlRequest[] {
+            new SqlRequest("GET", QUERY_API_ENDPOINT, "", new UrlParam("sql", sql)),
+            new SqlRequest("POST", EXPLAIN_API_ENDPOINT, body.toString()),
+        };
+    }
+
     default SqlRequest[] query(String sql, UrlParam... params) {
         return query(new Body("\"query\":\"" + sql + "\""), params);
     }
@@ -148,7 +157,7 @@ public interface DocBuilder {
     default SqlRequest[] query(Body body, UrlParam... params) {
         //String body = String.format("{\n  \"query\": \"%s\"\n}", sql);
         String bodyStr = body.toString();
-        return new SqlRequest[]{
+        return new SqlRequest[] {
             new SqlRequest("POST", QUERY_API_ENDPOINT, bodyStr, params),
             new SqlRequest("POST", EXPLAIN_API_ENDPOINT, bodyStr)
         };

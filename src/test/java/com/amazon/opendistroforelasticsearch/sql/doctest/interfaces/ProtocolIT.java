@@ -25,6 +25,9 @@ import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.Re
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.ResponseFormat.ORIGINAL;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.ResponseFormat.PRETTY_JSON;
 
+/**
+ * Doc test for plugin supported protocols.
+ */
 @DocTestConfig(
     template = "interfaces/protocol.rst",
     testData = {"accounts.json"}
