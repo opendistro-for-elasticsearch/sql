@@ -34,6 +34,7 @@ import com.amazon.opendistroforelasticsearch.sql.domain.KVValue;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.ScriptMethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Where;
+import com.amazon.opendistroforelasticsearch.sql.exception.SqlFeatureNotImplementedException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
 import com.amazon.opendistroforelasticsearch.sql.utils.Util;
@@ -230,6 +231,7 @@ public class FieldMaker {
         SQLMethodInvokeExpr methodInvokeExpr = new SQLMethodInvokeExpr(operator, null);
         methodInvokeExpr.addParameter(expr.getLeft());
         methodInvokeExpr.addParameter(expr.getRight());
+        methodInvokeExpr.putAttribute("source", expr);
         return methodInvokeExpr;
     }
 
@@ -317,6 +319,10 @@ public class FieldMaker {
             } else if (object instanceof SQLCastExpr) {
                 String scriptCode = new CastParser((SQLCastExpr) object, alias, tableAlias).parse(false);
                 paramers.add(new KVValue("script", new SQLCharExpr(scriptCode)));
+            } else if (object instanceof SQLAggregateExpr) {
+                SQLExpr source = (SQLExpr) object.getParent().getAttribute("source");
+                throw new SqlFeatureNotImplementedException(
+                        "The complex aggregate expressions are not implemented yet: " + source);
             } else {
                 paramers.add(new KVValue(Util.removeTableAilasFromField(object, tableAlias)));
             }
