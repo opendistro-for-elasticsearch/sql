@@ -20,8 +20,11 @@ import com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.RstDocument
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.request.RequestFormat;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequest;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.response.ResponseFormat;
+import com.amazon.opendistroforelasticsearch.sql.utils.JsonPrettyFormatter;
+import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import org.elasticsearch.client.RestClient;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.Document.Example;
@@ -61,7 +64,7 @@ public interface DocBuilder {
 
             if (!syntax.isEmpty()) {
                 document.subSection("Syntax").
-                         paragraph(syntax);
+                         codeBlock("", syntax);
             }
 
             if (examples.length > 0) {
@@ -135,7 +138,24 @@ public interface DocBuilder {
         return formats;
     }
 
-    default SqlRequest[] query(String sql, String... keyValues) {
+    default SqlRequest[] query(String sql, UrlParam... params) {
+        return query(new Body("\"query\":\"" + sql + "\""), params);
+    }
+
+    default SqlRequest[] query(Body body, UrlParam... params) {
+        //String body = String.format("{\n  \"query\": \"%s\"\n}", sql);
+        String bodyStr = body.toString();
+        return new SqlRequest[]{
+            new SqlRequest("POST", QUERY_API_ENDPOINT, bodyStr, params),
+            new SqlRequest("POST", EXPLAIN_API_ENDPOINT, bodyStr)
+        };
+    }
+
+    default Body body(String... fieldValues) {
+        return new Body(fieldValues);
+    }
+
+    default UrlParam[] params(String... keyValues) {
         UrlParam[] params;
         if (keyValues.length == 0 ) {
             params = new UrlParam[]{ new UrlParam("format", "jdbc") };
@@ -146,12 +166,25 @@ public interface DocBuilder {
                 params = Arrays.stream(keyValues).map(UrlParam::new).toArray(UrlParam[]::new);
             }
         }
+        return params;
+    }
 
-        String body = String.format("{\n  \"query\": \"%s\"\n}", sql);
-        return new SqlRequest[]{
-            new SqlRequest("POST", QUERY_API_ENDPOINT, body, params),
-            new SqlRequest("POST", EXPLAIN_API_ENDPOINT, body)
-        };
+    class Body {
+        private final String[] fieldValues;
+
+        public Body(String... fieldValues) {
+            this.fieldValues = fieldValues;
+        }
+
+        @Override
+        public String toString() {
+            try {
+                return JsonPrettyFormatter.format("{" + String.join(",", fieldValues) + "}");
+            } catch (IOException e) {
+                throw new IllegalStateException(StringUtils.format(
+                    "Failed to jsonify body for fields %s", Arrays.toString(fieldValues), e));
+            }
+        }
     }
 
 }

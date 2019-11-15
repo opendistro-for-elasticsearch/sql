@@ -14,7 +14,121 @@ Protocol
 Introduction
 ============
 
-SQL plugin provides multiple protocols for different purposes.
+For the protocol, SQL plugin provides multiple response formats for different purposes while the request format is same for all. Except JDBC format, all other responses are basically in their original format. Because of the requirements for schema information and functionality such as pagination, JDBC driver requires a different and well defined response format.
+
+
+Request Format
+==============
+
+Description
+-----------
+
+Request body by HTTP POST accepts a few more fields than SQL query.
+
+Examples
+--------
+
+Use filter to work with Elasticsearch DSL directly. Note that the content is present in final Elasticsearch request DSL as it is.
+
+SQL query::
+
+	>> curl -H 'Content-Type: application/json' -X POST localhost:9200/_opendistro/_sql -d '{
+	  "query" : "SELECT firstname, lastname, balance FROM accounts",
+	  "filter" : {
+	    "range" : {
+	      "balance" : {
+	        "lt" : 10000
+	      }
+	    }
+	  }
+	}'
+
+Explain::
+
+	{
+	  "from" : 0,
+	  "size" : 200,
+	  "query" : {
+	    "bool" : {
+	      "filter" : [
+	        {
+	          "bool" : {
+	            "filter" : [
+	              {
+	                "range" : {
+	                  "balance" : {
+	                    "from" : null,
+	                    "to" : 10000,
+	                    "include_lower" : true,
+	                    "include_upper" : false,
+	                    "boost" : 1.0
+	                  }
+	                }
+	              }
+	            ],
+	            "adjust_pure_negative" : true,
+	            "boost" : 1.0
+	          }
+	        }
+	      ],
+	      "adjust_pure_negative" : true,
+	      "boost" : 1.0
+	    }
+	  },
+	  "_source" : {
+	    "includes" : [
+	      "firstname",
+	      "lastname",
+	      "balance"
+	    ],
+	    "excludes" : [ ]
+	  }
+	}
+
+Use parameters for placeholder in prepared SQL query to be replaced.
+
+SQL query::
+
+	>> curl -H 'Content-Type: application/json' -X POST localhost:9200/_opendistro/_sql -d '{
+	  "query" : "SELECT * FROM accounts WHERE age = ?",
+	  "parameters" : [
+	    {
+	      "type" : "integer",
+	      "value" : 30
+	    }
+	  ]
+	}'
+
+Explain::
+
+	{
+	  "from" : 0,
+	  "size" : 200,
+	  "query" : {
+	    "bool" : {
+	      "filter" : [
+	        {
+	          "bool" : {
+	            "must" : [
+	              {
+	                "term" : {
+	                  "age" : {
+	                    "value" : 30,
+	                    "boost" : 1.0
+	                  }
+	                }
+	              }
+	            ],
+	            "adjust_pure_negative" : true,
+	            "boost" : 1.0
+	          }
+	        }
+	      ],
+	      "adjust_pure_negative" : true,
+	      "boost" : 1.0
+	    }
+	  }
+	}
 
 Elasticsearch DSL
 =================
@@ -30,17 +144,17 @@ Examples
 SQL query::
 
 	>> curl -H 'Content-Type: application/json' -X POST localhost:9200/_opendistro/_sql -d '{
-	  "query": "SELECT firstname, lastname, age, city FROM accounts LIMIT 2"
+	  "query" : "SELECT firstname, lastname, age, city FROM accounts ORDER BY age LIMIT 2"
 	}'
 
 Result set::
 
 	{
-	  "took" : 131,
+	  "took" : 404,
 	  "timed_out" : false,
 	  "_shards" : {
-	    "total" : 8,
-	    "successful" : 8,
+	    "total" : 1,
+	    "successful" : 1,
 	    "skipped" : 0,
 	    "failed" : 0
 	  },
@@ -49,31 +163,37 @@ Result set::
 	      "value" : 4,
 	      "relation" : "eq"
 	    },
-	    "max_score" : 1.0,
+	    "max_score" : null,
 	    "hits" : [
 	      {
 	        "_index" : "accounts",
 	        "_type" : "account",
+	        "_id" : "13",
+	        "_score" : null,
+	        "_source" : {
+	          "firstname" : "Nanette",
+	          "city" : "Nogal",
+	          "age" : 28,
+	          "lastname" : "Bates"
+	        },
+	        "sort" : [
+	          28
+	        ]
+	      },
+	      {
+	        "_index" : "accounts",
+	        "_type" : "account",
 	        "_id" : "1",
-	        "_score" : 1.0,
+	        "_score" : null,
 	        "_source" : {
 	          "firstname" : "Amber",
 	          "city" : "Brogan",
 	          "age" : 32,
 	          "lastname" : "Duke"
-	        }
-	      },
-	      {
-	        "_index" : "accounts",
-	        "_type" : "account",
-	        "_id" : "6",
-	        "_score" : 1.0,
-	        "_source" : {
-	          "firstname" : "Hattie",
-	          "city" : "Dante",
-	          "age" : 36,
-	          "lastname" : "Bond"
-	        }
+	        },
+	        "sort" : [
+	          32
+	        ]
 	      }
 	    ]
 	  }
@@ -93,7 +213,7 @@ Examples
 SQL query::
 
 	>> curl -H 'Content-Type: application/json' -X POST localhost:9200/_opendistro/_sql?format=jdbc -d '{
-	  "query": "SELECT firstname, lastname, age, city FROM accounts LIMIT 2"
+	  "query" : "SELECT firstname, lastname, age, city FROM accounts ORDER BY age LIMIT 2"
 	}'
 
 Result set::
@@ -120,16 +240,16 @@ Result set::
 	  "total" : 4,
 	  "datarows" : [
 	    [
+	      "Nanette",
+	      "Bates",
+	      28,
+	      "Nogal"
+	    ],
+	    [
 	      "Amber",
 	      "Duke",
 	      32,
 	      "Brogan"
-	    ],
-	    [
-	      "Hattie",
-	      "Bond",
-	      36,
-	      "Dante"
 	    ]
 	  ],
 	  "size" : 2,
@@ -150,16 +270,16 @@ Examples
 SQL query::
 
 	>> curl -H 'Content-Type: application/json' -X POST localhost:9200/_opendistro/_sql?format=csv -d '{
-	  "query": "SELECT firstname, lastname, age, city FROM accounts"
+	  "query" : "SELECT firstname, lastname, age, city FROM accounts ORDER BY age"
 	}'
 
 Result set::
 
 	firstname,lastname,age,city
-	Amber,Duke,32,Brogan
-	Hattie,Bond,36,Dante
-	Dale,Adams,33,Orick
 	Nanette,Bates,28,Nogal
+	Amber,Duke,32,Brogan
+	Dale,Adams,33,Orick
+	Hattie,Bond,36,Dante
 	
 
 Raw Format
@@ -176,14 +296,14 @@ Examples
 SQL query::
 
 	>> curl -H 'Content-Type: application/json' -X POST localhost:9200/_opendistro/_sql?format=raw -d '{
-	  "query": "SELECT firstname, lastname, age, city FROM accounts"
+	  "query" : "SELECT firstname, lastname, age, city FROM accounts ORDER BY age"
 	}'
 
 Result set::
 
-	Amber|Duke|32|Brogan
-	Hattie|Bond|36|Dante
-	Dale|Adams|33|Orick
 	Nanette|Bates|28|Nogal
+	Amber|Duke|32|Brogan
+	Dale|Adams|33|Orick
+	Hattie|Bond|36|Dante
 	
 

@@ -32,31 +32,51 @@ import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.Re
 public class ProtocolIT extends DocTest {
 
     @Section(order = 1)
-    public void getOriginalDSLResponse() {
+    public void requestFormat() {
         section(
-            title("Elasticsearch DSL"),
-            description(
-                "By default the plugin returns original response from Elasticsearch in JSON. Because this is the native response",
-                "from Elasticsearch, extra efforts are needed to parse and interpret it. Meanwhile mutation like field alias will",
-                "not be present in it."
+            title("Request Format"),
+            description("Request body by HTTP POST accepts a few more fields than SQL query."),
+            //syntax(""),
+            example(
+                description(
+                    "Use filter to work with Elasticsearch DSL directly. Note that the content is present in",
+                    "final Elasticsearch request DSL as it is."
+                ),
+                query(
+                    body(
+                        "\"query\": \"SELECT firstname, lastname, balance FROM accounts\"",
+                        "\"filter\":{\"range\":{\"balance\":{\"lt\":10000}}}"
+                    )
+                ),
+                requestFormat(CURL, NO_REQUEST),
+                responseFormat(NO_RESPONSE, PRETTY_JSON)
             ),
             example(
-                description(),
-                query("SELECT firstname, lastname, age, city FROM accounts LIMIT 2", ""),
+                description("Use parameters for placeholder in prepared SQL query to be replaced."),
+                query(
+                    body(
+                        "\"query\": \"SELECT * FROM accounts WHERE age = ?\"",
+                        "\"parameters\": [{\"type\": \"integer\", \"value\": 30}]"
+                    )
+                ),
                 requestFormat(CURL, NO_REQUEST),
-                responseFormat(PRETTY_JSON, NO_RESPONSE)
+                responseFormat(NO_RESPONSE, PRETTY_JSON)
             )
         );
     }
 
     @Section(order = 2)
-    public void getResponseInJDBCFormat() {
+    public void originalDSLResponse() {
         section(
-            title("JDBC Format"),
-            description("JDBC format is provided for JDBC driver and client side that needs both schema and result set well formatted."),
+            title("Elasticsearch DSL"),
+            description(
+                "By default the plugin returns original response from Elasticsearch in JSON. Because this is",
+                "the native response from Elasticsearch, extra efforts are needed to parse and interpret it.",
+                "Meanwhile mutation like field alias will not be present in it."
+            ),
             example(
                 description(),
-                query("SELECT firstname, lastname, age, city FROM accounts LIMIT 2", "format=jdbc"),
+                query("SELECT firstname, lastname, age, city FROM accounts ORDER BY age LIMIT 2", params("")),
                 requestFormat(CURL, NO_REQUEST),
                 responseFormat(PRETTY_JSON, NO_RESPONSE)
             )
@@ -64,27 +84,47 @@ public class ProtocolIT extends DocTest {
     }
 
     @Section(order = 3)
-    public void getResponseInCsvFormat() {
+    public void responseInJDBCFormat() {
+        section(
+            title("JDBC Format"),
+            description(
+                "JDBC format is provided for JDBC driver and client side that needs both schema and",
+                "result set well formatted."
+            ),
+            example(
+                description(),
+                query("SELECT firstname, lastname, age, city FROM accounts ORDER BY age LIMIT 2", params("format=jdbc")),
+                requestFormat(CURL, NO_REQUEST),
+                responseFormat(PRETTY_JSON, NO_RESPONSE)
+            )
+        );
+    }
+
+    @Section(order = 4)
+    public void responseInCSVFormat() {
         section(
             title("CSV Format"),
             description("You can also use CSV format to download result set in csv format."),
             example(
                 description(),
-                query("SELECT firstname, lastname, age, city FROM accounts", "format=csv"),
+                query("SELECT firstname, lastname, age, city FROM accounts ORDER BY age", params("format=csv")),
                 requestFormat(CURL, NO_REQUEST),
                 responseFormat(ORIGINAL, NO_RESPONSE)
             )
         );
     }
 
-    @Section(order = 4)
-    public void getResponseInRawFormat() {
+    @Section(order = 5)
+    public void responseInRawFormat() {
         section(
             title("Raw Format"),
-            description("Additionally you can also use RAW format to pipe the result with other command line tool for post processing."),
+            description(
+                "Additionally you can also use RAW format to pipe the result with other command line tool",
+                "for post processing."
+            ),
             example(
                 description(),
-                query("SELECT firstname, lastname, age, city FROM accounts", "format=raw"),
+                query("SELECT firstname, lastname, age, city FROM accounts ORDER BY age", params("format=raw")),
                 requestFormat(CURL, NO_REQUEST),
                 responseFormat(ORIGINAL, NO_RESPONSE)
             )
