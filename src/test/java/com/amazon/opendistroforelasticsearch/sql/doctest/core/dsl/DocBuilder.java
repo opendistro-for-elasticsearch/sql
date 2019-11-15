@@ -67,18 +67,21 @@ public interface DocBuilder {
                          codeBlock("", syntax);
             }
 
-            if (examples.length > 0) {
-                document.subSection("Examples");
-
-                for (Example example : examples) {
-                    if (!example.getDescription().isEmpty()) {
-                        document.paragraph(example.getDescription());
-                    }
-
-                    document.codeBlock("SQL query", example.getQuery()).
-                             codeBlock("Explain", example.getExplainResult()).
-                             codeBlock("Result set", example.getResultSet());
+            for (int i = 0; i < examples.length; i++) {
+                if (examples.length > 1) {
+                    document.subSection("Example " + (i + 1));
+                } else {
+                    document.subSection("Example");
                 }
+
+                Example example = examples[i];
+                if (!example.getDescription().isEmpty()) {
+                    document.paragraph(example.getDescription());
+                }
+
+                document.codeBlock("SQL query", example.getQuery()).
+                         codeBlock("Explain", example.getExplainResult()).
+                         codeBlock("Result set", example.getResultSet());
             }
         }
     }

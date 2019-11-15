@@ -25,8 +25,8 @@ Description
 
 Request body by HTTP POST accepts a few more fields than SQL query.
 
-Examples
---------
+Example 1
+---------
 
 Use filter to work with Elasticsearch DSL directly. Note that the content is present in final Elasticsearch request DSL as it is.
 
@@ -85,6 +85,9 @@ Explain::
 	  }
 	}
 
+Example 2
+---------
+
 Use parameters for placeholder in prepared SQL query to be replaced.
 
 SQL query::
@@ -138,8 +141,8 @@ Description
 
 By default the plugin returns original response from Elasticsearch in JSON. Because this is the native response from Elasticsearch, extra efforts are needed to parse and interpret it. Meanwhile mutation like field alias will not be present in it.
 
-Examples
---------
+Example
+-------
 
 SQL query::
 
@@ -150,11 +153,11 @@ SQL query::
 Result set::
 
 	{
-	  "took" : 404,
+	  "took" : 310,
 	  "timed_out" : false,
 	  "_shards" : {
-	    "total" : 1,
-	    "successful" : 1,
+	    "total" : 4,
+	    "successful" : 4,
 	    "skipped" : 0,
 	    "failed" : 0
 	  },
@@ -207,8 +210,8 @@ Description
 
 JDBC format is provided for JDBC driver and client side that needs both schema and result set well formatted.
 
-Examples
---------
+Example
+-------
 
 SQL query::
 
@@ -264,8 +267,8 @@ Description
 
 You can also use CSV format to download result set in csv format.
 
-Examples
---------
+Example
+-------
 
 SQL query::
 
@@ -290,8 +293,8 @@ Description
 
 Additionally you can also use RAW format to pipe the result with other command line tool for post processing.
 
-Examples
---------
+Example
+-------
 
 SQL query::
 
