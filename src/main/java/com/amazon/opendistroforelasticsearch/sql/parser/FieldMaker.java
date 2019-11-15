@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.parser;
 
 import com.alibaba.druid.sql.ast.SQLExpr;
+import com.alibaba.druid.sql.ast.SQLObject;
 import com.alibaba.druid.sql.ast.expr.SQLAggregateExpr;
 import com.alibaba.druid.sql.ast.expr.SQLAggregateOption;
 import com.alibaba.druid.sql.ast.expr.SQLAllColumnExpr;
@@ -320,7 +321,18 @@ public class FieldMaker {
                 String scriptCode = new CastParser((SQLCastExpr) object, alias, tableAlias).parse(false);
                 paramers.add(new KVValue("script", new SQLCharExpr(scriptCode)));
             } else if (object instanceof SQLAggregateExpr) {
-                SQLExpr source = (SQLExpr) object.getParent().getAttribute("source");
+                SQLObject parent = object.getParent();
+                SQLExpr source = (SQLExpr) parent.getAttribute("source");
+
+                if (parent instanceof SQLMethodInvokeExpr && source == null) {
+                    throw new SqlFeatureNotImplementedException(
+                            "Function calls of form '"
+                                    + ((SQLMethodInvokeExpr) parent).getMethodName()
+                                    + "("
+                                    + ((SQLAggregateExpr) object).getMethodName()
+                                    + "(...))' are not implemented yet");
+                }
+
                 throw new SqlFeatureNotImplementedException(
                         "The complex aggregate expressions are not implemented yet: " + source);
             } else {

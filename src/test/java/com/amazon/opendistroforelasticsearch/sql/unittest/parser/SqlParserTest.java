@@ -113,6 +113,22 @@ public class SqlParserTest {
     }
 
     @Test()
+    public void failingQueryTest2() throws SqlParseException {
+        thrown.expect(SqlFeatureNotImplementedException.class);
+        thrown.expectMessage(
+                "Function calls of form 'log(MAX(...))' are not implemented yet");
+
+        Select select =
+                parser.parseSelect((SQLQueryExpr) queryToExpr(
+                        "SELECT DestCountry, dayOfWeek, log(max(FlightDelayMin))" +
+                        "   FROM kibana_sample_data_flights\n" +
+                        "   GROUP BY DestCountry, dayOfWeek\n"));
+
+        AggregationQueryAction queryAction = new AggregationQueryAction(mock(Client.class), select);
+        String elasticDsl = queryAction.explain().explain();
+    }
+
+    @Test()
     public void failingQueryWithHavingTest() throws SqlParseException {
         thrown.expect(SqlFeatureNotImplementedException.class);
         thrown.expectMessage(
