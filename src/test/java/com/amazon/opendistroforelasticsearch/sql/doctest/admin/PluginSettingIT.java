@@ -142,23 +142,4 @@ public class PluginSettingIT extends DocTest {
         return list.toString();
     }
 
-    private static class ListItems {
-        private final StringBuilder list = new StringBuilder();
-        private int index = 0;
-
-        void addItem(String text) {
-            list.append(index()).append(text).append('\n');
-        }
-
-        private String index() {
-            index++;
-            return StringUtils.format("%d. ", index);
-        }
-
-        @Override
-        public String toString() {
-            return list.toString();
-        }
-    }
-
 }
