@@ -25,7 +25,7 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
     SqlRequestTest.class,
     SqlResponseTest.class,
-    RequestFormatTest.class,
+    SqlRequestFormatTest.class,
 })
 public class DocTestTests {
 }

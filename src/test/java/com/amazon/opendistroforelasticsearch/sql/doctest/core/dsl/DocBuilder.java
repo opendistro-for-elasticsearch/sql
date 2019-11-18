@@ -17,9 +17,9 @@ package com.amazon.opendistroforelasticsearch.sql.doctest.core.dsl;
 
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.Document;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.RstDocument;
-import com.amazon.opendistroforelasticsearch.sql.doctest.core.request.RequestFormat;
+import com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequest;
-import com.amazon.opendistroforelasticsearch.sql.doctest.core.response.ResponseFormat;
+import com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import org.elasticsearch.client.RestClient;
 
@@ -27,12 +27,12 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.Document.Example;
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.RequestFormat.KIBANA_REQUEST;
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.RequestFormat.NO_REQUEST;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.KIBANA_REQUEST;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.NO_REQUEST;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequest.UrlParam;
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.ResponseFormat.NO_RESPONSE;
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.ResponseFormat.PRETTY_JSON_RESPONSE;
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.ResponseFormat.TABLE_RESPONSE;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.NO_RESPONSE;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.PRETTY_JSON_RESPONSE;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.TABLE_RESPONSE;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.EXPLAIN_API_ENDPOINT;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.QUERY_API_ENDPOINT;
 
@@ -127,11 +127,11 @@ public interface DocBuilder {
         return String.join(" ", sentences);
     }
 
-    default Format queryFormat(RequestFormat requestFormat, ResponseFormat responseFormat) {
+    default Format queryFormat(SqlRequestFormat requestFormat, SqlResponseFormat responseFormat) {
         return new Format(requestFormat, responseFormat);
     }
 
-    default Format explainFormat(RequestFormat requestFormat, ResponseFormat responseFormat) {
+    default Format explainFormat(SqlRequestFormat requestFormat, SqlResponseFormat responseFormat) {
         return new Format(requestFormat, responseFormat);
     }
 
@@ -194,19 +194,19 @@ public interface DocBuilder {
     }
 
     class Format {
-        private final RequestFormat requestFormat;
-        private final ResponseFormat responseFormat;
+        private final SqlRequestFormat requestFormat;
+        private final SqlResponseFormat responseFormat;
 
-        Format(RequestFormat requestFormat, ResponseFormat responseFormat) {
+        Format(SqlRequestFormat requestFormat, SqlResponseFormat responseFormat) {
             this.requestFormat = requestFormat;
             this.responseFormat = responseFormat;
         }
 
-        RequestFormat request() {
+        SqlRequestFormat request() {
             return requestFormat;
         }
 
-        ResponseFormat response() {
+        SqlResponseFormat response() {
             return responseFormat;
         }
     }

@@ -29,9 +29,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Format Elasticsearch native request to specific format for documentation.
+ * Format SQL request to specific format for documentation.
  */
-public enum RequestFormat {
+public enum SqlRequestFormat {
+
     NO_REQUEST {
         @Override
         public String format(SqlRequest request) {
@@ -93,8 +94,14 @@ public enum RequestFormat {
         }
     };
 
+    /**
+     * Format SQL request to specific format for documentation.
+     * @param request   sql request
+     * @return          string in specific format
+     */
     public abstract String format(SqlRequest request);
 
+    @SuppressWarnings("UnstableApiUsage")
     private static String body(Request request) {
         String body;
         try {

@@ -24,7 +24,7 @@ import org.elasticsearch.client.RestClient;
 
 import java.io.IOException;
 
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.RequestFormat.KIBANA_REQUEST;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.KIBANA_REQUEST;
 
 /**
  * Request to SQL plugin to isolate Elasticsearch native request

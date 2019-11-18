@@ -26,7 +26,7 @@ import java.io.IOException;
 /**
  * Response formatter
  */
-public enum ResponseFormat {
+public enum SqlResponseFormat {
 
     NO_RESPONSE {
         @Override
@@ -78,6 +78,11 @@ public enum ResponseFormat {
         }
     };
 
-    public abstract String format(SqlResponse str);
+    /**
+     * Format SQL response to specific format for documentation
+     * @param sqlResponse   sql response
+     * @return              string in specific format
+     */
+    public abstract String format(SqlResponse sqlResponse);
 
 }

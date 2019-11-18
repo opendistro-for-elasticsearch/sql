@@ -15,21 +15,21 @@
 
 package com.amazon.opendistroforelasticsearch.sql.doctest.test;
 
-import com.amazon.opendistroforelasticsearch.sql.doctest.core.request.RequestFormat;
+import com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequest;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequest.UrlParam;
 import org.junit.Test;
 
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.RequestFormat.CURL_REQUEST;
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.RequestFormat.KIBANA_REQUEST;
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.RequestFormat.NO_REQUEST;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.CURL_REQUEST;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.KIBANA_REQUEST;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.NO_REQUEST;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 /**
- * Test cases for {@link RequestFormat}
+ * Test cases for {@link SqlRequestFormat}
  */
-public class RequestFormatTest {
+public class SqlRequestFormatTest {
 
     private final SqlRequest request = new SqlRequest(
         "POST",
