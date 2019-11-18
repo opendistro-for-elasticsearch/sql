@@ -15,16 +15,22 @@
 
 package com.amazon.opendistroforelasticsearch.sql.doctest.core.request;
 
+import com.amazon.opendistroforelasticsearch.sql.utils.JsonPrettyFormatter;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
+import org.apache.http.Header;
 import org.elasticsearch.client.Request;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Format Elasticsearch native request to specific format for documentation.
+ */
 public enum RequestFormat {
     NO_REQUEST {
         @Override
@@ -37,8 +43,16 @@ public enum RequestFormat {
         public String format(SqlRequest sqlRequest) {
             Request request = sqlRequest.request();
             StringBuilder str = new StringBuilder();
-            str.append(">> curl -H 'Content-Type: application/json' ").
-                append(StringUtils.format("-X %s ", request.getMethod())).
+            str.append(">> curl ");
+
+            List<Header> headers = request.getOptions().getHeaders();
+            if (!headers.isEmpty()) {
+                str.append(headers.stream().
+                           map(header -> StringUtils.format("-H '%s: %s'", header.getName(), header.getValue())).
+                           collect(Collectors.joining(" ", "", " ")));
+            }
+
+            str.append(StringUtils.format("-X %s ", request.getMethod())).
                 append(StringUtils.format("localhost:9200%s", request.getEndpoint()));
 
             if (!request.getParameters().isEmpty()) {
@@ -85,9 +99,10 @@ public enum RequestFormat {
         String body;
         try {
             InputStream content = request.getEntity().getContent();
-            body = CharStreams.toString(new InputStreamReader(content, Charsets.UTF_8));
+            String rawBody = CharStreams.toString(new InputStreamReader(content, Charsets.UTF_8));
+            body = JsonPrettyFormatter.format(rawBody);
         } catch (IOException e) {
-            throw new IllegalStateException("Failed to parse body from request", e);
+            throw new IllegalStateException("Failed to parse and format body from request", e);
         }
         return body;
     }

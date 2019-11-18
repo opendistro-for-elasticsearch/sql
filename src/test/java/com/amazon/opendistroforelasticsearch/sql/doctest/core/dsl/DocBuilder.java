@@ -20,12 +20,11 @@ import com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.RstDocument
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.request.RequestFormat;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequest;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.response.ResponseFormat;
-import com.amazon.opendistroforelasticsearch.sql.utils.JsonPrettyFormatter;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import org.elasticsearch.client.RestClient;
 
-import java.io.IOException;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.Document.Example;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.RequestFormat.KIBANA_REQUEST;
@@ -190,12 +189,7 @@ public interface DocBuilder {
 
         @Override
         public String toString() {
-            try {
-                return JsonPrettyFormatter.format("{" + String.join(",", fieldValues) + "}");
-            } catch (IOException e) {
-                throw new IllegalStateException(StringUtils.format(
-                    "Failed to jsonify body for fields %s", Arrays.toString(fieldValues), e));
-            }
+            return Arrays.stream(fieldValues).collect(Collectors.joining(",", "{", "}"));
         }
     }
 

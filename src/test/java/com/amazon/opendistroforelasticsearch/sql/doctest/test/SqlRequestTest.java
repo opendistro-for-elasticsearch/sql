@@ -42,7 +42,7 @@ public class SqlRequestTest {
     @Test
     public void requestShouldIncludeAllFields() throws IOException {
         String method = "POST";
-        String endpoint = "/opendistro/_sql";
+        String endpoint = "/_opendistro/_sql";
         String body = "{\"query\":\"SELECT * FROM accounts\"}";
         String key = "format";
         String value = "jdbc";
