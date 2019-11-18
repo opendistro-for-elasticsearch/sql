@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Format SQL request to specific format for documentation.
+ * Different SQL request formats.
  */
 public enum SqlRequestFormat {
 

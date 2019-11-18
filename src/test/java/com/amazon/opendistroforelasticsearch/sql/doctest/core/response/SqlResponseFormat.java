@@ -24,7 +24,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 
 /**
- * Response formatter
+ * Different SQL response formats
  */
 public enum SqlResponseFormat {
 

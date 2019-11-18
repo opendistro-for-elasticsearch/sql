@@ -46,7 +46,7 @@ public class DataTable {
 
     private void updateMaxWidthForEachColumn(Object[] row) {
         for (int i = 0; i < row.length; i++) {
-            maxWidths[i] = Math.max(maxWidths[i], row[i].toString().length() + 2);
+            maxWidths[i] = Math.max(maxWidths[i], row[i].toString().length());
         }
     }
 

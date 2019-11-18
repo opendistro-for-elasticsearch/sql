@@ -31,7 +31,7 @@ import static org.junit.Assert.assertThat;
  */
 public class SqlRequestFormatTest {
 
-    private final SqlRequest request = new SqlRequest(
+    private final SqlRequest sqlRequest = new SqlRequest(
         "POST",
         "/_opendistro/_sql",
         "{\"query\":\"SELECT * FROM accounts\"}",
@@ -40,26 +40,26 @@ public class SqlRequestFormatTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void noRequestFormatShouldNotBeUsedForFormat() {
-        NO_REQUEST.format(null);
+        NO_REQUEST.format(sqlRequest);
     }
 
     @Test
-    public void curlRequestFormatShouldBeCurlInCLI() {
+    public void curlFormatShouldReturnRequestInCurl() {
         String expected =
             ">> curl -H 'Content-Type: application/json' -X POST localhost:9200/_opendistro/_sql?format=jdbc -d '{\n" +
             "  \"query\" : \"SELECT * FROM accounts\"\n" +
             "}'";
-        assertThat(CURL_REQUEST.format(request), is(expected));
+        assertThat(CURL_REQUEST.format(sqlRequest), is(expected));
     }
 
     @Test
-    public void kibanaRequestFormatShouldBeFormatInKibana() {
+    public void kibanaFormatShouldReturnRequestInKibana() {
         String expected =
             "POST /_opendistro/_sql?format=jdbc\n" +
             "{\n" +
             "  \"query\" : \"SELECT * FROM accounts\"\n" +
             "}";
-        assertThat(KIBANA_REQUEST.format(request), is(expected));
+        assertThat(KIBANA_REQUEST.format(sqlRequest), is(expected));
     }
 
 }
