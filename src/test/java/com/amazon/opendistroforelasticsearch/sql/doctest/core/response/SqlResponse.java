@@ -32,7 +32,7 @@ public class SqlResponse {
         this.response = response;
     }
 
-    String body() {
+    public String body() {
         try {
             return TestUtils.getResponseBody(response, true);
         } catch (IOException e) {

@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.doctest;
+package com.amazon.opendistroforelasticsearch.sql.doctest.test;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -23,6 +23,8 @@ import org.junit.runners.Suite;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+    SqlRequestTest.class,
+    SqlResponseTest.class,
 })
 public class DocTestTests {
 }
