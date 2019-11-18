@@ -33,6 +33,7 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.spe
 public enum ScalarFunction implements TypeExpression {
 
     ABS(func(T(NUMBER)).to(T)), // translate to Java: <T extends Number> T ABS(T)
+    ADD(func(T(NUMBER), NUMBER).to(T)),
     ASCII(func(T(STRING)).to(T)),
     ASIN(func(T(NUMBER)).to(T)),
     ATAN(func(T(NUMBER)).to(T)),
@@ -44,11 +45,15 @@ public enum ScalarFunction implements TypeExpression {
     COS(func(T(NUMBER)).to(T)),
     COSH(func(T(NUMBER)).to(T)),
     COT(func(T(NUMBER)).to(T)),
+    CURDATE(func().to(ESDataType.DATE)),
+    DATE(func(ESDataType.DATE).to(ESDataType.DATE)),
     DATE_FORMAT(
         func(ESDataType.DATE, STRING).to(STRING),
         func(ESDataType.DATE, STRING, STRING).to(STRING)
     ),
+    DAYOFMONTH(func(ESDataType.DATE).to(INTEGER)),
     DEGREES(func(T(NUMBER)).to(T)),
+    DIVIDE(func(T(NUMBER), NUMBER).to(T)),
     E(func().to(DOUBLE)),
     EXP(func(T(NUMBER)).to(T)),
     EXPM1(func(T(NUMBER)).to(T)),
@@ -56,6 +61,7 @@ public enum ScalarFunction implements TypeExpression {
     IF(func(BOOLEAN, ES_TYPE, ES_TYPE).to(ES_TYPE)),
     IFNULL(func(ES_TYPE, ES_TYPE).to(ES_TYPE)),
     ISNULL(func(ES_TYPE).to(INTEGER)),
+    LEFT(func(T(STRING), INTEGER).to(T)),
     LENGTH(func(STRING).to(INTEGER)
 ),
     LOCATE(
@@ -74,14 +80,24 @@ public enum ScalarFunction implements TypeExpression {
         func(T(STRING), STRING).to(T)
     ),
     LTRIM(func(T(STRING)).to(T)),
+    MAKETIME(func(INTEGER, INTEGER, INTEGER).to(ESDataType.DATE)),
+    MODULUS(func(T(NUMBER), NUMBER).to(T)),
+    MONTH(func(ESDataType.DATE).to(INTEGER)),
+    MONTHNAME(func(ESDataType.DATE).to(STRING)),
+    MULTIPLY(func(T(NUMBER), NUMBER).to(NUMBER)),
+    NOW(func().to(ESDataType.DATE)),
     PI(func().to(DOUBLE)),
     POW, POWER(
         func(T(NUMBER)).to(T),
         func(T(NUMBER), NUMBER).to(T)
     ),
     RADIANS(func(T(NUMBER)).to(T)),
-    RANDOM(func(T(NUMBER)).to(T)),
+    RAND(
+            func().to(NUMBER),
+            func(T(NUMBER)).to(T)
+    ),
     REPLACE(func(T(STRING), STRING, STRING).to(T)),
+    RIGHT(func(T(STRING), INTEGER).to(T)),
     RINT(func(T(NUMBER)).to(T)),
     ROUND(func(T(NUMBER)).to(T)),
     RTRIM(func(T(STRING)).to(T)),
@@ -91,20 +107,15 @@ public enum ScalarFunction implements TypeExpression {
     SINH(func(T(NUMBER)).to(T)),
     SQRT(func(T(NUMBER)).to(T)),
     SUBSTRING(func(T(STRING), INTEGER, INTEGER).to(T)),
+    SUBTRACT(func(T(NUMBER), NUMBER).to(T)),
     TAN(func(T(NUMBER)).to(T)),
+    TIMESTAMP(func(ESDataType.DATE).to(ESDataType.DATE)),
+    TRIM(func(T(STRING)).to(T)),
     UPPER(
         func(T(STRING)).to(T),
         func(T(STRING), STRING).to(T)
     ),
-    YEAR(func(ESDataType.DATE).to(INTEGER)),
-    MONTH(func(ESDataType.DATE).to(INTEGER)),
-    MONTHNAME(func(ESDataType.DATE).to(STRING)),
-    DAYOFMONTH(func(ESDataType.DATE).to(INTEGER)),
-    DATE(func(ESDataType.DATE).to(ESDataType.DATE)),
-    TIMESTAMP(func(ESDataType.DATE).to(ESDataType.DATE)),
-    MAKETIME(func(INTEGER, INTEGER, INTEGER).to(ESDataType.DATE)),
-    NOW(func().to(ESDataType.DATE)),
-    CURDATE(func().to(ESDataType.DATE));
+    YEAR(func(ESDataType.DATE).to(INTEGER));
 
     private final TypeExpressionSpec[] specifications;
 
