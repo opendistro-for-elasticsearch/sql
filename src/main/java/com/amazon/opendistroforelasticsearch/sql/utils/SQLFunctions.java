@@ -667,12 +667,12 @@ public class SQLFunctions {
 
     private Tuple<String, String> rand(SQLExpr expr) {
         String name = nextId("rand");
-        return new Tuple<>(name, def(name, format("(new Random(%s)).nextLong()", getPropertyOrValue(expr))));
+        return new Tuple<>(name, def(name, format("new Random(%s).nextDouble()", getPropertyOrValue(expr))));
     }
 
     private Tuple<String, String> rand() {
         String name = nextId("rand");
-        return new Tuple<>(name, def(name, "(new Random().nextLong()"));
+        return new Tuple<>(name, def(name, "new Random().nextDouble()"));
     }
 
     private Tuple<String, String> mathDoubleValueTemplate(String methodName, String fieldName, SQLExpr val1,

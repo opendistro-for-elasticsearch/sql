@@ -423,4 +423,28 @@ public class MathFunctionsTest {
                         scriptFilter,
                         "Math.log(doc['age'].value)"));
     }
+
+    @Test
+    public void randWithoutParamTest() {
+        String query = "SELECT RAND() FROM bank";
+        ScriptField scriptField = CheckScriptContents.getScriptFieldFromQuery(query);
+        assertTrue(
+                CheckScriptContents.scriptContainsString(
+                        scriptField,
+                        "new Random().nextDouble()"
+                )
+        );
+    }
+
+    @Test
+    public void randWithOneParamTest() {
+        String query = "SELECT RAND(age) FROM bank";
+        ScriptField scriptField = CheckScriptContents.getScriptFieldFromQuery(query);
+        assertTrue(
+                CheckScriptContents.scriptContainsString(
+                        scriptField,
+                        "new Random(doc['age'].value).nextDouble()"
+                )
+        );
+    }
 }

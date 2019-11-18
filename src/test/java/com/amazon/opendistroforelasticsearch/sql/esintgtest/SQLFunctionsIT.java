@@ -482,6 +482,32 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         );
     }
 
+    @Ignore
+    @Test
+    public void left() throws IOException {
+        assertThat(
+                executeQuery("SELECT LEFT('sample', 2) AS left FROM " + TEST_INDEX_ACCOUNT + " ORDER BY left"),
+                hitAny(kvString("/fields/left/0", equalTo("sa")))
+        );
+        assertThat(
+                executeQuery("SELECT LEFT('sample', 20) AS left FROM " + TEST_INDEX_ACCOUNT + " ORDER BY left"),
+                hitAny(kvString("/fields/left/0", equalTo("sample")))
+        );
+    }
+
+    @Ignore
+    @Test
+    public void right() throws IOException {
+        assertThat(
+                executeQuery("SELECT RIGHT('elastic', 3) AS right FROM " + TEST_INDEX_ACCOUNT + " ORDER BY right"),
+                hitAny(kvString("/fields/right/0", equalTo("tic")))
+        );
+        assertThat(
+                executeQuery("SELECT RIGHT('elastic', 20) AS right FROM " + TEST_INDEX_ACCOUNT + " ORDER BY right"),
+                hitAny(kvString("/fields/right/0", equalTo("elastic")))
+        );
+    }
+
     @Test
     public void ifFuncShouldPassJDBC() {
         assertThat(
