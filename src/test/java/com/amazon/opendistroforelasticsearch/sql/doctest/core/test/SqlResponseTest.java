@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.doctest.test;
+package com.amazon.opendistroforelasticsearch.sql.doctest.core.test;
 
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponse;
 import org.apache.http.HttpEntity;
