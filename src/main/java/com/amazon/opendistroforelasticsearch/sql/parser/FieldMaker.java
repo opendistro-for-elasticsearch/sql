@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.parser;
 
 import com.alibaba.druid.sql.ast.SQLExpr;
+import com.alibaba.druid.sql.ast.SQLObject;
 import com.alibaba.druid.sql.ast.expr.SQLAggregateExpr;
 import com.alibaba.druid.sql.ast.expr.SQLAggregateOption;
 import com.alibaba.druid.sql.ast.expr.SQLAllColumnExpr;
@@ -34,6 +35,7 @@ import com.amazon.opendistroforelasticsearch.sql.domain.KVValue;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.ScriptMethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Where;
+import com.amazon.opendistroforelasticsearch.sql.exception.SqlFeatureNotImplementedException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
 import com.amazon.opendistroforelasticsearch.sql.utils.Util;
@@ -230,6 +232,7 @@ public class FieldMaker {
         SQLMethodInvokeExpr methodInvokeExpr = new SQLMethodInvokeExpr(operator, null);
         methodInvokeExpr.addParameter(expr.getLeft());
         methodInvokeExpr.addParameter(expr.getRight());
+        methodInvokeExpr.putAttribute("source", expr);
         return methodInvokeExpr;
     }
 
@@ -317,6 +320,21 @@ public class FieldMaker {
             } else if (object instanceof SQLCastExpr) {
                 String scriptCode = new CastParser((SQLCastExpr) object, alias, tableAlias).parse(false);
                 paramers.add(new KVValue("script", new SQLCharExpr(scriptCode)));
+            } else if (object instanceof SQLAggregateExpr) {
+                SQLObject parent = object.getParent();
+                SQLExpr source = (SQLExpr) parent.getAttribute("source");
+
+                if (parent instanceof SQLMethodInvokeExpr && source == null) {
+                    throw new SqlFeatureNotImplementedException(
+                            "Function calls of form '"
+                                    + ((SQLMethodInvokeExpr) parent).getMethodName()
+                                    + "("
+                                    + ((SQLAggregateExpr) object).getMethodName()
+                                    + "(...))' are not implemented yet");
+                }
+
+                throw new SqlFeatureNotImplementedException(
+                        "The complex aggregate expressions are not implemented yet: " + source);
             } else {
                 paramers.add(new KVValue(Util.removeTableAilasFromField(object, tableAlias)));
             }

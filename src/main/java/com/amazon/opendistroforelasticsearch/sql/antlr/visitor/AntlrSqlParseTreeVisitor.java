@@ -15,10 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.visitor;
 
-import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FunctionArgsContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.InnerJoinContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.QuerySpecificationContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.SelectColumnElementContext;
+import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.SubqueryTableItemContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.TableNamePatternContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParserBaseVisitor;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -174,6 +174,11 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
         return result;
     }
 
+    @Override
+    public T visitSubqueryTableItem(SubqueryTableItemContext ctx) {
+        throw new EarlyExitAnalysisException("Exit when meeting subquery in from");
+    }
+
     /** Visit here instead of tableName because we need alias */
     @Override
     public T visitAtomTableItem(AtomTableItemContext ctx) {
@@ -284,6 +289,9 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
         if (ctx.dateType != null) {
             return visitor.visitDate(ctx.getText());
         }
+        if (ctx.nullLiteral != null) {
+            return visitor.visitNull();
+        }
         return super.visitConstant(ctx);
     }
 
@@ -315,10 +323,19 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
         return aggregate;
     }
 
-    /** Named argument, ex. TOPHITS('size'=3), is under FunctionArgs -> Predicate */
+    /**
+     * Named argument, ex. TOPHITS('size'=3), is under FunctionArgs -> Predicate
+     * And the function name should be contained in esFunctionNameBase
+     */
     private boolean isNamedArgument(BinaryComparisonPredicateContext ctx) {
-        return ctx.getParent() != null && ctx.getParent().getParent() != null
-            && ctx.getParent().getParent() instanceof FunctionArgsContext;
+        if (ctx.getParent() != null && ctx.getParent().getParent() != null
+                && ctx.getParent().getParent().getParent() != null
+                && ctx.getParent().getParent().getParent() instanceof ScalarFunctionCallContext) {
+
+            ScalarFunctionCallContext parent = (ScalarFunctionCallContext) ctx.getParent().getParent().getParent();
+            return parent.scalarFunctionName().functionNameBase().esFunctionNameBase() != null;
+        }
+        return false;
     }
 
     /** Enforce visiting result of table instead of ON clause as result */

@@ -30,18 +30,24 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Where;
 import com.amazon.opendistroforelasticsearch.sql.domain.hints.Hint;
 import com.amazon.opendistroforelasticsearch.sql.domain.hints.HintType;
 import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants;
+import com.amazon.opendistroforelasticsearch.sql.exception.SqlFeatureNotImplementedException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
 import com.amazon.opendistroforelasticsearch.sql.parser.ScriptFilter;
 import com.amazon.opendistroforelasticsearch.sql.parser.SqlParser;
+import com.amazon.opendistroforelasticsearch.sql.query.AggregationQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.maker.QueryMaker;
 import com.amazon.opendistroforelasticsearch.sql.query.multi.MultiQuerySelect;
 import com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents;
+import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder.ScriptField;
 import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -56,15 +62,19 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstant
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_GAME_OF_THRONES;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ODBC;
 import static org.hamcrest.Matchers.equalTo;
+import static org.mockito.Mockito.mock;
 
 public class SqlParserTest {
 
-    private static SqlParser parser;
+    private SqlParser parser;
 
-    @BeforeClass
-    public static void init() {
+    @Before
+    public void init() {
         parser = new SqlParser();
     }
+
+    @Rule
+    public ExpectedException thrown= ExpectedException.none();
 
     @Test
     public void whereConditionLeftFunctionRightPropertyGreatTest() throws Exception {
@@ -84,6 +94,71 @@ public class SqlParserTest {
         Pattern pattern = Pattern.compile("floor_\\d+ > doc\\['b'].value");
         java.util.regex.Matcher matcher = pattern.matcher(scriptFilter.getScript());
         Assert.assertTrue(matcher.find());
+    }
+
+    @Test()
+    public void failingQueryTest() throws SqlParseException {
+        thrown.expect(SqlFeatureNotImplementedException.class);
+        thrown.expectMessage(
+                "The complex aggregate expressions are not implemented yet: MAX(FlightDelayMin) - MIN(FlightDelayMin)");
+
+        Select select =
+                parser.parseSelect((SQLQueryExpr) queryToExpr(
+                        "SELECT DestCountry, dayOfWeek, max(FlightDelayMin) - min(FlightDelayMin)" +
+                        "   FROM kibana_sample_data_flights\n" +
+                        "   GROUP BY DestCountry, dayOfWeek\n"));
+
+        AggregationQueryAction queryAction = new AggregationQueryAction(mock(Client.class), select);
+        String elasticDsl = queryAction.explain().explain();
+    }
+
+    @Test()
+    public void failingQueryTest2() throws SqlParseException {
+        thrown.expect(SqlFeatureNotImplementedException.class);
+        thrown.expectMessage(
+                "Function calls of form 'log(MAX(...))' are not implemented yet");
+
+        Select select =
+                parser.parseSelect((SQLQueryExpr) queryToExpr(
+                        "SELECT DestCountry, dayOfWeek, log(max(FlightDelayMin))" +
+                        "   FROM kibana_sample_data_flights\n" +
+                        "   GROUP BY DestCountry, dayOfWeek\n"));
+
+        AggregationQueryAction queryAction = new AggregationQueryAction(mock(Client.class), select);
+        String elasticDsl = queryAction.explain().explain();
+    }
+
+    @Test()
+    public void failingQueryWithHavingTest() throws SqlParseException {
+        thrown.expect(SqlFeatureNotImplementedException.class);
+        thrown.expectMessage(
+                "The complex aggregate expressions are not implemented yet: MAX(FlightDelayMin) - MIN(FlightDelayMin)");
+
+        Select select =
+                parser.parseSelect((SQLQueryExpr) queryToExpr(
+                        "SELECT DestCountry, dayOfWeek, max(FlightDelayMin) - min(FlightDelayMin) " +
+                        "   FROM kibana_sample_data_flights\n" +
+                        "   GROUP BY DestCountry, dayOfWeek\n" +
+                        "   HAVING max(FlightDelayMin) - min(FlightDelayMin)) * count(FlightDelayMin) + 14 > 100"));
+
+        AggregationQueryAction queryAction = new AggregationQueryAction(mock(Client.class), select);
+        String elasticDsl = queryAction.explain().explain();
+    }
+
+    @Test()
+    @Ignore("Github issues: https://github.com/opendistro-for-elasticsearch/sql/issues/194, " +
+            "https://github.com/opendistro-for-elasticsearch/sql/issues/234")
+    public void failingQueryWithHavingTest2() throws SqlParseException {
+        Select select =
+                parser.parseSelect((SQLQueryExpr) queryToExpr(
+                        "SELECT DestCountry, dayOfWeek, max(FlightDelayMin) " +
+                        "   FROM kibana_sample_data_flights\n" +
+                        "   GROUP BY DestCountry, dayOfWeek\n" +
+                        "   HAVING max(FlightDelayMin) - min(FlightDelayMin) > 100"));
+
+        AggregationQueryAction queryAction = new AggregationQueryAction(mock(Client.class), select);
+
+        String elasticDsl = queryAction.explain().explain();
     }
 
     @Test
