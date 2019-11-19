@@ -482,6 +482,10 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         );
     }
 
+    /**
+     * The following tests for LEFT and RIGHT are ignored because the ES client fails to parse "LEFT"/"RIGHT" in
+     * the integTest
+     */
     @Ignore
     @Test
     public void left() throws IOException {
