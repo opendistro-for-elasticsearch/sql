@@ -39,6 +39,7 @@ import com.amazon.opendistroforelasticsearch.sql.exception.SqlFeatureNotImplemen
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
 import com.amazon.opendistroforelasticsearch.sql.utils.Util;
+import com.google.common.base.Strings;
 import org.elasticsearch.common.collect.Tuple;
 
 import java.util.ArrayList;
@@ -79,6 +80,10 @@ public class FieldMaker {
             SQLMethodInvokeExpr mExpr = (SQLMethodInvokeExpr) expr;
 
             String methodName = mExpr.getMethodName();
+
+            if (Strings.isNullOrEmpty(alias)) {
+                alias = mExpr.toString();
+            }
 
             if (methodName.equalsIgnoreCase("nested") || methodName.equalsIgnoreCase("reverse_nested")) {
                 NestedType nestedType = new NestedType();
