@@ -62,7 +62,7 @@ public class SQLFunctions {
     );
 
     private static final Set<String> stringOperators = Sets.newHashSet(
-            "concat_ws", "substring", "trim", "lower", "upper", "rtrim", "ltrim", "replace",
+            "split", "concat_ws", "substring", "trim", "lower", "upper", "rtrim", "ltrim", "replace",
             "left", "right"
     );
 
