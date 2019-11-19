@@ -76,7 +76,7 @@ public class ProtocolIT extends DocTest {
             ),
             example(
                 description(),
-                query("SELECT firstname, lastname, age FROM accounts ORDER BY age LIMIT 2", params("")),
+                query("SELECT firstname, lastname, age FROM accounts ORDER BY age LIMIT 2"),
                 queryFormat(CURL_REQUEST, PRETTY_JSON_RESPONSE),
                 explainFormat(NO_REQUEST, NO_RESPONSE)
             )

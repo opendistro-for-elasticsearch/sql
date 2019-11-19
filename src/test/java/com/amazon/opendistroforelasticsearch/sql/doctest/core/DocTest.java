@@ -19,6 +19,7 @@ import com.amazon.opendistroforelasticsearch.sql.doctest.core.dsl.DocBuilder;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.dsl.DocTestConfig;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.dsl.Section;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.Document;
+import com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.RstDocument;
 import com.amazon.opendistroforelasticsearch.sql.esintgtest.SQLIntegTestCase;
 import com.carrotsearch.randomizedtesting.AnnotatedMethodProvider;
 import com.carrotsearch.randomizedtesting.TestMethodAndParams;
@@ -50,6 +51,12 @@ public abstract class DocTest extends SQLIntegTestCase implements DocBuilder {
     @Override
     public RestClient restClient() {
         return getRestClient();
+    }
+
+    @Override
+    public Document openDocument() {
+        DocTestConfig config = getClass().getAnnotation(DocTestConfig.class);
+        return new RstDocument(Document.path(config.template()));
     }
 
     private void loadTestData(DocTestConfig config) {

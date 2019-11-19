@@ -16,9 +16,8 @@
 package com.amazon.opendistroforelasticsearch.sql.doctest.core.dsl;
 
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.Document;
-import com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.RstDocument;
-import com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequest;
+import com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import org.elasticsearch.client.RestClient;
@@ -27,9 +26,9 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.Document.Example;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequest.UrlParam;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.KIBANA_REQUEST;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.NO_REQUEST;
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequest.UrlParam;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.NO_RESPONSE;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.PRETTY_JSON_RESPONSE;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.TABLE_RESPONSE;
@@ -37,33 +36,31 @@ import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.EXP
 import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.QUERY_API_ENDPOINT;
 
 /**
- * Build document in DSL for readability
+ * Build document by custom DSL. To make it more readable, user needs to implement this interface
+ * to provide things required such as client connection and document. As benefit, they can use the
+ * this DSL in readable and fluent way.
  */
 public interface DocBuilder {
 
+    /**
+     * Get client connection to cluster for sending request
+     * @return  REST client
+     */
     RestClient restClient();
 
-    default void section(String title, Example... examples) {
-        section(title, "", "", examples);
-    }
+    /**
+     * Open document file to write
+     * @return  document class
+     */
+    Document openDocument();
 
     default void section(String title, String description, Example... examples) {
-        section(title, description, "", examples);
-    }
-
-    default void section(String title, String description, String syntax, Example... examples) {
-        DocTestConfig config = getClass().getAnnotation(DocTestConfig.class);
-        try (RstDocument document = new RstDocument(Document.path(config.template()))) {
+        try (Document document = openDocument()) {
             document.section(title);
 
             if (!description.isEmpty()) {
-                document.subSection("Description"). // TODO required?
+                document.subSection("Description").
                          paragraph(description);
-            }
-
-            if (!syntax.isEmpty()) {
-                document.subSection("Syntax").
-                         codeBlock("", syntax);
             }
 
             for (int i = 0; i < examples.length; i++) {
@@ -123,10 +120,6 @@ public interface DocBuilder {
         return String.join(" ", sentences);
     }
 
-    default String syntax(String... sentences) {
-        return String.join(" ", sentences);
-    }
-
     default Format queryFormat(SqlRequestFormat requestFormat, SqlResponseFormat responseFormat) {
         return new Format(requestFormat, responseFormat);
     }
@@ -167,17 +160,7 @@ public interface DocBuilder {
     }
 
     default UrlParam[] params(String... keyValues) {
-        UrlParam[] params;
-        if (keyValues.length == 0 ) {
-            params = new UrlParam[]{ new UrlParam("format", "jdbc") };
-        } else {
-            if (keyValues[0].isEmpty()) { //TODO: hack to get DSL although jdbc is default
-                params = new UrlParam[0];
-            } else {
-                params = Arrays.stream(keyValues).map(UrlParam::new).toArray(UrlParam[]::new);
-            }
-        }
-        return params;
+        return Arrays.stream(keyValues).map(UrlParam::new).toArray(UrlParam[]::new);
     }
 
     class Body {

@@ -28,6 +28,12 @@ public interface Document extends Closeable {
 
     String DOCUMENT_FOLDER_ROOT = "docs/user/";
 
+    /**
+     * Remove checked IOException in method signature.
+     */
+    @Override
+    void close();
+
     Document section(String title);
 
     Document subSection(String title);
@@ -40,36 +46,6 @@ public interface Document extends Closeable {
 
     static Path path(String templateRelativePath) {
         return Paths.get(TestUtils.getResourceFilePath(DOCUMENT_FOLDER_ROOT + templateRelativePath));
-    }
-
-    class Section {
-        private String title;
-        private String description;
-        private Example[] examples;
-
-        public String getTitle() {
-            return title;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public Example[] getExamples() {
-            return examples;
-        }
-
-        public void setTitle(String title) {
-            this.title = title;
-        }
-
-        public void setDescription(String description) {
-            this.description = description;
-        }
-
-        public void setExamples(Example[] examples) {
-            this.examples = examples;
-        }
     }
 
     class Example {
