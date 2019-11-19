@@ -81,10 +81,6 @@ public class FieldMaker {
 
             String methodName = mExpr.getMethodName();
 
-            if (Strings.isNullOrEmpty(alias)) {
-                alias = mExpr.toString();
-            }
-
             if (methodName.equalsIgnoreCase("nested") || methodName.equalsIgnoreCase("reverse_nested")) {
                 NestedType nestedType = new NestedType();
                 if (nestedType.tryFillFromExpr(mExpr)) {
@@ -99,6 +95,9 @@ public class FieldMaker {
                 return makeFilterMethodField(mExpr, alias);
             }
 
+            if ((SQLFunctions.builtInFunctions.contains(methodName.toLowerCase())) && Strings.isNullOrEmpty(alias)) {
+                alias = mExpr.toString();
+            }
             return makeMethodField(methodName, mExpr.getParameters(), null, alias, tableAlias, true);
         } else if (expr instanceof SQLAggregateExpr) {
             SQLAggregateExpr sExpr = (SQLAggregateExpr) expr;
