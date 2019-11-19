@@ -33,6 +33,7 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.spe
 public enum ScalarFunction implements TypeExpression {
 
     ABS(func(T(NUMBER)).to(T)), // translate to Java: <T extends Number> T ABS(T)
+    ACOS(func(T(NUMBER)).to(T)),
     ADD(func(T(NUMBER), NUMBER).to(T)),
     ASCII(func(T(STRING)).to(T)),
     ASIN(func(T(NUMBER)).to(T)),
@@ -62,8 +63,8 @@ public enum ScalarFunction implements TypeExpression {
     IFNULL(func(ES_TYPE, ES_TYPE).to(ES_TYPE)),
     ISNULL(func(ES_TYPE).to(INTEGER)),
     LEFT(func(T(STRING), INTEGER).to(T)),
-    LENGTH(func(STRING).to(INTEGER)
-),
+    LENGTH(func(STRING).to(INTEGER)),
+    LN(func(T(NUMBER)).to(T)),
     LOCATE(
             func(STRING, STRING, INTEGER).to(INTEGER),
             func(STRING, STRING).to(INTEGER)
@@ -74,7 +75,6 @@ public enum ScalarFunction implements TypeExpression {
     ),
     LOG2(func(T(NUMBER)).to(T)),
     LOG10(func(T(NUMBER)).to(T)),
-    LN(func(T(NUMBER)).to(T)),
     LOWER(
         func(T(STRING)).to(T),
         func(T(STRING), STRING).to(T)
@@ -87,7 +87,11 @@ public enum ScalarFunction implements TypeExpression {
     MULTIPLY(func(T(NUMBER), NUMBER).to(NUMBER)),
     NOW(func().to(ESDataType.DATE)),
     PI(func().to(DOUBLE)),
-    POW, POWER(
+    POW(
+            func(T(NUMBER)).to(T),
+            func(T(NUMBER), NUMBER).to(T)
+    ),
+    POWER(
         func(T(NUMBER)).to(T),
         func(T(NUMBER), NUMBER).to(T)
     ),
