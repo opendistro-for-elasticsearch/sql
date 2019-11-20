@@ -28,9 +28,13 @@ import com.carrotsearch.randomizedtesting.annotations.TestMethodProviders;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.test.ESIntegTestCase.ClusterScope;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 
+import static java.nio.file.StandardOpenOption.APPEND;
 import static org.elasticsearch.test.ESIntegTestCase.Scope.SUITE;
 
 /**
@@ -56,7 +60,13 @@ public abstract class DocTest extends SQLIntegTestCase implements DocBuilder {
     @Override
     public Document openDocument() {
         DocTestConfig config = getClass().getAnnotation(DocTestConfig.class);
-        return new RstDocument(Document.path(config.template()));
+        Path docPath = Document.path(config.template());
+        try {
+            PrintWriter docWriter = new PrintWriter(Files.newBufferedWriter(docPath, APPEND));
+            return new RstDocument(docWriter);
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to open document file " + docPath, e);
+        }
     }
 
     private void loadTestData(DocTestConfig config) {

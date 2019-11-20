@@ -17,12 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.doctest.core.markup;
 
 import com.google.common.base.Strings;
 
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
-import static java.nio.file.StandardOpenOption.APPEND;
 
 /**
  * ReStructure Text
@@ -31,12 +26,8 @@ public class RstDocument implements Document {
 
     private final PrintWriter docWriter;
 
-    public RstDocument(Path documentPath) {
-        try {
-            docWriter = new PrintWriter(Files.newBufferedWriter(documentPath, APPEND));
-        } catch (IOException e) {
-            throw new IllegalStateException("Failed to open document file " + documentPath, e);
-        }
+    public RstDocument(PrintWriter docWriter) {
+        this.docWriter = docWriter;
     }
 
     @Override

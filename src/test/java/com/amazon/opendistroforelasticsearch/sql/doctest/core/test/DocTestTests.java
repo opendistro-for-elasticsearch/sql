@@ -28,6 +28,7 @@ import org.junit.runners.Suite;
     SqlRequestFormatTest.class,
     SqlResponseFormatTest.class,
     DocBuilderTest.class,
+    RstDocumentTest.class,
 })
 public class DocTestTests {
 }
