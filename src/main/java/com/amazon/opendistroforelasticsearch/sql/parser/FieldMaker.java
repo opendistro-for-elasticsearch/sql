@@ -39,6 +39,7 @@ import com.amazon.opendistroforelasticsearch.sql.exception.SqlFeatureNotImplemen
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
 import com.amazon.opendistroforelasticsearch.sql.utils.Util;
+import com.google.common.base.Strings;
 import org.elasticsearch.common.collect.Tuple;
 
 import java.util.ArrayList;
@@ -94,6 +95,9 @@ public class FieldMaker {
                 return makeFilterMethodField(mExpr, alias);
             }
 
+            if ((SQLFunctions.builtInFunctions.contains(methodName.toLowerCase())) && Strings.isNullOrEmpty(alias)) {
+                alias = mExpr.toString();
+            }
             return makeMethodField(methodName, mExpr.getParameters(), null, alias, tableAlias, true);
         } else if (expr instanceof SQLAggregateExpr) {
             SQLAggregateExpr sExpr = (SQLAggregateExpr) expr;
