@@ -17,13 +17,19 @@ package com.amazon.opendistroforelasticsearch.sql.utils;
 
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLExpr;
+import com.alibaba.druid.sql.ast.expr.SQLBooleanExpr;
+import com.alibaba.druid.sql.ast.expr.SQLCharExpr;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
+import com.alibaba.druid.sql.ast.expr.SQLNullExpr;
 import com.alibaba.druid.sql.ast.expr.SQLNumericLiteralExpr;
 import com.alibaba.druid.sql.ast.expr.SQLPropertyExpr;
+import com.alibaba.druid.sql.ast.expr.SQLTextLiteralExpr;
 import com.alibaba.druid.sql.ast.expr.SQLVariantRefExpr;
 import com.amazon.opendistroforelasticsearch.sql.domain.KVValue;
+import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema;
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.elasticsearch.common.collect.Tuple;
@@ -36,13 +42,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.isQuoted;
+
 /**
  * Created by allwefantasy on 8/19/16.
  */
 public class SQLFunctions {
 
     private static final Set<String> numberOperators = Sets.newHashSet(
-            "exp", "expm1", "log", "log2", "log10", "sqrt", "cbrt", "ceil", "floor", "rint", "pow", "power",
+            "exp", "expm1", "log", "log2", "log10", "ln", "sqrt", "cbrt", "ceil", "floor", "rint", "pow", "power",
             "round", "random", "abs", "sign", "signum"
     );
 
@@ -53,7 +61,12 @@ public class SQLFunctions {
     );
 
     private static final Set<String> stringOperators = Sets.newHashSet(
-            "split", "concat_ws", "substring", "trim", "lower", "upper"
+            "split", "concat_ws", "substring", "trim", "lower", "upper", "rtrim", "ltrim", "replace",
+            "left", "right"
+    );
+
+    private static final Set<String> stringFunctions = Sets.newHashSet(
+            "length", "locate", "ascii"
     );
 
     private static final Set<String> binaryOperators = Sets.newHashSet(
@@ -62,7 +75,12 @@ public class SQLFunctions {
 
     private static final Set<String> dateFunctions = Sets.newHashSet(
             "date_format", "year", "month_of_year", "week_of_year", "day_of_year", "day_of_month",
-            "day_of_week", "hour_of_day", "minute_of_day", "minute_of_hour", "second_of_minute"
+            "day_of_week", "hour_of_day", "minute_of_day", "minute_of_hour", "second_of_minute", "month", "dayofmonth",
+            "date", "monthname", "timestamp", "maketime", "now", "curdate"
+    );
+
+    private static final Set<String> conditionalFunctions = Sets.newHashSet(
+            "if", "ifnull", "isnull"
     );
 
     private static final Set<String> utilityFunctions = Sets.newHashSet("field", "assign");
@@ -72,8 +90,10 @@ public class SQLFunctions {
             mathConstants,
             trigFunctions,
             stringOperators,
+            stringFunctions,
             binaryOperators,
             dateFunctions,
+            conditionalFunctions,
             utilityFunctions)
             .flatMap(Set::stream).collect(Collectors.toSet());
 
@@ -151,7 +171,11 @@ public class SQLFunctions {
                 functionStr = dateFunctionTemplate("year", (SQLExpr) paramers.get(0).value);
                 break;
             case "month_of_year":
+            case "month":
                 functionStr = dateFunctionTemplate("monthOfYear", (SQLExpr) paramers.get(0).value);
+                break;
+            case "monthname":
+                functionStr = dateFunctionTemplate("month", (SQLExpr) paramers.get(0).value);
                 break;
             case "week_of_year":
                 functionStr = dateFunctionTemplate("weekOfWeekyear", (SQLExpr) paramers.get(0).value);
@@ -160,10 +184,14 @@ public class SQLFunctions {
                 functionStr = dateFunctionTemplate("dayOfYear", (SQLExpr) paramers.get(0).value);
                 break;
             case "day_of_month":
+            case "dayofmonth":
                 functionStr = dateFunctionTemplate("dayOfMonth", (SQLExpr) paramers.get(0).value);
                 break;
             case "day_of_week":
                 functionStr = dateFunctionTemplate("dayOfWeek", (SQLExpr) paramers.get(0).value);
+                break;
+            case "date":
+                functionStr = date((SQLExpr) paramers.get(0).value);
                 break;
             case "hour_of_day":
                 functionStr = dateFunctionTemplate("hourOfDay", (SQLExpr) paramers.get(0).value);
@@ -176,6 +204,19 @@ public class SQLFunctions {
                 break;
             case "second_of_minute":
                 functionStr = dateFunctionTemplate("secondOfMinute", (SQLExpr) paramers.get(0).value);
+                break;
+            case "timestamp":
+                functionStr = timestamp((SQLExpr) paramers.get(0).value);
+                break;
+            case "maketime":
+                functionStr = maketime((SQLExpr) paramers.get(0).value, (SQLExpr) paramers.get(1).value,
+                        (SQLExpr) paramers.get(2).value);
+                break;
+            case "now":
+                functionStr = now();
+                break;
+            case "curdate":
+                functionStr = curdate();
                 break;
 
             case "e":
@@ -278,19 +319,52 @@ public class SQLFunctions {
                 functionStr = log(SQLUtils.toSQLExpr("10"), (SQLExpr) paramers.get(0).value, name);
                 break;
             case "log":
-                List<SQLExpr> logs = Lists.newArrayList();
-                for (int i = 0; i < paramers.size(); i++) {
-                    logs.add((SQLExpr) paramers.get(0).value);
-                }
-                if (logs.size() > 1) {
-                    functionStr = log(logs.get(0), logs.get(1), name);
+                if (paramers.size() > 1) {
+                    functionStr = log((SQLExpr) paramers.get(0).value, (SQLExpr) paramers.get(1).value, name);
                 } else {
-                    functionStr = log(SQLUtils.toSQLExpr("Math.E"), logs.get(0), name);
+                    functionStr = log((SQLUtils.toSQLExpr("Math.E")), (SQLExpr) paramers.get(0).value, name);
                 }
+                break;
+            case "ln":
+                functionStr = log(SQLUtils.toSQLExpr("Math.E"), (SQLExpr) paramers.get(0).value, name);
                 break;
             case "assign":
                 functionStr = assign((SQLExpr) paramers.get(0).value);
                 break;
+            case "length":
+                functionStr = length((SQLExpr) paramers.get(0).value);
+                break;
+            case "replace":
+                functionStr = replace((SQLExpr) paramers.get(0).value, paramers.get(1).value.toString(),
+                        paramers.get(2).value.toString());
+                break;
+            case "locate":
+                int start = 0;
+                if (paramers.size() > 2) {
+                    start = Integer.parseInt(paramers.get(2).value.toString());
+                }
+                functionStr = locate(paramers.get(0).value.toString(), (SQLExpr) paramers.get(1).value, start);
+                break;
+            case "rtrim":
+                functionStr = rtrim((SQLExpr) paramers.get(0).value);
+                break;
+            case "ltrim":
+                functionStr = ltrim((SQLExpr) paramers.get(0).value);
+                break;
+            case "ascii":
+                functionStr = ascii((SQLExpr) paramers.get(0).value);
+                break;
+
+            case "if":
+                functionStr = ifFunc(paramers);
+                break;
+            case "ifnull":
+                functionStr = ifnull((SQLExpr) paramers.get(0).value, (SQLExpr) paramers.get(1).value);
+                break;
+            case "isnull":
+                functionStr = isnull((SQLExpr) paramers.get(0).value);
+                break;
+
             default:
 
         }
@@ -482,6 +556,24 @@ public class SQLFunctions {
         }
     }
 
+    private static String getPropertyOrValue(String expr) {
+        if (isQuoted(expr, "'")) {
+            return expr;
+        } else if (StringUtils.isNumeric(expr)) {
+            return expr;
+        } else {
+            return doc(expr) + ".value";
+        }
+    }
+
+    private static String getPropertyOrStringValue(SQLExpr expr) {
+        if (isProperty(expr)) {
+            return doc(expr) + ".value";
+        } else {
+            return "'" + exprString(expr) + "'";
+        }
+    }
+
     private static String scriptDeclare(SQLExpr a) {
 
         if (isProperty(a) || a instanceof SQLNumericLiteralExpr) {
@@ -521,6 +613,11 @@ public class SQLFunctions {
         }
 
 
+    }
+
+    private String getScriptText(MethodField field) {
+        String content = ((SQLTextLiteralExpr) field.getParams().get(1).value).getText();
+        return content;
     }
 
     /**
@@ -599,16 +696,24 @@ public class SQLFunctions {
 
     }
 
-    //substring(Column expr, int pos, int len)
+    // query: substring(Column expr, int pos, int len)
+    // painless script: substring(int begin, int end)
+    // es behavior: 1-index, supports out-of-bound index
     public Tuple<String, String> substring(SQLExpr field, int pos, int len, String valueName) {
         String name = nextId("substring");
+
+        // start and end are 0-indexes
+        int start = pos < 1 ? 0 : pos - 1;
+        int end = Math.min(start + len, getPropertyOrValue(field).length());
         if (valueName == null) {
-            return new Tuple<>(name, def(name, getPropertyOrValue(field) + "."
-                    + func("substring", false, Integer.toString(pos), Integer.toString(len))));
+            return new Tuple<>(name, def(name, getPropertyOrStringValue(field) + "."
+                    + func("substring", false,
+                    Integer.toString(start), Integer.toString(end))));
         } else {
-            return new Tuple<>(name, getPropertyOrValue(field) + "; "
+            return new Tuple<>(name, getPropertyOrStringValue(field) + "; "
                     + def(name, valueName + "."
-                    + func("substring", false, Integer.toString(pos), Integer.toString(len))));
+                    + func("substring", false,
+                    Integer.toString(start), Integer.toString(end))));
         }
     }
 
@@ -618,6 +723,167 @@ public class SQLFunctions {
 
     private String upper(String property, String culture) {
         return property + ".toUpperCase(Locale.forLanguageTag(\"" + culture + "\"))";
+    }
+
+    private Tuple<String, String> length(SQLExpr field) {
+        String name = nextId("length");
+        return new Tuple<>(name, def(name, getPropertyOrStringValue(field) + ".length()"));
+    }
+
+    private Tuple<String, String> replace(SQLExpr field, String target, String replacement) {
+        String name = nextId("replace");
+        return new Tuple<>(name, def(name, getPropertyOrStringValue(field)
+                + ".replace(" + target + "," + replacement + ")"));
+    }
+
+    // es behavior: both 'start' and return value are 1-index; return 0 if pattern does not exist;
+    // support out-of-bound index
+    private Tuple<String, String> locate(String pattern, SQLExpr source, int start) {
+        String name = nextId("locate");
+        String docSource = getPropertyOrStringValue(source);
+        start = start < 1 ? 0 : start - 1;
+        return new Tuple<>(name, def(name, StringUtils.format("%s.indexOf(%s,%d)+1", docSource, pattern, start)));
+    }
+
+    private Tuple<String, String> rtrim(SQLExpr field) {
+        String name = nextId("rtrim");
+        String fieldString = getPropertyOrStringValue(field);
+        return new Tuple<>(name, StringUtils.format(
+                "int pos=%s.length()-1;"
+                + "while(pos >= 0 && Character.isWhitespace(%s.charAt(pos))) {pos --;} "
+                + def(name, "%s.substring(0, pos+1)"),
+                fieldString, fieldString, fieldString
+        ));
+    }
+
+    private Tuple<String, String> ltrim(SQLExpr field) {
+        String name = nextId("ltrim");
+        String fieldString = getPropertyOrStringValue(field);
+        return new Tuple<>(name, StringUtils.format(
+                "int pos=0;"
+                + "while(pos < %s.length() && Character.isWhitespace(%s.charAt(pos))) {pos ++;} "
+                + def(name, "%s.substring(pos, %s.length())"),
+                fieldString, fieldString, fieldString, fieldString
+        ));
+    }
+
+    private Tuple<String, String> ascii(SQLExpr field) {
+        String name = nextId("ascii");
+        return new Tuple<>(name, def(name, "(int) " + getPropertyOrStringValue(field) + ".charAt(0)"));
+    }
+
+    private Tuple<String, String> date(SQLExpr field) {
+        String name = nextId("date");
+        return new Tuple<>(name, def(name,
+                "LocalDate.parse(" + getPropertyOrStringValue(field) + ".toString(),"
+                        + "DateTimeFormatter.ISO_DATE_TIME)"));
+    }
+
+    private Tuple<String, String> timestamp(SQLExpr field) {
+        String name = nextId("timestamp");
+        return new Tuple<>(name, def(name,
+                "DateTimeFormatter.ofPattern('yyyy-MM-dd HH:mm:ss').format("
+                        + "DateTimeFormatter.ISO_DATE_TIME.parse("
+                        + getPropertyOrStringValue(field) + ".toString()))"));
+    }
+
+    private Tuple<String, String> maketime(SQLExpr hr, SQLExpr min, SQLExpr sec) {
+        String name = nextId("maketime");
+        return new Tuple<>(name, def(name, StringUtils.format(
+                "LocalTime.of(%s, %s, %s).format(DateTimeFormatter.ofPattern('HH:mm:ss'))",
+                hr.toString(), min.toString(), sec.toString())));
+    }
+
+    private Tuple<String, String> now() {
+        String name = nextId("now");
+        return new Tuple<>(name, def(name, "new SimpleDateFormat('HH:mm:ss').format(System.currentTimeMillis())"));
+    }
+
+    private Tuple<String, String> curdate() {
+        String name = nextId("curdate");
+        return new Tuple<>(name, def(name, "new SimpleDateFormat('yyyy-MM-dd').format(System.currentTimeMillis())"));
+    }
+
+    private Tuple<String, String> ifFunc(List<KVValue> paramers) {
+        String expr1 = paramers.get(1).value.toString();
+        String expr2 = paramers.get(2).value.toString();
+        String name = nextId("if");
+
+        /** Input with null is regarded as false */
+        if (paramers.get(0).value instanceof SQLNullExpr) {
+            return new Tuple<>(name, def(name, expr2));
+        }
+        if (paramers.get(0).value instanceof MethodField) {
+            String condition = getScriptText((MethodField) paramers.get(0).value);
+            return new Tuple<>(name, "boolean cond = " + condition + ";"
+                    + def(name, "cond ? " + expr1 + " : " + expr2));
+        } else if (paramers.get(0).value instanceof SQLBooleanExpr) {
+            Boolean condition = ((SQLBooleanExpr) paramers.get(0).value).getValue();
+            if (condition) {
+                return new Tuple<>(name, def(name, expr1));
+            } else {
+                return new Tuple<>(name, def(name, expr2));
+            }
+        } else {
+            /**
+             * Detailed explanation of cases that come here:
+             * the condition expression would be in the format of a=b:
+             * a is parsed as the key (String) of a KVValue (get from paramers.get(0))
+             * and b is parsed as the value (Object) of this KVValue.
+             *
+             * Either a or b could be a column name, literal, or a number:
+             * - if isNumeric is true --> number
+             * - else if this string is single quoted --> literal
+             * - else --> column name
+             */
+            String key = getPropertyOrValue(paramers.get(0).key);
+            String value = getPropertyOrValue(paramers.get(0).value.toString());
+            String condition = key + " == " + value;
+            return new Tuple<>(name, "boolean cond = " + condition + ";"
+                    + def(name, "cond ? " + expr1 + " : " + expr2));
+        }
+    }
+
+    private Tuple<String, String> ifnull(SQLExpr condition, SQLExpr expr) {
+        String name = nextId("ifnull");
+        if (condition instanceof SQLNullExpr) {
+            return new Tuple<>(name, def(name, expr.toString()));
+        }
+        if (isProperty(condition)) {
+            return new Tuple<>(name, def(name, doc(condition) + ".size()==0 ? " + expr.toString() + " : "
+                    + getPropertyOrValue(condition)));
+        } else {
+            String condStr = Strings.isNullOrEmpty(condition.toString()) ? null : getPropertyOrStringValue(condition);
+            return new Tuple<>(name, def(name, condStr));
+        }
+    }
+
+    private Tuple<String, String> isnull(SQLExpr expr) {
+        String name = nextId("isnull");
+        if (expr instanceof SQLNullExpr) {
+            return new Tuple<>(name, def(name, "1"));
+        }
+        if (isProperty(expr)) {
+            return new Tuple<>(name, def(name, doc(expr) + ".size()==0 ? 1 : 0"));
+        }
+        // cases that return 1:
+        // expr is null || expr is math func but tends to throw "divided by zero" arithmetic exception
+        String resultStr = "0";
+        if (Strings.isNullOrEmpty(expr.toString())) {
+            resultStr = "1";
+        }
+        if (expr instanceof SQLCharExpr && this.generatedIds.size() > 1) {
+            // the expr is a math expression
+            String mathExpr = ((SQLCharExpr) expr).getText();
+            return new Tuple<>(name, StringUtils.format(
+                    "try {%s;} "
+                            + "catch(ArithmeticException e) "
+                            + "{return 1;} "
+                            + "def %s=0",
+                    mathExpr, name, name)
+            );
+        }
+        return new Tuple<>(name, def(name, resultStr));
     }
 
     /**
@@ -639,9 +905,38 @@ public class SQLFunctions {
             return Schema.Type.DOUBLE;
         }
 
+        if (stringFunctions.contains(functionName)) {
+            return Schema.Type.INTEGER;
+        }
+
+        if (conditionalFunctions.contains(functionName)) {
+            return Schema.Type.KEYWORD;
+        }
+
         throw new UnsupportedOperationException(
                 String.format(
                         "The following method is not supported in Schema: %s",
                         functionName));
+    }
+
+    public static Schema.Type getCastFunctionReturnType(String castType) {
+        switch (StringUtils.toUpper(castType)) {
+            case "FLOAT":
+                return Schema.Type.FLOAT;
+            case "DOUBLE":
+                return Schema.Type.DOUBLE;
+            case "INT":
+                return Schema.Type.INTEGER;
+            case "STRING":
+                return Schema.Type.TEXT;
+            case "DATETIME":
+                return Schema.Type.DATE;
+            case "LONG":
+                return Schema.Type.LONG;
+            default:
+                throw new UnsupportedOperationException(
+                    StringUtils.format("The following type is not supported by cast(): %s", castType)
+                );
+        }
     }
 }

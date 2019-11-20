@@ -16,6 +16,8 @@
 package com.amazon.opendistroforelasticsearch.sql.parser;
 
 import com.alibaba.druid.sql.ast.SQLExpr;
+import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
+import com.alibaba.druid.sql.ast.expr.SQLBinaryOperator;
 import com.alibaba.druid.sql.ast.expr.SQLCaseExpr;
 import com.alibaba.druid.sql.ast.expr.SQLNullExpr;
 import com.amazon.opendistroforelasticsearch.sql.domain.Condition;
@@ -44,6 +46,16 @@ public class CaseWhenParser {
 
     public String parse() throws SqlParseException {
         List<String> result = new ArrayList<>();
+
+        if (caseExpr.getValueExpr() != null) {
+            for (SQLCaseExpr.Item item : caseExpr.getItems()) {
+                SQLExpr left = caseExpr.getValueExpr();
+                SQLExpr right = item.getConditionExpr();
+                SQLBinaryOpExpr conditionExpr = new SQLBinaryOpExpr(left, SQLBinaryOperator.Equality, right);
+                item.setConditionExpr(conditionExpr);
+            }
+            caseExpr.setValueExpr(null);
+        }
 
         for (SQLCaseExpr.Item item : caseExpr.getItems()) {
             SQLExpr conditionExpr = item.getConditionExpr();

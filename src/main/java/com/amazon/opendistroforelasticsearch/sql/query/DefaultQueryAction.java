@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.query;
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOperator;
+import com.alibaba.druid.sql.ast.expr.SQLCastExpr;
 import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.KVValue;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
@@ -95,7 +96,6 @@ public class DefaultQueryAction extends QueryAction {
         setIndicesAndTypes();
 
         setFields(select.getFields());
-
         setWhere(select.getWhere());
         setSorts(select.getOrderBys());
         setLimit(select.getOffset(), select.getRowCount());
@@ -152,6 +152,9 @@ public class DefaultQueryAction extends QueryAction {
                     MethodField method = (MethodField) field;
                     if (method.getName().toLowerCase().equals("script")) {
                         handleScriptField(method);
+                        if (method.getExpression() instanceof SQLCastExpr) {
+                            includeFields.add(method.getParams().get(0).toString());
+                        }
                     } else if (method.getName().equalsIgnoreCase("include")) {
                         for (KVValue kvValue : method.getParams()) {
                             includeFields.add(kvValue.value.toString());
@@ -265,8 +268,15 @@ public class DefaultQueryAction extends QueryAction {
 
     private ScriptSortType getScriptSortType(Order order) {
         ScriptSortType scriptSortType;
-        ScriptMethodField smf = (ScriptMethodField) order.getSortField();
-        Schema.Type scriptFunctionReturnType = SQLFunctions.getScriptFunctionReturnType(smf.getFunctionName());
+        Schema.Type scriptFunctionReturnType;
+        if (order.getSortField().getExpression() instanceof SQLCastExpr) {
+            scriptFunctionReturnType = SQLFunctions.getCastFunctionReturnType(
+                    ((SQLCastExpr) order.getSortField().getExpression()).getDataType().getName());
+        } else {
+            ScriptMethodField smf = (ScriptMethodField) order.getSortField();
+            scriptFunctionReturnType = SQLFunctions.getScriptFunctionReturnType(smf.getFunctionName());
+        }
+
 
         // as of now script function return type returns only text and double
         switch (scriptFunctionReturnType) {
@@ -275,9 +285,11 @@ public class DefaultQueryAction extends QueryAction {
                 break;
 
             case DOUBLE:
+            case FLOAT:
+            case INTEGER:
+            case LONG:
                 scriptSortType = ScriptSortType.NUMBER;
                 break;
-
             default:
                 throw new RuntimeException("unknown");
         }

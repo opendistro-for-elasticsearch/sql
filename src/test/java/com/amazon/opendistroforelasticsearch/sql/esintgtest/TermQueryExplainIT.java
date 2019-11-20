@@ -303,7 +303,7 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
         } catch (ResponseException e) {
             assertThat(e.getResponse().getStatusLine().getStatusCode(), equalTo(RestStatus.BAD_REQUEST.getStatus()));
             final String entity = TestUtils.getResponseBody(e.getResponse());
-            assertThat(entity, containsString("table alias or field name missing"));
+            assertThat(entity, containsString("Field name [city] is ambiguous"));
             assertThat(entity, containsString("\"type\": \"VerificationException\""));
         }
 

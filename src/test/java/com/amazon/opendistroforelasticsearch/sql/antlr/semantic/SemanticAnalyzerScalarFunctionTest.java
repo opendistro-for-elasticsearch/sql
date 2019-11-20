@@ -25,8 +25,8 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
     @Test
     public void unsupportedScalarFunctionCallInSelectClauseShouldFail() {
         expectValidationFailWithErrorMessages(
-            "SELECT NOW() FROM semantics",
-            "Function [NOW] cannot be found or used here."
+            "SELECT DAY() FROM semantics",
+            "Function [DAY] cannot be found or used here."
         );
     }
 
@@ -151,6 +151,7 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
             " LOG(age), " +
             " LOG2(age), " +
             " LOG10(age), " +
+            " LN(age), " +
             " POW(age), " +
             " RADIANS(age), " +
             " RINT(age), " +
@@ -182,6 +183,7 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
             " LOG(age) = 1 AND " +
             " LOG2(age) = 1 AND " +
             " LOG10(age) = 1 AND " +
+            " LN(age) = 1 AND " +
             " POW(age) = 1 AND " +
             " RADIANS(age) = 1 AND " +
             " RINT(age) = 1 AND " +

@@ -102,10 +102,10 @@ public class WhereParser {
 
         if (expr instanceof SQLBinaryOpExpr) {
             SQLBinaryOpExpr bExpr = (SQLBinaryOpExpr) expr;
-            if (explanSpecialCondWithBothSidesAreLiterals(bExpr, where)) {
+            if (explainSpecialCondWithBothSidesAreLiterals(bExpr, where)) {
                 return;
             }
-            if (explanSpecialCondWithBothSidesAreProperty(bExpr, where)) {
+            if (explainSpecialCondWithBothSidesAreProperty(bExpr, where)) {
                 return;
             }
         }
@@ -118,7 +118,7 @@ public class WhereParser {
             parseWhere(((SQLNotExpr) expr).getExpr(), where);
             negateWhere(where);
         } else {
-            explanCond("AND", expr, where);
+            explainCond("AND", expr, where);
         }
     }
 
@@ -135,7 +135,7 @@ public class WhereParser {
     }
 
     //some where conditions eg. 1=1 or 3>2 or 'a'='b'
-    private boolean explanSpecialCondWithBothSidesAreLiterals(SQLBinaryOpExpr bExpr, Where where)
+    private boolean explainSpecialCondWithBothSidesAreLiterals(SQLBinaryOpExpr bExpr, Where where)
             throws SqlParseException {
         if ((bExpr.getLeft() instanceof SQLNumericLiteralExpr || bExpr.getLeft() instanceof SQLCharExpr)
                 && (bExpr.getRight() instanceof SQLNumericLiteralExpr || bExpr.getRight() instanceof SQLCharExpr)
@@ -150,14 +150,14 @@ public class WhereParser {
                             + " " + operator + " " + Util.expr2Object(bExpr.getRight(), "'"))
             );
 
-            explanCond("AND", sqlMethodInvokeExpr, where);
+            explainCond("AND", sqlMethodInvokeExpr, where);
             return true;
         }
         return false;
     }
 
     //some where conditions eg. field1=field2 or field1>field2
-    private boolean explanSpecialCondWithBothSidesAreProperty(SQLBinaryOpExpr bExpr, Where where)
+    private boolean explainSpecialCondWithBothSidesAreProperty(SQLBinaryOpExpr bExpr, Where where)
             throws SqlParseException {
         //join is not support
         if ((bExpr.getLeft() instanceof SQLPropertyExpr || bExpr.getLeft() instanceof SQLIdentifierExpr)
@@ -185,7 +185,7 @@ public class WhereParser {
             sqlMethodInvokeExpr.addParameter(new SQLCharExpr(
                     "doc['" + leftProperty + "'].value " + operator + " doc['" + rightProperty + "'].value"));
 
-            explanCond("AND", sqlMethodInvokeExpr, where);
+            explainCond("AND", sqlMethodInvokeExpr, where);
             return true;
         }
         return false;
@@ -226,11 +226,11 @@ public class WhereParser {
             parseWhere(((SQLNotExpr) sub).getExpr(), subWhere);
             negateWhere(subWhere);
         } else {
-            explanCond(bExpr.getOperator().name, sub, where);
+            explainCond(bExpr.getOperator().name, sub, where);
         }
     }
 
-    private void explanCond(String opear, SQLExpr expr, Where where) throws SqlParseException {
+    private void explainCond(String opear, SQLExpr expr, Where where) throws SqlParseException {
         if (expr instanceof SQLBinaryOpExpr) {
             SQLBinaryOpExpr soExpr = (SQLBinaryOpExpr) expr;
             boolean methodAsOpear = false;
