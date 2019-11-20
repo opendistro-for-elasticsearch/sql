@@ -145,11 +145,6 @@ public class JdbcTestIT extends SQLIntegTestCase {
                         + " ORDER BY substring(lastname, 1, 2)", "jdbc"),
                 containsString("\"name\": \"substring(lastname, 1, 2)\"")
         );
-        assertThat(
-                executeQuery("SELECT log(balance) FROM " + TestsConstants.TEST_INDEX_ACCOUNT
-                        + " ORDER BY log(balance)", "jdbc"),
-                containsString("\"name\": \"log(balance)\"")
-        );
     }
 
     @Test
@@ -158,11 +153,6 @@ public class JdbcTestIT extends SQLIntegTestCase {
                 executeQuery("SELECT substring(lastname, 1, 2) AS substring FROM "
                         + TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY substring", "jdbc"),
                 containsString("\"name\": \"substring\"")
-        );
-        assertThat(
-                executeQuery("SELECT log(balance) AS log FROM " + TestsConstants.TEST_INDEX_ACCOUNT
-                        + " ORDER BY log", "jdbc"),
-                containsString("\"name\": \"log\"")
         );
     }
 }
