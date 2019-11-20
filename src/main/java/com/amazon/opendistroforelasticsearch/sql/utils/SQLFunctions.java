@@ -248,10 +248,10 @@ public class SQLFunctions {
                 break;
 
             case "rand":
-                if (paramers.size() == 1) {
-                    functionStr = rand((SQLExpr) paramers.get(0).value);
-                } else {
+                if (paramers.isEmpty()) {
                     functionStr = rand();
+                } else {
+                    functionStr = rand((SQLExpr) paramers.get(0).value);
                 }
                 break;
 
