@@ -127,7 +127,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
                 executeQuery(query),
                 hitAny(
                         kvString("/_source/address", equalTo("880 Holmes Lane")),
-                        kvString("/fields/LOWER_1/0", equalTo("amber")))
+                        kvString("/fields/LOWER(firstname)/0", equalTo("amber")))
         );
     }
 
@@ -144,20 +144,20 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         assertThat(
                 executeQuery(query),
                 hitAny(
-                        kvString("/fields/LOWER_1/0", equalTo("ıl")))
+                        kvString("/fields/LOWER(state.keyword, 'tr')/0", equalTo("ıl")))
         );
     }
 
     @Test
     public void caseChangeWithAggregationTest() throws IOException {
-        String query = "SELECT UPPER(e.firstname), COUNT(*)" +
+        String query = "SELECT UPPER(e.firstname) AS upper, COUNT(*)" +
                 "FROM elasticsearch-sql_test_index_account/account e " +
                 "WHERE LOWER(e.lastname)='duke' " +
-                "GROUP BY UPPER(e.firstname) ";
+                "GROUP BY upper";
 
         assertThat(
                 executeQuery(query),
-                hitAny("/aggregations/UPPER_1/buckets", kvString("/key", equalTo("AMBER"))));
+                hitAny("/aggregations/upper/buckets", kvString("/key", equalTo("AMBER"))));
     }
 
     @Test
