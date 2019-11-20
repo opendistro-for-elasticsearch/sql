@@ -194,4 +194,28 @@ public class StringOperatorsTest {
                 )
         );
     }
+
+    @Test
+    public void left() {
+        String query = "SELECT left(lastname, 1) FROM accounts";
+        ScriptField scriptField = CheckScriptContents.getScriptFieldFromQuery(query);
+        assertTrue(
+                CheckScriptContents.scriptContainsString(
+                        scriptField,
+                        "doc['lastname'].value.substring(0, len)"
+                )
+        );
+    }
+
+    @Test
+    public void right() {
+        String query = "SELECT right(lastname, 2) FROM accounts";
+        ScriptField scriptField = CheckScriptContents.getScriptFieldFromQuery(query);
+        assertTrue(
+                CheckScriptContents.scriptContainsString(
+                        scriptField,
+                        "doc['lastname'].value.substring(start)"
+                )
+        );
+    }
 }

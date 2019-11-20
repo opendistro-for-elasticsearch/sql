@@ -228,6 +228,15 @@ public class MathFunctionsIT extends SQLIntegTestCase {
         );
     }
 
+    @Test
+    public void rand() throws IOException {
+        SearchHit[] hits = query("SELECT RAND() AS rand", "ORDER BY rand");
+        for (SearchHit hit : hits) {
+            double rand = (double) getField(hit, "rand");
+            assertTrue(rand >= 0 && rand < 1);
+        }
+    }
+
     private SearchHit[] query(String select, String... statements) throws IOException {
         final String response = executeQueryWithStringOutput(select + " " + FROM + " " + String.join(" ", statements));
 
