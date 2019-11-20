@@ -34,7 +34,6 @@ import java.time.Month;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.lessThan;
-import static org.hamcrest.Matchers.matchesPattern;
 
 public class DateFunctionsIT extends SQLIntegTestCase {
 
@@ -280,14 +279,14 @@ public class DateFunctionsIT extends SQLIntegTestCase {
     public void now() throws IOException {
         SearchHit[] hits = query("SELECT NOW() AS now");
         String now = (String) getField(hits[0], "now");
-        assertThat(now, matchesPattern("[0-9]{2}:[0-9]{2}:[0-9]{2}"));
+        assertTrue(now.matches("[0-9]{2}:[0-9]{2}:[0-9]{2}"));
     }
 
     @Test
     public void curdate() throws IOException {
         SearchHit[] hits = query("SELECT CURDATE() AS curdate");
         String curdate = (String) getField(hits[0], "curdate");
-        assertThat(curdate, matchesPattern("[0-9]{4}-[0-9]{2}-[0-9]{2}"));
+        assertTrue(curdate.matches("[0-9]{4}-[0-9]{2}-[0-9]{2}"));
     }
 
     private SearchHit[] query(String select, String... statements) throws IOException {

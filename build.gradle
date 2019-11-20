@@ -54,11 +54,11 @@ repositories {
 }
 
 ext {
-    opendistroVersion = '1.1.1'
+    opendistroVersion = '1.1.0.2'
     isSnapshot = "true" == System.getProperty("build.snapshot", "true")
 }
 
-version = "${opendistroVersion}.0" 
+version = "${opendistroVersion}"
 
 apply plugin: 'elasticsearch.esplugin'
 apply plugin: 'jacoco'
