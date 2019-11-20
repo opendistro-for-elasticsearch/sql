@@ -43,4 +43,21 @@ public class DataTableTest {
         );
     }
 
+    @Test
+    public void testTwoColumnsTable() {
+        DataTable table = new DataTable(new Object[]{ "Test Table", "Very Long Title" });
+        table.addRow(new Object[]{ "this is a very long line", "short" });
+
+        assertThat(
+            table.toString(),
+            is(
+                "+------------------------+---------------+\n" +
+                "|              Test Table|Very Long Title|\n" +
+                "+========================+===============+\n" +
+                "|this is a very long line|          short|\n" +
+                "+------------------------+---------------+\n"
+            )
+        );
+    }
+
 }
