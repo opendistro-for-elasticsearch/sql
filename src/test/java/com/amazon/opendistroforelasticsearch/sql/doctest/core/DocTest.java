@@ -71,12 +71,18 @@ public abstract class DocTest extends SQLIntegTestCase implements DocBuilder {
         template.copyToDocument(docPath);
     }
 
+    /**
+     * Method annotated by {@link Section} will be treated as test method.
+     */
     public static class SectionMethod extends AnnotatedMethodProvider {
         public SectionMethod() {
             super(Section.class);
         }
     }
 
+    /**
+     * Test methods will execute in order defined by value in {@link Section} annotation.
+     */
     public static class SectionOrder implements Comparator<TestMethodAndParams> {
         @Override
         public int compare(TestMethodAndParams method1, TestMethodAndParams method2) {

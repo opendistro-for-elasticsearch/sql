@@ -62,25 +62,18 @@ public class RstDocument implements Document {
 
     @Override
     public Document codeBlock(String description, String code) {
-        if (Strings.isNullOrEmpty(code)) {
-            return this;
+        if (!Strings.isNullOrEmpty(code)) {
+            return println(description + "::", indent(code));
         }
-
-        return println(
-            description + "::",
-            indent(code)
-        );
+        return this;
     }
 
     @Override
-    public Document table(String description, DataTable table) {
-        docWriter.println(description + "::");
-        if (table.toString().startsWith("+---")) {
-            docWriter.println(table);
-        } else {
-            docWriter.println(indent(table.toString()));
+    public Document table(String description, String table) {
+        if (!Strings.isNullOrEmpty(table)) {
+            // RST table is different and not supposed to indent
+            return println(description + "::", table);
         }
-        docWriter.println();
         return this;
     }
 

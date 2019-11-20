@@ -16,7 +16,6 @@
 package com.amazon.opendistroforelasticsearch.sql.doctest.core.test;
 
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.dsl.DocBuilder;
-import com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.DataTable;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.Document;
 import org.apache.http.HttpEntity;
 import org.elasticsearch.client.Response;
@@ -131,7 +130,7 @@ public class DocBuilderTest implements DocBuilder {
                      "    \"excludes\" : [ ]\n" +
                      "  }\n" +
                      "}"
-                 ).codeBlock(
+                 ).table(
                      "Result set",
                      "+----------------+\n" +
                      "|firstname (text)|\n" +
@@ -190,8 +189,8 @@ public class DocBuilderTest implements DocBuilder {
         }
 
         @Override
-        public Document table(String description, DataTable table) {
-            verifier.verify(mock).table(description, table); // TODO:equals?
+        public Document table(String description, String table) {
+            verifier.verify(mock).table(description, table);
             return this;
         }
     }

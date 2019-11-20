@@ -23,9 +23,7 @@ import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import org.elasticsearch.client.RestClient;
 
 import java.util.Arrays;
-import java.util.stream.Collectors;
 
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.Document.Example;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequest.UrlParam;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.KIBANA_REQUEST;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.NO_REQUEST;
@@ -54,13 +52,19 @@ public interface DocBuilder {
      */
     Document openDocument();
 
+    /**
+     * Entrypoint to start building document by DSL.
+     *
+     * @param title         title of the section
+     * @param description   description paragraph
+     * @param examples      examples for the section
+     */
     default void section(String title, String description, Example... examples) {
         try (Document document = openDocument()) {
             document.section(title);
 
             if (!description.isEmpty()) {
-                document.subSection("Description").
-                         paragraph(description);
+                document.subSection("Description").paragraph(description);
             }
 
             for (int i = 0; i < examples.length; i++) {
@@ -77,15 +81,19 @@ public interface DocBuilder {
 
                 document.codeBlock("SQL query", example.getQuery()).
                          codeBlock("Explain query", example.getExplainQuery()).
-                         codeBlock("Explain", example.getExplainResult()).
-                         codeBlock("Result set", example.getResultSet());
+                         codeBlock("Explain", example.getExplainResult());
+
+                if (example.isTable()) {
+                    document.table("Result set", example.getResult());
+                } else {
+                    document.codeBlock("Result set", example.getResult());
+                }
             }
         }
     }
 
     default Example example(String description, SqlRequest[] requests) {
-        return example(
-            description, requests,
+        return example(description, requests,
             queryFormat(KIBANA_REQUEST, TABLE_RESPONSE),
             explainFormat(NO_REQUEST, PRETTY_JSON_RESPONSE)
         );
@@ -93,14 +101,15 @@ public interface DocBuilder {
 
     default Example example(String description,
                             SqlRequest[] requests,
-                            Format queryFormat,
-                            Format explainFormat) {
+                            Formats queryFormat,
+                            Formats explainFormat) {
         Example example = new Example();
         example.setDescription(description);
         if (queryFormat.request() != NO_REQUEST) {
             example.setQuery(queryFormat.request().format(requests[0]));
         }
         if (queryFormat.response() != NO_RESPONSE) {
+            example.setTable(queryFormat.response() == TABLE_RESPONSE);
             example.setResult(queryFormat.response().format(requests[0].send(restClient())));
         }
         if (explainFormat.request() != NO_REQUEST) {
@@ -120,12 +129,12 @@ public interface DocBuilder {
         return String.join(" ", sentences);
     }
 
-    default Format queryFormat(SqlRequestFormat requestFormat, SqlResponseFormat responseFormat) {
-        return new Format(requestFormat, responseFormat);
+    default Formats queryFormat(SqlRequestFormat requestFormat, SqlResponseFormat responseFormat) {
+        return new Formats(requestFormat, responseFormat);
     }
 
-    default Format explainFormat(SqlRequestFormat requestFormat, SqlResponseFormat responseFormat) {
-        return new Format(requestFormat, responseFormat);
+    default Formats explainFormat(SqlRequestFormat requestFormat, SqlResponseFormat responseFormat) {
+        return new Formats(requestFormat, responseFormat);
     }
 
     default SqlRequest[] get(String sql, UrlParam... params) {
@@ -163,53 +172,4 @@ public interface DocBuilder {
         return Arrays.stream(keyValues).map(UrlParam::new).toArray(UrlParam[]::new);
     }
 
-    class Body {
-        private final String[] fieldValues;
-
-        Body(String... fieldValues) {
-            this.fieldValues = fieldValues;
-        }
-
-        @Override
-        public String toString() {
-            return Arrays.stream(fieldValues).collect(Collectors.joining(",", "{", "}"));
-        }
-    }
-
-    class Format {
-        private final SqlRequestFormat requestFormat;
-        private final SqlResponseFormat responseFormat;
-
-        Format(SqlRequestFormat requestFormat, SqlResponseFormat responseFormat) {
-            this.requestFormat = requestFormat;
-            this.responseFormat = responseFormat;
-        }
-
-        SqlRequestFormat request() {
-            return requestFormat;
-        }
-
-        SqlResponseFormat response() {
-            return responseFormat;
-        }
-    }
-
-    class ListItems {
-        private final StringBuilder list = new StringBuilder();
-        private int index = 0;
-
-        public void addItem(String text) {
-            list.append(index()).append(text).append('\n');
-        }
-
-        private String index() {
-            index++;
-            return StringUtils.format("%d. ", index);
-        }
-
-        @Override
-        public String toString() {
-            return list.toString();
-        }
-    }
 }

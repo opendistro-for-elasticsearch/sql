@@ -17,8 +17,9 @@ package com.amazon.opendistroforelasticsearch.sql.doctest.admin;
 
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.DocTest;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.dsl.DocTestConfig;
+import com.amazon.opendistroforelasticsearch.sql.doctest.core.dsl.Example;
+import com.amazon.opendistroforelasticsearch.sql.doctest.core.dsl.ListItems;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.dsl.Section;
-import com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.Document;
 import com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import org.elasticsearch.common.settings.Setting;
@@ -99,7 +100,7 @@ public class PluginSettingIT extends DocTest {
     }
 
     private void docSetting(String name, String description, Object sampleValue, String... sampleQueries) {
-        Document.Example[] examples = new Document.Example[sampleQueries.length + 1];
+        Example[] examples = new Example[sampleQueries.length + 1];
         examples[0] = example("You can update the setting with a new value like this.",
                               put(name, sampleValue),
                               queryFormat(CURL_REQUEST, PRETTY_JSON_RESPONSE),

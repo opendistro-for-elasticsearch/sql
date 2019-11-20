@@ -42,58 +42,10 @@ public interface Document extends Closeable {
 
     Document codeBlock(String description, String code);
 
-    Document table(String description, DataTable table);
+    Document table(String description, String table);
 
     static Path path(String templateRelativePath) {
         return Paths.get(TestUtils.getResourceFilePath(DOCUMENT_FOLDER_ROOT + templateRelativePath));
-    }
-
-    class Example {
-        private String description;
-        private String query;
-        private String result;
-        private String explainQuery;
-        private String explainResult;
-
-        public String getDescription() {
-            return description;
-        }
-
-        public String getQuery() {
-            return query;
-        }
-
-        public String getResultSet() {
-            return result;
-        }
-
-        public String getExplainQuery() {
-            return explainQuery;
-        }
-
-        public String getExplainResult() {
-            return explainResult;
-        }
-
-        public void setDescription(String description) {
-            this.description = description;
-        }
-
-        public void setQuery(String query) {
-            this.query = query;
-        }
-
-        public void setResult(String result) {
-            this.result = result;
-        }
-
-        public void setExplainQuery(String explainQuery) {
-            this.explainQuery = explainQuery;
-        }
-
-        public void setExplainResult(String explainResult) {
-            this.explainResult = explainResult;
-        }
     }
 
 }
