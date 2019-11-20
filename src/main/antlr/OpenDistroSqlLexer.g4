@@ -154,7 +154,7 @@ LOWER:                              'LOWER';
 PI:                                 'PI';
 POW:                                'POW';
 RADIANS:                            'RADIANS';
-RANDOM:                             'RANDOM';
+RAND:                               'RAND';
 RINT:                               'RINT';
 ROUND:                              'ROUND';
 SIN:                                'SIN';
