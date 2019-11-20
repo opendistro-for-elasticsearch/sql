@@ -103,11 +103,13 @@ public enum SqlRequestFormat {
 
     @SuppressWarnings("UnstableApiUsage")
     private static String body(Request request) {
-        String body;
+        String body = "";
         try {
             InputStream content = request.getEntity().getContent();
             String rawBody = CharStreams.toString(new InputStreamReader(content, Charsets.UTF_8));
-            body = JsonPrettyFormatter.format(rawBody);
+            if (!rawBody.isEmpty()) {
+                body = JsonPrettyFormatter.format(rawBody);
+            }
         } catch (IOException e) {
             throw new IllegalStateException("Failed to parse and format body from request", e);
         }
