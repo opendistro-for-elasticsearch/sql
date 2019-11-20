@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.doctest.core.test;
 
-import com.amazon.opendistroforelasticsearch.sql.doctest.core.dsl.DocBuilder;
+import com.amazon.opendistroforelasticsearch.sql.doctest.core.builder.DocBuilder;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.Document;
 import org.apache.http.HttpEntity;
 import org.elasticsearch.client.Response;

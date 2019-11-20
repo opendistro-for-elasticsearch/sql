@@ -16,8 +16,8 @@
 package com.amazon.opendistroforelasticsearch.sql.doctest.interfaces;
 
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.DocTest;
-import com.amazon.opendistroforelasticsearch.sql.doctest.core.dsl.DocTestConfig;
-import com.amazon.opendistroforelasticsearch.sql.doctest.core.dsl.Section;
+import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.DocTestConfig;
+import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.Section;
 
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.CURL_REQUEST;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.NO_REQUEST;

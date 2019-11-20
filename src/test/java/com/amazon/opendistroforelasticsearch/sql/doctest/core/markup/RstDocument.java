@@ -20,7 +20,7 @@ import com.google.common.base.Strings;
 import java.io.PrintWriter;
 
 /**
- * ReStructure Text
+ * ReStructure Text document
  */
 public class RstDocument implements Document {
 

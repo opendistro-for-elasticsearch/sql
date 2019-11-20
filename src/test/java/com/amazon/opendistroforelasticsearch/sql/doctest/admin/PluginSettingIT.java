@@ -16,10 +16,10 @@
 package com.amazon.opendistroforelasticsearch.sql.doctest.admin;
 
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.DocTest;
-import com.amazon.opendistroforelasticsearch.sql.doctest.core.dsl.DocTestConfig;
-import com.amazon.opendistroforelasticsearch.sql.doctest.core.dsl.Example;
-import com.amazon.opendistroforelasticsearch.sql.doctest.core.dsl.ListItems;
-import com.amazon.opendistroforelasticsearch.sql.doctest.core.dsl.Section;
+import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.DocTestConfig;
+import com.amazon.opendistroforelasticsearch.sql.doctest.core.builder.Example;
+import com.amazon.opendistroforelasticsearch.sql.doctest.core.builder.ListItems;
+import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.Section;
 import com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import org.elasticsearch.common.settings.Setting;

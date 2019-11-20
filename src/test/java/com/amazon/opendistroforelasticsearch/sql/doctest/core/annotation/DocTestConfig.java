@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.doctest.core.dsl;
+package com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
