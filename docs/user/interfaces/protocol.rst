@@ -153,51 +153,51 @@ SQL query::
 Result set::
 
 	{
-	  "took" : 202,
-	  "timed_out" : false,
 	  "_shards" : {
-	    "total" : 10,
-	    "successful" : 10,
-	    "skipped" : 0,
-	    "failed" : 0
+	    "total" : 5,
+	    "failed" : 0,
+	    "successful" : 5,
+	    "skipped" : 0
 	  },
 	  "hits" : {
-	    "total" : {
-	      "value" : 4,
-	      "relation" : "eq"
-	    },
-	    "max_score" : null,
 	    "hits" : [
 	      {
 	        "_index" : "accounts",
 	        "_type" : "account",
-	        "_id" : "13",
-	        "_score" : null,
 	        "_source" : {
 	          "firstname" : "Nanette",
 	          "age" : 28,
 	          "lastname" : "Bates"
 	        },
+	        "_id" : "13",
 	        "sort" : [
 	          28
-	        ]
+	        ],
+	        "_score" : null
 	      },
 	      {
 	        "_index" : "accounts",
 	        "_type" : "account",
-	        "_id" : "1",
-	        "_score" : null,
 	        "_source" : {
 	          "firstname" : "Amber",
 	          "age" : 32,
 	          "lastname" : "Duke"
 	        },
+	        "_id" : "1",
 	        "sort" : [
 	          32
-	        ]
+	        ],
+	        "_score" : null
 	      }
-	    ]
-	  }
+	    ],
+	    "total" : {
+	      "value" : 4,
+	      "relation" : "eq"
+	    },
+	    "max_score" : null
+	  },
+	  "took" : 100,
+	  "timed_out" : false
 	}
 
 JDBC Format

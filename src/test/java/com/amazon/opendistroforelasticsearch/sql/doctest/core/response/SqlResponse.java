@@ -17,6 +17,8 @@ package com.amazon.opendistroforelasticsearch.sql.doctest.core.response;
 
 import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils;
 import org.elasticsearch.client.Response;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 
@@ -34,9 +36,36 @@ public class SqlResponse {
 
     public String body() {
         try {
-            return TestUtils.getResponseBody(response, true);
+            return replaceChangingPart(TestUtils.getResponseBody(response, true));
         } catch (IOException e) {
             throw new IllegalStateException("Failed to read response body", e);
+        }
+    }
+
+    /**
+     * In Elasticsearch response, there is field changed between each query, such as "took".
+     * We have to replace those variants with fake constant to avoid re-generate documents.
+     * The order of fields in JSON is a little different from original because of internal
+     * key set in org.json.
+     */
+    private String replaceChangingPart(String response) {
+        try {
+            JSONObject root = new JSONObject(response);
+            if (root.has("took")) {
+                root.put("took", 100);
+            } else {
+                return response; // return original response to minimize impact
+            }
+
+            if (root.has("_shards")) {
+                JSONObject shards = root.getJSONObject("_shards");
+                shards.put("total", 5);
+                shards.put("successful", 5);
+            }
+            return root.toString();
+        } catch (JSONException e) {
+            // Response is not a valid JSON which is not our interest.
+            return response;
         }
     }
 }
