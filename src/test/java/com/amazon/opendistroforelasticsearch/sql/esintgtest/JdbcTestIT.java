@@ -153,7 +153,7 @@ public class JdbcTestIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void functionWithAliasShoultHaveAliasAsNameInSchema() {
+    public void functionWithAliasShouldHaveAliasAsNameInSchema() {
         assertThat(
                 executeQuery("SELECT substring(lastname, 1, 2) AS substring FROM "
                         + TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY substring", "jdbc"),
