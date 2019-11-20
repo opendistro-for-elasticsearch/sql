@@ -325,17 +325,17 @@ public class SQLFunctions {
                 functionStr = log(SQLUtils.toSQLExpr("2"), (SQLExpr) paramers.get(0).value, name);
                 break;
             case "log10":
-                functionStr = log(SQLUtils.toSQLExpr("10"), (SQLExpr) paramers.get(0).value, name);
+                functionStr = log10((SQLExpr) paramers.get(0).value);
                 break;
             case "log":
                 if (paramers.size() > 1) {
                     functionStr = log((SQLExpr) paramers.get(0).value, (SQLExpr) paramers.get(1).value, name);
                 } else {
-                    functionStr = log((SQLUtils.toSQLExpr("Math.E")), (SQLExpr) paramers.get(0).value, name);
+                    functionStr = ln((SQLExpr) paramers.get(0).value);
                 }
                 break;
             case "ln":
-                functionStr = log(SQLUtils.toSQLExpr("Math.E"), (SQLExpr) paramers.get(0).value, name);
+                functionStr = ln((SQLExpr) paramers.get(0).value);
                 break;
             case "assign":
                 functionStr = assign((SQLExpr) paramers.get(0).value);
@@ -651,6 +651,16 @@ public class SQLFunctions {
                             + func("Math.log", false, exprString(base)));
         }
         return new Tuple<>(name, result);
+    }
+
+    public Tuple<String, String> log10(SQLExpr field) {
+        String name = nextId("log10");
+        return new Tuple<>(name, def(name, StringUtils.format("Math.log10(%s)", getPropertyOrValue(field))));
+    }
+
+    public Tuple<String, String> ln(SQLExpr field) {
+        String name = nextId("ln");
+        return new Tuple<>(name, def(name, StringUtils.format("Math.log(%s)", getPropertyOrValue(field))));
     }
 
     public Tuple<String, String> trim(SQLExpr field, String valueName) {

@@ -409,6 +409,18 @@ public class MathFunctionsTest {
     }
 
     @Test
+    public void log10Test() {
+        String query = "SELECT LOG10(age) FROM accounts";
+        ScriptField scriptField = CheckScriptContents.getScriptFieldFromQuery(query);
+        assertTrue(
+                CheckScriptContents.scriptContainsString(
+                        scriptField,
+                        "Math.log10(doc['age'].value)"
+                )
+        );
+    }
+
+    @Test
     public void lnTest() {
         String query = "SELECT LN(age) FROM age WHERE LN(age) = 5.0";
         ScriptField scriptField = CheckScriptContents.getScriptFieldFromQuery(query);
