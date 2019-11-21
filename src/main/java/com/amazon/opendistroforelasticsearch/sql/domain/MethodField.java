@@ -68,14 +68,6 @@ public class MethodField extends Field {
         return this.name + "(" + Util.joiner(params, ",") + ")";
     }
 
-    public String getOption() {
-        return option;
-    }
-
-    public void setOption(String option) {
-        this.option = option;
-    }
-
     @Override
     public boolean isNested() {
         Map<String, Object> paramsAsMap = this.getParamsAsMap();
