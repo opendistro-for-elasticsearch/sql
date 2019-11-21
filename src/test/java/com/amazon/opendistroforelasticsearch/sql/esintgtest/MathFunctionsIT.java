@@ -211,6 +211,13 @@ public class MathFunctionsIT extends SQLIntegTestCase {
     }
 
     @Test
+    public void log10Test() throws IOException{
+        SearchHit[] hits = query("SELECT log10(1000) AS log10");
+        double log10 = (double) getField(hits[0], "log10");
+        assertThat(log10, equalTo(3.0));
+    }
+
+    @Test
     public void ln() throws IOException {
         SearchHit[] hits = query("SELECT LN(5) AS ln");
         double ln = (double) getField(hits[0], "ln");
