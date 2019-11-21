@@ -107,7 +107,7 @@ public class Field implements Cloneable {
         return this.children.childType;
     }
 
-    public void setOption(SQLAggregateOption option) {
+    public void setAggregationOption(SQLAggregateOption option) {
         this.option = option;
     }
 

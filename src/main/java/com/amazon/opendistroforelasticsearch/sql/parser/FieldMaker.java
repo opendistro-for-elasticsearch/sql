@@ -61,13 +61,19 @@ public class FieldMaker {
     public Field makeField(SQLExpr expr, String alias, String tableAlias) throws SqlParseException {
         Field field = makeFieldImpl(expr, alias, tableAlias);
 
+        /**
+         * If a token of DISTINCT is in the SELECT clause, it will parsed and stored into the SQLSelectQueryBlock
+         * as a property of "DistionOpion"
+         * The following code block would be working only in the case of
+         * SELECT DISTINCT + fieldname (aka. SELECT DISTINCT(fieldname))
+         */
         if (expr.getParent() != null && expr.getParent() instanceof SQLSelectItem
                 && expr.getParent().getParent() != null
                 && expr.getParent().getParent() instanceof SQLSelectQueryBlock) {
             SQLSelectQueryBlock queryBlock = (SQLSelectQueryBlock) expr.getParent().getParent();
             if (queryBlock.getDistionOption() == SQLSetQuantifier.DISTINCT) {
                 SQLAggregateOption option = SQLAggregateOption.DISTINCT;
-                field.setOption(option);
+                field.setAggregationOption(option);
                 if (queryBlock.getGroupBy() == null) {
                     queryBlock.setGroupBy(new SQLSelectGroupByClause());
                 }
