@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.domain;
 
+import com.alibaba.druid.sql.ast.expr.SQLAggregateOption;
 import com.amazon.opendistroforelasticsearch.sql.parser.NestedType;
 import com.amazon.opendistroforelasticsearch.sql.utils.Util;
 
@@ -29,9 +30,8 @@ import java.util.Map;
  */
 public class MethodField extends Field {
     private List<KVValue> params = null;
-    private String option;
 
-    public MethodField(String name, List<KVValue> params, String option, String alias) {
+    public MethodField(String name, List<KVValue> params, SQLAggregateOption option, String alias) {
         super(name, alias);
         this.params = params;
         this.option = option;

@@ -60,28 +60,7 @@ public class FieldMaker {
 
     public Field makeField(SQLExpr expr, String alias, String tableAlias) throws SqlParseException {
         Field field = makeFieldImpl(expr, alias, tableAlias);
-
-        /**
-         * If a token of DISTINCT is in the SELECT clause, it will parsed and stored into the SQLSelectQueryBlock
-         * as a property of "DistionOpion"
-         * The following code block would be working only in the case of
-         * SELECT DISTINCT + fieldname (aka. SELECT DISTINCT(fieldname))
-         */
-        if (expr.getParent() != null && expr.getParent() instanceof SQLSelectItem
-                && expr.getParent().getParent() != null
-                && expr.getParent().getParent() instanceof SQLSelectQueryBlock) {
-            SQLSelectQueryBlock queryBlock = (SQLSelectQueryBlock) expr.getParent().getParent();
-            if (queryBlock.getDistionOption() == SQLSetQuantifier.DISTINCT) {
-                SQLAggregateOption option = SQLAggregateOption.DISTINCT;
-                field.setAggregationOption(option);
-                if (queryBlock.getGroupBy() == null) {
-                    queryBlock.setGroupBy(new SQLSelectGroupByClause());
-                }
-                SQLSelectGroupByClause groupByClause = queryBlock.getGroupBy();
-                groupByClause.addItem(expr);
-                queryBlock.setGroupBy(groupByClause);
-            }
-        }
+        addGroupByForDistinctFieldsInSelect(expr, field);
 
         // why we may get null as a field???
         if (field != null) {
@@ -151,6 +130,24 @@ public class FieldMaker {
                     null, alias, tableAlias, true);
         } else {
             throw new SqlParseException("unknown field name : " + expr);
+        }
+    }
+
+    private void addGroupByForDistinctFieldsInSelect(SQLExpr expr, Field field) {
+        if (expr.getParent() != null && expr.getParent() instanceof SQLSelectItem
+                && expr.getParent().getParent() != null
+                && expr.getParent().getParent() instanceof SQLSelectQueryBlock) {
+            SQLSelectQueryBlock queryBlock = (SQLSelectQueryBlock) expr.getParent().getParent();
+            if (queryBlock.getDistionOption() == SQLSetQuantifier.DISTINCT) {
+                SQLAggregateOption option = SQLAggregateOption.DISTINCT;
+                field.setAggregationOption(option);
+                if (queryBlock.getGroupBy() == null) {
+                    queryBlock.setGroupBy(new SQLSelectGroupByClause());
+                }
+                SQLSelectGroupByClause groupByClause = queryBlock.getGroupBy();
+                groupByClause.addItem(expr);
+                queryBlock.setGroupBy(groupByClause);
+            }
         }
     }
 
@@ -403,9 +400,9 @@ public class FieldMaker {
         }
 
         if (builtInScriptFunction) {
-            return new ScriptMethodField(name, paramers, option == null ? null : option.name(), alias);
+            return new ScriptMethodField(name, paramers, option, alias);
         } else {
-            return new MethodField(name, paramers, option == null ? null : option.name(), alias);
+            return new MethodField(name, paramers, option, alias);
         }
     }
 }

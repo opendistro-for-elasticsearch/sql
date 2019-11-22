@@ -35,11 +35,11 @@ public class Field implements Cloneable {
     public static final Field STAR = new Field("*", "");
 
     protected String name;
+    protected SQLAggregateOption option;
     private String alias;
     private NestedType nested;
     private ChildrenType children;
     private SQLExpr expression;
-    private SQLAggregateOption option;
 
     public Field(String name, String alias) {
         this.name = name;
