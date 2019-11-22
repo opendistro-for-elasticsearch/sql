@@ -40,10 +40,4 @@ public @interface DocTestConfig {
      */
     String[] testData() default {};
 
-    /**
-     * Path of the target document.
-     * @return path
-     */
-    String document() default "";
-
 }

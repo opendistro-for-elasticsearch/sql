@@ -15,10 +15,18 @@
 
 package com.amazon.opendistroforelasticsearch.sql.doctest.core.builder;
 
+import com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequest;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat;
+import com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponse;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat;
 
-public class Formats {
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.TABLE_RESPONSE;
+
+/**
+ * Request and response format tuple.
+ */
+class Formats {
+
     private final SqlRequestFormat requestFormat;
     private final SqlResponseFormat responseFormat;
 
@@ -27,11 +35,15 @@ public class Formats {
         this.responseFormat = responseFormat;
     }
 
-    SqlRequestFormat request() {
-        return requestFormat;
+    String format(SqlRequest request) {
+        return requestFormat.format(request);
     }
 
-    SqlResponseFormat response() {
-        return responseFormat;
+    String format(SqlResponse response) {
+        return responseFormat.format(response);
+    }
+
+    boolean isTableFormat() {
+        return responseFormat == TABLE_RESPONSE;
     }
 }

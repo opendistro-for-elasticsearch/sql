@@ -20,8 +20,8 @@ import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.DocTest
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.Section;
 
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.CURL_REQUEST;
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.NO_REQUEST;
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.NO_RESPONSE;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.IGNORE_REQUEST;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.IGNORE_RESPONSE;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.PRETTY_JSON_RESPONSE;
 
 /**
@@ -38,8 +38,8 @@ public class EndpointIT extends DocTest {
             example(
                 description(),
                 get("SELECT * FROM accounts"),
-                queryFormat(CURL_REQUEST, NO_RESPONSE),
-                explainFormat(NO_REQUEST, NO_RESPONSE)
+                queryFormat(CURL_REQUEST, IGNORE_RESPONSE),
+                explainFormat(IGNORE_REQUEST, IGNORE_RESPONSE)
             )
         );
     }
@@ -51,9 +51,9 @@ public class EndpointIT extends DocTest {
             description("You can also send HTTP POST request with your query in request body."),
             example(
                 description(),
-                query("SELECT * FROM accounts"),
-                queryFormat(CURL_REQUEST, NO_RESPONSE),
-                explainFormat(NO_REQUEST, NO_RESPONSE)
+                post("SELECT * FROM accounts"),
+                queryFormat(CURL_REQUEST, IGNORE_RESPONSE),
+                explainFormat(IGNORE_REQUEST, IGNORE_RESPONSE)
             )
         );
     }
@@ -69,8 +69,8 @@ public class EndpointIT extends DocTest {
             ),
             example(
                 description(),
-                query("SELECT firstname, lastname FROM accounts WHERE age > 20"),
-                queryFormat(NO_REQUEST, NO_RESPONSE),
+                post("SELECT firstname, lastname FROM accounts WHERE age > 20"),
+                queryFormat(IGNORE_REQUEST, IGNORE_RESPONSE),
                 explainFormat(CURL_REQUEST, PRETTY_JSON_RESPONSE)
             )
         );

@@ -17,9 +17,9 @@ package com.amazon.opendistroforelasticsearch.sql.doctest.admin;
 
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.DocTest;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.DocTestConfig;
+import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.Section;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.builder.Example;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.builder.ListItems;
-import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.Section;
 import com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import org.elasticsearch.common.settings.Setting;
@@ -27,8 +27,8 @@ import org.elasticsearch.common.settings.Setting;
 import java.util.EnumSet;
 
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.CURL_REQUEST;
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.NO_REQUEST;
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.NO_RESPONSE;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.IGNORE_REQUEST;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.IGNORE_RESPONSE;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.PRETTY_JSON_RESPONSE;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_ENABLED;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_SEMANTIC_SUGGESTION;
@@ -48,9 +48,9 @@ import static org.elasticsearch.common.settings.Settings.EMPTY;
 @DocTestConfig(template = "admin/settings.rst", testData = {"accounts.json"})
 public class PluginSettingIT extends DocTest {
 
-    private static final SqlSettings settings = new SqlSettings();
+    private static final SqlSettings SETTINGS = new SqlSettings();
 
-    @Section(value = 1)
+    @Section(1)
     public void sqlEnabledSetting() {
         docSetting(
             SQL_ENABLED,
@@ -60,17 +60,17 @@ public class PluginSettingIT extends DocTest {
         );
     }
 
-    @Section(value = 2)
+    @Section(2)
     public void slowLogSetting() {
         docSetting(
             QUERY_SLOWLOG,
             "You can configure the time limit (seconds) for slow query which would be logged as " +
-            "'Slow query: elapsed=xxx (ms)'.",
+            "'Slow query: elapsed=xxx (ms)' in elasticsearch.log.",
             10
         );
     }
 
-    @Section(value = 3)
+    @Section(3)
     public void queryAnalysisEnabledSetting() {
         docSetting(
             QUERY_ANALYSIS_ENABLED,
@@ -79,7 +79,7 @@ public class PluginSettingIT extends DocTest {
         );
     }
 
-    @Section(value = 4)
+    @Section(4)
     public void semanticSuggestionSetting() {
         docSetting(
             QUERY_ANALYSIS_SEMANTIC_SUGGESTION,
@@ -89,7 +89,7 @@ public class PluginSettingIT extends DocTest {
         );
     }
 
-    @Section(value = 5)
+    @Section(5)
     public void semanticAnalysisThresholdSetting() {
         docSetting(
             QUERY_ANALYSIS_SEMANTIC_THRESHOLD,
@@ -99,31 +99,47 @@ public class PluginSettingIT extends DocTest {
         );
     }
 
+    /**
+     * Generate content for sample queries with setting changed to new value.
+     * Finally setting will be reverted to avoid potential impact on other test cases.
+     */
     private void docSetting(String name, String description, Object sampleValue, String... sampleQueries) {
+        try {
+            section(
+                title(name),
+                description(description + "\n\n" + listSettingDetails(name)),
+                createExamplesForSettingChangeQueryAndOtherSampleQueries(name, sampleValue, sampleQueries)
+            );
+        } finally {
+            // Make sure the change is removed
+            try {
+                put(name, null).queryResponse();
+            } catch (Exception e) {
+                // Ignore
+            }
+        }
+    }
+
+    private Example[] createExamplesForSettingChangeQueryAndOtherSampleQueries(String name,
+                                                                               Object sampleValue,
+                                                                               String[] sampleQueries) {
         Example[] examples = new Example[sampleQueries.length + 1];
         examples[0] = example("You can update the setting with a new value like this.",
                               put(name, sampleValue),
                               queryFormat(CURL_REQUEST, PRETTY_JSON_RESPONSE),
-                              explainFormat(NO_REQUEST, NO_RESPONSE));
+                              explainFormat(IGNORE_REQUEST, IGNORE_RESPONSE));
 
         for (int i = 0; i < sampleQueries.length; i++) {
             examples[i + 1] = example("Query result after the setting updated is like:",
-                                      query(sampleQueries[i]),
+                                      post(sampleQueries[i]),
                                       queryFormat(CURL_REQUEST, PRETTY_JSON_RESPONSE),
-                                      explainFormat(NO_REQUEST, NO_RESPONSE));
+                                      explainFormat(IGNORE_REQUEST, IGNORE_RESPONSE));
         }
-
-        section(
-            title(name),
-            description(description + "\n\n" + listSettingDetails(name)),
-            examples
-        );
-
-        put(name, null)[0].send(restClient());
+        return examples;
     }
 
     private String listSettingDetails(String name) {
-        Setting<?> setting = settings.getSetting(name);
+        Setting<?> setting = SETTINGS.getSetting(name);
         ListItems list = new ListItems();
 
         list.addItem(StringUtils.format("The default value is %s.", setting.getDefault(EMPTY)));

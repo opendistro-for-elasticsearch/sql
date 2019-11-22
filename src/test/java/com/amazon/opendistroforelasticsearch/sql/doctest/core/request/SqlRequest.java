@@ -31,6 +31,8 @@ import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.Sql
  */
 public class SqlRequest {
 
+    public static final SqlRequest NONE = null;
+
     /** Native Elasticsearch request object */
     private final Request request;
 

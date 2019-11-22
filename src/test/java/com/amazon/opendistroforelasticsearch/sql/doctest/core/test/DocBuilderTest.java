@@ -102,7 +102,7 @@ public class DocBuilderTest implements DocBuilder {
             description("This is a test"),
             example(
                 description("This is an example for the test"),
-                query("SELECT firstname FROM accounts")
+                post("SELECT firstname FROM accounts")
             )
         );
 

@@ -33,10 +33,10 @@ import java.util.stream.Collectors;
  */
 public enum SqlRequestFormat {
 
-    NO_REQUEST {
+    IGNORE_REQUEST {
         @Override
         public String format(SqlRequest request) {
-            throw new UnsupportedOperationException();
+            return "";
         }
     },
     CURL_REQUEST {

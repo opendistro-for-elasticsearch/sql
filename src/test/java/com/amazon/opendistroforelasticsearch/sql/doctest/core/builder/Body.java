@@ -18,9 +18,17 @@ package com.amazon.opendistroforelasticsearch.sql.doctest.core.builder;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-public class Body {
+/**
+ * Request body.
+ */
+class Body {
+
     private final String[] fieldValues;
 
+    /**
+     * Request body built from field value pairs.
+     * @param fieldValues   field and values in "'field": 'value'" format that can assemble to JSON directly
+     */
     Body(String... fieldValues) {
         this.fieldValues = fieldValues;
     }

@@ -25,9 +25,8 @@ import org.elasticsearch.client.RestClient;
 import java.util.Arrays;
 
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequest.UrlParam;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.IGNORE_REQUEST;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.KIBANA_REQUEST;
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.NO_REQUEST;
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.NO_RESPONSE;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.PRETTY_JSON_RESPONSE;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.TABLE_RESPONSE;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.EXPLAIN_API_ENDPOINT;
@@ -53,7 +52,7 @@ public interface DocBuilder {
     Document openDocument();
 
     /**
-     * Entrypoint to start building document by DSL.
+     * Entry point to start building document by DSL.
      *
      * @param title         title of the section
      * @param description   description paragraph
@@ -92,32 +91,24 @@ public interface DocBuilder {
         }
     }
 
-    default Example example(String description, SqlRequest[] requests) {
+    default Example example(String description, Requests requests) {
         return example(description, requests,
             queryFormat(KIBANA_REQUEST, TABLE_RESPONSE),
-            explainFormat(NO_REQUEST, PRETTY_JSON_RESPONSE)
+            explainFormat(IGNORE_REQUEST, PRETTY_JSON_RESPONSE)
         );
     }
 
     default Example example(String description,
-                            SqlRequest[] requests,
+                            Requests requests,
                             Formats queryFormat,
                             Formats explainFormat) {
         Example example = new Example();
         example.setDescription(description);
-        if (queryFormat.request() != NO_REQUEST) {
-            example.setQuery(queryFormat.request().format(requests[0]));
-        }
-        if (queryFormat.response() != NO_RESPONSE) {
-            example.setTable(queryFormat.response() == TABLE_RESPONSE);
-            example.setResult(queryFormat.response().format(requests[0].send(restClient())));
-        }
-        if (explainFormat.request() != NO_REQUEST) {
-            example.setExplainQuery(explainFormat.request().format(requests[1]));
-        }
-        if (explainFormat.response() != NO_RESPONSE) {
-            example.setExplainResult(explainFormat.response().format(requests[1].send(restClient())));
-        }
+        example.setQuery(queryFormat.format(requests.query()));
+        example.setTable(queryFormat.isTableFormat());
+        example.setResult(queryFormat.format(requests.queryResponse()));
+        example.setExplainQuery(explainFormat.format(requests.explain()));
+        example.setExplainResult(explainFormat.format(requests.explainResponse()));
         return example;
     }
 
@@ -137,31 +128,36 @@ public interface DocBuilder {
         return new Formats(requestFormat, responseFormat);
     }
 
-    default SqlRequest[] get(String sql, UrlParam... params) {
+    default Requests get(String sql) {
         Body body = new Body("\"query\":\"" + sql + "\"");
-        return new SqlRequest[] {
+        return new Requests(
+            restClient(),
             new SqlRequest("GET", QUERY_API_ENDPOINT, "", new UrlParam("sql", sql)),
-            new SqlRequest("POST", EXPLAIN_API_ENDPOINT, body.toString()),
-        };
+            new SqlRequest("POST", EXPLAIN_API_ENDPOINT, body.toString())
+        );
     }
 
-    default SqlRequest[] query(String sql, UrlParam... params) {
-        return query(new Body("\"query\":\"" + sql + "\""), params);
-    }
-
-    default SqlRequest[] put(String name, Object value) {
+    default Requests put(String name, Object value) {
         String setting = StringUtils.format("\"%s\": {\"%s\": %s}", "transient", name, value);
-        return new SqlRequest[] {
-            new SqlRequest("PUT", "/_cluster/settings", new Body(setting).toString())
-        };
+        return new Requests(
+            restClient(),
+            new SqlRequest("PUT", "/_cluster/settings", new Body(setting).toString()),
+            null
+        );
     }
 
-    default SqlRequest[] query(Body body, UrlParam... params) {
+    /** Query by a simple SQL is too common and deserve a dedicated overload method */
+    default Requests post(String sql, UrlParam... params) {
+        return post(new Body("\"query\":\"" + sql + "\""), params);
+    }
+
+    default Requests post(Body body, UrlParam... params) {
         String bodyStr = body.toString();
-        return new SqlRequest[] {
+        return new Requests(
+            restClient(),
             new SqlRequest("POST", QUERY_API_ENDPOINT, bodyStr, params),
             new SqlRequest("POST", EXPLAIN_API_ENDPOINT, bodyStr)
-        };
+        );
     }
 
     default Body body(String... fieldValues) {

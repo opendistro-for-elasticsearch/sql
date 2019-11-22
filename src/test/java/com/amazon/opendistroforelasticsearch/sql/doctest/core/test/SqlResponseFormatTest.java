@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.doctest.core.test;
 
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponse;
+import com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat;
 import org.apache.http.HttpEntity;
 import org.elasticsearch.client.Response;
 import org.junit.Before;
@@ -24,17 +25,18 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.NO_RESPONSE;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.IGNORE_RESPONSE;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.ORIGINAL_RESPONSE;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.PRETTY_JSON_RESPONSE;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.TABLE_RESPONSE;
+import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * Test cases for {@link SqlResponse}
+ * Test cases for {@link SqlResponseFormat}
  */
 public class SqlResponseFormatTest {
 
@@ -58,18 +60,18 @@ public class SqlResponseFormatTest {
         sqlResponse = new SqlResponse(response);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void noResponseFormatShouldNotBeUsedForFormat() {
-        NO_RESPONSE.format(sqlResponse);
+    @Test
+    public void testIgnoreResponseFormat() {
+        assertThat(IGNORE_RESPONSE.format(sqlResponse), emptyString());
     }
 
     @Test
-    public void originalFormatShouldReturnResponseAsItIs() {
+    public void testOriginalFormat() {
         assertThat(ORIGINAL_RESPONSE.format(sqlResponse), is(expected + "\n"));
     }
 
     @Test
-    public void prettyJsonFormatShouldReturnResponseInJson() {
+    public void testPrettyJsonFormat() {
         assertThat(
             PRETTY_JSON_RESPONSE.format(sqlResponse),
             is(
@@ -94,7 +96,7 @@ public class SqlResponseFormatTest {
     }
 
     @Test
-    public void tableFormatShouldReturnResponseInDataTable() {
+    public void testTableFormat() {
         assertThat(
             TABLE_RESPONSE.format(sqlResponse),
             is(

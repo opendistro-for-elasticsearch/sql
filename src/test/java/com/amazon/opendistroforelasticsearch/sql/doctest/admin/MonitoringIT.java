@@ -18,13 +18,14 @@ package com.amazon.opendistroforelasticsearch.sql.doctest.admin;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.DocTest;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.DocTestConfig;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.Section;
-import com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.DataTable;
+import com.amazon.opendistroforelasticsearch.sql.doctest.core.builder.Requests;
+import com.amazon.opendistroforelasticsearch.sql.doctest.core.response.DataTable;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequest;
 import com.amazon.opendistroforelasticsearch.sql.metrics.MetricName;
 
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.CURL_REQUEST;
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.NO_REQUEST;
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.NO_RESPONSE;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.IGNORE_REQUEST;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.IGNORE_RESPONSE;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.PRETTY_JSON_RESPONSE;
 import static com.amazon.opendistroforelasticsearch.sql.metrics.MetricName.FAILED_REQ_COUNT_CB;
 import static com.amazon.opendistroforelasticsearch.sql.metrics.MetricName.FAILED_REQ_COUNT_CUS;
@@ -48,7 +49,7 @@ public class MonitoringIT extends DocTest {
                 description(),
                 getStats(),
                 queryFormat(CURL_REQUEST, PRETTY_JSON_RESPONSE),
-                explainFormat(NO_REQUEST, NO_RESPONSE)
+                explainFormat(IGNORE_REQUEST, IGNORE_RESPONSE)
             )
         );
     }
@@ -56,10 +57,10 @@ public class MonitoringIT extends DocTest {
     private String fieldDescriptions() {
         DataTable table = new DataTable(new String[]{ "Field name", "Description" });
         table.addRow(row(REQ_TOTAL, "Total count of request"));
-        table.addRow(row(REQ_COUNT_TOTAL, "Total count of request within last window"));
-        table.addRow(row(FAILED_REQ_COUNT_SYS, "Count of failed request due to system error"));
-        table.addRow(row(FAILED_REQ_COUNT_CUS, "Count of failed request due to bad request"));
-        table.addRow(row(FAILED_REQ_COUNT_CB, "Is plugin being circuit broken or not"));
+        table.addRow(row(REQ_COUNT_TOTAL, "Total count of request within the interval"));
+        table.addRow(row(FAILED_REQ_COUNT_SYS, "Count of failed request due to system error within the interval"));
+        table.addRow(row(FAILED_REQ_COUNT_CUS, "Count of failed request due to bad request within the interval"));
+        table.addRow(row(FAILED_REQ_COUNT_CB, "Indicate if plugin is being circuit broken within the interval"));
         return table.toString();
     }
 
@@ -67,10 +68,8 @@ public class MonitoringIT extends DocTest {
         return new String[] { name.getName(), description };
     }
 
-    private SqlRequest[] getStats() {
-        return new SqlRequest[] {
-            new SqlRequest("GET", STATS_API_ENDPOINT, "")
-        };
+    private Requests getStats() {
+        return new Requests(restClient(), new SqlRequest("GET", STATS_API_ENDPOINT, ""));
     }
 
 }

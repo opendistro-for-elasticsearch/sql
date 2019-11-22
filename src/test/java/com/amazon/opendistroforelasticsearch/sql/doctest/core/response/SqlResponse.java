@@ -27,6 +27,8 @@ import java.io.IOException;
  */
 public class SqlResponse {
 
+    public static final SqlResponse NONE = null;
+
     /** Native Elasticsearch response */
     private final Response response;
 
@@ -36,7 +38,7 @@ public class SqlResponse {
 
     public String body() {
         try {
-            return replaceChangingPart(TestUtils.getResponseBody(response, true));
+            return replaceChangingFields(TestUtils.getResponseBody(response, true));
         } catch (IOException e) {
             throw new IllegalStateException("Failed to read response body", e);
         }
@@ -48,7 +50,7 @@ public class SqlResponse {
      * The order of fields in JSON is a little different from original because of internal
      * key set in org.json.
      */
-    private String replaceChangingPart(String response) {
+    private String replaceChangingFields(String response) {
         try {
             JSONObject root = new JSONObject(response);
             if (root.has("took")) {

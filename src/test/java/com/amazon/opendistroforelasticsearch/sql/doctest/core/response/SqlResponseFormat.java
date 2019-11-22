@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.doctest.core.response;
 
-import com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.DataTable;
 import com.amazon.opendistroforelasticsearch.sql.utils.JsonPrettyFormatter;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import org.json.JSONArray;
@@ -28,10 +27,10 @@ import java.io.IOException;
  */
 public enum SqlResponseFormat {
 
-    NO_RESPONSE {
+    IGNORE_RESPONSE {
         @Override
         public String format(SqlResponse str) {
-            throw new UnsupportedOperationException();
+            return "";
         }
     },
     ORIGINAL_RESPONSE {

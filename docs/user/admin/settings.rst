@@ -85,7 +85,7 @@ opendistro.sql.query.slowlog
 Description
 -----------
 
-You can configure the time limit (seconds) for slow query which would be logged as 'Slow query: elapsed=xxx (ms)'.
+You can configure the time limit (seconds) for slow query which would be logged as 'Slow query: elapsed=xxx (ms)' in elasticsearch.log.
 
 1. The default value is 2.
 2. This setting is node scope.

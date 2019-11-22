@@ -17,6 +17,9 @@ package com.amazon.opendistroforelasticsearch.sql.doctest.core.builder;
 
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 
+/**
+ * Item list
+ */
 public class ListItems {
     private final StringBuilder list = new StringBuilder();
     private int index = 0;

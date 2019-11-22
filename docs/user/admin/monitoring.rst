@@ -24,19 +24,19 @@ Description
 
 The meaning of fields in the response is as follows:
 
-+---------------------------+-------------------------------------------+
-|                 Field name|                                Description|
-+===========================+===========================================+
-|              request_total|                     Total count of request|
-+---------------------------+-------------------------------------------+
-|              request_count|  Total count of request within last window|
-+---------------------------+-------------------------------------------+
-|failed_request_count_syserr|Count of failed request due to system error|
-+---------------------------+-------------------------------------------+
-|failed_request_count_cuserr| Count of failed request due to bad request|
-+---------------------------+-------------------------------------------+
-|    failed_request_count_cb|      Is plugin being circuit broken or not|
-+---------------------------+-------------------------------------------+
++---------------------------+---------------------------------------------------------------+
+|                 Field name|                                                    Description|
++===========================+===============================================================+
+|              request_total|                                         Total count of request|
++---------------------------+---------------------------------------------------------------+
+|              request_count|                     Total count of request within the interval|
++---------------------------+---------------------------------------------------------------+
+|failed_request_count_syserr|Count of failed request due to system error within the interval|
++---------------------------+---------------------------------------------------------------+
+|failed_request_count_cuserr| Count of failed request due to bad request within the interval|
++---------------------------+---------------------------------------------------------------+
+|    failed_request_count_cb| Indicate if plugin is being circuit broken within the interval|
++---------------------------+---------------------------------------------------------------+
 
 
 Example

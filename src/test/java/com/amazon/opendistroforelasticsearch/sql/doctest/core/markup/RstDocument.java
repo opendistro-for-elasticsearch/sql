@@ -32,18 +32,12 @@ public class RstDocument implements Document {
 
     @Override
     public Document section(String title) {
-        return print(
-            title,
-            Strings.repeat("=", title.length())
-        );
+        return printTitleWithUnderline(title, "=");
     }
 
     @Override
     public Document subSection(String title) {
-        return print(
-            title,
-            Strings.repeat("-", title.length())
-        );
+        return printTitleWithUnderline(title, "-");
     }
 
     @Override
@@ -71,6 +65,13 @@ public class RstDocument implements Document {
     @Override
     public void close() {
         docWriter.close();
+    }
+
+    private Document printTitleWithUnderline(String title, String underlineChar) {
+        return print(
+            title,
+            Strings.repeat(underlineChar, title.length())
+        );
     }
 
     /** Print each line with a blank line at last */

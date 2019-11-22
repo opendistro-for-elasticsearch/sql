@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.doctest.core.test;
 
-import com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.DataTable;
+import com.amazon.opendistroforelasticsearch.sql.doctest.core.response.DataTable;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;

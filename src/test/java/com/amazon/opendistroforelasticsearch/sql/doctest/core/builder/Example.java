@@ -16,7 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.doctest.core.builder;
 
 /**
- * Example in DSL.
+ * Example value object.
  */
 public class Example {
 

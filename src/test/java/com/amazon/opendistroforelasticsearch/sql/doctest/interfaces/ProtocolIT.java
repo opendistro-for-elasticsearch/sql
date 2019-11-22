@@ -20,8 +20,8 @@ import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.DocTest
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.Section;
 
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.CURL_REQUEST;
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.NO_REQUEST;
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.NO_RESPONSE;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.IGNORE_REQUEST;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.IGNORE_RESPONSE;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.ORIGINAL_RESPONSE;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.PRETTY_JSON_RESPONSE;
 
@@ -42,25 +42,25 @@ public class ProtocolIT extends DocTest {
                     "Use `filter` to work with Elasticsearch DSL directly. Note that the content is present in",
                     "final Elasticsearch request DSL as it is."
                 ),
-                query(
+                post(
                     body(
                         "\"query\": \"SELECT firstname, lastname, balance FROM accounts\"",
                         "\"filter\":{\"range\":{\"balance\":{\"lt\":10000}}}"
                     )
                 ),
-                queryFormat(CURL_REQUEST, NO_RESPONSE),
-                explainFormat(NO_REQUEST, PRETTY_JSON_RESPONSE)
+                queryFormat(CURL_REQUEST, IGNORE_RESPONSE),
+                explainFormat(IGNORE_REQUEST, PRETTY_JSON_RESPONSE)
             ),
             example(
                 description("Use `parameters` for actual value for placeholder in prepared SQL query to be replaced."),
-                query(
+                post(
                     body(
                         "\"query\": \"SELECT * FROM accounts WHERE age = ?\"",
                         "\"parameters\": [{\"type\": \"integer\", \"value\": 30}]"
                     )
                 ),
-                queryFormat(CURL_REQUEST, NO_RESPONSE),
-                explainFormat(NO_REQUEST, PRETTY_JSON_RESPONSE)
+                queryFormat(CURL_REQUEST, IGNORE_RESPONSE),
+                explainFormat(IGNORE_REQUEST, PRETTY_JSON_RESPONSE)
             )
         );
     }
@@ -76,9 +76,9 @@ public class ProtocolIT extends DocTest {
             ),
             example(
                 description(),
-                query("SELECT firstname, lastname, age FROM accounts ORDER BY age LIMIT 2"),
+                post("SELECT firstname, lastname, age FROM accounts ORDER BY age LIMIT 2"),
                 queryFormat(CURL_REQUEST, PRETTY_JSON_RESPONSE),
-                explainFormat(NO_REQUEST, NO_RESPONSE)
+                explainFormat(IGNORE_REQUEST, IGNORE_RESPONSE)
             )
         );
     }
@@ -96,15 +96,15 @@ public class ProtocolIT extends DocTest {
                     "Here is an example for normal response. The `schema` includes field name and its type",
                     "and `datarows` includes the result set."
                 ),
-                query("SELECT firstname, lastname, age FROM accounts ORDER BY age LIMIT 2", params("format=jdbc")),
+                post("SELECT firstname, lastname, age FROM accounts ORDER BY age LIMIT 2", params("format=jdbc")),
                 queryFormat(CURL_REQUEST, PRETTY_JSON_RESPONSE),
-                explainFormat(NO_REQUEST, NO_RESPONSE)
+                explainFormat(IGNORE_REQUEST, IGNORE_RESPONSE)
             ),
             example(
                 description("If any error occurred, error message and the cause will be returned instead."),
-                query("SELECT unknown FROM accounts", params("format=jdbc")),
+                post("SELECT unknown FROM accounts", params("format=jdbc")),
                 queryFormat(CURL_REQUEST, PRETTY_JSON_RESPONSE),
-                explainFormat(NO_REQUEST, NO_RESPONSE)
+                explainFormat(IGNORE_REQUEST, IGNORE_RESPONSE)
             )
         );
     }
@@ -116,9 +116,9 @@ public class ProtocolIT extends DocTest {
             description("You can also use CSV format to download result set as CSV."),
             example(
                 description(),
-                query("SELECT firstname, lastname, age FROM accounts ORDER BY age", params("format=csv")),
+                post("SELECT firstname, lastname, age FROM accounts ORDER BY age", params("format=csv")),
                 queryFormat(CURL_REQUEST, ORIGINAL_RESPONSE),
-                explainFormat(NO_REQUEST, NO_RESPONSE)
+                explainFormat(IGNORE_REQUEST, IGNORE_RESPONSE)
             )
         );
     }
@@ -133,9 +133,9 @@ public class ProtocolIT extends DocTest {
             ),
             example(
                 description(),
-                query("SELECT firstname, lastname, age FROM accounts ORDER BY age", params("format=raw")),
+                post("SELECT firstname, lastname, age FROM accounts ORDER BY age", params("format=raw")),
                 queryFormat(CURL_REQUEST, ORIGINAL_RESPONSE),
-                explainFormat(NO_REQUEST, NO_RESPONSE)
+                explainFormat(IGNORE_REQUEST, IGNORE_RESPONSE)
             )
         );
     }
