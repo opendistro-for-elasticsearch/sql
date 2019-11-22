@@ -1184,6 +1184,23 @@ public class AggregationIT extends SQLIntegTestCase {
         Assert.assertThat(result, containsString("\"script\":{\"source\""));
     }
 
+    @Test
+    public void distinctWithOneField() {
+        Assert.assertEquals(
+                executeQuery("SELECT DISTINCT name.lastname FROM " + TEST_INDEX_GAME_OF_THRONES, "jdbc"),
+                executeQuery("SELECT name.lastname FROM " + TEST_INDEX_GAME_OF_THRONES
+                        + " GROUP BY name.lastname", "jdbc")
+        );
+    }
+
+    @Test
+    public void distinctWithMultipleFields() {
+        Assert.assertEquals(
+                executeQuery("SELECT DISTINCT age, gender FROM " + TEST_INDEX_ACCOUNT, "jdbc"),
+                executeQuery("SELECT age, gender FROM " + TEST_INDEX_ACCOUNT
+                        + " GROUP BY age, gender", "jdbc")
+        );
+    }
 
     private JSONObject getAggregation(final JSONObject queryResult, final String aggregationName)
     {

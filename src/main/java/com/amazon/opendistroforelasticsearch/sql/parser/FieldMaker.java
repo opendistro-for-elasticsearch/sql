@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.parser;
 
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.SQLObject;
+import com.alibaba.druid.sql.ast.SQLSetQuantifier;
 import com.alibaba.druid.sql.ast.expr.SQLAggregateExpr;
 import com.alibaba.druid.sql.ast.expr.SQLAggregateOption;
 import com.alibaba.druid.sql.ast.expr.SQLAllColumnExpr;
@@ -30,6 +31,9 @@ import com.alibaba.druid.sql.ast.expr.SQLNumericLiteralExpr;
 import com.alibaba.druid.sql.ast.expr.SQLPropertyExpr;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.alibaba.druid.sql.ast.expr.SQLVariantRefExpr;
+import com.alibaba.druid.sql.ast.statement.SQLSelectGroupByClause;
+import com.alibaba.druid.sql.ast.statement.SQLSelectItem;
+import com.alibaba.druid.sql.ast.statement.SQLSelectQueryBlock;
 import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.KVValue;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
@@ -56,6 +60,7 @@ public class FieldMaker {
 
     public Field makeField(SQLExpr expr, String alias, String tableAlias) throws SqlParseException {
         Field field = makeFieldImpl(expr, alias, tableAlias);
+        addGroupByForDistinctFieldsInSelect(expr, field);
 
         // why we may get null as a field???
         if (field != null) {
@@ -73,7 +78,6 @@ public class FieldMaker {
         } else if (expr instanceof SQLBinaryOpExpr) {
             //make a SCRIPT method field;
             return makeFieldImpl(makeBinaryMethodField((SQLBinaryOpExpr) expr, alias, true), alias, tableAlias);
-
         } else if (expr instanceof SQLAllColumnExpr) {
             return Field.STAR;
         } else if (expr instanceof SQLMethodInvokeExpr) {
@@ -126,6 +130,24 @@ public class FieldMaker {
                     null, alias, tableAlias, true);
         } else {
             throw new SqlParseException("unknown field name : " + expr);
+        }
+    }
+
+    private void addGroupByForDistinctFieldsInSelect(SQLExpr expr, Field field) {
+        if (expr.getParent() != null && expr.getParent() instanceof SQLSelectItem
+                && expr.getParent().getParent() != null
+                && expr.getParent().getParent() instanceof SQLSelectQueryBlock) {
+            SQLSelectQueryBlock queryBlock = (SQLSelectQueryBlock) expr.getParent().getParent();
+            if (queryBlock.getDistionOption() == SQLSetQuantifier.DISTINCT) {
+                SQLAggregateOption option = SQLAggregateOption.DISTINCT;
+                field.setAggregationOption(option);
+                if (queryBlock.getGroupBy() == null) {
+                    queryBlock.setGroupBy(new SQLSelectGroupByClause());
+                }
+                SQLSelectGroupByClause groupByClause = queryBlock.getGroupBy();
+                groupByClause.addItem(expr);
+                queryBlock.setGroupBy(groupByClause);
+            }
         }
     }
 
@@ -378,9 +400,9 @@ public class FieldMaker {
         }
 
         if (builtInScriptFunction) {
-            return new ScriptMethodField(name, paramers, option == null ? null : option.name(), alias);
+            return new ScriptMethodField(name, paramers, option, alias);
         } else {
-            return new MethodField(name, paramers, option == null ? null : option.name(), alias);
+            return new MethodField(name, paramers, option, alias);
         }
     }
 }
