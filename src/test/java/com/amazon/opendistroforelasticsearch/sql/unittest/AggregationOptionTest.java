@@ -15,10 +15,17 @@
 
 package com.amazon.opendistroforelasticsearch.sql.unittest;
 
+import com.alibaba.druid.sql.ast.expr.SQLAggregateOption;
+import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
+import com.amazon.opendistroforelasticsearch.sql.domain.Field;
+import com.amazon.opendistroforelasticsearch.sql.domain.Select;
+import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.parser.SqlParser;
+import com.amazon.opendistroforelasticsearch.sql.util.SqlParserUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static com.amazon.opendistroforelasticsearch.sql.util.SqlExplainUtils.explain;
+import java.util.List;
 
 /**
  * Unit test class for feature of aggregation options: DISTINCT, ALL, UNIQUE, DEDUPLICATION
@@ -26,18 +33,49 @@ import static com.amazon.opendistroforelasticsearch.sql.util.SqlExplainUtils.exp
 public class AggregationOptionTest {
 
     @Test
-    public void distinctWithOneField() {
-        Assert.assertEquals(
-                explain("SELECT DISTINCT lastname FROM accounts"),
-                explain("SELECT lastname FROM accounts GROUP BY lastname")
-        );
+    public void selectDistinctFieldsShouldHaveAggregationOption() {
+        List<Field> fields = getSelectFields("SELECT DISTINCT gender, city FROM accounts");
+        for (Field field: fields) {
+            Assert.assertEquals(field.getOption(), SQLAggregateOption.DISTINCT);
+        }
     }
 
     @Test
-    public void distinctWithMultipleFields() {
-        Assert.assertEquals(
-                explain("SELECT DISTINCT city, age, balance FROM accounts"),
-                explain("SELECT city, age, balance FROM accounts GROUP BY city, age, balance")
-        );
+    public void selectWithoutDistinctFieldsShouldNotHaveAggregationOption() {
+        List<Field> fields = getSelectFields("SELECT gender, city FROM accounts");
+        for (Field field: fields) {
+            Assert.assertNull(field.getOption());
+        }
+    }
+
+    @Test
+    public void selectDistinctWithoutGroupByShouldHaveGroupByItems() {
+        List<List<Field>> groupBys = getGroupBys("SELECT DISTINCT gender, city FROM accounts");
+        Assert.assertFalse(groupBys.isEmpty());
+    }
+
+    @Test
+    public void selectWithoutDistinctWithoutGroupByShouldNotHaveGroupByItems() {
+        List<List<Field>> groupBys = getGroupBys("SELECT gender, city FROM accounts");
+        Assert.assertTrue(groupBys.isEmpty());
+    }
+
+    private List<List<Field>> getGroupBys(String query) {
+        return getSelect(query).getGroupBys();
+    }
+
+    private List<Field> getSelectFields(String query) {
+        return getSelect(query).getFields();
+    }
+
+    private Select getSelect(String query) {
+        SQLQueryExpr queryExpr = SqlParserUtils.parse(query);
+        Select select = null;
+        try {
+            select = new SqlParser().parseSelect(queryExpr);
+        } catch (SqlParseException e) {
+            e.printStackTrace();
+        }
+        return select;
     }
 }
