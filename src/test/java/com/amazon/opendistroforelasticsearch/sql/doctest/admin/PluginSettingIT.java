@@ -94,7 +94,7 @@ public class PluginSettingIT extends DocTest {
         docSetting(
             QUERY_ANALYSIS_SEMANTIC_THRESHOLD,
             "Because query analysis needs to build semantic context in memory, index with large number of field " +
-            "would be skipped. You can update it to apply analysis to smaller or larger index as you wish.",
+            "would be skipped. You can update it to apply analysis to smaller or larger index as needed.",
             50
         );
     }

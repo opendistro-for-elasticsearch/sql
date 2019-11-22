@@ -35,12 +35,10 @@ public class ProtocolIT extends DocTest {
     public void requestFormat() {
         section(
             title("Request Format"),
-            description("Request body by HTTP POST accepts a few more fields than SQL query."),
-            //syntax(""),
+            description("The body of HTTP POST request can take a few more other fields with SQL query."),
             example(
                 description(
-                    "Use `filter` to work with Elasticsearch DSL directly. Note that the content is present in",
-                    "final Elasticsearch request DSL as it is."
+                    "Use `filter` to add more conditions to Elasticsearch DSL directly."
                 ),
                 post(
                     body(
@@ -52,7 +50,7 @@ public class ProtocolIT extends DocTest {
                 explainFormat(IGNORE_REQUEST, PRETTY_JSON_RESPONSE)
             ),
             example(
-                description("Use `parameters` for actual value for placeholder in prepared SQL query to be replaced."),
+                description("Use `parameters` for actual parameter value in prepared SQL query."),
                 post(
                     body(
                         "\"query\": \"SELECT * FROM accounts WHERE age = ?\"",
@@ -71,8 +69,7 @@ public class ProtocolIT extends DocTest {
             title("Elasticsearch DSL"),
             description(
                 "By default the plugin returns original response from Elasticsearch in JSON. Because this is",
-                "the native response from Elasticsearch, extra efforts are needed to parse and interpret it.",
-                "Meanwhile mutation like field alias will not be present in it."
+                "the native response from Elasticsearch, extra efforts are needed to parse and interpret it."
             ),
             example(
                 description(),
@@ -128,8 +125,7 @@ public class ProtocolIT extends DocTest {
         section(
             title("Raw Format"),
             description(
-                "Additionally you can also use raw format to pipe the result with other command line tool.",
-                "for post processing."
+                "Additionally raw format can be used to pipe the result to other command line tool for post processing."
             ),
             example(
                 description(),

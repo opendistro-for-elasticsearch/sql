@@ -23,12 +23,12 @@ Request Format
 Description
 -----------
 
-Request body by HTTP POST accepts a few more fields than SQL query.
+The body of HTTP POST request can take a few more other fields with SQL query.
 
 Example 1
 ---------
 
-Use `filter` to work with Elasticsearch DSL directly. Note that the content is present in final Elasticsearch request DSL as it is.
+Use `filter` to add more conditions to Elasticsearch DSL directly.
 
 SQL query::
 
@@ -88,7 +88,7 @@ Explain::
 Example 2
 ---------
 
-Use `parameters` for actual value for placeholder in prepared SQL query to be replaced.
+Use `parameters` for actual parameter value in prepared SQL query.
 
 SQL query::
 
@@ -139,7 +139,7 @@ Elasticsearch DSL
 Description
 -----------
 
-By default the plugin returns original response from Elasticsearch in JSON. Because this is the native response from Elasticsearch, extra efforts are needed to parse and interpret it. Meanwhile mutation like field alias will not be present in it.
+By default the plugin returns original response from Elasticsearch in JSON. Because this is the native response from Elasticsearch, extra efforts are needed to parse and interpret it.
 
 Example
 -------
@@ -307,7 +307,7 @@ Raw Format
 Description
 -----------
 
-Additionally you can also use raw format to pipe the result with other command line tool. for post processing.
+Additionally raw format can be used to pipe the result to other command line tool for post processing.
 
 Example
 -------
