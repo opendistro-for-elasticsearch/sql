@@ -14,7 +14,7 @@ Plugin Monitoring
 Introduction
 ============
 
-From stats endpoint, you are able to collect metrics for the plugin within the duration. Note that only node level statistics collecting is implemented for now. In other words, you only get the metrics for the node from stats endpoint on a certain node. Cluster level statistics is yet to implement.
+By a stats endpoint, you are able to collect metrics for the plugin within the interval. Note that only node level statistics collecting is implemented for now. In other words, you only get the metrics for the node you're accessing. Cluster level statistics is yet to implement.
 
 Node Stats
 ==========
