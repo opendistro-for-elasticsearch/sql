@@ -42,6 +42,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.format;
 import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.isQuoted;
 
 /**
@@ -51,7 +52,7 @@ public class SQLFunctions {
 
     private static final Set<String> numberOperators = Sets.newHashSet(
             "exp", "expm1", "log", "log2", "log10", "ln", "sqrt", "cbrt", "ceil", "floor", "rint", "pow", "power",
-            "round", "random", "abs", "sign", "signum"
+            "round", "rand", "abs", "sign", "signum"
     );
 
     private static final Set<String> mathConstants = Sets.newHashSet("e", "pi");
@@ -246,6 +247,14 @@ public class SQLFunctions {
                         (SQLExpr) paramers.get(0).value, name);
                 break;
 
+            case "rand":
+                if (paramers.isEmpty()) {
+                    functionStr = rand();
+                } else {
+                    functionStr = rand((SQLExpr) paramers.get(0).value);
+                }
+                break;
+
             case "cot":
                 // ES does not support the function name cot
                 functionStr = mathSingleValueTemplate("1 / Math.tan", methodName,
@@ -316,17 +325,17 @@ public class SQLFunctions {
                 functionStr = log(SQLUtils.toSQLExpr("2"), (SQLExpr) paramers.get(0).value, name);
                 break;
             case "log10":
-                functionStr = log(SQLUtils.toSQLExpr("10"), (SQLExpr) paramers.get(0).value, name);
+                functionStr = log10((SQLExpr) paramers.get(0).value);
                 break;
             case "log":
                 if (paramers.size() > 1) {
                     functionStr = log((SQLExpr) paramers.get(0).value, (SQLExpr) paramers.get(1).value, name);
                 } else {
-                    functionStr = log((SQLUtils.toSQLExpr("Math.E")), (SQLExpr) paramers.get(0).value, name);
+                    functionStr = ln((SQLExpr) paramers.get(0).value);
                 }
                 break;
             case "ln":
-                functionStr = log(SQLUtils.toSQLExpr("Math.E"), (SQLExpr) paramers.get(0).value, name);
+                functionStr = ln((SQLExpr) paramers.get(0).value);
                 break;
             case "assign":
                 functionStr = assign((SQLExpr) paramers.get(0).value);
@@ -353,6 +362,12 @@ public class SQLFunctions {
                 break;
             case "ascii":
                 functionStr = ascii((SQLExpr) paramers.get(0).value);
+                break;
+            case "left":
+                functionStr = left((SQLExpr) paramers.get(0).value, (SQLExpr) paramers.get(1).value);
+                break;
+            case "right":
+                functionStr = right((SQLExpr) paramers.get(0).value, (SQLExpr) paramers.get(1).value);
                 break;
 
             case "if":
@@ -391,10 +406,10 @@ public class SQLFunctions {
         String name = nextId("upper");
 
         if (valueName == null) {
-            return new Tuple<>(name, def(name, upper(getPropertyOrValue(field), locale)));
+            return new Tuple<>(name, def(name, upper(getPropertyOrStringValue(field), locale)));
         } else {
-            return new Tuple<>(name, getPropertyOrValue(field) + "; "
-                    + def(name, valueName + "." + upper(getPropertyOrValue(field), locale)));
+            return new Tuple<>(name, getPropertyOrStringValue(field) + "; "
+                    + def(name, valueName + "." + upper(getPropertyOrStringValue(field), locale)));
         }
     }
 
@@ -402,10 +417,10 @@ public class SQLFunctions {
         String name = nextId("lower");
 
         if (valueName == null) {
-            return new Tuple<>(name, def(name, lower(getPropertyOrValue(field), locale)));
+            return new Tuple<>(name, def(name, lower(getPropertyOrStringValue(field), locale)));
         } else {
-            return new Tuple<>(name, getPropertyOrValue(field) + "; "
-                    + def(name, valueName + "." + lower(getPropertyOrValue(field), locale)));
+            return new Tuple<>(name, getPropertyOrStringValue(field) + "; "
+                    + def(name, valueName + "." + lower(getPropertyOrStringValue(field), locale)));
         }
     }
 
@@ -638,6 +653,16 @@ public class SQLFunctions {
         return new Tuple<>(name, result);
     }
 
+    public Tuple<String, String> log10(SQLExpr field) {
+        String name = nextId("log10");
+        return new Tuple<>(name, def(name, StringUtils.format("Math.log10(%s)", getPropertyOrValue(field))));
+    }
+
+    public Tuple<String, String> ln(SQLExpr field) {
+        String name = nextId("ln");
+        return new Tuple<>(name, def(name, StringUtils.format("Math.log(%s)", getPropertyOrValue(field))));
+    }
+
     public Tuple<String, String> trim(SQLExpr field, String valueName) {
         return strSingleValueTemplate("trim", field, valueName);
     }
@@ -650,14 +675,25 @@ public class SQLFunctions {
         return mathSingleValueTemplate("Math.toRadians", "radians", field, valueName);
     }
 
+    private Tuple<String, String> rand(SQLExpr expr) {
+        String name = nextId("rand");
+        return new Tuple<>(name, def(name, format("new Random(%s).nextDouble()", getPropertyOrValue(expr))));
+    }
+
+    private Tuple<String, String> rand() {
+        String name = nextId("rand");
+        return new Tuple<>(name, def(name, "new Random().nextDouble()"));
+    }
+
     private Tuple<String, String> mathDoubleValueTemplate(String methodName, String fieldName, SQLExpr val1,
                                                                  String val2, String valueName) {
         String name = nextId(fieldName);
         if (valueName == null) {
-            return new Tuple<>(name, def(name, func(methodName, false, getPropertyOrValue(val1), val2)));
+            return new Tuple<>(name, def(name, func(methodName, false, getPropertyOrValue(val1),
+                    getPropertyOrValue(val2))));
         } else {
             return new Tuple<>(name, getPropertyOrValue(val1) + "; "
-                    + def(name, func(methodName, false, valueName, val2)));
+                    + def(name, func(methodName, false, valueName, getPropertyOrValue(val2))));
         }
     }
 
@@ -688,9 +724,9 @@ public class SQLFunctions {
     private Tuple<String, String> strSingleValueTemplate(String methodName, SQLExpr field, String valueName) {
         String name = nextId(methodName);
         if (valueName == null) {
-            return new Tuple<>(name, def(name, getPropertyOrValue(field) + "." + func(methodName, false)));
+            return new Tuple<>(name, def(name, getPropertyOrStringValue(field) + "." + func(methodName, false)));
         } else {
-            return new Tuple<>(name, getPropertyOrValue(field) + "; "
+            return new Tuple<>(name, getPropertyOrStringValue(field) + "; "
                     + def(name, valueName + "." + func(methodName, false)));
         }
 
@@ -770,6 +806,20 @@ public class SQLFunctions {
     private Tuple<String, String> ascii(SQLExpr field) {
         String name = nextId("ascii");
         return new Tuple<>(name, def(name, "(int) " + getPropertyOrStringValue(field) + ".charAt(0)"));
+    }
+
+    private Tuple<String, String> left(SQLExpr expr, SQLExpr length) {
+        String name = nextId("left");
+        return new Tuple<>(name, StringUtils.format(
+                "def len = (int) Math.min(%s, %s.length()); def %s = %s.substring(0, len)",
+                exprString(length), getPropertyOrStringValue(expr), name, getPropertyOrStringValue(expr)));
+    }
+
+    private Tuple<String, String> right(SQLExpr expr, SQLExpr length) {
+        String name = nextId("right");
+        return new Tuple<>(name, StringUtils.format(
+                "def start = (int) Math.max(0, %s.length()-%s); def %s = %s.substring(start)",
+                getPropertyOrStringValue(expr), exprString(length), name, getPropertyOrStringValue(expr)));
     }
 
     private Tuple<String, String> date(SQLExpr field) {

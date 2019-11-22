@@ -15,11 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.unittest;
 
-import com.alibaba.druid.sql.parser.ParserException;
 import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.query.ESActionFactory;
-import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents;
 import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.client.Client;
@@ -33,6 +31,7 @@ import org.mockito.Mockito;
 
 import java.sql.SQLFeatureNotSupportedException;
 
+import static com.amazon.opendistroforelasticsearch.sql.util.SqlExplainUtils.explain;
 import static org.elasticsearch.index.query.QueryBuilders.constantScoreQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchPhraseQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
@@ -304,18 +303,6 @@ public class QueryFunctionsTest {
 
     private String query(String sql) {
         return explain(sql);
-    }
-
-    private String explain(String sql) {
-        try {
-            Client mockClient = Mockito.mock(Client.class);
-            CheckScriptContents.stubMockClient(mockClient);
-            QueryAction queryAction = ESActionFactory.create(mockClient, sql);
-
-            return queryAction.explain().explain();
-        } catch (SqlParseException | SQLFeatureNotSupportedException e) {
-            throw new ParserException("Illegal sql expr in: " + sql);
-        }
     }
 
     private Matcher<String> contains(AbstractQueryBuilder queryBuilder) {

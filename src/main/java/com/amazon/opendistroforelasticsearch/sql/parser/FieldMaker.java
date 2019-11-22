@@ -16,6 +16,8 @@
 package com.amazon.opendistroforelasticsearch.sql.parser;
 
 import com.alibaba.druid.sql.ast.SQLExpr;
+import com.alibaba.druid.sql.ast.SQLObject;
+import com.alibaba.druid.sql.ast.SQLSetQuantifier;
 import com.alibaba.druid.sql.ast.expr.SQLAggregateExpr;
 import com.alibaba.druid.sql.ast.expr.SQLAggregateOption;
 import com.alibaba.druid.sql.ast.expr.SQLAllColumnExpr;
@@ -29,14 +31,19 @@ import com.alibaba.druid.sql.ast.expr.SQLNumericLiteralExpr;
 import com.alibaba.druid.sql.ast.expr.SQLPropertyExpr;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.alibaba.druid.sql.ast.expr.SQLVariantRefExpr;
+import com.alibaba.druid.sql.ast.statement.SQLSelectGroupByClause;
+import com.alibaba.druid.sql.ast.statement.SQLSelectItem;
+import com.alibaba.druid.sql.ast.statement.SQLSelectQueryBlock;
 import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.KVValue;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.ScriptMethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Where;
+import com.amazon.opendistroforelasticsearch.sql.exception.SqlFeatureNotImplementedException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
 import com.amazon.opendistroforelasticsearch.sql.utils.Util;
+import com.google.common.base.Strings;
 import org.elasticsearch.common.collect.Tuple;
 
 import java.util.ArrayList;
@@ -53,6 +60,7 @@ public class FieldMaker {
 
     public Field makeField(SQLExpr expr, String alias, String tableAlias) throws SqlParseException {
         Field field = makeFieldImpl(expr, alias, tableAlias);
+        addGroupByForDistinctFieldsInSelect(expr, field);
 
         // why we may get null as a field???
         if (field != null) {
@@ -70,7 +78,6 @@ public class FieldMaker {
         } else if (expr instanceof SQLBinaryOpExpr) {
             //make a SCRIPT method field;
             return makeFieldImpl(makeBinaryMethodField((SQLBinaryOpExpr) expr, alias, true), alias, tableAlias);
-
         } else if (expr instanceof SQLAllColumnExpr) {
             return Field.STAR;
         } else if (expr instanceof SQLMethodInvokeExpr) {
@@ -92,6 +99,9 @@ public class FieldMaker {
                 return makeFilterMethodField(mExpr, alias);
             }
 
+            if ((SQLFunctions.builtInFunctions.contains(methodName.toLowerCase())) && Strings.isNullOrEmpty(alias)) {
+                alias = mExpr.toString();
+            }
             return makeMethodField(methodName, mExpr.getParameters(), null, alias, tableAlias, true);
         } else if (expr instanceof SQLAggregateExpr) {
             SQLAggregateExpr sExpr = (SQLAggregateExpr) expr;
@@ -120,6 +130,24 @@ public class FieldMaker {
                     null, alias, tableAlias, true);
         } else {
             throw new SqlParseException("unknown field name : " + expr);
+        }
+    }
+
+    private void addGroupByForDistinctFieldsInSelect(SQLExpr expr, Field field) {
+        if (expr.getParent() != null && expr.getParent() instanceof SQLSelectItem
+                && expr.getParent().getParent() != null
+                && expr.getParent().getParent() instanceof SQLSelectQueryBlock) {
+            SQLSelectQueryBlock queryBlock = (SQLSelectQueryBlock) expr.getParent().getParent();
+            if (queryBlock.getDistionOption() == SQLSetQuantifier.DISTINCT) {
+                SQLAggregateOption option = SQLAggregateOption.DISTINCT;
+                field.setAggregationOption(option);
+                if (queryBlock.getGroupBy() == null) {
+                    queryBlock.setGroupBy(new SQLSelectGroupByClause());
+                }
+                SQLSelectGroupByClause groupByClause = queryBlock.getGroupBy();
+                groupByClause.addItem(expr);
+                queryBlock.setGroupBy(groupByClause);
+            }
         }
     }
 
@@ -230,6 +258,7 @@ public class FieldMaker {
         SQLMethodInvokeExpr methodInvokeExpr = new SQLMethodInvokeExpr(operator, null);
         methodInvokeExpr.addParameter(expr.getLeft());
         methodInvokeExpr.addParameter(expr.getRight());
+        methodInvokeExpr.putAttribute("source", expr);
         return methodInvokeExpr;
     }
 
@@ -317,6 +346,21 @@ public class FieldMaker {
             } else if (object instanceof SQLCastExpr) {
                 String scriptCode = new CastParser((SQLCastExpr) object, alias, tableAlias).parse(false);
                 paramers.add(new KVValue("script", new SQLCharExpr(scriptCode)));
+            } else if (object instanceof SQLAggregateExpr) {
+                SQLObject parent = object.getParent();
+                SQLExpr source = (SQLExpr) parent.getAttribute("source");
+
+                if (parent instanceof SQLMethodInvokeExpr && source == null) {
+                    throw new SqlFeatureNotImplementedException(
+                            "Function calls of form '"
+                                    + ((SQLMethodInvokeExpr) parent).getMethodName()
+                                    + "("
+                                    + ((SQLAggregateExpr) object).getMethodName()
+                                    + "(...))' are not implemented yet");
+                }
+
+                throw new SqlFeatureNotImplementedException(
+                        "The complex aggregate expressions are not implemented yet: " + source);
             } else {
                 paramers.add(new KVValue(Util.removeTableAilasFromField(object, tableAlias)));
             }
@@ -356,9 +400,9 @@ public class FieldMaker {
         }
 
         if (builtInScriptFunction) {
-            return new ScriptMethodField(name, paramers, option == null ? null : option.name(), alias);
+            return new ScriptMethodField(name, paramers, option, alias);
         } else {
-            return new MethodField(name, paramers, option == null ? null : option.name(), alias);
+            return new MethodField(name, paramers, option, alias);
         }
     }
 }

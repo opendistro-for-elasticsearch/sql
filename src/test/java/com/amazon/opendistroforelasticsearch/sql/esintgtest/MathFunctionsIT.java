@@ -211,6 +211,13 @@ public class MathFunctionsIT extends SQLIntegTestCase {
     }
 
     @Test
+    public void log10Test() throws IOException{
+        SearchHit[] hits = query("SELECT log10(1000) AS log10");
+        double log10 = (double) getField(hits[0], "log10");
+        assertThat(log10, equalTo(3.0));
+    }
+
+    @Test
     public void ln() throws IOException {
         SearchHit[] hits = query("SELECT LN(5) AS ln");
         double ln = (double) getField(hits[0], "ln");
@@ -226,6 +233,15 @@ public class MathFunctionsIT extends SQLIntegTestCase {
                 ),
                 containsString("\"type\": \"double\"")
         );
+    }
+
+    @Test
+    public void rand() throws IOException {
+        SearchHit[] hits = query("SELECT RAND() AS rand", "ORDER BY rand");
+        for (SearchHit hit : hits) {
+            double rand = (double) getField(hit, "rand");
+            assertTrue(rand >= 0 && rand < 1);
+        }
     }
 
     private SearchHit[] query(String select, String... statements) throws IOException {

@@ -15,6 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.domain;
 
+import com.alibaba.druid.sql.ast.expr.SQLAggregateOption;
+
 import java.util.List;
 
 /**
@@ -23,7 +25,7 @@ import java.util.List;
 public class ScriptMethodField extends MethodField {
     private final String functionName;
 
-    public ScriptMethodField(String functionName, List<KVValue> params, String option, String alias) {
+    public ScriptMethodField(String functionName, List<KVValue> params, SQLAggregateOption option, String alias) {
         super("script", params, option, alias);
         this.functionName = functionName;
     }
