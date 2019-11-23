@@ -40,6 +40,11 @@ public class SqlRequest {
         this.request = makeRequest(method, endpoint, body, params);
     }
 
+    /**
+     * Send request to Elasticsearch via client and create response for it.
+     * @param client    restful client connection
+     * @return          sql response
+     */
     public SqlResponse send(RestClient client) {
         try {
             return new SqlResponse(client.performRequest(request));
@@ -54,7 +59,11 @@ public class SqlRequest {
         }
     }
 
-    Request request() {
+    /**
+     * Expose request for request formatter.
+     * @return  native Elasticsearch format
+     */
+    public Request request() {
         return request;
     }
 

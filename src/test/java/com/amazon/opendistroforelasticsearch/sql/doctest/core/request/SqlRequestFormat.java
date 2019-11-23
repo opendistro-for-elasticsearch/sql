@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -54,13 +55,10 @@ public enum SqlRequestFormat {
             }
 
             str.append(StringUtils.format("-X %s ", request.getMethod())).
-                append(StringUtils.format("localhost:9200%s", request.getEndpoint()));
+                append("localhost:9200").append(request.getEndpoint());
 
             if (!request.getParameters().isEmpty()) {
-                str.append("?").
-                    append(request.getParameters().entrySet().stream().
-                        map(e -> e.getKey() + "=" + e.getValue()).
-                        collect(Collectors.joining("&")));
+                str.append(formatParams(request.getParameters()));
             }
 
             String body = body(request);
@@ -82,10 +80,7 @@ public enum SqlRequestFormat {
                 append(request.getEndpoint());
 
             if (!request.getParameters().isEmpty()) {
-                str.append("?").
-                    append(request.getParameters().entrySet().stream().
-                        map(e -> e.getKey() + "=" + e.getValue()).
-                        collect(Collectors.joining("&")));
+                str.append(formatParams(request.getParameters()));
             }
 
             str.append('\n').
@@ -102,7 +97,7 @@ public enum SqlRequestFormat {
     public abstract String format(SqlRequest request);
 
     @SuppressWarnings("UnstableApiUsage")
-    private static String body(Request request) {
+    protected String body(Request request) {
         String body = "";
         try {
             InputStream content = request.getEntity().getContent();
@@ -114,5 +109,11 @@ public enum SqlRequestFormat {
             throw new IllegalStateException("Failed to parse and format body from request", e);
         }
         return body;
+    }
+
+    protected String formatParams(Map<String, String> params) {
+        return params.entrySet().stream().
+               map(e -> e.getKey() + "=" + e.getValue()).
+               collect(Collectors.joining("&", "?", ""));
     }
 }

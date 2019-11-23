@@ -39,6 +39,10 @@ public class Template {
         this.templateFullPath = Paths.get(TestUtils.getResourceFilePath(TEMPLATE_FOLDER_ROOT + templateRelativePath));
     }
 
+    /**
+     * Copy template file to target document. Replace it if existing.
+     * @param docFullPath   full path of target document
+     */
     public void copyToDocument(Path docFullPath) {
         try {
             Files.createDirectories(docFullPath.getParent());

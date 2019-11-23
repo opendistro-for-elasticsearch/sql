@@ -33,6 +33,10 @@ public class TestData {
         this.testFilePaths = testFilePaths;
     }
 
+    /**
+     * Load test data in file to Elaticsearch cluster via client.
+     * @param test  current test instance
+     */
     public void loadToES(DocTest test) {
         for (String filePath : testFilePaths) {
             try {
@@ -45,6 +49,10 @@ public class TestData {
         }
     }
 
+    /**
+     * Use file name (without file extension) as index name implicitly.
+     * For example, for 'testdata/accounts.json', 'accounts' will be used.
+     */
     private String indexName(String filePath) {
         return filePath.substring(
             filePath.lastIndexOf(File.separatorChar) + 1,

@@ -24,7 +24,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Data table that represent data in table with header.
+ * Data table that represent rows of data with a header.
+ * For now the format is actually in ReST and may need to decouple later.
  */
 public class DataTable {
 
@@ -42,12 +43,6 @@ public class DataTable {
     public void addRow(Object[] row) {
         rows.add(row);
         updateMaxWidthForEachColumn(row);
-    }
-
-    private void updateMaxWidthForEachColumn(Object[] row) {
-        for (int i = 0; i < row.length; i++) {
-            maxWidths[i] = Math.max(maxWidths[i], row[i].toString().length());
-        }
     }
 
     @Override
@@ -73,12 +68,22 @@ public class DataTable {
         return str.toString();
     }
 
+    private void updateMaxWidthForEachColumn(Object[] row) {
+        for (int i = 0; i < row.length; i++) {
+            maxWidths[i] = Math.max(maxWidths[i], row[i].toString().length());
+        }
+    }
+
     private String separateLine(String separator) {
         return Arrays.stream(maxWidths).
                       mapToObj(width -> Strings.repeat(separator, width)).
                       collect(Collectors.joining("+", "+", "+"));
     }
 
+    /**
+     * Format as Java String.format needs to make use of auto pad feature.
+     * For example, to ensure width of 10 and pad spaces, we need to String.format("%10s", str);
+     */
     private String format() {
         return Arrays.stream(maxWidths).
                       mapToObj(width -> "%" + width + "s").

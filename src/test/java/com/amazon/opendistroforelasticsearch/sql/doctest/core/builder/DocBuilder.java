@@ -33,9 +33,9 @@ import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.EXP
 import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.QUERY_API_ENDPOINT;
 
 /**
- * Build document by custom DSL. To make it more readable, user needs to implement this interface
- * to provide things required such as client connection and document. As benefit, they can use the
- * this DSL in readable and fluent way.
+ * Build document by custom DSL. To make it more readable, each doc test needs to implement this interface
+ * and provide things required, such as client connection and document handle. As benefit, they can use the
+ * DSL to build document in readable and fluent way.
  */
 public interface DocBuilder {
 
@@ -53,6 +53,15 @@ public interface DocBuilder {
 
     /**
      * Entry point to start building document by DSL.
+     * Each section consists of:
+     *  1. Title
+     *  2. Description
+     *  3. Example(s)
+     *     3.1 Description
+     *     3.2 [Sample request]
+     *     3.3 [Explain request]
+     *     3.4 [Explain output]
+     *     3.5 [Result set]
      *
      * @param title         title of the section
      * @param description   description paragraph
@@ -91,6 +100,7 @@ public interface DocBuilder {
         }
     }
 
+    /** Construct an example by default query and explain format */
     default Example example(String description, Requests requests) {
         return example(description, requests,
             queryFormat(KIBANA_REQUEST, TABLE_RESPONSE),
@@ -112,6 +122,7 @@ public interface DocBuilder {
         return example;
     }
 
+    /** Simple method just for readability */
     default String title(String title) {
         return title;
     }

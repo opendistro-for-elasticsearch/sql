@@ -36,6 +36,10 @@ public class SqlResponse {
         this.response = response;
     }
 
+    /**
+     * Parse body in the response.
+     * @return  response body
+     */
     public String body() {
         try {
             return replaceChangingFields(TestUtils.getResponseBody(response, true));

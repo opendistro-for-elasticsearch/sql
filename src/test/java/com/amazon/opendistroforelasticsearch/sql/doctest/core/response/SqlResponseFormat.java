@@ -29,7 +29,7 @@ public enum SqlResponseFormat {
 
     IGNORE_RESPONSE {
         @Override
-        public String format(SqlResponse str) {
+        public String format(SqlResponse sqlResponse) {
             return "";
         }
     },

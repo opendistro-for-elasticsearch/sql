@@ -15,9 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.doctest.core;
 
-import com.amazon.opendistroforelasticsearch.sql.doctest.core.builder.DocBuilder;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.DocTestConfig;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.Section;
+import com.amazon.opendistroforelasticsearch.sql.doctest.core.builder.DocBuilder;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.Document;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.RstDocument;
 import com.amazon.opendistroforelasticsearch.sql.esintgtest.SQLIntegTestCase;
@@ -41,7 +41,7 @@ import static org.elasticsearch.test.ESIntegTestCase.Scope.SUITE;
  * Documentation test base class
  */
 @TestMethodProviders({DocTest.SectionMethod.class})
-@TestCaseOrdering(value = DocTest.SectionOrder.class)
+@TestCaseOrdering(DocTest.SectionOrder.class)
 @ClusterScope(scope= SUITE, numDataNodes=1, supportsDedicatedMasters=false, transportClientRatio=1)
 public abstract class DocTest extends SQLIntegTestCase implements DocBuilder {
 

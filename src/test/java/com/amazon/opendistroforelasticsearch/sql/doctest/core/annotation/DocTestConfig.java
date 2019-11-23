@@ -22,7 +22,7 @@ import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Configuration for initializing doctest.
+ * Configuration to initializing the set up for a doc test.
  */
 @Retention(RUNTIME)
 @Target(value = TYPE)
