@@ -3,23 +3,25 @@
 OpenDistro SQL Reference Manual
 ===============================
 
- * **Interfaces**
+Open Distro for Elasticsearch SQL enables you to extract insights out of Elasticsearch using the familiar SQL query syntax. Please refer to the `technical documentation <https://opendistro.github.io/for-elasticsearch-docs/>`_ for detailed information on installing and configuring opendistro-elasticsearch-sql plugin. Here is the table of contents for this reference manual:
 
-   - :doc:`Endpoint <interfaces/endpoint.rst>`
+* **Interfaces**
 
-   - :doc:`Protocol <interfaces/protocol.rst>`
+  - `Endpoint <interfaces/endpoint.rst>`_
 
- * **Administration**
+  - `Protocol <interfaces/protocol.rst>`_
 
-   - :doc:`Monitoring <interfaces/monitoring.rst>`
+* **Administration**
 
-   - :doc:`Plugin Settings <interfaces/settings.rst>`
+  - `Monitoring <admin/monitoring.rst>`_
 
- * **Data Query Language**
+  - `Plugin Settings <admin/settings.rst>`_
 
-   - TODO
+* **Data Query Language**
 
- * **Data Manipulation Language**
+  - TODO
 
-   - TODO
+* **Data Manipulation Language**
+
+  - TODO
 
