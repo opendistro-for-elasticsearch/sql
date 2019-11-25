@@ -29,12 +29,3 @@ Apart from the problems we identified earlier, we made significant improvement i
 5. *PartiQL Compatibility*: we are partially compatible with PartiQL specification which allows for query involved in nested JSON documents.
 6. *New ANTLR Parser*: a new ANTLR4 parser was generated from grammar based on what we support along with a new semantic analyzer to perform scope and type checking.
 
-
-## What’s happening now and in future?
-
-There are many exciting new feature contribution ( in a few weeks ) in development actively, such as 
-
-    1. ODBC driver for connections to excel et.al
-    2. ES-SQL command-line tool 
-    3. Dedicated SQL query console in kibana
-
