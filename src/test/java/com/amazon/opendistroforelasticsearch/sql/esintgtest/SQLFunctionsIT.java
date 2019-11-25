@@ -127,7 +127,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
                 executeQuery(query),
                 hitAny(
                         kvString("/_source/address", equalTo("880 Holmes Lane")),
-                        kvString("/fields/LOWER_1/0", equalTo("amber")))
+                        kvString("/fields/LOWER(firstname)/0", equalTo("amber")))
         );
     }
 
@@ -144,20 +144,20 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         assertThat(
                 executeQuery(query),
                 hitAny(
-                        kvString("/fields/LOWER_1/0", equalTo("ıl")))
+                        kvString("/fields/LOWER(state.keyword, 'tr')/0", equalTo("ıl")))
         );
     }
 
     @Test
     public void caseChangeWithAggregationTest() throws IOException {
-        String query = "SELECT UPPER(e.firstname), COUNT(*)" +
+        String query = "SELECT UPPER(e.firstname) AS upper, COUNT(*)" +
                 "FROM elasticsearch-sql_test_index_account/account e " +
                 "WHERE LOWER(e.lastname)='duke' " +
-                "GROUP BY UPPER(e.firstname) ";
+                "GROUP BY upper";
 
         assertThat(
                 executeQuery(query),
-                hitAny("/aggregations/UPPER_1/buckets", kvString("/key", equalTo("AMBER"))));
+                hitAny("/aggregations/upper/buckets", kvString("/key", equalTo("AMBER"))));
     }
 
     @Test
@@ -479,6 +479,36 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         assertThat(
                 executeQuery("SELECT ASCII('sampleName') AS ascii FROM " + TEST_INDEX_ACCOUNT),
                 hitAny(kvInt("/fields/ascii/0", equalTo(115)))
+        );
+    }
+
+    /**
+     * The following tests for LEFT and RIGHT are ignored because the ES client fails to parse "LEFT"/"RIGHT" in
+     * the integTest
+     */
+    @Ignore
+    @Test
+    public void left() throws IOException {
+        assertThat(
+                executeQuery("SELECT LEFT('sample', 2) AS left FROM " + TEST_INDEX_ACCOUNT + " ORDER BY left"),
+                hitAny(kvString("/fields/left/0", equalTo("sa")))
+        );
+        assertThat(
+                executeQuery("SELECT LEFT('sample', 20) AS left FROM " + TEST_INDEX_ACCOUNT + " ORDER BY left"),
+                hitAny(kvString("/fields/left/0", equalTo("sample")))
+        );
+    }
+
+    @Ignore
+    @Test
+    public void right() throws IOException {
+        assertThat(
+                executeQuery("SELECT RIGHT('elastic', 3) AS right FROM " + TEST_INDEX_ACCOUNT + " ORDER BY right"),
+                hitAny(kvString("/fields/right/0", equalTo("tic")))
+        );
+        assertThat(
+                executeQuery("SELECT RIGHT('elastic', 20) AS right FROM " + TEST_INDEX_ACCOUNT + " ORDER BY right"),
+                hitAny(kvString("/fields/right/0", equalTo("elastic")))
         );
     }
 

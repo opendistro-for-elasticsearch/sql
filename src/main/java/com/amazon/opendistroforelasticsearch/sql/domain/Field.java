@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.domain;
 
 import com.alibaba.druid.sql.ast.SQLExpr;
+import com.alibaba.druid.sql.ast.expr.SQLAggregateOption;
 import com.amazon.opendistroforelasticsearch.sql.parser.ChildrenType;
 import com.amazon.opendistroforelasticsearch.sql.parser.NestedType;
 
@@ -34,6 +35,7 @@ public class Field implements Cloneable {
     public static final Field STAR = new Field("*", "");
 
     protected String name;
+    protected SQLAggregateOption option;
     private String alias;
     private NestedType nested;
     private ChildrenType children;
@@ -44,6 +46,7 @@ public class Field implements Cloneable {
         this.alias = alias;
         this.nested = null;
         this.children = null;
+        this.option = null;
     }
 
     public Field(String name, String alias, NestedType nested, ChildrenType children) {
@@ -102,6 +105,14 @@ public class Field implements Cloneable {
             return null;
         }
         return this.children.childType;
+    }
+
+    public void setAggregationOption(SQLAggregateOption option) {
+        this.option = option;
+    }
+
+    public SQLAggregateOption getOption() {
+        return option;
     }
 
     @Override
