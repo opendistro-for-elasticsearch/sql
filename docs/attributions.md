@@ -2,7 +2,6 @@ This project is based on the Apache 2.0-licensed [elasticsearch-sql](https://git
 
 ## What’s OpenDistro SQL?
 
-https://github.com/opendistro-for-elasticsearch/sql
 The Open Distro for Elaticsearch SQL plugin launched early this year which lets you write queries in SQL rather than the Elasticsearch query domain-specific language (DSL). While the majority of our codebase is on top of ES-SQL initially, there are a lot of new features and bug fixes introduced in our implementation. And in the following releases this year, we keep improving and refactoring our code as well as maintaining version currency of Elasticsearch. Basically OpenDistro SQL is superset of ES-SQL and it’s more reliable and up-to-date.
 
 
@@ -23,7 +22,7 @@ Apart from the problems we identified earlier, we made significant improvement i
 
 1. *Integration Test*: we migrated all integrate tests to standard Elasticsearch IT framework which spin up in-memory cluster for testing. Now all test cases treat plugin code as blackbox and verify functionality from externally.
 2. *New JDBC Driver*: we developed our own JDBC driver without any dependency on Elasticsearch proprietary code.
-    https://github.com/opendistro-for-elasticsearch/sql
+    [sql-jdbc](https://github.com/opendistro-for-elasticsearch/sql-jdbc)
 3. *Better Hash JOIN*: OpenDistro SQL launched with Block Hash Join implementation with circuit break mechanism to protect your Elasticsearch memory. Performance testing showed our implementation is 1.5 ~ 2x better than old hash join in terms of throughput and latency and much lower error rate under heavy pressure.
 4. *Query Planner*: logical and physical planner was added to support JOIN query in efficient and extendible way.
 5. *PartiQL Compatibility*: we are partially compatible with PartiQL specification which allows for query involved in nested JSON documents.
