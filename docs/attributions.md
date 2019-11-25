@@ -1,12 +1,12 @@
-This project is based on the Apache 2.0-licensed elasticsearch-sql (https://github.com/NLPchina/elasticsearch-sql) project. Thank you eliranmoyal (https://github.com/eliranmoyal), shi-yuan (https://github.com/shi-yuan), ansjsun (https://github.com/ansjsun) and everyone else who contributed great code to that project. 
+This project is based on the Apache 2.0-licensed [elasticsearch-sql](https://github.com/NLPchina/elasticsearch-sql) project. Thank you [eliranmoyal](https://github.com/eliranmoyal), [shi-yuan](https://github.com/shi-yuan), [ansjsun](https://github.com/ansjsun) and everyone else who contributed great code to that project. 
 
-1. What’s OpenDistro SQL?
+## What’s OpenDistro SQL?
 
 https://github.com/opendistro-for-elasticsearch/sql
 The Open Distro for Elaticsearch SQL plugin launched early this year which lets you write queries in SQL rather than the Elasticsearch query domain-specific language (DSL). While the majority of our codebase is on top of ES-SQL initially, there are a lot of new features and bug fixes introduced in our implementation. And in the following releases this year, we keep improving and refactoring our code as well as maintaining version currency of Elasticsearch. Basically OpenDistro SQL is superset of ES-SQL and it’s more reliable and up-to-date.
 
 
-2. The problems we found in NLPchina-ES-SQL.
+## The problems we found in NLPchina-ES-SQL.
 
 The ES-SQL codebase has clear architecture and abstraction for a basic query engine, such as SQL parser, DSL generator and domain model. However as we dived deep, we identified the following major problems and resolved them before launch:
 
@@ -17,7 +17,7 @@ The ES-SQL codebase has clear architecture and abstraction for a basic query eng
 
 
 
-3. What major improvements we made?
+## What major improvements we made?
 
 Apart from the problems we identified earlier, we made significant improvement in terms of functionality and reliability:
 
@@ -30,7 +30,7 @@ Apart from the problems we identified earlier, we made significant improvement i
 6. *New ANTLR Parser*: a new ANTLR4 parser was generated from grammar based on what we support along with a new semantic analyzer to perform scope and type checking.
 
 
-4. What’s happening now and in future?
+## What’s happening now and in future?
 
 There are many exciting new feature contribution ( in a few weeks ) in development actively, such as 
 
