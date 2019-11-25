@@ -10,7 +10,7 @@ The Open Distro for Elaticsearch SQL plugin launched early this year which lets 
 The ES-SQL codebase has clear architecture and abstraction for a basic query engine, such as SQL parser, DSL generator and domain model. However as we dived deep, we identified the following major problems and resolved them before launch:
 
 1. The JDBC driver used Elasticsearch proprietary API.
-2. JOIN capability matters but the Hash JOIN implementation was not usable for production because it loads all data into memory.
+2. JOIN capability matters but the Hash JOIN implementation was not scalable for production use because it loads all data into memory.
 3. For complex queries like JOIN or Multi-query, there was no concept of a query plan for planning and optimizing.
 4. ES-SQL uses a handwritten SQL parser Druid which is not extensible, so many queries that not supported or has semantical error can still pass the parsing but ended up throwing runtime error.
 
