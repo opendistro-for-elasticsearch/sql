@@ -5,7 +5,7 @@ Open Distro for Elasticsearch enables you to extract insights out of Elasticsear
 
 ## Documentation
 
-Please refer to the the [reference manual](./docs/user/index.rst) and [technical documentation](https://opendistro.github.io/for-elasticsearch-docs) for detailed information on installing and configuring opendistro-elasticsearch-sql plugin.
+Please refer to the [reference manual](./docs/user/index.rst) and [technical documentation](https://opendistro.github.io/for-elasticsearch-docs) for detailed information on installing and configuring opendistro-elasticsearch-sql plugin.
 
 ## Setup
 
