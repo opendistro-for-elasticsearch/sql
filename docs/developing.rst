@@ -248,7 +248,9 @@ For integration test:
 * Elasticsearch test framework is in use so an in-memory cluster will spin up for each test class.
 * You can only access the plugin and verify the correctness of your functionality via REST client externally. 
 
-Here is a sample for integration test for your reference::: java
+Here is a sample for integration test for your reference:::
+
+.. code-block:: java
 
  public class XXXIT extends SQLIntegTestCase { // Extends our base test class
  
@@ -309,4 +311,29 @@ For new feature or big enhancement, it is worth document your design idea for ot
 Reference Manual
 ----------------
 
-TODO
+Currently the reference manual documents are generated from a set of special integration tests. The integration tests use custom DSL to build ReStructure Text markup with real query and result set captured and documented.
+
+1. Add a new template to `src/test/resources/doctest/templates`.
+2. Add a new test class as below with `@DocTestConfig` annotation specifying template and test data used.
+3. Run `./gradlew build` to generate the actual documents into `docs/user` folder.
+
+Sample test class:::
+
+.. code-block:: java
+
+@DocTestConfig(template = "interfaces/protocol.rst", testData = {"accounts.json"})
+public class ProtocolIT extends DocTest {
+
+    @Section(1)
+    public void XXX() {
+        section(
+            title("A New Section"),
+            description(
+                "Describe what is the use of new functionality."
+            ),
+            example(
+                description("Describe what is the use case of this example to show"),
+                post("SELECT ...")
+            )
+        );
+    }
