@@ -17,15 +17,15 @@ Prerequisites
 JDK
 ---
 
-JDK 12 is required to build the plugin because of the dependency on Elasticsearch test framework in our integration test. So you must have a JDK 12 installation on your machine. After the installation, please configure JAVA_HOME environment variable accordingly. Here is official instruction on how to set JAVA_HOME for different platform: https://docs.oracle.com/cd/E19182-01/820-7851/inst_cli_jdk_javahome_t/. If everything goes right, you should be able to see similar output as below:
+JDK 12 is required to build the plugin because of the dependency on Elasticsearch test framework in our integration test. So you must have a JDK 12 installation on your machine. After the installation, please configure JAVA_HOME environment variable accordingly. Here is official instruction on how to set JAVA_HOME for different platform: https://docs.oracle.com/cd/E19182-01/820-7851/inst_cli_jdk_javahome_t/. If everything goes right, you should be able to see similar output as below::
 
-$ echo $JAVA_HOME
-/Library/Java/JavaVirtualMachines/jdk-12.0.2.jdk/Contents/Home
+ $ echo $JAVA_HOME
+ /Library/Java/JavaVirtualMachines/jdk-12.0.2.jdk/Contents/Home
 
-$ java -version
-java version "12.0.2" 2019-07-16
-Java(TM) SE Runtime Environment (build 12.0.2+10)
-Java HotSpot(TM) 64-Bit Server VM (build 12.0.2+10, mixed mode, sharing)
+ $ java -version
+ java version "12.0.2" 2019-07-16
+ Java(TM) SE Runtime Environment (build 12.0.2+10)
+ Java HotSpot(TM) 64-Bit Server VM (build 12.0.2+10, mixed mode, sharing)
 
 Elasticsearch & Kibana
 ----------------------
