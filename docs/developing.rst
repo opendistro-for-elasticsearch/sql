@@ -17,7 +17,7 @@ Prerequisites
 JDK
 ---
 
-JDK 12 is required to build the plugin because of the dependency on Elasticsearch test framework in our integration test. So you must have a JDK 12 installation on your machine. After the installation, please configure JAVA_HOME environment variable accordingly. Here is official instruction on how to set JAVA_HOME for different platform: https://docs.oracle.com/cd/E19182-01/820-7851/inst_cli_jdk_javahome_t/. If everything goes right, you should be able to see similar output as below::
+JDK 12 is required to build the plugin because of the dependency on Elasticsearch test framework in our integration test. So you must have a JDK 12 installation on your machine. After the installation, please configure JAVA_HOME environment variable accordingly. If everything goes right, you should be able to see sample output as below on MacOS::
 
  $ echo $JAVA_HOME
  /Library/Java/JavaVirtualMachines/jdk-12.0.2.jdk/Contents/Home
@@ -26,6 +26,8 @@ JDK 12 is required to build the plugin because of the dependency on Elasticsearc
  java version "12.0.2" 2019-07-16
  Java(TM) SE Runtime Environment (build 12.0.2+10)
  Java HotSpot(TM) 64-Bit Server VM (build 12.0.2+10, mixed mode, sharing)
+
+Here is official instruction on how to set JAVA_HOME for different platforms: https://docs.oracle.com/cd/E19182-01/820-7851/inst_cli_jdk_javahome_t/. 
 
 Elasticsearch & Kibana
 ----------------------
@@ -38,34 +40,34 @@ Note that Kibana is optional for the development but would be more productive to
 Getting Source Code
 ===================
 
-Now you can check out the code from your forked GitHub repository and create a new branch for your bug fix or enhancement work.
+Now you can check out the code from your forked GitHub repository and create a new branch for your bug fix or enhancement work.::
 
-$ git clone https://github.com/<your_account>/sql.git
-$ git checkout -b <branch_name>
+ $ git clone https://github.com/<your_account>/sql.git
+ $ git checkout -b <branch_name>
 
-If there is update in master or you want to keep the forked repository long living, you can sync it by following the instructions: https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/syncing-a-fork. Basically you just need to pull latest changes from upstream master once you add it for the first time.
+If there is update in master or you want to keep the forked repository long living, you can sync it by following the instructions: https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/syncing-a-fork. Basically you just need to pull latest changes from upstream master once you add it for the first time.::
 
-#Merge to your local master
-$ git fetch upstream
-$ git checkout master
-$ git merge upstream/master
+ #Merge to your local master
+ $ git fetch upstream
+ $ git checkout master
+ $ git merge upstream/master
 
-#Merge to your branch if any
-$ git checkout <branch_name>
-$ git merge master
+ #Merge to your branch if any
+ $ git checkout <branch_name>
+ $ git merge master
 
-After getting the source code as well as Elasticsearch and Kibana, your workspace layout may look like this:
+After getting the source code as well as Elasticsearch and Kibana, your workspace layout may look like this:::
 
-$ make opendistro
-$ cd opendistro
-$ ls -la                                                                     
-total 32
-drwxr-xr-x  7 user group^users 4096 Nov 21 12:59 .
-drwxr-xr-x 19 user group^users 4096 Nov 21 09:44 ..
-drwxr-xr-x 10 user group^users 4096 Nov  8 12:16 elasticsearch-7.3.2
-drwxr-xr-x 14 user group^users 4096 Nov  8 12:14 kibana-7.3.2-linux-x86_64
-drwxr-xr-x 16 user group^users 4096 Nov 15 10:59 sql
-drwxr-xr-x  9 user group^users 4096 Oct 31 14:39 sql-jdbc
+ $ make opendistro
+ $ cd opendistro
+ $ ls -la                                                                     
+ total 32
+ drwxr-xr-x  7 user group^users 4096 Nov 21 12:59 .
+ drwxr-xr-x 19 user group^users 4096 Nov 21 09:44 ..
+ drwxr-xr-x 10 user group^users 4096 Nov  8 12:16 elasticsearch-7.3.2
+ drwxr-xr-x 14 user group^users 4096 Nov  8 12:14 kibana-7.3.2-linux-x86_64
+ drwxr-xr-x 16 user group^users 4096 Nov 15 10:59 sql
+ drwxr-xr-x  9 user group^users 4096 Oct 31 14:39 sql-jdbc
 
 
 Configuring IDEs
@@ -81,27 +83,27 @@ Although JDK 12 is required to build the plugin, the Java language level needs t
 Remote Debugging
 ----------------
 
-Firstly you need to add the following configuration to the JVM used by your IDE. For Intellij IDEA, it should be added to <ES installation>/config/jvm.options file. After configuring this, an agent in JVM will listen on the port when your Elasticsearch bootstraps and wait for IDE debugger to connect. So you should be able to debug by setting up a “Remote Run/Debug Configuration”.
+Firstly you need to add the following configuration to the JVM used by your IDE. For Intellij IDEA, it should be added to <ES installation>/config/jvm.options file. After configuring this, an agent in JVM will listen on the port when your Elasticsearch bootstraps and wait for IDE debugger to connect. So you should be able to debug by setting up a “Remote Run/Debug Configuration”.::
 
--agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
+ -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
 
 License Header
 --------------
 
-Because our code is licensed under Apache 2, you need to add the following license header to all new source code files. To automate this whenever creating new file, you can follow instructions for your IDE.
+Because our code is licensed under Apache 2, you need to add the following license header to all new source code files. To automate this whenever creating new file, you can follow instructions for your IDE.::
 
-/*
- * Licensed under the Apache License, Version 2.0 (the "License").
- * You may not use this file except in compliance with the License.
- * A copy of the License is located at
- * 
- *    http://www.apache.org/licenses/LICENSE-2.0
- * 
- * or in the "license" file accompanying this file. This file is distributed 
- * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
- * express or implied. See the License for the specific language governing 
- * permissions and limitations under the License.
- */
+ /*
+  * Licensed under the Apache License, Version 2.0 (the "License").
+  * You may not use this file except in compliance with the License.
+  * A copy of the License is located at
+  * 
+  *    http://www.apache.org/licenses/LICENSE-2.0
+  * 
+  * or in the "license" file accompanying this file. This file is distributed 
+  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
+  * express or implied. See the License for the specific language governing 
+  * permissions and limitations under the License.
+  */
 
 For example, here is the instructions for Intellij IDEA https://www.jetbrains.com/help/idea/copyright.html to add a Template and Scope profile using the template.
 
@@ -114,7 +116,44 @@ Making Code Changes
 Project Strucure
 ----------------
 
-The plugin codebase is in standard layout of Gradle project:
+The plugin codebase is in standard layout of Gradle project:::
+
+ .
+ ├── CODE_OF_CONDUCT.md
+ ├── CONTRIBUTING.md
+ ├── LICENSE.TXT
+ ├── NOTICE
+ ├── README.md
+ ├── THIRD-PARTY
+ ├── build.gradle
+ ├── config
+ │   └── checkstyle
+ │       ├── checkstyle.xml
+ │       └── suppressions.xml
+ ├── docs
+ │   ├── dev
+ │   │   ├── SemanticAnalysis.md
+ │   │   ├── SubQuery.md
+ │   │   └── img
+ │   └── user
+ │       ├── admin
+ │       ├── index.rst
+ │       └── interfaces
+ ├── gradle.properties
+ ├── gradlew
+ ├── gradlew.bat
+ ├── opendistro-elasticsearch-sql.release-notes
+ ├── settings.gradle
+ └── src
+     ├── assembly
+     │   └── zip.xml
+     ├── main
+     │   ├── antlr
+     │   ├── java
+     │   └── resources
+     └── test
+         ├── java
+         └── resources
 
 * *build.gradle*: Gradle build script.
 * *config/*: only Checkstyle configuration files for now.
@@ -123,43 +162,6 @@ The plugin codebase is in standard layout of Gradle project:
     * *main/antlr*: ANTLR4 grammar files.
     * *main/java*: Java source code.
     * *test/java*: Java test code.
-
-.
-├── CODE_OF_CONDUCT.md
-├── CONTRIBUTING.md
-├── LICENSE.TXT
-├── NOTICE
-├── README.md
-├── THIRD-PARTY
-├── build.gradle
-├── config
-│   └── checkstyle
-│       ├── checkstyle.xml
-│       └── suppressions.xml
-├── docs
-│   ├── dev
-│   │   ├── SemanticAnalysis.md
-│   │   ├── SubQuery.md
-│   │   └── img
-│   └── user
-│       ├── admin
-│       ├── index.rst
-│       └── interfaces
-├── gradle.properties
-├── gradlew
-├── gradlew.bat
-├── opendistro-elasticsearch-sql.release-notes
-├── settings.gradle
-└── src
-    ├── assembly
-    │   └── zip.xml
-    ├── main
-    │   ├── antlr
-    │   ├── java
-    │   └── resources
-    └── test
-        ├── java
-        └── resources
 
 Code Convention
 ---------------
@@ -187,20 +189,20 @@ Most of the time you just need to run ./gradlew build which will make sure you p
 * ./gradlew *test*: Run all unit tests. Or use —tests “UT full path” to run individually. For example ./gradlew test --tests “com.amazon.opendistroforelasticsearch.sql.unittest.LocalClusterStateTest”.
 * ./gradlew *integTestRunner*: Run all integration test (this takes time). Same --tests argument can be used for integTestRunner task too.
 
-Sometimes your Gradle build fails or timeout due to Elasticsearch integration test process hung there. You can check this by the following commands:
+Sometimes your Gradle build fails or timeout due to Elasticsearch integration test process hung there. You can check this by the following commands:::
 
-#Check if multiple Gradle daemons started by different JDK.
-#Kill unnecessary ones and restart if necessary.
-$ ps aux | grep -i gradle
-$ ./gradlew stop
-$ ./gradlew start
+ #Check if multiple Gradle daemons started by different JDK.
+ #Kill unnecessary ones and restart if necessary.
+ $ ps aux | grep -i gradle
+ $ ./gradlew stop
+ $ ./gradlew start
 
-#Check if ES integTest process hung there. Kill it if so.
-$ ps aux | grep -i elasticsearch
+ #Check if ES integTest process hung there. Kill it if so.
+ $ ps aux | grep -i elasticsearch
 
-#Clean and rebuild
-$ ./gradlew clean
-$ ./gradlew build
+ #Clean and rebuild
+ $ ./gradlew clean
+ $ ./gradlew build
 
 Tips for Testing
 ----------------
@@ -245,21 +247,21 @@ For integration test:
 * Elasticsearch test framework is in use so an in-memory cluster will spin up for each test class.
 * You can only access the plugin and verify the correctness of your functionality via REST client externally. 
 
-Here is a sample for integration test for your reference:
+Here is a sample for integration test for your reference:::
 
-public class XXXIT extends SQLIntegTestCase { // Extends our base test class
-
-    @Override
-    protected void init() throws Exception {
-        loadIndex(Index.ACCOUNT); // Load predefined test index mapping and data
-    }
-
-    @Override
-    public void testXXX() { // Test query against the index and make assertion
-        JSONObject response = executeQuery("SELECT ...");
-        Assert.assertEquals(6, getTotalHits(response));
-    }
-}
+ public class XXXIT extends SQLIntegTestCase { // Extends our base test class
+ 
+     @Override
+     protected void init() throws Exception {
+         loadIndex(Index.ACCOUNT); // Load predefined test index mapping and data
+     }
+ 
+     @Override
+     public void testXXX() { // Test query against the index and make assertion
+         JSONObject response = executeQuery("SELECT ...");
+         Assert.assertEquals(6, getTotalHits(response));
+     }
+ }
 
 Finally thanks to JaCoCo library, you can check out the test coverage for your changes easily.
 
@@ -273,25 +275,25 @@ Sometime you want to deploy your changes to local Elasticsearch cluster, basical
 3. Restart Elasticsearch cluster to take it effect.
 
 
-To automate this common task, you can create a script as follows for reuse:
+To automate this common task, you can create a script as follows for reuse:::
 
-1. #./build-and-redeploy.sh
+ #./build-and-redeploy.sh
                                                   
-    export ELASTIC_VERSION="7.3.2"
-    export PLUGIN_VERSION="1.3.0.0"
+ export ELASTIC_VERSION="7.3.2"
+ export PLUGIN_VERSION="1.3.0.0"
     
-    cd sql 
-    ./gradlew assemble 
+ cd sql 
+ ./gradlew assemble 
     
-    cd ..
-    ./elasticsearch-$ELASTIC_VERSION/bin/elasticsearch-plugin remove opendistro_sql
+ cd ..
+ ./elasticsearch-$ELASTIC_VERSION/bin/elasticsearch-plugin remove opendistro_sql
     
-    kill -9 $(ps aux | awk '/[E]lasticsearch/ {print $2}') 
-    sleep 3;
+ kill -9 $(ps aux | awk '/[E]lasticsearch/ {print $2}') 
+ sleep 3;
     
-    ./elasticsearch-$ELASTIC_VERSION/bin/elasticsearch-plugin install file://$PWD/sql/build/distributions/opendistro_sql-$PLUGIN_VERSION.zip
+ ./elasticsearch-$ELASTIC_VERSION/bin/elasticsearch-plugin install file://$PWD/sql/build/distributions/opendistro_sql-$PLUGIN_VERSION.zip
     
-    nohup ./elasticsearch-$ELASTIC_VERSION/bin/elasticsearch 2>&1 | tee log.txt & 
+ nohup ./elasticsearch-$ELASTIC_VERSION/bin/elasticsearch 2>&1 | tee log.txt & 
 
 
 
