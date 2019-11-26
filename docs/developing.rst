@@ -155,6 +155,7 @@ The plugin codebase is in standard layout of Gradle project:::
          ├── java
          └── resources
 
+
 * *build.gradle*: Gradle build script.
 * *config/*: only Checkstyle configuration files for now.
 * *docs/*: include documentation for developers and reference manual for users.
@@ -247,7 +248,7 @@ For integration test:
 * Elasticsearch test framework is in use so an in-memory cluster will spin up for each test class.
 * You can only access the plugin and verify the correctness of your functionality via REST client externally. 
 
-Here is a sample for integration test for your reference:::
+Here is a sample for integration test for your reference::: java
 
  public class XXXIT extends SQLIntegTestCase { // Extends our base test class
  
