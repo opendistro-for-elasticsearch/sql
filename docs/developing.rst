@@ -289,26 +289,11 @@ Sometime you want to deploy your changes to local Elasticsearch cluster, basical
 3. Restart Elasticsearch cluster to take it effect.
 
 
-To automate this common task, you can create a script as follows for reuse:::
+To automate this common task, you can prepare an all-in-one command for reuse. Below is a sample command for MacOS::
 
- #./build-and-redeploy.sh
-                                                  
- export ELASTIC_VERSION="7.3.2"
- export PLUGIN_VERSION="1.3.0.0"
-    
- cd sql 
- ./gradlew assemble 
-    
- cd ..
- ./elasticsearch-$ELASTIC_VERSION/bin/elasticsearch-plugin remove opendistro_sql
-    
- kill -9 $(ps aux | awk '/[E]lasticsearch/ {print $2}') 
- sleep 3;
-    
- ./elasticsearch-$ELASTIC_VERSION/bin/elasticsearch-plugin install file://$PWD/sql/build/distributions/opendistro_sql-$PLUGIN_VERSION.zip
-    
- nohup ./elasticsearch-$ELASTIC_VERSION/bin/elasticsearch 2>&1 | tee log.txt & 
+ ./gradlew assemble && {echo y | cp -f build/distributions/opendistro_sql-1*0.jar <Elasticsearch_home>/plugins/opendistro-sql} && {kill $(ps aux | awk '/[E]lasticsearch/ {print $2}'); sleep 3; nohup <Elasticsearch_home>/bin/elasticsearch > ~/Temp/es.log 2>&1 &}
 
+Note that for the first time you need to create `opendistro-sql` folder and unzip `build/distribution/opendistro_sql-xxxx.zip` to it.
 
 
 Documentation
