@@ -40,7 +40,7 @@ Kibana is optional, but makes it easier to test your queries. Alternately, you c
 Getting Source Code
 ===================
 
-Now you can check out the code from your forked GitHub repository and create a new branch for your bug fix or enhancement work.::
+Now you can check out the code from your forked GitHub repository and create a new branch for your bug fix or enhancement work::
 
    $ git clone https://github.com/<your_account>/sql.git
    $ git checkout -b <branch_name>
