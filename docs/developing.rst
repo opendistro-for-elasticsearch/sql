@@ -45,7 +45,7 @@ Now you can check out the code from your forked GitHub repository and create a n
    $ git clone https://github.com/<your_account>/sql.git
    $ git checkout -b <branch_name>
 
-If there is update in master or you want to keep the forked repository long living, you can sync it by following the instructions: https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/syncing-a-fork. Basically you just need to pull latest changes from upstream master once you add it for the first time.::
+If there is update in master or you want to keep the forked repository long living, you can sync it by following the instructions: https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/syncing-a-fork. Basically you just need to pull latest changes from upstream master once you add it for the first time::
 
    #Merge to your local master
    $ git fetch upstream
@@ -73,7 +73,7 @@ After getting the source code as well as Elasticsearch and Kibana, your workspac
 Configuring IDEs
 ================
 
-You can develop the plugin in your favorite IDEs such as Eclipse and IntelliJ IDEs. Before start making any code change, you may want to configure your IDEs. In this section we take Intellij IDEA for example to show you how to get it ready for development soon.
+You can develop the plugin in your favorite IDEs such as Eclipse and IntelliJ IDEs. Before start making any code change, you may want to configure your IDEs. In this section, we show how to get IntelliJ up and running.
 
 Java Language Level
 -------------------
@@ -83,7 +83,7 @@ Although JDK 12 is required to build the plugin, the Java language level needs t
 Remote Debugging
 ----------------
 
-Firstly you need to add the following configuration to the JVM used by your IDE. For Intellij IDEA, it should be added to <ES installation>/config/jvm.options file. After configuring this, an agent in JVM will listen on the port when your Elasticsearch bootstraps and wait for IDE debugger to connect. So you should be able to debug by setting up a “Remote Run/Debug Configuration”::
+Firstly you need to add the following configuration to the JVM used by your IDE. For Intellij IDEA, it should be added to ``<ES installation>/config/jvm.options`` file. After configuring this, an agent in JVM will listen on the port when your Elasticsearch bootstraps and wait for IDE debugger to connect. So you should be able to debug by setting up a “Remote Run/Debug Configuration”::
 
    -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
 
