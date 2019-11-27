@@ -307,7 +307,7 @@ Sometime you want to deploy your changes to local Elasticsearch cluster, basical
 3. Restart Elasticsearch cluster to take it effect.
 
 
-To automate this common task, you can prepare an all-in-one command for reuse. Below is a sample command for MacOS::
+To automate this common task, you can prepare an all-in-one command for reuse. Below is a sample command for macOS::
 
  ./gradlew assemble && {echo y | cp -f build/distributions/opendistro_sql-1*0.jar <Elasticsearch_home>/plugins/opendistro-sql} && {kill $(ps aux | awk '/[E]lasticsearch/ {print $2}'); sleep 3; nohup <Elasticsearch_home>/bin/elasticsearch > ~/Temp/es.log 2>&1 &}
 
@@ -351,3 +351,4 @@ Sample test class:
                )
            );
        }
+   }
