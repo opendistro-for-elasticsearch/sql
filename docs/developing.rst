@@ -17,7 +17,7 @@ Prerequisites
 JDK
 ---
 
-JDK 12 is required to build the plugin because of the dependency on Elasticsearch test framework in our integration test. So you must have a JDK 12 installation on your machine. After the installation, please configure JAVA_HOME environment variable accordingly. If everything goes right, you should be able to see sample output as below on MacOS::
+Java 12 is required to build the plugin because of the dependency on Elasticsearch test framework in our integration test. So you must have a JDK 12 installation on your machine. After the installation, please configure the ``JAVA_HOME`` environment variable accordingly. If everything goes right, you should something similar to this macOS sample output::
 
  $ echo $JAVA_HOME
  /Library/Java/JavaVirtualMachines/jdk-12.0.2.jdk/Contents/Home
@@ -27,14 +27,14 @@ JDK 12 is required to build the plugin because of the dependency on Elasticsearc
  Java(TM) SE Runtime Environment (build 12.0.2+10)
  Java HotSpot(TM) 64-Bit Server VM (build 12.0.2+10, mixed mode, sharing)
 
-Here is official instruction on how to set JAVA_HOME for different platforms: https://docs.oracle.com/cd/E19182-01/820-7851/inst_cli_jdk_javahome_t/. 
+Here are the official instructions on how to set ``JAVA_HOME`` for different platforms: https://docs.oracle.com/cd/E19182-01/820-7851/inst_cli_jdk_javahome_t/. 
 
 Elasticsearch & Kibana
 ----------------------
 
-For your convenience to deploy code changes when developing, it’s suggested to install Elasticsearch and Kibana on your local machine. You can simply download open source zip for both software and extract them to a folder.
+For convenience, we recommend installing Elasticsearch and Kibana on your local machine. You can download the open source ZIP for each and extract them to a folder.
 
-Note that Kibana is optional for the development but would be more productive to test your query. Alternatively you can run your query against the plugin in Elasticsearch by CURL from terminal.
+Kibana is optional, but makes it easier to test your queries. Alternately, you can use curl from the terminal to run queries against the plugin.
 
 
 Getting Source Code
@@ -42,32 +42,32 @@ Getting Source Code
 
 Now you can check out the code from your forked GitHub repository and create a new branch for your bug fix or enhancement work.::
 
- $ git clone https://github.com/<your_account>/sql.git
- $ git checkout -b <branch_name>
+   $ git clone https://github.com/<your_account>/sql.git
+   $ git checkout -b <branch_name>
 
 If there is update in master or you want to keep the forked repository long living, you can sync it by following the instructions: https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/syncing-a-fork. Basically you just need to pull latest changes from upstream master once you add it for the first time.::
 
- #Merge to your local master
- $ git fetch upstream
- $ git checkout master
- $ git merge upstream/master
+   #Merge to your local master
+   $ git fetch upstream
+   $ git checkout master
+   $ git merge upstream/master
 
- #Merge to your branch if any
- $ git checkout <branch_name>
- $ git merge master
+   #Merge to your branch if any
+   $ git checkout <branch_name>
+   $ git merge master
 
 After getting the source code as well as Elasticsearch and Kibana, your workspace layout may look like this::
 
- $ make opendistro
- $ cd opendistro
- $ ls -la                                                                     
- total 32
- drwxr-xr-x  7 user group^users 4096 Nov 21 12:59 .
- drwxr-xr-x 19 user group^users 4096 Nov 21 09:44 ..
- drwxr-xr-x 10 user group^users 4096 Nov  8 12:16 elasticsearch-7.3.2
- drwxr-xr-x 14 user group^users 4096 Nov  8 12:14 kibana-7.3.2-linux-x86_64
- drwxr-xr-x 16 user group^users 4096 Nov 15 10:59 sql
- drwxr-xr-x  9 user group^users 4096 Oct 31 14:39 sql-jdbc
+   $ make opendistro
+   $ cd opendistro
+   $ ls -la                                                                     
+   total 32
+   drwxr-xr-x  7 user group^users 4096 Nov 21 12:59 .
+   drwxr-xr-x 19 user group^users 4096 Nov 21 09:44 ..
+   drwxr-xr-x 10 user group^users 4096 Nov  8 12:16 elasticsearch-7.3.2
+   drwxr-xr-x 14 user group^users 4096 Nov  8 12:14 kibana-7.3.2-linux-x86_64
+   drwxr-xr-x 16 user group^users 4096 Nov 15 10:59 sql
+   drwxr-xr-x  9 user group^users 4096 Oct 31 14:39 sql-jdbc
 
 
 Configuring IDEs
