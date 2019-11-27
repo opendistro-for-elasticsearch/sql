@@ -56,7 +56,7 @@ If there is update in master or you want to keep the forked repository long livi
  $ git checkout <branch_name>
  $ git merge master
 
-After getting the source code as well as Elasticsearch and Kibana, your workspace layout may look like this:::
+After getting the source code as well as Elasticsearch and Kibana, your workspace layout may look like this::
 
  $ make opendistro
  $ cd opendistro
@@ -83,14 +83,14 @@ Although JDK 12 is required to build the plugin, the Java language level needs t
 Remote Debugging
 ----------------
 
-Firstly you need to add the following configuration to the JVM used by your IDE. For Intellij IDEA, it should be added to <ES installation>/config/jvm.options file. After configuring this, an agent in JVM will listen on the port when your Elasticsearch bootstraps and wait for IDE debugger to connect. So you should be able to debug by setting up a “Remote Run/Debug Configuration”.::
+Firstly you need to add the following configuration to the JVM used by your IDE. For Intellij IDEA, it should be added to <ES installation>/config/jvm.options file. After configuring this, an agent in JVM will listen on the port when your Elasticsearch bootstraps and wait for IDE debugger to connect. So you should be able to debug by setting up a “Remote Run/Debug Configuration”::
 
  -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
 
 License Header
 --------------
 
-Because our code is licensed under Apache 2, you need to add the following license header to all new source code files. To automate this whenever creating new file, you can follow instructions for your IDE.::
+Because our code is licensed under Apache 2, you need to add the following license header to all new source code files. To automate this whenever creating new file, you can follow instructions for your IDE::
 
  /*
   * Licensed under the Apache License, Version 2.0 (the "License").
@@ -116,7 +116,7 @@ Making Code Changes
 Project Strucure
 ----------------
 
-The plugin codebase is in standard layout of Gradle project:::
+The plugin codebase is in standard layout of Gradle project::
 
  .
  ├── CODE_OF_CONDUCT.md
@@ -190,7 +190,7 @@ Most of the time you just need to run ./gradlew build which will make sure you p
 * ./gradlew *test*: Run all unit tests. Or use —tests “UT full path” to run individually. For example ./gradlew test --tests “com.amazon.opendistroforelasticsearch.sql.unittest.LocalClusterStateTest”.
 * ./gradlew *integTestRunner*: Run all integration test (this takes time). Same --tests argument can be used for integTestRunner task too.
 
-Sometimes your Gradle build fails or timeout due to Elasticsearch integration test process hung there. You can check this by the following commands:::
+Sometimes your Gradle build fails or timeout due to Elasticsearch integration test process hung there. You can check this by the following commands::
 
  #Check if multiple Gradle daemons started by different JDK.
  #Kill unnecessary ones and restart if necessary.
@@ -248,9 +248,9 @@ For integration test:
 * Elasticsearch test framework is in use so an in-memory cluster will spin up for each test class.
 * You can only access the plugin and verify the correctness of your functionality via REST client externally. 
 
-Here is a sample for integration test for your reference:::
+Here is a sample for integration test for your reference:
 
-.. code-block:: java
+.. code:: java
 
  public class XXXIT extends SQLIntegTestCase { // Extends our base test class
  
@@ -317,9 +317,9 @@ Currently the reference manual documents are generated from a set of special int
 2. Add a new test class as below with `@DocTestConfig` annotation specifying template and test data used.
 3. Run `./gradlew build` to generate the actual documents into `docs/user` folder.
 
-Sample test class:::
+Sample test class:
 
-.. code-block:: java
+.. code:: java
 
 @DocTestConfig(template = "interfaces/protocol.rst", testData = {"accounts.json"})
 public class ProtocolIT extends DocTest {
