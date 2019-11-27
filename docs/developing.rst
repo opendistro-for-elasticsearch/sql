@@ -185,22 +185,6 @@ Gradle Build
 
 Most of the time you just need to run ./gradlew build which will make sure you pass all checks and testing. While you’re developing, you may want to run specific Gradle task only. In this case, you can run ./gradlew with task name which only triggers the task along with those it depends on. Here is a list for common tasks:
 
-+---------------------------------+-----------------------------------------------------------+
-|   Gradle Task                   |  Description                                              |
-+=================================+===========================================================+
-| ./gradlew assemble              |  Generate jar and zip files in build/distributions folder.|
-+---------------------------------+-----------------------------------------------------------+
-| ./gradlew generateGrammarSource |  (Re-)Generate ANTLR parser from grammar file.            |
-+---------------------------------+-----------------------------------------------------------+
-| ./gradlew compileJava           |  Compile all Java source files.                           |
-+---------------------------------+-----------------------------------------------------------+
-| ./gradlew checkstyle            |  Run all checks according to Checkstyle configuration.    |
-+---------------------------------+-----------------------------------------------------------+
-| ./gradlew test                  |  Run all unit tests.                                      |
-+---------------------------------+-----------------------------------------------------------+
-| ./gradlew integTestRunner       |  Run all integration test (this takes time).              |
-+---------------------------------+-----------------------------------------------------------+
-
 .. list-table::
    :widths: 30 50
    :header-rows: 1
