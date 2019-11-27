@@ -86,7 +86,8 @@ public class AggregationQueryAction extends QueryAction {
                     // raw javascript dsl, so I'd like to scope the changes as of now to one particular fix for
                     // scripted functions
 
-                    if (!(field instanceof MethodField) || field instanceof ScriptMethodField) {
+                    if (!(field instanceof MethodField) || field instanceof ScriptMethodField
+                            || field.getName().equals("script")) {
                         //if limit size is too small, increasing shard  size is required
                         if (select.getRowCount() < 200) {
                             ((TermsAggregationBuilder) lastAgg).shardSize(2000);
