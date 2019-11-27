@@ -155,6 +155,7 @@ The plugin codebase is in standard layout of Gradle project::
          ├── java
          └── resources
 
+Here are files and folders you are most likely to touch:
 
 * *build.gradle*: Gradle build script.
 * *config*: only Checkstyle configuration files for now.
