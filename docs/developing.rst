@@ -336,7 +336,7 @@ Sample test class:
  public class ProtocolIT extends DocTest {
  
      @Section(1)
-     public void XXX() {
+     public void test() {
          section(
              title("A New Section"),
              description(
