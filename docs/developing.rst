@@ -19,13 +19,13 @@ JDK
 
 Java 12 is required to build the plugin because of the dependency on Elasticsearch test framework in our integration test. So you must have a JDK 12 installation on your machine. After the installation, please configure the ``JAVA_HOME`` environment variable accordingly. If everything goes right, you should something similar to this macOS sample output::
 
- $ echo $JAVA_HOME
- /Library/Java/JavaVirtualMachines/jdk-12.0.2.jdk/Contents/Home
+   $ echo $JAVA_HOME
+   /Library/Java/JavaVirtualMachines/jdk-12.0.2.jdk/Contents/Home
 
- $ java -version
- java version "12.0.2" 2019-07-16
- Java(TM) SE Runtime Environment (build 12.0.2+10)
- Java HotSpot(TM) 64-Bit Server VM (build 12.0.2+10, mixed mode, sharing)
+   $ java -version
+   java version "12.0.2" 2019-07-16
+   Java(TM) SE Runtime Environment (build 12.0.2+10)
+   Java HotSpot(TM) 64-Bit Server VM (build 12.0.2+10, mixed mode, sharing)
 
 Here are the official instructions on how to set ``JAVA_HOME`` for different platforms: https://docs.oracle.com/cd/E19182-01/820-7851/inst_cli_jdk_javahome_t/. 
 
@@ -85,25 +85,25 @@ Remote Debugging
 
 Firstly you need to add the following configuration to the JVM used by your IDE. For Intellij IDEA, it should be added to <ES installation>/config/jvm.options file. After configuring this, an agent in JVM will listen on the port when your Elasticsearch bootstraps and wait for IDE debugger to connect. So you should be able to debug by setting up a “Remote Run/Debug Configuration”::
 
- -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
+   -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
 
 License Header
 --------------
 
 Because our code is licensed under Apache 2, you need to add the following license header to all new source code files. To automate this whenever creating new file, you can follow instructions for your IDE::
 
- /*
-  * Licensed under the Apache License, Version 2.0 (the "License").
-  * You may not use this file except in compliance with the License.
-  * A copy of the License is located at
-  * 
-  *    http://www.apache.org/licenses/LICENSE-2.0
-  * 
-  * or in the "license" file accompanying this file. This file is distributed 
-  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
-  * express or implied. See the License for the specific language governing 
-  * permissions and limitations under the License.
-  */
+   /*
+    * Licensed under the Apache License, Version 2.0 (the "License").
+    * You may not use this file except in compliance with the License.
+    * A copy of the License is located at
+    * 
+    *    http://www.apache.org/licenses/LICENSE-2.0
+    * 
+    * or in the "license" file accompanying this file. This file is distributed 
+    * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
+    * express or implied. See the License for the specific language governing 
+    * permissions and limitations under the License.
+    */
 
 For example, here is the instructions for Intellij IDEA https://www.jetbrains.com/help/idea/copyright.html to add a Template and Scope profile using the template.
 
@@ -118,42 +118,42 @@ Project Strucure
 
 The plugin codebase is in standard layout of Gradle project::
 
- .
- ├── CODE_OF_CONDUCT.md
- ├── CONTRIBUTING.md
- ├── LICENSE.TXT
- ├── NOTICE
- ├── README.md
- ├── THIRD-PARTY
- ├── build.gradle
- ├── config
- │   └── checkstyle
- │       ├── checkstyle.xml
- │       └── suppressions.xml
- ├── docs
- │   ├── dev
- │   │   ├── SemanticAnalysis.md
- │   │   ├── SubQuery.md
- │   │   └── img
- │   └── user
- │       ├── admin
- │       ├── index.rst
- │       └── interfaces
- ├── gradle.properties
- ├── gradlew
- ├── gradlew.bat
- ├── opendistro-elasticsearch-sql.release-notes
- ├── settings.gradle
- └── src
-     ├── assembly
-     │   └── zip.xml
-     ├── main
-     │   ├── antlr
-     │   ├── java
-     │   └── resources
-     └── test
-         ├── java
-         └── resources
+   .
+   ├── CODE_OF_CONDUCT.md
+   ├── CONTRIBUTING.md
+   ├── LICENSE.TXT
+   ├── NOTICE
+   ├── README.md
+   ├── THIRD-PARTY
+   ├── build.gradle
+   ├── config
+   │   └── checkstyle
+   │       ├── checkstyle.xml
+   │       └── suppressions.xml
+   ├── docs
+   │   ├── dev
+   │   │   ├── SemanticAnalysis.md
+   │   │   ├── SubQuery.md
+   │   │   └── img
+   │   └── user
+   │       ├── admin
+   │       ├── index.rst
+   │       └── interfaces
+   ├── gradle.properties
+   ├── gradlew
+   ├── gradlew.bat
+   ├── opendistro-elasticsearch-sql.release-notes
+   ├── settings.gradle
+   └── src
+       ├── assembly
+       │   └── zip.xml
+       ├── main
+       │   ├── antlr
+       │   ├── java
+       │   └── resources
+       └── test
+           ├── java
+           └── resources
 
 Here are files and folders you are most likely to touch:
 
@@ -205,18 +205,18 @@ For `test` and `integTestRunner`, you can use —tests “UT full path” to run
 
 Sometimes your Gradle build fails or timeout due to Elasticsearch integration test process hung there. You can check this by the following commands::
 
- #Check if multiple Gradle daemons started by different JDK.
- #Kill unnecessary ones and restart if necessary.
- $ ps aux | grep -i gradle
- $ ./gradlew stop
- $ ./gradlew start
+   #Check if multiple Gradle daemons started by different JDK.
+   #Kill unnecessary ones and restart if necessary.
+   $ ps aux | grep -i gradle
+   $ ./gradlew stop
+   $ ./gradlew start
 
- #Check if ES integTest process hung there. Kill it if so.
- $ ps aux | grep -i elasticsearch
+   #Check if ES integTest process hung there. Kill it if so.
+   $ ps aux | grep -i elasticsearch
 
- #Clean and rebuild
- $ ./gradlew clean
- $ ./gradlew build
+   #Clean and rebuild
+   $ ./gradlew clean
+   $ ./gradlew build
 
 Tips for Testing
 ----------------
@@ -278,19 +278,19 @@ Here is a sample for integration test for your reference:
 
 .. code:: java
 
- public class XXXIT extends SQLIntegTestCase { // Extends our base test class
- 
-     @Override
-     protected void init() throws Exception {
-         loadIndex(Index.ACCOUNT); // Load predefined test index mapping and data
-     }
- 
-     @Override
-     public void testXXX() { // Test query against the index and make assertion
-         JSONObject response = executeQuery("SELECT ...");
-         Assert.assertEquals(6, getTotalHits(response));
-     }
- }
+   public class XXXIT extends SQLIntegTestCase { // Extends our base test class
+   
+       @Override
+       protected void init() throws Exception {
+           loadIndex(Index.ACCOUNT); // Load predefined test index mapping and data
+       }
+   
+       @Override
+       public void testXXX() { // Test query against the index and make assertion
+           JSONObject response = executeQuery("SELECT ...");
+           Assert.assertEquals(6, getTotalHits(response));
+       }
+   }
 
 Finally thanks to JaCoCo library, you can check out the test coverage for your changes easily.
 
@@ -332,19 +332,19 @@ Sample test class:
 
 .. code:: java
 
- @DocTestConfig(template = "interfaces/protocol.rst", testData = {"accounts.json"})
- public class ProtocolIT extends DocTest {
- 
-     @Section(1)
-     public void test() {
-         section(
-             title("A New Section"),
-             description(
-                 "Describe what is the use of new functionality."
-             ),
-             example(
-                 description("Describe what is the use case of this example to show"),
-                 post("SELECT ...")
-             )
-         );
-     }
+   @DocTestConfig(template = "interfaces/protocol.rst", testData = {"accounts.json"})
+   public class ProtocolIT extends DocTest {
+   
+       @Section(1)
+       public void test() {
+           section(
+               title("A New Section"),
+               description(
+                   "Describe what is the use of new functionality."
+               ),
+               example(
+                   description("Describe what is the use case of this example to show"),
+                   post("SELECT ...")
+               )
+           );
+       }
