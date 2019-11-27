@@ -157,9 +157,9 @@ The plugin codebase is in standard layout of Gradle project::
 
 
 * *build.gradle*: Gradle build script.
-* *config/*: only Checkstyle configuration files for now.
-* *docs/*: include documentation for developers and reference manual for users.
-* *src/*: source code root
+* *config*: only Checkstyle configuration files for now.
+* *docs*: include documentation for developers and reference manual for users.
+* *src*: source code root
     * *main/antlr*: ANTLR4 grammar files.
     * *main/java*: Java source code.
     * *test/java*: Java test code.
