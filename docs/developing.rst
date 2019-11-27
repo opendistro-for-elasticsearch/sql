@@ -201,7 +201,7 @@ Most of the time you just need to run ./gradlew build which will make sure you p
 | ./gradlew integTestRunner       |  Run all integration test (this takes time).              |
 +---------------------------------+-----------------------------------------------------------+
 
-For `test` and `integTestRunner`, you can use —tests “UT full path” to run a task individually. For example ./gradlew test --tests “com.amazon.opendistroforelasticsearch.sql.unittest.LocalClusterStateTest”.
+For ``test`` and ``integTestRunner``, you can use —tests “UT full path” to run a task individually. For example ./gradlew test --tests “com.amazon.opendistroforelasticsearch.sql.unittest.LocalClusterStateTest”.
 
 Sometimes your Gradle build fails or timeout due to Elasticsearch integration test process hung there. You can check this by the following commands::
 
@@ -308,7 +308,7 @@ To automate this common task, you can prepare an all-in-one command for reuse. B
 
  ./gradlew assemble && {echo y | cp -f build/distributions/opendistro_sql-1*0.jar <Elasticsearch_home>/plugins/opendistro-sql} && {kill $(ps aux | awk '/[E]lasticsearch/ {print $2}'); sleep 3; nohup <Elasticsearch_home>/bin/elasticsearch > ~/Temp/es.log 2>&1 &}
 
-Note that for the first time you need to create `opendistro-sql` folder and unzip `build/distribution/opendistro_sql-xxxx.zip` to it.
+Note that for the first time you need to create ``opendistro-sql`` folder and unzip ``build/distribution/opendistro_sql-xxxx.zip`` to it.
 
 
 Documentation
@@ -324,9 +324,9 @@ Reference Manual
 
 Currently the reference manual documents are generated from a set of special integration tests. The integration tests use custom DSL to build ReStructure Text markup with real query and result set captured and documented.
 
-1. Add a new template to `src/test/resources/doctest/templates`.
-2. Add a new test class as below with `@DocTestConfig` annotation specifying template and test data used.
-3. Run `./gradlew build` to generate the actual documents into `docs/user` folder.
+1. Add a new template to ``src/test/resources/doctest/templates``.
+2. Add a new test class as below with ``@DocTestConfig`` annotation specifying template and test data used.
+3. Run ``./gradlew build`` to generate the actual documents into ``docs/user`` folder.
 
 Sample test class:
 
