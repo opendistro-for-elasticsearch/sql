@@ -183,12 +183,23 @@ Gradle Build
 
 Most of the time you just need to run ./gradlew build which will make sure you pass all checks and testing. While you’re developing, you may want to run specific Gradle task only. In this case, you can run ./gradlew with task name which only triggers the task along with those it depends on. Here is a list for common tasks:
 
-./gradlew assemble               Generate jar and zip files in build/distributions folder.
-./gradlew generateGrammarSource  (Re-)Generate ANTLR parser from grammar file.
-./gradlew compileJava            Compile all Java source files.
-./gradlew checkstyle             Run all checks according to Checkstyle configuration.
-./gradlew test                   Run all unit tests. Or use —tests “UT full path” to run individually. For example ./gradlew test --tests “com.amazon.opendistroforelasticsearch.sql.unittest.LocalClusterStateTest”.
-./gradlew integTestRunner        Run all integration test (this takes time). Same --tests argument can be used for integTestRunner task too.
++---------------------------------+-----------------------------------------------------------+
+|   Gradle Task                   |  Description                                              |
++=================================+===========================================================+
+| ./gradlew assemble              |  Generate jar and zip files in build/distributions folder.|
++---------------------------------+-----------------------------------------------------------+
+| ./gradlew generateGrammarSource |  (Re-)Generate ANTLR parser from grammar file.            |
++---------------------------------+-----------------------------------------------------------+
+| ./gradlew compileJava           |  Compile all Java source files.                           |
++---------------------------------+-----------------------------------------------------------+
+| ./gradlew checkstyle            |  Run all checks according to Checkstyle configuration.    |
++---------------------------------+-----------------------------------------------------------+
+| ./gradlew test                  |  Run all unit tests.                                      |
++---------------------------------+-----------------------------------------------------------+
+| ./gradlew integTestRunner       |  Run all integration test (this takes time).              |
++---------------------------------+-----------------------------------------------------------+
+
+For `test` and `integTestRunner`, you can use —tests “UT full path” to run a task individually. For example ./gradlew test --tests “com.amazon.opendistroforelasticsearch.sql.unittest.LocalClusterStateTest”.
 
 Sometimes your Gradle build fails or timeout due to Elasticsearch integration test process hung there. You can check this by the following commands::
 
