@@ -1,8 +1,8 @@
 .. highlight:: sh
 
-=========================
-Developing OpenDistro SQL
-=========================
+=================
+Development Guide
+=================
 
 .. rubric:: Table of contents
 
