@@ -159,8 +159,9 @@ Here are files and folders you are most likely to touch:
 
 - build.gradle: Gradle build script.
 - config/: only Checkstyle configuration files for now.
-- docs: include documentation for developers and reference manual for users.
+- docs/: include documentation for developers and reference manual for users.
 - src/: source code root
+
   - main/antlr: ANTLR4 grammar files.
   - main/java: Java source code.
   - test/java: Java test code.
@@ -223,28 +224,41 @@ Tips for Testing
 For test cases, you can use the cases in the following checklist in case you miss any important one and break some queries:
 
 - *Functions*
+
   - SQL functions
   - Special Elasticsearch functions
+  
 - *Basic Query*
+
   - SELECT-FROM-WHERE
   - GROUP BY & HAVING
   - ORDER BY
+  
 - *Alias*
+
   - Table alias
   - Field alias
+  
 - *Complex Query*
+
   - Subquery: IN/EXISTS
   - JOIN: INNER/LEFT OUTER.
   - Nested field query
   - Multi-query: UNION/MINUS
+  
 - *Other Statements*
+
   - DELETE
   - SHOW
   - DESCRIBE
+  
 - *Explain*
+
   - DSL for simple query
   - Execution plan for complex query like JOIN
+  
 - *Response format*
+
   - Default
   - JDBC: You could set up DbVisualizer or other GUI.
   - CSV
