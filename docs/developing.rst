@@ -105,7 +105,7 @@ Because our code is licensed under Apache 2, you need to add the following licen
     * permissions and limitations under the License.
     */
 
-For example, here is the instructions for Intellij IDEA https://www.jetbrains.com/help/idea/copyright.html to add a Template and Scope profile using the template.
+For example, `here are the instructions for adding copyright profiles in IntelliJ IDEA <https://www.jetbrains.com/help/idea/copyright.html>`__.
 
 Note that missing license header will be detected by Gradle license plugin and fails the build.
 
