@@ -86,6 +86,8 @@ public class AggregationQueryAction extends QueryAction {
                     // raw javascript dsl, so I'd like to scope the changes as of now to one particular fix for
                     // scripted functions
 
+                    // the condition `field.getName().equals("script")` is to include the CAST cases, since the cast
+                    // method is instance of MethodField with script. => corrects the shard size of CASTs
                     if (!(field instanceof MethodField) || field instanceof ScriptMethodField
                             || field.getName().equals("script")) {
                         //if limit size is too small, increasing shard  size is required
