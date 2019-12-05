@@ -324,7 +324,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
         String date_type_cast = "{\"name\":\"cast_date_keyword\",\"type\":\"date\"}";
         assertEquals(response.getJSONArray("schema").get(0).toString(), date_type_cast);
-        String[] expectedOutput = new String[] {"Tue Aug 19 07:09:13 PDT 2014", "Wed Sep 25 02:04:13 PDT 2019"};
+        String[] expectedOutput = new String[] {"Tue Aug 19 07:09:13", "Wed Sep 25 02:04:13"};
         String[] response_str = new String[2];
 
         for (int i = 0; i < response.getJSONArray("datarows").length(); ++i) {
@@ -333,7 +333,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         Arrays.sort(response_str);
         Arrays.sort(expectedOutput);
         for (int i = 0; i < response_str.length; ++i) {
-            Assert.assertThat(response_str[i], equalTo(expectedOutput[i]));
+            Assert.assertTrue(response_str[i].contains(expectedOutput[i]));
         }
     }
 
@@ -344,7 +344,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
         String date_type_cast = "{\"name\":\"test_alias\",\"type\":\"date\"}";
         assertEquals(response.getJSONArray("schema").get(0).toString(), date_type_cast);
-        String[] expectedOutput = new String[] {"Wed Sep 25 02:04:13 PDT 2019", "Tue Aug 19 07:09:13 PDT 2014"};
+        String[] expectedOutput = new String[] {"Wed Sep 25 02:04:13", "Tue Aug 19 07:09:13"};
 
         String[] response_str = new String[2];
 
@@ -354,7 +354,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         Arrays.sort(response_str);
         Arrays.sort(expectedOutput);
         for (int i = 0; i < response_str.length; ++i) {
-            Assert.assertThat(response_str[i], equalTo(expectedOutput[i]));
+            Assert.assertTrue(response_str[i].contains(expectedOutput[i]));
         }
     }
 
