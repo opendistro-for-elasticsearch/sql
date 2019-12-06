@@ -35,6 +35,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
@@ -320,41 +322,60 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     @Test
     public void castKeywordFieldToDatetimeWithoutAliasJdbcFormatTest() {
         JSONObject response = executeJdbcRequest("SELECT CAST(date_keyword AS DATETIME) FROM "
-                + TestsConstants.TEST_INDEX_DATE);
+                + TestsConstants.TEST_INDEX_DATE + " ORDER BY date_keyword");
 
         String date_type_cast = "{\"name\":\"cast_date_keyword\",\"type\":\"date\"}";
         assertEquals(response.getJSONArray("schema").get(0).toString(), date_type_cast);
         String[] expectedOutput = new String[] {"Tue Aug 19 07:09:13", "Wed Sep 25 02:04:13"};
-        String[] response_str = new String[2];
 
         for (int i = 0; i < response.getJSONArray("datarows").length(); ++i) {
-            response_str[i] = response.getJSONArray("datarows").getJSONArray(i).getString(0);
-        }
-        Arrays.sort(response_str);
-        Arrays.sort(expectedOutput);
-        for (int i = 0; i < response_str.length; ++i) {
-            Assert.assertTrue(response_str[i].contains(expectedOutput[i]));
+            Assert.assertThat(response.getJSONArray("datarows").getJSONArray(i).getString(0)
+                    .indexOf(expectedOutput[i]), not(-1));
         }
     }
 
     @Test
     public void castKeywordFieldToDatetimeWithAliasJdbcFormatTest() {
         JSONObject response = executeJdbcRequest("SELECT CAST(date_keyword AS DATETIME) AS test_alias FROM "
-                + TestsConstants.TEST_INDEX_DATE);
+                + TestsConstants.TEST_INDEX_DATE + " ORDER BY date_keyword");
 
         String date_type_cast = "{\"name\":\"test_alias\",\"type\":\"date\"}";
         assertEquals(response.getJSONArray("schema").get(0).toString(), date_type_cast);
-        String[] expectedOutput = new String[] {"Wed Sep 25 02:04:13", "Tue Aug 19 07:09:13"};
-
-        String[] response_str = new String[2];
+        String[] expectedOutput = new String[] {"Tue Aug 19 07:09:13", "Wed Sep 25 02:04:13"};
 
         for (int i = 0; i < response.getJSONArray("datarows").length(); ++i) {
-            response_str[i] = response.getJSONArray("datarows").getJSONArray(i).getString(0);
+            Assert.assertThat(response.getJSONArray("datarows").getJSONArray(i).getString(0)
+                    .indexOf(expectedOutput[i]), not(-1));
         }
-        Arrays.sort(response_str);
-        Arrays.sort(expectedOutput);
-        for (int i = 0; i < response_str.length; ++i) {
-            Assert.assertTrue(response_str[i].contains(expectedOutput[i]));
+    }
+
+    @Test
+    public void castFieldToDatetimeWithWhereClauseJdbcFormatTest() {
+        JSONObject response = executeJdbcRequest("SELECT CAST(date_keyword AS DATETIME) FROM "
+                + TestsConstants.TEST_INDEX_DATE + " WHERE date_keyword IS NOT NULL ORDER BY date_keyword");
+
+        String date_type_cast = "{\"name\":\"cast_date_keyword\",\"type\":\"date\"}";
+        assertEquals(response.getJSONArray("schema").get(0).toString(), date_type_cast);
+        String[] expectedOutput = new String[] {"Tue Aug 19 07:09:13", "Wed Sep 25 02:04:13"};
+
+        for (int i = 0; i < response.getJSONArray("datarows").length(); ++i) {
+            Assert.assertThat(response.getJSONArray("datarows").getJSONArray(i).getString(0)
+                    .indexOf(expectedOutput[i]), not(-1));
+        }
+    }
+
+    @Test
+    public void castFieldToDatetimeWithGroupByJdbcFormatTest() {
+        JSONObject response = executeJdbcRequest("SELECT CAST(date_keyword AS DATETIME) AS test_alias FROM "
+                + TestsConstants.TEST_INDEX_DATE + " GROUP BY test_alias DESC");
+
+        String date_type_cast = "{\"name\":\"test_alias\",\"type\":\"date\"}";
+        assertEquals(response.getJSONArray("schema").get(0).toString(), date_type_cast);
+        String[] expectedOutput = new String[] {"Tue Aug 19 07:09:13", "Wed Sep 25 02:04:13"};
+
+        for (int i = 0; i < response.getJSONArray("datarows").length(); ++i) {
+            Assert.assertThat(response.getJSONArray("datarows").getJSONArray(i).getString(0)
+                    .indexOf(expectedOutput[i]), not(-1));
         }
     }
 
