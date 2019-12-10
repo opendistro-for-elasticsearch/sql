@@ -63,8 +63,8 @@ public class CastParser {
             } else if (DataType.valueOf(dataType) == DataType.STRING) {
                 result.add(String.format("def %s = %s.toString()", name, fileName));
             } else if (DataType.valueOf(dataType) == DataType.DATETIME) {
-                result.add(String.format("def %s = new SimpleDateFormat(\"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'\")"
-                        + ".parse(%s.toString())", name, fileName));
+                result.add(String.format("def %s = new Date(Double.parseDouble(%s.toString()).longValue())",
+                        name, fileName));
             } else {
                 throw new SqlParseException("not support cast to data type:" + dataType);
             }

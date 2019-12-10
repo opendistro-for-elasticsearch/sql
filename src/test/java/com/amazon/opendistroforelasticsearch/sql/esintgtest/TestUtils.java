@@ -518,17 +518,6 @@ public class TestUtils {
                 "}";
     }
 
-    public static String getDateIndexMapping() {
-        return "{  \"dates\": {" +
-                " \"properties\": {\n" +
-                "          \"date_keyword\": {\n" +
-                "            \"type\": \"keyword\",\n" +
-                "            \"ignore_above\": 256\n" +
-                "          }"+
-                "       }"+
-                "   }" +
-                "}";
-    }
 
     public static void loadBulk(Client client, String jsonPath, String defaultIndex) throws Exception {
         System.out.println(String.format("Loading file %s into elasticsearch cluster", jsonPath));

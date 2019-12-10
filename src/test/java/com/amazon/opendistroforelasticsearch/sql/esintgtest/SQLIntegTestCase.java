@@ -335,11 +335,7 @@ public abstract class SQLIntegTestCase extends ESIntegTestCase {
         WEBLOG(TestsConstants.TEST_INDEX_WEBLOG,
                 "weblog",
                 TestUtils.getWeblogsIndexMapping(),
-                "src/test/resources/weblogs.json"),
-        DATE(TestsConstants.TEST_INDEX_DATE,
-                "dates",
-                TestUtils.getDateIndexMapping(),
-                "src/test/resources/dates.json");
+                "src/test/resources/weblogs.json");
 
         private final String name;
         private final String type;
