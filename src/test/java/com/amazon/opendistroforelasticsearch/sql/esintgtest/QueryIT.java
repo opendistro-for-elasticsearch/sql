@@ -181,6 +181,13 @@ public class QueryIT extends SQLIntegTestCase {
         checkSelectAllAndFieldAggregationResponseSize(response, "age");
     }
 
+    @Test
+    public void selectFieldWithAliasAndGroupBy() {
+        String response = executeQuery("SELECT lastname AS name FROM " + TEST_INDEX_ACCOUNT + " GROUP BY name",
+                "jdbc");
+        assertThat(response, containsString("\"alias\": \"name\""));
+    }
+
     public void indexWithWildcardTest() throws IOException {
         JSONObject response = executeQuery(String.format(Locale.ROOT, "SELECT * FROM %s* LIMIT 1000",
                 TestsConstants.TEST_INDEX_BANK));
