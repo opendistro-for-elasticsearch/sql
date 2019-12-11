@@ -310,7 +310,6 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         }
     }
 
-
     @Test
     public void concat_ws_field_and_string() throws Exception {
         //here is a bug,csv field with spa
