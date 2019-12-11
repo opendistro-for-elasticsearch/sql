@@ -17,7 +17,6 @@
 * Enhancement [#305](https://github.com/opendistro-for-elasticsearch/sql/pull/305): Improve contributing docs
 
 * BugFix [#267](https://github.com/opendistro-for-elasticsearch/sql/pull/267): Fixed operatorReplace Integration Test
-* BugFix [#269](https://github.com/opendistro-for-elasticsearch/sql/pull/269): Opendistro 0.10: add missing buildDeb
 * BugFix [#275](https://github.com/opendistro-for-elasticsearch/sql/pull/275): Fix issue that IP type cannot pass JDBC formatter
 * BugFix [#284](https://github.com/opendistro-for-elasticsearch/sql/pull/284): Fixed flaky test suite, that was breaking github action build
 * BugFix [#295](https://github.com/opendistro-for-elasticsearch/sql/pull/295): Corrected the selected field names displayed in the schema of JDBC formatted response
