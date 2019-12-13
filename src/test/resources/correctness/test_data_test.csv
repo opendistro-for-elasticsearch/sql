@@ -1,0 +1,3 @@
+AvgTicketPrice,Cancelled,Carrier,dayOfWeek,timestamp
+1000,true,Delta,1,123
+2000,false,Southwest,2,456

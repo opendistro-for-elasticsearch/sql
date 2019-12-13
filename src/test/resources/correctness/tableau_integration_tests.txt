@@ -1,0 +1,5 @@
+SELECT 1 AS `empty` FROM `kibana_sample_data_flights`
+SELECT substring(OriginWeather, 1, 2) AS OriginWeather FROM kibana_sample_data_flights GROUP BY 1
+SELECT SUM(FlightDelayMin) AS sum_FlightDelayMin_ok FROM kibana_sample_data_flights
+SELECT SUM(DistanceMiles) AS sum_DistanceMiles_ok FROM kibana_sample_data_flights
+SELECT SUBSTRING(`kibana_sample_data_flights`.`OriginWeather`, 1, 1024) AS `OriginWeather` FROM `kibana_sample_data_flights` GROUP BY `OriginWeather`
