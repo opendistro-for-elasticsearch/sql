@@ -22,6 +22,7 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
     DBResultTest.class,
     TestReportTest.class,
+    ComparisonTestTest.class,
 })
 public class UnitTests {
 }

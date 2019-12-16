@@ -21,32 +21,52 @@ import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.D
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.ESConnection;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.JDBCConnection;
 import com.amazon.opendistroforelasticsearch.sql.esintgtest.SQLIntegTestCase;
+import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import org.elasticsearch.client.Node;
 import org.junit.Test;
 
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 /**
- * Testing for Tableau integration.
+ * Testing for Tableau integration. To simplify testing, the IT itself manages all dependencies on file system,
+ * including where to load test data and where to store the final report. {@link ComparisonTest} is only
+ * interacted by simple data structure like string and list.
  */
 public class TableauIT extends SQLIntegTestCase {
 
     @Test
     public void testQueriesForTableauIntegrationWithSQLPlugin() {
-        ComparisonTest test = new ComparisonTest(getDBConnections());
-        test.loadData("kibana_sample_data_flights",
-            new TestFile("kibana_sample_data_flights.json").content(),
-            new TestFile("kibana_sample_data_flights.csv").splitLines(",")
-        );
-        TestReport result = test.verify(new TestFile("tableau_integration_tests_full.txt").lines());
-        test.report(result);
+        DBConnection[] connections = {};
+        try {
+            connections = getDBConnections();
+
+            ComparisonTest test = new ComparisonTest(connections);
+            test.loadData("kibana_sample_data_flights",
+                new TestFile("kibana_sample_data_flights.json").content(),
+                new TestFile("kibana_sample_data_flights.csv").splitBy(",")
+            );
+
+            List<String> queries = new TestFile("tableau_integration_tests_full.txt").lines();
+            TestReport report = test.verify(queries);
+            store(report);
+        } finally {
+            for (DBConnection conn : connections) {
+                conn.close();
+            }
+        }
     }
 
+    /** Abstraction for test related file reading */
     private static class TestFile {
 
         /** File content string */
@@ -69,11 +89,29 @@ public class TableauIT extends SQLIntegTestCase {
             return Arrays.asList(content.split("\\r?\\n"));
         }
 
-        public List<String[]> splitLines(String separator) {
+        public List<String[]> splitBy(String separator) {
             return lines().stream().
                            map(line -> line.split(separator)).
                            collect(Collectors.toList());
         }
+    }
+
+    private void store(TestReport report) {
+        try {
+            String relFilePath = "reports/" + reportFileName();
+            String absFilePath = TestUtils.getResourceFilePath(relFilePath);
+            byte[] content = report.report().getBytes();
+            Files.write(Paths.get(absFilePath), content);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private String reportFileName() {
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd-HH");
+        df.setTimeZone(TimeZone.getTimeZone("GMT"));
+        String dateTime = df.format(new Date());
+        return "report_" + dateTime + ".json";
     }
 
     private DBConnection[] getDBConnections() {

@@ -25,12 +25,13 @@ import com.google.common.collect.ImmutableMap;
 import org.json.JSONObject;
 import org.junit.Test;
 
-import java.util.HashSet;
-
 import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
 import static org.junit.Assert.fail;
 
+/**
+ * Test for {@link TestReport}
+ */
 public class TestReportTest {
 
     private TestReport report = new TestReport();

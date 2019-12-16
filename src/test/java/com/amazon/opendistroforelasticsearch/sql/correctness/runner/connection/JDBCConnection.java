@@ -58,28 +58,24 @@ public class JDBCConnection implements DBConnection {
     @Override
     public void create(String tableName, String schema) {
         JSONObject json = (JSONObject) new JSONObject(schema).query("/_doc/properties");
-        try {
-            String types = json.keySet().stream().
-                                         map(key -> key + " " + mapToJDBCType(json.getJSONObject(key).getString("type"))).
-                                         collect(Collectors.joining(","));
+        String types = json.keySet().stream().
+                                     map(key -> key + " " + mapToJDBCType(json.getJSONObject(key).getString("type"))).
+                                     collect(Collectors.joining(","));
 
-            Statement stmt = connection.createStatement();
+        execute(stmt -> {
             stmt.executeUpdate(StringUtils.format("CREATE TABLE %s(%s)", tableName, types));
-        } catch (SQLException e) {
-            throw new IllegalStateException(e);
-        }
+        });
     }
 
     @Override
     public void insert(String tableName, String[] columnNames, List<String[]> batch) {
-        try {
-            Statement stmt = connection.createStatement();
+        execute(stmt -> {
             for (String[] fieldValues : batch) {
 
                 String values = Arrays.stream(fieldValues).
-                                       map(val -> val.replace("'", "''")).
-                                       map(val -> "'" + val + "'").
-                                       collect(Collectors.joining(","));
+                    map(val -> val.replace("'", "''")).
+                    map(val -> "'" + val + "'").
+                    collect(Collectors.joining(","));
 
                 StringBuilder sql = new StringBuilder();
                 sql.append("INSERT INTO ").
@@ -96,15 +92,12 @@ public class JDBCConnection implements DBConnection {
                 //    tableName, String.join(",", fieldNames), String.join("','", fieldValues)));
             }
             stmt.executeBatch();
-        } catch (SQLException e) {
-            throw new IllegalStateException(e);
-        }
+        });
     }
 
     @Override
     public DBResult select(String query) {
-        try {
-            Statement stmt = connection.createStatement();
+        return execute(stmt -> {
             ResultSet resultSet = stmt.executeQuery(query);
             ResultSetMetaData metaData = resultSet.getMetaData();
 
@@ -126,15 +119,11 @@ public class JDBCConnection implements DBConnection {
                         value = (value instanceof Float) ? Float.parseFloat(numStr) : Double.parseDouble(numStr);
                     }
                     row.add(value);
-
-                    //row.add(resultSet.getObject(i));
                 }
                 result.addRow(new Row(row));
             }
             return result;
-        } catch (SQLException e) {
-            throw new IllegalStateException(e);
-        }
+        });
     }
 
     @Override
@@ -142,8 +131,32 @@ public class JDBCConnection implements DBConnection {
         try {
             connection.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new IllegalStateException(e);
         }
+    }
+
+    private void execute(Update update) {
+        try (Statement stmt = connection.createStatement()) {
+            update.execute(stmt);
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private DBResult execute(Query query) {
+        try (Statement stmt = connection.createStatement()) {
+            return query.execute(stmt);
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private interface Query {
+        DBResult execute(Statement stmt) throws SQLException;
+    }
+
+    private interface Update {
+        void execute(Statement stmt) throws SQLException;
     }
 
     private String mapToJDBCType(String esType) {

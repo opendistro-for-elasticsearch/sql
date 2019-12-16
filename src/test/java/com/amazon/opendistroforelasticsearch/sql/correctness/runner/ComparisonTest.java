@@ -21,13 +21,8 @@ import com.amazon.opendistroforelasticsearch.sql.correctness.report.SuccessTestC
 import com.amazon.opendistroforelasticsearch.sql.correctness.report.TestReport;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.DBConnection;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.DBResult;
-import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils;
 import com.google.common.collect.Iterators;
-import com.google.common.io.Resources;
 
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -98,18 +93,6 @@ public class ComparisonTest {
             }
         }
         return report;
-    }
-
-    public void report(TestReport report) {
-        try {
-            Files.write(Paths.get(TestUtils.getResourceFilePath("src/test/resources/correctness/report.json")), report.report().getBytes());
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
-        } finally {
-            for (DBConnection conn : connections) {
-                conn.close();
-            }
-        }
     }
 
     private void createTestTable(DBConnection conn, String tableName, String schema) {
