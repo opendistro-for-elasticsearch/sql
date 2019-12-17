@@ -21,6 +21,7 @@ import com.amazon.opendistroforelasticsearch.sql.correctness.report.SuccessTestC
 import com.amazon.opendistroforelasticsearch.sql.correctness.report.TestReport;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.DBConnection;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.DBResult;
+import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import com.google.common.collect.Iterators;
 
 import java.util.Arrays;
@@ -89,7 +90,8 @@ public class ComparisonTest {
                     report.addTestCase(new ErrorTestCase(sql, "No other databases support this query: " + reasons));
                 }
             } catch (Exception e) {
-                report.addTestCase(new ErrorTestCase(sql, extractRootCause(e)));
+                report.addTestCase(new ErrorTestCase(sql,
+                    StringUtils.format("%s: %s. %s", e.getClass().getSimpleName(), extractRootCause(e), Arrays.toString(e.getStackTrace()))));
             }
         }
         return report;
