@@ -119,7 +119,7 @@ public class TableauIT extends SQLIntegTestCase {
         return new DBConnection[]{
             new ESConnection("jdbc:elasticsearch://" + node.getHost(), client()),
             new JDBCConnection("H2", "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1"),
-            new JDBCConnection("SQLite", "jdbc:sqlite:memory:myDb"),
+            new JDBCConnection("SQLite", "jdbc:sqlite::memory:"),
             //new JDBCConnection("Apache Derby", "jdbc:derby:memory:myDb;create=true"),
         };
     }
