@@ -91,7 +91,8 @@ public class ComparisonTest {
                 }
             } catch (Exception e) {
                 report.addTestCase(new ErrorTestCase(sql,
-                    StringUtils.format("%s: %s. %s", e.getClass().getSimpleName(), extractRootCause(e), Arrays.toString(e.getStackTrace()))));
+                    //StringUtils.format("%s: %s. %s", e.getClass().getSimpleName(), extractRootCause(e), Arrays.toString(e.getStackTrace()))));
+                    StringUtils.format("%s: %s", e.getClass().getSimpleName(), extractRootCause(e))));
             }
         }
         return report;
