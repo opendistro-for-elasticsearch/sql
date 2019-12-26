@@ -162,6 +162,7 @@ public class JDBCConnection implements DBConnection {
     private String mapToJDBCType(String esType) {
         switch (esType.toUpperCase()) {
             case "KEYWORD": return "TEXT";
+            case "DATE": return "TIMESTAMP";
             default: return esType;
         }
     }

@@ -214,3 +214,5 @@ SELECT DestCityName,  SUM(AvgTicketPrice) AS $__alias__0 FROM kibana_sample_data
 SELECT AvgTicketPrice AS AvgTicketPrice,   Cancelled AS Cancelled,   Carrier AS Carrier FROM kibana_sample_data_ecommerce   INNER JOIN kibana_sample_data_flights ON (kibana_sample_data_ecommerce.day_of_week_i = dayOfWeek) LIMIT 1000
 SELECT AvgTicketPrice AS AvgTicketPrice,   Cancelled AS Cancelled,   Carrier AS Carrier FROM kibana_sample_data_ecommerce   LEFT JOIN kibana_sample_data_flights ON (kibana_sample_data_ecommerce.day_of_week_i = dayOfWeek) LIMIT 1000
 SELECT AvgTicketPrice AS AvgTicketPrice,   Cancelled AS Cancelled,   Carrier AS Carrier FROM kibana_sample_data_ecommerce   RIGHT JOIN kibana_sample_data_flights ON (kibana_sample_data_ecommerce.day_of_week_i = dayOfWeek) LIMIT 1000
+SELECT timestamp FROM kibana_sample_data_flights
+SELECT YEAR(timestamp) FROM kibana_sample_data_flights

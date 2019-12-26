@@ -72,6 +72,9 @@
       },
       "dayOfWeek": {
         "type": "integer"
+      },
+      "timestamp" : {
+        "type" : "date"
       }
     }
   }
