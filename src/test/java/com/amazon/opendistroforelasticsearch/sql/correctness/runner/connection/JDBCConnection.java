@@ -28,7 +28,6 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -54,7 +53,6 @@ public class JDBCConnection implements DBConnection {
     public JDBCConnection(String databaseName, String connectionUrl) {
         this.databaseName = databaseName;
         try {
-            //Class.forName(driverName);
             connection = DriverManager.getConnection(connectionUrl);
         } catch (Exception e) {
             throw new IllegalStateException(e);
@@ -65,7 +63,7 @@ public class JDBCConnection implements DBConnection {
     public void create(String tableName, String schema) {
         JSONObject json = (JSONObject) new JSONObject(schema).query("/_doc/properties");
         String types = json.keySet().stream().
-                                     map(key -> key + " " + mapToJDBCType(json.getJSONObject(key).getString("type"))).
+                                     map(colName -> colName + " " + mapToJDBCType(json.getJSONObject(colName).getString("type"))).
                                      collect(joining(","));
 
         execute(stmt -> {
@@ -161,9 +159,15 @@ public class JDBCConnection implements DBConnection {
 
     private String mapToJDBCType(String esType) {
         switch (esType.toUpperCase()) {
-            case "KEYWORD": return "TEXT";
-            case "DATE": return "TIMESTAMP";
-            default: return esType;
+            case "KEYWORD":
+            case "TEXT":
+                return "VARCHAR";
+            case "DATE":
+                return "TIMESTAMP";
+            case "HALF_FLOAT":
+                return "FLOAT";
+            default:
+                return esType;
         }
     }
 

@@ -31,6 +31,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -54,6 +55,10 @@ public class TableauIT extends SQLIntegTestCase {
             test.loadData("kibana_sample_data_flights",
                 new TestFile("kibana_sample_data_flights.json").content(),
                 new TestFile("kibana_sample_data_flights.csv").splitBy(",")
+            );
+            test.loadData("kibana_sample_data_ecommerce",
+                new TestFile("kibana_sample_data_ecommerce.json").content(),
+                new TestFile("kibana_sample_data_ecommerce.csv").splitBy(",")
             );
 
             List<String> queries = new TestFile("tableau_integration_tests_full.txt").lines();
@@ -90,9 +95,34 @@ public class TableauIT extends SQLIntegTestCase {
         }
 
         public List<String[]> splitBy(String separator) {
-            return lines().stream().
-                           map(line -> line.split(separator)).
-                           collect(Collectors.toList());
+            List<String[]> rows = lines().stream().
+                                          map(line -> line.split(separator)).
+                                          collect(Collectors.toList());
+
+            // Separator in quote is escaped
+            List<String[]> result = new ArrayList<>();
+            for (String[] row : rows) {
+                List<String> escaped = new ArrayList<>();
+                boolean isQuote = false;
+                for (int i = 0; i < row.length; i++) {
+                    if (row[i].startsWith("\"")) {
+                        isQuote = true;
+                        escaped.add(row[i]);
+                    } else {
+                        if (isQuote) {
+                            escaped.set(escaped.size() - 1, escaped.get(escaped.size() - 1) + row[i]);
+                        } else {
+                            escaped.add(row[i]);
+                        }
+
+                        if (row[i].endsWith("\"")) {
+                            isQuote = false;
+                        }
+                    }
+                }
+                result.add(escaped.toArray(new String[0]));
+            }
+            return result;
         }
     }
 
