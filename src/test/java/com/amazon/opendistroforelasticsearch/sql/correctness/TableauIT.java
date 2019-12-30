@@ -49,9 +49,7 @@ public class TableauIT extends SQLIntegTestCase {
     public void testQueriesForTableauIntegrationWithSQLPlugin() {
         DBConnection[] connections = {};
         try {
-            connections = getDBConnections();
-
-            ComparisonTest test = new ComparisonTest(connections);
+            ComparisonTest test = new ComparisonTest(getESConnection(), getOtherDBConnections());
             test.loadData("kibana_sample_data_flights",
                 new TestFile("kibana_sample_data_flights.json").content(),
                 new TestFile("kibana_sample_data_flights.csv").splitBy(",")
@@ -144,10 +142,13 @@ public class TableauIT extends SQLIntegTestCase {
         return "report_" + dateTime + ".json";
     }
 
-    private DBConnection[] getDBConnections() {
+    private DBConnection getESConnection() {
         Node node = getRestClient().getNodes().get(0);
+        return new ESConnection("jdbc:elasticsearch://" + node.getHost(), client());
+    }
+
+    private DBConnection[] getOtherDBConnections() {
         return new DBConnection[]{
-            new ESConnection("jdbc:elasticsearch://" + node.getHost(), client()),
             new JDBCConnection("H2", "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1"),
             new JDBCConnection("SQLite", "jdbc:sqlite::memory:"),
             //new JDBCConnection("Apache Derby", "jdbc:derby:memory:myDb;create=true"),

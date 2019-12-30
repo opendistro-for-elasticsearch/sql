@@ -53,7 +53,7 @@ public class ComparisonTestTest {
     @Before
     public void setUp() {
         correctnessTest = new ComparisonTest(
-            new DBConnection[]{esConnection, otherDbConnection}
+            esConnection, new DBConnection[]{otherDbConnection}
         );
     }
 
@@ -90,7 +90,7 @@ public class ComparisonTestTest {
         when(esConnection.select(anyString())).thenThrow(new RuntimeException("All shards failure"));
 
         TestReport expected = new TestReport();
-        expected.addTestCase(new ErrorTestCase("SELECT * FROM accounts", "All shards failure"));
+        expected.addTestCase(new ErrorTestCase("SELECT * FROM accounts", "RuntimeException: All shards failure"));
         TestReport actual = correctnessTest.verify(asList("SELECT * FROM accounts"));
         assertEquals(expected, actual);
     }
@@ -112,7 +112,7 @@ public class ComparisonTestTest {
     public void testSuccessWhenOneDBSupportThisQuery() {
         DBConnection anotherDbConnection = mock(DBConnection.class);
         correctnessTest = new ComparisonTest(
-            new DBConnection[]{esConnection, otherDbConnection, anotherDbConnection}
+            esConnection, new DBConnection[]{otherDbConnection, anotherDbConnection}
         );
 
         when(esConnection.select(anyString())).thenReturn(

@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.correctness.runner;
 import com.amazon.opendistroforelasticsearch.sql.correctness.report.ErrorTestCase;
 import com.amazon.opendistroforelasticsearch.sql.correctness.report.FailedTestCase;
 import com.amazon.opendistroforelasticsearch.sql.correctness.report.SuccessTestCase;
+import com.amazon.opendistroforelasticsearch.sql.correctness.report.TestCaseReport;
 import com.amazon.opendistroforelasticsearch.sql.correctness.report.TestReport;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.DBConnection;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.DBResult;
@@ -28,19 +29,21 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import static com.google.common.collect.ObjectArrays.concat;
+
 /**
  * Comparison test runner for query result correctness.
  */
 public class ComparisonTest {
 
-    /**
-     * Database connection for test data load and query.
-     * Assumption is that the first connection is for the database to be targeted such as Elasticsearch.
-     */
-    private final DBConnection[] connections;
+    private final DBConnection esConnection;
 
-    public ComparisonTest(DBConnection[] connections) {
-        this.connections = connections;
+    /** Database connections for reference databases */
+    private final DBConnection[] otherDbConnections;
+
+    public ComparisonTest(DBConnection esConnection, DBConnection[] otherDbConnections) {
+        this.esConnection = esConnection;
+        this.otherDbConnections = otherDbConnections;
     }
 
     /**
@@ -50,7 +53,7 @@ public class ComparisonTest {
      * @param testData      test data rows
      */
     public void loadData(String tableName, String schema, List<String[]> testData) {
-        for (DBConnection conn : connections) {
+        for (DBConnection conn : concat(esConnection, otherDbConnections)) {
             createTestTable(conn, tableName, schema);
             insertTestData(conn, tableName, testData);
         }
@@ -64,44 +67,41 @@ public class ComparisonTest {
     public TestReport verify(List<String> queries) {
         TestReport report = new TestReport();
         for (String sql : queries) {
-            DBResult esResult;
             try {
-                esResult = connections[0].select(sql);
-
-                int otherDbWithError = 0;
-                StringBuilder reasons = new StringBuilder();
-                for (int i = 1; i < connections.length; i++) {
-                    try {
-                        DBResult otherDbResult = connections[i].select(sql);
-                        if (esResult.equals(otherDbResult)) {
-                            report.addTestCase(new SuccessTestCase(sql));
-                        } else {
-                            report.addTestCase(new FailedTestCase(sql, Arrays.asList(esResult, otherDbResult)));
-                        }
-                        break;
-                    } catch (Exception e) {
-                        // Ignore
-                        otherDbWithError++;
-                        reasons.append(extractRootCause(e)).append(";");
-                    }
-                }
-
-                if (otherDbWithError == connections.length - 1) {
-                    report.addTestCase(new ErrorTestCase(sql, "No other databases support this query: " + reasons));
-                }
+                DBResult esResult = esConnection.select(sql);
+                report.addTestCase(compareWithOtherDb(sql, esResult));
             } catch (Exception e) {
                 report.addTestCase(new ErrorTestCase(sql,
-                    //StringUtils.format("%s: %s. %s", e.getClass().getSimpleName(), extractRootCause(e), Arrays.toString(e.getStackTrace()))));
                     StringUtils.format("%s: %s", e.getClass().getSimpleName(), extractRootCause(e))));
             }
         }
         return report;
     }
 
+    /** Execute the query and compare with ES result */
+    private TestCaseReport compareWithOtherDb(String sql, DBResult esResult) {
+        StringBuilder reasons = new StringBuilder();
+        for (DBConnection otherDbConn : otherDbConnections) {
+            try {
+                DBResult otherDbResult = otherDbConn.select(sql);
+                if (esResult.equals(otherDbResult)) {
+                    return new SuccessTestCase(sql);
+                }
+                return new FailedTestCase(sql, Arrays.asList(esResult, otherDbResult));
+
+            } catch (Exception e) {
+                // Ignore and move on to next database
+                reasons.append(extractRootCause(e)).append(";");
+            }
+        }
+        return new ErrorTestCase(sql, "No other databases support this query: " + reasons);
+    }
+
     private void createTestTable(DBConnection conn, String tableName, String schema) {
         conn.create(tableName, schema);
     }
 
+    /** Insert test data in batch */
     private void insertTestData(DBConnection conn, String tableName, List<String[]> testData) {
         Iterator<String[]> iterator = testData.iterator();
         String[] fieldNames = iterator.next();
