@@ -41,19 +41,28 @@ public class CorrectnessIT extends SQLIntegTestCase {
     @Test
     public void performComparisonTest() {
         TestConfig config = new TestConfig(Maps.fromProperties(System.getProperties()));
-        ComparisonTest test = new ComparisonTest(getESConnection(), getOtherDBConnections(config));
 
-        for (TestDataSet dataSet : config.getTestDataSets()) {
-            test.loadData(dataSet);
+        try (ComparisonTest test = new ComparisonTest(getESConnection(config),
+                                                      getOtherDBConnections(config))) {
+
+            // Load test data
+            for (TestDataSet dataSet : config.getTestDataSets()) {
+                test.loadData(dataSet);
+            }
+
+            // Verify queries and store report
+            TestReport report = test.verify(config.getTestQuerySet());
+            store(report);
         }
-
-        TestReport report = test.verify(config.getTestQuerySet());
-        store(report);
     }
 
-    private DBConnection getESConnection() {
-        Node node = getRestClient().getNodes().get(0);
-        return new ESConnection("jdbc:elasticsearch://" + node.getHost(), client());
+    private DBConnection getESConnection(TestConfig config) {
+        String esUrl = config.getESConnectionUrl();
+        if (esUrl.isEmpty()) {
+            Node node = getRestClient().getNodes().get(0);
+            esUrl = "jdbc:elasticsearch://" + node.getHost();
+        }
+        return new ESConnection(esUrl, client());
     }
 
     private DBConnection[] getOtherDBConnections(TestConfig config) {

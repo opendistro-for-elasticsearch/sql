@@ -37,7 +37,7 @@ import static com.google.common.collect.ObjectArrays.concat;
 /**
  * Comparison test runner for query result correctness.
  */
-public class ComparisonTest {
+public class ComparisonTest implements AutoCloseable {
 
     private final DBConnection esConnection;
 
@@ -80,6 +80,17 @@ public class ComparisonTest {
             }
         }
         return report;
+    }
+
+    @Override
+    public void close() {
+        for (DBConnection conn : concat(esConnection, otherDbConnections)) {
+            try {
+                conn.close();
+            } catch (Exception e) {
+                // Ignore
+            }
+        }
     }
 
     /** Execute the query and compare with ES result */
