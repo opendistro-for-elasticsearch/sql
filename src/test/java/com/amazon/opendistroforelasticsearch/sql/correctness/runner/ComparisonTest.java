@@ -22,6 +22,8 @@ import com.amazon.opendistroforelasticsearch.sql.correctness.report.TestCaseRepo
 import com.amazon.opendistroforelasticsearch.sql.correctness.report.TestReport;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.DBConnection;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.DBResult;
+import com.amazon.opendistroforelasticsearch.sql.correctness.testfile.TestDataSet;
+import com.amazon.opendistroforelasticsearch.sql.correctness.testfile.TestQuerySet;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import com.google.common.collect.Iterators;
 
@@ -44,29 +46,30 @@ public class ComparisonTest {
     public ComparisonTest(DBConnection esConnection, DBConnection[] otherDbConnections) {
         this.esConnection = esConnection;
         this.otherDbConnections = otherDbConnections;
+
+        // Guarantee ordering of other database in comparison test
+        Arrays.sort(this.otherDbConnections);
     }
 
     /**
      * Create table and load test data.
-     * @param tableName     table name
-     * @param schema        schema json in ES mapping format
-     * @param testData      test data rows
+     * @param dataSet     test data set
      */
-    public void loadData(String tableName, String schema, List<String[]> testData) {
+    public void loadData(TestDataSet dataSet) {
         for (DBConnection conn : concat(esConnection, otherDbConnections)) {
-            createTestTable(conn, tableName, schema);
-            insertTestData(conn, tableName, testData);
+            createTestTable(conn, dataSet.getTableName(), dataSet.getSchema());
+            insertTestData(conn, dataSet.getTableName(), dataSet.getDataRows());
         }
     }
 
     /**
      * Verify queries one by one by comparing between databases.
-     * @param queries   SQL queries
-     * @return          Test result report
+     * @param querySet   SQL queries
+     * @return           Test result report
      */
-    public TestReport verify(List<String> queries) {
+    public TestReport verify(TestQuerySet querySet) {
         TestReport report = new TestReport();
-        for (String sql : queries) {
+        for (String sql : querySet) {
             try {
                 DBResult esResult = esConnection.select(sql);
                 report.addTestCase(compareWithOtherDb(sql, esResult));

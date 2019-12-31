@@ -34,13 +34,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static java.util.stream.Collectors.joining;
 
 /**
  * Database connection by JDBC driver.
  */
-public class JDBCConnection implements DBConnection {
+public class JDBCConnection implements DBConnection, Comparable<DBConnection> {
 
     private static final String SINGLE_QUOTE = "'";
     private static final String DOUBLE_QUOTE = "''";
@@ -127,6 +128,14 @@ public class JDBCConnection implements DBConnection {
         } catch (SQLException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    @Override
+    public int compareTo(DBConnection other) {
+        if (!(other instanceof JDBCConnection)) {
+            throw new IllegalStateException("Cannot compare with DBConnection other than JDBCConnection");
+        }
+        return databaseName.compareTo(((JDBCConnection) other).databaseName);
     }
 
     private interface Query {

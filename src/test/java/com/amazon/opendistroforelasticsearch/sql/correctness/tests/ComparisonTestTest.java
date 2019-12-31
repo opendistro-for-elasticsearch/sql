@@ -23,6 +23,7 @@ import com.amazon.opendistroforelasticsearch.sql.correctness.runner.ComparisonTe
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.DBConnection;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.DBResult;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.Row;
+import com.amazon.opendistroforelasticsearch.sql.correctness.testfile.TestQuerySet;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
@@ -68,7 +69,7 @@ public class ComparisonTestTest {
 
         TestReport expected = new TestReport();
         expected.addTestCase(new SuccessTestCase("SELECT * FROM accounts"));
-        TestReport actual = correctnessTest.verify(asList("SELECT * FROM accounts"));
+        TestReport actual = correctnessTest.verify(querySet("SELECT * FROM accounts"));
         assertEquals(expected, actual);
     }
 
@@ -81,7 +82,7 @@ public class ComparisonTestTest {
 
         TestReport expected = new TestReport();
         expected.addTestCase(new FailedTestCase("SELECT * FROM accounts", asList(esResult, otherDbResult)));
-        TestReport actual = correctnessTest.verify(asList("SELECT * FROM accounts"));
+        TestReport actual = correctnessTest.verify(querySet("SELECT * FROM accounts"));
         assertEquals(expected, actual);
     }
 
@@ -91,7 +92,7 @@ public class ComparisonTestTest {
 
         TestReport expected = new TestReport();
         expected.addTestCase(new ErrorTestCase("SELECT * FROM accounts", "RuntimeException: All shards failure"));
-        TestReport actual = correctnessTest.verify(asList("SELECT * FROM accounts"));
+        TestReport actual = correctnessTest.verify(querySet("SELECT * FROM accounts"));
         assertEquals(expected, actual);
     }
 
@@ -104,7 +105,7 @@ public class ComparisonTestTest {
 
         TestReport expected = new TestReport();
         expected.addTestCase(new ErrorTestCase("SELECT * FROM accounts", "No other databases support this query: Unsupported feature;"));
-        TestReport actual = correctnessTest.verify(asList("SELECT * FROM accounts"));
+        TestReport actual = correctnessTest.verify(querySet("SELECT * FROM accounts"));
         assertEquals(expected, actual);
     }
 
@@ -125,8 +126,12 @@ public class ComparisonTestTest {
 
         TestReport expected = new TestReport();
         expected.addTestCase(new SuccessTestCase("SELECT * FROM accounts"));
-        TestReport actual = correctnessTest.verify(asList("SELECT * FROM accounts"));
+        TestReport actual = correctnessTest.verify(querySet("SELECT * FROM accounts"));
         assertEquals(expected, actual);
+    }
+
+    private TestQuerySet querySet(String query) {
+        return new TestQuerySet(new String[]{ query });
     }
 
 }

@@ -13,17 +13,18 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.correctness.tests;
+package com.amazon.opendistroforelasticsearch.sql.correctness;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.internal.TextListener;
+import org.junit.runner.JUnitCore;
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-    DBResultTest.class,
-    TestReportTest.class,
-    ComparisonTestTest.class,
-    TestConfigTest.class,
-})
-public class UnitTests {
+public class GradleTask {
+
+    public static void main(String[] args) {
+        System.out.println("hello!!!");
+
+        JUnitCore runner = new JUnitCore();
+        runner.addListener(new TextListener(System.out));
+        runner.run(TableauIT.class);
+    }
 }

@@ -13,17 +13,29 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.correctness.tests;
+package com.amazon.opendistroforelasticsearch.sql.correctness.testfile;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-    DBResultTest.class,
-    TestReportTest.class,
-    ComparisonTestTest.class,
-    TestConfigTest.class,
-})
-public class UnitTests {
+/**
+ * Test query set
+ */
+public class TestQuerySet implements TestFile, Iterable<String> {
+
+    private List<String> queries;
+
+    public TestQuerySet(String queryFilePath) {
+        queries = lines(content(queryFilePath));
+    }
+
+    public TestQuerySet(String[] queries) {
+        this.queries = Arrays.asList(queries);
+    }
+
+    @Override
+    public Iterator<String> iterator() {
+        return queries.iterator();
+    }
 }

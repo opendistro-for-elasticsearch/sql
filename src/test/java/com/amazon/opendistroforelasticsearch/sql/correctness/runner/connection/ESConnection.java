@@ -37,7 +37,7 @@ public class ESConnection implements DBConnection {
     private final DBConnection connection;
     private final Client client;
 
-    public ESConnection(String connectionUrl, Client client) {
+    public ESConnection(String connectionUrl, Client client) { // TODO: why client is required?
         this.connection = new JDBCConnection("Elasticsearch", connectionUrl);
         this.client = client;
     }

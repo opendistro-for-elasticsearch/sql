@@ -20,54 +20,47 @@ import com.amazon.opendistroforelasticsearch.sql.correctness.runner.ComparisonTe
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.DBConnection;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.ESConnection;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.JDBCConnection;
-import com.amazon.opendistroforelasticsearch.sql.correctness.testfile.TestFile;
+import com.amazon.opendistroforelasticsearch.sql.correctness.testfile.TestDataSet;
 import com.amazon.opendistroforelasticsearch.sql.esintgtest.SQLIntegTestCase;
 import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils;
 import org.elasticsearch.client.Node;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.TimeZone;
 
 /**
- * Testing for Tableau integration. To simplify testing, the IT itself manages all dependencies on file system,
- * including where to load test data and where to store the final report. {@link ComparisonTest} is only
- * interacted by simple data structure like string and list.
+ * Correctness integration test by performing comparison test with other databases.
  */
-@Ignore
-public class TableauIT extends SQLIntegTestCase {
+public class CorrectnessIT extends SQLIntegTestCase {
 
-    /*
     @Test
-    public void testQueriesForTableauIntegrationWithSQLPlugin() {
-        DBConnection[] connections = {};
-        try {
-            ComparisonTest test = new ComparisonTest(getESConnection(), getOtherDBConnections());
-            test.loadData("kibana_sample_data_flights",
-                new TestFile("kibana_sample_data_flights.json").content(),
-                new TestFile("kibana_sample_data_flights.csv").splitBy(",")
-            );
-            test.loadData("kibana_sample_data_ecommerce",
-                new TestFile("kibana_sample_data_ecommerce.json").content(),
-                new TestFile("kibana_sample_data_ecommerce.csv").splitBy(",")
-            );
+    public void performComparisonTest() {
+        TestConfig config = new TestConfig(System.getProperties());
+        ComparisonTest test = new ComparisonTest(getESConnection(), getOtherDBConnections(config));
 
-            List<String> queries = new TestFile("tableau_integration_tests_full.txt").lines();
-            TestReport report = test.verify(queries);
-            store(report);
-        } finally {
-            for (DBConnection conn : connections) {
-                conn.close();
-            }
+        for (TestDataSet dataSet : config.getTestDataSets()) {
+            test.loadData(dataSet);
         }
+
+        TestReport report = test.verify(config.getTestQuerySet());
+        store(report);
     }
 
-     */
+    private DBConnection getESConnection() {
+        Node node = getRestClient().getNodes().get(0);
+        return new ESConnection("jdbc:elasticsearch://" + node.getHost(), client());
+    }
+
+    private DBConnection[] getOtherDBConnections(TestConfig config) {
+        return config.getOtherDbConnectionNameAndUrls().
+                      entrySet().stream().
+                      map(e -> new JDBCConnection(e.getKey(), e.getValue())).
+                      toArray(DBConnection[]::new);
+    }
 
     private void store(TestReport report) {
         try {
@@ -85,19 +78,6 @@ public class TableauIT extends SQLIntegTestCase {
         df.setTimeZone(TimeZone.getTimeZone("GMT"));
         String dateTime = df.format(new Date());
         return "report_" + dateTime + ".json";
-    }
-
-    private DBConnection getESConnection() {
-        Node node = getRestClient().getNodes().get(0);
-        return new ESConnection("jdbc:elasticsearch://" + node.getHost(), client());
-    }
-
-    private DBConnection[] getOtherDBConnections() {
-        return new DBConnection[]{
-            new JDBCConnection("H2", "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1"),
-            new JDBCConnection("SQLite", "jdbc:sqlite::memory:"),
-            //new JDBCConnection("Apache Derby", "jdbc:derby:memory:myDb;create=true"),
-        };
     }
 
 }

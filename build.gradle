@@ -130,6 +130,21 @@ integTestRunner {
     systemProperty 'tests.security.manager', 'false'
     // allows integration test classes to access test resource from project root path
     systemProperty('project.root', project.rootDir.absolutePath)
+
+    def testType = System.getProperty("testType")
+    if (testType == 'doctest') {
+        include 'com/amazon/opendistroforelasticsearch/sql/doctest/**/*IT.class'
+        exclude 'com/amazon/opendistroforelasticsearch/sql/correctness/**'
+        exclude 'com/amazon/opendistroforelasticsearch/sql/esintgtest/**'
+    } else if (testType == 'comparison') {
+        include 'com/amazon/opendistroforelasticsearch/sql/correctness/CorrectnessIT.class'
+        exclude 'com/amazon/opendistroforelasticsearch/sql/doctest/**'
+        exclude 'com/amazon/opendistroforelasticsearch/sql/esintgtest/**'
+    } else {
+        include 'com/amazon/opendistroforelasticsearch/sql/esintgtest/**/*IT.class'
+        exclude 'com/amazon/opendistroforelasticsearch/sql/doctest/**'
+        exclude 'com/amazon/opendistroforelasticsearch/sql/correctness/**'
+    }
 }
 
 integTestCluster {
@@ -142,6 +157,20 @@ generateGrammarSource {
     source = sourceSets.main.antlr
     outputDirectory = file("build/generated-src/antlr/main/com/amazon/opendistroforelasticsearch/sql/antlr/parser")
 }
+
+/*
+task compTestRunner(type: JavaExec) {
+    //dependsOn compileJava
+    description = 'Perform comparison testing'
+
+    classpath sourceSets.test.runtimeClasspath
+    main 'com.amazon.opendistroforelasticsearch.sql.correctness.GradleTask'
+
+    jvmArgs "-ea"
+    systemProperty 'tests.security.manager', 'false'
+    systemProperty('project.root', project.rootDir.absolutePath)
+}
+*/
 
 // Remove ANTLR plugin jars as it's specified as 'compile' dependency internally
 configurations {
