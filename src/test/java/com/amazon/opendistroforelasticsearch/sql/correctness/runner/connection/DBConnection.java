@@ -25,6 +25,11 @@ import java.util.List;
 public interface DBConnection {
 
     /**
+     * @return database name
+     */
+    String getDatabaseName();
+
+    /**
      * Create table with the schema.
      * @param tableName     table name
      * @param schema        schema json in ES mapping format

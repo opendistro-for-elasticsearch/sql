@@ -20,7 +20,6 @@ import com.amazon.opendistroforelasticsearch.sql.correctness.testfile.TestQueryS
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * Test configuration parse the following information from command line arguments:
@@ -50,9 +49,9 @@ public class TestConfig {
 
     private final Map<String, String> otherDbConnectionUrlByNames = new HashMap<>();
 
-    public TestConfig(Properties cliArgs) {
-        testQuerySet = new TestQuerySet(cliArgs.getProperty("queries", DEFAULT_TEST_QUERIES));
-        esConnectionUrl = cliArgs.getProperty("esUrl", "");
+    public TestConfig(Map<String, String> cliArgs) {
+        testQuerySet = new TestQuerySet(cliArgs.getOrDefault("queries", DEFAULT_TEST_QUERIES));
+        esConnectionUrl = cliArgs.getOrDefault("esUrl", "");
 
         parseOtherDbConnectionInfo(cliArgs);
     }
@@ -73,10 +72,11 @@ public class TestConfig {
         return otherDbConnectionUrlByNames;
     }
 
-    private void parseOtherDbConnectionInfo(Properties cliArgs) {
-        String dbUrls = cliArgs.getProperty("dbUrls",
-                                            "H2=jdbc:h2:mem:test;DB_CLOSE_DELAY=-1,"
-                                            + "SQLite=jdbc:sqlite::memory:");
+    private void parseOtherDbConnectionInfo(Map<String, String> cliArgs) {
+        String dbUrls = cliArgs.getOrDefault("dbUrls",
+                                             "H2=jdbc:h2:mem:test;DB_CLOSE_DELAY=-1,"
+                                             + "SQLite=jdbc:sqlite::memory:");
+
         for (String dbNameAndUrl : dbUrls.split(",")) {
             int firstEquity = dbNameAndUrl.indexOf('=');
             String dbName = dbNameAndUrl.substring(0, firstEquity);

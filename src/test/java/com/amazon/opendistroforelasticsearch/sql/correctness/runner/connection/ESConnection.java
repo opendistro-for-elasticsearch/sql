@@ -43,6 +43,11 @@ public class ESConnection implements DBConnection {
     }
 
     @Override
+    public String getDatabaseName() {
+        return "Elasticsearch";
+    }
+
+    @Override
     public void create(String tableName, String schema) {
         CreateIndexResponse resp = client.admin().indices().create(
             new CreateIndexRequest(tableName).mapping("_doc", schema, XContentType.JSON)

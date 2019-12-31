@@ -41,7 +41,7 @@ import static java.util.stream.Collectors.joining;
 /**
  * Database connection by JDBC driver.
  */
-public class JDBCConnection implements DBConnection, Comparable<DBConnection> {
+public class JDBCConnection implements DBConnection {
 
     private static final String SINGLE_QUOTE = "'";
     private static final String DOUBLE_QUOTE = "''";
@@ -58,6 +58,11 @@ public class JDBCConnection implements DBConnection, Comparable<DBConnection> {
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    @Override
+    public String getDatabaseName() {
+        return databaseName;
     }
 
     @Override
@@ -128,14 +133,6 @@ public class JDBCConnection implements DBConnection, Comparable<DBConnection> {
         } catch (SQLException e) {
             throw new IllegalStateException(e);
         }
-    }
-
-    @Override
-    public int compareTo(DBConnection other) {
-        if (!(other instanceof JDBCConnection)) {
-            throw new IllegalStateException("Cannot compare with DBConnection other than JDBCConnection");
-        }
-        return databaseName.compareTo(((JDBCConnection) other).databaseName);
     }
 
     private interface Query {

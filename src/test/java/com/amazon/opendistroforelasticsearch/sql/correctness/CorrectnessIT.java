@@ -23,6 +23,7 @@ import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.J
 import com.amazon.opendistroforelasticsearch.sql.correctness.testfile.TestDataSet;
 import com.amazon.opendistroforelasticsearch.sql.esintgtest.SQLIntegTestCase;
 import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils;
+import com.google.common.collect.Maps;
 import org.elasticsearch.client.Node;
 import org.junit.Test;
 
@@ -39,7 +40,7 @@ public class CorrectnessIT extends SQLIntegTestCase {
 
     @Test
     public void performComparisonTest() {
-        TestConfig config = new TestConfig(System.getProperties());
+        TestConfig config = new TestConfig(Maps.fromProperties(System.getProperties()));
         ComparisonTest test = new ComparisonTest(getESConnection(), getOtherDBConnections(config));
 
         for (TestDataSet dataSet : config.getTestDataSets()) {

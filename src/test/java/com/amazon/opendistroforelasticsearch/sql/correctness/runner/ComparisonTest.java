@@ -28,6 +28,7 @@ import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import com.google.common.collect.Iterators;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -48,7 +49,7 @@ public class ComparisonTest {
         this.otherDbConnections = otherDbConnections;
 
         // Guarantee ordering of other database in comparison test
-        Arrays.sort(this.otherDbConnections);
+        Arrays.sort(this.otherDbConnections, Comparator.comparing(DBConnection::getDatabaseName));
     }
 
     /**

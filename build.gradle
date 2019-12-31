@@ -158,20 +158,6 @@ generateGrammarSource {
     outputDirectory = file("build/generated-src/antlr/main/com/amazon/opendistroforelasticsearch/sql/antlr/parser")
 }
 
-/*
-task compTestRunner(type: JavaExec) {
-    //dependsOn compileJava
-    description = 'Perform comparison testing'
-
-    classpath sourceSets.test.runtimeClasspath
-    main 'com.amazon.opendistroforelasticsearch.sql.correctness.GradleTask'
-
-    jvmArgs "-ea"
-    systemProperty 'tests.security.manager', 'false'
-    systemProperty('project.root', project.rootDir.absolutePath)
-}
-*/
-
 // Remove ANTLR plugin jars as it's specified as 'compile' dependency internally
 configurations {
     compile {

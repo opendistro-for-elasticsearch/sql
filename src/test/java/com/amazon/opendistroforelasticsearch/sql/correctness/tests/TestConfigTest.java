@@ -16,8 +16,12 @@
 package com.amazon.opendistroforelasticsearch.sql.correctness.tests;
 
 import com.amazon.opendistroforelasticsearch.sql.correctness.TestConfig;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 
+import java.util.Map;
+
+import static java.util.Collections.emptyMap;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.hasEntry;
@@ -31,7 +35,7 @@ public class TestConfigTest {
 
     @Test
     public void testDefaultConfig() {
-        TestConfig config = new TestConfig(System.getProperties());
+        TestConfig config = new TestConfig(emptyMap());
         assertThat(config.getESConnectionUrl(), is(emptyString()));
         assertThat(
             config.getOtherDbConnectionNameAndUrls(),
@@ -44,15 +48,18 @@ public class TestConfigTest {
 
     @Test
     public void testCustomESUrls() {
-        System.setProperty("esUrl", "jdbc:elasticsearch://localhost:9200");
-        TestConfig config = new TestConfig(System.getProperties());
+        Map<String, String> args = ImmutableMap.of("esUrl", "jdbc:elasticsearch://localhost:9200");
+        TestConfig config = new TestConfig(args);
         assertThat(config.getESConnectionUrl(), is("jdbc:elasticsearch://localhost:9200"));
     }
 
     @Test
     public void testCustomDbUrls() {
-        System.setProperty("dbUrls", "H2=jdbc:h2:mem:test;DB_CLOSE_DELAY=-1,Derby=jdbc:derby:memory:myDb;create=true");
-        TestConfig config = new TestConfig(System.getProperties());
+        Map<String, String> args = ImmutableMap.of("dbUrls",
+                                                   "H2=jdbc:h2:mem:test;DB_CLOSE_DELAY=-1,"
+                                                   + "Derby=jdbc:derby:memory:myDb;create=true");
+
+        TestConfig config = new TestConfig(args);
         assertThat(
             config.getOtherDbConnectionNameAndUrls(),
             allOf(

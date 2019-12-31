@@ -53,6 +53,8 @@ public class ComparisonTestTest {
 
     @Before
     public void setUp() {
+        when(esConnection.getDatabaseName()).thenReturn("ES");
+        when(otherDbConnection.getDatabaseName()).thenReturn("Other");
         correctnessTest = new ComparisonTest(
             esConnection, new DBConnection[]{otherDbConnection}
         );
@@ -112,6 +114,7 @@ public class ComparisonTestTest {
     @Test
     public void testSuccessWhenOneDBSupportThisQuery() {
         DBConnection anotherDbConnection = mock(DBConnection.class);
+        when(anotherDbConnection.getDatabaseName()).thenReturn("Another");
         correctnessTest = new ComparisonTest(
             esConnection, new DBConnection[]{otherDbConnection, anotherDbConnection}
         );
