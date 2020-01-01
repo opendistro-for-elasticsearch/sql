@@ -67,7 +67,7 @@ public class JDBCConnection implements DBConnection {
 
     @Override
     public void create(String tableName, String schema) {
-        JSONObject json = (JSONObject) new JSONObject(schema).query("/_doc/properties");
+        JSONObject json = (JSONObject) new JSONObject(schema).query("/mappings/properties");
         String types = json.keySet().stream().
                                      map(colName -> colName + " " + mapToJDBCType(json.getJSONObject(colName).getString("type"))).
                                      collect(joining(","));

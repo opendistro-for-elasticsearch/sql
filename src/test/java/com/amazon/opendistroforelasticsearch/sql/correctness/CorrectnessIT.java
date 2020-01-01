@@ -24,7 +24,8 @@ import com.amazon.opendistroforelasticsearch.sql.correctness.testfile.TestDataSe
 import com.amazon.opendistroforelasticsearch.sql.esintgtest.SQLIntegTestCase;
 import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils;
 import com.google.common.collect.Maps;
-import org.elasticsearch.client.Node;
+import org.apache.http.HttpHost;
+import org.elasticsearch.client.RestClient;
 import org.junit.Test;
 
 import java.nio.file.Files;
@@ -57,12 +58,15 @@ public class CorrectnessIT extends SQLIntegTestCase {
     }
 
     private DBConnection getESConnection(TestConfig config) {
+        RestClient client;
         String esUrl = config.getESConnectionUrl();
         if (esUrl.isEmpty()) {
-            Node node = getRestClient().getNodes().get(0);
-            esUrl = "jdbc:elasticsearch://" + node.getHost();
+            client = getRestClient();
+            esUrl = client.getNodes().get(0).getHost().toString();
+        } else {
+            client = RestClient.builder(HttpHost.create(esUrl)).build();
         }
-        return new ESConnection(esUrl, client());
+        return new ESConnection("jdbc:elasticsearch://" + esUrl, client);
     }
 
     private DBConnection[] getOtherDBConnections(TestConfig config) {

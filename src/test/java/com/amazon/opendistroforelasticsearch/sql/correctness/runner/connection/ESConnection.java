@@ -16,28 +16,23 @@
 package com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection;
 
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.DBResult;
-import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
-import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
-import org.elasticsearch.action.bulk.BulkRequestBuilder;
-import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.client.Request;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.RestClient;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.List;
 
-import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
-
 /**
- * Elasticsearch database connection.
+ * Elasticsearch database connection for insertion. This class wraps JDBCConnection to delegate query method.
  */
 public class ESConnection implements DBConnection {
 
     private final DBConnection connection;
-    private final Client client;
+    private final RestClient client;
 
-    public ESConnection(String connectionUrl, Client client) { // TODO: why client is required?
+    public ESConnection(String connectionUrl, RestClient client) { // TODO: why client is required?
         this.connection = new JDBCConnection("Elasticsearch", connectionUrl);
         this.client = client;
     }
@@ -49,34 +44,26 @@ public class ESConnection implements DBConnection {
 
     @Override
     public void create(String tableName, String schema) {
-        CreateIndexResponse resp = client.admin().indices().create(
-            new CreateIndexRequest(tableName).mapping("_doc", schema, XContentType.JSON)
-        ).actionGet();
-
-        if (!resp.isAcknowledged()) {
-            throw new IllegalStateException("Failed to create index [" + tableName + "]");
-        }
+        Request request = new Request("PUT", "/" + tableName);
+        request.setJsonEntity(schema);
+        performRequest(request);
     }
 
     @Override
     public void insert(String tableName, String[] columnNames, List<String[]> batch) {
-        BulkRequestBuilder bulkReq = client.prepareBulk();
+        StringBuilder body = new StringBuilder();
         for (String[] fieldValues : batch) {
-            try {
-                XContentBuilder json = jsonBuilder().startObject();
-                for (int i = 0; i < columnNames.length; i++) {
-                    json.field(columnNames[i], fieldValues[i]);
-                }
-                bulkReq.add(client.prepareIndex(tableName, "_doc").setSource(json.endObject()));
-
-            } catch (IOException e) {
-                throw new IllegalStateException(e);
+            JSONObject json = new JSONObject();
+            for (int i = 0; i < columnNames.length; i++) {
+                json.put(columnNames[i], fieldValues[i]);
             }
+            body.append("{\"index\":{}}\n").
+                 append(json).append("\n");
         }
-        BulkResponse bulkResp = bulkReq.get();
-        if (bulkResp.hasFailures()) {
-            throw new IllegalStateException(bulkResp.buildFailureMessage());
-        }
+
+        Request request = new Request("POST", "/" + tableName + "/_bulk");
+        request.setJsonEntity(body.toString());
+        performRequest(request);
     }
 
     @Override
@@ -86,7 +73,24 @@ public class ESConnection implements DBConnection {
 
     @Override
     public void close() {
-        // DO nothing
+        connection.close();
+        try {
+            client.close();
+        } catch (IOException e) {
+            // Ignore
+        }
+    }
+
+    private void performRequest(Request request) {
+        try {
+            Response response = client.performRequest(request);
+            int status = response.getStatusLine().getStatusCode();
+            if (status != 200) {
+                throw new IllegalStateException("Failed to perform request. Error code: " + status);
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to perform request", e);
+        }
     }
 
 }

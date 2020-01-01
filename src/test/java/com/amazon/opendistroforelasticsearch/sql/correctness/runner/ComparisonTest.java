@@ -39,6 +39,7 @@ import static com.google.common.collect.ObjectArrays.concat;
  */
 public class ComparisonTest implements AutoCloseable {
 
+    /** Elasticsearch connection */
     private final DBConnection esConnection;
 
     /** Database connections for reference databases */
@@ -121,7 +122,7 @@ public class ComparisonTest implements AutoCloseable {
         Iterator<String[]> iterator = testData.iterator();
         String[] fieldNames = iterator.next();
         Iterators.partition(iterator, 100).
-            forEachRemaining(batch -> conn.insert(tableName, fieldNames, batch));
+                  forEachRemaining(batch -> conn.insert(tableName, fieldNames, batch));
     }
 
     private String extractRootCause(Throwable e) {
