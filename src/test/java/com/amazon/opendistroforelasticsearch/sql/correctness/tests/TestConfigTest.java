@@ -36,7 +36,7 @@ public class TestConfigTest {
     @Test
     public void testDefaultConfig() {
         TestConfig config = new TestConfig(emptyMap());
-        assertThat(config.getESConnectionUrl(), is(emptyString()));
+        assertThat(config.getESHostUrl(), is(emptyString()));
         assertThat(
             config.getOtherDbConnectionNameAndUrls(),
             allOf(
@@ -48,9 +48,9 @@ public class TestConfigTest {
 
     @Test
     public void testCustomESUrls() {
-        Map<String, String> args = ImmutableMap.of("esUrl", "jdbc:elasticsearch://localhost:9200");
+        Map<String, String> args = ImmutableMap.of("esHost", "localhost:9200");
         TestConfig config = new TestConfig(args);
-        assertThat(config.getESConnectionUrl(), is("jdbc:elasticsearch://localhost:9200"));
+        assertThat(config.getESHostUrl(), is("localhost:9200"));
     }
 
     @Test

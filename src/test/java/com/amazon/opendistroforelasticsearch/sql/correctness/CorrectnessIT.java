@@ -25,6 +25,8 @@ import com.amazon.opendistroforelasticsearch.sql.esintgtest.SQLIntegTestCase;
 import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils;
 import com.google.common.collect.Maps;
 import org.apache.http.HttpHost;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.RestClient;
 import org.junit.Test;
 
@@ -39,9 +41,12 @@ import java.util.TimeZone;
  */
 public class CorrectnessIT extends SQLIntegTestCase {
 
+    private static final Logger LOG = LogManager.getLogger();
+
     @Test
     public void performComparisonTest() {
         TestConfig config = new TestConfig(Maps.fromProperties(System.getProperties()));
+        LOG.info("Starting comparison test \n" + config);
 
         try (ComparisonTest test = new ComparisonTest(getESConnection(config),
                                                       getOtherDBConnections(config))) {
@@ -59,14 +64,14 @@ public class CorrectnessIT extends SQLIntegTestCase {
 
     private DBConnection getESConnection(TestConfig config) {
         RestClient client;
-        String esUrl = config.getESConnectionUrl();
-        if (esUrl.isEmpty()) {
+        String esHost = config.getESHostUrl();
+        if (esHost.isEmpty()) {
             client = getRestClient();
-            esUrl = client.getNodes().get(0).getHost().toString();
+            esHost = client.getNodes().get(0).getHost().toString();
         } else {
-            client = RestClient.builder(HttpHost.create(esUrl)).build();
+            client = RestClient.builder(HttpHost.create(esHost)).build();
         }
-        return new ESConnection("jdbc:elasticsearch://" + esUrl, client);
+        return new ESConnection("jdbc:elasticsearch://" + esHost, client);
     }
 
     private DBConnection[] getOtherDBConnections(TestConfig config) {

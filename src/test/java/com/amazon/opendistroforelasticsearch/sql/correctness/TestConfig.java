@@ -45,13 +45,13 @@ public class TestConfig {
 
     private final TestQuerySet testQuerySet;
 
-    private final String esConnectionUrl;
+    private final String esHostUrl;
 
     private final Map<String, String> otherDbConnectionUrlByNames = new HashMap<>();
 
     public TestConfig(Map<String, String> cliArgs) {
         testQuerySet = new TestQuerySet(cliArgs.getOrDefault("queries", DEFAULT_TEST_QUERIES));
-        esConnectionUrl = cliArgs.getOrDefault("esUrl", "");
+        esHostUrl = cliArgs.getOrDefault("esHost", "");
 
         parseOtherDbConnectionInfo(cliArgs);
     }
@@ -64,8 +64,8 @@ public class TestConfig {
         return testQuerySet;
     }
 
-    public String getESConnectionUrl() {
-        return esConnectionUrl;
+    public String getESHostUrl() {
+        return esHostUrl;
     }
 
     public Map<String, String> getOtherDbConnectionNameAndUrls() {
@@ -85,4 +85,11 @@ public class TestConfig {
         }
     }
 
+    @Override
+    public String toString() {
+        return "================================="
+            + " ES Host Url     : " + esHostUrl + '\n'
+            + " Other Databases : " + otherDbConnectionUrlByNames + '\n'
+            + "=================================";
+    }
 }
