@@ -15,17 +15,27 @@
 
 package com.amazon.opendistroforelasticsearch.sql.correctness.tests;
 
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import com.amazon.opendistroforelasticsearch.sql.correctness.testset.TestQuerySet;
+import org.junit.Test;
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses({
-    DBResultTest.class,
-    TestReportTest.class,
-    ComparisonTestTest.class,
-    TestConfigTest.class,
-    TestDataSetTest.class,
-    TestQuerySetTest.class,
-})
-public class UnitTests {
+import static org.hamcrest.Matchers.contains;
+import static org.junit.Assert.assertThat;
+
+/**
+ * Tests for {@link TestQuerySet}
+ */
+public class TestQuerySetTest {
+
+    @Test
+    public void testQuerySet() {
+        TestQuerySet querySet = new TestQuerySet("SELECT * FROM accounts\nSELECT * FROM accounts LIMIT 5");
+        assertThat(
+            querySet,
+            contains(
+                "SELECT * FROM accounts",
+                "SELECT * FROM accounts LIMIT 5"
+            )
+        );
+    }
+
 }

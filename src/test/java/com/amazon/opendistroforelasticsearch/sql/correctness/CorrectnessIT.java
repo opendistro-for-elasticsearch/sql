@@ -20,7 +20,7 @@ import com.amazon.opendistroforelasticsearch.sql.correctness.runner.ComparisonTe
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.DBConnection;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.ESConnection;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.JDBCConnection;
-import com.amazon.opendistroforelasticsearch.sql.correctness.testfile.TestDataSet;
+import com.amazon.opendistroforelasticsearch.sql.correctness.testset.TestDataSet;
 import com.amazon.opendistroforelasticsearch.sql.esintgtest.SQLIntegTestCase;
 import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils;
 import com.google.common.collect.Maps;

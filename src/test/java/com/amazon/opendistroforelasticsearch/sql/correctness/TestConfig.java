@@ -15,9 +15,12 @@
 
 package com.amazon.opendistroforelasticsearch.sql.correctness;
 
-import com.amazon.opendistroforelasticsearch.sql.correctness.testfile.TestDataSet;
-import com.amazon.opendistroforelasticsearch.sql.correctness.testfile.TestQuerySet;
+import com.amazon.opendistroforelasticsearch.sql.correctness.testset.TestDataSet;
+import com.amazon.opendistroforelasticsearch.sql.correctness.testset.TestQuerySet;
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
 
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,13 +33,12 @@ import java.util.Map;
  *  4) Other database connection URLs
  *
  * This class is only focused on parsing and return simple data structure such as url string.
- * It doesn't convert it to internal class like DBConnection.
  */
 public class TestConfig {
 
     private static final TestDataSet[] DEFAULT_TEST_DATA_SET = {
-        new TestDataSet("kibana_sample_data_flights", "kibana_sample_data_flights.json", "kibana_sample_data_flights.csv"),
-        new TestDataSet("kibana_sample_data_ecommerce", "kibana_sample_data_ecommerce.json", "kibana_sample_data_ecommerce.csv"),
+        new TestDataSet("kibana_sample_data_flights", readFile("kibana_sample_data_flights.json"), readFile("kibana_sample_data_flights.csv")),
+        new TestDataSet("kibana_sample_data_ecommerce", readFile("kibana_sample_data_ecommerce.json"), readFile("kibana_sample_data_ecommerce.csv")),
     };
 
     private static final String DEFAULT_TEST_QUERIES = "tableau_integration_tests_full.txt";
@@ -50,7 +52,7 @@ public class TestConfig {
     private final Map<String, String> otherDbConnectionUrlByNames = new HashMap<>();
 
     public TestConfig(Map<String, String> cliArgs) {
-        testQuerySet = new TestQuerySet(cliArgs.getOrDefault("queries", DEFAULT_TEST_QUERIES));
+        testQuerySet = new TestQuerySet(readFile(cliArgs.getOrDefault("queries", DEFAULT_TEST_QUERIES)));
         esHostUrl = cliArgs.getOrDefault("esHost", "");
 
         parseOtherDbConnectionInfo(cliArgs);
@@ -91,5 +93,14 @@ public class TestConfig {
             + " ES Host Url     : " + esHostUrl + '\n'
             + " Other Databases : " + otherDbConnectionUrlByNames + '\n'
             + "=================================";
+    }
+
+    private static String readFile(String relativePath) {
+        try {
+            URL url = Resources.getResource("correctness/" + relativePath);
+            return Resources.toString(url, Charsets.UTF_8);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to read test file [" + relativePath + "]");
+        }
     }
 }

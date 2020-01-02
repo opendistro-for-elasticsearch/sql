@@ -13,35 +13,34 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.correctness.testfile;
+package com.amazon.opendistroforelasticsearch.sql.correctness.testset;
 
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 /**
- * Test data set
+ * Test query set
  */
-public class TestDataSet implements TestFile {
+public class TestQuerySet implements Iterable<String> {
 
-    private final String tableName;
-    private final String schema;
-    private final List<String[]> dataRows;
+    private List<String> queries;
 
-    public TestDataSet(String tableName, String schemaFilePath, String dataFilePath) {
-        this.tableName = tableName;
-        this.schema = content(schemaFilePath);
-        this.dataRows = splitBy(content(dataFilePath), ",");
+    public TestQuerySet(String queryFileContent) {
+        queries = lines(queryFileContent);
     }
 
-    public String getTableName() {
-        return tableName;
+    public TestQuerySet(String[] queries) {
+        this.queries = Arrays.asList(queries);
     }
 
-    public String getSchema() {
-        return schema;
+    @Override
+    public Iterator<String> iterator() {
+        return queries.iterator();
     }
 
-    public List<String[]> getDataRows() {
-        return dataRows;
+    private List<String> lines(String content) {
+        return Arrays.asList(content.split("\\r?\\n"));
     }
 
 }

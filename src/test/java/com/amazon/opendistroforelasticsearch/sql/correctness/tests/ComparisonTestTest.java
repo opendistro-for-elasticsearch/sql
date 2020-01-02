@@ -23,7 +23,7 @@ import com.amazon.opendistroforelasticsearch.sql.correctness.runner.ComparisonTe
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.DBConnection;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.DBResult;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.Row;
-import com.amazon.opendistroforelasticsearch.sql.correctness.testfile.TestQuerySet;
+import com.amazon.opendistroforelasticsearch.sql.correctness.testset.TestQuerySet;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
