@@ -284,8 +284,7 @@ public class SQLFunctions {
             case "substring":
                 functionStr = substring((SQLExpr) paramers.get(0).value,
                         Integer.parseInt(Util.expr2Object((SQLExpr) paramers.get(1).value).toString()),
-                        Integer.parseInt(Util.expr2Object((SQLExpr) paramers.get(2).value).toString())
-                        , name);
+                        Integer.parseInt(Util.expr2Object((SQLExpr) paramers.get(2).value).toString()));
                 break;
 
             case "degrees":
@@ -735,23 +734,34 @@ public class SQLFunctions {
     // query: substring(Column expr, int pos, int len)
     // painless script: substring(int begin, int end)
     // es behavior: 1-index, supports out-of-bound index
-    public Tuple<String, String> substring(SQLExpr field, int pos, int len, String valueName) {
+    public Tuple<String, String> substring(SQLExpr field, int pos, int len) {
         String name = nextId("substring");
-
-        // start and end are 0-indexes
         int start = pos < 1 ? 0 : pos - 1;
-        int end = Math.min(start + len, getPropertyOrValue(field).length());
-        if (valueName == null) {
-            return new Tuple<>(name, def(name, getPropertyOrStringValue(field) + "."
-                    + func("substring", false,
-                    Integer.toString(start), Integer.toString(end))));
-        } else {
-            return new Tuple<>(name, getPropertyOrStringValue(field) + "; "
-                    + def(name, valueName + "."
-                    + func("substring", false,
-                    Integer.toString(start), Integer.toString(end))));
-        }
+        return new Tuple<>(name, StringUtils.format(
+                "def end = (int) Math.min(%s + %s, %s.length()); "
+                + def(name, getPropertyOrStringValue(field) + "."
+                + func("substring", false, Integer.toString(start), "end")),
+                Integer.toString(start), Integer.toString(len), getPropertyOrStringValue(field)
+        ));
     }
+
+//    public Tuple<String, String> substring(SQLExpr field, int pos, int len, String valueName) {
+//        String name = nextId("substring");
+//
+//        // start and end are 0-indexes
+//        int start = pos < 1 ? 0 : pos - 1;
+//        int end = Math.min(start + len, getPropertyOrValue(field).length());
+//        if (valueName == null) {
+//            return new Tuple<>(name, def(name, getPropertyOrStringValue(field) + "."
+//                    + func("substring", false,
+//                    Integer.toString(start), Integer.toString(end))));
+//        } else {
+//            return new Tuple<>(name, getPropertyOrStringValue(field) + "; "
+//                    + def(name, valueName + "."
+//                    + func("substring", false,
+//                    Integer.toString(start), Integer.toString(end))));
+//        }
+//    }
 
     private String lower(String property, String culture) {
         return property + ".toLowerCase(Locale.forLanguageTag(\"" + culture + "\"))";
