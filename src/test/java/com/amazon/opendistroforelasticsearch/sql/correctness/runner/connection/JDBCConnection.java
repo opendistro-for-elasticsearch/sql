@@ -34,7 +34,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import static java.util.stream.Collectors.joining;
 
@@ -115,7 +114,7 @@ public class JDBCConnection implements DBConnection {
         try {
             connection.close();
         } catch (SQLException e) {
-            throw new IllegalStateException(e);
+            // Ignore
         }
     }
 
@@ -123,7 +122,7 @@ public class JDBCConnection implements DBConnection {
         try (Statement stmt = connection.createStatement()) {
             update.execute(stmt);
         } catch (SQLException e) {
-            throw new IllegalStateException(e);
+            throw new IllegalStateException("Failed to execute update", e);
         }
     }
 
@@ -131,7 +130,7 @@ public class JDBCConnection implements DBConnection {
         try (Statement stmt = connection.createStatement()) {
             return query.execute(stmt);
         } catch (SQLException e) {
-            throw new IllegalStateException(e);
+            throw new IllegalStateException("Failed to execute query", e);
         }
     }
 

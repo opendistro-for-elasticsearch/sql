@@ -17,33 +17,29 @@ package com.amazon.opendistroforelasticsearch.sql.correctness;
 
 import com.amazon.opendistroforelasticsearch.sql.correctness.testset.TestDataSet;
 import com.amazon.opendistroforelasticsearch.sql.correctness.testset.TestQuerySet;
+import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.util.stream.Collectors.joining;
+
 /**
  * Test configuration parse the following information from command line arguments:
- *
- *  1) Test data and schema
+ *  1) Test schema and data
  *  2) Test queries
  *  3) Elasticsearch connection URL
  *  4) Other database connection URLs
- *
- * This class is only focused on parsing and return simple data structure such as url string.
  */
 public class TestConfig {
 
-    private static final TestDataSet[] DEFAULT_TEST_DATA_SET = {
-        new TestDataSet("kibana_sample_data_flights", readFile("kibana_sample_data_flights.json"), readFile("kibana_sample_data_flights.csv")),
-        new TestDataSet("kibana_sample_data_ecommerce", readFile("kibana_sample_data_ecommerce.json"), readFile("kibana_sample_data_ecommerce.csv")),
-    };
+    private static final String DEFAULT_TEST_QUERIES = "tableau_integration_tests.txt";
 
-    private static final String DEFAULT_TEST_QUERIES = "tableau_integration_tests_full.txt";
-
-    private final TestDataSet[] testDataSets = DEFAULT_TEST_DATA_SET; //TODO: always use default for now
+    private final TestDataSet[] testDataSets;
 
     private final TestQuerySet testQuerySet;
 
@@ -52,6 +48,7 @@ public class TestConfig {
     private final Map<String, String> otherDbConnectionUrlByNames = new HashMap<>();
 
     public TestConfig(Map<String, String> cliArgs) {
+        testDataSets = getDefaultTestDataSet(); // TODO: parse test data set argument
         testQuerySet = new TestQuerySet(readFile(cliArgs.getOrDefault("queries", DEFAULT_TEST_QUERIES)));
         esHostUrl = cliArgs.getOrDefault("esHost", "");
 
@@ -74,6 +71,17 @@ public class TestConfig {
         return otherDbConnectionUrlByNames;
     }
 
+    private TestDataSet[] getDefaultTestDataSet() {
+        return new TestDataSet[]{
+            new TestDataSet("kibana_sample_data_flights",
+                            readFile("kibana_sample_data_flights.json"),
+                            readFile("kibana_sample_data_flights.csv")),
+            new TestDataSet("kibana_sample_data_ecommerce",
+                            readFile("kibana_sample_data_ecommerce.json"),
+                            readFile("kibana_sample_data_ecommerce.csv")),
+        };
+    }
+
     private void parseOtherDbConnectionInfo(Map<String, String> cliArgs) {
         String dbUrls = cliArgs.getOrDefault("dbUrls",
                                              "H2=jdbc:h2:mem:test;DB_CLOSE_DELAY=-1,"
@@ -87,14 +95,6 @@ public class TestConfig {
         }
     }
 
-    @Override
-    public String toString() {
-        return "================================="
-            + " ES Host Url     : " + esHostUrl + '\n'
-            + " Other Databases : " + otherDbConnectionUrlByNames + '\n'
-            + "=================================";
-    }
-
     private static String readFile(String relativePath) {
         try {
             URL url = Resources.getResource("correctness/" + relativePath);
@@ -103,4 +103,31 @@ public class TestConfig {
             throw new IllegalStateException("Failed to read test file [" + relativePath + "]");
         }
     }
+
+    @Override
+    public String toString() {
+        return "\n=================================\n"
+            + "Test data set(s) : " + testDataSetsToString() + '\n'
+            + "Test query set   : " + testQuerySet + '\n'
+            + "ES Host Url      : " + esHostUrlToString() + '\n'
+            + "Other Databases  :\n" + otherDbConnectionInfoToString() + '\n'
+            + "=================================\n";
+    }
+
+    private String testDataSetsToString() {
+        return Arrays.stream(testDataSets).
+                      map(TestDataSet::toString).
+                      collect(joining("\n"));
+    }
+
+    private String esHostUrlToString() {
+        return esHostUrl.isEmpty() ? "(Use internal Elasticsearch in workspace)" : esHostUrl;
+    }
+
+    private String otherDbConnectionInfoToString() {
+        return otherDbConnectionUrlByNames.entrySet().stream().
+                                           map(e -> StringUtils.format(" %s = %s", e.getKey(), e.getValue())).
+                                           collect(joining("\n"));
+    }
+
 }

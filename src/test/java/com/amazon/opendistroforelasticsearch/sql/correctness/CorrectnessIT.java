@@ -34,6 +34,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 import java.util.TimeZone;
 
 /**
@@ -45,23 +46,32 @@ public class CorrectnessIT extends SQLIntegTestCase {
 
     @Test
     public void performComparisonTest() {
-        TestConfig config = new TestConfig(Maps.fromProperties(System.getProperties()));
-        LOG.info("Starting comparison test \n" + config);
+        TestConfig config = new TestConfig(getCmdLineArgs());
+        LOG.info("Starting comparison test {}", config);
 
         try (ComparisonTest test = new ComparisonTest(getESConnection(config),
                                                       getOtherDBConnections(config))) {
 
-            // Load test data
+            LOG.info("Loading test data set...");
             for (TestDataSet dataSet : config.getTestDataSets()) {
                 test.loadData(dataSet);
             }
 
-            // Verify queries and store report
+            LOG.info("Verifying test queries...");
             TestReport report = test.verify(config.getTestQuerySet());
+
+            LOG.info("Saving test report to disk...");
             store(report);
         }
+
+        LOG.info("Complete comparison test.");
     }
 
+    private Map<String, String> getCmdLineArgs() {
+        return Maps.fromProperties(System.getProperties());
+    }
+
+    /** Use Elasticsearch cluster given on arguments or internal embedded in SQLIntegTestCase */
     private DBConnection getESConnection(TestConfig config) {
         RestClient client;
         String esHost = config.getESHostUrl();
@@ -74,6 +84,7 @@ public class CorrectnessIT extends SQLIntegTestCase {
         return new ESConnection("jdbc:elasticsearch://" + esHost, client);
     }
 
+    /** Create database connection with database name and connect URL */
     private DBConnection[] getOtherDBConnections(TestConfig config) {
         return config.getOtherDbConnectionNameAndUrls().
                       entrySet().stream().
@@ -88,7 +99,7 @@ public class CorrectnessIT extends SQLIntegTestCase {
             byte[] content = report.report().getBytes();
             Files.write(Paths.get(absFilePath), content);
         } catch (Exception e) {
-            throw new IllegalStateException(e);
+            throw new IllegalStateException("Failed to store report file", e);
         }
     }
 

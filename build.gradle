@@ -140,6 +140,7 @@ integTestRunner {
         include 'com/amazon/opendistroforelasticsearch/sql/correctness/CorrectnessIT.class'
         exclude 'com/amazon/opendistroforelasticsearch/sql/doctest/**'
         exclude 'com/amazon/opendistroforelasticsearch/sql/esintgtest/**'
+        testLogging.showStandardStreams = true
     } else {
         include 'com/amazon/opendistroforelasticsearch/sql/esintgtest/**/*IT.class'
         exclude 'com/amazon/opendistroforelasticsearch/sql/doctest/**'

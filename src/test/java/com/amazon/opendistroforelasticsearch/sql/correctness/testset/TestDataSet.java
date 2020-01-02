@@ -16,9 +16,11 @@
 package com.amazon.opendistroforelasticsearch.sql.correctness.testset;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.unquoteSingleField;
+import static java.util.stream.Collectors.joining;
 
 /**
  * Test data set
@@ -32,7 +34,7 @@ public class TestDataSet {
     public TestDataSet(String tableName, String schemaFileContent, String dataFileContent) {
         this.tableName = tableName;
         this.schema = schemaFileContent;
-        this.dataRows = splitBy(dataFileContent, ',');
+        this.dataRows = splitColumns(dataFileContent, ',');
     }
 
     public String getTableName() {
@@ -47,9 +49,8 @@ public class TestDataSet {
         return dataRows;
     }
 
-    /** Split by separator and ignore escaped separator(s) in quoted string. */
-    private List<String[]> splitBy(String content, char separator) {
-
+    /** Split columns in each line by separator and ignore escaped separator(s) in quoted string. */
+    private List<String[]> splitColumns(String content, char separator) {
         List<String[]> result = new ArrayList<>();
         for (String line : content.split("\\r?\\n")) {
 
@@ -77,6 +78,19 @@ public class TestDataSet {
             result.add(columns.toArray(new String[0]));
         }
         return result;
+    }
+
+    @Override
+    public String toString() {
+        int total = dataRows.size();
+        return "Test data set :\n"
+            + " Table name: " + tableName + '\n'
+            + " Schema: " + schema + '\n'
+            + " Data rows (first 5 in " + total + "):"
+            + dataRows.stream().
+                       limit(5).
+                       map(Arrays::toString).
+                       collect(joining("\n ", "\n ", "\n"));
     }
 
 }
