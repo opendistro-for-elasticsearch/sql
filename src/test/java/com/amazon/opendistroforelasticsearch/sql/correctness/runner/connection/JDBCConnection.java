@@ -75,19 +75,22 @@ public class JDBCConnection implements DBConnection {
 
     @Override
     public void create(String tableName, String schema) {
+        // Parse out type in schema json and convert to field name and type pairs for CREATE TABLE statement.
         JSONObject json = (JSONObject) new JSONObject(schema).query("/mappings/properties");
         String types = json.keySet().stream().
                                      map(colName -> colName + " " + mapToJDBCType(json.getJSONObject(colName).getString("type"))).
                                      collect(joining(","));
 
-        execute(stmt -> {
+        try (Statement stmt = connection.createStatement()) {
             stmt.executeUpdate(StringUtils.format("CREATE TABLE %s(%s)", tableName, types));
-        });
+        } catch (SQLException e) {
+            throw new IllegalStateException("Failed to execute update", e);
+        }
     }
 
     @Override
     public void insert(String tableName, String[] columnNames, List<String[]> batch) {
-        execute(stmt -> {
+        try (Statement stmt = connection.createStatement()) {
             String names = String.join(",", columnNames);
 
             for (String[] fieldValues : batch) {
@@ -99,24 +102,29 @@ public class JDBCConnection implements DBConnection {
                 stmt.addBatch(StringUtils.format("INSERT INTO %s(%s) VALUES (%s)", tableName, names, values));
             }
             stmt.executeBatch();
-        });
+        } catch (SQLException e) {
+            throw new IllegalStateException("Failed to execute update", e);
+        }
     }
 
     @Override
     public DBResult select(String query) {
-        return execute(stmt -> {
+        try (Statement stmt = connection.createStatement()) {
             ResultSet resultSet = stmt.executeQuery(query);
             Map<String, String> nameAndTypes = getColumnNameAndTypes(resultSet);
+
             DBResult result = new DBResult(databaseName, nameAndTypes, new HashSet<>()); //TODO: List for ORDER BY
             while (resultSet.next()) {
-                List<Object> row = new ArrayList<>();
+                List<Object> row = new ArrayList<>(); //TODO: set for SELECT *
                 for (int i = 1; i <= nameAndTypes.size(); i++) {
                     row.add(roundFloatNum(resultSet.getObject(i)));
                 }
                 result.addRow(new Row(row));
             }
             return result;
-        });
+        } catch (SQLException e) {
+            throw new IllegalStateException("Failed to execute query", e);
+        }
     }
 
     @Override
@@ -126,30 +134,6 @@ public class JDBCConnection implements DBConnection {
         } catch (SQLException e) {
             // Ignore
         }
-    }
-
-    private void execute(Update update) {
-        try (Statement stmt = connection.createStatement()) {
-            update.execute(stmt);
-        } catch (SQLException e) {
-            throw new IllegalStateException("Failed to execute update", e);
-        }
-    }
-
-    private DBResult execute(Query query) {
-        try (Statement stmt = connection.createStatement()) {
-            return query.execute(stmt);
-        } catch (SQLException e) {
-            throw new IllegalStateException("Failed to execute query", e);
-        }
-    }
-
-    private interface Query {
-        DBResult execute(Statement stmt) throws SQLException;
-    }
-
-    private interface Update {
-        void execute(Statement stmt) throws SQLException;
     }
 
     private Map<String, String> getColumnNameAndTypes(ResultSet resultSet) throws SQLException {
@@ -163,7 +147,7 @@ public class JDBCConnection implements DBConnection {
 
     private Object roundFloatNum(Object value) {
         if (value instanceof Float) {
-            BigDecimal decimal = BigDecimal.valueOf(((Float) value).doubleValue()).setScale(2, RoundingMode.CEILING);
+            BigDecimal decimal = BigDecimal.valueOf((Float) value).setScale(2, RoundingMode.CEILING);
             value = decimal.floatValue();
         } else if (value instanceof Double) {
             BigDecimal decimal = BigDecimal.valueOf((Double) value).setScale(2, RoundingMode.CEILING);

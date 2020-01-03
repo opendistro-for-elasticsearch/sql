@@ -29,7 +29,10 @@ import java.util.List;
  */
 public class ESConnection implements DBConnection {
 
+    /** Connection via our Elasticsearch JDBC driver */
     private final DBConnection connection;
+
+    /** Native Elasticsearch REST client for operation unsupported by driver such as CREATE/INSERT */
     private final RestClient client;
 
     public ESConnection(String connectionUrl, RestClient client) {

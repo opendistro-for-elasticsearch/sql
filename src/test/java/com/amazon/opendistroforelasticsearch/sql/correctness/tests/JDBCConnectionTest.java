@@ -17,7 +17,9 @@ package com.amazon.opendistroforelasticsearch.sql.correctness.tests;
 
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.JDBCConnection;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.DBResult;
+import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.Row;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -105,6 +107,35 @@ public class JDBCConnectionTest {
         assertEquals(
             ImmutableMap.of("name", "VARCHAR", "age", "INT"),
             result.getColumnNameAndTypes()
+        );
+        assertEquals(
+            Sets.newHashSet(
+                new Row(Arrays.<Object>asList("John", 25)),
+                new Row(Arrays.<Object>asList("Hank", 30))
+            ),
+            result.getDataRows()
+        );
+    }
+
+    @Test
+    public void testSelectQueryWithFloatInResultSet() throws SQLException {
+        ResultSetMetaData metaData = mockMetaData(ImmutableMap.of("name", "VARCHAR", "balance", "FLOAT"));
+        ResultSet resultSet = mockResultSet(
+            new Object[]{"John", 25.123},
+            new Object[]{"Hank", 30.456},
+            new Object[]{"Allen", 15.1}
+        );
+        when(statement.executeQuery(anyString())).thenReturn(resultSet);
+        when(resultSet.getMetaData()).thenReturn(metaData);
+
+        DBResult result = conn.select("SELECT * FROM test");
+        assertEquals(
+            Sets.newHashSet(
+                new Row(Arrays.<Object>asList("John", 25.13)),
+                new Row(Arrays.<Object>asList("Hank", 30.46)),
+                new Row(Arrays.<Object>asList("Allen", 15.1))
+            ),
+            result.getDataRows()
         );
     }
 
