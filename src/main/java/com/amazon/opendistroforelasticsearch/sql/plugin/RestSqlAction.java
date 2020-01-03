@@ -23,16 +23,16 @@ import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.exception.SQLFeatureDisabledException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.ActionRequestRestExecutorFactory;
-import com.amazon.opendistroforelasticsearch.sql.executor.Format;
 import com.amazon.opendistroforelasticsearch.sql.executor.RestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.ErrorMessage;
-import com.amazon.opendistroforelasticsearch.sql.utils.JsonPrettyFormatter;
 import com.amazon.opendistroforelasticsearch.sql.metrics.MetricName;
 import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import com.amazon.opendistroforelasticsearch.sql.request.SqlRequest;
 import com.amazon.opendistroforelasticsearch.sql.request.SqlRequestFactory;
+import com.amazon.opendistroforelasticsearch.sql.request.SqlRequestParam;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.VerificationException;
+import com.amazon.opendistroforelasticsearch.sql.utils.JsonPrettyFormatter;
 import com.amazon.opendistroforelasticsearch.sql.utils.LogUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -59,7 +59,6 @@ import java.util.regex.Pattern;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_ENABLED;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_SEMANTIC_SUGGESTION;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_SEMANTIC_THRESHOLD;
-import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_RESPONSE_FORMAT;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.SQL_ENABLED;
 import static org.elasticsearch.rest.RestStatus.BAD_REQUEST;
 import static org.elasticsearch.rest.RestStatus.OK;
@@ -78,8 +77,6 @@ public class RestSqlAction extends BaseRestHandler {
      */
     public static final String QUERY_API_ENDPOINT = "/_opendistro/_sql";
     public static final String EXPLAIN_API_ENDPOINT = QUERY_API_ENDPOINT + "/_explain";
-
-    public static final String QUERY_PARAMS_FORMAT = "format";
 
     RestSqlAction(Settings settings, RestController restController) {
 
@@ -155,15 +152,15 @@ public class RestSqlAction extends BaseRestHandler {
         if (isExplainRequest(request)) {
             final String jsonExplanation = queryAction.explain().explain();
             String result;
-            if (params.containsKey("pretty")
-                    && ("".equals(params.get("pretty")) || "true".equals(params.get("pretty")))) {
+            if (SqlRequestParam.isPrettyFormat(params)) {
                 result = JsonPrettyFormatter.format(jsonExplanation);
             } else {
                 result = jsonExplanation;
             }
             channel.sendResponse(new BytesRestResponse(OK, "application/json; charset=UTF-8", result));
         } else {
-            RestExecutor restExecutor = ActionRequestRestExecutorFactory.createExecutor(getFormatFromParams(params),
+            RestExecutor restExecutor = ActionRequestRestExecutorFactory.createExecutor(
+                    SqlRequestParam.getFormat(params),
                     queryAction);
             //doing this hack because elasticsearch throws exception for un-consumed props
             Map<String, String> additionalParams = new HashMap<>();
@@ -215,14 +212,5 @@ public class RestSqlAction extends BaseRestHandler {
 
         OpenDistroSqlAnalyzer analyzer = new OpenDistroSqlAnalyzer(config);
         analyzer.analyze(sql, clusterState);
-    }
-
-    private Format getFormatFromParams(Map<String, String> params) {
-        if (params.containsKey(QUERY_PARAMS_FORMAT)) {
-            return Format.of(params.get(QUERY_PARAMS_FORMAT).toLowerCase());
-        } else {
-            LocalClusterState clusterState = LocalClusterState.state();
-            return Format.of(clusterState.getSettingValue(QUERY_RESPONSE_FORMAT));
-        }
     }
 }

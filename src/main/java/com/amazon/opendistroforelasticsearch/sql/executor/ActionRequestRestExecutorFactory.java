@@ -35,10 +35,6 @@ public class ActionRequestRestExecutorFactory {
      */
     public static RestExecutor createExecutor(Format format, QueryAction queryAction) {
         switch (format) {
-            case JDBC:
-            case RAW:
-            case TABLE:
-                return new AsyncRestExecutor(new PrettyFormatRestExecutor(format.getFormatName()));
             case CSV:
                 return new AsyncRestExecutor(new CSVResultRestExecutor());
             case JSON:
@@ -46,9 +42,11 @@ public class ActionRequestRestExecutorFactory {
                         new ElasticDefaultRestExecutor(queryAction),
                         action -> isJoin(action) || isUnionMinus(action)
                 );
+            case JDBC:
+            case RAW:
+            case TABLE:
             default:
-                throw new IllegalArgumentException("Failed to create executor due to unknown response format: "
-                                                   + format);
+                return new AsyncRestExecutor(new PrettyFormatRestExecutor(format.getFormatName()));
         }
     }
 

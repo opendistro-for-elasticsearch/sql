@@ -20,6 +20,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 public enum Format {
@@ -32,7 +33,6 @@ public enum Format {
     @Getter
     private final String formatName;
 
-    private static final Format DEFAULT_FORMAT = JDBC;
     private static final Map<String, Format> ALL_FORMATS;
     static {
         ImmutableMap.Builder<String, Format> builder = new ImmutableMap.Builder<>();
@@ -42,7 +42,7 @@ public enum Format {
         ALL_FORMATS = builder.build();
     }
 
-    public static Format of(String formatName) {
-        return ALL_FORMATS.getOrDefault(formatName, DEFAULT_FORMAT);
+    public static Optional<Format> of(String formatName) {
+        return Optional.ofNullable(ALL_FORMATS.getOrDefault(formatName, null));
     }
 }

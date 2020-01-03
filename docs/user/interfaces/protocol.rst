@@ -133,64 +133,13 @@ Explain::
 	  }
 	}
 
-Elasticsearch DSL
-=================
-
-Description
------------
-
-By default the plugin returns original response from Elasticsearch in JSON. Because this is the native response from Elasticsearch, extra efforts are needed to parse and interpret it.
-
-Example
--------
-
-SQL query::
-
-	>> curl -H 'Content-Type: application/json' -X POST localhost:9200/_opendistro/_sql -d '{
-	  "query" : "SELECT firstname, lastname, age FROM accounts ORDER BY age LIMIT 2"
-	}'
-
-Result set::
-
-	{
-	  "schema" : [
-	    {
-	      "name" : "firstname",
-	      "type" : "text"
-	    },
-	    {
-	      "name" : "lastname",
-	      "type" : "text"
-	    },
-	    {
-	      "name" : "age",
-	      "type" : "long"
-	    }
-	  ],
-	  "total" : 4,
-	  "datarows" : [
-	    [
-	      "Nanette",
-	      "Bates",
-	      28
-	    ],
-	    [
-	      "Amber",
-	      "Duke",
-	      32
-	    ]
-	  ],
-	  "size" : 2,
-	  "status" : 200
-	}
-
 JDBC Format
 ===========
 
 Description
 -----------
 
-JDBC format is provided for JDBC driver and client side that needs both schema and result set well formatted.
+By default the plugin return JDBC format. JDBC format is provided for JDBC driver and client side that needs both schema and result set well formatted.
 
 Example 1
 ---------
@@ -199,7 +148,7 @@ Here is an example for normal response. The `schema` includes field name and its
 
 SQL query::
 
-	>> curl -H 'Content-Type: application/json' -X POST localhost:9200/_opendistro/_sql?format=jdbc -d '{
+	>> curl -H 'Content-Type: application/json' -X POST localhost:9200/_opendistro/_sql -d '{
 	  "query" : "SELECT firstname, lastname, age FROM accounts ORDER BY age LIMIT 2"
 	}'
 
@@ -257,6 +206,73 @@ Result set::
 	    "type" : "SemanticAnalysisException"
 	  },
 	  "status" : 400
+	}
+
+Elasticsearch DSL
+=================
+
+Description
+-----------
+
+The plugin returns original response from Elasticsearch in JSON. Because this is the native response from Elasticsearch, extra efforts are needed to parse and interpret it.
+
+Example
+-------
+
+SQL query::
+
+	>> curl -H 'Content-Type: application/json' -X POST localhost:9200/_opendistro/_sql?format=json -d '{
+	  "query" : "SELECT firstname, lastname, age FROM accounts ORDER BY age LIMIT 2"
+	}'
+
+Result set::
+
+	{
+	  "_shards" : {
+	    "total" : 5,
+	    "failed" : 0,
+	    "successful" : 5,
+	    "skipped" : 0
+	  },
+	  "hits" : {
+	    "hits" : [
+	      {
+	        "_index" : "accounts",
+	        "_type" : "account",
+	        "_source" : {
+	          "firstname" : "Nanette",
+	          "age" : 28,
+	          "lastname" : "Bates"
+	        },
+	        "_id" : "13",
+	        "sort" : [
+	          28
+	        ],
+	        "_score" : null
+	      },
+	      {
+	        "_index" : "accounts",
+	        "_type" : "account",
+	        "_source" : {
+	          "firstname" : "Amber",
+	          "age" : 32,
+	          "lastname" : "Duke"
+	        },
+	        "_id" : "1",
+	        "sort" : [
+	          32
+	        ],
+	        "_score" : null
+	      }
+	    ],
+	    "total" : {
+	      "value" : 4,
+	      "relation" : "eq"
+	    },
+	    "max_score" : null
+	  },
+	  "took" : 100,
+	  "timed_out" : false
 	}
 
 CSV Format

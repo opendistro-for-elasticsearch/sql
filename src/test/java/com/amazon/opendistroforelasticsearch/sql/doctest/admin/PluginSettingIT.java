@@ -112,7 +112,7 @@ public class PluginSettingIT extends DocTest {
                                                                      .map(Format::getFormatName)
                                                                      .collect(Collectors.joining(","))),
                 Format.JSON.getFormatName(),
-                "SELECT first FROM accounts"
+                "SELECT firstname, lastname, age FROM accounts ORDER BY age LIMIT 2"
         );
     }
 
