@@ -54,13 +54,15 @@ public class ComparisonTest implements AutoCloseable {
     }
 
     /**
-     * Create table and load test data.
+     * Open connection to create table and load test data.
      * @param dataSet     test data set
      */
     public void loadData(TestDataSet dataSet) {
         for (DBConnection conn : concat(esConnection, otherDbConnections)) {
-            createTestTable(conn, dataSet.getTableName(), dataSet.getSchema());
-            insertTestData(conn, dataSet.getTableName(), dataSet.getDataRows());
+            conn.connect();
+            conn.create(dataSet.getTableName(), dataSet.getSchema());
+
+            insertTestDataInBatch(conn, dataSet.getTableName(), dataSet.getDataRows());
         }
     }
 
@@ -113,14 +115,9 @@ public class ComparisonTest implements AutoCloseable {
         return new ErrorTestCase(sql, "No other databases support this query: " + reasons);
     }
 
-    private void createTestTable(DBConnection conn, String tableName, String schema) {
-        conn.create(tableName, schema);
-    }
-
-    /** Insert test data in batch */
-    private void insertTestData(DBConnection conn, String tableName, List<String[]> testData) {
+    private void insertTestDataInBatch(DBConnection conn, String tableName, List<String[]> testData) {
         Iterator<String[]> iterator = testData.iterator();
-        String[] fieldNames = iterator.next();
+        String[] fieldNames = iterator.next(); // first row is header of column names
         Iterators.partition(iterator, 100).
                   forEachRemaining(batch -> conn.insert(tableName, fieldNames, batch));
     }

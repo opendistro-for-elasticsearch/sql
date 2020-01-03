@@ -43,6 +43,11 @@ public class ESConnection implements DBConnection {
     }
 
     @Override
+    public void connect() {
+        connection.connect();
+    }
+
+    @Override
     public void create(String tableName, String schema) {
         Request request = new Request("PUT", "/" + tableName);
         request.setJsonEntity(schema);

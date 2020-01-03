@@ -48,14 +48,23 @@ public class JDBCConnection implements DBConnection {
     /** Database name for display */
     private final String databaseName;
 
-    private final Connection connection;
+    /** Database connection URL */
+    private final String connectionUrl;
+
+    /** Current live connection */
+    private Connection connection;
 
     public JDBCConnection(String databaseName, String connectionUrl) {
         this.databaseName = databaseName;
+        this.connectionUrl = connectionUrl;
+    }
+
+    @Override
+    public void connect() {
         try {
             connection = DriverManager.getConnection(connectionUrl);
         } catch (Exception e) {
-            throw new IllegalStateException(e);
+            throw new IllegalStateException("Failed to open connection", e);
         }
     }
 

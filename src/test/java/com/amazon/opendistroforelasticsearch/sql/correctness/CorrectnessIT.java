@@ -97,6 +97,8 @@ public class CorrectnessIT extends SQLIntegTestCase {
             String relFilePath = "reports/" + reportFileName();
             String absFilePath = TestUtils.getResourceFilePath(relFilePath);
             byte[] content = report.report().getBytes();
+
+            LOG.info("Report file location is {}", absFilePath);
             Files.write(Paths.get(absFilePath), content);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to store report file", e);

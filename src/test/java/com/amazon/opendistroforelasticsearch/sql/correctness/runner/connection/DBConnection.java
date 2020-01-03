@@ -30,6 +30,11 @@ public interface DBConnection {
     String getDatabaseName();
 
     /**
+     * Connect to database by opening a connection.
+     */
+    void connect();
+
+    /**
      * Create table with the schema.
      * @param tableName     table name
      * @param schema        schema json in ES mapping format
