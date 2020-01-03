@@ -16,7 +16,6 @@
 package com.amazon.opendistroforelasticsearch.sql.correctness.tests;
 
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.ESConnection;
-import com.amazonaws.opendistro.elasticsearch.sql.jdbc.shadow.org.apache.http.StatusLine;
 import com.google.common.io.CharStreams;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.message.BasicStatusLine;
@@ -41,6 +40,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * Tests for {@link ESConnection}
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class ESConnectionTest {
 
@@ -54,7 +56,7 @@ public class ESConnectionTest {
         conn = new ESConnection("jdbc:elasticsearch://localhost:12345", client);
 
         Response response = mock(Response.class);
-        when(client.performRequest(any())).thenReturn(response);
+        when(client.performRequest(any(Request.class))).thenReturn(response);
         when(response.getStatusLine()).thenReturn(new BasicStatusLine(new ProtocolVersion("HTTP", 2, 0), 200, ""));
     }
 

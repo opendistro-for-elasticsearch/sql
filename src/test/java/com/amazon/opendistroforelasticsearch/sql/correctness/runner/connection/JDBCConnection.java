@@ -88,8 +88,9 @@ public class JDBCConnection implements DBConnection {
     @Override
     public void insert(String tableName, String[] columnNames, List<String[]> batch) {
         execute(stmt -> {
+            String names = String.join(",", columnNames);
+
             for (String[] fieldValues : batch) {
-                String names = String.join(",", columnNames);
                 String values = Arrays.stream(fieldValues).
                                        map(val -> val.replace(SINGLE_QUOTE, DOUBLE_QUOTE)).
                                        map(val -> SINGLE_QUOTE + val + SINGLE_QUOTE).
@@ -185,4 +186,8 @@ public class JDBCConnection implements DBConnection {
         }
     }
 
+    /** Setter for unit test mock */
+    public void setConnection(Connection connection) {
+        this.connection = connection;
+    }
 }

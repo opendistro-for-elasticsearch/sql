@@ -27,6 +27,7 @@ import org.junit.runners.Suite;
     TestDataSetTest.class,
     TestQuerySetTest.class,
     ESConnectionTest.class,
+    JDBCConnectionTest.class,
 })
 public class UnitTests {
 }
