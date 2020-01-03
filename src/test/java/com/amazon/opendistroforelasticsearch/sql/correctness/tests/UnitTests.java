@@ -20,11 +20,11 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-    TestReportTest.class,
     ComparisonTestTest.class,
     TestConfigTest.class,
     TestDataSetTest.class,
     TestQuerySetTest.class,
+    TestReportTest.class,
     ESConnectionTest.class,
     JDBCConnectionTest.class,
     DBResultTest.class,

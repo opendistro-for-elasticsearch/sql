@@ -105,7 +105,7 @@ public class JDBCConnectionTest {
         DBResult result = conn.select("SELECT * FROM test");
         assertEquals("Test DB", result.getDatabaseName());
         assertEquals(
-            ImmutableMap.of("name", "VARCHAR", "age", "INT"),
+            ImmutableMap.of("NAME", "VARCHAR", "AGE", "INT"),
             result.getColumnNameAndTypes()
         );
         assertEquals(

@@ -128,6 +128,13 @@ public class JDBCConnection implements DBConnection {
                       collect(joining(","));
     }
 
+    private void populateMetaData(ResultSet resultSet, DBResult result) throws SQLException {
+        ResultSetMetaData metaData = resultSet.getMetaData();
+        for (int i = 1; i <= metaData.getColumnCount(); i++) {
+            result.addColumn(metaData.getColumnName(i), metaData.getColumnTypeName(i));
+        }
+    }
+
     private void populateData(ResultSet resultSet, DBResult result) throws SQLException {
         while (resultSet.next()) {
             Row row = new Row();
@@ -135,13 +142,6 @@ public class JDBCConnection implements DBConnection {
                 row.add(resultSet.getObject(i));
             }
             result.addRow(row);
-        }
-    }
-
-    private void populateMetaData(ResultSet resultSet, DBResult result) throws SQLException {
-        ResultSetMetaData metaData = resultSet.getMetaData();
-        for (int i = 1; i <= metaData.getColumnCount(); i++) {
-            result.addColumn(metaData.getColumnName(i), metaData.getColumnTypeName(i));
         }
     }
 
