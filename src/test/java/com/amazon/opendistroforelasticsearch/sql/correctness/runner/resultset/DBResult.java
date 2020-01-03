@@ -22,6 +22,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+/**
+ * Query result for equality comparison. Based on different type of query, such as query with/without ORDER BY and
+ * query with SELECT columns or just *, order of column and row may matter or not. So the internal data structure of this
+ * class is passed in from outside either list or set, hash map or linked hash map etc.
+ */
 public class DBResult {
     private final String databaseName;
     private final Map<String, String> colTypeByName;

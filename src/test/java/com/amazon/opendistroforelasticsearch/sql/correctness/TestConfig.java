@@ -107,10 +107,10 @@ public class TestConfig {
     @Override
     public String toString() {
         return "\n=================================\n"
-            + "Test data set(s) : " + testDataSetsToString() + '\n'
-            + "Test query set   : " + testQuerySet + '\n'
             + "ES Host Url      : " + esHostUrlToString() + '\n'
             + "Other Databases  :\n" + otherDbConnectionInfoToString() + '\n'
+            + "Test data set(s) :\n" + testDataSetsToString() + '\n'
+            + "Test query set   : " + testQuerySet + '\n'
             + "=================================\n";
     }
 

@@ -53,6 +53,7 @@ public class CorrectnessIT extends SQLIntegTestCase {
                                                       getOtherDBConnections(config))) {
 
             LOG.info("Loading test data set...");
+            test.connect();
             for (TestDataSet dataSet : config.getTestDataSets()) {
                 test.loadData(dataSet);
             }

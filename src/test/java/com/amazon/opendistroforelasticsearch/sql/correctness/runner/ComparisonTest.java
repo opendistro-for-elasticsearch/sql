@@ -54,14 +54,21 @@ public class ComparisonTest implements AutoCloseable {
     }
 
     /**
-     * Open connection to create table and load test data.
+     * Open database connection.
+     */
+    public void connect() {
+        for (DBConnection conn : concat(esConnection, otherDbConnections)) {
+            conn.connect();
+        }
+    }
+
+    /**
+     * Create table and load test data.
      * @param dataSet     test data set
      */
     public void loadData(TestDataSet dataSet) {
         for (DBConnection conn : concat(esConnection, otherDbConnections)) {
-            conn.connect();
             conn.create(dataSet.getTableName(), dataSet.getSchema());
-
             insertTestDataInBatch(conn, dataSet.getTableName(), dataSet.getDataRows());
         }
     }
