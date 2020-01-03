@@ -34,6 +34,7 @@ plugins {
     id 'nebula.ospackage' version "5.3.0"
     id 'java-library'
     id 'checkstyle'
+    id "io.freefair.lombok" version "4.1.2"
 }
 
 /*
@@ -99,6 +100,7 @@ esplugin {
 // TODO: fix compiler warnings
 compileJava.options.warnings = false
 compileJava {
+    options.compilerArgs.addAll(["-processor", 'lombok.launch.AnnotationProcessorHider$AnnotationProcessor'])
     doFirst {
         // TODO: do not fail build on warnings, need to fix all compiler warnings
         options.compilerArgs.remove('-Werror')

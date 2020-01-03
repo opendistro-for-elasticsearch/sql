@@ -39,7 +39,7 @@ SQL query::
 
 	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_cluster/settings -d '{
 	  "transient" : {
-	    "opendistro.sql.enabled" : false
+	    "opendistro.sql.enabled" : "false"
 	  }
 	}'
 
@@ -101,7 +101,7 @@ SQL query::
 
 	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_cluster/settings -d '{
 	  "transient" : {
-	    "opendistro.sql.query.slowlog" : 10
+	    "opendistro.sql.query.slowlog" : "10"
 	  }
 	}'
 
@@ -143,7 +143,7 @@ SQL query::
 
 	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_cluster/settings -d '{
 	  "transient" : {
-	    "opendistro.sql.query.analysis.enabled" : false
+	    "opendistro.sql.query.analysis.enabled" : "false"
 	  }
 	}'
 
@@ -187,7 +187,7 @@ SQL query::
 
 	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_cluster/settings -d '{
 	  "transient" : {
-	    "opendistro.sql.query.analysis.semantic.suggestion" : true
+	    "opendistro.sql.query.analysis.semantic.suggestion" : "true"
 	  }
 	}'
 
@@ -255,7 +255,7 @@ SQL query::
 
 	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_cluster/settings -d '{
 	  "transient" : {
-	    "opendistro.sql.query.analysis.semantic.threshold" : 50
+	    "opendistro.sql.query.analysis.semantic.threshold" : "50"
 	  }
 	}'
 
@@ -277,5 +277,71 @@ Result set::
 	      }
 	    }
 	  }
+	}
+
+opendistro.sql.query.response.format
+====================================
+
+Description
+-----------
+
+User can set default response format of the query. The supported format includes: jdbc,json,csv,raw,table.
+
+1. The default value is jdbc.
+2. This setting is node scope.
+3. This setting can be updated dynamically.
+
+
+Example 1
+---------
+
+You can update the setting with a new value like this.
+
+SQL query::
+
+	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_cluster/settings -d '{
+	  "transient" : {
+	    "opendistro.sql.query.response.format" : "json"
+	  }
+	}'
+
+Result set::
+
+	{
+	  "acknowledged" : true,
+	  "persistent" : { },
+	  "transient" : {
+	    "opendistro" : {
+	      "sql" : {
+	        "query" : {
+	          "response" : {
+	            "format" : "json"
+	          }
+	        }
+	      }
+	    }
+	  }
+	}
+
+Example 2
+---------
+
+Query result after the setting updated is like:
+
+SQL query::
+
+	>> curl -H 'Content-Type: application/json' -X POST localhost:9200/_opendistro/_sql -d '{
+	  "query" : "SELECT first FROM accounts"
+	}'
+
+Result set::
+
+	{
+	  "error" : {
+	    "reason" : "Invalid SQL query",
+	    "details" : "Field [first] cannot be found or used here.",
+	    "type" : "SemanticAnalysisException"
+	  },
+	  "status" : 400
 	}
 

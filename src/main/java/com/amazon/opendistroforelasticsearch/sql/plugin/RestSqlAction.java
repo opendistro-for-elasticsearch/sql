@@ -23,6 +23,7 @@ import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.exception.SQLFeatureDisabledException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.ActionRequestRestExecutorFactory;
+import com.amazon.opendistroforelasticsearch.sql.executor.Format;
 import com.amazon.opendistroforelasticsearch.sql.executor.RestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.ErrorMessage;
 import com.amazon.opendistroforelasticsearch.sql.utils.JsonPrettyFormatter;
@@ -58,6 +59,7 @@ import java.util.regex.Pattern;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_ENABLED;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_SEMANTIC_SUGGESTION;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_SEMANTIC_THRESHOLD;
+import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_RESPONSE_FORMAT;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.SQL_ENABLED;
 import static org.elasticsearch.rest.RestStatus.BAD_REQUEST;
 import static org.elasticsearch.rest.RestStatus.OK;
@@ -76,6 +78,8 @@ public class RestSqlAction extends BaseRestHandler {
      */
     public static final String QUERY_API_ENDPOINT = "/_opendistro/_sql";
     public static final String EXPLAIN_API_ENDPOINT = QUERY_API_ENDPOINT + "/_explain";
+
+    public static final String QUERY_PARAMS_FORMAT = "format";
 
     RestSqlAction(Settings settings, RestController restController) {
 
@@ -159,7 +163,7 @@ public class RestSqlAction extends BaseRestHandler {
             }
             channel.sendResponse(new BytesRestResponse(OK, "application/json; charset=UTF-8", result));
         } else {
-            RestExecutor restExecutor = ActionRequestRestExecutorFactory.createExecutor(params.get("format"),
+            RestExecutor restExecutor = ActionRequestRestExecutorFactory.createExecutor(getFormatFromParams(params),
                     queryAction);
             //doing this hack because elasticsearch throws exception for un-consumed props
             Map<String, String> additionalParams = new HashMap<>();
@@ -211,5 +215,14 @@ public class RestSqlAction extends BaseRestHandler {
 
         OpenDistroSqlAnalyzer analyzer = new OpenDistroSqlAnalyzer(config);
         analyzer.analyze(sql, clusterState);
+    }
+
+    private Format getFormatFromParams(Map<String, String> params) {
+        if (params.containsKey(QUERY_PARAMS_FORMAT)) {
+            return Format.of(params.get(QUERY_PARAMS_FORMAT).toLowerCase());
+        } else {
+            LocalClusterState clusterState = LocalClusterState.state();
+            return Format.of(clusterState.getSettingValue(QUERY_RESPONSE_FORMAT));
+        }
     }
 }
