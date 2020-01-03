@@ -59,18 +59,8 @@ public class ESConnection implements DBConnection {
 
     @Override
     public void insert(String tableName, String[] columnNames, List<String[]> batch) {
-        StringBuilder body = new StringBuilder();
-        for (String[] fieldValues : batch) {
-            JSONObject json = new JSONObject();
-            for (int i = 0; i < columnNames.length; i++) {
-                json.put(columnNames[i], fieldValues[i]);
-            }
-            body.append("{\"index\":{}}\n").
-                 append(json).append("\n");
-        }
-
         Request request = new Request("POST", "/" + tableName + "/_bulk");
-        request.setJsonEntity(body.toString());
+        request.setJsonEntity(buildBulkBody(columnNames, batch));
         performRequest(request);
     }
 
@@ -99,6 +89,20 @@ public class ESConnection implements DBConnection {
         } catch (IOException e) {
             throw new IllegalStateException("Failed to perform request", e);
         }
+    }
+
+    private String buildBulkBody(String[] columnNames, List<String[]> batch) {
+        StringBuilder body = new StringBuilder();
+        for (String[] fieldValues : batch) {
+            JSONObject json = new JSONObject();
+            for (int i = 0; i < columnNames.length; i++) {
+                json.put(columnNames[i], fieldValues[i]);
+            }
+
+            body.append("{\"index\":{}}\n").
+                append(json).append("\n");
+        }
+        return body.toString();
     }
 
 }
