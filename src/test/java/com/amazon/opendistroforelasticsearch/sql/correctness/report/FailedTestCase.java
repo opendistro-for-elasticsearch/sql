@@ -62,7 +62,7 @@ public class FailedTestCase extends TestCaseReport {
 
             resultSet.put("dataRows", new JSONArray());
             for (Row row : result.getDataRows()) {
-                resultSet.getJSONArray("dataRows").put(row.getColumns());
+                resultSet.getJSONArray("dataRows").put(row.getValues());
             }
         }
         return report;

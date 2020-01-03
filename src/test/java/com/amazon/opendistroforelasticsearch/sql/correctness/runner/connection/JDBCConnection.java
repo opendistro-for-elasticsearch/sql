@@ -20,20 +20,14 @@ import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.Ro
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import org.json.JSONObject;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 import static java.util.stream.Collectors.joining;
 
@@ -75,13 +69,8 @@ public class JDBCConnection implements DBConnection {
 
     @Override
     public void create(String tableName, String schema) {
-        // Parse out type in schema json and convert to field name and type pairs for CREATE TABLE statement.
-        JSONObject json = (JSONObject) new JSONObject(schema).query("/mappings/properties");
-        String types = json.keySet().stream().
-                                     map(colName -> colName + " " + mapToJDBCType(json.getJSONObject(colName).getString("type"))).
-                                     collect(joining(","));
-
         try (Statement stmt = connection.createStatement()) {
+            String types = parseColumnNameAndTypesInSchemaJson(schema);
             stmt.executeUpdate(StringUtils.format("CREATE TABLE %s(%s)", tableName, types));
         } catch (SQLException e) {
             throw new IllegalStateException("Failed to execute update", e);
@@ -92,14 +81,9 @@ public class JDBCConnection implements DBConnection {
     public void insert(String tableName, String[] columnNames, List<String[]> batch) {
         try (Statement stmt = connection.createStatement()) {
             String names = String.join(",", columnNames);
-
             for (String[] fieldValues : batch) {
-                String values = Arrays.stream(fieldValues).
-                                       map(val -> val.replace(SINGLE_QUOTE, DOUBLE_QUOTE)).
-                                       map(val -> SINGLE_QUOTE + val + SINGLE_QUOTE).
-                                       collect(joining(","));
-
-                stmt.addBatch(StringUtils.format("INSERT INTO %s(%s) VALUES (%s)", tableName, names, values));
+                stmt.addBatch(StringUtils.format(
+                    "INSERT INTO %s(%s) VALUES (%s)", tableName, names, getValueList(fieldValues)));
             }
             stmt.executeBatch();
         } catch (SQLException e) {
@@ -111,16 +95,9 @@ public class JDBCConnection implements DBConnection {
     public DBResult select(String query) {
         try (Statement stmt = connection.createStatement()) {
             ResultSet resultSet = stmt.executeQuery(query);
-            Map<String, String> nameAndTypes = getColumnNameAndTypes(resultSet);
-
-            DBResult result = new DBResult(databaseName, nameAndTypes, new HashSet<>()); //TODO: List for ORDER BY
-            while (resultSet.next()) {
-                List<Object> row = new ArrayList<>(); //TODO: set for SELECT *
-                for (int i = 1; i <= nameAndTypes.size(); i++) {
-                    row.add(roundFloatNum(resultSet.getObject(i)));
-                }
-                result.addRow(new Row(row));
-            }
+            DBResult result = new DBResult(databaseName);
+            populateMetaData(resultSet, result);
+            populateData(resultSet, result);
             return result;
         } catch (SQLException e) {
             throw new IllegalStateException("Failed to execute query", e);
@@ -136,24 +113,36 @@ public class JDBCConnection implements DBConnection {
         }
     }
 
-    private Map<String, String> getColumnNameAndTypes(ResultSet resultSet) throws SQLException {
-        ResultSetMetaData metaData = resultSet.getMetaData();
-        Map<String, String> nameAndTypes = new HashMap<>();
-        for (int i = 1; i <= metaData.getColumnCount(); i++) {
-            nameAndTypes.put(metaData.getColumnName(i), metaData.getColumnTypeName(i));
-        }
-        return nameAndTypes;
+    /** Parse out type in schema json and convert to field name and type pairs for CREATE TABLE statement. */
+    private String parseColumnNameAndTypesInSchemaJson(String schema) {
+        JSONObject json = (JSONObject) new JSONObject(schema).query("/mappings/properties");
+        return json.keySet().stream().
+                    map(colName -> colName + " " + mapToJDBCType(json.getJSONObject(colName).getString("type"))).
+                    collect(joining(","));
     }
 
-    private Object roundFloatNum(Object value) {
-        if (value instanceof Float) {
-            BigDecimal decimal = BigDecimal.valueOf((Float) value).setScale(2, RoundingMode.CEILING);
-            value = decimal.floatValue();
-        } else if (value instanceof Double) {
-            BigDecimal decimal = BigDecimal.valueOf((Double) value).setScale(2, RoundingMode.CEILING);
-            value = decimal.doubleValue();
+    private String getValueList(String[] fieldValues) {
+        return Arrays.stream(fieldValues).
+                      map(val -> val.replace(SINGLE_QUOTE, DOUBLE_QUOTE)).
+                      map(val -> SINGLE_QUOTE + val + SINGLE_QUOTE).
+                      collect(joining(","));
+    }
+
+    private void populateData(ResultSet resultSet, DBResult result) throws SQLException {
+        while (resultSet.next()) {
+            Row row = new Row();
+            for (int i = 1; i <= result.columnSize(); i++) {
+                row.add(resultSet.getObject(i));
+            }
+            result.addRow(row);
         }
-        return value;
+    }
+
+    private void populateMetaData(ResultSet resultSet, DBResult result) throws SQLException {
+        ResultSetMetaData metaData = resultSet.getMetaData();
+        for (int i = 1; i <= metaData.getColumnCount(); i++) {
+            result.addColumn(metaData.getColumnName(i), metaData.getColumnTypeName(i));
+        }
     }
 
     private String mapToJDBCType(String esType) {

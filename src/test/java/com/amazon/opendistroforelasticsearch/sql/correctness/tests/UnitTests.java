@@ -20,7 +20,6 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-    DBResultTest.class,
     TestReportTest.class,
     ComparisonTestTest.class,
     TestConfigTest.class,
@@ -28,6 +27,8 @@ import org.junit.runners.Suite;
     TestQuerySetTest.class,
     ESConnectionTest.class,
     JDBCConnectionTest.class,
+    DBResultTest.class,
+    RowTest.class,
 })
 public class UnitTests {
 }

@@ -15,49 +15,44 @@
 
 package com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset;
 
-import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.DBConnection;
-
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Objects;
 
+/**
+ * Row in result set.
+ */
 public class Row {
-    private final Collection<?> columns;
 
-    public Row(Collection<?> columns) {
-        this.columns = columns;
+    private final Collection<Object> values;
+
+    public Row() {
+        this(new ArrayList<>()); // values in order by default
     }
 
-    public Collection<?> getColumns() {
-        return columns;
+    public Row(Collection<Object> values) {
+        this.values = values;
     }
 
-    public boolean isCloseTo(Row other) {
-        Iterator<?> it = columns.iterator();
-        Iterator<?> otherIt = other.columns.iterator();
-        while (it.hasNext()) {
-            Object value = it.next();
-            Object otherValue = otherIt.next();
+    public void add(Object value) {
+        values.add(roundFloatNum(value));
+    }
 
-            if (value instanceof Float) {
-                if (!(otherValue instanceof Float) || isDeltaLarge((Float) value, (Float) otherValue)) {
-                    return false;
-                }
-            } else if (value instanceof Double) {
-                if (!(otherValue instanceof Double) || isDeltaLarge((Double) value, (Double) otherValue)) {
-                    return false;
-                }
-            } else {
-                if (!value.equals(otherValue)) {
-                    return false;
-                }
-            }
+    public Collection<Object> getValues() {
+        return values;
+    }
+
+    private Object roundFloatNum(Object value) {
+        if (value instanceof Float) {
+            BigDecimal decimal = BigDecimal.valueOf((Float) value).setScale(2, RoundingMode.CEILING);
+            value = decimal.floatValue();
+        } else if (value instanceof Double) {
+            BigDecimal decimal = BigDecimal.valueOf((Double) value).setScale(2, RoundingMode.CEILING);
+            value = decimal.doubleValue();
         }
-        return true;
-    }
-
-    private boolean isDeltaLarge(double num1, double num2) {
-        return Math.abs(num1 - num2) >= 0.01;
+        return value;
     }
 
     @Override
@@ -65,16 +60,16 @@ public class Row {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Row row = (Row) o;
-        return columns.equals(row.columns);
+        return values.equals(row.values);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(columns);
+        return Objects.hash(values);
     }
 
     @Override
     public String toString() {
-        return "Row: " + columns;
+        return "Row: " + values;
     }
 }

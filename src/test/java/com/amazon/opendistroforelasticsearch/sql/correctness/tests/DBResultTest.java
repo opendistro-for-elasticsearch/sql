@@ -16,33 +16,37 @@
 package com.amazon.opendistroforelasticsearch.sql.correctness.tests;
 
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.DBResult;
-import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.Row;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 
-import java.util.Arrays;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static java.util.Collections.emptyList;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 /**
- * Unit test for {@link DBResult} and {@link Row}
+ * Unit tests for {@link DBResult}
  */
 public class DBResultTest {
 
     @Test
-    public void rowShouldBeCloseToOtherRowWithSimilarFloat() {
-        Row row1 = new Row(Arrays.asList(1.000001));
-        Row row2 = new Row(Arrays.asList(1.000002));
-        assertTrue(row1.isCloseTo(row2));
-        assertTrue(row2.isCloseTo(row1));
+    public void dbResultFromDifferentDbNameShouldEqual() {
+        DBResult result1 = new DBResult("DB 1", ImmutableMap.of("name", "VARCHAR"), emptyList());
+        DBResult result2 = new DBResult("DB 2", ImmutableMap.of("name", "VARCHAR"), emptyList());
+        assertEquals(result1, result2);
     }
 
     @Test
-    public void rowShouldNotBeCloseToOtherRowWithDifferentString() {
-        Row row1 = new Row(Arrays.asList("hello"));
-        Row row2 = new Row(Arrays.asList("hello1"));
-        assertFalse(row1.isCloseTo(row2));
-        assertFalse(row2.isCloseTo(row1));
+    public void dbResultWithDifferentColumnShouldNotEqual() {
+        DBResult result1 = new DBResult("DB 1", ImmutableMap.of("name", "VARCHAR"), emptyList());
+        DBResult result2 = new DBResult("DB 2", ImmutableMap.of("age", "INT"), emptyList());
+        assertNotEquals(result1, result2);
+    }
+
+    @Test
+    public void dbResultWithDifferentColumnTypeShouldNotEqual() {
+        DBResult result1 = new DBResult("DB 1", ImmutableMap.of("age", "FLOAT"), emptyList());
+        DBResult result2 = new DBResult("DB 2", ImmutableMap.of("age", "INT"), emptyList());
+        assertNotEquals(result1, result2);
     }
 
 }
