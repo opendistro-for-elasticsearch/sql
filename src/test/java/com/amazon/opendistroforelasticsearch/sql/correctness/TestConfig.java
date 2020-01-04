@@ -38,6 +38,7 @@ import static java.util.stream.Collectors.joining;
 public class TestConfig {
 
     private static final String DEFAULT_TEST_QUERIES = "tableau_integration_tests.txt";
+    private static final String DEFAULT_OTHER_DB_URLS = "H2=jdbc:h2:mem:test;DB_CLOSE_DELAY=-1," + "SQLite=jdbc:sqlite::memory:";
 
     private final TestDataSet[] testDataSets;
 
@@ -99,11 +100,12 @@ public class TestConfig {
     }
 
     private void parseOtherDbConnectionInfo(Map<String, String> cliArgs) {
-        String dbUrls = cliArgs.getOrDefault("otherDbUrls",
-                                             "H2=jdbc:h2:mem:test;DB_CLOSE_DELAY=-1,"
-                                             + "SQLite=jdbc:sqlite::memory:");
+        String otherDbUrls = cliArgs.getOrDefault("otherDbUrls", "");
+        if (otherDbUrls.isEmpty()) {
+            otherDbUrls = DEFAULT_OTHER_DB_URLS;
+        }
 
-        for (String dbNameAndUrl : dbUrls.split(",")) {
+        for (String dbNameAndUrl : otherDbUrls.split(",")) {
             int firstEq = dbNameAndUrl.indexOf('=');
             String dbName = dbNameAndUrl.substring(0, firstEq);
             String dbUrl = dbNameAndUrl.substring(firstEq + 1);
