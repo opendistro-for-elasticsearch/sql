@@ -51,8 +51,8 @@ public class TestConfig {
     private final Map<String, String> otherDbConnectionNameAndUrls = new HashMap<>();
 
     public TestConfig(Map<String, String> cliArgs) {
-        testDataSets = getDefaultTestDataSet(); // TODO: parse test data set argument
-        testQuerySet = new TestQuerySet(readFile(cliArgs.getOrDefault("queries", DEFAULT_TEST_QUERIES)));
+        testDataSets = buildDefaultTestDataSet(); // TODO: parse test data set argument
+        testQuerySet = buildTestQuerySet(cliArgs);
         esHostUrl = cliArgs.getOrDefault("esHost", "");
         dbConnectionUrl = cliArgs.getOrDefault("dbUrl", "");
 
@@ -79,7 +79,7 @@ public class TestConfig {
         return otherDbConnectionNameAndUrls;
     }
 
-    private TestDataSet[] getDefaultTestDataSet() {
+    private TestDataSet[] buildDefaultTestDataSet() {
         return new TestDataSet[]{
             new TestDataSet("kibana_sample_data_flights",
                             readFile("kibana_sample_data_flights.json"),
@@ -88,6 +88,14 @@ public class TestConfig {
                             readFile("kibana_sample_data_ecommerce.json"),
                             readFile("kibana_sample_data_ecommerce.csv")),
         };
+    }
+
+    private TestQuerySet buildTestQuerySet(Map<String, String> cliArgs) {
+        String queryFilePath = cliArgs.getOrDefault("queries", ""); // Gradle set it empty always
+        if (queryFilePath.isEmpty()) {
+            queryFilePath = DEFAULT_TEST_QUERIES;
+        }
+        return new TestQuerySet(readFile(queryFilePath));
     }
 
     private void parseOtherDbConnectionInfo(Map<String, String> cliArgs) {

@@ -27,6 +27,7 @@ import com.amazon.opendistroforelasticsearch.sql.correctness.testset.TestQuerySe
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import com.google.common.collect.Iterators;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -116,19 +117,24 @@ public class ComparisonTest implements AutoCloseable {
     /** Execute the query and compare with current result */
     private TestCaseReport compareWithOtherDb(String sql, DBResult esResult) {
         StringBuilder reasons = new StringBuilder();
-        for (DBConnection otherDbConn : otherDbConnections) {
+        for (int i = 0; i < otherDbConnections.length; i++) {
             try {
-                DBResult otherDbResult = otherDbConn.select(sql);
+                DBResult otherDbResult = otherDbConnections[i].select(sql);
                 if (esResult.equals(otherDbResult)) {
                     return new SuccessTestCase(sql);
                 }
-                return new FailedTestCase(sql, Arrays.asList(esResult, otherDbResult));
 
+                // Cannot find any database result match
+                if (i == otherDbConnections.length - 1) {
+                    return new FailedTestCase(sql, Arrays.asList(esResult, otherDbResult));
+                }
             } catch (Exception e) {
                 // Ignore and move on to next database
                 reasons.append(extractRootCause(e)).append(";");
             }
         }
+
+        // Cannot find any database support this query
         return new ErrorTestCase(sql, "No other databases support this query: " + reasons);
     }
 

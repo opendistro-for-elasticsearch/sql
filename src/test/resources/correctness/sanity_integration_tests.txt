@@ -1,0 +1,7 @@
+SELECT AvgTicketPrice, Cancelled, Carrier, FlightDelayMin, timestamp FROM kibana_sample_data_flights
+SELECT AvgTicketPrice AS avg, Cancelled AS cancel, Carrier AS carrier, FlightDelayMin AS delay, timestamp AS ts FROM kibana_sample_data_flights
+SELECT Carrier, AVG(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY Carrier
+SELECT Carrier, AVG(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY Carrier HAVING AVG(FlightDelayMin) > 5
+SELECT YEAR(timestamp) FROM kibana_sample_data_flights
+SELECT AvgTicketPrice AS AvgTicketPrice, DestCountry AS DestCountry FROM kibana_sample_data_ecommerce e JOIN kibana_sample_data_flights f ON (e.day_of_week_i = f.dayOfWeek) LIMIT 1000
+SELECT AvgTicketPrice AS AvgTicketPrice, DestCountry AS DestCountry FROM kibana_sample_data_ecommerce e LEFT JOIN kibana_sample_data_flights f ON (e.day_of_week_i = f.dayOfWeek) LIMIT 1000

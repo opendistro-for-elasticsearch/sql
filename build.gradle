@@ -146,9 +146,10 @@ integTestRunner {
         // Enable logging output to console
         testLogging.showStandardStreams true
 
-        // Pass down system properties
+        // Pass down system properties to IT class
         systemProperty "esHost", System.getProperty("esHost")
         systemProperty "dbUrl", System.getProperty("dbUrl")
+        systemProperty "queries", System.getProperty("queries")
 
     } else { // Run all other integration tests
         include 'com/amazon/opendistroforelasticsearch/sql/esintgtest/**/*IT.class'
@@ -238,6 +239,7 @@ dependencies {
     // testCompile group: 'org.mockito', name: 'mockito-core', version:'2.23.4'
     testCompile group: "org.elasticsearch.client", name: 'transport', version: "${es_version}"
 
+    // JDBC drivers for comparison test
     testCompile group: 'com.amazon.opendistroforelasticsearch.client', name: 'opendistro-sql-jdbc', version: '1.2.1.0'
     testCompile group: 'com.h2database', name: 'h2', version: '1.4.200'
     testCompile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.28.0'
