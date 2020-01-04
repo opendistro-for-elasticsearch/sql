@@ -40,13 +40,13 @@ public class StringOperatorsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "doc['lastname'].value.substring(1, 2)"));
+                        "doc['lastname'].value.substring(1, end)"));
 
         ScriptFilter scriptFilter = CheckScriptContents.getScriptFilterFromQuery(query, parser);
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptFilter,
-                        "doc['lastname'].value.substring(1, 2)"
+                        "doc['lastname'].value.substring(1, end)"
                 )
         );
     }
@@ -58,7 +58,7 @@ public class StringOperatorsTest {
         assertTrue(
                 CheckScriptContents.scriptContainsString(
                         scriptField,
-                        "'sampleName'.substring(0, 10)"
+                        "def end = (int) Math.min(0 + 20, 'sampleName'.length())"
                 )
         );
     }
