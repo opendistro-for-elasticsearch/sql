@@ -49,9 +49,8 @@ public class CorrectnessIT extends SQLIntegTestCase {
         TestConfig config = new TestConfig(getCmdLineArgs());
         LOG.info("Starting comparison test {}", config);
 
-        try (ComparisonTest test = new ComparisonTest(getESConnection(config),
+        try (ComparisonTest test = new ComparisonTest(getThisDBConnection(config),
                                                       getOtherDBConnections(config))) {
-
             LOG.info("Loading test data set...");
             test.connect();
             for (TestDataSet dataSet : config.getTestDataSets()) {
@@ -63,16 +62,28 @@ public class CorrectnessIT extends SQLIntegTestCase {
 
             LOG.info("Saving test report to disk...");
             store(report);
-        }
 
-        LOG.info("Complete comparison test.");
+            LOG.info("Cleaning up test data...");
+            for (TestDataSet dataSet : config.getTestDataSets()) {
+                test.cleanUp(dataSet);
+            }
+        }
+        LOG.info("Completed comparison test.");
     }
 
     private Map<String, String> getCmdLineArgs() {
         return Maps.fromProperties(System.getProperties());
     }
 
-    /** Use Elasticsearch cluster given on arguments or internal embedded in SQLIntegTestCase */
+    private DBConnection getThisDBConnection(TestConfig config) {
+        String dbUrl = config.getDbConnectionUrl();
+        if (dbUrl.isEmpty()) {
+            return getESConnection(config);
+        }
+        return new JDBCConnection("DB Tested", dbUrl);
+    }
+
+    /** Use Elasticsearch cluster given on CLI arg or internal embedded in SQLIntegTestCase */
     private DBConnection getESConnection(TestConfig config) {
         RestClient client;
         String esHost = config.getESHostUrl();

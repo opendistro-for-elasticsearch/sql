@@ -45,12 +45,16 @@ public class TestConfig {
 
     private final String esHostUrl;
 
-    private final Map<String, String> otherDbConnectionUrlByNames = new HashMap<>();
+    /** Test against some database rather than Elasticsearch via our JDBC driver */
+    private final String dbConnectionUrl;
+
+    private final Map<String, String> otherDbConnectionNameAndUrls = new HashMap<>();
 
     public TestConfig(Map<String, String> cliArgs) {
         testDataSets = getDefaultTestDataSet(); // TODO: parse test data set argument
         testQuerySet = new TestQuerySet(readFile(cliArgs.getOrDefault("queries", DEFAULT_TEST_QUERIES)));
         esHostUrl = cliArgs.getOrDefault("esHost", "");
+        dbConnectionUrl = cliArgs.getOrDefault("dbUrl", "");
 
         parseOtherDbConnectionInfo(cliArgs);
     }
@@ -67,8 +71,12 @@ public class TestConfig {
         return esHostUrl;
     }
 
+    public String getDbConnectionUrl() {
+        return dbConnectionUrl;
+    }
+
     public Map<String, String> getOtherDbConnectionNameAndUrls() {
-        return otherDbConnectionUrlByNames;
+        return otherDbConnectionNameAndUrls;
     }
 
     private TestDataSet[] getDefaultTestDataSet() {
@@ -83,15 +91,15 @@ public class TestConfig {
     }
 
     private void parseOtherDbConnectionInfo(Map<String, String> cliArgs) {
-        String dbUrls = cliArgs.getOrDefault("dbUrls",
+        String dbUrls = cliArgs.getOrDefault("otherDbUrls",
                                              "H2=jdbc:h2:mem:test;DB_CLOSE_DELAY=-1,"
                                              + "SQLite=jdbc:sqlite::memory:");
 
         for (String dbNameAndUrl : dbUrls.split(",")) {
-            int firstEquity = dbNameAndUrl.indexOf('=');
-            String dbName = dbNameAndUrl.substring(0, firstEquity);
-            String dbUrl = dbNameAndUrl.substring(firstEquity + 1);
-            otherDbConnectionUrlByNames.put(dbName, dbUrl);
+            int firstEq = dbNameAndUrl.indexOf('=');
+            String dbName = dbNameAndUrl.substring(0, firstEq);
+            String dbUrl = dbNameAndUrl.substring(firstEq + 1);
+            otherDbConnectionNameAndUrls.put(dbName, dbUrl);
         }
     }
 
@@ -107,7 +115,7 @@ public class TestConfig {
     @Override
     public String toString() {
         return "\n=================================\n"
-            + "ES Host Url      : " + esHostUrlToString() + '\n'
+            + "Tested Database  : " + esHostUrlToString() + '\n'
             + "Other Databases  :\n" + otherDbConnectionInfoToString() + '\n'
             + "Test data set(s) :\n" + testDataSetsToString() + '\n'
             + "Test query set   : " + testQuerySet + '\n'
@@ -121,11 +129,14 @@ public class TestConfig {
     }
 
     private String esHostUrlToString() {
+        if (!dbConnectionUrl.isEmpty()) {
+            return dbConnectionUrl;
+        }
         return esHostUrl.isEmpty() ? "(Use internal Elasticsearch in workspace)" : esHostUrl;
     }
 
     private String otherDbConnectionInfoToString() {
-        return otherDbConnectionUrlByNames.entrySet().stream().
+        return otherDbConnectionNameAndUrls.entrySet().stream().
                                            map(e -> StringUtils.format(" %s = %s", e.getKey(), e.getValue())).
                                            collect(joining("\n"));
     }

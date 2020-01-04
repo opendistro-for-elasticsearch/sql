@@ -86,6 +86,15 @@ public class ESConnectionTest {
         );
     }
 
+    @Test
+    public void testDropTable() throws IOException {
+        conn.drop("test");
+
+        Request actual = captureActualArg();
+        assertEquals("DELETE", actual.getMethod());
+        assertEquals("/test", actual.getEndpoint());
+    }
+
     private Request captureActualArg() throws IOException {
         ArgumentCaptor<Request> argCap = ArgumentCaptor.forClass(Request.class);
         verify(client).performRequest(argCap.capture());

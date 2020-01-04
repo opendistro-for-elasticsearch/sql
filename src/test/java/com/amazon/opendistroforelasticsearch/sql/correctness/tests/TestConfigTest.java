@@ -55,7 +55,7 @@ public class TestConfigTest {
 
     @Test
     public void testCustomDbUrls() {
-        Map<String, String> args = ImmutableMap.of("dbUrls",
+        Map<String, String> args = ImmutableMap.of("otherDbUrls",
                                                    "H2=jdbc:h2:mem:test;DB_CLOSE_DELAY=-1,"
                                                    + "Derby=jdbc:derby:memory:myDb;create=true");
 

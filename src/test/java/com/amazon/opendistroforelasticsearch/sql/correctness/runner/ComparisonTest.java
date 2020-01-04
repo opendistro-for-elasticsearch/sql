@@ -40,13 +40,13 @@ import static com.google.common.collect.ObjectArrays.concat;
 public class ComparisonTest implements AutoCloseable {
 
     /** Elasticsearch connection */
-    private final DBConnection esConnection;
+    private final DBConnection thisConnection;
 
     /** Database connections for reference databases */
     private final DBConnection[] otherDbConnections;
 
-    public ComparisonTest(DBConnection esConnection, DBConnection[] otherDbConnections) {
-        this.esConnection = esConnection;
+    public ComparisonTest(DBConnection thisConnection, DBConnection[] otherDbConnections) {
+        this.thisConnection = thisConnection;
         this.otherDbConnections = otherDbConnections;
 
         // Guarantee ordering of other database in comparison test
@@ -57,7 +57,7 @@ public class ComparisonTest implements AutoCloseable {
      * Open database connection.
      */
     public void connect() {
-        for (DBConnection conn : concat(esConnection, otherDbConnections)) {
+        for (DBConnection conn : concat(thisConnection, otherDbConnections)) {
             conn.connect();
         }
     }
@@ -67,7 +67,7 @@ public class ComparisonTest implements AutoCloseable {
      * @param dataSet     test data set
      */
     public void loadData(TestDataSet dataSet) {
-        for (DBConnection conn : concat(esConnection, otherDbConnections)) {
+        for (DBConnection conn : concat(thisConnection, otherDbConnections)) {
             conn.create(dataSet.getTableName(), dataSet.getSchema());
             insertTestDataInBatch(conn, dataSet.getTableName(), dataSet.getDataRows());
         }
@@ -82,7 +82,7 @@ public class ComparisonTest implements AutoCloseable {
         TestReport report = new TestReport();
         for (String sql : querySet) {
             try {
-                DBResult esResult = esConnection.select(sql);
+                DBResult esResult = thisConnection.select(sql);
                 report.addTestCase(compareWithOtherDb(sql, esResult));
             } catch (Exception e) {
                 report.addTestCase(new ErrorTestCase(sql,
@@ -92,9 +92,19 @@ public class ComparisonTest implements AutoCloseable {
         return report;
     }
 
+    /**
+     * Clean up test table.
+     * @param dataSet   test data set
+     */
+    public void cleanUp(TestDataSet dataSet) {
+        for (DBConnection conn : concat(thisConnection, otherDbConnections)) {
+            conn.drop(dataSet.getTableName());
+        }
+    }
+
     @Override
     public void close() {
-        for (DBConnection conn : concat(esConnection, otherDbConnections)) {
+        for (DBConnection conn : concat(thisConnection, otherDbConnections)) {
             try {
                 conn.close();
             } catch (Exception e) {
@@ -103,7 +113,7 @@ public class ComparisonTest implements AutoCloseable {
         }
     }
 
-    /** Execute the query and compare with ES result */
+    /** Execute the query and compare with current result */
     private TestCaseReport compareWithOtherDb(String sql, DBResult esResult) {
         StringBuilder reasons = new StringBuilder();
         for (DBConnection otherDbConn : otherDbConnections) {

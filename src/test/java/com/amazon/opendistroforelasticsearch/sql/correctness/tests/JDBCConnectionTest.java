@@ -79,6 +79,17 @@ public class JDBCConnectionTest {
     }
 
     @Test
+    public void testDropTable() throws SQLException {
+        conn.drop("test");
+
+        ArgumentCaptor<String> argCap = ArgumentCaptor.forClass(String.class);
+        verify(statement).executeUpdate(argCap.capture());
+        String actual = argCap.getValue();
+
+        assertEquals("DROP TABLE test", actual);
+    }
+
+    @Test
     public void testInsertData() throws SQLException {
         conn.insert("test", new String[]{"name", "age"},
             Arrays.asList(new String[]{"John", "25"}, new String[]{"Hank", "30"}));

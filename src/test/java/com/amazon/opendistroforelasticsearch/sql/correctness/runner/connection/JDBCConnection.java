@@ -73,7 +73,16 @@ public class JDBCConnection implements DBConnection {
             String types = parseColumnNameAndTypesInSchemaJson(schema);
             stmt.executeUpdate(StringUtils.format("CREATE TABLE %s(%s)", tableName, types));
         } catch (SQLException e) {
-            throw new IllegalStateException("Failed to execute update", e);
+            throw new IllegalStateException("Failed to create table [" + tableName + "]", e);
+        }
+    }
+
+    @Override
+    public void drop(String tableName) {
+        try (Statement stmt = connection.createStatement()) {
+            stmt.executeUpdate("DROP TABLE " + tableName);
+        } catch (SQLException e) {
+            throw new IllegalStateException("Failed to drop table [" + tableName + "]", e);
         }
     }
 
@@ -100,7 +109,7 @@ public class JDBCConnection implements DBConnection {
             populateData(resultSet, result);
             return result;
         } catch (SQLException e) {
-            throw new IllegalStateException("Failed to execute query", e);
+            throw new IllegalStateException("Failed to execute query [" + query + "]", e);
         }
     }
 

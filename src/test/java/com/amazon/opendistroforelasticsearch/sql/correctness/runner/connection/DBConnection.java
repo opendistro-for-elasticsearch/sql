@@ -57,6 +57,12 @@ public interface DBConnection {
     DBResult select(String query);
 
     /**
+     * Drop table.
+     * @param tableName     table name
+     */
+    void drop(String tableName);
+
+    /**
      * Close the database connection.
      */
     void close();

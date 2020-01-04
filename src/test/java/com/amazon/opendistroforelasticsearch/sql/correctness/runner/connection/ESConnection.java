@@ -58,6 +58,11 @@ public class ESConnection implements DBConnection {
     }
 
     @Override
+    public void drop(String tableName) {
+        performRequest(new Request("DELETE", "/" + tableName));
+    }
+
+    @Override
     public void insert(String tableName, String[] columnNames, List<String[]> batch) {
         Request request = new Request("POST", "/" + tableName + "/_bulk");
         request.setJsonEntity(buildBulkBody(columnNames, batch));

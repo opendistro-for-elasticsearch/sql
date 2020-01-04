@@ -131,17 +131,26 @@ integTestRunner {
     // allows integration test classes to access test resource from project root path
     systemProperty('project.root', project.rootDir.absolutePath)
 
+    // Run different task based on test type. "exclude" is required for each task.
     def testType = System.getProperty("testType")
-    if (testType == 'doctest') {
+    if (testType == 'doctest') { // Doctest to generate documentation
         include 'com/amazon/opendistroforelasticsearch/sql/doctest/**/*IT.class'
         exclude 'com/amazon/opendistroforelasticsearch/sql/correctness/**'
         exclude 'com/amazon/opendistroforelasticsearch/sql/esintgtest/**'
-    } else if (testType == 'comparison') {
+
+    } else if (testType == 'comparison') { // Comparision testing
         include 'com/amazon/opendistroforelasticsearch/sql/correctness/CorrectnessIT.class'
         exclude 'com/amazon/opendistroforelasticsearch/sql/doctest/**'
         exclude 'com/amazon/opendistroforelasticsearch/sql/esintgtest/**'
-        testLogging.showStandardStreams = true
-    } else {
+
+        // Enable logging output to console
+        testLogging.showStandardStreams true
+
+        // Pass down system properties
+        systemProperty "esHost", System.getProperty("esHost")
+        systemProperty "dbUrl", System.getProperty("dbUrl")
+
+    } else { // Run all other integration tests
         include 'com/amazon/opendistroforelasticsearch/sql/esintgtest/**/*IT.class'
         exclude 'com/amazon/opendistroforelasticsearch/sql/doctest/**'
         exclude 'com/amazon/opendistroforelasticsearch/sql/correctness/**'
