@@ -35,7 +35,7 @@ public class SqlRequestParam {
      * @param requestParams request params.
      * @return return true if the response required pretty format, otherwise return false.
      */
-    public static Boolean isPrettyFormat(Map<String, String> requestParams) {
+    public static boolean isPrettyFormat(Map<String, String> requestParams) {
         return requestParams.containsKey(QUERY_PARAMS_PRETTY)
                && ("".equals(requestParams.get(QUERY_PARAMS_PRETTY))
                    || "true".equals(requestParams.get(QUERY_PARAMS_PRETTY)));
