@@ -152,7 +152,9 @@ TODO
 
 ### I.Sample Usage
 
-Use default test set and reference databases:
+Use default test set and reference databases by `testType` argument given only. Because `integTestRunner` triggers quite a few integration tests which take long time and runs with `gradlew build` every time, `testType` is added to run doctest for documentation and comparison test separately.
+
+Note that for now test data set argument is not supported because it often requires code changes to map more ES data type to JDBC type as well as convert data.
 
 ```
 $ ./gradlew integTestRunner -DtestType=comparison
@@ -237,7 +239,7 @@ $ ./gradlew integTestRunner -DtestType=comparison
     [2020-01-06T11:38:21,849][INFO ][c.a.o.s.c.CorrectnessIT  ] [performComparisonTest] Completed comparison test.
 ```
 
-Specify different test case set:
+Specify different test case set by `queries` argument:
 
 ```
 $ ./gradlew integTestRunner -DtestType=comparison -Dqueries=sanity_integration_tests.txt
@@ -252,7 +254,7 @@ $ ./gradlew integTestRunner -DtestType=comparison -Dqueries=sanity_integration_t
     ...
 ```
 
-Specify different databases for comparison:
+Specify different databases for comparison. `dbUrl` is for database to be tested. `otherDbUrls` is for other databases whose result set be referenced and compared.
 
 ```
 $ ./gradlew integTestRunner -DtestType=comparison -Dqueries=sanity_integration_tests.txt -DdbUrl=jdbc:sqlite::memory:
@@ -262,5 +264,13 @@ $ ./gradlew integTestRunner -DtestType=comparison -Dqueries=sanity_integration_t
     Other Databases  :
      SQLite = jdbc:sqlite::memory:
      H2 = jdbc:h2:mem:test;DB_CLOSE_DELAY=-1
+    ...
+
+$ ./gradlew integTestRunner -DtestType=comparison -Dqueries=sanity_integration_tests.txt -DdbUrl=jdbc:sqlite::memory: -DotherDbUrls=Unknown=jdbc:h2:mem:test;DB_CLOSE_DELAY=-1
+
+    =================================
+    Tested Database  : jdbc:sqlite::memory:
+    Other Databases  :
+     Unknown = jdbc:h2:mem:test
     ...
 ```
