@@ -254,6 +254,19 @@ $ ./gradlew integTestRunner -DtestType=comparison -Dqueries=sanity_integration_t
     ...
 ```
 
+Specify external Elasticsearch cluster by `esHost` argument, otherwise an internal Elasticsearch in workspace is in use by default.
+
+```
+$ ./gradlew integTestRunner -DtestType=comparison -DesHost=localhost:9200
+
+    =================================
+    Tested Database  : localhost:9200
+    Other Databases  :
+     SQLite = jdbc:sqlite::memory:
+     H2 = jdbc:h2:mem:test;DB_CLOSE_DELAY=-1
+    ...
+```
+
 Specify different databases for comparison. `dbUrl` is for database to be tested. `otherDbUrls` is for other databases whose result set be referenced and compared.
 
 ```
