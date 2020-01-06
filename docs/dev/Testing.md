@@ -8,7 +8,7 @@ Currently there are quite a few unit tests and integration tests in the codebase
 
  1. **Test coverage**: Although the amount of test cases seems large, we’ve found that more than one important case was missed, for example use table alias in FROM clause, GROUP BY field alias etc.
  2. **Test correctness**: Some test case make assertion on the result set too simple to capture the issue if any. For example, some assertion is as loose as checking if result set is not empty. Unfortunately with strict assertion, we’re still not sure if the assertion is correct or not. For example, there were issue [#124](https://github.com/opendistro-for-elasticsearch/sql/issues/124) and [#226](https://github.com/opendistro-for-elasticsearch/sql/issues/226) regarding LEFT JOIN with WHERE clause and SUBSTRING. The correct semantic was actually different from what we thought. We did have MySQL reference docs at hands but it’s possible to miss some cases or misunderstand the correct use. So some mechanism is required to replace the loose assertion and be able to enforce the verification of our understanding.
- 3。 **Test Bench**: We want to run this new test on a regular basis to improving our implementation continuously.
+ 3. **Test Bench**: We want to run this new test on a regular basis to improving our implementation continuously.
 
 ### 1.2 Our Goals
 
@@ -26,11 +26,11 @@ First we can improve the test coverage by improving the diversity of our test ca
 
 At this stage we don’t want to spend too much efforts on setting up a complicated infrastructure for testing. So we can take full advantage of capabilities that GitHub provides:
 
- 1. *Test Data & Cases*: Use test case set with Kibana flights and ecommerce sample index.
- 2. *Trigger*: Set up another GitHub Action workflow.
- 3. *Test Runner*: Use embedded Elasticsearch and other IMDBs.
- 4. *Reporting*: Use standard JUnit report or simple custom json format.
- 5. *Visualization*: Enable GitHub Pages for viewing or feed into Elasticsearch.
+ 1. **Test Data & Cases**: Use test case set with Kibana flights and ecommerce sample index.
+ 2. **Trigger**: Set up another GitHub Action workflow.
+ 3. **Test Runner**: Use embedded Elasticsearch and other IMDBs.
+ 4. **Reporting**: Use standard JUnit report or simple custom json format.
+ 5. **Visualization**: Enable GitHub Pages for viewing or feed into Elasticsearch.
 
 ![Test Framework Components](img/test-framework-components.png)
 
