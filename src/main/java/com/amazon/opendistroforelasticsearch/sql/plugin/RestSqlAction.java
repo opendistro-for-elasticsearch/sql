@@ -25,13 +25,14 @@ import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.ActionRequestRestExecutorFactory;
 import com.amazon.opendistroforelasticsearch.sql.executor.RestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.ErrorMessage;
-import com.amazon.opendistroforelasticsearch.sql.utils.JsonPrettyFormatter;
 import com.amazon.opendistroforelasticsearch.sql.metrics.MetricName;
 import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import com.amazon.opendistroforelasticsearch.sql.request.SqlRequest;
 import com.amazon.opendistroforelasticsearch.sql.request.SqlRequestFactory;
+import com.amazon.opendistroforelasticsearch.sql.request.SqlRequestParam;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.VerificationException;
+import com.amazon.opendistroforelasticsearch.sql.utils.JsonPrettyFormatter;
 import com.amazon.opendistroforelasticsearch.sql.utils.LogUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -151,15 +152,15 @@ public class RestSqlAction extends BaseRestHandler {
         if (isExplainRequest(request)) {
             final String jsonExplanation = queryAction.explain().explain();
             String result;
-            if (params.containsKey("pretty")
-                    && ("".equals(params.get("pretty")) || "true".equals(params.get("pretty")))) {
+            if (SqlRequestParam.isPrettyFormat(params)) {
                 result = JsonPrettyFormatter.format(jsonExplanation);
             } else {
                 result = jsonExplanation;
             }
             channel.sendResponse(new BytesRestResponse(OK, "application/json; charset=UTF-8", result));
         } else {
-            RestExecutor restExecutor = ActionRequestRestExecutorFactory.createExecutor(params.get("format"),
+            RestExecutor restExecutor = ActionRequestRestExecutorFactory.createExecutor(
+                    SqlRequestParam.getFormat(params),
                     queryAction);
             //doing this hack because elasticsearch throws exception for un-consumed props
             Map<String, String> additionalParams = new HashMap<>();
