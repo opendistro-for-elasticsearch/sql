@@ -90,8 +90,8 @@ public abstract class SQLIntegTestCase extends ESIntegTestCase {
     }
 
     protected Request getSqlRequest(String request, boolean explain) {
-
-        Request sqlRequest = new Request("POST", explain ? EXPLAIN_API_ENDPOINT : QUERY_API_ENDPOINT);
+        String queryEndpoint = String.format("%s?format=%s", QUERY_API_ENDPOINT, "json");
+        Request sqlRequest = new Request("POST", explain ? EXPLAIN_API_ENDPOINT : queryEndpoint);
         sqlRequest.setJsonEntity(request);
         RequestOptions.Builder restOptionsBuilder = RequestOptions.DEFAULT.toBuilder();
         restOptionsBuilder.addHeader("Content-Type", "application/json");
@@ -131,8 +131,8 @@ public abstract class SQLIntegTestCase extends ESIntegTestCase {
             Assert.fail(utf8CharsetName + " not available");
         }
 
-        final String requestUrl = String.format(Locale.ROOT, "%s?sql=%s",
-                QUERY_API_ENDPOINT, urlEncodedQuery);
+        final String requestUrl = String.format(Locale.ROOT, "%s?sql=%s&format=%s", QUERY_API_ENDPOINT,
+                                                urlEncodedQuery, "json");
         return new Request("GET", requestUrl);
     }
 

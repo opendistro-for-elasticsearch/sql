@@ -20,11 +20,14 @@ import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.DocTest
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.Section;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.builder.Example;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.builder.ListItems;
+import com.amazon.opendistroforelasticsearch.sql.executor.Format;
 import com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import org.elasticsearch.common.settings.Setting;
 
+import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.stream.Collectors;
 
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.CURL_REQUEST;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.IGNORE_REQUEST;
@@ -33,6 +36,7 @@ import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.Sq
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_ENABLED;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_SEMANTIC_SUGGESTION;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_SEMANTIC_THRESHOLD;
+import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_RESPONSE_FORMAT;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_SLOWLOG;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.SQL_ENABLED;
 import static org.elasticsearch.common.settings.Setting.Property;
@@ -96,6 +100,19 @@ public class PluginSettingIT extends DocTest {
             "Because query analysis needs to build semantic context in memory, index with large number of field " +
             "would be skipped. You can update it to apply analysis to smaller or larger index as needed.",
             50
+        );
+    }
+
+    @Section(6)
+    public void responseFormatSetting() {
+        docSetting(
+                QUERY_RESPONSE_FORMAT,
+                String.format("User can set default response format of the query. " +
+                              "The supported format includes: %s.", Arrays.stream(Format.values())
+                                                                     .map(Format::getFormatName)
+                                                                     .collect(Collectors.joining(","))),
+                Format.JSON.getFormatName(),
+                "SELECT firstname, lastname, age FROM accounts ORDER BY age LIMIT 2"
         );
     }
 
