@@ -19,22 +19,28 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-import static com.amazon.opendistroforelasticsearch.sql.correctness.report.TestCaseReport.TestResult.FAILURE;
-
 /**
- * Report for test case that ends with an error.
+ * Test summary section.
  */
-@EqualsAndHashCode(callSuper = true)
-@ToString(callSuper = true)
+@EqualsAndHashCode
+@ToString
 @Getter
-public class ErrorTestCase extends TestCaseReport {
+public class TestSummary {
 
-    /** Root cause of the error */
-    private final String reason;
+    private int total;
 
-    public ErrorTestCase(int id, String sql, String reason) {
-        super(id, sql, FAILURE);
-        this.reason = reason;
+    private int success;
+
+    private int failure;
+
+    public void addSuccess() {
+        success++;
+        total++;
+    }
+
+    public void addFailure() {
+        failure++;
+        total++;
     }
 
 }

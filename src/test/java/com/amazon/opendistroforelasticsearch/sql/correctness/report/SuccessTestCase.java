@@ -15,12 +15,21 @@
 
 package com.amazon.opendistroforelasticsearch.sql.correctness.report;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
+
+import static com.amazon.opendistroforelasticsearch.sql.correctness.report.TestCaseReport.TestResult.SUCCESS;
+
 /**
  * Report for successful test case result.
  */
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+@Getter
 public class SuccessTestCase extends TestCaseReport {
 
-    public SuccessTestCase(String sql) {
-        super(true, sql);
+    public SuccessTestCase(int id, String sql) {
+        super(id, sql, SUCCESS);
     }
 }

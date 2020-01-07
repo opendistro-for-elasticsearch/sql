@@ -38,8 +38,8 @@ public class TestReportTest {
 
     @Test
     public void testSuccessReport() {
-        report.addTestCase(new SuccessTestCase("SELECT * FROM accounts"));
-        JSONObject actual = new JSONObject(report.report());
+        report.addTestCase(new SuccessTestCase(1, "SELECT * FROM accounts"));
+        JSONObject actual = new JSONObject(report);
         JSONObject expected = new JSONObject(
             "{" +
             "  \"summary\": {" +
@@ -58,17 +58,17 @@ public class TestReportTest {
         );
 
         if (!actual.similar(expected)) {
-            fail("Actual JSON is different from expected: " + actual);
+            fail("Actual JSON is different from expected: " + actual.toString(2));
         }
     }
 
     @Test
     public void testFailedReport() {
-        report.addTestCase(new FailedTestCase("SELECT * FROM accounts", asList(
+        report.addTestCase(new FailedTestCase(1, "SELECT * FROM accounts", asList(
             new DBResult("Elasticsearch", ImmutableMap.of("firstName", "text"), singleton(new Row(asList("hello")))),
             new DBResult("H2", ImmutableMap.of("firstName", "text"), singleton(new Row(asList("world"))))
         )));
-        JSONObject actual = new JSONObject(report.report());
+        JSONObject actual = new JSONObject(report);
         JSONObject expected = new JSONObject(
             "{" +
             "  \"summary\": {" +
@@ -84,27 +84,17 @@ public class TestReportTest {
             "      \"resultSets\": [" +
             "        {" +
             "          \"database\": \"Elasticsearch\"," +
-            "          \"resultSet\": {" +
-            "            \"schema\": [" +
-            "              {" +
-            "                \"name\": \"firstName\"," +
-            "                \"type\": \"text\"" +
-            "              }" +
-            "            ]," +
-            "            \"dataRows\": [[\"hello\"]]" +
-            "          }" +
+            "          \"schema\": {" +
+            "              \"firstName\": \"text\"" +
+            "          }," +
+            "          \"dataRows\": [[\"hello\"]]" +
             "        }," +
             "        {" +
             "          \"database\": \"H2\"," +
-            "          \"resultSet\": {" +
-            "            \"schema\": [" +
-            "              {" +
-            "                \"name\": \"firstName\"," +
-            "                \"type\": \"text\"" +
-            "              }" +
-            "            ]," +
-            "            \"dataRows\": [[\"world\"]]" +
-            "          }" +
+            "          \"schema\": {" +
+            "              \"firstName\": \"text\"" +
+            "          }," +
+            "          \"dataRows\": [[\"world\"]]" +
             "        }" +
             "      ]" +
             "    }" +
@@ -119,8 +109,8 @@ public class TestReportTest {
 
     @Test
     public void testErrorReport() {
-        report.addTestCase(new ErrorTestCase("SELECT * FROM", "Missing table name in query"));
-        JSONObject actual = new JSONObject(report.report());
+        report.addTestCase(new ErrorTestCase(1, "SELECT * FROM", "Missing table name in query"));
+        JSONObject actual = new JSONObject(report);
         JSONObject expected = new JSONObject(
             "{" +
             "  \"summary\": {" +
@@ -140,7 +130,7 @@ public class TestReportTest {
         );
 
         if (!actual.similar(expected)) {
-            fail("Actual JSON is different from expected: " + actual);
+            fail("Actual JSON is different from expected: " + actual.toString(2));
         }
     }
 

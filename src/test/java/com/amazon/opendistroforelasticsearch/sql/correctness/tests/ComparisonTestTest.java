@@ -70,7 +70,7 @@ public class ComparisonTestTest {
         );
 
         TestReport expected = new TestReport();
-        expected.addTestCase(new SuccessTestCase("SELECT * FROM accounts"));
+        expected.addTestCase(new SuccessTestCase(1, "SELECT * FROM accounts"));
         TestReport actual = correctnessTest.verify(querySet("SELECT * FROM accounts"));
         assertEquals(expected, actual);
     }
@@ -83,7 +83,7 @@ public class ComparisonTestTest {
         when(otherDbConnection.select(anyString())).thenReturn(otherDbResult);
 
         TestReport expected = new TestReport();
-        expected.addTestCase(new FailedTestCase("SELECT * FROM accounts", asList(esResult, otherDbResult)));
+        expected.addTestCase(new FailedTestCase(1, "SELECT * FROM accounts", asList(esResult, otherDbResult)));
         TestReport actual = correctnessTest.verify(querySet("SELECT * FROM accounts"));
         assertEquals(expected, actual);
     }
@@ -104,7 +104,7 @@ public class ComparisonTestTest {
         when(anotherDbConnection.select(anyString())).thenReturn(anotherDbResult);
 
         TestReport expected = new TestReport();
-        expected.addTestCase(new SuccessTestCase("SELECT * FROM accounts"));
+        expected.addTestCase(new SuccessTestCase(1, "SELECT * FROM accounts"));
         TestReport actual = correctnessTest.verify(querySet("SELECT * FROM accounts"));
         assertEquals(expected, actual);
     }
@@ -125,7 +125,7 @@ public class ComparisonTestTest {
         when(anotherDbConnection.select(anyString())).thenReturn(anotherDbResult);
 
         TestReport expected = new TestReport();
-        expected.addTestCase(new FailedTestCase("SELECT * FROM accounts", asList(esResult, anotherDbResult)));
+        expected.addTestCase(new FailedTestCase(1, "SELECT * FROM accounts", asList(esResult, anotherDbResult)));
         TestReport actual = correctnessTest.verify(querySet("SELECT * FROM accounts"));
         assertEquals(expected, actual);
     }
@@ -135,7 +135,7 @@ public class ComparisonTestTest {
         when(esConnection.select(anyString())).thenThrow(new RuntimeException("All shards failure"));
 
         TestReport expected = new TestReport();
-        expected.addTestCase(new ErrorTestCase("SELECT * FROM accounts", "RuntimeException: All shards failure"));
+        expected.addTestCase(new ErrorTestCase(1, "SELECT * FROM accounts", "RuntimeException: All shards failure"));
         TestReport actual = correctnessTest.verify(querySet("SELECT * FROM accounts"));
         assertEquals(expected, actual);
     }
@@ -148,7 +148,7 @@ public class ComparisonTestTest {
         when(otherDbConnection.select(anyString())).thenThrow(new RuntimeException("Unsupported feature"));
 
         TestReport expected = new TestReport();
-        expected.addTestCase(new ErrorTestCase("SELECT * FROM accounts", "No other databases support this query: Unsupported feature;"));
+        expected.addTestCase(new ErrorTestCase(1, "SELECT * FROM accounts", "No other databases support this query: Unsupported feature;"));
         TestReport actual = correctnessTest.verify(querySet("SELECT * FROM accounts"));
         assertEquals(expected, actual);
     }
@@ -170,7 +170,7 @@ public class ComparisonTestTest {
         );
 
         TestReport expected = new TestReport();
-        expected.addTestCase(new SuccessTestCase("SELECT * FROM accounts"));
+        expected.addTestCase(new SuccessTestCase(1, "SELECT * FROM accounts"));
         TestReport actual = correctnessTest.verify(querySet("SELECT * FROM accounts"));
         assertEquals(expected, actual);
     }

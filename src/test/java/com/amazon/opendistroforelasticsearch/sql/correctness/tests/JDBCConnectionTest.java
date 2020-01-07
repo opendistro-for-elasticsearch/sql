@@ -121,8 +121,8 @@ public class JDBCConnectionTest {
         );
         assertEquals(
             Sets.newHashSet(
-                new Row(Arrays.asList("John", 25)),
-                new Row(Arrays.asList("Hank", 30))
+                Arrays.asList("John", 25),
+                Arrays.asList("Hank", 30)
             ),
             result.getDataRows()
         );
@@ -142,9 +142,9 @@ public class JDBCConnectionTest {
         DBResult result = conn.select("SELECT * FROM test");
         assertEquals(
             Sets.newHashSet(
-                new Row(Arrays.asList("John", 25.13)),
-                new Row(Arrays.asList("Hank", 30.46)),
-                new Row(Arrays.asList("Allen", 15.1))
+                Arrays.asList("John", 25.13),
+                Arrays.asList("Hank", 30.46),
+                Arrays.asList("Allen", 15.1)
             ),
             result.getDataRows()
         );

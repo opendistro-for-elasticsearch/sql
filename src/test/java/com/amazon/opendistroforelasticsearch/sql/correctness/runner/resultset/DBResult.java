@@ -16,18 +16,23 @@
 package com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset;
 
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import org.json.JSONPropertyName;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Query result for equality comparison. Based on different type of query, such as query with/without ORDER BY and
  * query with SELECT columns or just *, order of column and row may matter or not. So the internal data structure of this
  * class is passed in from outside either list or set, hash map or linked hash map etc.
  */
+@EqualsAndHashCode(exclude = "databaseName")
+@ToString
 public class DBResult {
 
     /** Database name for display */
@@ -65,38 +70,19 @@ public class DBResult {
         dataRows.add(row);
     }
 
+    @JSONPropertyName("database")
     public String getDatabaseName() {
         return databaseName;
     }
 
+    @JSONPropertyName("schema")
     public Map<String, String> getColumnNameAndTypes() {
         return colNameAndTypes;
     }
 
-    public Collection<Row> getDataRows() {
-        return dataRows;
+    /** Flatten for simplifying json generated */
+    public Collection<Collection<Object>> getDataRows() {
+        return dataRows.stream().map(Row::getValues).collect(Collectors.toSet());
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        DBResult result = (DBResult) o;
-        return colNameAndTypes.equals(result.colNameAndTypes) &&
-            dataRows.equals(result.dataRows);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(colNameAndTypes, dataRows);
-    }
-
-    @Override
-    public String toString() {
-        return "DBResult{" +
-            "databaseName='" + databaseName + '\'' +
-            ", colNameAndTypes=" + colNameAndTypes +
-            ", dataRows=" + dataRows +
-            '}';
-    }
 }

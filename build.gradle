@@ -112,6 +112,7 @@ compileJava {
 // TODO: Similarly, need to fix compiling errors in test source code
 compileTestJava.options.warnings = false
 compileTestJava {
+    options.compilerArgs.addAll(["-processor", 'lombok.launch.AnnotationProcessorHider$AnnotationProcessor'])
     doFirst {
         options.compilerArgs.remove('-Werror')
         options.compilerArgs.remove('-Xdoclint:all')

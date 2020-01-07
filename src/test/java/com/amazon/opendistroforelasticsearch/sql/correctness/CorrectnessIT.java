@@ -27,6 +27,7 @@ import org.apache.http.HttpHost;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.RestClient;
+import org.json.JSONObject;
 import org.junit.Test;
 
 import java.nio.file.Files;
@@ -118,7 +119,7 @@ public class CorrectnessIT extends SQLIntegTestCase {
             // Write to report file
             String relFilePath = folderPath + reportFileName();
             String absFilePath = getResourceFilePath(relFilePath);
-            byte[] content = report.report().getBytes();
+            byte[] content = new JSONObject(report).toString(2).getBytes();
 
             LOG.info("Report file location is {}", absFilePath);
             Files.write(Paths.get(absFilePath), content);

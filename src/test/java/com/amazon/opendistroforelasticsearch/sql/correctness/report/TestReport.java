@@ -15,68 +15,36 @@
 
 package com.amazon.opendistroforelasticsearch.sql.correctness.report;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Test report class to generate JSON report.
  */
+@EqualsAndHashCode
+@ToString
+@Getter
 public class TestReport {
 
-    private final List<TestCaseReport> testCases = new ArrayList<>();
+    private final TestSummary summary = new TestSummary();
 
+    private final List<TestCaseReport> tests = new ArrayList<>();
+
+    /**
+     * Add a test case report to the whole report.
+     * @param testCase  report for a single test case
+     */
     public void addTestCase(TestCaseReport testCase) {
-        testCases.add(testCase);
-    }
-
-    public String report() {
-        JSONObject report = new JSONObject();
-        JSONArray tests = new JSONArray();
-        report.put("tests", tests);
-
-        int success = 0, failure = 0;
-        for (int i = 0; i < testCases.size(); i++) {
-            TestCaseReport testCase = testCases.get(i);
-            if (testCase.isSuccess()) {
-                success++;
-            } else {
-                failure++;
-            }
-
-            JSONObject test = testCase.report();
-            test.put("id", i + 1);
-            tests.put(test);
+        tests.add(testCase);
+        if ("Success".equals(testCase.getResult())) {
+            summary.addSuccess();
+        } else {
+            summary.addFailure();
         }
-
-        JSONObject summary = new JSONObject();
-        summary.put("total", testCases.size());
-        summary.put("success", success);
-        summary.put("failure", failure);
-        report.put("summary", summary);
-        return report.toString(2);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        TestReport that = (TestReport) o;
-        return testCases.equals(that.testCases);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(testCases);
-    }
-
-    @Override
-    public String toString() {
-        return "TestReport{" +
-            "testCases=" + testCases +
-            '}';
-    }
 }

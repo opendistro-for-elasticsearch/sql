@@ -15,53 +15,39 @@
 
 package com.amazon.opendistroforelasticsearch.sql.correctness.report;
 
-import org.json.JSONObject;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
-import java.util.Objects;
+import static com.amazon.opendistroforelasticsearch.sql.correctness.report.TestCaseReport.TestResult.SUCCESS;
 
 /**
  * Base class for different test result.
  */
+@EqualsAndHashCode
+@ToString
 public abstract class TestCaseReport {
 
-    private final boolean isSuccess;
+    public enum TestResult {
+        SUCCESS, FAILURE;
+    }
+
+    @Getter
+    private final int id;
+
+    @Getter
     private final String sql;
 
-    public TestCaseReport(boolean isSuccess, String sql) {
-        this.isSuccess = isSuccess;
+    private final TestResult result;
+
+    public TestCaseReport(int id, String sql, TestResult result) {
+        this.id = id;
         this.sql = sql;
+        this.result = result;
     }
 
-    public boolean isSuccess() {
-        return isSuccess;
+    public String getResult() {
+        return result == SUCCESS ? "Success" : "Failed";
     }
 
-    public JSONObject report() {
-        JSONObject report = new JSONObject();
-        report.put("result", (isSuccess ? "Success" : "Failed"));
-        report.put("sql", sql);
-        return report;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        TestCaseReport that = (TestCaseReport) o;
-        return isSuccess == that.isSuccess &&
-            sql.equals(that.sql);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(isSuccess, sql);
-    }
-
-    @Override
-    public String toString() {
-        return "TestCaseReport{" +
-            "isSuccess=" + isSuccess +
-            ", sql='" + sql + '\'' +
-            '}';
-    }
 }

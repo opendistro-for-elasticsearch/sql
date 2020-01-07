@@ -39,6 +39,9 @@ import static com.google.common.collect.ObjectArrays.concat;
  */
 public class ComparisonTest implements AutoCloseable {
 
+    /** Next id for test case */
+    private int testCaseId = 1;
+
     /** Connection for database being tested */
     private final DBConnection thisConnection;
 
@@ -85,7 +88,7 @@ public class ComparisonTest implements AutoCloseable {
                 DBResult esResult = thisConnection.select(sql);
                 report.addTestCase(compareWithOtherDb(sql, esResult));
             } catch (Exception e) {
-                report.addTestCase(new ErrorTestCase(sql,
+                report.addTestCase(new ErrorTestCase(nextId(), sql,
                     StringUtils.format("%s: %s", e.getClass().getSimpleName(), extractRootCause(e))));
             }
         }
@@ -120,12 +123,12 @@ public class ComparisonTest implements AutoCloseable {
             try {
                 DBResult otherDbResult = otherDbConnections[i].select(sql);
                 if (esResult.equals(otherDbResult)) {
-                    return new SuccessTestCase(sql);
+                    return new SuccessTestCase(nextId(), sql);
                 }
 
                 // Cannot find any database result match
                 if (i == otherDbConnections.length - 1) {
-                    return new FailedTestCase(sql, Arrays.asList(esResult, otherDbResult));
+                    return new FailedTestCase(nextId(), sql, Arrays.asList(esResult, otherDbResult));
                 }
             } catch (Exception e) {
                 // Ignore and move on to next database
@@ -134,7 +137,11 @@ public class ComparisonTest implements AutoCloseable {
         }
 
         // Cannot find any database support this query
-        return new ErrorTestCase(sql, "No other databases support this query: " + reasons);
+        return new ErrorTestCase(nextId(), sql, "No other databases support this query: " + reasons);
+    }
+
+    private int nextId() {
+        return testCaseId++;
     }
 
     private void insertTestDataInBatch(DBConnection conn, String tableName, List<String[]> testData) {

@@ -16,76 +16,30 @@
 package com.amazon.opendistroforelasticsearch.sql.correctness.report;
 
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.DBResult;
-import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.Row;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
+
+import static com.amazon.opendistroforelasticsearch.sql.correctness.report.TestCaseReport.TestResult.FAILURE;
 
 /**
  * Report for test case that fails due to inconsistent result set.
  */
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+@Getter
 public class FailedTestCase extends TestCaseReport {
 
-    /** Inconsistent result set for reporting */
-    private final List<DBResult> results;
+    /** Inconsistent result sets for reporting */
+    private final List<DBResult> resultSets;
 
-    public FailedTestCase(String sql, List<DBResult> results) {
-        super(false, sql);
-        this.results = results;
-        this.results.sort(Comparator.comparing(DBResult::getDatabaseName));
+    public FailedTestCase(int id, String sql, List<DBResult> resultSets) {
+        super(id, sql, FAILURE);
+        this.resultSets = resultSets;
+        this.resultSets.sort(Comparator.comparing(DBResult::getDatabaseName));
     }
 
-    @Override
-    public JSONObject report() {
-        JSONObject report = super.report();
-        JSONArray resultSets = new JSONArray();
-        report.put("resultSets", resultSets);
-
-        for (DBResult result : results) {
-            JSONObject json = new JSONObject();
-            json.put("database", result.getDatabaseName());
-            resultSets.put(json);
-
-            JSONObject resultSet = new JSONObject();
-            json.put("resultSet", resultSet);
-
-            resultSet.put("schema", new JSONArray());
-            result.getColumnNameAndTypes().forEach((name, type) -> {
-                JSONObject nameAndType = new JSONObject();
-                nameAndType.put("name", name);
-                nameAndType.put("type", type);
-                resultSet.getJSONArray("schema").put(nameAndType);
-            });
-
-            resultSet.put("dataRows", new JSONArray());
-            for (Row row : result.getDataRows()) {
-                resultSet.getJSONArray("dataRows").put(row.getValues());
-            }
-        }
-        return report;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        FailedTestCase that = (FailedTestCase) o;
-        return results.equals(that.results);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), results);
-    }
-
-    @Override
-    public String toString() {
-        return "FailedTestCase{" +
-            "results=" + results +
-            '}';
-    }
 }

@@ -15,15 +15,21 @@
 
 package com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Objects;
 
 /**
  * Row in result set.
  */
+@EqualsAndHashCode
+@ToString
+@Getter
 public class Row {
 
     private final Collection<Object> values;
@@ -40,10 +46,6 @@ public class Row {
         values.add(roundFloatNum(value));
     }
 
-    public Collection<Object> getValues() {
-        return values;
-    }
-
     private Object roundFloatNum(Object value) {
         if (value instanceof Float) {
             BigDecimal decimal = BigDecimal.valueOf((Float) value).setScale(2, RoundingMode.CEILING);
@@ -55,21 +57,4 @@ public class Row {
         return value;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Row row = (Row) o;
-        return values.equals(row.values);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(values);
-    }
-
-    @Override
-    public String toString() {
-        return "Row: " + values;
-    }
 }
