@@ -19,7 +19,11 @@ import org.json.JSONObject;
 
 import java.util.Objects;
 
+/**
+ * Base class for different test result.
+ */
 public abstract class TestCaseReport {
+
     private final boolean isSuccess;
     private final String sql;
 

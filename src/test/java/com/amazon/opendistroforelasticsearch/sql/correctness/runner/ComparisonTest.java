@@ -40,7 +40,7 @@ import static com.google.common.collect.ObjectArrays.concat;
  */
 public class ComparisonTest implements AutoCloseable {
 
-    /** Elasticsearch connection */
+    /** Connection for database being tested */
     private final DBConnection thisConnection;
 
     /** Database connections for reference databases */

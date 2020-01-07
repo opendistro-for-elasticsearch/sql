@@ -1,5 +1,6 @@
 SELECT AvgTicketPrice, Cancelled, Carrier, FlightDelayMin, timestamp FROM kibana_sample_data_flights
 SELECT AvgTicketPrice AS avg, Cancelled AS cancel, Carrier AS carrier, FlightDelayMin AS delay, timestamp AS ts FROM kibana_sample_data_flights
+SELECT f.AvgTicketPrice AS avg, f.Cancelled AS cancel, f.Carrier AS carrier, f.FlightDelayMin AS delay, timestamp AS ts FROM kibana_sample_data_flights f
 SELECT Carrier, AVG(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY Carrier
 SELECT Carrier, AVG(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY Carrier HAVING AVG(FlightDelayMin) > 5
 SELECT YEAR(timestamp) FROM kibana_sample_data_flights

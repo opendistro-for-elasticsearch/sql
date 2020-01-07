@@ -15,6 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.correctness.report;
 
+/**
+ * Report for successful test case result.
+ */
 public class SuccessTestCase extends TestCaseReport {
 
     public SuccessTestCase(String sql) {
