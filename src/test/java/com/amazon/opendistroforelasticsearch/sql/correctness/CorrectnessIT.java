@@ -22,7 +22,6 @@ import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.E
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.JDBCConnection;
 import com.amazon.opendistroforelasticsearch.sql.correctness.testset.TestDataSet;
 import com.amazon.opendistroforelasticsearch.sql.esintgtest.SQLIntegTestCase;
-import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils;
 import com.google.common.collect.Maps;
 import org.apache.http.HttpHost;
 import org.apache.logging.log4j.LogManager;
