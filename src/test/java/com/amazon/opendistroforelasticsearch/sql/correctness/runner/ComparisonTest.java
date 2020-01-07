@@ -27,7 +27,6 @@ import com.amazon.opendistroforelasticsearch.sql.correctness.testset.TestQuerySe
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import com.google.common.collect.Iterators;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;

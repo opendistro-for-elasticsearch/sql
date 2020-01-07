@@ -31,11 +31,14 @@ import org.elasticsearch.client.RestClient;
 import org.junit.Test;
 
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 import java.util.TimeZone;
+
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getResourceFilePath;
 
 /**
  * Correctness integration test by performing comparison test with other databases.
@@ -106,8 +109,16 @@ public class CorrectnessIT extends SQLIntegTestCase {
 
     private void store(TestReport report) {
         try {
-            String relFilePath = "reports/" + reportFileName();
-            String absFilePath = TestUtils.getResourceFilePath(relFilePath);
+            // Create reports folder if not exists
+            String folderPath = "reports/";
+            Path path = Paths.get(getResourceFilePath(folderPath));
+            if (Files.notExists(path)) {
+                Files.createDirectory(path);
+            }
+
+            // Write to report file
+            String relFilePath = folderPath + reportFileName();
+            String absFilePath = getResourceFilePath(relFilePath);
             byte[] content = report.report().getBytes();
 
             LOG.info("Report file location is {}", absFilePath);
