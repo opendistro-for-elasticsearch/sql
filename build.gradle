@@ -155,9 +155,9 @@ integTestRunner {
         systemProperty "otherDbUrls", System.getProperty("otherDbUrls")
         systemProperty "queries", System.getProperty("queries")
 
-    } else { // Run all other integration tests
+    } else { // Run all other integration tests and doctest by default
         include 'com/amazon/opendistroforelasticsearch/sql/esintgtest/**/*IT.class'
-        exclude 'com/amazon/opendistroforelasticsearch/sql/doctest/**'
+        include 'com/amazon/opendistroforelasticsearch/sql/doctest/**/*IT.class'
         exclude 'com/amazon/opendistroforelasticsearch/sql/correctness/**'
     }
 }
