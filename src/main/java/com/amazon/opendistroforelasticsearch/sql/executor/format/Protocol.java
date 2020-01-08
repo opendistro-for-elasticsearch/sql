@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
+import com.amazon.opendistroforelasticsearch.sql.domain.Delete;
 import com.amazon.opendistroforelasticsearch.sql.domain.IndexStatement;
 import com.amazon.opendistroforelasticsearch.sql.domain.Query;
 import com.amazon.opendistroforelasticsearch.sql.domain.QueryStatement;
@@ -57,7 +58,9 @@ public class Protocol {
     }
 
     private ResultSet loadResultSet(Client client, QueryStatement queryStatement, Object queryResult) {
-        if (queryStatement instanceof Query) {
+        if (queryStatement instanceof Delete) {
+            return new DeleteResultSet(client, (Delete) queryStatement, queryResult);
+        } else if (queryStatement instanceof Query) {
             return new SelectResultSet(client, (Query) queryStatement, queryResult);
         } else if (queryStatement instanceof IndexStatement) {
             IndexStatement statement = (IndexStatement) queryStatement;
