@@ -112,6 +112,7 @@ compileJava {
 // TODO: Similarly, need to fix compiling errors in test source code
 compileTestJava.options.warnings = false
 compileTestJava {
+    options.compilerArgs.addAll(["-processor", 'lombok.launch.AnnotationProcessorHider$AnnotationProcessor'])
     doFirst {
         options.compilerArgs.remove('-Werror')
         options.compilerArgs.remove('-Xdoclint:all')
@@ -132,6 +133,33 @@ integTestRunner {
     systemProperty 'tests.security.manager', 'false'
     // allows integration test classes to access test resource from project root path
     systemProperty('project.root', project.rootDir.absolutePath)
+
+    // Run different task based on test type. "exclude" is required for each task.
+    def testType = System.getProperty("testType")
+    if (testType == 'doctest') { // Doctest to generate documentation
+        include 'com/amazon/opendistroforelasticsearch/sql/doctest/**/*IT.class'
+        exclude 'com/amazon/opendistroforelasticsearch/sql/correctness/**'
+        exclude 'com/amazon/opendistroforelasticsearch/sql/esintgtest/**'
+
+    } else if (testType == 'comparison') { // Comparision testing
+        include 'com/amazon/opendistroforelasticsearch/sql/correctness/CorrectnessIT.class'
+        exclude 'com/amazon/opendistroforelasticsearch/sql/doctest/**'
+        exclude 'com/amazon/opendistroforelasticsearch/sql/esintgtest/**'
+
+        // Enable logging output to console
+        testLogging.showStandardStreams true
+
+        // Pass down system properties to IT class
+        systemProperty "esHost", System.getProperty("esHost")
+        systemProperty "dbUrl", System.getProperty("dbUrl")
+        systemProperty "otherDbUrls", System.getProperty("otherDbUrls")
+        systemProperty "queries", System.getProperty("queries")
+
+    } else { // Run all other integration tests and doctest by default
+        include 'com/amazon/opendistroforelasticsearch/sql/esintgtest/**/*IT.class'
+        include 'com/amazon/opendistroforelasticsearch/sql/doctest/**/*IT.class'
+        exclude 'com/amazon/opendistroforelasticsearch/sql/correctness/**'
+    }
 }
 
 integTestCluster {
@@ -214,6 +242,12 @@ dependencies {
     // testCompile group: 'com.alibaba', name: 'fastjson', version:'1.2.56'
     // testCompile group: 'org.mockito', name: 'mockito-core', version:'2.23.4'
     testCompile group: "org.elasticsearch.client", name: 'transport', version: "${es_version}"
+
+    // JDBC drivers for comparison test. Somehow Apache Derby throws security permission exception.
+    testCompile group: 'com.amazon.opendistroforelasticsearch.client', name: 'opendistro-sql-jdbc', version: '1.3.0.0'
+    testCompile group: 'com.h2database', name: 'h2', version: '1.4.200'
+    testCompile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.28.0'
+    //testCompile group: 'org.apache.derby', name: 'derby', version: '10.15.1.3'
 }
 
 apply plugin: 'nebula.ospackage'
