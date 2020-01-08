@@ -1296,6 +1296,7 @@ public class QueryIT extends SQLIntegTestCase {
         Assert.assertEquals(1, getTotalHits(response));
     }
 
+    @Ignore
     @Test
     public void useScrollWithoutParams() throws IOException {
         JSONObject response = executeQuery(
@@ -1311,6 +1312,7 @@ public class QueryIT extends SQLIntegTestCase {
         Assert.assertEquals(1000, getTotalHits(response));
     }
 
+    @Ignore
     @Test
     public void useScrollWithParams() throws IOException {
         JSONObject response = executeQuery(
@@ -1324,6 +1326,7 @@ public class QueryIT extends SQLIntegTestCase {
         Assert.assertEquals(1000, getTotalHits(response));
     }
 
+    @Ignore
     @Test
     public void useScrollWithOrderByAndParams() throws IOException {
         JSONObject response = executeQuery(
