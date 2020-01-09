@@ -132,6 +132,23 @@ public class JDBCConnectionTest {
     }
 
     @Test
+    public void testSelectQueryWithAlias() throws SQLException {
+        ResultSetMetaData metaData = mockMetaData(ImmutableMap.of("name", "VARCHAR", "age", "INT"), "n", "a");
+        ResultSet resultSet = mockResultSet(new Object[]{"John", 25}, new Object[]{"Hank", 30});
+        when(statement.executeQuery(anyString())).thenReturn(resultSet);
+        when(resultSet.getMetaData()).thenReturn(metaData);
+
+        DBResult result = conn.select("SELECT * FROM test");
+        assertEquals(
+            Arrays.asList(
+                new Type("N", "VARCHAR"),
+                new Type("A", "INT")
+            ),
+            result.getSchema()
+        );
+    }
+
+    @Test
     public void testSelectQueryWithFloatInResultSet() throws SQLException {
         ResultSetMetaData metaData = mockMetaData(ImmutableMap.of("name", "VARCHAR", "balance", "FLOAT"));
         ResultSet resultSet = mockResultSet(
@@ -170,7 +187,7 @@ public class JDBCConnectionTest {
         return resultSet;
     }
 
-    private ResultSetMetaData mockMetaData(Map<String, String> nameAndTypes) throws SQLException {
+    private ResultSetMetaData mockMetaData(Map<String, String> nameAndTypes, String... aliases) throws SQLException {
         ResultSetMetaData metaData = mock(ResultSetMetaData.class);
 
         OngoingStubbing<String> getColumnName = when(metaData.getColumnName(anyInt()));
@@ -181,6 +198,13 @@ public class JDBCConnectionTest {
         OngoingStubbing<String> getColumnTypeName = when(metaData.getColumnTypeName(anyInt()));
         for (String value : nameAndTypes.values()) {
             getColumnTypeName = getColumnTypeName.thenReturn(value);
+        }
+
+        if (aliases.length > 0) {
+            OngoingStubbing<String> getColumnLabel = when(metaData.getColumnLabel(anyInt()));
+            for (String alias : aliases) {
+                getColumnLabel = getColumnLabel.thenReturn(alias);
+            }
         }
 
         when(metaData.getColumnCount()).thenReturn(nameAndTypes.size());
