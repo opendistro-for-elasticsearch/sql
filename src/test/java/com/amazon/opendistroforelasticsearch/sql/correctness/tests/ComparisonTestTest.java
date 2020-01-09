@@ -23,8 +23,8 @@ import com.amazon.opendistroforelasticsearch.sql.correctness.runner.ComparisonTe
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.DBConnection;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.DBResult;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.Row;
+import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.Type;
 import com.amazon.opendistroforelasticsearch.sql.correctness.testset.TestQuerySet;
-import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -63,10 +63,10 @@ public class ComparisonTestTest {
     @Test
     public void testSuccess() {
         when(esConnection.select(anyString())).thenReturn(
-            new DBResult("ES", ImmutableMap.of("firstname", "text"), asList(new Row(asList("John"))))
+            new DBResult("ES", asList(new Type("firstname", "text")), asList(new Row(asList("John"))))
         );
         when(otherDbConnection.select(anyString())).thenReturn(
-            new DBResult("Other DB", ImmutableMap.of("firstname", "text"), asList(new Row(asList("John"))))
+            new DBResult("Other DB", asList(new Type("firstname", "text")), asList(new Row(asList("John"))))
         );
 
         TestReport expected = new TestReport();
@@ -77,8 +77,8 @@ public class ComparisonTestTest {
 
     @Test
     public void testFailureDueToInconsistency() {
-        DBResult esResult = new DBResult("ES", ImmutableMap.of("firstname", "text"), asList(new Row(asList("John"))));
-        DBResult otherDbResult = new DBResult("Other DB", ImmutableMap.of("firstname", "text"), asList(new Row(asList("JOHN"))));
+        DBResult esResult = new DBResult("ES", asList(new Type("firstname", "text")), asList(new Row(asList("John"))));
+        DBResult otherDbResult = new DBResult("Other DB", asList(new Type("firstname", "text")), asList(new Row(asList("JOHN"))));
         when(esConnection.select(anyString())).thenReturn(esResult);
         when(otherDbConnection.select(anyString())).thenReturn(otherDbResult);
 
@@ -96,9 +96,9 @@ public class ComparisonTestTest {
             esConnection, new DBConnection[]{otherDbConnection, anotherDbConnection}
         );
 
-        DBResult esResult = new DBResult("ES", ImmutableMap.of("firstname", "text"), asList(new Row(asList("John"))));
-        DBResult otherDbResult = new DBResult("Other DB", ImmutableMap.of("firstname", "text"), asList(new Row(asList("JOHN"))));
-        DBResult anotherDbResult = new DBResult("Another DB", ImmutableMap.of("firstname", "text"), asList(new Row(asList("John"))));
+        DBResult esResult = new DBResult("ES", asList(new Type("firstname", "text")), asList(new Row(asList("John"))));
+        DBResult otherDbResult = new DBResult("Other DB", asList(new Type("firstname", "text")), asList(new Row(asList("JOHN"))));
+        DBResult anotherDbResult = new DBResult("Another DB", asList(new Type("firstname", "text")), asList(new Row(asList("John"))));
         when(esConnection.select(anyString())).thenReturn(esResult);
         when(otherDbConnection.select(anyString())).thenReturn(otherDbResult);
         when(anotherDbConnection.select(anyString())).thenReturn(anotherDbResult);
@@ -117,9 +117,9 @@ public class ComparisonTestTest {
             esConnection, new DBConnection[]{otherDbConnection, anotherDbConnection}
         );
 
-        DBResult esResult = new DBResult("ES", ImmutableMap.of("firstname", "text"), asList(new Row(asList("John"))));
-        DBResult otherDbResult = new DBResult("Other DB", ImmutableMap.of("firstname", "text"), asList(new Row(asList("JOHN"))));
-        DBResult anotherDbResult = new DBResult("ZZZ DB", ImmutableMap.of("firstname", "text"), asList(new Row(asList("Hank"))));
+        DBResult esResult = new DBResult("ES", asList(new Type("firstname", "text")), asList(new Row(asList("John"))));
+        DBResult otherDbResult = new DBResult("Other DB", asList(new Type("firstname", "text")), asList(new Row(asList("JOHN"))));
+        DBResult anotherDbResult = new DBResult("ZZZ DB", asList(new Type("firstname", "text")), asList(new Row(asList("Hank"))));
         when(esConnection.select(anyString())).thenReturn(esResult);
         when(otherDbConnection.select(anyString())).thenReturn(otherDbResult);
         when(anotherDbConnection.select(anyString())).thenReturn(anotherDbResult);
@@ -143,7 +143,7 @@ public class ComparisonTestTest {
     @Test
     public void testErrorDueToNoOtherDBSupportThisQuery() {
         when(esConnection.select(anyString())).thenReturn(
-            new DBResult("ES", ImmutableMap.of("firstname", "text"), asList(new Row(asList("John"))))
+            new DBResult("ES", asList(new Type("firstname", "text")), asList(new Row(asList("John"))))
         );
         when(otherDbConnection.select(anyString())).thenThrow(new RuntimeException("Unsupported feature"));
 
@@ -162,11 +162,11 @@ public class ComparisonTestTest {
         );
 
         when(esConnection.select(anyString())).thenReturn(
-            new DBResult("ES", ImmutableMap.of("firstname", "text"), asList(new Row(asList("John"))))
+            new DBResult("ES", asList(new Type("firstname", "text")), asList(new Row(asList("John"))))
         );
         when(otherDbConnection.select(anyString())).thenThrow(new RuntimeException("Unsupported feature"));
         when(anotherDbConnection.select(anyString())).thenReturn(
-            new DBResult("Another DB", ImmutableMap.of("firstname", "text"), asList(new Row(asList("John"))))
+            new DBResult("Another DB", asList(new Type("firstname", "text")), asList(new Row(asList("John"))))
         );
 
         TestReport expected = new TestReport();

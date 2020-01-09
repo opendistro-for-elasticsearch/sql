@@ -17,7 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.correctness.tests;
 
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.JDBCConnection;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.DBResult;
-import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.Row;
+import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.Type;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import org.junit.Before;
@@ -116,8 +116,11 @@ public class JDBCConnectionTest {
         DBResult result = conn.select("SELECT * FROM test");
         assertEquals("Test DB", result.getDatabaseName());
         assertEquals(
-            ImmutableMap.of("NAME", "VARCHAR", "AGE", "INT"),
-            result.getColumnNameAndTypes()
+            Arrays.asList(
+                new Type("NAME", "VARCHAR"),
+                new Type("AGE", "INT")
+            ),
+            result.getSchema()
         );
         assertEquals(
             Sets.newHashSet(
