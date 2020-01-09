@@ -25,6 +25,7 @@ import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.ActionRequestRestExecutorFactory;
 import com.amazon.opendistroforelasticsearch.sql.executor.RestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.ErrorMessage;
+import com.amazon.opendistroforelasticsearch.sql.request.PreparedStatementRequest;
 import com.amazon.opendistroforelasticsearch.sql.utils.JsonPrettyFormatter;
 import com.amazon.opendistroforelasticsearch.sql.metrics.MetricName;
 import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
@@ -35,8 +36,13 @@ import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.Verificati
 import com.amazon.opendistroforelasticsearch.sql.utils.LogUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.elasticsearch.action.search.ClearScrollRequest;
+import org.elasticsearch.action.search.ClearScrollRequestBuilder;
+import org.elasticsearch.action.search.ClearScrollResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.node.NodeClient;
+import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.rest.BaseRestHandler;
@@ -44,12 +50,17 @@ import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestController;
 import org.elasticsearch.rest.RestRequest;
+import org.elasticsearch.rest.RestResponse;
 import org.elasticsearch.rest.RestStatus;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -76,6 +87,7 @@ public class RestSqlAction extends BaseRestHandler {
      */
     public static final String QUERY_API_ENDPOINT = "/_opendistro/_sql";
     public static final String EXPLAIN_API_ENDPOINT = QUERY_API_ENDPOINT + "/_explain";
+    public static final String CURSOR_CLOSE_ENDPOINT = QUERY_API_ENDPOINT + "/close";
 
     RestSqlAction(Settings settings, RestController restController) {
 
@@ -84,6 +96,7 @@ public class RestSqlAction extends BaseRestHandler {
         restController.registerHandler(RestRequest.Method.GET, QUERY_API_ENDPOINT, this);
         restController.registerHandler(RestRequest.Method.POST, EXPLAIN_API_ENDPOINT, this);
         restController.registerHandler(RestRequest.Method.GET, EXPLAIN_API_ENDPOINT, this);
+        restController.registerHandler(RestRequest.Method.POST, CURSOR_CLOSE_ENDPOINT, this);
 
         this.allowExplicitIndex = MULTI_ALLOW_EXPLICIT_INDEX.get(settings);
     }
@@ -110,12 +123,59 @@ public class RestSqlAction extends BaseRestHandler {
             final SqlRequest sqlRequest = SqlRequestFactory.getSqlRequest(request);
             LOG.info("[{}] Incoming request {}: {}", LogUtils.getRequestId(), request.uri(), sqlRequest.getSql());
 
+            LOG.info("Cursor ID: {}", );
+
+            if(isCloseCursorRequest(request)) {
+                String cursorId = parseCursorRequestFromPayload(request);
+                LOG.info("Cursor ID: {}", cursorId);
+                return channel -> handleCursorCloseRequest(request, cursorId, client, channel);
+            }
+
             final QueryAction queryAction = explainRequest(client, sqlRequest);
             return channel -> executeSqlRequest(request, queryAction, client, channel);
         } catch (Exception e) {
             logAndPublishMetrics(e);
             return channel -> reportError(channel, e, isClientError(e) ? BAD_REQUEST : SERVICE_UNAVAILABLE);
         }
+    }
+
+    private void handleCursorCloseRequest(final RestRequest request, final String cursorId,
+                                          final Client client, final RestChannel channel) {
+//        ClearScrollRequest clearScrollRequest = new ClearScrollRequest();
+//        clearScrollRequest.addScrollId(cursorId);
+//        ClearScrollResponse response = client.clearScroll(clearScrollRequest, RequestOptions.DEFAULT);
+
+        RestResponse restResponse = new RestResponse() {
+            @Override
+            public String contentType() {
+                return "some fake content ";
+            }
+
+            @Override
+            public BytesReference content() {
+                return null;
+            }
+
+            @Override
+            public RestStatus status() {
+                return OK;
+            }
+        };
+
+//        channel.sendResponse(new BytesRestResponse(OK, soe));
+        channel.sendResponse(restResponse);
+    }
+
+    private static String parseCursorRequestFromPayload(RestRequest restRequest) {
+        String content = restRequest.content().utf8ToString();
+
+        JSONObject jsonContent;
+        try {
+            jsonContent = new JSONObject(content);
+        } catch (JSONException e) {
+            throw new IllegalArgumentException("Failed to parse request payload", e);
+        }
+        return jsonContent.getString("cursor");
     }
 
     @Override
@@ -174,6 +234,10 @@ public class RestSqlAction extends BaseRestHandler {
 
     private static boolean isExplainRequest(final RestRequest request) {
         return request.path().endsWith("/_explain");
+    }
+
+    private static boolean isCloseCursorRequest(final RestRequest request) {
+        return request.path().endsWith("/_sql/close");
     }
 
     private static boolean isClientError(Exception e) {
