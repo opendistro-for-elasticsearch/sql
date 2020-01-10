@@ -24,23 +24,16 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.hamcrest.collection.IsMapContaining;
-
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Date;
-
-import java.util.HashSet;
-import java.util.Set;
 import java.util.stream.IntStream;
 
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
-import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.hit;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.hitAny;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvDouble;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvInt;
@@ -377,6 +370,88 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
             Assert.assertThat(response.getJSONArray("datarows").getJSONArray(i).getString(0)
                     .indexOf(expectedOutput[i]), not(-1));
         }
+    }
+
+    @Test
+    public void castStatementInWhereClauseGreaterThanTest() {
+        JSONObject response = executeJdbcRequest("SELECT balance FROM " + TEST_INDEX_ACCOUNT
+                + " WHERE (account_number < CAST(age AS DOUBLE)) ORDER BY balance LIMIT 5");
+
+        String result_schema = "{\"name\":\"balance\",\"type\":\"long\"}";
+        assertEquals(response.getJSONArray("schema").get(0).toString(), result_schema);
+
+        Double[] expectedOutput = new Double[] {4180.0, 5686.0, 7004.0, 7831.0, 14127.0};
+        for (int i = 0; i < response.getJSONArray("datarows").length(); ++i) {
+            Assert.assertThat(
+                    response.getJSONArray("datarows")
+                            .getJSONArray(i).getDouble(0),
+                    equalTo(expectedOutput[i]));
+        }
+    }
+
+    @Test
+    public void castStatementInWhereClauseLessThanTest() {
+        JSONObject response = executeJdbcRequest("SELECT balance FROM " + TEST_INDEX_ACCOUNT
+                + " WHERE (account_number > CAST(age AS DOUBLE)) ORDER BY balance LIMIT 5");
+
+        String result_schema = "{\"name\":\"balance\",\"type\":\"long\"}";
+        assertEquals(response.getJSONArray("schema").get(0).toString(), result_schema);
+        Double[] expectedOutput = new Double[] {1011.0, 1031.0, 1110.0, 1133.0, 1172.0};
+
+        for (int i = 0; i < response.getJSONArray("datarows").length(); ++i) {
+            Assert.assertThat(
+                    response.getJSONArray("datarows")
+                            .getJSONArray(i).getDouble(0),
+                    equalTo(expectedOutput[i]));
+        }
+    }
+
+    @Test
+    public void castStatementInWhereClauseEqualToConstantTest() {
+        JSONObject response = executeJdbcRequest("SELECT balance FROM " + TEST_INDEX_ACCOUNT
+                + " WHERE (CAST(age AS DOUBLE) = 36.0) ORDER BY balance LIMIT 5");
+
+        String result_schema = "{\"name\":\"balance\",\"type\":\"long\"}";
+        assertEquals(response.getJSONArray("schema").get(0).toString(), result_schema);
+        Double[] expectedOutput = new Double[] {1249.0, 1463.0, 3960.0, 5686.0, 6025.0};
+
+        for (int i = 0; i < response.getJSONArray("datarows").length(); ++i) {
+            Assert.assertThat(
+                    response.getJSONArray("datarows")
+                            .getJSONArray(i).getDouble(0),
+                    equalTo(expectedOutput[i]));
+        }
+    }
+
+    @Test
+    public void castStatementInWhereClauseLessThanConstantTest() {
+        JSONObject response = executeJdbcRequest("SELECT balance FROM " + TEST_INDEX_ACCOUNT
+                + " WHERE (CAST(age AS DOUBLE) < 36.0) ORDER BY balance LIMIT 5");
+
+        String result_schema = "{\"name\":\"balance\",\"type\":\"long\"}";
+        assertEquals(response.getJSONArray("schema").get(0).toString(), result_schema);
+        Double[] expectedOutput = new Double[] {1011.0, 1031.0, 1110.0, 1133.0, 1172.0};
+
+        for (int i = 0; i < response.getJSONArray("datarows").length(); ++i) {
+            Assert.assertThat(
+                    response.getJSONArray("datarows")
+                            .getJSONArray(i).getDouble(0),
+                    equalTo(expectedOutput[i]));
+        }
+    }
+
+    /**
+     * Testing compilation
+     * Result comparison is empty -> comparing different types (Date and keyword)
+     */
+    @Test
+    public void castStatementInWhereClauseDatetimeCastTest() {
+        JSONObject response = executeJdbcRequest("SELECT date_keyword FROM "
+                + TestsConstants.TEST_INDEX_DATE
+                + " WHERE (CAST(date_keyword AS DATETIME) = \'2014-08-19T07:09:13.434Z\')");
+
+        String schema_result = "{\"name\":\"date_keyword\",\"type\":\"keyword\"}";
+        assertEquals(response.getJSONArray("schema").get(0).toString(), schema_result);
     }
 
     @Test

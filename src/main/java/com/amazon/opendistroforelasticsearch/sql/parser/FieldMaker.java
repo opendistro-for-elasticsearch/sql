@@ -405,4 +405,14 @@ public class FieldMaker {
             return new MethodField(name, paramers, option, alias);
         }
     }
+
+    public ScriptMethodField makeCastMethodField(SQLCastExpr castExpr) throws SqlParseException {
+        String name = "CAST";
+        String alias = "cast_field1";
+        String scriptCode = new CastParser(castExpr, alias, null).parse(false);
+        List<KVValue> methodParameters = new ArrayList<>();
+        methodParameters.add(new KVValue(alias));
+        methodParameters.add(new KVValue(scriptCode));
+        return new ScriptMethodField(name, methodParameters, null, null);
+    }
 }
