@@ -27,7 +27,7 @@ public class DeleteResultSet extends ResultSet {
     private Delete query;
     private Object queryResult;
 
-    private static final String DELETED = "deleted_rows";
+    public static final String DELETED = "deleted_rows";
 
     public DeleteResultSet(Client client, Delete query, Object queryResult) {
         this.client = client;
