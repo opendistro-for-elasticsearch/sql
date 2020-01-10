@@ -45,10 +45,7 @@ public class DeleteResultSetTest {
 
     @Mock
     Delete deleteQuery;
-
-    /**
-     * test handling {@link TotalHits} correctly.
-     */
+    
     @Test
     public void testDeleteResponseForJdbcFormat() throws IOException {
 
