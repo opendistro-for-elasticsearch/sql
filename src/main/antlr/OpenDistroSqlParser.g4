@@ -285,12 +285,19 @@ expressions
     : expression (',' expression)*
     ;
 
+aggregateFunction
+    : functionAsAggregatorFunction                                  #functionAsAggregatorFunctionCall
+    | aggregateWindowedFunction                                     #aggregateWindowedFunctionCall
+    ;
+
 
 //    Functions
 
 functionCall
-    : specificFunction                                              #specificFunctionCall
-    | aggregateWindowedFunction                                     #aggregateFunctionCall
+    : aggregateFunction                                             #aggregateFunctionCall
+    | scalarFunctionName '(' aggregateWindowedFunction ')'          #aggregationAsArgFunctionCall
+    | scalarFunctionName '(' nestedFunctionArgs+ ')'                #nestedFunctionCall
+    | specificFunction                                              #specificFunctionCall
     | scalarFunctionName '(' functionArgs? ')'                      #scalarFunctionCall
     | fullId '(' functionArgs? ')'                                  #udfFunctionCall
     ;
@@ -324,20 +331,29 @@ aggregateWindowedFunction
     | COUNT '(' aggregator=DISTINCT functionArgs ')'
     ;
 
+functionAsAggregatorFunction
+    : (AVG | MAX | MIN | SUM)
+      '(' aggregator=(ALL | DISTINCT)? functionCall ')'
+    ;
+
 scalarFunctionName
     : functionNameBase
     ;
 
 functionArgs
-    : (constant | fullColumnName | functionCall | expression)
+    : (constant | fullColumnName | expression)
     (
       ','
-      (constant | fullColumnName | functionCall | expression)
+      (constant | fullColumnName | expression)
     )*
     ;
 
 functionArg
-    : constant | fullColumnName | functionCall | expression
+    : constant | fullColumnName |  expression
+    ;
+
+nestedFunctionArgs
+    : functionCall (',' functionArgs)?
     ;
 
 

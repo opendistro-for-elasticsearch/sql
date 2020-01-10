@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -94,26 +95,31 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
         validate("SELECT LOG(new_field) FROM semantics");
     }
 
+    @Ignore /** nested functions are blocked by throwing SqlFeatureNotImplementedException yet before implemented */
     @Test
     public void substringWithLogFunctionCallWithUnknownFieldShouldPass() {
         validate("SELECT SUBSTRING(LOG(new_field), 0, 1) FROM semantics");
     }
 
+    @Ignore /** nested functions are blocked by throwing SqlFeatureNotImplementedException yet before implemented */
     @Test
     public void logFunctionCallWithResultOfAbsFunctionCallWithOneNumberShouldPass() {
         validate("SELECT LOG(ABS(age)) FROM semantics");
     }
 
+    @Ignore /** nested functions are blocked by throwing SqlFeatureNotImplementedException yet before implemented */
     @Test
     public void logFunctionCallWithMoreNestedFunctionCallWithOneNumberShouldPass() {
         validate("SELECT LOG(ABS(SQRT(balance))) FROM semantics");
     }
 
+    @Ignore /** nested functions are blocked by throwing SqlFeatureNotImplementedException yet before implemented */
     @Test
     public void substringFunctionCallWithResultOfAnotherSubstringAndAbsFunctionCallShouldPass() {
         validate("SELECT SUBSTRING(SUBSTRING(city, ABS(age), 1), 2, ABS(1)) FROM semantics");
     }
 
+    @Ignore /** nested functions are blocked by throwing SqlFeatureNotImplementedException yet before implemented */
     @Test
     public void substringFunctionCallWithResultOfMathFunctionCallShouldFail() {
         expectValidationFailWithErrorMessages(
@@ -123,6 +129,7 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
         );
     }
 
+    @Ignore
     @Test
     public void logFunctionCallWithResultOfSubstringFunctionCallShouldFail() {
         expectValidationFailWithErrorMessages(

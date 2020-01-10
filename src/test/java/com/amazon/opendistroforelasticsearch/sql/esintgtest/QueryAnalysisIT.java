@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.SemanticAnalysisException;
 import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.SyntaxAnalysisException;
+import com.amazon.opendistroforelasticsearch.sql.exception.SqlFeatureNotImplementedException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import org.elasticsearch.action.index.IndexRequest;
@@ -164,10 +165,10 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void aggregateFunctionCallWithWrongScalarFunctionCallShouldThrowSemanticException() {
-        queryShouldThrowSemanticException(
-            "SELECT MAX(LOG(firstname)) FROM elasticsearch-sql_test_index_bank GROUP BY city",
-            "Function [LOG] cannot work with [TEXT]."
+    public void aggregateFunctionCallWithWrongScalarFunctionCallShouldThrowSqlFeatureNotImplementedException() {
+        queryShouldThrowSqlFeatureNotImplementedException(
+                "SELECT MAX(LOG(firstname)) FROM elasticsearch-sql_test_index_bank GROUP BY city",
+                "Aggregation calls with function aggregator like [MAX(LOG(firstname))] are not supported yet"
         );
     }
 
@@ -252,6 +253,10 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
 
     private void queryShouldThrowSemanticException(String query, String... expectedMsgs) {
         queryShouldThrowException(query, SemanticAnalysisException.class, expectedMsgs);
+    }
+
+    private void queryShouldThrowSqlFeatureNotImplementedException(String query, String... expectedMsgs) {
+        queryShouldThrowException(query, SqlFeatureNotImplementedException.class, expectedMsgs);
     }
 
     private <T> void queryShouldThrowException(String query, Class<T> exceptionType, String... expectedMsgs) {

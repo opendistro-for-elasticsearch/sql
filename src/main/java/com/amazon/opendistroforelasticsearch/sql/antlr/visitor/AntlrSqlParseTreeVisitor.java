@@ -15,12 +15,15 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.visitor;
 
+import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.InnerJoinContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.QuerySpecificationContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.SelectColumnElementContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.SubqueryTableItemContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.TableNamePatternContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParserBaseVisitor;
+import com.amazon.opendistroforelasticsearch.sql.exception.SqlFeatureNotImplementedException;
+import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 
@@ -28,7 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.AggregationAsArgFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.AggregateWindowedFunctionContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.AtomTableItemContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.BinaryComparisonPredicateContext;
@@ -38,6 +41,7 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroS
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.DecimalLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FromClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FullColumnNameContext;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FunctionAsAggregatorFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FunctionNameBaseContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.InPredicateContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.IsExpressionContext;
@@ -243,6 +247,24 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
     @Override
     public T visitSelectExpressionElement(SelectExpressionElementContext ctx) {
         return visitSelectItem(ctx.expression(), ctx.uid());
+    }
+
+    @Override
+    public T visitNestedFunctionCall(OpenDistroSqlParser.NestedFunctionCallContext ctx) {
+        throw new SqlFeatureNotImplementedException(
+                StringUtils.format("Nested function calls like %s are not supported yet", ctx.getText()));
+    }
+
+    @Override
+    public T visitFunctionAsAggregatorFunctionCall(FunctionAsAggregatorFunctionCallContext ctx) {
+        throw new SqlFeatureNotImplementedException(StringUtils.format(
+                "Aggregation calls with function aggregator like [%s] are not supported yet", ctx.getText()));
+    }
+
+    @Override
+    public T visitAggregationAsArgFunctionCall(AggregationAsArgFunctionCallContext ctx) {
+        throw new SqlFeatureNotImplementedException(StringUtils.format(
+                "Nested function calls with aggregation argument like [%s] are not supported yet", ctx.getText()));
     }
 
     @Override
