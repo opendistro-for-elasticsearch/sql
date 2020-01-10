@@ -1,3 +1,11 @@
+SELECT AvgTicketPrice FROM kibana_sample_data_flights ORDER BY AvgTicketPrice LIMIT 1
+SELECT timestamp FROM kibana_sample_data_flights ORDER BY timestamp LIMIT 1
+SELECT timestamp FROM kibana_sample_data_flights
+SELECT timestamp FROM kibana_sample_data_flights ORDER BY timestamp
+SELECT AvgTicketPrice, Carrier, FlightDelayMin FROM kibana_sample_data_flights
+SELECT AvgTicketPrice, Carrier, FlightDelayMin, timestamp FROM kibana_sample_data_flights
+SELECT Carrier, FlightDelayMin, timestamp FROM kibana_sample_data_flights
+SELECT AvgTicketPrice, Cancelled, Carrier, FlightDelayMin FROM kibana_sample_data_flights
 SELECT AvgTicketPrice, Cancelled, Carrier, FlightDelayMin, timestamp FROM kibana_sample_data_flights
 SELECT AvgTicketPrice AS avg, Cancelled AS cancel, Carrier AS carrier, FlightDelayMin AS delay, timestamp AS ts FROM kibana_sample_data_flights
 SELECT f.AvgTicketPrice AS avg, f.Cancelled AS cancel, f.Carrier AS carrier, f.FlightDelayMin AS delay, timestamp AS ts FROM kibana_sample_data_flights f

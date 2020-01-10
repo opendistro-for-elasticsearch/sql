@@ -49,7 +49,7 @@ public class Row {
     private Object roundFloatNum(Object value) {
         if (value instanceof Float) {
             BigDecimal decimal = BigDecimal.valueOf((Float) value).setScale(2, RoundingMode.CEILING);
-            value = decimal.floatValue();
+            value = decimal.doubleValue(); // Convert to double too
         } else if (value instanceof Double) {
             BigDecimal decimal = BigDecimal.valueOf((Double) value).setScale(2, RoundingMode.CEILING);
             value = decimal.doubleValue();

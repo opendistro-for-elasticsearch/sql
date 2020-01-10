@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset;
 
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import com.google.common.collect.ImmutableSet;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -24,6 +25,7 @@ import org.json.JSONPropertyName;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -34,6 +36,9 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(exclude = "databaseName")
 @ToString
 public class DBResult {
+
+    /** Possible types for floating point number */
+    private static final Set<String> FLOAT_TYPES = ImmutableSet.of("FLOAT", "DOUBLE", "REAL");
 
     /** Database name for display */
     private final String databaseName;
@@ -64,7 +69,13 @@ public class DBResult {
     }
 
     public void addColumn(String name, String type) {
-        schema.add(new Type(StringUtils.toUpper(name), StringUtils.toUpper(type)));
+        type = StringUtils.toUpper(type);
+
+        // Ignore float type by assigning all type names string to it.
+        if (FLOAT_TYPES.contains(type)) {
+            type = FLOAT_TYPES.toString();
+        }
+        schema.add(new Type(StringUtils.toUpper(name), type));
     }
 
     public void addRow(Row row) {

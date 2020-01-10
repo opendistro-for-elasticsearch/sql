@@ -161,6 +161,13 @@ public class JDBCConnectionTest {
 
         DBResult result = conn.select("SELECT * FROM test");
         assertEquals(
+            Arrays.asList(
+                new Type("NAME", "VARCHAR"),
+                new Type("BALANCE", "[FLOAT, DOUBLE, REAL]")
+            ),
+            result.getSchema()
+        );
+        assertEquals(
             Sets.newHashSet(
                 Arrays.asList("John", 25.13),
                 Arrays.asList("Hank", 30.46),
