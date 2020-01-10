@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.antlr;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlLexer;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.SemanticContext;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.visitor.ESMappingLoader;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.visitor.SemanticAnalyzer;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.visitor.TypeChecker;
@@ -31,6 +32,8 @@ import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.Optional;
 
 /**
  * Entry point for ANTLR generated parser to perform strict syntax and semantic analysis.
@@ -46,20 +49,21 @@ public class OpenDistroSqlAnalyzer {
         this.config = config;
     }
 
-    public void analyze(String sql, LocalClusterState clusterState) {
+    public Optional<Type> analyze(String sql, LocalClusterState clusterState) {
         // Perform analysis for SELECT only for now because of extra code changes required for SHOW/DESCRIBE.
         if (!isSelectStatement(sql) || !config.isAnalyzerEnabled()) {
-            return;
+            return Optional.empty();
         }
 
         try {
-            analyzeSemantic(
-                analyzeSyntax(sql),
-                clusterState
-            );
+            return Optional.of(analyzeSemantic(
+                    analyzeSyntax(sql),
+                    clusterState
+            ));
         } catch (EarlyExitAnalysisException e) {
             // Expected if configured so log on debug level to avoid always logging stack trace
             LOG.debug("Analysis exits early and will skip remaining process", e);
+            return Optional.empty();
         }
     }
 
@@ -81,8 +85,8 @@ public class OpenDistroSqlAnalyzer {
      * @param tree          parse tree
      * @param clusterState  cluster state required for index mapping query
      */
-    public void analyzeSemantic(ParseTree tree, LocalClusterState clusterState) {
-        tree.accept(new AntlrSqlParseTreeVisitor<>(createAnalyzer(clusterState)));
+    public Type analyzeSemantic(ParseTree tree, LocalClusterState clusterState) {
+        return tree.accept(new AntlrSqlParseTreeVisitor<>(createAnalyzer(clusterState)));
     }
 
     /** Factory method for semantic analyzer to help assemble all required components together */
@@ -104,6 +108,7 @@ public class OpenDistroSqlAnalyzer {
     }
 
     private boolean isSelectStatement(String sql) {
+        sql = sql.replaceAll("\\R", " ").trim();
         int endOfFirstWord = sql.indexOf(' ');
         String firstWord = sql.substring(0, endOfFirstWord > 0 ? endOfFirstWord : sql.length());
         return "SELECT".equalsIgnoreCase(firstWord);

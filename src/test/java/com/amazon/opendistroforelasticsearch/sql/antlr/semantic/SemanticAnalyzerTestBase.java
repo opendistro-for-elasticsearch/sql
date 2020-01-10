@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.antlr.semantic;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.OpenDistroSqlAnalyzer;
 import com.amazon.opendistroforelasticsearch.sql.antlr.SqlAnalysisConfig;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
@@ -29,10 +30,13 @@ import org.junit.rules.ExpectedException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Optional;
 
 import static com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents.mockLocalClusterState;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.Matchers.allOf;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Test cases for semantic analysis focused on semantic check which was missing in the past.
@@ -71,5 +75,11 @@ public abstract class SemanticAnalyzerTestBase {
 
     protected void validate(String sql) {
         analyzer.analyze(sql, LocalClusterState.state());
+    }
+
+    protected void validateWithType(String sql, Type type) {
+        Optional<Type> analyze = analyzer.analyze(sql, LocalClusterState.state());
+        assertTrue(analyze.isPresent());
+        assertEquals(type, analyze.get());
     }
 }
