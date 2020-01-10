@@ -47,7 +47,7 @@ public class RestSqlStatsAction extends BaseRestHandler {
     public static final String STATS_API_ENDPOINT = "/_opendistro/_sql/stats";
 
     public RestSqlStatsAction(Settings settings, RestController restController) {
-        super(settings);
+        super();
         restController.registerHandler(RestRequest.Method.POST, STATS_API_ENDPOINT, this);
         restController.registerHandler(RestRequest.Method.GET, STATS_API_ENDPOINT, this);
     }

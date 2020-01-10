@@ -1,4 +1,30 @@
-## 2019-10-29, Version 1.3.0 (Current)
+## 2019-12-10, Version 1.4.0 (Current)
+
+### Notable changes
+
+* Feature [#312](https://github.com/opendistro-for-elasticsearch/sql/issues/312): OD 1.4 Release components
+* Feature [#283](https://github.com/opendistro-for-elasticsearch/sql/pull/283): Added github action to build and run tests
+* Feature [#302](https://github.com/opendistro-for-elasticsearch/sql/pull/302): Documentation for basic usage of plugin
+
+* Enhancement [#273](https://github.com/opendistro-for-elasticsearch/sql/pull/273): Support conditional functions: IF, IFNULL, ISNULL
+* Enhancement [#274](https://github.com/opendistro-for-elasticsearch/sql/pull/274): Support JOIN without table alias
+* Enhancement [#278](https://github.com/opendistro-for-elasticsearch/sql/pull/278): Support subquery in from with parent only has select
+* Enhancement [#282](https://github.com/opendistro-for-elasticsearch/sql/pull/282): Support datetime functions: MONTH, DAYOFMONTH, DATE, MONTHNAME, TIMESTAMP, MAKETIME, NOW, CURDATE
+* Enhancement [#286](https://github.com/opendistro-for-elasticsearch/sql/pull/286): Better error reporting for unsupported case like max(x) - min(y)
+* Enhancement [#287](https://github.com/opendistro-for-elasticsearch/sql/pull/287): Gradle build will publish compiled plugin, that is ready to install into elastic
+* Enhancement [#300](https://github.com/opendistro-for-elasticsearch/sql/pull/300): Support DISTINCT feature in SELECT clause
+* Enhancement [#303](https://github.com/opendistro-for-elasticsearch/sql/pull/303): Attributions
+* Enhancement [#305](https://github.com/opendistro-for-elasticsearch/sql/pull/305): Improve contributing docs
+
+* BugFix [#267](https://github.com/opendistro-for-elasticsearch/sql/pull/267): Fixed operatorReplace Integration Test
+* BugFix [#275](https://github.com/opendistro-for-elasticsearch/sql/pull/275): Fix issue that IP type cannot pass JDBC formatter
+* BugFix [#284](https://github.com/opendistro-for-elasticsearch/sql/pull/284): Fixed flaky test suite, that was breaking github action build
+* BugFix [#295](https://github.com/opendistro-for-elasticsearch/sql/pull/295): Corrected the selected field names displayed in the schema of JDBC formatted response
+* BugFix [#296](https://github.com/opendistro-for-elasticsearch/sql/pull/296): Fixed functions work improperly with fieldvalue/constant param for current use
+* BugFix [#298](https://github.com/opendistro-for-elasticsearch/sql/pull/298): Fixed issue of log10 function gets inaccurate results
+* BugFix [#307](https://github.com/opendistro-for-elasticsearch/sql/pull/307): Fix the issue of column alias not working for GROUP BY
+
+## 2019-10-29, Version 1.3.0
 
 ### Notable changes
 

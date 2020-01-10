@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.plugin;
 
+import com.amazon.opendistroforelasticsearch.sql.executor.Format;
 import org.elasticsearch.common.settings.Setting;
 
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ public class SqlSettings {
      */
     public static final String SQL_ENABLED = "opendistro.sql.enabled";
     public static final String QUERY_SLOWLOG = "opendistro.sql.query.slowlog";
+    public static final String QUERY_RESPONSE_FORMAT = "opendistro.sql.query.response.format";
     public static final String QUERY_ANALYSIS_ENABLED = "opendistro.sql.query.analysis.enabled";
     public static final String QUERY_ANALYSIS_SEMANTIC_SUGGESTION = "opendistro.sql.query.analysis.semantic.suggestion";
     public static final String QUERY_ANALYSIS_SEMANTIC_THRESHOLD = "opendistro.sql.query.analysis.semantic.threshold";
@@ -50,6 +52,8 @@ public class SqlSettings {
         Map<String, Setting<?>> settings = new HashMap<>();
         settings.put(SQL_ENABLED, Setting.boolSetting(SQL_ENABLED, true, NodeScope, Dynamic));
         settings.put(QUERY_SLOWLOG, Setting.intSetting(QUERY_SLOWLOG, 2, NodeScope, Dynamic));
+        settings.put(QUERY_RESPONSE_FORMAT, Setting.simpleString(QUERY_RESPONSE_FORMAT, Format.JDBC.getFormatName(),
+                                                                 NodeScope, Dynamic));
 
         // Settings for new ANTLR query analyzer
         settings.put(QUERY_ANALYSIS_ENABLED, Setting.boolSetting(

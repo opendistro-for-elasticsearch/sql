@@ -26,6 +26,7 @@ import com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents;
 import com.google.common.io.Files;
 import org.elasticsearch.client.Client;
 import org.json.JSONObject;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -259,6 +260,8 @@ public class JSONRequestTest {
         assertThat(removeSpaces(result), equalTo(removeSpaces(expectedOutput)));
     }
 
+    // This test was ignored because group by case function is not supported
+    @Ignore
     @Test
     public void aggregationQuery() throws IOException {
         String result = explain(String.format("{\"query\":\"" +

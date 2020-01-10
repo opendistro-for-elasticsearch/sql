@@ -108,7 +108,9 @@ public class SqlParser {
             addOrderByToSelect(select, query, query.getOrderBy().getItems(), null);
         }
 
-        findGroupBy(query, select);
+        if (query.getGroupBy() != null) {
+            findGroupBy(query, select);
+        }
 
         return select;
     }
@@ -139,11 +141,14 @@ public class SqlParser {
     }
 
     private void findGroupBy(MySqlSelectQueryBlock query, Select select) throws SqlParseException {
+        Map<String, SQLExpr> aliasesToExperssions = query
+                .getSelectList()
+                .stream()
+                .filter(item -> item.getAlias() != null)
+                .collect(Collectors.toMap(SQLSelectItem::getAlias, SQLSelectItem::getExpr));
+
         SQLSelectGroupByClause groupBy = query.getGroupBy();
         SQLTableSource sqlTableSource = query.getFrom();
-        if (groupBy == null) {
-            return;
-        }
 
         findHaving(query, select);
 
@@ -173,8 +178,9 @@ public class SqlParser {
                 select.addGroupBy(convertExprsToFields(listExpr.getItems(), sqlTableSource));
             } else {
                 // check if field is actually alias
-
-
+                if (aliasesToExperssions.containsKey(sqlExpr.toString())) {
+                    sqlExpr = aliasesToExperssions.get(sqlExpr.toString());
+                }
                 standardGroupBys.add(sqlExpr);
             }
         }
