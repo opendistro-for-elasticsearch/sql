@@ -125,7 +125,7 @@ public class ComparisonTestTest {
         when(anotherDbConnection.select(anyString())).thenReturn(anotherDbResult);
 
         TestReport expected = new TestReport();
-        expected.addTestCase(new FailedTestCase(1, "SELECT * FROM accounts", asList(esResult, anotherDbResult)));
+        expected.addTestCase(new FailedTestCase(1, "SELECT * FROM accounts", asList(esResult, otherDbResult, anotherDbResult)));
         TestReport actual = correctnessTest.verify(querySet("SELECT * FROM accounts"));
         assertEquals(expected, actual);
     }
