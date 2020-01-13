@@ -15,12 +15,14 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.visitor;
 
+import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.InnerJoinContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.QuerySpecificationContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.SelectColumnElementContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.SubqueryTableItemContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.TableNamePatternContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParserBaseVisitor;
+import com.google.common.base.Strings;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 
@@ -274,6 +276,15 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
             visit(ctx.predicate()),
             visitor.visitBoolean(ctx.testValue.getText()))
         );
+    }
+
+    @Override
+    public T visitConvertedDataType(OpenDistroSqlParser.ConvertedDataTypeContext ctx) {
+        if (ctx.getChild(0) != null && !Strings.isNullOrEmpty(ctx.getChild(0).getText())) {
+            return visitor.visitConvertedType(ctx.getChild(0).getText());
+        } else {
+            return super.visitConvertedDataType(ctx);
+        }
     }
 
     @Override

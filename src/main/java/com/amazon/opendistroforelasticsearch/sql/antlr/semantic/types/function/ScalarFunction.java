@@ -35,7 +35,7 @@ public enum ScalarFunction implements TypeExpression {
     ABS(func(T(NUMBER)).to(T)), // translate to Java: <T extends Number> T ABS(T)
     ACOS(func(T(NUMBER)).to(T)),
     ADD(func(T(NUMBER), NUMBER).to(T)),
-    ASCII(func(T(STRING)).to(T)),
+    ASCII(func(T(STRING)).to(INTEGER)),
     ASIN(func(T(NUMBER)).to(T)),
     ATAN(func(T(NUMBER)).to(T)),
     ATAN2(func(T(NUMBER), NUMBER).to(T)),
@@ -64,17 +64,17 @@ public enum ScalarFunction implements TypeExpression {
     ISNULL(func(ES_TYPE).to(INTEGER)),
     LEFT(func(T(STRING), INTEGER).to(T)),
     LENGTH(func(STRING).to(INTEGER)),
-    LN(func(T(NUMBER)).to(T)),
+    LN(func(T(NUMBER)).to(DOUBLE)),
     LOCATE(
             func(STRING, STRING, INTEGER).to(INTEGER),
             func(STRING, STRING).to(INTEGER)
     ),
     LOG(
-        func(T(NUMBER)).to(T),
-        func(T(NUMBER), NUMBER).to(T)
+        func(T(NUMBER)).to(DOUBLE),
+        func(T(NUMBER), NUMBER).to(DOUBLE)
     ),
-    LOG2(func(T(NUMBER)).to(T)),
-    LOG10(func(T(NUMBER)).to(T)),
+    LOG2(func(T(NUMBER)).to(DOUBLE)),
+    LOG10(func(T(NUMBER)).to(DOUBLE)),
     LOWER(
         func(T(STRING)).to(T),
         func(T(STRING), STRING).to(T)

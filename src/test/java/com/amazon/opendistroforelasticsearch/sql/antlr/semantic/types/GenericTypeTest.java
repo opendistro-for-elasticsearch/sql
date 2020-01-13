@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types;
 
 import org.junit.Test;
 
+import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.KEYWORD;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType.LONG;
@@ -34,17 +35,17 @@ public class GenericTypeTest {
 
     @Test
     public void passNumberArgToLogShouldReturnNumber() {
-        assertEquals(NUMBER, LOG.construct(singletonList(NUMBER)));
+        assertEquals(DOUBLE, LOG.construct(singletonList(NUMBER)));
     }
 
     @Test
-    public void passIntegerArgToLogShouldReturnInteger() {
-        assertEquals(INTEGER, LOG.construct(singletonList(INTEGER)));
+    public void passIntegerArgToLogShouldReturnDouble() {
+        assertEquals(DOUBLE, LOG.construct(singletonList(INTEGER)));
     }
 
     @Test
-    public void passLongArgToLogShouldReturnLong() {
-        assertEquals(LONG, LOG.construct(singletonList(LONG)));
+    public void passLongArgToLogShouldReturnDouble() {
+        assertEquals(DOUBLE, LOG.construct(singletonList(LONG)));
     }
 
     @Test
