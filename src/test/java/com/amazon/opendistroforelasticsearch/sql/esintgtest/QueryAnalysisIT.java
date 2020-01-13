@@ -39,6 +39,7 @@ import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY
 import static org.elasticsearch.common.xcontent.XContentType.JSON;
 import static org.elasticsearch.rest.RestStatus.BAD_REQUEST;
 import static org.elasticsearch.rest.RestStatus.OK;
+import static org.elasticsearch.rest.RestStatus.SERVICE_UNAVAILABLE;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -164,14 +165,6 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
         );
     }
 
-//    @Test
-//    public void aggregateFunctionCallWithWrongScalarFunctionCallShouldThrowSqlFeatureNotImplementedException() {
-//        queryShouldThrowSqlFeatureNotImplementedException(
-//                "SELECT MAX(LOG(firstname)) FROM elasticsearch-sql_test_index_bank GROUP BY city",
-//                "Aggregation calls with function aggregator like [MAX(LOG(firstname))] are not supported yet"
-//        );
-//    }
-
     @Test
     public void compareIntegerFieldWithBooleanShouldThrowSemanticException() {
         queryShouldThrowSemanticException(
@@ -226,6 +219,44 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
         );
     }
 
+    @Test
+    public void queryWithNestedFunctionShouldFail() {
+        queryShouldThrowFeatureNotImplementedException(
+                "SELECT abs(log(balance)) FROM elasticsearch-sql_test_index_bank",
+                "Nested function calls like [abs(log(balance))] are not supported yet"
+        );
+    }
+
+    @Test
+    public void nestedFunctionWithMathConstantAsInnerFunctionShouldPass() {
+        queryShouldPassAnalysis("SELECT log(e()) FROM elasticsearch-sql_test_index_bank");
+    }
+
+    /** Temporarily added, should be deleted after this case is fixed */
+    @Test
+    public void functionWithAggregatorArgShouldFail() {
+        queryShouldThrowFeatureNotImplementedException(
+                "SELECT abs(max(age)) FROM elasticsearch-sql_test_index_bank",
+                "Nested function calls with aggregation argument like [abs(max(age))] are not supported yet"
+        );
+    }
+
+    @Test
+    public void aggregateWithFunctionAggregatorShouldFail() {
+        queryShouldThrowFeatureNotImplementedException(
+                "SELECT max(log(age)) FROM elasticsearch-sql_test_index_bank",
+                "Aggregation calls with function aggregator like [max(log(age))] are not supported yet"
+        );
+    }
+
+    @Test
+    public void queryWithUnsupportedFunctionShouldFail() {
+        queryShouldThrowFeatureNotImplementedException(
+                "SELECT balance DIV age FROM elasticsearch-sql_test_index_bank",
+                "Operator [DIV] is not supported yet"
+        );
+    }
+
     /** Run the query with cluster setting changed and cleaned after complete */
     private void runWithClusterSetting(ClusterSetting setting, Runnable query) {
         try {
@@ -255,18 +286,22 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
         queryShouldThrowException(query, SemanticAnalysisException.class, expectedMsgs);
     }
 
-    private void queryShouldThrowSqlFeatureNotImplementedException(String query, String... expectedMsgs) {
-        queryShouldThrowException(query, SqlFeatureNotImplementedException.class, expectedMsgs);
+    private void queryShouldThrowFeatureNotImplementedException(String query, String... expectedMsgs) {
+        queryShouldThrowExceptionWithRestStatus(query, SqlFeatureNotImplementedException.class, SERVICE_UNAVAILABLE, expectedMsgs);
     }
 
     private <T> void queryShouldThrowException(String query, Class<T> exceptionType, String... expectedMsgs) {
+        queryShouldThrowExceptionWithRestStatus(query, exceptionType, BAD_REQUEST, expectedMsgs);
+    }
+
+    private <T> void queryShouldThrowExceptionWithRestStatus(String query, Class<T> exceptionType, RestStatus status, String... expectedMsgs) {
         try {
             executeQuery(query);
             Assert.fail("Expected ResponseException, but none was thrown for query: " + query);
         }
         catch (ResponseException e) {
             ResponseAssertion assertion = new ResponseAssertion(e.getResponse());
-            assertion.assertStatusEqualTo(BAD_REQUEST.getStatus());
+            assertion.assertStatusEqualTo(status.getStatus());
             assertion.assertBodyContains("\"type\": \"" + exceptionType.getSimpleName() + "\"");
             for (String msg : expectedMsgs) {
                 assertion.assertBodyContains(msg);
@@ -274,7 +309,7 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
         }
         catch (IOException e) {
             throw new IllegalStateException(
-                "Unexpected IOException raised rather than expected AnalysisException for query: " + query);
+                    "Unexpected IOException raised rather than expected AnalysisException for query: " + query);
         }
     }
 
