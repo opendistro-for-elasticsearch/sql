@@ -21,7 +21,7 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.SemanticCo
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.special.Product;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.visitor.TypeChecker;
-import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.AntlrSqlParseTreeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.exception.SqlFeatureNotImplementedException;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.Assert;
 import org.junit.Test;
@@ -72,6 +72,42 @@ public class AntlrSqlParseTreeVisitorTest {
         Type result = visit("SELECT * FROM test");
         Assert.assertTrue(result instanceof Product);
         Assert.assertTrue(result.isCompatible(new Product(emptyList())));
+    }
+
+    @Test(expected = SqlFeatureNotImplementedException.class)
+    public void visitSelectNestedFunctionShouldThrowException() {
+        visit("SELECT abs(log(age)) FROM test");
+    }
+
+    @Test(expected = SqlFeatureNotImplementedException.class)
+    public void visitWhereNestedFunctionShouldThrowException() {
+        visit("SELECT age FROM test WHERE abs(log(age)) = 1");
+    }
+
+    @Test
+    public void visitMathConstantAsNestedFunctionShouldPass() {
+        visit("SELECT abs(pi()) FROM test");
+    }
+
+    @Test
+    public void visitSupportedNestedFunctionShouldPass() {
+        visit("SELECT sum(nested(name.balance)) FROM test");
+    }
+
+    /** Temporarily added, should be deleted after this case is fixed */
+    @Test(expected = SqlFeatureNotImplementedException.class)
+    public void visitSelectNestedAggregationAsFunctionArgShouldThrowException() {
+        visit("SELECT abs(max(age)) FROM test");
+    }
+
+    @Test(expected = SqlFeatureNotImplementedException.class)
+    public void visitFunctionAsAggregatorShouldThrowException() {
+        visit("SELECT max(abs(age)) FROM test");
+    }
+
+    @Test(expected = SqlFeatureNotImplementedException.class)
+    public void visitUnsupportedOperatorShouldThrowException() {
+        visit("SELECT balance DIV age FROM test");
     }
 
     private ParseTree createParseTree(String sql) {
