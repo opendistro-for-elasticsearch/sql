@@ -98,6 +98,8 @@ public class Util {
             value = expr.toString();
         } else if (expr instanceof SQLAllColumnExpr) {
             value = "*";
+        } else if (expr instanceof SQLNullExpr) {
+            value = "\"NULL\"";
         } else if (expr instanceof SQLValuableExpr) {
             value = ((SQLValuableExpr) expr).getValue();
         } else {

@@ -576,8 +576,10 @@ public class WhereParser {
 
         String operator = soExpr.getOperator().getName();
 
-        if (operator.equals("=")) {
+        if (operator.equals("=") || operator.equals("IS")) {
             operator = "==";
+        } else if (operator.equals("IS NOT")) {
+            operator = "!=";
         }
 
         String finalStr = v1Dec + v2Dec + v1 + " " + operator + " " + v2;

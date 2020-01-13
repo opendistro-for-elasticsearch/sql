@@ -311,6 +311,66 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     }
 
     @Test
+    public void functionAbsInWhereClauseWithIsNullTest() {
+        JSONObject response = executeJdbcRequest(
+                "SELECT age FROM " + TEST_INDEX_ACCOUNT + " WHERE (ABS(balance) IS NULL)"
+        );
+
+        String schema_result = "{\"name\":\"age\",\"type\":\"long\"}";
+        assertEquals(response.getJSONArray("schema").get(0).toString(), schema_result);
+
+        Assert.assertThat(response.getJSONArray("datarows").length(), equalTo(0));
+    }
+
+    @Test
+    public void functionAbsInWhereClauseWithIsNotNullTest() {
+        JSONObject response = executeJdbcRequest(
+                "SELECT DISTINCT age FROM " + TEST_INDEX_ACCOUNT +
+                        " WHERE (ABS(balance) IS NOT NULL) ORDER BY age DESC LIMIT 5"
+        );
+
+        String schema_result = "{\"name\":\"age\",\"type\":\"long\"}";
+        assertEquals(response.getJSONArray("schema").get(0).toString(), schema_result);
+        Integer[] expectedOutput = new Integer[] {40, 39, 38, 37, 36};
+        for (int i = 0; i < response.getJSONArray("datarows").length(); ++i) {
+            Assert.assertThat(
+                    response.getJSONArray("datarows")
+                            .getJSONArray(i).get(0),
+                    equalTo(expectedOutput[i]));
+        }
+    }
+
+    @Test
+    public void functionUpperInWhereClauseWithIsNullTest() {
+        JSONObject response = executeJdbcRequest(
+                "SELECT age FROM " + TEST_INDEX_ACCOUNT + " WHERE (UPPER(firstname) IS NULL)"
+        );
+
+        String schema_result = "{\"name\":\"age\",\"type\":\"long\"}";
+        assertEquals(response.getJSONArray("schema").get(0).toString(), schema_result);
+
+        Assert.assertThat(response.getJSONArray("datarows").length(), equalTo(0));
+    }
+
+    @Test
+    public void functionUpperInWhereClauseWithIsNotNullTest() {
+        JSONObject response = executeJdbcRequest(
+                "SELECT DISTINCT age FROM " + TEST_INDEX_ACCOUNT +
+                        " WHERE (UPPER(firstname) IS NOT NULL) ORDER BY age ASC LIMIT 5"
+        );
+
+        String schema_result = "{\"name\":\"age\",\"type\":\"long\"}";
+        assertEquals(response.getJSONArray("schema").get(0).toString(), schema_result);
+        Integer[] expectedOutput = new Integer[] {20, 21, 22, 23, 24};
+        for (int i = 0; i < response.getJSONArray("datarows").length(); ++i) {
+            Assert.assertThat(
+                    response.getJSONArray("datarows")
+                            .getJSONArray(i).get(0),
+                    equalTo(expectedOutput[i]));
+        }
+    }
+
+    @Test
     public void concat_ws_field_and_string() throws Exception {
         //here is a bug,csv field with spa
         String query = "SELECT " +
