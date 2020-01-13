@@ -164,13 +164,13 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
         );
     }
 
-    @Test
-    public void aggregateFunctionCallWithWrongScalarFunctionCallShouldThrowSqlFeatureNotImplementedException() {
-        queryShouldThrowSqlFeatureNotImplementedException(
-                "SELECT MAX(LOG(firstname)) FROM elasticsearch-sql_test_index_bank GROUP BY city",
-                "Aggregation calls with function aggregator like [MAX(LOG(firstname))] are not supported yet"
-        );
-    }
+//    @Test
+//    public void aggregateFunctionCallWithWrongScalarFunctionCallShouldThrowSqlFeatureNotImplementedException() {
+//        queryShouldThrowSqlFeatureNotImplementedException(
+//                "SELECT MAX(LOG(firstname)) FROM elasticsearch-sql_test_index_bank GROUP BY city",
+//                "Aggregation calls with function aggregator like [MAX(LOG(firstname))] are not supported yet"
+//        );
+//    }
 
     @Test
     public void compareIntegerFieldWithBooleanShouldThrowSemanticException() {

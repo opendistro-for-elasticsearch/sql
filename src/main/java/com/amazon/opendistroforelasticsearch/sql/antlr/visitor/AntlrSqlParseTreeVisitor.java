@@ -24,12 +24,14 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParse
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlFeatureNotImplementedException;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import com.google.common.collect.Sets;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.AggregationAsArgFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.AggregateWindowedFunctionContext;
@@ -41,7 +43,6 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroS
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.DecimalLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FromClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FullColumnNameContext;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FunctionAsAggregatorFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FunctionNameBaseContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.InPredicateContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.IsExpressionContext;
@@ -62,6 +63,8 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroS
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.UdfFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.UidContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.UnionSelectContext;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.UnsupportedBinaryExrepssionAtomContext;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.UnsupportedFunctionCallContext;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 
@@ -72,6 +75,14 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
 
     /** Generic visitor to perform the real action on parse tree */
     private final GenericSqlParseTreeVisitor<T> visitor;
+
+    private static final Set<String> mathConstants = Sets.newHashSet(
+            "e", "pi"
+    );
+
+    private static final Set<String> supportedNestedFunctions = Sets.newHashSet(
+            "nested", "reverse_nested", "score", "match_query", "matchquery"
+    );
 
     public AntlrSqlParseTreeVisitor(GenericSqlParseTreeVisitor<T> visitor) {
         this.visitor = visitor;
@@ -219,11 +230,37 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
         return reduce(func, ctx.functionArgs());
     }
 
-    // This check should be able to accomplish in grammar
+    /**
+     * The scalar function calls are separated into (a)typical function calls; (b)nested function calls with functions
+     * as arguments, like abs(log(...)); (c)aggregations with functions as aggregators, like max(abs(....)).
+     * Currently, we do not support nested functions or nested aggregations, aka (b) and (c).
+     * However, for the special EsFunctions included in the [supportedNestedFunctions] set, we have supported them in
+     * nested function calls and aggregations (b&c). Besides, the math constants included in the [mathConstants] set
+     * are regraded as scalar functions, but they are working well in the painless script.
+     *
+     * Thus, the types of functions to throw exceptions:
+     * (I)case (b) except that the arguments are from the [mathConstants] set;
+     * (II) case (b) except that the arguments are from the [supportedNestedFunctions] set;
+     * (III) case (c) except that the aggregators are from thet [supportedNestedFunctions] set.
+     */
     @Override
     public T visitScalarFunctionCall(ScalarFunctionCallContext ctx) {
-        T func = visit(ctx.scalarFunctionName());
-        return reduce(func, ctx.functionArgs());
+        String funcName = StringUtils.toLower(ctx.scalarFunctionName().getText());
+        // type (III)
+        if (ctx.parent.parent instanceof OpenDistroSqlParser.FunctionAsAggregatorFunctionContext
+                && !(supportedNestedFunctions.contains(StringUtils.toLower(funcName)))) {
+            throw new SqlFeatureNotImplementedException(StringUtils.format(
+                    "Aggregation calls with function aggregator like [%s] are not supported yet",
+                    ctx.parent.parent.getText()));
+        // type (I) and (II)
+        } else if (ctx.parent.parent instanceof OpenDistroSqlParser.NestedFunctionArgsContext
+                && !(mathConstants.contains(funcName) || supportedNestedFunctions.contains(funcName))) {
+                throw new SqlFeatureNotImplementedException(StringUtils.format(
+                        "Nested function calls like [%s] are not supported yet", ctx.parent.parent.parent.getText()));
+        } else {
+            T func = visit(ctx.scalarFunctionName());
+            return reduce(func, ctx.functionArgs());
+        }
     }
 
     @Override
@@ -249,18 +286,24 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
         return visitSelectItem(ctx.expression(), ctx.uid());
     }
 
+    /** For binary operators that are not supported yet, like DIV */
     @Override
-    public T visitNestedFunctionCall(OpenDistroSqlParser.NestedFunctionCallContext ctx) {
-        throw new SqlFeatureNotImplementedException(
-                StringUtils.format("Nested function calls like %s are not supported yet", ctx.getText()));
-    }
-
-    @Override
-    public T visitFunctionAsAggregatorFunctionCall(FunctionAsAggregatorFunctionCallContext ctx) {
+    public T visitUnsupportedBinaryExrepssionAtom(UnsupportedBinaryExrepssionAtomContext ctx) {
         throw new SqlFeatureNotImplementedException(StringUtils.format(
-                "Aggregation calls with function aggregator like [%s] are not supported yet", ctx.getText()));
+                "Operator [%s] is not supported yet", ctx.unsupportedBinaryOperator().getText()));
     }
 
+    /** For functions that are not supported yet but have been requested by users, like ADDDATE */
+    @Override
+    public T visitUnsupportedFunctionCall(UnsupportedFunctionCallContext ctx) {
+        throw new SqlFeatureNotImplementedException(StringUtils.format(
+                "Function [%s] is not supported yet", ctx.unsupportedFunction().getText()));
+    }
+
+    /**
+     * For functions with aggregation arguments, like abs(max(...));
+     * Temporarily added since this type of functions is under fixing.
+     */
     @Override
     public T visitAggregationAsArgFunctionCall(AggregationAsArgFunctionCallContext ctx) {
         throw new SqlFeatureNotImplementedException(StringUtils.format(

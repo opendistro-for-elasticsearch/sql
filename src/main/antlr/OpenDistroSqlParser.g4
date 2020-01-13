@@ -290,15 +290,20 @@ aggregateFunction
     | aggregateWindowedFunction                                     #aggregateWindowedFunctionCall
     ;
 
+scalarFunction
+    : scalarFunctionName '(' nestedFunctionArgs+ ')'                #nestedFunctionCall
+    | scalarFunctionName '(' functionArgs? ')'                      #scalarFunctionCall
+    ;
+
 
 //    Functions
 
 functionCall
     : aggregateFunction                                             #aggregateFunctionCall
     | scalarFunctionName '(' aggregateWindowedFunction ')'          #aggregationAsArgFunctionCall
-    | scalarFunctionName '(' nestedFunctionArgs+ ')'                #nestedFunctionCall
+    | scalarFunction                                                #scalarFunctionsCall
     | specificFunction                                              #specificFunctionCall
-    | scalarFunctionName '(' functionArgs? ')'                      #scalarFunctionCall
+    | unsupportedFunction '(' functionArgs? ')'                     #unsupportedFunctionCall
     | fullId '(' functionArgs? ')'                                  #udfFunctionCall
     ;
 
@@ -389,6 +394,8 @@ expressionAtom
     | '(' selectStatement ')'                                       #subqueryExpessionAtom
     | left=expressionAtom bitOperator right=expressionAtom          #bitExpressionAtom
     | left=expressionAtom mathOperator right=expressionAtom         #mathExpressionAtom
+    | left=expressionAtom unsupportedBinaryOperator
+    right=expressionAtom                                            #unsupportedBinaryExrepssionAtom
     ;
 
 unaryOperator
@@ -409,9 +416,12 @@ bitOperator
     ;
 
 mathOperator
-    : '*' | '/' | '%' | DIV | MOD | '+' | '-'
+    : '*' | '/' | '%' | MOD | '+' | '-'
     ;
 
+unsupportedBinaryOperator
+    : DIV
+    ;
 
 //    Simple id sets
 //     (that keyword, which can be id)
@@ -442,4 +452,8 @@ esFunctionNameBase
     | PERCENTILES | QUERY | RANGE | REGEXP_QUERY | REVERSE_NESTED | SCORE
     | SECOND_OF_MINUTE | STATS | TERM | TERMS | TOPHITS
     | WEEK_OF_YEAR | WILDCARDQUERY | WILDCARD_QUERY
+    ;
+
+unsupportedFunction
+    : ADDDATE
     ;
