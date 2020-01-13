@@ -39,12 +39,12 @@ public class GenericTypeTest {
     }
 
     @Test
-    public void passIntegerArgToLogShouldReturnInteger() {
+    public void passIntegerArgToLogShouldReturnDouble() {
         assertEquals(DOUBLE, LOG.construct(singletonList(INTEGER)));
     }
 
     @Test
-    public void passLongArgToLogShouldReturnLong() {
+    public void passLongArgToLogShouldReturnDouble() {
         assertEquals(DOUBLE, LOG.construct(singletonList(LONG)));
     }
 
