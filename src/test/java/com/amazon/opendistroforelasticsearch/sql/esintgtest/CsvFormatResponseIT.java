@@ -44,10 +44,10 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstant
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ONLINE;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.core.StringStartsWith.startsWith;
 
@@ -371,15 +371,12 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
                 TEST_INDEX_ACCOUNT);
         CSVResult csvResult = executeCsvRequest(query, false);
         List<String> headers = csvResult.getHeaders();
-        Assert.assertEquals(2, headers.size());
-        Assert.assertEquals("gender", headers.get(0));
-        Assert.assertEquals("COUNT(*)", headers.get(1));
+        Assert.assertEquals(1, headers.size());
+        assertThat(headers, contains(equalTo("COUNT(*)")));
 
         List<String> lines = csvResult.getLines();
         Assert.assertEquals(2, lines.size());
-        Assert.assertTrue("m,507.0", lines.contains("m,507.0"));
-        Assert.assertTrue("f,493.0", lines.contains("f,493.0"));
-
+        assertThat(lines, containsInAnyOrder(equalTo("507.0"), equalTo("493.0")));
     }
 
     @Test
@@ -389,18 +386,16 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
                 TEST_INDEX_ACCOUNT);
         CSVResult csvResult = executeCsvRequest(query, false);
         List<String> headers = csvResult.getHeaders();
-        Assert.assertEquals(3, headers.size());
-        Assert.assertEquals("gender", headers.get(0));
-        Assert.assertEquals("age", headers.get(1));
-        Assert.assertEquals("COUNT(*)", headers.get(2));
+        Assert.assertEquals(1, headers.size());
+        assertThat(headers, contains(equalTo("COUNT(*)")));
 
         List<String> lines = csvResult.getLines();
         Assert.assertEquals(4, lines.size());
-        Assert.assertTrue("m,36,31.0", lines.contains("m,36,31.0"));
-        Assert.assertTrue("m,35,28.0", lines.contains("m,36,31.0"));
-        Assert.assertTrue("f,36,21.0", lines.contains("f,36,21.0"));
-        Assert.assertTrue("f,35,24.0", lines.contains("f,35,24.0"));
-
+        assertThat(lines, containsInAnyOrder(
+                equalTo("31.0"),
+                equalTo("28.0"),
+                equalTo("21.0"),
+                equalTo("24.0")));
     }
 
     @Test
@@ -410,23 +405,16 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
                 TEST_INDEX_ACCOUNT);
         CSVResult csvResult = executeCsvRequest(query, false);
         List<String> headers = csvResult.getHeaders();
-        Assert.assertEquals(4, headers.size());
-        Assert.assertEquals("gender", headers.get(0));
-        Assert.assertEquals("age", headers.get(1));
-        Assert.assertTrue(headers.get(2).equals("COUNT(*)") || headers.get(2).equals("SUM(balance)"));
-        Assert.assertTrue(headers.get(3).equals("COUNT(*)") || headers.get(3).equals("SUM(balance)"));
+        Assert.assertEquals(2, headers.size());
+        assertThat(headers, contains(equalTo("COUNT(*)"), equalTo("SUM(balance)")));
 
         List<String> lines = csvResult.getLines();
         Assert.assertEquals(4, lines.size());
-        Assert.assertTrue("m,36,31.0,647425.0",
-                lines.contains("m,36,31.0,647425.0") || lines.contains("m,36,647425.0,31.0"));
-        Assert.assertTrue("m,35,28.0,678337.0",
-                lines.contains("m,35,28.0,678337.0") || lines.contains("m,35,678337.0,28.0"));
-        Assert.assertTrue("f,36,21.0,505660.0",
-                lines.contains("f,36,21.0,505660.0") || lines.contains("f,36,505660.0,21.0"));
-        Assert.assertTrue("f,35,24.0,472771.0",
-                lines.contains("f,35,24.0,472771.0") || lines.contains("f,35,472771.0,24.0"));
-
+        assertThat(lines, containsInAnyOrder(
+                equalTo("31.0,647425.0"),
+                equalTo("28.0,678337.0"),
+                equalTo("21.0,505660.0"),
+                equalTo("24.0,472771.0")));
     }
 
     @Test
@@ -435,14 +423,15 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
                 " group by date_histogram('field'='insert_time','interval'='4d','alias'='days')", TEST_INDEX_ONLINE);
         CSVResult csvResult = executeCsvRequest(query, false);
         List<String> headers = csvResult.getHeaders();
-        Assert.assertEquals(2, headers.size());
-        Assert.assertEquals("days", headers.get(0));
-        Assert.assertEquals("COUNT(*)", headers.get(1));
+        Assert.assertEquals(1, headers.size());
+        assertThat(headers, contains(equalTo("COUNT(*)")));
 
         List<String> lines = csvResult.getLines();
         Assert.assertEquals(3, lines.size());
-        Assert.assertThat(lines,
-                hasItems("2014-08-14 00:00:00,477.0", "2014-08-18 00:00:00,5664.0", "2014-08-22 00:00:00,3795.0"));
+        assertThat(lines, containsInAnyOrder(
+                equalTo("477.0"),
+                equalTo("5664.0"),
+                equalTo("3795.0")));
     }
 
     @Test

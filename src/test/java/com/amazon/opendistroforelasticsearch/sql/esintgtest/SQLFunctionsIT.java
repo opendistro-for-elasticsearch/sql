@@ -262,10 +262,12 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
                 "SELECT CAST(balance AS FLOAT) FROM " +
                         TestsConstants.TEST_INDEX_ACCOUNT + " GROUP BY balance DESC LIMIT 5");
 
-        String float_type_cast = "{\"name\":\"balance\",\"type\":\"long\"}";
-        assertEquals(response.getJSONArray("schema").get(0).toString(), float_type_cast);
-        Float[] expectedOutput = new Float[] {22026.0F, 23285.0F, 36038.0F, 39063.0F, 45493.0F};
+        assertEquals("CAST(balance AS FLOAT)", response.query("/schema/0/name"));
+        assertNull(response.query("/schema/0/alias"));
+        assertEquals("float", response.query("/schema/0/type"));
 
+        Float[] expectedOutput = new Float[] {22026.0F, 23285.0F, 36038.0F, 39063.0F, 45493.0F};
+        assertEquals(5, response.getJSONArray("datarows").length());
         for (int i = 0; i < response.getJSONArray("datarows").length(); ++i) {
             Assert.assertThat(
                     response.getJSONArray("datarows")
@@ -280,10 +282,12 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
                 "SELECT CAST(balance AS FLOAT) AS jdbc_float_alias " +
                         "FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " GROUP BY jdbc_float_alias ASC LIMIT 5");
 
-        String float_type_cast = "{\"name\":\"jdbc_float_alias\",\"type\":\"float\"}";
-        assertEquals(response.getJSONArray("schema").get(0).toString(), float_type_cast);
-        Float[] expectedOutput = new Float[] {22026.0F, 23285.0F, 36038.0F, 39063.0F, 45493.0F};
+        assertEquals("jdbc_float_alias", response.query("/schema/0/name"));
+        assertEquals("jdbc_float_alias", response.query("/schema/0/alias"));
+        assertEquals("float", response.query("/schema/0/type"));
 
+        Float[] expectedOutput = new Float[] {22026.0F, 23285.0F, 36038.0F, 39063.0F, 45493.0F};
+        assertEquals(5, response.getJSONArray("datarows").length());
         for (int i = 0; i < response.getJSONArray("datarows").length(); ++i) {
             Assert.assertThat(
                     response.getJSONArray("datarows")
@@ -298,10 +302,12 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
                 "SELECT CAST(age AS DOUBLE) AS jdbc_double_alias " +
                         "FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " GROUP BY jdbc_double_alias DESC LIMIT 5");
 
-        String float_type_cast = "{\"name\":\"jdbc_double_alias\",\"type\":\"double\"}";
-        assertEquals(response.getJSONArray("schema").get(0).toString(), float_type_cast);
-        Double[] expectedOutput = new Double[] {31.0, 39.0, 26.0, 32.0, 35.0};
+        assertEquals("jdbc_double_alias", response.query("/schema/0/name"));
+        assertEquals("jdbc_double_alias", response.query("/schema/0/alias"));
+        assertEquals("double", response.query("/schema/0/type"));
 
+        Double[] expectedOutput = new Double[] {31.0, 39.0, 26.0, 32.0, 35.0};
+        assertEquals(5, response.getJSONArray("datarows").length());
         for (int i = 0; i < response.getJSONArray("datarows").length(); ++i) {
             Assert.assertThat(
                     response.getJSONArray("datarows")
@@ -510,11 +516,12 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
     @Test
     public void ifFuncShouldPassJDBC() {
-        assertThat(
-                executeQuery("SELECT IF(age > 30, 'True', 'False') AS Ages FROM " + TEST_INDEX_ACCOUNT
-                        + " WHERE age IS NOT NULL GROUP BY Ages", "jdbc"),
-                containsString("\"type\": \"keyword\"")
-        );
+        JSONObject response = executeJdbcRequest(
+                "SELECT IF(age > 30, 'True', 'False') AS Ages FROM " + TEST_INDEX_ACCOUNT
+                + " WHERE age IS NOT NULL GROUP BY Ages");
+        assertEquals("Ages", response.query("/schema/0/name"));
+        assertEquals("Ages", response.query("/schema/0/alias"));
+        assertEquals("double", response.query("/schema/0/type"));
     }
 
     @Test
@@ -547,12 +554,12 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
     @Test
     public void ifnullShouldPassJDBC() throws IOException {
-        assertThat(
-                executeQuery("SELECT IFNULL(lastname, 'unknown') AS name FROM " + TEST_INDEX_ACCOUNT
-                        + " GROUP BY name", "jdbc"),
-                containsString("\"type\": \"keyword\"")
-        );
-
+        JSONObject response = executeJdbcRequest(
+                "SELECT IFNULL(lastname, 'unknown') AS name FROM " + TEST_INDEX_ACCOUNT
+                + " GROUP BY name");
+        assertEquals("name", response.query("/schema/0/name"));
+        assertEquals("name", response.query("/schema/0/alias"));
+        assertEquals("double", response.query("/schema/0/type"));
     }
 
     @Test
@@ -577,10 +584,11 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
     @Test
     public void isnullShouldPassJDBC() {
-        assertThat(
-                executeQuery("SELECT ISNULL(lastname) AS name FROM " + TEST_INDEX_ACCOUNT + " GROUP BY name", "jdbc"),
-                containsString("\"type\": \"keyword\"")
-        );
+        JSONObject response =
+                executeJdbcRequest("SELECT ISNULL(lastname) AS name FROM " + TEST_INDEX_ACCOUNT + " GROUP BY name");
+        assertEquals("name", response.query("/schema/0/name"));
+        assertEquals("name", response.query("/schema/0/alias"));
+        assertEquals("integer", response.query("/schema/0/type"));
     }
 
     @Test
