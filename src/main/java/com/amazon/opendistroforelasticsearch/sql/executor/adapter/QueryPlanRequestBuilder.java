@@ -16,7 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.executor.adapter;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
-import com.amazon.opendistroforelasticsearch.sql.query.planner.core.ColNode;
+import com.amazon.opendistroforelasticsearch.sql.query.planner.core.ColumnNode;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.BindingTupleQueryPlanner;
 import com.amazon.opendistroforelasticsearch.sql.query.SqlElasticRequestBuilder;
 import lombok.RequiredArgsConstructor;
@@ -37,8 +37,8 @@ public class QueryPlanRequestBuilder implements SqlElasticRequestBuilder {
         return queryPlanner.execute();
     }
 
-    public List<ColNode> outputColumns() {
-        return queryPlanner.getColNodes();
+    public List<ColumnNode> outputColumns() {
+        return queryPlanner.getColumnNodes();
     }
 
     @Override
