@@ -149,7 +149,9 @@ public interface DocBuilder {
     }
 
     default Requests put(String name, Object value) {
-        String setting = StringUtils.format("\"%s\": {\"%s\": %s}", "transient", name, value);
+        String setting = value == null ?
+                StringUtils.format("\"%s\": {\"%s\": null}", "transient", name) :
+                StringUtils.format("\"%s\": {\"%s\": \"%s\"}", "transient", name, value);
         return new Requests(
             restClient(),
             new SqlRequest("PUT", "/_cluster/settings", new Body(setting).toString()),

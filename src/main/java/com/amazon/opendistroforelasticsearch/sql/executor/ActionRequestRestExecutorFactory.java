@@ -21,13 +21,10 @@ import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.join.ESJoinQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.multi.MultiQueryAction;
 
-import java.util.stream.Stream;
-
 /**
  * Created by Eliran on 26/12/2015.
  */
 public class ActionRequestRestExecutorFactory {
-
     /**
      * Create executor based on the format and wrap with AsyncRestExecutor
      * to async blocking execute() call if necessary.
@@ -36,23 +33,21 @@ public class ActionRequestRestExecutorFactory {
      * @param queryAction query action
      * @return executor
      */
-    public static RestExecutor createExecutor(String format, QueryAction queryAction) {
-        if (format == null || format.equals("")) {
-            return new AsyncRestExecutor(
-                    new ElasticDefaultRestExecutor(queryAction),
-                    action -> isJoin(action) || isUnionMinus(action)
-            );
+    public static RestExecutor createExecutor(Format format, QueryAction queryAction) {
+        switch (format) {
+            case CSV:
+                return new AsyncRestExecutor(new CSVResultRestExecutor());
+            case JSON:
+                return new AsyncRestExecutor(
+                        new ElasticDefaultRestExecutor(queryAction),
+                        action -> isJoin(action) || isUnionMinus(action)
+                );
+            case JDBC:
+            case RAW:
+            case TABLE:
+            default:
+                return new AsyncRestExecutor(new PrettyFormatRestExecutor(format.getFormatName()));
         }
-
-        if (format.equalsIgnoreCase("csv")) {
-            return new AsyncRestExecutor(new CSVResultRestExecutor());
-        }
-
-        if (Stream.of("jdbc", "table", "raw").anyMatch(format::equalsIgnoreCase)) {
-            return new AsyncRestExecutor(new PrettyFormatRestExecutor(format));
-        }
-
-        throw new IllegalArgumentException("Failed to create executor due to unknown response format: " + format);
     }
 
     private static boolean isJoin(QueryAction queryAction) {

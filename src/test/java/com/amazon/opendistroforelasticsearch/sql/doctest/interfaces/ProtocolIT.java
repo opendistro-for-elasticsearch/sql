@@ -64,28 +64,11 @@ public class ProtocolIT extends DocTest {
     }
 
     @Section(2)
-    public void originalDSLResponse() {
-        section(
-            title("Elasticsearch DSL"),
-            description(
-                "By default the plugin returns original response from Elasticsearch in JSON. Because this is",
-                "the native response from Elasticsearch, extra efforts are needed to parse and interpret it."
-            ),
-            example(
-                description(),
-                post("SELECT firstname, lastname, age FROM accounts ORDER BY age LIMIT 2"),
-                queryFormat(CURL_REQUEST, PRETTY_JSON_RESPONSE),
-                explainFormat(IGNORE_REQUEST, IGNORE_RESPONSE)
-            )
-        );
-    }
-
-    @Section(3)
     public void responseInJDBCFormat() {
         section(
             title("JDBC Format"),
             description(
-                "JDBC format is provided for JDBC driver and client side that needs both schema and",
+                "By default the plugin return JDBC format. JDBC format is provided for JDBC driver and client side that needs both schema and",
                 "result set well formatted."
             ),
             example(
@@ -93,7 +76,7 @@ public class ProtocolIT extends DocTest {
                     "Here is an example for normal response. The `schema` includes field name and its type",
                     "and `datarows` includes the result set."
                 ),
-                post("SELECT firstname, lastname, age FROM accounts ORDER BY age LIMIT 2", params("format=jdbc")),
+                post("SELECT firstname, lastname, age FROM accounts ORDER BY age LIMIT 2"),
                 queryFormat(CURL_REQUEST, PRETTY_JSON_RESPONSE),
                 explainFormat(IGNORE_REQUEST, IGNORE_RESPONSE)
             ),
@@ -103,6 +86,23 @@ public class ProtocolIT extends DocTest {
                 queryFormat(CURL_REQUEST, PRETTY_JSON_RESPONSE),
                 explainFormat(IGNORE_REQUEST, IGNORE_RESPONSE)
             )
+        );
+    }
+
+    @Section(3)
+    public void originalDSLResponse() {
+        section(
+                title("Elasticsearch DSL"),
+                description(
+                        "The plugin returns original response from Elasticsearch in JSON. Because this is",
+                        "the native response from Elasticsearch, extra efforts are needed to parse and interpret it."
+                ),
+                example(
+                        description(),
+                        post("SELECT firstname, lastname, age FROM accounts ORDER BY age LIMIT 2", params("format=json")),
+                        queryFormat(CURL_REQUEST, PRETTY_JSON_RESPONSE),
+                        explainFormat(IGNORE_REQUEST, IGNORE_RESPONSE)
+                )
         );
     }
 

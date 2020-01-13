@@ -74,6 +74,10 @@ public interface GenericSqlParseTreeVisitor<T> {
         return defaultValue();
     }
 
+    default T visitConvertedType(String text) {
+        return defaultValue();
+    }
+
     default T defaultValue() {
         return null;
     }

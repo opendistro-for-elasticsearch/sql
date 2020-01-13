@@ -174,6 +174,11 @@ public class TypeChecker implements GenericSqlParseTreeVisitor<Type> {
     }
 
     @Override
+    public Type visitConvertedType(String text) {
+        return ESDataType.typeOf(text);
+    }
+
+    @Override
     public Type defaultValue() {
         return NULL_TYPE;
     }

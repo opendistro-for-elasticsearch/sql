@@ -1,0 +1,100 @@
+{
+  "mappings": {
+    "properties": {
+      "category": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword"
+          }
+        }
+      },
+      "currency": {
+        "type": "keyword"
+      },
+      "customer_birth_date": {
+        "type": "date"
+      },
+      "customer_first_name": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "customer_full_name": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "customer_gender": {
+        "type": "keyword"
+      },
+      "customer_id": {
+        "type": "keyword"
+      },
+      "customer_last_name": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "customer_phone": {
+        "type": "keyword"
+      },
+      "day_of_week": {
+        "type": "keyword"
+      },
+      "day_of_week_i": {
+        "type": "integer"
+      },
+      "email": {
+        "type": "keyword"
+      },
+      "manufacturer": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword"
+          }
+        }
+      },
+      "order_date": {
+        "type": "date"
+      },
+      "order_id": {
+        "type": "keyword"
+      },
+      "sku": {
+        "type": "keyword"
+      },
+      "taxful_total_price": {
+        "type": "half_float"
+      },
+      "taxless_total_price": {
+        "type": "half_float"
+      },
+      "total_quantity": {
+        "type": "integer"
+      },
+      "total_unique_products": {
+        "type": "integer"
+      },
+      "type": {
+        "type": "keyword"
+      },
+      "user": {
+        "type": "keyword"
+      }
+    }
+  }
+}
