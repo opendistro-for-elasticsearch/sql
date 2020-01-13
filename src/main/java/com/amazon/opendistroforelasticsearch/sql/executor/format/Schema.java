@@ -46,6 +46,10 @@ public class Schema implements Iterable<Schema.Column> {
         this.columns = columns;
     }
 
+    public Schema(List<Column> columns){
+        this.columns = columns;
+    }
+
     public String getIndexName() {
         return indexName;
     }

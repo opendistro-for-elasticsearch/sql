@@ -58,7 +58,7 @@ public class SemanticAnalyzerOperatorTest extends SemanticAnalyzerTestBase {
     public void compareLogFunctionCallWithIntegerSmallerThanStringShouldFail() {
         expectValidationFailWithErrorMessages(
             "SELECT * FROM semantics WHERE LOG(age) < 'test'",
-            "Operator [<] cannot work with [INTEGER, STRING]."
+            "Operator [<] cannot work with [DOUBLE, STRING]."
         );
     }
 

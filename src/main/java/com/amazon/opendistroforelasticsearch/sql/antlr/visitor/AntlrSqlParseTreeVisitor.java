@@ -24,6 +24,7 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParse
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlFeatureNotImplementedException;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -339,6 +340,15 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
             visit(ctx.predicate()),
             visitor.visitBoolean(ctx.testValue.getText()))
         );
+    }
+
+    @Override
+    public T visitConvertedDataType(OpenDistroSqlParser.ConvertedDataTypeContext ctx) {
+        if (ctx.getChild(0) != null && !Strings.isNullOrEmpty(ctx.getChild(0).getText())) {
+            return visitor.visitConvertedType(ctx.getChild(0).getText());
+        } else {
+            return super.visitConvertedDataType(ctx);
+        }
     }
 
     @Override

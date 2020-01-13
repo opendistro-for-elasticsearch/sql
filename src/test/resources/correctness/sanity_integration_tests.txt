@@ -1,0 +1,51 @@
+SELECT AvgTicketPrice, Cancelled, Carrier, FlightDelayMin, timestamp FROM kibana_sample_data_flights
+SELECT AvgTicketPrice AS avg, Cancelled AS cancel, Carrier AS carrier, FlightDelayMin AS delay, timestamp AS ts FROM kibana_sample_data_flights
+SELECT f.AvgTicketPrice AS avg, f.Cancelled AS cancel, f.Carrier AS carrier, f.FlightDelayMin AS delay, timestamp AS ts FROM kibana_sample_data_flights f
+SELECT LOG(AvgTicketPrice) FROM kibana_sample_data_flights
+SELECT LOG2(AvgTicketPrice) FROM kibana_sample_data_flights
+SELECT LOG10(AvgTicketPrice) FROM kibana_sample_data_flights
+SELECT LN(AvgTicketPrice) FROM kibana_sample_data_flights
+SELECT SQRT(DistanceMiles) FROM kibana_sample_data_flights
+SELECT CBRT(DistanceMiles) FROM kibana_sample_data_flights
+SELECT CEIL(FlightTimeMin) FROM kibana_sample_data_flights
+SELECT FLOOR(FlightTimeMin) FROM kibana_sample_data_flights
+SELECT SIN(AvgTicketPrice) FROM kibana_sample_data_flights
+SELECT COS(AvgTicketPrice) FROM kibana_sample_data_flights
+SELECT TAN(AvgTicketPrice) FROM kibana_sample_data_flights
+SELECT ASIN(AvgTicketPrice) FROM kibana_sample_data_flights
+SELECT ACOS(AvgTicketPrice) FROM kibana_sample_data_flights
+SELECT ATAN(AvgTicketPrice) FROM kibana_sample_data_flights
+SELECT LEFT(Origin, 3) FROM kibana_sample_data_flights
+SELECT RIGHT(Origin, 3) FROM kibana_sample_data_flights
+SELECT LENGTH(Origin) FROM kibana_sample_data_flights
+SELECT ASCII(Origin) FROM kibana_sample_data_flights
+SELECT TRIM(Origin) FROM kibana_sample_data_flights
+SELECT LOWER(Origin) FROM kibana_sample_data_flights
+SELECT UPPER(Origin) FROM kibana_sample_data_flights
+SELECT SUBSTRING(Origin, 1, 5) FROM kibana_sample_data_flights
+SELECT YEAR(timestamp) FROM kibana_sample_data_flights
+SELECT MONTH(timestamp) FROM kibana_sample_data_flights
+SELECT DAYOFMONTH(timestamp) FROM kibana_sample_data_flights
+SELECT MONTH_OF_YEAR(timestamp) FROM kibana_sample_data_flights
+SELECT WEEK_OF_YEAR(timestamp) FROM kibana_sample_data_flights
+SELECT DAY_OF_YEAR(timestamp) FROM kibana_sample_data_flights
+SELECT DAY_OF_MONTH(timestamp) FROM kibana_sample_data_flights
+SELECT DAY_OF_WEEK(timestamp) FROM kibana_sample_data_flights
+SELECT HOUR_OF_DAY(timestamp) FROM kibana_sample_data_flights
+SELECT MINUTE_OF_DAY(timestamp) FROM kibana_sample_data_flights
+SELECT MINUTE_OF_HOUR(timestamp) FROM kibana_sample_data_flights
+SELECT SECOND_OF_MINUTE(timestamp) FROM kibana_sample_data_flights
+SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE AvgTicketPrice <= 500
+SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE AvgTicketPrice <= 500 AND Cancelled = False
+SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE timestamp > '2019-12-23 10:00:00'
+SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE kibana_sample_data_flights.Carrier LIKE 'Wind'
+SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE AvgTicketPrice <= 500 ORDER BY FlightDelayMin LIMIT 5
+SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE AvgTicketPrice <= 500 ORDER BY DestAirportID LIMIT 5
+SELECT Carrier, AVG(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY Carrier
+SELECT Carrier, AVG(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY 1
+SELECT Carrier, AVG(FlightDelayMin) FROM kibana_sample_data_flights WHERE FlightDelay = True GROUP BY Carrier
+SELECT Carrier, AVG(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY Carrier HAVING AVG(FlightTimeMin) > 100
+SELECT Carrier, MAX(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY Carrier HAVING AVG(FlightTimeMin) > 100
+SELECT Carrier, AVG(FlightDelayMin) FROM kibana_sample_data_flights GROUP BY Carrier ORDER BY Carrier LIMIT 2
+SELECT AvgTicketPrice AS AvgTicketPrice, DestCountry AS DestCountry FROM kibana_sample_data_ecommerce e JOIN kibana_sample_data_flights f ON (e.day_of_week_i = f.dayOfWeek) LIMIT 1000
+SELECT AvgTicketPrice AS AvgTicketPrice, DestCountry AS DestCountry FROM kibana_sample_data_ecommerce e LEFT JOIN kibana_sample_data_flights f ON (e.day_of_week_i = f.dayOfWeek) LIMIT 1000

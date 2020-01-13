@@ -1,0 +1,21 @@
+{
+  "mappings": {
+    "properties": {
+      "AvgTicketPrice": {
+        "type": "float"
+      },
+      "Cancelled": {
+        "type": "boolean"
+      },
+      "Carrier": {
+        "type": "keyword"
+      },
+      "dayOfWeek": {
+        "type": "integer"
+      },
+      "timestamp": {
+        "type": "date"
+      }
+    }
+  }
+}

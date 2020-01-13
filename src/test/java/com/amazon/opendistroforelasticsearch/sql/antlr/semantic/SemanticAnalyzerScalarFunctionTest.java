@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic;
 
 import org.junit.Ignore;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType;
 import org.junit.Test;
 
 /**
@@ -45,7 +46,7 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
         expectValidationFailWithErrorMessages(
             "SELECT * FROM semantics WHERE LOG() = 1",
             "Function [LOG] cannot work with [<None>].",
-            "Usage: LOG(NUMBER T) -> T"
+            "Usage: LOG(NUMBER T) -> DOUBLE"
         );
     }
 
@@ -54,7 +55,7 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
         expectValidationFailWithErrorMessages(
             "SELECT * FROM semantics WHERE LOG(age, city) = 1",
             "Function [LOG] cannot work with [INTEGER, KEYWORD].",
-            "Usage: LOG(NUMBER T) -> T"
+            "Usage: LOG(NUMBER T) -> DOUBLE"
         );
     }
 
@@ -63,7 +64,7 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
         expectValidationFailWithErrorMessages(
             "SELECT LOG(projects) FROM semantics",
             "Function [LOG] cannot work with [NESTED_FIELD].",
-            "Usage: LOG(NUMBER T) -> T"
+            "Usage: LOG(NUMBER T) -> DOUBLE"
         );
     }
 
@@ -72,7 +73,7 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
         expectValidationFailWithErrorMessages(
             "SELECT * FROM semantics WHERE LOG(city) = 1",
             "Function [LOG] cannot work with [KEYWORD].",
-            "Usage: LOG(NUMBER T) -> T"
+            "Usage: LOG(NUMBER T) -> DOUBLE"
         );
     }
 
@@ -98,7 +99,11 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
     @Ignore /** nested functions are blocked by throwing SqlFeatureNotImplementedException yet before implemented */
     @Test
     public void substringWithLogFunctionCallWithUnknownFieldShouldPass() {
-        validate("SELECT SUBSTRING(LOG(new_field), 0, 1) FROM semantics");
+        expectValidationFailWithErrorMessages(
+                "SELECT SUBSTRING(LOG(new_field), 0, 1) FROM semantics",
+                  "Function [SUBSTRING] cannot work with [DOUBLE, INTEGER, INTEGER]."
+                ," Usage: SUBSTRING(STRING T, INTEGER, INTEGER) -> T"
+                );
     }
 
     @Ignore /** nested functions are blocked by throwing SqlFeatureNotImplementedException yet before implemented */
@@ -135,7 +140,7 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
         expectValidationFailWithErrorMessages(
             "SELECT LOG(SUBSTRING(address, 0, 1)) FROM semantics",
             "Function [LOG] cannot work with [TEXT].",
-            "Usage: LOG(NUMBER T) -> T or LOG(NUMBER T, NUMBER) -> T"
+            "Usage: LOG(NUMBER T) -> DOUBLE or LOG(NUMBER T, NUMBER) -> DOUBLE"
         );
     }
 
@@ -269,4 +274,8 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
         validate("SELECT CONCAT('aaa', 'bbb', 123) FROM semantics");
     }
 
+    @Test
+    public void castFunctionShouldPass() {
+        validateWithType("SELECT CAST(age AS DOUBLE) FROM semantics", ESDataType.DOUBLE);
+    }
 }
