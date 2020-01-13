@@ -150,7 +150,7 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
         queryShouldThrowSemanticException(
             "SELECT * FROM elasticsearch-sql_test_index_bank WHERE LOG(lastname) = 1",
             "Function [LOG] cannot work with [KEYWORD].",
-            "Usage: LOG(NUMBER T) -> T or LOG(NUMBER T, NUMBER) -> T"
+            "Usage: LOG(NUMBER T) -> DOUBLE or LOG(NUMBER T, NUMBER) -> DOUBLE"
         );
     }
 
@@ -193,7 +193,7 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
     public void compareLogFunctionCallWithNumberFieldWithStringShouldThrowSemanticException() {
         queryShouldThrowSemanticException(
             "SELECT * FROM elasticsearch-sql_test_index_bank b WHERE LOG(b.balance) != 'test'",
-            "Operator [!=] cannot work with [LONG, STRING].",
+            "Operator [!=] cannot work with [DOUBLE, STRING].",
             "Usage: Please use compatible types from each side."
         );
     }

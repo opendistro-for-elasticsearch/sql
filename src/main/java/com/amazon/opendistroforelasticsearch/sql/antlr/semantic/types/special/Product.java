@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.special;
 
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
+import lombok.Getter;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
  */
 public class Product implements Type {
 
+    @Getter
     private final List<Type> types;
 
     public Product(List<Type> itemTypes) {
