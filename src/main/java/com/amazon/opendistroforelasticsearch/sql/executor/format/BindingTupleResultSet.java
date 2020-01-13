@@ -18,12 +18,16 @@ package com.amazon.opendistroforelasticsearch.sql.executor.format;
 import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
 import com.amazon.opendistroforelasticsearch.sql.expression.model.SSValue;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.ColumnNode;
+import com.google.common.annotations.VisibleForTesting;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * The definition of BindingTuple ResultSet.
+ */
 public class BindingTupleResultSet extends ResultSet {
 
     public BindingTupleResultSet(List<ColumnNode> columnNodes, List<BindingTuple> bindingTuples) {
@@ -31,7 +35,7 @@ public class BindingTupleResultSet extends ResultSet {
         this.dataRows = buildDataRows(bindingTuples);
     }
 
-
+    @VisibleForTesting
     public static Schema buildSchema(List<ColumnNode> columnNodes) {
         List<Schema.Column> columnList = columnNodes.stream()
                                                  .map(node -> new Schema.Column(
@@ -42,6 +46,7 @@ public class BindingTupleResultSet extends ResultSet {
         return new Schema("dummy", "dummy", columnList);
     }
 
+    @VisibleForTesting
     public static DataRows buildDataRows(List<BindingTuple> bindingTuples) {
         List<DataRows.Row> rowList = bindingTuples.stream().map(tuple -> {
             Map<String, SSValue> bindingMap = tuple.getBindingMap();

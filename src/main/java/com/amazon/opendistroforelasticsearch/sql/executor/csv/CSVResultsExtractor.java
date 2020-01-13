@@ -15,6 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.csv;
 
+import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
+import com.amazon.opendistroforelasticsearch.sql.expression.model.SSValue;
 import com.amazon.opendistroforelasticsearch.sql.utils.Util;
 import com.google.common.base.Joiner;
 import org.elasticsearch.common.document.DocumentField;
@@ -38,6 +40,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by Eliran on 27/12/2015.
@@ -83,6 +86,24 @@ public class CSVResultsExtractor {
 
             return new CSVResult(headers, csvLines);
 
+        }
+        // Handle List<BindingTuple> result.
+        if (queryResult instanceof List) {
+            List<BindingTuple> bindingTuples = (List<BindingTuple>) queryResult;
+            List<String> csvLines = bindingTuples.stream().map(tuple -> {
+                Map<String, SSValue> bindingMap = tuple.getBindingMap();
+                List<Object> rowValues = new ArrayList<>();
+                for (String fieldName : fieldNames) {
+                    if (bindingMap.containsKey(fieldName)) {
+                        rowValues.add(bindingMap.get(fieldName).value());
+                    } else {
+                        rowValues.add("");
+                    }
+                }
+                return Joiner.on(separator).join(rowValues);
+            }).collect(Collectors.toList());
+
+            return new CSVResult(fieldNames, csvLines);
         }
         return null;
     }

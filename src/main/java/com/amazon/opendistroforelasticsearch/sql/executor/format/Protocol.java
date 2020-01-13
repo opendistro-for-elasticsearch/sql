@@ -20,10 +20,16 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Query;
 import com.amazon.opendistroforelasticsearch.sql.domain.QueryStatement;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.DataRows.Row;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema.Column;
+import com.amazon.opendistroforelasticsearch.sql.executor.adapter.QueryPlanQueryAction;
+import com.amazon.opendistroforelasticsearch.sql.executor.adapter.QueryPlanRequestBuilder;
+import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
+import com.amazon.opendistroforelasticsearch.sql.query.planner.core.ColumnNode;
+import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import org.elasticsearch.client.Client;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -40,10 +46,15 @@ public class Protocol {
     private long total;
     private ResultSet resultSet;
     private ErrorMessage error;
+    private List<ColumnNode> columnNodeList;
 
-    public Protocol(Client client, QueryStatement query, Object queryResult, String formatType) {
+    public Protocol(Client client, QueryAction queryAction, Object queryResult, String formatType) {
+        if (queryAction instanceof QueryPlanQueryAction) {
+            this.columnNodeList =
+                    ((QueryPlanRequestBuilder) (((QueryPlanQueryAction) queryAction).explain())).outputColumns();
+        }
         this.formatType = formatType;
-
+        QueryStatement query = queryAction.getQueryStatement();
         this.status = OK_STATUS;
         this.resultSet = loadResultSet(client, query, queryResult);
         this.size = resultSet.getDataRows().getSize();
@@ -57,6 +68,9 @@ public class Protocol {
     }
 
     private ResultSet loadResultSet(Client client, QueryStatement queryStatement, Object queryResult) {
+        if (queryResult instanceof List) {
+            return new BindingTupleResultSet(columnNodeList, (List<BindingTuple>) queryResult);
+        }
         if (queryStatement instanceof Query) {
             return new SelectResultSet(client, (Query) queryStatement, queryResult);
         } else if (queryStatement instanceof IndexStatement) {
