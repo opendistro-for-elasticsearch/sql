@@ -134,7 +134,7 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
         );
     }
 
-    @Ignore
+    @Ignore /** nested functions are blocked by throwing SqlFeatureNotImplementedException yet before implemented */
     @Test
     public void logFunctionCallWithResultOfSubstringFunctionCallShouldFail() {
         expectValidationFailWithErrorMessages(
