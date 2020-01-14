@@ -339,6 +339,7 @@ aggregateWindowedFunction
 functionAsAggregatorFunction
     : (AVG | MAX | MIN | SUM)
       '(' aggregator=(ALL | DISTINCT)? functionCall ')'
+    | COUNT '(' aggregator=(ALL | DISTINCT)? functionCall ')'
     ;
 
 scalarFunctionName
