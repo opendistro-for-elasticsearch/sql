@@ -16,8 +16,12 @@
 package com.amazon.opendistroforelasticsearch.sql.unittest;
 
 import com.alibaba.druid.sql.parser.ParserException;
+import com.amazon.opendistroforelasticsearch.sql.domain.ColumnTypeProvider;
+import com.amazon.opendistroforelasticsearch.sql.domain.QueryActionRequest;
 import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.executor.Format;
+import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema;
 import com.amazon.opendistroforelasticsearch.sql.query.ESActionFactory;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.SqlElasticRequestBuilder;
@@ -26,20 +30,36 @@ import com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents;
 import com.google.common.io.Files;
 import org.elasticsearch.client.Client;
 import org.json.JSONObject;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLFeatureNotSupportedException;
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
 public class JSONRequestTest {
+
+    @Mock
+    private ColumnTypeProvider columnTypeProvider;
+
+    @Before
+    public void setup() {
+        when(columnTypeProvider.get(anyInt())).thenReturn(Schema.Type.DOUBLE);
+    }
 
     @Test
     public void aggWithoutWhere() {
@@ -345,7 +365,8 @@ public class JSONRequestTest {
     private String translate(String sql, JSONObject jsonRequest) throws SQLFeatureNotSupportedException, SqlParseException {
         Client mockClient = Mockito.mock(Client.class);
         CheckScriptContents.stubMockClient(mockClient);
-        QueryAction queryAction = ESActionFactory.create(mockClient, sql);
+        QueryAction queryAction =
+                ESActionFactory.create(mockClient, new QueryActionRequest(sql, columnTypeProvider, Format.JDBC));
 
         SqlRequest sqlRequest = new SqlRequest(sql, jsonRequest);
         queryAction.setSqlRequest(sqlRequest);
