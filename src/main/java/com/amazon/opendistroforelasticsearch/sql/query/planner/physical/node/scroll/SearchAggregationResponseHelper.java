@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.query.planner.physical.node.scroll;
 
-import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTupleFactory;
+import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
 import com.google.common.annotations.VisibleForTesting;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
@@ -39,7 +39,7 @@ public class SearchAggregationResponseHelper {
     public static List<BindingTupleRow> populateSearchAggregationResponse(Aggregations aggs) {
         List<Map<String, Object>> flatten = flatten(aggs);
         List<BindingTupleRow> bindingTupleList = flatten.stream()
-                .map(BindingTupleFactory::from)
+                .map(BindingTuple::from)
                 .map(bindingTuple -> new BindingTupleRow(bindingTuple))
                 .collect(Collectors.toList());
         return bindingTupleList;

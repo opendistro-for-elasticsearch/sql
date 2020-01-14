@@ -16,14 +16,11 @@
 package com.amazon.opendistroforelasticsearch.sql.unittest.planner.physical;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
-import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTupleFactory;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.node.scroll.BindingTupleRow;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.node.scroll.SearchAggregationResponseHelper;
 import com.amazon.opendistroforelasticsearch.sql.util.AggregationUtils;
 import com.google.common.collect.ImmutableMap;
-import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -334,10 +331,10 @@ public class SearchAggregationResponseHelperTest {
                 SearchAggregationResponseHelper.populateSearchAggregationResponse(AggregationUtils.fromJson(json));
         assertEquals(4, bindingTupleRows.size());
         assertThat(bindingTupleRows, containsInAnyOrder(
-                bindingTupleRow(BindingTupleFactory.from(ImmutableMap.of("age", 31L, "gender", "m"))),
-                bindingTupleRow(BindingTupleFactory.from(ImmutableMap.of("age", 31L, "gender", "f"))),
-                bindingTupleRow(BindingTupleFactory.from(ImmutableMap.of("age", 39L, "gender", "m"))),
-                bindingTupleRow(BindingTupleFactory.from(ImmutableMap.of("age", 39L, "gender", "f")))));
+                bindingTupleRow(BindingTuple.from(ImmutableMap.of("age", 31L, "gender", "m"))),
+                bindingTupleRow(BindingTuple.from(ImmutableMap.of("age", 31L, "gender", "f"))),
+                bindingTupleRow(BindingTuple.from(ImmutableMap.of("age", 39L, "gender", "m"))),
+                bindingTupleRow(BindingTuple.from(ImmutableMap.of("age", 39L, "gender", "f")))));
     }
 
     private static Matcher<BindingTupleRow> bindingTupleRow(BindingTuple bindingTuple) {

@@ -23,6 +23,7 @@ import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
 import com.alibaba.druid.util.JdbcConstants;
 import com.amazon.opendistroforelasticsearch.sql.domain.ColumnTypeProvider;
 import com.amazon.opendistroforelasticsearch.sql.expression.core.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.converter.SQLAggregationParser;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.ColumnNode;
 import org.hamcrest.Description;
@@ -38,7 +39,7 @@ import java.util.List;
 import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.add;
 import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.cast;
 import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.log;
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.var;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.ref;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 
@@ -61,9 +62,10 @@ public class SQLAggregationParserTest {
                                                       agg("MAX", "FlightDelayMin", "MAX_0"),
                                                       agg("MIN", "FlightDelayMin", "min")));
 
-        assertThat(columnNodes, containsInAnyOrder(columnNode("dayOfWeek", null, var("dayOfWeek")),
-                                                   columnNode("MAX(FlightDelayMin)", null, var("MAX_0")),
-                                                   columnNode("min", "min", var("min"))));
+        assertThat(columnNodes, containsInAnyOrder(columnNode("dayOfWeek", null, ExpressionFactory.ref("dayOfWeek")),
+                                                   columnNode("MAX(FlightDelayMin)", null, ExpressionFactory
+                                                           .ref("MAX_0")),
+                                                   columnNode("min", "min", ExpressionFactory.ref("min"))));
     }
 
     @Test
@@ -80,9 +82,10 @@ public class SQLAggregationParserTest {
                                                       agg("MAX", "FlightDelayMin", "MAX_0"),
                                                       agg("MIN", "FlightDelayMin", "min")));
 
-        assertThat(columnNodes, containsInAnyOrder(columnNode("dayOfWeek", null, var("dayOfWeek")),
-                                                   columnNode("MAX(FlightDelayMin)", null, var("MAX_0")),
-                                                   columnNode("min", "min", var("min"))));
+        assertThat(columnNodes, containsInAnyOrder(columnNode("dayOfWeek", null, ExpressionFactory.ref("dayOfWeek")),
+                                                   columnNode("MAX(FlightDelayMin)", null, ExpressionFactory
+                                                           .ref("MAX_0")),
+                                                   columnNode("min", "min", ExpressionFactory.ref("min"))));
     }
 
     @Test
@@ -99,8 +102,9 @@ public class SQLAggregationParserTest {
                                                       agg("MAX", "FlightDelayMin", "MAX_0"),
                                                       agg("MIN", "FlightDelayMin", "MIN_1")));
 
-        assertThat(columnNodes, containsInAnyOrder(columnNode("dayOfWeek", null, var("dayOfWeek")),
-                                                   columnNode("sub", "sub", add(var("MAX_0"), var("MIN_1")))));
+        assertThat(columnNodes, containsInAnyOrder(columnNode("dayOfWeek", null, ExpressionFactory.ref("dayOfWeek")),
+                                                   columnNode("sub", "sub", add(ExpressionFactory.ref("MAX_0"), ExpressionFactory
+                                                           .ref("MIN_1")))));
     }
 
     @Test
@@ -117,8 +121,9 @@ public class SQLAggregationParserTest {
                                                       agg("MAX", "FlightDelayMin", "MAX_0"),
                                                       agg("MIN", "FlightDelayMin", "MIN_1")));
 
-        assertThat(columnNodes, containsInAnyOrder(columnNode("dayOfWeek", null, var("dayOfWeek")),
-                                                   columnNode("sub", "sub", add(var("MAX_0"), var("MIN_1")))));
+        assertThat(columnNodes, containsInAnyOrder(columnNode("dayOfWeek", null, ExpressionFactory.ref("dayOfWeek")),
+                                                   columnNode("sub", "sub", add(ExpressionFactory.ref("MAX_0"), ExpressionFactory
+                                                           .ref("MIN_1")))));
     }
 
     @Test
@@ -135,8 +140,10 @@ public class SQLAggregationParserTest {
                                                       agg("MAX", "FlightDelayMin", "MAX_0"),
                                                       agg("MIN", "FlightDelayMin", "MIN_1")));
 
-        assertThat(columnNodes, containsInAnyOrder(columnNode("ASCII(dayOfWeek)", null, var("ASCII(dayOfWeek)")),
-                                                   columnNode("log", "log", log(add(var("MAX_0"), var("MIN_1"))))));
+        assertThat(columnNodes, containsInAnyOrder(columnNode("ASCII(dayOfWeek)", null, ExpressionFactory
+                                                           .ref("ASCII(dayOfWeek)")),
+                                                   columnNode("log", "log", log(add(ExpressionFactory.ref("MAX_0"), ExpressionFactory
+                                                           .ref("MIN_1"))))));
     }
 
     @Test
@@ -148,7 +155,8 @@ public class SQLAggregationParserTest {
         List<ColumnNode> columnNodes = parser.getColumnNodes();
 
         assertThat(sqlSelectItems, containsInAnyOrder(group("balance", "balance")));
-        assertThat(columnNodes, containsInAnyOrder(columnNode("CAST(balance AS FLOAT)", null, cast(var("balance")))));
+        assertThat(columnNodes, containsInAnyOrder(columnNode("CAST(balance AS FLOAT)", null, cast(
+                ExpressionFactory.ref("balance")))));
     }
 
     @Test
@@ -163,8 +171,8 @@ public class SQLAggregationParserTest {
                 group("age", "age"),
                 group("gender", "gender")));
         assertThat(columnNodes, containsInAnyOrder(
-                columnNode("age", null, var("age")),
-                columnNode("gender", null, var("gender"))));
+                columnNode("age", null, ExpressionFactory.ref("age")),
+                columnNode("gender", null, ExpressionFactory.ref("gender"))));
     }
 
     @Test
@@ -179,8 +187,8 @@ public class SQLAggregationParserTest {
                 group("age", "age"),
                 agg("max", "balance", "max_0")));
         assertThat(columnNodes, containsInAnyOrder(
-                columnNode("log(age)", null, log(var("age"))),
-                columnNode("max(balance)", null, var("max_0"))));
+                columnNode("log(age)", null, log(ExpressionFactory.ref("age"))),
+                columnNode("max(balance)", null, ExpressionFactory.ref("max_0"))));
     }
 
     @Test
@@ -195,8 +203,8 @@ public class SQLAggregationParserTest {
                 group("name.lastname", "name#lastname"),
                 agg("max", "balance", "max_0")));
         assertThat(columnNodes, containsInAnyOrder(
-                columnNode("name.lastname", null, var("name#lastname")),
-                columnNode("max(balance)", null, var("max_0"))));
+                columnNode("name.lastname", null, ExpressionFactory.ref("name#lastname")),
+                columnNode("max(balance)", null, ExpressionFactory.ref("max_0"))));
     }
 
     @Test
@@ -210,7 +218,7 @@ public class SQLAggregationParserTest {
         assertThat(sqlSelectItems, containsInAnyOrder(
                 agg("avg", "age", "avg_0")));
         assertThat(columnNodes, containsInAnyOrder(
-                columnNode("avg(age)", null, var("avg_0"))));
+                columnNode("avg(age)", null, ExpressionFactory.ref("avg_0"))));
     }
 
     /**

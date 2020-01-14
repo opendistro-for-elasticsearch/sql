@@ -17,7 +17,6 @@ package com.amazon.opendistroforelasticsearch.sql.unittest.planner;
 
 import com.amazon.opendistroforelasticsearch.sql.domain.ColumnTypeProvider;
 import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
-import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTupleFactory;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.BindingTupleQueryPlanner;
 import com.amazon.opendistroforelasticsearch.sql.util.AggregationUtils;
 import com.amazon.opendistroforelasticsearch.sql.util.SqlParserUtils;
@@ -67,8 +66,8 @@ public class BindingTupleQueryPlannerExecuteTest {
         assertThat(query("SELECT gender, MAX(age) as max, MIN(age) as min FROM accounts GROUP BY gender",
                          mockSearchAggregation()),
                    containsInAnyOrder(
-                           BindingTupleFactory.from(ImmutableMap.of("gender", "m", "max", 20d, "min", 10d)),
-                           BindingTupleFactory.from(ImmutableMap.of("gender", "f", "max", 40d, "min", 20d))));
+                           BindingTuple.from(ImmutableMap.of("gender", "m", "max", 20d, "min", 10d)),
+                           BindingTuple.from(ImmutableMap.of("gender", "f", "max", 40d, "min", 20d))));
     }
 
 

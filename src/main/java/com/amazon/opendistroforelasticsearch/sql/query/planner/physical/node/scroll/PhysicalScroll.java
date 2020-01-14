@@ -17,7 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.query.planner.physical.node.sc
 
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
-import com.amazon.opendistroforelasticsearch.sql.expression.model.SSValue;
+import com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.query.AggregationQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.ExecuteParams;
@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.amazon.opendistroforelasticsearch.sql.expression.model.SSValueFactory.fromJson;
+import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueFactory.fromJson;
 import static com.amazon.opendistroforelasticsearch.sql.query.planner.physical.node.scroll.SearchAggregationResponseHelper.flatten;
 
 /**
@@ -86,7 +86,7 @@ public class PhysicalScroll implements PhysicalOperator<BindingTuple> {
     private void populateSearchAggregationResponse(Aggregations aggs) {
         List<Map<String, Object>> flatten = flatten(aggs);
         List<BindingTupleRow> bindingTupleList = flatten.stream().map(map -> {
-            Map<String, SSValue> ssValueMap = new HashMap<>();
+            Map<String, ExprValue> ssValueMap = new HashMap<>();
             for (Map.Entry<String, Object> entry : map.entrySet()) {
                 ssValueMap.put(entry.getKey(), fromJson(entry.getValue()));
             }

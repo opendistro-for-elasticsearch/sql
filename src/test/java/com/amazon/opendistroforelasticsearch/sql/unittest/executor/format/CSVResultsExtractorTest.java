@@ -19,7 +19,6 @@ import com.amazon.opendistroforelasticsearch.sql.executor.csv.CSVResult;
 import com.amazon.opendistroforelasticsearch.sql.executor.csv.CSVResultsExtractor;
 import com.amazon.opendistroforelasticsearch.sql.executor.csv.CsvExtractorException;
 import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
-import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTupleFactory;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 
@@ -34,10 +33,10 @@ public class CSVResultsExtractorTest {
 
     @Test
     public void extractResultsFromBindingTupleListShouldPass() throws CsvExtractorException {
-        CSVResult csvResult = csv(Arrays.asList(BindingTupleFactory.from(ImmutableMap.of("age", 31, "gender", "m")),
-                                                BindingTupleFactory.from(ImmutableMap.of("age", 31, "gender", "f")),
-                                                BindingTupleFactory.from(ImmutableMap.of("age", 39, "gender", "m")),
-                                                BindingTupleFactory.from(ImmutableMap.of("age", 39, "gender", "f"))),
+        CSVResult csvResult = csv(Arrays.asList(BindingTuple.from(ImmutableMap.of("age", 31, "gender", "m")),
+                                                BindingTuple.from(ImmutableMap.of("age", 31, "gender", "f")),
+                                                BindingTuple.from(ImmutableMap.of("age", 39, "gender", "m")),
+                                                BindingTuple.from(ImmutableMap.of("age", 39, "gender", "f"))),
                                   Arrays.asList("age", "gender"));
 
         assertThat(csvResult.getHeaders(), contains("age", "gender"));

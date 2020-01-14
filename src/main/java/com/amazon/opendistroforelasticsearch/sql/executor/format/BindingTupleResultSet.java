@@ -16,7 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
-import com.amazon.opendistroforelasticsearch.sql.expression.model.SSValue;
+import com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.ColumnNode;
 import com.google.common.annotations.VisibleForTesting;
 
@@ -49,7 +49,7 @@ public class BindingTupleResultSet extends ResultSet {
     @VisibleForTesting
     public static DataRows buildDataRows(List<BindingTuple> bindingTuples) {
         List<DataRows.Row> rowList = bindingTuples.stream().map(tuple -> {
-            Map<String, SSValue> bindingMap = tuple.getBindingMap();
+            Map<String, ExprValue> bindingMap = tuple.getBindingMap();
             Map<String, Object> rowMap = new HashMap<>();
             for (String s : bindingMap.keySet()) {
                 rowMap.put(s, bindingMap.get(s).value());

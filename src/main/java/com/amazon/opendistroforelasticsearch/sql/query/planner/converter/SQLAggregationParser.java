@@ -26,6 +26,7 @@ import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
 import com.amazon.opendistroforelasticsearch.sql.domain.ColumnTypeProvider;
 import com.amazon.opendistroforelasticsearch.sql.expression.core.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.ColumnNode;
 import com.google.common.base.Strings;
 import lombok.Getter;
@@ -37,8 +38,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.var;
 
 /**
  * The definition of SQL Aggregation Converter which will parse the query to project column node list and
@@ -214,7 +213,7 @@ public class SQLAggregationParser {
                     && selectSQLExprAliasMap.values().contains(((SQLIdentifierExpr) expr).getName())) {
                     exprName = ((SQLIdentifierExpr) expr).getName();
                 }
-                this.expression = var(selectSQLExprAliasMap.getOrDefault(expr, exprName));
+                this.expression = ExpressionFactory.ref(selectSQLExprAliasMap.getOrDefault(expr, exprName));
             }
         }
 
@@ -226,7 +225,8 @@ public class SQLAggregationParser {
             public AggregationExpr(SQLAggregateExpr expr) {
                 this.expr = expr;
                 this.expression =
-                        var(selectSQLExprAliasMap.getOrDefault(expr, aliasGenerator.nextAlias(expr.getMethodName())));
+                        ExpressionFactory.ref(selectSQLExprAliasMap.getOrDefault(expr, aliasGenerator
+                                .nextAlias(expr.getMethodName())));
             }
         }
 

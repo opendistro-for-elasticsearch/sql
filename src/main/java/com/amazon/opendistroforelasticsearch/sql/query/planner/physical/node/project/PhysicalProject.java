@@ -16,7 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.query.planner.physical.node.project;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
-import com.amazon.opendistroforelasticsearch.sql.expression.model.SSValue;
+import com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.node.scroll.BindingTupleRow;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.ColumnNode;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.PlanNode;
@@ -55,10 +55,10 @@ public class PhysicalProject implements PhysicalOperator<BindingTuple> {
     @Override
     public Row<BindingTuple> next() {
         BindingTuple input = next.next().data();
-        Map<String, SSValue> output = new HashMap<>();
+        Map<String, ExprValue> output = new HashMap<>();
         for (ColumnNode field : fields) {
-            SSValue ssValue = field.getExpr().valueOf(input);
-            output.put(field.getName(), ssValue);
+            ExprValue exprValue = field.getExpr().valueOf(input);
+            output.put(field.getName(), exprValue);
         }
         return new BindingTupleRow(BindingTuple.builder().bindingMap(output).build());
     }

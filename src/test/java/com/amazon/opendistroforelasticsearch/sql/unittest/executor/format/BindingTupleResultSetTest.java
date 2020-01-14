@@ -18,7 +18,6 @@ package com.amazon.opendistroforelasticsearch.sql.unittest.executor.format;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.BindingTupleResultSet;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.DataRows;
 import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
-import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTupleFactory;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.hamcrest.Matcher;
@@ -38,10 +37,10 @@ public class BindingTupleResultSetTest {
 
     @Test
     public void buildDataRowsFromBindingTupleShouldPass() {
-        assertThat(row(Arrays.asList(BindingTupleFactory.from(ImmutableMap.of("age", 31, "gender", "m")),
-                                     BindingTupleFactory.from(ImmutableMap.of("age", 31, "gender", "f")),
-                                     BindingTupleFactory.from(ImmutableMap.of("age", 39, "gender", "m")),
-                                     BindingTupleFactory.from(ImmutableMap.of("age", 39, "gender", "f")))),
+        assertThat(row(Arrays.asList(BindingTuple.from(ImmutableMap.of("age", 31, "gender", "m")),
+                                     BindingTuple.from(ImmutableMap.of("age", 31, "gender", "f")),
+                                     BindingTuple.from(ImmutableMap.of("age", 39, "gender", "m")),
+                                     BindingTuple.from(ImmutableMap.of("age", 39, "gender", "f")))),
                    containsInAnyOrder(rowContents(allOf(hasEntry("age", 31), hasEntry("gender", (Object) "m"))),
                                       rowContents(allOf(hasEntry("age", 31), hasEntry("gender", (Object) "f"))),
                                       rowContents(allOf(hasEntry("age", 39), hasEntry("gender", (Object) "m"))),
