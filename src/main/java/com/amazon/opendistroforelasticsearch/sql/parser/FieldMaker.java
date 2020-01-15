@@ -118,13 +118,8 @@ public class FieldMaker {
             if (alias == null) {
                 alias = "cast_" + castExpr.getExpr().toString();
             }
-//            String scriptCode = new CastParser(castExpr, alias, tableAlias).parse(true);
-//            List<KVValue> methodParameters = new ArrayList<>();
-//            methodParameters.add(new KVValue(alias));
-//            methodParameters.add(new KVValue(scriptCode));
             ArrayList<SQLExpr> methodParameters = new ArrayList<>();
             methodParameters.add(((SQLCastExpr) expr).getExpr());
-//            return new MethodField("script", methodParameters, null, alias);
             return makeMethodField("CAST", methodParameters, null, alias, tableAlias, true);
         } else if (expr instanceof SQLNumericLiteralExpr) {
             SQLMethodInvokeExpr methodInvokeExpr = new SQLMethodInvokeExpr("assign", null);
