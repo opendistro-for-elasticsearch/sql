@@ -21,7 +21,7 @@ import com.amazon.opendistroforelasticsearch.sql.correctness.report.SuccessTestC
 import com.amazon.opendistroforelasticsearch.sql.correctness.report.TestReport;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.DBResult;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.Row;
-import com.google.common.collect.ImmutableMap;
+import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.Type;
 import org.json.JSONObject;
 import org.junit.Test;
 
@@ -65,8 +65,8 @@ public class TestReportTest {
     @Test
     public void testFailedReport() {
         report.addTestCase(new FailedTestCase(1, "SELECT * FROM accounts", asList(
-            new DBResult("Elasticsearch", ImmutableMap.of("firstName", "text"), singleton(new Row(asList("hello")))),
-            new DBResult("H2", ImmutableMap.of("firstName", "text"), singleton(new Row(asList("world"))))
+            new DBResult("Elasticsearch", singleton(new Type("firstName", "text")), singleton(new Row(asList("hello")))),
+            new DBResult("H2", singleton(new Type("firstName", "text")), singleton(new Row(asList("world"))))
         )));
         JSONObject actual = new JSONObject(report);
         JSONObject expected = new JSONObject(
@@ -84,16 +84,22 @@ public class TestReportTest {
             "      \"resultSets\": [" +
             "        {" +
             "          \"database\": \"Elasticsearch\"," +
-            "          \"schema\": {" +
-            "              \"firstName\": \"text\"" +
-            "          }," +
+            "          \"schema\": [" +
+            "            {" +
+            "              \"name\": \"firstName\"," +
+            "              \"type\": \"text\"" +
+            "            }" +
+            "          ]," +
             "          \"dataRows\": [[\"hello\"]]" +
             "        }," +
             "        {" +
             "          \"database\": \"H2\"," +
-            "          \"schema\": {" +
-            "              \"firstName\": \"text\"" +
-            "          }," +
+            "          \"schema\": [" +
+            "            {" +
+            "              \"name\": \"firstName\"," +
+            "              \"type\": \"text\"" +
+            "            }" +
+            "          ]," +
             "          \"dataRows\": [[\"world\"]]" +
             "        }" +
             "      ]" +

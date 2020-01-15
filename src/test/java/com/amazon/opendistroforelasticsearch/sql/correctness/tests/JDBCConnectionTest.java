@@ -17,7 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.correctness.tests;
 
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.JDBCConnection;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.DBResult;
-import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.Row;
+import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.Type;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import org.junit.Before;
@@ -116,8 +116,11 @@ public class JDBCConnectionTest {
         DBResult result = conn.select("SELECT * FROM test");
         assertEquals("Test DB", result.getDatabaseName());
         assertEquals(
-            ImmutableMap.of("NAME", "VARCHAR", "AGE", "INT"),
-            result.getColumnNameAndTypes()
+            Arrays.asList(
+                new Type("NAME", "VARCHAR"),
+                new Type("AGE", "INT")
+            ),
+            result.getSchema()
         );
         assertEquals(
             Sets.newHashSet(
@@ -125,6 +128,23 @@ public class JDBCConnectionTest {
                 Arrays.asList("Hank", 30)
             ),
             result.getDataRows()
+        );
+    }
+
+    @Test
+    public void testSelectQueryWithAlias() throws SQLException {
+        ResultSetMetaData metaData = mockMetaData(ImmutableMap.of("name", "VARCHAR", "age", "INT"), "n", "a");
+        ResultSet resultSet = mockResultSet(new Object[]{"John", 25}, new Object[]{"Hank", 30});
+        when(statement.executeQuery(anyString())).thenReturn(resultSet);
+        when(resultSet.getMetaData()).thenReturn(metaData);
+
+        DBResult result = conn.select("SELECT * FROM test");
+        assertEquals(
+            Arrays.asList(
+                new Type("N", "VARCHAR"),
+                new Type("A", "INT")
+            ),
+            result.getSchema()
         );
     }
 
@@ -140,6 +160,13 @@ public class JDBCConnectionTest {
         when(resultSet.getMetaData()).thenReturn(metaData);
 
         DBResult result = conn.select("SELECT * FROM test");
+        assertEquals(
+            Arrays.asList(
+                new Type("NAME", "VARCHAR"),
+                new Type("BALANCE", "[FLOAT, DOUBLE, REAL]")
+            ),
+            result.getSchema()
+        );
         assertEquals(
             Sets.newHashSet(
                 Arrays.asList("John", 25.13),
@@ -167,7 +194,7 @@ public class JDBCConnectionTest {
         return resultSet;
     }
 
-    private ResultSetMetaData mockMetaData(Map<String, String> nameAndTypes) throws SQLException {
+    private ResultSetMetaData mockMetaData(Map<String, String> nameAndTypes, String... aliases) throws SQLException {
         ResultSetMetaData metaData = mock(ResultSetMetaData.class);
 
         OngoingStubbing<String> getColumnName = when(metaData.getColumnName(anyInt()));
@@ -178,6 +205,13 @@ public class JDBCConnectionTest {
         OngoingStubbing<String> getColumnTypeName = when(metaData.getColumnTypeName(anyInt()));
         for (String value : nameAndTypes.values()) {
             getColumnTypeName = getColumnTypeName.thenReturn(value);
+        }
+
+        if (aliases.length > 0) {
+            OngoingStubbing<String> getColumnLabel = when(metaData.getColumnLabel(anyInt()));
+            for (String alias : aliases) {
+                getColumnLabel = getColumnLabel.thenReturn(alias);
+            }
         }
 
         when(metaData.getColumnCount()).thenReturn(nameAndTypes.size());

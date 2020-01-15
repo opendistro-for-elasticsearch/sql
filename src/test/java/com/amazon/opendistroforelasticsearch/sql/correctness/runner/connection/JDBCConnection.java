@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.DBResult;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.Row;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import com.google.common.base.Strings;
 import org.json.JSONObject;
 
 import java.sql.Connection;
@@ -140,7 +141,13 @@ public class JDBCConnection implements DBConnection {
     private void populateMetaData(ResultSet resultSet, DBResult result) throws SQLException {
         ResultSetMetaData metaData = resultSet.getMetaData();
         for (int i = 1; i <= metaData.getColumnCount(); i++) {
-            result.addColumn(metaData.getColumnName(i), metaData.getColumnTypeName(i));
+
+            // Use label name (alias) if present.
+            String colName = metaData.getColumnLabel(i);
+            if (Strings.isNullOrEmpty(colName)) {
+                colName = metaData.getColumnName(i);
+            }
+            result.addColumn(colName, metaData.getColumnTypeName(i));
         }
     }
 
