@@ -231,13 +231,9 @@ public class WhereParser {
     }
 
     private void explainCond(String opear, SQLExpr expr, Where where) throws SqlParseException {
-        if (expr instanceof SQLBinaryOpExpr || expr instanceof SQLCastExpr) {
-            SQLBinaryOpExpr soExpr;
-            if (expr instanceof SQLCastExpr) {
-                soExpr = (SQLBinaryOpExpr) expr.getParent();
-            } else {
-                soExpr = (SQLBinaryOpExpr) expr;
-            }
+        if (expr instanceof SQLBinaryOpExpr) {
+            SQLBinaryOpExpr soExpr = (SQLBinaryOpExpr) expr;
+
             boolean methodAsOpear = false;
 
             boolean isNested = false;
@@ -528,7 +524,16 @@ public class WhereParser {
     }
 
     private MethodField parseSQLCastExprWithFunctionInWhere(SQLCastExpr soExpr) throws SqlParseException {
-        return fieldMaker.makeCastMethodField(soExpr);
+        ArrayList<SQLExpr> parameters = new ArrayList<>();
+        parameters.add(soExpr.getExpr());
+        return fieldMaker.makeMethodField(
+                "CAST",
+                parameters,
+                null,
+                null,
+                query != null ? query.getFrom().getAlias() : null,
+                false
+        );
     }
 
     private SQLMethodInvokeExpr parseSQLBinaryOpExprWhoIsConditionInWhere(SQLBinaryOpExpr soExpr)

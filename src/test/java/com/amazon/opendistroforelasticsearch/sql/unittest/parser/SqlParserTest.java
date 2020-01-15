@@ -1209,6 +1209,7 @@ public class SqlParserTest {
         );
     }
 
+    @Ignore
     @Test
     public void castToIntTest() throws Exception {
         String query = "select cast(age as int) from "+ TestsConstants.TEST_INDEX_ACCOUNT + "/account limit 10";
@@ -1227,6 +1228,7 @@ public class SqlParserTest {
         Assert.assertTrue(scriptCode.contains("Double.parseDouble(doc['age'].value.toString()).intValue()"));
     }
 
+    @Ignore
     @Test
     public void castToLongTest() throws Exception {
         String query = "select cast(insert_time as long) from "+ TestsConstants.TEST_INDEX_ACCOUNT + " limit 10";
@@ -1245,6 +1247,7 @@ public class SqlParserTest {
         Assert.assertTrue(scriptCode.contains("Double.parseDouble(doc['insert_time'].value.toString()).longValue()"));
     }
 
+    @Ignore
     @Test
     public void castToFloatTest() throws Exception {
         String query = "select cast(age as float) from "+ TestsConstants.TEST_INDEX_ACCOUNT + " limit 10";
@@ -1263,6 +1266,7 @@ public class SqlParserTest {
         Assert.assertTrue(scriptCode.contains("Double.parseDouble(doc['age'].value.toString()).floatValue()"));
     }
 
+    @Ignore
     @Test
     public void castToDoubleTest() throws Exception {
         String query = "select cast(age as double) from "+ TestsConstants.TEST_INDEX_ACCOUNT + "/account limit 10";
@@ -1281,6 +1285,7 @@ public class SqlParserTest {
         Assert.assertTrue(scriptCode.contains("Double.parseDouble(doc['age'].value.toString()).doubleValue()"));
     }
 
+    @Ignore
     @Test
     public void castToStringTest() throws Exception {
         String query = "select cast(age as string) from "+ TestsConstants.TEST_INDEX_ACCOUNT + "/account limit 10";
@@ -1298,6 +1303,7 @@ public class SqlParserTest {
         Assert.assertTrue(scriptCode.contains("doc['age'].value.toString()"));
     }
 
+    @Ignore
     @Test
     public void castToDateTimeTest() throws Exception {
         String query = "select cast(age as datetime) from "+ TestsConstants.TEST_INDEX_ACCOUNT + "/account limit 10";
@@ -1317,6 +1323,7 @@ public class SqlParserTest {
                 + ".parse(doc['age'].value.toString())"));
     }
 
+    @Ignore
     @Test
     public void castToDoubleThenDivideTest() throws Exception {
         String query = "select cast(age as double)/2 from "+ TestsConstants.TEST_INDEX_ACCOUNT + "/account limit 10";

@@ -118,11 +118,14 @@ public class FieldMaker {
             if (alias == null) {
                 alias = "cast_" + castExpr.getExpr().toString();
             }
-            String scriptCode = new CastParser(castExpr, alias, tableAlias).parse(true);
-            List<KVValue> methodParameters = new ArrayList<>();
-            methodParameters.add(new KVValue(alias));
-            methodParameters.add(new KVValue(scriptCode));
-            return new MethodField("script", methodParameters, null, alias);
+//            String scriptCode = new CastParser(castExpr, alias, tableAlias).parse(true);
+//            List<KVValue> methodParameters = new ArrayList<>();
+//            methodParameters.add(new KVValue(alias));
+//            methodParameters.add(new KVValue(scriptCode));
+            ArrayList<SQLExpr> methodParameters = new ArrayList<>();
+            methodParameters.add(((SQLCastExpr) expr).getExpr());
+//            return new MethodField("script", methodParameters, null, alias);
+            return makeMethodField("CAST", methodParameters, null, alias, tableAlias, true);
         } else if (expr instanceof SQLNumericLiteralExpr) {
             SQLMethodInvokeExpr methodInvokeExpr = new SQLMethodInvokeExpr("assign", null);
             methodInvokeExpr.addParameter(expr);
@@ -343,9 +346,6 @@ public class FieldMaker {
             } else if (object instanceof SQLCaseExpr) {
                 String scriptCode = new CaseWhenParser((SQLCaseExpr) object, alias, tableAlias).parse();
                 paramers.add(new KVValue("script", new SQLCharExpr(scriptCode)));
-            } else if (object instanceof SQLCastExpr) {
-                String scriptCode = new CastParser((SQLCastExpr) object, alias, tableAlias).parse(false);
-                paramers.add(new KVValue("script", new SQLCharExpr(scriptCode)));
             } else if (object instanceof SQLAggregateExpr) {
                 SQLObject parent = object.getParent();
                 SQLExpr source = (SQLExpr) parent.getAttribute("source");
@@ -404,15 +404,5 @@ public class FieldMaker {
         } else {
             return new MethodField(name, paramers, option, alias);
         }
-    }
-
-    public ScriptMethodField makeCastMethodField(SQLCastExpr castExpr) throws SqlParseException {
-        String name = "CAST";
-        String alias = "cast_field1";
-        String scriptCode = new CastParser(castExpr, alias, null).parse(false);
-        List<KVValue> methodParameters = new ArrayList<>();
-        methodParameters.add(new KVValue(alias));
-        methodParameters.add(new KVValue(scriptCode));
-        return new ScriptMethodField(name, methodParameters, null, null);
     }
 }
