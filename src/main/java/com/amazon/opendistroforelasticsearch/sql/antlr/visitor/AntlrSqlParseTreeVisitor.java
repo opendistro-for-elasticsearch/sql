@@ -47,9 +47,11 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroS
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FunctionNameBaseContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.InPredicateContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.IsExpressionContext;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.MathOperatorContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.MinusSelectContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.OuterJoinContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.PredicateContext;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.RegexpPredicateContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.RootContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.ScalarFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.SelectElementsContext;
@@ -64,8 +66,6 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroS
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.UdfFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.UidContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.UnionSelectContext;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.UnsupportedBinaryExrepssionAtomContext;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.UnsupportedFunctionCallContext;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singleton;
 
@@ -83,6 +83,18 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
 
     private static final Set<String> supportedNestedFunctions = Sets.newHashSet(
             "nested", "reverse_nested", "score", "match_query", "matchquery"
+    );
+
+    /**
+     * The following two sets include the functions and operators that have requested or issued by users
+     * but the plugin does not support yet.
+     */
+    private static final Set<String> unsupportedFunctions = Sets.newHashSet(
+            "adddate", "addtime", "datetime", "greatest", "least"
+    );
+
+    private static final Set<String> unsupportedOperators = Sets.newHashSet(
+            "div"
     );
 
     public AntlrSqlParseTreeVisitor(GenericSqlParseTreeVisitor<T> visitor) {
@@ -256,12 +268,31 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
         // type (I) and (II)
         } else if (ctx.parent.parent instanceof OpenDistroSqlParser.NestedFunctionArgsContext
                 && !(mathConstants.contains(funcName) || supportedNestedFunctions.contains(funcName))) {
-                throw new SqlFeatureNotImplementedException(StringUtils.format(
-                        "Nested function calls like [%s] are not supported yet", ctx.parent.parent.parent.getText()));
+            throw new SqlFeatureNotImplementedException(StringUtils.format(
+                    "Nested function calls like [%s] are not supported yet", ctx.parent.parent.parent.getText()));
+        // unsupported functions
+        } else if (unsupportedFunctions.contains(funcName)) {
+            throw new SqlFeatureNotImplementedException(StringUtils.format("Function [%s] is not supported yet",
+                    funcName));
         } else {
             T func = visit(ctx.scalarFunctionName());
             return reduce(func, ctx.functionArgs());
         }
+    }
+
+    @Override
+    public T visitMathOperator(MathOperatorContext ctx) {
+        if (unsupportedOperators.contains(StringUtils.toLower(ctx.getText()))) {
+            throw new SqlFeatureNotImplementedException(StringUtils.format("Operator [%s] is not supported yet",
+                    ctx.getText()));
+        } else {
+            return super.visitMathOperator(ctx);
+        }
+    }
+
+    @Override
+    public T visitRegexpPredicate(RegexpPredicateContext ctx) {
+        throw new SqlFeatureNotImplementedException("Regexp predicate is not supported yet");
     }
 
     @Override
@@ -285,20 +316,6 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
     @Override
     public T visitSelectExpressionElement(SelectExpressionElementContext ctx) {
         return visitSelectItem(ctx.expression(), ctx.uid());
-    }
-
-    /** For binary operators that are not supported yet, like DIV */
-    @Override
-    public T visitUnsupportedBinaryExrepssionAtom(UnsupportedBinaryExrepssionAtomContext ctx) {
-        throw new SqlFeatureNotImplementedException(StringUtils.format(
-                "Operator [%s] is not supported yet", ctx.unsupportedBinaryOperator().getText()));
-    }
-
-    /** For functions that are not supported yet but have been requested by users, like ADDDATE */
-    @Override
-    public T visitUnsupportedFunctionCall(UnsupportedFunctionCallContext ctx) {
-        throw new SqlFeatureNotImplementedException(StringUtils.format(
-                "Function [%s] is not supported yet", ctx.unsupportedFunction().getText()));
     }
 
     /**

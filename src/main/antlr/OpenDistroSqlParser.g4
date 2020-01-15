@@ -295,15 +295,11 @@ scalarFunction
     | scalarFunctionName '(' functionArgs? ')'                      #scalarFunctionCall
     ;
 
-
-//    Functions
-
 functionCall
     : aggregateFunction                                             #aggregateFunctionCall
     | scalarFunctionName '(' aggregateWindowedFunction ')'          #aggregationAsArgFunctionCall
     | scalarFunction                                                #scalarFunctionsCall
     | specificFunction                                              #specificFunctionCall
-    | unsupportedFunction '(' functionArgs? ')'                     #unsupportedFunctionCall
     | fullId '(' functionArgs? ')'                                  #udfFunctionCall
     ;
 
@@ -345,6 +341,46 @@ functionAsAggregatorFunction
 scalarFunctionName
     : functionNameBase
     ;
+
+/*
+Separated aggregate to function-aggregator and nonfunction-aggregator aggregations.
+
+Current related rules: aggregateWindowedFunction, functionAsAggregatorFunction, aggregateFunction, functionCall
+Original rules: functionCall (as is shown in below changes), no aggregateWindowFunction, no functionAsAggregatorFunction,
+                no aggregateFunction
+
+====
+
+Separated function argument rule to nonFunctionCall and functionCall
+functions with functionCall arguments are taken as nested functions
+
+Current related rules: functionArgs, functionArg, nestedFunctionArgs
+Original rules:
+functionArgs
+    : (constant | fullColumnName | functionCall | expression)
+    (
+      ','
+      (constant | fullColumnName | functionCall | expression)
+    )*
+    ;
+
+functionArg
+    : constant | fullColumnName | functionCall | expression
+    ;
+
+====
+
+Accordingly functionCall rule is changed by separating scalar functions
+to nested functions and non-nested functons.
+Current related rules: functionCall, scalarFunction
+Original rule:
+functionCall
+    : specificFunction                                              #specificFunctionCall
+    | aggregateWindowedFunction                                     #aggregateFunctionCall
+    | scalarFunctionName '(' functionArgs? ')'                      #scalarFunctionCall
+    | fullId '(' functionArgs? ')'                                  #udfFunctionCall
+    ;
+*/
 
 functionArgs
     : (constant | fullColumnName | expression)
@@ -395,8 +431,6 @@ expressionAtom
     | '(' selectStatement ')'                                       #subqueryExpessionAtom
     | left=expressionAtom bitOperator right=expressionAtom          #bitExpressionAtom
     | left=expressionAtom mathOperator right=expressionAtom         #mathExpressionAtom
-    | left=expressionAtom unsupportedBinaryOperator
-    right=expressionAtom                                            #unsupportedBinaryExrepssionAtom
     ;
 
 unaryOperator
@@ -417,12 +451,9 @@ bitOperator
     ;
 
 mathOperator
-    : '*' | '/' | '%' | MOD | '+' | '-'
+    : '*' | '/' | '%' | DIV | MOD | '+' | '-'
     ;
 
-unsupportedBinaryOperator
-    : DIV
-    ;
 
 //    Simple id sets
 //     (that keyword, which can be id)
@@ -441,7 +472,7 @@ functionNameBase
     | LOG10 | LOG2 | LOWER | LTRIM | MAKETIME | MODULUS | MONTH | MONTHNAME | MULTIPLY
     | NOW | PI | POW | POWER | RADIANS | RAND | REPLACE | RIGHT | RINT | ROUND | RTRIM
     | SIGN | SIGNUM | SIN | SINH | SQRT | SUBSTRING | SUBTRACT | TAN | TIMESTAMP | TRIM
-    | UPPER | YEAR
+    | UPPER | YEAR | ADDDATE | ADDTIME | GREATEST | LEAST
     ;
 
 esFunctionNameBase
@@ -453,8 +484,4 @@ esFunctionNameBase
     | PERCENTILES | QUERY | RANGE | REGEXP_QUERY | REVERSE_NESTED | SCORE
     | SECOND_OF_MINUTE | STATS | TERM | TERMS | TOPHITS
     | WEEK_OF_YEAR | WILDCARDQUERY | WILDCARD_QUERY
-    ;
-
-unsupportedFunction
-    : ADDDATE
     ;
