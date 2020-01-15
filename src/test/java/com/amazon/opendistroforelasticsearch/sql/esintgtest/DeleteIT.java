@@ -15,11 +15,11 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
+import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import org.json.JSONObject;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Locale;
 
 import static org.hamcrest.core.IsEqual.equalTo;
 
@@ -33,18 +33,11 @@ public class DeleteIT extends SQLIntegTestCase {
 
     @Test
     public void deleteAllTest() throws IOException, InterruptedException {
-        String selectQuery = String.format(
-            Locale.ROOT,
-            "SELECT * FROM %s/account",
-            TestsConstants.TEST_INDEX_ACCOUNT
-        );
+        String selectQuery = StringUtils.format("SELECT * FROM %s/account", TestsConstants.TEST_INDEX_ACCOUNT);
         JSONObject response = executeRequest(makeRequest(selectQuery));
         int totalHits = getTotalHits(response);
 
-        String deleteQuery = String.format(
-            Locale.ROOT,
-            "DELETE FROM %s/account",
-            TestsConstants.TEST_INDEX_ACCOUNT);
+        String deleteQuery = StringUtils.format("DELETE FROM %s/account", TestsConstants.TEST_INDEX_ACCOUNT);
         response = executeRequest(makeRequest(deleteQuery));
         assertThat(response.getInt("deleted"), equalTo(totalHits));
 
@@ -58,16 +51,14 @@ public class DeleteIT extends SQLIntegTestCase {
 
     @Test
     public void deleteWithConditionTest() throws IOException, InterruptedException {
-        String selectQuery = String.format(
-            Locale.ROOT,
+        String selectQuery = StringUtils.format(
             "SELECT * FROM %s/phrase WHERE match_phrase(phrase, 'quick fox here')",
             TestsConstants.TEST_INDEX_PHRASE
         );
         JSONObject response = executeRequest(makeRequest(selectQuery));
         int totalHits = getTotalHits(response);
 
-        String deleteQuery = String.format(
-            Locale.ROOT,
+        String deleteQuery = StringUtils.format(
             "DELETE FROM %s/phrase WHERE match_phrase(phrase, 'quick fox here')",
             TestsConstants.TEST_INDEX_PHRASE
         );
@@ -77,12 +68,76 @@ public class DeleteIT extends SQLIntegTestCase {
         // To prevent flakiness, the minimum value of 2000 msec works fine.
         Thread.sleep(2000);
 
-        selectQuery = String.format(
-            Locale.ROOT,
-            "SELECT * FROM %s/phrase",
-            TestsConstants.TEST_INDEX_PHRASE
-        );
+        selectQuery = StringUtils.format("SELECT * FROM %s/phrase", TestsConstants.TEST_INDEX_PHRASE);
+
         response = executeRequest(makeRequest(selectQuery));
         assertThat(getTotalHits(response), equalTo(5));
+    }
+
+    @Test
+    public void deleteAllWithJdbcFormat() throws IOException, InterruptedException {
+        String selectQuery = StringUtils.format("SELECT * FROM %s/account", TestsConstants.TEST_INDEX_ACCOUNT);
+        JSONObject response = executeRequest(makeRequest(selectQuery));
+        int totalHits = getTotalHits(response);
+
+        String deleteQuery = StringUtils.format("DELETE FROM %s/account", TestsConstants.TEST_INDEX_ACCOUNT);
+
+        response = new JSONObject(executeQuery(deleteQuery, "jdbc"));
+        System.out.println(response);
+        assertThat(response.query("/schema/0/name"), equalTo("deleted_rows"));
+        assertThat(response.query("/schema/0/type"), equalTo("long"));
+        assertThat(response.query("/datarows/0/0"), equalTo(totalHits));
+        assertThat(response.query("/total"), equalTo(1));
+        assertThat(response.query("/status"), equalTo(200));
+        assertThat(response.query("/size"), equalTo(1));
+
+        // The documents are not deleted immediately, causing the next search call to return all results.
+        // To prevent flakiness, the minimum value of 2000 msec works fine.
+        Thread.sleep(2000);
+
+        response = executeRequest(makeRequest(selectQuery));
+        assertThat(getTotalHits(response), equalTo(0));
+
+        // Multiple invocation of delete query should return deleted == 0
+        response = new JSONObject(executeQuery(deleteQuery, "jdbc"));
+        assertThat(response.query("/datarows/0/0"), equalTo(0));
+    }
+
+    @Test
+    public void deleteWithConditionTestJdbcFormat() throws IOException, InterruptedException {
+        String selectQuery = StringUtils.format(
+            "SELECT * FROM %s/phrase WHERE match_phrase(phrase, 'quick fox here')",
+            TestsConstants.TEST_INDEX_PHRASE
+        );
+
+        JSONObject response = executeRequest(makeRequest(selectQuery));
+        int totalHits = getTotalHits(response);
+
+        String deleteQuery = StringUtils.format(
+            "DELETE FROM %s/phrase WHERE match_phrase(phrase, 'quick fox here')",
+            TestsConstants.TEST_INDEX_PHRASE
+        );
+
+        response = new JSONObject(executeQuery(deleteQuery, "jdbc"));
+        System.out.println(response);
+        assertThat(response.query("/schema/0/name"), equalTo("deleted_rows"));
+        assertThat(response.query("/schema/0/type"), equalTo("long"));
+        assertThat(response.query("/datarows/0/0"), equalTo(totalHits));
+        assertThat(response.query("/total"), equalTo(1));
+        assertThat(response.query("/status"), equalTo(200));
+        assertThat(response.query("/size"), equalTo(1));
+
+        // The documents are not deleted immediately, causing the next search call to return all results.
+        // To prevent flakiness, the minimum value of 2000 msec works fine.
+        Thread.sleep(2000);
+
+        selectQuery = StringUtils.format("SELECT * FROM %s/phrase", TestsConstants.TEST_INDEX_PHRASE);
+
+        response = executeRequest(makeRequest(selectQuery));
+        assertThat(getTotalHits(response), equalTo(5));
+
+        // Multiple invocation of delete query should return deleted == 0
+        response = new JSONObject(executeQuery(deleteQuery, "jdbc"));
+        assertThat(response.query("/datarows/0/0"), equalTo(0));
     }
 }

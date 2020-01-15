@@ -16,14 +16,16 @@
 package com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset;
 
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import com.google.common.collect.ImmutableSet;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
 import org.json.JSONPropertyName;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -35,11 +37,15 @@ import java.util.stream.Collectors;
 @ToString
 public class DBResult {
 
+    /** Possible types for floating point number */
+    private static final Set<String> FLOAT_TYPES = ImmutableSet.of("FLOAT", "DOUBLE", "REAL");
+
     /** Database name for display */
     private final String databaseName;
 
     /** Column name and types from result set meta data */
-    private final Map<String, String> colNameAndTypes;
+    @Getter
+    private final Collection<Type> schema;
 
     /** Data rows from result set */
     private final Collection<Row> dataRows;
@@ -49,21 +55,27 @@ public class DBResult {
      * with specific column names in SELECT but without ORDER BY.
      */
     public DBResult(String databaseName) {
-        this(databaseName, new LinkedHashMap<>(), new HashSet<>());
+        this(databaseName, new ArrayList<>(), new HashSet<>());
     }
 
-    public DBResult(String databaseName, Map<String, String> colNameAndTypes, Collection<Row> rows) {
+    public DBResult(String databaseName, Collection<Type> schema, Collection<Row> rows) {
         this.databaseName = databaseName;
-        this.colNameAndTypes = colNameAndTypes;
+        this.schema = schema;
         this.dataRows = rows;
     }
 
     public int columnSize() {
-        return colNameAndTypes.size();
+        return schema.size();
     }
 
     public void addColumn(String name, String type) {
-        colNameAndTypes.put(StringUtils.toUpper(name), StringUtils.toUpper(type));
+        type = StringUtils.toUpper(type);
+
+        // Ignore float type by assigning all type names string to it.
+        if (FLOAT_TYPES.contains(type)) {
+            type = FLOAT_TYPES.toString();
+        }
+        schema.add(new Type(StringUtils.toUpper(name), type));
     }
 
     public void addRow(Row row) {
@@ -73,11 +85,6 @@ public class DBResult {
     @JSONPropertyName("database")
     public String getDatabaseName() {
         return databaseName;
-    }
-
-    @JSONPropertyName("schema")
-    public Map<String, String> getColumnNameAndTypes() {
-        return colNameAndTypes;
     }
 
     /** Flatten for simplifying json generated */
