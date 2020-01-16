@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.expression.domain;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.model.ExprMissingValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueFactory;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -28,8 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueFactory.fromJson;
 
 /**
  * BindingTuple represents the a relationship between bindingName and ExprValue.
@@ -66,7 +65,7 @@ public class BindingTuple {
     public static BindingTuple from(Map<String, Object> map) {
         Map<String, ExprValue> ssValueMap = new HashMap<>();
         for (Map.Entry<String, Object> entry : map.entrySet()) {
-            ssValueMap.put(entry.getKey(), fromJson(entry.getValue()));
+            ssValueMap.put(entry.getKey(), ExprValueFactory.from(entry.getValue()));
         }
         return BindingTuple.builder()
                 .bindingMap(ssValueMap)
@@ -76,7 +75,7 @@ public class BindingTuple {
     public static BindingTuple from(JSONObject json) {
         Map<String, ExprValue> valueMap = new HashMap<>();
         for (String s : json.keySet()) {
-            valueMap.put(s, fromJson(json.get(s)));
+            valueMap.put(s, ExprValueFactory.from(json.get(s)));
         }
         return new BindingTuple(valueMap);
     }

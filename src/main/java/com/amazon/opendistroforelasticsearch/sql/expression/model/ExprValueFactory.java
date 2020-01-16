@@ -36,6 +36,14 @@ public class ExprValueFactory {
         return new ExprIntegerValue(value);
     }
 
+    public static ExprValue longValue(Long value) {
+        return new ExprLongValue(value);
+    }
+
+    public static ExprValue floatValue(Float value) {
+        return new ExprFloatValue(value);
+    }
+
     public static ExprValue doubleValue(Double value) {
         return new ExprDoubleValue(value);
     }
@@ -44,10 +52,11 @@ public class ExprValueFactory {
         return new ExprStringValue(value);
     }
 
+
     public static ExprValue tupleValue(JSONObject jsonObject) {
         Map<String, ExprValue> valueMap = new HashMap<>();
         for (String s : jsonObject.keySet()) {
-            valueMap.put(s, fromJson(jsonObject.get(s)));
+            valueMap.put(s, from(jsonObject.get(s)));
         }
         return new ExprTupleValue(valueMap);
     }
@@ -55,12 +64,12 @@ public class ExprValueFactory {
     public static ExprValue collectionValue(JSONArray array) {
         List<ExprValue> valueList = new ArrayList<>();
         for (Object o : array) {
-            valueList.add(fromJson(o));
+            valueList.add(from(o));
         }
         return new ExprCollectionValue(valueList);
     }
 
-    public static ExprValue fromJson(Object o) {
+    public static ExprValue from(Object o) {
         if (o instanceof JSONObject) {
             return tupleValue((JSONObject) o);
         } else if (o instanceof JSONArray) {
@@ -68,7 +77,9 @@ public class ExprValueFactory {
         } else if (o instanceof Integer) {
             return integerValue((Integer) o);
         } else if (o instanceof Long) {
-            return integerValue(((Long) o).intValue());
+            return longValue((Long) o);
+        } else if (o instanceof Float) {
+            return floatValue((Float) o);
         } else if (o instanceof Boolean) {
             return booleanValue((Boolean) o);
         } else if (o instanceof Double) {

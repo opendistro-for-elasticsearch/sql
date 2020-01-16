@@ -34,12 +34,13 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Arrays;
 import java.util.List;
 
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.add;
 import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.cast;
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.log;
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.ref;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.of;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation.ADD;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation.LOG;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 
@@ -227,7 +228,7 @@ public class SQLAggregationParserTest {
     @Test
     public void aggregationWithNestedShouldThrowException() {
         exceptionRule.expect(RuntimeException.class);
-        exceptionRule.expectMessage("unsupported operator in select: nested");
+        exceptionRule.expectMessage("unsupported operator: nested");
 
         String sql = "SELECT nested(projects.name, 'projects'),id "
                      + "FROM t "
@@ -302,5 +303,13 @@ public class SQLAggregationParserTest {
                 return b;
             }
         };
+    }
+
+    private Expression add(Expression... expressions) {
+        return of(ADD, Arrays.asList(expressions));
+    }
+
+    private Expression log(Expression... expressions) {
+        return of(LOG, Arrays.asList(expressions));
     }
 }

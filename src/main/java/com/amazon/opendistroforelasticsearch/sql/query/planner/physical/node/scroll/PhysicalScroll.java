@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueFactory.fromJson;
+import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueFactory.from;
 import static com.amazon.opendistroforelasticsearch.sql.query.planner.physical.node.scroll.SearchAggregationResponseHelper.flatten;
 
 /**
@@ -88,7 +88,7 @@ public class PhysicalScroll implements PhysicalOperator<BindingTuple> {
         List<BindingTupleRow> bindingTupleList = flatten.stream().map(map -> {
             Map<String, ExprValue> ssValueMap = new HashMap<>();
             for (Map.Entry<String, Object> entry : map.entrySet()) {
-                ssValueMap.put(entry.getKey(), fromJson(entry.getValue()));
+                ssValueMap.put(entry.getKey(), from(entry.getValue()));
             }
             return BindingTuple.builder().bindingMap(ssValueMap).build();
         }).map(bindingTuple -> new BindingTupleRow(bindingTuple)).collect(Collectors.toList());

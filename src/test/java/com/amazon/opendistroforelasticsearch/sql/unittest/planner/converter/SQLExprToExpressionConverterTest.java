@@ -32,8 +32,11 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.add;
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.log;
+import java.util.Arrays;
+
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.of;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation.ADD;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation.LOG;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -130,12 +133,20 @@ public class SQLExprToExpressionConverterTest {
 
     @Test
     public void unsupportOperationShouldThrowException() {
-        exceptionRule.expect(RuntimeException.class);
-        exceptionRule.expectMessage("unsupported operator in select: LOG10");
+        exceptionRule.expect(UnsupportedOperationException.class);
+        exceptionRule.expectMessage("unsupported operator: cot");
 
         context.addAggregationExpr(maxA);
-        SQLMethodInvokeExpr methodInvokeExpr = new SQLMethodInvokeExpr("LOG10");
+        SQLMethodInvokeExpr methodInvokeExpr = new SQLMethodInvokeExpr("cot");
         methodInvokeExpr.addParameter(maxA);
         converter.convert(methodInvokeExpr);
+    }
+
+    private Expression add(Expression... expressions) {
+        return of(ADD, Arrays.asList(expressions));
+    }
+
+    private Expression log(Expression... expressions) {
+        return of(LOG, Arrays.asList(expressions));
     }
 }

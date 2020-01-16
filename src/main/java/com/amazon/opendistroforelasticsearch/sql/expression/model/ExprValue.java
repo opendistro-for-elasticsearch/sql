@@ -58,6 +58,8 @@ public interface ExprValue {
         BOOLEAN_VALUE,
         INTEGER_VALUE,
         DOUBLE_VALUE,
+        LONG_VALUE,
+        FLOAT_VALUE,
         STRING_VALUE
     }
 }
