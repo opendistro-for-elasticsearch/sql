@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.antlr.semantic;
 
+import org.junit.Ignore;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType;
 import org.junit.Test;
 
@@ -95,6 +96,7 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
         validate("SELECT LOG(new_field) FROM semantics");
     }
 
+    @Ignore("Test set to ignore due to nested functions not supported and blocked by throwing SqlFeatureNotImplementedException")
     @Test
     public void substringWithLogFunctionCallWithUnknownFieldShouldPass() {
         expectValidationFailWithErrorMessages(
@@ -104,21 +106,25 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
                 );
     }
 
+    @Ignore("Test set to ignore due to nested functions not supported and blocked by throwing SqlFeatureNotImplementedException")
     @Test
     public void logFunctionCallWithResultOfAbsFunctionCallWithOneNumberShouldPass() {
         validate("SELECT LOG(ABS(age)) FROM semantics");
     }
 
+    @Ignore("Test set to ignore due to nested functions not supported and blocked by throwing SqlFeatureNotImplementedException")
     @Test
     public void logFunctionCallWithMoreNestedFunctionCallWithOneNumberShouldPass() {
         validate("SELECT LOG(ABS(SQRT(balance))) FROM semantics");
     }
 
+    @Ignore("Test set to ignore due to nested functions not supported and blocked by throwing SqlFeatureNotImplementedException")
     @Test
     public void substringFunctionCallWithResultOfAnotherSubstringAndAbsFunctionCallShouldPass() {
         validate("SELECT SUBSTRING(SUBSTRING(city, ABS(age), 1), 2, ABS(1)) FROM semantics");
     }
 
+    @Ignore("Test set to ignore due to nested functions not supported and blocked by throwing SqlFeatureNotImplementedException")
     @Test
     public void substringFunctionCallWithResultOfMathFunctionCallShouldFail() {
         expectValidationFailWithErrorMessages(
@@ -128,6 +134,7 @@ public class SemanticAnalyzerScalarFunctionTest extends SemanticAnalyzerTestBase
         );
     }
 
+    @Ignore("Test set to ignore due to nested functions not supported and blocked by throwing SqlFeatureNotImplementedException")
     @Test
     public void logFunctionCallWithResultOfSubstringFunctionCallShouldFail() {
         expectValidationFailWithErrorMessages(
