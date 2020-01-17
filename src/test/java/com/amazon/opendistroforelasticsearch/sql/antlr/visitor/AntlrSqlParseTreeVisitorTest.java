@@ -21,10 +21,12 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.scope.SemanticCo
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.special.Product;
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.visitor.TypeChecker;
-import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.AntlrSqlParseTreeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.exception.SqlFeatureNotImplementedException;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.util.Arrays;
 
@@ -54,6 +56,9 @@ public class AntlrSqlParseTreeVisitorTest {
         }
     };
 
+    @Rule
+    public ExpectedException exceptionRule = ExpectedException.none();
+
     @Test
     public void selectNumberShouldReturnNumberAsQueryVisitingResult() {
         Type result = visit("SELECT age FROM test");
@@ -72,6 +77,53 @@ public class AntlrSqlParseTreeVisitorTest {
         Type result = visit("SELECT * FROM test");
         Assert.assertTrue(result instanceof Product);
         Assert.assertTrue(result.isCompatible(new Product(emptyList())));
+    }
+
+    @Test
+    public void visitSelectNestedFunctionShouldThrowException() {
+        exceptionRule.expect(SqlFeatureNotImplementedException.class);
+        exceptionRule.expectMessage("Nested function calls like [abs(log(age))] are not supported yet");
+        visit("SELECT abs(log(age)) FROM test");
+    }
+
+    @Test
+    public void visitWhereNestedFunctionShouldThrowException() {
+        exceptionRule.expect(SqlFeatureNotImplementedException.class);
+        exceptionRule.expectMessage("Nested function calls like [abs(log(age))] are not supported yet");
+        visit("SELECT age FROM test WHERE abs(log(age)) = 1");
+    }
+
+    @Test
+    public void visitMathConstantAsNestedFunctionShouldPass() {
+        visit("SELECT abs(pi()) FROM test");
+    }
+
+    @Test
+    public void visitSupportedNestedFunctionShouldPass() {
+        visit("SELECT sum(nested(name.balance)) FROM test");
+    }
+
+    /** Temporarily added, should be deleted after this case is fixed */
+    @Test
+    public void visitSelectNestedAggregationAsFunctionArgShouldThrowException() {
+        exceptionRule.expect(SqlFeatureNotImplementedException.class);
+        exceptionRule.expectMessage(
+                "Nested function calls with aggregation argument like [abs(max(age))] are not supported yet");
+        visit("SELECT abs(max(age)) FROM test");
+    }
+
+    @Test
+    public void visitFunctionAsAggregatorShouldThrowException() {
+        exceptionRule.expect(SqlFeatureNotImplementedException.class);
+        exceptionRule.expectMessage("Aggregation calls with function aggregator like [max(abs(age))] are not supported yet");
+        visit("SELECT max(abs(age)) FROM test");
+    }
+
+    @Test
+    public void visitUnsupportedOperatorShouldThrowException() {
+        exceptionRule.expect(SqlFeatureNotImplementedException.class);
+        exceptionRule.expectMessage("Operator [DIV] is not supported yet");
+        visit("SELECT balance DIV age FROM test");
     }
 
     private ParseTree createParseTree(String sql) {
