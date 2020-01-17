@@ -103,15 +103,6 @@ public class AntlrSqlParseTreeVisitorTest {
         visit("SELECT sum(nested(name.balance)) FROM test");
     }
 
-    /** Temporarily added, should be deleted after this case is fixed */
-    @Test
-    public void visitSelectNestedAggregationAsFunctionArgShouldThrowException() {
-        exceptionRule.expect(SqlFeatureNotImplementedException.class);
-        exceptionRule.expectMessage(
-                "Nested function calls with aggregation argument like [abs(max(age))] are not supported yet");
-        visit("SELECT abs(max(age)) FROM test");
-    }
-
     @Test
     public void visitFunctionAsAggregatorShouldThrowException() {
         exceptionRule.expect(SqlFeatureNotImplementedException.class);
