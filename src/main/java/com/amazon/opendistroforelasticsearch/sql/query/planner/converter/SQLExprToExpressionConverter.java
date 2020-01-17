@@ -20,9 +20,11 @@ import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOperator;
 import com.alibaba.druid.sql.ast.expr.SQLCastExpr;
 import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
+import com.alibaba.druid.sql.ast.expr.SQLValuableExpr;
 import com.amazon.opendistroforelasticsearch.sql.expression.core.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory;
 import com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation;
+import com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueFactory;
 import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
 
@@ -33,6 +35,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.cast;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.literal;
 
 /**
  * The definition of {@link SQLExpr} to {@link Expression} converter.
@@ -84,6 +87,8 @@ public class SQLExprToExpressionConverter {
                 return binaryOperatorToExpression((SQLBinaryOpExpr) expr, this::convert);
             } else if (expr instanceof SQLMethodInvokeExpr) {
                 return methodToExpression((SQLMethodInvokeExpr) expr, this::convert);
+            } else if (expr instanceof SQLValuableExpr) {
+                return literal(ExprValueFactory.from(((SQLValuableExpr) expr).getValue()));
             } else if (expr instanceof SQLCastExpr) {
                 return cast(convert(((SQLCastExpr) expr).getExpr()));
             } else {
@@ -97,7 +102,7 @@ public class SQLExprToExpressionConverter {
         if (binaryOperatorOperationMap.containsKey(expr.getOperator())) {
             return ExpressionFactory.of(binaryOperatorOperationMap.get(expr.getOperator()),
                                         Arrays.asList(converter.apply(expr.getLeft()),
-                                                           converter.apply(expr.getRight())));
+                                                      converter.apply(expr.getRight())));
         } else {
             throw new UnsupportedOperationException("unsupported operator: " + expr.getOperator().getName());
         }

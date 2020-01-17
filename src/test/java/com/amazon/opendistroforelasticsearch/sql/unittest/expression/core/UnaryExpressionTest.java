@@ -22,7 +22,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.constant;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueFactory.doubleValue;
 import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueFactory.stringValue;
 import static org.junit.Assert.assertEquals;
@@ -35,83 +35,83 @@ public class UnaryExpressionTest extends ExpressionTest {
 
     @Test
     public void absShouldPass() {
-        assertEquals(2.0d, apply(ScalarOperation.ABS, constant(doubleValue(-2d))));
+        assertEquals(2.0d, apply(ScalarOperation.ABS, literal(doubleValue(-2d))));
     }
 
     @Test
     public void asinShouldPass() {
-        assertEquals(0.1001674211615598d, apply(ScalarOperation.ASIN, constant(doubleValue(0.1d))));
+        assertEquals(0.1001674211615598d, apply(ScalarOperation.ASIN, literal(doubleValue(0.1d))));
     }
 
     @Test
     public void atanShouldPass() {
-        assertEquals(1.1071487177940904d, apply(ScalarOperation.ATAN, constant(doubleValue(2d))));
+        assertEquals(1.1071487177940904d, apply(ScalarOperation.ATAN, literal(doubleValue(2d))));
     }
 
     @Test
     public void atan2ShouldPass() {
         assertEquals(1.1071487177940904d,
-                     apply(ScalarOperation.ATAN2, constant(doubleValue(2d)), constant(doubleValue(1d))));
+                     apply(ScalarOperation.ATAN2, literal(doubleValue(2d)), literal(doubleValue(1d))));
     }
 
     @Test
     public void cbrtShouldPass() {
         assertEquals(1.2599210498948732d,
-                     apply(ScalarOperation.CBRT, constant(doubleValue(2d))));
+                     apply(ScalarOperation.CBRT, literal(doubleValue(2d))));
     }
 
     @Test
     public void ceilShouldPass() {
         assertEquals(3.0d,
-                     apply(ScalarOperation.CEIL, constant(doubleValue(2.1d))));
+                     apply(ScalarOperation.CEIL, literal(doubleValue(2.1d))));
     }
 
     @Test
     public void floorShouldPass() {
         assertEquals(2.0d,
-                     apply(ScalarOperation.FLOOR, constant(doubleValue(2.1d))));
+                     apply(ScalarOperation.FLOOR, literal(doubleValue(2.1d))));
     }
 
     @Test
     public void cosShouldPass() {
         assertEquals(-0.4161468365471424d,
-                     apply(ScalarOperation.COS, constant(doubleValue(2d))));
+                     apply(ScalarOperation.COS, literal(doubleValue(2d))));
     }
 
     @Test
     public void coshShouldPass() {
         assertEquals(3.7621956910836314d,
-                     apply(ScalarOperation.COSH, constant(doubleValue(2d))));
+                     apply(ScalarOperation.COSH, literal(doubleValue(2d))));
     }
 
     @Test
     public void expShouldPass() {
         assertEquals(7.38905609893065d,
-                     apply(ScalarOperation.EXP, constant(doubleValue(2d))));
+                     apply(ScalarOperation.EXP, literal(doubleValue(2d))));
     }
 
     @Test
     public void lnShouldPass() {
         assertEquals(0.6931471805599453d,
-                     apply(ScalarOperation.LN, constant(doubleValue(2d))));
+                     apply(ScalarOperation.LN, literal(doubleValue(2d))));
     }
 
     @Test
     public void logShouldPass() {
         assertEquals(0.6931471805599453d,
-                     apply(ScalarOperation.LOG, constant(doubleValue(2d))));
+                     apply(ScalarOperation.LOG, literal(doubleValue(2d))));
     }
 
     @Test
     public void log2ShouldPass() {
         assertEquals(1.0d,
-                     apply(ScalarOperation.LOG2, constant(doubleValue(2d))));
+                     apply(ScalarOperation.LOG2, literal(doubleValue(2d))));
     }
 
     @Test
     public void log10ShouldPass() {
         assertEquals(0.3010299956639812,
-                     apply(ScalarOperation.LOG10, constant(doubleValue(2d))));
+                     apply(ScalarOperation.LOG10, literal(doubleValue(2d))));
     }
 
     @Test
@@ -119,7 +119,7 @@ public class UnaryExpressionTest extends ExpressionTest {
         exceptionRule.expect(RuntimeException.class);
         exceptionRule.expectMessage("unexpected operation type: ABS(STRING_VALUE)");
 
-        apply(ScalarOperation.ABS, constant(stringValue("stringValue")));
+        apply(ScalarOperation.ABS, literal(stringValue("stringValue")));
     }
 
     @Test
@@ -127,6 +127,6 @@ public class UnaryExpressionTest extends ExpressionTest {
         exceptionRule.expect(RuntimeException.class);
         exceptionRule.expectMessage("unexpected operation type: ATAN2(DOUBLE_VALUE,STRING_VALUE)");
 
-        apply(ScalarOperation.ATAN2, constant(doubleValue(2d)), constant(stringValue("stringValue")));
+        apply(ScalarOperation.ATAN2, literal(doubleValue(2d)), literal(stringValue("stringValue")));
     }
 }

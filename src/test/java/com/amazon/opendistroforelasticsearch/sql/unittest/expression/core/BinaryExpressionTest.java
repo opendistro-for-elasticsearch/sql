@@ -22,7 +22,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.constant;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.ref;
 import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueFactory.integerValue;
 import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueFactory.stringValue;
@@ -100,6 +100,6 @@ public class BinaryExpressionTest extends ExpressionTest {
         exceptionRule.expect(RuntimeException.class);
         exceptionRule.expectMessage("unexpected operation type: ADD(INTEGER_VALUE, STRING_VALUE)");
 
-        assertEquals(2, apply(ScalarOperation.ADD, constant(integerValue(1)), constant(stringValue("stringValue"))));
+        assertEquals(2, apply(ScalarOperation.ADD, literal(integerValue(1)), literal(stringValue("stringValue"))));
     }
 }

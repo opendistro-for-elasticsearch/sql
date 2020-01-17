@@ -97,7 +97,7 @@ public class ExpressionFactory {
         };
     }
 
-    public static Expression constant(ExprValue value) {
+    public static Expression literal(ExprValue value) {
         return new Expression() {
             @Override
             public ExprValue valueOf(BindingTuple tuple) {

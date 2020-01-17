@@ -19,7 +19,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation
 import org.junit.Test;
 
 
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.constant;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueFactory.doubleValue;
 import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueFactory.integerValue;
 import static org.junit.Assert.assertEquals;
@@ -29,7 +29,7 @@ public class CompoundExpressionTest extends ExpressionTest {
     @Test
     public void absAndAddShouldPass() {
         assertEquals(2.0d, of(ScalarOperation.ABS, of(ScalarOperation.ADD,
-                                                      constant(doubleValue(-1.0d)), constant(integerValue(-1))))
+                                                      literal(doubleValue(-1.0d)), literal(integerValue(-1))))
                 .valueOf(bindingTuple()).numberValue());
     }
 }
