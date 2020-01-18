@@ -45,9 +45,8 @@ public class ExprCollectionValue implements ExprValue {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("[");
-        sb.append(String.join(",", valueList.stream().map(tuple -> tuple.toString()).collect(Collectors.toList())));
-        sb.append("]");
-        return sb.toString();
+        return valueList.stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(",", "[", "]"));
     }
 }

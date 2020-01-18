@@ -16,18 +16,15 @@
 package com.amazon.opendistroforelasticsearch.sql.query.planner.physical.node.project;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
-import com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValue;
-import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.node.scroll.BindingTupleRow;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.ColumnNode;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.PlanNode;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.PhysicalOperator;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.Row;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.estimation.Cost;
+import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.node.scroll.BindingTupleRow;
 import lombok.RequiredArgsConstructor;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * The definition of Project Operator.
@@ -55,11 +52,8 @@ public class PhysicalProject implements PhysicalOperator<BindingTuple> {
     @Override
     public Row<BindingTuple> next() {
         BindingTuple input = next.next().data();
-        Map<String, ExprValue> output = new HashMap<>();
-        for (ColumnNode field : fields) {
-            ExprValue exprValue = field.getExpr().valueOf(input);
-            output.put(field.getName(), exprValue);
-        }
-        return new BindingTupleRow(BindingTuple.builder().bindingMap(output).build());
+        BindingTuple.BindingTupleBuilder outputBindingTupleBuilder = BindingTuple.builder();
+        fields.forEach(field -> outputBindingTupleBuilder.binding(field.getName(), field.getExpr().valueOf(input)));
+        return new BindingTupleRow(outputBindingTupleBuilder.build());
     }
 }

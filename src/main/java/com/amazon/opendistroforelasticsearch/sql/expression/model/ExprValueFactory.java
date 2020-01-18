@@ -15,9 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.model;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,27 +41,23 @@ public class ExprValueFactory {
         return new ExprStringValue(value);
     }
 
-    public static ExprValue tupleValue(JSONObject jsonObject) {
+    public static ExprValue tupleValue(Map<String, Object> map) {
         Map<String, ExprValue> valueMap = new HashMap<>();
-        for (String s : jsonObject.keySet()) {
-            valueMap.put(s, fromJson(jsonObject.get(s)));
-        }
+        map.forEach((k, v) -> valueMap.put(k, from(v)));
         return new ExprTupleValue(valueMap);
     }
 
-    public static ExprValue collectionValue(JSONArray array) {
+    public static ExprValue collectionValue(List<Object> list) {
         List<ExprValue> valueList = new ArrayList<>();
-        for (Object o : array) {
-            valueList.add(fromJson(o));
-        }
+        list.forEach(o -> valueList.add(from(o)));
         return new ExprCollectionValue(valueList);
     }
 
-    public static ExprValue fromJson(Object o) {
-        if (o instanceof JSONObject) {
-            return tupleValue((JSONObject) o);
-        } else if (o instanceof JSONArray) {
-            return collectionValue(((JSONArray) o));
+    public static ExprValue from(Object o) {
+        if (o instanceof Map) {
+            return tupleValue((Map) o);
+        } else if (o instanceof List) {
+            return collectionValue(((List) o));
         } else if (o instanceof Integer) {
             return integerValue((Integer) o);
         } else if (o instanceof Long) {
