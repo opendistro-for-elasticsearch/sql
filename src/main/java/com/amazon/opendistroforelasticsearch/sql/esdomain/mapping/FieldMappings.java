@@ -93,6 +93,10 @@ public class FieldMappings implements Mappings<Map<String, Object>> {
         return mapping;
     }
 
+    public Map<String, Object> rawMapping() {
+        return fieldMappings;
+    }
+
     @Override
     public Map<String, Map<String, Object>> data() {
         // Is this assumption true? Is it possible mapping of field is NOT a Map<String,Object>?

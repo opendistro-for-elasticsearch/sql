@@ -261,43 +261,45 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
         final FieldMappings fieldMappings;
 
         if (indexMappings.size() > 1) {
-            Map<String, Map<String, Object>> mergedMapping = new HashMap<>();
+            Map<String, Object> mergedMapping = new HashMap<>();
 
             for (FieldMappings f : indexMappings) {
-                Map<String, Map<String, Object>> m = f.data();
-                m.forEach((k, v) -> verifySingleFieldMapping(k, v, mergedMapping));
+                verifyFieldsMapping(f.rawMapping(), mergedMapping);
             }
 
-            fieldMappings = new FieldMappings(mergedMapping);
+            Map<String, Map<String, Object>> finalMapping = new HashMap<>();
+            mergedMapping.forEach((k, v) -> finalMapping.put(k, (Map<String, Object>) v));
+            fieldMappings = new FieldMappings(finalMapping);
         } else {
+            // single index
             fieldMappings = curScope().getMapper().firstMapping().firstMapping();
         }
         // We need finalMapping to lookup for rewriting
         curScope().setFinalMapping(fieldMappings);
     }
 
-    private void verifySingleFieldMapping(final String fieldName, final Map<String, Object> fieldMapping,
-                                          final Map<String, Map<String, Object>> mergedMapping) {
+    private void verifyFieldsMapping(final Map<String, Object> newMapping, final Map<String, Object> mergedMapping) {
+        newMapping.forEach((fieldName, fieldMapping) -> {
+            if (!mergedMapping.containsKey(fieldName)) {
+                mergedMapping.put(fieldName, fieldMapping);
+            } else {
+                final Object visitedFieldMapping = mergedMapping.get(fieldName);
+                if (fieldName != "properties") {
+                    if (!fieldMapping.equals(visitedFieldMapping)) {
+                        String firstFieldType = new JSONObject(fieldMapping).toString().replaceAll("\"", "");
+                        String secondFieldType = new JSONObject(visitedFieldMapping).toString().replaceAll("\"", "");
 
-        if (!mergedMapping.containsKey(fieldName)) {
-            mergedMapping.put(fieldName, fieldMapping);
-        } else {
+                        String exceptionReason = String.format(Locale.ROOT, "Different mappings are not allowed "
+                                        + "for the same field[%s]: found [%s] and [%s] ",
+                                fieldName, firstFieldType, secondFieldType);
 
-            final Map<String, Object> visitedMapping = mergedMapping.get(fieldName);
-            // check if types are same
-            if (!fieldMapping.equals(visitedMapping)) {
-                // TODO: Merge mappings if they are compatible, for text and text/keyword to text/keyword.
-
-                String firstFieldType = new JSONObject(fieldMapping).toString().replaceAll("\"", "");
-                String secondFieldType = new JSONObject(visitedMapping).toString().replaceAll("\"", "");
-
-                String exceptionReason = String.format(Locale.ROOT, "Different mappings are not allowed "
-                                + "for the same field[%s]: found [%s] and [%s] ",
-                        fieldName, firstFieldType, secondFieldType);
-
-                throw new VerificationException(exceptionReason);
+                        throw new VerificationException(exceptionReason);
+                    }
+                } else {
+                    verifyFieldsMapping((Map<String, Object>) fieldMapping, (Map<String, Object>) visitedFieldMapping);
+                }
             }
-        }
+        });
     }
 
     public IndexMappings getMappings(Map<String, String> indexToType) {
