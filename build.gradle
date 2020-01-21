@@ -62,7 +62,9 @@ version = "${opendistroVersion}.0"
 
 apply plugin: 'elasticsearch.esplugin'
 apply plugin: 'jacoco'
-apply from: 'build-tools/sqlplugin-coverage.gradle'
+if (!System.properties.containsKey('tests.rest.cluster') && !System.properties.containsKey('tests.cluster')){
+	apply from: 'build-tools/sqlplugin-coverage.gradle'
+}
 apply plugin: 'antlr'
 
 jacoco {
