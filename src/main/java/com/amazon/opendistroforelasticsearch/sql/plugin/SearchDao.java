@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.plugin;
 
+import com.amazon.opendistroforelasticsearch.sql.domain.QueryActionRequest;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.query.ESActionFactory;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
@@ -51,11 +52,12 @@ public class SearchDao {
      * Prepare action And transform sql
      * into ES ActionRequest
      *
-     * @param sql SQL query to execute.
+     * @param queryActionRequest SQL query action request to execute.
      * @return ES request
      * @throws SqlParseException
      */
-    public QueryAction explain(String sql) throws SqlParseException, SQLFeatureNotSupportedException {
-        return ESActionFactory.create(client, sql);
+    public QueryAction explain(QueryActionRequest queryActionRequest)
+            throws SqlParseException, SQLFeatureNotSupportedException {
+        return ESActionFactory.create(client, queryActionRequest);
     }
 }
