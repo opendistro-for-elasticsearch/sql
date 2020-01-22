@@ -15,35 +15,12 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.model;
 
-import java.util.List;
-import java.util.Map;
-
 /**
- * The definition of the Value used in the Expression
+ * The definition of the Expression Value.
  */
 public interface ExprValue {
     default Object value() {
         throw new IllegalStateException("invalid value operation on " + kind());
-    }
-
-    default List<ExprValue> collectionValue() {
-        throw new IllegalStateException("invalid collectionValue operation on " + kind());
-    }
-
-    default Map<String, ExprValue> tupleValue() {
-        throw new IllegalStateException("invalid tupleValue on " + kind());
-    }
-
-    default Number numberValue() {
-        throw new IllegalStateException("invalid numberValue operation on " + kind());
-    }
-
-    default Boolean booleanValue() {
-        throw new IllegalStateException("invalid booleanValue operation on " + kind());
-    }
-
-    default String stringValue() {
-        throw new IllegalStateException("invalid stringValue operation on " + kind());
     }
 
     default ExprValueKind kind() {

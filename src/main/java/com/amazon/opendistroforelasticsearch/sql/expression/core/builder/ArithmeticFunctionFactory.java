@@ -13,17 +13,17 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.expression.core.scalar;
+package com.amazon.opendistroforelasticsearch.sql.expression.core.builder;
 
-import com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation;
-import com.amazon.opendistroforelasticsearch.sql.expression.core.expression.BinaryExpressionBuilder;
-import com.amazon.opendistroforelasticsearch.sql.expression.core.expression.ExpressionBuilder;
-import com.amazon.opendistroforelasticsearch.sql.expression.core.expression.UnaryExpressionBuilder;
+import com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation;
 import com.amazon.opendistroforelasticsearch.sql.expression.core.operator.BinaryScalarOperator;
 import com.amazon.opendistroforelasticsearch.sql.expression.core.operator.DoubleBinaryScalarOperator;
 import com.amazon.opendistroforelasticsearch.sql.expression.core.operator.DoubleUnaryScalarOperator;
 import com.amazon.opendistroforelasticsearch.sql.expression.core.operator.UnaryScalarOperator;
 
+/**
+ * The definition of arithmetic function builder factory.
+ */
 public class ArithmeticFunctionFactory {
     public static ExpressionBuilder add() {
         return new BinaryExpressionBuilder(

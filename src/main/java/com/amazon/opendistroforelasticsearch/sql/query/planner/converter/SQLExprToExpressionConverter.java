@@ -23,7 +23,7 @@ import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
 import com.alibaba.druid.sql.ast.expr.SQLValuableExpr;
 import com.amazon.opendistroforelasticsearch.sql.expression.core.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory;
-import com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation;
+import com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation;
 import com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueFactory;
 import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;

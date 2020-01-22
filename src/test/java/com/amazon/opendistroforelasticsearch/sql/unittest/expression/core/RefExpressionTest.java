@@ -21,6 +21,12 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.core.Expressi
 import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueFactory.doubleValue;
 import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueFactory.integerValue;
 import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueFactory.stringValue;
+import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueUtils.getBooleanValue;
+import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueUtils.getCollectionValue;
+import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueUtils.getDoubleValue;
+import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueUtils.getIntegerValue;
+import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueUtils.getStringValue;
+import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueUtils.getTupleValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
@@ -30,34 +36,34 @@ import static org.junit.Assert.assertEquals;
 public class RefExpressionTest extends ExpressionTest {
     @Test
     public void refIntegerValueShouldPass() {
-        assertEquals(1, ref("intValue").valueOf(bindingTuple()).numberValue());
+        assertEquals(Integer.valueOf(1), getIntegerValue(ref("intValue").valueOf(bindingTuple())));
     }
 
     @Test
     public void refDoubleValueShouldPass() {
-        assertEquals(2.0d, ref("doubleValue").valueOf(bindingTuple()).numberValue());
+        assertEquals(Double.valueOf(2d), getDoubleValue(ref("doubleValue").valueOf(bindingTuple())));
     }
 
     @Test
     public void refStringValueShouldPass() {
-        assertEquals("string", ref("stringValue").valueOf(bindingTuple()).stringValue());
+        assertEquals("string", getStringValue(ref("stringValue").valueOf(bindingTuple())));
     }
 
     @Test
     public void refBooleanValueShouldPass() {
-        assertEquals(true, ref("booleanValue").valueOf(bindingTuple()).booleanValue());
+        assertEquals(true, getBooleanValue(ref("booleanValue").valueOf(bindingTuple())));
     }
 
     @Test
     public void refTupleValueShouldPass() {
-        assertThat(ref("tupleValue").valueOf(bindingTuple()).tupleValue(),
+        assertThat(getTupleValue(ref("tupleValue").valueOf(bindingTuple())),
                    allOf(hasEntry("intValue", integerValue(1)), hasEntry("doubleValue", doubleValue(2d)),
                          hasEntry("stringValue", stringValue("string"))));
     }
 
     @Test
     public void refCollectValueShouldPass() {
-        assertThat(ref("collectValue").valueOf(bindingTuple()).collectionValue(),
+        assertThat(getCollectionValue(ref("collectValue").valueOf(bindingTuple())),
                    contains(integerValue(1), integerValue(2), integerValue(3)));
     }
 }

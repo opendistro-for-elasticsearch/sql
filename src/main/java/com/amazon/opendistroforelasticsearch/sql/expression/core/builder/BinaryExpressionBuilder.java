@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.expression.core.expression;
+package com.amazon.opendistroforelasticsearch.sql.expression.core.builder;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.core.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperator;
@@ -24,10 +24,18 @@ import lombok.RequiredArgsConstructor;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * The definition of the Expression Builder which has two arguments.
+ */
 @RequiredArgsConstructor
 public class BinaryExpressionBuilder implements ExpressionBuilder {
     private final ScalarOperator op;
 
+    /**
+     * Build the expression with two {@link Expression} as arguments.
+     * @param expressionList expression list.
+     * @return expression.
+     */
     @Override
     public Expression build(List<Expression> expressionList) {
         Expression e1 = expressionList.get(0);

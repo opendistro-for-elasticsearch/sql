@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.core.operator;
 
-import com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation;
+import com.amazon.opendistroforelasticsearch.sql.expression.model.ExprDoubleValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueFactory;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +23,12 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 import java.util.function.Function;
 
+import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueUtils.getDoubleValue;
+
+/**
+ * Unary Binary Scalar Operator take one {@link ExprValue} which have double value as arguments ans return one
+ * {@link ExprDoubleValue} as result.
+ */
 @RequiredArgsConstructor
 public class DoubleUnaryScalarOperator implements ScalarOperator {
     private final ScalarOperation op;
@@ -36,7 +42,7 @@ public class DoubleUnaryScalarOperator implements ScalarOperator {
             case INTEGER_VALUE:
             case LONG_VALUE:
             case FLOAT_VALUE:
-                return ExprValueFactory.from(doubleFunc.apply(exprValue.numberValue().doubleValue()));
+                return ExprValueFactory.from(doubleFunc.apply(getDoubleValue(exprValue)));
             default:
                 throw new RuntimeException(String.format("unexpected operation type: %s(%s)",
                                                          op.name(), exprValue.kind()));

@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.unittest.expression.core;
 
-import com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation;
+import com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;

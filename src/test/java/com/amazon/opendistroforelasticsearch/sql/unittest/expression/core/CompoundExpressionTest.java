@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.unittest.expression.core;
 
-import com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation;
+import com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation;
 import org.junit.Test;
 
 
@@ -28,8 +28,8 @@ public class CompoundExpressionTest extends ExpressionTest {
 
     @Test
     public void absAndAddShouldPass() {
-        assertEquals(2.0d, of(ScalarOperation.ABS, of(ScalarOperation.ADD,
-                                                      literal(doubleValue(-1.0d)), literal(integerValue(-1))))
-                .valueOf(bindingTuple()).numberValue());
+        assertEquals(2.0d, apply(ScalarOperation.ABS, of(ScalarOperation.ADD,
+                                                         literal(doubleValue(-1.0d)),
+                                                         literal(integerValue(-1)))));
     }
 }

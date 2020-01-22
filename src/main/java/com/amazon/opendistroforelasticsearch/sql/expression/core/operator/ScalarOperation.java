@@ -13,11 +13,14 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.expression.core;
+package com.amazon.opendistroforelasticsearch.sql.expression.core.operator;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * The definition of the Scalar Operation.
+ */
 @Getter
 @RequiredArgsConstructor
 public enum ScalarOperation {

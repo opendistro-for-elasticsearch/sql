@@ -29,11 +29,6 @@ public class ExprStringValue implements ExprValue {
     }
 
     @Override
-    public String stringValue() {
-        return value;
-    }
-
-    @Override
     public ExprValueKind kind() {
         return ExprValueKind.STRING_VALUE;
     }

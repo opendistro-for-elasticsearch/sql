@@ -16,8 +16,9 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.core;
 
 
-import com.amazon.opendistroforelasticsearch.sql.expression.core.expression.ExpressionBuilder;
-import com.amazon.opendistroforelasticsearch.sql.expression.core.scalar.ArithmeticFunctionFactory;
+import com.amazon.opendistroforelasticsearch.sql.expression.core.builder.ExpressionBuilder;
+import com.amazon.opendistroforelasticsearch.sql.expression.core.builder.ArithmeticFunctionFactory;
+import com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation;
 import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
 import com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValue;
 import com.google.common.collect.ImmutableMap;
@@ -25,26 +26,26 @@ import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation.ABS;
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation.ACOS;
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation.ADD;
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation.ASIN;
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation.ATAN;
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation.ATAN2;
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation.CBRT;
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation.CEIL;
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation.COS;
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation.COSH;
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation.DIVIDE;
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation.EXP;
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation.FLOOR;
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation.LN;
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation.LOG;
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation.LOG10;
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation.LOG2;
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation.MODULES;
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation.MULTIPLY;
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation.SUBTRACT;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.ABS;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.ACOS;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.ADD;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.ASIN;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.ATAN;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.ATAN2;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.CBRT;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.CEIL;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.COS;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.COSH;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.DIVIDE;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.EXP;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.FLOOR;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.LN;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.LOG;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.LOG10;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.LOG2;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.MODULES;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.MULTIPLY;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.SUBTRACT;
 
 
 /**
@@ -81,7 +82,7 @@ public class ExpressionFactory {
     }
 
     /**
-     * Ref Expression
+     * Ref Expression. Define the binding name which could be resolved in {@link BindingTuple}
      */
     public static Expression ref(String bindingName) {
         return new Expression() {
@@ -97,6 +98,9 @@ public class ExpressionFactory {
         };
     }
 
+    /**
+     * Literal Expression.
+     */
     public static Expression literal(ExprValue value) {
         return new Expression() {
             @Override
@@ -112,7 +116,7 @@ public class ExpressionFactory {
     }
 
     /**
-     * Cast Expression
+     * Cast Expression.
      */
     public static Expression cast(Expression expr) {
         return new Expression() {

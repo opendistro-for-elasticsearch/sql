@@ -29,11 +29,6 @@ public class ExprFloatValue implements ExprValue {
     }
 
     @Override
-    public Number numberValue() {
-        return value;
-    }
-
-    @Override
     public ExprValueKind kind() {
         return ExprValueKind.DOUBLE_VALUE;
     }

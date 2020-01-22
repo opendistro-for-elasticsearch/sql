@@ -32,6 +32,17 @@ public class AggregationExpressionIT extends SQLIntegTestCase {
     }
 
     @Test
+    public void noGroupKeySingleFuncOverAggWithoutAliasShouldPass() {
+        JSONObject response = executeJdbcRequest(String.format(
+                "SELECT abs(MAX(age)) " +
+                "FROM %s",
+                Index.ACCOUNT.getName()));
+
+        verifySchema(response, schema("abs(MAX(age))", null, "long"));
+        verifyDataRows(response, rows(40));
+    }
+
+    @Test
     public void noGroupKeyMaxAddMinShouldPass() {
         JSONObject response = executeJdbcRequest(String.format(
                 "SELECT MAX(age) + MIN(age) as add " +

@@ -39,8 +39,8 @@ import java.util.List;
 
 import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.cast;
 import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.of;
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation.ADD;
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation.LOG;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.ADD;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.LOG;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 
@@ -145,6 +145,19 @@ public class SQLAggregationParserTest {
                                                            .ref("ASCII(dayOfWeek)")),
                                                    columnNode("log", "log", log(add(ExpressionFactory.ref("MAX_0"), ExpressionFactory
                                                            .ref("MIN_1"))))));
+    }
+
+    @Test
+    public void parseSingleFunctionOverAggShouldPass() {
+        String sql = "SELECT log(max(age)) FROM accounts";
+        SQLAggregationParser parser = new SQLAggregationParser(new ColumnTypeProvider());
+        parser.parse(mYSqlSelectQueryBlock(sql));
+        List<SQLSelectItem> sqlSelectItems = parser.selectItemList();
+        List<ColumnNode> columnNodes = parser.getColumnNodes();
+
+        assertThat(sqlSelectItems, containsInAnyOrder(agg("max", "age", "max_0")));
+        assertThat(columnNodes, containsInAnyOrder(columnNode("log(max(age))", null, log(
+                ExpressionFactory.ref("max_0")))));
     }
 
     @Test

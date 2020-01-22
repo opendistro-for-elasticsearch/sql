@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.core.operator;
 
-import com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation;
 import com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueFactory;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +22,14 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 import java.util.function.Function;
 
+import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueUtils.getDoubleValue;
+import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueUtils.getFloatValue;
+import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueUtils.getIntegerValue;
+import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueUtils.getLongValue;
+
+/**
+ * Unary Scalar Operator take one {@link ExprValue} as arguments ans return one {@link ExprValue} as result.
+ */
 @RequiredArgsConstructor
 public class UnaryScalarOperator implements ScalarOperator {
     private final ScalarOperation op;
@@ -36,13 +43,13 @@ public class UnaryScalarOperator implements ScalarOperator {
         ExprValue exprValue = exprValues.get(0);
         switch (exprValue.kind()) {
             case DOUBLE_VALUE:
-                return ExprValueFactory.from(doubleFunc.apply(exprValue.numberValue().doubleValue()));
+                return ExprValueFactory.from(doubleFunc.apply(getDoubleValue(exprValue)));
             case INTEGER_VALUE:
-                return ExprValueFactory.from(integerFunc.apply(exprValue.numberValue().intValue()));
+                return ExprValueFactory.from(integerFunc.apply(getIntegerValue(exprValue)));
             case LONG_VALUE:
-                return ExprValueFactory.from(longFunc.apply(exprValue.numberValue().longValue()));
+                return ExprValueFactory.from(longFunc.apply(getLongValue(exprValue)));
             case FLOAT_VALUE:
-                return ExprValueFactory.from(floatFunc.apply(exprValue.numberValue().floatValue()));
+                return ExprValueFactory.from(floatFunc.apply(getFloatValue(exprValue)));
             default:
                 throw new RuntimeException(String.format("unexpected operation type: %s(%s)", op.name(),
                                                          exprValue.kind()));

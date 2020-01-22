@@ -32,11 +32,6 @@ public class ExprTupleValue implements ExprValue {
     }
 
     @Override
-    public Map<String, ExprValue> tupleValue() {
-        return valueMap;
-    }
-
-    @Override
     public ExprValueKind kind() {
         return ExprValueKind.TUPLE_VALUE;
     }

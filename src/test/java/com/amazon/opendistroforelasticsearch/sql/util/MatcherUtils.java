@@ -47,12 +47,12 @@ public class MatcherUtils {
     /**
      * Assert field value in object by a custom matcher and getter to access the field.
      *
-     * @param name       description
-     * @param subMatcher sub-matcher for field
-     * @param getter     getter function to access the field
-     * @param <T>        type of outer object
-     * @param <U>        type of inner field
-     * @return matcher
+     * @param name          description
+     * @param subMatcher    sub-matcher for field
+     * @param getter        getter function to access the field
+     * @param <T>           type of outer object
+     * @param <U>           type of inner field
+     * @return              matcher
      */
     public static <T, U> FeatureMatcher<T, U> featureValueOf(String name,
                                                              Matcher<U> subMatcher,

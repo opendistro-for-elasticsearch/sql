@@ -17,11 +17,13 @@ package com.amazon.opendistroforelasticsearch.sql.unittest.expression.core;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.core.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory;
-import com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation;
+import com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation;
 import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
 import org.json.JSONObject;
 
 import java.util.Arrays;
+
+import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueUtils.getNumberValue;
 
 
 public class ExpressionTest {
@@ -52,6 +54,6 @@ public class ExpressionTest {
     }
 
     protected Number apply(ScalarOperation op, Expression... expressions) {
-        return of(op, expressions).valueOf(bindingTuple()).numberValue();
+        return getNumberValue(of(op, expressions).valueOf(bindingTuple()));
     }
 }

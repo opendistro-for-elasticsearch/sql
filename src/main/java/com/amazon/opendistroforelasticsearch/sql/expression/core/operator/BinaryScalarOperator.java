@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.core.operator;
 
-import com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation;
 import com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueFactory;
 import com.google.common.collect.ImmutableMap;
@@ -29,7 +28,14 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprVal
 import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValue.ExprValueKind.FLOAT_VALUE;
 import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValue.ExprValueKind.INTEGER_VALUE;
 import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValue.ExprValueKind.LONG_VALUE;
+import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueUtils.getDoubleValue;
+import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueUtils.getFloatValue;
+import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueUtils.getIntegerValue;
+import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueUtils.getLongValue;
 
+/**
+ * Binary Scalar Operator take two {@link ExprValue} as arguments ans return one {@link ExprValue} as result.
+ */
 @RequiredArgsConstructor
 public class BinaryScalarOperator implements ScalarOperator {
     private static final Map<ExprValue.ExprValueKind, Integer> numberTypeOrder =
@@ -58,17 +64,16 @@ public class BinaryScalarOperator implements ScalarOperator {
                 ? v1.kind() : v2.kind();
         switch (expectedType) {
             case DOUBLE_VALUE:
-                return ExprValueFactory.from(
-                        doubleFunc.apply(v1.numberValue().doubleValue(), v2.numberValue().doubleValue()));
+                return ExprValueFactory.from(doubleFunc.apply(getDoubleValue(v1), getDoubleValue(v2)));
             case INTEGER_VALUE:
                 return ExprValueFactory
-                        .from(integerFunc.apply(v1.numberValue().intValue(), v2.numberValue().intValue()));
+                        .from(integerFunc.apply(getIntegerValue(v1), getIntegerValue(v2)));
             case LONG_VALUE:
                 return ExprValueFactory
-                        .from(longFunc.apply(v1.numberValue().longValue(), v2.numberValue().longValue()));
+                        .from(longFunc.apply(getLongValue(v1), getLongValue(v2)));
             case FLOAT_VALUE:
                 return ExprValueFactory
-                        .from(floatFunc.apply(v1.numberValue().floatValue(), v2.numberValue().floatValue()));
+                        .from(floatFunc.apply(getFloatValue(v1), getFloatValue(v2)));
             default:
                 throw new RuntimeException(String.format("unexpected operation type: %s(%s, %s)", op.name(), v1.kind(),
                                                          v2.kind()));

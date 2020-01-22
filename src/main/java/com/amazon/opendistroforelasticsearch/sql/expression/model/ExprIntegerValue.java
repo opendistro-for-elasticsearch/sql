@@ -29,11 +29,6 @@ public class ExprIntegerValue implements ExprValue {
     }
 
     @Override
-    public Number numberValue() {
-        return value;
-    }
-
-    @Override
     public ExprValueKind kind() {
         return ExprValueKind.INTEGER_VALUE;
     }

@@ -37,8 +37,8 @@ import java.util.Arrays;
 import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.of;
 import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.ref;
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation.ADD;
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ScalarOperation.LOG;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.ADD;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.LOG;
 import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueFactory.integerValue;
 import static org.junit.Assert.assertEquals;
 

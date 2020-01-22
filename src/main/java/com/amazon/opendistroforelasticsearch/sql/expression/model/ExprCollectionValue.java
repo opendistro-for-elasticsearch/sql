@@ -34,11 +34,6 @@ public class ExprCollectionValue implements ExprValue {
     }
 
     @Override
-    public List<ExprValue> collectionValue() {
-        return valueList;
-    }
-
-    @Override
     public ExprValueKind kind() {
         return COLLECTION_VALUE;
     }

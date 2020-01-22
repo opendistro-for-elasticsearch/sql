@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.expression.core.expression;
+package com.amazon.opendistroforelasticsearch.sql.expression.core.builder;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.core.Expression;
 
