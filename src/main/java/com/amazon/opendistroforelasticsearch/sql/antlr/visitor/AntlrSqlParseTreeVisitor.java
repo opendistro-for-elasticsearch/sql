@@ -261,12 +261,6 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
         return visitSelectItem(ctx.expression(), ctx.uid());
     }
 
-//    @Override
-//    public T visitAggregationAsArgFunctionCall(AggregationAsArgFunctionCallContext ctx) {
-//        UnsupportedSemanticVerifier.verify(ctx);
-//        return super.visitAggregationAsArgFunctionCall(ctx);
-//    }
-
     @Override
     public T visitAggregateWindowedFunction(AggregateWindowedFunctionContext ctx) {
         String funcName = ctx.getChild(0).getText();

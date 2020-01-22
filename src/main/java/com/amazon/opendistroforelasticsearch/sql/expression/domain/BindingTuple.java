@@ -25,8 +25,6 @@ import lombok.Getter;
 import lombok.Singular;
 import org.json.JSONObject;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -39,10 +37,11 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode
 public class BindingTuple {
     @Singular("binding")
-    private Map<String, ExprValue> bindingMap;
+    private final Map<String, ExprValue> bindingMap;
 
     /**
      * Resolve the Binding Name in BindingTuple context.
+     *
      * @param bindingName binding name.
      * @return binding value.
      */
@@ -52,31 +51,20 @@ public class BindingTuple {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("<");
-        final List<String> list = bindingMap.entrySet()
+        return bindingMap.entrySet()
                 .stream()
                 .map(entry -> String.format("%s:%s", entry.getKey(), entry.getValue()))
-                .collect(Collectors.toList());
-        sb.append(String.join(",", list));
-        sb.append('>');
-        return sb.toString();
+                .collect(Collectors.joining(",", "<", ">"));
     }
 
     public static BindingTuple from(Map<String, Object> map) {
-        Map<String, ExprValue> ssValueMap = new HashMap<>();
-        for (Map.Entry<String, Object> entry : map.entrySet()) {
-            ssValueMap.put(entry.getKey(), ExprValueFactory.from(entry.getValue()));
-        }
-        return BindingTuple.builder()
-                .bindingMap(ssValueMap)
-                .build();
+        return from(new JSONObject(map));
     }
 
     public static BindingTuple from(JSONObject json) {
-        Map<String, ExprValue> valueMap = new HashMap<>();
-        for (String s : json.keySet()) {
-            valueMap.put(s, ExprValueFactory.from(json.get(s)));
-        }
-        return new BindingTuple(valueMap);
+        Map<String, Object> map = json.toMap();
+        BindingTupleBuilder bindingTupleBuilder = BindingTuple.builder();
+        map.forEach((key, value) -> bindingTupleBuilder.binding(key, ExprValueFactory.from(value)));
+        return bindingTupleBuilder.build();
     }
 }

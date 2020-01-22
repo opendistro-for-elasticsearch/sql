@@ -18,7 +18,6 @@ package com.amazon.opendistroforelasticsearch.sql.expression.model;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -44,13 +43,9 @@ public class ExprTupleValue implements ExprValue {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("{");
-        final List<String> list = valueMap.entrySet()
-                                          .stream()
-                                          .map(entry -> String.format("%s:%s", entry.getKey(), entry.getValue()))
-                                          .collect(Collectors.toList());
-        sb.append(String.join(",", list));
-        sb.append('}');
-        return sb.toString();
+        return valueMap.entrySet()
+                .stream()
+                .map(entry -> String.format("%s:%s", entry.getKey(), entry.getValue()))
+                .collect(Collectors.joining(",", "{", "}"));
     }
 }
