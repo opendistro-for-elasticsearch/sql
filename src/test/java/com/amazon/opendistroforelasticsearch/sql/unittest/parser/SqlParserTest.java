@@ -61,7 +61,10 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstant
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_DOG;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_GAME_OF_THRONES;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ODBC;
+import static com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents.getScriptFieldFromQuery;
+import static com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents.scriptContainsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public class SqlParserTest {
@@ -1209,7 +1212,6 @@ public class SqlParserTest {
         );
     }
 
-    @Ignore
     @Test
     public void castToIntTest() throws Exception {
         String query = "select cast(age as int) from "+ TestsConstants.TEST_INDEX_ACCOUNT + "/account limit 10";
@@ -1228,7 +1230,6 @@ public class SqlParserTest {
         Assert.assertTrue(scriptCode.contains("Double.parseDouble(doc['age'].value.toString()).intValue()"));
     }
 
-    @Ignore
     @Test
     public void castToLongTest() throws Exception {
         String query = "select cast(insert_time as long) from "+ TestsConstants.TEST_INDEX_ACCOUNT + " limit 10";
@@ -1247,7 +1248,6 @@ public class SqlParserTest {
         Assert.assertTrue(scriptCode.contains("Double.parseDouble(doc['insert_time'].value.toString()).longValue()"));
     }
 
-    @Ignore
     @Test
     public void castToFloatTest() throws Exception {
         String query = "select cast(age as float) from "+ TestsConstants.TEST_INDEX_ACCOUNT + " limit 10";
@@ -1266,7 +1266,6 @@ public class SqlParserTest {
         Assert.assertTrue(scriptCode.contains("Double.parseDouble(doc['age'].value.toString()).floatValue()"));
     }
 
-    @Ignore
     @Test
     public void castToDoubleTest() throws Exception {
         String query = "select cast(age as double) from "+ TestsConstants.TEST_INDEX_ACCOUNT + "/account limit 10";
@@ -1285,7 +1284,6 @@ public class SqlParserTest {
         Assert.assertTrue(scriptCode.contains("Double.parseDouble(doc['age'].value.toString()).doubleValue()"));
     }
 
-    @Ignore
     @Test
     public void castToStringTest() throws Exception {
         String query = "select cast(age as string) from "+ TestsConstants.TEST_INDEX_ACCOUNT + "/account limit 10";
@@ -1303,7 +1301,6 @@ public class SqlParserTest {
         Assert.assertTrue(scriptCode.contains("doc['age'].value.toString()"));
     }
 
-    @Ignore
     @Test
     public void castToDateTimeTest() throws Exception {
         String query = "select cast(age as datetime) from "+ TestsConstants.TEST_INDEX_ACCOUNT + "/account limit 10";
@@ -1323,20 +1320,25 @@ public class SqlParserTest {
                 + ".parse(doc['age'].value.toString())"));
     }
 
-    @Ignore
     @Test
     public void castToDoubleThenDivideTest() throws Exception {
         String query = "select cast(age as double)/2 from "+ TestsConstants.TEST_INDEX_ACCOUNT + "/account limit 10";
         SQLExpr sqlExpr = queryToExpr(query);
+        System.out.println(sqlExpr);
         Select select = parser.parseSelect((SQLQueryExpr) sqlExpr);
+        System.out.println("select parsed");
         Field castField = select.getFields().get(0);
         Assert.assertTrue(castField instanceof MethodField);
 
+        System.out.println("assert 1");
         MethodField methodField = (MethodField) castField;
         Assert.assertEquals("script",castField.getName());
 
+        System.out.println("assert 2");
         String scriptCode = (String) methodField.getParams().get(1).value;
+        System.out.println(scriptCode);
         Assert.assertTrue(scriptCode.contains("doc['age'].value"));
+        System.out.println("assert 3");
         Assert.assertTrue(scriptCode.contains("Double.parseDouble(doc['age'].value.toString()).doubleValue()"));
         Assert.assertTrue(scriptCode.contains("/ 2"));
     }

@@ -30,6 +30,7 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.KVValue;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.ScriptMethodField;
+import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
@@ -120,7 +121,7 @@ public class SQLFunctions {
     }
 
     public Tuple<String, String> function(String methodName, List<KVValue> paramers, String name,
-                                                 boolean returnValue) {
+                                                 boolean returnValue) throws SqlParseException {
         Tuple<String, String> functionStr = null;
         switch (methodName.toLowerCase()) {
             case "cast": {
@@ -410,7 +411,7 @@ public class SQLFunctions {
         return locale;
     }
 
-    public Tuple<String, String> cast(String castType, List<KVValue> paramers) {
+    public Tuple<String, String> cast(String castType, List<KVValue> paramers) throws SqlParseException {
         String name = nextId("cast");
         return new Tuple<>(name, getCastScriptStatement(name, castType, paramers));
     }
@@ -944,23 +945,25 @@ public class SQLFunctions {
         return new Tuple<>(name, def(name, resultStr));
     }
 
-    private String getCastScriptStatement(String name, String castType, List<KVValue> paramers) {
+    public String getCastScriptStatement(String name, String castType, List<KVValue> paramers)
+            throws SqlParseException {
         String fileName = String.format("doc['%s'].value", paramers.get(0).toString());
-        if (castType.equals("INT")) {
-            return String.format("def %s = Double.parseDouble(%s.toString()).intValue()", name, fileName);
-        } else if (castType.equals("LONG")) {
-            return String.format("def %s = Double.parseDouble(%s.toString()).longValue()", name, fileName);
-        } else if (castType.equals("FLOAT")) {
-            return String.format("def %s = Double.parseDouble(%s.toString()).floatValue()", name, fileName);
-        } else if (castType.equals("DOUBLE")) {
-            return String.format("def %s = Double.parseDouble(%s.toString()).doubleValue()", name, fileName);
-        } else if (castType.equals("STRING")) {
-            return String.format("def %s = %s.toString()", name, fileName);
-        } else if (castType.equals("DATETIME")) {
-            return String.format("def %s = new SimpleDateFormat(\"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'\")"
+        switch (StringUtils.toUpper(castType)) {
+            case "INT":
+                return String.format("def %s = Double.parseDouble(%s.toString()).intValue()", name, fileName);
+            case "LONG":
+                return String.format("def %s = Double.parseDouble(%s.toString()).longValue()", name, fileName);
+            case "FLOAT":
+                return String.format("def %s = Double.parseDouble(%s.toString()).floatValue()", name, fileName);
+            case "DOUBLE":
+                return String.format("def %s = Double.parseDouble(%s.toString()).doubleValue()", name, fileName);
+            case "STRING":
+                return String.format("def %s = %s.toString()", name, fileName);
+            case "DATETIME":
+                return String.format("def %s = new SimpleDateFormat(\"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'\")"
                     + ".parse(%s.toString())", name, fileName);
-        } else {
-            return "";
+            default:
+                throw new SqlParseException("Unsupported cast type");
         }
     }
 

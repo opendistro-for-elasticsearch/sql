@@ -341,6 +341,14 @@ public class FieldMaker {
             } else if (object instanceof SQLCaseExpr) {
                 String scriptCode = new CaseWhenParser((SQLCaseExpr) object, alias, tableAlias).parse();
                 paramers.add(new KVValue("script", new SQLCharExpr(scriptCode)));
+            } else if (object instanceof SQLCastExpr) {
+                String castName = sqlFunctions.nextId("cast");
+                List<KVValue> methodParameters = new ArrayList<>();
+                methodParameters.add(new KVValue(((SQLCastExpr) object).getExpr().toString()));
+                String castType = ((SQLCastExpr) object).getDataType().getName();
+                String scriptCode = sqlFunctions.getCastScriptStatement(castName, castType, methodParameters);
+                methodParameters.add(new KVValue(scriptCode));
+                paramers.add(new KVValue("script", new SQLCharExpr(scriptCode)));
             } else if (object instanceof SQLAggregateExpr) {
                 SQLObject parent = object.getParent();
                 SQLExpr source = (SQLExpr) parent.getAttribute("source");

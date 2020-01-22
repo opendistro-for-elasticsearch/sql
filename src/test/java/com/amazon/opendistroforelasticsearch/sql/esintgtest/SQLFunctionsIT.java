@@ -428,7 +428,6 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         JSONObject response = executeJdbcRequest("SELECT balance FROM " + TEST_INDEX_ACCOUNT
                 + " WHERE (CAST(age AS DOUBLE) < 36.0) ORDER BY balance LIMIT 5");
 
-        System.out.println("*********** query ran successfully");
         String result_schema = "{\"name\":\"balance\",\"type\":\"long\"}";
         assertEquals(response.getJSONArray("schema").get(0).toString(), result_schema);
         Double[] expectedOutput = new Double[] {1011.0, 1031.0, 1110.0, 1133.0, 1172.0};

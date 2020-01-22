@@ -539,10 +539,7 @@ public class WhereParser {
     private SQLMethodInvokeExpr parseSQLBinaryOpExprWhoIsConditionInWhere(SQLBinaryOpExpr soExpr)
             throws SqlParseException {
 
-        if (!(soExpr.getLeft() instanceof SQLMethodInvokeExpr
-                || soExpr.getRight() instanceof SQLMethodInvokeExpr)
-                && !(soExpr.getLeft() instanceof SQLCastExpr
-                    || soExpr.getRight() instanceof SQLCastExpr)) {
+        if (bothSideAreNotFunction(soExpr) && bothSidesAreNotCast(soExpr)) {
             return null;
         }
 
@@ -609,6 +606,14 @@ public class WhereParser {
         scriptMethod.addParameter(new SQLCharExpr(finalStr));
         return scriptMethod;
 
+    }
+
+    private Boolean bothSideAreNotFunction(SQLBinaryOpExpr soExpr) {
+        return !(soExpr.getLeft() instanceof SQLMethodInvokeExpr || soExpr.getRight() instanceof SQLMethodInvokeExpr);
+    }
+
+    private Boolean bothSidesAreNotCast(SQLBinaryOpExpr soExpr) {
+        return !(soExpr.getLeft() instanceof SQLCastExpr || soExpr.getRight() instanceof SQLCastExpr);
     }
 
     private Object[] getMethodValuesWithSubQueries(SQLMethodInvokeExpr method) throws SqlParseException {
