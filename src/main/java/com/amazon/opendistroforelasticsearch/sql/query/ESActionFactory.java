@@ -16,24 +16,35 @@
 package com.amazon.opendistroforelasticsearch.sql.query;
 
 import com.alibaba.druid.sql.ast.SQLExpr;
+import com.alibaba.druid.sql.ast.expr.SQLAggregateExpr;
+import com.alibaba.druid.sql.ast.expr.SQLAllColumnExpr;
+import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.alibaba.druid.sql.ast.statement.SQLDeleteStatement;
 import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
+import com.alibaba.druid.sql.ast.statement.SQLSelectGroupByClause;
+import com.alibaba.druid.sql.ast.statement.SQLSelectItem;
 import com.alibaba.druid.sql.ast.statement.SQLUnionQuery;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
 import com.alibaba.druid.sql.dialect.mysql.parser.MySqlStatementParser;
+import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
 import com.alibaba.druid.sql.parser.ParserException;
 import com.alibaba.druid.sql.parser.SQLExprParser;
 import com.alibaba.druid.sql.parser.SQLStatementParser;
 import com.alibaba.druid.sql.parser.Token;
+import com.amazon.opendistroforelasticsearch.sql.domain.ColumnTypeProvider;
 import com.amazon.opendistroforelasticsearch.sql.domain.Delete;
 import com.amazon.opendistroforelasticsearch.sql.domain.IndexStatement;
 import com.amazon.opendistroforelasticsearch.sql.domain.JoinSelect;
+import com.amazon.opendistroforelasticsearch.sql.domain.QueryActionRequest;
 import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.ElasticResultHandler;
+import com.amazon.opendistroforelasticsearch.sql.executor.Format;
 import com.amazon.opendistroforelasticsearch.sql.executor.QueryActionElasticExecutor;
+import com.amazon.opendistroforelasticsearch.sql.executor.adapter.QueryPlanQueryAction;
+import com.amazon.opendistroforelasticsearch.sql.executor.adapter.QueryPlanRequestBuilder;
 import com.amazon.opendistroforelasticsearch.sql.parser.ElasticLexer;
 import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
 import com.amazon.opendistroforelasticsearch.sql.parser.SqlParser;
@@ -41,9 +52,10 @@ import com.amazon.opendistroforelasticsearch.sql.parser.SubQueryExpression;
 import com.amazon.opendistroforelasticsearch.sql.query.join.ESJoinQueryActionFactory;
 import com.amazon.opendistroforelasticsearch.sql.query.multi.MultiQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.multi.MultiQuerySelect;
+import com.amazon.opendistroforelasticsearch.sql.query.planner.core.BindingTupleQueryPlanner;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.RewriteRuleExecutor;
-import com.amazon.opendistroforelasticsearch.sql.rewriter.identifier.UnquoteIdentifierRule;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.alias.TableAliasPrefixRemoveRule;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.identifier.UnquoteIdentifierRule;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.join.JoinRewriteRule;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.TermFieldRewriter;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.TermFieldRewriter.TermRewriterFilter;
@@ -51,6 +63,7 @@ import com.amazon.opendistroforelasticsearch.sql.rewriter.nestedfield.NestedFiel
 import com.amazon.opendistroforelasticsearch.sql.rewriter.ordinal.OrdinalRewriterRule;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.parent.SQLExprParentSetterRule;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.subquery.SubQueryRewriteRule;
+import com.google.common.annotations.VisibleForTesting;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -63,6 +76,11 @@ import static com.amazon.opendistroforelasticsearch.sql.domain.IndexStatement.St
 
 public class ESActionFactory {
 
+    public static QueryAction create(Client client, String sql)
+            throws SqlParseException, SQLFeatureNotSupportedException {
+        return create(client, new QueryActionRequest(sql, new ColumnTypeProvider(), Format.JSON));
+    }
+
     /**
      * Create the compatible Query object
      * based on the SQL query.
@@ -70,9 +88,9 @@ public class ESActionFactory {
      * @param sql The SQL query.
      * @return Query object.
      */
-    public static QueryAction create(Client client, String sql) throws SqlParseException,
-            SQLFeatureNotSupportedException {
-
+    public static QueryAction create(Client client, QueryActionRequest request)
+            throws SqlParseException, SQLFeatureNotSupportedException {
+        String sql = request.getSql();
         // Linebreak matcher
         sql = sql.replaceAll("\\R", " ").trim();
 
@@ -92,8 +110,8 @@ public class ESActionFactory {
 
                 if (isMulti(sqlExpr)) {
                     sqlExpr.accept(new TermFieldRewriter(client, TermRewriterFilter.MULTI_QUERY));
-                    MultiQuerySelect multiSelect = new SqlParser()
-                            .parseMultiSelect((SQLUnionQuery) sqlExpr.getSubQuery().getQuery());
+                    MultiQuerySelect multiSelect =
+                            new SqlParser().parseMultiSelect((SQLUnionQuery) sqlExpr.getSubQuery().getQuery());
                     return new MultiQueryAction(client, multiSelect);
                 } else if (isJoin(sqlExpr, sql)) {
                     new JoinRewriteRule(LocalClusterState.state()).rewrite(sqlExpr);
@@ -102,6 +120,11 @@ public class ESActionFactory {
                     return ESJoinQueryActionFactory.createJoinAction(client, joinSelect);
                 } else {
                     sqlExpr.accept(new TermFieldRewriter(client));
+                    // migrate aggregation to query planner framework.
+                    if (shouldMigrateToQueryPlan(sqlExpr, request.getFormat())) {
+                        return new QueryPlanQueryAction(new QueryPlanRequestBuilder(
+                                new BindingTupleQueryPlanner(client, sqlExpr, request.getTypeProvider())));
+                    }
                     Select select = new SqlParser().parseSelect(sqlExpr);
                     return handleSelect(client, select);
                 }
@@ -124,16 +147,15 @@ public class ESActionFactory {
 
     private static String getFirstWord(String sql) {
         int endOfFirstWord = sql.indexOf(' ');
-        return sql
-                .substring(0, endOfFirstWord > 0 ? endOfFirstWord : sql.length())
-                .toUpperCase();
+        return sql.substring(0, endOfFirstWord > 0 ? endOfFirstWord : sql.length()).toUpperCase();
     }
 
     private static boolean isMulti(SQLQueryExpr sqlExpr) {
         return sqlExpr.getSubQuery().getQuery() instanceof SQLUnionQuery;
     }
 
-    private static void executeAndFillSubQuery(Client client, SubQueryExpression subQueryExpression,
+    private static void executeAndFillSubQuery(Client client,
+                                               SubQueryExpression subQueryExpression,
                                                QueryAction queryAction) throws SqlParseException {
         List<Object> values = new ArrayList<>();
         Object queryResult;
@@ -172,7 +194,7 @@ public class ESActionFactory {
     private static boolean isJoin(SQLQueryExpr sqlExpr, String sql) {
         MySqlSelectQueryBlock query = (MySqlSelectQueryBlock) sqlExpr.getSubQuery().getQuery();
         return query.getFrom() instanceof SQLJoinTableSource
-                && ((SQLJoinTableSource) query.getFrom()).getJoinType() != SQLJoinTableSource.JoinType.COMMA;
+               && ((SQLJoinTableSource) query.getFrom()).getJoinType() != SQLJoinTableSource.JoinType.COMMA;
     }
 
     private static SQLExpr toSqlExpr(String sql) {
@@ -183,5 +205,55 @@ public class ESActionFactory {
             throw new ParserException("Illegal SQL expression : " + sql);
         }
         return expr;
+    }
+
+    @VisibleForTesting
+    public static boolean shouldMigrateToQueryPlan(SQLQueryExpr expr, Format format) {
+        // The JSON format will return the Elasticsearch aggregation result, which is not supported by the QueryPlanner.
+        if (format == Format.JSON) {
+            return false;
+        }
+        QueryPlannerScopeDecider decider = new QueryPlannerScopeDecider();
+        return decider.isInScope(expr);
+    }
+
+    private static class QueryPlannerScopeDecider extends MySqlASTVisitorAdapter {
+        private boolean hasAggregationFunc = false;
+        private boolean hasNestedFunction = false;
+        private boolean hasGroupBy = false;
+        private boolean hasAllColumnExpr = false;
+
+        public boolean isInScope(SQLQueryExpr expr) {
+            expr.accept(this);
+            return !hasAllColumnExpr && !hasNestedFunction && (hasGroupBy || hasAggregationFunc);
+        }
+
+        @Override
+        public boolean visit(SQLSelectItem expr) {
+            if (expr.getExpr() instanceof SQLAllColumnExpr) {
+                hasAllColumnExpr = true;
+            }
+            return super.visit(expr);
+        }
+
+        @Override
+        public boolean visit(SQLSelectGroupByClause expr) {
+            hasGroupBy = true;
+            return super.visit(expr);
+        }
+
+        @Override
+        public boolean visit(SQLAggregateExpr expr) {
+            hasAggregationFunc = true;
+            return super.visit(expr);
+        }
+
+        @Override
+        public boolean visit(SQLMethodInvokeExpr expr) {
+            if (expr.getMethodName().equalsIgnoreCase("nested")) {
+                hasNestedFunction = true;
+            }
+            return super.visit(expr);
+        }
     }
 }
