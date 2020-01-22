@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
-import com.google.common.io.Files;
 import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
@@ -37,6 +36,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -44,7 +47,6 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class TestUtils {
 
@@ -78,11 +80,12 @@ public class TestUtils {
      * @param dataSetFilePath   file path of test data set
      * @throws IOException
      */
-    @SuppressWarnings("UnstableApiUsage")
     public static void loadDataByRestClient(RestClient client, String indexName, String dataSetFilePath) throws IOException {
-        String bulkRequests = Files.toString(new File(getResourceFilePath(dataSetFilePath)), UTF_8);
+        Path path = Paths.get(getResourceFilePath(dataSetFilePath));
+        List<String> lines = Files.readAllLines(path);
+
         Request request = new Request("POST", "/" + indexName + "/_bulk");
-        request.setJsonEntity(bulkRequests);
+        request.setJsonEntity(readStringWithTypeNameRemoved(lines));
         performRequest(client, request);
     }
 
@@ -101,6 +104,37 @@ public class TestUtils {
         } catch (IOException e) {
             throw new IllegalStateException("Failed to perform request", e);
         }
+    }
+
+    /**
+     * For some reason, Elasticsearch ignore bulk request with type specified silently.
+     * @param lines         lines in test data set file
+     * @return              bulk request json without _type field in action line
+     */
+    public static String readStringWithTypeNameRemoved(List<String> lines) {
+        StringBuilder bulkRequest = new StringBuilder();
+        for (int i = 0; i < lines.size(); i++) {
+            String line = lines.get(i);
+            if (i % 2 == 0 && i < lines.size() - 1) { // action line and not last blank line
+                JSONObject actionJson = null;
+                try {
+                    actionJson = new JSONObject(line);
+                } catch (Exception e) {
+                    throw new IllegalStateException("Illegal action line: " + line, e);
+                }
+                JSONObject index = (JSONObject) actionJson.get("index");
+                index.remove("_type");
+
+                //if (index.isEmpty()) {
+                //    bulkRequest.append("{}").append('\n');
+                //} else {
+                    bulkRequest.append(actionJson.toString()).append('\n');
+                //}
+            } else { // source line
+                bulkRequest.append(line).append('\n');
+            }
+        }
+        return bulkRequest.toString();
     }
 
     public static void createTestIndex(AdminClient admin, String index, String type, String mapping) {
@@ -584,7 +618,7 @@ public class TestUtils {
 
         BulkRequest bulkRequest = new BulkRequest();
         try (final InputStream stream =  new FileInputStream(absJsonPath);
-             final Reader streamReader = new InputStreamReader(stream, UTF_8);
+             final Reader streamReader = new InputStreamReader(stream, StandardCharsets.UTF_8);
              final BufferedReader br = new BufferedReader(streamReader)) {
 
             while (true) {
@@ -642,7 +676,7 @@ public class TestUtils {
         final StringBuilder sb = new StringBuilder();
 
         try (final InputStream is = response.getEntity().getContent();
-             final BufferedReader br = new BufferedReader(new InputStreamReader(is, UTF_8))) {
+             final BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
 
             String line;
             while ((line = br.readLine()) != null) {
@@ -661,7 +695,7 @@ public class TestUtils {
         final String absolutePath = getResourceFilePath(filePathFromProjectRoot);
 
         try (final InputStream stream = new FileInputStream(absolutePath);
-             final Reader streamReader = new InputStreamReader(stream, UTF_8);
+             final Reader streamReader = new InputStreamReader(stream, StandardCharsets.UTF_8);
              final BufferedReader br = new BufferedReader(streamReader)) {
 
             final StringBuilder stringBuilder = new StringBuilder();
