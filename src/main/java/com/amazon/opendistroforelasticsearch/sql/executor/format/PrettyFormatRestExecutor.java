@@ -67,7 +67,7 @@ public class PrettyFormatRestExecutor implements RestExecutor {
 
         try {
             Object queryResult = QueryActionElasticExecutor.executeAnyAction(client, queryAction);
-            protocol = new Protocol(client, queryAction.getQueryStatement(), queryResult, format);
+            protocol = new Protocol(client, queryAction, queryResult, format);
         } catch (Exception e) {
             LOG.error("Error happened in pretty formatter", e);
             protocol = new Protocol(e);

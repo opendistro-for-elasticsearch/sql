@@ -285,13 +285,21 @@ expressions
     : expression (',' expression)*
     ;
 
+aggregateFunction
+    : functionAsAggregatorFunction                                  #functionAsAggregatorFunctionCall
+    | aggregateWindowedFunction                                     #aggregateWindowedFunctionCall
+    ;
 
-//    Functions
+scalarFunction
+    : scalarFunctionName '(' nestedFunctionArgs+ ')'                #nestedFunctionCall
+    | scalarFunctionName '(' functionArgs? ')'                      #scalarFunctionCall
+    ;
 
 functionCall
-    : specificFunction                                              #specificFunctionCall
-    | aggregateWindowedFunction                                     #aggregateFunctionCall
-    | scalarFunctionName '(' functionArgs? ')'                      #scalarFunctionCall
+    : aggregateFunction                                             #aggregateFunctionCall
+    | scalarFunctionName '(' aggregateWindowedFunction ')'          #aggregationAsArgFunctionCall
+    | scalarFunction                                                #scalarFunctionsCall
+    | specificFunction                                              #specificFunctionCall
     | fullId '(' functionArgs? ')'                                  #udfFunctionCall
     ;
 
@@ -324,10 +332,30 @@ aggregateWindowedFunction
     | COUNT '(' aggregator=DISTINCT functionArgs ')'
     ;
 
+functionAsAggregatorFunction
+    : (AVG | MAX | MIN | SUM)
+      '(' aggregator=(ALL | DISTINCT)? functionCall ')'
+    | COUNT '(' aggregator=(ALL | DISTINCT)? functionCall ')'
+    ;
+
 scalarFunctionName
     : functionNameBase
     ;
 
+/*
+Separated aggregate to function-aggregator and nonfunction-aggregator aggregations.
+
+Current related rules: aggregateWindowedFunction, functionAsAggregatorFunction, aggregateFunction, functionCall
+Original rules: functionCall (as is shown in below changes), no aggregateWindowFunction, no functionAsAggregatorFunction,
+                no aggregateFunction
+
+====
+
+Separated function argument rule to nonFunctionCall and functionCall
+functions with functionCall arguments are taken as nested functions
+
+Current related rules: functionArgs, functionArg, nestedFunctionArgs
+Original rules:
 functionArgs
     : (constant | fullColumnName | functionCall | expression)
     (
@@ -338,6 +366,36 @@ functionArgs
 
 functionArg
     : constant | fullColumnName | functionCall | expression
+    ;
+
+====
+
+Accordingly functionCall rule is changed by separating scalar functions
+to nested functions and non-nested functons.
+Current related rules: functionCall, scalarFunction
+Original rule:
+functionCall
+    : specificFunction                                              #specificFunctionCall
+    | aggregateWindowedFunction                                     #aggregateFunctionCall
+    | scalarFunctionName '(' functionArgs? ')'                      #scalarFunctionCall
+    | fullId '(' functionArgs? ')'                                  #udfFunctionCall
+    ;
+*/
+
+functionArgs
+    : (constant | fullColumnName | expression)
+    (
+      ','
+      (constant | fullColumnName | expression)
+    )*
+    ;
+
+functionArg
+    : constant | fullColumnName |  expression
+    ;
+
+nestedFunctionArgs
+    : functionCall (',' functionArgs)?
     ;
 
 
@@ -414,7 +472,7 @@ functionNameBase
     | LOG10 | LOG2 | LOWER | LTRIM | MAKETIME | MODULUS | MONTH | MONTHNAME | MULTIPLY
     | NOW | PI | POW | POWER | RADIANS | RAND | REPLACE | RIGHT | RINT | ROUND | RTRIM
     | SIGN | SIGNUM | SIN | SINH | SQRT | SUBSTRING | SUBTRACT | TAN | TIMESTAMP | TRIM
-    | UPPER | YEAR
+    | UPPER | YEAR | ADDDATE | ADDTIME | GREATEST | LEAST
     ;
 
 esFunctionNameBase
