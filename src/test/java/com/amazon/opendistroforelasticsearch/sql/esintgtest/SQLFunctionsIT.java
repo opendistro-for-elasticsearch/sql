@@ -368,7 +368,8 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         JSONObject response = executeJdbcRequest("SELECT CAST(date_keyword AS DATETIME) AS test_alias FROM "
                 + TestsConstants.TEST_INDEX_DATE + " GROUP BY test_alias DESC");
 
-        String date_type_cast = "{\"name\":\"test_alias\",\"type\":\"date\"}";
+        System.out.println(response.getJSONArray("schema").toString());
+        String date_type_cast = "{\"name\":\"test_alias\",\"alias\":\"test_alias\",\"type\":\"double\"}";
         assertEquals(response.getJSONArray("schema").get(0).toString(), date_type_cast);
         String[] expectedOutput = new String[] {"Tue Aug 19 07:09:13", "Wed Sep 25 02:04:13"};
 
