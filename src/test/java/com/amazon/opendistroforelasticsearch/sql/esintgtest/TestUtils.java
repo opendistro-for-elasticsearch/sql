@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
+import com.google.common.io.Files;
 import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
@@ -23,7 +24,9 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.AdminClient;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
+import org.elasticsearch.client.RestClient;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.json.JSONObject;
 
@@ -34,14 +37,71 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 public class TestUtils {
+
+    /**
+     * Create test index by REST client.
+     * @param client        client connection
+     * @param indexName     test index name
+     * @param mapping       test index mapping or null if no predefined mapping
+     */
+    public static void createIndexByRestClient(RestClient client, String indexName, String mapping) {
+        if (isNullOrEmpty(mapping)) {
+            return;
+        }
+
+        // type name is deprecated so rename type name to "mappings"
+        JSONObject json = new JSONObject(mapping);
+        for (String key : json.keySet()) {
+            json.put("mappings", json.get(key));
+            json.remove(key);
+        }
+
+        Request request = new Request("PUT", "/" + indexName);
+        request.setJsonEntity(json.toString());
+        performRequest(client, request);
+    }
+
+    /**
+     * Load test data set by REST client.
+     * @param client            client connection
+     * @param indexName         index name
+     * @param dataSetFilePath   file path of test data set
+     * @throws IOException
+     */
+    @SuppressWarnings("UnstableApiUsage")
+    public static void loadDataByRestClient(RestClient client, String indexName, String dataSetFilePath) throws IOException {
+        String bulkRequests = Files.toString(new File(getResourceFilePath(dataSetFilePath)), UTF_8);
+        Request request = new Request("POST", "/" + indexName + "/_bulk");
+        request.setJsonEntity(bulkRequests);
+        performRequest(client, request);
+    }
+
+    /**
+     * Perform a request by REST client.
+     * @param client    client connection
+     * @param request   request object
+     */
+    public static void performRequest(RestClient client, Request request) {
+        try {
+            Response response = client.performRequest(request);
+            int status = response.getStatusLine().getStatusCode();
+            if (status != 200) {
+                throw new IllegalStateException("Failed to perform request. Error code: " + status);
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to perform request", e);
+        }
+    }
 
     public static void createTestIndex(AdminClient admin, String index, String type, String mapping) {
         System.out.println("Creating index " + index);
@@ -524,7 +584,7 @@ public class TestUtils {
 
         BulkRequest bulkRequest = new BulkRequest();
         try (final InputStream stream =  new FileInputStream(absJsonPath);
-             final Reader streamReader = new InputStreamReader(stream, StandardCharsets.UTF_8);
+             final Reader streamReader = new InputStreamReader(stream, UTF_8);
              final BufferedReader br = new BufferedReader(streamReader)) {
 
             while (true) {
@@ -582,7 +642,7 @@ public class TestUtils {
         final StringBuilder sb = new StringBuilder();
 
         try (final InputStream is = response.getEntity().getContent();
-             final BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+             final BufferedReader br = new BufferedReader(new InputStreamReader(is, UTF_8))) {
 
             String line;
             while ((line = br.readLine()) != null) {
@@ -601,7 +661,7 @@ public class TestUtils {
         final String absolutePath = getResourceFilePath(filePathFromProjectRoot);
 
         try (final InputStream stream = new FileInputStream(absolutePath);
-             final Reader streamReader = new InputStreamReader(stream, StandardCharsets.UTF_8);
+             final Reader streamReader = new InputStreamReader(stream, UTF_8);
              final BufferedReader br = new BufferedReader(streamReader)) {
 
             final StringBuilder stringBuilder = new StringBuilder();

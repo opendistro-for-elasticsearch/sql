@@ -16,8 +16,6 @@
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
 import com.carrotsearch.randomizedtesting.annotations.ThreadLeakScope;
-import org.elasticsearch.client.AdminClient;
-import org.elasticsearch.client.Client;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
@@ -76,16 +74,12 @@ public abstract class SQLIntegTestCase extends ESIntegTestCase {
     protected void init() throws Exception {}
 
     protected void loadIndex(Index index) throws Exception {
-        AdminClient adminClient = this.admin();
-        Client esClient = ESIntegTestCase.client();
-
         String name = index.getName();
-        String type = index.getType();
         String mapping = index.getMapping();
         String dataSet = index.getDataSet();
 
-        TestUtils.createTestIndex(adminClient, name, type, mapping);
-        TestUtils.loadBulk(esClient, dataSet, name);
+        TestUtils.createIndexByRestClient(getRestClient(), name, mapping);
+        TestUtils.loadDataByRestClient(getRestClient(), name, dataSet);
         ensureGreen(name);
     }
 
