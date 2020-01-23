@@ -1326,19 +1326,15 @@ public class SqlParserTest {
         SQLExpr sqlExpr = queryToExpr(query);
         System.out.println(sqlExpr);
         Select select = parser.parseSelect((SQLQueryExpr) sqlExpr);
-        System.out.println("select parsed");
         Field castField = select.getFields().get(0);
         Assert.assertTrue(castField instanceof MethodField);
 
-        System.out.println("assert 1");
         MethodField methodField = (MethodField) castField;
         Assert.assertEquals("script",castField.getName());
 
-        System.out.println("assert 2");
         String scriptCode = (String) methodField.getParams().get(1).value;
         System.out.println(scriptCode);
         Assert.assertTrue(scriptCode.contains("doc['age'].value"));
-        System.out.println("assert 3");
         Assert.assertTrue(scriptCode.contains("Double.parseDouble(doc['age'].value.toString()).doubleValue()"));
         Assert.assertTrue(scriptCode.contains("/ 2"));
     }
