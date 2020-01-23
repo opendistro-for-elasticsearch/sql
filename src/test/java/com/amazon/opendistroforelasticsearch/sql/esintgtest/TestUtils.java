@@ -85,7 +85,7 @@ public class TestUtils {
         List<String> lines = Files.readAllLines(path);
 
         Request request = new Request("POST", "/" + indexName + "/_bulk");
-        request.setJsonEntity(readStringWithTypeNameRemoved(lines));
+        request.setJsonEntity(readWithTypeNameRemoved(lines));
         performRequest(client, request);
     }
 
@@ -111,25 +111,16 @@ public class TestUtils {
      * @param lines         lines in test data set file
      * @return              bulk request json without _type field in action line
      */
-    public static String readStringWithTypeNameRemoved(List<String> lines) {
+    public static String readWithTypeNameRemoved(List<String> lines) {
         StringBuilder bulkRequest = new StringBuilder();
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
-            if (i % 2 == 0 && i < lines.size() - 1) { // action line and not last blank line
-                JSONObject actionJson = null;
-                try {
-                    actionJson = new JSONObject(line);
-                } catch (Exception e) {
-                    throw new IllegalStateException("Illegal action line: " + line, e);
-                }
+            if (i % 2 == 0 && i < lines.size() - 1) { // action line and not the last blank line
+                JSONObject actionJson = new JSONObject(line);
                 JSONObject index = (JSONObject) actionJson.get("index");
                 index.remove("_type");
 
-                //if (index.isEmpty()) {
-                //    bulkRequest.append("{}").append('\n');
-                //} else {
-                    bulkRequest.append(actionJson.toString()).append('\n');
-                //}
+                bulkRequest.append(actionJson.toString()).append('\n');
             } else { // source line
                 bulkRequest.append(line).append('\n');
             }

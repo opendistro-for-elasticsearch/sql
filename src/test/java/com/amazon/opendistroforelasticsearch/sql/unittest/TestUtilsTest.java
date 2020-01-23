@@ -3,7 +3,6 @@ package com.amazon.opendistroforelasticsearch.sql.unittest;
 import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -22,7 +21,7 @@ public class TestUtilsTest {
             ""
         );
 
-        String actual = TestUtils.readStringWithTypeNameRemoved(lines);
+        String actual = TestUtils.readWithTypeNameRemoved(lines);
         String expected = "{\"index\":{}}\n" +
                           "{\"name\": \"John\"}\n" +
                           "\n";
@@ -37,7 +36,7 @@ public class TestUtilsTest {
             ""
         );
 
-        String actual = TestUtils.readStringWithTypeNameRemoved(lines);
+        String actual = TestUtils.readWithTypeNameRemoved(lines);
         String expected = "{\"index\":{\"_id\":1}}\n" + // no space after org.json format
                           "{\"name\": \"John\"}\n" +
                           "\n";
