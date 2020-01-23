@@ -49,6 +49,11 @@ public class UnaryExpressionTest extends ExpressionTest {
     }
 
     @Test
+    public void tanShouldPass() {
+        assertEquals(-2.185039863261519, apply(ScalarOperation.TAN, literal(doubleValue(2d))));
+    }
+
+    @Test
     public void atan2ShouldPass() {
         assertEquals(1.1071487177940904d,
                      apply(ScalarOperation.ATAN2, literal(doubleValue(2d)), literal(doubleValue(1d))));

@@ -124,6 +124,15 @@ public class ArithmeticFunctionFactory {
         );
     }
 
+    public static ExpressionBuilder tan() {
+        return new UnaryExpressionBuilder(
+                new DoubleUnaryScalarOperator(
+                        ScalarOperation.TAN,
+                        Math::tan
+                )
+        );
+    }
+
     public static ExpressionBuilder cbrt() {
         return new UnaryExpressionBuilder(
                 new DoubleUnaryScalarOperator(

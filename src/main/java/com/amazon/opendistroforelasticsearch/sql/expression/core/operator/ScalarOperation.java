@@ -34,6 +34,7 @@ public enum ScalarOperation {
     ASIN("asin"),
     ATAN("atan"),
     ATAN2("atan2"),
+    TAN("tan"),
     CBRT("cbrt"),
     CEIL("ceil"),
     COS("cos"),

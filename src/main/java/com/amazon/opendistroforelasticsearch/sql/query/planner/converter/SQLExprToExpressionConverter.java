@@ -57,6 +57,7 @@ public class SQLExprToExpressionConverter {
                     .put(ScalarOperation.ASIN.getName(), ScalarOperation.ASIN)
                     .put(ScalarOperation.ATAN.getName(), ScalarOperation.ATAN)
                     .put(ScalarOperation.ATAN2.getName(), ScalarOperation.ATAN2)
+                    .put(ScalarOperation.TAN.getName(), ScalarOperation.TAN)
                     .put(ScalarOperation.CBRT.getName(), ScalarOperation.CBRT)
                     .put(ScalarOperation.CEIL.getName(), ScalarOperation.CEIL)
                     .put(ScalarOperation.COS.getName(), ScalarOperation.COS)

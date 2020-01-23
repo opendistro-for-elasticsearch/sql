@@ -46,6 +46,7 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator
 import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.MODULES;
 import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.MULTIPLY;
 import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.SUBTRACT;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.TAN;
 
 
 /**
@@ -65,6 +66,7 @@ public class ExpressionFactory {
                     .put(ASIN, ArithmeticFunctionFactory.asin())
                     .put(ATAN, ArithmeticFunctionFactory.atan())
                     .put(ATAN2, ArithmeticFunctionFactory.atan2())
+                    .put(TAN, ArithmeticFunctionFactory.tan())
                     .put(CBRT, ArithmeticFunctionFactory.cbrt())
                     .put(CEIL, ArithmeticFunctionFactory.ceil())
                     .put(COS, ArithmeticFunctionFactory.cos())
