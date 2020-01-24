@@ -34,12 +34,13 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Arrays;
 import java.util.List;
 
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.add;
 import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.cast;
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.log;
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.ref;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.of;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.ADD;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.LOG;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 
@@ -147,6 +148,19 @@ public class SQLAggregationParserTest {
     }
 
     @Test
+    public void parseSingleFunctionOverAggShouldPass() {
+        String sql = "SELECT log(max(age)) FROM accounts";
+        SQLAggregationParser parser = new SQLAggregationParser(new ColumnTypeProvider());
+        parser.parse(mYSqlSelectQueryBlock(sql));
+        List<SQLSelectItem> sqlSelectItems = parser.selectItemList();
+        List<ColumnNode> columnNodes = parser.getColumnNodes();
+
+        assertThat(sqlSelectItems, containsInAnyOrder(agg("max", "age", "max_0")));
+        assertThat(columnNodes, containsInAnyOrder(columnNode("log(max(age))", null, log(
+                ExpressionFactory.ref("max_0")))));
+    }
+
+    @Test
     public void parseFunctionGroupColumnOverShouldPass() {
         String sql = "SELECT CAST(balance AS FLOAT) FROM accounts GROUP BY balance";
         SQLAggregationParser parser = new SQLAggregationParser(new ColumnTypeProvider());
@@ -227,7 +241,7 @@ public class SQLAggregationParserTest {
     @Test
     public void aggregationWithNestedShouldThrowException() {
         exceptionRule.expect(RuntimeException.class);
-        exceptionRule.expectMessage("unsupported operator in select: nested");
+        exceptionRule.expectMessage("unsupported operator: nested");
 
         String sql = "SELECT nested(projects.name, 'projects'),id "
                      + "FROM t "
@@ -302,5 +316,13 @@ public class SQLAggregationParserTest {
                 return b;
             }
         };
+    }
+
+    private Expression add(Expression... expressions) {
+        return of(ADD, Arrays.asList(expressions));
+    }
+
+    private Expression log(Expression... expressions) {
+        return of(LOG, Arrays.asList(expressions));
     }
 }

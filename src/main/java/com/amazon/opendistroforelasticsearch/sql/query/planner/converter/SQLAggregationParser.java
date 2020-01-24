@@ -237,7 +237,7 @@ public class SQLAggregationParser {
                                          ((SQLAggregateExpr) expr).getArguments().get(0));
             } else if (expr instanceof SQLMethodInvokeExpr) {
                 exprName = String.format("%s(%s)", ((SQLMethodInvokeExpr) expr).getMethodName(),
-                                         ((SQLMethodInvokeExpr) expr).getParameters().get(0));
+                                         nameOfExpr(((SQLMethodInvokeExpr) expr).getParameters().get(0)));
             } else if (expr instanceof SQLIdentifierExpr) {
                 exprName = ((SQLIdentifierExpr) expr).getName();
             } else if (expr instanceof SQLCastExpr) {

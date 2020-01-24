@@ -5,7 +5,7 @@
  *   You may not use this file except in compliance with the License.
  *   A copy of the License is located at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  *   or in the "license" file accompanying this file. This file is distributed
  *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
@@ -13,28 +13,15 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.expression.model;
+package com.amazon.opendistroforelasticsearch.sql.expression.core.builder;
 
-import lombok.EqualsAndHashCode;
-import lombok.RequiredArgsConstructor;
+import com.amazon.opendistroforelasticsearch.sql.expression.core.Expression;
 
-@EqualsAndHashCode
-@RequiredArgsConstructor
-public class ExprStringValue implements ExprValue {
-    private final String value;
+import java.util.List;
 
-    @Override
-    public Object value() {
-        return value;
-    }
-
-    @Override
-    public ExprValueKind kind() {
-        return ExprValueKind.STRING_VALUE;
-    }
-
-    @Override
-    public String toString() {
-        return value;
-    }
+/**
+ * The definition of the {@link Expression} builder.
+ */
+public interface ExpressionBuilder {
+    Expression build(List<Expression> expressionList);
 }

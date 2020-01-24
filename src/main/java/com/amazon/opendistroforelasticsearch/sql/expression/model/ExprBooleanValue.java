@@ -29,11 +29,6 @@ public class ExprBooleanValue implements ExprValue {
     }
 
     @Override
-    public Boolean booleanValue() {
-        return value;
-    }
-
-    @Override
     public ExprValueKind kind() {
         return ExprValueKind.BOOLEAN_VALUE;
     }
