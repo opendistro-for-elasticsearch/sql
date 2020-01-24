@@ -1324,7 +1324,6 @@ public class SqlParserTest {
     public void castToDoubleThenDivideTest() throws Exception {
         String query = "select cast(age as double)/2 from "+ TestsConstants.TEST_INDEX_ACCOUNT + "/account limit 10";
         SQLExpr sqlExpr = queryToExpr(query);
-        System.out.println(sqlExpr);
         Select select = parser.parseSelect((SQLQueryExpr) sqlExpr);
         Field castField = select.getFields().get(0);
         Assert.assertTrue(castField instanceof MethodField);
@@ -1333,7 +1332,6 @@ public class SqlParserTest {
         Assert.assertEquals("script",castField.getName());
 
         String scriptCode = (String) methodField.getParams().get(1).value;
-        System.out.println(scriptCode);
         Assert.assertTrue(scriptCode.contains("doc['age'].value"));
         Assert.assertTrue(scriptCode.contains("Double.parseDouble(doc['age'].value.toString()).doubleValue()"));
         Assert.assertTrue(scriptCode.contains("/ 2"));
