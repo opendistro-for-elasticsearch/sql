@@ -19,9 +19,9 @@ import com.alibaba.druid.sql.ast.expr.SQLAggregateExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOperator;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
+import com.alibaba.druid.sql.ast.expr.SQLIntegerExpr;
 import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
 import com.amazon.opendistroforelasticsearch.sql.expression.core.Expression;
-import com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.converter.SQLAggregationParser;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.converter.SQLExprToExpressionConverter;
 import com.google.common.collect.ImmutableMap;
@@ -32,8 +32,14 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.add;
-import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.log;
+import java.util.Arrays;
+
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.literal;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.of;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory.ref;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.ADD;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.LOG;
+import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueFactory.integerValue;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -49,6 +55,7 @@ public class SQLExprToExpressionConverterTest {
     private final SQLIdentifierExpr groupG = new SQLIdentifierExpr("A");
     private final SQLIdentifierExpr aggA = new SQLIdentifierExpr("A");
     private final SQLIdentifierExpr aggB = new SQLIdentifierExpr("B");
+    private final SQLIntegerExpr one = new SQLIntegerExpr(1);
 
     @Before
     public void setup() {
@@ -64,7 +71,7 @@ public class SQLExprToExpressionConverterTest {
         context.addGroupKeyExpr(groupG);
         Expression expression = converter.convert(groupG);
 
-        assertEquals(ExpressionFactory.ref("A").toString(), expression.toString());
+        assertEquals(ref("A").toString(), expression.toString());
     }
 
     @Test
@@ -73,7 +80,7 @@ public class SQLExprToExpressionConverterTest {
         context.addAggregationExpr(minA);
 
         Expression expression = converter.convert(new SQLBinaryOpExpr(maxA, SQLBinaryOperator.Add, minA));
-        assertEquals(add(ExpressionFactory.ref("MAX_0"), ExpressionFactory.ref("MIN_1")).toString(), expression.toString());
+        assertEquals(add(ref("MAX_0"), ref("MIN_1")).toString(), expression.toString());
     }
 
     @Test
@@ -84,8 +91,7 @@ public class SQLExprToExpressionConverterTest {
         Expression expression = converter.convert(new SQLBinaryOpExpr(maxA, SQLBinaryOperator.Add,
                                                                       new SQLBinaryOpExpr(maxA, SQLBinaryOperator.Add,
                                                                                           minA)));
-        assertEquals(add(ExpressionFactory.ref("MAX_0"), add(ExpressionFactory.ref("MAX_0"), ExpressionFactory
-                .ref("MIN_1"))).toString(), expression.toString());
+        assertEquals(add(ref("MAX_0"), add(ref("MAX_0"), ref("MIN_1"))).toString(), expression.toString());
     }
 
     @Test
@@ -99,8 +105,7 @@ public class SQLExprToExpressionConverterTest {
                                                                               minA)));
 
         Expression expression = converter.convert(methodInvokeExpr);
-        assertEquals(log(add(ExpressionFactory.ref("MAX_0"), add(ExpressionFactory.ref("MAX_0"), ExpressionFactory
-                .ref("MIN_1")))).toString(), expression.toString());
+        assertEquals(log(add(ref("MAX_0"), add(ref("MAX_0"), ref("MIN_1")))).toString(), expression.toString());
     }
 
     @Test
@@ -114,8 +119,15 @@ public class SQLExprToExpressionConverterTest {
                                                                               minA)));
 
         Expression expression = converter.convert(methodInvokeExpr);
-        assertEquals(log(add(ExpressionFactory.ref("MAX_0"), add(ExpressionFactory.ref("MAX_0"), ExpressionFactory
-                .ref("MIN_1")))).toString(), expression.toString());
+        assertEquals(log(add(ref("MAX_0"), add(ref("MAX_0"), ref("MIN_1")))).toString(), expression.toString());
+    }
+
+    @Test
+    public void binaryOperatorWithLiteralAddShouldReturnAddExpression() {
+        context.addAggregationExpr(maxA);
+
+        Expression expression = converter.convert(new SQLBinaryOpExpr(maxA, SQLBinaryOperator.Add, one));
+        assertEquals(add(ref("MAX_0"), literal(integerValue(1))).toString(), expression.toString());
     }
 
     @Test
@@ -130,12 +142,20 @@ public class SQLExprToExpressionConverterTest {
 
     @Test
     public void unsupportOperationShouldThrowException() {
-        exceptionRule.expect(RuntimeException.class);
-        exceptionRule.expectMessage("unsupported operator in select: LOG10");
+        exceptionRule.expect(UnsupportedOperationException.class);
+        exceptionRule.expectMessage("unsupported operator: cot");
 
         context.addAggregationExpr(maxA);
-        SQLMethodInvokeExpr methodInvokeExpr = new SQLMethodInvokeExpr("LOG10");
+        SQLMethodInvokeExpr methodInvokeExpr = new SQLMethodInvokeExpr("cot");
         methodInvokeExpr.addParameter(maxA);
         converter.convert(methodInvokeExpr);
+    }
+
+    private Expression add(Expression... expressions) {
+        return of(ADD, Arrays.asList(expressions));
+    }
+
+    private Expression log(Expression... expressions) {
+        return of(LOG, Arrays.asList(expressions));
     }
 }

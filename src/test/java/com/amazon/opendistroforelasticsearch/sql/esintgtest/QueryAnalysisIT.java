@@ -232,15 +232,6 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
         queryShouldPassAnalysis("SELECT log(e()) FROM elasticsearch-sql_test_index_bank");
     }
 
-    /** Temporarily added, should be deleted after this case is fixed */
-    @Test
-    public void functionWithAggregatorArgShouldFail() {
-        queryShouldThrowFeatureNotImplementedException(
-                "SELECT abs(max(age)) FROM elasticsearch-sql_test_index_bank",
-                "Nested function calls with aggregation argument like [abs(max(age))] are not supported yet"
-        );
-    }
-
     @Test
     public void aggregateWithFunctionAggregatorShouldFail() {
         queryShouldThrowFeatureNotImplementedException(

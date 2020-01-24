@@ -5,7 +5,7 @@
  *   You may not use this file except in compliance with the License.
  *   A copy of the License is located at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  *   or in the "license" file accompanying this file. This file is distributed
  *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
@@ -20,8 +20,8 @@ import lombok.RequiredArgsConstructor;
 
 @EqualsAndHashCode
 @RequiredArgsConstructor
-public class ExprIntegerValue implements ExprValue {
-    private final Integer value;
+public class ExprFloatValue implements ExprValue {
+    private final Float value;
 
     @Override
     public Object value() {
@@ -30,7 +30,7 @@ public class ExprIntegerValue implements ExprValue {
 
     @Override
     public ExprValueKind kind() {
-        return ExprValueKind.INTEGER_VALUE;
+        return ExprValueKind.DOUBLE_VALUE;
     }
 
     @Override

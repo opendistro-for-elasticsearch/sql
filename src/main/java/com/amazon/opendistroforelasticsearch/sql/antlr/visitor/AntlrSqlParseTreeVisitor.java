@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.AggregationAsArgFunctionCallContext;
+
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.AggregateWindowedFunctionContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.AtomTableItemContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.BinaryComparisonPredicateContext;
@@ -259,12 +259,6 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
     @Override
     public T visitSelectExpressionElement(SelectExpressionElementContext ctx) {
         return visitSelectItem(ctx.expression(), ctx.uid());
-    }
-
-    @Override
-    public T visitAggregationAsArgFunctionCall(AggregationAsArgFunctionCallContext ctx) {
-        UnsupportedSemanticVerifier.verify(ctx);
-        return super.visitAggregationAsArgFunctionCall(ctx);
     }
 
     @Override

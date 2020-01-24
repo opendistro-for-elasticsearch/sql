@@ -15,14 +15,24 @@
 
 package com.amazon.opendistroforelasticsearch.sql.unittest.expression.core;
 
+import com.amazon.opendistroforelasticsearch.sql.expression.core.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.core.ExpressionFactory;
+import com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation;
 import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
 import org.json.JSONObject;
+
+import java.util.Arrays;
+
+import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueUtils.getNumberValue;
+
 
 public class ExpressionTest {
     protected BindingTuple bindingTuple() {
         String json = "{\n" +
                       "  \"intValue\": 1,\n" +
+                      "  \"intValue2\": 2,\n" +
                       "  \"doubleValue\": 2.0,\n" +
+                      "  \"negDoubleValue\": -2.0,\n" +
                       "  \"stringValue\": \"string\",\n" +
                       "  \"booleanValue\": true,\n" +
                       "  \"tupleValue\": {\n" +
@@ -37,5 +47,13 @@ public class ExpressionTest {
                       "  ]\n" +
                       "}";
         return BindingTuple.from(new JSONObject(json));
+    }
+
+    protected Expression of(ScalarOperation op, Expression... expressions) {
+        return ExpressionFactory.of(op, Arrays.asList(expressions));
+    }
+
+    protected Number apply(ScalarOperation op, Expression... expressions) {
+        return getNumberValue(of(op, expressions).valueOf(bindingTuple()));
     }
 }
