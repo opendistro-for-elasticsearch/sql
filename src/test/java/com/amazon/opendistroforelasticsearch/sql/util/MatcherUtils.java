@@ -15,14 +15,18 @@
 
 package com.amazon.opendistroforelasticsearch.sql.util;
 
+import com.google.common.base.Strings;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.hamcrest.Description;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -30,10 +34,13 @@ import java.util.function.Function;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasItems;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 public class MatcherUtils {
 
@@ -90,7 +97,7 @@ public class MatcherUtils {
             JSONArray array = (JSONArray) (actual.query(query));
             List<JSONObject> results = new ArrayList<>(array.length());
             for (Object element : array) {
-                results.add((JSONObject)element);
+                results.add((JSONObject) element);
             }
             return results;
         });
@@ -105,7 +112,7 @@ public class MatcherUtils {
             JSONArray array = (JSONArray) (actual.query("/hits/hits"));
             List<JSONObject> results = new ArrayList<>(array.length());
             for (Object element : array) {
-                results.add((JSONObject)element);
+                results.add((JSONObject) element);
             }
             return results;
         });
@@ -121,5 +128,60 @@ public class MatcherUtils {
 
     public static Matcher<JSONObject> kvInt(String key, Matcher<Integer> matcher) {
         return featureValueOf("Json Match", matcher, actual -> (Integer) actual.query(key));
+    }
+
+    @SuppressWarnings("unchecked")
+    public static void verifySchema(JSONObject response, Matcher<JSONObject>... matchers) {
+        verify(response.getJSONArray("schema"), matchers);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static void verifyDataRows(JSONObject response, Matcher<JSONArray>... matchers) {
+        verify(response.getJSONArray("datarows"), matchers);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> void verify(JSONArray array, Matcher<T>... matchers) {
+        List<T> objects = new ArrayList<>();
+        array.iterator().forEachRemaining(o -> objects.add((T) o));
+        assertEquals(matchers.length, objects.size());
+        assertThat(objects, containsInAnyOrder(matchers));
+    }
+
+    public static TypeSafeMatcher<JSONObject> schema(String expectedName, String expectedAlias, String expectedType) {
+        return new TypeSafeMatcher<JSONObject>() {
+            @Override
+            public void describeTo(Description description) {
+                description.appendText(
+                        String.format("(name=%s, alias=%s, type=%s)", expectedName, expectedAlias, expectedType));
+            }
+
+            @Override
+            protected boolean matchesSafely(JSONObject jsonObject) {
+                String actualName = (String) jsonObject.query("/name");
+                String actualAlias = (String) jsonObject.query("/alias");
+                String actualType = (String) jsonObject.query("/type");
+                return expectedName.equals(actualName) &&
+                       (Strings.isNullOrEmpty(actualAlias) && Strings.isNullOrEmpty(expectedAlias) ||
+                        expectedAlias.equals(actualAlias)) &&
+                       expectedType.equals(actualType);
+            }
+        };
+    }
+
+    public static TypeSafeMatcher<JSONArray> rows(Object... expectedObjects) {
+        return new TypeSafeMatcher<JSONArray>() {
+            @Override
+            public void describeTo(Description description) {
+                description.appendText(String.join(",", Arrays.asList(expectedObjects).toString()));
+            }
+
+            @Override
+            protected boolean matchesSafely(JSONArray array) {
+                List<Object> actualObjects = new ArrayList<>();
+                array.iterator().forEachRemaining(actualObjects::add);
+                return Arrays.asList(expectedObjects).equals(actualObjects);
+            }
+        };
     }
 }

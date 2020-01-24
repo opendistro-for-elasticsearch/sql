@@ -22,7 +22,6 @@ import com.google.common.collect.Sets;
 
 import java.util.Set;
 
-import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.AggregationAsArgFunctionCallContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.MathOperatorContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.RegexpPredicateContext;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.ScalarFunctionCallContext;
@@ -84,15 +83,6 @@ public class UnsupportedSemanticVerifier {
             throw new SqlFeatureNotImplementedException(StringUtils.format("Function [%s] is not supported yet",
                     funcName));
         }
-    }
-
-    /**
-     * For functions with aggregation arguments, like abs(max(...));
-     * Temporarily added since this type of functions is under fixing.
-     */
-    public static void verify(AggregationAsArgFunctionCallContext ctx) {
-        throw new SqlFeatureNotImplementedException(StringUtils.format(
-                "Nested function calls with aggregation argument like [%s] are not supported yet", ctx.getText()));
     }
 
     public static void verify(MathOperatorContext ctx) {

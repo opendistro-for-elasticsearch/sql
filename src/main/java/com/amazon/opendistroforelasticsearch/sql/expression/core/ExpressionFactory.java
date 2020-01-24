@@ -16,96 +16,110 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.core;
 
 
+import com.amazon.opendistroforelasticsearch.sql.expression.core.builder.ExpressionBuilder;
+import com.amazon.opendistroforelasticsearch.sql.expression.core.builder.ArithmeticFunctionFactory;
+import com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation;
 import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
 import com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValue;
-import com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueFactory;
-import lombok.RequiredArgsConstructor;
+import com.google.common.collect.ImmutableMap;
 
-import java.util.function.BiFunction;
+import java.util.List;
+import java.util.Map;
 
-import static com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValueFactory.doubleValue;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.ABS;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.ACOS;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.ADD;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.ASIN;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.ATAN;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.ATAN2;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.CBRT;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.CEIL;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.COS;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.COSH;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.DIVIDE;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.EXP;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.FLOOR;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.LN;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.LOG;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.LOG10;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.LOG2;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.MODULES;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.MULTIPLY;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.SUBTRACT;
+import static com.amazon.opendistroforelasticsearch.sql.expression.core.operator.ScalarOperation.TAN;
+
 
 /**
  * The definition of Expression factory.
  */
 public class ExpressionFactory {
+
+    private static final Map<ScalarOperation, ExpressionBuilder> operationExpressionBuilderMap =
+            new ImmutableMap.Builder<ScalarOperation, ExpressionBuilder>()
+                    .put(ADD, ArithmeticFunctionFactory.add())
+                    .put(SUBTRACT, ArithmeticFunctionFactory.subtract())
+                    .put(MULTIPLY, ArithmeticFunctionFactory.multiply())
+                    .put(DIVIDE, ArithmeticFunctionFactory.divide())
+                    .put(MODULES, ArithmeticFunctionFactory.modules())
+                    .put(ABS, ArithmeticFunctionFactory.abs())
+                    .put(ACOS, ArithmeticFunctionFactory.acos())
+                    .put(ASIN, ArithmeticFunctionFactory.asin())
+                    .put(ATAN, ArithmeticFunctionFactory.atan())
+                    .put(ATAN2, ArithmeticFunctionFactory.atan2())
+                    .put(TAN, ArithmeticFunctionFactory.tan())
+                    .put(CBRT, ArithmeticFunctionFactory.cbrt())
+                    .put(CEIL, ArithmeticFunctionFactory.ceil())
+                    .put(COS, ArithmeticFunctionFactory.cos())
+                    .put(COSH, ArithmeticFunctionFactory.cosh())
+                    .put(EXP, ArithmeticFunctionFactory.exp())
+                    .put(FLOOR, ArithmeticFunctionFactory.floor())
+                    .put(LN, ArithmeticFunctionFactory.ln())
+                    .put(LOG, ArithmeticFunctionFactory.log())
+                    .put(LOG2, ArithmeticFunctionFactory.log2())
+                    .put(LOG10, ArithmeticFunctionFactory.log10())
+                    .build();
+
+    public static Expression of(ScalarOperation op, List<Expression> expressions) {
+        return operationExpressionBuilderMap.get(op).build(expressions);
+    }
+
     /**
-     * Reference
+     * Ref Expression. Define the binding name which could be resolved in {@link BindingTuple}
      */
     public static Expression ref(String bindingName) {
         return new Expression() {
             @Override
-            public String toString() {
-                return String.format("%s", bindingName);
-            }
-
-            @Override
             public ExprValue valueOf(BindingTuple tuple) {
                 return tuple.resolve(bindingName);
             }
+
+            @Override
+            public String toString() {
+                return String.format("%s", bindingName);
+            }
         };
     }
 
-    @RequiredArgsConstructor
-    enum ArithmeticOperation {
-        ADD(Integer::sum, Double::sum),
-        SUB((arg1, arg2) -> arg1 - arg2,
-            (arg1, arg2) -> arg1 - arg2);
-
-        private final BiFunction<Integer, Integer, Integer> integerFunc;
-        private final BiFunction<Double, Double, Double> doubleFunc;
-    }
-
-    public static Expression add(Expression left, Expression right) {
+    /**
+     * Literal Expression.
+     */
+    public static Expression literal(ExprValue value) {
         return new Expression() {
             @Override
             public ExprValue valueOf(BindingTuple tuple) {
-                return arithmetic(ArithmeticOperation.ADD, left.valueOf(tuple), right.valueOf(tuple));
+                return value;
             }
 
             @Override
             public String toString() {
-                return String.format("add(%s,%s)", left, right);
+                return String.format("%s", value);
             }
         };
     }
 
-    public static Expression sub(Expression left, Expression right) {
-        return new Expression() {
-            @Override
-            public ExprValue valueOf(BindingTuple tuple) {
-                return arithmetic(ArithmeticOperation.ADD, left.valueOf(tuple), right.valueOf(tuple));
-            }
-
-            @Override
-            public String toString() {
-                return String.format("sub(%s,%s)", left, right);
-            }
-        };
-    }
-
-    public static Expression log(Expression expr) {
-        return new Expression() {
-            @Override
-            public ExprValue valueOf(BindingTuple tuple) {
-                final ExprValue exprValue = expr.valueOf(tuple);
-                switch (exprValue.kind()) {
-                    case INTEGER_VALUE:
-                        return doubleValue(Math.log(exprValue.numberValue().intValue()));
-                    case DOUBLE_VALUE:
-                        return doubleValue(Math.log(exprValue.numberValue().doubleValue()));
-                    default:
-                        throw new RuntimeException("unsupported log operand: " + exprValue.kind());
-                }
-            }
-
-            @Override
-            public String toString() {
-                return String.format("log(%s)", expr);
-            }
-        };
-    }
-
+    /**
+     * Cast Expression.
+     */
     public static Expression cast(Expression expr) {
         return new Expression() {
             @Override
@@ -118,26 +132,5 @@ public class ExpressionFactory {
                 return String.format("cast(%s)", expr);
             }
         };
-    }
-
-    private static ExprValue arithmetic(ArithmeticOperation op, ExprValue v1, ExprValue v2) {
-        if (v1.kind() != v2.kind()) {
-            throw new RuntimeException(
-                    String.format("operation with different type is unsupported: %s(%s, %s)", op.name(), v1.kind(),
-                                  v2.kind()));
-        } else {
-            switch (v1.kind()) {
-                case DOUBLE_VALUE:
-                    return ExprValueFactory.doubleValue(
-                            op.doubleFunc.apply(v1.numberValue().doubleValue(), v2.numberValue().doubleValue()));
-                case INTEGER_VALUE:
-                    return ExprValueFactory
-                            .integerValue(
-                                    op.integerFunc.apply(v1.numberValue().intValue(), v2.numberValue().intValue()));
-                default:
-                    throw new RuntimeException(String.format("unsupported operation: %s(%s, %s)", op.name(), v1.kind(),
-                                                             v2.kind()));
-            }
-        }
     }
 }
