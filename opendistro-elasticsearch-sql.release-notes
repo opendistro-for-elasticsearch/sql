@@ -2,9 +2,9 @@
 
 ### Notable changes
 
-* Feature [#312](https://github.com/opendistro-for-elasticsearch/sql/issues/312): OD 1.4 Release components
 * Feature [#283](https://github.com/opendistro-for-elasticsearch/sql/pull/283): Added github action to build and run tests
 * Feature [#302](https://github.com/opendistro-for-elasticsearch/sql/pull/302): Documentation for basic usage of plugin
+* Feature [#312](https://github.com/opendistro-for-elasticsearch/sql/issues/312): OD 1.4 Release components
 * Feature [#334](https://github.com/opendistro-for-elasticsearch/sql/pull/334): Change the default response format to JDBC
 * Feature [#335](https://github.com/opendistro-for-elasticsearch/sql/pull/335): Sql test bench
 
