@@ -27,6 +27,7 @@ public class SqlRequestFactory {
 
     private static final String SQL_URL_PARAM_KEY = "sql";
     private static final String SQL_FIELD_NAME = "query";
+    private static final String SQL_CURSOR_FIELD_NAME = "cursor";
     private static final String PARAM_FIELD_NAME = "parameters";
 
     private static final String PARAM_TYPE_FIELD_NAME = "type";
@@ -69,6 +70,19 @@ public class SqlRequestFactory {
             return new PreparedStatementRequest(sql, jsonContent, parameters);
         }
         return new SqlRequest(sql, jsonContent);
+    }
+
+    public static String parseCursorRequestFromPayload(RestRequest restRequest) {
+        String content = restRequest.content().utf8ToString();
+
+        JSONObject jsonContent;
+        try {
+            jsonContent = new JSONObject(content);
+        } catch (JSONException e) {
+            throw new IllegalArgumentException("Failed to parse request payload", e);
+        }
+
+        return jsonContent.optString(SQL_CURSOR_FIELD_NAME, null);
     }
 
     private static List<PreparedStatementRequest.PreparedStatementParameter> parseParameters(

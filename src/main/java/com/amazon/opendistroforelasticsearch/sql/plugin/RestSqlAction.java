@@ -24,8 +24,10 @@ import com.amazon.opendistroforelasticsearch.sql.exception.SQLFeatureDisabledExc
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.ActionRequestRestExecutorFactory;
 import com.amazon.opendistroforelasticsearch.sql.executor.RestExecutor;
+import com.amazon.opendistroforelasticsearch.sql.executor.cursor.CursorActionRequestRestExecutorFactory;
+import com.amazon.opendistroforelasticsearch.sql.executor.cursor.CursorRestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.ErrorMessage;
-import com.amazon.opendistroforelasticsearch.sql.request.PreparedStatementRequest;
+//import com.amazon.opendistroforelasticsearch.sql.request.PreparedStatementRequest;
 import com.amazon.opendistroforelasticsearch.sql.utils.JsonPrettyFormatter;
 import com.amazon.opendistroforelasticsearch.sql.metrics.MetricName;
 import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
@@ -34,17 +36,17 @@ import com.amazon.opendistroforelasticsearch.sql.request.SqlRequest;
 import com.amazon.opendistroforelasticsearch.sql.request.SqlRequestFactory;
 import com.amazon.opendistroforelasticsearch.sql.request.SqlRequestParam;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.VerificationException;
-import com.amazon.opendistroforelasticsearch.sql.utils.JsonPrettyFormatter;
+//import com.amazon.opendistroforelasticsearch.sql.utils.JsonPrettyFormatter;
 import com.amazon.opendistroforelasticsearch.sql.utils.LogUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.elasticsearch.action.search.ClearScrollRequest;
-import org.elasticsearch.action.search.ClearScrollRequestBuilder;
-import org.elasticsearch.action.search.ClearScrollResponse;
+//import org.elasticsearch.action.search.ClearScrollRequest;
+//import org.elasticsearch.action.search.ClearScrollRequestBuilder;
+//import org.elasticsearch.action.search.ClearScrollResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.client.RequestOptions;
+//import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.node.NodeClient;
-import org.elasticsearch.common.bytes.BytesReference;
+//import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.rest.BaseRestHandler;
@@ -52,17 +54,17 @@ import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestController;
 import org.elasticsearch.rest.RestRequest;
-import org.elasticsearch.rest.RestResponse;
+//import org.elasticsearch.rest.RestResponse;
 import org.elasticsearch.rest.RestStatus;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+//import org.json.JSONArray;
+//import org.json.JSONException;
+//import org.json.JSONObject;
 
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+//import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -122,16 +124,15 @@ public class RestSqlAction extends BaseRestHandler {
                 );
             }
 
-            final SqlRequest sqlRequest = SqlRequestFactory.getSqlRequest(request);
-            LOG.info("[{}] Incoming request {}: {}", LogUtils.getRequestId(), request.uri(), sqlRequest.getSql());
+            String cursorId = SqlRequestFactory.parseCursorRequestFromPayload(request);
 
-            LOG.info("Cursor ID: {}", );
-
-            if(isCloseCursorRequest(request)) {
-                String cursorId = parseCursorRequestFromPayload(request);
-                LOG.info("Cursor ID: {}", cursorId);
+            if (cursorId != null) {
+                LOG.info("[{}] Cursor request : {}", LogUtils.getRequestId(), cursorId);
                 return channel -> handleCursorCloseRequest(request, cursorId, client, channel);
             }
+
+            final SqlRequest sqlRequest = SqlRequestFactory.getSqlRequest(request);
+            LOG.info("[{}] Incoming request {}: {}", LogUtils.getRequestId(), request.uri(), sqlRequest.getSql());
 
             final QueryAction queryAction = explainRequest(client, sqlRequest);
             return channel -> executeSqlRequest(request, queryAction, client, channel);
@@ -141,43 +142,13 @@ public class RestSqlAction extends BaseRestHandler {
         }
     }
 
-    private void handleCursorCloseRequest(final RestRequest request, final String cursorId,
-                                          final Client client, final RestChannel channel) {
-//        ClearScrollRequest clearScrollRequest = new ClearScrollRequest();
-//        clearScrollRequest.addScrollId(cursorId);
-//        ClearScrollResponse response = client.clearScroll(clearScrollRequest, RequestOptions.DEFAULT);
+    private void handleCursorCloseRequest(final RestRequest request, final String cursorId, final Client client,
+                                          final RestChannel channel) throws Exception {
+        CursorRestExecutor cursorRestExecutor = CursorActionRequestRestExecutorFactory.createExecutor(
+            request, cursorId, SqlRequestParam.getFormatFromCursorRequest(request.params())
+        );
 
-        RestResponse restResponse = new RestResponse() {
-            @Override
-            public String contentType() {
-                return "some fake content ";
-            }
-
-            @Override
-            public BytesReference content() {
-                return null;
-            }
-
-            @Override
-            public RestStatus status() {
-                return OK;
-            }
-        };
-
-//        channel.sendResponse(new BytesRestResponse(OK, soe));
-        channel.sendResponse(restResponse);
-    }
-
-    private static String parseCursorRequestFromPayload(RestRequest restRequest) {
-        String content = restRequest.content().utf8ToString();
-
-        JSONObject jsonContent;
-        try {
-            jsonContent = new JSONObject(content);
-        } catch (JSONException e) {
-            throw new IllegalArgumentException("Failed to parse request payload", e);
-        }
-        return jsonContent.getString("cursor");
+        cursorRestExecutor.execute(client, request.params(), channel);
     }
 
     @Override

@@ -62,4 +62,27 @@ public class SqlRequestParam {
                                                + formatName);
         }
     }
+
+    /**
+     * Parse the request params and return the {@link Format} of the response
+     * @param requestParams request params
+     * @return The response Format.
+     */
+    public static Format getFormatFromCursorRequest(Map<String, String> requestParams) {
+//        String formatName;
+//        if (requestParams.containsKey(QUERY_PARAMS_FORMAT)) {
+//            formatName = requestParams.get(QUERY_PARAMS_FORMAT).toLowerCase();
+//        } else {
+//            LocalClusterState clusterState = LocalClusterState.state();
+//            formatName = clusterState.getSettingValue(QUERY_RESPONSE_FORMAT);
+//        }
+//        Optional<Format> optionalFormat = Format.of(formatName);
+//        if (optionalFormat.isPresent()) {
+//            return optionalFormat.get();
+//        } else {
+//            throw new IllegalArgumentException("Failed to create executor due to unknown response format: "
+//                + formatName);
+//        }
+        return Format.JDBC;
+    }
 }
