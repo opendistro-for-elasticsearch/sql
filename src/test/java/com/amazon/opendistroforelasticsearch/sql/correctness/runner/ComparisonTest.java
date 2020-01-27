@@ -26,6 +26,7 @@ import com.amazon.opendistroforelasticsearch.sql.correctness.testset.TestDataSet
 import com.amazon.opendistroforelasticsearch.sql.correctness.testset.TestQuerySet;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -118,6 +119,7 @@ public class ComparisonTest implements AutoCloseable {
 
     /** Execute the query and compare with current result */
     private TestCaseReport compareWithOtherDb(String sql, DBResult esResult) {
+        List<DBResult> mismatchResults = Lists.newArrayList(esResult);
         StringBuilder reasons = new StringBuilder();
         for (int i = 0; i < otherDbConnections.length; i++) {
             try {
@@ -126,9 +128,11 @@ public class ComparisonTest implements AutoCloseable {
                     return new SuccessTestCase(nextId(), sql);
                 }
 
+                mismatchResults.add(otherDbResult);
+
                 // Cannot find any database result match
                 if (i == otherDbConnections.length - 1) {
-                    return new FailedTestCase(nextId(), sql, Arrays.asList(esResult, otherDbResult));
+                    return new FailedTestCase(nextId(), sql, mismatchResults);
                 }
             } catch (Exception e) {
                 // Ignore and move on to next database

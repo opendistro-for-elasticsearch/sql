@@ -43,9 +43,11 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroS
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.FunctionNameBaseContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.InPredicateContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.IsExpressionContext;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.MathOperatorContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.MinusSelectContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.OuterJoinContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.PredicateContext;
+import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.RegexpPredicateContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.RootContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.ScalarFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.parser.OpenDistroSqlParser.SelectElementsContext;
@@ -217,11 +219,23 @@ public class AntlrSqlParseTreeVisitor<T extends Reducible> extends OpenDistroSql
         return reduce(func, ctx.functionArgs());
     }
 
-    // This check should be able to accomplish in grammar
     @Override
     public T visitScalarFunctionCall(ScalarFunctionCallContext ctx) {
+        UnsupportedSemanticVerifier.verify(ctx);
         T func = visit(ctx.scalarFunctionName());
         return reduce(func, ctx.functionArgs());
+    }
+
+    @Override
+    public T visitMathOperator(MathOperatorContext ctx) {
+        UnsupportedSemanticVerifier.verify(ctx);
+        return super.visitMathOperator(ctx);
+    }
+
+    @Override
+    public T visitRegexpPredicate(RegexpPredicateContext ctx) {
+        UnsupportedSemanticVerifier.verify(ctx);
+        return super.visitRegexpPredicate(ctx);
     }
 
     @Override

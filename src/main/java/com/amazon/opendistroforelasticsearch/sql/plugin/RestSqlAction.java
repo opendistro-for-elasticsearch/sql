@@ -19,10 +19,14 @@ import com.alibaba.druid.sql.parser.ParserException;
 import com.amazon.opendistroforelasticsearch.sql.antlr.OpenDistroSqlAnalyzer;
 import com.amazon.opendistroforelasticsearch.sql.antlr.SqlAnalysisConfig;
 import com.amazon.opendistroforelasticsearch.sql.antlr.SqlAnalysisException;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.Type;
+import com.amazon.opendistroforelasticsearch.sql.domain.ColumnTypeProvider;
+import com.amazon.opendistroforelasticsearch.sql.domain.QueryActionRequest;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.exception.SQLFeatureDisabledException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.ActionRequestRestExecutorFactory;
+import com.amazon.opendistroforelasticsearch.sql.executor.Format;
 import com.amazon.opendistroforelasticsearch.sql.executor.RestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.cursor.CursorActionRequestRestExecutorFactory;
 import com.amazon.opendistroforelasticsearch.sql.executor.cursor.CursorRestExecutor;
@@ -66,6 +70,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 //import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -134,7 +139,8 @@ public class RestSqlAction extends BaseRestHandler {
             final SqlRequest sqlRequest = SqlRequestFactory.getSqlRequest(request);
             LOG.info("[{}] Incoming request {}: {}", LogUtils.getRequestId(), request.uri(), sqlRequest.getSql());
 
-            final QueryAction queryAction = explainRequest(client, sqlRequest);
+            final QueryAction queryAction =
+                    explainRequest(client, sqlRequest, SqlRequestParam.getFormat(request.params()));
             return channel -> executeSqlRequest(request, queryAction, client, channel);
         } catch (Exception e) {
             logAndPublishMetrics(e);
@@ -168,18 +174,19 @@ public class RestSqlAction extends BaseRestHandler {
         }
     }
 
-    private static QueryAction explainRequest(final NodeClient client, final SqlRequest sqlRequest)
+    private static QueryAction explainRequest(final NodeClient client, final SqlRequest sqlRequest, Format format)
             throws SQLFeatureNotSupportedException, SqlParseException {
 
-        performAnalysis(sqlRequest.getSql());
+        ColumnTypeProvider typeProvider = performAnalysis(sqlRequest.getSql());
 
-        final QueryAction queryAction = new SearchDao(client).explain(sqlRequest.getSql());
+        final QueryAction queryAction = new SearchDao(client)
+                .explain(new QueryActionRequest(sqlRequest.getSql(), typeProvider, format));
         queryAction.setSqlRequest(sqlRequest);
         return queryAction;
     }
 
-    private void executeSqlRequest(final RestRequest request, final QueryAction queryAction,
-                                   final Client client, final RestChannel channel) throws Exception {
+    private void executeSqlRequest(final RestRequest request, final QueryAction queryAction, final Client client,
+                                   final RestChannel channel) throws Exception {
         Map<String, String> params = request.params();
         if (isExplainRequest(request)) {
             final String jsonExplanation = queryAction.explain().explain();
@@ -238,7 +245,7 @@ public class RestSqlAction extends BaseRestHandler {
         return allowExplicitIndex && isSqlEnabled;
     }
 
-    private static void performAnalysis(String sql) {
+    private static ColumnTypeProvider performAnalysis(String sql) {
         LocalClusterState clusterState = LocalClusterState.state();
         SqlAnalysisConfig config = new SqlAnalysisConfig(
             clusterState.getSettingValue(QUERY_ANALYSIS_ENABLED),
@@ -247,6 +254,11 @@ public class RestSqlAction extends BaseRestHandler {
         );
 
         OpenDistroSqlAnalyzer analyzer = new OpenDistroSqlAnalyzer(config);
-        analyzer.analyze(sql, clusterState);
+        Optional<Type> outputColumnType = analyzer.analyze(sql, clusterState);
+        if (outputColumnType.isPresent()) {
+            return new ColumnTypeProvider(outputColumnType.get());
+        } else {
+            return new ColumnTypeProvider();
+        }
     }
 }
