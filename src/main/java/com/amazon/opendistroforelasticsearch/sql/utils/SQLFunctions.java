@@ -947,23 +947,23 @@ public class SQLFunctions {
 
     public String getCastScriptStatement(String name, String castType, List<KVValue> paramers)
             throws SqlParseException {
-        String fileName = String.format("doc['%s'].value", paramers.get(0).toString());
+        String castFieldName = String.format("doc['%s'].value", paramers.get(0).toString());
         switch (StringUtils.toUpper(castType)) {
             case "INT":
-                return String.format("def %s = Double.parseDouble(%s.toString()).intValue()", name, fileName);
+                return String.format("def %s = Double.parseDouble(%s.toString()).intValue()", name, castFieldName);
             case "LONG":
-                return String.format("def %s = Double.parseDouble(%s.toString()).longValue()", name, fileName);
+                return String.format("def %s = Double.parseDouble(%s.toString()).longValue()", name, castFieldName);
             case "FLOAT":
-                return String.format("def %s = Double.parseDouble(%s.toString()).floatValue()", name, fileName);
+                return String.format("def %s = Double.parseDouble(%s.toString()).floatValue()", name, castFieldName);
             case "DOUBLE":
-                return String.format("def %s = Double.parseDouble(%s.toString()).doubleValue()", name, fileName);
+                return String.format("def %s = Double.parseDouble(%s.toString()).doubleValue()", name, castFieldName);
             case "STRING":
-                return String.format("def %s = %s.toString()", name, fileName);
+                return String.format("def %s = %s.toString()", name, castFieldName);
             case "DATETIME":
                 return String.format("def %s = new SimpleDateFormat(\"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'\")"
-                    + ".parse(%s.toString())", name, fileName);
+                    + ".parse(%s.toString())", name, castFieldName);
             default:
-                throw new SqlParseException("Unsupported cast type");
+                throw new SqlParseException("Unsupported cast type " + castType);
         }
     }
 
@@ -974,7 +974,6 @@ public class SQLFunctions {
      * it might be safely treated as INTEGER.
      */
     public static Schema.Type getScriptFunctionReturnType(Field field) {
-
         String functionName = ((ScriptMethodField) field).getFunctionName().toLowerCase();
         if (functionName.equals("cast")) {
             String castType = ((SQLCastExpr) field.getExpression()).getDataType().getName();
