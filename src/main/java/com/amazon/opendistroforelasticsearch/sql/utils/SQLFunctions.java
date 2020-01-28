@@ -960,8 +960,10 @@ public class SQLFunctions {
             case "STRING":
                 return String.format("def %s = %s.toString()", name, castFieldName);
             case "DATETIME":
-                return String.format("def %s = new SimpleDateFormat(\"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'\")"
-                    + ".parse(%s.toString())", name, castFieldName);
+//                return String.format("def %s = new SimpleDateFormat(\"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'\")"
+//                    + ".parse(%s.toString())", name, castFieldName);
+                return String.format("def %s = DateTimeFormatter.ofPattern(\"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'\").format("
+                        + "DateTimeFormatter.ISO_DATE_TIME.parse(%s.toString()))", name, castFieldName);
             default:
                 throw new SqlParseException("Unsupported cast type " + castType);
         }

@@ -324,7 +324,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void castKeywordFieldToDatetimeWithoutAliasJdbcFormatTest() throws ParseException {
+    public void castKeywordFieldToDatetimeWithoutAliasJdbcFormatTest() {
         JSONObject response = executeJdbcRequest("SELECT CAST(date_keyword AS DATETIME) FROM "
                 + TestsConstants.TEST_INDEX_DATE + " ORDER BY date_keyword");
 
@@ -332,13 +332,14 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         assertEquals(response.getJSONArray("schema").get(0).toString(), date_type_cast);
 
         verifySchema(response, schema("cast_date_keyword", null, "date"));
-        String[] expectedOutput = new String[] {"2014-08-19T07:09:13", "2019-09-25T02:04:13"};
 
-        testDatetimeCasts(response, expectedOutput);
+        verifyDataRows(response,
+                rows("2014-08-19T07:09:13.434Z"),
+                rows("2019-09-25T02:04:13.469Z"));
     }
 
     @Test
-    public void castKeywordFieldToDatetimeWithAliasJdbcFormatTest() throws ParseException {
+    public void castKeywordFieldToDatetimeWithAliasJdbcFormatTest() {
         JSONObject response = executeJdbcRequest("SELECT CAST(date_keyword AS DATETIME) AS test_alias FROM "
                 + TestsConstants.TEST_INDEX_DATE + " ORDER BY date_keyword");
 
@@ -346,31 +347,34 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         assertEquals(response.getJSONArray("schema").get(0).toString(), date_type_cast);
 
         verifySchema(response, schema("test_alias", null, "date"));
-        String[] expectedOutput = new String[] {"2014-08-19T07:09:13", "2019-09-25T02:04:13"};
 
-        testDatetimeCasts(response, expectedOutput);
+        verifyDataRows(response,
+                rows("2014-08-19T07:09:13.434Z"),
+                rows("2019-09-25T02:04:13.469Z"));
     }
 
     @Test
-    public void castFieldToDatetimeWithWhereClauseJdbcFormatTest() throws ParseException {
+    public void castFieldToDatetimeWithWhereClauseJdbcFormatTest() {
         JSONObject response = executeJdbcRequest("SELECT CAST(date_keyword AS DATETIME) FROM "
                 + TestsConstants.TEST_INDEX_DATE + " WHERE date_keyword IS NOT NULL ORDER BY date_keyword");
 
         verifySchema(response, schema("cast_date_keyword", null, "date"));
-        String[] expectedOutput = new String[] {"2014-08-19T07:09:13", "2019-09-25T02:04:13"};
 
-        testDatetimeCasts(response, expectedOutput);
+        verifyDataRows(response,
+                rows("2014-08-19T07:09:13.434Z"),
+                rows("2019-09-25T02:04:13.469Z"));
     }
 
     @Test
-    public void castFieldToDatetimeWithGroupByJdbcFormatTest() throws ParseException {
+    public void castFieldToDatetimeWithGroupByJdbcFormatTest() {
         JSONObject response = executeJdbcRequest("SELECT CAST(date_keyword AS DATETIME) AS test_alias FROM "
                 + TestsConstants.TEST_INDEX_DATE + " GROUP BY test_alias DESC");
 
         verifySchema(response, schema("test_alias", "test_alias", "double"));
-        String[] expectedOutput = new String[] {"2014-08-19T07:09:13", "2019-09-25T02:04:13"};
 
-        testDatetimeCasts(response, expectedOutput);
+        verifyDataRows(response,
+                rows("2014-08-19T07:09:13.434Z"),
+                rows("2019-09-25T02:04:13.469Z"));
     }
 
     @Test
@@ -842,24 +846,25 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
     private void testDatetimeCasts(JSONObject response, String[] expectedOutput) throws ParseException {
         assertFalse(response.getJSONArray("datarows").isEmpty());
-        SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.US);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-        List<LocalDateTime> dates = getUTCTimezoneDates(response, sdf);
+        List<Date> dates = getUTCTimezoneDates(response, sdf);
         for (int i = 0; i < dates.size(); ++i) {
             Assert.assertThat(
-                    dates.get(i).toString(),
+                    dates.get(i).toInstant().toString(),
                     equalTo(expectedOutput[i])
             );
         }
     }
 
-    private List<LocalDateTime> getUTCTimezoneDates(JSONObject response, SimpleDateFormat sdf) throws ParseException {
-        List<LocalDateTime> dates = new ArrayList<>();
+    private List<Date> getUTCTimezoneDates(JSONObject response, SimpleDateFormat sdf) throws ParseException {
+        List<Date> dates = new ArrayList<>();
         for (int i = 0; i < response.getJSONArray("datarows").length(); ++i) {
+            System.out.println(response.getJSONArray("datarows").getJSONArray(i).getString(0));
             Date date = sdf.parse(response.getJSONArray("datarows").getJSONArray(i).getString(0));
             LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.of("US/Pacific"));
-            dates.add(localDateTime);
+            dates.add(date);
         }
 
         return dates;

@@ -1316,8 +1316,8 @@ public class SqlParserTest {
         String scriptCode = (String) methodField.getParams().get(1).value;
         Assert.assertEquals("cast_age",alias);
         Assert.assertTrue(scriptCode.contains("doc['age'].value"));
-        Assert.assertTrue(scriptCode.contains("new SimpleDateFormat(\"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'\")"
-                + ".parse(doc['age'].value.toString())"));
+        Assert.assertTrue(scriptCode.contains("DateTimeFormatter.ofPattern(\"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'\").format("
+                + "DateTimeFormatter.ISO_DATE_TIME.parse(doc['age'].value.toString()))"));
     }
 
     @Test
