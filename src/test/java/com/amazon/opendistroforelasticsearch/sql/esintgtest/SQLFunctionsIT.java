@@ -328,9 +328,6 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         JSONObject response = executeJdbcRequest("SELECT CAST(date_keyword AS DATETIME) FROM "
                 + TestsConstants.TEST_INDEX_DATE + " ORDER BY date_keyword");
 
-        String date_type_cast = "{\"name\":\"cast_date_keyword\",\"type\":\"date\"}";
-        assertEquals(response.getJSONArray("schema").get(0).toString(), date_type_cast);
-
         verifySchema(response, schema("cast_date_keyword", null, "date"));
 
         verifyDataRows(response,
@@ -342,9 +339,6 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     public void castKeywordFieldToDatetimeWithAliasJdbcFormatTest() {
         JSONObject response = executeJdbcRequest("SELECT CAST(date_keyword AS DATETIME) AS test_alias FROM "
                 + TestsConstants.TEST_INDEX_DATE + " ORDER BY date_keyword");
-
-        String date_type_cast = "{\"name\":\"test_alias\",\"type\":\"date\"}";
-        assertEquals(response.getJSONArray("schema").get(0).toString(), date_type_cast);
 
         verifySchema(response, schema("test_alias", null, "date"));
 
@@ -842,32 +836,6 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
                     break;
             }
         }
-    }
-
-    private void testDatetimeCasts(JSONObject response, String[] expectedOutput) throws ParseException {
-        assertFalse(response.getJSONArray("datarows").isEmpty());
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-        List<Date> dates = getUTCTimezoneDates(response, sdf);
-        for (int i = 0; i < dates.size(); ++i) {
-            Assert.assertThat(
-                    dates.get(i).toInstant().toString(),
-                    equalTo(expectedOutput[i])
-            );
-        }
-    }
-
-    private List<Date> getUTCTimezoneDates(JSONObject response, SimpleDateFormat sdf) throws ParseException {
-        List<Date> dates = new ArrayList<>();
-        for (int i = 0; i < response.getJSONArray("datarows").length(); ++i) {
-            System.out.println(response.getJSONArray("datarows").getJSONArray(i).getString(0));
-            Date date = sdf.parse(response.getJSONArray("datarows").getJSONArray(i).getString(0));
-            LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.of("US/Pacific"));
-            dates.add(date);
-        }
-
-        return dates;
     }
 
     private JSONObject executeJdbcRequest(String query) {
