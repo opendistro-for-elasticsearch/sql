@@ -32,6 +32,8 @@ import org.junit.Test;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -327,7 +329,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         assertEquals(response.getJSONArray("schema").get(0).toString(), date_type_cast);
 
         verifySchema(response, schema("cast_date_keyword", null, "date"));
-        String[] expectedOutput = new String[] {"Tue Aug 19 07:09:13 PDT 2014", "Wed Sep 25 02:04:13 PDT 2019"};
+        String[] expectedOutput = new String[] {"2014-08-19T14:09:13Z", "2019-09-25T09:04:13Z"};
 
         testDatetimeCasts(response, expectedOutput);
     }
@@ -341,7 +343,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         assertEquals(response.getJSONArray("schema").get(0).toString(), date_type_cast);
 
         verifySchema(response, schema("test_alias", null, "date"));
-        String[] expectedOutput = new String[] {"Tue Aug 19 07:09:13 PDT 2014", "Wed Sep 25 02:04:13 PDT 2019"};
+        String[] expectedOutput = new String[] {"2014-08-19T14:09:13Z", "2019-09-25T09:04:13Z"};
 
         testDatetimeCasts(response, expectedOutput);
     }
@@ -352,7 +354,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
                 + TestsConstants.TEST_INDEX_DATE + " WHERE date_keyword IS NOT NULL ORDER BY date_keyword");
 
         verifySchema(response, schema("cast_date_keyword", null, "date"));
-        String[] expectedOutput = new String[] {"Tue Aug 19 07:09:13 PDT 2014", "Wed Sep 25 02:04:13 PDT 2019"};
+        String[] expectedOutput = new String[] {"2014-08-19T14:09:13Z", "2019-09-25T09:04:13Z"};
 
         testDatetimeCasts(response, expectedOutput);
     }
@@ -363,7 +365,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
                 + TestsConstants.TEST_INDEX_DATE + " GROUP BY test_alias DESC");
 
         verifySchema(response, schema("test_alias", "test_alias", "double"));
-        String[] expectedOutput = new String[] {"Tue Aug 19 07:09:13 PDT 2014", "Wed Sep 25 02:04:13 PDT 2019"};
+        String[] expectedOutput = new String[] {"2014-08-19T14:09:13Z", "2019-09-25T09:04:13Z"};
 
         testDatetimeCasts(response, expectedOutput);
     }
@@ -838,23 +840,23 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     private void testDatetimeCasts(JSONObject response, String[] expectedOutput) throws ParseException {
         assertFalse(response.getJSONArray("datarows").isEmpty());
         SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.US);
-        sdf.setTimeZone(TimeZone.getTimeZone("PDT"));
-        List<Date> utcTimezoneDate = getUTCTimezoneDates(response, sdf);
-
-        for (int i = 0; i < utcTimezoneDate.size(); ++i) {
+        List<ZonedDateTime> utcTimezoneDates = getUTCTimezoneDates(response, sdf);
+        for (int i = 0; i < utcTimezoneDates.size(); ++i) {
             Assert.assertThat(
-                    sdf.format(utcTimezoneDate.get(i)),
+                    utcTimezoneDates.get(i).toOffsetDateTime().toString(),
                     equalTo(expectedOutput[i])
             );
         }
     }
 
-    private List<Date> getUTCTimezoneDates(JSONObject response, SimpleDateFormat sdf) throws ParseException {
-        List<Date> dates = new ArrayList<>();
+    private List<ZonedDateTime> getUTCTimezoneDates(JSONObject response, SimpleDateFormat sdf) throws ParseException {
+        List<ZonedDateTime> dates = new ArrayList<>();
         for (int i = 0; i < response.getJSONArray("datarows").length(); ++i) {
             Date date = sdf.parse(response.getJSONArray("datarows").getJSONArray(i).getString(0));
-            dates.add(date);
+            ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(date.toInstant(), ZoneId.of("UTC"));
+            dates.add(zonedDateTime);
         }
+
         return dates;
     }
 
