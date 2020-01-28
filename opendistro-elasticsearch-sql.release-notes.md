@@ -5,7 +5,7 @@
 * Feature [#312](https://github.com/opendistro-for-elasticsearch/sql/issues/312): Elasticsearch 7.4.2 compatibility 
 
 #### Testing
-* Feature ([#335](https://github.com/opendistro-for-elasticsearch/sql/pull/335), [#343](https://github.com/opendistro-for-elasticsearch/sql/pull/343)): Sql test bench bug fix, improvement and more test cases (issues: [#335](https://github.com/opendistro-for-elasticsearch/sql/issues/335), [#339]((https://github.com/opendistro-for-elasticsearch/sql/issues/339)))
+* Feature ([#335](https://github.com/opendistro-for-elasticsearch/sql/pull/335), [#343](https://github.com/opendistro-for-elasticsearch/sql/pull/343)): Sql test bench bug fix, improvement and more test cases (issues: [#335](https://github.com/opendistro-for-elasticsearch/sql/issues/335), [#339](https://github.com/opendistro-for-elasticsearch/sql/issues/339))
 
 #### Documentation
 * Feature ([#302](https://github.com/opendistro-for-elasticsearch/sql/pull/302), [#305](https://github.com/opendistro-for-elasticsearch/sql/pull/305), [#303](https://github.com/opendistro-for-elasticsearch/sql/pull/303)): Documentation for basic usage of plugin & improvement of contributing docs (issues: [#293](https://github.com/opendistro-for-elasticsearch/sql/issues/293), [#243](https://github.com/opendistro-for-elasticsearch/sql/issues/243))
