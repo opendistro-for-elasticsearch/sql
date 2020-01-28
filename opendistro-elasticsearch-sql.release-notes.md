@@ -52,7 +52,7 @@
 * Enhancement [#254](https://github.com/opendistro-for-elasticsearch/sql/issues/254): Support SELECT <number_literal>
 * Enhancement [#251](https://github.com/opendistro-for-elasticsearch/sql/pull/251): Support number operators: POWER, ATAN2, COT, SIGN/SIGNUM
 * Enhancement [#215](https://github.com/opendistro-for-elasticsearch/sql/issues215): Support ordinal in GROUP/ORDER BY clause
-* Enhancement [#213](https://github.com/opendistro-for-elasticsearch/sql/issues/213): Support <table>.<column> syntax
+* Enhancement [#213](https://github.com/opendistro-for-elasticsearch/sql/issues/213): Support `<table>.<column>` syntax
 * Enhancement [#212](https://github.com/opendistro-for-elasticsearch/sql/issues/212): Support Quoted identifiers
 * Enhancement [#199](https://github.com/opendistro-for-elasticsearch/sql/issues/199): Support NOT operator with nested field query
 * Enhancement [#166](https://github.com/opendistro-for-elasticsearch/sql/issues/166): Support pretty option for explain request
