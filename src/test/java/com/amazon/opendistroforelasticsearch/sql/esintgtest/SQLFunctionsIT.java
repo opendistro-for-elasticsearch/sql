@@ -32,12 +32,16 @@ import org.junit.Test;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.stream.IntStream;
 
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
@@ -328,7 +332,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         assertEquals(response.getJSONArray("schema").get(0).toString(), date_type_cast);
 
         verifySchema(response, schema("cast_date_keyword", null, "date"));
-        String[] expectedOutput = new String[] {"2014-08-19T14:09:13Z[UTC]", "2019-09-25T09:04:13Z[UTC]"};
+        String[] expectedOutput = new String[] {"2014-08-19T07:09:13", "2019-09-25T02:04:13"};
 
         testDatetimeCasts(response, expectedOutput);
     }
@@ -342,7 +346,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         assertEquals(response.getJSONArray("schema").get(0).toString(), date_type_cast);
 
         verifySchema(response, schema("test_alias", null, "date"));
-        String[] expectedOutput = new String[] {"2014-08-19T14:09:13Z[UTC]", "2019-09-25T09:04:13Z[UTC]"};
+        String[] expectedOutput = new String[] {"2014-08-19T07:09:13", "2019-09-25T02:04:13"};
 
         testDatetimeCasts(response, expectedOutput);
     }
@@ -353,7 +357,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
                 + TestsConstants.TEST_INDEX_DATE + " WHERE date_keyword IS NOT NULL ORDER BY date_keyword");
 
         verifySchema(response, schema("cast_date_keyword", null, "date"));
-        String[] expectedOutput = new String[] {"2014-08-19T14:09:13Z[UTC]", "2019-09-25T09:04:13Z[UTC]"};
+        String[] expectedOutput = new String[] {"2014-08-19T07:09:13", "2019-09-25T02:04:13"};
 
         testDatetimeCasts(response, expectedOutput);
     }
@@ -364,7 +368,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
                 + TestsConstants.TEST_INDEX_DATE + " GROUP BY test_alias DESC");
 
         verifySchema(response, schema("test_alias", "test_alias", "double"));
-        String[] expectedOutput = new String[] {"2014-08-19T14:09:13Z[UTC]", "2019-09-25T09:04:13Z[UTC]"};
+        String[] expectedOutput = new String[] {"2014-08-19T07:09:13", "2019-09-25T02:04:13"};
 
         testDatetimeCasts(response, expectedOutput);
     }
@@ -839,21 +843,23 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     private void testDatetimeCasts(JSONObject response, String[] expectedOutput) throws ParseException {
         assertFalse(response.getJSONArray("datarows").isEmpty());
         SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.US);
-        List<ZonedDateTime> utcTimezoneDates = getUTCTimezoneDates(response, sdf);
-        for (int i = 0; i < utcTimezoneDates.size(); ++i) {
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        List<LocalDateTime> dates = getUTCTimezoneDates(response, sdf);
+        for (int i = 0; i < dates.size(); ++i) {
             Assert.assertThat(
-                    utcTimezoneDates.get(i).toInstant().atZone(ZoneId.of("UTC")).toString(),
+                    dates.get(i).toString(),
                     equalTo(expectedOutput[i])
             );
         }
     }
 
-    private List<ZonedDateTime> getUTCTimezoneDates(JSONObject response, SimpleDateFormat sdf) throws ParseException {
-        List<ZonedDateTime> dates = new ArrayList<>();
+    private List<LocalDateTime> getUTCTimezoneDates(JSONObject response, SimpleDateFormat sdf) throws ParseException {
+        List<LocalDateTime> dates = new ArrayList<>();
         for (int i = 0; i < response.getJSONArray("datarows").length(); ++i) {
             Date date = sdf.parse(response.getJSONArray("datarows").getJSONArray(i).getString(0));
-            ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(date.toInstant(), ZoneId.of("US/Pacific"));
-            dates.add(zonedDateTime);
+            LocalDateTime localDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.of("US/Pacific"));
+            dates.add(localDateTime);
         }
 
         return dates;
