@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.unittest.utils;
 
 import com.alibaba.druid.sql.ast.expr.SQLIntegerExpr;
 import com.amazon.opendistroforelasticsearch.sql.domain.KVValue;
+import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
 import com.google.common.collect.ImmutableList;
 import org.elasticsearch.common.collect.Tuple;
@@ -27,7 +28,7 @@ import static org.junit.Assert.assertTrue;
 public class SQLFunctionsTest {
 
     @Test
-    public void testAssign() {
+    public void testAssign() throws SqlParseException {
         SQLFunctions sqlFunctions = new SQLFunctions();
 
         final SQLIntegerExpr sqlIntegerExpr = new SQLIntegerExpr(10);
