@@ -24,6 +24,7 @@ import com.amazon.opendistroforelasticsearch.sql.query.join.BackOffRetryStrategy
 import com.amazon.opendistroforelasticsearch.sql.utils.LogUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.rest.BytesRestResponse;
@@ -118,7 +119,7 @@ public class AsyncRestExecutor implements RestExecutor {
         Runnable runnable = () -> {
             try {
                 doExecuteWithTimeMeasured(client, params, queryAction, channel);
-            } catch (IOException | SqlParseException e) {
+            } catch (IOException | SqlParseException | ElasticsearchException e) {
                 Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
                 LOG.warn("[{}] [MCB] async task got an IO/SQL exception: {}", LogUtils.getRequestId(),
                         e.getMessage());

@@ -40,13 +40,13 @@ public class ErrorMessage {
         return exception.getClass().getSimpleName();
     }
 
-    private String fetchReason() {
+    protected String fetchReason() {
         return status == RestStatus.BAD_REQUEST.getStatus()
                 ? "Invalid SQL query"
                 : "There was internal problem at backend";
     }
 
-    private String fetchDetails() {
+    protected String fetchDetails() {
         // Some exception prints internal information (full class name) which is security concern
         //return exception.toString();
         return emptyStringIfNull(exception.getLocalizedMessage());

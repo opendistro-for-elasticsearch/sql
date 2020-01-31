@@ -26,6 +26,7 @@ import com.amazon.opendistroforelasticsearch.sql.executor.adapter.QueryPlanReque
 import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.ColumnNode;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.client.Client;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -65,7 +66,9 @@ public class Protocol {
     public Protocol(Exception e) {
         this.formatType = null;
         this.status = ERROR_STATUS;
-        this.error = new ErrorMessage(e, ERROR_STATUS);
+        this.error = e instanceof ElasticsearchException
+                ? new ElasticsearchErrorMessage((ElasticsearchException) e, ERROR_STATUS)
+                : new ErrorMessage(e, ERROR_STATUS);
     }
 
     private ResultSet loadResultSet(Client client, QueryStatement queryStatement, Object queryResult) {
