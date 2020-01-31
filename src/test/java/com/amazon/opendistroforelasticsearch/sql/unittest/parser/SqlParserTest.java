@@ -61,7 +61,10 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstant
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_DOG;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_GAME_OF_THRONES;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ODBC;
+import static com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents.getScriptFieldFromQuery;
+import static com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents.scriptContainsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 public class SqlParserTest {
@@ -1313,7 +1316,8 @@ public class SqlParserTest {
         String scriptCode = (String) methodField.getParams().get(1).value;
         Assert.assertEquals("cast_age",alias);
         Assert.assertTrue(scriptCode.contains("doc['age'].value"));
-        Assert.assertTrue(scriptCode.contains("new Date(Double.parseDouble(doc['age'].value.toString()).longValue())"));
+        Assert.assertTrue(scriptCode.contains("DateTimeFormatter.ofPattern(\"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'\").format("
+                + "DateTimeFormatter.ISO_DATE_TIME.parse(doc['age'].value.toString()))"));
     }
 
     @Test
