@@ -57,7 +57,7 @@ public class RstDocument implements Document {
     public Document table(String description, String table) {
         if (!Strings.isNullOrEmpty(table)) {
             // RST table is different and not supposed to indent
-            return println(description + "::", table);
+            return println(description + ":", table);
         }
         return this;
     }
