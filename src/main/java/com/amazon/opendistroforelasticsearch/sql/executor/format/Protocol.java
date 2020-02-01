@@ -67,7 +67,7 @@ public class Protocol {
         this.formatType = null;
         this.status = ERROR_STATUS;
         this.error = e instanceof ElasticsearchException
-                ? new ElasticsearchErrorMessage((ElasticsearchException) e, ERROR_STATUS)
+                ? new ElasticsearchErrorMessage((ElasticsearchException) e, ((ElasticsearchException) e).status().getStatus())
                 : new ErrorMessage(e, ERROR_STATUS);
     }
 

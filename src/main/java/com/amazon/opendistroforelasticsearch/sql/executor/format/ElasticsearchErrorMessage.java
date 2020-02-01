@@ -35,7 +35,7 @@ public class ElasticsearchErrorMessage extends ErrorMessage {
         try {
             detailedMsg = ": " + exception.getDetailedMessage();
         } catch (Exception e) {
-            LOG.error("Error occurred when fetching ES exception details");
+            LOG.error("Error occurred when fetching ES exception reasons", e);
         }
         return "Error occurred in Elasticsearch engine" + detailedMsg;
     }
@@ -43,6 +43,15 @@ public class ElasticsearchErrorMessage extends ErrorMessage {
     /** Currently Sql-Jdbc plugin only supports string type as reason and details in the error messages */
     @Override
     protected String fetchDetails() {
-        return "";
+        StringBuilder details = new StringBuilder();
+        try {
+            ElasticsearchException[] rootCauses = ElasticsearchException.guessRootCauses(exception);
+            for (ElasticsearchException e : rootCauses) {
+                details.append(e.getClass().getName()).append(": ").append(e.getMessage()).append("; ");
+            }
+        } catch (Exception e) {
+            LOG.error("Error occurred when fetching ES exception details", e);
+        }
+        return details.toString();
     }
 }

@@ -71,10 +71,10 @@ public class PrettyFormatRestExecutor implements RestExecutor {
             protocol = new Protocol(client, queryAction, queryResult, format);
         } catch (Exception e) {
             if (e instanceof ElasticsearchException) {
-                LOG.error("An error occurred in Elasticsearch engine: "
+                LOG.warn("An error occurred in Elasticsearch engine: "
                         + ((ElasticsearchException) e).getDetailedMessage(), e);
             } else {
-                LOG.error("Error happened in pretty formatter", e);
+                LOG.warn("Error happened in pretty formatter", e);
             }
             protocol = new Protocol(e);
         }
