@@ -15,25 +15,26 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
+import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.action.search.SearchPhaseExecutionException;
+import org.elasticsearch.action.search.ShardSearchFailure;
 
 public class ElasticsearchErrorMessage extends ErrorMessage {
 
-    private ElasticsearchException exception;
     private static final Logger LOG = LogManager.getLogger();
 
     ElasticsearchErrorMessage(ElasticsearchException exception, int status) {
         super(exception, status);
-        this.exception = exception;
     }
 
     @Override
     protected String fetchReason() {
         String detailedMsg = "";
         try {
-            detailedMsg = ": " + exception.getDetailedMessage();
+            detailedMsg = ": " + exception.getMessage();
         } catch (Exception e) {
             LOG.error("Error occurred when fetching ES exception reasons", e);
         }
@@ -45,12 +46,31 @@ public class ElasticsearchErrorMessage extends ErrorMessage {
     protected String fetchDetails() {
         StringBuilder details = new StringBuilder();
         try {
-            ElasticsearchException[] rootCauses = ElasticsearchException.guessRootCauses(exception);
-            for (ElasticsearchException e : rootCauses) {
-                details.append(e.getClass().getName()).append(": ").append(e.getMessage()).append("; ");
+            if (exception instanceof SearchPhaseExecutionException) {
+                String detail = fetchSearchPhaseExecutionExceptionDetails((SearchPhaseExecutionException) exception);
+                details.append(detail);
             }
         } catch (Exception e) {
             LOG.error("Error occurred when fetching ES exception details", e);
+        } finally {
+            details.append("\nFor more details, please send request for Json format to see the raw response from " +
+                    "elasticsearch engine.");
+        }
+        return details.toString();
+    }
+
+    /**
+     * Could not deliver the exactly same error messages due to the limit of JDBC types.
+     * Currently our cases occurred only SearchPhaseExecutionException instances among all types of ES exceptions
+     * according to the survey, see all types: ElasticsearchException.ElasticsearchExceptionHandle.
+     * Either add methods of fetching details for different types, or re-make a consistent message by not giving
+     * detailed messages/root causes but only a suggestion message.
+     */
+    private String fetchSearchPhaseExecutionExceptionDetails(SearchPhaseExecutionException e) {
+        StringBuilder details = new StringBuilder();
+        ShardSearchFailure[] shardFailures = e.shardFailures();
+        for (ShardSearchFailure failure: shardFailures) {
+            details.append(StringUtils.format("Shard[%d]: %s\n", failure.shardId(), failure.getCause().toString()));
         }
         return details.toString();
     }

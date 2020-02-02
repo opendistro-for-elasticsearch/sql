@@ -20,7 +20,7 @@ import org.json.JSONObject;
 
 public class ErrorMessage {
 
-    private Exception exception;
+    protected Exception exception;
 
     private int status;
     private String type;

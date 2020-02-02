@@ -328,6 +328,10 @@ public abstract class SQLIntegTestCase extends ESIntegTestCase {
                 "account_two",
                 TestUtils.getBankIndexMapping("account_two"),
                 "src/test/resources/bank_two.json"),
+        BANK_WITH_NULL_VALUES(TestsConstants.TEST_INDEX_BANK_WITH_NULL_VALUES,
+                "account",
+                null, // to avoid mapper parsing exception
+                "src/test/resources/bank_with_null_values.json"),
         ORDER(TestsConstants.TEST_INDEX_ORDER,
                 "_doc",
                  TestUtils.getOrderIndexMapping(),

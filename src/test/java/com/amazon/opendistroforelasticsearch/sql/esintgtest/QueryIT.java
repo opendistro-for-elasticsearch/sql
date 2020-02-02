@@ -38,6 +38,8 @@ import java.util.Locale;
 import java.util.Set;
 
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_BANK;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_BANK_WITH_NULL_VALUES;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_GAME_OF_THRONES;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_NESTED_TYPE;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ONLINE;
@@ -87,6 +89,7 @@ public class QueryIT extends SQLIntegTestCase {
         // loadIndex(Index.JOIN);
         loadIndex(Index.BANK);
         loadIndex(Index.BANK_TWO);
+        loadIndex(Index.BANK_WITH_NULL_VALUES);
     }
 
     @Test
@@ -1771,6 +1774,29 @@ public class QueryIT extends SQLIntegTestCase {
                         response.contains("age is 40") ||
                         response.contains("NA")
         );
+    }
+
+    @Test
+    public void functionArgWithNullValueFieldShouldThrowESExceptionInJdbc() {
+        String response = executeQuery(
+                "select substring(firstname, 1, 2) from " + TEST_INDEX_BANK_WITH_NULL_VALUES, "jdbc");
+        queryInJdbcResponseShouldIndicateESException(response, "SearchPhaseExecutionException",
+                "For more details, please send request for Json format");
+    }
+
+    @Test
+    public void functionCallWithIllegalScriptShouldThrowESExceptionInJdbc() {
+        String response = executeQuery("select log(balance + 2) from " + TEST_INDEX_BANK,
+                "jdbc");
+        queryInJdbcResponseShouldIndicateESException(response, "SearchPhaseExecutionException",
+                "please send request for Json format to see the raw response from elasticsearch engine.");
+    }
+
+    private void queryInJdbcResponseShouldIndicateESException(String response, String exceptionType, String... errMsgs) {
+        Assert.assertThat(response, containsString(exceptionType));
+        for (String errMsg: errMsgs) {
+            Assert.assertThat(response, containsString(errMsg));
+        }
     }
 
     private String getScrollId(JSONObject response) {
