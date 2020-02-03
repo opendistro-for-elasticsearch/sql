@@ -66,8 +66,12 @@ public class Protocol {
     public Protocol(Exception e) {
         this.formatType = null;
         this.status = ERROR_STATUS;
-        this.error = e instanceof ElasticsearchException ? new ElasticsearchErrorMessage((ElasticsearchException) e,
+        this.error = e instanceof ElasticsearchException
+                ? new ElasticsearchErrorMessage((ElasticsearchException) e,
                 ((ElasticsearchException) e).status().getStatus())
+                : unwrapCause(e) instanceof ElasticsearchException
+                ? new ElasticsearchErrorMessage((ElasticsearchException) unwrapCause(e),
+                ((ElasticsearchException) unwrapCause(e)).status().getStatus())
                 : new ErrorMessage(e, ERROR_STATUS);
     }
 
@@ -200,5 +204,22 @@ public class Protocol {
             entry.put(dataRow.getDataOrDefault(columnName, JSONObject.NULL));
         }
         return entry;
+    }
+
+    public static Throwable unwrapCause(Throwable t) {
+        Throwable result = t;
+        int layer = 0;
+        // limit the unwrapping up to 5 layers
+        while (result != null && layer < 5) {
+            if (result instanceof ElasticsearchException) {
+                return result;
+            }
+            if (result.getCause() == null) {
+                return result;
+            }
+            result = result.getCause();
+            layer ++;
+        }
+        return result;
     }
 }

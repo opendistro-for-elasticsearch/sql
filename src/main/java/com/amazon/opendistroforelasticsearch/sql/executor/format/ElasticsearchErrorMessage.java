@@ -45,18 +45,25 @@ public class ElasticsearchErrorMessage extends ErrorMessage {
     @Override
     protected String fetchDetails() {
         StringBuilder details = new StringBuilder();
+        if (exception instanceof SearchPhaseExecutionException) {
+            String detail = fetchSearchPhaseExecutionExceptionDetails((SearchPhaseExecutionException) exception);
+            details.append(detail);
+        } else {
+            details.append(defaultDetails((ElasticsearchException) exception));
+        }
+        details.append("\nFor more details, please send request for Json format to see the raw response from "
+                + "elasticsearch engine.");
+        return details.toString();
+    }
+
+    private String defaultDetails(ElasticsearchException exception) {
+        String detailedMsg = "";
         try {
-            if (exception instanceof SearchPhaseExecutionException) {
-                String detail = fetchSearchPhaseExecutionExceptionDetails((SearchPhaseExecutionException) exception);
-                details.append(detail);
-            }
+            detailedMsg = exception.getDetailedMessage();
         } catch (Exception e) {
             LOG.error("Error occurred when fetching ES exception details", e);
-        } finally {
-            details.append("\nFor more details, please send request for Json format to see the raw response from "
-                    + "elasticsearch engine.");
         }
-        return details.toString();
+        return detailedMsg;
     }
 
     /**
@@ -66,11 +73,15 @@ public class ElasticsearchErrorMessage extends ErrorMessage {
      * Either add methods of fetching details for different types, or re-make a consistent message by not giving
      * detailed messages/root causes but only a suggestion message.
      */
-    private String fetchSearchPhaseExecutionExceptionDetails(SearchPhaseExecutionException e) {
+    private String fetchSearchPhaseExecutionExceptionDetails(SearchPhaseExecutionException exception) {
         StringBuilder details = new StringBuilder();
-        ShardSearchFailure[] shardFailures = e.shardFailures();
-        for (ShardSearchFailure failure: shardFailures) {
-            details.append(StringUtils.format("Shard[%d]: %s\n", failure.shardId(), failure.getCause().toString()));
+        try {
+            ShardSearchFailure[] shardFailures = exception.shardFailures();
+            for (ShardSearchFailure failure : shardFailures) {
+                details.append(StringUtils.format("Shard[%d]: %s\n", failure.shardId(), failure.getCause().toString()));
+            }
+        } catch (Exception e) {
+            LOG.error("Error occurred when fetching shards failure details", e);
         }
         return details.toString();
     }
