@@ -53,8 +53,8 @@ public class ElasticsearchErrorMessage extends ErrorMessage {
         } catch (Exception e) {
             LOG.error("Error occurred when fetching ES exception details", e);
         } finally {
-            details.append("\nFor more details, please send request for Json format to see the raw response from " +
-                    "elasticsearch engine.");
+            details.append("\nFor more details, please send request for Json format to see the raw response from "
+                    + "elasticsearch engine.");
         }
         return details.toString();
     }

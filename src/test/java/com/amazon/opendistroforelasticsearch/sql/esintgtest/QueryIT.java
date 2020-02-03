@@ -1777,9 +1777,10 @@ public class QueryIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void functionArgWithNullValueFieldShouldThrowESExceptionInJdbc() {
+    public void functionInCaseFieldShouldThrowESExceptionDueToIllegalScriptInJdbc() {
         String response = executeQuery(
-                "select substring(firstname, 1, 2) from " + TEST_INDEX_BANK_WITH_NULL_VALUES, "jdbc");
+                "select case lower(firstname) when 'amber' then '1' else '2' end as cases from " + TEST_INDEX_ACCOUNT,
+                "jdbc");
         queryInJdbcResponseShouldIndicateESException(response, "SearchPhaseExecutionException",
                 "For more details, please send request for Json format");
     }
@@ -1790,6 +1791,16 @@ public class QueryIT extends SQLIntegTestCase {
                 "jdbc");
         queryInJdbcResponseShouldIndicateESException(response, "SearchPhaseExecutionException",
                 "please send request for Json format to see the raw response from elasticsearch engine.");
+    }
+
+    @Ignore("Goes in different route, does not call PrettyFormatRestExecutor.execute methods." +
+            "The performRequest method in RestClient doesn't throw any exceptions for null value fields in script")
+    @Test
+    public void functionArgWithNullValueFieldShouldThrowESExceptionInJdbc() {
+        String response = executeQuery(
+                "select log(balance) from " + TEST_INDEX_BANK_WITH_NULL_VALUES, "jdbc");
+        queryInJdbcResponseShouldIndicateESException(response, "SearchPhaseExecutionException",
+                "For more details, please send request for Json format");
     }
 
     private void queryInJdbcResponseShouldIndicateESException(String response, String exceptionType, String... errMsgs) {
