@@ -218,7 +218,7 @@ public class Protocol {
                 return result;
             }
             result = result.getCause();
-            layer ++;
+            layer++;
         }
         return result;
     }
