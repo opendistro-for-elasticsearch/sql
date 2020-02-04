@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.utils;
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBooleanExpr;
+import com.alibaba.druid.sql.ast.expr.SQLCastExpr;
 import com.alibaba.druid.sql.ast.expr.SQLCharExpr;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.expr.SQLNullExpr;
@@ -25,8 +26,11 @@ import com.alibaba.druid.sql.ast.expr.SQLNumericLiteralExpr;
 import com.alibaba.druid.sql.ast.expr.SQLPropertyExpr;
 import com.alibaba.druid.sql.ast.expr.SQLTextLiteralExpr;
 import com.alibaba.druid.sql.ast.expr.SQLVariantRefExpr;
+import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.KVValue;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
+import com.amazon.opendistroforelasticsearch.sql.domain.ScriptMethodField;
+import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
@@ -84,7 +88,7 @@ public class SQLFunctions {
             "if", "ifnull", "isnull"
     );
 
-    private static final Set<String> utilityFunctions = Sets.newHashSet("field", "assign");
+    private static final Set<String> utilityFunctions = Sets.newHashSet("field", "assign", "cast");
 
     public static final Set<String> builtInFunctions = Stream.of(
             numberOperators,
@@ -117,9 +121,15 @@ public class SQLFunctions {
     }
 
     public Tuple<String, String> function(String methodName, List<KVValue> paramers, String name,
-                                                 boolean returnValue) {
+                                                 boolean returnValue) throws SqlParseException {
         Tuple<String, String> functionStr = null;
         switch (methodName.toLowerCase()) {
+            case "cast": {
+                SQLCastExpr castExpr = (SQLCastExpr) ((SQLIdentifierExpr) paramers.get(0).value).getParent();
+                String typeName = castExpr.getDataType().getName();
+                functionStr = cast(typeName, paramers);
+                break;
+            }
             case "lower": {
                 functionStr = lower(
                         (SQLExpr) paramers.get(0).value,
@@ -400,6 +410,12 @@ public class SQLFunctions {
         }
         return locale;
     }
+
+    public Tuple<String, String> cast(String castType, List<KVValue> paramers) throws SqlParseException {
+        String name = nextId("cast");
+        return new Tuple<>(name, getCastScriptStatement(name, castType, paramers));
+    }
+
 
     public Tuple<String, String> upper(SQLExpr field, String locale, String valueName) {
         String name = nextId("upper");
@@ -929,15 +945,40 @@ public class SQLFunctions {
         return new Tuple<>(name, def(name, resultStr));
     }
 
+    public String getCastScriptStatement(String name, String castType, List<KVValue> paramers)
+            throws SqlParseException {
+        String castFieldName = String.format("doc['%s'].value", paramers.get(0).toString());
+        switch (StringUtils.toUpper(castType)) {
+            case "INT":
+                return String.format("def %s = Double.parseDouble(%s.toString()).intValue()", name, castFieldName);
+            case "LONG":
+                return String.format("def %s = Double.parseDouble(%s.toString()).longValue()", name, castFieldName);
+            case "FLOAT":
+                return String.format("def %s = Double.parseDouble(%s.toString()).floatValue()", name, castFieldName);
+            case "DOUBLE":
+                return String.format("def %s = Double.parseDouble(%s.toString()).doubleValue()", name, castFieldName);
+            case "STRING":
+                return String.format("def %s = %s.toString()", name, castFieldName);
+            case "DATETIME":
+                return String.format("def %s = DateTimeFormatter.ofPattern(\"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'\").format("
+                        + "DateTimeFormatter.ISO_DATE_TIME.parse(%s.toString()))", name, castFieldName);
+            default:
+                throw new SqlParseException("Unsupported cast type " + castType);
+        }
+    }
+
     /**
      * Returns return type of script function. This is simple approach, that might be not the best solution in the long
      * term. For example - for JDBC, if the column type in index is INTEGER, and the query is "select column+5", current
      * approach will return type of result column as DOUBLE, although there is enough information to understand that
      * it might be safely treated as INTEGER.
      */
-    public static Schema.Type getScriptFunctionReturnType(String functionName) {
-        functionName = functionName.toLowerCase();
-
+    public static Schema.Type getScriptFunctionReturnType(Field field) {
+        String functionName = ((ScriptMethodField) field).getFunctionName().toLowerCase();
+        if (functionName.equals("cast")) {
+            String castType = ((SQLCastExpr) field.getExpression()).getDataType().getName();
+            return getCastFunctionReturnType(castType);
+        }
         if (dateFunctions.contains(functionName) || stringOperators.contains(functionName)) {
             return Schema.Type.TEXT;
         }

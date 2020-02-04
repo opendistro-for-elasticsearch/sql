@@ -16,12 +16,10 @@
 package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
 import com.alibaba.druid.sql.ast.expr.SQLCaseExpr;
-import com.alibaba.druid.sql.ast.expr.SQLCastExpr;
 import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.JoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Query;
-import com.amazon.opendistroforelasticsearch.sql.domain.ScriptMethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.domain.TableOnJoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMapping;
@@ -324,14 +322,10 @@ public class SelectResultSet extends ResultSet {
                 // TODO: return type information is disconnected from the function definitions in SQLFunctions.
                 // Refactor SQLFunctions to have functions self-explanatory (types, scripts) and pluggable
                 // (similar to Strategy pattern)
-                if (field.getExpression() instanceof SQLCastExpr) {
-                    return SQLFunctions.getCastFunctionReturnType(
-                            ((SQLCastExpr) field.getExpression()).getDataType().getName());
-                } else if (field.getExpression() instanceof SQLCaseExpr) {
+                if (field.getExpression() instanceof SQLCaseExpr) {
                     return Schema.Type.TEXT;
                 }
-                return SQLFunctions.getScriptFunctionReturnType(
-                        ((ScriptMethodField) field).getFunctionName());
+                return SQLFunctions.getScriptFunctionReturnType(field);
             }
             default:
                 throw new UnsupportedOperationException(

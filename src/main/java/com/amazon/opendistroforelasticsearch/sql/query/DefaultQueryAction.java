@@ -23,7 +23,6 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.KVValue;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Order;
-import com.amazon.opendistroforelasticsearch.sql.domain.ScriptMethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.domain.Where;
 //import com.amazon.opendistroforelasticsearch.sql.domain.hints.Hint;
@@ -307,8 +306,7 @@ public class DefaultQueryAction extends QueryAction {
             scriptFunctionReturnType = SQLFunctions.getCastFunctionReturnType(
                     ((SQLCastExpr) order.getSortField().getExpression()).getDataType().getName());
         } else {
-            ScriptMethodField smf = (ScriptMethodField) order.getSortField();
-            scriptFunctionReturnType = SQLFunctions.getScriptFunctionReturnType(smf.getFunctionName());
+            scriptFunctionReturnType = SQLFunctions.getScriptFunctionReturnType(order.getSortField());
         }
 
 
