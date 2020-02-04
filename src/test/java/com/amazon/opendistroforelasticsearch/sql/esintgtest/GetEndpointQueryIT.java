@@ -19,6 +19,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.Ignore;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -37,6 +38,7 @@ public class GetEndpointQueryIT extends SQLIntegTestCase {
     }
 
     @Test
+    @Ignore
     public void unicodeTermInQuery() throws IOException  {
 
         // NOTE: There are unicode characters in name, not just whitespace.

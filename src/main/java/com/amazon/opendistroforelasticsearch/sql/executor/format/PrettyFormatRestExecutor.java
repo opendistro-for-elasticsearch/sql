@@ -74,7 +74,7 @@ public class PrettyFormatRestExecutor implements RestExecutor {
                 protocol = buildProtocolForDefaultQuery(client, (DefaultQueryAction) queryAction);
             } else {
                 Object queryResult = QueryActionElasticExecutor.executeAnyAction(client, queryAction);
-                protocol = new Protocol(client, queryAction.getQueryStatement(), queryResult, format);
+                protocol = new Protocol(client, queryAction, queryResult, format);
             }
 
             Object queryResult = QueryActionElasticExecutor.executeAnyAction(client, queryAction);
@@ -97,7 +97,7 @@ public class PrettyFormatRestExecutor implements RestExecutor {
         throws SqlParseException {
 
         SearchResponse response = (SearchResponse) queryAction.explain().get();
-        Protocol protocol = new Protocol(client, queryAction.getQueryStatement(), response.getHits(), format);
+        Protocol protocol = new Protocol(client, queryAction, response.getHits(), format);
 
         String scrollId = response.getScrollId();
         if (Strings.isNotEmpty(scrollId)) {
