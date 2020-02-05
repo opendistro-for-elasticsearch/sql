@@ -26,6 +26,7 @@ import com.alibaba.druid.sql.ast.expr.SQLNumericLiteralExpr;
 import com.alibaba.druid.sql.ast.expr.SQLPropertyExpr;
 import com.alibaba.druid.sql.ast.expr.SQLTextLiteralExpr;
 import com.alibaba.druid.sql.ast.expr.SQLVariantRefExpr;
+import com.amazon.opendistroforelasticsearch.sql.domain.ColumnTypeProvider;
 import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.KVValue;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
@@ -973,28 +974,21 @@ public class SQLFunctions {
      * approach will return type of result column as DOUBLE, although there is enough information to understand that
      * it might be safely treated as INTEGER.
      */
-    public static Schema.Type getScriptFunctionReturnType(Field field) {
+    public static Schema.Type getScriptFunctionReturnType(Field field, ColumnTypeProvider scriptColumnType) {
+        Schema.Type returnType = null;
+        if (scriptColumnType != null) {
+            returnType = scriptColumnType.get(0);
+        }
         String functionName = ((ScriptMethodField) field).getFunctionName().toLowerCase();
         if (functionName.equals("cast")) {
             String castType = ((SQLCastExpr) field.getExpression()).getDataType().getName();
             return getCastFunctionReturnType(castType);
         }
-        if (dateFunctions.contains(functionName) || stringOperators.contains(functionName)) {
+        if (dateFunctions.contains(functionName)) {
             return Schema.Type.TEXT;
         }
-
-        if (mathConstants.contains(functionName) || numberOperators.contains(functionName)
-                || trigFunctions.contains(functionName) || binaryOperators.contains(functionName)
-                || utilityFunctions.contains(functionName)) {
-            return Schema.Type.DOUBLE;
-        }
-
-        if (stringFunctions.contains(functionName)) {
-            return Schema.Type.INTEGER;
-        }
-
-        if (conditionalFunctions.contains(functionName)) {
-            return Schema.Type.KEYWORD;
+        if (returnType != null) {
+            return returnType;
         }
 
         throw new UnsupportedOperationException(

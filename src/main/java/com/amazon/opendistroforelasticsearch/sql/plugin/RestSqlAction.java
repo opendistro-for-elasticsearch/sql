@@ -117,6 +117,7 @@ public class RestSqlAction extends BaseRestHandler {
             LOG.info("[{}] Incoming request {}: {}", LogUtils.getRequestId(), request.uri(), sqlRequest.getSql());
 
             final QueryAction queryAction =
+
                     explainRequest(client, sqlRequest, SqlRequestParam.getFormat(request.params()));
             return channel -> executeSqlRequest(request, queryAction, client, channel);
         } catch (Exception e) {
@@ -209,7 +210,7 @@ public class RestSqlAction extends BaseRestHandler {
         return allowExplicitIndex && isSqlEnabled;
     }
 
-    private static ColumnTypeProvider performAnalysis(String sql) {
+    public static ColumnTypeProvider performAnalysis(String sql) {
         LocalClusterState clusterState = LocalClusterState.state();
         SqlAnalysisConfig config = new SqlAnalysisConfig(
             clusterState.getSettingValue(QUERY_ANALYSIS_ENABLED),

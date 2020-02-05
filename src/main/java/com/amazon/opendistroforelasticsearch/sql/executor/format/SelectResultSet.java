@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
 import com.alibaba.druid.sql.ast.expr.SQLCaseExpr;
+import com.amazon.opendistroforelasticsearch.sql.domain.ColumnTypeProvider;
 import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.JoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
@@ -65,17 +66,19 @@ public class SelectResultSet extends ResultSet {
     private String indexName;
     private String typeName;
     private List<Schema.Column> columns = new ArrayList<>();
+    private ColumnTypeProvider scriptColumnType;
 
     private List<String> head;
     private long size;
     private long totalHits;
     private List<DataRows.Row> rows;
 
-    public SelectResultSet(Client client, Query query, Object queryResult) {
+    public SelectResultSet(Client client, Query query, Object queryResult, ColumnTypeProvider scriptColumnType) {
         this.client = client;
         this.query = query;
         this.queryResult = queryResult;
         this.selectAll = false;
+        this.scriptColumnType = scriptColumnType;
 
         if (isJoinQuery()) {
             JoinSelect joinQuery = (JoinSelect) query;
@@ -325,7 +328,7 @@ public class SelectResultSet extends ResultSet {
                 if (field.getExpression() instanceof SQLCaseExpr) {
                     return Schema.Type.TEXT;
                 }
-                return SQLFunctions.getScriptFunctionReturnType(field);
+                 return SQLFunctions.getScriptFunctionReturnType(field, scriptColumnType);
             }
             default:
                 throw new UnsupportedOperationException(
@@ -374,6 +377,7 @@ public class SelectResultSet extends ResultSet {
              * name instead.
              */
             if (fieldMap.get(fieldName) instanceof MethodField) {
+
                 Field methodField = fieldMap.get(fieldName);
                 columns.add(
                         new Schema.Column(

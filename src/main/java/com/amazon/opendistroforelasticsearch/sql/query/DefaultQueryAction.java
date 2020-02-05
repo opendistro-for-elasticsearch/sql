@@ -19,6 +19,7 @@ import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOperator;
 import com.alibaba.druid.sql.ast.expr.SQLCastExpr;
+import com.amazon.opendistroforelasticsearch.sql.domain.ColumnTypeProvider;
 import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.KVValue;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
@@ -29,6 +30,7 @@ import com.amazon.opendistroforelasticsearch.sql.domain.hints.Hint;
 import com.amazon.opendistroforelasticsearch.sql.domain.hints.HintType;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema;
+import com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction;
 import com.amazon.opendistroforelasticsearch.sql.query.maker.QueryMaker;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.nestedfield.NestedFieldProjection;
 import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
@@ -268,12 +270,9 @@ public class DefaultQueryAction extends QueryAction {
     private ScriptSortType getScriptSortType(Order order) {
         ScriptSortType scriptSortType;
         Schema.Type scriptFunctionReturnType;
-        if (order.getSortField().getExpression() instanceof SQLCastExpr) {
-            scriptFunctionReturnType = SQLFunctions.getCastFunctionReturnType(
-                    ((SQLCastExpr) order.getSortField().getExpression()).getDataType().getName());
-        } else {
-            scriptFunctionReturnType = SQLFunctions.getScriptFunctionReturnType(order.getSortField());
-        }
+        ColumnTypeProvider scriptColumnType = RestSqlAction.performAnalysis(this.sqlRequest.getSql());
+        scriptFunctionReturnType = SQLFunctions.getScriptFunctionReturnType(
+                order.getSortField(), scriptColumnType);
 
 
         // as of now script function return type returns only text and double
