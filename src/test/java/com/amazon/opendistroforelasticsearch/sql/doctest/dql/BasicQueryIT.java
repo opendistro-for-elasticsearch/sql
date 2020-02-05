@@ -68,10 +68,10 @@ public class BasicQueryIT extends DocTest {
         section(
             title("FROM"),
             description(
-                "FROM clause specifies Elasticsearch index where the data should be retrieved from.",
+                "``FROM`` clause specifies Elasticsearch index where the data should be retrieved from.",
                 "You've seen how to specify a single index in FROM clause in last section. Here we",
                 "list more use cases additionally.\n",
-                "Subquery in FROM clause is also supported. Please check out our documentation for more details."
+                "Subquery in ``FROM`` clause is also supported. Please check out our documentation for more details."
             ),
             kibanaExample(
                 title("Selecting From Multiple Indices by Index Pattern"),
@@ -98,18 +98,19 @@ public class BasicQueryIT extends DocTest {
             title("WHERE"),
             description(
                 "`WHERE` clause specifies only Elasticsearch documents that meet the criteria should be affected.",
-                "It consists of predicates that uses `=`, `<>`, `>`, `>=`, `<`, `<=`, `IN`, `BETWEEN`, `LIKE`,",
-                "`IS NULL` or `IS NOT NULL`.",
-                "These predicates can be combined by logical operator `NOT`, `AND` or `OR`.\n",
-                "For `LIKE` and other full text search topics, please refer to Full Text Search documentation.\n",
-                "Besides SQL query, WHERE clause can also be used in SQL statement such as `DELETE`. Please refer to",
+                "It consists of predicates that uses ``=``, ``<>``, ``>``, ``>=``, ``<``, ``<=``, ``IN``,",
+                "``BETWEEN``, ``LIKE``, ``IS NULL`` or ``IS NOT NULL``.",
+                "These predicates can be combined by logical operator ``NOT``, ``AND`` or ``OR``.\n",
+                "For ``LIKE`` and other full text search topics, please refer to Full Text Search documentation.\n",
+                "Besides SQL query, WHERE clause can also be used in SQL statement such as ``DELETE``. Please refer to",
                 "Data Manipulation Language documentation for details."
             ),
             example(
                 title("Comparison Operators"),
                 description(
-                    "Basic comparison operators, such as =, <>, >, >=, <, <=, can work for number, string or date.",
-                    "IN and BETWEEN is convenient for comparison with multiple values or a range."
+                    "Basic comparison operators, such as ``=``, ``<>``, ``>``, ``>=``, ``<``, ``<=``, can work for",
+                    "number, string or date.",
+                    "``IN`` and ``BETWEEN`` is convenient for comparison with multiple values or a range."
                 ),
                 post("SELECT account_number FROM accounts WHERE account_number = 1")
             ),
@@ -117,9 +118,9 @@ public class BasicQueryIT extends DocTest {
                 title("Missing Fields"),
                 description(
                     "As NoSQL database, Elasticsearch allows for flexible schema that documents in an index may have",
-                    "different fields. In this case, you can use IS NULL or IS NOT NULL to retrieve missing fields",
-                    "or existing fields only.\n",
-                    "Note that for now we don't differentiate missing field and field set to NULL explicitly."
+                    "different fields. In this case, you can use ``IS NULL`` or ``IS NOT NULL`` to retrieve missing",
+                    "fields or existing fields only.\n",
+                    "Note that for now we don't differentiate missing field and field set to ``NULL`` explicitly."
                 ),
                 post("SELECT account_number, employer FROM accounts WHERE employer IS NULL")
             )
@@ -196,11 +197,11 @@ public class BasicQueryIT extends DocTest {
     public void orderBy() {
         section(
             title("ORDER BY"),
-            description("`ORDER BY` clause specifies which fields used to sort the result and in which direction."),
+            description("``ORDER BY`` clause specifies which fields used to sort the result and in which direction."),
             example(
                 description(
                     "Besides regular field names, ordinal, alias or scalar function can also be used similarly",
-                    "as in `GROUP BY`. `ASC` (by default) or `DESC` can be appended to indicate sorting in",
+                    "as in ``GROUP BY``. ``ASC`` (by default) or ``DESC`` can be appended to indicate sorting in",
                     "ascending or descending order."
                 ),
                 post("SELECT account_number FROM accounts ORDER BY account_number DESC")
@@ -209,7 +210,7 @@ public class BasicQueryIT extends DocTest {
                 description(
                     "Additionally you can specify if documents with missing field be put first or last.",
                     "The default behavior of Elasticsearch is to return nulls or missing last.",
-                    "You can make them present before non-nulls by using `IS NOT NULL`."
+                    "You can make them present before non-nulls by using ``IS NOT NULL``."
                 ),
                 post("SELECT employer FROM accounts ORDER BY employer IS NOT NULL")
             )
@@ -227,7 +228,7 @@ public class BasicQueryIT extends DocTest {
             example(
                 title("Limiting Result Size"),
                 description(
-                    "Given a positive number, `LIMIT` uses it as page size to fetch result of that size at most."
+                    "Given a positive number, ``LIMIT`` uses it as page size to fetch result of that size at most."
                 ),
                 post("SELECT account_number FROM accounts ORDER BY account_number LIMIT 1")
             ),
@@ -236,7 +237,7 @@ public class BasicQueryIT extends DocTest {
                 description(
                     "Offset position can be given as first argument to indicate where to start fetching.",
                     "This can be used as simple pagination solution though it's inefficient on large index.",
-                    "And also `ORDER BY` is required in this case to ensure the same order between queries."
+                    "Generally ``ORDER BY`` is required in this case to ensure the same order between pages."
                 ),
                 post("SELECT account_number FROM accounts ORDER BY account_number LIMIT 1, 1")
             )
