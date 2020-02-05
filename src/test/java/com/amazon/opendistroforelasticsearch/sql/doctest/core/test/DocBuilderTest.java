@@ -132,11 +132,11 @@ public class DocBuilderTest implements DocBuilder {
                      "}"
                  ).table(
                      "Result set",
-                     "+----------------+\n" +
-                     "|firstname (text)|\n" +
-                     "+================+\n" +
-                     "|            John|\n" +
-                     "+----------------+\n"
+                     "+---------+\n" +
+                     "|firstname|\n" +
+                     "+=========+\n" +
+                     "|     John|\n" +
+                     "+---------+\n"
                  );
     }
 

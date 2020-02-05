@@ -100,11 +100,11 @@ public class SqlResponseFormatTest {
         assertThat(
             TABLE_RESPONSE.format(sqlResponse),
             is(
-                "+----------------+\n" +
-                "|firstname (text)|\n" +
-                "+================+\n" +
-                "|            John|\n" +
-                "+----------------+\n"
+                "+---------+\n" +
+                "|firstname|\n" +
+                "+=========+\n" +
+                "|     John|\n" +
+                "+---------+\n"
             )
         );
     }

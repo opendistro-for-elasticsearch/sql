@@ -46,11 +46,11 @@ Result set:
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 |account_number|firstname|gender|  city|balance|employer|state|                   email|             address|lastname|age|
 +==============+=========+======+======+=======+========+=====+========================+====================+========+===+
-|             1|    Amber|     M|Brogan|  39225|  Pyrami|   IL|    amberduke@pyrami.com|     880 Holmes Lane|    Duke| 32|
+|            13|  Nanette|     F| Nogal|  32838| Quility|   VA|nanettebates@quility.com|  789 Madison Street|   Bates| 28|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 |             6|   Hattie|     M| Dante|   5686|  Netagy|   TN|   hattiebond@netagy.com|  671 Bristol Street|    Bond| 36|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
-|            13|  Nanette|     F| Nogal|  32838| Quility|   VA|nanettebates@quility.com|  789 Madison Street|   Bates| 28|
+|             1|    Amber|     M|Brogan|  39225|  Pyrami|   IL|    amberduke@pyrami.com|     880 Holmes Lane|    Duke| 32|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 |            18|     Dale|     M| Orick|   4180|    null|   MD|     daleadams@boink.com|467 Hutchinson Court|   Adams| 33|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
@@ -87,17 +87,57 @@ Result set:
 +---------+--------+
 |firstname|lastname|
 +=========+========+
-|    Amber|    Duke|
+|  Nanette|   Bates|
 +---------+--------+
 |   Hattie|    Bond|
 +---------+--------+
-|  Nanette|   Bates|
+|    Amber|    Duke|
 +---------+--------+
 |     Dale|   Adams|
 +---------+--------+
 
 
-Example 3: Selecting Distinct Fields
+Example 3: Using Field Alias
+----------------------------
+
+Alias is often used to make your query more readable by giving your field a shorter name.
+
+SQL query::
+
+	POST /_opendistro/_sql
+	{
+	  "query" : "SELECT account_number AS num FROM accounts"
+	}
+
+Explain::
+
+	{
+	  "from" : 0,
+	  "size" : 200,
+	  "_source" : {
+	    "includes" : [
+	      "account_number"
+	    ],
+	    "excludes" : [ ]
+	  }
+	}
+
+Result set:
+
++---+
+|num|
++===+
+| 13|
++---+
+|  6|
++---+
+|  1|
++---+
+| 18|
++---+
+
+
+Example 4: Selecting Distinct Fields
 ------------------------------------
 
 ``DISTINCT`` is useful when you want to de-duplicate and get unique field value. You can also provide one or more field names.
@@ -167,7 +207,19 @@ Description
 
 Subquery in ``FROM`` clause is also supported. Please check out our documentation for more details.
 
-Example 1: Selecting From Multiple Indices by Index Pattern
+Example 1: Using Index Alias
+----------------------------
+
+Similarly you can give index in ``FROM`` clause an alias and use it across clauses in query.
+
+SQL query::
+
+	POST /_opendistro/_sql
+	{
+	  "query" : "SELECT acc.account_number FROM accounts acc"
+	}
+
+Example 2: Selecting From Multiple Indices by Index Pattern
 -----------------------------------------------------------
 
 Alternatively you can query from multiple indices of similar names by index pattern. This is very convenient for indices created by Logstash index template with date as suffix.
@@ -179,7 +231,7 @@ SQL query::
 	  "query" : "SELECT account_number FROM account*"
 	}
 
-Example 2: [Deprecating] Selecting From Specific Index Type
+Example 3: [Deprecating] Selecting From Specific Index Type
 -----------------------------------------------------------
 
 You can also specify type name explicitly though this has been deprecated in later Elasticsearch version.
@@ -328,79 +380,6 @@ Result set:
 +--------------+--------+
 
 
-Alias
-=====
-
-Description
------------
-
-Alias makes your query more readable by aliasing your index or field to clearer or shorter name.
-
-Example
--------
-
-Here is an example of how to use table alias as well as field alias.
-
-SQL query::
-
-	POST /_opendistro/_sql
-	{
-	  "query" : "SELECT acc.account_number AS num FROM accounts acc WHERE acc.age > 30"
-	}
-
-Explain::
-
-	{
-	  "from" : 0,
-	  "size" : 200,
-	  "query" : {
-	    "bool" : {
-	      "filter" : [
-	        {
-	          "bool" : {
-	            "must" : [
-	              {
-	                "range" : {
-	                  "age" : {
-	                    "from" : 30,
-	                    "to" : null,
-	                    "include_lower" : false,
-	                    "include_upper" : true,
-	                    "boost" : 1.0
-	                  }
-	                }
-	              }
-	            ],
-	            "adjust_pure_negative" : true,
-	            "boost" : 1.0
-	          }
-	        }
-	      ],
-	      "adjust_pure_negative" : true,
-	      "boost" : 1.0
-	    }
-	  },
-	  "_source" : {
-	    "includes" : [
-	      "account_number"
-	    ],
-	    "excludes" : [ ]
-	  }
-	}
-
-Result set:
-
-+--------------+
-|account_number|
-+==============+
-|             1|
-+--------------+
-|             6|
-+--------------+
-|            18|
-+--------------+
-
-
 GROUP BY
 ========
 
@@ -469,8 +448,8 @@ Result set:
 +---+
 
 
-Example 2: Grouping by Alias
-----------------------------
+Example 2: Grouping by Field Alias
+----------------------------------
 
 Field alias is accessible in ``GROUP BY`` clause.
 

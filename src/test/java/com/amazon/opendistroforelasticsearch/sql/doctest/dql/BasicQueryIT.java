@@ -53,6 +53,13 @@ public class BasicQueryIT extends DocTest {
                 post("SELECT firstname, lastname FROM accounts")
             ),
             example(
+                title("Using Field Alias"),
+                description(
+                    "Alias is often used to make your query more readable by giving your field a shorter name."
+                ),
+                post("SELECT account_number AS num FROM accounts")
+            ),
+            example(
                 title("Selecting Distinct Fields"),
                 description(
                     "``DISTINCT`` is useful when you want to de-duplicate and get unique field value.",
@@ -72,6 +79,13 @@ public class BasicQueryIT extends DocTest {
                 "You've seen how to specify a single index in FROM clause in last section. Here we",
                 "provide more examples which are useful in certain cases.\n\n" +
                 "Subquery in ``FROM`` clause is also supported. Please check out our documentation for more details."
+            ),
+            kibanaExample(
+                title("Using Index Alias"),
+                description(
+                    "Similarly you can give index in ``FROM`` clause an alias and use it across clauses in query."
+                ),
+                post("SELECT acc.account_number FROM accounts acc")
             ),
             kibanaExample(
                 title("Selecting From Multiple Indices by Index Pattern"),
@@ -128,20 +142,6 @@ public class BasicQueryIT extends DocTest {
     }
 
     @Section(4)
-    public void alias() {
-        section(
-            title("Alias"),
-            description(
-                "Alias makes your query more readable by aliasing your index or field to clearer or shorter name."
-            ),
-            example(
-                description("Here is an example of how to use table alias as well as field alias."),
-                post("SELECT acc.account_number AS num FROM accounts acc WHERE acc.age > 30")
-            )
-        );
-    }
-
-    @Section(5)
     public void groupBy() {
         section(
             title("GROUP BY"),
@@ -157,7 +157,7 @@ public class BasicQueryIT extends DocTest {
                 post("SELECT age FROM accounts GROUP BY age")
             ),
             example(
-                title("Grouping by Alias"),
+                title("Grouping by Field Alias"),
                 description("Field alias is accessible in ``GROUP BY`` clause."),
                 post("SELECT account_number AS num FROM accounts GROUP BY num")
             ),
@@ -181,7 +181,7 @@ public class BasicQueryIT extends DocTest {
         );
     }
 
-    @Section(6)
+    @Section(5)
     public void having() {
         section(
             title("HAVING"),
@@ -196,7 +196,7 @@ public class BasicQueryIT extends DocTest {
         );
     }
 
-    @Section(7)
+    @Section(6)
     public void orderBy() {
         section(
             title("ORDER BY"),
@@ -222,7 +222,7 @@ public class BasicQueryIT extends DocTest {
         );
     }
 
-    @Section(8)
+    @Section(7)
     public void limit() {
         section(
             title("LIMIT"),

@@ -106,7 +106,7 @@ public class RstDocumentTest {
         assertThat(
             content.toString(),
             is(
-                "Test table::\n" +
+                "Test table:\n" +
                 "\n" +
                 "+----------+\n" +
                 "|Test Table|\n" +
