@@ -20,6 +20,9 @@ package com.amazon.opendistroforelasticsearch.sql.doctest.core.builder;
  */
 public class Example {
 
+    /** Title for the example section */
+    private String title;
+
     /** Description for the example */
     private String description;
 
@@ -37,6 +40,10 @@ public class Example {
 
     /** Result of explain */
     private String explainResult;
+
+    public String getTitle() {
+        return title;
+    }
 
     public String getDescription() {
         return description;
@@ -60,6 +67,10 @@ public class Example {
 
     public String getExplainResult() {
         return explainResult;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public void setDescription(String description) {

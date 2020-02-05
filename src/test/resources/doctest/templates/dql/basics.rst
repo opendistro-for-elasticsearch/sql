@@ -8,7 +8,7 @@ Basic Query
 
 .. contents::
    :local:
-   :depth: 1
+   :depth: 2
 
 
 Introduction

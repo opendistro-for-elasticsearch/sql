@@ -20,6 +20,7 @@ import com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequest
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import com.google.common.base.Strings;
 import org.elasticsearch.client.RestClient;
 
 import java.util.Arrays;
@@ -76,11 +77,16 @@ public interface DocBuilder {
             }
 
             for (int i = 0; i < examples.length; i++) {
+                String exampleTitle;
                 if (examples.length > 1) {
-                    document.subSection("Example " + (i + 1));
+                    exampleTitle = "Example " + (i + 1);
                 } else {
-                    document.subSection("Example");
+                    exampleTitle = "Example";
                 }
+                if (!Strings.isNullOrEmpty(examples[i].getTitle())) {
+                    exampleTitle += (": " + examples[i].getTitle());
+                }
+                document.subSection(exampleTitle);
 
                 Example example = examples[i];
                 if (!example.getDescription().isEmpty()) {
@@ -100,9 +106,13 @@ public interface DocBuilder {
         }
     }
 
-    /** Construct an example by default query and explain format */
     default Example example(String description, Requests requests) {
-        return example(description, requests,
+        return example("", description, requests);
+    }
+
+    /** Construct an example by default query and explain format */
+    default Example example(String title, String description, Requests requests) {
+        return example(title, description, requests,
             queryFormat(KIBANA_REQUEST, TABLE_RESPONSE),
             explainFormat(IGNORE_REQUEST, PRETTY_JSON_RESPONSE)
         );
@@ -112,7 +122,16 @@ public interface DocBuilder {
                             Requests requests,
                             Formats queryFormat,
                             Formats explainFormat) {
+        return example("", description, requests, queryFormat, explainFormat);
+    }
+
+    default Example example(String title,
+                            String description,
+                            Requests requests,
+                            Formats queryFormat,
+                            Formats explainFormat) {
         Example example = new Example();
+        example.setTitle(title);
         example.setDescription(description);
         example.setQuery(queryFormat.format(requests.query()));
         example.setTable(queryFormat.isTableFormat());

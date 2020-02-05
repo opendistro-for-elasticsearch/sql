@@ -66,7 +66,7 @@ public enum SqlResponseFormat {
             Object[] header = new Object[schema.length()];
             for (int i = 0; i < header.length; i++) {
                 JSONObject nameType = schema.getJSONObject(i);
-                header[i] = StringUtils.format("%s (%s)", nameType.get("name"), nameType.get("type"));
+                header[i] = nameType.get("name");
             }
 
             DataTable table = new DataTable(header);
