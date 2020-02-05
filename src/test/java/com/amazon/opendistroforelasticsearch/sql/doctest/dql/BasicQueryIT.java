@@ -36,6 +36,7 @@ public class BasicQueryIT extends DocTest {
         section(
             title("SELECT"),
             description("``SELECT`` clause specifies which fields in Elasticsearch index should be retrieved."),
+            images("rdd/selectElements.png", "rdd/selectElement.png"),
             example(
                 title("Selecting All Fields"),
                 description(

@@ -43,6 +43,10 @@ Description
 
 ``SELECT`` clause specifies which fields in Elasticsearch index should be retrieved.
 
+.. image:: /doc/user/img/rdd/selectElements.png
+
+.. image:: /doc/user/img/rdd/selectElement.png
+
 Example 1: Selecting All Fields
 -------------------------------
 
@@ -71,9 +75,9 @@ Result set:
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 |             6|   Hattie|     M| Dante|   5686|  Netagy|   TN|   hattiebond@netagy.com|  671 Bristol Street|    Bond| 36|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
-|            18|     Dale|     M| Orick|   4180|    null|   MD|     daleadams@boink.com|467 Hutchinson Court|   Adams| 33|
-+--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 |            13|  Nanette|     F| Nogal|  32838| Quility|   VA|nanettebates@quility.com|  789 Madison Street|   Bates| 28|
++--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
+|            18|     Dale|     M| Orick|   4180|    null|   MD|     daleadams@boink.com|467 Hutchinson Court|   Adams| 33|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 
 
@@ -112,9 +116,9 @@ Result set:
 +---------+--------+
 |   Hattie|    Bond|
 +---------+--------+
-|     Dale|   Adams|
-+---------+--------+
 |  Nanette|   Bates|
++---------+--------+
+|     Dale|   Adams|
 +---------+--------+
 
 
@@ -152,9 +156,9 @@ Result set:
 +---+
 |  6|
 +---+
-| 18|
-+---+
 | 13|
++---+
+| 18|
 +---+
 
 

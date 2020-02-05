@@ -63,6 +63,11 @@ public class RstDocument implements Document {
     }
 
     @Override
+    public Document image(String filePath) {
+        return println(".. image:: /doc/user/img/" + filePath);
+    }
+
+    @Override
     public void close() {
         docWriter.close();
     }

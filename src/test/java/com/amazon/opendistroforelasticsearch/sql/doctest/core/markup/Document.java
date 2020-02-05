@@ -44,6 +44,8 @@ public interface Document extends Closeable {
 
     Document table(String description, String table);
 
+    Document image(String filePath);
+
     static Path path(String templateRelativePath) {
         return Paths.get(TestUtils.getResourceFilePath(DOCUMENT_FOLDER_ROOT + templateRelativePath));
     }

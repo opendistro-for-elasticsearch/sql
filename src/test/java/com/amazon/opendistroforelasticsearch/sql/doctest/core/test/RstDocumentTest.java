@@ -118,4 +118,17 @@ public class RstDocumentTest {
         );
     }
 
+    @Test
+    public void testImage() {
+        document.image("syntax.png");
+
+        assertThat(
+            content.toString(),
+            is(
+                ".. image:: /doc/user/img/syntax.png\n" +
+                "\n"
+            )
+        );
+    }
+
 }

@@ -52,6 +52,10 @@ public interface DocBuilder {
      */
     Document openDocument();
 
+    default void section(String title, String description, Example... examples) {
+        section(title, description, new String[0], examples);
+    }
+
     /**
      * Entry point to start building document by DSL.
      * Each section consists of:
@@ -68,12 +72,18 @@ public interface DocBuilder {
      * @param description   description paragraph
      * @param examples      examples for the section
      */
-    default void section(String title, String description, Example... examples) {
+    default void section(String title, String description, String[] images, Example... examples) {
         try (Document document = openDocument()) {
             document.section(title);
 
             if (!description.isEmpty()) {
                 document.subSection("Description").paragraph(description);
+            }
+
+            if (images.length > 0) {
+                for (String image : images) {
+                    document.image(image);
+                }
             }
 
             for (int i = 0; i < examples.length; i++) {
@@ -148,6 +158,10 @@ public interface DocBuilder {
 
     default String description(String... sentences) {
         return String.join(" ", sentences);
+    }
+
+    default String[] images(String... images) {
+        return images;
     }
 
     default Formats queryFormat(SqlRequestFormat requestFormat, SqlResponseFormat responseFormat) {
