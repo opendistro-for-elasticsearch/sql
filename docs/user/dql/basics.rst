@@ -46,18 +46,18 @@ Result set:
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 |account_number|firstname|gender|  city|balance|employer|state|                   email|             address|lastname|age|
 +==============+=========+======+======+=======+========+=====+========================+====================+========+===+
-|            13|  Nanette|     F| Nogal|  32838| Quility|   VA|nanettebates@quility.com|  789 Madison Street|   Bates| 28|
-+--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 |             1|    Amber|     M|Brogan|  39225|  Pyrami|   IL|    amberduke@pyrami.com|     880 Holmes Lane|    Duke| 32|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 |             6|   Hattie|     M| Dante|   5686|  Netagy|   TN|   hattiebond@netagy.com|  671 Bristol Street|    Bond| 36|
++--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
+|            13|  Nanette|     F| Nogal|  32838| Quility|   VA|nanettebates@quility.com|  789 Madison Street|   Bates| 28|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 |            18|     Dale|     M| Orick|   4180|    null|   MD|     daleadams@boink.com|467 Hutchinson Court|   Adams| 33|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 
 
-Example 2: Selecting Specific Field(s)
---------------------------------------
+Example 2: Selecting Specific Fields
+------------------------------------
 
 More often you would give specific field name(s) in ``SELECT`` clause to avoid large and unnecessary data retrieved.
 
@@ -87,18 +87,18 @@ Result set:
 +---------+--------+
 |firstname|lastname|
 +=========+========+
-|  Nanette|   Bates|
-+---------+--------+
 |    Amber|    Duke|
 +---------+--------+
 |   Hattie|    Bond|
++---------+--------+
+|  Nanette|   Bates|
 +---------+--------+
 |     Dale|   Adams|
 +---------+--------+
 
 
-Example 3: Selecting Distinct Field(s)
---------------------------------------
+Example 3: Selecting Distinct Fields
+------------------------------------
 
 ``DISTINCT`` is useful when you want to de-duplicate and get unique field value. You can also provide one or more field names.
 
@@ -478,7 +478,7 @@ SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT age AS a FROM accounts GROUP BY a"
+	  "query" : "SELECT account_number AS num FROM accounts GROUP BY num"
 	}
 
 Explain::
@@ -488,15 +488,15 @@ Explain::
 	  "size" : 0,
 	  "_source" : {
 	    "includes" : [
-	      "age"
+	      "account_number"
 	    ],
 	    "excludes" : [ ]
 	  },
-	  "stored_fields" : "age",
+	  "stored_fields" : "account_number",
 	  "aggregations" : {
-	    "a" : {
+	    "num" : {
 	      "terms" : {
-	        "field" : "age",
+	        "field" : "account_number",
 	        "size" : 200,
 	        "min_doc_count" : 1,
 	        "shard_min_doc_count" : 0,
@@ -516,17 +516,17 @@ Explain::
 
 Result set:
 
-+--+
-| a|
-+==+
-|28|
-+--+
-|32|
-+--+
-|33|
-+--+
-|36|
-+--+
++---+
+|num|
++===+
+|  1|
++---+
+|  6|
++---+
+| 13|
++---+
+| 18|
++---+
 
 
 Example 3: Grouping by Ordinal
@@ -757,8 +757,8 @@ Description
 
 ``ORDER BY`` clause specifies which fields used to sort the result and in which direction.
 
-Example 1
----------
+Example 1: Ordering by Fields
+-----------------------------
 
 Besides regular field names, ordinal, alias or scalar function can also be used similarly as in ``GROUP BY``. ``ASC`` (by default) or ``DESC`` can be appended to indicate sorting in ascending or descending order.
 
@@ -804,8 +804,8 @@ Result set:
 +--------------+
 
 
-Example 2
----------
+Example 2: Specifying Order for Null
+------------------------------------
 
 Additionally you can specify if documents with missing field be put first or last. The default behavior of Elasticsearch is to return nulls or missing last. You can make them present before non-nulls by using ``IS NOT NULL``.
 

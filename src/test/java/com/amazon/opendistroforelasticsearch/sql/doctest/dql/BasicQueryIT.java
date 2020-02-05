@@ -45,7 +45,7 @@ public class BasicQueryIT extends DocTest {
                 post("SELECT * FROM accounts")
             ),
             example(
-                title("Selecting Specific Field(s)"),
+                title("Selecting Specific Fields"),
                 description(
                     "More often you would give specific field name(s) in ``SELECT`` clause to",
                     "avoid large and unnecessary data retrieved."
@@ -53,7 +53,7 @@ public class BasicQueryIT extends DocTest {
                 post("SELECT firstname, lastname FROM accounts")
             ),
             example(
-                title("Selecting Distinct Field(s)"),
+                title("Selecting Distinct Fields"),
                 description(
                     "``DISTINCT`` is useful when you want to de-duplicate and get unique field value.",
                     "You can also provide one or more field names."
@@ -159,7 +159,7 @@ public class BasicQueryIT extends DocTest {
             example(
                 title("Grouping by Alias"),
                 description("Field alias is accessible in ``GROUP BY`` clause."),
-                post("SELECT age AS a FROM accounts GROUP BY a")
+                post("SELECT account_number AS num FROM accounts GROUP BY num")
             ),
             example(
                 title("Grouping by Ordinal"),
@@ -202,6 +202,7 @@ public class BasicQueryIT extends DocTest {
             title("ORDER BY"),
             description("``ORDER BY`` clause specifies which fields used to sort the result and in which direction."),
             example(
+                title("Ordering by Fields"),
                 description(
                     "Besides regular field names, ordinal, alias or scalar function can also be used similarly",
                     "as in ``GROUP BY``. ``ASC`` (by default) or ``DESC`` can be appended to indicate sorting in",
@@ -210,6 +211,7 @@ public class BasicQueryIT extends DocTest {
                 post("SELECT account_number FROM accounts ORDER BY account_number DESC")
             ),
             example(
+                title("Specifying Order for Null"),
                 description(
                     "Additionally you can specify if documents with missing field be put first or last.",
                     "The default behavior of Elasticsearch is to return nulls or missing last.",
