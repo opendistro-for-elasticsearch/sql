@@ -64,14 +64,27 @@ public class TypeInformationIT extends SQLIntegTestCase {
     }
 
     /*
+    mathConstants
+     */
+    @Test
+    public void testPiReturnsDouble() {
+        JSONObject response = executeJdbcRequest("SELECT PI() FROM " + TestsConstants.TEST_INDEX_ACCOUNT
+                + " LIMIT 1");
+
+        verifySchema(response, schema("PI()", null, "double"));
+        verifyDataRows(response,
+                rows(3.141592653589793));
+    }
+
+    /*
     stringOperators
      */
     @Test
     public void testUpperWithStringFieldReturnsString() {
-        JSONObject response = executeJdbcRequest("SELECT UPPER(firstname) FROM " +
-                TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY firstname LIMIT 2");
+        JSONObject response = executeJdbcRequest("SELECT UPPER(firstname) AS firstname_alias FROM " +
+                TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY firstname_alias LIMIT 2");
 
-        verifySchema(response, schema("UPPER(firstname)", null, "text"));
+        verifySchema(response, schema("firstname_alias", null, "text"));
         verifyDataRows(response,
                 rows("ABBOTT"),
                 rows("ABIGAIL"));
@@ -133,17 +146,17 @@ public class TypeInformationIT extends SQLIntegTestCase {
 
     @Test
     public void testAddWithIntReturnsInt() {
-        JSONObject response = executeJdbcRequest("SELECT (balance + 5) FROM " +
+        JSONObject response = executeJdbcRequest("SELECT (balance + 5) AS balance_add_five FROM " +
                 TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY firstname LIMIT 2");
 
-        verifySchema(response, schema("add(balance, 5)", null, "integer"));
+        verifySchema(response, schema("balance_add_five", null, "integer"));
         verifyDataRows(response,
                 rows(11020),
                 rows(13483));
     }
 
     @Test
-    public void testSubtractWithLongReturnsLong() {
+    public void testSubtractLongWithLongReturnsLong() {
         JSONObject response = executeJdbcRequest("SELECT (balance - balance) FROM " +
                 TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY firstname LIMIT 2");
 
@@ -179,14 +192,6 @@ public class TypeInformationIT extends SQLIntegTestCase {
         verifyDataRows(response,
                 rows(2014),
                 rows(2014));
-    }
-
-    /*
-    utilityFunctions
-     */
-    @Test
-    public void testAssign() {
-
     }
 
     private JSONObject executeJdbcRequest(String query) {
