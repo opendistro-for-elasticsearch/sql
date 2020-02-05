@@ -46,11 +46,11 @@ Result set:
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 |account_number|firstname|gender|  city|balance|employer|state|                   email|             address|lastname|age|
 +==============+=========+======+======+=======+========+=====+========================+====================+========+===+
-|            13|  Nanette|     F| Nogal|  32838| Quility|   VA|nanettebates@quility.com|  789 Madison Street|   Bates| 28|
-+--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 |             1|    Amber|     M|Brogan|  39225|  Pyrami|   IL|    amberduke@pyrami.com|     880 Holmes Lane|    Duke| 32|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 |             6|   Hattie|     M| Dante|   5686|  Netagy|   TN|   hattiebond@netagy.com|  671 Bristol Street|    Bond| 36|
++--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
+|            13|  Nanette|     F| Nogal|  32838| Quility|   VA|nanettebates@quility.com|  789 Madison Street|   Bates| 28|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 |            18|     Dale|     M| Orick|   4180|    null|   MD|     daleadams@boink.com|467 Hutchinson Court|   Adams| 33|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
@@ -87,11 +87,11 @@ Result set:
 +---------+--------+
 |firstname|lastname|
 +=========+========+
-|  Nanette|   Bates|
-+---------+--------+
 |    Amber|    Duke|
 +---------+--------+
 |   Hattie|    Bond|
++---------+--------+
+|  Nanette|   Bates|
 +---------+--------+
 |     Dale|   Adams|
 +---------+--------+
@@ -163,7 +163,8 @@ FROM
 Description
 -----------
 
-``FROM`` clause specifies Elasticsearch index where the data should be retrieved from. You've seen how to specify a single index in FROM clause in last section. Here we list more use cases additionally.
+``FROM`` clause specifies Elasticsearch index where the data should be retrieved from. You've seen how to specify a single index in FROM clause in last section. Here we provide more examples which are useful in certain cases.
+
  Subquery in ``FROM`` clause is also supported. Please check out our documentation for more details.
 
 Example 1: Selecting From Multiple Indices by Index Pattern
@@ -196,8 +197,10 @@ WHERE
 Description
 -----------
 
-`WHERE` clause specifies only Elasticsearch documents that meet the criteria should be affected. It consists of predicates that uses ``=``, ``<>``, ``>``, ``>=``, ``<``, ``<=``, ``IN``, ``BETWEEN``, ``LIKE``, ``IS NULL`` or ``IS NOT NULL``. These predicates can be combined by logical operator ``NOT``, ``AND`` or ``OR``.
+`WHERE` clause specifies only Elasticsearch documents that meet the criteria should be affected. It consists of predicates that uses ``=``, ``<>``, ``>``, ``>=``, ``<``, ``<=``, ``IN``, ``BETWEEN``, ``LIKE``, ``IS NULL`` or ``IS NOT NULL``. These predicates can be combined by logical operator ``NOT``, ``AND`` or ``OR`` to build more complex expression.
+
  For ``LIKE`` and other full text search topics, please refer to Full Text Search documentation.
+
  Besides SQL query, WHERE clause can also be used in SQL statement such as ``DELETE``. Please refer to Data Manipulation Language documentation for details.
 
 Example 1: Comparison Operators
@@ -262,6 +265,7 @@ Example 2: Missing Fields
 -------------------------
 
 As NoSQL database, Elasticsearch allows for flexible schema that documents in an index may have different fields. In this case, you can use ``IS NULL`` or ``IS NOT NULL`` to retrieve missing fields or existing fields only.
+
  Note that for now we don't differentiate missing field and field set to ``NULL`` explicitly.
 
 SQL query::
@@ -405,7 +409,7 @@ Description
 
 Limitation because ES ... NULL (missing value) won't be taken into account in aggregation.
 
-Example 1: Grouping By Fields
+Example 1: Grouping by Fields
 -----------------------------
 
 SQL query::
@@ -463,7 +467,7 @@ Result set:
 +---+
 
 
-Example 2: Grouping By Alias
+Example 2: Grouping by Alias
 ----------------------------
 
 SQL query::
@@ -521,7 +525,7 @@ Result set:
 +--+
 
 
-Example 3: Grouping By Field Ordinal in Select
+Example 3: Grouping by Field Ordinal in Select
 ----------------------------------------------
 
 SQL query::
@@ -579,7 +583,7 @@ Result set:
 +---+
 
 
-Example 4: Grouping By Scalar Function
+Example 4: Grouping by Scalar Function
 --------------------------------------
 
 SQL query::
