@@ -46,13 +46,13 @@ Result set:
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 |account_number|firstname|gender|  city|balance|employer|state|                   email|             address|lastname|age|
 +==============+=========+======+======+=======+========+=====+========================+====================+========+===+
+|            13|  Nanette|     F| Nogal|  32838| Quility|   VA|nanettebates@quility.com|  789 Madison Street|   Bates| 28|
++--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 |             1|    Amber|     M|Brogan|  39225|  Pyrami|   IL|    amberduke@pyrami.com|     880 Holmes Lane|    Duke| 32|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 |             6|   Hattie|     M| Dante|   5686|  Netagy|   TN|   hattiebond@netagy.com|  671 Bristol Street|    Bond| 36|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 |            18|     Dale|     M| Orick|   4180|    null|   MD|     daleadams@boink.com|467 Hutchinson Court|   Adams| 33|
-+--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
-|            13|  Nanette|     F| Nogal|  32838| Quility|   VA|nanettebates@quility.com|  789 Madison Street|   Bates| 28|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 
 
@@ -87,13 +87,13 @@ Result set:
 +---------+--------+
 |firstname|lastname|
 +=========+========+
+|  Nanette|   Bates|
++---------+--------+
 |    Amber|    Duke|
 +---------+--------+
 |   Hattie|    Bond|
 +---------+--------+
 |     Dale|   Adams|
-+---------+--------+
-|  Nanette|   Bates|
 +---------+--------+
 
 
@@ -164,6 +164,7 @@ Description
 -----------
 
 ``FROM`` clause specifies Elasticsearch index where the data should be retrieved from. You've seen how to specify a single index in FROM clause in last section. Here we provide more examples which are useful in certain cases.
+
 Subquery in ``FROM`` clause is also supported. Please check out our documentation for more details.
 
 Example 1: Selecting From Multiple Indices by Index Pattern
@@ -197,7 +198,9 @@ Description
 -----------
 
 `WHERE` clause specifies only Elasticsearch documents that meet the criteria should be affected. It consists of predicates that uses ``=``, ``<>``, ``>``, ``>=``, ``<``, ``<=``, ``IN``, ``BETWEEN``, ``LIKE``, ``IS NULL`` or ``IS NOT NULL``. These predicates can be combined by logical operator ``NOT``, ``AND`` or ``OR`` to build more complex expression.
+
 For ``LIKE`` and other full text search topics, please refer to Full Text Search documentation.
+
 Besides SQL query, WHERE clause can also be used in SQL statement such as ``DELETE``. Please refer to Data Manipulation Language documentation for details.
 
 Example 1: Comparison Operators
@@ -262,6 +265,7 @@ Example 2: Missing Fields
 -------------------------
 
 As NoSQL database, Elasticsearch allows for flexible schema that documents in an index may have different fields. In this case, you can use ``IS NULL`` or ``IS NOT NULL`` to retrieve missing fields or existing fields only.
+
 Note that for now we don't differentiate missing field and field set to ``NULL`` explicitly.
 
 SQL query::
@@ -404,6 +408,7 @@ Description
 -----------
 
 ``GROUP BY`` groups documents with same field value into buckets. It is often used along with aggregation functions to aggregate inside each bucket. Please refer to SQL Functions documentation for more details.
+
 Note that ``WHERE`` clause is applied before ``GROUP BY`` clause.
 
 Example 1: Grouping by Fields
@@ -527,7 +532,7 @@ Result set:
 Example 3: Grouping by Ordinal
 ------------------------------
 
-Alternatively field ordinal in ``SELECT`` clause can be used too. However caveat is your ``GROUP BY`` clause may be broken whenever fields in ``SELECT`` clause change.
+Alternatively field ordinal in ``SELECT`` clause can be used too. However this is not recommended because your ``GROUP BY`` clause depends on fields in ``SELECT`` clause and require to change accordingly.
 
 SQL query::
 
@@ -584,17 +589,16 @@ Result set:
 +---+
 
 
-HAVING
-======
+Example 4: Grouping by Scalar Function
+--------------------------------------
 
-Example
--------
+Scalar function can be used in ``GROUP BY`` clause and it's required to be present in ``SELECT`` clause too.
 
 SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT age FROM accounts GROUP BY age"
+	  "query" : "SELECT ABS(age) AS a FROM accounts GROUP BY ABS(age)"
 	}
 
 Explain::
@@ -604,7 +608,86 @@ Explain::
 	  "size" : 0,
 	  "_source" : {
 	    "includes" : [
-	      "age"
+	      "script"
+	    ],
+	    "excludes" : [ ]
+	  },
+	  "stored_fields" : "a",
+	  "script_fields" : {
+	    "a" : {
+	      "script" : {
+	        "source" : "def abs_1 = Math.abs(doc['age'].value);return abs_1;",
+	        "lang" : "painless"
+	      },
+	      "ignore_failure" : false
+	    }
+	  },
+	  "aggregations" : {
+	    "a" : {
+	      "terms" : {
+	        "script" : {
+	          "source" : "def abs_1 = Math.abs(doc['age'].value);return abs_1;",
+	          "lang" : "painless"
+	        },
+	        "size" : 200,
+	        "min_doc_count" : 1,
+	        "shard_min_doc_count" : 0,
+	        "show_term_doc_count_error" : false,
+	        "order" : [
+	          {
+	            "_count" : "desc"
+	          },
+	          {
+	            "_key" : "asc"
+	          }
+	        ]
+	      }
+	    }
+	  }
+	}
+
+Result set:
+
++----+
+|   a|
++====+
+|28.0|
++----+
+|32.0|
++----+
+|33.0|
++----+
+|36.0|
++----+
+
+
+HAVING
+======
+
+Description
+-----------
+
+``HAVING`` clause filters result from ``GROUP BY`` clause by predicate(s). Because of this, aggregation function, even different from those on ``SELECT`` clause, can be used in predicate.
+
+Example
+-------
+
+SQL query::
+
+	POST /_opendistro/_sql
+	{
+	  "query" : "SELECT age, MAX(balance) FROM accounts GROUP BY age HAVING MIN(balance) > 10000"
+	}
+
+Explain::
+
+	{
+	  "from" : 0,
+	  "size" : 0,
+	  "_source" : {
+	    "includes" : [
+	      "age",
+	      "MAX"
 	    ],
 	    "excludes" : [ ]
 	  },
@@ -625,6 +708,31 @@ Explain::
 	            "_key" : "asc"
 	          }
 	        ]
+	      },
+	      "aggregations" : {
+	        "MAX_0" : {
+	          "max" : {
+	            "field" : "balance"
+	          }
+	        },
+	        "min_0" : {
+	          "min" : {
+	            "field" : "balance"
+	          }
+	        },
+	        "bucket_filter" : {
+	          "bucket_selector" : {
+	            "buckets_path" : {
+	              "min_0" : "min_0",
+	              "MAX_0" : "MAX_0"
+	            },
+	            "script" : {
+	              "source" : "params.min_0 > 10000",
+	              "lang" : "painless"
+	            },
+	            "gap_policy" : "skip"
+	          }
+	        }
 	      }
 	    }
 	  }
@@ -632,17 +740,13 @@ Explain::
 
 Result set:
 
-+---+
-|age|
-+===+
-| 28|
-+---+
-| 32|
-+---+
-| 33|
-+---+
-| 36|
-+---+
++---+------------+
+|age|MAX(balance)|
++===+============+
+| 28|       32838|
++---+------------+
+| 32|       39225|
++---+------------+
 
 
 ORDER BY
