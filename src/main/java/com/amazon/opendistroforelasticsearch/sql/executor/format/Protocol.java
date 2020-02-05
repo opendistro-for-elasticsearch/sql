@@ -66,13 +66,7 @@ public class Protocol {
     public Protocol(Exception e) {
         this.formatType = null;
         this.status = ERROR_STATUS;
-        this.error = e instanceof ElasticsearchException
-                ? new ElasticsearchErrorMessage((ElasticsearchException) e,
-                ((ElasticsearchException) e).status().getStatus())
-                : unwrapCause(e) instanceof ElasticsearchException
-                ? new ElasticsearchErrorMessage((ElasticsearchException) unwrapCause(e),
-                ((ElasticsearchException) unwrapCause(e)).status().getStatus())
-                : new ErrorMessage(e, ERROR_STATUS);
+        this.error = ErrorMessageFactory.createErrorMessage(e, status);
     }
 
     private ResultSet loadResultSet(Client client, QueryStatement queryStatement, Object queryResult) {

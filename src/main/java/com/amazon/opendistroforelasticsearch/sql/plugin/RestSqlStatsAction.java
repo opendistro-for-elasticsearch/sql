@@ -69,7 +69,7 @@ public class RestSqlStatsAction extends BaseRestHandler {
             LOG.error("Failed during Query SQL STATS Action.", e);
 
             return channel -> channel.sendResponse(new BytesRestResponse(SERVICE_UNAVAILABLE,
-                    new ErrorMessage(e, SERVICE_UNAVAILABLE.getStatus()).toString()));
+                    new ErrorMessage<>(e, SERVICE_UNAVAILABLE.getStatus()).toString()));
         }
     }
 

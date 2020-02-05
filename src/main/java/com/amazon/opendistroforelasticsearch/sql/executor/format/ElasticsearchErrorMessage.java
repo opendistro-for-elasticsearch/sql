@@ -16,29 +16,19 @@
 package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.SearchPhaseExecutionException;
 import org.elasticsearch.action.search.ShardSearchFailure;
 
-public class ElasticsearchErrorMessage extends ErrorMessage {
+public class ElasticsearchErrorMessage extends ErrorMessage<ElasticsearchException> {
 
-    private static final Logger LOG = LogManager.getLogger();
-
-    ElasticsearchErrorMessage(ElasticsearchException exception, int status) {
+    public ElasticsearchErrorMessage(ElasticsearchException exception, int status) {
         super(exception, status);
     }
 
     @Override
     protected String fetchReason() {
-        String detailedMsg = "";
-        try {
-            detailedMsg = ": " + exception.getMessage();
-        } catch (Exception e) {
-            LOG.error("Error occurred when fetching ES exception reasons", e);
-        }
-        return "Error occurred in Elasticsearch engine" + detailedMsg;
+        return "Error occurred in Elasticsearch engine" + exception.getMessage();
     }
 
     /** Currently Sql-Jdbc plugin only supports string type as reason and details in the error messages */
@@ -57,13 +47,7 @@ public class ElasticsearchErrorMessage extends ErrorMessage {
     }
 
     private String defaultDetails(ElasticsearchException exception) {
-        String detailedMsg = "";
-        try {
-            detailedMsg = exception.getDetailedMessage();
-        } catch (Exception e) {
-            LOG.error("Error occurred when fetching ES exception details", e);
-        }
-        return detailedMsg;
+        return exception.getDetailedMessage();
     }
 
     /**
@@ -75,13 +59,9 @@ public class ElasticsearchErrorMessage extends ErrorMessage {
      */
     private String fetchSearchPhaseExecutionExceptionDetails(SearchPhaseExecutionException exception) {
         StringBuilder details = new StringBuilder();
-        try {
-            ShardSearchFailure[] shardFailures = exception.shardFailures();
-            for (ShardSearchFailure failure : shardFailures) {
-                details.append(StringUtils.format("Shard[%d]: %s\n", failure.shardId(), failure.getCause().toString()));
-            }
-        } catch (Exception e) {
-            LOG.error("Error occurred when fetching shards failure details", e);
+        ShardSearchFailure[] shardFailures = exception.shardFailures();
+        for (ShardSearchFailure failure : shardFailures) {
+            details.append(StringUtils.format("Shard[%d]: %s\n", failure.shardId(), failure.getCause().toString()));
         }
         return details.toString();
     }

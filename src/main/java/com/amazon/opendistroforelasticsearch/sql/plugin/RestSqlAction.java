@@ -201,7 +201,7 @@ public class RestSqlAction extends BaseRestHandler {
     }
 
     private void reportError(final RestChannel channel, final Exception e, final RestStatus status) {
-        sendResponse(channel, new ErrorMessage(e, status.getStatus()).toString(), status);
+        sendResponse(channel, new ErrorMessage<>(e, status.getStatus()).toString(), status);
     }
 
     private boolean isSQLFeatureEnabled() {

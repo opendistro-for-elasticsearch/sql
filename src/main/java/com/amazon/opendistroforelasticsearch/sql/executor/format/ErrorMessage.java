@@ -18,7 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.executor.format;
 import org.elasticsearch.rest.RestStatus;
 import org.json.JSONObject;
 
-public class ErrorMessage {
+public class ErrorMessage<E extends Exception> {
 
     protected Exception exception;
 
