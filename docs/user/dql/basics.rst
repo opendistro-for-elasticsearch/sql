@@ -48,9 +48,9 @@ Result set:
 +==============+=========+======+======+=======+========+=====+========================+====================+========+===+
 |            13|  Nanette|     F| Nogal|  32838| Quility|   VA|nanettebates@quility.com|  789 Madison Street|   Bates| 28|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
-|             6|   Hattie|     M| Dante|   5686|  Netagy|   TN|   hattiebond@netagy.com|  671 Bristol Street|    Bond| 36|
-+--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 |             1|    Amber|     M|Brogan|  39225|  Pyrami|   IL|    amberduke@pyrami.com|     880 Holmes Lane|    Duke| 32|
++--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
+|             6|   Hattie|     M| Dante|   5686|  Netagy|   TN|   hattiebond@netagy.com|  671 Bristol Street|    Bond| 36|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 |            18|     Dale|     M| Orick|   4180|    null|   MD|     daleadams@boink.com|467 Hutchinson Court|   Adams| 33|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
@@ -89,9 +89,9 @@ Result set:
 +=========+========+
 |  Nanette|   Bates|
 +---------+--------+
-|   Hattie|    Bond|
-+---------+--------+
 |    Amber|    Duke|
++---------+--------+
+|   Hattie|    Bond|
 +---------+--------+
 |     Dale|   Adams|
 +---------+--------+
@@ -163,8 +163,8 @@ FROM
 Description
 -----------
 
-FROM clause specifies Elasticsearch index where the data should be retrieved from. You've seen how to specify a single index in FROM clause in last section. Here we list more use cases additionally.
- Subquery in FROM clause is also supported. Please check out our documentation for more details.
+``FROM`` clause specifies Elasticsearch index where the data should be retrieved from. You've seen how to specify a single index in FROM clause in last section. Here we list more use cases additionally.
+ Subquery in ``FROM`` clause is also supported. Please check out our documentation for more details.
 
 Example 1: Selecting From Multiple Indices by Index Pattern
 -----------------------------------------------------------
@@ -196,14 +196,14 @@ WHERE
 Description
 -----------
 
-`WHERE` clause specifies only Elasticsearch documents that meet the criteria should be affected. It consists of predicates that uses `=`, `<>`, `>`, `>=`, `<`, `<=`, `IN`, `BETWEEN`, `LIKE`, `IS NULL` or `IS NOT NULL`. These predicates can be combined by logical operator `NOT`, `AND` or `OR`.
- For `LIKE` and other full text search topics, please refer to Full Text Search documentation.
- Besides SQL query, WHERE clause can also be used in SQL statement such as `DELETE`. Please refer to Data Manipulation Language documentation for details.
+`WHERE` clause specifies only Elasticsearch documents that meet the criteria should be affected. It consists of predicates that uses ``=``, ``<>``, ``>``, ``>=``, ``<``, ``<=``, ``IN``, ``BETWEEN``, ``LIKE``, ``IS NULL`` or ``IS NOT NULL``. These predicates can be combined by logical operator ``NOT``, ``AND`` or ``OR``.
+ For ``LIKE`` and other full text search topics, please refer to Full Text Search documentation.
+ Besides SQL query, WHERE clause can also be used in SQL statement such as ``DELETE``. Please refer to Data Manipulation Language documentation for details.
 
 Example 1: Comparison Operators
 -------------------------------
 
-Basic comparison operators, such as =, <>, >, >=, <, <=, can work for number, string or date. IN and BETWEEN is convenient for comparison with multiple values or a range.
+Basic comparison operators, such as ``=``, ``<>``, ``>``, ``>=``, ``<``, ``<=``, can work for number, string or date. ``IN`` and ``BETWEEN`` is convenient for comparison with multiple values or a range.
 
 SQL query::
 
@@ -261,8 +261,8 @@ Result set:
 Example 2: Missing Fields
 -------------------------
 
-As NoSQL database, Elasticsearch allows for flexible schema that documents in an index may have different fields. In this case, you can use IS NULL or IS NOT NULL to retrieve missing fields or existing fields only.
- Note that for now we don't differentiate missing field and field set to NULL explicitly.
+As NoSQL database, Elasticsearch allows for flexible schema that documents in an index may have different fields. In this case, you can use ``IS NULL`` or ``IS NOT NULL`` to retrieve missing fields or existing fields only.
+ Note that for now we don't differentiate missing field and field set to ``NULL`` explicitly.
 
 SQL query::
 
@@ -389,9 +389,9 @@ Result set:
 +--------------+
 |account_number|
 +==============+
-|             6|
-+--------------+
 |             1|
++--------------+
+|             6|
 +--------------+
 |            18|
 +--------------+
@@ -704,12 +704,12 @@ ORDER BY
 Description
 -----------
 
-`ORDER BY` clause specifies which fields used to sort the result and in which direction.
+``ORDER BY`` clause specifies which fields used to sort the result and in which direction.
 
 Example 1
 ---------
 
-Besides regular field names, ordinal, alias or scalar function can also be used similarly as in `GROUP BY`. `ASC` (by default) or `DESC` can be appended to indicate sorting in ascending or descending order.
+Besides regular field names, ordinal, alias or scalar function can also be used similarly as in ``GROUP BY``. ``ASC`` (by default) or ``DESC`` can be appended to indicate sorting in ascending or descending order.
 
 SQL query::
 
@@ -756,7 +756,7 @@ Result set:
 Example 2
 ---------
 
-Additionally you can specify if documents with missing field be put first or last. The default behavior of Elasticsearch is to return nulls or missing last. You can make them present before non-nulls by using `IS NOT NULL`.
+Additionally you can specify if documents with missing field be put first or last. The default behavior of Elasticsearch is to return nulls or missing last. You can make them present before non-nulls by using ``IS NOT NULL``.
 
 SQL query::
 
@@ -812,7 +812,7 @@ Mostly specifying maximum number of documents returned is necessary to prevent f
 Example 1: Limiting Result Size
 -------------------------------
 
-Given a positive number, `LIMIT` uses it as page size to fetch result of that size at most.
+Given a positive number, ``LIMIT`` uses it as page size to fetch result of that size at most.
 
 SQL query::
 
@@ -853,7 +853,7 @@ Result set:
 Example 2: Fetching at Offset
 -----------------------------
 
-Offset position can be given as first argument to indicate where to start fetching. This can be used as simple pagination solution though it's inefficient on large index. And also `ORDER BY` is required in this case to ensure the same order between queries.
+Offset position can be given as first argument to indicate where to start fetching. This can be used as simple pagination solution though it's inefficient on large index. Generally ``ORDER BY`` is required in this case to ensure the same order between pages.
 
 SQL query::
 
