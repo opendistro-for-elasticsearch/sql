@@ -28,7 +28,7 @@ public class ElasticsearchErrorMessage extends ErrorMessage<ElasticsearchExcepti
 
     @Override
     protected String fetchReason() {
-        return "Error occurred in Elasticsearch engine" + exception.getMessage();
+        return "Error occurred in Elasticsearch engine: " + exception.getMessage();
     }
 
     /** Currently Sql-Jdbc plugin only supports string type as reason and details in the error messages */
@@ -39,7 +39,7 @@ public class ElasticsearchErrorMessage extends ErrorMessage<ElasticsearchExcepti
             String detail = fetchSearchPhaseExecutionExceptionDetails((SearchPhaseExecutionException) exception);
             details.append(detail);
         } else {
-            details.append(defaultDetails((ElasticsearchException) exception));
+            details.append(defaultDetails(exception));
         }
         details.append("\nFor more details, please send request for Json format to see the raw response from "
                 + "elasticsearch engine.");

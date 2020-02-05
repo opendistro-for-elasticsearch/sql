@@ -20,14 +20,14 @@ import org.json.JSONObject;
 
 public class ErrorMessage<E extends Exception> {
 
-    protected Exception exception;
+    protected E exception;
 
     private int status;
     private String type;
     private String reason;
     private String details;
 
-    public ErrorMessage(Exception exception, int status) {
+    public ErrorMessage(E exception, int status) {
         this.exception = exception;
         this.status = status;
 
