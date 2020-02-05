@@ -14,6 +14,27 @@ Basic Query
 Introduction
 ============
 
+``SELECT`` statement in SQL is the most common query that retrieves data from Elasticsearch index. In this documentation, only basic ``SELECT`` statement with single index and query involved is covered. A ``SELECT`` statement includes ``SELECT``, ``FROM``, ``WHERE``, ``GROUP BY``, ``HAVING``, ``ORDER BY`` and ``LIMIT`` clause. Among these elements, ``SELECT`` and ``FROM`` is the fundamental part to specify which fields to be fetched from which Elasticsearch index. All others are optional and used based on your needs. Please read on for their use cases in details.
+
+The syntax of ``SELECT`` statement is as follows::
+
+  SELECT [DISTINCT] (* | expression) [[AS] alias] [, ...]
+  FROM index_name
+  [WHERE predicates]
+  [GROUP BY expression [, ...] [HAVING predicates]]
+  [ORDER BY expression [IS [NOT] NULL] [ASC | DESC] [, ...]]
+  [LIMIT [offset, ] size]
+
+Note that the actual order of execution is very likely different from its appearance::
+
+  FROM index
+   WHERE predicates
+    GROUP BY expressions
+     HAVING predicates
+      SELECT expressions
+       ORDER BY expressions
+        LIMIT size
+
 SELECT
 ======
 
@@ -46,13 +67,13 @@ Result set:
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 |account_number|firstname|gender|  city|balance|employer|state|                   email|             address|lastname|age|
 +==============+=========+======+======+=======+========+=====+========================+====================+========+===+
-|            13|  Nanette|     F| Nogal|  32838| Quility|   VA|nanettebates@quility.com|  789 Madison Street|   Bates| 28|
+|             1|    Amber|     M|Brogan|  39225|  Pyrami|   IL|    amberduke@pyrami.com|     880 Holmes Lane|    Duke| 32|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 |             6|   Hattie|     M| Dante|   5686|  Netagy|   TN|   hattiebond@netagy.com|  671 Bristol Street|    Bond| 36|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
-|             1|    Amber|     M|Brogan|  39225|  Pyrami|   IL|    amberduke@pyrami.com|     880 Holmes Lane|    Duke| 32|
-+--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 |            18|     Dale|     M| Orick|   4180|    null|   MD|     daleadams@boink.com|467 Hutchinson Court|   Adams| 33|
++--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
+|            13|  Nanette|     F| Nogal|  32838| Quility|   VA|nanettebates@quility.com|  789 Madison Street|   Bates| 28|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 
 
@@ -87,13 +108,13 @@ Result set:
 +---------+--------+
 |firstname|lastname|
 +=========+========+
-|  Nanette|   Bates|
+|    Amber|    Duke|
 +---------+--------+
 |   Hattie|    Bond|
 +---------+--------+
-|    Amber|    Duke|
-+---------+--------+
 |     Dale|   Adams|
++---------+--------+
+|  Nanette|   Bates|
 +---------+--------+
 
 
@@ -127,13 +148,13 @@ Result set:
 +---+
 |num|
 +===+
-| 13|
+|  1|
 +---+
 |  6|
 +---+
-|  1|
-+---+
 | 18|
++---+
+| 13|
 +---+
 
 
