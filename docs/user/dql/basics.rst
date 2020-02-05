@@ -20,12 +20,12 @@ SELECT
 Description
 -----------
 
-`SELECT` clause specifies which fields in Elasticsearch index should be retrieved.
+``SELECT`` clause specifies which fields in Elasticsearch index should be retrieved.
 
 Example 1: Selecting All Fields
 -------------------------------
 
-You can use `*` to fetch all fields in the index which is very convenient when you just want to have a quick look at your data.
+You can use ``*`` to fetch all fields in the index which is very convenient when you just want to have a quick look at your data.
 
 SQL query::
 
@@ -46,20 +46,20 @@ Result set:
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 |account_number|firstname|gender|  city|balance|employer|state|                   email|             address|lastname|age|
 +==============+=========+======+======+=======+========+=====+========================+====================+========+===+
-|             1|    Amber|     M|Brogan|  39225|  Pyrami|   IL|    amberduke@pyrami.com|     880 Holmes Lane|    Duke| 32|
+|            13|  Nanette|     F| Nogal|  32838| Quility|   VA|nanettebates@quility.com|  789 Madison Street|   Bates| 28|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 |             6|   Hattie|     M| Dante|   5686|  Netagy|   TN|   hattiebond@netagy.com|  671 Bristol Street|    Bond| 36|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
-|            18|     Dale|     M| Orick|   4180|    null|   MD|     daleadams@boink.com|467 Hutchinson Court|   Adams| 33|
+|             1|    Amber|     M|Brogan|  39225|  Pyrami|   IL|    amberduke@pyrami.com|     880 Holmes Lane|    Duke| 32|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
-|            13|  Nanette|     F| Nogal|  32838| Quility|   VA|nanettebates@quility.com|  789 Madison Street|   Bates| 28|
+|            18|     Dale|     M| Orick|   4180|    null|   MD|     daleadams@boink.com|467 Hutchinson Court|   Adams| 33|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 
 
 Example 2: Selecting Specific Field(s)
 --------------------------------------
 
-More often you would give specific field name(s) in `SELECT` clause to avoid large and unnecessary data retrieved.
+More often you would give specific field name(s) in ``SELECT`` clause to avoid large and unnecessary data retrieved.
 
 SQL query::
 
@@ -87,20 +87,20 @@ Result set:
 +---------+--------+
 |firstname|lastname|
 +=========+========+
-|    Amber|    Duke|
+|  Nanette|   Bates|
 +---------+--------+
 |   Hattie|    Bond|
 +---------+--------+
-|     Dale|   Adams|
+|    Amber|    Duke|
 +---------+--------+
-|  Nanette|   Bates|
+|     Dale|   Adams|
 +---------+--------+
 
 
 Example 3: Selecting Distinct Field(s)
 --------------------------------------
 
-`DISTINCT` is useful when you want to de-duplicate and get unique field value. You can also provide one or more field names.
+``DISTINCT`` is useful when you want to de-duplicate and get unique field value. You can also provide one or more field names.
 
 SQL query::
 
@@ -389,9 +389,9 @@ Result set:
 +--------------+
 |account_number|
 +==============+
-|             1|
-+--------------+
 |             6|
++--------------+
+|             1|
 +--------------+
 |            18|
 +--------------+

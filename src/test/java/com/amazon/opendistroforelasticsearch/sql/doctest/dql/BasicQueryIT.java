@@ -35,11 +35,11 @@ public class BasicQueryIT extends DocTest {
     public void select() {
         section(
             title("SELECT"),
-            description("`SELECT` clause specifies which fields in Elasticsearch index should be retrieved."),
+            description("``SELECT`` clause specifies which fields in Elasticsearch index should be retrieved."),
             example(
                 title("Selecting All Fields"),
                 description(
-                    "You can use `*` to fetch all fields in the index which is very convenient when you",
+                    "You can use ``*`` to fetch all fields in the index which is very convenient when you",
                     "just want to have a quick look at your data."
                 ),
                 post("SELECT * FROM accounts")
@@ -47,7 +47,7 @@ public class BasicQueryIT extends DocTest {
             example(
                 title("Selecting Specific Field(s)"),
                 description(
-                    "More often you would give specific field name(s) in `SELECT` clause to",
+                    "More often you would give specific field name(s) in ``SELECT`` clause to",
                     "avoid large and unnecessary data retrieved."
                 ),
                 post("SELECT firstname, lastname FROM accounts")
@@ -55,7 +55,7 @@ public class BasicQueryIT extends DocTest {
             example(
                 title("Selecting Distinct Field(s)"),
                 description(
-                    "`DISTINCT` is useful when you want to de-duplicate and get unique field value.",
+                    "``DISTINCT`` is useful when you want to de-duplicate and get unique field value.",
                     "You can also provide one or more field names."
                 ),
                 post("SELECT DISTINCT age FROM accounts")
