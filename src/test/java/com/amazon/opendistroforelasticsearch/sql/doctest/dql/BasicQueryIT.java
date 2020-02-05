@@ -70,7 +70,7 @@ public class BasicQueryIT extends DocTest {
             description(
                 "``FROM`` clause specifies Elasticsearch index where the data should be retrieved from.",
                 "You've seen how to specify a single index in FROM clause in last section. Here we",
-                "provide more examples which are useful in certain cases.\n\n",
+                "provide more examples which are useful in certain cases.\n" +
                 "Subquery in ``FROM`` clause is also supported. Please check out our documentation for more details."
             ),
             kibanaExample(
@@ -100,8 +100,8 @@ public class BasicQueryIT extends DocTest {
                 "`WHERE` clause specifies only Elasticsearch documents that meet the criteria should be affected.",
                 "It consists of predicates that uses ``=``, ``<>``, ``>``, ``>=``, ``<``, ``<=``, ``IN``,",
                 "``BETWEEN``, ``LIKE``, ``IS NULL`` or ``IS NOT NULL``. These predicates can be combined by",
-                "logical operator ``NOT``, ``AND`` or ``OR`` to build more complex expression.\n\n",
-                "For ``LIKE`` and other full text search topics, please refer to Full Text Search documentation.\n\n",
+                "logical operator ``NOT``, ``AND`` or ``OR`` to build more complex expression.\n" +
+                "For ``LIKE`` and other full text search topics, please refer to Full Text Search documentation.\n" +
                 "Besides SQL query, WHERE clause can also be used in SQL statement such as ``DELETE``. Please refer to",
                 "Data Manipulation Language documentation for details."
             ),
@@ -119,7 +119,7 @@ public class BasicQueryIT extends DocTest {
                 description(
                     "As NoSQL database, Elasticsearch allows for flexible schema that documents in an index may have",
                     "different fields. In this case, you can use ``IS NULL`` or ``IS NOT NULL`` to retrieve missing",
-                    "fields or existing fields only.\n\n",
+                    "fields or existing fields only.\n" +
                     "Note that for now we don't differentiate missing field and field set to ``NULL`` explicitly."
                 ),
                 post("SELECT account_number, employer FROM accounts WHERE employer IS NULL")
@@ -145,7 +145,12 @@ public class BasicQueryIT extends DocTest {
     public void groupBy() {
         section(
             title("GROUP BY"),
-            description("Limitation because ES ... NULL (missing value) won't be taken into account in aggregation."),
+            description(
+                "``GROUP BY`` groups documents with same field value into buckets. It is often used along with",
+                "aggregation functions to aggregate inside each bucket. Please refer to SQL Functions documentation",
+                "for more details.\n" +
+                "Note that ``WHERE`` clause is applied before ``GROUP BY`` clause."
+            ),
             example(
                 title("Grouping by Fields"),
                 description(),
@@ -153,19 +158,22 @@ public class BasicQueryIT extends DocTest {
             ),
             example(
                 title("Grouping by Alias"),
-                description(""),
+                description("Field alias is accessible in ``GROUP BY`` clause."),
                 post("SELECT age AS a FROM accounts GROUP BY a")
             ),
             example(
-                title("Grouping by Field Ordinal in Select"),
-                description(""),
+                title("Grouping by Ordinal"),
+                description(
+                    "Alternatively field ordinal in ``SELECT`` clause can be used too. However caveat is",
+                    "your ``GROUP BY`` clause may be broken whenever fields in ``SELECT`` clause change."
+                ),
                 post("SELECT age FROM accounts GROUP BY 1")
-            ),
+            )/*,
             example(
                 title("Grouping by Scalar Function"),
                 description(""),
                 post("SELECT age AS a FROM accounts GROUP BY 1")
-            )
+            )*/
         );
     }
 
