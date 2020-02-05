@@ -125,7 +125,7 @@ public class RstDocumentTest {
         assertThat(
             content.toString(),
             is(
-                ".. image:: /doc/user/img/syntax.png\n" +
+                ".. image:: /docs/user/img/syntax.png\n" +
                 "\n"
             )
         );

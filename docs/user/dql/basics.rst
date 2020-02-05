@@ -43,9 +43,9 @@ Description
 
 ``SELECT`` clause specifies which fields in Elasticsearch index should be retrieved.
 
-.. image:: /doc/user/img/rdd/selectElements.png
+.. image:: /docs/user/img/rdd/selectElements.png
 
-.. image:: /doc/user/img/rdd/selectElement.png
+.. image:: /docs/user/img/rdd/selectElement.png
 
 Example 1: Selecting All Fields
 -------------------------------
