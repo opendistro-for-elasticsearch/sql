@@ -40,6 +40,9 @@ import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.QUE
  */
 public interface DocBuilder {
 
+    String DOCUMENT_FOLDER_ROOT = "/docs/user/";
+    String IMAGE_FOLDER_PATH = DOCUMENT_FOLDER_ROOT + "img/";
+
     /**
      * Get client connection to cluster for sending request
      * @return  REST client
@@ -82,7 +85,10 @@ public interface DocBuilder {
 
             if (images.length > 0) {
                 for (String image : images) {
-                    document.image(image);
+                    // Convert image name ex. "query_syntax.png" to "Query syntax" as description.
+                    String imageDesc = image.substring(0, 1).toUpperCase() +
+                                       image.substring(1, image.lastIndexOf(".")).replaceAll("_", " ");
+                    document.subSection("Syntax").image(imageDesc, IMAGE_FOLDER_PATH + image);
                 }
             }
 

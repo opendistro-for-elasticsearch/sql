@@ -35,3 +35,11 @@ Note that the actual order of execution is very likely different from its appear
        ORDER BY expressions
         LIMIT size
 
+Query specification:
+
+.. image:: /docs/user/img/rdd/query_specification.png
+
+`FROM` clause:
+
+.. image:: /docs/user/img/rdd/from_clause.png
+

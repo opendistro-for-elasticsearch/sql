@@ -65,6 +65,7 @@ public class DocBuilderTest implements DocBuilder {
         when(document.paragraph(any())).thenReturn(document);
         when(document.codeBlock(any(), any())).thenReturn(document);
         when(document.table(any(), any())).thenReturn(document);
+        when(document.image(any(), any())).thenReturn(document);
         verifier = new Verifier(document);
 
         when(client.performRequest(any())).then(new Answer<Response>() {
@@ -100,7 +101,7 @@ public class DocBuilderTest implements DocBuilder {
         section(
             title("Test"),
             description("This is a test"),
-            images("syntax.png"),
+            images("query_syntax.png"),
             example(
                 description("This is an example for the test"),
                 post("SELECT firstname FROM accounts")
@@ -110,7 +111,7 @@ public class DocBuilderTest implements DocBuilder {
         verifier.section("Test").
                  subSection("Description").
                  paragraph("This is a test").
-                 image("syntax.png").
+                 image("Query syntax", "/docs/user/img/query_syntax.png").
                  subSection("Example").
                  paragraph("This is an example for the test").
                  codeBlock(
@@ -197,8 +198,8 @@ public class DocBuilderTest implements DocBuilder {
         }
 
         @Override
-        public Document image(String filePath) {
-            verifier.verify(mock).image(filePath);
+        public Document image(String description, String filePath) {
+            verifier.verify(mock).image(description, filePath);
             return this;
         }
     }

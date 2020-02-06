@@ -35,6 +35,14 @@ Note that the actual order of execution is very likely different from its appear
        ORDER BY expressions
         LIMIT size
 
+Query specification:
+
+.. image:: /docs/user/img/rdd/query_specification.png
+
+`FROM` clause:
+
+.. image:: /docs/user/img/rdd/from_clause.png
+
 SELECT
 ======
 
@@ -43,9 +51,19 @@ Description
 
 ``SELECT`` clause specifies which fields in Elasticsearch index should be retrieved.
 
-.. image:: /docs/user/img/rdd/selectElements.png
+Syntax
+------
 
-.. image:: /docs/user/img/rdd/selectElement.png
+Rdd/select elements:
+
+.. image:: /docs/user/img/rdd/select_elements.png
+
+Syntax
+------
+
+Rdd/select element:
+
+.. image:: /docs/user/img/rdd/select_element.png
 
 Example 1: Selecting All Fields
 -------------------------------
@@ -75,9 +93,9 @@ Result set:
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 |             6|   Hattie|     M| Dante|   5686|  Netagy|   TN|   hattiebond@netagy.com|  671 Bristol Street|    Bond| 36|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
-|            13|  Nanette|     F| Nogal|  32838| Quility|   VA|nanettebates@quility.com|  789 Madison Street|   Bates| 28|
-+--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 |            18|     Dale|     M| Orick|   4180|    null|   MD|     daleadams@boink.com|467 Hutchinson Court|   Adams| 33|
++--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
+|            13|  Nanette|     F| Nogal|  32838| Quility|   VA|nanettebates@quility.com|  789 Madison Street|   Bates| 28|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 
 
@@ -116,9 +134,9 @@ Result set:
 +---------+--------+
 |   Hattie|    Bond|
 +---------+--------+
-|  Nanette|   Bates|
-+---------+--------+
 |     Dale|   Adams|
++---------+--------+
+|  Nanette|   Bates|
 +---------+--------+
 
 
@@ -156,9 +174,9 @@ Result set:
 +---+
 |  6|
 +---+
-| 13|
-+---+
 | 18|
++---+
+| 13|
 +---+
 
 
@@ -231,6 +249,13 @@ Description
 ``FROM`` clause specifies Elasticsearch index where the data should be retrieved from. You've seen how to specify a single index in FROM clause in last section. Here we provide more examples which are useful in certain cases.
 
 Subquery in ``FROM`` clause is also supported. Please check out our documentation for more details.
+
+Syntax
+------
+
+Rdd/table name:
+
+.. image:: /docs/user/img/rdd/table_name.png
 
 Example 1: Using Index Alias
 ----------------------------

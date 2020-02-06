@@ -120,12 +120,14 @@ public class RstDocumentTest {
 
     @Test
     public void testImage() {
-        document.image("syntax.png");
+        document.image("Query syntax", "/docs/user/img/query_syntax.png");
 
         assertThat(
             content.toString(),
             is(
-                ".. image:: /docs/user/img/syntax.png\n" +
+                "Query syntax:\n" +
+                "\n" +
+                ".. image:: /docs/user/img/query_syntax.png\n" +
                 "\n"
             )
         );

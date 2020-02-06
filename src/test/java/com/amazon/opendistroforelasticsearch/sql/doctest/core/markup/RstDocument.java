@@ -63,8 +63,11 @@ public class RstDocument implements Document {
     }
 
     @Override
-    public Document image(String filePath) {
-        return println(".. image:: /docs/user/img/" + filePath);
+    public Document image(String description, String filePath) {
+        return println(
+            description + ":",
+            ".. image:: " + filePath
+        );
     }
 
     @Override
