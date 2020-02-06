@@ -63,7 +63,7 @@ public class SqlRequest {
 
     public int fetchSize() {
         String size = fieldValue("fetch_size");
-        return size.isEmpty() ? 0 : Integer.parseInt(size);
+        return size.isEmpty() ? 10 : Integer.parseInt(size);
     }
 
 

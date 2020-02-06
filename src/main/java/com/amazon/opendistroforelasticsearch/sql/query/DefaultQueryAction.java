@@ -28,10 +28,13 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Where;
 //import com.amazon.opendistroforelasticsearch.sql.domain.hints.Hint;
 //import com.amazon.opendistroforelasticsearch.sql.domain.hints.HintType;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.executor.cursor.CursorResultExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema;
 import com.amazon.opendistroforelasticsearch.sql.query.maker.QueryMaker;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.nestedfield.NestedFieldProjection;
 import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.search.SearchAction;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchScrollAction;
@@ -64,6 +67,7 @@ import java.util.Optional;
 public class DefaultQueryAction extends QueryAction {
 
     public static final int SCROLL_TIMEOUT = 60 * 1000;
+    private static final Logger LOG = LogManager.getLogger(DefaultQueryAction.class);
 
     private final Select select;
     private SearchRequestBuilder request;
@@ -98,6 +102,7 @@ public class DefaultQueryAction extends QueryAction {
 
         String cursorId = sqlRequest.cursor();
         if (cursorId.isEmpty()) {
+            LOG.info("No cursorId, checking to see if to create cursor for this request");
             buildESRequestBuilder();
             openScrollIfFetchSizePresent();
             return new SqlElasticSearchRequestBuilder(request);
@@ -113,6 +118,7 @@ public class DefaultQueryAction extends QueryAction {
         setWhere(select.getWhere());
         setSorts(select.getOrderBys());
         setLimit(select.getOffset(), select.getRowCount());
+        LOG.info("offset: {}, rowcount: {}", select.getOffset() ,select.getRowCount());
 
 //        if (scrollHint != null) {
 //            if (!select.isOrderdSelect()) {
@@ -132,7 +138,8 @@ public class DefaultQueryAction extends QueryAction {
 
     private void openScrollIfFetchSizePresent() {
         int fetchSize = sqlRequest.fetchSize();
-        if (fetchSize > 0) {
+        LOG.info("Found fetch_size from sqlRequest: {}", fetchSize);
+        if (fetchSize > 0 && fetchSize < select.getRowCount()) {
             if (!select.isOrderdSelect()) {
                 request.addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC);
             }

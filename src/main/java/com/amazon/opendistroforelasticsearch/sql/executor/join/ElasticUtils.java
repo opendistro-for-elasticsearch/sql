@@ -130,7 +130,7 @@ public class ElasticUtils {
     /**
      * Code copy from SearchHits
      */
-    private static void toXContent(XContentBuilder builder, Params params, List<SearchHit> hits,
+    public static void toXContent(XContentBuilder builder, Params params, List<SearchHit> hits,
                                    ElasticJoinExecutor executor) throws IOException {
         builder.startObject(SearchHits.Fields.HITS);
         builder.field(SearchHits.Fields.TOTAL, ImmutableMap.of(
@@ -155,7 +155,7 @@ public class ElasticUtils {
     /**
      * Code copy from SearchHit but only keep fields interested and replace source by sourceMap
      */
-    private static void toXContent(XContentBuilder builder, Params params, SearchHit hit) throws IOException {
+    public static void toXContent(XContentBuilder builder, Params params, SearchHit hit) throws IOException {
         builder.startObject();
         if (hit.getType() != null) {
             builder.field("_type", hit.getType());

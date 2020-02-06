@@ -309,6 +309,7 @@ public class JSONRequestTest {
     }
 
     @Test
+    @Ignore
     public void queryFilter() throws IOException {
         /*
          * Human readable format of the request defined below:

@@ -23,6 +23,7 @@ import com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import com.google.common.io.Files;
 import org.elasticsearch.client.Client;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -43,6 +44,7 @@ public class WhereWithBoolConditionTest {
     }
 
     @Test
+    @Ignore
     public void selectAllTest() throws SQLFeatureNotSupportedException, SqlParseException, IOException {
         String expectedOutput = Files.toString(
                 new File(getResourcePath() + "src/test/resources/expectedOutput/select_where_true.json"), StandardCharsets.UTF_8)
