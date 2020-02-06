@@ -101,7 +101,7 @@ public class DocBuilderTest implements DocBuilder {
         section(
             title("Test"),
             description("This is a test"),
-            images("query_syntax.png"),
+            images("rdd/querySyntax.png"),
             example(
                 description("This is an example for the test"),
                 post("SELECT firstname FROM accounts")
@@ -111,7 +111,7 @@ public class DocBuilderTest implements DocBuilder {
         verifier.section("Test").
                  subSection("Description").
                  paragraph("This is a test").
-                 image("Query syntax", "/docs/user/img/query_syntax.png").
+                 image("Rule ``querySyntax``", "/docs/user/img/rdd/querySyntax.png").
                  subSection("Example").
                  paragraph("This is an example for the test").
                  codeBlock(

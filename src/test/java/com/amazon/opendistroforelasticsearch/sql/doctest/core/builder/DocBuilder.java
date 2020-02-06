@@ -84,11 +84,11 @@ public interface DocBuilder {
             }
 
             if (images.length > 0) {
+                document.subSection("Syntax");
                 for (String image : images) {
-                    // Convert image name ex. "query_syntax.png" to "Query syntax" as description.
-                    String imageDesc = image.substring(0, 1).toUpperCase() +
-                                       image.substring(1, image.lastIndexOf(".")).replaceAll("_", " ");
-                    document.subSection("Syntax").image(imageDesc, IMAGE_FOLDER_PATH + image);
+                    // Convert image name ex. "rdd/queryStatement.png" to "queryStatement" as description.
+                    String imageDesc = image.substring(image.lastIndexOf('/') + 1, image.lastIndexOf('.'));
+                    document.image("Rule ``" + imageDesc + "``", IMAGE_FOLDER_PATH + image);
                 }
             }
 

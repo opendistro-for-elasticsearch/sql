@@ -35,13 +35,13 @@ Note that the actual order of execution is very likely different from its appear
        ORDER BY expressions
         LIMIT size
 
-Query specification:
+Rule ``querySpecification``:
 
-.. image:: /docs/user/img/rdd/query_specification.png
+.. image:: /docs/user/img/rdd/querySpecification.png
 
-`FROM` clause:
+Rule ``fromClause``:
 
-.. image:: /docs/user/img/rdd/from_clause.png
+.. image:: /docs/user/img/rdd/fromClause.png
 
 SELECT
 ======
@@ -54,16 +54,13 @@ Description
 Syntax
 ------
 
-Rdd/select elements:
+Rule ``selectElements``:
 
-.. image:: /docs/user/img/rdd/select_elements.png
+.. image:: /docs/user/img/rdd/selectElements.png
 
-Syntax
-------
+Rule ``selectElement``:
 
-Rdd/select element:
-
-.. image:: /docs/user/img/rdd/select_element.png
+.. image:: /docs/user/img/rdd/selectElement.png
 
 Example 1: Selecting All Fields
 -------------------------------
@@ -89,13 +86,13 @@ Result set:
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 |account_number|firstname|gender|  city|balance|employer|state|                   email|             address|lastname|age|
 +==============+=========+======+======+=======+========+=====+========================+====================+========+===+
-|             1|    Amber|     M|Brogan|  39225|  Pyrami|   IL|    amberduke@pyrami.com|     880 Holmes Lane|    Duke| 32|
+|            13|  Nanette|     F| Nogal|  32838| Quility|   VA|nanettebates@quility.com|  789 Madison Street|   Bates| 28|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 |             6|   Hattie|     M| Dante|   5686|  Netagy|   TN|   hattiebond@netagy.com|  671 Bristol Street|    Bond| 36|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
-|            18|     Dale|     M| Orick|   4180|    null|   MD|     daleadams@boink.com|467 Hutchinson Court|   Adams| 33|
+|             1|    Amber|     M|Brogan|  39225|  Pyrami|   IL|    amberduke@pyrami.com|     880 Holmes Lane|    Duke| 32|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
-|            13|  Nanette|     F| Nogal|  32838| Quility|   VA|nanettebates@quility.com|  789 Madison Street|   Bates| 28|
+|            18|     Dale|     M| Orick|   4180|    null|   MD|     daleadams@boink.com|467 Hutchinson Court|   Adams| 33|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 
 
@@ -130,13 +127,13 @@ Result set:
 +---------+--------+
 |firstname|lastname|
 +=========+========+
-|    Amber|    Duke|
+|  Nanette|   Bates|
 +---------+--------+
 |   Hattie|    Bond|
 +---------+--------+
-|     Dale|   Adams|
+|    Amber|    Duke|
 +---------+--------+
-|  Nanette|   Bates|
+|     Dale|   Adams|
 +---------+--------+
 
 
@@ -170,13 +167,13 @@ Result set:
 +---+
 |num|
 +===+
-|  1|
+| 13|
 +---+
 |  6|
 +---+
-| 18|
+|  1|
 +---+
-| 13|
+| 18|
 +---+
 
 
@@ -253,9 +250,9 @@ Subquery in ``FROM`` clause is also supported. Please check out our documentatio
 Syntax
 ------
 
-Rdd/table name:
+Rule ``tableName``:
 
-.. image:: /docs/user/img/rdd/table_name.png
+.. image:: /docs/user/img/rdd/tableName.png
 
 Example 1: Using Index Alias
 ----------------------------

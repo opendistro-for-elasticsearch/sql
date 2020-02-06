@@ -36,7 +36,7 @@ public class BasicQueryIT extends DocTest {
         section(
             title("SELECT"),
             description("``SELECT`` clause specifies which fields in Elasticsearch index should be retrieved."),
-            images("rdd/select_elements.png", "rdd/select_element.png"),
+            images("rdd/selectElements.png", "rdd/selectElement.png"),
             example(
                 title("Selecting All Fields"),
                 description(
@@ -81,7 +81,7 @@ public class BasicQueryIT extends DocTest {
                 "provide more examples which are useful in certain cases.\n\n" +
                 "Subquery in ``FROM`` clause is also supported. Please check out our documentation for more details."
             ),
-            images("rdd/table_name.png"),
+            images("rdd/tableName.png"),
             kibanaExample(
                 title("Using Index Alias"),
                 description(
