@@ -521,8 +521,7 @@ public class SQLFunctions {
     private Tuple<String, String> date_format(SQLExpr field, String pattern, String zoneId, String valueName) {
         String name = nextId("date_format");
         if (valueName == null) {
-            return new Tuple<>(name, "def " + name + " = DateTimeFormatter.ofPattern('"
-                    + pattern + "').withZone("
+            return new Tuple<>(name, "def " + name + " = DateTimeFormatter.ofPattern('" + pattern + "').withZone("
                     + (zoneId != null ? "ZoneId.of('" + zoneId + "')" : "ZoneId.systemDefault()")
                     + ").format(Instant.ofEpochMilli(" + getPropertyOrValue(field) + ".toInstant().toEpochMilli()))");
         } else {
