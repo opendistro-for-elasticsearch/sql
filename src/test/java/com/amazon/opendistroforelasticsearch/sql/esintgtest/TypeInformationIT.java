@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
 
@@ -29,7 +30,6 @@ public class TypeInformationIT extends SQLIntegTestCase {
     protected void init() throws Exception {
         loadIndex(Index.ACCOUNT);
         loadIndex(Index.ONLINE);
-        loadIndex(Index.DATE);
     }
 
     /*
@@ -143,7 +143,6 @@ public class TypeInformationIT extends SQLIntegTestCase {
     /*
     binaryOperators
      */
-
     @Test
     public void testAddWithIntReturnsInt() {
         JSONObject response = executeJdbcRequest("SELECT (balance + 5) AS balance_add_five FROM " +
@@ -175,7 +174,7 @@ public class TypeInformationIT extends SQLIntegTestCase {
                 + TestsConstants.TEST_INDEX_ONLINE + " LIMIT 2");
 
         verifySchema(response,
-                schema("DAY_OF_WEEK(insert_time)", null, "text"));
+                schema("DAY_OF_WEEK(insert_time)", null, "integer"));
 
         verifyDataRows(response,
                 rows(7),
@@ -187,7 +186,7 @@ public class TypeInformationIT extends SQLIntegTestCase {
         JSONObject response = executeJdbcRequest("SELECT YEAR(insert_time) FROM "
                 + TestsConstants.TEST_INDEX_ONLINE + " LIMIT 2");
 
-        verifySchema(response, schema("YEAR(insert_time)", null, "text"));
+        verifySchema(response, schema("YEAR(insert_time)", null, "integer"));
 
         verifyDataRows(response,
                 rows(2014),

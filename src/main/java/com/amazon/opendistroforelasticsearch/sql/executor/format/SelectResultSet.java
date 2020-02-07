@@ -311,7 +311,7 @@ public class SelectResultSet extends ResultSet {
         }
     }
 
-    private Schema.Type fetchMethodReturnType(Field field) {
+    private Schema.Type fetchMethodReturnType(int fieldIndex, Field field) {
         switch (field.getName().toLowerCase()) {
             case "count":
                 return Schema.Type.LONG;
@@ -328,7 +328,7 @@ public class SelectResultSet extends ResultSet {
                 if (field.getExpression() instanceof SQLCaseExpr) {
                     return Schema.Type.TEXT;
                 }
-                 return SQLFunctions.getScriptFunctionReturnType(field, scriptColumnType);
+                 return SQLFunctions.getScriptFunctionReturnType(fieldIndex, field, scriptColumnType);
             }
             default:
                 throw new UnsupportedOperationException(
@@ -379,11 +379,12 @@ public class SelectResultSet extends ResultSet {
             if (fieldMap.get(fieldName) instanceof MethodField) {
 
                 Field methodField = fieldMap.get(fieldName);
+                int fieldIndex = fieldNameList.indexOf(fieldName);
                 columns.add(
                         new Schema.Column(
                                 methodField.getAlias(),
                                 null,
-                                fetchMethodReturnType(methodField)
+                                fetchMethodReturnType(fieldIndex, methodField)
                         )
                 );
             }
