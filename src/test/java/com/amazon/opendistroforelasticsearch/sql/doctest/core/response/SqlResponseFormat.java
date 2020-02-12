@@ -21,6 +21,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Different SQL response formats
@@ -54,26 +56,13 @@ public enum SqlResponseFormat {
     TABLE_RESPONSE {
         @Override
         public String format(SqlResponse sqlResponse) {
-            JSONObject body = new JSONObject(sqlResponse.body());
-            if (body.isNull("schema")) {
-                throw new IllegalStateException(
-                    "Only JDBC response can be formatted to table: " + sqlResponse.body());
-            }
-
-            JSONArray schema = body.getJSONArray("schema");
-            JSONArray rows = body.getJSONArray("datarows");
-
-            Object[] header = new Object[schema.length()];
-            for (int i = 0; i < header.length; i++) {
-                JSONObject nameType = schema.getJSONObject(i);
-                header[i] = nameType.optString("alias", nameType.getString("name"));
-            }
-
-            DataTable table = new DataTable(header);
-            for (Object row : rows) {
-                table.addRow(((JSONArray) row).toList().toArray());
-            }
-            return table.toString();
+            return format(sqlResponse, true);
+        }
+    },
+    TABLE_UNSORTED_RESPONSE {
+        @Override
+        public String format(SqlResponse sqlResponse) {
+            return format(sqlResponse, false);
         }
     };
 
@@ -83,5 +72,60 @@ public enum SqlResponseFormat {
      * @return              string in specific format
      */
     public abstract String format(SqlResponse sqlResponse);
+
+    /** Put this format() impl because it's shared by 2 format enums */
+    public static String format(SqlResponse sqlResponse, boolean isSorted) {
+        JSONObject body = new JSONObject(sqlResponse.body());
+        if (body.isNull("schema")) {
+            throw new IllegalStateException(
+                "Only JDBC response can be formatted to table: " + sqlResponse.body());
+        }
+
+        Object[] header = parseHeader(body.getJSONArray("schema"));
+        List<Object[]> rows = parseDataRows(body.getJSONArray("datarows"), isSorted);
+
+        DataTable table = new DataTable(header);
+        for (Object[] row : rows) {
+            table.addRow(row);
+        }
+        return table.toString();
+    }
+
+    private static Object[] parseHeader(JSONArray schema) {
+        Object[] header = new Object[schema.length()];
+        for (int i = 0; i < header.length; i++) {
+            JSONObject nameType = schema.getJSONObject(i);
+            header[i] = nameType.optString("alias", nameType.getString("name"));
+        }
+        return header;
+    }
+
+    private static List<Object[]> parseDataRows(JSONArray rows, boolean isSorted) {
+        List<Object[]> rowsToSort = new ArrayList<>();
+        for (Object row : rows) {
+            rowsToSort.add(((JSONArray) row).toList().toArray());
+        }
+
+        if (isSorted) {
+            sort(rowsToSort);
+        }
+        return rowsToSort;
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private static void sort(List<Object[]> lists) {
+        lists.sort((list1, list2) -> {
+            // Assume 2 lists are of same length and all elements are comparable
+            for (int i = 0; i < list1.length; i++) {
+                Comparable obj1 = (Comparable) list1[i];
+                Comparable obj2 = (Comparable) list2[i];
+                int result = obj1.compareTo(obj2);
+                if (result != 0) {
+                    return result;
+                }
+            }
+            return 0;
+        });
+    }
 
 }

@@ -24,6 +24,8 @@ import com.amazon.opendistroforelasticsearch.sql.doctest.core.builder.Requests;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.IGNORE_REQUEST;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.KIBANA_REQUEST;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.IGNORE_RESPONSE;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.PRETTY_JSON_RESPONSE;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.TABLE_UNSORTED_RESPONSE;
 
 /**
  * Doc test for basic SELECT query.
@@ -203,7 +205,7 @@ public class BasicQueryIT extends DocTest {
         section(
             title("ORDER BY"),
             description("``ORDER BY`` clause specifies which fields used to sort the result and in which direction."),
-            example(
+            orderByExample(
                 title("Ordering by Fields"),
                 description(
                     "Besides regular field names, ordinal, alias or scalar function can also be used similarly",
@@ -212,7 +214,7 @@ public class BasicQueryIT extends DocTest {
                 ),
                 post("SELECT account_number FROM accounts ORDER BY account_number DESC")
             ),
-            example(
+            orderByExample(
                 title("Specifying Order for Null"),
                 description(
                     "Additionally you can specify if documents with missing field be put first or last.",
@@ -256,6 +258,14 @@ public class BasicQueryIT extends DocTest {
         return example(title, description, requests,
             queryFormat(KIBANA_REQUEST, IGNORE_RESPONSE),
             explainFormat(IGNORE_REQUEST, IGNORE_RESPONSE)
+        );
+    }
+
+    /** Example for ORDER BY needs to maintain the order in original result */
+    private Example orderByExample(String title, String description, Requests requests) {
+        return example(title, description, requests,
+            queryFormat(KIBANA_REQUEST, TABLE_UNSORTED_RESPONSE),
+            explainFormat(IGNORE_REQUEST, PRETTY_JSON_RESPONSE)
         );
     }
 

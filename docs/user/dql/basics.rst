@@ -86,11 +86,11 @@ Result set:
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 |account_number|firstname|gender|  city|balance|employer|state|                   email|             address|lastname|age|
 +==============+=========+======+======+=======+========+=====+========================+====================+========+===+
-|            13|  Nanette|     F| Nogal|  32838| Quility|   VA|nanettebates@quility.com|  789 Madison Street|   Bates| 28|
+|             1|    Amber|     M|Brogan|  39225|  Pyrami|   IL|    amberduke@pyrami.com|     880 Holmes Lane|    Duke| 32|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 |             6|   Hattie|     M| Dante|   5686|  Netagy|   TN|   hattiebond@netagy.com|  671 Bristol Street|    Bond| 36|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
-|             1|    Amber|     M|Brogan|  39225|  Pyrami|   IL|    amberduke@pyrami.com|     880 Holmes Lane|    Duke| 32|
+|            13|  Nanette|     F| Nogal|  32838| Quility|   VA|nanettebates@quility.com|  789 Madison Street|   Bates| 28|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
 |            18|     Dale|     M| Orick|   4180|    null|   MD|     daleadams@boink.com|467 Hutchinson Court|   Adams| 33|
 +--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
@@ -127,13 +127,13 @@ Result set:
 +---------+--------+
 |firstname|lastname|
 +=========+========+
-|  Nanette|   Bates|
-+---------+--------+
-|   Hattie|    Bond|
-+---------+--------+
 |    Amber|    Duke|
 +---------+--------+
 |     Dale|   Adams|
++---------+--------+
+|   Hattie|    Bond|
++---------+--------+
+|  Nanette|   Bates|
 +---------+--------+
 
 
@@ -167,11 +167,11 @@ Result set:
 +---+
 |num|
 +===+
-| 13|
+|  1|
 +---+
 |  6|
 +---+
-|  1|
+| 13|
 +---+
 | 18|
 +---+
