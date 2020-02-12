@@ -73,8 +73,12 @@ public enum SqlResponseFormat {
      */
     public abstract String format(SqlResponse sqlResponse);
 
-    /** Put this format() impl because it's shared by 2 format enums */
-    public static String format(SqlResponse sqlResponse, boolean isSorted) {
+    /**
+     * Note that we put this format() here because it's shared by two format enums.
+     * @param sqlResponse   original response from plugin
+     * @param isSorted      true to sort the result or just leave it as is
+     */
+    protected String format(SqlResponse sqlResponse, boolean isSorted) {
         JSONObject body = new JSONObject(sqlResponse.body());
         if (body.isNull("schema")) {
             throw new IllegalStateException(
@@ -91,7 +95,7 @@ public enum SqlResponseFormat {
         return table.toString();
     }
 
-    private static Object[] parseHeader(JSONArray schema) {
+    private Object[] parseHeader(JSONArray schema) {
         Object[] header = new Object[schema.length()];
         for (int i = 0; i < header.length; i++) {
             JSONObject nameType = schema.getJSONObject(i);
@@ -100,7 +104,7 @@ public enum SqlResponseFormat {
         return header;
     }
 
-    private static List<Object[]> parseDataRows(JSONArray rows, boolean isSorted) {
+    private List<Object[]> parseDataRows(JSONArray rows, boolean isSorted) {
         List<Object[]> rowsToSort = new ArrayList<>();
         for (Object row : rows) {
             rowsToSort.add(((JSONArray) row).toList().toArray());
