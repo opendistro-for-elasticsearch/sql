@@ -18,6 +18,15 @@ package com.amazon.opendistroforelasticsearch.sql.executor.format;
 import org.elasticsearch.ElasticsearchException;
 
 public class ErrorMessageFactory {
+    /**
+     * Create error message based on the exception type
+     * Exceptions of ES exception type and exceptions with wrapped ES exception causes
+     * should create {@link ElasticsearchErrorMessage}
+     *
+     * @param e         exception to create error message
+     * @param status    exception status code
+     * @return          error message
+     */
 
     public static ErrorMessage createErrorMessage(Exception e, int status) {
         if (e instanceof ElasticsearchException) {
