@@ -25,6 +25,9 @@ import com.amazon.opendistroforelasticsearch.sql.domain.TableOnJoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMapping;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlFeatureNotImplementedException;
 import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
+import org.apache.commons.lang3.time.DateUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
 import org.elasticsearch.client.Client;
@@ -39,8 +42,10 @@ import org.elasticsearch.search.aggregations.metrics.NumericMetricsAggregation;
 import org.elasticsearch.search.aggregations.metrics.Percentile;
 import org.elasticsearch.search.aggregations.metrics.Percentiles;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -55,6 +60,8 @@ import static java.util.stream.Collectors.toSet;
 import static org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse.FieldMappingMetaData;
 
 public class SelectResultSet extends ResultSet {
+
+    private static final Logger LOG = LogManager.getLogger(SelectResultSet.class);
 
     public static final String SCORE = "_score";
 
@@ -71,11 +78,14 @@ public class SelectResultSet extends ResultSet {
     private long totalHits;
     private List<DataRows.Row> rows;
 
-    public SelectResultSet(Client client, Query query, Object queryResult) {
+    private Map<String, String> dateFieldFormatMap;
+
+    public SelectResultSet(Client client, Query query, Object queryResult, Map<String, String> dateFieldFormatMap) {
         this.client = client;
         this.query = query;
         this.queryResult = queryResult;
         this.selectAll = false;
+        this.dateFieldFormatMap = dateFieldFormatMap;
 
         if (isJoinQuery()) {
             JoinSelect joinQuery = (JoinSelect) query;
@@ -515,6 +525,8 @@ public class SelectResultSet extends ResultSet {
         Set<String> newKeys = new HashSet<>(head);
         for (SearchHit hit : searchHits) {
             Map<String, Object> rowSource = hit.getSourceAsMap();
+            applyClientDateFormat(rowSource);
+            
             List<DataRows.Row> result;
 
             if (!isJoinQuery()) {
@@ -535,6 +547,46 @@ public class SelectResultSet extends ResultSet {
         }
 
         return rows;
+    }
+
+    private void applyClientDateFormat(Map<String, Object> rowSource)
+    {
+        for (Schema.Column column : columns) {
+            String columnType = column.getType();
+            String columnName = column.getName();
+
+            if (columnType.equals(Schema.Type.DATE.nameLowerCase())) {
+                String columnFormat = dateFieldFormatMap.get(columnName);
+                DateFormat format = DateFormat.valueOf(columnFormat.toUpperCase());
+
+                String columnOriginalDate = rowSource.get(columnName).toString();
+                Date date = parseDateString(format, columnOriginalDate);
+
+                String clientFormattedDate = format.getFormattedDate(date, "yyyy-MM-dd HH:mm:ss.SSS");
+                String dataString = String.format("[YES] %s -> %s", columnOriginalDate, clientFormattedDate);
+                rowSource.put(columnName, dataString);
+            }
+        }
+    }
+
+    private Date parseDateString(DateFormat format, String columnOriginalDate)
+    {
+        try {
+            switch (format) {
+                case DATE_OPTIONAL_TIME:
+                    return DateUtils.parseDate(columnOriginalDate, "yyyy-MM-dd'T'HH:mm:ss.SSSZ", "yyyy-MM-dd");
+                case EPOCH_MILLIS:
+                    return new Date(Long.parseLong(columnOriginalDate));
+                case EPOCH_SECOND:
+                    return new Date(Long.parseLong(columnOriginalDate) * 1000);
+                default:
+                    return DateUtils.parseDate(columnOriginalDate, format.getFormatString());
+            }
+        }
+        catch (ParseException e) {
+            LOG.error(String.format("Could not parse date string %s", columnOriginalDate), e);
+        }
+        return null;
     }
 
     private List<DataRows.Row> populateRows(Aggregations aggregations) {

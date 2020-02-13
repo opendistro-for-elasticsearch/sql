@@ -105,7 +105,18 @@ public class ESMappingLoader implements GenericSqlParseTreeVisitor<Type> {
 
     private void loadAllFieldsWithType(String indexName) {
         FieldMappings mappings = getFieldMappings(indexName);
+        saveDateFormats(mappings);
         mappings.flat(this::defineFieldName);
+    }
+
+    private void saveDateFormats(FieldMappings mappings)
+    {
+        for (Map.Entry<String, Map<String, Object>> data : mappings.data().entrySet()) {
+            String type = data.getValue().get("type").toString();
+            if ("date".equals(type)) {
+                clusterState.pushDateFieldFormat(data.getKey(), data.getValue().get("format").toString());
+            }
+        }
     }
 
     /*

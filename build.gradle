@@ -223,6 +223,7 @@ dependencies {
     compile group: "org.elasticsearch.plugin", name: 'reindex-client', version: "${es_version}"
     compile group: 'com.google.guava', name: 'guava', version:'15.0'
     compile group: 'org.json', name: 'json', version:'20180813'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
 
     // ANTLR gradle plugin and runtime dependency
     antlr "org.antlr:antlr4:4.7.1"
