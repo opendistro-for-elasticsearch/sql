@@ -1,4 +1,3 @@
-.. highlight:: json
 
 ===========
 Basic Query
@@ -14,14 +13,12 @@ Basic Query
 Introduction
 ============
 
-``SELECT`` statement in SQL is the most common query that retrieves data from Elasticsearch index. In this documentation, only basic ``SELECT`` statement with single index and query involved is covered. A ``SELECT`` statement includes ``SELECT``, ``FROM``, ``WHERE``, ``GROUP BY``, ``HAVING``, ``ORDER BY`` and ``LIMIT`` clause. Among these elements, ``SELECT`` and ``FROM`` is the fundamental part to specify which fields to be fetched from which Elasticsearch index. All others are optional and used based on your needs. Please read on for their use cases in details.
+``SELECT`` statement in SQL is the most common query that retrieves data from Elasticsearch index. In this doc, only simple ``SELECT`` statement with single index and query involved is covered. A ``SELECT`` statement includes ``SELECT``, ``FROM``, ``WHERE``, ``GROUP BY``, ``HAVING``, ``ORDER BY`` and ``LIMIT`` clause. Among these clauses, ``SELECT`` and ``FROM`` are the foundation to specify which fields to be fetched and which index they should be fetched from. All others are optional and used according to your needs. Please read on for their description, syntax and use cases in details.
 
 Syntax
 ------
 
-The syntax of ``SELECT`` statement is as follows
-
-::
+The syntax of ``SELECT`` statement is as follows::
 
   SELECT [DISTINCT] (* | expression) [[AS] alias] [, ...]
   FROM index_name
@@ -34,13 +31,13 @@ The syntax of ``SELECT`` statement is as follows
 Fundamentals
 ------------
 
-Besides built-in keyword, the most basic element is literal and identifier. Literal is decimal, real, string, date or boolean constant. Identifier represents Elasticsearch index or field name. With arithmetic operators and SQL functions, the basic literals and identifiers can be built into complex expression.
+Apart from predefined keyword of SQL language, the most basic element is literal and identifier. Literal is numeric, string, date or boolean constant. Identifier represents Elasticsearch index or field name. With arithmetic operators and SQL functions applied, the basic literals and identifiers can be built into complex expression.
 
 Rule ``expressionAtom``:
 
 .. image:: /docs/user/img/rdd/expressionAtom.png
 
-The expression in turn can be combined into predicate with logical operator. Typically predicate is used in ``WHERE`` and ``HAVING`` clause to filter out data by conditions specified.
+The expression in turn can be combined into predicate with logical operator. Typically, predicate is used in ``WHERE`` and ``HAVING`` clause to filter out data by conditions specified.
 
 Rule ``expression``:
 
@@ -50,12 +47,10 @@ Rule ``predicate``:
 
 .. image:: /docs/user/img/rdd/predicate.png
 
-Order of Execution
-------------------
+Execution Order
+---------------
 
-Note that the actual order of execution is very likely different from its appearance
-
-::
+The actual order of execution is very different from its appearance::
 
   FROM index
    WHERE predicates
@@ -202,7 +197,7 @@ Result set:
 Example 4: Selecting Distinct Fields
 ------------------------------------
 
-``DISTINCT`` is useful when you want to de-duplicate and get unique field value. You can also provide one or more field names.
+``DISTINCT`` is useful when you want to de-duplicate and get unique field value. You can provide one or more field names.
 
 SQL query::
 
@@ -265,9 +260,9 @@ FROM
 Description
 -----------
 
-``FROM`` clause specifies Elasticsearch index where the data should be retrieved from. You've seen how to specify a single index in FROM clause in last section. Here we provide more examples which are useful in certain cases.
+``FROM`` clause specifies Elasticsearch index where the data should be retrieved from. You've seen how to specify a single index in FROM clause in last section. Here we provide examples for more use cases.
 
-Subquery in ``FROM`` clause is also supported. Please check out our documentation for more details.
+Subquery in ``FROM`` clause is also supported. Please check out the documentation for more details.
 
 Syntax
 ------

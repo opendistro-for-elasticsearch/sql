@@ -66,7 +66,7 @@ public class BasicQueryIT extends DocTest {
                 title("Selecting Distinct Fields"),
                 description(
                     "``DISTINCT`` is useful when you want to de-duplicate and get unique field value.",
-                    "You can also provide one or more field names."
+                    "You can provide one or more field names."
                 ),
                 post("SELECT DISTINCT age FROM accounts")
             )
@@ -80,8 +80,8 @@ public class BasicQueryIT extends DocTest {
             description(
                 "``FROM`` clause specifies Elasticsearch index where the data should be retrieved from.",
                 "You've seen how to specify a single index in FROM clause in last section. Here we",
-                "provide more examples which are useful in certain cases.\n\n" +
-                "Subquery in ``FROM`` clause is also supported. Please check out our documentation for more details."
+                "provide examples for more use cases.\n\n" +
+                "Subquery in ``FROM`` clause is also supported. Please check out the documentation for more details."
             ),
             images("rdd/tableName.png"),
             kibanaExample(
