@@ -28,6 +28,8 @@ import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMappings;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.IndexMappings;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
 
@@ -112,9 +114,15 @@ public class ESMappingLoader implements GenericSqlParseTreeVisitor<Type> {
     private void saveDateFormats(FieldMappings mappings)
     {
         for (Map.Entry<String, Map<String, Object>> data : mappings.data().entrySet()) {
-            String type = data.getValue().get("type").toString();
+            String fieldName = data.getKey();
+            Object type = data.getValue().get("type");
             if ("date".equals(type)) {
-                clusterState.pushDateFieldFormat(data.getKey(), data.getValue().get("format").toString());
+                Object fieldDateFormat = data.getValue().get("format");
+                if (fieldDateFormat == null) {
+                    // Default format when not specified is "date_optional_time"
+                    fieldDateFormat = "date_optional_time";
+                }
+                clusterState.pushDateFieldFormat(fieldName, fieldDateFormat.toString());
             }
         }
     }
