@@ -12,7 +12,13 @@ import java.util.Map;
 public class DateFieldFormatter
 {
   private static final Logger LOG = LogManager.getLogger(DateFieldFormatter.class);
-  public static final String JDBC_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
+  private static final String FORMAT_JDBC = "yyyy-MM-dd HH:mm:ss.SSS";
+
+  private static final String FORMAT_DOT_DATE_AND_TIME = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+  private static final String FORMAT_DOT_KIBANA_SAMPLE_DATA_LOGS_EXCEPTION = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+  private static final String FORMAT_DOT_KIBANA_SAMPLE_DATA_FLIGHTS_EXCEPTION = "yyyy-MM-dd'T'HH:mm:ss";
+  private static final String FORMAT_DOT_KIBANA_SAMPLE_DATA_ECOMMERCE_EXCEPTION = "yyyy-MM-dd'T'HH:mm:ssXXX";
+  private static final String FORMAT_DOT_DATE = "yyyy-MM-dd";
 
   private final Map<String, String> dateFieldFormatMap;
   private List<Schema.Column> columns;
@@ -28,26 +34,19 @@ public class DateFieldFormatter
       String columnType = column.getType();
       String columnName = column.getName();
 
-      LOG.info("{} ({})", columnName, columnType);
       if (columnType.equals(Schema.Type.DATE.nameLowerCase())) {
         String columnFormat = dateFieldFormatMap.get(columnName);
-        LOG.info("(CFFF) {} : {}", columnName, columnFormat);
         DateFormat format = DateFormat.valueOf(columnFormat.toUpperCase());
 
-        LOG.info("(FORMATTING) {} using {}", rowSource.get(columnName), format.getFormatString());
         Object columnOriginalDate = rowSource.get(columnName);
         if (columnOriginalDate == null) {
+          // Don't try to parse null date values
           continue;
         }
 
         Date date = parseDateString(format, columnOriginalDate.toString());
-
         if (date != null) {
-          LOG.info("(FORMATTING) {} using {}", columnOriginalDate.toString(), format.getFormatString());
-          String clientFormattedDate = format.getFormattedDate(date, JDBC_DATE_FORMAT);
-          // String dataString = String.format("[YES] %s -> %s", columnOriginalDate.toString(), clientFormattedDate);
-          String dataString = String.format("%s", clientFormattedDate);
-          rowSource.put(columnName, dataString);
+          rowSource.put(columnName, DateFormat.getFormattedDate(date, FORMAT_JDBC));
         } else {
           LOG.warn("Could not parse date value; returning original value");
         }
@@ -62,11 +61,11 @@ public class DateFieldFormatter
         case DATE_OPTIONAL_TIME:
           return DateUtils.parseDate(
               columnOriginalDate,
-              "yyyy-MM-dd'T'HH:mm:ss.SSSZ",
-              "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
-              "yyyy-MM-dd'T'HH:mm:ss",
-              "yyyy-MM-dd'T'HH:mm:ssXXX",
-              "yyyy-MM-dd");
+              FORMAT_DOT_KIBANA_SAMPLE_DATA_LOGS_EXCEPTION,
+              FORMAT_DOT_KIBANA_SAMPLE_DATA_FLIGHTS_EXCEPTION,
+              FORMAT_DOT_KIBANA_SAMPLE_DATA_ECOMMERCE_EXCEPTION,
+              FORMAT_DOT_DATE_AND_TIME,
+              FORMAT_DOT_DATE);
         case EPOCH_MILLIS:
           return new Date(Long.parseLong(columnOriginalDate));
         case EPOCH_SECOND:

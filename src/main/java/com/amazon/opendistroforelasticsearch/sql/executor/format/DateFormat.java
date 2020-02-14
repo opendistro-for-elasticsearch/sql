@@ -105,12 +105,12 @@ public enum DateFormat
     return formatString;
   }
 
-  public String getFormattedDate(java.util.Date date, String dateFormat) {
-    return new SimpleDateFormat(dateFormat).format(date);
-  }
-
   public String nameLowerCase()
   {
     return name().toLowerCase();
+  }
+
+  public static String getFormattedDate(java.util.Date date, String dateFormat) {
+    return new SimpleDateFormat(dateFormat).format(date);
   }
 }
