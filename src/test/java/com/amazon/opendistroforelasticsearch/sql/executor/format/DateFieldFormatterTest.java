@@ -376,8 +376,6 @@ public class DateFieldFormatterTest
     verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
   }
 
-
-
   @Test
   public void testApplyJDBCDateFormat_ordinalDate()
   {
@@ -488,13 +486,6 @@ public class DateFieldFormatterTest
     verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
   }
 
-// "field_weekyear" : "1993",
-//     "field_weekyear_week" : "1993-W04",
-//     "field_weekyear_week_day" : "1993-W04-2",
-//     "field_year" : "1993",
-//     "field_year_month" : "1993-01",
-//     "field_year_month_day" : "1993-01-19"
-
   @Test
   public void testApplyJDBCDateFormat_weekyear()
   {
@@ -557,6 +548,30 @@ public class DateFieldFormatterTest
     DateFormat dateFormat = DateFormat.YEAR_MONTH_DAY;
     String originalDateValue = "1993-01-19";
     String expectedDateValue = "1993-01-19 00:00:00.000";
+
+    verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
+  }
+
+  @Test
+  public void testApplyJDBCDateFormat_incorrectFormat()
+  {
+    String columnName = "date_field";
+    DateFormat dateFormat = DateFormat.DATE_OPTIONAL_TIME;
+    String originalDateValue = "1581724085";
+    // Invalid format for date value; should return original value
+    String expectedDateValue = "1581724085";
+
+    verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
+  }
+
+  @Test
+  public void testApplyJDBCDateFormat_nullDateData()
+  {
+    String columnName = "date_field";
+    DateFormat dateFormat = DateFormat.DATE_OPTIONAL_TIME;
+    String originalDateValue = null;
+    // Nulls should be preserved
+    String expectedDateValue = null;
 
     verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
   }
