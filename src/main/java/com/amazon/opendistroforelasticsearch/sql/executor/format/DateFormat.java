@@ -1,9 +1,23 @@
+/*
+ *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License").
+ *   You may not use this file except in compliance with the License.
+ *   A copy of the License is located at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   or in the "license" file accompanying this file. This file is distributed
+ *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ *   express or implied. See the License for the specific language governing
+ *   permissions and limitations under the License.
+ */
+
 package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
 import java.text.SimpleDateFormat;
 
-public enum DateFormat
-{
+public enum DateFormat {
   // Special cases that are parsed separately
   DATE_OPTIONAL_TIME(""),
   EPOCH_MILLIS(""),
@@ -96,8 +110,7 @@ public enum DateFormat
 
   private String formatString;
 
-  DateFormat(String formatString)
-  {
+  DateFormat(String formatString) {
     this.formatString = formatString;
   }
 
@@ -105,8 +118,7 @@ public enum DateFormat
     return formatString;
   }
 
-  public String nameLowerCase()
-  {
+  public String nameLowerCase() {
     return name().toLowerCase();
   }
 

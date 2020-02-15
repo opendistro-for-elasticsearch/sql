@@ -28,8 +28,6 @@ import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMappings;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.IndexMappings;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
 
@@ -111,8 +109,7 @@ public class ESMappingLoader implements GenericSqlParseTreeVisitor<Type> {
         mappings.flat(this::defineFieldName);
     }
 
-    private void saveDateFormats(FieldMappings mappings)
-    {
+    private void saveDateFormats(FieldMappings mappings) {
         for (Map.Entry<String, Map<String, Object>> data : mappings.data().entrySet()) {
             String fieldName = data.getKey();
             Object type = data.getValue().get("type");

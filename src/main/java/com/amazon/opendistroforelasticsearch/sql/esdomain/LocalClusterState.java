@@ -244,13 +244,11 @@ public class LocalClusterState {
         return Arrays.asList(array);
     }
 
-    public void pushDateFieldFormat(String fieldName, String dateFormat)
-    {
+    public void pushDateFieldFormat(String fieldName, String dateFormat) {
         dateFieldFormatMap.put(fieldName, dateFormat);
     }
 
-    public Map<String, String> getDateFieldFormatMap()
-    {
+    public Map<String, String> getDateFieldFormatMap() {
         return dateFieldFormatMap;
     }
 }

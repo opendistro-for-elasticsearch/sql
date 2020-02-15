@@ -220,13 +220,11 @@ public abstract class QueryAction {
      */
     public abstract SqlElasticRequestBuilder explain() throws SqlParseException;
 
-    public Map<String, String> getDateFieldFormatMap()
-    {
+    public Map<String, String> getDateFieldFormatMap() {
         return dateFieldFormatMap;
     }
 
-    public void setDateFieldFormatMap(Map<String, String> dateFieldFormatMap)
-    {
+    public void setDateFieldFormatMap(Map<String, String> dateFieldFormatMap) {
         this.dateFieldFormatMap = dateFieldFormatMap;
     }
 }
