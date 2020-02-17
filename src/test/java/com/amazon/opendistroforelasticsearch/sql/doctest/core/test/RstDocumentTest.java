@@ -106,13 +106,28 @@ public class RstDocumentTest {
         assertThat(
             content.toString(),
             is(
-                "Test table::\n" +
+                "Test table:\n" +
                 "\n" +
                 "+----------+\n" +
                 "|Test Table|\n" +
                 "+==========+\n" +
                 "| test data|\n" +
                 "+----------+\n" +
+                "\n"
+            )
+        );
+    }
+
+    @Test
+    public void testImage() {
+        document.image("Query syntax", "/docs/user/img/query_syntax.png");
+
+        assertThat(
+            content.toString(),
+            is(
+                "Query syntax:\n" +
+                "\n" +
+                ".. image:: /docs/user/img/query_syntax.png\n" +
                 "\n"
             )
         );
