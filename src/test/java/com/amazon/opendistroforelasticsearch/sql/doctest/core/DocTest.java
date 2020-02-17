@@ -21,6 +21,7 @@ import com.amazon.opendistroforelasticsearch.sql.doctest.core.builder.DocBuilder
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.Document;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.RstDocument;
 import com.amazon.opendistroforelasticsearch.sql.esintgtest.SQLIntegTestCase;
+import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils;
 import com.carrotsearch.randomizedtesting.AnnotatedMethodProvider;
 import com.carrotsearch.randomizedtesting.TestMethodAndParams;
 import com.carrotsearch.randomizedtesting.annotations.TestCaseOrdering;
@@ -32,6 +33,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Comparator;
 
 import static java.nio.file.StandardOpenOption.APPEND;
@@ -60,7 +62,7 @@ public abstract class DocTest extends SQLIntegTestCase implements DocBuilder {
     @Override
     public Document openDocument() {
         DocTestConfig config = getClass().getAnnotation(DocTestConfig.class);
-        Path docPath = Document.path(config.template());
+        Path docPath = absolutePath(config.template());
         try {
             PrintWriter docWriter = new PrintWriter(Files.newBufferedWriter(docPath, APPEND));
             return new RstDocument(docWriter);
@@ -76,7 +78,7 @@ public abstract class DocTest extends SQLIntegTestCase implements DocBuilder {
     }
 
     private void copyTemplateToDocument(DocTestConfig config) {
-        Path docPath = Document.path(config.template());
+        Path docPath = absolutePath(config.template());
         Template template = new Template(config.template());
         template.copyToDocument(docPath);
     }
@@ -103,6 +105,10 @@ public abstract class DocTest extends SQLIntegTestCase implements DocBuilder {
             Section section = method.getTestMethod().getAnnotation(Section.class);
             return section.value();
         }
+    }
+
+    private Path absolutePath(String templateRelativePath) {
+        return Paths.get(TestUtils.getResourceFilePath(DOCUMENT_FOLDER_ROOT + templateRelativePath));
     }
 
 }
