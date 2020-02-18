@@ -34,7 +34,7 @@ public class DateFieldFormatterTest
     String columnName = "order_date";
     DateFormat dateFormat = DateFormat.DATE_OPTIONAL_TIME;
     String originalDateValue = "2020-02-24T09:28:48+00:00";
-    String expectedDateValue = "2020-02-24 01:28:48.000";
+    String expectedDateValue = "2020-02-24 09:28:48.000";
 
     verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
   }
@@ -67,7 +67,7 @@ public class DateFieldFormatterTest
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.EPOCH_MILLIS;
     String originalDateValue = "727430805000";
-    String expectedDateValue = "1993-01-19 00:06:45.000";
+    String expectedDateValue = "1993-01-19 08:06:45.000";
 
     verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
   }
@@ -78,7 +78,7 @@ public class DateFieldFormatterTest
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.EPOCH_SECOND;
     String originalDateValue = "727430805";
-    String expectedDateValue = "1993-01-19 00:06:45.000";
+    String expectedDateValue = "1993-01-19 08:06:45.000";
 
     verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
   }
@@ -100,7 +100,7 @@ public class DateFieldFormatterTest
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.DATE_OPTIONAL_TIME;
     String originalDateValue = "1993-01-19T00:06:45.123-0800";
-    String expectedDateValue = "1993-01-19 00:06:45.123";
+    String expectedDateValue = "1993-01-19 08:06:45.123";
 
     verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
   }
@@ -122,7 +122,7 @@ public class DateFieldFormatterTest
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.BASIC_DATE_TIME;
     String originalDateValue = "19930119T120645.123-0800";
-    String expectedDateValue = "1993-01-19 12:06:45.123";
+    String expectedDateValue = "1993-01-19 20:06:45.123";
 
     verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
   }
@@ -133,7 +133,7 @@ public class DateFieldFormatterTest
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.BASIC_DATE_TIME_NO_MILLIS;
     String originalDateValue = "19930119T120645-0800";
-    String expectedDateValue = "1993-01-19 12:06:45.000";
+    String expectedDateValue = "1993-01-19 20:06:45.000";
 
     verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
   }
@@ -155,7 +155,7 @@ public class DateFieldFormatterTest
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.BASIC_ORDINAL_DATE_TIME;
     String originalDateValue = "1993019T120645.123-0800";
-    String expectedDateValue = "1993-01-19 12:06:45.123";
+    String expectedDateValue = "1993-01-19 20:06:45.123";
 
     verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
   }
@@ -166,7 +166,7 @@ public class DateFieldFormatterTest
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.BASIC_ORDINAL_DATE_TIME_NO_MILLIS;
     String originalDateValue = "1993019T120645-0800";
-    String expectedDateValue = "1993-01-19 12:06:45.000";
+    String expectedDateValue = "1993-01-19 20:06:45.000";
 
     verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
   }
@@ -177,7 +177,7 @@ public class DateFieldFormatterTest
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.BASIC_TIME;
     String originalDateValue = "120645.123-0800";
-    String expectedDateValue = "1970-01-01 12:06:45.123";
+    String expectedDateValue = "1970-01-01 20:06:45.123";
 
     verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
   }
@@ -188,7 +188,7 @@ public class DateFieldFormatterTest
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.BASIC_TIME_NO_MILLIS;
     String originalDateValue = "120645-0800";
-    String expectedDateValue = "1970-01-01 12:06:45.000";
+    String expectedDateValue = "1970-01-01 20:06:45.000";
 
     verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
   }
@@ -199,7 +199,7 @@ public class DateFieldFormatterTest
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.BASIC_T_TIME;
     String originalDateValue = "T120645.123-0800";
-    String expectedDateValue = "1970-01-01 12:06:45.123";
+    String expectedDateValue = "1970-01-01 20:06:45.123";
 
     verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
   }
@@ -210,7 +210,7 @@ public class DateFieldFormatterTest
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.BASIC_T_TIME_NO_MILLIS;
     String originalDateValue = "T120645-0800";
-    String expectedDateValue = "1970-01-01 12:06:45.000";
+    String expectedDateValue = "1970-01-01 20:06:45.000";
 
     verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
   }
@@ -232,7 +232,7 @@ public class DateFieldFormatterTest
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.BASIC_WEEK_DATE_TIME;
     String originalDateValue = "1993W042T120645.123-0800";
-    String expectedDateValue = "1993-01-19 12:06:45.123";
+    String expectedDateValue = "1993-01-19 20:06:45.123";
 
     verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
   }
@@ -243,7 +243,7 @@ public class DateFieldFormatterTest
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.BASIC_WEEK_DATE_TIME_NO_MILLIS;
     String originalDateValue = "1993W042T120645-0800";
-    String expectedDateValue = "1993-01-19 12:06:45.000";
+    String expectedDateValue = "1993-01-19 20:06:45.000";
 
     verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
   }
@@ -320,7 +320,7 @@ public class DateFieldFormatterTest
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.DATE_TIME;
     String originalDateValue = "1993-01-19T12:06:45.123-0800";
-    String expectedDateValue = "1993-01-19 12:06:45.123";
+    String expectedDateValue = "1993-01-19 20:06:45.123";
 
     verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
   }
@@ -331,7 +331,7 @@ public class DateFieldFormatterTest
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.DATE_TIME_NO_MILLIS;
     String originalDateValue = "1993-01-19T12:06:45-0800";
-    String expectedDateValue = "1993-01-19 12:06:45.000";
+    String expectedDateValue = "1993-01-19 20:06:45.000";
 
     verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
   }
@@ -408,7 +408,7 @@ public class DateFieldFormatterTest
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.ORDINAL_DATE_TIME;
     String originalDateValue = "1993-019T12:06:45.123-0800";
-    String expectedDateValue = "1993-01-19 12:06:45.123";
+    String expectedDateValue = "1993-01-19 20:06:45.123";
 
     verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
   }
@@ -419,7 +419,7 @@ public class DateFieldFormatterTest
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.ORDINAL_DATE_TIME_NO_MILLIS;
     String originalDateValue = "1993-019T12:06:45-0800";
-    String expectedDateValue = "1993-01-19 12:06:45.000";
+    String expectedDateValue = "1993-01-19 20:06:45.000";
 
     verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
   }
@@ -430,7 +430,7 @@ public class DateFieldFormatterTest
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.TIME;
     String originalDateValue = "12:06:45.123-0800";
-    String expectedDateValue = "1970-01-01 12:06:45.123";
+    String expectedDateValue = "1970-01-01 20:06:45.123";
 
     verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
   }
@@ -441,7 +441,7 @@ public class DateFieldFormatterTest
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.TIME_NO_MILLIS;
     String originalDateValue = "12:06:45-0800";
-    String expectedDateValue = "1970-01-01 12:06:45.000";
+    String expectedDateValue = "1970-01-01 20:06:45.000";
 
     verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
   }
@@ -452,7 +452,7 @@ public class DateFieldFormatterTest
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.T_TIME;
     String originalDateValue = "T12:06:45.123-0800";
-    String expectedDateValue = "1970-01-01 12:06:45.123";
+    String expectedDateValue = "1970-01-01 20:06:45.123";
 
     verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
   }
@@ -463,7 +463,7 @@ public class DateFieldFormatterTest
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.T_TIME_NO_MILLIS;
     String originalDateValue = "T12:06:45-0800";
-    String expectedDateValue = "1970-01-01 12:06:45.000";
+    String expectedDateValue = "1970-01-01 20:06:45.000";
 
     verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
   }
@@ -485,7 +485,7 @@ public class DateFieldFormatterTest
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.WEEK_DATE_TIME;
     String originalDateValue = "1993-W04-2T12:06:45.123-0800";
-    String expectedDateValue = "1993-01-19 12:06:45.123";
+    String expectedDateValue = "1993-01-19 20:06:45.123";
 
     verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
   }
@@ -496,7 +496,7 @@ public class DateFieldFormatterTest
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.WEEK_DATE_TIME_NO_MILLIS;
     String originalDateValue = "1993-W04-2T12:06:45-0800";
-    String expectedDateValue = "1993-01-19 12:06:45.000";
+    String expectedDateValue = "1993-01-19 20:06:45.000";
 
     verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
   }

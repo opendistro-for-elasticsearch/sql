@@ -15,7 +15,12 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
-import java.text.SimpleDateFormat;
+// import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+// import java.util.TimeZone;
 
 public enum DateFormat {
   // Special cases that are parsed separately
@@ -123,6 +128,15 @@ public enum DateFormat {
   }
 
   public static String getFormattedDate(java.util.Date date, String dateFormat) {
-    return new SimpleDateFormat(dateFormat).format(date);
+    Instant instant = date.toInstant();
+    ZonedDateTime zdt = ZonedDateTime.ofInstant(instant, ZoneId.of("Etc/UTC"));
+    // return zdt.format(DateTimeFormatter.ofPattern(dateFormat));
+    return zdt.format(DateTimeFormatter.ofPattern(dateFormat));
+    // return DateTimeFormatter.ofLocalizedDateTime().format(date.toInstant());
+    // SimpleDateFormat formatter = new SimpleDateFormat(dateFormat);
+    // formatter.applyLocalizedPattern(dateFormat);
+    // formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+    // return formatter.format(date);
+    // formatter.
   }
 }
