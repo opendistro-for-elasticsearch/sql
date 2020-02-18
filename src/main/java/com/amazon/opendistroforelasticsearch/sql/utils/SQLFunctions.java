@@ -975,24 +975,26 @@ public class SQLFunctions {
      * it might be safely treated as INTEGER.
      */
     public static Schema.Type getScriptFunctionReturnType(
-            int fieldIndex, Field field, ColumnTypeProvider scriptColumnType) {
-        Schema.Type returnType = null;
-        if (scriptColumnType != null && fieldIndex != -1) {
-            returnType = scriptColumnType.get(fieldIndex);
-        }
+            int fieldIndex, MethodField field, ColumnTypeProvider scriptColumnType) {
+        Schema.Type returnType;
         String functionName = ((ScriptMethodField) field).getFunctionName().toLowerCase();
+        if (!numberOperators.contains(functionName) && !mathConstants.contains(functionName)
+                && !trigFunctions.contains(functionName) && !stringOperators.contains(functionName)
+                && !stringFunctions.contains(functionName) && !binaryOperators.contains(functionName)
+                && !dateFunctions.contains(functionName) && !conditionalFunctions.contains(functionName)
+                && !utilityFunctions.contains(functionName)) {
+            throw new UnsupportedOperationException(
+                    String.format(
+                            "The following method is not supported in Schema: %s",
+                            functionName));
+        }
         if (functionName.equals("cast")) {
             String castType = ((SQLCastExpr) field.getExpression()).getDataType().getName();
             return getCastFunctionReturnType(castType);
+        } else {
+            returnType = scriptColumnType.get(fieldIndex);
         }
-        if (returnType != null) {
-            return returnType;
-        }
-
-        throw new UnsupportedOperationException(
-                String.format(
-                        "The following method is not supported in Schema: %s",
-                        functionName));
+        return returnType;
     }
 
     public static Schema.Type getCastFunctionReturnType(String castType) {
@@ -1016,6 +1018,13 @@ public class SQLFunctions {
         }
     }
 
+    /**
+     *
+     * @param field
+     * @return Schema.Type.TEXT or DOUBLE
+     * There are only two ORDER BY types (TEXT, NUMBER) in Elasticsearch, so the Type that is returned here essentially
+     * indicates the category of the function as opposed to the actual return type.
+     */
     public static Schema.Type getOrderByFieldType(Field field) {
         String functionName = ((ScriptMethodField) field).getFunctionName().toLowerCase();
         if (functionName.equals("cast")) {

@@ -15,13 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
 
-import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.schema;
-import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySchema;
 
 public class TypeInformationIT extends SQLIntegTestCase {
@@ -41,12 +38,6 @@ public class TypeInformationIT extends SQLIntegTestCase {
                 " ORDER BY age LIMIT 5");
 
         verifySchema(response, schema("ABS(age)", null, "long"));
-        verifyDataRows(response,
-                rows(20),
-                rows(20),
-                rows(20),
-                rows(20),
-                rows(20));
     }
 
     @Test
@@ -55,12 +46,6 @@ public class TypeInformationIT extends SQLIntegTestCase {
                 " ORDER BY balance LIMIT 5");
 
         verifySchema(response, schema("CEIL(balance)", null, "long"));
-        verifyDataRows(response,
-                rows(1011),
-                rows(1031),
-                rows(1110),
-                rows(1133),
-                rows(1172));
     }
 
     /*
@@ -72,8 +57,6 @@ public class TypeInformationIT extends SQLIntegTestCase {
                 + " LIMIT 1");
 
         verifySchema(response, schema("PI()", null, "double"));
-        verifyDataRows(response,
-                rows(3.141592653589793));
     }
 
     /*
@@ -85,9 +68,6 @@ public class TypeInformationIT extends SQLIntegTestCase {
                 TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY firstname_alias LIMIT 2");
 
         verifySchema(response, schema("firstname_alias", null, "text"));
-        verifyDataRows(response,
-                rows("ABBOTT"),
-                rows("ABIGAIL"));
     }
 
     @Test
@@ -96,9 +76,6 @@ public class TypeInformationIT extends SQLIntegTestCase {
                 TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY firstname LIMIT 2");
 
         verifySchema(response, schema("LOWER(firstname)", null, "text"));
-        verifyDataRows(response,
-                rows("abbott"),
-                rows("abigail"));
     }
 
     /*
@@ -110,34 +87,25 @@ public class TypeInformationIT extends SQLIntegTestCase {
                 TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY firstname LIMIT 2");
 
         verifySchema(response, schema("length(firstname)", null, "integer"));
-        verifyDataRows(response,
-                rows(6),
-                rows(7));
     }
 
     /*
     trigFunctions
      */
     @Test
-    public void testSinWithLongFieldReturnsLong() {
+    public void testSinWithLongFieldReturnsDouble() {
         JSONObject response = executeJdbcRequest("SELECT sin(balance) FROM " +
                 TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY firstname LIMIT 2");
 
-        verifySchema(response, schema("sin(balance)", null, "long"));
-        verifyDataRows(response,
-                rows(0.544804964572613),
-                rows(0.5375391881734781));
+        verifySchema(response, schema("sin(balance)", null, "double"));
     }
 
     @Test
-    public void testRadiansWithLongFieldReturnsLong() {
+    public void testRadiansWithLongFieldReturnsDouble() {
         JSONObject response = executeJdbcRequest("SELECT radians(balance) FROM " +
                 TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY firstname LIMIT 2");
 
-        verifySchema(response, schema("radians(balance)", null, "long"));
-        verifyDataRows(response,
-                rows(192.2480171071754),
-                rows(235.23547658379573));
+        verifySchema(response, schema("radians(balance)", null, "double"));
     }
 
     /*
@@ -149,9 +117,6 @@ public class TypeInformationIT extends SQLIntegTestCase {
                 TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY firstname LIMIT 2");
 
         verifySchema(response, schema("balance_add_five", null, "integer"));
-        verifyDataRows(response,
-                rows(11020),
-                rows(13483));
     }
 
     @Test
@@ -160,9 +125,6 @@ public class TypeInformationIT extends SQLIntegTestCase {
                 TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY firstname LIMIT 2");
 
         verifySchema(response, schema("subtract(balance, balance)", null, "long"));
-        verifyDataRows(response,
-                rows(0),
-                rows(0));
     }
 
     /*
@@ -175,10 +137,6 @@ public class TypeInformationIT extends SQLIntegTestCase {
 
         verifySchema(response,
                 schema("DAY_OF_WEEK(insert_time)", null, "integer"));
-
-        verifyDataRows(response,
-                rows(7),
-                rows(7));
     }
 
     @Test
@@ -187,10 +145,6 @@ public class TypeInformationIT extends SQLIntegTestCase {
                 + TestsConstants.TEST_INDEX_ONLINE + " LIMIT 2");
 
         verifySchema(response, schema("YEAR(insert_time)", null, "integer"));
-
-        verifyDataRows(response,
-                rows(2014),
-                rows(2014));
     }
 
     private JSONObject executeJdbcRequest(String query) {

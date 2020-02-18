@@ -25,7 +25,6 @@ import com.amazon.opendistroforelasticsearch.sql.executor.adapter.QueryPlanReque
 import com.amazon.opendistroforelasticsearch.sql.executor.format.DataRows.Row;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema.Column;
 import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
-import com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction;
 import com.amazon.opendistroforelasticsearch.sql.query.DefaultQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.ColumnNode;
@@ -58,7 +57,7 @@ public class Protocol {
             this.columnNodeList =
                     ((QueryPlanRequestBuilder) (((QueryPlanQueryAction) queryAction).explain())).outputColumns();
         } else if (queryAction instanceof DefaultQueryAction) {
-            scriptColumnType = RestSqlAction.performAnalysis(queryAction.getSqlRequest().getSql());
+            scriptColumnType = queryAction.getScriptColumnType();
         }
         this.formatType = formatType;
         QueryStatement query = queryAction.getQueryStatement();
