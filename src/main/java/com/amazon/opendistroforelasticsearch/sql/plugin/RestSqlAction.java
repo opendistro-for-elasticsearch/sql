@@ -210,7 +210,7 @@ public class RestSqlAction extends BaseRestHandler {
         return allowExplicitIndex && isSqlEnabled;
     }
 
-    public static ColumnTypeProvider performAnalysis(String sql) {
+    private static ColumnTypeProvider performAnalysis(String sql) {
         LocalClusterState clusterState = LocalClusterState.state();
         SqlAnalysisConfig config = new SqlAnalysisConfig(
             clusterState.getSettingValue(QUERY_ANALYSIS_ENABLED),

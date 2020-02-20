@@ -66,19 +66,19 @@ public class SelectResultSet extends ResultSet {
     private String indexName;
     private String typeName;
     private List<Schema.Column> columns = new ArrayList<>();
-    private ColumnTypeProvider scriptColumnType;
+    private ColumnTypeProvider outputColumnType;
 
     private List<String> head;
     private long size;
     private long totalHits;
     private List<DataRows.Row> rows;
 
-    public SelectResultSet(Client client, Query query, Object queryResult, ColumnTypeProvider scriptColumnType) {
+    public SelectResultSet(Client client, Query query, Object queryResult, ColumnTypeProvider outputColumnType) {
         this.client = client;
         this.query = query;
         this.queryResult = queryResult;
         this.selectAll = false;
-        this.scriptColumnType = scriptColumnType;
+        this.outputColumnType = outputColumnType;
 
         if (isJoinQuery()) {
             JoinSelect joinQuery = (JoinSelect) query;
@@ -328,7 +328,8 @@ public class SelectResultSet extends ResultSet {
                 if (field.getExpression() instanceof SQLCaseExpr) {
                     return Schema.Type.TEXT;
                 }
-                return SQLFunctions.getScriptFunctionReturnType(fieldIndex, field, scriptColumnType);
+                Schema.Type resolvedType = outputColumnType.get(fieldIndex);
+                return SQLFunctions.getScriptFunctionReturnType(field, resolvedType);
             }
             default:
                 throw new UnsupportedOperationException(
@@ -377,7 +378,6 @@ public class SelectResultSet extends ResultSet {
              * name instead.
              */
             if (fieldMap.get(fieldName) instanceof MethodField) {
-
                 MethodField methodField = (MethodField) fieldMap.get(fieldName);
                 int fieldIndex = fieldNameList.indexOf(fieldName);
                 columns.add(

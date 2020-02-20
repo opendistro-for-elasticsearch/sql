@@ -34,6 +34,7 @@ import com.google.common.collect.ImmutableList;
 import org.elasticsearch.common.collect.Tuple;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -83,7 +84,8 @@ public class SQLFunctionsTest {
         field.setExpression(invokeExpr);
         ColumnTypeProvider columnTypeProvider = new ColumnTypeProvider(ESDataType.INTEGER);
 
-        final Schema.Type returnType = sqlFunctions.getScriptFunctionReturnType(0, field, columnTypeProvider);
+        Schema.Type resolvedType = columnTypeProvider.get(0);
+        final Schema.Type returnType = sqlFunctions.getScriptFunctionReturnType(field, resolvedType);
         Assert.assertEquals(returnType, Schema.Type.INTEGER);
     }
 
@@ -100,18 +102,8 @@ public class SQLFunctionsTest {
         field.setExpression(castExpr);
         ColumnTypeProvider columnTypeProvider = new ColumnTypeProvider(ESDataType.INTEGER);
 
-        final Schema.Type returnType = sqlFunctions.getScriptFunctionReturnType(0, field, columnTypeProvider);
+        Schema.Type resolvedType = columnTypeProvider.get(0);
+        final Schema.Type returnType = sqlFunctions.getScriptFunctionReturnType(field, resolvedType);
         Assert.assertEquals(returnType, Schema.Type.INTEGER);
-    }
-
-    @Test
-    public void testNullScriptReturnTypeThrowsException() throws UnsupportedOperationException {
-        exceptionRule.expect(UnsupportedOperationException.class);
-        exceptionRule.expectMessage("The following method is not supported in Schema: lo");
-
-        List<KVValue> params = new ArrayList<>();
-        MethodField field = new ScriptMethodField("LO", params, null, null);
-        ColumnTypeProvider columnTypeProvider = new ColumnTypeProvider(ESDataType.INTEGER);
-        final Schema.Type type = sqlFunctions.getScriptFunctionReturnType(0, field, columnTypeProvider);
     }
 }
