@@ -47,7 +47,7 @@ Explain::
 
 	{
 	  "from" : 0,
-	  "size" : 200,
+	  "size" : 10,
 	  "query" : {
 	    "bool" : {
 	      "filter" : [
@@ -82,7 +82,14 @@ Explain::
 	      "balance"
 	    ],
 	    "excludes" : [ ]
-	  }
+	  },
+	  "sort" : [
+	    {
+	      "_doc" : {
+	        "order" : "asc"
+	      }
+	    }
+	  ]
 	}
 
 Example 2
@@ -106,7 +113,7 @@ Explain::
 
 	{
 	  "from" : 0,
-	  "size" : 200,
+	  "size" : 10,
 	  "query" : {
 	    "bool" : {
 	      "filter" : [
@@ -130,7 +137,14 @@ Explain::
 	      "adjust_pure_negative" : true,
 	      "boost" : 1.0
 	    }
-	  }
+	  },
+	  "sort" : [
+	    {
+	      "_doc" : {
+	        "order" : "asc"
+	      }
+	    }
+	  ]
 	}
 
 JDBC Format

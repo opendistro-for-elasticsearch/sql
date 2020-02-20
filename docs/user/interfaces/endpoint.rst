@@ -69,7 +69,7 @@ Explain::
 
 	{
 	  "from" : 0,
-	  "size" : 200,
+	  "size" : 10,
 	  "query" : {
 	    "bool" : {
 	      "filter" : [
@@ -103,6 +103,13 @@ Explain::
 	      "lastname"
 	    ],
 	    "excludes" : [ ]
-	  }
+	  },
+	  "sort" : [
+	    {
+	      "_doc" : {
+	        "order" : "asc"
+	      }
+	    }
+	  ]
 	}
 

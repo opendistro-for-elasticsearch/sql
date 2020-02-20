@@ -133,8 +133,9 @@ public class RestSqlAction extends BaseRestHandler {
 
             if (cursorId != null) {
                 LOG.info("[{}] Cursor request : {}", LogUtils.getRequestId(), cursorId);
-                return channel -> handleCursorCloseRequest(request, cursorId, client, channel);
-            }
+
+                return channel -> handleCursorRequest(request, cursorId, client, channel);
+        }
 
             final SqlRequest sqlRequest = SqlRequestFactory.getSqlRequest(request);
             LOG.info("[{}] Incoming request {}: {}", LogUtils.getRequestId(), request.uri(), sqlRequest.getSql());
@@ -148,8 +149,9 @@ public class RestSqlAction extends BaseRestHandler {
         }
     }
 
-    private void handleCursorCloseRequest(final RestRequest request, final String cursorId, final Client client,
-                                          final RestChannel channel) throws Exception {
+
+    private void handleCursorRequest(final RestRequest request, final String cursorId, final Client client,
+                                     final RestChannel channel) throws Exception {
         CursorRestExecutor cursorRestExecutor = CursorActionRequestRestExecutorFactory.createExecutor(
             request, cursorId, SqlRequestParam.getFormatFromCursorRequest(request.params())
         );

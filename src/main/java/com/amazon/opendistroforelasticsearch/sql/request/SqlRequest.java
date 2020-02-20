@@ -63,14 +63,14 @@ public class SqlRequest {
 
     public int fetchSize() {
         String size = fieldValue("fetch_size");
-        return size.isEmpty() ? 10 : Integer.parseInt(size);
+        return size.isEmpty() ? 1000 : Integer.parseInt(size);
+
     }
 
 
     private String fieldValue(String fieldName) {
         return (jsonContent == null) ? "" : jsonContent.optString(fieldName);
     }
-
 
     public JSONObject getJsonContent() {
         return this.jsonContent;

@@ -25,6 +25,7 @@ import com.amazon.opendistroforelasticsearch.sql.domain.TableOnJoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMapping;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlFeatureNotImplementedException;
 import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
+import com.carrotsearch.hppc.ShortCharMap;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
 import org.elasticsearch.client.Client;
@@ -38,6 +39,8 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.NumericMetricsAggregation;
 import org.elasticsearch.search.aggregations.metrics.Percentile;
 import org.elasticsearch.search.aggregations.metrics.Percentiles;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,6 +52,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toSet;
@@ -70,6 +74,7 @@ public class SelectResultSet extends ResultSet {
     private long size;
     private long totalHits;
     private List<DataRows.Row> rows;
+    private long cursorTotalHits;
 
     public SelectResultSet(Client client, Query query, Object queryResult) {
         this.client = client;
@@ -89,6 +94,56 @@ public class SelectResultSet extends ResultSet {
 
         extractData();
         this.dataRows = new DataRows(size, totalHits, rows);
+    }
+
+
+    public SelectResultSet(Client client, Object queryResult, JSONObject cursorContext) {
+        this.client = client;
+        this.queryResult = queryResult;
+        this.selectAll = false;
+        this.columns = getColumnsFromSchema(cursorContext);
+        this.schema = new Schema(null, null, columns);
+        this.head = schema.getHeaders();
+        extractData();
+        this.dataRows = new DataRows(size, totalHits, rows);
+
+    }
+
+    public long getCursorTotalHits() {
+        return cursorTotalHits;
+    }
+
+    public List<Schema.Column> getColumnsFromSchema(JSONObject cursorContext) {
+
+        JSONArray schema = cursorContext.getJSONArray("schema");
+
+        List<Schema.Column> columns = IntStream.
+            range(0, schema.length()).
+            mapToObj(i -> {
+                    JSONObject jsonColumn = schema.getJSONObject(i);
+                    return new Schema.Column(
+                        jsonColumn.getString("name"),
+                        jsonColumn.optString("alias", null),
+                        Schema.Type.valueOf(jsonColumn.getString("type").toUpperCase())
+                    );
+                }
+            ).collect(Collectors.toList());
+
+//        List<Schema.Column> columns = new ArrayList<>();
+//
+//        JSONObject jsonColumn = null;
+//
+//        for (Object object : schema) {
+//            jsonColumn = (JSONObject) object;
+//            columns.add(new Schema.Column(
+//                jsonColumn.getString("name"),
+//                jsonColumn.getString("alias"),
+//                Schema.Type.valueOf(jsonColumn.getString("type").toUpperCase())
+//                )
+//            );
+//
+//        }
+        return columns;
     }
 
     //***********************************************************
@@ -499,7 +554,7 @@ public class SelectResultSet extends ResultSet {
             this.totalHits = Math.max(size, // size may be greater than totalHits after nested rows be flatten
                     Optional.ofNullable(searchHits.getTotalHits()).map(th -> th.value)
                             .orElse(0L));
-
+            this.cursorTotalHits = Optional.ofNullable(searchHits.getTotalHits()).map(th -> th.value).orElse(totalHits);
         } else if (queryResult instanceof Aggregations) {
             Aggregations aggregations = (Aggregations) queryResult;
 
@@ -507,6 +562,7 @@ public class SelectResultSet extends ResultSet {
             this.size = rows.size();
             // Total hits is not available from Aggregations so 'size' is used
             this.totalHits = size;
+            this.cursorTotalHits = size;
         }
     }
 

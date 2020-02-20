@@ -74,6 +74,7 @@ public class DefaultQueryAction extends QueryAction {
 
     private final List<String> fieldNames = new LinkedList<>();
 
+
     public DefaultQueryAction(Client client, Select select) {
         super(client, select);
         this.select = select;
@@ -110,7 +111,6 @@ public class DefaultQueryAction extends QueryAction {
         return createSqlRequestBuilderByCursorId(cursorId);
     }
 
-
     private void buildESRequestBuilder() throws SqlParseException {
         this.request = new SearchRequestBuilder(client, SearchAction.INSTANCE);
         setIndicesAndTypes();
@@ -139,6 +139,7 @@ public class DefaultQueryAction extends QueryAction {
     private void openScrollIfFetchSizePresent() {
         int fetchSize = sqlRequest.fetchSize();
         LOG.info("Found fetch_size from sqlRequest: {}", fetchSize);
+
         if (fetchSize > 0 && fetchSize < select.getRowCount()) {
             if (!select.isOrderdSelect()) {
                 request.addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC);

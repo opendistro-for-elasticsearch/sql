@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.executor.format;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.QueryActionElasticExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.RestExecutor;
+import com.amazon.opendistroforelasticsearch.sql.executor.cursor.CursorType;
 import com.amazon.opendistroforelasticsearch.sql.query.DefaultQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.join.BackOffRetryStrategy;
@@ -84,7 +85,6 @@ public class PrettyFormatRestExecutor implements RestExecutor {
         return protocol.format();
     }
 
-
     /**
      * QueryActionElasticExecutor.executeAnyAction() returns SearchHits inside SearchResponse.
      * In order to get scroll ID if any, we need to execute DefaultQueryAction ourselves for SearchResponse.
@@ -97,8 +97,12 @@ public class PrettyFormatRestExecutor implements RestExecutor {
 
         String scrollId = response.getScrollId();
         if (Strings.isNotEmpty(scrollId)) {
-            protocol.addOption("cursor", scrollId);
+
+            protocol.addOption("scrollId", scrollId);
+            protocol.setCursorType(CursorType.DEFAULT);
+            protocol.generateCursorId();
         }
+
         return protocol;
     }
 

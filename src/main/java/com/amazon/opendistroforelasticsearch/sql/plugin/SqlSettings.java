@@ -26,6 +26,7 @@ import java.util.Map;
 import static java.util.Collections.unmodifiableMap;
 import static org.elasticsearch.common.settings.Setting.Property.Dynamic;
 import static org.elasticsearch.common.settings.Setting.Property.NodeScope;
+import static org.elasticsearch.common.unit.TimeValue.timeValueMinutes;
 
 /**
  * SQL plugin settings
@@ -45,6 +46,8 @@ public class SqlSettings {
     public static final String QUERY_ANALYSIS_SEMANTIC_THRESHOLD = "opendistro.sql.query.analysis.semantic.threshold";
     public static final String METRICS_ROLLING_WINDOW = "opendistro.sql.metrics.rollingwindow";
     public static final String METRICS_ROLLING_INTERVAL = "opendistro.sql.metrics.rollinginterval";
+    // public static final String CURSOR_FETCH_SIZE = "opendistro.sql.cursor.fetch_size";
+    public static final String CURSOR_KEEPALIVE= "opendistro.sql.cursor.keep_alive";
 
     private final Map<String, Setting<?>> settings;
 
@@ -67,6 +70,10 @@ public class SqlSettings {
                 NodeScope, Dynamic));
         settings.put(METRICS_ROLLING_INTERVAL, Setting.longSetting(METRICS_ROLLING_INTERVAL, 60L, 1L,
                 NodeScope, Dynamic));
+
+        // Settings for cursor
+        settings.put(CURSOR_KEEPALIVE, Setting.positiveTimeSetting(CURSOR_KEEPALIVE, timeValueMinutes(1),
+                     NodeScope, Dynamic));
 
         this.settings = unmodifiableMap(settings);
     }

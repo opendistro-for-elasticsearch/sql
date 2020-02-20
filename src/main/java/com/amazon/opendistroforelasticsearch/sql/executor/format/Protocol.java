@@ -19,6 +19,7 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Delete;
 import com.amazon.opendistroforelasticsearch.sql.domain.IndexStatement;
 import com.amazon.opendistroforelasticsearch.sql.domain.Query;
 import com.amazon.opendistroforelasticsearch.sql.domain.QueryStatement;
+import com.amazon.opendistroforelasticsearch.sql.executor.cursor.CursorType;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.DataRows.Row;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema.Column;
 import com.amazon.opendistroforelasticsearch.sql.executor.adapter.QueryPlanQueryAction;
@@ -26,11 +27,14 @@ import com.amazon.opendistroforelasticsearch.sql.executor.adapter.QueryPlanReque
 import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.ColumnNode;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
+import com.google.common.base.Strings;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.client.Client;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
@@ -51,6 +55,17 @@ public class Protocol {
     private ResultSet resultSet;
     private ErrorMessage error;
     private List<ColumnNode> columnNodeList;
+    private boolean isCursorContext = false;
+    private JSONObject cursorContext;
+    private String cursor;
+    private CursorType cursorType;
+
+    private static final Logger LOG = LogManager.getLogger(Protocol.class);
+
+    /** Optional fields only for JSON format which is supposed to be
+     *  factored out along with other fields of specific format
+     */
+    private final Map<String, Object> options = new HashMap<>();
 
 
     /** Optional fields only for JSON format which is supposed to be
@@ -70,12 +85,28 @@ public class Protocol {
         this.resultSet = loadResultSet(client, query, queryResult);
         this.size = resultSet.getDataRows().getSize();
         this.total = resultSet.getDataRows().getTotalHits();
+
+        addOption("fetch_size", queryAction.getSqlRequest().fetchSize());
+    }
+
+    public Protocol(Client client, Object queryResult, JSONObject cursorContext, String formatType) {
+        this.status = OK_STATUS;
+        this.formatType = formatType;
+        this.cursorContext = cursorContext;
+        this.resultSet = loadResultSetForCursor(client, queryResult);
+        //TODO: can't it be derive isCursorContext by checking (JSONObject) cursorContext
+        this.isCursorContext = true;
+
     }
 
     public Protocol(Exception e) {
         this.formatType = null;
         this.status = ERROR_STATUS;
         this.error = new ErrorMessage(e, ERROR_STATUS);
+    }
+
+    private ResultSet loadResultSetForCursor(Client client, Object queryResult) {
+     return new SelectResultSet(client, queryResult, cursorContext);
     }
 
     private ResultSet loadResultSet(Client client, QueryStatement queryStatement, Object queryResult) {
@@ -134,7 +165,6 @@ public class Protocol {
         options.put(key, value);
     }
 
-
     private String outputInJdbcFormat() {
         JSONObject formattedOutput = new JSONObject();
 
@@ -142,8 +172,14 @@ public class Protocol {
         formattedOutput.put("size", size);
         formattedOutput.put("total", total);
 
-        formattedOutput.put("schema", getSchemaAsJson());
+        JSONArray schema = getSchemaAsJson();
+
+        formattedOutput.put("schema", schema);
         formattedOutput.put("datarows", getDataRowsAsJson());
+
+        if (!Strings.isNullOrEmpty(cursor)) {
+            formattedOutput.put("cursor", cursor);
+        }
 
         options.forEach(formattedOutput::put);
 
@@ -164,6 +200,36 @@ public class Protocol {
 
     private String outputInTableFormat() {
         return null;
+    }
+
+
+    public String cursorFormat() {
+        if (status == OK_STATUS && cursorContext!=null) {
+            switch (formatType) {
+                case "jdbc":
+                    return cursorOutputInJDBCFormat();
+                case "table":
+                case "raw":
+                default:
+                    throw new UnsupportedOperationException(
+                        String.format("The following format is not supported: %s", formatType));
+            }
+        }
+        return error.toString();
+    }
+
+    private String cursorOutputInJDBCFormat() {
+        JSONObject formattedOutput = new JSONObject();
+
+        formattedOutput.put("datarows", getDataRowsAsJson());
+
+        if(!Strings.isNullOrEmpty(cursor)) {
+            formattedOutput.put("cursor", cursor);
+        }
+
+        options.forEach(formattedOutput::put);
+
+        return formattedOutput.toString(2);
     }
 
     private String rawEntry(Row row, Schema schema) {
@@ -215,5 +281,63 @@ public class Protocol {
             entry.put(dataRow.getDataOrDefault(columnName, JSONObject.NULL));
         }
         return entry;
+    }
+
+    public void generateCursorId() {
+        // TODO: only to be used for generating cursor from first page
+        // for subsequent pages the cursorType and cursor should be set from
+        switch(cursorType) {
+            case DEFAULT:
+                if (options.get("scrollId") != null) {
+                    JSONObject cursorJson = new JSONObject();
+                    cursorJson.put("type", cursorType.name());
+                    cursorJson.put("schema", getSchemaAsJson());
+                    cursorJson.put("scrollId", options.get("scrollId"));
+                    cursorJson.put("left", pagesLeft());
+                    cursor = encodeCursorContext(cursorJson);
+                    LOG.info("generated cursor id {}", cursor);
+                    options.remove("scrollId");
+                    options.remove("fetch_size");
+                }
+                break;
+            case AGGREGATION:
+                throw new ElasticsearchException("Cursor not yet supported for GROUP BY queries");
+            case JOIN:
+                throw new ElasticsearchException("Cursor not yet supported for JOIN queries");
+            default:
+                throw new ElasticsearchException("Invalid cursor Id");
+        }
+    }
+
+    public static String encodeCursorContext(JSONObject cursorJson) {
+         return Base64.getEncoder().encodeToString(cursorJson.toString().getBytes());
+    }
+
+    public void setCursor(String cursor) {
+        this.cursor = cursor;
+    }
+
+    public void setCursorType(CursorType type) {
+        cursorType = type;
+    }
+
+    public long getScrollTotalHits() { //getCursorTotalHits
+        if (resultSet instanceof SelectResultSet) {
+            return ((SelectResultSet) resultSet).getCursorTotalHits();
+        }
+        return total;
+    }
+
+    private int pagesLeft() {
+        Integer fetch = (Integer) options.get("fetch_size");
+        int pagesLeft = 0;
+        if (fetch == null || fetch == 0) {
+            //TODO: should we throw an exception here, ideally we should not be reaching here,
+            return pagesLeft;
+        }
+        pagesLeft = (int) Math.ceil(((double) getScrollTotalHits())/fetch) - 1;
+        LOG.info("pages left : {}", pagesLeft);
+        return pagesLeft;
+
     }
 }
