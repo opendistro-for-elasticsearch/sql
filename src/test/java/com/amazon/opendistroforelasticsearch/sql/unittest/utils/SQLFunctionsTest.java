@@ -46,17 +46,10 @@ import static org.junit.Assert.assertTrue;
 
 public class SQLFunctionsTest {
 
-    private FieldMaker fieldMaker;
     private SQLFunctions sqlFunctions;
 
     @Rule
     public ExpectedException exceptionRule = ExpectedException.none();
-
-    @Before
-    public void init() {
-        fieldMaker = new FieldMaker();
-    }
-    public void initSqlFunctions() { sqlFunctions = new SQLFunctions(); }
 
     @Test
     public void testAssign() throws SqlParseException {
