@@ -80,8 +80,8 @@ public class SelectResultSet extends ResultSet {
     public SelectResultSet(Client client,
                            Query query,
                            Object queryResult,
-                           String formatType,
-                           ColumnTypeProvider outputColumnType) {
+                           ColumnTypeProvider outputColumnType,
+                           String formatType) {
         this.client = client;
         this.query = query;
         this.queryResult = queryResult;
