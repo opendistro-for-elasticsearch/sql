@@ -33,20 +33,20 @@ import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.spe
 public enum ScalarFunction implements TypeExpression {
 
     ABS(func(T(NUMBER)).to(T)), // translate to Java: <T extends Number> T ABS(T)
-    ACOS(func(T(NUMBER)).to(T)),
+    ACOS(func(T(NUMBER)).to(DOUBLE)),
     ADD(func(T(NUMBER), NUMBER).to(T)),
     ASCII(func(T(STRING)).to(INTEGER)),
-    ASIN(func(T(NUMBER)).to(T)),
-    ATAN(func(T(NUMBER)).to(T)),
-    ATAN2(func(T(NUMBER), NUMBER).to(T)),
+    ASIN(func(T(NUMBER)).to(DOUBLE)),
+    ATAN(func(T(NUMBER)).to(DOUBLE)),
+    ATAN2(func(T(NUMBER), NUMBER).to(DOUBLE)),
     CAST(),
     CBRT(func(T(NUMBER)).to(T)),
     CEIL(func(T(NUMBER)).to(T)),
     CONCAT(), // TODO: varargs support required
     CONCAT_WS(),
-    COS(func(T(NUMBER)).to(T)),
-    COSH(func(T(NUMBER)).to(T)),
-    COT(func(T(NUMBER)).to(T)),
+    COS(func(T(NUMBER)).to(DOUBLE)),
+    COSH(func(T(NUMBER)).to(DOUBLE)),
+    COT(func(T(NUMBER)).to(DOUBLE)),
     CURDATE(func().to(ESDataType.DATE)),
     DATE(func(ESDataType.DATE).to(ESDataType.DATE)),
     DATE_FORMAT(
@@ -54,7 +54,7 @@ public enum ScalarFunction implements TypeExpression {
         func(ESDataType.DATE, STRING, STRING).to(STRING)
     ),
     DAYOFMONTH(func(ESDataType.DATE).to(INTEGER)),
-    DEGREES(func(T(NUMBER)).to(T)),
+    DEGREES(func(T(NUMBER)).to(DOUBLE)),
     DIVIDE(func(T(NUMBER), NUMBER).to(T)),
     E(func().to(DOUBLE)),
     EXP(func(T(NUMBER)).to(T)),
@@ -96,7 +96,7 @@ public enum ScalarFunction implements TypeExpression {
         func(T(NUMBER)).to(T),
         func(T(NUMBER), NUMBER).to(T)
     ),
-    RADIANS(func(T(NUMBER)).to(T)),
+    RADIANS(func(T(NUMBER)).to(DOUBLE)),
     RAND(
             func().to(NUMBER),
             func(T(NUMBER)).to(T)
@@ -108,12 +108,12 @@ public enum ScalarFunction implements TypeExpression {
     RTRIM(func(T(STRING)).to(T)),
     SIGN(func(T(NUMBER)).to(T)),
     SIGNUM(func(T(NUMBER)).to(T)),
-    SIN(func(T(NUMBER)).to(T)),
-    SINH(func(T(NUMBER)).to(T)),
+    SIN(func(T(NUMBER)).to(DOUBLE)),
+    SINH(func(T(NUMBER)).to(DOUBLE)),
     SQRT(func(T(NUMBER)).to(T)),
     SUBSTRING(func(T(STRING), INTEGER, INTEGER).to(T)),
     SUBTRACT(func(T(NUMBER), NUMBER).to(T)),
-    TAN(func(T(NUMBER)).to(T)),
+    TAN(func(T(NUMBER)).to(DOUBLE)),
     TIMESTAMP(func(ESDataType.DATE).to(ESDataType.DATE)),
     TRIM(func(T(STRING)).to(T)),
     UPPER(
