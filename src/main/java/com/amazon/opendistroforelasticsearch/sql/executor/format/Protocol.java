@@ -30,9 +30,7 @@ import org.elasticsearch.client.Client;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -44,7 +42,6 @@ public class Protocol {
     static final int ERROR_STATUS = 500;
 
     private final String formatType;
-    private Map<String, String> dateFieldFormatMap = new HashMap<>();
     private int status;
     private long size;
     private long total;
@@ -59,7 +56,6 @@ public class Protocol {
         }
         this.formatType = formatType;
         QueryStatement query = queryAction.getQueryStatement();
-        this.dateFieldFormatMap = queryAction.getDateFieldFormatMap();
         this.status = OK_STATUS;
         this.resultSet = loadResultSet(client, query, queryResult);
         this.size = resultSet.getDataRows().getSize();
@@ -79,7 +75,7 @@ public class Protocol {
         if (queryStatement instanceof Delete) {
             return new DeleteResultSet(client, (Delete) queryStatement, queryResult);
         } else if (queryStatement instanceof Query) {
-            return new SelectResultSet(client, (Query) queryStatement, queryResult, dateFieldFormatMap);
+            return new SelectResultSet(client, (Query) queryStatement, queryResult, formatType);
         } else if (queryStatement instanceof IndexStatement) {
             IndexStatement statement = (IndexStatement) queryStatement;
             StatementType statementType = statement.getStatementType();

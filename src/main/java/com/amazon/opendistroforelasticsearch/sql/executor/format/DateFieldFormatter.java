@@ -15,15 +15,25 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
+import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
+import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMappings;
+import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.TypeMappings;
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.text.ParseException;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+/**
+ * Formatter to transform date fields into a consistent format for consumption by clients.
+ */
 public class DateFieldFormatter {
     private static final Logger LOG = LogManager.getLogger(DateFieldFormatter.class);
     private static final String FORMAT_JDBC = "yyyy-MM-dd HH:mm:ss.SSS";
@@ -35,36 +45,94 @@ public class DateFieldFormatter {
     private static final String FORMAT_DOT_DATE = "yyyy-MM-dd";
 
     private final Map<String, String> dateFieldFormatMap;
-    private List<Schema.Column> columns;
+    private List<Schema.Column> dateColumns;
 
-    public DateFieldFormatter(Map<String, String> dateFieldFormatMap, List<Schema.Column> columns) {
-        this.dateFieldFormatMap = dateFieldFormatMap;
-        this.columns = columns;
+    public DateFieldFormatter(String indexName, List<Schema.Column> columns) {
+        this.dateFieldFormatMap = getDateFieldFormatMap(indexName);
+        this.dateColumns = getDateColumns(columns);
     }
 
+    @VisibleForTesting
+    protected DateFieldFormatter(Map<String, String> dateFieldFormatMap, List<Schema.Column> columns) {
+        this.dateFieldFormatMap = dateFieldFormatMap;
+        this.dateColumns = getDateColumns(columns);
+    }
+
+    /**
+     * Apply the JDBC date format ({@code yyyy-MM-dd HH:mm:ss.SSS}) to date values in the current row.
+     *
+     * @param rowSource The row in which to format the date values.
+     */
     public void applyJDBCDateFormat(Map<String, Object> rowSource) {
-        for (Schema.Column column : columns) {
-            String columnType = column.getType();
+        for (Schema.Column column : dateColumns) {
             String columnName = column.getName();
 
-            if (columnType.equals(Schema.Type.DATE.nameLowerCase())) {
-                String columnFormat = dateFieldFormatMap.get(columnName);
-                DateFormat format = DateFormat.valueOf(columnFormat.toUpperCase());
+            String columnFormat;
+            columnFormat = getFormatForColumn(columnName);
+            if (columnFormat == null) {
+                LOG.warn("Could not determine date format for column {}; returning original value", columnName);
+                continue;
+            }
+            DateFormat format = DateFormat.valueOf(columnFormat.toUpperCase());
 
-                Object columnOriginalDate = rowSource.get(columnName);
-                if (columnOriginalDate == null) {
-                    // Don't try to parse null date values
-                    continue;
-                }
+            Object columnOriginalDate = rowSource.get(columnName);
+            if (columnOriginalDate == null) {
+                // Don't try to parse null date values
+                continue;
+            }
 
-                Date date = parseDateString(format, columnOriginalDate.toString());
-                if (date != null) {
-                    rowSource.put(columnName, DateFormat.getFormattedDate(date, FORMAT_JDBC));
+            Date date = parseDateString(format, columnOriginalDate.toString());
+            if (date != null) {
+                rowSource.put(columnName, DateFormat.getFormattedDate(date, FORMAT_JDBC));
+            } else {
+                LOG.warn("Could not parse date value; returning original value");
+            }
+        }
+    }
+
+    private String getFormatForColumn(String columnName) {
+        // Handle special cases for column names
+        if (columnName.startsWith("cast_")) {
+            // Column was cast to a date type, and prefixed with "cast_"
+            columnName = columnName.replaceFirst("cast_", "");
+        } else if (columnName.split("\\.").length == 2) {
+            // Column is part of a join, and is qualified by the table alias
+            columnName = columnName.split("\\.")[1];
+        }
+        return dateFieldFormatMap.get(columnName);
+    }
+
+    private List<Schema.Column> getDateColumns(List<Schema.Column> columns) {
+        return columns.stream()
+            .filter(column -> column.getType().equals(Schema.Type.DATE.nameLowerCase()))
+            .collect(Collectors.toList());
+    }
+
+    private Map<String, String> getDateFieldFormatMap(String indexName) {
+        LocalClusterState state = LocalClusterState.state();
+        Map<String, String> formatMap = new HashMap<>();
+
+        String[] indices = indexName.split("\\|");
+        Collection<TypeMappings> typeProperties = state.getFieldMappings(indices)
+            .allMappings();
+
+        for (TypeMappings mappings: typeProperties) {
+            FieldMappings fieldMappings = mappings.firstMapping();
+            for (Map.Entry<String, Map<String, Object>> field : fieldMappings.data().entrySet()) {
+                String fieldName = field.getKey();
+                Map<String, Object> properties = field.getValue();
+
+                if (properties.containsKey("format")) {
+                    formatMap.put(fieldName, properties.get("format").toString());
                 } else {
-                    LOG.warn("Could not parse date value; returning original value");
+                    // Give all field types a format, since operations such as casts
+                    // can change the output type for a field to `date`.
+                    formatMap.put(fieldName, "date_optional_time");
                 }
             }
         }
+
+        return formatMap;
     }
 
     private Date parseDateString(DateFormat format, String columnOriginalDate) {
@@ -92,5 +160,4 @@ public class DateFieldFormatter {
         }
         return null;
     }
-
 }

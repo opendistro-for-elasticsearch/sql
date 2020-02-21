@@ -35,7 +35,6 @@ import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -49,7 +48,6 @@ public abstract class QueryAction {
     protected Query query;
     protected Client client;
     protected SqlRequest sqlRequest = SqlRequest.NULL;
-    private Map<String, String> dateFieldFormatMap = new HashMap<>();
 
     public QueryAction(Client client, Query query) {
         this.client = client;
@@ -219,12 +217,4 @@ public abstract class QueryAction {
      * @throws SqlParseException
      */
     public abstract SqlElasticRequestBuilder explain() throws SqlParseException;
-
-    public Map<String, String> getDateFieldFormatMap() {
-        return dateFieldFormatMap;
-    }
-
-    public void setDateFieldFormatMap(Map<String, String> dateFieldFormatMap) {
-        this.dateFieldFormatMap = dateFieldFormatMap;
-    }
 }

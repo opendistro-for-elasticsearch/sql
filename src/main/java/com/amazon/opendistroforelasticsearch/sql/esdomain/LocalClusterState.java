@@ -92,7 +92,15 @@ public class LocalClusterState {
      */
     private final Map<String, Object> latestSettings = new ConcurrentHashMap<>();
 
-    private Map<String, String> dateFieldFormatMap = new HashMap<>();
+    private Map<String, String> possibleAliasMap = new HashMap<>();
+
+    public void putAliasInMap(String field, String alias) {
+        possibleAliasMap.put(alias, field);
+    }
+
+    public Map<String, String> getAliasMap() {
+        return possibleAliasMap;
+    }
 
     public static synchronized LocalClusterState state() {
         if (INSTANCE == null) {
@@ -244,11 +252,4 @@ public class LocalClusterState {
         return Arrays.asList(array);
     }
 
-    public void pushDateFieldFormat(String fieldName, String dateFormat) {
-        dateFieldFormatMap.put(fieldName, dateFormat);
-    }
-
-    public Map<String, String> getDateFieldFormatMap() {
-        return dateFieldFormatMap;
-    }
 }

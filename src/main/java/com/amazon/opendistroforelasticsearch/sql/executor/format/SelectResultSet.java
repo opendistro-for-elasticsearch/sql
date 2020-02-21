@@ -24,6 +24,7 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.domain.TableOnJoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMapping;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlFeatureNotImplementedException;
+import com.amazon.opendistroforelasticsearch.sql.executor.Format;
 import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
@@ -57,6 +58,7 @@ import static org.elasticsearch.action.admin.indices.mapping.get.GetFieldMapping
 public class SelectResultSet extends ResultSet {
 
     public static final String SCORE = "_score";
+    private final String formatType;
 
     private Query query;
     private Object queryResult;
@@ -73,11 +75,15 @@ public class SelectResultSet extends ResultSet {
 
     private DateFieldFormatter dateFieldFormatter;
 
-    public SelectResultSet(Client client, Query query, Object queryResult, Map<String, String> dateFieldFormatMap) {
+    public SelectResultSet(Client client,
+                           Query query,
+                           Object queryResult,
+                           String formatType) {
         this.client = client;
         this.query = query;
         this.queryResult = queryResult;
         this.selectAll = false;
+        this.formatType = formatType;
 
         if (isJoinQuery()) {
             JoinSelect joinQuery = (JoinSelect) query;
@@ -88,7 +94,7 @@ public class SelectResultSet extends ResultSet {
         }
         this.schema = new Schema(indexName, typeName, columns);
         this.head = schema.getHeaders();
-        this.dateFieldFormatter = new DateFieldFormatter(dateFieldFormatMap, columns);
+        this.dateFieldFormatter = new DateFieldFormatter(indexName, columns);
 
         extractData();
         this.dataRows = new DataRows(size, totalHits, rows);
@@ -518,8 +524,6 @@ public class SelectResultSet extends ResultSet {
         Set<String> newKeys = new HashSet<>(head);
         for (SearchHit hit : searchHits) {
             Map<String, Object> rowSource = hit.getSourceAsMap();
-            dateFieldFormatter.applyJDBCDateFormat(rowSource);
-            
             List<DataRows.Row> result;
 
             if (!isJoinQuery()) {
@@ -530,8 +534,14 @@ public class SelectResultSet extends ResultSet {
                 for (Map.Entry<String, DocumentField> field : hit.getFields().entrySet()) {
                     rowSource.put(field.getKey(), field.getValue().getValue());
                 }
+                if (formatType.equalsIgnoreCase(Format.JDBC.getFormatName())) {
+                    dateFieldFormatter.applyJDBCDateFormat(rowSource);
+                }
                 result = flatNestedField(newKeys, rowSource, hit.getInnerHits());
             } else {
+                if (formatType.equalsIgnoreCase(Format.JDBC.getFormatName())) {
+                    dateFieldFormatter.applyJDBCDateFormat(rowSource);
+                }
                 result = new ArrayList<>();
                 result.add(new DataRows.Row(rowSource));
             }

@@ -72,7 +72,6 @@ import static org.elasticsearch.rest.RestStatus.SERVICE_UNAVAILABLE;
 public class RestSqlAction extends BaseRestHandler {
 
     private static final Logger LOG = LogManager.getLogger(RestSqlAction.class);
-    private static Map<String, String> dateFieldFormatMap = new HashMap<>();
 
     private final boolean allowExplicitIndex;
 
@@ -151,7 +150,6 @@ public class RestSqlAction extends BaseRestHandler {
         final QueryAction queryAction = new SearchDao(client)
                 .explain(new QueryActionRequest(sqlRequest.getSql(), typeProvider, format));
         queryAction.setSqlRequest(sqlRequest);
-        queryAction.setDateFieldFormatMap(dateFieldFormatMap);
         return queryAction;
     }
 
@@ -221,9 +219,6 @@ public class RestSqlAction extends BaseRestHandler {
 
         OpenDistroSqlAnalyzer analyzer = new OpenDistroSqlAnalyzer(config);
         Optional<Type> outputColumnType = analyzer.analyze(sql, clusterState);
-
-        dateFieldFormatMap = clusterState.getDateFieldFormatMap();
-
         if (outputColumnType.isPresent()) {
             return new ColumnTypeProvider(outputColumnType.get());
         } else {

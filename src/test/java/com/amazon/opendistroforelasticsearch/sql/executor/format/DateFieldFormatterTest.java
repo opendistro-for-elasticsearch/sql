@@ -25,11 +25,10 @@ import java.util.Map;
 
 import static org.junit.Assert.*;
 
-public class DateFieldFormatterTest
-{
+public class DateFieldFormatterTest {
 
   @Test
-  public void testApplyJDBCDateFormat_kibana_sample_data_ecommerce_order_date()
+  public void testKibanaSampleDataEcommerceOrderDateField()
   {
     String columnName = "order_date";
     DateFormat dateFormat = DateFormat.DATE_OPTIONAL_TIME;
@@ -40,7 +39,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_kibana_sample_data_flights_timestamp()
+  public void testKibanaSampleDataFlightsTimestampField()
   {
     String columnName = "timestamp";
     DateFormat dateFormat = DateFormat.DATE_OPTIONAL_TIME;
@@ -51,7 +50,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_kibana_sample_data_logs_utc_date()
+  public void testKibanaSampleDataLogsUtcDateField()
   {
     String columnName = "utc_date";
     DateFormat dateFormat = DateFormat.DATE_OPTIONAL_TIME;
@@ -62,7 +61,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_epochMillis()
+  public void testEpochMillis()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.EPOCH_MILLIS;
@@ -73,7 +72,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_epochSecond()
+  public void testEpochSecond()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.EPOCH_SECOND;
@@ -84,7 +83,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_dateOptionalTime_date()
+  public void testDateOptionalTimeDateOnly()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.DATE_OPTIONAL_TIME;
@@ -95,7 +94,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_dateOptionalTime_dateAndTime()
+  public void testDateOptionalTimeDateAndTime()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.DATE_OPTIONAL_TIME;
@@ -106,7 +105,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_basicDate()
+  public void testBasicDate()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.BASIC_DATE;
@@ -117,7 +116,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_basicDateTime()
+  public void testBasicDateTime()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.BASIC_DATE_TIME;
@@ -128,7 +127,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_basicDateTimeNoMillis()
+  public void testBasicDateTimeNoMillis()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.BASIC_DATE_TIME_NO_MILLIS;
@@ -139,7 +138,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_basicOrdinalDate()
+  public void testBasicOrdinalDate()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.BASIC_ORDINAL_DATE;
@@ -150,7 +149,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_basicOrdinalDateTime()
+  public void testBasicOrdinalDateTime()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.BASIC_ORDINAL_DATE_TIME;
@@ -161,7 +160,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_basicOrdinalDateTimeNoMillis()
+  public void testBasicOrdinalDateTimeNoMillis()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.BASIC_ORDINAL_DATE_TIME_NO_MILLIS;
@@ -172,7 +171,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_basicTime()
+  public void testBasicTime()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.BASIC_TIME;
@@ -183,7 +182,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_basicTimeNoMillis()
+  public void testBasicTimeNoMillis()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.BASIC_TIME_NO_MILLIS;
@@ -194,7 +193,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_basicTTime()
+  public void testBasicTTime()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.BASIC_T_TIME;
@@ -205,7 +204,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_basicTTimeNoMillis()
+  public void testBasicTTimeNoMillis()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.BASIC_T_TIME_NO_MILLIS;
@@ -216,7 +215,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_basicWeekDate()
+  public void testBasicWeekDate()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.BASIC_WEEK_DATE;
@@ -227,7 +226,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_basicWeekDateTime()
+  public void testBasicWeekDateTime()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.BASIC_WEEK_DATE_TIME;
@@ -238,7 +237,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_basicWeekDateTimeNoMillis()
+  public void testBasicWeekDateTimeNoMillis()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.BASIC_WEEK_DATE_TIME_NO_MILLIS;
@@ -249,7 +248,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_date()
+  public void testDate()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.DATE;
@@ -260,7 +259,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_dateHour()
+  public void testDateHour()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.DATE_HOUR;
@@ -271,7 +270,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_dateHourMinute()
+  public void testDateHourMinute()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.DATE_HOUR_MINUTE;
@@ -282,7 +281,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_dateHourMinuteSecond()
+  public void testDateHourMinuteSecond()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.DATE_HOUR_MINUTE_SECOND;
@@ -293,7 +292,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_dateHourMinuteSecondFraction()
+  public void testDateHourMinuteSecondFraction()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.DATE_HOUR_MINUTE_SECOND_FRACTION;
@@ -304,7 +303,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_dateHourMinuteSecondMillis()
+  public void testDateHourMinuteSecondMillis()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.DATE_HOUR_MINUTE_SECOND_MILLIS;
@@ -315,7 +314,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_dateTime()
+  public void testDateTime()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.DATE_TIME;
@@ -326,7 +325,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_dateTimeNoMillis()
+  public void testDateTimeNoMillis()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.DATE_TIME_NO_MILLIS;
@@ -337,7 +336,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_hour()
+  public void testHour()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.HOUR;
@@ -348,7 +347,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_hourMinute()
+  public void testHourMinute()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.HOUR_MINUTE;
@@ -359,7 +358,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_hourMinuteSecond()
+  public void testHourMinuteSecond()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.HOUR_MINUTE_SECOND;
@@ -370,7 +369,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_hourMinuteSecondFraction()
+  public void testHourMinuteSecondFraction()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.HOUR_MINUTE_SECOND_FRACTION;
@@ -381,7 +380,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_hourMinuteSecondMillis()
+  public void testHourMinuteSecondMillis()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.HOUR_MINUTE_SECOND_MILLIS;
@@ -392,7 +391,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_ordinalDate()
+  public void testOrdinalDate()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.ORDINAL_DATE;
@@ -403,7 +402,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_ordinalDateTime()
+  public void testOrdinalDateTime()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.ORDINAL_DATE_TIME;
@@ -414,7 +413,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_ordinalDateTimeNoMillis()
+  public void testOrdinalDateTimeNoMillis()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.ORDINAL_DATE_TIME_NO_MILLIS;
@@ -425,7 +424,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_time()
+  public void testTime()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.TIME;
@@ -436,7 +435,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_timeNoMillis()
+  public void testTimeNoMillis()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.TIME_NO_MILLIS;
@@ -447,7 +446,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_tTime()
+  public void testTTime()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.T_TIME;
@@ -458,7 +457,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_tTimeNoMillis()
+  public void testTTimeNoMillis()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.T_TIME_NO_MILLIS;
@@ -469,7 +468,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_weekDate()
+  public void testWeekDate()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.WEEK_DATE;
@@ -480,7 +479,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_weekDateTime()
+  public void testWeekDateTime()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.WEEK_DATE_TIME;
@@ -491,7 +490,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_weekDateTimeNoMillis()
+  public void testWeekDateTimeNoMillis()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.WEEK_DATE_TIME_NO_MILLIS;
@@ -502,7 +501,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_weekyear()
+  public void testWeekyear()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.WEEK_YEAR;
@@ -513,7 +512,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_weekyearWeek()
+  public void testWeekyearWeek()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.WEEKYEAR_WEEK;
@@ -524,7 +523,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_weekyearWeekDay()
+  public void testWeekyearWeekDay()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.WEEKYEAR_WEEK_DAY;
@@ -535,7 +534,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_year()
+  public void testYear()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.YEAR;
@@ -546,7 +545,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_yearMonth()
+  public void testYearMonth()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.YEAR_MONTH;
@@ -557,7 +556,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_yearMonthDay()
+  public void testYearMonthDay()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.YEAR_MONTH_DAY;
@@ -568,7 +567,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_incorrectFormat()
+  public void testIncorrectFormat()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.DATE_OPTIONAL_TIME;
@@ -580,7 +579,7 @@ public class DateFieldFormatterTest
   }
 
   @Test
-  public void testApplyJDBCDateFormat_nullDateData()
+  public void testNullDateData()
   {
     String columnName = "date_field";
     DateFormat dateFormat = DateFormat.DATE_OPTIONAL_TIME;
@@ -623,5 +622,4 @@ public class DateFieldFormatterTest
         .put(columnName, dateFormat.nameLowerCase())
         .build();
   }
-
 }
