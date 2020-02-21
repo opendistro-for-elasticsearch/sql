@@ -974,15 +974,12 @@ public class SQLFunctions {
      * it might be safely treated as INTEGER.
      */
     public static Schema.Type getScriptFunctionReturnType(MethodField field, Schema.Type resolvedType) {
-        Schema.Type returnType;
         String functionName = ((ScriptMethodField) field).getFunctionName().toLowerCase();
         if (functionName.equals("cast")) {
             String castType = ((SQLCastExpr) field.getExpression()).getDataType().getName();
             return getCastFunctionReturnType(castType);
-        } else {
-            returnType = resolvedType;
         }
-        return returnType;
+        return resolvedType;
     }
 
     public static Schema.Type getCastFunctionReturnType(String castType) {
