@@ -92,9 +92,9 @@ public class DateFieldFormatter {
 
     private String getFormatForColumn(String columnName) {
         // Handle special cases for column names
-        if (columnName.startsWith("cast_")) {
-            // Column was cast to a date type, and prefixed with "cast_"
-            columnName = columnName.replaceFirst("cast_", "");
+        if (LocalClusterState.state().getFieldForAlias(columnName) != null) {
+            // Column was aliased, and we need to find the base name for the column
+            columnName = LocalClusterState.state().getFieldForAlias(columnName);
         } else if (columnName.split("\\.").length == 2) {
             // Column is part of a join, and is qualified by the table alias
             columnName = columnName.split("\\.")[1];

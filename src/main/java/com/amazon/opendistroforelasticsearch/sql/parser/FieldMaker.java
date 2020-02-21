@@ -39,7 +39,7 @@ import com.amazon.opendistroforelasticsearch.sql.domain.KVValue;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.ScriptMethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Where;
-// import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
+import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlFeatureNotImplementedException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
@@ -119,7 +119,7 @@ public class FieldMaker {
             if (alias == null) {
                 alias = "cast_" + castExpr.getExpr().toString();
             }
-            // LocalClusterState.state().putAliasInMap(castExpr.getExpr().toString(), alias);
+            LocalClusterState.state().putAliasInMap(alias, castExpr.getExpr().toString());
             ArrayList<SQLExpr> methodParameters = new ArrayList<>();
             methodParameters.add(((SQLCastExpr) expr).getExpr());
             return makeMethodField("CAST", methodParameters, null, alias, tableAlias, true);
