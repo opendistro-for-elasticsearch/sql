@@ -65,6 +65,7 @@ public class DocBuilderTest implements DocBuilder {
         when(document.paragraph(any())).thenReturn(document);
         when(document.codeBlock(any(), any())).thenReturn(document);
         when(document.table(any(), any())).thenReturn(document);
+        when(document.image(any(), any())).thenReturn(document);
         verifier = new Verifier(document);
 
         when(client.performRequest(any())).then(new Answer<Response>() {
@@ -100,6 +101,7 @@ public class DocBuilderTest implements DocBuilder {
         section(
             title("Test"),
             description("This is a test"),
+            images("rdd/querySyntax.png"),
             example(
                 description("This is an example for the test"),
                 post("SELECT firstname FROM accounts")
@@ -109,6 +111,7 @@ public class DocBuilderTest implements DocBuilder {
         verifier.section("Test").
                  subSection("Description").
                  paragraph("This is a test").
+                 image("Rule ``querySyntax``", "/docs/user/img/rdd/querySyntax.png").
                  subSection("Example").
                  paragraph("This is an example for the test").
                  codeBlock(
@@ -132,11 +135,11 @@ public class DocBuilderTest implements DocBuilder {
                      "}"
                  ).table(
                      "Result set",
-                     "+----------------+\n" +
-                     "|firstname (text)|\n" +
-                     "+================+\n" +
-                     "|            John|\n" +
-                     "+----------------+\n"
+                     "+---------+\n" +
+                     "|firstname|\n" +
+                     "+=========+\n" +
+                     "|     John|\n" +
+                     "+---------+\n"
                  );
     }
 
@@ -191,6 +194,12 @@ public class DocBuilderTest implements DocBuilder {
         @Override
         public Document table(String description, String table) {
             verifier.verify(mock).table(description, table);
+            return this;
+        }
+
+        @Override
+        public Document image(String description, String filePath) {
+            verifier.verify(mock).image(description, filePath);
             return this;
         }
     }

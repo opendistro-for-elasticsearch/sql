@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
 import com.alibaba.druid.sql.ast.expr.SQLCaseExpr;
+import com.amazon.opendistroforelasticsearch.sql.domain.ColumnTypeProvider;
 import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.JoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
@@ -67,6 +68,7 @@ public class SelectResultSet extends ResultSet {
     private String indexName;
     private String typeName;
     private List<Schema.Column> columns = new ArrayList<>();
+    private ColumnTypeProvider outputColumnType;
 
     private List<String> head;
     private long size;
@@ -78,12 +80,14 @@ public class SelectResultSet extends ResultSet {
     public SelectResultSet(Client client,
                            Query query,
                            Object queryResult,
-                           String formatType) {
+                           String formatType,
+                           ColumnTypeProvider outputColumnType) {
         this.client = client;
         this.query = query;
         this.queryResult = queryResult;
         this.selectAll = false;
         this.formatType = formatType;
+        this.outputColumnType = outputColumnType;
 
         if (isJoinQuery()) {
             JoinSelect joinQuery = (JoinSelect) query;
@@ -317,7 +321,7 @@ public class SelectResultSet extends ResultSet {
         }
     }
 
-    private Schema.Type fetchMethodReturnType(Field field) {
+    private Schema.Type fetchMethodReturnType(int fieldIndex, MethodField field) {
         switch (field.getName().toLowerCase()) {
             case "count":
                 return Schema.Type.LONG;
@@ -334,7 +338,8 @@ public class SelectResultSet extends ResultSet {
                 if (field.getExpression() instanceof SQLCaseExpr) {
                     return Schema.Type.TEXT;
                 }
-                return SQLFunctions.getScriptFunctionReturnType(field);
+                Schema.Type resolvedType = outputColumnType.get(fieldIndex);
+                return SQLFunctions.getScriptFunctionReturnType(field, resolvedType);
             }
             default:
                 throw new UnsupportedOperationException(
@@ -383,12 +388,13 @@ public class SelectResultSet extends ResultSet {
              * name instead.
              */
             if (fieldMap.get(fieldName) instanceof MethodField) {
-                Field methodField = fieldMap.get(fieldName);
+                MethodField methodField = (MethodField) fieldMap.get(fieldName);
+                int fieldIndex = fieldNameList.indexOf(fieldName);
                 columns.add(
                         new Schema.Column(
                                 methodField.getAlias(),
                                 null,
-                                fetchMethodReturnType(methodField)
+                                fetchMethodReturnType(fieldIndex, methodField)
                         )
                 );
             }

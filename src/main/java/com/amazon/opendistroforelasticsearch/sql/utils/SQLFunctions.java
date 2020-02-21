@@ -522,7 +522,7 @@ public class SQLFunctions {
         if (valueName == null) {
             return new Tuple<>(name, "def " + name + " = DateTimeFormatter.ofPattern('" + pattern + "').withZone("
                     + (zoneId != null ? "ZoneId.of('" + zoneId + "')" : "ZoneId.systemDefault()")
-                    + ").format(Instant.ofEpochMilli(" + getPropertyOrValue(field) + ".getMillis()))");
+                    + ").format(Instant.ofEpochMilli(" + getPropertyOrValue(field) + ".toInstant().toEpochMilli()))");
         } else {
             return new Tuple<>(name, exprString(field) + "; "
                     + "def " + name + " = new SimpleDateFormat('" + pattern + "').format("
@@ -973,34 +973,13 @@ public class SQLFunctions {
      * approach will return type of result column as DOUBLE, although there is enough information to understand that
      * it might be safely treated as INTEGER.
      */
-    public static Schema.Type getScriptFunctionReturnType(Field field) {
+    public static Schema.Type getScriptFunctionReturnType(MethodField field, Schema.Type resolvedType) {
         String functionName = ((ScriptMethodField) field).getFunctionName().toLowerCase();
         if (functionName.equals("cast")) {
             String castType = ((SQLCastExpr) field.getExpression()).getDataType().getName();
             return getCastFunctionReturnType(castType);
         }
-        if (dateFunctions.contains(functionName) || stringOperators.contains(functionName)) {
-            return Schema.Type.TEXT;
-        }
-
-        if (mathConstants.contains(functionName) || numberOperators.contains(functionName)
-                || trigFunctions.contains(functionName) || binaryOperators.contains(functionName)
-                || utilityFunctions.contains(functionName)) {
-            return Schema.Type.DOUBLE;
-        }
-
-        if (stringFunctions.contains(functionName)) {
-            return Schema.Type.INTEGER;
-        }
-
-        if (conditionalFunctions.contains(functionName)) {
-            return Schema.Type.KEYWORD;
-        }
-
-        throw new UnsupportedOperationException(
-                String.format(
-                        "The following method is not supported in Schema: %s",
-                        functionName));
+        return resolvedType;
     }
 
     public static Schema.Type getCastFunctionReturnType(String castType) {
@@ -1022,5 +1001,39 @@ public class SQLFunctions {
                     StringUtils.format("The following type is not supported by cast(): %s", castType)
                 );
         }
+    }
+
+    /**
+     *
+     * @param field
+     * @return Schema.Type.TEXT or DOUBLE
+     * There are only two ORDER BY types (TEXT, NUMBER) in Elasticsearch, so the Type that is returned here essentially
+     * indicates the category of the function as opposed to the actual return type.
+     */
+    public static Schema.Type getOrderByFieldType(Field field) {
+        String functionName = ((ScriptMethodField) field).getFunctionName().toLowerCase();
+        if (functionName.equals("cast")) {
+            String castType = ((SQLCastExpr) field.getExpression()).getDataType().getName();
+            return getCastFunctionReturnType(castType);
+        }
+
+        if (numberOperators.contains(functionName) || mathConstants.contains(functionName)
+                || trigFunctions.contains(functionName) || binaryOperators.contains(functionName)) {
+            return Schema.Type.DOUBLE;
+        } else if (dateFunctions.contains(functionName)) {
+            if (functionName.equals("date_format") || functionName.equals("now")
+                    || functionName.equals("curdate") || functionName.equals("date")
+                    || functionName.equals("timestamp") || functionName.equals("monthname")) {
+                return Schema.Type.TEXT;
+            }
+            return Schema.Type.DOUBLE;
+        } else if (stringFunctions.contains(functionName) || stringOperators.contains(functionName)) {
+            return Schema.Type.TEXT;
+        }
+
+        throw new UnsupportedOperationException(
+                String.format(
+                        "The following method is not supported in Schema for Order By: %s",
+                        functionName));
     }
 }
