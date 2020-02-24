@@ -598,7 +598,7 @@ public class DateFieldFormatterTest {
     Map<String, Object> rowSource = new HashMap<>();
     rowSource.put(columnName, originalDateValue);
 
-    DateFieldFormatter dateFieldFormatter = new DateFieldFormatter(dateFieldFormatMap, columns);
+    DateFieldFormatter dateFieldFormatter = new DateFieldFormatter(dateFieldFormatMap, columns, new HashMap<>());
     executeFormattingAndCompare(dateFieldFormatter, rowSource, columnName, expectedDateValue);
   }
 

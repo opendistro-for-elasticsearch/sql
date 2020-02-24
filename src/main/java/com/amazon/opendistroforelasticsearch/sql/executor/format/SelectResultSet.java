@@ -15,7 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
+import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLCaseExpr;
+import com.alibaba.druid.sql.ast.expr.SQLCastExpr;
+import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.amazon.opendistroforelasticsearch.sql.domain.ColumnTypeProvider;
 import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.JoinSelect;
@@ -76,6 +79,8 @@ public class SelectResultSet extends ResultSet {
     private List<DataRows.Row> rows;
 
     private DateFieldFormatter dateFieldFormatter;
+    // alias -> base field name
+    private Map<String, String> fieldAliasMap = new HashMap<>();
 
     public SelectResultSet(Client client,
                            Query query,
@@ -98,7 +103,7 @@ public class SelectResultSet extends ResultSet {
         }
         this.schema = new Schema(indexName, typeName, columns);
         this.head = schema.getHeaders();
-        this.dateFieldFormatter = new DateFieldFormatter(indexName, columns);
+        this.dateFieldFormatter = new DateFieldFormatter(indexName, columns, fieldAliasMap);
 
         extractData();
         this.dataRows = new DataRows(size, totalHits, rows);
@@ -390,6 +395,15 @@ public class SelectResultSet extends ResultSet {
             if (fieldMap.get(fieldName) instanceof MethodField) {
                 MethodField methodField = (MethodField) fieldMap.get(fieldName);
                 int fieldIndex = fieldNameList.indexOf(fieldName);
+
+                SQLExpr expr = methodField.getExpression();
+                if (expr instanceof SQLCastExpr) {
+                    // Since CAST expressions create an alias for a field, we need to save the original field name
+                    // for this alias for formatting data later.
+                    SQLIdentifierExpr castFieldIdentifier = (SQLIdentifierExpr) ((SQLCastExpr) expr).getExpr();
+                    fieldAliasMap.put(methodField.getAlias(), castFieldIdentifier.getName());
+                }
+
                 columns.add(
                         new Schema.Column(
                                 methodField.getAlias(),

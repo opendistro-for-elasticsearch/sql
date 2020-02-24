@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -45,17 +46,22 @@ public class DateFieldFormatter {
     private static final String FORMAT_DOT_DATE = "yyyy-MM-dd";
 
     private final Map<String, String> dateFieldFormatMap;
-    private List<Schema.Column> dateColumns;
+    private final Map<String, String> fieldAliasMap;
+    private Set<String> dateColumns;
 
-    public DateFieldFormatter(String indexName, List<Schema.Column> columns) {
+    public DateFieldFormatter(String indexName, List<Schema.Column> columns, Map<String, String> fieldAliasMap) {
         this.dateFieldFormatMap = getDateFieldFormatMap(indexName);
         this.dateColumns = getDateColumns(columns);
+        this.fieldAliasMap = fieldAliasMap;
     }
 
     @VisibleForTesting
-    protected DateFieldFormatter(Map<String, String> dateFieldFormatMap, List<Schema.Column> columns) {
+    protected DateFieldFormatter(Map<String, String> dateFieldFormatMap,
+                                 List<Schema.Column> columns,
+                                 Map<String, String> fieldAliasMap) {
         this.dateFieldFormatMap = dateFieldFormatMap;
         this.dateColumns = getDateColumns(columns);
+        this.fieldAliasMap = fieldAliasMap;
     }
 
     /**
@@ -64,22 +70,19 @@ public class DateFieldFormatter {
      * @param rowSource The row in which to format the date values.
      */
     public void applyJDBCDateFormat(Map<String, Object> rowSource) {
-        for (Schema.Column column : dateColumns) {
-            String columnName = column.getName();
-
-            String columnFormat;
-            columnFormat = getFormatForColumn(columnName);
-            if (columnFormat == null) {
-                LOG.warn("Could not determine date format for column {}; returning original value", columnName);
-                continue;
-            }
-            DateFormat format = DateFormat.valueOf(columnFormat.toUpperCase());
-
+        for (String columnName : dateColumns) {
             Object columnOriginalDate = rowSource.get(columnName);
             if (columnOriginalDate == null) {
                 // Don't try to parse null date values
                 continue;
             }
+
+            String columnFormat = getFormatForColumn(columnName);
+            if (columnFormat == null) {
+                LOG.warn("Could not determine date format for column {}; returning original value", columnName);
+                continue;
+            }
+            DateFormat format = DateFormat.valueOf(columnFormat.toUpperCase());
 
             Date date = parseDateString(format, columnOriginalDate.toString());
             if (date != null) {
@@ -92,9 +95,9 @@ public class DateFieldFormatter {
 
     private String getFormatForColumn(String columnName) {
         // Handle special cases for column names
-        if (LocalClusterState.state().getFieldForAlias(columnName) != null) {
+        if (fieldAliasMap.get(columnName) != null) {
             // Column was aliased, and we need to find the base name for the column
-            columnName = LocalClusterState.state().getFieldForAlias(columnName);
+            columnName = fieldAliasMap.get(columnName);
         } else if (columnName.split("\\.").length == 2) {
             // Column is part of a join, and is qualified by the table alias
             columnName = columnName.split("\\.")[1];
@@ -102,10 +105,11 @@ public class DateFieldFormatter {
         return dateFieldFormatMap.get(columnName);
     }
 
-    private List<Schema.Column> getDateColumns(List<Schema.Column> columns) {
+    private Set<String> getDateColumns(List<Schema.Column> columns) {
         return columns.stream()
             .filter(column -> column.getType().equals(Schema.Type.DATE.nameLowerCase()))
-            .collect(Collectors.toList());
+            .map(Schema.Column::getName)
+            .collect(Collectors.toSet());
     }
 
     private Map<String, String> getDateFieldFormatMap(String indexName) {

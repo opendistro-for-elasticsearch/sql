@@ -119,7 +119,6 @@ public class FieldMaker {
             if (alias == null) {
                 alias = "cast_" + castExpr.getExpr().toString();
             }
-            LocalClusterState.state().putAliasInMap(alias, castExpr.getExpr().toString());
             ArrayList<SQLExpr> methodParameters = new ArrayList<>();
             methodParameters.add(((SQLCastExpr) expr).getExpr());
             return makeMethodField("CAST", methodParameters, null, alias, tableAlias, true);

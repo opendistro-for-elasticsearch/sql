@@ -92,8 +92,6 @@ public class LocalClusterState {
      */
     private final Map<String, Object> latestSettings = new ConcurrentHashMap<>();
 
-    private Map<String, String> fieldAliasMap = new HashMap<>();
-
     public static synchronized LocalClusterState state() {
         if (INSTANCE == null) {
             INSTANCE = new LocalClusterState();
@@ -210,27 +208,6 @@ public class LocalClusterState {
                             + Arrays.toString(indices) + ", types=" + Arrays.toString(types), e);
         }
     }
-
-    /**
-     * Save an alias for the provided field, which may be used in place of the field name in certain circumstances.
-     *
-     * @param alias The name of the alias for the field.
-     * @param field The base field for the alias.
-     */
-    public void putAliasInMap(String alias, String field) {
-        fieldAliasMap.put(alias, field);
-    }
-
-    /**
-     * Get the base field for a given alias.
-     *
-     * @param alias The alias for which to find the base field.
-     * @return The base field for the alias.
-     */
-    public String getFieldForAlias(String alias) {
-        return fieldAliasMap.get(alias);
-    }
-
 
     private String[] resolveIndexExpression(ClusterState state, String[] indices) {
         String[] concreteIndices = resolver.concreteIndexNames(state, IndicesOptions.strictExpandOpen(), indices);
