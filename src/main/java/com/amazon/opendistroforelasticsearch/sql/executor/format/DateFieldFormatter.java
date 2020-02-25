@@ -43,7 +43,7 @@ public class DateFieldFormatter {
     private static final String FORMAT_DOT_KIBANA_SAMPLE_DATA_LOGS_EXCEPTION = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     private static final String FORMAT_DOT_KIBANA_SAMPLE_DATA_FLIGHTS_EXCEPTION = "yyyy-MM-dd'T'HH:mm:ss";
     private static final String FORMAT_DOT_KIBANA_SAMPLE_DATA_ECOMMERCE_EXCEPTION = "yyyy-MM-dd'T'HH:mm:ssXXX";
-    private static final String FORMAT_DOT_DATE = "yyyy-MM-dd";
+    private static final String FORMAT_DOT_DATE = DateFormat.DATE.getFormatString();
 
     private final Map<String, String> dateFieldFormatMap;
     private final Map<String, String> fieldAliasMap;
