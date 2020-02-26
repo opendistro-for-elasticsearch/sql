@@ -42,7 +42,6 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Where;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlFeatureNotImplementedException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
-import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.utils.Util;
 import com.google.common.base.Strings;
 import org.elasticsearch.common.collect.Tuple;

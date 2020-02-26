@@ -37,7 +37,6 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -83,7 +82,8 @@ public class MinusExecutor implements ElasticHitsExecutor {
                     "Terms optimization failed: terms optimization for minus execution is supported with one field");
         }
         if (this.useTermsOptimization && !this.useScrolling) {
-            throw new SqlParseException("Terms optimization failed: using scrolling is required for terms optimization");
+            throw new SqlParseException(
+                    "Terms optimization failed: using scrolling is required for terms optimization");
         }
         if (!this.useScrolling || !this.useTermsOptimization) {
             Set<ComperableHitResult> comperableHitResults;

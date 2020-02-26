@@ -1,7 +1,7 @@
 
-===========
-Basic Query
-===========
+===============
+Troubleshooting
+===============
 
 .. contents::
    :local:
@@ -36,8 +36,10 @@ Result:
 
     {
       "reason": "Invalid SQL query",
-      "details": "Failed to parse query due to offending symbol [:] at: 'SELECT * FROM xxx WHERE xxx:' <--- HERE... More details: Expecting tokens in {<EOF>, 'AND', 'BETWEEN', 'GROUP', 'HAVING', 'IN', 'IS', 'LIKE', 'LIMIT',
-    'NOT', 'OR', 'ORDER', 'REGEXP', '*', '/', '%', '+', '-', 'DIV', 'MOD', '=', '>', '<', '!', '|', '&', '^', '.', DOT_ID}",
+      "details": "Failed to parse query due to offending symbol [:] at: 'SELECT * FROM xxx WHERE xxx:' <--- HERE...
+        More details: Expecting tokens in {<EOF>, 'AND', 'BETWEEN', 'GROUP', 'HAVING', 'IN', 'IS', 'LIKE', 'LIMIT',
+        'NOT', 'OR', 'ORDER', 'REGEXP', '*', '/', '%', '+', '-', 'DIV', 'MOD', '=', '>', '<', '!',
+        '|', '&', '^', '.', DOT_ID}",
       "type": "SyntaxAnalysisException"
     }
 
@@ -70,6 +72,7 @@ Index Mapping Verification Exception
 ------------------------------------
 
 **Symptoms**
+
 .. code-block:: JSON
 
     {
