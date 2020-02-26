@@ -120,7 +120,7 @@ public class ElasticSqlExprParser extends SQLExprParser {
             return primaryRest(methodInvokeExpr);
         }
 
-        throw new ParserException("not support token:" + lexer.token());
+        throw new ParserException("Syntax error:" + lexer.token());
     }
 
 
@@ -283,7 +283,7 @@ public class ElasticSqlExprParser extends SQLExprParser {
             case VALUES:
                 lexer.nextToken();
                 if (lexer.token() != Token.LPAREN) {
-                    throw new ParserException("syntax error, illegal values clause");
+                    throw new ParserException("Syntax error: " + lexer.token());
                 }
                 return this.methodRest(new SQLIdentifierExpr("VALUES"), true);
             case BINARY:
@@ -310,7 +310,7 @@ public class ElasticSqlExprParser extends SQLExprParser {
 
     public final SQLExpr primaryRest(SQLExpr expr) {
         if (expr == null) {
-            throw new IllegalArgumentException("expr");
+            throw new IllegalArgumentException("Illegal expression: NULL");
         }
 
         if (lexer.token() == Token.LITERAL_CHARS) {
@@ -363,7 +363,7 @@ public class ElasticSqlExprParser extends SQLExprParser {
                 if ("USING".equalsIgnoreCase(lexer.stringVal())) {
                     lexer.nextToken();
                     if (lexer.token() != Token.IDENTIFIER) {
-                        throw new ParserException("syntax error, illegal hex");
+                        throw new ParserException("Syntax error: " + lexer.token());
                     }
                     String charSet = lexer.stringVal();
                     lexer.nextToken();
@@ -379,7 +379,7 @@ public class ElasticSqlExprParser extends SQLExprParser {
                 }
 
                 if (lexer.token() != Token.IDENTIFIER) {
-                    throw new ParserException("syntax error");
+                    throw new ParserException("Syntax error: " + lexer.token());
                 }
 
                 String collate = lexer.stringVal();
@@ -394,7 +394,7 @@ public class ElasticSqlExprParser extends SQLExprParser {
                     lexer.nextToken();
 
                     if (lexer.token() != Token.IDENTIFIER) {
-                        throw new ParserException("syntax error");
+                        throw new ParserException("Syntax error: " + lexer.token());
                     }
 
                     String collate = lexer.stringVal();
@@ -424,7 +424,7 @@ public class ElasticSqlExprParser extends SQLExprParser {
                 lexer.nextToken();
 
                 if (lexer.token() != Token.IDENTIFIER) {
-                    throw new ParserException("syntax error");
+                    throw new ParserException("Syntax error: " + lexer.token());
                 }
 
                 String unitVal = lexer.stringVal();
@@ -467,7 +467,7 @@ public class ElasticSqlExprParser extends SQLExprParser {
                     } else if (lexer.token() == Token.RPAREN) {
                         break;
                     } else {
-                        throw new ParserException("syntax error");
+                        throw new ParserException("Syntax error: " + lexer.token());
                     }
                 }
 
@@ -544,10 +544,10 @@ public class ElasticSqlExprParser extends SQLExprParser {
                         acceptIdentifier("MODE");
                         matchAgainstExpr.setSearchModifier(MySqlMatchAgainstExpr.SearchModifier.IN_BOOLEAN_MODE);
                     } else {
-                        throw new ParserException("TODO");
+                        throw new ParserException("Syntax error: " + lexer.token());
                     }
                 } else if (lexer.token() == Token.WITH) {
-                    throw new ParserException("TODO");
+                    throw new ParserException("Syntax error: " + lexer.token());
                 }
 
                 accept(Token.RPAREN);
@@ -566,7 +566,7 @@ public class ElasticSqlExprParser extends SQLExprParser {
                 if (identifierEquals("USING")) {
                     lexer.nextToken();
                     if (lexer.token() != Token.IDENTIFIER) {
-                        throw new ParserException("syntax error");
+                        throw new ParserException("Syntax error: " + lexer.token());
                     }
                     String charset = lexer.stringVal();
                     lexer.nextToken();
@@ -651,7 +651,7 @@ public class ElasticSqlExprParser extends SQLExprParser {
             index = lexer.integerValue();
             lexer.nextToken();
         } else {
-            throw new ParserException("error : " + lexer.stringVal());
+            throw new ParserException("Syntax error : " + lexer.stringVal());
         }
 
         if (expr instanceof SQLMethodInvokeExpr) {
@@ -685,7 +685,7 @@ public class ElasticSqlExprParser extends SQLExprParser {
             SQLExpr value = expr();
 
             if (lexer.token() != Token.IDENTIFIER) {
-                throw new ParserException("Syntax error");
+                throw new ParserException("Syntax error: " + lexer.token());
             }
 
             String unit = lexer.stringVal();

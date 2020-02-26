@@ -42,6 +42,7 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Where;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlFeatureNotImplementedException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
+import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.utils.Util;
 import com.google.common.base.Strings;
 import org.elasticsearch.common.collect.Tuple;
@@ -198,7 +199,7 @@ public class FieldMaker {
         Where where = Where.newInstance();
         new WhereParser(new SqlParser()).parseWhere(exprToCheck, where);
         if (where.getWheres().size() == 0) {
-            throw new SqlParseException("unable to parse filter where.");
+            throw new SqlParseException("Failed to parse filter condition");
         }
         List<KVValue> methodParameters = new ArrayList<>();
         methodParameters.add(new KVValue("where", where));
@@ -250,7 +251,7 @@ public class FieldMaker {
             case Subtract:
                 return convertBinaryOperatorToMethod("subtract", expr);
             default:
-                throw new SqlParseException(expr.getOperator().getName() + " is not support");
+                throw new SqlParseException("Unsupported operator: " + expr.getOperator().getName());
         }
     }
 
@@ -319,7 +320,7 @@ public class FieldMaker {
                     NestedType nestedType = new NestedType();
 
                     if (!nestedType.tryFillFromExpr(object)) {
-                        throw new SqlParseException("failed parsing nested expr " + object);
+                        throw new SqlParseException("Failed to parse nested expression: " + object);
                     }
 
                     // Fix bug: method name of reversed_nested() was set to "nested" wrongly
@@ -328,7 +329,7 @@ public class FieldMaker {
                     ChildrenType childrenType = new ChildrenType();
 
                     if (!childrenType.tryFillFromExpr(object)) {
-                        throw new SqlParseException("failed parsing children expr " + object);
+                        throw new SqlParseException("Failed to parse children expression: " + object);
                     }
 
                     paramers.add(new KVValue("children", childrenType));

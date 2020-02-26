@@ -33,6 +33,7 @@ import com.amazon.opendistroforelasticsearch.sql.spatial.DistanceFilterParams;
 import com.amazon.opendistroforelasticsearch.sql.spatial.Point;
 import com.amazon.opendistroforelasticsearch.sql.spatial.PolygonFilterParams;
 import com.amazon.opendistroforelasticsearch.sql.spatial.WktToGeoJsonConverter;
+import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import org.apache.lucene.search.join.ScoreMode;
@@ -264,7 +265,7 @@ public abstract class Maker {
                     toXContent = QueryBuilders.geoShapeQuery(cond.getName(), shapeBuilder);
                 } catch (IOException e) {
                     e.printStackTrace();
-                    throw new SqlParseException("couldn't create shapeBuilder from wkt: " + wkt);
+                    throw new SqlParseException(StringUtils.format("Failed to create shapeBuilder from [%s]", wkt));
                 }
                 break;
             case GEO_BOUNDING_BOX:
@@ -363,7 +364,7 @@ public abstract class Maker {
                 }
                 break;
             default:
-                throw new SqlParseException("not define type " + cond.getName());
+                throw new SqlParseException("Undefined condition:  " + cond.getName());
         }
 
         toXContent = applyNot(cond.getOpear(), toXContent);

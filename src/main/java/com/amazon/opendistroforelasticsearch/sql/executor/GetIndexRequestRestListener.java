@@ -65,7 +65,7 @@ public class GetIndexRequestRestListener extends RestBuilderListener<GetIndexRes
                         writeSettings(getIndexResponse.settings().get(index), builder, channel.request());
                         break;
                     default:
-                        throw new IllegalStateException("feature [" + feature + "] is not valid");
+                        throw new IllegalStateException("Unsupported feature: " + feature);
                 }
             }
             builder.endObject();

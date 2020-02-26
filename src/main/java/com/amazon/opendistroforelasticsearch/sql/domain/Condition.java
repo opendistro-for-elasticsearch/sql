@@ -19,6 +19,7 @@ import com.alibaba.druid.sql.ast.SQLExpr;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.parser.ChildrenType;
 import com.amazon.opendistroforelasticsearch.sql.parser.NestedType;
+import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
@@ -242,7 +243,7 @@ public class Condition extends Where {
         if (OPEAR.operStringToOpear.containsKey(oper)) {
             this.opear = OPEAR.operStringToOpear.get(oper);
         } else {
-            throw new SqlParseException(oper + " is not a supported operation");
+            throw new SqlParseException("Unsupported operation: " + oper);
         }
     }
 
@@ -309,7 +310,7 @@ public class Condition extends Where {
             case ISN:
                 return "!=";
             default:
-                throw new SqlParseException(opear + " is err!");
+                throw new SqlParseException(StringUtils.format("Failed to parse operator [%s]", opear));
         }
     }
 

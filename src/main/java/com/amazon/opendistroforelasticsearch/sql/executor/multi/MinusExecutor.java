@@ -77,12 +77,13 @@ public class MinusExecutor implements ElasticHitsExecutor {
     }
 
     @Override
-    public void run() throws IOException, SqlParseException {
+    public void run() throws SqlParseException {
         if (this.useTermsOptimization && this.fieldsOrderFirstTable.length != 1) {
-            throw new SqlParseException("terms optimization supports minus with only one field");
+            throw new SqlParseException(
+                    "Terms optimization failed: terms optimization for minus execution is supported with one field");
         }
         if (this.useTermsOptimization && !this.useScrolling) {
-            throw new SqlParseException("terms optimization work only with scrolling add scrolling hint");
+            throw new SqlParseException("Terms optimization failed: using scrolling is required for terms optimization");
         }
         if (!this.useScrolling || !this.useTermsOptimization) {
             Set<ComperableHitResult> comperableHitResults;
