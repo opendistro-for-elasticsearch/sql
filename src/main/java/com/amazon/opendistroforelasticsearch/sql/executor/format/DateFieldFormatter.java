@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 /**
@@ -140,28 +141,41 @@ public class DateFieldFormatter {
     }
 
     private Date parseDateString(DateFormat format, String columnOriginalDate) {
+        TimeZone originalDefaultTimeZone = TimeZone.getDefault();
+        Date parsedDate = null;
+
         try {
+            // Apache Commons DateUtils uses the default TimeZone for the JVM when parsing.
+            // However, since all dates on Elasticsearch are stored as UTC, we need to
+            // parse these values using the UTC timezone.
+            TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
             switch (format) {
                 case DATE_OPTIONAL_TIME:
-                    return DateUtils.parseDate(
+                    parsedDate = DateUtils.parseDate(
                         columnOriginalDate,
                         FORMAT_DOT_KIBANA_SAMPLE_DATA_LOGS_EXCEPTION,
                         FORMAT_DOT_KIBANA_SAMPLE_DATA_FLIGHTS_EXCEPTION,
                         FORMAT_DOT_KIBANA_SAMPLE_DATA_ECOMMERCE_EXCEPTION,
                         FORMAT_DOT_DATE_AND_TIME,
                         FORMAT_DOT_DATE);
+                    break;
                 case EPOCH_MILLIS:
-                    return new Date(Long.parseLong(columnOriginalDate));
+                    parsedDate = new Date(Long.parseLong(columnOriginalDate));
+                    break;
                 case EPOCH_SECOND:
-                    return new Date(Long.parseLong(columnOriginalDate) * 1000);
+                    parsedDate = new Date(Long.parseLong(columnOriginalDate) * 1000);
+                    break;
                 default:
-                    return DateUtils.parseDate(columnOriginalDate, format.getFormatString());
+                    parsedDate = DateUtils.parseDate(columnOriginalDate, format.getFormatString());
             }
         } catch (ParseException e) {
             LOG.error(
                 String.format("Error parsing date string %s as %s", columnOriginalDate, format.nameLowerCase()),
                 e);
+        } finally {
+            // Reset default timezone after parsing
+            TimeZone.setDefault(originalDefaultTimeZone);
         }
-        return null;
+        return parsedDate;
     }
 }
