@@ -3,8 +3,6 @@
 Basic Query
 ===========
 
-.. rubric:: Content
-
 .. contents::
    :local:
    :depth: 2
@@ -19,7 +17,7 @@ SQL plugin is stateless for now so mostly the troubleshooting is mainly focused 
 Syntax Analysis / Semantic Analysis Exceptions
 ----------------------------------------------
 
-* **Symptoms**
+**Symptoms**
 
 When you end up with exceptions similar to as follows:
 
@@ -43,7 +41,7 @@ Result:
       "type": "SyntaxAnalysisException"
     }
 
-* **Workaround**
+**Workaround**
 
 You need to confirm if the syntax is not supported and disable query analysis if that's the case by the following steps:
 
@@ -71,7 +69,7 @@ You need to confirm if the syntax is not supported and disable query analysis if
 Index Mapping Verification Exception
 ------------------------------------
 
-* **Symptoms**
+**Symptoms**
 .. code-block:: JSON
 
     {
@@ -83,6 +81,6 @@ Index Mapping Verification Exception
       "status": 503
     }
 
-* **Workaround**
+**Workaround**
 
 If index in query is not an index pattern (index name ends with wildcard), check if the index has multiple types. If nothing works during your workaround, please create an issue in our `GitHub Issues <https://github.com/opendistro-for-elasticsearch/sql/issues>`_ section so that we can provide you with our suggestions and help.
