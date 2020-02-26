@@ -23,13 +23,19 @@ Syntax Analysis / Semantic Analysis Exceptions
 
 When you end up with exceptions similar to as follows:
 
-Query::
+Query:
+
+.. code-block:: JSON
+
 	POST /_opendistro/_sql
 	{
 	  "query" : "SELECT * FROM sample:data"
 	}
 
-Result::
+Result:
+
+.. code-block:: JSON
+
     {
       "reason": "Invalid SQL query",
       "details": "Failed to parse query due to offending symbol [:] at: 'SELECT * FROM xxx WHERE xxx:' <--- HERE... More details: Expecting tokens in {<EOF>, 'AND', 'BETWEEN', 'GROUP', 'HAVING', 'IN', 'IS', 'LIKE', 'LIMIT',
