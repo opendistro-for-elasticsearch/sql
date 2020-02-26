@@ -24,6 +24,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -39,14 +40,15 @@ import java.util.stream.Collectors;
 public class DateFieldFormatter {
     private static final Logger LOG = LogManager.getLogger(DateFieldFormatter.class);
     private static final String FORMAT_JDBC = "yyyy-MM-dd HH:mm:ss.SSS";
+    private static final String FORMAT_DELIMITER = "\\|\\|";
 
     private static final String FORMAT_DOT_DATE_AND_TIME = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
     private static final String FORMAT_DOT_KIBANA_SAMPLE_DATA_LOGS_EXCEPTION = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     private static final String FORMAT_DOT_KIBANA_SAMPLE_DATA_FLIGHTS_EXCEPTION = "yyyy-MM-dd'T'HH:mm:ss";
     private static final String FORMAT_DOT_KIBANA_SAMPLE_DATA_ECOMMERCE_EXCEPTION = "yyyy-MM-dd'T'HH:mm:ssXXX";
-    private static final String FORMAT_DOT_DATE = DateFormat.DATE.getFormatString();
+    private static final String FORMAT_DOT_DATE = DateFormat.getFormatString("date");
 
-    private final Map<String, String> dateFieldFormatMap;
+    private final Map<String, List<String>> dateFieldFormatMap;
     private final Map<String, String> fieldAliasMap;
     private Set<String> dateColumns;
 
@@ -57,7 +59,7 @@ public class DateFieldFormatter {
     }
 
     @VisibleForTesting
-    protected DateFieldFormatter(Map<String, String> dateFieldFormatMap,
+    protected DateFieldFormatter(Map<String, List<String>> dateFieldFormatMap,
                                  List<Schema.Column> columns,
                                  Map<String, String> fieldAliasMap) {
         this.dateFieldFormatMap = dateFieldFormatMap;
@@ -78,23 +80,23 @@ public class DateFieldFormatter {
                 continue;
             }
 
-            String columnFormat = getFormatForColumn(columnName);
-            if (columnFormat == null) {
-                LOG.warn("Could not determine date format for column {}; returning original value", columnName);
+            List<String> formats = getFormatsForColumn(columnName);
+            if (formats == null) {
+                LOG.warn("Could not determine date formats for column {}; returning original value", columnName);
                 continue;
             }
-            DateFormat format = DateFormat.valueOf(columnFormat.toUpperCase());
 
-            Date date = parseDateString(format, columnOriginalDate.toString());
+            Date date = parseDateString(formats, columnOriginalDate.toString());
             if (date != null) {
                 rowSource.put(columnName, DateFormat.getFormattedDate(date, FORMAT_JDBC));
+                break;
             } else {
                 LOG.warn("Could not parse date value; returning original value");
             }
         }
     }
 
-    private String getFormatForColumn(String columnName) {
+    private List<String> getFormatsForColumn(String columnName) {
         // Handle special cases for column names
         if (fieldAliasMap.get(columnName) != null) {
             // Column was aliased, and we need to find the base name for the column
@@ -113,9 +115,9 @@ public class DateFieldFormatter {
             .collect(Collectors.toSet());
     }
 
-    private Map<String, String> getDateFieldFormatMap(String indexName) {
+    private Map<String, List<String>> getDateFieldFormatMap(String indexName) {
         LocalClusterState state = LocalClusterState.state();
-        Map<String, String> formatMap = new HashMap<>();
+        Map<String, List<String>> formatMap = new HashMap<>();
 
         String[] indices = indexName.split("\\|");
         Collection<TypeMappings> typeProperties = state.getFieldMappings(indices)
@@ -128,11 +130,11 @@ public class DateFieldFormatter {
                 Map<String, Object> properties = field.getValue();
 
                 if (properties.containsKey("format")) {
-                    formatMap.put(fieldName, properties.get("format").toString());
+                    formatMap.put(fieldName, getFormatsFromProperties(properties.get("format").toString()));
                 } else {
                     // Give all field types a format, since operations such as casts
                     // can change the output type for a field to `date`.
-                    formatMap.put(fieldName, "date_optional_time");
+                    formatMap.put(fieldName, getFormatsFromProperties("date_optional_time"));
                 }
             }
         }
@@ -140,42 +142,52 @@ public class DateFieldFormatter {
         return formatMap;
     }
 
-    private Date parseDateString(DateFormat format, String columnOriginalDate) {
+    private List<String> getFormatsFromProperties(String formatProperty) {
+        String[] formats = formatProperty.split(FORMAT_DELIMITER);
+        return Arrays.asList(formats);
+    }
+
+    private Date parseDateString(List<String> formats, String columnOriginalDate) {
         TimeZone originalDefaultTimeZone = TimeZone.getDefault();
         Date parsedDate = null;
 
-        try {
-            // Apache Commons DateUtils uses the default TimeZone for the JVM when parsing.
-            // However, since all dates on Elasticsearch are stored as UTC, we need to
-            // parse these values using the UTC timezone.
-            TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-            switch (format) {
-                case DATE_OPTIONAL_TIME:
-                    parsedDate = DateUtils.parseDate(
-                        columnOriginalDate,
-                        FORMAT_DOT_KIBANA_SAMPLE_DATA_LOGS_EXCEPTION,
-                        FORMAT_DOT_KIBANA_SAMPLE_DATA_FLIGHTS_EXCEPTION,
-                        FORMAT_DOT_KIBANA_SAMPLE_DATA_ECOMMERCE_EXCEPTION,
-                        FORMAT_DOT_DATE_AND_TIME,
-                        FORMAT_DOT_DATE);
-                    break;
-                case EPOCH_MILLIS:
-                    parsedDate = new Date(Long.parseLong(columnOriginalDate));
-                    break;
-                case EPOCH_SECOND:
-                    parsedDate = new Date(Long.parseLong(columnOriginalDate) * 1000);
-                    break;
-                default:
-                    parsedDate = DateUtils.parseDate(columnOriginalDate, format.getFormatString());
+        // Apache Commons DateUtils uses the default TimeZone for the JVM when parsing.
+        // However, since all dates on Elasticsearch are stored as UTC, we need to
+        // parse these values using the UTC timezone.
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+        for (String columnFormat : formats) {
+            try {
+                switch (columnFormat) {
+                    case "date_optional_time":
+                        parsedDate = DateUtils.parseDate(
+                            columnOriginalDate,
+                            FORMAT_DOT_KIBANA_SAMPLE_DATA_LOGS_EXCEPTION,
+                            FORMAT_DOT_KIBANA_SAMPLE_DATA_FLIGHTS_EXCEPTION,
+                            FORMAT_DOT_KIBANA_SAMPLE_DATA_ECOMMERCE_EXCEPTION,
+                            FORMAT_DOT_DATE_AND_TIME,
+                            FORMAT_DOT_DATE);
+                        break;
+                    case "epoch_millis":
+                        parsedDate = new Date(Long.parseLong(columnOriginalDate));
+                        break;
+                    case "epoch_second":
+                        parsedDate = new Date(Long.parseLong(columnOriginalDate) * 1000);
+                        break;
+                    default:
+                        String formatString = DateFormat.getFormatString(columnFormat);
+                        if (formatString == null) {
+                            // Custom format; take as-is
+                            formatString = columnFormat;
+                        }
+                        parsedDate = DateUtils.parseDate(columnOriginalDate, formatString);
+                }
+            } catch (ParseException | NumberFormatException e) {
+                LOG.warn(String.format("Could not parse date string %s as %s", columnOriginalDate, columnFormat));
             }
-        } catch (ParseException e) {
-            LOG.error(
-                String.format("Error parsing date string %s as %s", columnOriginalDate, format.nameLowerCase()),
-                e);
-        } finally {
-            // Reset default timezone after parsing
-            TimeZone.setDefault(originalDefaultTimeZone);
         }
+        // Reset default timezone after parsing
+        TimeZone.setDefault(originalDefaultTimeZone);
+
         return parsedDate;
     }
 }

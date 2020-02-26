@@ -19,115 +19,116 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 
-public enum DateFormat {
-  // Special cases that are parsed separately
-  DATE_OPTIONAL_TIME(""),
-  EPOCH_MILLIS(""),
-  EPOCH_SECOND(""),
+public class DateFormat {
 
-  BASIC_DATE(Date.BASIC_DATE),
-  BASIC_DATE_TIME(Date.BASIC_DATE + Time.T + Time.BASIC_TIME + Time.MILLIS + Time.TZ),
-  BASIC_DATE_TIME_NO_MILLIS(Date.BASIC_DATE + Time.T + Time.BASIC_TIME + Time.TZ),
+    private static Map<String, String> formatMap = new HashMap<>();
 
-  BASIC_ORDINAL_DATE(Date.BASIC_ORDINAL_DATE),
-  BASIC_ORDINAL_DATE_TIME(Date.BASIC_ORDINAL_DATE + Time.T + Time.BASIC_TIME + Time.MILLIS + Time.TZ),
-  BASIC_ORDINAL_DATE_TIME_NO_MILLIS(Date.BASIC_ORDINAL_DATE+ Time.T + Time.BASIC_TIME + Time.TZ),
+    static {
+        // Special cases that are parsed separately
+        formatMap.put("date_optional_time", "");
+        formatMap.put("epoch_millis", "");
+        formatMap.put("epoch_second", "");
 
-  BASIC_TIME(Time.BASIC_TIME + Time.MILLIS + Time.TZ),
-  BASIC_TIME_NO_MILLIS(Time.BASIC_TIME + Time.TZ),
+        formatMap.put("basic_date", Date.BASIC_DATE);
+        formatMap.put("basic_date_time", Date.BASIC_DATE + Time.T + Time.BASIC_TIME + Time.MILLIS + Time.TZ);
+        formatMap.put("basic_date_time_no_millis", Date.BASIC_DATE + Time.T + Time.BASIC_TIME + Time.TZ);
 
-  BASIC_T_TIME(Time.T + Time.BASIC_TIME + Time.MILLIS + Time.TZ),
-  BASIC_T_TIME_NO_MILLIS(Time.T + Time.BASIC_TIME + Time.TZ),
+        formatMap.put("basic_ordinal_date", Date.BASIC_ORDINAL_DATE);
+        formatMap.put("basic_ordinal_date_time",
+                      Date.BASIC_ORDINAL_DATE + Time.T + Time.BASIC_TIME + Time.MILLIS + Time.TZ);
+        formatMap.put("basic_ordinal_date_time_no_millis", Date.BASIC_ORDINAL_DATE+ Time.T + Time.BASIC_TIME + Time.TZ);
 
-  BASIC_WEEK_DATE(Date.BASIC_WEEK_DATE),
-  BASIC_WEEK_DATE_TIME(Date.BASIC_WEEK_DATE + Time.T + Time.BASIC_TIME + Time.MILLIS + Time.TZ),
-  BASIC_WEEK_DATE_TIME_NO_MILLIS(Date.BASIC_WEEK_DATE + Time.T + Time.BASIC_TIME + Time.TZ),
+        formatMap.put("basic_time", Time.BASIC_TIME + Time.MILLIS + Time.TZ);
+        formatMap.put("basic_time_no_millis", Time.BASIC_TIME + Time.TZ);
 
-  DATE(Date.DATE),
-  DATE_HOUR(Date.DATE + Time.T + Time.HOUR),
-  DATE_HOUR_MINUTE(Date.DATE + Time.T + Time.HOUR_MINUTE),
-  DATE_HOUR_MINUTE_SECOND(Date.DATE + Time.T + Time.TIME),
-  DATE_HOUR_MINUTE_SECOND_FRACTION(Date.DATE + Time.T + Time.TIME + Time.MILLIS),
-  DATE_HOUR_MINUTE_SECOND_MILLIS(Date.DATE + Time.T + Time.TIME + Time.MILLIS),
-  DATE_TIME(Date.DATE + Time.T + Time.TIME + Time.MILLIS + Time.TZZ),
-  DATE_TIME_NO_MILLIS(Date.DATE + Time.T + Time.TIME + Time.TZZ),
+        formatMap.put("basic_t_time", Time.T + Time.BASIC_TIME + Time.MILLIS + Time.TZ);
+        formatMap.put("basic_t_time_no_millis", Time.T + Time.BASIC_TIME + Time.TZ);
 
-  HOUR(Time.HOUR),
-  HOUR_MINUTE(Time.HOUR_MINUTE),
-  HOUR_MINUTE_SECOND(Time.TIME),
-  HOUR_MINUTE_SECOND_FRACTION(Time.TIME + Time.MILLIS),
-  HOUR_MINUTE_SECOND_MILLIS(Time.TIME + Time.MILLIS),
+        formatMap.put("basic_week_date", Date.BASIC_WEEK_DATE);
+        formatMap.put("basic_week_date_time", Date.BASIC_WEEK_DATE + Time.T + Time.BASIC_TIME + Time.MILLIS + Time.TZ);
+        formatMap.put("basic_week_date_time_no_millis", Date.BASIC_WEEK_DATE + Time.T + Time.BASIC_TIME + Time.TZ);
 
-  ORDINAL_DATE(Date.ORDINAL_DATE),
-  ORDINAL_DATE_TIME(Date.ORDINAL_DATE + Time.T + Time.TIME + Time.MILLIS + Time.TZZ),
-  ORDINAL_DATE_TIME_NO_MILLIS(Date.ORDINAL_DATE + Time.T + Time.TIME + Time.TZZ),
+        formatMap.put("date", Date.DATE);
+        formatMap.put("date_hour", Date.DATE + Time.T + Time.HOUR);
+        formatMap.put("date_hour_minute", Date.DATE + Time.T + Time.HOUR_MINUTE);
+        formatMap.put("date_hour_minute_second", Date.DATE + Time.T + Time.TIME);
+        formatMap.put("date_hour_minute_second_fraction", Date.DATE + Time.T + Time.TIME + Time.MILLIS);
+        formatMap.put("date_hour_minute_second_millis", Date.DATE + Time.T + Time.TIME + Time.MILLIS);
+        formatMap.put("date_time", Date.DATE + Time.T + Time.TIME + Time.MILLIS + Time.TZZ);
+        formatMap.put("date_time_no_millis", Date.DATE + Time.T + Time.TIME + Time.TZZ);
 
-  TIME(Time.TIME + Time.MILLIS + Time.TZZ),
-  TIME_NO_MILLIS(Time.TIME + Time.TZZ),
+        formatMap.put("hour", Time.HOUR);
+        formatMap.put("hour_minute", Time.HOUR_MINUTE);
+        formatMap.put("hour_minute_second", Time.TIME);
+        formatMap.put("hour_minute_second_fraction", Time.TIME + Time.MILLIS);
+        formatMap.put("hour_minute_second_millis", Time.TIME + Time.MILLIS);
 
-  T_TIME(Time.T + Time.TIME + Time.MILLIS + Time.TZZ),
-  T_TIME_NO_MILLIS(Time.T + Time.TIME + Time.TZZ),
+        formatMap.put("ordinal_date", Date.ORDINAL_DATE);
+        formatMap.put("ordinal_date_time", Date.ORDINAL_DATE + Time.T + Time.TIME + Time.MILLIS + Time.TZZ);
+        formatMap.put("ordinal_date_time_no_millis", Date.ORDINAL_DATE + Time.T + Time.TIME + Time.TZZ);
 
-  WEEK_DATE(Date.WEEK_DATE),
-  WEEK_DATE_TIME(Date.WEEK_DATE + Time.T + Time.TIME + Time.MILLIS + Time.TZZ),
-  WEEK_DATE_TIME_NO_MILLIS(Date.WEEK_DATE + Time.T + Time.TIME + Time.TZZ),
+        formatMap.put("time", Time.TIME + Time.MILLIS + Time.TZZ);
+        formatMap.put("time_no_millis", Time.TIME + Time.TZZ);
 
-  // Note: input mapping is "weekyear", but output value is "week_year"
-  WEEK_YEAR(Date.WEEKYEAR),
-  WEEKYEAR_WEEK(Date.WEEKYEAR_WEEK),
-  WEEKYEAR_WEEK_DAY(Date.WEEK_DATE),
+        formatMap.put("t_time", Time.T + Time.TIME + Time.MILLIS + Time.TZZ);
+        formatMap.put("t_time_no_millis", Time.T + Time.TIME + Time.TZZ);
 
-  YEAR(Date.YEAR),
-  YEAR_MONTH(Date.YEAR_MONTH),
-  YEAR_MONTH_DAY(Date.DATE);
+        formatMap.put("week_date", Date.WEEK_DATE);
+        formatMap.put("week_date_time", Date.WEEK_DATE + Time.T + Time.TIME + Time.MILLIS + Time.TZZ);
+        formatMap.put("week_date_time_no_millis", Date.WEEK_DATE + Time.T + Time.TIME + Time.TZZ);
 
-  private static class Date {
-    static String BASIC_DATE = "yyyyMMdd";
-    static String BASIC_ORDINAL_DATE = "yyyyDDD";
-    static String BASIC_WEEK_DATE = "YYYY'W'wwu";
+        // Note: input mapping is "weekyear", but output value is "week_year"
+        formatMap.put("week_year", Date.WEEKYEAR);
+        formatMap.put("weekyear_week", Date.WEEKYEAR_WEEK);
+        formatMap.put("weekyear_week_day", Date.WEEK_DATE);
 
-    static String DATE = "yyyy-MM-dd";
-    static String ORDINAL_DATE = "yyyy-DDD";
+        formatMap.put("year", Date.YEAR);
+        formatMap.put("year_month", Date.YEAR_MONTH);
+        formatMap.put("year_month_day", Date.DATE);
+    }
 
-    static String YEAR = "yyyy";
-    static String YEAR_MONTH = "yyyy-MM";
+    private DateFormat() {
+    }
 
-    static String WEEK_DATE = "YYYY-'W'ww-u";
-    static String WEEKYEAR = "YYYY";
-    static String WEEKYEAR_WEEK = "YYYY-'W'ww";
-  }
+    public static String getFormatString(String formatName) {
+        return formatMap.get(formatName);
+    }
 
-  private static class Time {
-    static String T = "'T'";
-    static String BASIC_TIME = "HHmmss";
-    static String TIME = "HH:mm:ss";
+    public static String getFormattedDate(java.util.Date date, String dateFormat) {
+        Instant instant = date.toInstant();
+        ZonedDateTime zdt = ZonedDateTime.ofInstant(instant, ZoneId.of("Etc/UTC"));
+        return zdt.format(DateTimeFormatter.ofPattern(dateFormat));
+    }
 
-    static String HOUR = "HH";
-    static String HOUR_MINUTE = "HH:mm";
+    private static class Date {
+        static String BASIC_DATE = "yyyyMMdd";
+        static String BASIC_ORDINAL_DATE = "yyyyDDD";
+        static String BASIC_WEEK_DATE = "YYYY'W'wwu";
 
-    static String MILLIS = ".SSS";
-    static String TZ = "Z";
-    static String TZZ = "XX";
-  }
+        static String DATE = "yyyy-MM-dd";
+        static String ORDINAL_DATE = "yyyy-DDD";
 
-  private String formatString;
+        static String YEAR = "yyyy";
+        static String YEAR_MONTH = "yyyy-MM";
 
-  DateFormat(String formatString) {
-    this.formatString = formatString;
-  }
+        static String WEEK_DATE = "YYYY-'W'ww-u";
+        static String WEEKYEAR = "YYYY";
+        static String WEEKYEAR_WEEK = "YYYY-'W'ww";
+    }
 
-  public String getFormatString() {
-    return formatString;
-  }
+    private static class Time {
+        static String T = "'T'";
+        static String BASIC_TIME = "HHmmss";
+        static String TIME = "HH:mm:ss";
 
-  public String nameLowerCase() {
-    return name().toLowerCase();
-  }
+        static String HOUR = "HH";
+        static String HOUR_MINUTE = "HH:mm";
 
-  public static String getFormattedDate(java.util.Date date, String dateFormat) {
-    Instant instant = date.toInstant();
-    ZonedDateTime zdt = ZonedDateTime.ofInstant(instant, ZoneId.of("Etc/UTC"));
-    return zdt.format(DateTimeFormatter.ofPattern(dateFormat));
-  }
+        static String MILLIS = ".SSS";
+        static String TZ = "Z";
+        static String TZZ = "XX";
+    }
 }
