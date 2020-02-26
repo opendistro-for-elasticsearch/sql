@@ -30,7 +30,18 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.stream.IntStream;
 
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
@@ -38,6 +49,10 @@ import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.hitAny
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvDouble;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvInt;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvString;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.schema;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySchema;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.both;
 import static org.hamcrest.Matchers.closeTo;
@@ -60,6 +75,8 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     @Override
     protected void init() throws Exception {
         loadIndex(Index.ACCOUNT);
+        loadIndex(Index.ONLINE);
+        loadIndex(Index.DATE);
     }
 
     @Test
@@ -202,6 +219,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         for (int i = 0; i < hits.length; ++i) {
             Assert.assertThat(hits[i].getFields().get("cast_string_alias").getValue(), is("9838"));
         }
+
     }
 
     @Test
@@ -210,12 +228,11 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
                 "SELECT CAST(balance AS FLOAT) FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
                         " ORDER BY balance DESC LIMIT 1");
 
-        String float_type_cast = "{\"name\":\"cast_balance\",\"type\":\"float\"}";
-        assertEquals(response.getJSONArray("schema").get(0).toString(), float_type_cast);
-        Assert.assertThat(
-                response.getJSONArray("datarows")
-                        .getJSONArray(0).getFloat(0),
-                equalTo(49989.0F));
+        verifySchema(response,
+                schema("cast_balance", null, "float"));
+
+        verifyDataRows(response,
+                rows(49989));
     }
 
     @Test
@@ -224,13 +241,11 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
                 "SELECT CAST(balance AS FLOAT) AS jdbc_float_alias " +
                         "FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY jdbc_float_alias LIMIT 1");
 
-        String float_type_cast = "{\"name\":\"jdbc_float_alias\",\"type\":\"float\"}";
-        assertEquals(response.getJSONArray("schema").get(0).toString(), float_type_cast);
-        Assert.assertThat(
-                response.getJSONArray("datarows")
-                        .getJSONArray(0).getFloat(0),
-                equalTo(1011.0F));
+        verifySchema(response,
+                schema("jdbc_float_alias", null, "float"));
 
+        verifyDataRows(response,
+                rows(1011));
     }
 
     @Test
@@ -254,6 +269,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         for (int i = 0; i < hits.length; ++i) {
             Assert.assertThat(hits[i].getFields().get("alias").getValue(), is(40.0));
         }
+
     }
 
     @Test
@@ -262,16 +278,15 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
                 "SELECT CAST(balance AS FLOAT) FROM " +
                         TestsConstants.TEST_INDEX_ACCOUNT + " GROUP BY balance DESC LIMIT 5");
 
-        String float_type_cast = "{\"name\":\"balance\",\"type\":\"long\"}";
-        assertEquals(response.getJSONArray("schema").get(0).toString(), float_type_cast);
-        Float[] expectedOutput = new Float[] {22026.0F, 23285.0F, 36038.0F, 39063.0F, 45493.0F};
+        verifySchema(response,
+                schema("CAST(balance AS FLOAT)", null, "float"));
 
-        for (int i = 0; i < response.getJSONArray("datarows").length(); ++i) {
-            Assert.assertThat(
-                    response.getJSONArray("datarows")
-                            .getJSONArray(i).getFloat(0),
-                    equalTo(expectedOutput[i]));
-        }
+        verifyDataRows(response,
+                rows(22026),
+                rows(23285),
+                rows(36038),
+                rows(39063),
+                rows(45493));
     }
 
     @Test
@@ -280,16 +295,15 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
                 "SELECT CAST(balance AS FLOAT) AS jdbc_float_alias " +
                         "FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " GROUP BY jdbc_float_alias ASC LIMIT 5");
 
-        String float_type_cast = "{\"name\":\"jdbc_float_alias\",\"type\":\"float\"}";
-        assertEquals(response.getJSONArray("schema").get(0).toString(), float_type_cast);
-        Float[] expectedOutput = new Float[] {22026.0F, 23285.0F, 36038.0F, 39063.0F, 45493.0F};
+        verifySchema(response,
+                schema("jdbc_float_alias", "jdbc_float_alias", "float"));
 
-        for (int i = 0; i < response.getJSONArray("datarows").length(); ++i) {
-            Assert.assertThat(
-                    response.getJSONArray("datarows")
-                            .getJSONArray(i).getFloat(0),
-                    equalTo(expectedOutput[i]));
-        }
+        verifyDataRows(response,
+                rows("22026.0"),
+                rows("23285.0"),
+                rows("36038.0"),
+                rows("39063.0"),
+                rows("45493.0"));
     }
 
     @Test
@@ -298,16 +312,136 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
                 "SELECT CAST(age AS DOUBLE) AS jdbc_double_alias " +
                         "FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " GROUP BY jdbc_double_alias DESC LIMIT 5");
 
-        String float_type_cast = "{\"name\":\"jdbc_double_alias\",\"type\":\"double\"}";
-        assertEquals(response.getJSONArray("schema").get(0).toString(), float_type_cast);
-        Double[] expectedOutput = new Double[] {31.0, 39.0, 26.0, 32.0, 35.0};
+        verifySchema(response,
+                schema("jdbc_double_alias", "jdbc_double_alias", "double"));
 
-        for (int i = 0; i < response.getJSONArray("datarows").length(); ++i) {
-            Assert.assertThat(
-                    response.getJSONArray("datarows")
-                            .getJSONArray(i).getDouble(0),
-                    equalTo(expectedOutput[i]));
-        }
+        verifyDataRows(response,
+                rows("31.0"),
+                rows("39.0"),
+                rows("26.0"),
+                rows("32.0"),
+                rows("35.0"));
+    }
+
+    @Test
+    public void castKeywordFieldToDatetimeWithoutAliasJdbcFormatTest() {
+        JSONObject response = executeJdbcRequest("SELECT CAST(date_keyword AS DATETIME) FROM "
+                + TestsConstants.TEST_INDEX_DATE + " ORDER BY date_keyword");
+
+        verifySchema(response, schema("cast_date_keyword", null, "date"));
+
+        verifyDataRows(response,
+                rows("2014-08-19T07:09:13.434Z"),
+                rows("2019-09-25T02:04:13.469Z"));
+    }
+
+    @Test
+    public void castKeywordFieldToDatetimeWithAliasJdbcFormatTest() {
+        JSONObject response = executeJdbcRequest("SELECT CAST(date_keyword AS DATETIME) AS test_alias FROM "
+                + TestsConstants.TEST_INDEX_DATE + " ORDER BY date_keyword");
+
+        verifySchema(response, schema("test_alias", null, "date"));
+
+        verifyDataRows(response,
+                rows("2014-08-19T07:09:13.434Z"),
+                rows("2019-09-25T02:04:13.469Z"));
+    }
+
+    @Test
+    public void castFieldToDatetimeWithWhereClauseJdbcFormatTest() {
+        JSONObject response = executeJdbcRequest("SELECT CAST(date_keyword AS DATETIME) FROM "
+                + TestsConstants.TEST_INDEX_DATE + " WHERE date_keyword IS NOT NULL ORDER BY date_keyword");
+
+        verifySchema(response, schema("cast_date_keyword", null, "date"));
+
+        verifyDataRows(response,
+                rows("2014-08-19T07:09:13.434Z"),
+                rows("2019-09-25T02:04:13.469Z"));
+    }
+
+    @Test
+    public void castFieldToDatetimeWithGroupByJdbcFormatTest() {
+        JSONObject response = executeJdbcRequest("SELECT CAST(date_keyword AS DATETIME) AS test_alias FROM "
+                + TestsConstants.TEST_INDEX_DATE + " GROUP BY test_alias DESC");
+
+        verifySchema(response, schema("test_alias", "test_alias", "double"));
+
+        verifyDataRows(response,
+                rows("2014-08-19T07:09:13.434Z"),
+                rows("2019-09-25T02:04:13.469Z"));
+    }
+
+    @Test
+    public void castStatementInWhereClauseGreaterThanTest() {
+        JSONObject response = executeJdbcRequest("SELECT balance FROM " + TEST_INDEX_ACCOUNT
+                + " WHERE (account_number < CAST(age AS DOUBLE)) ORDER BY balance LIMIT 5");
+
+        verifySchema(response, schema("balance", null, "long"));
+
+        verifyDataRows(response,
+                rows(4180),
+                rows(5686),
+                rows(7004),
+                rows(7831),
+                rows(14127));
+    }
+
+    @Test
+    public void castStatementInWhereClauseLessThanTest() {
+        JSONObject response = executeJdbcRequest("SELECT balance FROM " + TEST_INDEX_ACCOUNT
+                + " WHERE (account_number > CAST(age AS DOUBLE)) ORDER BY balance LIMIT 5");
+
+        verifySchema(response, schema("balance", null, "long"));
+
+        verifyDataRows(response,
+                rows(1011),
+                rows(1031),
+                rows(1110),
+                rows(1133),
+                rows(1172));
+    }
+
+    @Test
+    public void castStatementInWhereClauseEqualToConstantTest() {
+        JSONObject response = executeJdbcRequest("SELECT balance FROM " + TEST_INDEX_ACCOUNT
+                + " WHERE (CAST(age AS DOUBLE) = 36.0) ORDER BY balance LIMIT 5");
+
+        verifySchema(response, schema("balance", null, "long"));
+        verifyDataRows(response,
+                rows(1249),
+                rows(1463),
+                rows(3960),
+                rows(5686),
+                rows(6025));
+    }
+
+    @Test
+    public void castStatementInWhereClauseLessThanConstantTest() {
+        JSONObject response = executeJdbcRequest("SELECT balance FROM " + TEST_INDEX_ACCOUNT
+                + " WHERE (CAST(age AS DOUBLE) < 36.0) ORDER BY balance LIMIT 5");
+
+        verifySchema(response, schema("balance", null, "long"));
+
+        verifyDataRows(response,
+                rows(1011),
+                rows(1031),
+                rows(1110),
+                rows(1133),
+                rows(1172));
+    }
+
+    /**
+     * Testing compilation
+     * Result comparison is empty -> comparing different types (Date and keyword)
+     */
+    @Test
+    public void castStatementInWhereClauseDatetimeCastTest() {
+        JSONObject response = executeJdbcRequest("SELECT date_keyword FROM "
+                + TestsConstants.TEST_INDEX_DATE
+                + " WHERE (CAST(date_keyword AS DATETIME) = \'2014-08-19T07:09:13.434Z\')");
+
+        String schema_result = "{\"name\":\"date_keyword\",\"type\":\"keyword\"}";
+        assertEquals(response.getJSONArray("schema").get(0).toString(), schema_result);
     }
 
     @Test
@@ -510,11 +644,12 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
     @Test
     public void ifFuncShouldPassJDBC() {
-        assertThat(
-                executeQuery("SELECT IF(age > 30, 'True', 'False') AS Ages FROM " + TEST_INDEX_ACCOUNT
-                        + " WHERE age IS NOT NULL GROUP BY Ages", "jdbc"),
-                containsString("\"type\": \"keyword\"")
-        );
+        JSONObject response = executeJdbcRequest(
+                "SELECT IF(age > 30, 'True', 'False') AS Ages FROM " + TEST_INDEX_ACCOUNT
+                + " WHERE age IS NOT NULL GROUP BY Ages");
+        assertEquals("Ages", response.query("/schema/0/name"));
+        assertEquals("Ages", response.query("/schema/0/alias"));
+        assertEquals("double", response.query("/schema/0/type"));
     }
 
     @Test
@@ -547,12 +682,12 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
     @Test
     public void ifnullShouldPassJDBC() throws IOException {
-        assertThat(
-                executeQuery("SELECT IFNULL(lastname, 'unknown') AS name FROM " + TEST_INDEX_ACCOUNT
-                        + " GROUP BY name", "jdbc"),
-                containsString("\"type\": \"keyword\"")
-        );
-
+        JSONObject response = executeJdbcRequest(
+                "SELECT IFNULL(lastname, 'unknown') AS name FROM " + TEST_INDEX_ACCOUNT
+                + " GROUP BY name");
+        assertEquals("name", response.query("/schema/0/name"));
+        assertEquals("name", response.query("/schema/0/alias"));
+        assertEquals("double", response.query("/schema/0/type"));
     }
 
     @Test
@@ -577,10 +712,11 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
     @Test
     public void isnullShouldPassJDBC() {
-        assertThat(
-                executeQuery("SELECT ISNULL(lastname) AS name FROM " + TEST_INDEX_ACCOUNT + " GROUP BY name", "jdbc"),
-                containsString("\"type\": \"keyword\"")
-        );
+        JSONObject response =
+                executeJdbcRequest("SELECT ISNULL(lastname) AS name FROM " + TEST_INDEX_ACCOUNT + " GROUP BY name");
+        assertEquals("name", response.query("/schema/0/name"));
+        assertEquals("name", response.query("/schema/0/alias"));
+        assertEquals("integer", response.query("/schema/0/type"));
     }
 
     @Test

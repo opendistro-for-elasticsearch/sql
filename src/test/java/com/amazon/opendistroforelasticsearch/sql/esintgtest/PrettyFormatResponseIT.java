@@ -313,8 +313,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
                                 String.format(Locale.ROOT, "SELECT COUNT(*) FROM %s GROUP BY age",
                                         TestsConstants.TEST_INDEX_ACCOUNT));
 
-        String count = "COUNT(*)";
-        List<String> fields = Arrays.asList("age", count);
+        List<String> fields = Arrays.asList("COUNT(*)");
         assertContainsColumns(getSchema(response), fields);
 
         JSONArray dataRows = getDataRows(response);
@@ -332,8 +331,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
                                 String.format(Locale.ROOT, "SELECT count(*) FROM %s GROUP BY age",
                                         TestsConstants.TEST_INDEX_ACCOUNT));
 
-        String count = "COUNT(*)";
-        List<String> fields = Arrays.asList("age", count);
+        List<String> fields = Arrays.asList("COUNT(*)");
         assertContainsColumns(getSchema(response), fields);
 
         JSONArray dataRows = getDataRows(response);
@@ -351,8 +349,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
                                 String.format(Locale.ROOT, "SELECT COUNT(*) AS total FROM %s GROUP BY age",
                                         TestsConstants.TEST_INDEX_ACCOUNT));
 
-        String count = "total";
-        List<String> fields = Arrays.asList("age", count);
+        List<String> fields = Arrays.asList("total");
         assertContainsColumns(getSchema(response), fields);
 
         JSONArray dataRows = getDataRows(response);
@@ -370,7 +367,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
                                 String.format(Locale.ROOT, "SELECT SUM(age) FROM %s GROUP BY age, state.keyword",
                                         TestsConstants.TEST_INDEX_ACCOUNT));
 
-        List<String> fields = Arrays.asList("age", "state.keyword", "SUM(age)");
+        List<String> fields = Arrays.asList("SUM(age)");
         assertContainsColumns(getSchema(response), fields);
         assertContainsData(getDataRows(response), fields);
     }
@@ -398,7 +395,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
                                 String.format(Locale.ROOT, "SELECT COUNT(*), AVG(age) FROM %s GROUP BY age",
                                         TestsConstants.TEST_INDEX_ACCOUNT));
 
-        List<String> fields = Arrays.asList("age", "COUNT(*)", "AVG(age)");
+        List<String> fields = Arrays.asList("COUNT(*)", "AVG(age)");
         assertContainsColumns(getSchema(response), fields);
         assertContainsData(getDataRows(response), fields);
     }

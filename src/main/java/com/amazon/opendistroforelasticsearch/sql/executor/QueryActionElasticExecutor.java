@@ -18,6 +18,9 @@ package com.amazon.opendistroforelasticsearch.sql.executor;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.join.ElasticJoinExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.multi.MultiRequestExecutorFactory;
+import com.amazon.opendistroforelasticsearch.sql.executor.adapter.QueryPlanQueryAction;
+import com.amazon.opendistroforelasticsearch.sql.executor.adapter.QueryPlanRequestBuilder;
+import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
 import com.amazon.opendistroforelasticsearch.sql.query.AggregationQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.DefaultQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.DeleteQueryAction;
@@ -36,6 +39,7 @@ import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.Aggregations;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Created by Eliran on 3/10/2015.
@@ -58,6 +62,11 @@ public class QueryActionElasticExecutor {
             throws SqlParseException {
         SqlElasticSearchRequestBuilder select = aggregationQueryAction.explain();
         return ((SearchResponse) select.get()).getAggregations();
+    }
+
+    public static List<BindingTuple> executeQueryPlanQueryAction(QueryPlanQueryAction queryPlanQueryAction) {
+        QueryPlanRequestBuilder select = (QueryPlanRequestBuilder) queryPlanQueryAction.explain();
+        return select.execute();
     }
 
     public static ActionResponse executeShowQueryAction(ShowQueryAction showQueryAction) {
@@ -88,6 +97,9 @@ public class QueryActionElasticExecutor {
         }
         if (queryAction instanceof AggregationQueryAction) {
             return executeAggregationAction((AggregationQueryAction) queryAction);
+        }
+        if (queryAction instanceof QueryPlanQueryAction) {
+            return executeQueryPlanQueryAction((QueryPlanQueryAction) queryAction);
         }
         if (queryAction instanceof ShowQueryAction) {
             return executeShowQueryAction((ShowQueryAction) queryAction);

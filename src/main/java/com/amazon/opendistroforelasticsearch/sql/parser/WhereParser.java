@@ -20,6 +20,7 @@ import com.alibaba.druid.sql.ast.expr.SQLBetweenExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOpExpr;
 import com.alibaba.druid.sql.ast.expr.SQLBinaryOperator;
 import com.alibaba.druid.sql.ast.expr.SQLBooleanExpr;
+import com.alibaba.druid.sql.ast.expr.SQLCastExpr;
 import com.alibaba.druid.sql.ast.expr.SQLCharExpr;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.expr.SQLInListExpr;
@@ -98,8 +99,6 @@ public class WhereParser {
     }
 
     public void parseWhere(SQLExpr expr, Where where) throws SqlParseException {
-
-
         if (expr instanceof SQLBinaryOpExpr) {
             SQLBinaryOpExpr bExpr = (SQLBinaryOpExpr) expr;
             if (explainSpecialCondWithBothSidesAreLiterals(bExpr, where)) {
@@ -199,7 +198,8 @@ public class WhereParser {
         }
         return leftSide instanceof SQLIdentifierExpr
                 || leftSide instanceof SQLPropertyExpr
-                || leftSide instanceof SQLVariantRefExpr;
+                || leftSide instanceof SQLVariantRefExpr
+                || leftSide instanceof SQLCastExpr;
     }
 
     private boolean isAllowedMethodOnConditionLeft(SQLMethodInvokeExpr method, SQLBinaryOperator operator) {
@@ -233,6 +233,7 @@ public class WhereParser {
     private void explainCond(String opear, SQLExpr expr, Where where) throws SqlParseException {
         if (expr instanceof SQLBinaryOpExpr) {
             SQLBinaryOpExpr soExpr = (SQLBinaryOpExpr) expr;
+
             boolean methodAsOpear = false;
 
             boolean isNested = false;
@@ -522,11 +523,23 @@ public class WhereParser {
         return methodField;
     }
 
+    private MethodField parseSQLCastExprWithFunctionInWhere(SQLCastExpr soExpr) throws SqlParseException {
+        ArrayList<SQLExpr> parameters = new ArrayList<>();
+        parameters.add(soExpr.getExpr());
+        return fieldMaker.makeMethodField(
+                "CAST",
+                parameters,
+                null,
+                null,
+                query != null ? query.getFrom().getAlias() : null,
+                false
+        );
+    }
+
     private SQLMethodInvokeExpr parseSQLBinaryOpExprWhoIsConditionInWhere(SQLBinaryOpExpr soExpr)
             throws SqlParseException {
 
-        if (!(soExpr.getLeft() instanceof SQLMethodInvokeExpr
-                || soExpr.getRight() instanceof SQLMethodInvokeExpr)) {
+        if (bothSideAreNotFunction(soExpr) && bothSidesAreNotCast(soExpr)) {
             return null;
         }
 
@@ -567,6 +580,13 @@ public class WhereParser {
             rightMethod = parseSQLMethodInvokeExprWithFunctionInWhere((SQLMethodInvokeExpr) soExpr.getRight());
         }
 
+        if (soExpr.getLeft() instanceof SQLCastExpr) {
+            leftMethod = parseSQLCastExprWithFunctionInWhere((SQLCastExpr) soExpr.getLeft());
+        }
+        if (soExpr.getRight() instanceof SQLCastExpr) {
+            rightMethod = parseSQLCastExprWithFunctionInWhere((SQLCastExpr) soExpr.getRight());
+        }
+
         String v1 = leftMethod.getParams().get(0).value.toString();
         String v1Dec = leftMethod.getParams().size() == 2 ? leftMethod.getParams().get(1).value.toString() + ";" : "";
 
@@ -586,6 +606,14 @@ public class WhereParser {
         scriptMethod.addParameter(new SQLCharExpr(finalStr));
         return scriptMethod;
 
+    }
+
+    private Boolean bothSideAreNotFunction(SQLBinaryOpExpr soExpr) {
+        return !(soExpr.getLeft() instanceof SQLMethodInvokeExpr || soExpr.getRight() instanceof SQLMethodInvokeExpr);
+    }
+
+    private Boolean bothSidesAreNotCast(SQLBinaryOpExpr soExpr) {
+        return !(soExpr.getLeft() instanceof SQLCastExpr || soExpr.getRight() instanceof SQLCastExpr);
     }
 
     private Object[] getMethodValuesWithSubQueries(SQLMethodInvokeExpr method) throws SqlParseException {

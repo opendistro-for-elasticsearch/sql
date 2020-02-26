@@ -21,6 +21,7 @@ import com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlRespon
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat;
 
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.TABLE_RESPONSE;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.TABLE_UNSORTED_RESPONSE;
 
 /**
  * Request and response format tuple.
@@ -44,6 +45,6 @@ class Formats {
     }
 
     boolean isTableFormat() {
-        return responseFormat == TABLE_RESPONSE;
+        return responseFormat == TABLE_RESPONSE || responseFormat == TABLE_UNSORTED_RESPONSE;
     }
 }

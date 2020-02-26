@@ -23,7 +23,6 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.KVValue;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Order;
-import com.amazon.opendistroforelasticsearch.sql.domain.ScriptMethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.domain.Where;
 import com.amazon.opendistroforelasticsearch.sql.domain.hints.Hint;
@@ -268,14 +267,7 @@ public class DefaultQueryAction extends QueryAction {
 
     private ScriptSortType getScriptSortType(Order order) {
         ScriptSortType scriptSortType;
-        Schema.Type scriptFunctionReturnType;
-        if (order.getSortField().getExpression() instanceof SQLCastExpr) {
-            scriptFunctionReturnType = SQLFunctions.getCastFunctionReturnType(
-                    ((SQLCastExpr) order.getSortField().getExpression()).getDataType().getName());
-        } else {
-            ScriptMethodField smf = (ScriptMethodField) order.getSortField();
-            scriptFunctionReturnType = SQLFunctions.getScriptFunctionReturnType(smf.getFunctionName());
-        }
+        Schema.Type scriptFunctionReturnType = SQLFunctions.getOrderByFieldType(order.getSortField());
 
 
         // as of now script function return type returns only text and double
