@@ -45,6 +45,7 @@ public class DateFieldFormatter {
     private static final String FORMAT_DOT_DATE_AND_TIME = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
     private static final String FORMAT_DOT_KIBANA_SAMPLE_DATA_LOGS_EXCEPTION = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     private static final String FORMAT_DOT_KIBANA_SAMPLE_DATA_FLIGHTS_EXCEPTION = "yyyy-MM-dd'T'HH:mm:ss";
+    private static final String FORMAT_DOT_KIBANA_SAMPLE_DATA_FLIGHTS_EXCEPTION_NO_TIME = "yyyy-MM-dd'T'";
     private static final String FORMAT_DOT_KIBANA_SAMPLE_DATA_ECOMMERCE_EXCEPTION = "yyyy-MM-dd'T'HH:mm:ssXXX";
     private static final String FORMAT_DOT_DATE = DateFormat.getFormatString("date");
 
@@ -163,6 +164,7 @@ public class DateFieldFormatter {
                             columnOriginalDate,
                             FORMAT_DOT_KIBANA_SAMPLE_DATA_LOGS_EXCEPTION,
                             FORMAT_DOT_KIBANA_SAMPLE_DATA_FLIGHTS_EXCEPTION,
+                            FORMAT_DOT_KIBANA_SAMPLE_DATA_FLIGHTS_EXCEPTION_NO_TIME,
                             FORMAT_DOT_KIBANA_SAMPLE_DATA_ECOMMERCE_EXCEPTION,
                             FORMAT_DOT_DATE_AND_TIME,
                             FORMAT_DOT_DATE);

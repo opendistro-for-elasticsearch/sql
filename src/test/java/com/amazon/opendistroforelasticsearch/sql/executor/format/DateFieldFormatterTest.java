@@ -51,6 +51,17 @@ public class DateFieldFormatterTest {
     }
 
     @Test
+    public void testKibanaSampleDataFlightsTimestampFieldNoTime()
+    {
+        String columnName = "timestamp";
+        String dateFormat = "date_optional_time";
+        String originalDateValue = "2020-02-03T";
+        String expectedDateValue = "2020-02-03 00:00:00.000";
+
+        verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
+    }
+
+    @Test
     public void testKibanaSampleDataLogsUtcDateField()
     {
         String columnName = "utc_date";
