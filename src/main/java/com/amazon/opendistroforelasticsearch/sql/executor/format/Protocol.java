@@ -27,7 +27,6 @@ import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema.Column;
 import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
 import com.amazon.opendistroforelasticsearch.sql.query.DefaultQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
-import org.elasticsearch.ElasticsearchException;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.ColumnNode;
 import org.elasticsearch.client.Client;
 import org.json.JSONArray;
