@@ -22,7 +22,7 @@ import org.elasticsearch.action.search.ShardSearchFailure;
 
 public class ElasticsearchErrorMessage extends ErrorMessage<ElasticsearchException> {
 
-    public ElasticsearchErrorMessage(ElasticsearchException exception, int status) {
+    ElasticsearchErrorMessage(ElasticsearchException exception, int status) {
         super(exception, status);
     }
 

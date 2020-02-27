@@ -199,21 +199,4 @@ public class Protocol {
         }
         return entry;
     }
-
-    public static Throwable unwrapCause(Throwable t) {
-        Throwable result = t;
-        int layer = 0;
-        // limit the unwrapping up to 5 layers
-        while (result != null && layer < 5) {
-            if (result instanceof ElasticsearchException) {
-                return result;
-            }
-            if (result.getCause() == null) {
-                return result;
-            }
-            result = result.getCause();
-            layer++;
-        }
-        return result;
-    }
 }
