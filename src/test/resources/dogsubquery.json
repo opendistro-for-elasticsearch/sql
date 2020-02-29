@@ -1,8 +1,8 @@
-{"index":{"_type": "dog", "_id":"1"}}
+{"index":{"_id":"1"}}
 {"dog_name":"rex","holdersName":"Daenerys","age":2}
-{"index":{"_type": "dog", "_id":"6"}}
+{"index":{"_id":"6"}}
 {"dog_name":"snoopy","holdersName":"Hattie","age":4}
-{"index":{"_type": "dog", "_id":"7"}}
+{"index":{"_id":"7"}}
 {"dog_name":"babala","holdersName":"Michael","age":5}
-{"index":{"_type": "dog", "_id":"8"}}
+{"index":{"_id":"8"}}
 {"dog_name":"gogo","holdersName":"Gabrielle","age":6}

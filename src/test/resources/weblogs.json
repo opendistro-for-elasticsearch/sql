@@ -1,6 +1,6 @@
-{"index":{"_type": "weblog"}}
+{"index":{}}
 {"host": "199.72.81.55", "method": "GET", "url": "/history/apollo/", "response": "200", "bytes": "6245"}
-{"index":{"_type": "weblog"}}
+{"index":{}}
 {"host": "199.120.110.21", "method": "GET", "url": "/shuttle/missions/sts-73/mission-sts-73.html", "response": "200", "bytes": "4085"}
-{"index":{"_type": "weblog"}}
+{"index":{}}
 {"host": "205.212.115.106", "method": "GET", "url": "/shuttle/countdown/countdown.html", "response": "200", "bytes": "3985"}

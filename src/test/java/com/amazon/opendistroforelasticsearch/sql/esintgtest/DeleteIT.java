@@ -33,11 +33,11 @@ public class DeleteIT extends SQLIntegTestCase {
 
     @Test
     public void deleteAllTest() throws IOException, InterruptedException {
-        String selectQuery = StringUtils.format("SELECT * FROM %s/account", TestsConstants.TEST_INDEX_ACCOUNT);
+        String selectQuery = StringUtils.format("SELECT * FROM %s", TestsConstants.TEST_INDEX_ACCOUNT);
         JSONObject response = executeRequest(makeRequest(selectQuery));
         int totalHits = getTotalHits(response);
 
-        String deleteQuery = StringUtils.format("DELETE FROM %s/account", TestsConstants.TEST_INDEX_ACCOUNT);
+        String deleteQuery = StringUtils.format("DELETE FROM %s", TestsConstants.TEST_INDEX_ACCOUNT);
         response = executeRequest(makeRequest(deleteQuery));
         assertThat(response.getInt("deleted"), equalTo(totalHits));
 
@@ -76,11 +76,11 @@ public class DeleteIT extends SQLIntegTestCase {
 
     @Test
     public void deleteAllWithJdbcFormat() throws IOException, InterruptedException {
-        String selectQuery = StringUtils.format("SELECT * FROM %s/account", TestsConstants.TEST_INDEX_ACCOUNT);
+        String selectQuery = StringUtils.format("SELECT * FROM %s", TestsConstants.TEST_INDEX_ACCOUNT);
         JSONObject response = executeRequest(makeRequest(selectQuery));
         int totalHits = getTotalHits(response);
 
-        String deleteQuery = StringUtils.format("DELETE FROM %s/account", TestsConstants.TEST_INDEX_ACCOUNT);
+        String deleteQuery = StringUtils.format("DELETE FROM %s", TestsConstants.TEST_INDEX_ACCOUNT);
 
         response = new JSONObject(executeQuery(deleteQuery, "jdbc"));
         System.out.println(response);

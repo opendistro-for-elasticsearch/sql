@@ -1,14 +1,14 @@
-{"index":{"_type": "_doc","_id":"1"}}
+{"index":{"_id":"1"}}
 {"id" : 1 , "name" : "b"}
-{"index":{"_type": "_doc","_id":"2"}}
+{"index":{"_id":"2"}}
 {"id" : 3 , "name" : "a"}
-{"index":{"_type": "_doc","_id":"3"}}
+{"index":{"_id":"3"}}
 {"id" : 2 , "name" :  "d"}
-{"index":{"_type": "_doc","_id":"4"}}
+{"index":{"_id":"4"}}
 {"id" : 4 }
-{"index":{"_type": "_doc","_id":"5"}}
+{"index":{"_id":"5"}}
 {"name" : "c"}
-{"index":{"_type": "_doc","_id":"6"}}
+{"index":{"_id":"6"}}
 {"id" : 5 , "name" :  "f"}
-{"index":{"_type": "_doc","_id":"7"}}
+{"index":{"_id":"7"}}
 {"id" : null , "name" : "e"}

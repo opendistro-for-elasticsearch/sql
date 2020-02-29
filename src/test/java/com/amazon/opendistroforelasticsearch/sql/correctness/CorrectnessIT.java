@@ -91,7 +91,7 @@ public class CorrectnessIT extends SQLIntegTestCase {
         RestClient client;
         String esHost = config.getESHostUrl();
         if (esHost.isEmpty()) {
-            client = getRestClient();
+            client = client();
             esHost = client.getNodes().get(0).getHost().toString();
         } else {
             client = RestClient.builder(HttpHost.create(esHost)).build();

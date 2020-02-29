@@ -46,7 +46,7 @@ public class PreparedStatementIT extends SQLIntegTestCase {
         int ageToCompare = 35;
 
         JSONObject response = executeRequest(String.format("{\n" +
-                "  \"query\": \"SELECT * FROM %s/account WHERE age > ? AND state in (?, ?) LIMIT ?\",\n" +
+                "  \"query\": \"SELECT * FROM %s WHERE age > ? AND state in (?, ?) LIMIT ?\",\n" +
                 "  \"parameters\": [\n" +
                 "    {\n" +
                 "      \"type\": \"integer\",\n" +

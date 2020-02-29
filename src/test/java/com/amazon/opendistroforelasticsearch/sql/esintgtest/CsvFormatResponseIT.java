@@ -19,8 +19,6 @@ import com.amazon.opendistroforelasticsearch.sql.executor.csv.CSVResult;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.test.ESIntegTestCase;
 import org.hamcrest.Matcher;
 import org.hamcrest.core.AnyOf;
 import org.junit.Assert;
@@ -652,8 +650,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
         restOptionsBuilder.addHeader("Content-Type", "application/json");
         sqlRequest.setOptions(restOptionsBuilder);
 
-        final RestClient restClient = ESIntegTestCase.getRestClient();
-        final Response response = restClient.performRequest(sqlRequest);
+        final Response response = client().performRequest(sqlRequest);
         Assert.assertEquals(200, response.getStatusLine().getStatusCode());
         final String responseString = TestUtils.getResponseBody(response, true);
 

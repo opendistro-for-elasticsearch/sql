@@ -1,4 +1,4 @@
-{"index":{"_type": "nestedType", "_id":"7"}}
+{"index":{"_id":"7"}}
 {"message":[{"info":"zz", "author":"z\"z", "dayOfWeek":6}], "comment":{"data":["aa","bb"], "likes":10}, "myNum":[3,4], "someField":"a"}
-{"index":{"_type": "nestedType", "_id":"8"}}
+{"index":{"_id":"8"}}
 {"message":[{"info":"rr", "author":"this \"value\" contains quotes", "dayOfWeek":3}], "comment":{"data":["asdf","sdfg"], "likes":56}, "myNum":[1,2,4], "someField":"ert"}

@@ -20,13 +20,13 @@ import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.Section
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.builder.DocBuilder;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.Document;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.RstDocument;
-import com.amazon.opendistroforelasticsearch.sql.esintgtest.SQLIntegTestCase;
 import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils;
 import com.carrotsearch.randomizedtesting.AnnotatedMethodProvider;
 import com.carrotsearch.randomizedtesting.TestMethodAndParams;
 import com.carrotsearch.randomizedtesting.annotations.TestCaseOrdering;
 import com.carrotsearch.randomizedtesting.annotations.TestMethodProviders;
 import org.elasticsearch.client.RestClient;
+import org.elasticsearch.test.ESIntegTestCase;
 import org.elasticsearch.test.ESIntegTestCase.ClusterScope;
 
 import java.io.IOException;
@@ -45,10 +45,10 @@ import static org.elasticsearch.test.ESIntegTestCase.Scope.SUITE;
 @TestMethodProviders({DocTest.SectionMethod.class})
 @TestCaseOrdering(DocTest.SectionOrder.class)
 @ClusterScope(scope= SUITE, numDataNodes=1, supportsDedicatedMasters=false, transportClientRatio=1)
-public abstract class DocTest extends SQLIntegTestCase implements DocBuilder {
+public abstract class DocTest extends ESIntegTestCase implements DocBuilder {
 
     @Override
-    protected void init() throws Exception {
+    protected void setupSuiteScopeCluster() {
         DocTestConfig config = getClass().getAnnotation(DocTestConfig.class);
         loadTestData(config);
         copyTemplateToDocument(config);

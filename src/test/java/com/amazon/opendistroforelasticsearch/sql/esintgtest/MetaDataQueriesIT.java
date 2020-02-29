@@ -228,7 +228,7 @@ public class MetaDataQueriesIT extends SQLIntegTestCase {
          * "TABLE_TYPE" : 3
          */
         JSONArray row = dataRows.getJSONArray(0);
-        assertThat(row.get(0), equalTo(getClusterName()));
+        assertThat(row.get(0), equalTo(getTestName()));
         assertThat(row.get(2), equalTo(TestsConstants.TEST_INDEX_ACCOUNT));
         assertThat(row.get(3), equalTo(TABLE_TYPE));
     }
@@ -245,7 +245,7 @@ public class MetaDataQueriesIT extends SQLIntegTestCase {
         assertThat(dataRows.getJSONArray(0).length(), equalTo(SHOW_FIELD_LENGTH));
 
         JSONArray row = dataRows.getJSONArray(0);
-        assertThat(row.get(0), equalTo(getClusterName()));
+        assertThat(row.get(0), equalTo(getTestName()));
         assertThat(row.get(2), equalTo(TestsConstants.TEST_INDEX_ACCOUNT));
         assertThat(row.get(3), equalTo(TABLE_TYPE));
     }
@@ -358,13 +358,6 @@ public class MetaDataQueriesIT extends SQLIntegTestCase {
 
     private JSONArray getDataRows(JSONObject jdbcResponse) {
         return jdbcResponse.getJSONArray("datarows");
-    }
-
-    private String getClusterName() {
-        return this.admin().cluster()
-                .prepareHealth()
-                .get()
-                .getClusterName();
     }
 
     private void checkContainsColumns(JSONArray schema, String... fields) {

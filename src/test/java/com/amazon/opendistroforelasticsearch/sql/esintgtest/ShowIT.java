@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
-import org.elasticsearch.client.AdminClient;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,14 +27,11 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 public class ShowIT extends SQLIntegTestCase {
 
     @Override
-    protected void setupSuiteScopeCluster() {
-
-        AdminClient adminClient = this.admin();
-
+    protected void init() {
         // Note: not using the existing TEST_INDEX_* indices, since underscore in the names causes issues
-        TestUtils.createTestIndex(adminClient, "abcdefg", "doc", null);
-        TestUtils.createTestIndex(adminClient, "abcdefghijk", "doc", null);
-        TestUtils.createTestIndex(adminClient, "abcdijk", "doc", null);
+        TestUtils.createIndexByRestClient(client(), "abcdefg", null);
+        TestUtils.createIndexByRestClient(client(), "abcdefghijk", null);
+        TestUtils.createIndexByRestClient(client(), "abcdijk", null);
     }
 
     @Test
