@@ -29,6 +29,7 @@ import com.amazon.opendistroforelasticsearch.sql.executor.ActionRequestRestExecu
 import com.amazon.opendistroforelasticsearch.sql.executor.Format;
 import com.amazon.opendistroforelasticsearch.sql.executor.RestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.ErrorMessage;
+import com.amazon.opendistroforelasticsearch.sql.executor.format.ErrorMessageFactory;
 import com.amazon.opendistroforelasticsearch.sql.metrics.MetricName;
 import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
@@ -202,7 +203,7 @@ public class RestSqlAction extends BaseRestHandler {
     }
 
     private void reportError(final RestChannel channel, final Exception e, final RestStatus status) {
-        sendResponse(channel, new ErrorMessage<>(e, status.getStatus()).toString(), status);
+        sendResponse(channel, ErrorMessageFactory.createErrorMessage(e, status.getStatus()).toString(), status);
     }
 
     private boolean isSQLFeatureEnabled() {

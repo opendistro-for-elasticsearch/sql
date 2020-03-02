@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.plugin;
 
 import com.amazon.opendistroforelasticsearch.sql.executor.format.ErrorMessage;
+import com.amazon.opendistroforelasticsearch.sql.executor.format.ErrorMessageFactory;
 import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
 import com.amazon.opendistroforelasticsearch.sql.utils.LogUtils;
 import org.apache.logging.log4j.LogManager;
@@ -69,7 +70,7 @@ public class RestSqlStatsAction extends BaseRestHandler {
             LOG.error("Failed during Query SQL STATS Action.", e);
 
             return channel -> channel.sendResponse(new BytesRestResponse(SERVICE_UNAVAILABLE,
-                    new ErrorMessage<>(e, SERVICE_UNAVAILABLE.getStatus()).toString()));
+                    ErrorMessageFactory.createErrorMessage(e, SERVICE_UNAVAILABLE.getStatus()).toString()));
         }
     }
 

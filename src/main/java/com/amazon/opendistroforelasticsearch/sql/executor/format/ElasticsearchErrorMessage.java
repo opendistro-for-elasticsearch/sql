@@ -36,8 +36,7 @@ public class ElasticsearchErrorMessage extends ErrorMessage<ElasticsearchExcepti
     protected String fetchDetails() {
         StringBuilder details = new StringBuilder();
         if (exception instanceof SearchPhaseExecutionException) {
-            String detail = fetchSearchPhaseExecutionExceptionDetails((SearchPhaseExecutionException) exception);
-            details.append(detail);
+            details.append(fetchSearchPhaseExecutionExceptionDetails((SearchPhaseExecutionException) exception));
         } else {
             details.append(defaultDetails(exception));
         }
