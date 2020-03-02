@@ -31,7 +31,7 @@ public class WktToGeoJsonConverter {
         int startOfCoordinates = wkt.indexOf("(");
         if (startOfCoordinates == -1) {
             throw new IllegalArgumentException(
-                    StringUtils.format("Failed to convert well-know-text [%s] to geometry type", wkt));
+                    StringUtils.format("Failed to convert well-known-text [%s] to geometry type", wkt));
         }
 
         String wktType = wkt.substring(0, startOfCoordinates).trim();

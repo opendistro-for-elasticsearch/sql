@@ -11,7 +11,7 @@ Troubleshooting
 Narrative
 =========
 
-SQL plugin is stateless for now so mostly the troubleshooting is mainly focused on why a single query fails.
+SQL plugin is stateless for now so mostly the troubleshooting is focused on why a single query fails.
 
 
 Syntax Analysis / Semantic Analysis Exceptions
@@ -49,9 +49,9 @@ You need to confirm if the syntax is not supported and disable query analysis if
 
 1. Identify syntax error in failed query, and correct the syntax if the query does not follow MySQL grammar. Go to step 2 if your query is correct in syntax but it still ends up syntax exception.
 
-1. Disable strict query analysis in new ANTLR parser with the following code block.
+#. Disable strict query analysis in new ANTLR parser with the following code block.
 
-1. Verify if the query can pass now. If the query fails as well, please create an issue in our `GitHub Issues <https://github.com/opendistro-for-elasticsearch/sql/issues>`_ section to report bugs fixing or request new features.
+#. Verify if the query can pass now. If the query fails as well, please create an issue in our `GitHub Issues <https://github.com/opendistro-for-elasticsearch/sql/issues>`_ section to report bugs fixing or request new features.
 
 .. code-block:: JSON
 
