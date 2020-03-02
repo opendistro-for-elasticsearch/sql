@@ -80,7 +80,7 @@ public class Protocol {
         if (queryStatement instanceof Delete) {
             return new DeleteResultSet(client, (Delete) queryStatement, queryResult);
         } else if (queryStatement instanceof Query) {
-            return new SelectResultSet(client, (Query) queryStatement, queryResult, scriptColumnType);
+            return new SelectResultSet(client, (Query) queryStatement, queryResult, scriptColumnType, formatType);
         } else if (queryStatement instanceof IndexStatement) {
             IndexStatement statement = (IndexStatement) queryStatement;
             StatementType statementType = statement.getStatementType();
