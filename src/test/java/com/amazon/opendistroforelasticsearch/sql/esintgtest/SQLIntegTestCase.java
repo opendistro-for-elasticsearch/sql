@@ -53,34 +53,10 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.loa
 import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.EXPLAIN_API_ENDPOINT;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.QUERY_API_ENDPOINT;
 
-//@ESIntegTestCase.SuiteScopeTestCase
-//@ESIntegTestCase.ClusterScope(scope=ESIntegTestCase.Scope.SUITE, numDataNodes=3, supportsDedicatedMasters=false, transportClientRatio=1)
-//@ThreadLeakScope(ThreadLeakScope.Scope.NONE)
-//public abstract class SQLIntegTestCase extends ESIntegTestCase {
+/**
+ * SQL plugin integration test base class.
+ */
 public abstract class SQLIntegTestCase extends ESRestTestCase {
-
-    /*
-    @Override
-    protected TestCluster buildTestCluster(Scope scope, long seed) throws IOException {
-
-        String clusterAddresses = System.getProperty(TESTS_CLUSTER);
-
-        if (Strings.hasLength(clusterAddresses)) {
-            String[] stringAddresses = clusterAddresses.split(",");
-            TransportAddress[] transportAddresses = new TransportAddress[stringAddresses.length];
-            int i = 0;
-            for (String stringAddress : stringAddresses) {
-                URL url = new URL("http://" + stringAddress);
-                InetAddress inetAddress = InetAddress.getByName(url.getHost());
-                transportAddresses[i++] = new TransportAddress(new InetSocketAddress(inetAddress, url.getPort()));
-            }
-            return new CustomExternalTestCluster(createTempDir(), externalClusterClientSettings(),
-                                                 transportClientPlugins(), transportAddresses);
-        }
-
-        return super.buildTestCluster(scope, seed);
-    }
-    */
 
     @Before
     public void setUpCluster() throws Exception {
@@ -315,11 +291,11 @@ public abstract class SQLIntegTestCase extends ESRestTestCase {
                 "src/test/resources/odbc-date-formats.json"),
         LOCATION(TestsConstants.TEST_INDEX_LOCATION,
                 "location",
-                getLocationIndexMapping("location"),
+                getLocationIndexMapping(),
                 "src/test/resources/locations.json"),
         LOCATION_TWO(TestsConstants.TEST_INDEX_LOCATION2,
                 "location2",
-                getLocationIndexMapping("location2"),
+                getLocationIndexMapping(),
                 "src/test/resources/locations2.json"),
         NESTED(TestsConstants.TEST_INDEX_NESTED_TYPE,
                 "nestedType",
@@ -339,11 +315,11 @@ public abstract class SQLIntegTestCase extends ESRestTestCase {
                 "src/test/resources/join_objects.json"),
         BANK(TestsConstants.TEST_INDEX_BANK,
                 "account",
-                getBankIndexMapping("account"),
+                getBankIndexMapping(),
                 "src/test/resources/bank.json"),
         BANK_TWO(TestsConstants.TEST_INDEX_BANK_TWO,
                 "account_two",
-                getBankIndexMapping("account_two"),
+                getBankIndexMapping(),
                 "src/test/resources/bank_two.json"),
         ORDER(TestsConstants.TEST_INDEX_ORDER,
                 "_doc",

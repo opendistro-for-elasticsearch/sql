@@ -15,13 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
-import org.elasticsearch.action.ActionFuture;
-import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
-import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.client.AdminClient;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
@@ -113,24 +109,6 @@ public class TestUtils {
         } catch (IOException e) {
             throw new IllegalStateException("Failed to perform request", e);
         }
-    }
-
-    public static void createTestIndex(AdminClient admin, String index, String type, String mapping) {
-        System.out.println("Creating index " + index);
-
-        CreateIndexRequest createIndexRequest = new CreateIndexRequest(index);
-        if(mapping != null) {
-            createIndexRequest.mapping(type, mapping, XContentType.JSON);
-        }
-        ActionFuture<CreateIndexResponse> responseFuture = admin.indices().create(createIndexRequest);
-        CreateIndexResponse response = responseFuture.actionGet();
-        if (response.isAcknowledged()) {
-            System.out.println("Index " + index + " created");
-        } else {
-            throw new IllegalStateException("Failed to create index " + index);
-        }
-
-        admin.indices().prepareRefresh(index).execute().actionGet();
     }
 
     public static String getAccountIndexMapping() {
@@ -301,14 +279,14 @@ public class TestUtils {
                 "}";
     }
 
-    public static String getLocationIndexMapping(String type) {
+    public static String getLocationIndexMapping() {
         return "{\n" +
                 "\t\"mappings\" :{\n" +
                 "\t\t\"properties\":{\n" +
                 "\t\t\t\"place\":{\n" +
-                "\t\t\t\t\"type\":\"geo_shape\",\n" +
-                "\t\t\t\t\"tree\": \"quadtree\",\n" +
-                "\t\t\t\t\"precision\": \"10km\"\n" +
+                "\t\t\t\t\"type\":\"geo_shape\"\n" +
+                //"\t\t\t\t\"tree\": \"quadtree\",\n" + // Field tree and precision are deprecated in ES
+                //"\t\t\t\t\"precision\": \"10km\"\n" +
                 "\t\t\t},\n" +
                 "\t\t\t\"center\":{\n" +
                 "\t\t\t\t\"type\":\"geo_point\"\n" +
@@ -491,7 +469,7 @@ public class TestUtils {
                 "}";
     }
 
-    public static String getBankIndexMapping(String type) {
+    public static String getBankIndexMapping() {
         return "{\n" +
                 "  \"mappings\": {\n" +
                 "    \"properties\": {\n" +

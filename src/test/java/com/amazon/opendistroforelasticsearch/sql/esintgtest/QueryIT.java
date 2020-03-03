@@ -1241,7 +1241,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void queryWithDotAtStartOfIndexName() throws Exception {
         TestUtils.createIndexByRestClient(client(), ".bank", null);
-        TestUtils.loadDataByRestClient(client(), "/src/test/resources/.bank.json", ".bank");
+        TestUtils.loadDataByRestClient(client(), ".bank", "/src/test/resources/.bank.json");
 
         String response = executeQuery("SELECT education FROM .bank WHERE account_number = 12345",
                 "jdbc");
@@ -1678,8 +1678,7 @@ public class QueryIT extends SQLIntegTestCase {
     @Test
     public void backticksQuotedIndexNameTest() throws Exception {
         TestUtils.createIndexByRestClient(client(), "bank_unquote", null);
-        TestUtils.loadDataByRestClient(client(),
-                "/src/test/resources/bank_for_unquote_test.json", "bank");
+        TestUtils.loadDataByRestClient(client(), "bank", "/src/test/resources/bank_for_unquote_test.json");
 
         JSONArray hits = getHits(executeQuery("SELECT lastname FROM `bank`"));
         Object responseIndex = ((JSONObject) hits.get(0)).query("/_index");
