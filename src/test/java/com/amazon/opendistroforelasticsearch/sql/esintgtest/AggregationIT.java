@@ -369,7 +369,7 @@ public class AggregationIT extends SQLIntegTestCase {
     @Test
     public void termsWithMissing() throws Exception {
 
-        JSONObject result = executeQuery(String.format("SELECT count(*) FROM %s/gotCharacters GROUP BY terms" +
+        JSONObject result = executeQuery(String.format("SELECT count(*) FROM %s GROUP BY terms" +
                         "('alias'='nick','field'='nickname','missing'='no_nickname')",
                 TEST_INDEX_GAME_OF_THRONES));
         JSONObject nick = getAggregation(result, "nick");
@@ -392,7 +392,7 @@ public class AggregationIT extends SQLIntegTestCase {
         final String dog1 = "snoopy";
         final String dog2 = "rex";
 
-        JSONObject result = executeQuery(String.format("SELECT count(*) FROM %s/dog GROUP BY terms" +
+        JSONObject result = executeQuery(String.format("SELECT count(*) FROM %s GROUP BY terms" +
                         "('field'='dog_name', 'alias'='dog_name', 'order'='desc')",
                 TEST_INDEX_DOG));
         JSONObject dogName = getAggregation(result, "dog_name");
@@ -402,7 +402,7 @@ public class AggregationIT extends SQLIntegTestCase {
         Assert.assertThat(firstDog, equalTo(dog1));
         Assert.assertThat(secondDog, equalTo(dog2));
 
-        result = executeQuery(String.format("SELECT count(*) FROM %s/dog GROUP BY terms" +
+        result = executeQuery(String.format("SELECT count(*) FROM %s GROUP BY terms" +
                 "('field'='dog_name', 'alias'='dog_name', 'order'='asc')", TEST_INDEX_DOG));
 
         dogName = getAggregation(result, "dog_name");
@@ -494,20 +494,20 @@ public class AggregationIT extends SQLIntegTestCase {
     public void countGroupByDateTest() throws IOException {
 
         String result = explainQuery(String.format("select insert_time from %s group by date_histogram" +
-                "('field'='insert_time','interval'='1.5h','format'='yyyy-MM','min_doc_count'=5) ", TEST_INDEX_ONLINE));
+                "('field'='insert_time','fixed_interval'='1h','format'='yyyy-MM','min_doc_count'=5) ", TEST_INDEX_ONLINE));
         Assert.assertThat(result.replaceAll("\\s+", ""),
                 containsString("{\"date_histogram\":{\"field\":\"insert_time\",\"format\":\"yyyy-MM\"," +
-                        "\"interval\":\"1.5h\",\"offset\":0,\"order\":{\"_key\":\"asc\"},\"keyed\":false," +
+                        "\"fixed_interval\":\"1h\",\"offset\":0,\"order\":{\"_key\":\"asc\"},\"keyed\":false," +
                         "\"min_doc_count\":5}"));
     }
 
     @Test
     public void countGroupByDateTestWithAlias() throws IOException {
         String result = explainQuery(String.format("select insert_time from %s group by date_histogram" +
-                "('field'='insert_time','interval'='1.5h','format'='yyyy-MM','alias'='myAlias')", TEST_INDEX_ONLINE));
+                "('field'='insert_time','fixed_interval'='1h','format'='yyyy-MM','alias'='myAlias')", TEST_INDEX_ONLINE));
         Assert.assertThat(result.replaceAll("\\s+",""),
                 containsString("myAlias\":{\"date_histogram\":{\"field\":\"insert_time\"," +
-                        "\"format\":\"yyyy-MM\",\"interval\":\"1.5h\""));
+                        "\"format\":\"yyyy-MM\",\"fixed_interval\":\"1h\""));
     }
 
 //    /**
@@ -715,7 +715,7 @@ public class AggregationIT extends SQLIntegTestCase {
 //                "  'combine_script'='return _agg.concat.join(delim);',\t\t\t\t\n" +
 //                "  'reduce_script'='_aggs.removeAll(\"\"); return _aggs.join(delim)'," +
 //                "'@field' = 'name.firstname' , '@delim'=';',@reduce_delim =';' ) as all_characters \n" +
-//                "from "+TEST_INDEX+"/gotCharacters";
+//                "from "+TEST_INDEX+"";
 //        Aggregations result = query (query);
 //        ScriptedMetric metric = result.get("all_characters");
 //        List<String> names = Arrays.asList(metric.aggregation().toString().split(";"));
@@ -874,7 +874,7 @@ public class AggregationIT extends SQLIntegTestCase {
 //
 //    @Test
 //    public void groupByOnNestedFieldTest() throws Exception {
-//        Aggregations result = query(String.format("SELECT COUNT(*) FROM %s/nestedType GROUP BY nested(message.info)", TEST_INDEX_NESTED_TYPE));
+//        Aggregations result = query(String.format("SELECT COUNT(*) FROM %s GROUP BY nested(message.info)", TEST_INDEX_NESTED_TYPE));
 //        InternalNested nested = result.get("message.info@NESTED");
 //        Terms infos = nested.getAggregations().get("message.info");
 //        Assert.assertEquals(3,infos.getBuckets().size());
@@ -920,7 +920,7 @@ public class AggregationIT extends SQLIntegTestCase {
     @Test
     public void groupByOnNestedFieldWithFilterTest() throws Exception {
 
-        String query = String.format("SELECT COUNT(*) FROM %s/nestedType GROUP BY  nested(message.info)," +
+        String query = String.format("SELECT COUNT(*) FROM %s GROUP BY  nested(message.info)," +
                 "filter('myFilter',message.info = 'a')", TEST_INDEX_NESTED_TYPE);
         JSONObject result = executeQuery(query);
 
@@ -937,7 +937,7 @@ public class AggregationIT extends SQLIntegTestCase {
     @Test
     public void minOnNestedField() throws Exception {
 
-        String query = String.format("SELECT min(nested(message.dayOfWeek)) as minDays FROM %s/nestedType",
+        String query = String.format("SELECT min(nested(message.dayOfWeek)) as minDays FROM %s",
                                         TEST_INDEX_NESTED_TYPE);
         JSONObject result = executeQuery(query);
         JSONObject aggregation = getAggregation(result, "message.dayOfWeek@NESTED");
@@ -947,7 +947,7 @@ public class AggregationIT extends SQLIntegTestCase {
     @Test
     public void sumOnNestedField() throws Exception {
 
-        String query = String.format("SELECT sum(nested(message.dayOfWeek)) as sumDays FROM %s/nestedType",
+        String query = String.format("SELECT sum(nested(message.dayOfWeek)) as sumDays FROM %s",
                                         TEST_INDEX_NESTED_TYPE);
         JSONObject result = executeQuery(query);
         JSONObject aggregation = getAggregation(result, "message.dayOfWeek@NESTED");
@@ -957,7 +957,7 @@ public class AggregationIT extends SQLIntegTestCase {
     @Test
     public void histogramOnNestedField() throws Exception {
 
-        String query = String.format("select count(*) from %s/nestedType group by histogram" +
+        String query = String.format("select count(*) from %s group by histogram" +
                 "('field'='message.dayOfWeek','nested'='message','interval'='2' , 'alias' = 'someAlias' )",
                 TEST_INDEX_NESTED_TYPE);
         JSONObject result = executeQuery(query);
@@ -984,7 +984,7 @@ public class AggregationIT extends SQLIntegTestCase {
     @Test
     public void reverseToRootGroupByOnNestedFieldWithFilterTestWithReverseNestedAndEmptyPath() throws Exception {
 
-        String query = String.format("SELECT COUNT(*) FROM %s/nestedType GROUP BY  nested(message.info)," +
+        String query = String.format("SELECT COUNT(*) FROM %s GROUP BY  nested(message.info)," +
                 "filter('myFilter',message.info = 'a'),reverse_nested(someField,'')", TEST_INDEX_NESTED_TYPE);
         JSONObject result = executeQuery(query);
         JSONObject aggregation = getAggregation(result, "message.info@NESTED");
@@ -1003,7 +1003,7 @@ public class AggregationIT extends SQLIntegTestCase {
     @Test
     public void reverseToRootGroupByOnNestedFieldWithFilterTestWithReverseNestedNoPath() throws Exception {
 
-        String query = String.format("SELECT COUNT(*) FROM %s/nestedType GROUP BY  nested(message.info),filter" +
+        String query = String.format("SELECT COUNT(*) FROM %s GROUP BY  nested(message.info),filter" +
                 "('myFilter',message.info = 'a'),reverse_nested(someField)", TEST_INDEX_NESTED_TYPE);
         JSONObject result = executeQuery(query);
         JSONObject aggregation = getAggregation(result, "message.info@NESTED");
@@ -1022,7 +1022,7 @@ public class AggregationIT extends SQLIntegTestCase {
     @Test
     public void reverseToRootGroupByOnNestedFieldWithFilterTestWithReverseNestedOnHistogram() throws Exception {
 
-        String query = String.format("SELECT COUNT(*) FROM %s/nestedType GROUP BY  nested(message.info)," +
+        String query = String.format("SELECT COUNT(*) FROM %s GROUP BY  nested(message.info)," +
                 "filter('myFilter',message.info = 'a'),histogram('field'='myNum','reverse_nested'='','interval'='2', " +
                 "'alias' = 'someAlias' )", TEST_INDEX_NESTED_TYPE);
         JSONObject result = executeQuery(query);
@@ -1053,7 +1053,7 @@ public class AggregationIT extends SQLIntegTestCase {
     @Test
     public void reverseToRootGroupByOnNestedFieldWithFilterAndSumOnReverseNestedField() throws Exception {
 
-        String query = String.format("SELECT sum(reverse_nested(myNum)) bla FROM %s/nestedType GROUP BY " +
+        String query = String.format("SELECT sum(reverse_nested(myNum)) bla FROM %s GROUP BY " +
                 "nested(message.info),filter('myFilter',message.info = 'a')", TEST_INDEX_NESTED_TYPE);
         JSONObject result = executeQuery(query);
         JSONObject aggregation = getAggregation(result, "message.info@NESTED");
@@ -1070,7 +1070,7 @@ public class AggregationIT extends SQLIntegTestCase {
     @Test
     public void reverseAnotherNestedGroupByOnNestedFieldWithFilterTestWithReverseNestedNoPath() throws Exception {
 
-        String query = String.format("SELECT COUNT(*) FROM %s/nestedType GROUP BY  nested(message.info)," +
+        String query = String.format("SELECT COUNT(*) FROM %s GROUP BY  nested(message.info)," +
                 "filter('myFilter',message.info = 'a'),reverse_nested(comment.data,'~comment')",
                 TEST_INDEX_NESTED_TYPE);
         JSONObject result = executeQuery(query);
@@ -1091,7 +1091,7 @@ public class AggregationIT extends SQLIntegTestCase {
     @Test
     public void reverseAnotherNestedGroupByOnNestedFieldWithFilterTestWithReverseNestedOnHistogram() throws Exception {
 
-        String query = String.format("SELECT COUNT(*) FROM %s/nestedType GROUP BY  nested(message.info),filter" +
+        String query = String.format("SELECT COUNT(*) FROM %s GROUP BY  nested(message.info),filter" +
                 "('myFilter',message.info = 'a'),histogram('field'='comment.likes','reverse_nested'='~comment'," +
                 "'interval'='2' , 'alias' = 'someAlias' )", TEST_INDEX_NESTED_TYPE);
         JSONObject result = executeQuery(query);
@@ -1122,7 +1122,7 @@ public class AggregationIT extends SQLIntegTestCase {
     @Test
     public void reverseAnotherNestedGroupByOnNestedFieldWithFilterAndSumOnReverseNestedField() throws Exception {
 
-        String query = String.format("SELECT sum(reverse_nested(comment.likes,'~comment')) bla FROM %s/nestedType " +
+        String query = String.format("SELECT sum(reverse_nested(comment.likes,'~comment')) bla FROM %s " +
                 "GROUP BY  nested(message.info),filter('myFilter',message.info = 'a')", TEST_INDEX_NESTED_TYPE);
         JSONObject result = executeQuery(query);
         JSONObject aggregation = getAggregation(result, "message.info@NESTED");
@@ -1167,7 +1167,7 @@ public class AggregationIT extends SQLIntegTestCase {
     @Test
     public void groupByScriptedDateHistogram() throws Exception {
         String query = String.format("select count(*), avg(all_client) from %s group by date_histogram('alias'='time'," +
-                " ceil(all_client), 'interval'='20d ', 'format'='yyyy-MM-dd') limit 1000" , TEST_INDEX_ONLINE);
+                " ceil(all_client), 'fixed_interval'='20d ', 'format'='yyyy-MM-dd') limit 1000" , TEST_INDEX_ONLINE);
         String result = explainQuery(query);
 
         Assert.assertThat(result, containsString("Math.ceil(doc['all_client'].value);"));

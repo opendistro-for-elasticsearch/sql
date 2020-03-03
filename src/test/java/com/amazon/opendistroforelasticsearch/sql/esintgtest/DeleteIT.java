@@ -52,14 +52,14 @@ public class DeleteIT extends SQLIntegTestCase {
     @Test
     public void deleteWithConditionTest() throws IOException, InterruptedException {
         String selectQuery = StringUtils.format(
-            "SELECT * FROM %s/phrase WHERE match_phrase(phrase, 'quick fox here')",
+            "SELECT * FROM %s WHERE match_phrase(phrase, 'quick fox here')",
             TestsConstants.TEST_INDEX_PHRASE
         );
         JSONObject response = executeRequest(makeRequest(selectQuery));
         int totalHits = getTotalHits(response);
 
         String deleteQuery = StringUtils.format(
-            "DELETE FROM %s/phrase WHERE match_phrase(phrase, 'quick fox here')",
+            "DELETE FROM %s WHERE match_phrase(phrase, 'quick fox here')",
             TestsConstants.TEST_INDEX_PHRASE
         );
         response = executeRequest(makeRequest(deleteQuery));
@@ -68,7 +68,7 @@ public class DeleteIT extends SQLIntegTestCase {
         // To prevent flakiness, the minimum value of 2000 msec works fine.
         Thread.sleep(2000);
 
-        selectQuery = StringUtils.format("SELECT * FROM %s/phrase", TestsConstants.TEST_INDEX_PHRASE);
+        selectQuery = StringUtils.format("SELECT * FROM %s", TestsConstants.TEST_INDEX_PHRASE);
 
         response = executeRequest(makeRequest(selectQuery));
         assertThat(getTotalHits(response), equalTo(5));
@@ -106,7 +106,7 @@ public class DeleteIT extends SQLIntegTestCase {
     @Test
     public void deleteWithConditionTestJdbcFormat() throws IOException, InterruptedException {
         String selectQuery = StringUtils.format(
-            "SELECT * FROM %s/phrase WHERE match_phrase(phrase, 'quick fox here')",
+            "SELECT * FROM %s WHERE match_phrase(phrase, 'quick fox here')",
             TestsConstants.TEST_INDEX_PHRASE
         );
 
@@ -114,7 +114,7 @@ public class DeleteIT extends SQLIntegTestCase {
         int totalHits = getTotalHits(response);
 
         String deleteQuery = StringUtils.format(
-            "DELETE FROM %s/phrase WHERE match_phrase(phrase, 'quick fox here')",
+            "DELETE FROM %s WHERE match_phrase(phrase, 'quick fox here')",
             TestsConstants.TEST_INDEX_PHRASE
         );
 
@@ -131,7 +131,7 @@ public class DeleteIT extends SQLIntegTestCase {
         // To prevent flakiness, the minimum value of 2000 msec works fine.
         Thread.sleep(2000);
 
-        selectQuery = StringUtils.format("SELECT * FROM %s/phrase", TestsConstants.TEST_INDEX_PHRASE);
+        selectQuery = StringUtils.format("SELECT * FROM %s", TestsConstants.TEST_INDEX_PHRASE);
 
         response = executeRequest(makeRequest(selectQuery));
         assertThat(getTotalHits(response), equalTo(5));

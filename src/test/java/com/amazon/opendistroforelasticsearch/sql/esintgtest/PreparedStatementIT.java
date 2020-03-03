@@ -15,10 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.test.ESIntegTestCase;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -33,12 +29,6 @@ public class PreparedStatementIT extends SQLIntegTestCase {
     @Override
     protected void init() throws Exception {
         loadIndex(Index.ACCOUNT);
-    }
-
-    @Test
-    public void sample_test() {
-        Client client = ESIntegTestCase.client();
-        SearchResponse response = client.prepareSearch(TestsConstants.TEST_INDEX_ACCOUNT).get();
     }
 
     @Test
