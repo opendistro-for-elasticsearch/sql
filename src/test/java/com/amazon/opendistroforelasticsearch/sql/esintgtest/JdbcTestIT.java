@@ -15,7 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.Assert;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.containsString;
@@ -48,7 +50,11 @@ public class JdbcTestIT extends SQLIntegTestCase {
 
     public void testDateTimeInQuery() {
         JSONObject response = executeJdbcRequest(
-                "SELECT date_format(insert_time, 'dd-MM-YYYY') FROM elasticsearch-sql_test_index_online limit 1");
+            "SELECT date_format(insert_time, 'dd-MM-YYYY') " +
+            "FROM elasticsearch-sql_test_index_online " +
+            "ORDER BY date_format(insert_time, 'dd-MM-YYYY') " +
+            "LIMIT 1"
+        );
 
         assertThat(
                 response.getJSONArray("datarows")
@@ -85,33 +91,28 @@ public class JdbcTestIT extends SQLIntegTestCase {
 
     @Test
     public void numberOperatorNameCaseInsensitiveTest() {
-        assertEquals(
-                executeQuery("SELECT ABS(age) FROM elasticsearch-sql_test_index_account " +
-                                "WHERE age IS NOT NULL LIMIT 5", "jdbc"),
-                executeQuery("SELECT abs(age) FROM elasticsearch-sql_test_index_account " +
-                                "WHERE age IS NOT NULL LIMIT 5", "jdbc")
+        assertSchemaContains(
+            executeQuery("SELECT ABS(age) FROM elasticsearch-sql_test_index_account " +
+                         "WHERE age IS NOT NULL ORDER BY age LIMIT 5", "jdbc"),
+            "ABS(age)"
         );
     }
 
     @Test
     public void trigFunctionNameCaseInsensitiveTest() {
-        assertEquals(
-                executeQuery("SELECT Cos(age) FROM elasticsearch-sql_test_index_account " +
-                                "WHERE age is NOT NULL LIMIT 5", "jdbc"),
-                executeQuery("SELECT cos(age) FROM elasticsearch-sql_test_index_account " +
-                                "WHERE age is NOT NULL LIMIT 5", "jdbc")
+        assertSchemaContains(
+            executeQuery("SELECT Cos(age) FROM elasticsearch-sql_test_index_account " +
+                         "WHERE age is NOT NULL ORDER BY age LIMIT 5", "jdbc"),
+            "Cos(age)"
         );
     }
 
     @Test
     public void stringOperatorNameCaseInsensitiveTest() {
-        assertEquals(
-                executeQuery(
-                        "SELECT SubStrinG(lastname, 0, 2) FROM elasticsearch-sql_test_index_account " +
-                                "ORDER BY age LIMIT 5", "jdbc"),
-                executeQuery(
-                        "SELECT substring(lastname, 0, 2) FROM elasticsearch-sql_test_index_account " +
-                                "ORDER BY age LIMIT 5", "jdbc")
+        assertSchemaContains(
+            executeQuery("SELECT SubStrinG(lastname, 0, 2) FROM elasticsearch-sql_test_index_account " +
+                         "ORDER BY age LIMIT 5", "jdbc"),
+            "SubStrinG(lastname, 0, 2)"
         );
     }
 
@@ -154,5 +155,16 @@ public class JdbcTestIT extends SQLIntegTestCase {
                         + TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY substring", "jdbc"),
                 containsString("\"name\": \"substring\"")
         );
+    }
+
+    private void assertSchemaContains(String actualResponse, String expected) {
+        JSONArray schema = new JSONObject(actualResponse).optJSONArray("schema");
+        for (Object nameTypePair : schema) {
+            String actual = ((JSONObject) nameTypePair).getString("name");
+            if (expected.equals(actual)) {
+                return;
+            }
+        }
+        Assert.fail("Expected field name [" + expected + "] is not found in response schema: " + actualResponse);
     }
 }
