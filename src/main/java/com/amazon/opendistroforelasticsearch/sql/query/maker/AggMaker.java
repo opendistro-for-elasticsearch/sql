@@ -555,6 +555,9 @@ public class AggMaker {
                     case "interval":
                         dateHistogram.dateHistogramInterval(new DateHistogramInterval(kv.value.toString()));
                         break;
+                    case "fixed_interval":
+                        dateHistogram.fixedInterval(new DateHistogramInterval(kv.value.toString()));
+                        break;
                     case "field":
                         dateHistogram.field(value);
                         break;

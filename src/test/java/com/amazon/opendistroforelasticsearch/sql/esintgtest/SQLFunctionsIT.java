@@ -83,7 +83,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     public void functionFieldAliasAndGroupByAlias() throws Exception {
         String query = "SELECT " +
                 "floor(substring(address,0,3)*20) as key," +
-                "sum(age) cvalue FROM " + TEST_INDEX_ACCOUNT + "/account where address is not null " +
+                "sum(age) cvalue FROM " + TEST_INDEX_ACCOUNT + " where address is not null " +
                 "group by key order by cvalue desc limit 10  ";
         final JSONObject result = executeQuery(query);
 
@@ -105,7 +105,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         //here is a bug,csv field with spa
         String query = "SELECT " +
                 "address as key,age from " +
-                TEST_INDEX_ACCOUNT + "/account where address is not null " +
+                TEST_INDEX_ACCOUNT + " where address is not null " +
                 "limit 10  ";
 
         assertThat(
@@ -119,7 +119,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         //here is a bug,if only script fields are included,then all fields will return; fix later
         String query = "SELECT " +
                 "substring(address,0,3) as key,address from " +
-                TEST_INDEX_ACCOUNT + "/account where address is not null " +
+                TEST_INDEX_ACCOUNT + " where address is not null " +
                 "order by address desc limit 10  ";
 
         assertThat(
@@ -132,7 +132,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     @Test
     public void caseChangeTest() throws IOException {
         String query = "SELECT LOWER(firstname) " +
-                "FROM elasticsearch-sql_test_index_account/account " +
+                "FROM elasticsearch-sql_test_index_account " +
                 "WHERE UPPER(lastname)='DUKE' " +
                 "ORDER BY upper(lastname) ";
 
@@ -151,7 +151,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         // https://stackoverflow.com/questions/11063102/using-locales-with-javas-tolowercase-and-touppercase
 
         String query = "SELECT LOWER(state.keyword, 'tr') " +
-                "FROM elasticsearch-sql_test_index_account/account " +
+                "FROM elasticsearch-sql_test_index_account " +
                 "WHERE account_number=1";
 
         assertThat(
@@ -164,7 +164,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     @Test
     public void caseChangeWithAggregationTest() throws IOException {
         String query = "SELECT UPPER(e.firstname) AS upper, COUNT(*)" +
-                "FROM elasticsearch-sql_test_index_account/account e " +
+                "FROM elasticsearch-sql_test_index_account e " +
                 "WHERE LOWER(e.lastname)='duke' " +
                 "GROUP BY upper";
 
@@ -449,7 +449,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         //here is a bug,csv field with spa
         String query = "SELECT " +
                 " concat_ws('-',age,'-') as age,address from " +
-                TEST_INDEX_ACCOUNT + "/account " +
+                TEST_INDEX_ACCOUNT + " " +
                 " limit 10  ";
 
         assertThat(
@@ -467,7 +467,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
         String query = "SELECT " +
                 " * from " +
-                TestsConstants.TEST_INDEX + "/account " +
+                TestsConstants.TEST_INDEX + " " +
                 " where split(address,' ')[0]='806' limit 1000  ";
 
         assertThat(executeQuery(query).query("/hits/total"), equalTo(4));
@@ -482,7 +482,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
         String query = "SELECT " +
                 " * from " +
-                TestsConstants.TEST_INDEX + "/account " +
+                TestsConstants.TEST_INDEX + " " +
                 " where floor(split(address,' ')[0]+0) > 805 limit 1000  ";
 
         assertThat(executeQuery(query).query("/hits/total"), equalTo(223));
@@ -494,7 +494,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         //here is a bug,csv field with spa
         String query = "SELECT " +
                 " concat_ws('-',age,address) as combine,address from " +
-                TEST_INDEX_ACCOUNT + "/account " +
+                TEST_INDEX_ACCOUNT + " " +
                 " limit 10  ";
         assertThat(
                 executeQuery(query),
@@ -505,7 +505,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     @Test
     public void functionLogs() throws Exception {
         String query = "SELECT log10(100) as a, log(1) as b, log(2, 4) as c, log2(8) as d from "
-                + TEST_INDEX_ACCOUNT + "/account limit 1";
+                + TEST_INDEX_ACCOUNT + " limit 1";
 
         assertThat(
                 executeQuery(query),
@@ -519,7 +519,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     @Test
     public void functionPow() throws Exception {
         String query = "SELECT pow(account_number, 2) as key,"+
-                "abs(age - 60) as new_age from " + TEST_INDEX_ACCOUNT + "/account WHERE firstname = 'Virginia' and lastname='Ayala' limit 1";
+                "abs(age - 60) as new_age from " + TEST_INDEX_ACCOUNT + " WHERE firstname = 'Virginia' and lastname='Ayala' limit 1";
 
         assertThat(
                 executeQuery(query),
@@ -761,14 +761,14 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         //here is a bug,csv field with spa
         String query = "SELECT " +
                 " split(address,' ')[0],age from " +
-                TestsConstants.TEST_INDEX + "/account where address is not null " +
+                TestsConstants.TEST_INDEX + " where address is not null " +
                 " limit 10  ";
     }
 
     @Test
     public void literal() throws Exception {
         String query = "SELECT 10 "+
-                "from " + TEST_INDEX_ACCOUNT + "/account limit 1";
+                "from " + TEST_INDEX_ACCOUNT + " limit 1";
         final SearchHit[] hits = query(query).getHits();
         assertThat(hits[0].getFields(), hasValue(contains(10)));
     }
@@ -776,7 +776,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     @Test
     public void literalWithDoubleValue() throws Exception {
         String query = "SELECT 10.0 "+
-                "from " + TEST_INDEX_ACCOUNT + "/account limit 1";
+                "from " + TEST_INDEX_ACCOUNT + " limit 1";
 
         final SearchHit[] hits = query(query).getHits();
         assertThat(hits[0].getFields(), hasValue(contains(10.0)));
@@ -785,7 +785,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     @Test
     public void literalWithAlias() throws Exception {
         String query = "SELECT 10 as key "+
-                "from " + TEST_INDEX_ACCOUNT + "/account limit 1";
+                "from " + TEST_INDEX_ACCOUNT + " limit 1";
         final SearchHit[] hits = query(query).getHits();
 
         assertThat(hits.length, is(1));
@@ -795,7 +795,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     @Test
     public void literalMultiField() throws Exception {
         String query = "SELECT 1, 2 "+
-                "from " + TEST_INDEX_ACCOUNT + "/account limit 1";
+                "from " + TEST_INDEX_ACCOUNT + " limit 1";
         final SearchHit[] hits = query(query).getHits();
 
         assertThat(hits.length, is(1));
