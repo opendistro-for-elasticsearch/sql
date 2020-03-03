@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-lexer grammar PplLexer;
+lexer grammar PPLLexer;
 
 channels { WHITESPACE, ERRORCHANNEL }
 
@@ -26,6 +26,8 @@ WHERE:                              'WHERE';
 LIMIT:                              'LIMIT';
 BY:                                 'BY';
 COUNTFIELD:                         'COUNTFIELD';
+SOURCE:                             'SOURCE';
+INDEX:                              'INDEX';
 
 
 
@@ -79,9 +81,9 @@ LT_PRTHS:                           '(';
 RT_PRTHS:                           ')';
 
 
+STRING_LITERAL:                     ID_LITERAL | DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING;
 ID:                                 ID_LITERAL;
 DOT_ID:                             '.' ID;
-STRING_LITERAL:                     DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING;
 DECIMAL_LITERAL:                    DEC_DIGIT+;
 
 fragment ID_LITERAL:                [A-Z_$0-9@]*?[A-Z_$\-]+?[A-Z_$\-0-9]*;

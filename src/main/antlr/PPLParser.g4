@@ -13,15 +13,20 @@
  *   permissions and limitations under the License.
  */
 
-parser grammar PplParser;
-options { tokenVocab=PplLexer; }
+parser grammar PPLParser;
+options { tokenVocab=PPLLexer; }
 
 
 pplStatement
-    : searchCommands | reportsCommands
+    : sourceCommand
+    (searchCommands | reportsCommands)
     (PIPE resultsCommands)?
-    (PIPE searchCommands | reportsCommands)*
+    (PIPE (searchCommands | reportsCommands))*
     EOF
+    ;
+
+sourceCommand
+    : (SOURCE | INDEX) EQUAL_SYMBOL stringLiteral
     ;
 
 searchCommands
@@ -41,11 +46,11 @@ filteringCommands
     ;
 
 searchCommand
-    : (SEARCH)? logicalExpression
+    : SEARCH? logicalExpression
     ;
 
 topCommand
-    : TOP decimalLiteral (topOptions)* fieldList (byClause)*
+    : TOP decimalLiteral? topOptions? fieldList byClause*
     ;
 
 fromCommand
@@ -63,7 +68,7 @@ logicalExpression
     | evalExpression
     | NOT logicalExpression
     | logicalExpression OR logicalExpression
-    | logicalExpression AND logicalExpression
+    | logicalExpression (AND)? logicalExpression
     ;
 
 booleanExpression
@@ -134,7 +139,7 @@ fieldExpression
     ;
 
 fieldList
-    : LT_PRTHS fieldExpression (COMMA fieldExpression)* RT_PRTHS
+    : fieldExpression (COMMA fieldExpression)*
     ;
 
 valueExpression
