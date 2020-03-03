@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
+import com.amazon.opendistroforelasticsearch.sql.domain.ColumnTypeProvider;
 import com.amazon.opendistroforelasticsearch.sql.domain.Delete;
 import com.amazon.opendistroforelasticsearch.sql.domain.IndexStatement;
 import com.amazon.opendistroforelasticsearch.sql.domain.Query;
@@ -24,13 +25,19 @@ import com.amazon.opendistroforelasticsearch.sql.executor.format.DataRows.Row;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema.Column;
 import com.amazon.opendistroforelasticsearch.sql.executor.adapter.QueryPlanQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.executor.adapter.QueryPlanRequestBuilder;
+import com.amazon.opendistroforelasticsearch.sql.executor.format.DataRows.Row;
+import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema.Column;
 import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
-import com.amazon.opendistroforelasticsearch.sql.query.planner.core.ColumnNode;
+import com.amazon.opendistroforelasticsearch.sql.query.DefaultQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
+
 import com.google.common.base.Strings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.ElasticsearchException;
+
+import com.amazon.opendistroforelasticsearch.sql.query.planner.core.ColumnNode;
+
 import org.elasticsearch.client.Client;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -55,6 +62,7 @@ public class Protocol {
     private ResultSet resultSet;
     private ErrorMessage error;
     private List<ColumnNode> columnNodeList;
+
     private boolean isCursorContext = false;
     private JSONObject cursorContext;
     private String cursor;
@@ -73,10 +81,15 @@ public class Protocol {
      */
     private final Map<String, Object> options = new HashMap<>();
 
+    private ColumnTypeProvider scriptColumnType = new ColumnTypeProvider();
+
+
     public Protocol(Client client, QueryAction queryAction, Object queryResult, String formatType) {
         if (queryAction instanceof QueryPlanQueryAction) {
             this.columnNodeList =
                     ((QueryPlanRequestBuilder) (((QueryPlanQueryAction) queryAction).explain())).outputColumns();
+        } else if (queryAction instanceof DefaultQueryAction) {
+            scriptColumnType = queryAction.getScriptColumnType();
         }
 
         this.formatType = formatType;
@@ -116,7 +129,7 @@ public class Protocol {
         if (queryStatement instanceof Delete) {
             return new DeleteResultSet(client, (Delete) queryStatement, queryResult);
         } else if (queryStatement instanceof Query) {
-            return new SelectResultSet(client, (Query) queryStatement, queryResult);
+            return new SelectResultSet(client, (Query) queryStatement, queryResult, scriptColumnType, formatType);
         } else if (queryStatement instanceof IndexStatement) {
             IndexStatement statement = (IndexStatement) queryStatement;
             StatementType statementType = statement.getStatementType();

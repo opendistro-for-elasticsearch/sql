@@ -309,13 +309,7 @@ public class DefaultQueryAction extends QueryAction {
 
     private ScriptSortType getScriptSortType(Order order) {
         ScriptSortType scriptSortType;
-        Schema.Type scriptFunctionReturnType;
-        if (order.getSortField().getExpression() instanceof SQLCastExpr) {
-            scriptFunctionReturnType = SQLFunctions.getCastFunctionReturnType(
-                    ((SQLCastExpr) order.getSortField().getExpression()).getDataType().getName());
-        } else {
-            scriptFunctionReturnType = SQLFunctions.getScriptFunctionReturnType(order.getSortField());
-        }
+        Schema.Type scriptFunctionReturnType = SQLFunctions.getOrderByFieldType(order.getSortField());
 
 
         // as of now script function return type returns only text and double

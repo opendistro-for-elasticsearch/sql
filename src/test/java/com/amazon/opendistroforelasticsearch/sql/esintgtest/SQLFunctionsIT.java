@@ -331,8 +331,8 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         verifySchema(response, schema("cast_date_keyword", null, "date"));
 
         verifyDataRows(response,
-                rows("2014-08-19T07:09:13.434Z"),
-                rows("2019-09-25T02:04:13.469Z"));
+                rows("2014-08-19 07:09:13.434"),
+                rows("2019-09-25 02:04:13.469"));
     }
 
     @Test
@@ -343,8 +343,8 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         verifySchema(response, schema("test_alias", null, "date"));
 
         verifyDataRows(response,
-                rows("2014-08-19T07:09:13.434Z"),
-                rows("2019-09-25T02:04:13.469Z"));
+                rows("2014-08-19 07:09:13.434"),
+                rows("2019-09-25 02:04:13.469"));
     }
 
     @Test
@@ -355,8 +355,8 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         verifySchema(response, schema("cast_date_keyword", null, "date"));
 
         verifyDataRows(response,
-                rows("2014-08-19T07:09:13.434Z"),
-                rows("2019-09-25T02:04:13.469Z"));
+                rows("2014-08-19 07:09:13.434"),
+                rows("2019-09-25 02:04:13.469"));
     }
 
     @Test

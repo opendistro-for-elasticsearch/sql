@@ -15,18 +15,12 @@
 
 package com.amazon.opendistroforelasticsearch.sql.doctest.core.markup;
 
-import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils;
-
 import java.io.Closeable;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Document for different format and markup
  */
 public interface Document extends Closeable {
-
-    String DOCUMENT_FOLDER_ROOT = "docs/user/";
 
     /**
      * Remove checked IOException in method signature.
@@ -44,8 +38,6 @@ public interface Document extends Closeable {
 
     Document table(String description, String table);
 
-    static Path path(String templateRelativePath) {
-        return Paths.get(TestUtils.getResourceFilePath(DOCUMENT_FOLDER_ROOT + templateRelativePath));
-    }
+    Document image(String description, String filePath);
 
 }

@@ -15,7 +15,11 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
+import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLCaseExpr;
+import com.alibaba.druid.sql.ast.expr.SQLCastExpr;
+import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
+import com.amazon.opendistroforelasticsearch.sql.domain.ColumnTypeProvider;
 import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.JoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
@@ -24,6 +28,7 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.domain.TableOnJoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMapping;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlFeatureNotImplementedException;
+import com.amazon.opendistroforelasticsearch.sql.executor.Format;
 import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
 import com.carrotsearch.hppc.ShortCharMap;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequest;
@@ -61,6 +66,7 @@ import static org.elasticsearch.action.admin.indices.mapping.get.GetFieldMapping
 public class SelectResultSet extends ResultSet {
 
     public static final String SCORE = "_score";
+    private final String formatType;
 
     private Query query;
     private Object queryResult;
@@ -69,6 +75,7 @@ public class SelectResultSet extends ResultSet {
     private String indexName;
     private String typeName;
     private List<Schema.Column> columns = new ArrayList<>();
+    private ColumnTypeProvider outputColumnType;
 
     private List<String> head;
     private long size;
@@ -76,11 +83,21 @@ public class SelectResultSet extends ResultSet {
     private List<DataRows.Row> rows;
     private long cursorTotalHits;
 
-    public SelectResultSet(Client client, Query query, Object queryResult) {
+    private DateFieldFormatter dateFieldFormatter;
+    // alias -> base field name
+    private Map<String, String> fieldAliasMap = new HashMap<>();
+
+    public SelectResultSet(Client client,
+                           Query query,
+                           Object queryResult,
+                           ColumnTypeProvider outputColumnType,
+                           String formatType) {
         this.client = client;
         this.query = query;
         this.queryResult = queryResult;
         this.selectAll = false;
+        this.formatType = formatType;
+        this.outputColumnType = outputColumnType;
 
         if (isJoinQuery()) {
             JoinSelect joinQuery = (JoinSelect) query;
@@ -91,6 +108,7 @@ public class SelectResultSet extends ResultSet {
         }
         this.schema = new Schema(indexName, typeName, columns);
         this.head = schema.getHeaders();
+        this.dateFieldFormatter = new DateFieldFormatter(indexName, columns, fieldAliasMap);
 
         extractData();
         this.dataRows = new DataRows(size, totalHits, rows);
@@ -363,7 +381,7 @@ public class SelectResultSet extends ResultSet {
         }
     }
 
-    private Schema.Type fetchMethodReturnType(Field field) {
+    private Schema.Type fetchMethodReturnType(int fieldIndex, MethodField field) {
         switch (field.getName().toLowerCase()) {
             case "count":
                 return Schema.Type.LONG;
@@ -380,7 +398,8 @@ public class SelectResultSet extends ResultSet {
                 if (field.getExpression() instanceof SQLCaseExpr) {
                     return Schema.Type.TEXT;
                 }
-                return SQLFunctions.getScriptFunctionReturnType(field);
+                Schema.Type resolvedType = outputColumnType.get(fieldIndex);
+                return SQLFunctions.getScriptFunctionReturnType(field, resolvedType);
             }
             default:
                 throw new UnsupportedOperationException(
@@ -429,12 +448,22 @@ public class SelectResultSet extends ResultSet {
              * name instead.
              */
             if (fieldMap.get(fieldName) instanceof MethodField) {
-                Field methodField = fieldMap.get(fieldName);
+                MethodField methodField = (MethodField) fieldMap.get(fieldName);
+                int fieldIndex = fieldNameList.indexOf(fieldName);
+
+                SQLExpr expr = methodField.getExpression();
+                if (expr instanceof SQLCastExpr) {
+                    // Since CAST expressions create an alias for a field, we need to save the original field name
+                    // for this alias for formatting data later.
+                    SQLIdentifierExpr castFieldIdentifier = (SQLIdentifierExpr) ((SQLCastExpr) expr).getExpr();
+                    fieldAliasMap.put(methodField.getAlias(), castFieldIdentifier.getName());
+                }
+
                 columns.add(
                         new Schema.Column(
                                 methodField.getAlias(),
                                 null,
-                                fetchMethodReturnType(methodField)
+                                fetchMethodReturnType(fieldIndex, methodField)
                         )
                 );
             }
@@ -581,8 +610,14 @@ public class SelectResultSet extends ResultSet {
                 for (Map.Entry<String, DocumentField> field : hit.getFields().entrySet()) {
                     rowSource.put(field.getKey(), field.getValue().getValue());
                 }
+                if (formatType.equalsIgnoreCase(Format.JDBC.getFormatName())) {
+                    dateFieldFormatter.applyJDBCDateFormat(rowSource);
+                }
                 result = flatNestedField(newKeys, rowSource, hit.getInnerHits());
             } else {
+                if (formatType.equalsIgnoreCase(Format.JDBC.getFormatName())) {
+                    dateFieldFormatter.applyJDBCDateFormat(rowSource);
+                }
                 result = new ArrayList<>();
                 result.add(new DataRows.Row(rowSource));
             }

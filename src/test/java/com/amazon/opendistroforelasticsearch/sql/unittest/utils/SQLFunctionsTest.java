@@ -15,17 +15,41 @@
 
 package com.amazon.opendistroforelasticsearch.sql.unittest.utils;
 
+import com.alibaba.druid.sql.ast.SQLDataType;
+import com.alibaba.druid.sql.ast.SQLDataTypeImpl;
+import com.alibaba.druid.sql.ast.expr.SQLCastExpr;
+import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.expr.SQLIntegerExpr;
+import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESDataType;
+import com.amazon.opendistroforelasticsearch.sql.domain.ColumnTypeProvider;
 import com.amazon.opendistroforelasticsearch.sql.domain.KVValue;
+import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
+import com.amazon.opendistroforelasticsearch.sql.domain.ScriptMethodField;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema;
+import com.amazon.opendistroforelasticsearch.sql.parser.FieldMaker;
 import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
 import com.google.common.collect.ImmutableList;
 import org.elasticsearch.common.collect.Tuple;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 
 public class SQLFunctionsTest {
+
+    private SQLFunctions sqlFunctions;
+
+    @Rule
+    public ExpectedException exceptionRule = ExpectedException.none();
 
     @Test
     public void testAssign() throws SqlParseException {
@@ -39,5 +63,40 @@ public class SQLFunctionsTest {
 
         assertTrue(assign.v1().matches("assign_[0-9]+"));
         assertTrue(assign.v2().matches("def assign_[0-9]+ = 10;return assign_[0-9]+;"));
+    }
+
+    @Test
+    public void testAbsWithIntReturnType() {
+        final SQLIntegerExpr sqlIntegerExpr = new SQLIntegerExpr(6);
+
+        final SQLMethodInvokeExpr invokeExpr = new SQLMethodInvokeExpr("ABS");
+        invokeExpr.addParameter(sqlIntegerExpr);
+        List<KVValue> params = new ArrayList<>();
+
+        final MethodField field = new ScriptMethodField("ABS", params, null, null);
+        field.setExpression(invokeExpr);
+        ColumnTypeProvider columnTypeProvider = new ColumnTypeProvider(ESDataType.INTEGER);
+
+        Schema.Type resolvedType = columnTypeProvider.get(0);
+        final Schema.Type returnType = sqlFunctions.getScriptFunctionReturnType(field, resolvedType);
+        Assert.assertEquals(returnType, Schema.Type.INTEGER);
+    }
+
+    @Test
+    public void testCastReturnType() {
+        final SQLIdentifierExpr identifierExpr = new SQLIdentifierExpr("int_type");
+        SQLDataType sqlDataType = new SQLDataTypeImpl("INT");
+        final SQLCastExpr castExpr = new SQLCastExpr();
+        castExpr.setExpr(identifierExpr);
+        castExpr.setDataType(sqlDataType);
+
+        List<KVValue> params = new ArrayList<>();
+        final MethodField field = new ScriptMethodField("CAST", params, null, null);
+        field.setExpression(castExpr);
+        ColumnTypeProvider columnTypeProvider = new ColumnTypeProvider(ESDataType.INTEGER);
+
+        Schema.Type resolvedType = columnTypeProvider.get(0);
+        final Schema.Type returnType = sqlFunctions.getScriptFunctionReturnType(field, resolvedType);
+        Assert.assertEquals(returnType, Schema.Type.INTEGER);
     }
 }
