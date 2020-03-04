@@ -68,6 +68,6 @@ public class PluginIT extends SQLIntegTestCase {
      *       individually resetting of each such setting
      */
     private JSONObject resetClusterSettings(String settingType, String setting) throws IOException {
-        return updateClusterSettings(new ClusterSetting(settingType, setting, "null"));
+        return updateClusterSettings(new ClusterSetting(settingType, setting, null));
     }
 }

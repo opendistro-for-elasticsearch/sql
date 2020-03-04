@@ -53,13 +53,6 @@ public class SubqueryIT extends SQLIntegTestCase {
         loadIndex(Index.EMPLOYEE_NESTED);
     }
 
-    @Override
-    protected boolean preserveIndicesUponCompletion() {
-        // Need to clean up all other indices because of mapping verification issue
-        // https://github.com/opendistro-for-elasticsearch/sql/issues/355
-        return false;
-    }
-
     @Test
     public void testIN() throws IOException {
         String query = String.format(Locale.ROOT,

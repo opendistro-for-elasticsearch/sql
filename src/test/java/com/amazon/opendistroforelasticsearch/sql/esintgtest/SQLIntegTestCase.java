@@ -21,6 +21,7 @@ import org.elasticsearch.client.Response;
 import org.elasticsearch.test.rest.ESRestTestCase;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 
@@ -59,21 +60,53 @@ import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.QUE
 public abstract class SQLIntegTestCase extends ESRestTestCase {
 
     @Before
-    public void setUpCluster() throws Exception {
+    public void setUpIndices() throws Exception {
         if (client() == null) {
             initClient();
         }
+
+        increaseScriptMaxCompilationsRate();
         init();
     }
 
     @Override
-    protected boolean preserveIndicesUponCompletion() {
-        return true;
+    protected boolean preserveClusterUponCompletion() {
+        return true; // Preserve test index, template and settings between test cases
     }
 
+    /**
+     * As JUnit JavaDoc says:
+     *  "The @AfterClass methods declared in superclasses will be run after those of the current class."
+     * So this method is supposed to run before closeClients() in parent class.
+     */
+    @AfterClass
+    public static void cleanUpIndices() throws IOException {
+        wipeAllIndices();
+        wipeAllClusterSettings();
+    }
+
+    /**
+     * Increase script.max_compilations_rate to large enough, which is only 75/5min by default.
+     * This issue is due to our painless script not using params passed to compiled script.
+     */
+    private void increaseScriptMaxCompilationsRate() throws IOException {
+        updateClusterSettings(new ClusterSetting("transient", "script.max_compilations_rate", "10000/1m"));
+    }
+
+    private static void wipeAllClusterSettings() throws IOException {
+        updateClusterSettings(new ClusterSetting("persistent", "*", null));
+        updateClusterSettings(new ClusterSetting("transient", "*", null));
+    }
+
+    /**
+     * Provide for each test to load test index, data and other setup work
+     */
     protected void init() throws Exception {}
 
-    /** Make it thread-safe in case tests are running in parallel */
+    /**
+     * Make it thread-safe in case tests are running in parallel but does not guarantee
+     * if test like DeleteIT that mutates cluster running in parallel.
+     */
     protected synchronized void loadIndex(Index index) throws IOException {
         String indexName = index.getName();
         String mapping = index.getMapping();
@@ -165,7 +198,7 @@ public abstract class SQLIntegTestCase extends ESRestTestCase {
         return executeRequest(sqlRequest);
     }
 
-    protected String executeRequest(final Request request) throws IOException {
+    protected static String executeRequest(final Request request) throws IOException {
 
         Response response = client().performRequest(request);
         Assert.assertEquals(200, response.getStatusLine().getStatusCode());
@@ -179,8 +212,8 @@ public abstract class SQLIntegTestCase extends ESRestTestCase {
         return new JSONObject(result);
     }
 
-    protected JSONObject updateClusterSettings(ClusterSetting setting) throws IOException {
-        Request request = new Request("PUT", "/_cluster/settings?pretty");
+    protected static JSONObject updateClusterSettings(ClusterSetting setting) throws IOException {
+        Request request = new Request("PUT", "/_cluster/settings");
         String persistentSetting = String.format(Locale.ROOT,
             "{\"%s\": {\"%s\": %s}}", setting.type, setting.name, setting.value);
         request.setJsonEntity(persistentSetting);
@@ -198,11 +231,11 @@ public abstract class SQLIntegTestCase extends ESRestTestCase {
         ClusterSetting(String type, String name, String value) {
             this.type = type;
             this.name = name;
-            this.value = value;
+            this.value = (value == null) ? "null" : ("\"" + value + "\"");
         }
 
         ClusterSetting nullify() {
-            return new ClusterSetting(type, name, "null");
+            return new ClusterSetting(type, name, null);
         }
 
         @Override
