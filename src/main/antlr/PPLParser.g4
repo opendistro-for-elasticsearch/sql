@@ -16,17 +16,15 @@
 parser grammar PPLParser;
 options { tokenVocab=PPLLexer; }
 
+root
+    : pplStatement? EOF
+    ;
 
 pplStatement
-    : sourceCommand
-    (searchCommands | reportsCommands)
+    : searchCommands | reportsCommands
     (PIPE resultsCommands)?
     (PIPE (searchCommands | reportsCommands))*
     EOF
-    ;
-
-sourceCommand
-    : (SOURCE | INDEX) EQUAL_SYMBOL stringLiteral
     ;
 
 searchCommands
@@ -46,9 +44,14 @@ filteringCommands
     ;
 
 searchCommand
-    : SEARCH? logicalExpression
+    : (SEARCH)? fromClause logicalExpression*
+    | (SEARCH)? logicalExpression fromClause
     ;
 
+fromClause
+    : SOURCE EQUAL_SYMBOL valueExpression
+    | INDEX EQUAL_SYMBOL valueExpression
+    ;
 topCommand
     : TOP decimalLiteral? topOptions? fieldList byClause*
     ;
