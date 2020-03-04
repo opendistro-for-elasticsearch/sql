@@ -18,9 +18,6 @@ package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import com.google.common.collect.Ordering;
 import org.elasticsearch.client.ResponseException;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Ignore;
@@ -54,6 +51,13 @@ public class SubqueryIT extends SQLIntegTestCase {
         loadIndex(Index.ACCOUNT);
         loadIndex(Index.DOGSSUBQUERY);
         loadIndex(Index.EMPLOYEE_NESTED);
+    }
+
+    @Override
+    protected boolean preserveIndicesUponCompletion() {
+        // Need to clean up all other indices because of mapping verification issue
+        // https://github.com/opendistro-for-elasticsearch/sql/issues/355
+        return false;
     }
 
     @Test

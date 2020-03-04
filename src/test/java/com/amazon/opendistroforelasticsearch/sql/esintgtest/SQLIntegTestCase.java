@@ -73,7 +73,8 @@ public abstract class SQLIntegTestCase extends ESRestTestCase {
 
     protected void init() throws Exception {}
 
-    protected void loadIndex(Index index) throws IOException {
+    /** Make it thread-safe in case tests are running in parallel */
+    protected synchronized void loadIndex(Index index) throws IOException {
         String indexName = index.getName();
         String mapping = index.getMapping();
         String dataSet = index.getDataSet();
