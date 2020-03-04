@@ -233,7 +233,7 @@ public class CheckScriptContents {
     public static void mockLocalClusterState(String mappings) {
         LocalClusterState.state().setClusterService(mockClusterService(mappings));
         LocalClusterState.state().setResolver(mockIndexNameExpressionResolver());
-        LocalClusterState.state().setSqlSettings(mockSqlSettings());
+        LocalClusterState.state().setSettings(mockSqlSettings());
     }
 
     public static ClusterService mockClusterService(String mappings) {

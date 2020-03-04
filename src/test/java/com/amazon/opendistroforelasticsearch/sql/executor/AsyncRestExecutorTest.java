@@ -71,7 +71,7 @@ public class AsyncRestExecutorTest {
 
         SqlSettings settings = spy(new SqlSettings());
         doReturn(emptyList()).when(settings).getSettings();
-        LocalClusterState.state().setSqlSettings(settings);
+        LocalClusterState.state().setSettings(settings);
     }
 
     @Test

@@ -15,8 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esdomain;
 
+import com.amazon.opendistroforelasticsearch.ppl.plugin.PluginSettings;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.IndexMappings;
-import com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.apache.logging.log4j.LogManager;
@@ -73,7 +73,7 @@ public class LocalClusterState {
     /**
      * Sql specific settings in ES cluster settings
      */
-    private SqlSettings sqlSettings;
+    private PluginSettings pluginSettings;
 
     /**
      * Index name expression resolver to get concrete index name
@@ -120,9 +120,9 @@ public class LocalClusterState {
         });
     }
 
-    public void setSqlSettings(SqlSettings sqlSettings) {
-        this.sqlSettings = sqlSettings;
-        for (Setting<?> setting : sqlSettings.getSettings()) {
+    public void setSettings(PluginSettings settings) {
+        this.pluginSettings = settings;
+        for (Setting<?> setting : settings.getSettings()) {
             clusterService.getClusterSettings().addSettingsUpdateConsumer(
                     setting,
                     newVal -> {
@@ -150,8 +150,8 @@ public class LocalClusterState {
      */
     @SuppressWarnings("unchecked")
     public <T> T getSettingValue(String key) {
-        Objects.requireNonNull(sqlSettings, "SQL setting is null");
-        return (T) latestSettings.getOrDefault(key, sqlSettings.getSetting(key).getDefault(EMPTY));
+        Objects.requireNonNull(pluginSettings, "SQL setting is null");
+        return (T) latestSettings.getOrDefault(key, pluginSettings.getSetting(key).getDefault(EMPTY));
     }
 
     /**

@@ -193,7 +193,7 @@ public class LocalClusterStateTest {
         // Force return empty list to avoid ClusterSettings be invoked which is a final class and hard to mock.
         SqlSettings settings = spy(new SqlSettings());
         doReturn(emptyList()).when(settings).getSettings();
-        LocalClusterState.state().setSqlSettings(settings);
+        LocalClusterState.state().setSettings(settings);
 
         Assert.assertEquals(2, (int) LocalClusterState.state().getSettingValue(QUERY_SLOWLOG));
     }

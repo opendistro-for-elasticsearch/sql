@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.plugin;
 
+import com.amazon.opendistroforelasticsearch.ppl.plugin.PluginSettings;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.executor.AsyncRestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
@@ -53,7 +54,7 @@ public class SqlPlug extends Plugin implements ActionPlugin {
     /**
      * Sql plugin specific settings in ES cluster settings
      */
-    private final SqlSettings sqlSettings = new SqlSettings();
+    private final PluginSettings settings = new PluginSettings();
 
     public SqlPlug() {
     }
@@ -88,7 +89,7 @@ public class SqlPlug extends Plugin implements ActionPlugin {
                                                Environment environment, NodeEnvironment nodeEnvironment,
                                                NamedWriteableRegistry namedWriteableRegistry) {
         LocalClusterState.state().setClusterService(clusterService);
-        LocalClusterState.state().setSqlSettings(sqlSettings);
+        LocalClusterState.state().setSettings(settings);
         return super.createComponents(client, clusterService, threadPool, resourceWatcherService, scriptService,
                 xContentRegistry, environment, nodeEnvironment, namedWriteableRegistry);
     }
@@ -108,6 +109,6 @@ public class SqlPlug extends Plugin implements ActionPlugin {
 
     @Override
     public List<Setting<?>> getSettings() {
-        return sqlSettings.getSettings();
+        return settings.getSettings();
     }
 }
