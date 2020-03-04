@@ -53,12 +53,10 @@ public class TestUtils {
      * @param mapping       test index mapping or null if no predefined mapping
      */
     public static void createIndexByRestClient(RestClient client, String indexName, String mapping) {
-        if (isNullOrEmpty(mapping)) {
-            return;
-        }
-
         Request request = new Request("PUT", "/" + indexName);
-        request.setJsonEntity(mapping);
+        if (!isNullOrEmpty(mapping)) {
+            request.setJsonEntity(mapping);
+        }
         performRequest(client, request);
     }
 

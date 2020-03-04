@@ -21,6 +21,8 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.createIndexByRestClient;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.isIndexExist;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 
@@ -29,31 +31,31 @@ public class ShowIT extends SQLIntegTestCase {
     @Override
     protected void init() {
         // Note: not using the existing TEST_INDEX_* indices, since underscore in the names causes issues
-        TestUtils.createIndexByRestClient(client(), "abcdefg", null);
-        TestUtils.createIndexByRestClient(client(), "abcdefghijk", null);
-        TestUtils.createIndexByRestClient(client(), "abcdijk", null);
+        createEmptyIndexIfNotExist("abcdefg");
+        createEmptyIndexIfNotExist("abcdefghijk");
+        createEmptyIndexIfNotExist("abcdijk");
     }
 
     @Test
-    public void showAll_matchAll() throws IOException {
+    public void showAllMatchAll() throws IOException {
 
         showIndexTest("%", 3, false);
     }
 
     @Test
-    public void showIndex_matchPrefix() throws IOException {
+    public void showIndexMatchPrefix() throws IOException {
 
         showIndexTest("abcdefg" + "%", 2, true);
     }
 
     @Test
-    public void showIndex_matchSuffix() throws IOException {
+    public void showIndexMatchSuffix() throws IOException {
 
         showIndexTest("%ijk", 2, true);
     }
 
     @Test
-    public void showIndex_matchExact() throws IOException {
+    public void showIndexMatchExact() throws IOException {
 
         showIndexTest("abcdefg", 1, true);
     }
@@ -70,6 +72,12 @@ public class ShowIT extends SQLIntegTestCase {
         }
         for (String indexName : result.keySet()) {
             Assert.assertTrue(result.getJSONObject(indexName).has("mappings"));
+        }
+    }
+
+    private void createEmptyIndexIfNotExist(String indexName) {
+        if (!isIndexExist(client(), indexName)) {
+            createIndexByRestClient(client(), indexName, null);
         }
     }
 }

@@ -228,7 +228,7 @@ public class MetaDataQueriesIT extends SQLIntegTestCase {
          * "TABLE_TYPE" : 3
          */
         JSONArray row = dataRows.getJSONArray(0);
-        assertThat(row.get(0), equalTo(getTestName()));
+        assertThat(row.get(0), equalTo(getClusterName()));
         assertThat(row.get(2), equalTo(TestsConstants.TEST_INDEX_ACCOUNT));
         assertThat(row.get(3), equalTo(TABLE_TYPE));
     }
@@ -245,7 +245,7 @@ public class MetaDataQueriesIT extends SQLIntegTestCase {
         assertThat(dataRows.getJSONArray(0).length(), equalTo(SHOW_FIELD_LENGTH));
 
         JSONArray row = dataRows.getJSONArray(0);
-        assertThat(row.get(0), equalTo(getTestName()));
+        assertThat(row.get(0), equalTo(getClusterName()));
         assertThat(row.get(2), equalTo(TestsConstants.TEST_INDEX_ACCOUNT));
         assertThat(row.get(3), equalTo(TABLE_TYPE));
     }
@@ -256,7 +256,7 @@ public class MetaDataQueriesIT extends SQLIntegTestCase {
 
         String pattern = String.format("%s.*", TestsConstants.TEST_INDEX);
         JSONArray dataRows = getDataRows(response);
-        assertThat(dataRows.length(), equalTo(3));
+        assertThat(dataRows.length(), greaterThan(0));
         for (int i = 0; i < dataRows.length(); i++) {
             JSONArray row = dataRows.getJSONArray(i);
             String tableName = row.getString(2);
@@ -368,5 +368,10 @@ public class MetaDataQueriesIT extends SQLIntegTestCase {
         }
 
         assertThat(columnNames, hasItems(fields));
+    }
+
+    private String getClusterName() throws IOException {
+        String response = executeRequest(new Request("GET", "_cluster/health"));
+        return new JSONObject(response).optString("cluster_name", "");
     }
 }
