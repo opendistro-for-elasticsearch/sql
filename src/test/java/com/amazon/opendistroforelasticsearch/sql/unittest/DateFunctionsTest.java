@@ -75,7 +75,7 @@ public class DateFunctionsTest {
         assertTrue(
                 scriptContainsString(
                         scriptField,
-                        "doc['creationDate'].value.weekOfWeekyear"));
+                        "doc['creationDate'].value.get(WeekFields.ISO.weekOfWeekBasedYear())"));
     }
 
     @Test
@@ -87,7 +87,7 @@ public class DateFunctionsTest {
         assertTrue(
                 scriptContainsString(
                         scriptFilter,
-                        "doc['creationDate'].value.weekOfWeekyear"));
+                        "doc['creationDate'].value.get(WeekFields.ISO.weekOfWeekBasedYear())"));
         assertTrue(
                 scriptHasPattern(
                         scriptFilter,
@@ -113,7 +113,7 @@ public class DateFunctionsTest {
         assertTrue(
                 scriptContainsString(
                         scriptField,
-                        "doc['creationDate'].value.hourOfDay"));
+                        "doc['creationDate'].value.hour"));
     }
 
     @Test
@@ -124,7 +124,7 @@ public class DateFunctionsTest {
         assertTrue(
                 scriptContainsString(
                         scriptField,
-                        "doc['creationDate'].value.secondOfMinute"));
+                        "doc['creationDate'].value.second"));
     }
 
     @Test
@@ -134,7 +134,7 @@ public class DateFunctionsTest {
         assertTrue(
                 scriptContainsString(
                         scriptField,
-                        "doc['creationDate'].value.monthOfYear"));
+                        "doc['creationDate'].value.monthValue"));
     }
 
     @Test
