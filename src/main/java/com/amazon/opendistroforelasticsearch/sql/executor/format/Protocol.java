@@ -75,12 +75,6 @@ public class Protocol {
      */
     private final Map<String, Object> options = new HashMap<>();
 
-
-    /** Optional fields only for JSON format which is supposed to be
-     *  factored out along with other fields of specific format
-     */
-    private final Map<String, Object> options = new HashMap<>();
-
     private ColumnTypeProvider scriptColumnType = new ColumnTypeProvider();
 
 
@@ -301,7 +295,8 @@ public class Protocol {
         // for subsequent pages the cursorType and cursor should be set from
         switch(cursorType) {
             case DEFAULT:
-                if (options.get("scrollId") != null) {
+                int pages_left = pagesLeft();
+                if (options.get("scrollId") != null && pages_left > 0) {
                     JSONObject cursorJson = new JSONObject();
                     cursorJson.put("type", cursorType.name());
                     cursorJson.put("schema", getSchemaAsJson());
@@ -309,9 +304,14 @@ public class Protocol {
                     cursorJson.put("left", pagesLeft());
                     cursor = encodeCursorContext(cursorJson);
                     LOG.info("generated cursor id {}", cursor);
-                    options.remove("scrollId");
-                    options.remove("fetch_size");
+                } else {
+                    // explicitly setting this to null to avaoid any ambiguity
+                    cursor = null;
+                    LOG.info("No cursor id generated as either scroll ID was null or pages_left is  {}",
+                            pages_left);
                 }
+                options.remove("scrollId");
+                options.remove("fetch_size");
                 break;
             case AGGREGATION:
                 throw new ElasticsearchException("Cursor not yet supported for GROUP BY queries");

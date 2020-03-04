@@ -119,6 +119,7 @@ public class SelectResultSet extends ResultSet {
         this.client = client;
         this.queryResult = queryResult;
         this.selectAll = false;
+        this.formatType = "jdbc";
         this.columns = getColumnsFromSchema(cursorContext);
         this.schema = new Schema(null, null, columns);
         this.head = schema.getHeaders();
