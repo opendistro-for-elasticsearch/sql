@@ -119,7 +119,7 @@ public class ESActionFactory {
                     JoinSelect joinSelect = new SqlParser().parseJoinSelect(sqlExpr);
                     return ESJoinQueryActionFactory.createJoinAction(client, joinSelect);
                 } else {
-                    sqlExpr.accept(new TermFieldRewriter(client));
+//                    sqlExpr.accept(new TermFieldRewriter(client));
                     // migrate aggregation to query planner framework.
                     if (shouldMigrateToQueryPlan(sqlExpr, request.getFormat())) {
                         return new QueryPlanQueryAction(new QueryPlanRequestBuilder(

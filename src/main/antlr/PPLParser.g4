@@ -44,14 +44,19 @@ filteringCommands
     ;
 
 searchCommand
-    : (SEARCH)? fromClause logicalExpression*
+    : (SEARCH)? fromClause logicalExpression
     | (SEARCH)? logicalExpression fromClause
     ;
 
 fromClause
-    : SOURCE EQUAL_SYMBOL valueExpression
-    | INDEX EQUAL_SYMBOL valueExpression
+    : SOURCE EQUAL_SYMBOL tableSource
+    | INDEX EQUAL_SYMBOL tableSource
     ;
+
+tableSource
+    :  stringLiteral
+    ;
+
 topCommand
     : TOP decimalLiteral? topOptions? fieldList byClause*
     ;

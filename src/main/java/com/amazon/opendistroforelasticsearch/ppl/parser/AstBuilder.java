@@ -15,102 +15,73 @@
 
 package com.amazon.opendistroforelasticsearch.ppl.parser;
 
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.DataType;
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.EqualTo;
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Literal;
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Expression;
+import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Filter;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Node;
-import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Project;
+import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Relation;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.PPLParser;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.PPLParserBaseVisitor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 public class AstBuilder extends PPLParserBaseVisitor<Node> {
 
+    /**
+     * Simply return non-default value for now
+     */
+    @Override
+    protected Node aggregateResult(Node aggregate, Node nextResult) {
+        if (nextResult != defaultResult()) {
+            return nextResult;
+        }
+        return aggregate;
+    }
+
     @Override
     public Node visitSearchCommand(PPLParser.SearchCommandContext ctx) {
-
-        return new Project(
-                null,
+        return new Filter(
+                visitExpression(ctx.logicalExpression()),
                 visitLogicalPlan(ctx.fromClause())
         );
     }
 
-//    @Override
-//    public Node visitRoot(OpenDistroSqlParser.RootContext ctx) {
-//        Node node = super.visitRoot(ctx);
-//        return node;
-//    }
-//
-//    @Override
-//    protected Node aggregateResult(Node aggregate, Node nextResult) {
-//        if (nextResult != defaultResult()) { // Simply return non-default value for now
-//            return nextResult;
-//        }
-//        return aggregate;
-//    }
-//
-//    @Override
-//    public Node visitQuerySpecification(OpenDistroSqlParser.QuerySpecificationContext ctx) {
-//        return new Project(
-//                ctx.selectElements().selectElement().stream().map(this::visitExpression).collect(Collectors.toList()),
-//                visitLogicalPlan(ctx.fromClause()));
-//    }
-//
-//    @Override
-//    public Node visitFromClause(OpenDistroSqlParser.FromClauseContext ctx) {
-//        LogicalPlan relation = visitLogicalPlan(ctx.tableSources());
-//        if (ctx.whereExpr != null) {
-//            return new Filter(visitExpression(ctx.whereExpr), relation);
-//        }
-//        return relation;
-//    }
-//
-//    @Override
-//    public LogicalPlan visitAtomTableItem(OpenDistroSqlParser.AtomTableItemContext ctx) {
-//        return new Relation(ctx.getText());
-//    }
-//
-//    @Override
-//    public Expression visitSelectColumnElement(OpenDistroSqlParser.SelectColumnElementContext ctx) {
-//        Expression expr = visitExpression(ctx.fullColumnName());
-//        if (ctx.uid() != null) {
-//            return new Alias(expr, ctx.uid().getText());
-//        }
-//        return expr;
-//    }
-//
-//    @Override
-//    public Node visitFullColumnName(OpenDistroSqlParser.FullColumnNameContext ctx) {
-//        return new UnresolvedAttribute(ctx.getText());
-//    }
-//
-//    @Override
-//    public Node visitBinaryComparisonPredicate(OpenDistroSqlParser.BinaryComparisonPredicateContext ctx) {
-//        Expression left = visitExpression(ctx.left);
-//        Expression right = visitExpression(ctx.right);
-//        String operator = ctx.comparisonOperator().getText();
-//        switch (operator) {
-//            case "==":
-//            case "=":
-//                return new EqualTo(left, right);
-//            default:
-//                throw new UnsupportedOperationException(String.format("unsupported operator [%s]", operator));
-//        }
-//    }
-//
-//    @Override
-//    public Expression visitStringLiteral(OpenDistroSqlParser.StringLiteralContext ctx) {
-//        return new Literal(ctx.getText(), DataType.STRING);
-//    }
-//
-//    @Override
-//    public Expression visitDecimalLiteral(OpenDistroSqlParser.DecimalLiteralContext ctx) {
-//        return new Literal(Integer.valueOf(ctx.getText()), DataType.INTEGER);
-//    }
-//
-//    @Override
-//    public Expression visitFullColumnNameExpressionAtom(OpenDistroSqlParser.FullColumnNameExpressionAtomContext ctx) {
-//        return new UnresolvedAttribute(ctx.getText());
-//    }
+    @Override
+    public Node visitFromClause(PPLParser.FromClauseContext ctx) {
+        return new Relation(ctx.tableSource().getText());
+    }
+
+    @Override
+    public Expression visitComparisonExpression(PPLParser.ComparisonExpressionContext ctx) {
+        Expression field = visitExpression(ctx.fieldExpression());
+        Expression value = visitExpression(ctx.valueExpression());
+        String operator = ctx.comparisonOperator().getText();
+        switch (operator) {
+            case "==":
+            case "=":
+                return new EqualTo(field, value);
+            default:
+                throw new UnsupportedOperationException(String.format("unsupported operator [%s]", operator));
+        }
+    }
+
+    @Override
+    public Expression visitFieldExpression(PPLParser.FieldExpressionContext ctx) {
+        return new UnresolvedAttribute(ctx.getText());
+    }
+
+    @Override
+    public Expression visitStringLiteral(PPLParser.StringLiteralContext ctx) {
+        return new Literal(ctx.getText(), DataType.STRING);
+    }
+
+    @Override
+    public Expression visitDecimalLiteral(PPLParser.DecimalLiteralContext ctx) {
+        return new Literal(Integer.valueOf(ctx.getText()), DataType.INTEGER);
+    }
 
     /* ------------------------------- */
     private Expression visitExpression(ParseTree tree) {
