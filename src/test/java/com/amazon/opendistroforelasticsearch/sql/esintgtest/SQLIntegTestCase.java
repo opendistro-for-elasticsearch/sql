@@ -56,6 +56,14 @@ import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.QUE
 
 /**
  * SQL plugin integration test base class.
+ *
+ * The execution of order is as follows:
+ *
+ *   ESRestTestCase:   1) initClient()                                       N+1) closeClient()
+ *                            \                                                     /
+ *   SQLIntegTestCase:     2) setUpIndices()  -> 4) setUpIndices() ... -> N) cleanUpIndices()
+ *                                \                      \
+ *   XXXTIT:                  3) init()             5) init()
  */
 public abstract class SQLIntegTestCase extends ESRestTestCase {
 
