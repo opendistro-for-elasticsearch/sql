@@ -256,7 +256,7 @@ public class MetaDataQueriesIT extends SQLIntegTestCase {
 
         String pattern = String.format("%s.*", TestsConstants.TEST_INDEX);
         JSONArray dataRows = getDataRows(response);
-        assertThat(dataRows.length(), greaterThan(0));
+        assertThat(dataRows.length(), equalTo(3));
         for (int i = 0; i < dataRows.length(); i++) {
             JSONArray row = dataRows.getJSONArray(i);
             String tableName = row.getString(2);
