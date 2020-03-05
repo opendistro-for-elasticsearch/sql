@@ -536,7 +536,19 @@ public class SQLFunctions {
         }
     }
 
-    /** Explicitly pass in name used to generate variable ID because methodName is not always valid */
+    /**
+     * Explicitly pass in name used to generate variable ID because methodName is not always valid
+     *
+     * For example,
+     *  <code>
+     *      functionStr = dateFunctionTemplate("weekOfWeekyear",
+     *                                         "get(WeekFields.ISO.weekOfWeekBasedYear())",
+     *                                         (SQLExpr) paramers.get(0).value);
+     *  </code>
+     *
+     *  The old dateFunctionTemplate(methodName, field) passes string "get(WeekFields.ISO.weekOfWeekBasedYear())"
+     *  to nextId() which generates an invalid variable name in painless script.
+     */
     private Tuple<String, String> dateFunctionTemplate(String name, String methodName, SQLExpr field) {
         String id = nextId(name);
         return new Tuple<>(id, def(id, doc(field) + ".value." + methodName));
