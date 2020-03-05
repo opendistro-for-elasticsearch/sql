@@ -20,6 +20,18 @@ public class PPLSyntaxParserTest {
     }
 
     @Test
+    public void testSearchCommandIgnoreSearchKeywordShouldSuccess() {
+        ParseTree tree = new PPLSyntaxParser().analyzeSyntax("source=t a=1 b=2");
+        assertNotEquals(null, tree);
+    }
+
+    @Test
+    public void testSearchFieldsCommandShouldSuccess() {
+        ParseTree tree = new PPLSyntaxParser().analyzeSyntax("search source=t a=1 b=2 | fields a,b");
+        assertNotEquals(null, tree);
+    }
+
+    @Test
     public void testSearchCommandWithoutSourceShouldFail() {
         exceptionRule.expect(SyntaxAnalysisException.class);
         exceptionRule.expectMessage("Failed to parse query due to offending symbol");

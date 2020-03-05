@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.ppl.plans.expression;
 
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Expression;
+import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Visitor;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -26,4 +27,10 @@ import lombok.ToString;
 public class Alias extends Expression {
     private final Expression expr;
     private final String alias;
+
+    @Override
+    public void bottomUp(Visitor<Expression> visitor) {
+        expr.bottomUp(visitor);
+        visitor.visit(this);
+    }
 }

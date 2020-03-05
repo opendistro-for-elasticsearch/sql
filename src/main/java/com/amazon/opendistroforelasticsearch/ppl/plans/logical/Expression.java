@@ -16,4 +16,5 @@
 package com.amazon.opendistroforelasticsearch.ppl.plans.logical;
 
 public abstract class Expression extends Node {
+    abstract public Expression bottomUp(Visitor<Expression> visitor);
 }

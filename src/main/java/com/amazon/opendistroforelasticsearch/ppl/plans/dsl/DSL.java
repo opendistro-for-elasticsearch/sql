@@ -30,12 +30,12 @@ import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Relation;
 import java.util.Arrays;
 
 public class DSL {
-    public static LogicalPlan project(LogicalPlan child, Expression... projectList) {
-        return new Project(Arrays.asList(projectList), child);
+    public static LogicalPlan project(LogicalPlan input, Expression... projectList) {
+        return new Project(Arrays.asList(projectList)).withInput(input);
     }
 
-    public static LogicalPlan filter(LogicalPlan child, Expression expression) {
-        return new Filter(expression, child);
+    public static LogicalPlan filter(LogicalPlan input, Expression expression) {
+        return new Filter(expression).withInput(input);
     }
 
     public static LogicalPlan relation(String tableName) {

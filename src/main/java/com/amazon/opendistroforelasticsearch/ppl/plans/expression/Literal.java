@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.ppl.plans.expression;
 
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Expression;
+import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Visitor;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -26,4 +27,9 @@ import lombok.ToString;
 public class Literal extends Expression {
     private final Object value;
     private final DataType type;
+
+    @Override
+    public Expression bottomUp(Visitor<Expression> visitor) {
+        return visitor.visit(this);
+    }
 }

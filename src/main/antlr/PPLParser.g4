@@ -20,11 +20,15 @@ root
     : pplStatement? EOF
     ;
 
+//pplStatement
+//    : searchCommands | reportsCommands
+//    (PIPE resultsCommands)?
+//    (PIPE (searchCommands | reportsCommands))*
+//    EOF
+//    ;
+
 pplStatement
-    : searchCommands | reportsCommands
-    (PIPE resultsCommands)?
-    (PIPE (searchCommands | reportsCommands))*
-    EOF
+    : searchCommands (PIPE fieldsCommand)*
     ;
 
 searchCommands
@@ -55,6 +59,10 @@ fromClause
 
 tableSource
     :  stringLiteral
+    ;
+
+fieldsCommand
+    : FIELDS fieldList
     ;
 
 topCommand
