@@ -16,4 +16,5 @@
 package com.amazon.opendistroforelasticsearch.ppl.plans.logical;
 
 public abstract class Node {
+
 }

@@ -16,7 +16,9 @@
 package com.amazon.opendistroforelasticsearch.ppl.plans.expression;
 
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Expression;
+import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Visitor;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
@@ -24,5 +26,11 @@ import lombok.ToString;
 @EqualsAndHashCode
 @RequiredArgsConstructor
 public class UnresolvedAttribute extends Expression {
+    @Getter
     private final String attr;
+
+    @Override
+    public Expression bottomUp(Visitor<Expression> visitor) {
+        return visitor.visit(this);
+    }
 }

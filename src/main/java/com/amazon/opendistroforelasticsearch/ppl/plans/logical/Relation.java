@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.ppl.plans.logical;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
@@ -23,5 +24,15 @@ import lombok.ToString;
 @EqualsAndHashCode
 @RequiredArgsConstructor
 public class Relation extends LogicalPlan {
+    @Getter
     private final String tableName;
+
+    public Relation withInput(LogicalPlan input) {
+        return this;
+    }
+
+    @Override
+    LogicalPlan getInput() {
+        return null;
+    }
 }

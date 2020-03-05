@@ -16,13 +16,27 @@
 package com.amazon.opendistroforelasticsearch.ppl.plans.logical;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 @ToString
 @EqualsAndHashCode
-@RequiredArgsConstructor
 public class Filter extends LogicalPlan {
-    private final Expression condition;
-    private final LogicalPlan child;
+    @Getter
+    @Setter
+    private Expression condition;
+    @Getter
+    private LogicalPlan input;
+
+    public Filter(Expression condition) {
+        this.condition = condition;
+    }
+
+    @Override
+    public Filter withInput(LogicalPlan input) {
+        this.input = input;
+        return this;
+    }
 }

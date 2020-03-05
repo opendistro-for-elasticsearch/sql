@@ -8,6 +8,7 @@ import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.attr;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.equalTo;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.filter;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.intLiteral;
+import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.project;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.relation;
 import static org.junit.Assert.assertEquals;
 
@@ -32,13 +33,27 @@ public class AstBuilderTest {
         );
     }
 
+    @Test
+    public void testSearchAndFields() {
+        assertEqual("search source=t a=1 | fields a,b",
+                    project(
+                            filter(
+                                    relation("t"),
+                                    equalTo(attr("a"), intLiteral(1))
+                            ),
+                            attr("a"), attr("b")
+                    )
+
+        );
+    }
+
     public void assertEqual(String sql, Node expectedPlan) {
         Node actualPlan = plan(sql);
         assertEquals(actualPlan, expectedPlan);
     }
 
     private PPLSyntaxParser parser = new PPLSyntaxParser();
-    private AstBuilder astBuilder = new AstBuilder();
+    private AstBuilder astBuilder = new AstBuilder(new AstExpressionBuilder());
 
     public Node plan(String sql) {
         return astBuilder.visit(parser.analyzeSyntax(sql));

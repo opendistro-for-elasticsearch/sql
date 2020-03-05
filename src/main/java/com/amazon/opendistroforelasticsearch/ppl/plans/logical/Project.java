@@ -16,15 +16,29 @@
 package com.amazon.opendistroforelasticsearch.ppl.plans.logical;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.util.List;
 
 @ToString
 @EqualsAndHashCode
-@RequiredArgsConstructor
 public class Project extends LogicalPlan {
-    private final List<Expression> projectList;
-    private final LogicalPlan child;
+    @Getter
+    @Setter
+    private List<Expression> projectList;
+    @Getter
+    private LogicalPlan input;
+
+    public Project(List<Expression> projectList) {
+        this.projectList = projectList;
+    }
+
+    @Override
+    public Project withInput(LogicalPlan input) {
+        this.input = input;
+        return this;
+    }
 }

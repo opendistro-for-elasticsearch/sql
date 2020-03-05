@@ -16,14 +16,23 @@
 package com.amazon.opendistroforelasticsearch.ppl.plans.expression;
 
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Expression;
+import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Visitor;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 @ToString
 @EqualsAndHashCode
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class EqualTo extends Expression {
-    private final Expression left;
-    private final Expression right;
+    private Expression left;
+    private Expression right;
+
+    @Override
+    public Expression bottomUp(Visitor<Expression> visitor) {
+        left = left.bottomUp(visitor);
+        right = right.bottomUp(visitor);
+        return visitor.visit(this);
+    }
 }

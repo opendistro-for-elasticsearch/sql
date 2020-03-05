@@ -23,72 +23,64 @@ import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Expression;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Filter;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Node;
+import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Project;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Relation;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.PPLParser;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.PPLParserBaseVisitor;
+import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-public class AstBuilder extends PPLParserBaseVisitor<Node> {
+import java.util.stream.Collectors;
+
+@RequiredArgsConstructor
+public class AstBuilder extends PPLParserBaseVisitor<LogicalPlan> {
+    private final AstExpressionBuilder expressionBuilder;
+
+    @Override
+    public LogicalPlan visitPplStatement(PPLParser.PplStatementContext ctx) {
+        LogicalPlan search = visit(ctx.searchCommands());
+        LogicalPlan reduce = ctx.fieldsCommand().stream().map(this::visit).reduce(search, (r, e) -> e.withInput(r));
+        return reduce;
+    }
+
+    @Override
+    public LogicalPlan visitFieldsCommand(PPLParser.FieldsCommandContext ctx) {
+        return new Project(
+                ctx.fieldList()
+                        .fieldExpression()
+                        .stream()
+                        .map(this::visitExpression)
+                        .collect(Collectors.toList()));
+    }
+
+    @Override
+    public LogicalPlan visitSearchCommand(PPLParser.SearchCommandContext ctx) {
+        return new Filter(visitExpression(ctx.logicalExpression())).withInput(visit(ctx.fromClause()));
+    }
+
+    @Override
+    public LogicalPlan visitFromClause(PPLParser.FromClauseContext ctx) {
+        return new Relation(ctx.tableSource().getText());
+    }
+
+
+
+
+
+    /* ---------------------------------- */
+
+    private Expression visitExpression(ParseTree tree) {
+        return expressionBuilder.visit(tree);
+    }
 
     /**
      * Simply return non-default value for now
      */
     @Override
-    protected Node aggregateResult(Node aggregate, Node nextResult) {
+    protected LogicalPlan aggregateResult(LogicalPlan aggregate, LogicalPlan nextResult) {
         if (nextResult != defaultResult()) {
             return nextResult;
         }
         return aggregate;
-    }
-
-    @Override
-    public Node visitSearchCommand(PPLParser.SearchCommandContext ctx) {
-        return new Filter(
-                visitExpression(ctx.logicalExpression()),
-                visitLogicalPlan(ctx.fromClause())
-        );
-    }
-
-    @Override
-    public Node visitFromClause(PPLParser.FromClauseContext ctx) {
-        return new Relation(ctx.tableSource().getText());
-    }
-
-    @Override
-    public Expression visitComparisonExpression(PPLParser.ComparisonExpressionContext ctx) {
-        Expression field = visitExpression(ctx.fieldExpression());
-        Expression value = visitExpression(ctx.valueExpression());
-        String operator = ctx.comparisonOperator().getText();
-        switch (operator) {
-            case "==":
-            case "=":
-                return new EqualTo(field, value);
-            default:
-                throw new UnsupportedOperationException(String.format("unsupported operator [%s]", operator));
-        }
-    }
-
-    @Override
-    public Expression visitFieldExpression(PPLParser.FieldExpressionContext ctx) {
-        return new UnresolvedAttribute(ctx.getText());
-    }
-
-    @Override
-    public Expression visitStringLiteral(PPLParser.StringLiteralContext ctx) {
-        return new Literal(ctx.getText(), DataType.STRING);
-    }
-
-    @Override
-    public Expression visitDecimalLiteral(PPLParser.DecimalLiteralContext ctx) {
-        return new Literal(Integer.valueOf(ctx.getText()), DataType.INTEGER);
-    }
-
-    /* ------------------------------- */
-    private Expression visitExpression(ParseTree tree) {
-        return (Expression) visit(tree);
-    }
-
-    private LogicalPlan visitLogicalPlan(ParseTree tree) {
-        return (LogicalPlan) (visit(tree));
     }
 }

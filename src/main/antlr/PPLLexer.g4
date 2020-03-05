@@ -28,6 +28,7 @@ BY:                                 'BY';
 COUNTFIELD:                         'COUNTFIELD';
 SOURCE:                             'SOURCE';
 INDEX:                              'INDEX';
+FIELDS:                             'FIELDS';
 
 
 
