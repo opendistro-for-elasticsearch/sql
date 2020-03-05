@@ -38,7 +38,7 @@ import static org.hamcrest.Matchers.matchesPattern;
 
 public class DateFunctionsIT extends SQLIntegTestCase {
 
-    private static final String FROM = "FROM " + TestsConstants.TEST_INDEX_ONLINE + "/online";
+    private static final String FROM = "FROM " + TestsConstants.TEST_INDEX_ONLINE;
 
     /**
      * Some of the first few SQL functions are tested in both SELECT and WHERE cases for flexibility and the remainder

@@ -15,15 +15,13 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
-import org.elasticsearch.action.ActionFuture;
-import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
-import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.client.AdminClient;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
+import org.elasticsearch.client.RestClient;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.json.JSONObject;
 
@@ -35,34 +33,84 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+
 public class TestUtils {
 
-    public static void createTestIndex(AdminClient admin, String index, String type, String mapping) {
-        System.out.println("Creating index " + index);
-
-        CreateIndexRequest createIndexRequest = new CreateIndexRequest(index);
-        if(mapping != null) {
-            createIndexRequest.mapping(type, mapping, XContentType.JSON);
+    /**
+     * Create test index by REST client.
+     * @param client        client connection
+     * @param indexName     test index name
+     * @param mapping       test index mapping or null if no predefined mapping
+     */
+    public static void createIndexByRestClient(RestClient client, String indexName, String mapping) {
+        Request request = new Request("PUT", "/" + indexName);
+        if (!isNullOrEmpty(mapping)) {
+            request.setJsonEntity(mapping);
         }
-        ActionFuture<CreateIndexResponse> responseFuture = admin.indices().create(createIndexRequest);
-        CreateIndexResponse response = responseFuture.actionGet();
-        if (response.isAcknowledged()) {
-            System.out.println("Index " + index + " created");
-        } else {
-            throw new IllegalStateException("Failed to create index " + index);
-        }
+        performRequest(client, request);
+    }
 
-        admin.indices().prepareRefresh(index).execute().actionGet();
+    /**
+     * Check if index already exists by ES index exists API which returns:
+     *  200 - specified indices or aliases exist
+     *  404 - one or more indices specified or aliases do not exist
+     * @param client        client connection
+     * @param indexName     index name
+     * @return              true for index exist
+     */
+    public static boolean isIndexExist(RestClient client, String indexName) {
+        try {
+            Response response = client.performRequest(new Request("HEAD", "/" + indexName));
+            return (response.getStatusLine().getStatusCode() == 200);
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to perform request", e);
+        }
+    }
+
+    /**
+     * Load test data set by REST client.
+     * @param client            client connection
+     * @param indexName         index name
+     * @param dataSetFilePath   file path of test data set
+     * @throws IOException
+     */
+    public static void loadDataByRestClient(RestClient client, String indexName, String dataSetFilePath) throws IOException {
+        Path path = Paths.get(getResourceFilePath(dataSetFilePath));
+        Request request = new Request("POST", "/" + indexName + "/_bulk?refresh=true");
+        request.setJsonEntity(new String(Files.readAllBytes(path)));
+        performRequest(client, request);
+    }
+
+    /**
+     * Perform a request by REST client.
+     * @param client    client connection
+     * @param request   request object
+     */
+    public static Response performRequest(RestClient client, Request request) {
+        try {
+            Response response = client.performRequest(request);
+            int status = response.getStatusLine().getStatusCode();
+            if (status != 200) {
+                throw new IllegalStateException("Failed to perform request. Error code: " + status);
+            }
+            return response;
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to perform request", e);
+        }
     }
 
     public static String getAccountIndexMapping() {
-        return "{  \"account\": {" +
+        return "{  \"mappings\": {" +
                 " \"properties\": {\n" +
                 "          \"gender\": {\n" +
                 "            \"type\": \"text\",\n" +
@@ -108,7 +156,7 @@ public class TestUtils {
     }
 
     public static String getPhraseIndexMapping() {
-        return "{  \"phrase\": {" +
+        return "{  \"mappings\": {" +
                 " \"properties\": {\n" +
                 "          \"phrase\": {\n" +
                 "            \"type\": \"text\",\n" +
@@ -120,7 +168,7 @@ public class TestUtils {
     }
 
     public static String getDogIndexMapping() {
-        return "{  \"dog\": {" +
+        return "{  \"mappings\": {" +
                 " \"properties\": {\n" +
                 "          \"dog_name\": {\n" +
                 "            \"type\": \"text\",\n" +
@@ -132,7 +180,7 @@ public class TestUtils {
     }
 
     public static String getDogs2IndexMapping() {
-        return "{  \"dog\": {" +
+        return "{  \"mappings\": {" +
                 " \"properties\": {\n" +
                 "          \"holdersName\": {\n" +
                 "            \"type\": \"keyword\"\n" +
@@ -143,7 +191,7 @@ public class TestUtils {
     }
 
     public static String getDogs3IndexMapping() {
-        return "{  \"dog\": {" +
+        return "{  \"mappings\": {" +
                 " \"properties\": {\n" +
                 "          \"holdersName\": {\n" +
                 "            \"type\": \"keyword\"\n" +
@@ -157,7 +205,7 @@ public class TestUtils {
     }
 
     public static String getPeople2IndexMapping() {
-        return "{  \"people\": {" +
+        return "{  \"mappings\": {" +
                 " \"properties\": {\n" +
                 "          \"firstname\": {\n" +
                 "            \"type\": \"keyword\"\n" +
@@ -168,7 +216,7 @@ public class TestUtils {
     }
 
     public static String getGameOfThronesIndexMapping() {
-        return "{  \"gotCharacters\": { " +
+        return "{  \"mappings\": { " +
                 "    \"properties\": {\n" +
                 "      \"nickname\": {\n" +
                 "        \"type\":\"text\", "+
@@ -215,7 +263,7 @@ public class TestUtils {
 
     public static String getOdbcIndexMapping() {
         return "{\n" +
-                "\t\"odbc\" :{\n" +
+                "\t\"mappings\" :{\n" +
                 "\t\t\"properties\":{\n" +
                 "\t\t\t\"odbc_time\":{\n" +
                 "\t\t\t\t\"type\":\"date\",\n" +
@@ -229,14 +277,14 @@ public class TestUtils {
                 "}";
     }
 
-    public static String getLocationIndexMapping(String type) {
+    public static String getLocationIndexMapping() {
         return "{\n" +
-                "\t\"" + type + "\" :{\n" +
+                "\t\"mappings\" :{\n" +
                 "\t\t\"properties\":{\n" +
                 "\t\t\t\"place\":{\n" +
-                "\t\t\t\t\"type\":\"geo_shape\",\n" +
-                "\t\t\t\t\"tree\": \"quadtree\",\n" +
-                "\t\t\t\t\"precision\": \"10km\"\n" +
+                "\t\t\t\t\"type\":\"geo_shape\"\n" +
+                //"\t\t\t\t\"tree\": \"quadtree\",\n" + // Field tree and precision are deprecated in ES
+                //"\t\t\t\t\"precision\": \"10km\"\n" +
                 "\t\t\t},\n" +
                 "\t\t\t\"center\":{\n" +
                 "\t\t\t\t\"type\":\"geo_point\"\n" +
@@ -251,7 +299,7 @@ public class TestUtils {
 
     public static String getEmployeeNestedTypeIndexMapping() {
         return "{\n" +
-            "  \"_doc\": {\n" +
+            "  \"mappings\": {\n" +
             "    \"properties\": {\n" +
             "      \"comments\": {\n" +
             "        \"type\": \"nested\",\n" +
@@ -341,7 +389,7 @@ public class TestUtils {
 
 
     public static String getNestedTypeIndexMapping() {
-        return "{ \"nestedType\": {\n" +
+        return "{ \"mappings\": {\n" +
                 "        \"properties\": {\n" +
                 "          \"message\": {\n" +
                 "            \"type\": \"nested\",\n" +
@@ -391,7 +439,7 @@ public class TestUtils {
 
     public static String getJoinTypeIndexMapping() {
         return "{\n" +
-                "  \"joinType\": {\n" +
+                "  \"mappings\": {\n" +
                 "    \"properties\": {\n" +
                 "      \"join_field\": {\n" +
                 "        \"type\": \"join\",\n" +
@@ -419,9 +467,9 @@ public class TestUtils {
                 "}";
     }
 
-    public static String getBankIndexMapping(String type) {
+    public static String getBankIndexMapping() {
         return "{\n" +
-                "  \"" + type +"\": {\n" +
+                "  \"mappings\": {\n" +
                 "    \"properties\": {\n" +
                 "      \"account_number\": {\n" +
                 "        \"type\": \"long\"\n" +
@@ -475,7 +523,7 @@ public class TestUtils {
 
     public static String getOrderIndexMapping() {
         return "{\n" +
-            "  \"_doc\": {\n" +
+            "  \"mappings\": {\n" +
             "    \"properties\": {\n" +
             "      \"id\": {\n" +
             "        \"type\": \"long\"\n" +
@@ -496,7 +544,7 @@ public class TestUtils {
 
     public static String getWeblogsIndexMapping() {
         return "{\n" +
-                "  \"weblog\": {\n" +
+                "  \"mappings\": {\n" +
                 "    \"properties\": {\n" +
                 "      \"host\": {\n" +
                 "        \"type\": \"ip\"\n" +
@@ -519,7 +567,7 @@ public class TestUtils {
     }
 
     public static String getDateIndexMapping() {
-        return "{  \"dates\": {" +
+        return "{  \"mappings\": {" +
                 " \"properties\": {\n" +
                 "          \"date_keyword\": {\n" +
                 "            \"type\": \"keyword\",\n" +

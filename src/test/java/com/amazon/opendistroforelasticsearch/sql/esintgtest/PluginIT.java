@@ -39,7 +39,7 @@ public class PluginIT extends SQLIntegTestCase {
     @Test
     public void sqlEnableSettingsTest() throws IOException {
         updateClusterSettings(new ClusterSetting(PERSISTENT, "opendistro.sql.enabled", "true"));
-        String query = String.format(Locale.ROOT, "SELECT firstname FROM %s/account WHERE account_number=1", TEST_INDEX_ACCOUNT);
+        String query = String.format(Locale.ROOT, "SELECT firstname FROM %s WHERE account_number=1", TEST_INDEX_ACCOUNT);
         JSONObject queryResult = executeQuery(query);
         Assert.assertThat(getHits(queryResult).length(), equalTo(1));
 
@@ -68,6 +68,6 @@ public class PluginIT extends SQLIntegTestCase {
      *       individually resetting of each such setting
      */
     private JSONObject resetClusterSettings(String settingType, String setting) throws IOException {
-        return updateClusterSettings(new ClusterSetting(settingType, setting, "null"));
+        return updateClusterSettings(new ClusterSetting(settingType, setting, null));
     }
 }

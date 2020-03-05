@@ -37,7 +37,7 @@ public class HavingIT extends SQLIntegTestCase {
 
     private static final String SELECT_FROM_WHERE_GROUP_BY =
             "SELECT state, COUNT(*) cnt " +
-            "FROM " + TestsConstants.TEST_INDEX_ACCOUNT + "/account " +
+            "FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " " +
             "WHERE age = 30 " +
             "GROUP BY state ";
 
