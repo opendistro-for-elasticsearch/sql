@@ -91,7 +91,6 @@ public class LocalClusterState {
      */
     private final Map<String, Object> latestSettings = new ConcurrentHashMap<>();
 
-
     public static synchronized LocalClusterState state() {
         if (INSTANCE == null) {
             INSTANCE = new LocalClusterState();
