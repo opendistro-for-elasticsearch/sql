@@ -183,13 +183,15 @@ public class SQLFunctions {
                 break;
             case "month_of_year":
             case "month":
-                functionStr = dateFunctionTemplate("monthOfYear", (SQLExpr) paramers.get(0).value);
+                functionStr = dateFunctionTemplate("monthValue", (SQLExpr) paramers.get(0).value);
                 break;
             case "monthname":
                 functionStr = dateFunctionTemplate("month", (SQLExpr) paramers.get(0).value);
                 break;
             case "week_of_year":
-                functionStr = dateFunctionTemplate("weekOfWeekyear", (SQLExpr) paramers.get(0).value);
+                functionStr = dateFunctionTemplate("weekOfWeekyear",
+                                                   "get(WeekFields.ISO.weekOfWeekBasedYear())",
+                                                   (SQLExpr) paramers.get(0).value);
                 break;
             case "day_of_year":
                 functionStr = dateFunctionTemplate("dayOfYear", (SQLExpr) paramers.get(0).value);
@@ -199,22 +201,26 @@ public class SQLFunctions {
                 functionStr = dateFunctionTemplate("dayOfMonth", (SQLExpr) paramers.get(0).value);
                 break;
             case "day_of_week":
-                functionStr = dateFunctionTemplate("dayOfWeek", (SQLExpr) paramers.get(0).value);
+                functionStr = dateFunctionTemplate("dayOfWeek",
+                                                   "getDayOfWeekEnum().getValue()",
+                                                   (SQLExpr) paramers.get(0).value);
                 break;
             case "date":
                 functionStr = date((SQLExpr) paramers.get(0).value);
                 break;
             case "hour_of_day":
-                functionStr = dateFunctionTemplate("hourOfDay", (SQLExpr) paramers.get(0).value);
+                functionStr = dateFunctionTemplate("hour", (SQLExpr) paramers.get(0).value);
                 break;
             case "minute_of_day":
-                functionStr = dateFunctionTemplate("minuteOfDay", (SQLExpr) paramers.get(0).value);
+                functionStr = dateFunctionTemplate("minuteOfDay",
+                                                   "get(ChronoField.MINUTE_OF_DAY)",
+                                                   (SQLExpr) paramers.get(0).value);
                 break;
             case "minute_of_hour":
-                functionStr = dateFunctionTemplate("minuteOfHour", (SQLExpr) paramers.get(0).value);
+                functionStr = dateFunctionTemplate("minute", (SQLExpr) paramers.get(0).value);
                 break;
             case "second_of_minute":
-                functionStr = dateFunctionTemplate("secondOfMinute", (SQLExpr) paramers.get(0).value);
+                functionStr = dateFunctionTemplate("second", (SQLExpr) paramers.get(0).value);
                 break;
             case "timestamp":
                 functionStr = timestamp((SQLExpr) paramers.get(0).value);
@@ -530,9 +536,26 @@ public class SQLFunctions {
         }
     }
 
+    /**
+     * Explicitly pass in name used to generate variable ID because methodName is not always valid
+     *
+     * For example,
+     *  <code>
+     *      functionStr = dateFunctionTemplate("weekOfWeekyear",
+     *                                         "get(WeekFields.ISO.weekOfWeekBasedYear())",
+     *                                         (SQLExpr) paramers.get(0).value);
+     *  </code>
+     *
+     *  The old dateFunctionTemplate(methodName, field) passes string "get(WeekFields.ISO.weekOfWeekBasedYear())"
+     *  to nextId() which generates an invalid variable name in painless script.
+     */
+    private Tuple<String, String> dateFunctionTemplate(String name, String methodName, SQLExpr field) {
+        String id = nextId(name);
+        return new Tuple<>(id, def(id, doc(field) + ".value." + methodName));
+    }
+
     private Tuple<String, String> dateFunctionTemplate(String methodName, SQLExpr field) {
-        String name = nextId(methodName);
-        return new Tuple<>(name, def(name, doc(field) + ".value." + methodName));
+        return dateFunctionTemplate(methodName, methodName, field);
     }
 
     public Tuple<String, String> add(SQLExpr a, SQLExpr b) {

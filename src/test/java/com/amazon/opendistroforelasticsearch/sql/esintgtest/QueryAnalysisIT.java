@@ -96,6 +96,7 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
         );
     }
 
+    /*
     @Test
     public void useNewAddedFieldShouldPass() throws Exception {
         // 1.Make sure new add fields not there originally
@@ -106,11 +107,13 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
         String docWithNewFields = "{\"account_number\":12345,\"education\":\"PhD\",\"salary\": \"10000\"}";
         IndexResponse resp = client().index(new IndexRequest().index("elasticsearch-sql_test_index_bank").
                                                                source(docWithNewFields, JSON)).get();
+
         Assert.assertEquals(RestStatus.CREATED, resp.status());
 
         // 3.Same query should pass
         executeQuery(query);
     }
+    */
 
     @Test
     public void nonExistingFieldNameShouldThrowSemanticException() {
@@ -311,8 +314,7 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
         sqlRequest.setJsonEntity(requestBody);
 
         try {
-            RestClient restClient = ESIntegTestCase.getRestClient();
-            Response response = restClient.performRequest(sqlRequest);
+            Response response = client().performRequest(sqlRequest);
             ResponseAssertion assertion = new ResponseAssertion(response);
             assertion.assertStatusEqualTo(OK.getStatus());
         } catch (IOException e) {

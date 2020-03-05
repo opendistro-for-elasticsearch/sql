@@ -1,4 +1,4 @@
-{"index":{"_type": "dog", "_id":"1"}}
+{"index":{"_id":"1"}}
 {"dog_name":"nelly","holdersName":"Bill","age":2, "color": "grey"}
-{"index":{"_type": "dog", "_id":"6"}}
+{"index":{"_id":"6"}}
 {"dog_name":"snoopy","holdersName":"Hattie","age":4, "color": "white"}

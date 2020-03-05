@@ -19,8 +19,6 @@ import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import com.google.common.io.Files;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.test.ESIntegTestCase;
 import org.junit.Test;
 
 import java.io.File;
@@ -63,8 +61,7 @@ public class PrettyFormatterIT extends SQLIntegTestCase{
         Request sqlRequest = new Request("POST", endpoint);
         sqlRequest.setJsonEntity(request);
 
-        RestClient restClient = ESIntegTestCase.getRestClient();
-        Response response = restClient.performRequest(sqlRequest);
+        Response response = client().performRequest(sqlRequest);
         String responseString = TestUtils.getResponseBody(response, true);
 
         return responseString;

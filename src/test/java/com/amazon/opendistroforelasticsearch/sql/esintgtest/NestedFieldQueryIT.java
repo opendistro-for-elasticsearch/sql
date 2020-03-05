@@ -68,7 +68,7 @@ import static org.hamcrest.Matchers.is;
  */
 public class NestedFieldQueryIT extends SQLIntegTestCase {
 
-    private static final String FROM = "FROM " + TestsConstants.TEST_INDEX_NESTED_TYPE + "/nestedType n, n.message m";
+    private static final String FROM = "FROM " + TestsConstants.TEST_INDEX_NESTED_TYPE + " n, n.message m";
 
 
     @Override
