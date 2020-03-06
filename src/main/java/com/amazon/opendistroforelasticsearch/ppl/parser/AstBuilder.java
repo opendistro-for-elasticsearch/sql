@@ -15,14 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.ppl.parser;
 
-import com.amazon.opendistroforelasticsearch.ppl.plans.expression.DataType;
-import com.amazon.opendistroforelasticsearch.ppl.plans.expression.EqualTo;
-import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Literal;
-import com.amazon.opendistroforelasticsearch.ppl.plans.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Expression;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Filter;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.LogicalPlan;
-import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Node;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Project;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Relation;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.PPLParser;
@@ -62,10 +57,6 @@ public class AstBuilder extends PPLParserBaseVisitor<LogicalPlan> {
     public LogicalPlan visitFromClause(PPLParser.FromClauseContext ctx) {
         return new Relation(ctx.tableSource().getText());
     }
-
-
-
-
 
     /* ---------------------------------- */
 

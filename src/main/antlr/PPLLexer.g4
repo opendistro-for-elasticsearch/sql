@@ -82,7 +82,7 @@ LT_PRTHS:                           '(';
 RT_PRTHS:                           ')';
 
 
-STRING_LITERAL:                     ID_LITERAL | DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING;
+STRING_LITERAL:                     DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING;
 ID:                                 ID_LITERAL;
 DOT_ID:                             '.' ID;
 DECIMAL_LITERAL:                    DEC_DIGIT+;

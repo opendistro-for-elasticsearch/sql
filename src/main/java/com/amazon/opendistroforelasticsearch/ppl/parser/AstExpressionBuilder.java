@@ -30,7 +30,10 @@ public class AstExpressionBuilder extends PPLParserBaseVisitor<Expression> {
 
     @Override
     public Expression visitStringLiteral(PPLParser.StringLiteralContext ctx) {
-        return new Literal(ctx.getText(), DataType.STRING);
+        String token = ctx.getText();
+        String identifier = token.substring(1, token.length() - 1)
+                .replace("\"\"", "\"");
+        return new Literal(identifier, DataType.STRING);
     }
 
     @Override

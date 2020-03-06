@@ -9,6 +9,7 @@ import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.filter;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.project;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.relation;
+import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.stringLiteral;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.unresolvedAttr;
 import static org.junit.Assert.assertEquals;
 
@@ -20,6 +21,16 @@ public class AstBuilderTest {
                                     relation("t"),
                                     equalTo(unresolvedAttr("a"), intLiteral(1))
                             )
+        );
+    }
+
+    @Test
+    public void testSearchCommandString() {
+        assertEqual("search source=t a=\"a\"",
+                    filter(
+                            relation("t"),
+                            equalTo(unresolvedAttr("a"), stringLiteral("a"))
+                    )
         );
     }
 

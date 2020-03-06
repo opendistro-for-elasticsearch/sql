@@ -58,7 +58,7 @@ fromClause
     ;
 
 tableSource
-    :  stringLiteral
+    :  ident                                                        #tableSourceID
     ;
 
 fieldsCommand
@@ -151,7 +151,7 @@ functionArg
     ;
 
 fieldExpression
-    : stringLiteral
+    : ident
     ;
 
 fieldList
@@ -187,6 +187,11 @@ decimalLiteral
 
 fullColumnName
     : simpleId DOT_ID*
+    ;
+
+ident
+    : ID
+    | DOT_ID
     ;
 
 simpleId

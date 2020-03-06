@@ -1,3 +1,18 @@
+/*
+ *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License").
+ *   You may not use this file except in compliance with the License.
+ *   A copy of the License is located at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   or in the "license" file accompanying this file. This file is distributed
+ *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ *   express or implied. See the License for the specific language governing
+ *   permissions and limitations under the License.
+ */
+
 package com.amazon.opendistroforelasticsearch.ppl.plugin;
 
 import com.amazon.opendistroforelasticsearch.ppl.analysis.Analyzer;
@@ -10,6 +25,7 @@ import com.amazon.opendistroforelasticsearch.ppl.request.PPLRequestFactory;
 import com.amazon.opendistroforelasticsearch.ppl.spec.scope.Context;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
+import com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.PhysicalOperator;
 import com.amazon.opendistroforelasticsearch.sql.utils.LogUtils;
@@ -32,6 +48,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.elasticsearch.rest.RestStatus.OK;
 
@@ -94,6 +111,7 @@ public class RestPPLAction extends BaseRestHandler {
     }
 
     public static final String SQL_WORKER_THREAD_POOL_NAME = "sql-worker";
+
     private static class AsyncRestExecutor {
         public void execute(NodeClient client,
                             RestChannel channel,
@@ -109,8 +127,15 @@ public class RestPPLAction extends BaseRestHandler {
         }
 
         public BytesRestResponse pretty(List<BindingTuple> bindingTuples) {
-            LOG.info("result {}", bindingTuples);
-            return new BytesRestResponse(OK, "application/json; charset=UTF-8", bindingTuples.toString());
+            List<Map<String, Object>> rowList = bindingTuples.stream().map(tuple -> {
+                Map<String, ExprValue> bindingMap = tuple.getBindingMap();
+                Map<String, Object> rowMap = new HashMap<>();
+                for (String s : bindingMap.keySet()) {
+                    rowMap.put(s, bindingMap.get(s).value());
+                }
+                return rowMap;
+            }).collect(Collectors.toList());
+            return new BytesRestResponse(OK, "application/json; charset=UTF-8", new JSONArray(rowList).toString());
         }
 
         public List<BindingTuple> execute(PhysicalOperator<BindingTuple> op) {

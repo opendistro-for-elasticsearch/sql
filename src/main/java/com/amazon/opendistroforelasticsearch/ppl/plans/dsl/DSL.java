@@ -58,4 +58,8 @@ public class DSL {
     public static Expression intLiteral(Integer literal) {
         return new Literal(literal, DataType.INTEGER);
     }
+
+    public static Expression stringLiteral(String literal) {
+        return new Literal(literal, DataType.STRING);
+    }
 }
