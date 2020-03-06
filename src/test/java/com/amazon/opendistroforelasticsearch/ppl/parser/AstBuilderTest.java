@@ -4,12 +4,12 @@ import com.amazon.opendistroforelasticsearch.ppl.antlr.PPLSyntaxParser;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Node;
 import org.junit.Test;
 
-import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.attr;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.equalTo;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.filter;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.project;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.relation;
+import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.unresolvedAttr;
 import static org.junit.Assert.assertEquals;
 
 public class AstBuilderTest {
@@ -18,7 +18,7 @@ public class AstBuilderTest {
         assertEqual("search source=t a=1",
                             filter(
                                     relation("t"),
-                                    equalTo(attr("a"), intLiteral(1))
+                                    equalTo(unresolvedAttr("a"), intLiteral(1))
                             )
         );
     }
@@ -28,7 +28,7 @@ public class AstBuilderTest {
         assertEqual("source=t a=1",
                     filter(
                             relation("t"),
-                            equalTo(attr("a"), intLiteral(1))
+                            equalTo(unresolvedAttr("a"), intLiteral(1))
                     )
         );
     }
@@ -39,11 +39,10 @@ public class AstBuilderTest {
                     project(
                             filter(
                                     relation("t"),
-                                    equalTo(attr("a"), intLiteral(1))
+                                    equalTo(unresolvedAttr("a"), intLiteral(1))
                             ),
-                            attr("a"), attr("b")
+                            unresolvedAttr("a"), unresolvedAttr("b")
                     )
-
         );
     }
 

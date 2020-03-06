@@ -33,4 +33,9 @@ public class AttributeReference extends Expression {
     public Expression bottomUp(Visitor<Expression> visitor) {
         return visitor.visit(this);
     }
+
+    @Override
+    public String toString() {
+        return attr;
+    }
 }

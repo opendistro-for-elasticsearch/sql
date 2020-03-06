@@ -29,3 +29,7 @@ build/
 
 # git mergetool artifact
 *.orig
+
+# antlr
+/src/main/antlr/gen/
+*.tokens

@@ -1,9 +1,6 @@
 package com.amazon.opendistroforelasticsearch.ppl.analysis;
 
-import com.amazon.opendistroforelasticsearch.ppl.plans.expression.And;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.AttributeReference;
-import com.amazon.opendistroforelasticsearch.ppl.plans.expression.EqualTo;
-import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Literal;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Expression;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.ExpressionVisitor;
@@ -71,6 +68,7 @@ public class Analyzer implements LogicalPlanVisitor {
     @Override
     public LogicalPlan visitRelation(Relation node) {
         defineIndex(node.getTableName());
+        loadAllFieldsWith(node.getTableName());
         return node;
     }
 

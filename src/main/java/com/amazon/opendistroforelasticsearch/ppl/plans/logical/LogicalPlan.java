@@ -17,10 +17,13 @@ package com.amazon.opendistroforelasticsearch.ppl.plans.logical;
 
 public abstract class LogicalPlan extends Node implements HasInput<LogicalPlan, LogicalPlan> {
 
-    abstract LogicalPlan getInput();
+    public abstract LogicalPlan getInput();
 
-    public void bottomUp(Visitor visitor) {
-        getInput().bottomUp(visitor);
+    public void bottomUp(Visitor<LogicalPlan> visitor) {
+        LogicalPlan input = getInput();
+        if (input != null) {
+            input.bottomUp(visitor);
+        }
         visitor.visit(this);
     }
 }

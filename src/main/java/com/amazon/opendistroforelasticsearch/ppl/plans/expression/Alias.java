@@ -31,7 +31,6 @@ public class Alias extends Expression {
     @Override
     public Expression bottomUp(Visitor<Expression> visitor) {
         expr.bottomUp(visitor);
-        visitor.visit(this);
-        return null;
+        return visitor.visit(this);
     }
 }

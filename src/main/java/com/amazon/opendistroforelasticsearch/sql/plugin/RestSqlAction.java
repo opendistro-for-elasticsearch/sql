@@ -16,7 +16,6 @@
 package com.amazon.opendistroforelasticsearch.sql.plugin;
 
 import com.alibaba.druid.sql.parser.ParserException;
-import com.amazon.opendistroforelasticsearch.ppl.exception.PPLFeatureDisabledException;
 import com.amazon.opendistroforelasticsearch.ppl.request.ODRequest;
 import com.amazon.opendistroforelasticsearch.ppl.request.PPLRequestFactory;
 import com.amazon.opendistroforelasticsearch.sql.antlr.OpenDistroSqlAnalyzer;
@@ -92,13 +91,14 @@ public class RestSqlAction extends BaseRestHandler {
     RestSqlAction(Settings settings, RestController restController) {
 
         super();
+        LOG.info("REGISTER SQL");
         restController.registerHandler(RestRequest.Method.POST, QUERY_API_ENDPOINT, this);
         restController.registerHandler(RestRequest.Method.GET, QUERY_API_ENDPOINT, this);
         restController.registerHandler(RestRequest.Method.POST, EXPLAIN_API_ENDPOINT, this);
         restController.registerHandler(RestRequest.Method.GET, EXPLAIN_API_ENDPOINT, this);
-        restController.registerHandler(RestRequest.Method.POST, PPL_QUERY_API_ENDPOINT, this);
-        restController.registerHandler(RestRequest.Method.POST, PPL_EXPLAIN_API_ENDPOINT, this);
-        restController.registerHandler(RestRequest.Method.POST, PPL_TRANSLATE_API_ENDPOINT, this);
+//        restController.registerHandler(RestRequest.Method.POST, PPL_QUERY_API_ENDPOINT, this);
+//        restController.registerHandler(RestRequest.Method.POST, PPL_EXPLAIN_API_ENDPOINT, this);
+//        restController.registerHandler(RestRequest.Method.POST, PPL_TRANSLATE_API_ENDPOINT, this);
 
 
         this.allowExplicitIndex = MULTI_ALLOW_EXPLICIT_INDEX.get(settings);

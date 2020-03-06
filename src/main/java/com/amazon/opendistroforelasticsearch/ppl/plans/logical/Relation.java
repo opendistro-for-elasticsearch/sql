@@ -32,7 +32,7 @@ public class Relation extends LogicalPlan {
     }
 
     @Override
-    LogicalPlan getInput() {
+    public LogicalPlan getInput() {
         return null;
     }
 }

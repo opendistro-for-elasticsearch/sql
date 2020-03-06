@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.plugin;
 
 import com.amazon.opendistroforelasticsearch.ppl.plugin.PPLSettings;
 import com.amazon.opendistroforelasticsearch.ppl.plugin.PluginSettings;
+import com.amazon.opendistroforelasticsearch.ppl.plugin.RestPPLAction;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.executor.AsyncRestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
@@ -83,7 +84,9 @@ public class SqlPlug extends Plugin implements ActionPlugin {
         Metrics.getInstance().registerDefaultMetrics();
         return Arrays.asList(
                 new RestSqlAction(settings, restController),
-                new RestSqlStatsAction(settings, restController));
+                new RestSqlStatsAction(settings, restController),
+                new RestPPLAction(settings, restController)
+        );
     }
 
     @Override
