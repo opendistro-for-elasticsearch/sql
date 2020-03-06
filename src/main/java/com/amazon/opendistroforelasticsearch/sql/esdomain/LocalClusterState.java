@@ -15,8 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esdomain;
 
-import com.amazon.opendistroforelasticsearch.ppl.plugin.PluginSettings;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.IndexMappings;
+import com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.apache.logging.log4j.LogManager;
@@ -73,7 +73,7 @@ public class LocalClusterState {
     /**
      * Sql specific settings in ES cluster settings
      */
-    private PluginSettings pluginSettings;
+    private SqlSettings sqlSettings;
 
     /**
      * Index name expression resolver to get concrete index name
@@ -90,6 +90,7 @@ public class LocalClusterState {
      * Latest setting value for each registered key. Thread-safe is required.
      */
     private final Map<String, Object> latestSettings = new ConcurrentHashMap<>();
+
 
     public static synchronized LocalClusterState state() {
         if (INSTANCE == null) {
@@ -113,16 +114,16 @@ public class LocalClusterState {
                 // State in cluster service is already changed to event.state() before listener fired
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Metadata in cluster state changed: {}",
-                            new IndexMappings(clusterService.state().metaData()));
+                              new IndexMappings(clusterService.state().metaData()));
                 }
                 cache.invalidateAll();
             }
         });
     }
 
-    public void setSettings(PluginSettings settings) {
-        this.pluginSettings = settings;
-        for (Setting<?> setting : settings.getSettings()) {
+    public void setSqlSettings(SqlSettings sqlSettings) {
+        this.sqlSettings = sqlSettings;
+        for (Setting<?> setting : sqlSettings.getSettings()) {
             clusterService.getClusterSettings().addSettingsUpdateConsumer(
                     setting,
                     newVal -> {
@@ -150,8 +151,8 @@ public class LocalClusterState {
      */
     @SuppressWarnings("unchecked")
     public <T> T getSettingValue(String key) {
-        Objects.requireNonNull(pluginSettings, "SQL setting is null");
-        return (T) latestSettings.getOrDefault(key, pluginSettings.getSetting(key).getDefault(EMPTY));
+        Objects.requireNonNull(sqlSettings, "SQL setting is null");
+        return (T) latestSettings.getOrDefault(key, sqlSettings.getSetting(key).getDefault(EMPTY));
     }
 
     /**
@@ -204,7 +205,7 @@ public class LocalClusterState {
         } catch (Exception e) {
             throw new IllegalStateException(
                     "Failed to read mapping in cluster state for indices="
-                            + Arrays.toString(indices) + ", types=" + Arrays.toString(types), e);
+                    + Arrays.toString(indices) + ", types=" + Arrays.toString(types), e);
         }
     }
 
@@ -213,7 +214,7 @@ public class LocalClusterState {
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Resolved index expression {} to concrete index names {}",
-                    Arrays.toString(indices), Arrays.toString(concreteIndices));
+                      Arrays.toString(indices), Arrays.toString(concreteIndices));
         }
         return concreteIndices;
     }

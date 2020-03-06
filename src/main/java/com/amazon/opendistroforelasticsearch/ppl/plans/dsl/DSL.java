@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.ppl.plans.dsl;
 
 
 
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.AttributeReference;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.DataType;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Literal;
@@ -46,8 +47,12 @@ public class DSL {
         return new EqualTo(left, right);
     }
 
-    public static Expression attr(String attr) {
+    public static Expression unresolvedAttr(String attr) {
         return new UnresolvedAttribute(attr);
+    }
+
+    public static Expression attr(String attr) {
+        return new AttributeReference(attr);
     }
 
     public static Expression intLiteral(Integer literal) {

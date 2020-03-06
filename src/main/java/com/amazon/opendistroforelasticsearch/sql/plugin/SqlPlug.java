@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.plugin;
 
-import com.amazon.opendistroforelasticsearch.ppl.plugin.PluginSettings;
+import com.amazon.opendistroforelasticsearch.ppl.plugin.RestPPLAction;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.executor.AsyncRestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
@@ -54,7 +54,7 @@ public class SqlPlug extends Plugin implements ActionPlugin {
     /**
      * Sql plugin specific settings in ES cluster settings
      */
-    private final PluginSettings settings = new PluginSettings();
+    private final SqlSettings sqlSettings = new SqlSettings();
 
     public SqlPlug() {
     }
@@ -79,7 +79,9 @@ public class SqlPlug extends Plugin implements ActionPlugin {
         Metrics.getInstance().registerDefaultMetrics();
         return Arrays.asList(
                 new RestSqlAction(settings, restController),
-                new RestSqlStatsAction(settings, restController));
+                new RestSqlStatsAction(settings, restController),
+                new RestPPLAction(settings, restController)
+        );
     }
 
     @Override
@@ -89,9 +91,9 @@ public class SqlPlug extends Plugin implements ActionPlugin {
                                                Environment environment, NodeEnvironment nodeEnvironment,
                                                NamedWriteableRegistry namedWriteableRegistry) {
         LocalClusterState.state().setClusterService(clusterService);
-        LocalClusterState.state().setSettings(settings);
+        LocalClusterState.state().setSqlSettings(sqlSettings);
         return super.createComponents(client, clusterService, threadPool, resourceWatcherService, scriptService,
-                xContentRegistry, environment, nodeEnvironment, namedWriteableRegistry);
+                                      xContentRegistry, environment, nodeEnvironment, namedWriteableRegistry);
     }
 
     @Override
@@ -109,6 +111,6 @@ public class SqlPlug extends Plugin implements ActionPlugin {
 
     @Override
     public List<Setting<?>> getSettings() {
-        return settings.getSettings();
+        return sqlSettings.getSettings();
     }
 }
