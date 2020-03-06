@@ -24,7 +24,6 @@ import com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings;
 import org.elasticsearch.cluster.ClusterChangedEvent;
 import org.elasticsearch.cluster.ClusterStateListener;
 import org.elasticsearch.cluster.service.ClusterService;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -195,7 +194,7 @@ public class LocalClusterStateTest {
         doReturn(emptyList()).when(settings).getSettings();
         LocalClusterState.state().setSettings(settings);
 
-        Assert.assertEquals(2, (int) LocalClusterState.state().getSettingValue(QUERY_SLOWLOG));
+        Assert.assertEquals(2, (int) LocalClusterState.state().getSqlSettingValue(QUERY_SLOWLOG));
     }
 
 }

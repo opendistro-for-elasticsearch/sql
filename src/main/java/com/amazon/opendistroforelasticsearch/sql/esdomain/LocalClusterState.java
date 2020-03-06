@@ -15,8 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esdomain;
 
+import com.amazon.opendistroforelasticsearch.ppl.plugin.PPLSettings;
 import com.amazon.opendistroforelasticsearch.ppl.plugin.PluginSettings;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.IndexMappings;
+import com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.apache.logging.log4j.LogManager;
@@ -71,9 +73,14 @@ public class LocalClusterState {
     private ClusterService clusterService;
 
     /**
-     * Sql specific settings in ES cluster settings
+     * SQL specific settings in ES cluster settings
      */
-    private PluginSettings pluginSettings;
+    private SqlSettings sqlSettings;
+
+    /**
+     * PPL specific settings in ES cluster settings
+     */
+    private PPLSettings pplSettings;
 
     /**
      * Index name expression resolver to get concrete index name
@@ -121,17 +128,33 @@ public class LocalClusterState {
     }
 
     public void setSettings(PluginSettings settings) {
-        this.pluginSettings = settings;
-        for (Setting<?> setting : settings.getSettings()) {
-            clusterService.getClusterSettings().addSettingsUpdateConsumer(
-                    setting,
-                    newVal -> {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("The value of setting [{}] changed to [{}]", setting.getKey(), newVal);
-                        }
-                        latestSettings.put(setting.getKey(), newVal);
-                    });
+        if (settings instanceof SqlSettings) {
+            this.sqlSettings = (SqlSettings) settings;
+            for (Setting<?> setting : sqlSettings.getSettings()) {
+                clusterService.getClusterSettings().addSettingsUpdateConsumer(
+                        setting,
+                        newVal -> {
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("The value of setting [{}] changed to [{}]", setting.getKey(), newVal);
+                            }
+                            latestSettings.put(setting.getKey(), newVal);
+                        });
+            }
         }
+        if (settings instanceof PPLSettings) {
+            this.pplSettings = (PPLSettings) settings;
+            for (Setting<?> setting : pplSettings.getSettings()) {
+                clusterService.getClusterSettings().addSettingsUpdateConsumer(
+                        setting,
+                        newVal -> {
+                            if (LOG.isDebugEnabled()) {
+                                LOG.debug("The value of setting [{}] changed to [{}]", setting.getKey(), newVal);
+                            }
+                            latestSettings.put(setting.getKey(), newVal);
+                        });
+            }
+        }
+
     }
 
     public void setResolver(IndexNameExpressionResolver resolver) {
@@ -149,9 +172,15 @@ public class LocalClusterState {
      * @return setting value or default
      */
     @SuppressWarnings("unchecked")
-    public <T> T getSettingValue(String key) {
-        Objects.requireNonNull(pluginSettings, "SQL setting is null");
-        return (T) latestSettings.getOrDefault(key, pluginSettings.getSetting(key).getDefault(EMPTY));
+    public <T> T getSqlSettingValue(String key) {
+        Objects.requireNonNull(sqlSettings, "SQL setting is null");
+        return (T) latestSettings.getOrDefault(key, sqlSettings.getSetting(key).getDefault(EMPTY));
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T getPPLSettingValue(String key) {
+        Objects.requireNonNull(pplSettings, "SQL setting is null");
+        return (T) latestSettings.getOrDefault(key, pplSettings.getSetting(key).getDefault(EMPTY));
     }
 
     /**

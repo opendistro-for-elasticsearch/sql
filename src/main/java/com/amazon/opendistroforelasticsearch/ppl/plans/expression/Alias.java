@@ -29,8 +29,9 @@ public class Alias extends Expression {
     private final String alias;
 
     @Override
-    public void bottomUp(Visitor<Expression> visitor) {
+    public Expression bottomUp(Visitor<Expression> visitor) {
         expr.bottomUp(visitor);
         visitor.visit(this);
+        return null;
     }
 }

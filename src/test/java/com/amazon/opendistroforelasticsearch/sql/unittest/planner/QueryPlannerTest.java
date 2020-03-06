@@ -179,7 +179,7 @@ public abstract class QueryPlannerTest {
             SQLQueryExpr sqlExpr = (SQLQueryExpr) toSqlExpr(sql);
             JoinSelect joinSelect = new SqlParser().parseJoinSelect(sqlExpr); // Ignore handleSubquery()
             QueryAction queryAction = ESJoinQueryActionFactory.createJoinAction(client, joinSelect);
-            queryAction.setSqlRequest(new SqlRequest(sql, null));
+            queryAction.setRequest(new SqlRequest(sql, null));
             return queryAction.explain();
         }
         catch (SqlParseException e) {

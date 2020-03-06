@@ -16,7 +16,9 @@
 package com.amazon.opendistroforelasticsearch.ppl.plugin;
 
 import com.amazon.opendistroforelasticsearch.sql.executor.Format;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.elasticsearch.common.settings.Setting;
 
@@ -25,31 +27,40 @@ import static org.elasticsearch.common.settings.Setting.Property.Dynamic;
 import static org.elasticsearch.common.settings.Setting.Property.NodeScope;
 
 
-public class PPLSettings extends PluginSettings{
+public class PPLSettings implements PluginSettings{
 
-    /**
-     * Get plugin settings stored in cluster setting. Why not use ES slow log settings consistently?
-     * 1) It's per-index setting.
-     * 2) It has separate setting for Query and Fetch phase which are all ES internal concepts.
-     */
+    private Map<String, Setting<?>> settings;
+
     public static final String PPL_ENABLED = "opendistro.ppl.enabled";
-    public static final String QUERY_SLOWLOG = "opendistro.ppl.query.slowlog";
-    public static final String QUERY_RESPONSE_FORMAT = "opendistro.ppl.query.response.format";
-    public static final String METRICS_ROLLING_WINDOW = "opendistro.ppl.metrics.rollingwindow";
-    public static final String METRICS_ROLLING_INTERVAL = "opendistro.ppl.metrics.rollinginterval";
+    public static final String PPL_QUERY_SLOWLOG = "opendistro.ppl.query.slowlog";
+    public static final String PPL_QUERY_RESPONSE_FORMAT = "opendistro.ppl.query.response.format";
+    public static final String PPL_METRICS_ROLLINGWINDOW = "opendistro.ppl.metrics.rollingwindow";
+    public static final String PPL_METRICS_ROLLINGINTERVAL = "opendistro.ppl.metrics.rollinginterval";
 
     public PPLSettings() {
+
         Map<String, Setting<?>> settings = new HashMap<>();
         settings.put(PPL_ENABLED, Setting.boolSetting(PPL_ENABLED, true, NodeScope, Dynamic));
-        settings.put(QUERY_SLOWLOG, Setting.intSetting(QUERY_SLOWLOG, 2, NodeScope, Dynamic));
-        settings.put(QUERY_RESPONSE_FORMAT, Setting.simpleString(QUERY_RESPONSE_FORMAT, Format.JDBC.getFormatName(),
+        settings.put(PPL_QUERY_SLOWLOG, Setting.intSetting(PPL_QUERY_SLOWLOG, 2, NodeScope, Dynamic));
+        settings.put(PPL_QUERY_RESPONSE_FORMAT, Setting.simpleString(PPL_QUERY_RESPONSE_FORMAT, Format.JDBC.getFormatName(),
                                                                  NodeScope, Dynamic));
 
-        settings.put(METRICS_ROLLING_WINDOW, Setting.longSetting(METRICS_ROLLING_WINDOW, 3600L, 2L,
+        settings.put(PPL_METRICS_ROLLINGWINDOW, Setting.longSetting(PPL_METRICS_ROLLINGWINDOW, 3600L, 2L,
                 NodeScope, Dynamic));
-        settings.put(METRICS_ROLLING_INTERVAL, Setting.longSetting(METRICS_ROLLING_INTERVAL, 60L, 1L,
+        settings.put(PPL_METRICS_ROLLINGINTERVAL, Setting.longSetting(PPL_METRICS_ROLLINGINTERVAL, 60L, 1L,
                 NodeScope, Dynamic));
 
         this.settings = unmodifiableMap(settings);
+    }
+
+    public Setting<?> getSetting(String key) {
+        if (settings.containsKey(key)) {
+            return settings.get(key);
+        }
+        throw new IllegalArgumentException("Cannot find setting by key [" + key + "]");
+    }
+
+    public List<Setting<?>> getSettings() {
+        return new ArrayList<>(settings.values());
     }
 }

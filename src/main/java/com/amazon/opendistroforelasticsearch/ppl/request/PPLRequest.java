@@ -21,11 +21,15 @@ import org.json.JSONObject;
 
 @AllArgsConstructor
 @Getter
-public class PPLRequest {
+public class PPLRequest implements ODRequest{
 
     public static final PPLRequest NULL = new PPLRequest("", null);
 
     String ppl;
     JSONObject jsonContent;
 
+    @Override
+    public String getRequest() {
+        return getPpl();
+    }
 }

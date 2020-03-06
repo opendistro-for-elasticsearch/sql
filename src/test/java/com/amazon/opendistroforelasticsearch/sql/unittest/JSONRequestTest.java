@@ -42,7 +42,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLFeatureNotSupportedException;
-import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -369,7 +368,7 @@ public class JSONRequestTest {
                 ESActionFactory.create(mockClient, new QueryActionRequest(sql, columnTypeProvider, Format.JDBC));
 
         SqlRequest sqlRequest = new SqlRequest(sql, jsonRequest);
-        queryAction.setSqlRequest(sqlRequest);
+        queryAction.setRequest(sqlRequest);
 
         SqlElasticRequestBuilder requestBuilder = queryAction.explain();
         return requestBuilder.explain();

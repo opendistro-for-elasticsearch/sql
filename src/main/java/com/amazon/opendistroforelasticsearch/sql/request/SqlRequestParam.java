@@ -52,7 +52,7 @@ public class SqlRequestParam {
             formatName = requestParams.get(QUERY_PARAMS_FORMAT).toLowerCase();
         } else {
             LocalClusterState clusterState = LocalClusterState.state();
-            formatName = clusterState.getSettingValue(QUERY_RESPONSE_FORMAT);
+            formatName = clusterState.getSqlSettingValue(QUERY_RESPONSE_FORMAT);
         }
         Optional<Format> optionalFormat = Format.of(formatName);
         if (optionalFormat.isPresent()) {

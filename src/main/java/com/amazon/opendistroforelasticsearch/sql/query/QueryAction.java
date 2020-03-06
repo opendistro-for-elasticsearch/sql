@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.query;
 
+import com.amazon.opendistroforelasticsearch.ppl.request.ODRequest;
 import com.amazon.opendistroforelasticsearch.sql.domain.ColumnTypeProvider;
 import com.amazon.opendistroforelasticsearch.sql.domain.Query;
 import com.amazon.opendistroforelasticsearch.sql.domain.QueryStatement;
@@ -64,8 +65,8 @@ public abstract class QueryAction {
         return query;
     }
 
-    public void setSqlRequest(SqlRequest sqlRequest) {
-        this.sqlRequest = sqlRequest;
+    public void setRequest(ODRequest odRequest) {
+        this.sqlRequest = (SqlRequest) odRequest;
     }
 
     public void setColumnTypeProvider(ColumnTypeProvider scriptColumnType) {

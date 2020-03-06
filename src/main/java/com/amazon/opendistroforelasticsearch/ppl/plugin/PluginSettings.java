@@ -15,28 +15,12 @@
 
 package com.amazon.opendistroforelasticsearch.ppl.plugin;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.elasticsearch.common.settings.Setting;
 
-public class PluginSettings {
+public interface PluginSettings {
 
-    protected Map<String, Setting<?>> settings;
+    Setting<?> getSetting(String key);
+    List<Setting<?>> getSettings();
 
-    public PluginSettings() {
-        this.settings = new HashMap<>();
-    }
-
-    public Setting<?> getSetting(String key) {
-        if (settings.containsKey(key)) {
-            return settings.get(key);
-        }
-        throw new IllegalArgumentException("Cannot find setting by key [" + key + "]");
-    }
-
-    public List<Setting<?>> getSettings() {
-        return new ArrayList<>(settings.values());
-    }
 }

@@ -16,6 +16,9 @@
 package com.amazon.opendistroforelasticsearch.sql.plugin;
 
 import com.alibaba.druid.sql.parser.ParserException;
+import com.amazon.opendistroforelasticsearch.ppl.exception.PPLFeatureDisabledException;
+import com.amazon.opendistroforelasticsearch.ppl.request.ODRequest;
+import com.amazon.opendistroforelasticsearch.ppl.request.PPLRequestFactory;
 import com.amazon.opendistroforelasticsearch.sql.antlr.OpenDistroSqlAnalyzer;
 import com.amazon.opendistroforelasticsearch.sql.antlr.SqlAnalysisConfig;
 import com.amazon.opendistroforelasticsearch.sql.antlr.SqlAnalysisException;
@@ -32,7 +35,6 @@ import com.amazon.opendistroforelasticsearch.sql.executor.format.ErrorMessage;
 import com.amazon.opendistroforelasticsearch.sql.metrics.MetricName;
 import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
-import com.amazon.opendistroforelasticsearch.sql.request.SqlRequest;
 import com.amazon.opendistroforelasticsearch.sql.request.SqlRequestFactory;
 import com.amazon.opendistroforelasticsearch.sql.request.SqlRequestParam;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.VerificationException;
@@ -61,6 +63,7 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
+import static com.amazon.opendistroforelasticsearch.ppl.plugin.PPLSettings.PPL_ENABLED;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_ENABLED;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_SEMANTIC_SUGGESTION;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_SEMANTIC_THRESHOLD;
@@ -82,6 +85,9 @@ public class RestSqlAction extends BaseRestHandler {
      */
     public static final String QUERY_API_ENDPOINT = "/_opendistro/_sql";
     public static final String EXPLAIN_API_ENDPOINT = QUERY_API_ENDPOINT + "/_explain";
+    public static final String PPL_QUERY_API_ENDPOINT = "/_opendistro/_ppl";
+    public static final String PPL_EXPLAIN_API_ENDPOINT = PPL_QUERY_API_ENDPOINT + "/_explain";
+    public static final String PPL_TRANSLATE_API_ENDPOINT = PPL_QUERY_API_ENDPOINT + "/_translate";
 
     RestSqlAction(Settings settings, RestController restController) {
 
@@ -90,6 +96,10 @@ public class RestSqlAction extends BaseRestHandler {
         restController.registerHandler(RestRequest.Method.GET, QUERY_API_ENDPOINT, this);
         restController.registerHandler(RestRequest.Method.POST, EXPLAIN_API_ENDPOINT, this);
         restController.registerHandler(RestRequest.Method.GET, EXPLAIN_API_ENDPOINT, this);
+        restController.registerHandler(RestRequest.Method.POST, PPL_QUERY_API_ENDPOINT, this);
+        restController.registerHandler(RestRequest.Method.POST, PPL_EXPLAIN_API_ENDPOINT, this);
+        restController.registerHandler(RestRequest.Method.POST, PPL_TRANSLATE_API_ENDPOINT, this);
+
 
         this.allowExplicitIndex = MULTI_ALLOW_EXPLICIT_INDEX.get(settings);
     }
@@ -105,19 +115,27 @@ public class RestSqlAction extends BaseRestHandler {
         Metrics.getInstance().getNumericalMetric(MetricName.REQ_COUNT_TOTAL).increment();
 
         LogUtils.addRequestId();
-
+        final ODRequest odRequest;
         try {
-            if (!isSQLFeatureEnabled()) {
-                throw new SQLFeatureDisabledException(
-                        "Either opendistro.sql.enabled or rest.action.multi.allow_explicit_index setting is false"
-                );
+            if (sqlRoute(request)) {
+                if (!isSQLFeatureEnabled()) {
+                    throw new SQLFeatureDisabledException(
+                            "Either opendistro.sql.enabled or rest.action.multi.allow_explicit_index setting is false"
+                    );
+                }
+                odRequest = SqlRequestFactory.getSqlRequest(request);
+            } else {
+//                if (isPPLFeatureEnabled()) {
+//                    throw new PPLFeatureDisabledException(
+//                            "Either opendistro.ppl.enabled or rest.action.multi.allow_explicit_index setting is false"
+//                    );
+//                }
+                odRequest = PPLRequestFactory.getPPLRequest(request);
             }
-
-            final SqlRequest sqlRequest = SqlRequestFactory.getSqlRequest(request);
-            LOG.info("[{}] Incoming request {}: {}", LogUtils.getRequestId(), request.uri(), sqlRequest.getSql());
+            LOG.info("[{}] Incoming request {}: {}", LogUtils.getRequestId(), request.uri(), odRequest.getRequest());
 
             final QueryAction queryAction =
-                    explainRequest(client, sqlRequest, SqlRequestParam.getFormat(request.params()));
+                    explainRequest(client, odRequest, SqlRequestParam.getFormat(request.params()));
             return channel -> executeSqlRequest(request, queryAction, client, channel);
         } catch (Exception e) {
             logAndPublishMetrics(e);
@@ -142,14 +160,14 @@ public class RestSqlAction extends BaseRestHandler {
         }
     }
 
-    private static QueryAction explainRequest(final NodeClient client, final SqlRequest sqlRequest, Format format)
+    private static QueryAction explainRequest(final NodeClient client, final ODRequest odRequest, Format format)
             throws SQLFeatureNotSupportedException, SqlParseException {
 
-        ColumnTypeProvider typeProvider = performAnalysis(sqlRequest.getSql());
+        ColumnTypeProvider typeProvider = performAnalysis(odRequest.getRequest());
 
         final QueryAction queryAction = new SearchDao(client)
-                .explain(new QueryActionRequest(sqlRequest.getSql(), typeProvider, format));
-        queryAction.setSqlRequest(sqlRequest);
+                .explain(new QueryActionRequest(odRequest.getRequest(), typeProvider, format));
+        queryAction.setRequest(odRequest);
         queryAction.setColumnTypeProvider(typeProvider);
         return queryAction;
     }
@@ -181,8 +199,16 @@ public class RestSqlAction extends BaseRestHandler {
         }
     }
 
+    private static boolean sqlRoute(final RestRequest request) {
+        return request.path().contains("/_sql");
+    }
+
     private static boolean isExplainRequest(final RestRequest request) {
         return request.path().endsWith("/_explain");
+    }
+
+    private static boolean isTranslateRequest(final RestRequest request) {
+        return request.path().endsWith("/_translate");
     }
 
     private static boolean isClientError(Exception e) {
@@ -206,16 +232,21 @@ public class RestSqlAction extends BaseRestHandler {
     }
 
     private boolean isSQLFeatureEnabled() {
-        boolean isSqlEnabled = LocalClusterState.state().getSettingValue(SQL_ENABLED);
+        boolean isSqlEnabled = LocalClusterState.state().getSqlSettingValue(SQL_ENABLED);
         return allowExplicitIndex && isSqlEnabled;
+    }
+
+    private boolean isPPLFeatureEnabled() {
+        boolean isPPLEnabled = LocalClusterState.state().getPPLSettingValue(PPL_ENABLED);
+        return allowExplicitIndex && isPPLEnabled;
     }
 
     private static ColumnTypeProvider performAnalysis(String sql) {
         LocalClusterState clusterState = LocalClusterState.state();
         SqlAnalysisConfig config = new SqlAnalysisConfig(
-            clusterState.getSettingValue(QUERY_ANALYSIS_ENABLED),
-            clusterState.getSettingValue(QUERY_ANALYSIS_SEMANTIC_SUGGESTION),
-            clusterState.getSettingValue(QUERY_ANALYSIS_SEMANTIC_THRESHOLD)
+            clusterState.getSqlSettingValue(QUERY_ANALYSIS_ENABLED),
+            clusterState.getSqlSettingValue(QUERY_ANALYSIS_SEMANTIC_SUGGESTION),
+            clusterState.getSqlSettingValue(QUERY_ANALYSIS_SEMANTIC_THRESHOLD)
         );
 
         OpenDistroSqlAnalyzer analyzer = new OpenDistroSqlAnalyzer(config);

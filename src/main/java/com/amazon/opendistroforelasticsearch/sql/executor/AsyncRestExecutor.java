@@ -160,7 +160,7 @@ public class AsyncRestExecutor implements RestExecutor {
             executor.execute(client, params, action, channel);
         } finally {
             Duration elapsed = Duration.ofNanos(System.nanoTime() - startTime);
-            int slowLogThreshold = LocalClusterState.state().getSettingValue(QUERY_SLOWLOG);
+            int slowLogThreshold = LocalClusterState.state().getSqlSettingValue(QUERY_SLOWLOG);
             if (elapsed.getSeconds() >= slowLogThreshold) {
                 LOG.warn("[{}] Slow query: elapsed={} (ms)", LogUtils.getRequestId(), elapsed.toMillis());
             }

@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.request;
 
+import com.amazon.opendistroforelasticsearch.ppl.request.ODRequest;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.LoggingDeprecationHandler;
@@ -30,7 +31,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.Collections;
 
-public class SqlRequest {
+public class SqlRequest implements ODRequest {
 
     public static final SqlRequest NULL = new SqlRequest("", null);
 
@@ -42,6 +43,11 @@ public class SqlRequest {
 
         this.sql = sql;
         this.jsonContent = jsonContent;
+    }
+
+    @Override
+    public String getRequest() {
+        return getSql();
     }
 
     private static boolean isValidJson(String json) {

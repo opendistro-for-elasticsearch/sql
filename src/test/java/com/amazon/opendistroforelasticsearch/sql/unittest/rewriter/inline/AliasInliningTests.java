@@ -15,8 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.unittest.rewriter.inline;
 
-import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
-import com.amazon.opendistroforelasticsearch.sql.esintgtest.SQLIntegTestCase;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.parser.SqlParser;
 import com.amazon.opendistroforelasticsearch.sql.query.AggregationQueryAction;
@@ -27,7 +25,6 @@ import com.google.common.io.Resources;
 import org.elasticsearch.client.Client;
 import org.json.JSONObject;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -131,7 +128,7 @@ public class AliasInliningTests {
         SqlRequest sqlRequest = new SqlRequest(originalQuery, new JSONObject());
         DefaultQueryAction defaultQueryAction = new DefaultQueryAction(mock(Client.class),
                 new SqlParser().parseSelect(parse(originalQuery)));
-        defaultQueryAction.setSqlRequest(sqlRequest);
+        defaultQueryAction.setRequest(sqlRequest);
         return defaultQueryAction.explain().explain();
     }
 

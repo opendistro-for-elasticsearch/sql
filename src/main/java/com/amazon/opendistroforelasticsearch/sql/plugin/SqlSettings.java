@@ -17,6 +17,8 @@ package com.amazon.opendistroforelasticsearch.sql.plugin;
 
 import com.amazon.opendistroforelasticsearch.ppl.plugin.PluginSettings;
 import com.amazon.opendistroforelasticsearch.sql.executor.Format;
+import java.util.ArrayList;
+import java.util.List;
 import org.elasticsearch.common.settings.Setting;
 
 import java.util.HashMap;
@@ -29,7 +31,9 @@ import static org.elasticsearch.common.settings.Setting.Property.NodeScope;
 /**
  * SQL plugin settings
  */
-public class SqlSettings extends PluginSettings {
+public class SqlSettings implements PluginSettings {
+
+    private Map<String, Setting<?>> settings;
 
     /**
      * Get plugin settings stored in cluster setting. Why not use ES slow log settings consistently?
@@ -68,4 +72,14 @@ public class SqlSettings extends PluginSettings {
         this.settings = unmodifiableMap(settings);
     }
 
+    public Setting<?> getSetting(String key) {
+        if (settings.containsKey(key)) {
+            return settings.get(key);
+        }
+        throw new IllegalArgumentException("Cannot find setting by key [" + key + "]");
+    }
+
+    public List<Setting<?>> getSettings() {
+        return new ArrayList<>(settings.values());
+    }
 }
