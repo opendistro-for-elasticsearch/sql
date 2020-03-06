@@ -347,7 +347,7 @@ Result set::
 	    "hits" : [
 	      {
 	        "_index" : "accounts",
-	        "_type" : "account",
+	        "_type" : "_doc",
 	        "_source" : {
 	          "firstname" : "Nanette",
 	          "age" : 28,
@@ -361,7 +361,7 @@ Result set::
 	      },
 	      {
 	        "_index" : "accounts",
-	        "_type" : "account",
+	        "_type" : "_doc",
 	        "_source" : {
 	          "firstname" : "Amber",
 	          "age" : 32,

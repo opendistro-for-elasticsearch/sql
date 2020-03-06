@@ -40,7 +40,7 @@ public class TestData {
     public void loadToES(DocTest test) {
         for (String filePath : testFilePaths) {
             try {
-                TestUtils.loadBulk(test.client(), TEST_DATA_FOLDER_ROOT + filePath, indexName(filePath));
+                TestUtils.loadDataByRestClient(test.restClient(), indexName(filePath), TEST_DATA_FOLDER_ROOT + filePath);
             } catch (Exception e) {
                 throw new IllegalStateException(StringUtils.format(
                     "Failed to load test filePath from %s", filePath), e);

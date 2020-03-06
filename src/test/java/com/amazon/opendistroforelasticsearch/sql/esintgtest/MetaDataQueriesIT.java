@@ -360,13 +360,6 @@ public class MetaDataQueriesIT extends SQLIntegTestCase {
         return jdbcResponse.getJSONArray("datarows");
     }
 
-    private String getClusterName() {
-        return this.admin().cluster()
-                .prepareHealth()
-                .get()
-                .getClusterName();
-    }
-
     private void checkContainsColumns(JSONArray schema, String... fields) {
         List<String> columnNames = new ArrayList<>();
         for (int i = 0; i < schema.length(); i++) {
@@ -375,5 +368,10 @@ public class MetaDataQueriesIT extends SQLIntegTestCase {
         }
 
         assertThat(columnNames, hasItems(fields));
+    }
+
+    private String getClusterName() throws IOException {
+        String response = executeRequest(new Request("GET", "_cluster/health"));
+        return new JSONObject(response).optString("cluster_name", "");
     }
 }

@@ -15,10 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.test.ESIntegTestCase;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -36,17 +32,11 @@ public class PreparedStatementIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void sample_test() {
-        Client client = ESIntegTestCase.client();
-        SearchResponse response = client.prepareSearch(TestsConstants.TEST_INDEX_ACCOUNT).get();
-    }
-
-    @Test
     public void testPreparedStatement() throws IOException {
         int ageToCompare = 35;
 
         JSONObject response = executeRequest(String.format("{\n" +
-                "  \"query\": \"SELECT * FROM %s/account WHERE age > ? AND state in (?, ?) LIMIT ?\",\n" +
+                "  \"query\": \"SELECT * FROM %s WHERE age > ? AND state in (?, ?) LIMIT ?\",\n" +
                 "  \"parameters\": [\n" +
                 "    {\n" +
                 "      \"type\": \"integer\",\n" +
