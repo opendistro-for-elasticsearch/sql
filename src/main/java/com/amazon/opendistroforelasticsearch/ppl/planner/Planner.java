@@ -4,7 +4,7 @@ import com.amazon.opendistroforelasticsearch.ppl.planner.dsl.QueryAction;
 import com.amazon.opendistroforelasticsearch.ppl.planner.dsl.SearchRequestBuilder;
 import com.amazon.opendistroforelasticsearch.ppl.planner.dsl.SourceFilter;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.AttributeReference;
-import com.amazon.opendistroforelasticsearch.ppl.plans.expression.ToDSL;
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.visitor.QueryBuilderVisitor;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Filter;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Project;
@@ -14,6 +14,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.PhysicalOperator;
 import lombok.RequiredArgsConstructor;
 import org.elasticsearch.client.node.NodeClient;
+import org.elasticsearch.index.query.QueryBuilder;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,17 +33,17 @@ public class Planner {
             Filter filter = (Filter) logicalPlan.getInput();
             Relation relation = (Relation) filter.getInput();
 
-            if (filter.getCondition() instanceof ToDSL) {
-                List<String> projectList = project.getProjectList().stream()
+            QueryBuilder queryBuilder = new QueryBuilderVisitor().visit(filter.getCondition());
+            List<String> projectList = project.getProjectList().stream()
                         .filter(e -> e instanceof AttributeReference)
                         .map(v -> v.toString()).collect(
                                 Collectors.toList());
                 return new PhysicalScroll(
                         new QueryAction(
                                 new SearchRequestBuilder(relation.getTableName(),
-                                                         ((ToDSL) filter.getCondition()).build(),
+                                                         queryBuilder,
                                                          new SourceFilter(projectList)).build(), client));
-            }
+
         }
 
         throw new IllegalStateException("unsupported plan:" + logicalPlan);

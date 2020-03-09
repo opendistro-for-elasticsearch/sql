@@ -15,12 +15,16 @@
 
 package com.amazon.opendistroforelasticsearch.ppl.plans.expression;
 
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.visitor.ExprVisitor;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Expression;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Visitor;
+import com.google.common.collect.ImmutableList;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+
+import java.util.List;
 
 @ToString
 @EqualsAndHashCode
@@ -37,5 +41,15 @@ public class AttributeReference extends Expression {
     @Override
     public String toString() {
         return attr;
+    }
+
+    @Override
+    public <T> T accept(ExprVisitor<T> visitor) {
+        return visitor.visitChildren(this);
+    }
+
+    @Override
+    public List<Expression> getChild() {
+        return ImmutableList.of();
     }
 }

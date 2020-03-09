@@ -9,11 +9,14 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.and;
+import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.attr;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.equalTo;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.filter;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.project;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.relation;
+import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.stringLiteral;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -32,7 +35,22 @@ public class PlannerTest {
                 new AttributeReference("a"), new AttributeReference("b")
         ));
 
-        assertEquals("{\"from\":0,\"size\":1,\"timeout\":\"60s\",\"query\":{\"term\":{\"a\":{\"value\":1,\"boost\":1" +
+        assertEquals("{\"from\":0,\"size\":10,\"timeout\":\"30s\",\"query\":{\"term\":{\"a\":{\"value\":1,\"boost\":1" +
+                     ".0}}},\"_source\":{\"includes\":[\"a\",\"b\"],\"excludes\":[]}}", plan.toString());
+    }
+
+    @Test
+    public void testSearchAndCondition() {
+        Planner planner = new Planner(client);
+        PhysicalOperator<BindingTuple> plan = planner.plan(project(
+                filter(
+                        relation("t"),
+                        and(equalTo(attr("a"), intLiteral(1)), equalTo(attr("b"), stringLiteral("value")))
+                ),
+                new AttributeReference("a"), new AttributeReference("b")
+        ));
+
+        assertEquals("{\"from\":0,\"size\":10,\"timeout\":\"30s\",\"query\":{\"term\":{\"a\":{\"value\":1,\"boost\":1" +
                      ".0}}},\"_source\":{\"includes\":[\"a\",\"b\"],\"excludes\":[]}}", plan.toString());
     }
 }

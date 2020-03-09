@@ -1,14 +1,27 @@
 package com.amazon.opendistroforelasticsearch.ppl.parser;
 
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.And;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.DataType;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Literal;
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Or;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Expression;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.PPLParser;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.PPLParserBaseVisitor;
 
 public class AstExpressionBuilder extends PPLParserBaseVisitor<Expression> {
+
+    @Override
+    public Expression visitLogicalAndBinary(PPLParser.LogicalAndBinaryContext ctx) {
+        return new And(visit(ctx.left), visit(ctx.right));
+    }
+
+    @Override
+    public Expression visitLogicalOrBinary(PPLParser.LogicalOrBinaryContext ctx) {
+        return new Or(visit(ctx.left), visit(ctx.right));
+    }
+
     @Override
     public Expression visitComparisonExpression(PPLParser.ComparisonExpressionContext ctx) {
         Expression field = visit(ctx.fieldExpression());

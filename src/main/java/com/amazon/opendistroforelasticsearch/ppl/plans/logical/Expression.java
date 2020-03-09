@@ -15,6 +15,15 @@
 
 package com.amazon.opendistroforelasticsearch.ppl.plans.logical;
 
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.visitor.ExprVisitor;
+
+import java.util.List;
+
 public abstract class Expression extends Node {
+
+    abstract public List<Expression> getChild();
+
     abstract public Expression bottomUp(Visitor<Expression> visitor);
+
+    abstract public <T> T accept(ExprVisitor<T> visitor);
 }

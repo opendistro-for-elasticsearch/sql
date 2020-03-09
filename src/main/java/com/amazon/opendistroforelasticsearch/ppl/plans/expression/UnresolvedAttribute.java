@@ -15,12 +15,16 @@
 
 package com.amazon.opendistroforelasticsearch.ppl.plans.expression;
 
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.visitor.ExprVisitor;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Expression;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Visitor;
+import com.google.common.collect.ImmutableList;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+
+import java.util.List;
 
 @ToString
 @EqualsAndHashCode
@@ -30,7 +34,17 @@ public class UnresolvedAttribute extends Expression {
     private final String attr;
 
     @Override
+    public List<Expression> getChild() {
+        return ImmutableList.of();
+    }
+
+    @Override
     public Expression bottomUp(Visitor<Expression> visitor) {
         return visitor.visit(this);
+    }
+
+    @Override
+    public <T> T accept(ExprVisitor<T> visitor) {
+        return visitor.visitChildren(this);
     }
 }

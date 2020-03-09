@@ -4,9 +4,11 @@ import com.amazon.opendistroforelasticsearch.ppl.antlr.PPLSyntaxParser;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Node;
 import org.junit.Test;
 
+import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.and;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.equalTo;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.filter;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.intLiteral;
+import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.or;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.project;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.relation;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.stringLiteral;
@@ -35,7 +37,7 @@ public class AstBuilderTest {
     }
 
     @Test
-    public void testSearchCommandWithouSearch() {
+    public void testSearchCommandWithoutSearch() {
         assertEqual("source=t a=1",
                     filter(
                             relation("t"),
@@ -43,6 +45,35 @@ public class AstBuilderTest {
                     )
         );
     }
+
+    @Test
+    public void testSearchCommandLogicalExpression() {
+        assertEqual("search source=t a=1 b=2",
+                    filter(
+                            relation("t"),
+                            and(equalTo(unresolvedAttr("a"), intLiteral(1)),
+                                equalTo(unresolvedAttr("b"), intLiteral(2)))
+                    )
+        );
+
+        assertEqual("search source=t a=1 AND b=2",
+                    filter(
+                            relation("t"),
+                            and(equalTo(unresolvedAttr("a"), intLiteral(1)),
+                                equalTo(unresolvedAttr("b"), intLiteral(2)))
+                    )
+        );
+
+        assertEqual("search source=t a=1 OR b=2",
+                    filter(
+                            relation("t"),
+                            or(equalTo(unresolvedAttr("a"), intLiteral(1)),
+                                equalTo(unresolvedAttr("b"), intLiteral(2)))
+                    )
+        );
+    }
+
+
 
     @Test
     public void testSearchAndFields() {
@@ -59,7 +90,7 @@ public class AstBuilderTest {
 
     public void assertEqual(String sql, Node expectedPlan) {
         Node actualPlan = plan(sql);
-        assertEquals(actualPlan, expectedPlan);
+        assertEquals(expectedPlan, actualPlan);
     }
 
     private PPLSyntaxParser parser = new PPLSyntaxParser();

@@ -15,37 +15,45 @@
 
 package com.amazon.opendistroforelasticsearch.ppl.plans.expression;
 
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.visitor.AbstractExprVisitor;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.visitor.ExprVisitor;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Expression;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Visitor;
-import com.google.common.collect.ImmutableList;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+import java.util.Arrays;
 import java.util.List;
 
-@Getter
 @ToString
 @EqualsAndHashCode
-@RequiredArgsConstructor
-public class Literal extends Expression {
-    private final Object value;
-    private final DataType type;
-
-    @Override
-    public Expression bottomUp(Visitor<Expression> visitor) {
-        return visitor.visit(this);
-    }
+@AllArgsConstructor
+public class Or extends Expression {
+    @Getter
+    private Expression left;
+    @Getter
+    private Expression right;
 
     @Override
     public List<Expression> getChild() {
-        return ImmutableList.of();
+        return Arrays.asList(left, right);
+    }
+
+    @Override
+    public Expression bottomUp(Visitor<Expression> visitor) {
+        left = left.bottomUp(visitor);
+        right = right.bottomUp(visitor);
+        return visitor.visit(this);
     }
 
     @Override
     public <T> T accept(ExprVisitor<T> visitor) {
-        return visitor.visit(this);
+        if (visitor instanceof AbstractExprVisitor) {
+            return ((AbstractExprVisitor<T>) visitor).visitOr(this);
+        } else {
+            return visitor.visitChildren(this);
+        }
     }
 }

@@ -17,10 +17,12 @@ package com.amazon.opendistroforelasticsearch.ppl.plans.dsl;
 
 
 
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.And;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.AttributeReference;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.DataType;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Literal;
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Or;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Expression;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Filter;
@@ -61,5 +63,13 @@ public class DSL {
 
     public static Expression stringLiteral(String literal) {
         return new Literal(literal, DataType.STRING);
+    }
+
+    public static Expression and(Expression e1, Expression e2) {
+        return new And(e1, e2);
+    }
+
+    public static Expression or(Expression e1, Expression e2) {
+        return new Or(e1, e2);
     }
 }

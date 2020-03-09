@@ -79,12 +79,12 @@ whereCommand
     ;
 
 logicalExpression
-    : booleanExpression
-    | comparisonExpression
-    | evalExpression
-    | NOT logicalExpression
-    | logicalExpression OR logicalExpression
-    | logicalExpression (AND)? logicalExpression
+    : booleanExpression                                             #booleanLabel
+    | comparisonExpression                                          #comparsion
+    | evalExpression                                                #eval
+    | NOT logicalExpression                                         #logicalNot
+    | left=logicalExpression OR right=logicalExpression    #logicalOrBinary
+    | left=logicalExpression (AND)? right=logicalExpression   #logicalAndBinary
     ;
 
 booleanExpression

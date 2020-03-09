@@ -29,5 +29,4 @@ public class SearchRequestBuilder {
 
         return searchRequest;
     }
-
 }

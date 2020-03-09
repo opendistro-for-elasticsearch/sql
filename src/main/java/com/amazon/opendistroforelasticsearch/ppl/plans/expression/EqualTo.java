@@ -15,19 +15,25 @@
 
 package com.amazon.opendistroforelasticsearch.ppl.plans.expression;
 
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.visitor.AbstractExprVisitor;
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.visitor.ExprVisitor;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Expression;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Visitor;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.ToString;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
+
+import java.util.Arrays;
+import java.util.List;
 
 @ToString
 @EqualsAndHashCode
 @AllArgsConstructor
-public class EqualTo extends Expression implements ToDSL {
+public class EqualTo extends Expression {
+    @Getter
     private Expression left;
+    @Getter
     private Expression right;
 
     @Override
@@ -38,13 +44,16 @@ public class EqualTo extends Expression implements ToDSL {
     }
 
     @Override
-    public QueryBuilder build() {
-        if ((left instanceof AttributeReference) &&
-            (right instanceof Literal)) {
-            return QueryBuilders.termQuery(((AttributeReference) left).getAttr(),
-                                           ((Literal) right).getValue());
+    public List<Expression> getChild() {
+        return Arrays.asList(left, right);
+    }
+
+    @Override
+    public <T> T accept(ExprVisitor<T> visitor) {
+        if (visitor instanceof AbstractExprVisitor) {
+            return ((AbstractExprVisitor<T>) visitor).visitEqualTo(this);
         } else {
-            throw new IllegalStateException("can translate to dsl");
+            return visitor.visitChildren(this);
         }
     }
 }
