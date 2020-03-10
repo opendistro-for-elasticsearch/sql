@@ -49,7 +49,17 @@ public class AstBuilder extends PPLParserBaseVisitor<LogicalPlan> {
     }
 
     @Override
-    public LogicalPlan visitSearchCommand(PPLParser.SearchCommandContext ctx) {
+    public LogicalPlan visitSearchWithoutFilter(PPLParser.SearchWithoutFilterContext ctx) {
+        return visitFromClause(ctx.fromClause());
+    }
+
+    @Override
+    public LogicalPlan visitSearchFromClauseLogicExpr(PPLParser.SearchFromClauseLogicExprContext ctx) {
+        return new Filter(visitExpression(ctx.logicalExpression())).withInput(visit(ctx.fromClause()));
+    }
+
+    @Override
+    public LogicalPlan visitSearchLogicExprFromClause(PPLParser.SearchLogicExprFromClauseContext ctx) {
         return new Filter(visitExpression(ctx.logicalExpression())).withInput(visit(ctx.fromClause()));
     }
 

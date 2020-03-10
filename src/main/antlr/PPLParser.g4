@@ -48,8 +48,9 @@ filteringCommands
     ;
 
 searchCommand
-    : (SEARCH)? fromClause logicalExpression
-    | (SEARCH)? logicalExpression fromClause
+    : (SEARCH)? fromClause                                          #searchWithoutFilter
+    | (SEARCH)? fromClause logicalExpression                        #searchFromClauseLogicExpr
+    | (SEARCH)? logicalExpression fromClause                        #searchLogicExprFromClause
     ;
 
 fromClause

@@ -179,7 +179,7 @@ public class LocalClusterState {
 
     @SuppressWarnings("unchecked")
     public <T> T getPPLSettingValue(String key) {
-        Objects.requireNonNull(pplSettings, "SQL setting is null");
+        Objects.requireNonNull(pplSettings, "PPL setting is null");
         return (T) latestSettings.getOrDefault(key, pplSettings.getSetting(key).getDefault(EMPTY));
     }
 

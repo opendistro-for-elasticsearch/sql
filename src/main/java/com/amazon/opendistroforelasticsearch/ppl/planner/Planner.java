@@ -12,6 +12,7 @@ import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Relation;
 import com.amazon.opendistroforelasticsearch.ppl.plans.physical.PhysicalScroll;
 import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.PhysicalOperator;
+import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.index.query.QueryBuilder;
@@ -44,6 +45,39 @@ public class Planner {
                                                          queryBuilder,
                                                          new SourceFilter(projectList)).build(), client));
 
+        }
+
+        // select..from..
+        if ((logicalPlan instanceof Project) && (logicalPlan.getInput() instanceof Relation)) {
+
+            Project project = (Project) logicalPlan;
+            Relation relation = (Relation) project.getInput();
+
+            List<String> projectList = project.getProjectList().stream()
+                    .filter(e -> e instanceof AttributeReference)
+                    .map(Object::toString)
+                    .collect(Collectors.toList());
+
+            return new PhysicalScroll(
+                    new QueryAction(
+                            new SearchRequestBuilder(
+                                    relation.getTableName(),
+                                    new QueryBuilderVisitor().defaultResult(),
+                                    new SourceFilter(projectList)).build(),
+                            client
+                    ));
+        }
+
+        // select * from..
+        if (logicalPlan instanceof Relation) {
+            return new PhysicalScroll(
+                    new QueryAction(
+                            new SearchRequestBuilder(
+                                    ((Relation) logicalPlan).getTableName(),
+                                    new QueryBuilderVisitor().defaultResult(),
+                                    new SourceFilter(new ArrayList<>())).build(),
+                            client
+                    ));
         }
 
         throw new IllegalStateException("unsupported plan:" + logicalPlan);
