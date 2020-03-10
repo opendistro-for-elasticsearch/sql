@@ -291,6 +291,34 @@ public class MetaDataQueriesIT extends SQLIntegTestCase {
     }
 
     @Test
+    public void describeSingleIndexWithObjectFieldShouldPass() throws IOException {
+        JSONObject response =
+                executeQuery(String.format("DESCRIBE TABLES LIKE %s", TestsConstants.TEST_INDEX_GAME_OF_THRONES));
+
+        // Schema for DESCRIBE is filled with a lot of fields that aren't used so only the important
+        // ones are checked for here
+        String[] fields = {"TABLE_NAME", "COLUMN_NAME", "TYPE_NAME"};
+        checkContainsColumns(getSchema(response), fields);
+
+        JSONArray dataRows = getDataRows(response);
+        assertThat(dataRows.length(), greaterThan(0));
+        assertThat(dataRows.getJSONArray(0).length(), equalTo(DESCRIBE_FIELD_LENGTH));
+
+        /*
+         * Assumed indices of fields in dataRows based on "schema" output for DESCRIBE given above:
+         * "TABLE_NAME"  : 2
+         * "COLUMN_NAME" : 3
+         * "TYPE_NAME"   : 5
+         */
+        for (int i = 0; i < dataRows.length(); i++) {
+            JSONArray row = dataRows.getJSONArray(i);
+            assertThat(row.get(2), equalTo(TestsConstants.TEST_INDEX_GAME_OF_THRONES));
+            assertThat(row.get(3), not(equalTo(JSONObject.NULL)));
+            assertThat(row.get(5), not(equalTo(JSONObject.NULL)));
+        }
+    }
+
+    @Test
     public void describeCaseSensitivityCheck() throws IOException {
         JSONObject response = executeQuery(String.format("describe tables like %s", TestsConstants.TEST_INDEX_ACCOUNT));
 
