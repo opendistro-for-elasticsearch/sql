@@ -1,4 +1,24 @@
-## 2020-1-24, Version 1.4.0 (Current)
+## 2020-03-09 Version 1.5.0.0 (Current)
+### Features
+#### Elasticsearch Compatibility
+* Feature [#376](https://github.com/opendistro-for-elasticsearch/sql/issues/376): Elasticsearch 7.6.1 compatibility
+
+#### Testing
+* Feature [#374](https://github.com/opendistro-for-elasticsearch/sql/pull/374): Integration test with external ES cluster (issue: [353](https://github.com/opendistro-for-elasticsearch/sql/issues/353))
+
+#### Documentation
+* Feature [#366](https://github.com/opendistro-for-elasticsearch/sql/pull/366): Documentation for simple query (issue: [#363](https://github.com/opendistro-for-elasticsearch/sql/issues/363)) 
+
+### Enhancements
+#### SQL Features
+* Enhancement [#367](https://github.com/opendistro-for-elasticsearch/sql/pull/367): Report date data as a standardized format (issue: [#342](https://github.com/opendistro-for-elasticsearch/sql/issues/342))
+
+
+### Bugfixes
+* BugFix [#365](https://github.com/opendistro-for-elasticsearch/sql/pull/365): Return Correct Type Information for Fields (issue: [#316](https://github.com/opendistro-for-elasticsearch/sql/issues/316))
+
+
+## 2020-01-24, Version 1.4.0
 
 ### Features
 #### Elasticsearch Compatibility
