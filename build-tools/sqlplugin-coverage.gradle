@@ -53,7 +53,7 @@ task dummyIntegTest(type: Test) {
     }
 }
 
-integTestCluster {
+integTest.runner {
     jvmArgs += " ${dummyIntegTest.jacoco.getAsJvmArg()}"
     systemProperty 'com.sun.management.jmxremote', "true"
     systemProperty 'com.sun.management.jmxremote.authenticate', "false"
@@ -79,7 +79,7 @@ jacocoTestReport {
 task dumpCoverage {
     onlyIf {
         // ignore the integ test coverage result when integTestRunner failed.
-        integTestRunner.getState().getFailure() == null
+        integTest.runner.getState().getFailure() == null
     }
     doFirst () {
         def serverUrl = "service:jmx:rmi:///jndi/rmi://127.0.0.1:7777/jmxrmi"
@@ -95,7 +95,7 @@ task dumpCoverage {
 }
 
 project.gradle.projectsEvaluated {
-    integTestRunner.finalizedBy dumpCoverage
-    tasks['integTestCluster#stop'].dependsOn dumpCoverage
+    integTest.runner.finalizedBy dumpCoverage
+    tasks['integTest.runner#stop'].dependsOn dumpCoverage
     jacocoTestReport.dependsOn dumpCoverage
 }
