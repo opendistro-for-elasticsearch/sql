@@ -17,9 +17,11 @@ package com.amazon.opendistroforelasticsearch.ppl.plans.expression.visitor;
 
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.And;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.AttributeReference;
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Count;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Literal;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Or;
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.AttributeList;
 
 public class AbstractExprVisitor<T> implements ExprVisitor<T> {
 
@@ -41,5 +43,13 @@ public class AbstractExprVisitor<T> implements ExprVisitor<T> {
 
     public T visitOr(Or node) {
         return visitOr(node);
+    }
+
+    public T visitCount(Count node) {
+        return visitCount(node);
+    }
+
+    public T visitUnresolvedAttributeList(AttributeList node) {
+        return visitChildren(node);
     }
 }

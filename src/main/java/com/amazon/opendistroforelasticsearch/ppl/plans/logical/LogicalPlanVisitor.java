@@ -10,6 +10,8 @@ public interface LogicalPlanVisitor extends Visitor<LogicalPlan> {
             return visitFilter((Filter) plan);
         } else if (plan instanceof Relation) {
             return visitRelation((Relation) plan);
+        } else if (plan instanceof Top) {
+            return visitTop((Top) plan);
         } else {
             throw new IllegalArgumentException("unknown operator plan: " + plan);
         }
@@ -24,6 +26,10 @@ public interface LogicalPlanVisitor extends Visitor<LogicalPlan> {
     }
 
     default LogicalPlan visitRelation(Relation node) {
+        return node;
+    }
+
+    default LogicalPlan visitTop(Top node) {
         return node;
     }
 }

@@ -28,16 +28,17 @@ root
 //    ;
 
 pplStatement
-    : searchCommands (PIPE fieldsCommand)*
+    : searchCommands (PIPE fieldsCommand)*                          #searchFields
+    | searchCommands PIPE topCommand                                #searchTop
     ;
 
 searchCommands
     : searchCommand
     ;
 
-reportsCommands
-    : topCommand
-    ;
+//reportsCommands
+//    : topCommand
+//    ;
 
 resultsCommands
     : filteringCommands
@@ -67,7 +68,7 @@ fieldsCommand
     ;
 
 topCommand
-    : TOP decimalLiteral? topOptions? fieldList byClause*
+    : TOP count=decimalLiteral? topOptions* fieldList byClause?
     ;
 
 fromCommand
@@ -117,6 +118,11 @@ evalFunctionCall
 topOptions
     : COUNTFIELD EQUAL_SYMBOL stringLiteral                              #countfieldTopOption
     | LIMIT EQUAL_SYMBOL decimalLiteral                                  #limitTopOption
+    | OTHERSTR EQUAL_SYMBOL stringLiteral                                #otherstrTopOption
+    | PERCENTFIELD EQUAL_SYMBOL stringLiteral                            #percentfieldTopOption
+    | SHOWCOUNT EQUAL_SYMBOL booleanLiteral                              #showcountTopOption
+    | SHOWPERC EQUAL_SYMBOL booleanLiteral                               #showpercTopOption
+    | USEOTHER EQUAL_SYMBOL booleanLiteral                               #useotherTopOption
     ;
 
 datasetType

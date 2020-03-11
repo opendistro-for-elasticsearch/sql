@@ -9,6 +9,7 @@ import com.amazon.opendistroforelasticsearch.ppl.plans.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.LogicalPlanVisitor;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Project;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Relation;
+import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Top;
 import com.amazon.opendistroforelasticsearch.ppl.spec.scope.Context;
 import com.amazon.opendistroforelasticsearch.ppl.spec.scope.Environment;
 import com.amazon.opendistroforelasticsearch.ppl.spec.scope.Namespace;

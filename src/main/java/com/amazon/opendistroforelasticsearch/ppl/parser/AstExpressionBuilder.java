@@ -1,6 +1,7 @@
 package com.amazon.opendistroforelasticsearch.ppl.parser;
 
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.And;
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.AttributeList;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.DataType;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Literal;
@@ -9,6 +10,7 @@ import com.amazon.opendistroforelasticsearch.ppl.plans.expression.UnresolvedAttr
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Expression;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.PPLParser;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.PPLParserBaseVisitor;
+import java.util.stream.Collectors;
 
 public class AstExpressionBuilder extends PPLParserBaseVisitor<Expression> {
 
@@ -52,5 +54,13 @@ public class AstExpressionBuilder extends PPLParserBaseVisitor<Expression> {
     @Override
     public Expression visitDecimalLiteral(PPLParser.DecimalLiteralContext ctx) {
         return new Literal(Integer.valueOf(ctx.getText()), DataType.INTEGER);
+    }
+
+    @Override
+    public Expression visitFieldList(PPLParser.FieldListContext ctx) {
+        return new AttributeList(ctx.fieldExpression()
+                .stream()
+                .map(this::visitFieldExpression)
+                .collect(Collectors.toList()));
     }
 }
