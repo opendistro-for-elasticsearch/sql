@@ -16,8 +16,11 @@ import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 
+import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.agg;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.attr;
+import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.count;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.equalTo;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.filter;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.intLiteral;
@@ -69,6 +72,28 @@ public class AnalyzerTest {
                         ),
                         attr("age"), attr("balance")
                 ));
+    }
+
+    @Test
+    public void testStatsCommand() {
+        assertEqual(
+                agg(
+                        filter(
+                                relation("semantics"),
+                                equalTo(unresolvedAttr("age"), intLiteral(1))
+                        ),
+                        Arrays.asList(unresolvedAttr("age")),
+                        Arrays.asList(count(unresolvedAttr("balance")))
+                ),
+                agg(
+                        filter(
+                                relation("semantics"),
+                                equalTo(attr("age"), intLiteral(1))
+                        ),
+                        Arrays.asList(attr("age")),
+                        Arrays.asList(count(attr("balance")))
+                )
+        );
     }
 
     public void assertEqual(LogicalPlan testPlan, LogicalPlan expectedPlan) {

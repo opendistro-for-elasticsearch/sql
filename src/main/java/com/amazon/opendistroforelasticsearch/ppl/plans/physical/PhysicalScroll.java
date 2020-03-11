@@ -2,7 +2,6 @@ package com.amazon.opendistroforelasticsearch.ppl.plans.physical;
 
 import com.amazon.opendistroforelasticsearch.ppl.planner.dsl.QueryAction;
 import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
-import com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.ExecuteParams;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.PlanNode;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.PhysicalOperator;
@@ -49,9 +48,15 @@ public class PhysicalScroll implements PhysicalOperator<BindingTuple> {
         LOG.info("explain: {}", queryAction.explain());
         SearchResponse response = queryAction.run();
         LOG.info("response: {}", response.getHits());
-        rowIterator = SearchResponseHelper
-                .populateSearchResponse(response)
-                .iterator();
+        if (response.getAggregations() != null) {
+            rowIterator =
+                    SearchAggregationResponseHelper.populateSearchAggregationResponse(response.getAggregations())
+                            .iterator();
+        } else {
+            rowIterator = SearchResponseHelper
+                    .populateSearchResponse(response)
+                    .iterator();
+        }
     }
 
     @Override

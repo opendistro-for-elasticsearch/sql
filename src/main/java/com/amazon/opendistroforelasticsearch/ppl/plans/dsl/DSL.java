@@ -16,7 +16,7 @@
 package com.amazon.opendistroforelasticsearch.ppl.plans.dsl;
 
 
-
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.AggCount;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.And;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.AttributeReference;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.DataType;
@@ -24,6 +24,7 @@ import com.amazon.opendistroforelasticsearch.ppl.plans.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Literal;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Or;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.UnresolvedAttribute;
+import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Aggregation;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Expression;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Filter;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.LogicalPlan;
@@ -31,6 +32,7 @@ import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Project;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Relation;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class DSL {
     public static LogicalPlan project(LogicalPlan input, Expression... projectList) {
@@ -43,6 +45,10 @@ public class DSL {
 
     public static LogicalPlan relation(String tableName) {
         return new Relation(tableName);
+    }
+
+    public static LogicalPlan agg(LogicalPlan input, List<Expression> groupList, List<Expression> aggList) {
+        return new Aggregation(aggList, groupList).withInput(input);
     }
 
     public static Expression equalTo(Expression left, Expression right) {
@@ -71,5 +77,9 @@ public class DSL {
 
     public static Expression or(Expression e1, Expression e2) {
         return new Or(e1, e2);
+    }
+
+    public static Expression count(Expression e1) {
+        return new AggCount(e1);
     }
 }

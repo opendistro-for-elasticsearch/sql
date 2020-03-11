@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.ppl.parser;
 
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Count;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Literal;
+import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Aggregation;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Expression;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Filter;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.LogicalPlan;
@@ -28,6 +29,7 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.parser.PPLParserBaseVisit
 import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -35,22 +37,17 @@ public class AstBuilder extends PPLParserBaseVisitor<LogicalPlan> {
     private final AstExpressionBuilder expressionBuilder;
 
     @Override
-    public LogicalPlan visitSearchFields(PPLParser.SearchFieldsContext ctx) {
+    public LogicalPlan visitPplStatement(PPLParser.PplStatementContext ctx) {
         LogicalPlan search = visit(ctx.searchCommands());
-        LogicalPlan reduce = ctx.fieldsCommand().stream().map(this::visit).reduce(search, (r, e) -> e.withInput(r));
+        LogicalPlan reduce = ctx.commands().stream().map(this::visit).reduce(search, (r, e) -> e.withInput(r));
         return reduce;
     }
 
     @Override
-    public LogicalPlan visitSearchTop(PPLParser.SearchTopContext ctx) {
-        LogicalPlan search = visit(ctx.searchCommands());
-        return visit(ctx.topCommand()).withInput(search);
-    }
-
-    @Override
-    public LogicalPlan visitFieldList(PPLParser.FieldListContext ctx) {
+    public LogicalPlan visitFieldsCommand(PPLParser.FieldsCommandContext ctx) {
         return new Project(
-                ctx.fieldExpression()
+                ctx.fieldList()
+                        .fieldExpression()
                         .stream()
                         .map(this::visitExpression)
                         .collect(Collectors.toList()));
@@ -86,6 +83,13 @@ public class AstBuilder extends PPLParserBaseVisitor<LogicalPlan> {
         return new Top(visitFieldList(ctx.fieldList()))
                 .byClause(visitExpression(ctx.byClause().fieldList()))
                 .count((Literal) visitExpression(ctx.count));
+    }
+
+    @Override
+    public LogicalPlan visitStatsCommand(PPLParser.StatsCommandContext ctx) {
+        List<Expression> aggList = ctx.statsAggTerm().stream().map(this::visitExpression).collect(Collectors.toList());
+        List<Expression> groupList = ctx.byClause().stream().map(this::visitExpression).collect(Collectors.toList());
+        return new Aggregation(aggList, groupList);
     }
 
     /* ---------------------------------- */

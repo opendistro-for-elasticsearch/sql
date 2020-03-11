@@ -9,8 +9,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.Arrays;
+
+import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.agg;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.and;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.attr;
+import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.count;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.equalTo;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.filter;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.intLiteral;
@@ -48,6 +52,21 @@ public class PlannerTest {
                         and(equalTo(attr("a"), intLiteral(1)), equalTo(attr("b"), stringLiteral("value")))
                 ),
                 new AttributeReference("a"), new AttributeReference("b")
+        ));
+
+        assertEquals("{\"from\":0,\"size\":10,\"timeout\":\"30s\",\"query\":{\"term\":{\"a\":{\"value\":1,\"boost\":1" +
+                     ".0}}},\"_source\":{\"includes\":[\"a\",\"b\"],\"excludes\":[]}}", plan.toString());
+    }
+
+    @Test
+    public void testSearchAggregation() {
+        Planner planner = new Planner(client);
+        PhysicalOperator<BindingTuple> plan = planner.plan(agg(
+                filter(
+                        relation("t"),
+                        and(equalTo(attr("a"), intLiteral(1)), equalTo(attr("b"), stringLiteral("value")))
+                ),
+                Arrays.asList(new AttributeReference("a")), Arrays.asList(count(new AttributeReference("b")))
         ));
 
         assertEquals("{\"from\":0,\"size\":10,\"timeout\":\"30s\",\"query\":{\"term\":{\"a\":{\"value\":1,\"boost\":1" +

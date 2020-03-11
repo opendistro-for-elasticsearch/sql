@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.ppl.plans.expression.visitor;
 
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.AggCount;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.And;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.AttributeReference;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Count;
@@ -42,7 +43,11 @@ public class AbstractExprVisitor<T> implements ExprVisitor<T> {
     }
 
     public T visitOr(Or node) {
-        return visitOr(node);
+        return visitChildren(node);
+    }
+
+    public T visitAggCount(AggCount node) {
+        return visitChildren(node);
     }
 
     public T visitCount(Count node) {

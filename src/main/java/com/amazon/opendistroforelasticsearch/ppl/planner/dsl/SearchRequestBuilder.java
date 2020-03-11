@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import java.util.concurrent.TimeUnit;
@@ -12,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 public class SearchRequestBuilder {
     private final String index;
     private final QueryBuilder queryBuilder;
+    private final AggregationBuilder aggBuilder;
     private final SourceFilter sourceFilter;
 
     public SearchRequest build() {
@@ -22,6 +25,10 @@ public class SearchRequestBuilder {
 
         sourceBuilder.fetchSource(sourceFilter.getIncludes(), sourceFilter.getExcludes());
         sourceBuilder.query(queryBuilder);
+        if (aggBuilder != null) {
+            sourceBuilder.aggregation(aggBuilder);
+            sourceBuilder.fetchSource(false);
+        }
 
         SearchRequest searchRequest = new SearchRequest();
         searchRequest.indices(index);

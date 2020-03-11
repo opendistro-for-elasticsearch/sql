@@ -50,6 +50,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.amazon.opendistroforelasticsearch.ppl.plugin.FormatHelper.jsonFormat;
 import static org.elasticsearch.rest.RestStatus.OK;
 
 public class RestPPLAction extends BaseRestHandler {
@@ -127,15 +128,7 @@ public class RestPPLAction extends BaseRestHandler {
         }
 
         public BytesRestResponse pretty(List<BindingTuple> bindingTuples) {
-            List<Map<String, Object>> rowList = bindingTuples.stream().map(tuple -> {
-                Map<String, ExprValue> bindingMap = tuple.getBindingMap();
-                Map<String, Object> rowMap = new HashMap<>();
-                for (String s : bindingMap.keySet()) {
-                    rowMap.put(s, bindingMap.get(s).value());
-                }
-                return rowMap;
-            }).collect(Collectors.toList());
-            return new BytesRestResponse(OK, "application/json; charset=UTF-8", new JSONArray(rowList).toString());
+            return new BytesRestResponse(OK, "application/json; charset=UTF-8", jsonFormat(bindingTuples));
         }
 
         public List<BindingTuple> execute(PhysicalOperator<BindingTuple> op) {

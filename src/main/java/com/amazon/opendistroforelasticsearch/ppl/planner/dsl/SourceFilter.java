@@ -17,4 +17,5 @@ public class SourceFilter {
         this.includes = includes.toArray(new String[0]);
         this.excludes = new String[]{};
     }
+
 }

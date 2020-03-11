@@ -4,7 +4,11 @@ import com.amazon.opendistroforelasticsearch.ppl.antlr.PPLSyntaxParser;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Node;
 import org.junit.Test;
 
+import java.util.Arrays;
+
+import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.agg;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.and;
+import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.count;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.equalTo;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.filter;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.intLiteral;
@@ -73,8 +77,6 @@ public class AstBuilderTest {
         );
     }
 
-
-
     @Test
     public void testSearchAndFields() {
         assertEqual("search source=t a=1 | fields a,b",
@@ -84,6 +86,20 @@ public class AstBuilderTest {
                                     equalTo(unresolvedAttr("a"), intLiteral(1))
                             ),
                             unresolvedAttr("a"), unresolvedAttr("b")
+                    )
+        );
+    }
+
+    @Test
+    public void testStats() {
+        assertEqual("search source=t a=1 | stats count(a) by b",
+                    agg(
+                            filter(
+                                    relation("t"),
+                                    equalTo(unresolvedAttr("a"), intLiteral(1))
+                            ),
+                            Arrays.asList(unresolvedAttr("b")),
+                            Arrays.asList(count(unresolvedAttr("a")))
                     )
         );
     }

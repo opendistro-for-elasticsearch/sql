@@ -19,42 +19,38 @@ import com.amazon.opendistroforelasticsearch.ppl.plans.expression.visitor.Abstra
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.visitor.ExprVisitor;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Expression;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Visitor;
-import com.google.common.collect.ImmutableList;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+import java.util.Arrays;
 import java.util.List;
 
 @ToString
 @EqualsAndHashCode
-@RequiredArgsConstructor
-public class AttributeReference extends Expression {
+@AllArgsConstructor
+public class AggCount extends Expression {
     @Getter
-    private final String attr;
+    private final Expression field;
 
     @Override
-    public Expression bottomUp(Visitor<Expression> visitor) {
-        return visitor.visit(this);
+    public List<Expression> getChild() {
+        return Arrays.asList(field);
     }
 
     @Override
-    public String toString() {
-        return attr;
+    public Expression bottomUp(Visitor<Expression> visitor) {
+        field.bottomUp(visitor);
+        return visitor.visit(this);
     }
 
     @Override
     public <T> T accept(ExprVisitor<T> visitor) {
         if (visitor instanceof AbstractExprVisitor) {
-            return ((AbstractExprVisitor<T>) visitor).visitAttributeReference(this);
+            return ((AbstractExprVisitor<T>) visitor).visitAggCount(this);
         } else {
             return visitor.visitChildren(this);
         }
-    }
-
-    @Override
-    public List<Expression> getChild() {
-        return ImmutableList.of();
     }
 }

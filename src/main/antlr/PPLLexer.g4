@@ -29,6 +29,7 @@ COUNTFIELD:                         'COUNTFIELD';
 SOURCE:                             'SOURCE';
 INDEX:                              'INDEX';
 FIELDS:                             'FIELDS';
+STATS:                              'STATS';
 OTHERSTR:                           'OTHERSTR';
 PERCENTFIELD:                       'PERCENTFIELD';
 SHOWCOUNT:                          'SHOWCOUNT';

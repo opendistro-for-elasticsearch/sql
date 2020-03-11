@@ -1,5 +1,6 @@
 package com.amazon.opendistroforelasticsearch.ppl.parser;
 
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.AggCount;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.And;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.AttributeList;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.DataType;
@@ -62,5 +63,17 @@ public class AstExpressionBuilder extends PPLParserBaseVisitor<Expression> {
                 .stream()
                 .map(this::visitFieldExpression)
                 .collect(Collectors.toList()));
+    }
+
+    @Override
+    public Expression visitStatsAggTerm(PPLParser.StatsAggTermContext ctx) {
+        String func = ctx.statsFunc().getText();
+
+        switch (func.toLowerCase()) {
+            case "count":
+                return new AggCount(visit(ctx.fieldExpression()));
+            default:
+                throw new IllegalArgumentException("unsupported function: " + func.toLowerCase());
+        }
     }
 }

@@ -1,7 +1,9 @@
 package com.amazon.opendistroforelasticsearch.ppl.analysis;
 
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.AggCount;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.AttributeReference;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.UnresolvedAttribute;
+import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Aggregation;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Expression;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.ExpressionVisitor;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Filter;
@@ -41,8 +43,13 @@ public class Analyzer implements LogicalPlanVisitor {
             if (resolve.isPresent()) {
                 return new AttributeReference(node.getAttr());
             } else {
-                throw new IllegalArgumentException("can resolved node: " + node);
+                throw new IllegalArgumentException("can't resolved node: " + node);
             }
+        }
+
+        @Override
+        public Expression visitAggCount(AggCount node) {
+            return new AggCount(visit(node.getField()));
         }
     };
 
@@ -63,6 +70,13 @@ public class Analyzer implements LogicalPlanVisitor {
     @Override
     public LogicalPlan visitFilter(Filter node) {
         node.setCondition(node.getCondition().bottomUp(expressionAnalyzer));
+        return node;
+    }
+
+    @Override
+    public LogicalPlan visitAggregation(Aggregation node) {
+        node.setAggExprs(node.getAggExprs().stream().map(expressionAnalyzer::visit).collect(Collectors.toList()));
+        node.setGroupExprs(node.getGroupExprs().stream().map(expressionAnalyzer::visit).collect(Collectors.toList()));
         return node;
     }
 

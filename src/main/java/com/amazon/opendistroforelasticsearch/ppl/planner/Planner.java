@@ -6,6 +6,7 @@ import com.amazon.opendistroforelasticsearch.ppl.planner.dsl.SourceFilter;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.AttributeReference;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.visitor.AggregationBuilderVisitor;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.visitor.QueryBuilderVisitor;
+import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Aggregation;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Filter;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Project;
@@ -16,11 +17,14 @@ import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.physical.PhysicalOperator;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+
+import com.google.common.collect.ImmutableList;
 import lombok.RequiredArgsConstructor;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,7 +35,34 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 public class Planner {
     private final NodeClient client;
 
-    public PhysicalOperator<BindingTuple> plan(LogicalPlan logicalPlan) {
+    public PhysicalOperator<BindingTuple> plan(LogicalPlan inputLogicalPlan) {
+        // select..from..where..agg
+        AggregationBuilder aggBuilder = null;
+        LogicalPlan logicalPlan = inputLogicalPlan.getInput();
+        if (inputLogicalPlan instanceof Aggregation) {
+            Aggregation agg = (Aggregation) inputLogicalPlan;
+            aggBuilder = agg.compile();
+        } else {
+            logicalPlan = inputLogicalPlan;
+        }
+
+        if ((logicalPlan instanceof Filter) &&
+            (logicalPlan.getInput() instanceof Relation)) {
+
+            Filter filter = (Filter) logicalPlan;
+            Relation relation = (Relation) filter.getInput();
+
+            QueryBuilder queryBuilder = new QueryBuilderVisitor().visit(filter.getCondition());
+            List<String> projectList = ImmutableList.of();
+            return new PhysicalScroll(
+                    new QueryAction(
+                            new SearchRequestBuilder(relation.getTableName(),
+                                                     queryBuilder,
+                                                     aggBuilder,
+                                                     new SourceFilter(projectList)).build(), client));
+        }
+
+
         // select..from..where
         if ((logicalPlan instanceof Project) &&
             (logicalPlan.getInput() instanceof Filter) &&
@@ -50,8 +81,8 @@ public class Planner {
                         new QueryAction(
                                 new SearchRequestBuilder(relation.getTableName(),
                                                          queryBuilder,
+                                                         aggBuilder,
                                                          new SourceFilter(projectList)).build(), client));
-
         }
 
         // select..from..
@@ -70,6 +101,7 @@ public class Planner {
                             new SearchRequestBuilder(
                                     relation.getTableName(),
                                     new QueryBuilderVisitor().defaultResult(),
+                                    aggBuilder,
                                     new SourceFilter(projectList)).build(),
                             client
                     ));
@@ -82,6 +114,7 @@ public class Planner {
                             new SearchRequestBuilder(
                                     ((Relation) logicalPlan).getTableName(),
                                     new QueryBuilderVisitor().defaultResult(),
+                                    aggBuilder,
                                     new SourceFilter(new ArrayList<>())).build(),
                             client
                     ));

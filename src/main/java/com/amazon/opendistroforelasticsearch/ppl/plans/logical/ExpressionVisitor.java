@@ -1,5 +1,6 @@
 package com.amazon.opendistroforelasticsearch.ppl.plans.logical;
 
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.AggCount;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.And;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Count;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.EqualTo;
@@ -22,6 +23,8 @@ public interface ExpressionVisitor extends Visitor<Expression> {
             return visitCount((Count) node);
         } else if (node instanceof AttributeList) {
             return visitUnresolvedAttributeList((AttributeList) node);
+        } else if (node instanceof AggCount) {
+            return visitAggCount((AggCount) node);
         } else {
             throw new IllegalArgumentException("unknown operator node: " + node);
         }
@@ -48,6 +51,10 @@ public interface ExpressionVisitor extends Visitor<Expression> {
     }
 
     default Expression visitUnresolvedAttributeList(AttributeList node) {
+        return node;
+    }
+
+    default Expression visitAggCount(AggCount node) {
         return node;
     }
 }

@@ -27,9 +27,17 @@ root
 //    EOF
 //    ;
 
+//pplStatement
+//    : searchCommands (PIPE fieldsCommand)*                          #searchFields
+//    | searchCommands PIPE topCommand                                #searchTop
+//    ;
+
 pplStatement
-    : searchCommands (PIPE fieldsCommand)*                          #searchFields
-    | searchCommands PIPE topCommand                                #searchTop
+    : searchCommands (PIPE commands)*
+    ;
+
+commands
+    : fieldsCommand | statsCommand
     ;
 
 searchCommands
@@ -52,6 +60,17 @@ searchCommand
     : (SEARCH)? fromClause                                          #searchWithoutFilter
     | (SEARCH)? fromClause logicalExpression                        #searchFromClauseLogicExpr
     | (SEARCH)? logicalExpression fromClause                        #searchLogicExprFromClause
+    ;
+
+statsCommand
+    : STATS statsAggTerm+ byClause*
+    ;
+
+statsAggTerm
+    : statsFunc LT_PRTHS (fieldExpression)? RT_PRTHS
+    ;
+statsFunc
+    : AVG | COUNT
     ;
 
 fromClause
