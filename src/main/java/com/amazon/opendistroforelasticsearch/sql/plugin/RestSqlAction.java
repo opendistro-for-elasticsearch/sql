@@ -114,6 +114,10 @@ public class RestSqlAction extends BaseRestHandler {
             }
 
             final SqlRequest sqlRequest = SqlRequestFactory.getSqlRequest(request);
+            if (sqlRequest.cursor() != null) {
+                LOG.info("[{}] Cursor request {}: {}", LogUtils.getRequestId(), request.uri(), sqlRequest.cursor());
+            }
+
             LOG.info("[{}] Incoming request {}: {}", LogUtils.getRequestId(), request.uri(), sqlRequest.getSql());
 
             final QueryAction queryAction =

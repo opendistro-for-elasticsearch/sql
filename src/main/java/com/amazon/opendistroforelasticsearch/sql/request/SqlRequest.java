@@ -36,11 +36,22 @@ public class SqlRequest {
 
     String sql;
     JSONObject jsonContent;
+    String cursor;
+    Integer fetchSize;
 
 
     public SqlRequest(final String sql, final JSONObject jsonContent) {
-
         this.sql = sql;
+        this.jsonContent = jsonContent;
+    }
+
+    public SqlRequest(final String cursor) {
+        this.cursor = cursor;
+    }
+
+    public SqlRequest(final String sql, final Integer fetchSize, final JSONObject jsonContent) {
+        this.sql = sql;
+        this.fetchSize = fetchSize;
         this.jsonContent = jsonContent;
     }
 
@@ -58,11 +69,13 @@ public class SqlRequest {
     }
 
     public String cursor() {
-        return (jsonContent == null) ? null : jsonContent.getString(SqlRequestFactory.SQL_CURSOR_FIELD_NAME);
+        return this.cursor;
+//        return (jsonContent == null) ? null : jsonContent.getString(SqlRequestFactory.SQL_CURSOR_FIELD_NAME);
     }
 
     public Integer fetchSize() {
-        return (jsonContent == null) ? null : jsonContent.getInt(SqlRequestFactory.SQL_FETCH_FIELD_NAME);
+        return this.fetchSize;
+//        return (jsonContent == null) ? null : jsonContent.getInt(SqlRequestFactory.SQL_FETCH_FIELD_NAME);
     }
 
     public JSONObject getJsonContent() {

@@ -61,32 +61,36 @@ public class SqlRequestFactory {
         JSONObject jsonContent;
         try {
             jsonContent = new JSONObject(content);
+            if (jsonContent.has(SQL_CURSOR_FIELD_NAME)) {
+                return new SqlRequest(jsonContent.getString(SQL_CURSOR_FIELD_NAME));
+            }
         } catch (JSONException e) {
             throw new IllegalArgumentException("Failed to parse request payload", e);
         }
         String sql = jsonContent.getString(SQL_FIELD_NAME);
-        validateFetchSize(jsonContent);
-
+        
         if (jsonContent.has(PARAM_FIELD_NAME)) { // is a PreparedStatement
             JSONArray paramArray = jsonContent.getJSONArray(PARAM_FIELD_NAME);
             List<PreparedStatementRequest.PreparedStatementParameter> parameters = parseParameters(paramArray);
             return new PreparedStatementRequest(sql, jsonContent, parameters);
         }
-        return new SqlRequest(sql, jsonContent);
+        return new SqlRequest(sql, validateAndGetFetchSize(jsonContent), jsonContent);
     }
 
 
-    private static void validateFetchSize(JSONObject jsonContent) {
+    private static Integer validateAndGetFetchSize(JSONObject jsonContent) {
+        Integer fetchSize = null;
         try {
             if (jsonContent.has(SQL_FETCH_FIELD_NAME)) {
-                int fetch_size = jsonContent.getInt(SQL_FETCH_FIELD_NAME);
-                if (fetch_size < 0) {
+                fetchSize = jsonContent.getInt(SQL_FETCH_FIELD_NAME);
+                if (fetchSize < 0) {
                     throw new IllegalArgumentException("Fetch_size must be greater or equal to 0");
                 }
             }
         } catch (JSONException e) {
             throw new IllegalArgumentException("Failed to parse field [" + SQL_FETCH_FIELD_NAME +"]", e);
         }
+        return fetchSize;
     }
 
     private static List<PreparedStatementRequest.PreparedStatementParameter> parseParameters(
