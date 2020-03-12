@@ -21,6 +21,7 @@ channels { WHITESPACE, ERRORCHANNEL }
 // COMMAND KEYWORDS
 SEARCH:                             'SEARCH';
 TOP:                                'TOP';
+RARE:                               'RARE';
 FROM:                               'FROM';
 WHERE:                              'WHERE';
 LIMIT:                              'LIMIT';

@@ -37,7 +37,7 @@ pplStatement
     ;
 
 commands
-    : fieldsCommand | statsCommand | topCommand
+    : fieldsCommand | statsCommand | topCommand | rareCommand
     ;
 
 searchCommands
@@ -88,6 +88,10 @@ fieldsCommand
 
 topCommand
     : TOP count=decimalLiteral? topOptions* fieldList byClause?
+    ;
+
+rareCommand
+    : RARE count=decimalLiteral? topOptions* fieldList byClause?
     ;
 
 fromCommand

@@ -10,6 +10,7 @@ import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Aggregation;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Filter;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Project;
+import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Rare;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Relation;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Top;
 import com.amazon.opendistroforelasticsearch.ppl.plans.physical.PhysicalScroll;
@@ -44,6 +45,9 @@ public class Planner {
             aggBuilder = agg.compile();
         } else if (inputLogicalPlan instanceof Top) {
             Top agg = (Top) inputLogicalPlan;
+            aggBuilder = agg.compile();
+        } else if (inputLogicalPlan instanceof Rare) {
+            Rare agg = (Rare) inputLogicalPlan;
             aggBuilder = agg.compile();
         } else {
             logicalPlan = inputLogicalPlan;

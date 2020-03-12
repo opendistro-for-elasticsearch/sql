@@ -22,6 +22,7 @@ import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Expression;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Filter;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Project;
+import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Rare;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Relation;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Top;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.PPLParser;
@@ -79,8 +80,16 @@ public class AstBuilder extends PPLParserBaseVisitor<LogicalPlan> {
                 ctx.fieldList().fieldExpression().stream().map(this::visitExpression).collect(Collectors.toList());
         List<Expression> groupList = ctx.byClause().fieldList().fieldExpression().stream().map(this::visitExpression)
                 .collect(Collectors.toList());
-
         return new Top((Literal) visitExpression(ctx.count), fieldList, groupList);
+    }
+
+    @Override
+    public LogicalPlan visitRareCommand(PPLParser.RareCommandContext ctx) {
+        List<Expression> fieldList =
+                ctx.fieldList().fieldExpression().stream().map(this::visitExpression).collect(Collectors.toList());
+        List<Expression> groupList = ctx.byClause().fieldList().fieldExpression().stream().map(this::visitExpression)
+                .collect(Collectors.toList());
+        return new Rare((Literal) visitExpression(ctx.count), fieldList, groupList);
     }
 
     @Override

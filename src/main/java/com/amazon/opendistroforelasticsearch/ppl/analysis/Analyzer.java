@@ -10,6 +10,7 @@ import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Filter;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.LogicalPlanVisitor;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Project;
+import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Rare;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Relation;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Top;
 import com.amazon.opendistroforelasticsearch.ppl.spec.scope.Context;
@@ -82,6 +83,13 @@ public class Analyzer implements LogicalPlanVisitor {
 
     @Override
     public LogicalPlan visitTop(Top node) {
+        node.setFieldExprs(node.getFieldExprs().stream().map(expressionAnalyzer::visit).collect(Collectors.toList()));
+        node.setGroupExprs(node.getGroupExprs().stream().map(expressionAnalyzer::visit).collect(Collectors.toList()));
+        return node;
+    }
+
+    @Override
+    public LogicalPlan visitRare(Rare node) {
         node.setFieldExprs(node.getFieldExprs().stream().map(expressionAnalyzer::visit).collect(Collectors.toList()));
         node.setGroupExprs(node.getGroupExprs().stream().map(expressionAnalyzer::visit).collect(Collectors.toList()));
         return node;

@@ -12,7 +12,9 @@ public interface LogicalPlanVisitor extends Visitor<LogicalPlan> {
             return visitRelation((Relation) plan);
         } else if (plan instanceof Top) {
             return visitTop((Top) plan);
-        } else if (plan instanceof Aggregation) {
+        } else if (plan instanceof Rare) {
+            return visitRare((Rare) plan);
+        }else if (plan instanceof Aggregation) {
             return visitAggregation((Aggregation) plan);
         } else {
             throw new IllegalArgumentException("unknown operator plan: " + plan);
@@ -36,6 +38,10 @@ public interface LogicalPlanVisitor extends Visitor<LogicalPlan> {
     }
 
     default LogicalPlan visitTop(Top node) {
+        return node;
+    }
+
+    default LogicalPlan visitRare(Rare node) {
         return node;
     }
 }
