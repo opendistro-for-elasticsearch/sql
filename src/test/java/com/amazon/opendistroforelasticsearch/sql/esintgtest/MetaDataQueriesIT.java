@@ -16,14 +16,19 @@
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
 import org.elasticsearch.client.Request;
+import org.hamcrest.Description;
+import org.hamcrest.TypeSafeMatcher;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_GAME_OF_THRONES;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySome;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasItems;
@@ -293,7 +298,7 @@ public class MetaDataQueriesIT extends SQLIntegTestCase {
     @Test
     public void describeSingleIndexWithObjectFieldShouldPass() throws IOException {
         JSONObject response =
-                executeQuery(String.format("DESCRIBE TABLES LIKE %s", TestsConstants.TEST_INDEX_GAME_OF_THRONES));
+                executeQuery(String.format("DESCRIBE TABLES LIKE %s", TEST_INDEX_GAME_OF_THRONES));
 
         // Schema for DESCRIBE is filled with a lot of fields that aren't used so only the important
         // ones are checked for here
@@ -304,18 +309,15 @@ public class MetaDataQueriesIT extends SQLIntegTestCase {
         assertThat(dataRows.length(), greaterThan(0));
         assertThat(dataRows.getJSONArray(0).length(), equalTo(DESCRIBE_FIELD_LENGTH));
 
-        /*
-         * Assumed indices of fields in dataRows based on "schema" output for DESCRIBE given above:
-         * "TABLE_NAME"  : 2
-         * "COLUMN_NAME" : 3
-         * "TYPE_NAME"   : 5
-         */
-        for (int i = 0; i < dataRows.length(); i++) {
-            JSONArray row = dataRows.getJSONArray(i);
-            assertThat(row.get(2), equalTo(TestsConstants.TEST_INDEX_GAME_OF_THRONES));
-            assertThat(row.get(3), not(equalTo(JSONObject.NULL)));
-            assertThat(row.get(5), not(equalTo(JSONObject.NULL)));
-        }
+        verifySome(dataRows,
+                   describeRow(TEST_INDEX_GAME_OF_THRONES, "nickname", "text"),
+                   describeRow(TEST_INDEX_GAME_OF_THRONES, "name", "object"),
+                   describeRow(TEST_INDEX_GAME_OF_THRONES, "name.firstname", "text"),
+                   describeRow(TEST_INDEX_GAME_OF_THRONES, "name.lastname", "text"),
+                   describeRow(TEST_INDEX_GAME_OF_THRONES, "name.ofHerName", "integer"),
+                   describeRow(TEST_INDEX_GAME_OF_THRONES, "name.ofHisName", "integer"),
+                   describeRow(TEST_INDEX_GAME_OF_THRONES, "house", "text"),
+                   describeRow(TEST_INDEX_GAME_OF_THRONES, "gender", "text"));
     }
 
     @Test
@@ -401,5 +403,26 @@ public class MetaDataQueriesIT extends SQLIntegTestCase {
     private String getClusterName() throws IOException {
         String response = executeRequest(new Request("GET", "_cluster/health"));
         return new JSONObject(response).optString("cluster_name", "");
+    }
+
+    public static TypeSafeMatcher<JSONArray> describeRow(Object... expectedObjects) {
+        return new TypeSafeMatcher<JSONArray>() {
+            @Override
+            public void describeTo(Description description) {
+                description.appendText(String.join(",", Arrays.asList(expectedObjects).toString()));
+            }
+
+            @Override
+            protected boolean matchesSafely(JSONArray array) {
+                List<Object> actualObjects = new ArrayList<>();
+                // TABLE_NAME
+                actualObjects.add(array.get(2));
+                // COLUMN_NAME
+                actualObjects.add(array.get(3));
+                // TYPE_NAME
+                actualObjects.add(array.get(5));
+                return Arrays.asList(expectedObjects).equals(actualObjects);
+            }
+        };
     }
 }
