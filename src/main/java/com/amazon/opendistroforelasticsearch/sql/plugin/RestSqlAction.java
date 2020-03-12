@@ -82,6 +82,7 @@ public class RestSqlAction extends BaseRestHandler {
      */
     public static final String QUERY_API_ENDPOINT = "/_opendistro/_sql";
     public static final String EXPLAIN_API_ENDPOINT = QUERY_API_ENDPOINT + "/_explain";
+    public static final String CURSOR_CLOSE_ENDPOINT = QUERY_API_ENDPOINT + "/close";
 
     RestSqlAction(Settings settings, RestController restController) {
 
@@ -90,6 +91,10 @@ public class RestSqlAction extends BaseRestHandler {
         restController.registerHandler(RestRequest.Method.GET, QUERY_API_ENDPOINT, this);
         restController.registerHandler(RestRequest.Method.POST, EXPLAIN_API_ENDPOINT, this);
         restController.registerHandler(RestRequest.Method.GET, EXPLAIN_API_ENDPOINT, this);
+        restController.registerHandler(RestRequest.Method.POST, CURSOR_CLOSE_ENDPOINT, this);
+        // TODO : Should we support GET endpoint to clear cursor context?
+        // GET _opendistro/_sql?cursor=hbhjbghbhjdbhjdbjkdbnjxndjnjxd
+        // restController.registerHandler(RestRequest.Method.GET, CURSOR_CLOSE_ENDPOINT, this);
 
         this.allowExplicitIndex = MULTI_ALLOW_EXPLICIT_INDEX.get(settings);
     }
