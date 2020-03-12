@@ -67,7 +67,7 @@ With a non-keyset client-side cursor, the server sends the entire result set acr
 **Cons: **
 
 * Client-side cursors may place a significant load on your workstation if they include too many rows
-* Since we are limited by Elasticsearch to get all the results we ***cannot*** materialize this.
+* Since we are limited by Elasticsearch to get all the results we **cannot** materialize this.
 * This will require significant work for each client JDBC driver, ODBC driver, SQL CLI,  Kibana on how to maintain the client resources and parse the state. It is therefore not scalable. 
 * This defeats the purpose of pagination if we load the whole data to client side, as the user/application might only need the first few pages and discard the rest. This will also put pressure on network traffic and can increase latency.
 
@@ -75,7 +75,7 @@ With a non-keyset client-side cursor, the server sends the entire result set acr
 **(b) Server-Side Cursors**
 With a server-side cursor, the server manages the result set using resources provided by the server machine. The server-side cursor returns only the requested data over the network. This type of cursor can sometimes provide better performance than the client-side cursor, especially in situations where excessive network traffic is a problem.
 
-**Pros: **
+**Pros:**
 
 * The client does not need to cache large amounts of data or maintain information about the cursor position because the server is doing that.
 * If you are going to access only some of the data in the result set, or access the data just a few times, a server-side cursor minimizes network traffic.
@@ -191,29 +191,29 @@ Since we are supporting cursor for different type of queries using different imp
 
 ### 3.6 Different approaches for different SQL queries
 
-**3.6.1 SELECT **
+**3.6.1 SELECT**
 
 Simple SELECT with WHERE and ORDER BY clause can be supported by using the following Elasticsearch APIs
 **(A) From and Size**
 From ideal pagination point of view from and size is API needed by the client. Pagination of results can be done by using the from and size but the cost becomes prohibitive when the deep pagination is reached. The `index.max_result_window` which defaults to 10,000 is a safeguard, search requests take heap memory and time proportional to `from + size`.
 
-**Cons: **Inefficient
+**Cons:** Inefficient
 
 **(B) [Scroll](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html#request-body-search-scroll)**
 While a `search` request returns a single “page” of results, the `scroll` API can be used to retrieve large numbers of results (or even all results) from a single search request, in much the same way as you would use a cursor on a traditional database. 
 
 **Pros:** A scroll returns all the documents which matched the search at the time of the initial search request. It ignores any subsequent changes to these documents.
 
-**Cons: **Normally, the background merge process optimizes the index by merging together smaller segments to create new, bigger segments. Once the smaller segments are no longer needed they are deleted. This process continues during scrolling, but an open search context prevents the old segments from being deleted since they are still in use. Keeping older segments alive means that more disk space and file handles are needed. Ensure that you have configured your nodes to have ample free file handles
+**Cons:** Normally, the background merge process optimizes the index by merging together smaller segments to create new, bigger segments. Once the smaller segments are no longer needed they are deleted. This process continues during scrolling, but an open search context prevents the old segments from being deleted since they are still in use. Keeping older segments alive means that more disk space and file handles are needed. Ensure that you have configured your nodes to have ample free file handles
 
 
 **(C) [Search After](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html#request-body-search-search-after)**
 The Scroll API is recommended for efficient deep scrolling but scroll contexts are costly and it is not recommended to use it for real time user requests. The search_after parameter circumvents this problem by providing a live cursor. The idea is to use the results from the previous page to help the retrieval of the next page.
 
-**Cons: **It is very similar to the `scroll` API but unlike it, the `search_after` parameter is stateless, it is always resolved against the latest version of the searcher. For this reason the sort order may change during a walk depending on the updates and deletes of your index.
+**Cons:** It is very similar to the `scroll` API but unlike it, the `search_after` parameter is stateless, it is always resolved against the latest version of the searcher. For this reason the sort order may change during a walk depending on the updates and deletes of your index.
 
 
-**Decision:**
+
 **(A)** does not meet efficiency requirement. **(C)** has consistency problems.  So Scroll** (B)** would be the right solution , as it is consistent can be implemented in a stateless manner on plugin side. Even though it does maintains context natively, it expires eventually if not used.
 
 **3.6.2 SELECT WITH GROUP BY**
@@ -300,7 +300,7 @@ Since all the information needed to retrieve the next page requires the original
 
 Query context contains unfinished physical plan with state in each operator which consists of hash table in Join and remaining rows in Join and Scroll.
 
-**3.6.3.1 Connect to Same Node From Client Side**:** **One option is to try to connect to the same node with query plan all the time. However, it seems that either ***ELB/ALB Session Sticky*** or ***Keep-Alive HTTP Connection*** requires setup on ELB/ALB side.
+**3.6.3.1 Connect to Same Node From Client Side**: One option is to try to connect to the same node with query plan all the time. However, it seems that either **Load balancer Session Sticky** or **Keep-Alive HTTP Connection** requires setup on load balancer side.
 
 * Pros:
     * Easy: to implement and understand because query plan execution is identical as before.
@@ -309,8 +309,9 @@ Query context contains unfinished physical plan with state in each operator whic
     * Workload skew: because of no load balance any more.
 
 
-[Image: image.png] TODO:
-*     *     *     *     *     *     *     *     *     *     *     *   ***********Diagram-1: Always connect to same data node*
+![equi-join-approach-1](img/equi-join-approach-1.png)
+  
+**Diagram-1: Always connect to same data node**
 
 **3.6.3.2 Context Lookup:** In the case that requests dispatched to different nodes is inevitable, context lookup in cluster is required with the following approaches.
 
@@ -324,10 +325,10 @@ Query context contains unfinished physical plan with state in each operator whic
     * Concurrency control.
 
 
-[Image: image.png] TODO:
-*     *     *     *     *     *     *     *     *     *     *     *   ***********Diagram-2: Reroute request to the node with context*
+![equi-join-approach-2](img/equi-join-approach-2.png)
+**Diagram-2: Reroute request to the node with context**
 
-**B) ****Persist Context to ES Index**: persist context to ES index and query it from any node that is serving client request.
+**B)** **Persist Context to ES Index**: persist context to ES index and query it from any node that is serving client request.
 
 * Pros: 
     * Explicit node communication logic is not required since ES query API can take care of the context lookup.
@@ -337,11 +338,12 @@ Query context contains unfinished physical plan with state in each operator whic
     * Index maintenance: ES index is not designed for frequent update so new context should be appended. It is possible that the index becomes huge without deleting old context documents in the case of large context.
 
 
-[Image: image.png] TODO:
-*     *     *     *     *     *     *     *     *     *     *     *   ***********Diagram-3: Persist context to ES index*
+![equi-join-approach-3](img/equi-join-approach-3.png)
+**Diagram-3: Persist context to ES index**
 
 
 **3.6.3.3 Context Rebuild**
+
 Instead of maintain the context, this solution focus on rebuild the context on the fly.
 Let us take an example join query
 
@@ -354,7 +356,7 @@ Let us take an example join query
 
 In the current implementation, the HashJoin scrolls both the tables block-by-block till it exhausts all the rows from both tables and passes the whole result set to the client.
 
-For cursor, instead of fetching rows exhaustively we can scroll the until we have enough rows needed by the client. There ***may*** be more rows than requested by `fetch_size`. We can pass the extra datarows to client including `fetch_size` datarows, and serialize the unfinished physical plan in cursor Id (which includes the scroll Id of both the tables).
+For cursor, instead of fetching rows exhaustively we can scroll the until we have enough rows needed by the client. There **may** be more rows than requested by `fetch_size`. We can pass the extra datarows to client including `fetch_size` datarows, and serialize the unfinished physical plan in cursor Id (which includes the scroll Id of both the tables).
 
 For subsequent request for next pages, we have all the information needed to retrieve next page as the execution plan and scroll Ids can be decode from `cursor Id`
 
@@ -370,13 +372,14 @@ Cons:
 
 
 
-* ***(A)*** is good option for cursor used by customers in the ***interactive*** way who just glance over a few pages. This will require major work to implement the transport action to communicate “context host node” with “coordinator node“.  It will also require home grown solution to clear the context by the plugin. This can be big blocker if implementation needs changes on Elasticsearch.
-* ***(3.6.3.3)*** From the point of view of SQL plugin this approach is stateless and resolves the node to node communication problem. Since the scroll context will be handled natively by Elasticsearch, contexts will cleared automatically when it timeouts or explicitly by using `clear cursor` API. This solution also aligns with the stateless solution for simple and aggregation queries.
+* *(A)* is good option for cursor used by customers in the *interactive* way who just glance over a few pages. This will require major work to implement the transport action to communicate “context host node” with “coordinator node“.  It will also require home grown solution to clear the context by the plugin. This can be big blocker if implementation needs changes on Elasticsearch.
+* *(3.6.3.3)* From the point of view of SQL plugin this approach is stateless and resolves the node to node communication problem. Since the scroll context will be handled natively by Elasticsearch, contexts will cleared automatically when it timeouts or explicitly by using `clear cursor` API. This solution also aligns with the stateless solution for simple and aggregation queries.
 
-**Based on above analysis *3.6.3.3 *is the solution to go ahead for* *JOINS*.***
+Based on above analysis *3.6.3.3* is the solution to go ahead for *JOINS*.
 
 
 **3.6.4 SUBQUERY**
+
 Right now subqueries are converted internally to simple queries or JOINS. So, if the above cases work subqueries should be handled.
 
 
@@ -384,7 +387,7 @@ Right now subqueries are converted internally to simple queries or JOINS. So, if
 
 To support additional text formats such as CSV, RAW or TABLE (*format=table*) in future, the only additional change required is to how to send the `cursor`. This can be achieved by sending the `cursor` through `Cursor` HTTP header.
 
-Right now there is inconsistency in results for `csv` and `jdbc` format. This is because CSV and JDBC result formatting have 2 parallel codebases, so fix in one wouldn't work with another and one needs to always remember to double check. Example: CSV formatter supported all aggregations (Percentile, Numeric SimpleValue, Numeric Multiple), and JDBC supported only one: Numeric SimpleValue. ***This would be another major work to cleanly support other text formats.***
+Right now there is inconsistency in results for `csv` and `jdbc` format. This is because CSV and JDBC result formatting have 2 parallel codebases, so fix in one wouldn't work with another and one needs to always remember to double check. Example: CSV formatter supported all aggregations (Percentile, Numeric SimpleValue, Numeric Multiple), and JDBC supported only one: Numeric SimpleValue. **This would be another major work to cleanly support other text formats.**
 
 **Recommendation**: The` csv` (or other formats) should use results of JDBC formatter and do simple transformation of results. The logic, that is currently not presented in JDBC formatter must be brought there.
 
@@ -395,9 +398,11 @@ Right now there is inconsistency in results for `csv` and `jdbc` format. This is
 
 **4.1.1 First page request:**
 
-[Image: CursorInitialRequestFlow.jpg] TODO:
-**4.1.2 Subsequent page request and last page request **
+![cursor-initial-request-flow](img/cursor-initial-request-flow.jpg)
 
-[Image: CursorISubsequentRequestFlow.png] TODO:
+
+**4.1.2 Subsequent page request and last page request**
+
+![cursor-subsequent-request-flow](img/cursor-subsequent-request-flow.png)
 
 
