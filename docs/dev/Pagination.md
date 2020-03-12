@@ -38,13 +38,17 @@ Based on the use cases, the following capabilities are required:
     * *SELECT* : Already  supported but in the hint manner which mixed long cursor ID with same query itself for each following fetch after the first one.  
 * Format type: We will consider **format for JDBC driver** only for now as it used by both JDBC and ODBC driver. It is also used by SQL CLI. 
 * JDBC support for cursor
+* ODBC support for cursor 
 
 **Phase II:**
 
 * *SELECT* with GROUP BY (aggregation query) 
+
+**Phase III:**
+
 * *EQUI-JOINS*: Since we only have query plan framework (unfinished physical plan) for equi-joins, we will be supporting this.
 * Support for text based formats such as CSV , RAW (pipe separated).
-* ODBC support for cursor 
+
 
 **Out of Scope:**
 
