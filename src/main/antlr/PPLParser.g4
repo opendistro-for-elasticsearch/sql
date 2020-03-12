@@ -37,7 +37,7 @@ pplStatement
     ;
 
 commands
-    : fieldsCommand | statsCommand
+    : fieldsCommand | statsCommand | topCommand
     ;
 
 searchCommands
@@ -63,7 +63,7 @@ searchCommand
     ;
 
 statsCommand
-    : STATS statsAggTerm+ byClause*
+    : STATS statsAggTerm+ byClause?
     ;
 
 statsAggTerm

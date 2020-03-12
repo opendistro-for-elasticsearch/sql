@@ -81,6 +81,13 @@ public class Analyzer implements LogicalPlanVisitor {
     }
 
     @Override
+    public LogicalPlan visitTop(Top node) {
+        node.setFieldExprs(node.getFieldExprs().stream().map(expressionAnalyzer::visit).collect(Collectors.toList()));
+        node.setGroupExprs(node.getGroupExprs().stream().map(expressionAnalyzer::visit).collect(Collectors.toList()));
+        return node;
+    }
+
+    @Override
     public LogicalPlan visitRelation(Relation node) {
         defineIndex(node.getTableName());
         loadAllFieldsWith(node.getTableName());

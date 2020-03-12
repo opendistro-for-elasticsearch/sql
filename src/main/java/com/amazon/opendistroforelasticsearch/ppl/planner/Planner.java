@@ -42,6 +42,9 @@ public class Planner {
         if (inputLogicalPlan instanceof Aggregation) {
             Aggregation agg = (Aggregation) inputLogicalPlan;
             aggBuilder = agg.compile();
+        } else if (inputLogicalPlan instanceof Top) {
+            Top agg = (Top) inputLogicalPlan;
+            aggBuilder = agg.compile();
         } else {
             logicalPlan = inputLogicalPlan;
         }

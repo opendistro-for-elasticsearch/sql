@@ -21,6 +21,7 @@ import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.intLiteral
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.project;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.relation;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.stringLiteral;
+import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.top;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -67,6 +68,22 @@ public class PlannerTest {
                         and(equalTo(attr("a"), intLiteral(1)), equalTo(attr("b"), stringLiteral("value")))
                 ),
                 Arrays.asList(new AttributeReference("a")), Arrays.asList(count(new AttributeReference("b")))
+        ));
+
+        assertEquals("{\"from\":0,\"size\":10,\"timeout\":\"30s\",\"query\":{\"term\":{\"a\":{\"value\":1,\"boost\":1" +
+                     ".0}}},\"_source\":{\"includes\":[\"a\",\"b\"],\"excludes\":[]}}", plan.toString());
+    }
+
+    @Test
+    public void testTop() {
+        Planner planner = new Planner(client);
+        PhysicalOperator<BindingTuple> plan = planner.plan(top(
+                filter(
+                        relation("t"),
+                        and(equalTo(attr("a"), intLiteral(1)), equalTo(attr("b"), stringLiteral("value")))
+                ),
+                intLiteral(1),
+                Arrays.asList(new AttributeReference("a")), Arrays.asList(new AttributeReference("b"))
         ));
 
         assertEquals("{\"from\":0,\"size\":10,\"timeout\":\"30s\",\"query\":{\"term\":{\"a\":{\"value\":1,\"boost\":1" +

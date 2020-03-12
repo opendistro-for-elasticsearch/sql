@@ -26,6 +26,7 @@ import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.filter;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.project;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.relation;
+import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.top;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.unresolvedAttr;
 import static com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents.mockLocalClusterState;
 import static org.junit.Assert.assertEquals;
@@ -92,6 +93,30 @@ public class AnalyzerTest {
                         ),
                         Arrays.asList(attr("age")),
                         Arrays.asList(count(attr("balance")))
+                )
+        );
+    }
+
+    @Test
+    public void testTopCommand() {
+        assertEqual(
+                top(
+                        filter(
+                                relation("semantics"),
+                                equalTo(unresolvedAttr("age"), intLiteral(1))
+                        ),
+                        intLiteral(1),
+                        Arrays.asList(unresolvedAttr("age")),
+                        Arrays.asList(unresolvedAttr("balance"))
+                ),
+                top(
+                        filter(
+                                relation("semantics"),
+                                equalTo(attr("age"), intLiteral(1))
+                        ),
+                        intLiteral(1),
+                        Arrays.asList(attr("age")),
+                        Arrays.asList(attr("balance"))
                 )
         );
     }

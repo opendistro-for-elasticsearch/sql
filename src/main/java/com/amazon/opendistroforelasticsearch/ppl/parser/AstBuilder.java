@@ -54,11 +54,6 @@ public class AstBuilder extends PPLParserBaseVisitor<LogicalPlan> {
     }
 
     @Override
-    public LogicalPlan visitFieldsCommand(PPLParser.FieldsCommandContext ctx) {
-        return visitFieldList(ctx.fieldList());
-    }
-
-    @Override
     public LogicalPlan visitSearchWithoutFilter(PPLParser.SearchWithoutFilterContext ctx) {
         return visitFromClause(ctx.fromClause());
     }
@@ -80,15 +75,19 @@ public class AstBuilder extends PPLParserBaseVisitor<LogicalPlan> {
 
     @Override
     public LogicalPlan visitTopCommand(PPLParser.TopCommandContext ctx) {
-        return new Top(visitFieldList(ctx.fieldList()))
-                .byClause(visitExpression(ctx.byClause().fieldList()))
-                .count((Literal) visitExpression(ctx.count));
+        List<Expression> fieldList =
+                ctx.fieldList().fieldExpression().stream().map(this::visitExpression).collect(Collectors.toList());
+        List<Expression> groupList = ctx.byClause().fieldList().fieldExpression().stream().map(this::visitExpression)
+                .collect(Collectors.toList());
+
+        return new Top((Literal) visitExpression(ctx.count), fieldList, groupList);
     }
 
     @Override
     public LogicalPlan visitStatsCommand(PPLParser.StatsCommandContext ctx) {
         List<Expression> aggList = ctx.statsAggTerm().stream().map(this::visitExpression).collect(Collectors.toList());
-        List<Expression> groupList = ctx.byClause().stream().map(this::visitExpression).collect(Collectors.toList());
+        List<Expression> groupList = ctx.byClause().fieldList().fieldExpression().stream().map(this::visitExpression)
+                .collect(Collectors.toList());
         return new Aggregation(aggList, groupList);
     }
 

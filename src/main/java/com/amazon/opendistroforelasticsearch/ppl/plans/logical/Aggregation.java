@@ -28,6 +28,7 @@ import org.elasticsearch.search.aggregations.bucket.composite.CompositeValuesSou
 import org.elasticsearch.search.aggregations.bucket.composite.TermsValuesSourceBuilder;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Getter
@@ -53,31 +54,19 @@ public class Aggregation extends LogicalPlan {
     }
 
     public AggregationBuilder compile() {
-        List<CompositeValuesSourceBuilder<?>> groupList = groupExprs.stream()
-                .map(expr -> new GroupTermVisitor().visit(expr)).collect(Collectors.toList());
-        AggregationBuilder groupBy = AggregationBuilders
-                .composite("groupBy", groupList);
+        Optional<AggregationBuilder> groupBy = groupExprs.stream()
+                .map(expr -> new GroupTermVisitor().visit(expr))
+                .reduce((agg1, agg2) -> agg1.subAggregation(agg2));
+
         return aggExprs.stream()
                 .map(expr -> new AggTermVisitor().visit(expr))
-                .reduce(groupBy, (agg1, agg2) -> agg1.subAggregation(agg2));
+                .reduce(groupBy.get(), (agg1, agg2) -> agg1.subAggregation(agg2));
     }
 
-    private static class GroupTermVisitor extends AbstractExprVisitor<CompositeValuesSourceBuilder<?>> {
+    private class GroupTermVisitor extends AbstractExprVisitor<AggregationBuilder> {
         @Override
-        public CompositeValuesSourceBuilder<?> visitAttributeReference(AttributeReference node) {
-            return new TermsValuesSourceBuilder(node.getAttr()).field(node.getAttr());
-        }
-
-        /**
-         * Simply return non-default value for now
-         */
-        @Override
-        public CompositeValuesSourceBuilder<?> aggregateResult(CompositeValuesSourceBuilder<?> aggregate,
-                                                                  CompositeValuesSourceBuilder<?> nextResult) {
-            if (nextResult != defaultResult()) {
-                return nextResult;
-            }
-            return aggregate;
+        public AggregationBuilder visitAttributeReference(AttributeReference node) {
+            return AggregationBuilders.terms(node.getAttr()).field(node.getAttr());
         }
     }
 

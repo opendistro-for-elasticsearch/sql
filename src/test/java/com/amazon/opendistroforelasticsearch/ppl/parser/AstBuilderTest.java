@@ -16,6 +16,7 @@ import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.or;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.project;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.relation;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.stringLiteral;
+import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.top;
 import static com.amazon.opendistroforelasticsearch.ppl.plans.dsl.DSL.unresolvedAttr;
 import static org.junit.Assert.assertEquals;
 
@@ -100,6 +101,21 @@ public class AstBuilderTest {
                             ),
                             Arrays.asList(unresolvedAttr("b")),
                             Arrays.asList(count(unresolvedAttr("a")))
+                    )
+        );
+    }
+
+    @Test
+    public void testTop() {
+        assertEqual("search source=t a=1 | top 1 a by b",
+                    top(
+                            filter(
+                                    relation("t"),
+                                    equalTo(unresolvedAttr("a"), intLiteral(1))
+                            ),
+                            intLiteral(1),
+                            Arrays.asList(unresolvedAttr("b")),
+                            Arrays.asList(unresolvedAttr("a"))
                     )
         );
     }

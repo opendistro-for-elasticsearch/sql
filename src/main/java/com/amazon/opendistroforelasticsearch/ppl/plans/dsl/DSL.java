@@ -30,6 +30,7 @@ import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Filter;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Project;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Relation;
+import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Top;
 
 import java.util.Arrays;
 import java.util.List;
@@ -51,6 +52,11 @@ public class DSL {
         return new Aggregation(aggList, groupList).withInput(input);
     }
 
+    public static LogicalPlan top(LogicalPlan input, Literal count, List<Expression> groupList,
+                                  List<Expression> aggList) {
+        return new Top(count, aggList, groupList).withInput(input);
+    }
+
     public static Expression equalTo(Expression left, Expression right) {
         return new EqualTo(left, right);
     }
@@ -63,7 +69,7 @@ public class DSL {
         return new AttributeReference(attr);
     }
 
-    public static Expression intLiteral(Integer literal) {
+    public static Literal intLiteral(Integer literal) {
         return new Literal(literal, DataType.INTEGER);
     }
 
@@ -82,4 +88,6 @@ public class DSL {
     public static Expression count(Expression e1) {
         return new AggCount(e1);
     }
+
+
 }
