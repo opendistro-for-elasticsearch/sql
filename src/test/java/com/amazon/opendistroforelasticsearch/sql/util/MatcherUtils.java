@@ -34,9 +34,9 @@ import java.util.function.Function;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
-import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyArray;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasItems;
 import static org.junit.Assert.assertEquals;
@@ -146,6 +146,17 @@ public class MatcherUtils {
         array.iterator().forEachRemaining(o -> objects.add((T) o));
         assertEquals(matchers.length, objects.size());
         assertThat(objects, containsInAnyOrder(matchers));
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> void verifySome(JSONArray array, Matcher<T>... matchers) {
+        List<T> objects = new ArrayList<>();
+        array.iterator().forEachRemaining(o -> objects.add((T) o));
+
+        assertThat(matchers.length, greaterThan(0));
+        for (Matcher<T> matcher : matchers) {
+            assertThat(objects, hasItems(matcher));
+        }
     }
 
     public static TypeSafeMatcher<JSONObject> schema(String expectedName, String expectedAlias, String expectedType) {
