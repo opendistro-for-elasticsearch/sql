@@ -312,9 +312,9 @@ Query context contains unfinished physical plan with state in each operator whic
 
 One option is to try to connect to the same node with query plan all the time. However, it seems that either **Load balancer Session Sticky** or **Keep-Alive HTTP Connection** requires setup on load balancer side.
 
-* Pros:
+* **Pros:**:
     * Easy: to implement and understand because query plan execution is identical as before.
-* Cons:
+* **Cons:**:
     * Dependency: on configuration of load balancer.
     * Workload skew: because of no load balance any more.
 
@@ -329,9 +329,9 @@ In the case that requests dispatched to different nodes is inevitable, context l
 
 **A) Reroute to Node with Context Inside ES**: route the request to stateful node with the context, fetch result set and return to client side:
 
-* Pros:
+* **Pros:**
     * Lightweight: only 1 node maintains the context with small footprint in memory.
-* Cons: 
+* **Cons:**
     * One more hop: to pass the result from stateful node to “coordinator” node.
     * Workload skew.
     * Concurrency control.
@@ -345,10 +345,10 @@ _*Diagram-2: Reroute request to the node with context*_
 
 Persist context to ES index and query it from any node that is serving client request.
 
-* Pros: 
+* **Pros:**
     * Explicit node communication logic is not required since ES query API can take care of the context lookup.
     *  In the event of loss of node the context is not lost, as index will be replicated by ES.
-* Cons: 
+* **Cons:**
     * Extra overhead: of (de-)serialization and network communication incurred by ES query.
     * Index maintenance: ES index is not designed for frequent update so new context should be appended. It is possible that the index becomes huge without deleting old context documents in the case of large context.
 
@@ -376,13 +376,13 @@ For cursor, instead of fetching rows exhaustively we can scroll the until we hav
 
 For subsequent request for next pages, we have all the information needed to retrieve next page as the execution plan and scroll Ids can be decode from `cursor Id`
 
-Pros:
+**Pros:**
 
 * Stateless implementation.
 * Fixed Space Complexity.
 * No need to maintain the context.
 
-Cons:
+**Cons:**
 
 * We will be sending extra datarows to the client than initially requested by the client using fetch_size but this can be handled transparently by the JDBC driver which is our major use case.
 
@@ -422,3 +422,125 @@ Right now there is inconsistency in results for `csv` and `jdbc` format. This is
 ![cursor-subsequent-request-flow](img/cursor-subsequent-request-flow.png)
 
 
+### 4.2 Settings:
+When Elasticsearch bootstraps, SQL plugin will register a few settings in Elasticsearch cluster settings.
+Most of the settings are able to change dynamically so you can control the behavior of SQL plugin without need to bounce your cluster.
+For cursors we will be exposing the following settings:
+
+####  opendistro.sql.cursor.enabled
+
+You can disable cursor for all SQL queries which support pagination.
+
+The default value is **true**.
+This setting is node scope.
+This setting can be updated dynamically.
+This can be `persistent` and `transient`.
+
+Example:
+
+```
+>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_cluster/settings -d '{
+  "transient" : {
+    "opendistro.sql.cursor.enabled" : "false"
+  }
+}'
+```
+
+Response:
+
+```
+{
+  "acknowledged" : true,
+  "persistent" : { },
+  "transient" : {
+    "opendistro" : {
+      "sql" : {
+        "cursor" : {
+          "enabled" : "false"
+        }
+      }
+    }
+  }
+}
+
+```
+
+####  opendistro.sql.cursor.fetch_size
+
+This setting controls the default page size for all cursor requests.
+
+The default value is **1000**.
+The minimum value is **1**.
+The effective max value is controlled by `index.max_result_window` setting. Increase the fetch_size above this will give a 500 error from teh backend.
+This setting is node scope.
+This setting can be updated dynamically.
+This can be `persistent` and `transient`.
+
+Example:
+
+```
+>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_cluster/settings -d '{
+  "persistent" : {
+    "opendistro.sql.cursor.fetch_size" : "100"
+  }
+}'
+```
+
+Response:
+
+```
+{
+  "acknowledged" : true,
+  "transient" : { },
+  "persistent" : {
+    "opendistro" : {
+      "sql" : {
+        "cursor" : {
+          "fetch_size" : "100"
+        }
+      }
+    }
+  }
+}
+
+```
+
+####  opendistro.sql.cursor.keep_alive
+
+This setting controls the how long the cursor context is open for all cursor requests.
+You can five the time in human readable time format like `5h` (5 hours) or `20s` (20 seconds) etc.
+
+The default value is **1m**.
+This setting is node scope.
+This setting can be updated dynamically.
+This can be `persistent` and `transient`.
+
+Example:
+
+```
+>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_cluster/settings -d '{
+  "transient" : {
+    "opendistro.sql.cursor.keep_alive" : "200s"
+  }
+}'
+```
+
+Response:
+
+```
+{
+  "acknowledged" : true,
+  "persistent" : { },
+  "transient" : {
+    "opendistro" : {
+      "sql" : {
+        "cursor" : {
+          "keep_alive" : "200s"
+        }
+      }
+    }
+  }
+}
+
+
+```
