@@ -154,6 +154,7 @@ public class RestSqlAction extends BaseRestHandler {
         final QueryAction queryAction = new SearchDao(client)
                 .explain(new QueryActionRequest(sqlRequest.getSql(), typeProvider, format));
         queryAction.setSqlRequest(sqlRequest);
+        queryAction.setFormat(format);
         queryAction.setColumnTypeProvider(typeProvider);
         return queryAction;
     }

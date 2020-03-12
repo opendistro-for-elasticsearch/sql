@@ -50,7 +50,7 @@ public class Select extends Query {
     private Having having;
     private List<Order> orderBys = new ArrayList<>();
     private int offset;
-    private int rowCount = 200;
+    private Integer rowCount;
     private boolean containsSubQueries;
     private List<SubQueryExpression> subQueries;
     private boolean selectAll = false;
@@ -58,6 +58,8 @@ public class Select extends Query {
 
     public boolean isQuery = false;
     public boolean isAggregate = false;
+
+    public static final int DEFAULT_LIMIT = 200;
 
     public Select() {
     }
@@ -70,7 +72,7 @@ public class Select extends Query {
         this.offset = offset;
     }
 
-    public void setRowCount(int rowCount) {
+    public void setRowCount(Integer rowCount) {
         this.rowCount = rowCount;
     }
 
@@ -106,7 +108,7 @@ public class Select extends Query {
         return offset;
     }
 
-    public int getRowCount() {
+    public Integer getRowCount() {
         return rowCount;
     }
 

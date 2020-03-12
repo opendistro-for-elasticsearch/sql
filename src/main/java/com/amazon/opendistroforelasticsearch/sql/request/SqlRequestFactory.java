@@ -68,7 +68,7 @@ public class SqlRequestFactory {
             throw new IllegalArgumentException("Failed to parse request payload", e);
         }
         String sql = jsonContent.getString(SQL_FIELD_NAME);
-        
+
         if (jsonContent.has(PARAM_FIELD_NAME)) { // is a PreparedStatement
             JSONArray paramArray = jsonContent.getJSONArray(PARAM_FIELD_NAME);
             List<PreparedStatementRequest.PreparedStatementParameter> parameters = parseParameters(paramArray);
