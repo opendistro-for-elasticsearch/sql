@@ -28,9 +28,11 @@ public class SqlRequestFactory {
     private static final String SQL_URL_PARAM_KEY = "sql";
     private static final String SQL_FIELD_NAME = "query";
     private static final String PARAM_FIELD_NAME = "parameters";
-
     private static final String PARAM_TYPE_FIELD_NAME = "type";
     private static final String PARAM_VALUE_FIELD_NAME = "value";
+
+    public static final String SQL_CURSOR_FIELD_NAME = "cursor";
+    public static final String SQL_FETCH_FIELD_NAME = "fetch_size";
 
     public static SqlRequest getSqlRequest(RestRequest request) {
         switch (request.method()) {
@@ -63,12 +65,28 @@ public class SqlRequestFactory {
             throw new IllegalArgumentException("Failed to parse request payload", e);
         }
         String sql = jsonContent.getString(SQL_FIELD_NAME);
+        validateFetchSize(jsonContent);
+
         if (jsonContent.has(PARAM_FIELD_NAME)) { // is a PreparedStatement
             JSONArray paramArray = jsonContent.getJSONArray(PARAM_FIELD_NAME);
             List<PreparedStatementRequest.PreparedStatementParameter> parameters = parseParameters(paramArray);
             return new PreparedStatementRequest(sql, jsonContent, parameters);
         }
         return new SqlRequest(sql, jsonContent);
+    }
+
+
+    private static void validateFetchSize(JSONObject jsonContent) {
+        try {
+            if (jsonContent.has(SQL_FETCH_FIELD_NAME)) {
+                int fetch_size = jsonContent.getInt(SQL_FETCH_FIELD_NAME);
+                if (fetch_size < 0) {
+                    throw new IllegalArgumentException("Fetch_size must be greater or equal to 0");
+                }
+            }
+        } catch (JSONException e) {
+            throw new IllegalArgumentException("Failed to parse field [" + SQL_FETCH_FIELD_NAME +"]", e);
+        }
     }
 
     private static List<PreparedStatementRequest.PreparedStatementParameter> parseParameters(

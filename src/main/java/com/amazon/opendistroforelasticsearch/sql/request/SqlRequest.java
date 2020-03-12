@@ -57,6 +57,14 @@ public class SqlRequest {
         return this.sql;
     }
 
+    public String cursor() {
+        return (jsonContent == null) ? null : jsonContent.getString(SqlRequestFactory.SQL_CURSOR_FIELD_NAME);
+    }
+
+    public Integer fetchSize() {
+        return (jsonContent == null) ? null : jsonContent.getInt(SqlRequestFactory.SQL_FETCH_FIELD_NAME);
+    }
+
     public JSONObject getJsonContent() {
         return this.jsonContent;
     }
