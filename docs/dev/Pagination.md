@@ -431,10 +431,10 @@ For cursors we will be exposing the following settings:
 
 You can disable cursor for all SQL queries which support pagination.
 
-The default value is **true**.
-This setting is node scope.
-This setting can be updated dynamically.
-This can be `persistent` and `transient`.
+- The default value is **true**.
+- This setting is node scope.
+- This setting can be updated dynamically.
+- This can be `persistent` and `transient`.
 
 Example:
 
@@ -469,12 +469,12 @@ Response:
 
 This setting controls the default page size for all cursor requests.
 
-The default value is **1000**.
-The minimum value is **1**.
-The effective max value is controlled by `index.max_result_window` setting. Increase the fetch_size above this will give a 500 error from teh backend.
-This setting is node scope.
-This setting can be updated dynamically.
-This can be `persistent` and `transient`.
+- The default value is **1000**.
+- The minimum value is **1**.
+- The effective max value is controlled by `index.max_result_window` setting. Increase the fetch_size above this will give a 500 error from teh backend.
+- This setting is node scope.
+- This setting can be updated dynamically.
+- This can be `persistent` and `transient`.
 
 Example:
 
@@ -510,10 +510,10 @@ Response:
 This setting controls the how long the cursor context is open for all cursor requests.
 You can five the time in human readable time format like `5h` (5 hours) or `20s` (20 seconds) etc.
 
-The default value is **1m**.
-This setting is node scope.
-This setting can be updated dynamically.
-This can be `persistent` and `transient`.
+- The default value is **1m**.
+- This setting is node scope.
+- This setting can be updated dynamically.
+- This can be `persistent` and `transient`.
 
 Example:
 
