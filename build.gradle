@@ -55,7 +55,7 @@ repositories {
 }
 
 ext {
-    opendistroVersion = '1.5.0'
+    opendistroVersion = '1.6.0'
     isSnapshot = "true" == System.getProperty("build.snapshot", "true")
 }
 

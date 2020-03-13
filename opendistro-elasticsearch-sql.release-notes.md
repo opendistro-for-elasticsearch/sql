@@ -1,4 +1,5 @@
-## 2020-03-09 Version 1.5.0.0 (Current)
+## 2020-03-10 Version 1.6.0.0 (Current)
+
 ### Features
 #### Elasticsearch Compatibility
 * Feature [#376](https://github.com/opendistro-for-elasticsearch/sql/issues/376): Elasticsearch 7.6.1 compatibility

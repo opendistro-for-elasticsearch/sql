@@ -96,6 +96,6 @@ task dumpCoverage {
 
 project.gradle.projectsEvaluated {
     integTest.runner.finalizedBy dumpCoverage
-    tasks['integTest.runner#stop'].dependsOn dumpCoverage
+//    tasks['integTest.runner#stop'].dependsOn dumpCoverage
     jacocoTestReport.dependsOn dumpCoverage
 }
