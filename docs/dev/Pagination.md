@@ -421,8 +421,20 @@ Right now there is inconsistency in results for `csv` and `jdbc` format. This is
 
 ![cursor-subsequent-request-flow](img/cursor-subsequent-request-flow.png)
 
+### 4.2 Salient Points:
 
-### 4.2 Settings:
+- By default all requests will be a cursor request - meaning the response will contain `cursor` key to fetch next page of result. This is true for all queries which cursor is supported.
+- Cursor is supported only via `POST` HTTP request.
+- If `fetch_size` is omitted from request, it will default to **1000**, unless overridden by cluster settings (See below).
+- A `fetch_size` value of **0**, will imply no cursor and query will fallback to non-cursor behavior. This will allow to use/not-use cursor on a per query basis.
+- If SQL query limit is less than `fetch_size`, no cursor context will be open and all results will be fetched in first page.
+- Negative or non-numeric values of `fetch_size` will throw `400` exception.
+- If `cursor` is given as JSON field in request, other fields like `fetch_size` , `query`, `filter`, `parameters` will be ignored. 
+- Like Elasticsearch’s scroll, SQL plugin may keep state in Elasticsearch to support the cursor. Unlike scroll, receiving the last page is enough to guarantee that the Elasticsearch state is cleared.
+- Multiple invocations of clearing the cursor, will succeed.
+- Using the cursor after context is expired will throw error.
+
+### 4.3 Settings:
 When Elasticsearch bootstraps, SQL plugin will register a few settings in Elasticsearch cluster settings.
 Most of the settings are able to change dynamically so you can control the behavior of SQL plugin without need to bounce your cluster.
 For cursors we will be exposing the following settings:
