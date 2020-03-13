@@ -55,7 +55,7 @@ public class SQLAggregationParser {
     @Getter
     private List<ColumnNode> columnNodes = new ArrayList<>();
 
-    public void parse(MySqlSelectQueryBlock queryBlock) {
+    public void parse(MySqlSelectQueryBlock queryBlock, List<String> selectMethodNames) {
         context = new Context(constructSQLExprAliasMapFromSelect(queryBlock));
 
         //2. find all GroupKeyExpr from GroupBy expression.
@@ -63,7 +63,7 @@ public class SQLAggregationParser {
         findAllAggregationExprFromSelect(queryBlock);
 
         //3. parse the select list to expression
-        parseExprInSelectList(queryBlock, new SQLExprToExpressionConverter(context));
+        parseExprInSelectList(queryBlock, selectMethodNames, new SQLExprToExpressionConverter(context));
     }
 
     public List<SQLSelectItem> selectItemList() {
@@ -149,12 +149,14 @@ public class SQLAggregationParser {
         }));
     }
 
-    private void parseExprInSelectList(MySqlSelectQueryBlock queryBlock, SQLExprToExpressionConverter exprConverter) {
+    private void parseExprInSelectList(
+            MySqlSelectQueryBlock queryBlock, List<String> selectMethodNames,
+            SQLExprToExpressionConverter exprConverter) {
         List<SQLSelectItem> selectItems = queryBlock.getSelectList();
         for (int i = 0; i < selectItems.size(); i++) {
             Expression expression = exprConverter.convert(selectItems.get(i).getExpr());
             ColumnNode columnNode = ColumnNode.builder()
-                    .name(nameOfSelectItem(selectItems.get(i)))
+                    .name(nameOfSelectItem(selectItems.get(i), selectMethodNames.get(i)))
                     .alias(selectItems.get(i).getAlias())
                     .type(columnTypeProvider.get(i))
                     .expr(expression)
@@ -163,9 +165,9 @@ public class SQLAggregationParser {
         }
     }
 
-    private String nameOfSelectItem(SQLSelectItem selectItem) {
+    private String nameOfSelectItem(SQLSelectItem selectItem, String selectMethodName) {
         return Strings.isNullOrEmpty(selectItem.getAlias()) ? Context
-                .nameOfExpr(selectItem.getExpr()) : selectItem.getAlias();
+                .nameOfExpr(selectItem.getExpr(), selectMethodName) : selectItem.getAlias();
     }
 
     @RequiredArgsConstructor
@@ -208,7 +210,7 @@ public class SQLAggregationParser {
 
             public GroupKeyExpr(SQLExpr expr) {
                 this.expr = expr;
-                String exprName = nameOfExpr(expr).replace(".", "#");
+                String exprName = nameOfExpr(expr, null).replace(".", "#");
                 if (expr instanceof SQLIdentifierExpr
                     && selectSQLExprAliasMap.values().contains(((SQLIdentifierExpr) expr).getName())) {
                     exprName = ((SQLIdentifierExpr) expr).getName();
@@ -230,14 +232,16 @@ public class SQLAggregationParser {
             }
         }
 
-        public static String nameOfExpr(SQLExpr expr) {
+        public static String nameOfExpr(SQLExpr expr, String selectMethodName) {
             String exprName = expr.toString().toLowerCase();
             if (expr instanceof SQLAggregateExpr) {
                 exprName = String.format("%s(%s)", ((SQLAggregateExpr) expr).getMethodName(),
                                          ((SQLAggregateExpr) expr).getArguments().get(0));
             } else if (expr instanceof SQLMethodInvokeExpr) {
-                exprName = String.format("%s(%s)", ((SQLMethodInvokeExpr) expr).getMethodName(),
-                                         nameOfExpr(((SQLMethodInvokeExpr) expr).getParameters().get(0)));
+                String funcName = (
+                        selectMethodName == null ? ((SQLMethodInvokeExpr) expr).getMethodName() : selectMethodName);
+                exprName = String.format("%s(%s)", funcName,
+                        nameOfExpr(((SQLMethodInvokeExpr) expr).getParameters().get(0), null));
             } else if (expr instanceof SQLIdentifierExpr) {
                 exprName = ((SQLIdentifierExpr) expr).getName();
             } else if (expr instanceof SQLCastExpr) {

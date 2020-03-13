@@ -15,7 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.query.planner.converter;
 
+import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
+import com.alibaba.druid.sql.ast.statement.SQLSelectItem;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
 import com.amazon.opendistroforelasticsearch.sql.domain.ColumnTypeProvider;
@@ -33,6 +35,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.Client;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -54,11 +57,14 @@ public class SQLToOperatorConverter extends MySqlASTVisitorAdapter {
 
     @Override
     public boolean visit(MySqlSelectQueryBlock query) {
+        //1. extract function names in select
+        List<String> selectMethodNames = extractSelectFunctionNames(query.getSelectList());
+
         //1. rewrite all the function name to lower case.
         rewriteFunctionNameToLowerCase(query);
 
         //2. parse the aggregation
-        aggregationParser.parse(query);
+        aggregationParser.parse(query, selectMethodNames);
 
 
         //3. construct the PhysicalOperator
@@ -74,6 +80,19 @@ public class SQLToOperatorConverter extends MySqlASTVisitorAdapter {
      */
     public List<ColumnNode> getColumnNodes() {
         return aggregationParser.getColumnNodes();
+    }
+
+    public List<String> extractSelectFunctionNames(List<SQLSelectItem> selectItems) {
+        List<String> methodNames = new ArrayList<>();
+        for (SQLSelectItem selectItem: selectItems){
+            SQLExpr selectItemExpr = selectItem.getExpr();
+            if (selectItemExpr instanceof SQLMethodInvokeExpr) {
+                methodNames.add(((SQLMethodInvokeExpr) selectItemExpr).getMethodName());
+            } else {
+                methodNames.add(null);
+            }
+        }
+        return methodNames;
     }
 
     private void rewriteFunctionNameToLowerCase(MySqlSelectQueryBlock query) {
