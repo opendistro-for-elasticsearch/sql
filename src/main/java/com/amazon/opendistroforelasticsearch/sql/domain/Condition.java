@@ -152,7 +152,8 @@ public class Condition extends Where {
             OPERATOR negative = negatives.get(this);
             negative = negative != null ? negative : negatives.inverse().get(this);
             if (negative == null) {
-                throw new SemanticAnalysisException(StringUtils.format("Negative operator [%s] is not supported.", this.name()));
+                throw new SemanticAnalysisException(StringUtils.format("Negative operator [%s] is not supported.",
+                        this.name()));
             }
             return negative;
         }
@@ -161,7 +162,8 @@ public class Condition extends Where {
             OPERATOR reverse = simpleReverses.get(this);
             reverse = reverse != null ? reverse : simpleReverses.inverse().get(this);
             if (reverse == null) {
-                throw new SemanticAnalysisException(StringUtils.format("Simple reverse operator [%s] is not supported.", this.name()));
+                throw new SemanticAnalysisException(StringUtils.format("Simple reverse operator [%s] is not supported.",
+                        this.name()));
             }
             return reverse;
         }

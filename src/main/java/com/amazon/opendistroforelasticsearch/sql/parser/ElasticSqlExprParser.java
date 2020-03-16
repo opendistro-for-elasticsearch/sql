@@ -621,8 +621,8 @@ public class ElasticSqlExprParser extends SQLExprParser {
         }
 
         if (lexer.token() == Token.ERROR) {
-            throw new SyntaxAnalysisException("Syntax error, token: " + lexer.token() + " " + lexer.stringVal() + ", pos: "
-                    + lexer.pos());
+            throw new SyntaxAnalysisException("Syntax error, token: " + lexer.token() + " " + lexer.stringVal()
+                    + ", pos: " + lexer.pos());
         }
 
         /**

@@ -54,8 +54,8 @@ public class NestedType {
 
         List<SQLExpr> parameters = method.getParameters();
         if (parameters.size() != 2 && parameters.size() != 1) {
-            throw new SemanticAnalysisException("on nested object only allowed 2 parameters (field,path)/(path,conditions..) "
-                    + "or 1 parameter (field) ");
+            throw new SemanticAnalysisException("on nested object only allowed 2 parameters " +
+                    "(field,path)/(path,conditions..) or 1 parameter (field) ");
         }
 
         String field = Util.extendedToString(parameters.get(0));
