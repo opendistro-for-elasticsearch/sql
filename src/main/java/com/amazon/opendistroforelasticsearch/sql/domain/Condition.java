@@ -16,6 +16,8 @@
 package com.amazon.opendistroforelasticsearch.sql.domain;
 
 import com.alibaba.druid.sql.ast.SQLExpr;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.SemanticAnalysisException;
+import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.SyntaxAnalysisException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.parser.ChildrenType;
 import com.amazon.opendistroforelasticsearch.sql.parser.NestedType;
@@ -34,7 +36,7 @@ import java.util.Map;
  */
 public class Condition extends Where {
 
-    public enum OPEAR {
+    public enum OPERATOR {
 
         EQ,
         GT,
@@ -65,15 +67,15 @@ public class Condition extends Where {
         NIN_TERMS,
         NTERM;
 
-        public static Map<String, OPEAR> methodNameToOpear;
+        public static Map<String, OPERATOR> methodNameToOpear;
 
-        public static Map<String, OPEAR> operStringToOpear;
+        public static Map<String, OPERATOR> operStringToOpear;
 
-        public static Map<String, OPEAR> simpleOperStringToOpear;
+        public static Map<String, OPERATOR> simpleOperStringToOpear;
 
-        private static BiMap<OPEAR, OPEAR> negatives;
+        private static BiMap<OPERATOR, OPERATOR> negatives;
 
-        private static BiMap<OPEAR, OPEAR> simpleReverses;
+        private static BiMap<OPERATOR, OPERATOR> simpleReverses;
 
         static {
             methodNameToOpear = new HashMap<>();
@@ -146,20 +148,20 @@ public class Condition extends Where {
             simpleReverses.put(N, N);
         }
 
-        public OPEAR negative() throws SqlParseException {
-            OPEAR negative = negatives.get(this);
+        public OPERATOR negative() {
+            OPERATOR negative = negatives.get(this);
             negative = negative != null ? negative : negatives.inverse().get(this);
             if (negative == null) {
-                throw new SqlParseException("OPEAR negative not supported: " + this);
+                throw new SemanticAnalysisException(StringUtils.format("Negative operator [%s] is not supported.", this.name()));
             }
             return negative;
         }
 
-        public OPEAR simpleReverse() throws SqlParseException {
-            OPEAR reverse = simpleReverses.get(this);
+        public OPERATOR simpleReverse() {
+            OPERATOR reverse = simpleReverses.get(this);
             reverse = reverse != null ? reverse : simpleReverses.inverse().get(this);
             if (reverse == null) {
-                throw new SqlParseException("OPEAR simple negative not supported: " + this);
+                throw new SemanticAnalysisException(StringUtils.format("Simple reverse operator [%s] is not supported.", this.name()));
             }
             return reverse;
         }
@@ -185,7 +187,7 @@ public class Condition extends Where {
 
     private SQLExpr valueExpr;
 
-    private OPEAR opear;
+    private OPERATOR OPERATOR;
 
     private Object relationshipType;
 
@@ -200,7 +202,7 @@ public class Condition extends Where {
         this(conn, field, nameExpr, condition, obj, valueExpr, null);
     }
 
-    public Condition(CONN conn, String field, SQLExpr nameExpr, OPEAR condition, Object obj, SQLExpr valueExpr)
+    public Condition(CONN conn, String field, SQLExpr nameExpr, OPERATOR condition, Object obj, SQLExpr valueExpr)
             throws SqlParseException {
         this(conn, field, nameExpr, condition, obj, valueExpr, null);
     }
@@ -209,7 +211,7 @@ public class Condition extends Where {
                      Object value, SQLExpr valueExpr, Object relationshipType) throws SqlParseException {
         super(conn);
 
-        this.opear = null;
+        this.OPERATOR = null;
         this.name = name;
         this.value = value;
         this.nameExpr = nameExpr;
@@ -240,10 +242,10 @@ public class Condition extends Where {
             this.childType = "";
         }
 
-        if (OPEAR.operStringToOpear.containsKey(oper)) {
-            this.opear = OPEAR.operStringToOpear.get(oper);
+        if (OPERATOR.operStringToOpear.containsKey(oper)) {
+            this.OPERATOR = OPERATOR.operStringToOpear.get(oper);
         } else {
-            throw new SqlParseException("Unsupported operation: " + oper);
+            throw new SemanticAnalysisException("Unsupported operation: " + oper);
         }
     }
 
@@ -251,19 +253,19 @@ public class Condition extends Where {
     public Condition(CONN conn,
                      String name,
                      SQLExpr nameExpr,
-                     OPEAR oper,
+                     OPERATOR oper,
                      Object value,
                      SQLExpr valueExpr,
                      Object relationshipType
     ) throws SqlParseException {
         super(conn);
 
-        this.opear = null;
+        this.OPERATOR = null;
         this.nameExpr = nameExpr;
         this.valueExpr = valueExpr;
         this.name = name;
         this.value = value;
-        this.opear = oper;
+        this.OPERATOR = oper;
         this.relationshipType = relationshipType;
 
         if (this.relationshipType != null) {
@@ -290,8 +292,8 @@ public class Condition extends Where {
         }
     }
 
-    public String getOpertatorSymbol() throws SqlParseException {
-        switch (opear) {
+    public String getOpertatorSymbol() {
+        switch (OPERATOR) {
             case EQ:
                 return "==";
             case GT:
@@ -310,7 +312,7 @@ public class Condition extends Where {
             case ISN:
                 return "!=";
             default:
-                throw new SqlParseException(StringUtils.format("Failed to parse operator [%s]", opear));
+                throw new SyntaxAnalysisException(StringUtils.format("Failed to parse operator [%s]", OPERATOR));
         }
     }
 
@@ -331,12 +333,12 @@ public class Condition extends Where {
         this.value = value;
     }
 
-    public OPEAR getOpear() {
-        return opear;
+    public OPERATOR getOPERATOR() {
+        return OPERATOR;
     }
 
-    public void setOpear(OPEAR opear) {
-        this.opear = opear;
+    public void setOPERATOR(OPERATOR OPERATOR) {
+        this.OPERATOR = OPERATOR;
     }
 
     public Object getRelationshipType() {
@@ -380,12 +382,12 @@ public class Condition extends Where {
     }
 
     /**
-     * Return true if the opear is {@link OPEAR#NESTED_COMPLEX}
-     * For example, the opear is {@link OPEAR#NESTED_COMPLEX} when condition is
+     * Return true if the opear is {@link OPERATOR#NESTED_COMPLEX}
+     * For example, the opear is {@link OPERATOR#NESTED_COMPLEX} when condition is
      * nested('projects', projects.started_year > 2000 OR projects.name LIKE '%security%')
      */
     public boolean isNestedComplex() {
-        return OPEAR.NESTED_COMPLEX == opear;
+        return OPERATOR.NESTED_COMPLEX == OPERATOR;
     }
 
     @Override
@@ -406,9 +408,9 @@ public class Condition extends Where {
         }
 
         if (value instanceof Object[]) {
-            result += this.conn + " " + this.name + " " + this.opear + " " + Arrays.toString((Object[]) value);
+            result += this.conn + " " + this.name + " " + this.OPERATOR + " " + Arrays.toString((Object[]) value);
         } else {
-            result += this.conn + " " + this.name + " " + this.opear + " " + this.value;
+            result += this.conn + " " + this.name + " " + this.OPERATOR + " " + this.value;
         }
 
         return result;
@@ -418,7 +420,7 @@ public class Condition extends Where {
     public Object clone() throws CloneNotSupportedException {
         try {
             return new Condition(this.getConn(), this.getName(), this.getNameExpr(),
-                    this.getOpear(), this.getValue(), this.getValueExpr(), this.getRelationshipType());
+                    this.getOPERATOR(), this.getValue(), this.getValueExpr(), this.getRelationshipType());
         } catch (SqlParseException e) {
 
         }

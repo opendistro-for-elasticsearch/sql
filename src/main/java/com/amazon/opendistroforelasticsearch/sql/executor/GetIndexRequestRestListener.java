@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor;
 
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.SemanticAnalysisException;
 import com.carrotsearch.hppc.cursors.ObjectObjectCursor;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
@@ -65,7 +66,7 @@ public class GetIndexRequestRestListener extends RestBuilderListener<GetIndexRes
                         writeSettings(getIndexResponse.settings().get(index), builder, channel.request());
                         break;
                     default:
-                        throw new IllegalStateException("Unsupported feature: " + feature);
+                        throw new SemanticAnalysisException("Unsupported feature: " + feature);
                 }
             }
             builder.endObject();

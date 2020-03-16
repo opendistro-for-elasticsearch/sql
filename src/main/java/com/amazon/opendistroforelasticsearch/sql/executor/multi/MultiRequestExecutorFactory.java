@@ -16,7 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.executor.multi;
 
 import com.alibaba.druid.sql.ast.statement.SQLUnionOperator;
-import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.SemanticAnalysisException;
 import com.amazon.opendistroforelasticsearch.sql.executor.ElasticHitsExecutor;
 import com.amazon.opendistroforelasticsearch.sql.query.multi.MultiQueryRequestBuilder;
 import org.elasticsearch.client.Client;
@@ -25,8 +25,7 @@ import org.elasticsearch.client.Client;
  * Created by Eliran on 21/8/2016.
  */
 public class MultiRequestExecutorFactory {
-    public static ElasticHitsExecutor createExecutor(Client client, MultiQueryRequestBuilder builder)
-            throws SqlParseException {
+    public static ElasticHitsExecutor createExecutor(Client client, MultiQueryRequestBuilder builder) {
         SQLUnionOperator relation = builder.getRelation();
         switch (relation) {
             case UNION_ALL:
@@ -35,7 +34,7 @@ public class MultiRequestExecutorFactory {
             case MINUS:
                 return new MinusExecutor(client, builder);
             default:
-                throw new SqlParseException("Unsupported operator: " + relation);
+                throw new SemanticAnalysisException("Unsupported operator: " + relation);
         }
     }
 }

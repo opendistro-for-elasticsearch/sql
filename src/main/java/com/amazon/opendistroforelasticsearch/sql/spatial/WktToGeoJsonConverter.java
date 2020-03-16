@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.spatial;
 
 
+import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.SyntaxAnalysisException;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import com.google.common.base.Joiner;
 
@@ -171,7 +172,7 @@ public class WktToGeoJsonConverter {
             int lastClosingBrackets = result.lastIndexOf(")");
             int firstOpenBrackets = result.indexOf("(");
             if (lastClosingBrackets == -1 || firstOpenBrackets == -1) {
-                throw new IllegalArgumentException("Illegal syntax: " + wkt);
+                throw new SyntaxAnalysisException("Illegal syntax: " + wkt);
             }
             result = result.substring(firstOpenBrackets + 1, lastClosingBrackets);
         }

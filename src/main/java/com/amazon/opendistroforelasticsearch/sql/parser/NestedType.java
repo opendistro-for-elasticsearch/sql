@@ -20,6 +20,7 @@ import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
 import com.alibaba.druid.sql.ast.expr.SQLPropertyExpr;
 import com.alibaba.druid.sql.ast.expr.SQLTextLiteralExpr;
+import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.SemanticAnalysisException;
 import com.amazon.opendistroforelasticsearch.sql.domain.Where;
 import com.amazon.opendistroforelasticsearch.sql.domain.bucketpath.BucketPath;
 import com.amazon.opendistroforelasticsearch.sql.domain.bucketpath.Path;
@@ -53,7 +54,7 @@ public class NestedType {
 
         List<SQLExpr> parameters = method.getParameters();
         if (parameters.size() != 2 && parameters.size() != 1) {
-            throw new SqlParseException("on nested object only allowed 2 parameters (field,path)/(path,conditions..) "
+            throw new SemanticAnalysisException("on nested object only allowed 2 parameters (field,path)/(path,conditions..) "
                     + "or 1 parameter (field) ");
         }
 

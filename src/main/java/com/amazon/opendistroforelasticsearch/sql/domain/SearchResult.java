@@ -135,7 +135,7 @@ public class SearchResult {
         } else if (value instanceof LongTerms) {
             return value;
         } else {
-            throw new SqlParseException("Unknown aggregation value type: " + value.getClass());
+            throw new SqlParseException("Unknown aggregation value type: " + value.getClass().getSimpleName());
         }
     }
 

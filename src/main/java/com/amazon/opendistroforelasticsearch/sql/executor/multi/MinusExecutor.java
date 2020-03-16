@@ -368,7 +368,7 @@ public class MinusExecutor implements ElasticHitsExecutor {
     }
 
     private Where buildTermsFilterFromResults(Set<Object> results, String fieldName) throws SqlParseException {
-        return new Condition(Where.CONN.AND, fieldName, null, Condition.OPEAR.IN_TERMS, results.toArray(), null);
+        return new Condition(Where.CONN.AND, fieldName, null, Condition.OPERATOR.IN_TERMS, results.toArray(), null);
     }
 
     private Object getFieldValue(SearchHit hit, String fieldName) {
