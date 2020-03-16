@@ -21,15 +21,24 @@ import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.D
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.ESConnection;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.JDBCConnection;
 import com.amazon.opendistroforelasticsearch.sql.correctness.testset.TestDataSet;
-import com.amazon.opendistroforelasticsearch.sql.esintgtest.SQLIntegTestCase;
+import com.amazon.opendistroforelasticsearch.sql.esintgtest.CustomExternalTestCluster;
+import com.carrotsearch.randomizedtesting.annotations.ThreadLeakScope;
 import com.google.common.collect.Maps;
 import org.apache.http.HttpHost;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.RestClient;
+import org.elasticsearch.common.Strings;
+import org.elasticsearch.common.transport.TransportAddress;
+import org.elasticsearch.test.ESIntegTestCase;
+import org.elasticsearch.test.TestCluster;
 import org.json.JSONObject;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -43,7 +52,10 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.get
 /**
  * Correctness integration test by performing comparison test with other databases.
  */
-public class CorrectnessIT extends SQLIntegTestCase {
+@ESIntegTestCase.SuiteScopeTestCase
+@ESIntegTestCase.ClusterScope(scope=ESIntegTestCase.Scope.SUITE, numDataNodes=3, supportsDedicatedMasters=false, transportClientRatio=1)
+@ThreadLeakScope(ThreadLeakScope.Scope.NONE)
+public class CorrectnessIT extends ESIntegTestCase {
 
     private static final Logger LOG = LogManager.getLogger();
 
@@ -133,6 +145,26 @@ public class CorrectnessIT extends SQLIntegTestCase {
         df.setTimeZone(TimeZone.getTimeZone("GMT"));
         String dateTime = df.format(new Date());
         return "report_" + dateTime + ".json";
+    }
+
+    @Override
+    protected TestCluster buildTestCluster(Scope scope, long seed) throws IOException {
+
+        String clusterAddresses = System.getProperty(TESTS_CLUSTER);
+
+        if (Strings.hasLength(clusterAddresses)) {
+            String[] stringAddresses = clusterAddresses.split(",");
+            TransportAddress[] transportAddresses = new TransportAddress[stringAddresses.length];
+            int i = 0;
+            for (String stringAddress : stringAddresses) {
+                URL url = new URL("http://" + stringAddress);
+                InetAddress inetAddress = InetAddress.getByName(url.getHost());
+                transportAddresses[i++] = new TransportAddress(new InetSocketAddress(inetAddress, url.getPort()));
+            }
+            return new CustomExternalTestCluster(createTempDir(), externalClusterClientSettings(),
+                transportClientPlugins(), transportAddresses);
+        }
+        return super.buildTestCluster(scope, seed);
     }
 
 }

@@ -47,7 +47,7 @@ public class JSONRequestIT extends SQLIntegTestCase {
         int ageToCompare = 25;
         SearchHits response = query(String.format("{\"query\":\"" +
                 "SELECT * " +
-                "FROM %s/account " +
+                "FROM %s " +
                 "WHERE age > %s " +
                 "LIMIT 1000\"}", TestsConstants.TEST_INDEX_ACCOUNT, ageToCompare));
         SearchHit[] hits = response.getHits();
@@ -75,7 +75,7 @@ public class JSONRequestIT extends SQLIntegTestCase {
         int ageToCompare = 25;
         SearchHits response = query(String.format("{\"query\":\"" +
                 "SELECT * " +
-                "FROM %s/account " +
+                "FROM %s " +
                 "LIMIT 1000\",\"filter\":{\"range\":{\"age\":{\"gt\":%s}}}}", TestsConstants.TEST_INDEX_ACCOUNT, ageToCompare));
         SearchHit[] hits = response.getHits();
         for (SearchHit hit : hits) {
@@ -103,7 +103,7 @@ public class JSONRequestIT extends SQLIntegTestCase {
         int balanceToCompare = 35000;
         SearchHits response = query(String.format("{\"query\":\"" +
                 "SELECT * " +
-                "FROM %s/account " +
+                "FROM %s " +
                 "WHERE age > %s " +
                 "LIMIT 1000\",\"filter\":{\"range\":{\"balance\":{\"lt\":%s}}}}",
                 TestsConstants.TEST_INDEX_ACCOUNT, ageToCompare, balanceToCompare));
@@ -137,7 +137,7 @@ public class JSONRequestIT extends SQLIntegTestCase {
         String fieldToCompare = "a";
         SearchHits response = query(String.format("{\"query\":\"" +
                 "SELECT * " +
-                "FROM %s/nestedType " +
+                "FROM %s " +
                 "WHERE nested(comment.likes) < %s\"," +
                 "\"filter\":{\"term\":{\"someField\":\"%s\"}}}",
                 TestsConstants.TEST_INDEX_NESTED_TYPE, likesToCompare, fieldToCompare));
@@ -176,7 +176,7 @@ public class JSONRequestIT extends SQLIntegTestCase {
         String dataToCompare = "aa";
         SearchHits response = query(String.format("{\"query\":\"" +
                 "SELECT * " +
-                "FROM %s/nestedType " +
+                "FROM %s " +
                 "WHERE nested(comment.likes) > %s\"," +
                 "\"filter\":{\"nested\":{\"path\":\"comment\"," +
                 "\"query\":{\"bool\":{\"must\":{\"term\":{\"comment.data\":\"%s\"}}}}}}}",

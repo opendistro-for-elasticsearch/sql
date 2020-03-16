@@ -27,7 +27,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -86,6 +85,7 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
         return sqlRequest;
     }
 
+    @Ignore("Index type is removed in ES 7+")
     @Test
     public void wrongIndexType() throws IOException  {
         String type = "wrongType";
@@ -100,8 +100,8 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     @Test
     public void selectAll() throws IOException {
         JSONObject response = executeQuery(
-                                String.format(Locale.ROOT, "SELECT * FROM %s/%s",
-                                        TestsConstants.TEST_INDEX_ACCOUNT, "account"));
+                                String.format(Locale.ROOT, "SELECT * FROM %s",
+                                        TestsConstants.TEST_INDEX_ACCOUNT));
 
         // This also tests that .keyword fields are ignored when SELECT * is called
         assertContainsColumnsInAnyOrder(getSchema(response), allAccountFields);
@@ -111,8 +111,8 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
     @Test
     public void selectNames() throws IOException {
         JSONObject response = executeQuery(
-                                String.format(Locale.ROOT, "SELECT firstname, lastname FROM %s/%s",
-                                        TestsConstants.TEST_INDEX_ACCOUNT, "account"));
+                                String.format(Locale.ROOT, "SELECT firstname, lastname FROM %s",
+                                        TestsConstants.TEST_INDEX_ACCOUNT));
 
         assertContainsColumns(getSchema(response), nameFields);
         assertContainsData(getDataRows(response), nameFields);
@@ -241,9 +241,9 @@ public class PrettyFormatResponseIT extends SQLIntegTestCase {
         int balanceToCompare = 30000;
         JSONObject response = executeQuery(
                                 String.format(Locale.ROOT, "SELECT balance " +
-                                              "FROM %s/%s " +
+                                              "FROM %s " +
                                               "WHERE balance > %d",
-                                        TestsConstants.TEST_INDEX_ACCOUNT, "account", balanceToCompare));
+                                        TestsConstants.TEST_INDEX_ACCOUNT, balanceToCompare));
 
         /*
          * Previously the DataRows map was used to check specific fields but the JDBC response for "datarows" is a
