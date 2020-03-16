@@ -28,6 +28,8 @@ import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.ActionRequestRestExecutorFactory;
 import com.amazon.opendistroforelasticsearch.sql.executor.Format;
 import com.amazon.opendistroforelasticsearch.sql.executor.RestExecutor;
+import com.amazon.opendistroforelasticsearch.sql.executor.cursor.CursorActionRequestRestExecutorFactory;
+import com.amazon.opendistroforelasticsearch.sql.executor.cursor.CursorRestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.ErrorMessage;
 import com.amazon.opendistroforelasticsearch.sql.metrics.MetricName;
 import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
@@ -121,6 +123,7 @@ public class RestSqlAction extends BaseRestHandler {
             final SqlRequest sqlRequest = SqlRequestFactory.getSqlRequest(request);
             if (sqlRequest.cursor() != null) {
                 LOG.info("[{}] Cursor request {}: {}", LogUtils.getRequestId(), request.uri(), sqlRequest.cursor());
+                return channel -> handleCursorRequest(request, sqlRequest.cursor(), client, channel);
             }
 
             LOG.info("[{}] Incoming request {}: {}", LogUtils.getRequestId(), request.uri(), sqlRequest.getSql());
@@ -139,6 +142,15 @@ public class RestSqlAction extends BaseRestHandler {
         Set<String> responseParams = new HashSet<>(super.responseParams());
         responseParams.addAll(Arrays.asList("sql", "flat", "separator", "_score", "_type", "_id", "newLine", "format"));
         return responseParams;
+    }
+
+    private void handleCursorRequest(final RestRequest request, final String cursor, final Client client,
+                                     final RestChannel channel) throws Exception {
+        CursorRestExecutor cursorRestExecutor = CursorActionRequestRestExecutorFactory.createExecutor(
+                request, cursor, SqlRequestParam.getFormat(request.params()));
+        );
+
+        cursorRestExecutor.execute(client, request.params(), channel);
     }
 
     private static void logAndPublishMetrics(final Exception e) {

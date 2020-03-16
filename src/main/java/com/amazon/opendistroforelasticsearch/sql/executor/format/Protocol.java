@@ -47,6 +47,7 @@ public class Protocol {
     private int status;
     private long size;
     private long total;
+    private String cursor;
     private ResultSet resultSet;
     private ErrorMessage error;
     private List<ColumnNode> columnNodeList;
@@ -65,6 +66,7 @@ public class Protocol {
         this.resultSet = loadResultSet(client, query, queryResult);
         this.size = resultSet.getDataRows().getSize();
         this.total = resultSet.getDataRows().getTotalHits();
+        this.cursor = resultSet.getCursor();
     }
 
     public Protocol(Exception e) {
@@ -96,6 +98,14 @@ public class Protocol {
                 String.format("The following instance of QueryStatement is not supported: %s",
                         queryStatement.getClass().toString())
         );
+    }
+
+    public String getCursor() {
+        return this.cursor;
+    }
+
+    public void setCursor(String cursor) {
+        this.cursor = cursor;
     }
 
     public int getStatus() {
@@ -133,6 +143,10 @@ public class Protocol {
 
         formattedOutput.put("schema", getSchemaAsJson());
         formattedOutput.put("datarows", getDataRowsAsJson());
+
+        if (cursor !=null) {
+            formattedOutput.put("cursor", cursor);
+        }
 
         return formattedOutput.toString(2);
     }

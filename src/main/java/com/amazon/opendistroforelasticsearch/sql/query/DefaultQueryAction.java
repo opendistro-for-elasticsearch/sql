@@ -119,11 +119,12 @@ public class DefaultQueryAction extends QueryAction {
         LOG.debug("FetchSize: {} , CursorEnabled: {} , ScrollTimeout: {}", fetchSize, cursorEnabled, timeValue);
 
         if (checkIfScrollNeeded(cursorEnabled, fetchSize, rowCount)) {
-            //TODO: should this be needed for all cases
+            //TODO: shouldn't this be needed for all cases irrespective of pagination or not?
             if (!select.isOrderdSelect()) {
                 request.addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC);
             }
             request.setSize(fetchSize).setScroll(timeValue);
+            cursorContext = true;
         } else {
             request.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
             setLimit(select.getOffset(), rowCount != null ? rowCount : Select.DEFAULT_LIMIT);

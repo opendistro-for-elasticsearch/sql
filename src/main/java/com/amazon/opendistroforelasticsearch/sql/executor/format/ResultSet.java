@@ -28,6 +28,8 @@ public abstract class ResultSet {
     protected Client client;
     protected String clusterName;
 
+    protected String cursor;
+
     public Schema getSchema() {
         return schema;
     }
@@ -47,5 +49,9 @@ public abstract class ResultSet {
         Pattern p = Pattern.compile(pattern);
         Matcher matcher = p.matcher(string);
         return matcher.find();
+    }
+
+    public String getCursor() {
+        return null;
     }
 }
