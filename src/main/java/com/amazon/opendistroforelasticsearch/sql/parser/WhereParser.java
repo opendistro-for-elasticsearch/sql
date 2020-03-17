@@ -125,7 +125,7 @@ public class WhereParser {
         for (Where sub : where.getWheres()) {
             if (sub instanceof Condition) {
                 Condition cond = (Condition) sub;
-                cond.setOpear(cond.getOpear().negative());
+                cond.setOPERATOR(cond.getOPERATOR().negative());
             } else {
                 negateWhere(sub);
             }
@@ -255,12 +255,12 @@ public class WhereParser {
                 SQLMethodInvokeExpr method = (SQLMethodInvokeExpr) soExpr.getRight();
                 String methodName = method.getMethodName().toLowerCase();
 
-                if (Condition.OPEAR.methodNameToOpear.containsKey(methodName)) {
+                if (Condition.OPERATOR.methodNameToOpear.containsKey(methodName)) {
                     Object[] methodParametersValue = getMethodValuesWithSubQueries(method);
 
                     final Condition condition;
                     // fix OPEAR
-                    Condition.OPEAR oper = Condition.OPEAR.methodNameToOpear.get(methodName);
+                    Condition.OPERATOR oper = Condition.OPERATOR.methodNameToOpear.get(methodName);
                     if (soExpr.getOperator() == SQLBinaryOperator.LessThanOrGreater
                             || soExpr.getOperator() == SQLBinaryOperator.NotEqual) {
                         oper = oper.negative();

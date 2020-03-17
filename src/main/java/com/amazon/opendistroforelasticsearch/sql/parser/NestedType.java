@@ -53,8 +53,8 @@ public class NestedType {
 
         List<SQLExpr> parameters = method.getParameters();
         if (parameters.size() != 2 && parameters.size() != 1) {
-            throw new SqlParseException("on nested object only allowed 2 parameters (field,path)/(path,conditions..) "
-                    + "or 1 parameter (field) ");
+            throw new IllegalArgumentException("on nested object only allowed 2 parameters "
+                    + "(field,path)/(path,conditions..) or 1 parameter (field) ");
         }
 
         String field = Util.extendedToString(parameters.get(0));
@@ -63,7 +63,7 @@ public class NestedType {
             //calc path myself..
             if (!field.contains(".")) {
                 if (!reverse) {
-                    throw new SqlParseException("nested should contain . on their field name");
+                    throw new IllegalArgumentException("Illegal nested field name: " + field);
                 } else {
                     this.path = null;
                     this.simple = true;
@@ -92,7 +92,7 @@ public class NestedType {
                 Where where = Where.newInstance();
                 new WhereParser(new SqlParser()).parseWhere(secondParameter, where);
                 if (where.getWheres().size() == 0) {
-                    throw new SqlParseException("unable to parse filter where.");
+                    throw new SqlParseException("Failed to parse filter condition");
                 }
                 this.where = where;
                 simple = false;

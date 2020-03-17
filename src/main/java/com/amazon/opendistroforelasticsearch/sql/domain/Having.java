@@ -178,7 +178,7 @@ public class Having {
     private String createScript(Condition cond) throws SqlParseException {
         String name = cond.getName();
         Object value = cond.getValue();
-        switch (cond.getOpear()) {
+        switch (cond.getOPERATOR()) {
             case EQ:
             case GT:
             case LT:
@@ -206,7 +206,7 @@ public class Having {
                         map(val -> expr(name, "!=", val)).
                         collect(joining(AND));
             default:
-                throw new SqlParseException("Unsupported operation in HAVING clause: " + cond.getOpear());
+                throw new SqlParseException("Unsupported operation in HAVING clause: " + cond.getOPERATOR());
         }
     }
 

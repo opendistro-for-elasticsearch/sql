@@ -80,7 +80,8 @@ public class QueryMaker extends Maker {
             if (condition.isNested()) {
                 // bugfix #628
                 if ("missing".equalsIgnoreCase(String.valueOf(condition.getValue()))
-                        && (condition.getOpear() == Condition.OPEAR.IS || condition.getOpear() == Condition.OPEAR.EQ)) {
+                        && (condition.getOPERATOR() == Condition.OPERATOR.IS
+                        || condition.getOPERATOR() == Condition.OPERATOR.EQ)) {
                     boolQuery.mustNot(QueryBuilders.nestedQuery(condition.getNestedPath(),
                             QueryBuilders.boolQuery().mustNot(subQuery), ScoreMode.None));
                     return;
