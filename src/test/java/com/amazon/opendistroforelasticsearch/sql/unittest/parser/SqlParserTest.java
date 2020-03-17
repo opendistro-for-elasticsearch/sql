@@ -61,7 +61,6 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstant
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_DOG;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_GAME_OF_THRONES;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ODBC;
-import static com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents.getScriptFieldFromQuery;
 import static com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents.scriptContainsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertTrue;
@@ -307,7 +306,7 @@ public class SqlParserTest {
         Assert.assertNotNull(conditions);
         Assert.assertEquals(1, conditions.size());
         Assert.assertTrue("condition not exist: d.holdersName = a.firstname",
-                conditionExist(conditions, "d.holdersName", "a.firstname", Condition.OPEAR.EQ));
+                conditionExist(conditions, "d.holdersName", "a.firstname", Condition.OPERATOR.EQ));
     }
 
     @Test
@@ -328,9 +327,9 @@ public class SqlParserTest {
         Assert.assertNotNull(conditions);
         Assert.assertEquals(2, conditions.size());
         Assert.assertTrue("condition not exist: d.holdersName = a.firstname",
-                conditionExist(conditions, "d.holdersName", "a.firstname", Condition.OPEAR.EQ));
+                conditionExist(conditions, "d.holdersName", "a.firstname", Condition.OPERATOR.EQ));
         Assert.assertTrue("condition not exist: d.age < a.age",
-                conditionExist(conditions, "d.age", "a.age", Condition.OPEAR.LT));
+                conditionExist(conditions, "d.age", "a.age", Condition.OPERATOR.LT));
     }
 
 
@@ -365,7 +364,7 @@ public class SqlParserTest {
         Assert.assertNotNull(conditions);
         Assert.assertEquals(1, conditions.size());
         Assert.assertTrue("condition not exist: h.name = c.name.lastname",
-                conditionExist(conditions, "h.name", "c.name.lastname", Condition.OPEAR.EQ));
+                conditionExist(conditions, "h.name", "c.name.lastname", Condition.OPERATOR.EQ));
     }
 
     @Test
@@ -380,7 +379,7 @@ public class SqlParserTest {
         Assert.assertNotNull(conditions);
         Assert.assertEquals(1, conditions.size());
         Assert.assertTrue("condition not exist: c.name.lastname = h.name",
-                conditionExist(conditions, "c.name.lastname", "h.name", Condition.OPEAR.EQ));
+                conditionExist(conditions, "c.name.lastname", "h.name", Condition.OPERATOR.EQ));
     }
 
 
@@ -941,7 +940,7 @@ public class SqlParserTest {
         String query = "select * from x where nested('y',y.b = 'a' and y.c  = 'd') ";
         Select select = parser.parseSelect((SQLQueryExpr) queryToExpr(query));
         Condition condition = (Condition) select.getWhere().getWheres().get(0);
-        Assert.assertEquals(Condition.OPEAR.NESTED_COMPLEX, condition.getOpear());
+        Assert.assertEquals(Condition.OPERATOR.NESTED_COMPLEX, condition.getOPERATOR());
         Assert.assertEquals("y", condition.getName());
         Assert.assertTrue(condition.getValue() instanceof Where);
         Where where = (Where) condition.getValue();
@@ -953,7 +952,7 @@ public class SqlParserTest {
         String query = "select * from x where script('doc[\\'field\\'].date.hourOfDay == 3') ";
         Select select = parser.parseSelect((SQLQueryExpr) queryToExpr(query));
         Condition condition = (Condition) select.getWhere().getWheres().get(0);
-        Assert.assertEquals(Condition.OPEAR.SCRIPT, condition.getOpear());
+        Assert.assertEquals(Condition.OPERATOR.SCRIPT, condition.getOPERATOR());
         Assert.assertNull(condition.getName());
         Assert.assertTrue(condition.getValue() instanceof ScriptFilter);
         ScriptFilter scriptFilter = (ScriptFilter) condition.getValue();
@@ -966,7 +965,7 @@ public class SqlParserTest {
         String query = "select * from x where script('doc[\\'field\\'].date.hourOfDay == x','x'=3) ";
         Select select = parser.parseSelect((SQLQueryExpr) queryToExpr(query));
         Condition condition = (Condition) select.getWhere().getWheres().get(0);
-        Assert.assertEquals(Condition.OPEAR.SCRIPT, condition.getOpear());
+        Assert.assertEquals(Condition.OPERATOR.SCRIPT, condition.getOPERATOR());
         Assert.assertNull(condition.getName());
         Assert.assertTrue(condition.getValue() instanceof ScriptFilter);
         ScriptFilter scriptFilter = (ScriptFilter) condition.getValue();
@@ -1414,12 +1413,12 @@ public class SqlParserTest {
         return new ElasticSqlExprParser(query).expr();
     }
 
-    private boolean conditionExist(List<Condition> conditions, String from, String to, Condition.OPEAR opear) {
+    private boolean conditionExist(List<Condition> conditions, String from, String to, Condition.OPERATOR OPERATOR) {
         String[] aliasAndField = to.split("\\.", 2);
         String toAlias = aliasAndField[0];
         String toField = aliasAndField[1];
         for (Condition condition : conditions) {
-            if (condition.getOpear() != opear) continue;
+            if (condition.getOPERATOR() != OPERATOR) continue;
 
             boolean fromIsEqual = condition.getName().equals(from);
             if (!fromIsEqual) continue;

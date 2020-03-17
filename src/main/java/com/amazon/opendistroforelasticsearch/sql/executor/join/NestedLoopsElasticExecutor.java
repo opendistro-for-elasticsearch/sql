@@ -307,11 +307,11 @@ public class NestedLoopsElasticExecutor extends ElasticJoinExecutor {
 
     private Boolean shouldReverse(Condition cond, String t1Alias, String t2Alias) {
         return cond.getName().startsWith(t1Alias + ".") && cond.getValue().toString().startsWith(t2Alias + ".")
-                && cond.getOpear().isSimpleOperator();
+                && cond.getOPERATOR().isSimpleOperator();
     }
 
     private void reverseOrderOfCondition(Condition cond, String t1Alias, String t2Alias) throws SqlParseException {
-        cond.setOpear(cond.getOpear().simpleReverse());
+        cond.setOPERATOR(cond.getOPERATOR().simpleReverse());
         String name = cond.getName();
         cond.setName(cond.getValue().toString().replaceFirst(t2Alias + ".", ""));
         cond.setValue(name.replaceFirst(t1Alias + ".", ""));

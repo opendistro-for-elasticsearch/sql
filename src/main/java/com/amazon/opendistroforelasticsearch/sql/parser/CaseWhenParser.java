@@ -102,7 +102,7 @@ public class CaseWhenParser {
 
             if (condition.getValue() instanceof ScriptFilter) {
                 codes.add("(" + ((ScriptFilter) condition.getValue()).getScript() + ")");
-            } else if (condition.getOpear() == Condition.OPEAR.BETWEEN) {
+            } else if (condition.getOPERATOR() == Condition.OPERATOR.BETWEEN) {
                 Object[] objs = (Object[]) condition.getValue();
                 codes.add("(" + "doc['" + condition.getName() + "'].value >= " + objs[0] + " && doc['"
                         + condition.getName() + "'].value <=" + objs[1] + ")");
