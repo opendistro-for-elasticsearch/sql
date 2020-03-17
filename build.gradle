@@ -131,7 +131,6 @@ test {
     systemProperty('project.root', project.rootDir.absolutePath)
 }
 
-//integTestRunner {
 testClusters.integTest {
     testDistribution = 'oss'
 }
@@ -144,7 +143,7 @@ integTest.runner {
 
     // Tell the test JVM if the cluster JVM is running under a debugger so that tests can use longer timeouts for
     // requests. The 'doFirst' delays reading the debug setting on the cluster till execution time.
-//    doFirst { systemProperty 'cluster.debug', integTestCluster.debug }
+    // doFirst { systemProperty 'cluster.debug', integTestCluster.debug }
 
     // The --debug-jvm command-line option makes the cluster debuggable; this makes the tests debuggable
     if (System.getProperty("test.debug") != null) {
@@ -178,15 +177,6 @@ integTest.runner {
         exclude 'com/amazon/opendistroforelasticsearch/sql/correctness/**'
     }
 }
-
-//integTestCluster {
-//    // use elasticsearch oss distribution for integration test.
-//    distribution = "oss-zip"
-//}
-
-//run {
-//    distribution = "oss-zip"
-//}
 
 generateGrammarSource {
     arguments += ['-visitor', '-package', 'com.amazon.opendistroforelasticsearch.sql.antlr.parser']
