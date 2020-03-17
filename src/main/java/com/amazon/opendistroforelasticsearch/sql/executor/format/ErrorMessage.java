@@ -18,16 +18,16 @@ package com.amazon.opendistroforelasticsearch.sql.executor.format;
 import org.elasticsearch.rest.RestStatus;
 import org.json.JSONObject;
 
-public class ErrorMessage {
+public class ErrorMessage<E extends Exception> {
 
-    private Exception exception;
+    protected E exception;
 
     private int status;
     private String type;
     private String reason;
     private String details;
 
-    public ErrorMessage(Exception exception, int status) {
+    public ErrorMessage(E exception, int status) {
         this.exception = exception;
         this.status = status;
 
@@ -40,13 +40,13 @@ public class ErrorMessage {
         return exception.getClass().getSimpleName();
     }
 
-    private String fetchReason() {
+    protected String fetchReason() {
         return status == RestStatus.BAD_REQUEST.getStatus()
                 ? "Invalid SQL query"
                 : "There was internal problem at backend";
     }
 
-    private String fetchDetails() {
+    protected String fetchDetails() {
         // Some exception prints internal information (full class name) which is security concern
         //return exception.toString();
         return emptyStringIfNull(exception.getLocalizedMessage());
