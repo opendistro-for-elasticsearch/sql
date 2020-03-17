@@ -521,6 +521,36 @@ public class TestUtils {
                 "}";
     }
 
+    public static String getBankWithNullValuesIndexMapping() {
+        return "{\n" +
+                "  \"mappings\": {\n" +
+                "    \"properties\": {\n" +
+                "      \"account_number\": {\n" +
+                "        \"type\": \"long\"\n" +
+                "      },\n" +
+                "      \"address\": {\n" +
+                "        \"type\": \"text\"\n" +
+                "      },\n" +
+                "      \"age\": {\n" +
+                "        \"type\": \"integer\"\n" +
+                "      },\n" +
+                "      \"balance\": {\n" +
+                "        \"type\": \"long\"\n" +
+                "      },\n" +
+                "      \"gender\": {\n" +
+                "        \"type\": \"text\"\n" +
+                "      },\n" +
+                "      \"firstname\": {\n" +
+                "        \"type\": \"text\"\n" +
+                "      },\n" +
+                "      \"lastname\": {\n" +
+                "        \"type\": \"keyword\"\n" +
+                "      }\n" +
+                "    }\n" +
+                "  }\n" +
+                "}";
+    }
+
     public static String getOrderIndexMapping() {
         return "{\n" +
             "  \"mappings\": {\n" +
