@@ -456,7 +456,7 @@ public abstract class Maker {
         return strings;
     }
 
-    private ShapeBuilder getShapeBuilderFromString(String str) throws IOException {
+    private ShapeBuilder getShapeBuilderFromString(String str) throws IOException, SqlParseException {
         String json;
         if (str.contains("{")) {
             json = fixJsonFromElastic(str);

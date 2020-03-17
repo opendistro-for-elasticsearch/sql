@@ -16,8 +16,6 @@
 package com.amazon.opendistroforelasticsearch.sql.domain;
 
 import com.alibaba.druid.sql.ast.SQLExpr;
-import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.SemanticAnalysisException;
-import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.SyntaxAnalysisException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.parser.ChildrenType;
 import com.amazon.opendistroforelasticsearch.sql.parser.NestedType;
@@ -148,20 +146,22 @@ public class Condition extends Where {
             simpleReverses.put(N, N);
         }
 
-        public OPERATOR negative() {
+        public OPERATOR negative() throws SqlParseException {
             OPERATOR negative = negatives.get(this);
             negative = negative != null ? negative : negatives.inverse().get(this);
             if (negative == null) {
-                throw new SemanticAnalysisException(StringUtils.format("Negative operator [%s] is not supported.", this.name()));
+                throw new SqlParseException(StringUtils.format("Negative operator [%s] is not supported.",
+                        this.name()));
             }
             return negative;
         }
 
-        public OPERATOR simpleReverse() {
+        public OPERATOR simpleReverse() throws SqlParseException {
             OPERATOR reverse = simpleReverses.get(this);
             reverse = reverse != null ? reverse : simpleReverses.inverse().get(this);
             if (reverse == null) {
-                throw new SemanticAnalysisException(StringUtils.format("Simple reverse operator [%s] is not supported.", this.name()));
+                throw new SqlParseException(StringUtils.format("Simple reverse operator [%s] is not supported.",
+                        this.name()));
             }
             return reverse;
         }
@@ -245,7 +245,7 @@ public class Condition extends Where {
         if (OPERATOR.operStringToOpear.containsKey(oper)) {
             this.OPERATOR = OPERATOR.operStringToOpear.get(oper);
         } else {
-            throw new SemanticAnalysisException("Unsupported operation: " + oper);
+            throw new SqlParseException("Unsupported operation: " + oper);
         }
     }
 
@@ -292,7 +292,7 @@ public class Condition extends Where {
         }
     }
 
-    public String getOpertatorSymbol() {
+    public String getOpertatorSymbol() throws SqlParseException {
         switch (OPERATOR) {
             case EQ:
                 return "==";
@@ -312,7 +312,7 @@ public class Condition extends Where {
             case ISN:
                 return "!=";
             default:
-                throw new SyntaxAnalysisException(StringUtils.format("Failed to parse operator [%s]", OPERATOR));
+                throw new SqlParseException(StringUtils.format("Failed to parse operator [%s]", OPERATOR));
         }
     }
 
