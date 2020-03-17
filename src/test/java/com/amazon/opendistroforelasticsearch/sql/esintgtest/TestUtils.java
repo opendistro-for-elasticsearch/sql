@@ -521,9 +521,9 @@ public class TestUtils {
                 "}";
     }
 
-    public static String getBankWithNullValuesIndexMapping(String type) {
+    public static String getBankWithNullValuesIndexMapping() {
         return "{\n" +
-                "  \"" + type +"\": {\n" +
+                "  \"mappings\": {\n" +
                 "    \"properties\": {\n" +
                 "      \"account_number\": {\n" +
                 "        \"type\": \"long\"\n" +

@@ -34,6 +34,7 @@ import java.util.Locale;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.createIndexByRestClient;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getAccountIndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getBankIndexMapping;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getBankWithNullValuesIndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getDateIndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getDogIndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getDogs2IndexMapping;
@@ -365,7 +366,7 @@ public abstract class SQLIntegTestCase extends ESRestTestCase {
                 "src/test/resources/bank_two.json"),
         BANK_WITH_NULL_VALUES(TestsConstants.TEST_INDEX_BANK_WITH_NULL_VALUES,
                 "account_null",
-                TestUtils.getBankWithNullValuesIndexMapping("account_null"),
+                getBankWithNullValuesIndexMapping(),
                 "src/test/resources/bank_with_null_values.json"),
         ORDER(TestsConstants.TEST_INDEX_ORDER,
                 "_doc",
