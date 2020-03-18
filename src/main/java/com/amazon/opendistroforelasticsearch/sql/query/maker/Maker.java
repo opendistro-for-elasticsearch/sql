@@ -33,6 +33,7 @@ import com.amazon.opendistroforelasticsearch.sql.spatial.DistanceFilterParams;
 import com.amazon.opendistroforelasticsearch.sql.spatial.Point;
 import com.amazon.opendistroforelasticsearch.sql.spatial.PolygonFilterParams;
 import com.amazon.opendistroforelasticsearch.sql.spatial.WktToGeoJsonConverter;
+import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import org.apache.lucene.search.join.ScoreMode;
@@ -86,10 +87,10 @@ public abstract class Maker {
             "matchphrasequery", "match_phrase", "matchphrase" // match-phrase
     );
 
-    private static final Set<Condition.OPEAR> NOT_OPEAR_SET = ImmutableSet.of(
-            Condition.OPEAR.N, Condition.OPEAR.NIN, Condition.OPEAR.ISN, Condition.OPEAR.NBETWEEN,
-            Condition.OPEAR.NLIKE, Condition.OPEAR.NIN_TERMS, Condition.OPEAR.NTERM,
-            Condition.OPEAR.NOT_EXISTS_NESTED_COMPLEX
+    private static final Set<Condition.OPERATOR> NOT_OPERATOR_SET = ImmutableSet.of(
+            Condition.OPERATOR.N, Condition.OPERATOR.NIN, Condition.OPERATOR.ISN, Condition.OPERATOR.NBETWEEN,
+            Condition.OPERATOR.NLIKE, Condition.OPERATOR.NIN_TERMS, Condition.OPERATOR.NTERM,
+            Condition.OPERATOR.NOT_EXISTS_NESTED_COMPLEX
     );
 
     protected Maker(Boolean isQuery) {
@@ -133,14 +134,14 @@ public abstract class Maker {
                 paramer = Paramer.parseParamer(value);
                 QueryStringQueryBuilder queryString = QueryBuilders.queryStringQuery(paramer.value);
                 bqb = Paramer.fullParamer(queryString, paramer);
-                bqb = applyNot(cond.getOpear(), bqb);
+                bqb = applyNot(cond.getOPERATOR(), bqb);
                 break;
             case "matchquery":
             case "match_query":
                 paramer = Paramer.parseParamer(value);
                 MatchQueryBuilder matchQuery = QueryBuilders.matchQuery(name, paramer.value);
                 bqb = Paramer.fullParamer(matchQuery, paramer);
-                bqb = applyNot(cond.getOpear(), bqb);
+                bqb = applyNot(cond.getOPERATOR(), bqb);
                 break;
             case "score":
             case "scorequery":
@@ -185,7 +186,7 @@ public abstract class Maker {
 
     private ToXContent make(Condition cond, String name, Object value) throws SqlParseException {
         ToXContent toXContent = null;
-        switch (cond.getOpear()) {
+        switch (cond.getOPERATOR()) {
             case ISN:
             case IS:
             case N:
@@ -264,7 +265,7 @@ public abstract class Maker {
                     toXContent = QueryBuilders.geoShapeQuery(cond.getName(), shapeBuilder);
                 } catch (IOException e) {
                     e.printStackTrace();
-                    throw new SqlParseException("couldn't create shapeBuilder from wkt: " + wkt);
+                    throw new SqlParseException(StringUtils.format("Failed to create shapeBuilder from [%s]", wkt));
                 }
                 break;
             case GEO_BOUNDING_BOX:
@@ -363,10 +364,10 @@ public abstract class Maker {
                 }
                 break;
             default:
-                throw new SqlParseException("not define type " + cond.getName());
+                throw new SqlParseException("Undefined condition:  " + cond.getName());
         }
 
-        toXContent = applyNot(cond.getOpear(), toXContent);
+        toXContent = applyNot(cond.getOPERATOR(), toXContent);
         return toXContent;
     }
 
@@ -437,7 +438,7 @@ public abstract class Maker {
                 throw new SqlParseException("date_format does not support the operation " + oper);
         }
 
-        toXContent = applyNot(Condition.OPEAR.operStringToOpear.get(oper), toXContent);
+        toXContent = applyNot(Condition.OPERATOR.operStringToOpear.get(oper), toXContent);
         return toXContent;
     }
 
@@ -455,7 +456,7 @@ public abstract class Maker {
         return strings;
     }
 
-    private ShapeBuilder getShapeBuilderFromString(String str) throws IOException {
+    private ShapeBuilder getShapeBuilderFromString(String str) throws IOException, SqlParseException {
         String json;
         if (str.contains("{")) {
             json = fixJsonFromElastic(str);
@@ -494,8 +495,8 @@ public abstract class Maker {
     /**
      * Applies negation to query builder if the operation is a "not" operation.
      */
-    private ToXContent applyNot(Condition.OPEAR opear, ToXContent bqb) {
-        if (NOT_OPEAR_SET.contains(opear)) {
+    private ToXContent applyNot(Condition.OPERATOR OPERATOR, ToXContent bqb) {
+        if (NOT_OPERATOR_SET.contains(OPERATOR)) {
             bqb = QueryBuilders.boolQuery().mustNot((QueryBuilder) bqb);
         }
         return bqb;

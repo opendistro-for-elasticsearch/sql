@@ -39,3 +39,7 @@ Open Distro for Elasticsearch SQL enables you to extract insights out of Elastic
 
   - TODO: Elasticsearch special functions
 
+* **Troubleshooting**
+
+  - `Troubleshooting <dql/troubleshooting.rst>`_
+

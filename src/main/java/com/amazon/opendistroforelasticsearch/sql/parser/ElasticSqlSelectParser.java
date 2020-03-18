@@ -33,10 +33,10 @@ import com.alibaba.druid.sql.dialect.mysql.ast.expr.MySqlOutFileExpr;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectGroupBy;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlUnionQuery;
-import com.alibaba.druid.sql.parser.ParserException;
 import com.alibaba.druid.sql.parser.SQLExprParser;
 import com.alibaba.druid.sql.parser.SQLSelectParser;
 import com.alibaba.druid.sql.parser.Token;
+import com.amazon.opendistroforelasticsearch.sql.exception.SqlFeatureNotImplementedException;
 
 /**
  * Created by allwefantasy on 8/19/16.
@@ -140,7 +140,7 @@ public class ElasticSqlSelectParser extends SQLSelectParser {
 
         if (lexer.token() == Token.PROCEDURE) {
             lexer.nextToken();
-            throw new ParserException("TODO");
+            throw new SqlFeatureNotImplementedException("Unsupported feature: " + Token.PROCEDURE.name);
         }
 
         parseInto(queryBlock);
