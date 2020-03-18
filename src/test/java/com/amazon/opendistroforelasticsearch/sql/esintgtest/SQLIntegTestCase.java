@@ -171,6 +171,23 @@ public abstract class SQLIntegTestCase extends ESRestTestCase {
         }
     }
 
+    protected String executeFetchQuery(String query, int fetchSize, String requestType) {
+        try {
+            String endpoint = "/_opendistro/_sql?format=" + requestType;
+            String requestBody = makeRequest(query, fetchSize);
+
+            Request sqlRequest = new Request("POST", endpoint);
+            sqlRequest.setJsonEntity(requestBody);
+
+            Response response = client().performRequest(sqlRequest);
+            String responseString = getResponseBody(response, true);
+
+            return responseString;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     protected Request buildGetEndpointRequest(final String sqlQuery) {
 
         final String utf8CharsetName = StandardCharsets.UTF_8.name();
