@@ -21,9 +21,7 @@ import org.elasticsearch.client.ResponseException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
 
@@ -31,8 +29,6 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstant
 import static org.hamcrest.Matchers.equalTo;
 
 public class CursorIT extends SQLIntegTestCase {
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
 
     private static final String JDBC = "jdbc";
 
@@ -45,10 +41,19 @@ public class CursorIT extends SQLIntegTestCase {
     public void invalidFetchSize() throws IOException {
         // invalid fetch_size --> negative(-2), non-numeric("hello")
         // acceptable fetch_size --> positive numbers, even in string form "532.4"
-        exception.expect(ResponseException.class);
-        exception.expectMessage("Fetch_size must be greater or equal to 0");
-        String selectQuery = StringUtils.format("SELECT firstname, state FROM %s", TEST_INDEX_ACCOUNT);
-        String response = executeFetchQuery(selectQuery, -2, JDBC);
+        String query = StringUtils.format("SELECT firstname, state FROM %s", TestsConstants.TEST_INDEX_ACCOUNT);
+        Response response = null;
+        try {
+            String queryResult = executeFetchQuery(query, -2, JDBC);
+        } catch (ResponseException ex) {
+            response = ex.getResponse();
+        }
+
+        JSONObject resp = new JSONObject(TestUtils.getResponseBody(response));
+        assertThat(resp.getInt("status"), equalTo(400));
+        assertThat(resp.query("/error/reason"), equalTo("Invalid SQL query"));
+        assertThat(resp.query("/error/details"), equalTo("Fetch_size must be greater or equal to 0"));
+        assertThat(resp.query("/error/type"), equalTo("IllegalArgumentException"));
     }
 
     @Test
@@ -250,10 +255,17 @@ public class CursorIT extends SQLIntegTestCase {
 
     @Test
     public void noPaginationWithNonJDBCFormat() throws IOException {
-        // original ES Json, CSV, RAW, etc..
+        // checking for CSV, RAW format
+        String query = StringUtils.format("SELECT firstname, email, state FROM %s LIMIT 2000", TEST_INDEX_ACCOUNT);
+        String csvResult = executeFetchQuery(query, 100, "csv");
+        String[] rows = csvResult.split("\n");
+        // all the 1000 records (+1 for header) are retrieved instead of fetch_size number of records
+        assertThat(rows.length, equalTo(1001));
 
-        assertThat(1, equalTo(1));
-
+        String rawResult = executeFetchQuery(query, 100, "raw");
+        rows = rawResult.split("\n");
+        // all the 1000 records (NO headers) are retrieved instead of fetch_size number of records
+        assertThat(rows.length, equalTo(1000));
     }
 
     // query coverage
