@@ -22,7 +22,6 @@ import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.Section
 @DocTestConfig(template = "beyond/partiql.rst", testData = {"employees_nested.json"})
 public class PartiQLIT extends DocTest {
 
-    /*
     @Section(1)
     public void unnestingCollection() {
         section(
@@ -41,6 +40,7 @@ public class PartiQLIT extends DocTest {
         );
     }
 
+    /*
     @Section(2)
     public void unnestingUsingJoin() {
         section(
