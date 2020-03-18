@@ -115,7 +115,7 @@ public class BasicQueryIT extends DocTest {
         section(
             title("WHERE"),
             description(
-                "`WHERE` clause specifies only Elasticsearch documents that meet the criteria should be affected.",
+                "``WHERE`` clause specifies only Elasticsearch documents that meet the criteria should be affected.",
                 "It consists of predicates that uses ``=``, ``<>``, ``>``, ``>=``, ``<``, ``<=``, ``IN``,",
                 "``BETWEEN``, ``LIKE``, ``IS NULL`` or ``IS NOT NULL``. These predicates can be combined by",
                 "logical operator ``NOT``, ``AND`` or ``OR`` to build more complex expression.\n\n" +
