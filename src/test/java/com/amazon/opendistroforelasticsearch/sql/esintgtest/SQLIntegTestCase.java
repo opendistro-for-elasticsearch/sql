@@ -53,6 +53,7 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.isI
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.loadDataByRestClient;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.EXPLAIN_API_ENDPOINT;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.QUERY_API_ENDPOINT;
+import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.CURSOR_CLOSE_ENDPOINT;
 
 /**
  * SQL plugin integration test base class.
@@ -127,9 +128,24 @@ public abstract class SQLIntegTestCase extends ESRestTestCase {
     }
 
     protected Request getSqlRequest(String request, boolean explain) {
-        String queryEndpoint = String.format("%s?format=%s", QUERY_API_ENDPOINT, "json");
+        return getSqlRequest(request, explain, "json");
+    }
+
+    protected Request getSqlRequest(String request, boolean explain, String requestType) {
+        String queryEndpoint = String.format("%s?format=%s", QUERY_API_ENDPOINT, requestType);
         Request sqlRequest = new Request("POST", explain ? EXPLAIN_API_ENDPOINT : queryEndpoint);
         sqlRequest.setJsonEntity(request);
+        RequestOptions.Builder restOptionsBuilder = RequestOptions.DEFAULT.toBuilder();
+        restOptionsBuilder.addHeader("Content-Type", "application/json");
+        sqlRequest.setOptions(restOptionsBuilder);
+
+        return sqlRequest;
+    }
+
+    protected Request getSqlCursorCloseRequest(String cursorRequest) {
+        String queryEndpoint = String.format("%s?format=%s", CURSOR_CLOSE_ENDPOINT, "jdbc");
+        Request sqlRequest = new Request("POST", queryEndpoint);
+        sqlRequest.setJsonEntity(cursorRequest);
         RequestOptions.Builder restOptionsBuilder = RequestOptions.DEFAULT.toBuilder();
         restOptionsBuilder.addHeader("Content-Type", "application/json");
         sqlRequest.setOptions(restOptionsBuilder);
@@ -220,6 +236,12 @@ public abstract class SQLIntegTestCase extends ESRestTestCase {
         return new JSONObject(result);
     }
 
+    protected JSONObject executeCursorQuery(final String cursor) throws IOException {
+        final String requestBody = makeCursorRequest(cursor);
+        Request sqlRequest = getSqlRequest(requestBody, false, "jdbc");
+        return new JSONObject(executeRequest(sqlRequest));
+    }
+
     protected static JSONObject updateClusterSettings(ClusterSetting setting) throws IOException {
         Request request = new Request("PUT", "/_cluster/settings");
         String persistentSetting = String.format(Locale.ROOT,
@@ -265,6 +287,10 @@ public abstract class SQLIntegTestCase extends ESRestTestCase {
                 "  \"fetch_size\": \"%s\",\n" +
                 "  \"query\": \"%s\"\n" +
                 "}", fetch_size, query);
+    }
+
+    protected String makeCursorRequest(String cursor) {
+        return String.format("{\"cursor\":\"%s\"}" , cursor);
     }
 
     protected JSONArray getHits(JSONObject response) {
