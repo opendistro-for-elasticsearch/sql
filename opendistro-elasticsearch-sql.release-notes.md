@@ -15,7 +15,7 @@
 #### SQL Features
 * Enhancement [#367](https://github.com/opendistro-for-elasticsearch/sql/pull/367): Report date data as a standardized format (issue: [#342](https://github.com/opendistro-for-elasticsearch/sql/issues/342))
 
-#### Response
+#### Exception Handling
 * Enhancement [#362](https://github.com/opendistro-for-elasticsearch/sql/pull/362): Handle the elasticsearch exceptions in JDBC formatted outputs(issues: [#320](https://github.com/opendistro-for-elasticsearch/sql/issues/320), [308](https://github.com/opendistro-for-elasticsearch/sql/issues/308))
 * Enhancement [#372](https://github.com/opendistro-for-elasticsearch/sql/pull/372): Modified the wording of exception messages and created the troubleshooting page(issue: [#320](https://github.com/opendistro-for-elasticsearch/sql/issues/320))
 
