@@ -76,19 +76,6 @@ public class SQLToOperatorConverter extends MySqlASTVisitorAdapter {
         return aggregationParser.getColumnNodes();
     }
 
-    public List<String> extractSelectFunctionNames(List<SQLSelectItem> selectItems) {
-        List<String> methodNames = new ArrayList<>();
-        for (SQLSelectItem selectItem: selectItems){
-            SQLExpr selectItemExpr = selectItem.getExpr();
-            if (selectItemExpr instanceof SQLMethodInvokeExpr) {
-                methodNames.add(((SQLMethodInvokeExpr) selectItemExpr).getMethodName());
-            } else {
-                methodNames.add(null);
-            }
-        }
-        return methodNames;
-    }
-
     private PhysicalOperator<BindingTuple> project(PhysicalOperator<BindingTuple> input) {
         return new PhysicalProject(input, aggregationParser.getColumnNodes());
     }
