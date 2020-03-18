@@ -18,7 +18,7 @@ buildscript {
     ext {
         // When upgrading to version after 7.3.0, must remove also
         // project substitution from configurations.all (line 39)
-        es_version = System.getProperty("es.version", "7.4.2")
+        es_version = System.getProperty("es.version", "7.6.1")
     }
     // This isn't applying from repositories.gradle so repeating it here
     repositories {
@@ -31,10 +31,10 @@ buildscript {
 }
 
 plugins {
-    id 'nebula.ospackage' version "5.3.0"
+    id 'nebula.ospackage' version "8.1.0"
     id 'java-library'
     id 'checkstyle'
-    id "io.freefair.lombok" version "4.1.2"
+    id "io.freefair.lombok" version "5.0.0-rc4"
 }
 
 /*
@@ -55,13 +55,14 @@ repositories {
 }
 
 ext {
-    opendistroVersion = '1.4.0'
+    opendistroVersion = '1.6.0'
     isSnapshot = "true" == System.getProperty("build.snapshot", "true")
 }
 
 version = "${opendistroVersion}.0" 
 
 apply plugin: 'elasticsearch.esplugin'
+apply plugin: 'elasticsearch.testclusters'
 apply plugin: 'jacoco'
 if (!System.properties.containsKey('tests.rest.cluster') && !System.properties.containsKey('tests.cluster')){
     apply from: 'build-tools/sqlplugin-coverage.gradle'
@@ -130,7 +131,11 @@ test {
     systemProperty('project.root', project.rootDir.absolutePath)
 }
 
-integTestRunner {
+testClusters.integTest {
+    testDistribution = 'oss'
+}
+
+integTest.runner {
     // add "-Dtests.security.manager=false" to VM options if you want to run integ tests in IntelliJ
     systemProperty 'tests.security.manager', 'false'
     // allows integration test classes to access test resource from project root path
@@ -138,7 +143,7 @@ integTestRunner {
 
     // Tell the test JVM if the cluster JVM is running under a debugger so that tests can use longer timeouts for
     // requests. The 'doFirst' delays reading the debug setting on the cluster till execution time.
-    doFirst { systemProperty 'cluster.debug', integTestCluster.debug }
+    // doFirst { systemProperty 'cluster.debug', integTestCluster.debug }
 
     // The --debug-jvm command-line option makes the cluster debuggable; this makes the tests debuggable
     if (System.getProperty("test.debug") != null) {
@@ -171,15 +176,6 @@ integTestRunner {
         exclude 'com/amazon/opendistroforelasticsearch/sql/doctest/**/*IT.class'
         exclude 'com/amazon/opendistroforelasticsearch/sql/correctness/**'
     }
-}
-
-integTestCluster {
-    // use elasticsearch oss distribution for integration test.
-    distribution = "oss-zip"
-}
-
-run {
-    distribution = "oss-zip"
 }
 
 generateGrammarSource {
@@ -316,4 +312,3 @@ afterEvaluate {
          tasks = ['build', 'buildRpm', 'buildDeb']
     }
 }
-
