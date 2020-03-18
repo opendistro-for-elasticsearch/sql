@@ -68,6 +68,9 @@ import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.CUR
  */
 public abstract class SQLIntegTestCase extends ESRestTestCase {
 
+    public static final String PERSISTENT = "persistent";
+    public static final String TRANSIENT = "transient";
+
     @Before
     public void setUpIndices() throws Exception {
         if (client() == null) {
@@ -102,7 +105,7 @@ public abstract class SQLIntegTestCase extends ESRestTestCase {
         updateClusterSettings(new ClusterSetting("transient", "script.max_compilations_rate", "10000/1m"));
     }
 
-    private static void wipeAllClusterSettings() throws IOException {
+    protected static void wipeAllClusterSettings() throws IOException {
         updateClusterSettings(new ClusterSetting("persistent", "*", null));
         updateClusterSettings(new ClusterSetting("transient", "*", null));
     }
@@ -171,8 +174,7 @@ public abstract class SQLIntegTestCase extends ESRestTestCase {
         }
     }
 
-    protected String executeFetchQuery(String query, int fetchSize, String requestType) {
-        try {
+    protected String executeFetchQuery(String query, int fetchSize, String requestType) throws IOException {
             String endpoint = "/_opendistro/_sql?format=" + requestType;
             String requestBody = makeRequest(query, fetchSize);
 
@@ -181,11 +183,20 @@ public abstract class SQLIntegTestCase extends ESRestTestCase {
 
             Response response = client().performRequest(sqlRequest);
             String responseString = getResponseBody(response, true);
-
             return responseString;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    }
+
+    protected String executeFetchLessQuery(String query, String requestType) throws IOException {
+
+            String endpoint = "/_opendistro/_sql?format=" + requestType;
+            String requestBody = makeFetchLessRequest(query);
+
+            Request sqlRequest = new Request("POST", endpoint);
+            sqlRequest.setJsonEntity(requestBody);
+
+            Response response = client().performRequest(sqlRequest);
+            String responseString = getResponseBody(response, true);
+            return responseString;
     }
 
     protected Request buildGetEndpointRequest(final String sqlQuery) {
@@ -270,6 +281,14 @@ public abstract class SQLIntegTestCase extends ESRestTestCase {
         return new JSONObject(executeRequest(request));
     }
 
+    protected static JSONObject getAllClusterSettings() throws IOException {
+        Request request = new Request("GET", "/_cluster/settings?flat_settings&include_defaults");
+        RequestOptions.Builder restOptionsBuilder = RequestOptions.DEFAULT.toBuilder();
+        restOptionsBuilder.addHeader("Content-Type", "application/json");
+        request.setOptions(restOptionsBuilder);
+        return new JSONObject(executeRequest(request));
+    }
+
     protected static class ClusterSetting {
         private final String type;
         private final String name;
@@ -304,6 +323,12 @@ public abstract class SQLIntegTestCase extends ESRestTestCase {
                 "  \"fetch_size\": \"%s\",\n" +
                 "  \"query\": \"%s\"\n" +
                 "}", fetch_size, query);
+    }
+
+    protected String makeFetchLessRequest(String query) {
+        return String.format("{\n" +
+                "  \"query\": \"%s\"\n" +
+                "}", query);
     }
 
     protected String makeCursorRequest(String cursor) {

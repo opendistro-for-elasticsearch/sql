@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseException;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -24,13 +25,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-
 import java.io.IOException;
 
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.everyItem;
-import static org.junit.Assert.assertThat;
-
 
 public class CursorIT extends SQLIntegTestCase {
     @Rule
@@ -45,20 +43,19 @@ public class CursorIT extends SQLIntegTestCase {
 
     @Test
     public void invalidFetchSize() throws IOException {
-        // invalid fetch_size --> negative(-2), non-numeric("hello)
+        // invalid fetch_size --> negative(-2), non-numeric("hello")
         // acceptable fetch_size --> positive numbers, even in string form "532.4"
-//        exception.expect(ResponseException.class);
-//        String selectQuery = StringUtils.format("SELECT firstname, state FROM %s", TestsConstants.TEST_INDEX_ACCOUNT);
-//        String response = executeFetchQuery(selectQuery, -2, JDBC);
-//        assertThat(response.query("/status"), equalTo(400));
-//        assertThat(response.query("/error/details"), equalTo("Fetch_size must be greater or equal to 0"));
+        exception.expect(ResponseException.class);
+        exception.expectMessage("Fetch_size must be greater or equal to 0");
+        String selectQuery = StringUtils.format("SELECT firstname, state FROM %s", TEST_INDEX_ACCOUNT);
+        String response = executeFetchQuery(selectQuery, -2, JDBC);
     }
 
     @Test
     public void noPaginationWhenFetchSizeZero() throws IOException {
         // fetch_size = 0 , default to non-pagination behaviour for simple queries
         // this can be checked by checking that cursor is not present
-        String selectQuery = StringUtils.format("SELECT firstname, state FROM %s", TestsConstants.TEST_INDEX_ACCOUNT);
+        String selectQuery = StringUtils.format("SELECT firstname, state FROM %s", TEST_INDEX_ACCOUNT);
         JSONObject response = new JSONObject(executeFetchQuery(selectQuery, 0, JDBC));
         Assert.assertFalse(response.has("cursor"));
     }
@@ -66,7 +63,7 @@ public class CursorIT extends SQLIntegTestCase {
     @Test
     public void validNumberOfPages() throws IOException {
         // the index has 1000 records, with fetch size of 50 we should get 20 pages with no cursor on last page
-        String selectQuery = StringUtils.format("SELECT firstname, state FROM %s", TestsConstants.TEST_INDEX_ACCOUNT);
+        String selectQuery = StringUtils.format("SELECT firstname, state FROM %s", TEST_INDEX_ACCOUNT);
         JSONObject response = new JSONObject(executeFetchQuery(selectQuery, 50, JDBC));
         String cursor = response.getString("cursor");
         int pageCount = 1;
@@ -77,7 +74,7 @@ public class CursorIT extends SQLIntegTestCase {
             pageCount++;
         }
 
-        Assert.assertThat(pageCount, equalTo(20));
+        assertThat(pageCount, equalTo(20));
 
         // using random value here, with fetch size of 28 we should get 36 pages (ceil of 1000/28)
         response = new JSONObject(executeFetchQuery(selectQuery, 28, JDBC));
@@ -90,7 +87,7 @@ public class CursorIT extends SQLIntegTestCase {
             cursor = response.optString("cursor");
             pageCount++;
         }
-        Assert.assertThat(pageCount, equalTo(36));
+        assertThat(pageCount, equalTo(36));
 
         // verify the scroll context was cleared
     }
@@ -99,38 +96,30 @@ public class CursorIT extends SQLIntegTestCase {
     @Test
     public void validTotalResultWithAndWithoutPagination() throws IOException {
         // simple query - accounts index has 1000 docs, using higher limit to get all docs
-        String selectQuery = StringUtils.format(
-                "SELECT firstname, state FROM %s ",
-                TestsConstants.TEST_INDEX_ACCOUNT
-        );
+        String selectQuery = StringUtils.format("SELECT firstname, state FROM %s ", TEST_INDEX_ACCOUNT );
         verifyWithAndWithoutPaginationResponse(selectQuery + " LIMIT 2000" , selectQuery , 80);
     }
 
     @Test
     public void validTotalResultWithAndWithoutPaginationWhereClause() throws IOException {
         String selectQuery = StringUtils.format(
-                "SELECT firstname, state FROM %s WHERE balance < 25000 AND age > 32",
-                TestsConstants.TEST_INDEX_ACCOUNT
+                "SELECT firstname, state FROM %s WHERE balance < 25000 AND age > 32", TEST_INDEX_ACCOUNT
         );
         verifyWithAndWithoutPaginationResponse(selectQuery + " LIMIT 2000" , selectQuery , 17);
-
     }
 
     @Test
     public void validTotalResultWithAndWithoutPaginationOrderBy() throws IOException {
         String selectQuery = StringUtils.format(
-                "SELECT firstname, state FROM %s ORDER BY balance DESC ",
-                TestsConstants.TEST_INDEX_ACCOUNT
+                "SELECT firstname, state FROM %s ORDER BY balance DESC ", TEST_INDEX_ACCOUNT
         );
         verifyWithAndWithoutPaginationResponse(selectQuery + " LIMIT 2000" , selectQuery , 26);
-
     }
 
     @Test
     public void validTotalResultWithAndWithoutPaginationWhereAndOrderBy() throws IOException {
         String selectQuery = StringUtils.format(
-                "SELECT firstname, state FROM %s WHERE balance < 25000 ORDER BY balance ASC ",
-                TestsConstants.TEST_INDEX_ACCOUNT
+                "SELECT firstname, state FROM %s WHERE balance < 25000 ORDER BY balance ASC ", TEST_INDEX_ACCOUNT
         );
         verifyWithAndWithoutPaginationResponse(selectQuery + " LIMIT 2000" , selectQuery , 80);
 
@@ -146,18 +135,17 @@ public class CursorIT extends SQLIntegTestCase {
         // retrieve first few pages, then close the context, and try to re-use the last cursorID
         // check x-pack behaviour and replicate it here
 
-        Assert.assertThat(1, equalTo(1));
-
-
+        assertThat(1, equalTo(1));
 
     }
 
     @Test
     public void noCursorWhenResultsLessThanFetchSize() throws IOException {
         // fetch_size is 100, but actual number of rows returned from ElasticSearch is 97
+        // a scroll context will be opened but will be closed after first page as all records are fetched
         String selectQuery = StringUtils.format(
-                "SELECT * FROM %s WHERE balance < 25000 AND age > 36 LIMIT 2000",
-                TestsConstants.TEST_INDEX_ACCOUNT);
+                "SELECT * FROM %s WHERE balance < 25000 AND age > 36 LIMIT 2000", TEST_INDEX_ACCOUNT
+        );
         JSONObject response = new JSONObject(executeFetchQuery(selectQuery, 100, JDBC));
         Assert.assertFalse(response.has("cursor"));
     }
@@ -166,33 +154,56 @@ public class CursorIT extends SQLIntegTestCase {
 
     @Test
     public void defaultBehaviorWhenCursorSettingIsDisabled() throws IOException {
-        // for example a index has 13000 rows but
-        // query : "SELECT * from accounts where  balance < 100" --> total results being 250
-        // for any fetch size greater than (but less than index.max_result_window) total results
-        // there should be no cursor and close the context in the backend
+        updateClusterSettings(new ClusterSetting(PERSISTENT, "opendistro.sql.cursor.enabled", "false"));
+        String query = StringUtils.format("SELECT firstname, email, state FROM %s", TEST_INDEX_ACCOUNT);
+        JSONObject response = new JSONObject(executeFetchQuery(query, 100, JDBC));
+        Assert.assertFalse(response.has("cursor"));
 
-        Assert.assertThat(1, equalTo(1));
+        updateClusterSettings(new ClusterSetting(PERSISTENT, "opendistro.sql.cursor.enabled", null));
+        query = StringUtils.format("SELECT firstname, email, state FROM %s", TEST_INDEX_ACCOUNT);
+        response = new JSONObject(executeFetchQuery(query, 100, JDBC));
+        Assert.assertTrue(response.has("cursor"));
 
+        wipeAllClusterSettings();
     }
 
 
     @Test
     public void testCursorSettings() throws IOException {
-        // default fetch size 1000 , the max effective fetch_size is limited by max_result_window
-        // default scroll context time : should it be 1m? , only where we opening scroll contexts
-        // enable/disable cursor for all query
+        // Assert default cursor setings
+        JSONObject clusterSettings = getAllClusterSettings();
+        assertThat(clusterSettings.query("/defaults/opendistro.sql.cursor.enabled"), equalTo("true"));
+        assertThat(clusterSettings.query("/defaults/opendistro.sql.cursor.fetch_size"), equalTo("1000"));
+        assertThat(clusterSettings.query("/defaults/opendistro.sql.cursor.keep_alive"), equalTo("1m"));
 
+        updateClusterSettings(new ClusterSetting(PERSISTENT, "opendistro.sql.cursor.enabled", "false"));
+        updateClusterSettings(new ClusterSetting(TRANSIENT, "opendistro.sql.cursor.fetch_size", "400"));
+        updateClusterSettings(new ClusterSetting(PERSISTENT, "opendistro.sql.cursor.keep_alive", "200s"));
 
-        Assert.assertThat(1, equalTo(1));
+        clusterSettings = getAllClusterSettings();
+        assertThat(clusterSettings.query("/persistent/opendistro.sql.cursor.enabled"), equalTo("false"));
+        assertThat(clusterSettings.query("/transient/opendistro.sql.cursor.fetch_size"), equalTo("400"));
+        assertThat(clusterSettings.query("/persistent/opendistro.sql.cursor.keep_alive"), equalTo("200s"));
 
+        wipeAllClusterSettings();
     }
 
 
     @Test
     public void testDefaultFetchSize() throws IOException {
-        // the default fetch size
-        Assert.assertThat(1, equalTo(1));
+        // the default fetch size is 1000
+        // using non-nested query here as page will have more rows on flattening
+        String query = StringUtils.format("SELECT firstname, email, state FROM %s", TEST_INDEX_ACCOUNT);
+        JSONObject response = new JSONObject(executeFetchLessQuery(query, JDBC));
+        JSONArray datawRows = response.optJSONArray("datarows");
+        assertThat(datawRows.length(), equalTo(1000));
 
+        updateClusterSettings(new ClusterSetting(TRANSIENT, "opendistro.sql.cursor.fetch_size", "786"));
+        response = new JSONObject(executeFetchLessQuery(query, JDBC));
+        datawRows = response.optJSONArray("datarows");
+        assertThat(datawRows.length(), equalTo(786));
+
+        wipeAllClusterSettings();
     }
 
     @Test
@@ -200,7 +211,7 @@ public class CursorIT extends SQLIntegTestCase {
         // multiple invocation of closing cursor should return success
         // fetch page using old cursor should throw error
 
-        Assert.assertThat(1, equalTo(1));
+        assertThat(1, equalTo(1));
 
     }
 
@@ -209,7 +220,7 @@ public class CursorIT extends SQLIntegTestCase {
     public void invalidCursorId() throws IOException {
         // could be either not decodable or scroll context already closed (I guess this is already taken above)
 
-        Assert.assertThat(1, equalTo(1));
+        assertThat(1, equalTo(1));
 
     }
 
@@ -220,7 +231,7 @@ public class CursorIT extends SQLIntegTestCase {
         // query : "SELECT * from accounts LIMIT 9999" --> total results being 250
         // there should be only
 
-        Assert.assertThat(1, equalTo(1));
+        assertThat(1, equalTo(1));
 
     }
 
@@ -233,7 +244,7 @@ public class CursorIT extends SQLIntegTestCase {
         // TODO: change test case name
         // aggregation and joins queries are not affected
 
-        Assert.assertThat(1, equalTo(1));
+        assertThat(1, equalTo(1));
 
     }
 
@@ -241,7 +252,7 @@ public class CursorIT extends SQLIntegTestCase {
     public void noPaginationWithNonJDBCFormat() throws IOException {
         // original ES Json, CSV, RAW, etc..
 
-        Assert.assertThat(1, equalTo(1));
+        assertThat(1, equalTo(1));
 
     }
 
@@ -251,7 +262,7 @@ public class CursorIT extends SQLIntegTestCase {
     public void queryCoverage() throws IOException {
         // original ES Json, CSV, RAW, etc..
 
-        Assert.assertThat(1, equalTo(1));
+        assertThat(1, equalTo(1));
 
     }
 
