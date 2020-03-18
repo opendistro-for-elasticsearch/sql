@@ -15,13 +15,18 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
+import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.QueryActionElasticExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.RestExecutor;
+import com.amazon.opendistroforelasticsearch.sql.executor.cursor.CursorType;
+import com.amazon.opendistroforelasticsearch.sql.query.DefaultQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.join.BackOffRetryStrategy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.Strings;
 import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestStatus;
@@ -66,13 +71,37 @@ public class PrettyFormatRestExecutor implements RestExecutor {
         Protocol protocol;
 
         try {
-            Object queryResult = QueryActionElasticExecutor.executeAnyAction(client, queryAction);
-            protocol = new Protocol(client, queryAction, queryResult, format);
+            if (queryAction instanceof DefaultQueryAction) {
+                protocol = buildProtocolForDefaultQuery(client, (DefaultQueryAction) queryAction);
+            } else {
+                Object queryResult = QueryActionElasticExecutor.executeAnyAction(client, queryAction);
+                protocol = new Protocol(client, queryAction, queryResult, format);
+            }
         } catch (Exception e) {
             LOG.error("Error happened in pretty formatter", e);
             protocol = new Protocol(e);
         }
 
         return protocol.format();
+    }
+
+    /**
+     * QueryActionElasticExecutor.executeAnyAction() returns SearchHits inside SearchResponse.
+     * In order to get scroll ID if any, we need to execute DefaultQueryAction ourselves for SearchResponse.
+     */
+    private Protocol buildProtocolForDefaultQuery(Client client, DefaultQueryAction queryAction)
+            throws SqlParseException {
+
+        SearchResponse response = (SearchResponse) queryAction.explain().get();
+        Protocol protocol = new Protocol(client, queryAction, response.getHits(), format);
+
+        String scrollId = response.getScrollId();
+        if (!Strings.isNullOrEmpty(scrollId)) {
+            protocol.addOption("scrollId", scrollId);
+            protocol.setCursorType(CursorType.DEFAULT);
+            protocol.generateCursorId();
+        }
+
+        return protocol;
     }
 }
