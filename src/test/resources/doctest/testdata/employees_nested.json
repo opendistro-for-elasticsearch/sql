@@ -4,5 +4,3 @@
 {"id":4,"name":"Susan Smith","title":"Dev Mgr","projects":[],"comments":[{"date":"2018-06-23","message":"comment_2_1","likes":56},{"date":"2017-10-25","message":"comment_2_2","likes":22}]}
 {"index":{"_id":"3"}}
 {"id":6,"name":"Jane Smith","title":"Software Eng 2","projects":[{"name":"AWS Redshift security","started_year":1998},{"name":"AWS Hello security","started_year":2015,"address":[{"city":"Dallas","state":"TX"}]}],"comments":[{"date":"2018-06-23","message":"comment_3_1","likes":24},{"date":"2017-10-25","message":"comment_3_2","likes":42}]}
-{"index":{"_id":"4"}}
-{"id":4,"name":"John Doe","title":"Dev Mgr","projects":null ,"comments":[{"date":"2019-06-10","message":"comment_4_1","likes": 82},{"date":"2017-10-12","message":"comment_4_2","likes": 14}]}

@@ -313,7 +313,7 @@ WHERE
 Description
 -----------
 
-`WHERE` clause specifies only Elasticsearch documents that meet the criteria should be affected. It consists of predicates that uses ``=``, ``<>``, ``>``, ``>=``, ``<``, ``<=``, ``IN``, ``BETWEEN``, ``LIKE``, ``IS NULL`` or ``IS NOT NULL``. These predicates can be combined by logical operator ``NOT``, ``AND`` or ``OR`` to build more complex expression.
+``WHERE`` clause specifies only Elasticsearch documents that meet the criteria should be affected. It consists of predicates that uses ``=``, ``<>``, ``>``, ``>=``, ``<``, ``<=``, ``IN``, ``BETWEEN``, ``LIKE``, ``IS NULL`` or ``IS NOT NULL``. These predicates can be combined by logical operator ``NOT``, ``AND`` or ``OR`` to build more complex expression.
 
 For ``LIKE`` and other full text search topics, please refer to Full Text Search documentation.
 

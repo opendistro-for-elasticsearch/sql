@@ -19,7 +19,7 @@ import com.amazon.opendistroforelasticsearch.sql.doctest.core.DocTest;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.DocTestConfig;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.Section;
 
-@DocTestConfig(template = "dql/partiql.rst", testData = {"employees_nested.json"})
+@DocTestConfig(template = "beyond/partiql.rst", testData = {"employees_nested.json"})
 public class PartiQLIT extends DocTest {
 
     @Section(1)
@@ -32,7 +32,7 @@ public class PartiQLIT extends DocTest {
                 post(
                     "SELECT e.name AS employeeName, " +
                     "       p.name AS projectName " +
-                    "FROM hr.employeesNest AS e, " +
+                    "FROM employees_nested AS e, " +
                     "     e.projects AS p " +
                     "WHERE p.name LIKE '%security%'"
                 )
@@ -47,11 +47,16 @@ public class PartiQLIT extends DocTest {
             description("PartiQL is ..."),
             example(
                 description(""),
-                post("")
+                post("SELECT e.id AS id, " +
+                    "       e.name AS employeeName, " +
+                    "       e.title AS title, " +
+                    "       p.name AS projectName " +
+                    "FROM employees_nested AS e LEFT JOIN e.projects AS p")
             )
         );
     }
 
+    /*
     @Section(3)
     public void missing() {
         section(
@@ -63,5 +68,6 @@ public class PartiQLIT extends DocTest {
             )
         );
     }
+    */
 
 }
