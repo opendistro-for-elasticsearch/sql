@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.doctest.dql;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.DocTest;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.DocTestConfig;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.Section;
+import org.junit.Ignore;
 
 @DocTestConfig(template = "dql/complex.rst", testData = {"accounts.json", "employees_nested.json"})
 public class ComplexQueryIT extends DocTest {
@@ -79,11 +80,16 @@ public class ComplexQueryIT extends DocTest {
     }
     */
 
+    @Ignore("Multi-query doesn't work for default format: https://github.com/opendistro-for-elasticsearch/sql/issues/388")
     @Section(3)
     public void setOperations() {
         section(
             title("Set Operations"),
-            description("Set operations allow results of multiple queries to be combined into a single result set."),
+            description(
+                "Set operations allow results of multiple queries to be combined into a single result set.",
+                "The results to be combined are required to be of same type. In other word, they require to",
+                "have same column. Otherwise, a semantic analysis exception is raised."
+            ),
             example(
                 title("UNION Operator"),
                 description(
@@ -91,7 +97,11 @@ public class ComplexQueryIT extends DocTest {
                     "are removed unless ``UNION ALL`` clause is being used. A common use case of ``UNION`` is to combine",
                     "result set from data partitioned in indices daily or monthly."
                 ),
-                post("SELECT * FROM accounts")
+                post(
+                    "SELECT balance, firstname, lastname FROM accounts WHERE balance < 10000 " +
+                    "UNION " +
+                    "SELECT balance, firstname, lastname FROM accounts WHERE balance > 30000 "
+                )
             ),
             example(
                 title("MINUS Operator"),
@@ -99,7 +109,11 @@ public class ComplexQueryIT extends DocTest {
                     "A ``MINUS`` clause takes two queries too but returns resulting rows of first query that",
                     "do not appear in the other query. Duplicate rows are removed automatically as well."
                 ),
-                post("SELECT * FROM accounts")
+                post(
+                    "SELECT balance, age FROM accounts WHERE balance < 10000 " +
+                    "MINUS " +
+                    "SELECT balance, age FROM accounts WHERE age < 35 "
+                )
             )
         );
     }
