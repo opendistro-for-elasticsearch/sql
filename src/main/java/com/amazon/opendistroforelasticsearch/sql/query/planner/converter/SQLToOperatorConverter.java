@@ -57,19 +57,13 @@ public class SQLToOperatorConverter extends MySqlASTVisitorAdapter {
 
     @Override
     public boolean visit(MySqlSelectQueryBlock query) {
-        //1. extract function names in select
-        List<String> selectMethodNames = extractSelectFunctionNames(query.getSelectList());
 
-        //1. rewrite all the function name to lower case.
-        rewriteFunctionNameToLowerCase(query);
-
-        //2. parse the aggregation
-        aggregationParser.parse(query, selectMethodNames);
+        //1. parse the aggregation
+        aggregationParser.parse(query);
 
 
-        //3. construct the PhysicalOperator
-        physicalOperator = project(
-                                scroll(query));
+        //2. construct the PhysicalOperator
+        physicalOperator = project(scroll(query));
         return false;
     }
 
@@ -93,16 +87,6 @@ public class SQLToOperatorConverter extends MySqlASTVisitorAdapter {
             }
         }
         return methodNames;
-    }
-
-    private void rewriteFunctionNameToLowerCase(MySqlSelectQueryBlock query) {
-        query.accept(new MySqlASTVisitorAdapter() {
-            @Override
-            public boolean visit(SQLMethodInvokeExpr x) {
-                x.setMethodName(x.getMethodName().toLowerCase());
-                return true;
-            }
-        });
     }
 
     private PhysicalOperator<BindingTuple> project(PhysicalOperator<BindingTuple> input) {

@@ -59,9 +59,7 @@ public class SQLAggregationParserTest {
                      "FROM kibana_sample_data_flights " +
                      "GROUP BY dayOfWeek";
         SQLAggregationParser parser = new SQLAggregationParser(new ColumnTypeProvider());
-        MySqlSelectQueryBlock query = mYSqlSelectQueryBlock(sql);
-        List<String> selectMethodNames = prepareRawMethodNames(query, true);
-        parser.parse(query, selectMethodNames);
+        parser.parse(mYSqlSelectQueryBlock(sql));
         List<SQLSelectItem> sqlSelectItems = parser.selectItemList();
         List<ColumnNode> columnNodes = parser.getColumnNodes();
 
@@ -81,9 +79,7 @@ public class SQLAggregationParserTest {
                      "FROM kibana_sample_data_flights " +
                      "GROUP BY dayOfWeek";
         SQLAggregationParser parser = new SQLAggregationParser(new ColumnTypeProvider());
-        MySqlSelectQueryBlock query = mYSqlSelectQueryBlock(sql);
-        List<String> selectMethodNames = prepareRawMethodNames(query, true);
-        parser.parse(query, selectMethodNames);
+        parser.parse(mYSqlSelectQueryBlock(sql));
         List<SQLSelectItem> sqlSelectItems = parser.selectItemList();
         List<ColumnNode> columnNodes = parser.getColumnNodes();
 
@@ -103,9 +99,7 @@ public class SQLAggregationParserTest {
                      "FROM kibana_sample_data_flights " +
                      "GROUP BY dayOfWeek";
         SQLAggregationParser parser = new SQLAggregationParser(new ColumnTypeProvider());
-        MySqlSelectQueryBlock query = mYSqlSelectQueryBlock(sql);
-        List<String> selectMethodNames = prepareRawMethodNames(query, true);
-        parser.parse(query, selectMethodNames);
+        parser.parse(mYSqlSelectQueryBlock(sql));
         List<SQLSelectItem> sqlSelectItems = parser.selectItemList();
         List<ColumnNode> columnNodes = parser.getColumnNodes();
 
@@ -124,16 +118,7 @@ public class SQLAggregationParserTest {
                 "FROM kibana_sample_data_flights " +
                 "GROUP BY log(FlightDelayMin)";
         SQLAggregationParser parser = new SQLAggregationParser(new ColumnTypeProvider());
-        MySqlSelectQueryBlock query = mYSqlSelectQueryBlock(sql);
-        List<String> selectMethodNames = prepareRawMethodNames(query, false);
-        query.accept(new MySqlASTVisitorAdapter() {
-            @Override
-            public boolean visit(SQLMethodInvokeExpr x) {
-                x.setMethodName(x.getMethodName().toLowerCase());
-                return true;
-            }
-        });
-        parser.parse(query, selectMethodNames);
+        parser.parse(mYSqlSelectQueryBlock(sql));
         List<SQLSelectItem> sqlSelectItems = parser.selectItemList();
         List<ColumnNode> columnNodes = parser.getColumnNodes();
 
@@ -157,9 +142,7 @@ public class SQLAggregationParserTest {
                      "FROM kibana_sample_data_flights " +
                      "GROUP BY dayOfWeek";
         SQLAggregationParser parser = new SQLAggregationParser(new ColumnTypeProvider());
-        MySqlSelectQueryBlock query = mYSqlSelectQueryBlock(sql);
-        List<String> selectMethodNames = prepareRawMethodNames(query, true);
-        parser.parse(query, selectMethodNames);
+        parser.parse(mYSqlSelectQueryBlock(sql));
         List<SQLSelectItem> sqlSelectItems = parser.selectItemList();
         List<ColumnNode> columnNodes = parser.getColumnNodes();
 
@@ -178,9 +161,7 @@ public class SQLAggregationParserTest {
                      "FROM kibana_sample_data_flights " +
                      "GROUP BY ASCII(dayOfWeek)";
         SQLAggregationParser parser = new SQLAggregationParser(new ColumnTypeProvider());
-        MySqlSelectQueryBlock query = mYSqlSelectQueryBlock(sql);
-        List<String> selectMethodNames = prepareRawMethodNames(query, true);
-        parser.parse(query, selectMethodNames);
+        parser.parse(mYSqlSelectQueryBlock(sql));
         List<SQLSelectItem> sqlSelectItems = parser.selectItemList();
         List<ColumnNode> columnNodes = parser.getColumnNodes();
 
@@ -198,9 +179,7 @@ public class SQLAggregationParserTest {
     public void parseSingleFunctionOverAggShouldPass() {
         String sql = "SELECT log(max(age)) FROM accounts";
         SQLAggregationParser parser = new SQLAggregationParser(new ColumnTypeProvider());
-        MySqlSelectQueryBlock query = mYSqlSelectQueryBlock(sql);
-        List<String> selectMethodNames = prepareRawMethodNames(query, true);
-        parser.parse(query, selectMethodNames);
+        parser.parse(mYSqlSelectQueryBlock(sql));
         List<SQLSelectItem> sqlSelectItems = parser.selectItemList();
         List<ColumnNode> columnNodes = parser.getColumnNodes();
 
@@ -213,9 +192,7 @@ public class SQLAggregationParserTest {
     public void parseFunctionGroupColumnOverShouldPass() {
         String sql = "SELECT CAST(balance AS FLOAT) FROM accounts GROUP BY balance";
         SQLAggregationParser parser = new SQLAggregationParser(new ColumnTypeProvider());
-        MySqlSelectQueryBlock query = mYSqlSelectQueryBlock(sql);
-        List<String> selectMethodNames = prepareRawMethodNames(query, true);
-        parser.parse(query, selectMethodNames);
+        parser.parse(mYSqlSelectQueryBlock(sql));
         List<SQLSelectItem> sqlSelectItems = parser.selectItemList();
         List<ColumnNode> columnNodes = parser.getColumnNodes();
 
@@ -228,9 +205,7 @@ public class SQLAggregationParserTest {
     public void withoutAggregationShouldPass() {
         String sql = "SELECT age, gender FROM accounts GROUP BY age, gender";
         SQLAggregationParser parser = new SQLAggregationParser(new ColumnTypeProvider());
-        MySqlSelectQueryBlock query = mYSqlSelectQueryBlock(sql);
-        List<String> selectMethodNames = prepareRawMethodNames(query, true);
-        parser.parse(query, selectMethodNames);
+        parser.parse(mYSqlSelectQueryBlock(sql));
         List<SQLSelectItem> sqlSelectItems = parser.selectItemList();
         List<ColumnNode> columnNodes = parser.getColumnNodes();
 
@@ -246,9 +221,7 @@ public class SQLAggregationParserTest {
     public void groupKeyInSelectWithFunctionShouldPass() {
         String sql = "SELECT log(age), max(balance) FROM accounts GROUP BY age";
         SQLAggregationParser parser = new SQLAggregationParser(new ColumnTypeProvider());
-        MySqlSelectQueryBlock query = mYSqlSelectQueryBlock(sql);
-        List<String> selectMethodNames = prepareRawMethodNames(query, true);
-        parser.parse(query, selectMethodNames);
+        parser.parse(mYSqlSelectQueryBlock(sql));
         List<SQLSelectItem> sqlSelectItems = parser.selectItemList();
         List<ColumnNode> columnNodes = parser.getColumnNodes();
 
@@ -264,9 +237,7 @@ public class SQLAggregationParserTest {
     public void theDotInFieldNameShouldBeReplaceWithSharp() {
         String sql = "SELECT name.lastname, max(balance) FROM accounts GROUP BY name.lastname";
         SQLAggregationParser parser = new SQLAggregationParser(new ColumnTypeProvider());
-        MySqlSelectQueryBlock query = mYSqlSelectQueryBlock(sql);
-        List<String> selectMethodNames = prepareRawMethodNames(query, true);
-        parser.parse(query, selectMethodNames);
+        parser.parse(mYSqlSelectQueryBlock(sql));
         List<SQLSelectItem> sqlSelectItems = parser.selectItemList();
         List<ColumnNode> columnNodes = parser.getColumnNodes();
 
@@ -282,9 +253,7 @@ public class SQLAggregationParserTest {
     public void noGroupKeyInSelectShouldPass() {
         String sql = "SELECT AVG(age) FROM t GROUP BY age";
         SQLAggregationParser parser = new SQLAggregationParser(new ColumnTypeProvider());
-        MySqlSelectQueryBlock query = mYSqlSelectQueryBlock(sql);
-        List<String> selectMethodNames = prepareRawMethodNames(query, true);
-        parser.parse(query, selectMethodNames);
+        parser.parse(mYSqlSelectQueryBlock(sql));
         List<SQLSelectItem> sqlSelectItems = parser.selectItemList();
         List<ColumnNode> columnNodes = parser.getColumnNodes();
 
@@ -306,28 +275,7 @@ public class SQLAggregationParserTest {
                      + "FROM t "
                      + "GROUP BY nested(projects.name.keyword, 'projects')";
         SQLAggregationParser parser = new SQLAggregationParser(new ColumnTypeProvider());
-        MySqlSelectQueryBlock query = mYSqlSelectQueryBlock(sql);
-        List<String> selectMethodNames = prepareRawMethodNames(query, true);
-        parser.parse(query, selectMethodNames);
-    }
-
-    private List<String> prepareRawMethodNames(MySqlSelectQueryBlock query, Boolean fillWithNull) {
-        List<SQLSelectItem> selectItems = query.getSelectList();
-        if (fillWithNull) {
-            return Arrays.asList(new String[selectItems.size()]);
-        }
-        List<String> selectMethodNames = new ArrayList<>();
-        for (SQLSelectItem selectItem: selectItems){
-            SQLExpr selectItemExpr = selectItem.getExpr();
-            if (selectItemExpr instanceof SQLMethodInvokeExpr) {
-                selectMethodNames.add(((SQLMethodInvokeExpr) selectItemExpr).getMethodName());
-            } else if (selectItemExpr instanceof SQLAggregateExpr) {
-                selectMethodNames.add(((SQLAggregateExpr) selectItemExpr).getMethodName());
-            } else {
-                selectMethodNames.add(null);
-            }
-        }
-        return selectMethodNames;
+        parser.parse(mYSqlSelectQueryBlock(sql));
     }
 
     private MySqlSelectQueryBlock mYSqlSelectQueryBlock(String sql) {
