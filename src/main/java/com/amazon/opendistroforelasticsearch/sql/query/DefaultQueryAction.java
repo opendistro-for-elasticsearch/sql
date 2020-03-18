@@ -85,7 +85,6 @@ public class DefaultQueryAction extends QueryAction {
     @Override
     public SqlElasticSearchRequestBuilder explain() throws SqlParseException {
         Objects.requireNonNull(this.sqlRequest, "SqlRequest is required for ES request build");
-        Objects.requireNonNull(this.format, "Format is required for ES request build");
         buildRequest();
         checkAndSetScroll();
         return new SqlElasticSearchRequestBuilder(request);
@@ -110,8 +109,8 @@ public class DefaultQueryAction extends QueryAction {
     private void checkAndSetScroll() {
         LocalClusterState clusterState = LocalClusterState.state();
 
-        Integer fetchSize = sqlRequest.fetchSize() != null ?
-                sqlRequest.fetchSize() : clusterState.getSettingValue(CURSOR_FETCH_SIZE);
+        Integer fetchSize = sqlRequest.fetchSize() != null
+                ? sqlRequest.fetchSize() : clusterState.getSettingValue(CURSOR_FETCH_SIZE);
         TimeValue timeValue = clusterState.getSettingValue(CURSOR_KEEPALIVE);
         Boolean cursorEnabled = clusterState.getSettingValue(CURSOR_ENABLED);
         Integer rowCount = select.getRowCount();
@@ -120,9 +119,9 @@ public class DefaultQueryAction extends QueryAction {
 
         if (checkIfScrollNeeded(cursorEnabled, fetchSize, rowCount)) {
             //TODO: shouldn't this be needed for all cases irrespective of pagination or not?
-            if (!select.isOrderdSelect()) {
-                request.addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC);
-            }
+//            if (!select.isOrderdSelect()) {
+//                request.addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC);
+//            }
             request.setSize(fetchSize).setScroll(timeValue);
             cursorContext = true;
         } else {
@@ -133,7 +132,7 @@ public class DefaultQueryAction extends QueryAction {
 
     private boolean checkIfScrollNeeded(boolean cursorEnabled, Integer fetchSize, Integer rowCount) {
         return cursorEnabled
-                && format.equals(Format.JDBC)
+                && (format !=null && format.equals(Format.JDBC))
                 && fetchSize > 0
                 && (rowCount == null || (rowCount > fetchSize));
     }

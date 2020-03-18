@@ -19,7 +19,7 @@ public interface CursorContext {
 
     CursorType getCursorType();
 
-    void  setCursorType(CursorType cursorType);
+    void setCursorType(CursorType cursorType);
 
     String getCursor();
 

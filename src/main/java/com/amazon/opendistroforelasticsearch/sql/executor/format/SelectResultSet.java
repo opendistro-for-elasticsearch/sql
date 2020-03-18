@@ -15,10 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
-import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLCaseExpr;
-import com.alibaba.druid.sql.ast.expr.SQLCastExpr;
-import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.amazon.opendistroforelasticsearch.sql.domain.ColumnTypeProvider;
 import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.JoinSelect;
@@ -28,7 +25,6 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.domain.TableOnJoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMapping;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlFeatureNotImplementedException;
-import com.amazon.opendistroforelasticsearch.sql.executor.Format;
 import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
@@ -43,6 +39,8 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.NumericMetricsAggregation;
 import org.elasticsearch.search.aggregations.metrics.Percentile;
 import org.elasticsearch.search.aggregations.metrics.Percentiles;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,6 +52,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toSet;
@@ -77,6 +76,7 @@ public class SelectResultSet extends ResultSet {
     private long size;
     private long totalHits;
     private List<DataRows.Row> rows;
+    private long cursorTotalHits;
 
     private DateFieldFormatter dateFieldFormatter;
     // alias -> base field name
@@ -107,6 +107,57 @@ public class SelectResultSet extends ResultSet {
 
         extractData();
         this.dataRows = new DataRows(size, totalHits, rows);
+    }
+
+
+    public SelectResultSet(Client client, Object queryResult, JSONObject cursorContext, String formatType) {
+        this.client = client;
+        this.queryResult = queryResult;
+        this.selectAll = false;
+        this.formatType = formatType;
+        this.columns = getColumnsFromSchema(cursorContext);
+        this.schema = new Schema(null, null, columns);
+        this.head = schema.getHeaders();
+        extractData();
+        this.dataRows = new DataRows(size, totalHits, rows);
+
+    }
+
+    public long getCursorTotalHits() {
+        return cursorTotalHits;
+    }
+
+    public List<Schema.Column> getColumnsFromSchema(JSONObject cursorContext) {
+
+        JSONArray schema = cursorContext.getJSONArray("schema");
+
+        List<Schema.Column> columns = IntStream.
+                range(0, schema.length()).
+                mapToObj(i -> {
+                            JSONObject jsonColumn = schema.getJSONObject(i);
+                            return new Schema.Column(
+                                    jsonColumn.getString("name"),
+                                    jsonColumn.optString("alias", null),
+                                    Schema.Type.valueOf(jsonColumn.getString("type").toUpperCase())
+                            );
+                        }
+                ).collect(Collectors.toList());
+
+//        List<Schema.Column> columns = new ArrayList<>();
+//
+//        JSONObject jsonColumn = null;
+//
+//        for (Object object : schema) {
+//            jsonColumn = (JSONObject) object;
+//            columns.add(new Schema.Column(
+//                jsonColumn.getString("name"),
+//                jsonColumn.getString("alias"),
+//                Schema.Type.valueOf(jsonColumn.getString("type").toUpperCase())
+//                )
+//            );
+//
+//        }
+        return columns;
     }
 
     //***********************************************************
@@ -396,14 +447,6 @@ public class SelectResultSet extends ResultSet {
                 MethodField methodField = (MethodField) fieldMap.get(fieldName);
                 int fieldIndex = fieldNameList.indexOf(fieldName);
 
-                SQLExpr expr = methodField.getExpression();
-                if (expr instanceof SQLCastExpr) {
-                    // Since CAST expressions create an alias for a field, we need to save the original field name
-                    // for this alias for formatting data later.
-                    SQLIdentifierExpr castFieldIdentifier = (SQLIdentifierExpr) ((SQLCastExpr) expr).getExpr();
-                    fieldAliasMap.put(methodField.getAlias(), castFieldIdentifier.getName());
-                }
-
                 columns.add(
                         new Schema.Column(
                                 methodField.getAlias(),
@@ -528,7 +571,7 @@ public class SelectResultSet extends ResultSet {
             this.totalHits = Math.max(size, // size may be greater than totalHits after nested rows be flatten
                     Optional.ofNullable(searchHits.getTotalHits()).map(th -> th.value)
                             .orElse(0L));
-
+            this.cursorTotalHits = Optional.ofNullable(searchHits.getTotalHits()).map(th -> th.value).orElse(totalHits);
         } else if (queryResult instanceof Aggregations) {
             Aggregations aggregations = (Aggregations) queryResult;
 
@@ -536,6 +579,7 @@ public class SelectResultSet extends ResultSet {
             this.size = rows.size();
             // Total hits is not available from Aggregations so 'size' is used
             this.totalHits = size;
+            this.cursorTotalHits = size;
         }
     }
 
@@ -554,14 +598,8 @@ public class SelectResultSet extends ResultSet {
                 for (Map.Entry<String, DocumentField> field : hit.getFields().entrySet()) {
                     rowSource.put(field.getKey(), field.getValue().getValue());
                 }
-//                if (formatType.equalsIgnoreCase(Format.JDBC.getFormatName())) {
-//                    dateFieldFormatter.applyJDBCDateFormat(rowSource);
-//                }
                 result = flatNestedField(newKeys, rowSource, hit.getInnerHits());
             } else {
-//                if (formatType.equalsIgnoreCase(Format.JDBC.getFormatName())) {
-//                    dateFieldFormatter.applyJDBCDateFormat(rowSource);
-//                }
                 result = new ArrayList<>();
                 result.add(new DataRows.Row(rowSource));
             }

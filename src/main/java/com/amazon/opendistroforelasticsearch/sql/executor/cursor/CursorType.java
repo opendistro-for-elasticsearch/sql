@@ -19,9 +19,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum CursorType {
-    DEFAULT(0),
-    AGGREGATION(10),
-    JOIN(20);
+    DEFAULT(10),
+    AGGREGATION(20),
+    JOIN(30);
 
     private int value;
 
@@ -32,7 +32,7 @@ public enum CursorType {
         }
     }
 
-    CursorType (int value) {
+    CursorType(int value) {
         this.value = value;
     }
 

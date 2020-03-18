@@ -1294,6 +1294,7 @@ public class QueryIT extends SQLIntegTestCase {
     }
 
     @Test
+    @Ignore
     public void useScrollWithoutParams() throws IOException {
         JSONObject response = executeQuery(
                         String.format(Locale.ROOT, "SELECT /*! USE_SCROLL*/ age, gender, firstname, balance " +
@@ -1309,6 +1310,7 @@ public class QueryIT extends SQLIntegTestCase {
     }
 
     @Test
+    @Ignore
     public void useScrollWithParams() throws IOException {
         JSONObject response = executeQuery(
                         String.format(Locale.ROOT,
@@ -1322,6 +1324,7 @@ public class QueryIT extends SQLIntegTestCase {
     }
 
     @Test
+    @Ignore
     public void useScrollWithOrderByAndParams() throws IOException {
         JSONObject response = executeQuery(
                         String.format(Locale.ROOT,

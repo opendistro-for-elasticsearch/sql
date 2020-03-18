@@ -257,9 +257,14 @@ public abstract class SQLIntegTestCase extends ESRestTestCase {
     }
 
     protected String makeRequest(String query) {
+        return makeRequest(query, 0);
+    }
+
+    protected String makeRequest(String query, int fetch_size) {
         return String.format("{\n" +
+                "  \"fetch_size\": \"%s\",\n" +
                 "  \"query\": \"%s\"\n" +
-                "}", query);
+                "}", fetch_size, query);
     }
 
     protected JSONArray getHits(JSONObject response) {

@@ -148,8 +148,6 @@ public class RestSqlAction extends BaseRestHandler {
                                      final RestChannel channel) throws Exception {
         CursorRestExecutor cursorRestExecutor = CursorActionRequestRestExecutorFactory.createExecutor(
                 request, cursor, SqlRequestParam.getFormat(request.params()));
-        );
-
         cursorRestExecutor.execute(client, request.params(), channel);
     }
 
