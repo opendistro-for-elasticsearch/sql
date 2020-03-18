@@ -31,15 +31,16 @@ public class ComplexQueryIT extends DocTest {
                 title("IN/EXISTS"),
                 description(""),
                 post("SELECT * FROM accounts")
-            ),
+            )/*,
             example(
                 title("Subqueries in FROM clause"),
                 description(""),
                 post("SELECT * FROM (SELECT * FROM accounts) AS a")
-            )
+            )*/
         );
     }
 
+    /*
     @Section(2)
     public void joins() {
         section(
@@ -57,7 +58,7 @@ public class ComplexQueryIT extends DocTest {
                     "by ``ON`` clause."
                 ),
                 post(
-                    "SELECT * FROM accounts a JOIN employees_nested e ON a.account_number = e.id"
+                    "SELECT e.id FROM accounts a JOIN employees_nested e ON a.account_number = e.id"
                 )
             ),
             example(
@@ -72,10 +73,11 @@ public class ComplexQueryIT extends DocTest {
                     "join predicate. For now, only ``LEFT OUTER JOIN`` is supported to retain rows from first index.",
                     "Keyword ``OUTER`` is optional."
                 ),
-                post("SELECT * FROM accounts a LEFT JOIN employees_nested e ON a.account_number = e.id")
+                post("SELECT a.account_number FROM accounts a LEFT JOIN employees_nested e ON a.account_number = e.id")
             )
         );
     }
+    */
 
     @Section(3)
     public void setOperations() {
