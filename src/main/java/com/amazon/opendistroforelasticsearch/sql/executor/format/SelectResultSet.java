@@ -554,14 +554,14 @@ public class SelectResultSet extends ResultSet {
                 for (Map.Entry<String, DocumentField> field : hit.getFields().entrySet()) {
                     rowSource.put(field.getKey(), field.getValue().getValue());
                 }
-                if (formatType.equalsIgnoreCase(Format.JDBC.getFormatName())) {
-                    dateFieldFormatter.applyJDBCDateFormat(rowSource);
-                }
+//                if (formatType.equalsIgnoreCase(Format.JDBC.getFormatName())) {
+//                    dateFieldFormatter.applyJDBCDateFormat(rowSource);
+//                }
                 result = flatNestedField(newKeys, rowSource, hit.getInnerHits());
             } else {
-                if (formatType.equalsIgnoreCase(Format.JDBC.getFormatName())) {
-                    dateFieldFormatter.applyJDBCDateFormat(rowSource);
-                }
+//                if (formatType.equalsIgnoreCase(Format.JDBC.getFormatName())) {
+//                    dateFieldFormatter.applyJDBCDateFormat(rowSource);
+//                }
                 result = new ArrayList<>();
                 result.add(new DataRows.Row(rowSource));
             }
