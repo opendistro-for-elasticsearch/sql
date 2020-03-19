@@ -21,12 +21,14 @@ import org.elasticsearch.client.ResponseException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
 
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.containsString;
 
 public class CursorIT extends SQLIntegTestCase {
 
@@ -132,18 +134,6 @@ public class CursorIT extends SQLIntegTestCase {
 
     //TODOD: add test cases for nested and subqueries after checking both works as part of query coverage test
 
-
-    @Test
-    public void exceptionIfRetrievingResultFromClosedCursor() throws IOException {
-        // fetch_size = 1000
-        // the index has 13059 records, with fetch size of 1000 we should get 14 pages with no cursor on last page
-        // retrieve first few pages, then close the context, and try to re-use the last cursorID
-        // check x-pack behaviour and replicate it here
-
-        assertThat(1, equalTo(1));
-
-    }
-
     @Test
     public void noCursorWhenResultsLessThanFetchSize() throws IOException {
         // fetch_size is 100, but actual number of rows returned from ElasticSearch is 97
@@ -212,46 +202,71 @@ public class CursorIT extends SQLIntegTestCase {
     }
 
     @Test
+    @Ignore
     public void testCursorCloseAPI() throws IOException {
         // multiple invocation of closing cursor should return success
         // fetch page using old cursor should throw error
+        String selectQuery = StringUtils.format(
+                "SELECT firstname, state FROM %s WHERE balance > 100 and age < 40", TEST_INDEX_ACCOUNT);
+        JSONObject result = new JSONObject(executeFetchQuery(selectQuery, 50, JDBC));
+        String cursor = result.getString("cursor");
 
-        assertThat(1, equalTo(1));
+        // Retrieving next 10 pages out of remaining 19 pages
+        for(int i =0 ; i < 10 ; i++) {
+            result = executeCursorQuery(cursor);
+            cursor = result.optString("cursor");
+        }
+        //Closing the cursor
+        JSONObject closeResp = executeCursorCloseQuery(cursor);
+        assertThat(closeResp.getString("success"), equalTo("true"));
 
+        //Closing the cursor multiple times is idempotent
+        for(int i =0 ; i < 5 ; i++) {
+            closeResp = executeCursorCloseQuery(cursor);
+            assertThat(closeResp.getString("success"), equalTo("true"));
+        }
+
+        // using the cursor after its cleared, will throw exception
+        Response response = null;
+        try {
+            JSONObject queryResult = executeCursorQuery(cursor);
+        } catch (ResponseException ex) {
+            response = ex.getResponse();
+        }
+
+        JSONObject resp = new JSONObject(TestUtils.getResponseBody(response));
+        assertThat(resp.getInt("status"), equalTo(404));
+        assertThat(resp.query("/error/reason"), equalTo("all shards failed"));
+        assertThat(resp.query("/error/caused_by/reason").toString(), containsString("No search context found"));
+        assertThat(resp.query("/error/type"), equalTo("search_phase_execution_exception"));
     }
 
 
     @Test
-    public void invalidCursorId() throws IOException {
-        // could be either not decodable or scroll context already closed (I guess this is already taken above)
+    public void invalidCursorIdNotDecodable() throws IOException {
+        // could be either not decode-able
+        String randomCursor = "eyJzY2hlbWEiOlt7Im5hbWUiOiJmaXJzdG5hbWUiLCJ0eXBlIjoidGV4dCJ9LHsibmFtZSI6InN0Y";
 
-        assertThat(1, equalTo(1));
+        Response response = null;
+        try {
+            JSONObject resp = executeCursorQuery(randomCursor);
+        } catch (ResponseException ex) {
+            response = ex.getResponse();
+        }
 
+        JSONObject resp = new JSONObject(TestUtils.getResponseBody(response));
+        assertThat(resp.getInt("status"), equalTo(400));
+        assertThat(resp.query("/error/type"), equalTo("illegal_argument_exception"));
     }
 
     @Test
     public void respectLimitPassedInSelectClause() throws IOException {
-        // fetch_size = 1000
-        // the index has 13059 records, with fetch size of 1000 we should get 14 pages with no cursor on last page
-        // query : "SELECT * from accounts LIMIT 9999" --> total results being 250
-        // there should be only
-
+        //TODO:
+//        String query = StringUtils.format("SELECT firstname, email, state FROM %s LIMIT 800", TEST_INDEX_ACCOUNT);
+//        String result = executeFetchQuery(query, 50, "jdbc");
         assertThat(1, equalTo(1));
-
     }
 
-
-    // ----- Regression test ---------
-    // other queries like aggregation and joins should not be effected
-
-    @Test
-    public void aggregationJoinQueriesNotAffected() throws IOException {
-        // TODO: change test case name
-        // aggregation and joins queries are not affected
-
-        assertThat(1, equalTo(1));
-
-    }
 
     @Test
     public void noPaginationWithNonJDBCFormat() throws IOException {
@@ -268,15 +283,6 @@ public class CursorIT extends SQLIntegTestCase {
         assertThat(rows.length, equalTo(1000));
     }
 
-    // query coverage
-    // tests to see what all queries are covered, especially check if subqueries and nested work well with this
-    @Test
-    public void queryCoverage() throws IOException {
-        // original ES Json, CSV, RAW, etc..
-
-        assertThat(1, equalTo(1));
-
-    }
 
     public void verifyWithAndWithoutPaginationResponse(String sqlQuery, String cursorQuery, int fetch_size) throws IOException {
         // we are only checking here for schema and aatarows

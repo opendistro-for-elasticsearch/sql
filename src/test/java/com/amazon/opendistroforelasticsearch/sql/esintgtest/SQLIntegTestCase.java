@@ -270,6 +270,12 @@ public abstract class SQLIntegTestCase extends ESRestTestCase {
         return new JSONObject(executeRequest(sqlRequest));
     }
 
+    protected JSONObject executeCursorCloseQuery(final String cursor) throws IOException {
+        final String requestBody = makeCursorRequest(cursor);
+        Request sqlRequest = getSqlCursorCloseRequest(requestBody);
+        return new JSONObject(executeRequest(sqlRequest));
+    }
+
     protected static JSONObject updateClusterSettings(ClusterSetting setting) throws IOException {
         Request request = new Request("PUT", "/_cluster/settings");
         String persistentSetting = String.format(Locale.ROOT,
