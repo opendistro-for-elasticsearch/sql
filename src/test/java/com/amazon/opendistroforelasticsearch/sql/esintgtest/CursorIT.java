@@ -20,8 +20,6 @@ import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseException;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -60,11 +58,12 @@ public class CursorIT extends SQLIntegTestCase {
 
     @Test
     public void noPaginationWhenFetchSizeZero() throws IOException {
-        // fetch_size = 0 , default to non-pagination behaviour for simple queries
-        // this can be checked by checking that cursor is not present
+        // fetch_size = 0, default to non-pagination behaviour for simple queries
+        // this can be checked by checking that cursor is not present, and old default limit applies
         String selectQuery = StringUtils.format("SELECT firstname, state FROM %s", TEST_INDEX_ACCOUNT);
         JSONObject response = new JSONObject(executeFetchQuery(selectQuery, 0, JDBC));
-        Assert.assertFalse(response.has("cursor"));
+        assertFalse(response.has("cursor"));
+        assertThat(response.getJSONArray("datarows").length(), equalTo(200));
     }
 
     @Test
@@ -95,8 +94,6 @@ public class CursorIT extends SQLIntegTestCase {
             pageCount++;
         }
         assertThat(pageCount, equalTo(36));
-
-        // verify the scroll context was cleared
     }
 
 
@@ -132,7 +129,7 @@ public class CursorIT extends SQLIntegTestCase {
 
     }
 
-    //TODOD: add test cases for nested and subqueries after checking both works as part of query coverage test
+    //TODO: add test cases for nested and subqueries after checking both works as part of query coverage test
 
     @Test
     public void noCursorWhenResultsLessThanFetchSize() throws IOException {
@@ -142,7 +139,7 @@ public class CursorIT extends SQLIntegTestCase {
                 "SELECT * FROM %s WHERE balance < 25000 AND age > 36 LIMIT 2000", TEST_INDEX_ACCOUNT
         );
         JSONObject response = new JSONObject(executeFetchQuery(selectQuery, 100, JDBC));
-        Assert.assertFalse(response.has("cursor"));
+        assertFalse(response.has("cursor"));
     }
 
 
@@ -152,12 +149,12 @@ public class CursorIT extends SQLIntegTestCase {
         updateClusterSettings(new ClusterSetting(PERSISTENT, "opendistro.sql.cursor.enabled", "false"));
         String query = StringUtils.format("SELECT firstname, email, state FROM %s", TEST_INDEX_ACCOUNT);
         JSONObject response = new JSONObject(executeFetchQuery(query, 100, JDBC));
-        Assert.assertFalse(response.has("cursor"));
+        assertFalse(response.has("cursor"));
 
         updateClusterSettings(new ClusterSetting(PERSISTENT, "opendistro.sql.cursor.enabled", null));
         query = StringUtils.format("SELECT firstname, email, state FROM %s", TEST_INDEX_ACCOUNT);
         response = new JSONObject(executeFetchQuery(query, 100, JDBC));
-        Assert.assertTrue(response.has("cursor"));
+        assertTrue(response.has("cursor"));
 
         wipeAllClusterSettings();
     }
@@ -165,7 +162,7 @@ public class CursorIT extends SQLIntegTestCase {
 
     @Test
     public void testCursorSettings() throws IOException {
-        // Assert default cursor setings
+        // Assert default cursor settings
         JSONObject clusterSettings = getAllClusterSettings();
         assertThat(clusterSettings.query("/defaults/opendistro.sql.cursor.enabled"), equalTo("true"));
         assertThat(clusterSettings.query("/defaults/opendistro.sql.cursor.fetch_size"), equalTo("1000"));
