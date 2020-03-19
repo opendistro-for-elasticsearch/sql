@@ -18,8 +18,6 @@ package com.amazon.opendistroforelasticsearch.sql.executor.cursor;
 import com.amazon.opendistroforelasticsearch.sql.metrics.MetricName;
 import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.VerificationException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.ClearScrollResponse;
 import org.elasticsearch.client.Client;
@@ -40,14 +38,11 @@ public class CursorCloseExecutor implements CursorRestExecutor {
 
     private String cursorId;
 
-    private static final Logger LOG = LogManager.getLogger(CursorResultExecutor.class);
-
     public CursorCloseExecutor(String cursorId) {
         this.cursorId = cursorId;
     }
 
     public void execute(Client client, Map<String, String> params, RestChannel channel) throws Exception {
-        LOG.info("executing something inside CursorCloseExecutor execute ");
         try {
             String formattedResponse = execute(client, params);
             channel.sendResponse(new BytesRestResponse(OK, "application/json; charset=UTF-8", formattedResponse));

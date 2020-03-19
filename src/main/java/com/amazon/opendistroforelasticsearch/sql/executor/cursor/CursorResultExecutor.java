@@ -54,7 +54,6 @@ public class CursorResultExecutor implements CursorRestExecutor {
     }
 
     public void execute(Client client, Map<String, String> params, RestChannel channel) throws Exception {
-        LOG.info("executing something inside CursorResultExecutor execute");
         try {
             String formattedResponse = execute(client, params);
             channel.sendResponse(new BytesRestResponse(OK, "application/json; charset=UTF-8", formattedResponse));
@@ -102,8 +101,6 @@ public class CursorResultExecutor implements CursorRestExecutor {
     }
 
     private String handleDefaultCursorRequest(Client client, JSONObject cursorContext) {
-        //validate jsonobject for all the needed fields
-        LOG.info("Inside handleDefaultCursorRequest");
         String previousScrollId = cursorContext.getString("scrollId");
         LocalClusterState clusterState = LocalClusterState.state();
         TimeValue scrollTimeout = clusterState.getSettingValue(CURSOR_KEEPALIVE);
@@ -115,10 +112,8 @@ public class CursorResultExecutor implements CursorRestExecutor {
         pagesLeft--;
 
         if (pagesLeft <=0) {
-            // TODO : close the cursor on the last page
-            LOG.info("Closing the cursor as size is {}", pagesLeft);
+            // Close the scroll context on last page
             ClearScrollResponse clearScrollResponse = client.prepareClearScroll().addScrollId(newScrollId).get();
-
             if (!clearScrollResponse.isSucceeded()) {
                 Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
                 LOG.info("Problem closing the cursor context {} ", newScrollId);
@@ -129,16 +124,11 @@ public class CursorResultExecutor implements CursorRestExecutor {
             return protocol.cursorFormat();
 
         } else {
-            LOG.info("Generating next page, pagesLeft {}", pagesLeft);
             cursorContext.put("left", pagesLeft);
             cursorContext.put("scrollId", newScrollId);
-            LOG.info("New scroll ID {}", newScrollId);
             Protocol protocol = new Protocol(client, searchHits, cursorContext, format.name().toLowerCase());
-            LOG.info("cursorContext before encoding {}", cursorContext);
             String cursorId = protocol.encodeCursorContext(cursorContext);
-            LOG.info("New cursor ID {}", cursorId);
             protocol.setCursor(cursorId);
-            LOG.info("Set cursor to protocol {}", cursorId);
             return protocol.cursorFormat();
         }
     }

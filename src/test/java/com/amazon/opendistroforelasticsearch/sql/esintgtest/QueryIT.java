@@ -1297,7 +1297,7 @@ public class QueryIT extends SQLIntegTestCase {
     }
 
     @Test
-    @Ignore
+    @Ignore("Use of scroll hint is deprecated in lieu of cursor support")
     public void useScrollWithoutParams() throws IOException {
         JSONObject response = executeQuery(
                         String.format(Locale.ROOT, "SELECT /*! USE_SCROLL*/ age, gender, firstname, balance " +
@@ -1313,7 +1313,7 @@ public class QueryIT extends SQLIntegTestCase {
     }
 
     @Test
-    @Ignore
+    @Ignore("Use of scroll hint is deprecated in lieu of cursor support")
     public void useScrollWithParams() throws IOException {
         JSONObject response = executeQuery(
                         String.format(Locale.ROOT,
@@ -1327,7 +1327,7 @@ public class QueryIT extends SQLIntegTestCase {
     }
 
     @Test
-    @Ignore
+    @Ignore("Use of scroll hint is deprecated in lieu of cursor support")
     public void useScrollWithOrderByAndParams() throws IOException {
         JSONObject response = executeQuery(
                         String.format(Locale.ROOT,

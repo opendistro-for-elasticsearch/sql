@@ -33,8 +33,6 @@ import com.amazon.opendistroforelasticsearch.sql.query.maker.QueryMaker;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.nestedfield.NestedFieldProjection;
 import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.search.SearchAction;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchType;
@@ -67,7 +65,7 @@ import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.CURSO
  * Transform SQL query to standard Elasticsearch search query
  */
 public class DefaultQueryAction extends QueryAction {
-    private static final Logger LOG = LogManager.getLogger(DefaultQueryAction.class);
+
     private final Select select;
     private SearchRequestBuilder request;
 
@@ -96,9 +94,6 @@ public class DefaultQueryAction extends QueryAction {
         setFields(select.getFields());
         setWhere(select.getWhere());
         setSorts(select.getOrderBys());
-        LOG.info("offset: {}, rowcount: {}",
-                select.getOffset(),
-                select.getRowCount() == null? "null" : select.getRowCount());
         updateRequestWithIndexAndRoutingOptions(select, request);
         updateRequestWithHighlight(select, request);
         updateRequestWithCollapse(select, request);
@@ -115,15 +110,8 @@ public class DefaultQueryAction extends QueryAction {
         Boolean cursorEnabled = clusterState.getSettingValue(CURSOR_ENABLED);
         Integer rowCount = select.getRowCount();
 
-        LOG.debug("FetchSize: {} , CursorEnabled: {} , ScrollTimeout: {}", fetchSize, cursorEnabled, timeValue);
-
         if (checkIfScrollNeeded(cursorEnabled, fetchSize, rowCount)) {
-            //TODO: shouldn't this be needed for all cases irrespective of pagination or not?
-//            if (!select.isOrderdSelect()) {
-//                request.addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC);
-//            }
             request.setSize(fetchSize).setScroll(timeValue);
-            cursorContext = true;
         } else {
             request.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
             setLimit(select.getOffset(), rowCount != null ? rowCount : Select.DEFAULT_LIMIT);
@@ -139,7 +127,6 @@ public class DefaultQueryAction extends QueryAction {
 
     @Override
     public Optional<List<String>> getFieldNames() {
-
         return Optional.of(fieldNames);
     }
 

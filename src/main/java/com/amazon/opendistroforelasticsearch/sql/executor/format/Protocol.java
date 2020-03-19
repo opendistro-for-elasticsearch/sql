@@ -30,8 +30,6 @@ import com.amazon.opendistroforelasticsearch.sql.query.DefaultQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 
 import com.google.common.base.Strings;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.elasticsearch.ElasticsearchException;
 
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.ColumnNode;
@@ -61,12 +59,9 @@ public class Protocol {
     private ErrorMessage error;
     private List<ColumnNode> columnNodeList;
 
-    private boolean isCursorContext = false;
     private JSONObject cursorContext;
     private String cursor;
     private CursorType cursorType;
-
-    private static final Logger LOG = LogManager.getLogger(Protocol.class);
 
     /** Optional fields only for JSON format which is supposed to be
      *  factored out along with other fields of specific format
@@ -74,7 +69,6 @@ public class Protocol {
     private final Map<String, Object> options = new HashMap<>();
 
     private ColumnTypeProvider scriptColumnType = new ColumnTypeProvider();
-
 
     public Protocol(Client client, QueryAction queryAction, Object queryResult, String formatType) {
         if (queryAction instanceof QueryPlanQueryAction) {
@@ -99,9 +93,6 @@ public class Protocol {
         this.formatType = formatType;
         this.cursorContext = cursorContext;
         this.resultSet = loadResultSetForCursor(client, queryResult);
-        //TODO: can't it be derive isCursorContext by checking (JSONObject) cursorContext
-        this.isCursorContext = true;
-
     }
 
     public Protocol(Exception e) {
@@ -303,12 +294,10 @@ public class Protocol {
                     setIndexNameInCursor(cursorJson);
                     setFieldAliasMapInCursor(cursorJson);
                     cursor = encodeCursorContext(cursorJson);
-                    LOG.info("generated cursor id {}", cursor);
+
                 } else {
                     // explicitly setting this to null to avoid any ambiguity
                     cursor = null;
-                    LOG.info("No cursor id generated as either scroll ID was null or pages_left is  {}",
-                            pages_left);
                 }
                 options.remove("scrollId");
                 options.remove("fetch_size");
@@ -361,7 +350,6 @@ public class Protocol {
             return pagesLeft;
         }
         pagesLeft = (int) Math.ceil(((double) getScrollTotalHits())/fetch) - 1;
-        LOG.info("pages left : {}", pagesLeft);
         return pagesLeft;
 
     }

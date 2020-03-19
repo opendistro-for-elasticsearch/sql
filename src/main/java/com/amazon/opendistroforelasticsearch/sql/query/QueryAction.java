@@ -52,7 +52,6 @@ public abstract class QueryAction {
     protected SqlRequest sqlRequest = SqlRequest.NULL;
     protected ColumnTypeProvider scriptColumnType;
     protected Format format;
-    protected boolean cursorContext = false;
 
     public QueryAction(Client client, Query query) {
         this.client = client;
@@ -85,10 +84,6 @@ public abstract class QueryAction {
 
     public Format getFormat() {
         return this.format;
-    }
-
-    public boolean isCursorContext() {
-        return this.cursorContext;
     }
 
     public ColumnTypeProvider getScriptColumnType() {
