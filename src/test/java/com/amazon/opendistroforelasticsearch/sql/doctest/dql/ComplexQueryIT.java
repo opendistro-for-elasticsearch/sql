@@ -53,23 +53,36 @@ public class ComplexQueryIT extends DocTest {
                 description(
                     "Inner join is very commonly used that creates a new result set by combining columns",
                     "of two indices based on the join predicates specified. It iterates both indices and",
-                    "compare each row to find all that satisfy the join predicates. Keyword ``JOIN``",
+                    "compare each document to find all that satisfy the join predicates. Keyword ``JOIN``",
                     "is used and preceded by ``INNER`` keyword optionally. The join predicates is specified",
                     "by ``ON`` clause."
                 ),
                 post(
-                    "SELECT e.id FROM accounts a JOIN employees_nested e ON a.account_number = e.id"
+                    "SELECT a.firstname, a.lastname, e.name " +
+                    "FROM accounts a " +
+                    "JOIN employees_nested e " +
+                    " ON a.account_number = e.id"
                 )
             ),
             example(
-                title("Cross/Cartesian Join"),
-                description(""),
-                post("SELECT * FROM accounts a JOIN employees_nested e")
+                title("Cross Join"),
+                description(
+                    "Cross join or Cartesian join combines each document from the first index with each from",
+                    "the second. The result set is the Cartesian Product of documents from both indices.",
+                    "It appears to be similar to inner join without ``ON`` clause to specify join condition.",
+                    "Caveat: It is risky to do cross join even on two indices of medium size. This may trigger",
+                    "our circuit breaker to terminate the query to avoid out of memory issue."
+                ),
+                post(
+                    "SELECT a.firstname, a.lastname, e.name " +
+                    "FROM accounts a " +
+                    "JOIN employees_nested e "
+                )
             ),
             example(
                 title("Outer Join"),
                 description(
-                    "Outer join is used to retain rows from one or both indices although it does not satisfy",
+                    "Outer join is used to retain documents from one or both indices although it does not satisfy",
                     "join predicate. For now, only ``LEFT OUTER JOIN`` is supported to retain rows from first index.",
                     "Note that keyword ``OUTER`` is optional."
                 ),
