@@ -41,7 +41,6 @@ public class ComplexQueryIT extends DocTest {
         );
     }
 
-    /*
     @Section(2)
     public void joins() {
         section(
@@ -72,13 +71,17 @@ public class ComplexQueryIT extends DocTest {
                 description(
                     "Outer join is used to retain rows from one or both indices although it does not satisfy",
                     "join predicate. For now, only ``LEFT OUTER JOIN`` is supported to retain rows from first index.",
-                    "Keyword ``OUTER`` is optional."
+                    "Note that keyword ``OUTER`` is optional."
                 ),
-                post("SELECT a.account_number FROM accounts a LEFT JOIN employees_nested e ON a.account_number = e.id")
+                post(
+                    "SELECT a.account_number " +
+                    "FROM accounts a " +
+                    "LEFT JOIN employees_nested e " +
+                    " ON a.account_number = e.id "
+                )
             )
         );
     }
-    */
 
     @Ignore("Multi-query doesn't work for default format: https://github.com/opendistro-for-elasticsearch/sql/issues/388")
     @Section(3)
