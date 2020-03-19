@@ -58,12 +58,18 @@ public class SQLAggregationParser {
     public void parse(MySqlSelectQueryBlock queryBlock) {
         context = new Context(constructSQLExprAliasMapFromSelect(queryBlock));
 
+        //1. extract raw names of selectItems
+        List<String> selectItemNames = extractSelectItemNames(queryBlock.getSelectList());
+
+        //2. rewrite all the function name to lower case.
+        rewriteFunctionNameToLowerCase(queryBlock);
+
         //2. find all GroupKeyExpr from GroupBy expression.
         findAllGroupKeyExprFromGroupByAndSelect(queryBlock);
         findAllAggregationExprFromSelect(queryBlock);
 
         //3. parse the select list to expression
-        parseExprInSelectList(queryBlock, new SQLExprToExpressionConverter(context));
+        parseExprInSelectList(queryBlock, selectItemNames, new SQLExprToExpressionConverter(context));
     }
 
     public List<SQLSelectItem> selectItemList() {
@@ -149,18 +155,38 @@ public class SQLAggregationParser {
         }));
     }
 
-    private void parseExprInSelectList(MySqlSelectQueryBlock queryBlock, SQLExprToExpressionConverter exprConverter) {
+    private void parseExprInSelectList(
+            MySqlSelectQueryBlock queryBlock, List<String> selectItemNames,
+            SQLExprToExpressionConverter exprConverter) {
         List<SQLSelectItem> selectItems = queryBlock.getSelectList();
         for (int i = 0; i < selectItems.size(); i++) {
             Expression expression = exprConverter.convert(selectItems.get(i).getExpr());
             ColumnNode columnNode = ColumnNode.builder()
-                    .name(nameOfSelectItem(selectItems.get(i)))
+                    .name(selectItemNames.get(i))
                     .alias(selectItems.get(i).getAlias())
                     .type(columnTypeProvider.get(i))
                     .expr(expression)
                     .build();
             columnNodes.add(columnNode);
         }
+    }
+
+    private List<String> extractSelectItemNames(List<SQLSelectItem> selectItems) {
+        List<String> selectItemNames = new ArrayList<>();
+        for (SQLSelectItem selectItem: selectItems){
+            selectItemNames.add(nameOfSelectItem(selectItem));
+        }
+        return selectItemNames;
+    }
+
+    private void rewriteFunctionNameToLowerCase(MySqlSelectQueryBlock query) {
+        query.accept(new MySqlASTVisitorAdapter() {
+            @Override
+            public boolean visit(SQLMethodInvokeExpr x) {
+                x.setMethodName(x.getMethodName().toLowerCase());
+                return true;
+            }
+        });
     }
 
     private String nameOfSelectItem(SQLSelectItem selectItem) {
@@ -237,7 +263,7 @@ public class SQLAggregationParser {
                                          ((SQLAggregateExpr) expr).getArguments().get(0));
             } else if (expr instanceof SQLMethodInvokeExpr) {
                 exprName = String.format("%s(%s)", ((SQLMethodInvokeExpr) expr).getMethodName(),
-                                         nameOfExpr(((SQLMethodInvokeExpr) expr).getParameters().get(0)));
+                        nameOfExpr(((SQLMethodInvokeExpr) expr).getParameters().get(0)));
             } else if (expr instanceof SQLIdentifierExpr) {
                 exprName = ((SQLIdentifierExpr) expr).getName();
             } else if (expr instanceof SQLCastExpr) {

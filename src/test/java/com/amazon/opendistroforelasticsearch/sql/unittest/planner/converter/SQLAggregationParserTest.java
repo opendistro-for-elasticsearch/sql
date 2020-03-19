@@ -16,10 +16,13 @@
 package com.amazon.opendistroforelasticsearch.sql.unittest.planner.converter;
 
 import com.alibaba.druid.sql.SQLUtils;
+import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLAggregateExpr;
+import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.alibaba.druid.sql.ast.statement.SQLSelectItem;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
+import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
 import com.alibaba.druid.util.JdbcConstants;
 import com.amazon.opendistroforelasticsearch.sql.domain.ColumnTypeProvider;
 import com.amazon.opendistroforelasticsearch.sql.expression.core.Expression;
@@ -34,6 +37,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -106,6 +110,30 @@ public class SQLAggregationParserTest {
         assertThat(columnNodes, containsInAnyOrder(columnNode("dayOfWeek", null, ExpressionFactory.ref("dayOfWeek")),
                                                    columnNode("sub", "sub", add(ExpressionFactory.ref("MAX_0"), ExpressionFactory
                                                            .ref("MIN_1")))));
+    }
+
+    @Test
+    public void parseWithRawSelectFuncnameShouldPass() {
+        String sql = "SELECT LOG(FlightDelayMin) " +
+                "FROM kibana_sample_data_flights " +
+                "GROUP BY log(FlightDelayMin)";
+        SQLAggregationParser parser = new SQLAggregationParser(new ColumnTypeProvider());
+        parser.parse(mYSqlSelectQueryBlock(sql));
+        List<SQLSelectItem> sqlSelectItems = parser.selectItemList();
+        List<ColumnNode> columnNodes = parser.getColumnNodes();
+
+        assertThat(sqlSelectItems, containsInAnyOrder(group("log(FlightDelayMin)", "log(FlightDelayMin)")));
+
+        assertThat(
+                columnNodes,
+                containsInAnyOrder(
+                        columnNode(
+                                "LOG(FlightDelayMin)",
+                                null,
+                                ExpressionFactory.ref("log(FlightDelayMin)")
+                        )
+                )
+        );
     }
 
     @Test
