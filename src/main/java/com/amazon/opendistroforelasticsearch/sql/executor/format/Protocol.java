@@ -300,10 +300,12 @@ public class Protocol {
                     cursorJson.put("schema", getSchemaAsJson());
                     cursorJson.put("scrollId", options.get("scrollId"));
                     cursorJson.put("left", pagesLeft());
+                    setIndexNameInCursor(cursorJson);
+                    setFieldAliasMapInCursor(cursorJson);
                     cursor = encodeCursorContext(cursorJson);
                     LOG.info("generated cursor id {}", cursor);
                 } else {
-                    // explicitly setting this to null to avaoid any ambiguity
+                    // explicitly setting this to null to avoid any ambiguity
                     cursor = null;
                     LOG.info("No cursor id generated as either scroll ID was null or pages_left is  {}",
                             pages_left);
@@ -332,11 +334,23 @@ public class Protocol {
         cursorType = type;
     }
 
-    public long getScrollTotalHits() { //getCursorTotalHits
+    private long getScrollTotalHits() { //getCursorTotalHits
         if (resultSet instanceof SelectResultSet) {
             return ((SelectResultSet) resultSet).getCursorTotalHits();
         }
         return total;
+    }
+
+    private void setIndexNameInCursor(JSONObject cursorJson) {
+        if (resultSet instanceof SelectResultSet) {
+            cursorJson.put("i", ((SelectResultSet) resultSet).indexName());
+        }
+    }
+
+    public void setFieldAliasMapInCursor(JSONObject cursorJson) {
+        if (resultSet instanceof SelectResultSet) {
+            cursorJson.put("fam", new JSONObject(((SelectResultSet) resultSet).fieldAliasMap()));
+        }
     }
 
     private int pagesLeft() {

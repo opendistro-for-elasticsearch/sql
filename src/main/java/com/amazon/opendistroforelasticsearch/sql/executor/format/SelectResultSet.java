@@ -28,6 +28,7 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.domain.TableOnJoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMapping;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlFeatureNotImplementedException;
+import com.amazon.opendistroforelasticsearch.sql.executor.Format;
 import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
@@ -58,6 +59,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
+import static java.util.Collections.unmodifiableMap;
 import static java.util.stream.Collectors.toSet;
 import static org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse.FieldMappingMetaData;
 
@@ -121,6 +123,11 @@ public class SelectResultSet extends ResultSet {
         this.columns = getColumnsFromSchema(cursorContext);
         this.schema = new Schema(null, null, columns);
         this.head = schema.getHeaders();
+        this.dateFieldFormatter = new DateFieldFormatter(
+                cursorContext.getString("i"),
+                columns,
+                fieldAliasMap(cursorContext)
+        );
         extractData();
         this.dataRows = new DataRows(size, totalHits, rows);
 
@@ -128,6 +135,20 @@ public class SelectResultSet extends ResultSet {
 
     public long getCursorTotalHits() {
         return cursorTotalHits;
+    }
+
+    public String indexName(){
+        return this.indexName;
+    }
+
+    public Map<String, String> fieldAliasMap() {
+        return unmodifiableMap(this.fieldAliasMap);
+    }
+
+    private Map<String, String> fieldAliasMap(JSONObject json) {
+        Map<String, String> fieldToAliasMap = new HashMap<>();
+        json.keySet().forEach(key -> fieldToAliasMap.put(key, json.get(key).toString()));
+        return fieldToAliasMap;
     }
 
     public List<Schema.Column> getColumnsFromSchema(JSONObject cursorContext) {
@@ -594,8 +615,14 @@ public class SelectResultSet extends ResultSet {
                 for (Map.Entry<String, DocumentField> field : hit.getFields().entrySet()) {
                     rowSource.put(field.getKey(), field.getValue().getValue());
                 }
+                if (formatType.equalsIgnoreCase(Format.JDBC.getFormatName())) {
+                    dateFieldFormatter.applyJDBCDateFormat(rowSource);
+                }
                 result = flatNestedField(newKeys, rowSource, hit.getInnerHits());
             } else {
+                if (formatType.equalsIgnoreCase(Format.JDBC.getFormatName())) {
+                    dateFieldFormatter.applyJDBCDateFormat(rowSource);
+                }
                 result = new ArrayList<>();
                 result.add(new DataRows.Row(rowSource));
             }
