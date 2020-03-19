@@ -43,7 +43,7 @@ public class PartiQLIT extends DocTest {
         );
     }
 
-    @Section(1)
+    @Section(2)
     public void unnestingCollection() {
         section(
             title("Querying Nested Collection"),
@@ -53,6 +53,7 @@ public class PartiQLIT extends DocTest {
                 "In Elasticsearch world, this is very useful for index with object or nested field."
             ),
             example(
+                title("Unnesting a Nested Collection"),
                 description(
                     "In the following example, it finds nested document (project) with field value (name)",
                     "that satisfies the predicate (contains 'security'). Note that because each parent document",
@@ -66,38 +67,24 @@ public class PartiQLIT extends DocTest {
                     "     e.projects AS p " +
                     "WHERE p.name LIKE '%security%'"
                 )
-            )
-        );
-    }
-
-    /*
-    @Section(2)
-    public void unnestingUsingJoin() {
-        section(
-            title("Unnesting Using JOIN"),
-            description("PartiQL is ..."),
+            )/*,
             example(
-                description(""),
-                post("SELECT e.id AS id, " +
+                title("Preserving Parent Information with LEFT JOIN"),
+                description(
+                    "The query in the preceding example is very similar to traditional join queries, except ``ON`` clause missing.",
+                    "This is because it is implicitly in the nesting of nested documents (projects) into parent (employee). Therefore,",
+                    "you can use ``LEFT JOIN`` to preserve the information in parent document associated."
+                ),
+                post(
+                    "SELECT e.id AS id, " +
                     "       e.name AS employeeName, " +
                     "       e.title AS title, " +
                     "       p.name AS projectName " +
-                    "FROM employees_nested AS e LEFT JOIN e.projects AS p")
-            )
+                    "FROM employees_nested AS e " +
+                    "LEFT JOIN e.projects AS p"
+                )
+            )*/
         );
     }
-
-    @Section(3)
-    public void missing() {
-        section(
-            title("Missing"),
-            description("PartiQL is ..."),
-            example(
-                description(""),
-                post("")
-            )
-        );
-    }
-    */
 
 }
