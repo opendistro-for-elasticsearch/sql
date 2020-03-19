@@ -202,7 +202,6 @@ public class CursorIT extends SQLIntegTestCase {
     }
 
     @Test
-    @Ignore
     public void testCursorCloseAPI() throws IOException {
         // multiple invocation of closing cursor should return success
         // fetch page using old cursor should throw error
@@ -218,12 +217,12 @@ public class CursorIT extends SQLIntegTestCase {
         }
         //Closing the cursor
         JSONObject closeResp = executeCursorCloseQuery(cursor);
-        assertThat(closeResp.getString("success"), equalTo("true"));
+        assertThat(closeResp.getBoolean("succeeded"), equalTo(true));
 
         //Closing the cursor multiple times is idempotent
         for(int i =0 ; i < 5 ; i++) {
             closeResp = executeCursorCloseQuery(cursor);
-            assertThat(closeResp.getString("success"), equalTo("true"));
+            assertThat(closeResp.getBoolean("succeeded"), equalTo(true));
         }
 
         // using the cursor after its cleared, will throw exception

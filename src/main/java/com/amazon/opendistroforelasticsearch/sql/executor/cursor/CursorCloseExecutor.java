@@ -35,8 +35,8 @@ import static org.elasticsearch.rest.RestStatus.OK;
 
 public class CursorCloseExecutor implements CursorRestExecutor {
 
-    private static final String SUCCESS_TRUE = "{\"sucess\":true}";
-    private static final String SUCCESS_FALSE = "{\"sucess\":false}";
+    private static final String SUCCEEDED_TRUE = "{\"succeeded\":true}";
+    private static final String SUCCEEDED_FALSE = "{\"succeeded\":false}";
 
     private String cursorId;
 
@@ -97,18 +97,18 @@ public class CursorCloseExecutor implements CursorRestExecutor {
         String scrollId = cursorContext.getString("scrollId");
         ClearScrollResponse clearScrollResponse = client.prepareClearScroll().addScrollId(scrollId).get();
         if (clearScrollResponse.isSucceeded()) {
-            return SUCCESS_TRUE;
+            return SUCCEEDED_TRUE;
         } else {
-            return SUCCESS_FALSE;
+            return SUCCEEDED_FALSE;
         }
     }
 
     private String handleAggregationCursorCloseRequest(Client client, JSONObject cursorContext) {
-        return SUCCESS_TRUE;
+        return SUCCEEDED_TRUE;
     }
 
     private String handleJoinCursorCloseRequest(Client client, JSONObject cursorContext) {
-        return SUCCESS_FALSE;
+        return SUCCEEDED_FALSE;
     }
 
 }
