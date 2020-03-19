@@ -15,38 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.cursor;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public enum CursorType {
-    DEFAULT(10),
-    AGGREGATION(20),
-    JOIN(30);
-
-    private int value;
-
-    private static final Map<Integer, CursorType> NUMERIC_CURSOR_MAP = new HashMap<>();
-    static {
-        for (CursorType type : values()) {
-            NUMERIC_CURSOR_MAP.put(type.getValue(), type);
-        }
-    }
-
-    CursorType(int value) {
-        this.value = value;
-    }
-
-    public int getValue() {
-        return value;
-    }
-
-    /**
-     * Return one of the choice of the enum by its value.
-     * May return null if there is no choice for this value.
-     * @param value value
-     * @return CursorType
-     */
-    public static CursorType cursorTypeFromValue(int value) {
-        return NUMERIC_CURSOR_MAP.get(value);
-    }
+    DEFAULT,
+    AGGREGATION,
+    JOIN;
 }
