@@ -25,6 +25,7 @@ import com.amazon.opendistroforelasticsearch.sql.query.join.BackOffRetryStrategy
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.rest.BytesRestResponse;
@@ -78,7 +79,12 @@ public class PrettyFormatRestExecutor implements RestExecutor {
                 protocol = new Protocol(client, queryAction, queryResult, format);
             }
         } catch (Exception e) {
-            LOG.error("Error happened in pretty formatter", e);
+            if (e instanceof ElasticsearchException) {
+                LOG.warn("An error occurred in Elasticsearch engine: "
+                        + ((ElasticsearchException) e).getDetailedMessage(), e);
+            } else {
+                LOG.warn("Error happened in pretty formatter", e);
+            }
             protocol = new Protocol(e);
         }
 

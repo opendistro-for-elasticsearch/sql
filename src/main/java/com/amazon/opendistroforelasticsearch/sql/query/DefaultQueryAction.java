@@ -303,7 +303,7 @@ public class DefaultQueryAction extends QueryAction {
                 scriptSortType = ScriptSortType.NUMBER;
                 break;
             default:
-                throw new RuntimeException("unknown");
+                throw new IllegalStateException("Unknown type: " + scriptFunctionReturnType);
         }
         return scriptSortType;
     }

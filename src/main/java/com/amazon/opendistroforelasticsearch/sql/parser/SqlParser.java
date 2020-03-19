@@ -217,8 +217,8 @@ public class SqlParser {
                     return alias;
                 }
             }
-            throw new SqlParseException(String.format("fieldName : %s on codition:%s does not contain alias", fieldName,
-                    condition.toString()));
+            throw new SqlParseException(String.format("Field [%s] with condition [%s] does not contain an alias",
+                    fieldName, condition.toString()));
         }
         List<String> sameAliases = new ArrayList<>();
         if (where.getWheres() != null && where.getWheres().size() > 0) {
@@ -486,8 +486,7 @@ public class SqlParser {
                 if (!((condition.getValue() instanceof SQLPropertyExpr)
                         || (condition.getValue() instanceof SQLIdentifierExpr)
                         || (condition.getValue() instanceof String))) {
-                    throw new SqlParseException("conditions on join should be one side is firstTable second Other, "
-                            + "condition was:" + condition.toString());
+                    throw new SqlParseException("Illegal condition content: " + condition.toString());
                 }
                 String aliasDotValue = condition.getValue().toString();
                 int indexOfDot = aliasDotValue.indexOf(".");

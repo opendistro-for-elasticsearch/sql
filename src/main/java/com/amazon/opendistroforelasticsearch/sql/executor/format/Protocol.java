@@ -107,7 +107,7 @@ public class Protocol {
     public Protocol(Exception e) {
         this.formatType = null;
         this.status = ERROR_STATUS;
-        this.error = new ErrorMessage(e, ERROR_STATUS);
+        this.error = ErrorMessageFactory.createErrorMessage(e, status);
     }
 
     private ResultSet loadResultSetForCursor(Client client, Object queryResult) {

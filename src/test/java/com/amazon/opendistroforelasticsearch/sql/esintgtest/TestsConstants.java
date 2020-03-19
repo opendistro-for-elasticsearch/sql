@@ -42,6 +42,7 @@ public class TestsConstants {
     public final static String TEST_INDEX_JOIN_TYPE = TEST_INDEX + "_join_type";
     public final static String TEST_INDEX_BANK = TEST_INDEX + "_bank";
     public final static String TEST_INDEX_BANK_TWO = TEST_INDEX_BANK + "_two";
+    public final static String TEST_INDEX_BANK_WITH_NULL_VALUES = TEST_INDEX_BANK + "_with_null_values";
     public final static String TEST_INDEX_ORDER = TEST_INDEX + "_order";
     public final static String TEST_INDEX_WEBLOG = TEST_INDEX + "_weblog";
     public final static String TEST_INDEX_DATE = TEST_INDEX + "_date";
