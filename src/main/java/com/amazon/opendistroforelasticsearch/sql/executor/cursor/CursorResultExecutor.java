@@ -15,8 +15,12 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.cursor;
 
+import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.executor.Format;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.Protocol;
+import com.amazon.opendistroforelasticsearch.sql.metrics.MetricName;
+import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.VerificationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.ElasticsearchException;
@@ -27,16 +31,17 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.search.SearchHits;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.sql.SQLFeatureNotSupportedException;
 import java.util.Base64;
 import java.util.Map;
 
+import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.CURSOR_KEEPALIVE;
 import static org.elasticsearch.rest.RestStatus.OK;
 
 public class CursorResultExecutor implements CursorRestExecutor {
-
-    public static final int SCROLL_TIMEOUT = 12000; // 2 minutes
 
     private String cursorId;
     private Format format;
@@ -50,13 +55,27 @@ public class CursorResultExecutor implements CursorRestExecutor {
 
     public void execute(Client client, Map<String, String> params, RestChannel channel) throws Exception {
         LOG.info("executing something inside CursorResultExecutor execute");
-        String formattedResponse = execute(client, params);
-//        LOG.info("{} : {}", cursorId, formattedResponse);
-        channel.sendResponse(new BytesRestResponse(OK, "application/json; charset=UTF-8", formattedResponse));
+        try {
+            String formattedResponse = execute(client, params);
+            channel.sendResponse(new BytesRestResponse(OK, "application/json; charset=UTF-8", formattedResponse));
+        } catch (IllegalArgumentException | JSONException e) {
+            Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_CUS).increment();
+            e.printStackTrace();
+            channel.sendResponse(new BytesRestResponse(channel, e));
+        } catch (ElasticsearchException e) {
+            int status = (e.status().getStatus());
+            if (status > 399 && status < 500) {
+                Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_CUS).increment();
+            } else if (status > 499) {
+                Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
+            }
+            e.printStackTrace();
+            channel.sendResponse(new BytesRestResponse(channel, e));
+        }
     }
 
     public String execute(Client client, Map<String, String> params) throws Exception {
-        // TODO: throw correct Exception , use try catch if needed
+
         String decodedCursorContext = new String(Base64.getDecoder().decode(cursorId));
         JSONObject cursorJson = new JSONObject(decodedCursorContext);
 
@@ -75,19 +94,20 @@ public class CursorResultExecutor implements CursorRestExecutor {
                     return handleAggregationCursorRequest(client, cursorJson);
                 case JOIN:
                     return handleJoinCursorRequest(client, cursorJson);
-                default: throw new ElasticsearchException("Invalid cursor Id");
+                default: throw new VerificationException("Unsupported cursor");
             }
         }
-        // got this from elasticsearch when "Cannot parse scroll id" when passed a wrong scrollid
-        throw new ElasticsearchException("Invalid cursor Id");
+
+        throw new VerificationException("Invalid cursor");
     }
 
     private String handleDefaultCursorRequest(Client client, JSONObject cursorContext) {
         //validate jsonobject for all the needed fields
         LOG.info("Inside handleDefaultCursorRequest");
         String previousScrollId = cursorContext.getString("scrollId");
-        SearchResponse scrollResponse = client.prepareSearchScroll(previousScrollId).
-                setScroll(TimeValue.timeValueSeconds(SCROLL_TIMEOUT)).get();
+        LocalClusterState clusterState = LocalClusterState.state();
+        TimeValue scrollTimeout = clusterState.getSettingValue(CURSOR_KEEPALIVE);
+        SearchResponse scrollResponse = client.prepareSearchScroll(previousScrollId).setScroll(scrollTimeout).get();
         SearchHits searchHits = scrollResponse.getHits();
         String newScrollId = scrollResponse.getScrollId();
 
@@ -122,12 +142,14 @@ public class CursorResultExecutor implements CursorRestExecutor {
         }
     }
 
-    private String handleAggregationCursorRequest(Client client, JSONObject cursorContext) {
-        return "something";
+    private String handleAggregationCursorRequest(Client client, JSONObject cursorContext)
+            throws SQLFeatureNotSupportedException {
+        throw new SQLFeatureNotSupportedException("Aggregations not supported over cursor");
     }
 
-    private String handleJoinCursorRequest(Client client, JSONObject cursorContext) {
-        return "something";
+    private String handleJoinCursorRequest(Client client, JSONObject cursorContext)
+            throws SQLFeatureNotSupportedException {
+        throw new SQLFeatureNotSupportedException("Joins not supported over cursor");
     }
 
 }

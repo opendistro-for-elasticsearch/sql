@@ -89,17 +89,20 @@ public class CursorAsyncRestExecutor implements CursorRestExecutor {
                 Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
                 LOG.warn("[{}] [MCB] async task got an IO/SQL exception: {}", LogUtils.getRequestId(),
                         e.getMessage());
+                e.printStackTrace();
                 channel.sendResponse(new BytesRestResponse(RestStatus.INTERNAL_SERVER_ERROR, e.getMessage()));
             } catch (IllegalStateException e) {
                 Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
                 LOG.warn("[{}] [MCB] async task got a runtime exception: {}", LogUtils.getRequestId(),
                         e.getMessage());
+                e.printStackTrace();
                 channel.sendResponse(new BytesRestResponse(RestStatus.INSUFFICIENT_STORAGE,
                         "Memory circuit is broken."));
             } catch (Throwable t) {
                 Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
                 LOG.warn("[{}] [MCB] async task got an unknown throwable: {}", LogUtils.getRequestId(),
                         t.getMessage());
+                t.printStackTrace();
                 channel.sendResponse(new BytesRestResponse(RestStatus.INTERNAL_SERVER_ERROR,
                         String.valueOf(t.getMessage())));
             } finally {

@@ -15,44 +15,100 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.cursor;
 
-import com.amazon.opendistroforelasticsearch.sql.executor.Format;
+import com.amazon.opendistroforelasticsearch.sql.metrics.MetricName;
+import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.VerificationException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.ClearScrollResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestChannel;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Base64;
 import java.util.Map;
 
 import static org.elasticsearch.rest.RestStatus.OK;
 
 public class CursorCloseExecutor implements CursorRestExecutor {
 
+    private static final String SUCCESS_TRUE = "{\"sucess\":true}";
+    private static final String SUCCESS_FALSE = "{\"sucess\":false}";
+
     private String cursorId;
-    private Format format;
 
     private static final Logger LOG = LogManager.getLogger(CursorResultExecutor.class);
 
-    public CursorCloseExecutor(String cursorId, Format format) {
+    public CursorCloseExecutor(String cursorId) {
         this.cursorId = cursorId;
-        this.format = format;
     }
 
     public void execute(Client client, Map<String, String> params, RestChannel channel) throws Exception {
         LOG.info("executing something inside CursorCloseExecutor execute ");
-        String formattedResponse = execute(client, params);
-        LOG.info("{} : {}", cursorId, formattedResponse);
-        channel.sendResponse(new BytesRestResponse(OK, "application/json; charset=UTF-8", formattedResponse));
+        try {
+            String formattedResponse = execute(client, params);
+            channel.sendResponse(new BytesRestResponse(OK, "application/json; charset=UTF-8", formattedResponse));
+        } catch (IllegalArgumentException | JSONException e) {
+            Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_CUS).increment();
+            e.printStackTrace();
+            channel.sendResponse(new BytesRestResponse(channel, e));
+        } catch (ElasticsearchException e) {
+            int status = (e.status().getStatus());
+            if (status > 399 && status < 500) {
+                Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_CUS).increment();
+            } else if (status > 499) {
+                Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
+            }
+            e.printStackTrace();
+            channel.sendResponse(new BytesRestResponse(channel, e));
+        }
     }
 
     public String execute(Client client, Map<String, String> params) throws Exception {
-        ClearScrollResponse clearScrollResponse = client.prepareClearScroll().addScrollId(cursorId).get();
+        String decodedCursorContext = new String(Base64.getDecoder().decode(cursorId));
+        JSONObject cursorJson = new JSONObject(decodedCursorContext);
+
+        String type = cursorJson.optString("type", null); // see if it is a good case to use Optionals
+        CursorType cursorType = null;
+
+        if (type != null) {
+            cursorType = CursorType.valueOf(type);
+        }
+
+        if (cursorType!=null) {
+            switch(cursorType) {
+                case DEFAULT:
+                    return handleDefaultCursorCloseRequest(client, cursorJson);
+                case AGGREGATION:
+                    return handleAggregationCursorCloseRequest(client, cursorJson);
+                case JOIN:
+                    return handleJoinCursorCloseRequest(client, cursorJson);
+                default: throw new VerificationException("Unsupported cursor");
+            }
+        }
+
+        throw new VerificationException("Invalid cursor");
+    }
+
+    private String handleDefaultCursorCloseRequest(Client client, JSONObject cursorContext) {
+        String scrollId = cursorContext.getString("scrollId");
+        ClearScrollResponse clearScrollResponse = client.prepareClearScroll().addScrollId(scrollId).get();
         if (clearScrollResponse.isSucceeded()) {
-            return new JSONObject().put("success", true).toString();
+            return SUCCESS_TRUE;
         } else {
-            return new JSONObject().put("success", false).toString();
+            return SUCCESS_FALSE;
         }
     }
+
+    private String handleAggregationCursorCloseRequest(Client client, JSONObject cursorContext) {
+        return SUCCESS_TRUE;
+    }
+
+    private String handleJoinCursorCloseRequest(Client client, JSONObject cursorContext) {
+        return SUCCESS_FALSE;
+    }
+
 }

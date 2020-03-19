@@ -23,7 +23,7 @@ public class CursorActionRequestRestExecutorFactory {
 
     public static CursorRestExecutor createExecutor(RestRequest request, String cursor, Format format) {
         if (isCursorCloseRequest(request)) {
-            return new CursorAsyncRestExecutor(new CursorCloseExecutor(cursor, format));
+            return new CursorAsyncRestExecutor(new CursorCloseExecutor(cursor));
         } else {
             return new CursorAsyncRestExecutor(new CursorResultExecutor(cursor, format));
         }
