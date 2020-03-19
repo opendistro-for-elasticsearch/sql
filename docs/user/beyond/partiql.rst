@@ -12,17 +12,43 @@ PartiQL Compatibility
 Introduction
 ============
 
-PartiQL is a SQL-compatible query language that makes it easy and efficient to query semi-structured and nested data regardless of data format. Our OpenDistro For Elasticsearch SQL plugin is partially compatible with PartiQL specification and more support will be provided in future.
-Unnesting a Nested Collection
-=============================
+PartiQL is a SQL-compatible query language that makes it easy and efficient to query semi-structured and nested data regardless of data format. For now our OpenDistro For Elasticsearch SQL plugin is partially compatible with PartiQL specification. More support and integration will be provided in future.
+Test Data
+=========
 
 Description
 -----------
 
-...
+The test index ``employees_nested`` used by all examples in this document is the same as the one used in official PartiQL documentation.
 
 Example
 -------
+
+Result set:
+
++--------------+-----------+--+----------------------------------------------------------------------------------------------------------------------------------------------------------+----+
+|         title|       name|id|                                                                                                                                                          |    |
++==============+===========+==+==========================================================================================================================================================+====+
+|          null|  Bob Smith| 3|[{name=AWS Redshift Spectrum querying, started_year=1990}, {name=AWS Redshift security, started_year=1999}, {name=AWS Aurora security, started_year=2015}]|null|
++--------------+-----------+--+----------------------------------------------------------------------------------------------------------------------------------------------------------+----+
+|       Dev Mgr|Susan Smith| 4|                                                                                                                                                        []|null|
++--------------+-----------+--+----------------------------------------------------------------------------------------------------------------------------------------------------------+----+
+|Software Eng 2| Jane Smith| 6|                        [{name=AWS Redshift security, started_year=1998}, {address=[{city=Dallas, state=TX}], name=AWS Hello security, started_year=2015}]|null|
++--------------+-----------+--+----------------------------------------------------------------------------------------------------------------------------------------------------------+----+
+
+
+Querying Nested Collection
+==========================
+
+Description
+-----------
+
+In SQL-92, a database table can only have tuples that consists of scalar values. PartiQL extends SQL-92 to allow you query and unnest nested collection conveniently. In Elasticsearch world, this is very useful for index with object or nested field.
+
+Example
+-------
+
+In the following example, it finds nested document (project) with field value (name) that satisfies the predicate (contains 'security'). Note that because each parent document can have more than one nested documents, the matched nested document is flattened. In other word, the final result is the Cartesian Product between parent and nested documents.
 
 SQL query::
 

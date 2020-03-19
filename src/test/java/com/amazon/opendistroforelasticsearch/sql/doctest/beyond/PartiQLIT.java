@@ -19,16 +19,46 @@ import com.amazon.opendistroforelasticsearch.sql.doctest.core.DocTest;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.DocTestConfig;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.Section;
 
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.IGNORE_REQUEST;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.IGNORE_RESPONSE;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.TABLE_RESPONSE;
+
 @DocTestConfig(template = "beyond/partiql.rst", testData = {"employees_nested.json"})
 public class PartiQLIT extends DocTest {
 
     @Section(1)
+    public void showTestData() {
+        section(
+            title("Test Data"),
+            description(
+                "The test index ``employees_nested`` used by all examples in this document is the same as",
+                "the one used in official PartiQL documentation."
+            ),
+            example(
+                description(),
+                post("SELECT * FROM employees_nested"),
+                queryFormat(IGNORE_REQUEST, TABLE_RESPONSE),
+                explainFormat(IGNORE_REQUEST, IGNORE_RESPONSE)
+            )
+        );
+    }
+
+    @Section(1)
     public void unnestingCollection() {
         section(
-            title("Unnesting a Nested Collection"),
-            description("..."),
+            title("Querying Nested Collection"),
+            description(
+                "In SQL-92, a database table can only have tuples that consists of scalar values.",
+                "PartiQL extends SQL-92 to allow you query and unnest nested collection conveniently.",
+                "In Elasticsearch world, this is very useful for index with object or nested field."
+            ),
             example(
-                description(""),
+                description(
+                    "In the following example, it finds nested document (project) with field value (name)",
+                    "that satisfies the predicate (contains 'security'). Note that because each parent document",
+                    "can have more than one nested documents, the matched nested document is flattened. In other",
+                    "word, the final result is the Cartesian Product between parent and nested documents."
+                ),
                 post(
                     "SELECT e.name AS employeeName, " +
                     "       p.name AS projectName " +

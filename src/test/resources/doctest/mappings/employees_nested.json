@@ -1,26 +1,6 @@
 {
   "mappings": {
     "properties": {
-      "comments": {
-        "type": "nested",
-        "properties": {
-          "date": {
-            "type": "date"
-          },
-          "likes": {
-            "type": "long"
-          },
-          "message": {
-            "type": "text",
-            "fields": {
-              "keyword": {
-                "type": "keyword",
-                "ignore_above": 256
-              }
-            }
-          }
-        }
-      },
       "id": {
         "type": "long"
       },
@@ -36,29 +16,6 @@
       "projects": {
         "type": "nested",
         "properties": {
-          "address": {
-            "type": "nested",
-            "properties": {
-              "city": {
-                "type": "text",
-                "fields": {
-                  "keyword": {
-                    "type": "keyword",
-                    "ignore_above": 256
-                  }
-                }
-              },
-              "state": {
-                "type": "text",
-                "fields": {
-                  "keyword": {
-                    "type": "keyword",
-                    "ignore_above": 256
-                  }
-                }
-              }
-            }
-          },
           "name": {
             "type": "text",
             "fields": {
