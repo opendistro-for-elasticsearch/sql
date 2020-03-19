@@ -287,13 +287,13 @@ public class CursorIT extends SQLIntegTestCase {
         JSONArray dataRows = withCursorResponse.getJSONArray("datarows");
 
         JSONObject tempResponse = new JSONObject(executeFetchQuery(cursorQuery, fetch_size, JDBC));
-        tempResponse.optJSONArray("schema").forEach(item -> schema.put(item));
-        tempResponse.optJSONArray("datarows").forEach(item -> dataRows.put(item));
+        tempResponse.optJSONArray("schema").forEach(schema::put);
+        tempResponse.optJSONArray("datarows").forEach(dataRows::put);
 
         String cursor = tempResponse.getString("cursor");
         while (!cursor.isEmpty()) {
             tempResponse = executeCursorQuery(cursor);
-            tempResponse.optJSONArray("datarows").forEach(item -> dataRows.put(item));
+            tempResponse.optJSONArray("datarows").forEach(dataRows::put);
             cursor = tempResponse.optString("cursor");
         }
 
