@@ -324,7 +324,6 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     }
 
     @Test
-    @Ignore
     public void castKeywordFieldToDatetimeWithoutAliasJdbcFormatTest() {
         JSONObject response = executeJdbcRequest("SELECT CAST(date_keyword AS DATETIME) FROM "
                 + TestsConstants.TEST_INDEX_DATE + " ORDER BY date_keyword");
@@ -337,7 +336,6 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     }
 
     @Test
-    @Ignore
     public void castKeywordFieldToDatetimeWithAliasJdbcFormatTest() {
         JSONObject response = executeJdbcRequest("SELECT CAST(date_keyword AS DATETIME) AS test_alias FROM "
                 + TestsConstants.TEST_INDEX_DATE + " ORDER BY date_keyword");
@@ -350,7 +348,6 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     }
 
     @Test
-    @Ignore
     public void castFieldToDatetimeWithWhereClauseJdbcFormatTest() {
         JSONObject response = executeJdbcRequest("SELECT CAST(date_keyword AS DATETIME) FROM "
                 + TestsConstants.TEST_INDEX_DATE + " WHERE date_keyword IS NOT NULL ORDER BY date_keyword");
