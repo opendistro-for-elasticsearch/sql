@@ -15,7 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
+import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLCaseExpr;
+import com.alibaba.druid.sql.ast.expr.SQLCastExpr;
+import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.amazon.opendistroforelasticsearch.sql.domain.ColumnTypeProvider;
 import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.JoinSelect;
@@ -25,6 +28,7 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.domain.TableOnJoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMapping;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlFeatureNotImplementedException;
+import com.amazon.opendistroforelasticsearch.sql.executor.Format;
 import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
@@ -142,21 +146,6 @@ public class SelectResultSet extends ResultSet {
                             );
                         }
                 ).collect(Collectors.toList());
-
-//        List<Schema.Column> columns = new ArrayList<>();
-//
-//        JSONObject jsonColumn = null;
-//
-//        for (Object object : schema) {
-//            jsonColumn = (JSONObject) object;
-//            columns.add(new Schema.Column(
-//                jsonColumn.getString("name"),
-//                jsonColumn.getString("alias"),
-//                Schema.Type.valueOf(jsonColumn.getString("type").toUpperCase())
-//                )
-//            );
-//
-//        }
         return columns;
     }
 
@@ -446,6 +435,14 @@ public class SelectResultSet extends ResultSet {
             if (fieldMap.get(fieldName) instanceof MethodField) {
                 MethodField methodField = (MethodField) fieldMap.get(fieldName);
                 int fieldIndex = fieldNameList.indexOf(fieldName);
+
+                SQLExpr expr = methodField.getExpression();
+                if (expr instanceof SQLCastExpr) {
+                    // Since CAST expressions create an alias for a field, we need to save the original field name
+                    // for this alias for formatting data later.
+                    SQLIdentifierExpr castFieldIdentifier = (SQLIdentifierExpr) ((SQLCastExpr) expr).getExpr();
+                    fieldAliasMap.put(methodField.getAlias(), castFieldIdentifier.getName());
+                }
 
                 columns.add(
                         new Schema.Column(
