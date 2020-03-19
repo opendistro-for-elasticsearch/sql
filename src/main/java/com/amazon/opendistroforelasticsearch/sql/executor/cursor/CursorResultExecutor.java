@@ -120,6 +120,7 @@ public class CursorResultExecutor implements CursorRestExecutor {
             ClearScrollResponse clearScrollResponse = client.prepareClearScroll().addScrollId(newScrollId).get();
 
             if (!clearScrollResponse.isSucceeded()) {
+                Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
                 LOG.info("Problem closing the cursor context {} ", newScrollId);
             }
 

@@ -99,6 +99,7 @@ public class CursorCloseExecutor implements CursorRestExecutor {
         if (clearScrollResponse.isSucceeded()) {
             return SUCCEEDED_TRUE;
         } else {
+            Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
             return SUCCEEDED_FALSE;
         }
     }
