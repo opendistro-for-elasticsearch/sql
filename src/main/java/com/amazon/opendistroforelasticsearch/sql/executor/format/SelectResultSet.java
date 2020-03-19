@@ -28,7 +28,6 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.domain.TableOnJoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMapping;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlFeatureNotImplementedException;
-import com.amazon.opendistroforelasticsearch.sql.executor.Format;
 import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
