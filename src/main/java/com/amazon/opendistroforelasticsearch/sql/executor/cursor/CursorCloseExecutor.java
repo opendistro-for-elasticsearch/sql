@@ -104,7 +104,7 @@ public class CursorCloseExecutor implements CursorRestExecutor {
     }
 
     private String handleJoinCursorCloseRequest(Client client, JSONObject cursorContext) {
-        return SUCCEEDED_FALSE;
+        return SUCCEEDED_TRUE;
     }
 
 }

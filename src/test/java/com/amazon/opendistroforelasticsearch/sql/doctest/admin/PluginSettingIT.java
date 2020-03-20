@@ -33,6 +33,9 @@ import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.Sql
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.IGNORE_REQUEST;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.IGNORE_RESPONSE;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.PRETTY_JSON_RESPONSE;
+import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.CURSOR_ENABLED;
+import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.CURSOR_FETCH_SIZE;
+import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.CURSOR_KEEPALIVE;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_ENABLED;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_SEMANTIC_SUGGESTION;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_SEMANTIC_THRESHOLD;
@@ -113,6 +116,35 @@ public class PluginSettingIT extends DocTest {
                                                                      .collect(Collectors.joining(","))),
                 Format.JSON.getFormatName(),
                 "SELECT firstname, lastname, age FROM accounts ORDER BY age LIMIT 2"
+        );
+    }
+
+    @Section(7)
+    public void cursorEnabledSetting() {
+        docSetting(
+                CURSOR_ENABLED,
+                "User can enable/disable pagination for all queries that are supported.",
+                false
+        );
+    }
+
+    @Section(8)
+    public void cursorDefaultFetchSizeSetting() {
+        docSetting(
+                CURSOR_FETCH_SIZE,
+                "User can set the default fetch_size for all queries that are supported by pagination." +
+                "explicit `fetch_size` passed in request will override this value",
+                50
+        );
+    }
+
+    @Section(9)
+    public void cursorDefaultContextKeepAliveSetting() {
+        docSetting(
+                CURSOR_KEEPALIVE,
+                "User can set this value to indicate how long the cursor context should be kept open." +
+                "Cursor contexts are resource heavy, and a lower value should be used if possible.",
+                "5m"
         );
     }
 

@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseException;
 import org.json.JSONArray;
@@ -24,6 +25,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getResponseBody;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.containsString;
@@ -37,10 +39,13 @@ public class CursorIT extends SQLIntegTestCase {
         loadIndex(Index.ACCOUNT);
     }
 
+    /**
+     * Acceptable fetch_size are positive numbers.
+     * For example 0, 24, 53.0, "110" (parsable string) , "786.23"
+     * Negative values should throw 400
+     */
     @Test
-    public void invalidFetchSize() throws IOException {
-        // invalid fetch_size --> negative(-2), non-numeric("hello")
-        // acceptable fetch_size --> positive numbers, even in string form "532.4"
+    public void invalidNegativeFetchSize() throws IOException {
         String query = StringUtils.format("SELECT firstname, state FROM %s", TestsConstants.TEST_INDEX_ACCOUNT);
         Response response = null;
         try {
@@ -56,19 +61,43 @@ public class CursorIT extends SQLIntegTestCase {
         assertThat(resp.query("/error/type"), equalTo("IllegalArgumentException"));
     }
 
+    /**
+     * Non-numeric fetch_size value should throw 400
+     */
+    @Test
+    public void invalidNonNumericFetchSize() throws IOException {
+        String query = StringUtils.format("SELECT firstname, state FROM %s", TestsConstants.TEST_INDEX_ACCOUNT);
+        Response response = null;
+        try {
+            String queryResult = executeFetchAsStringQuery(query, "hello world", JDBC);
+        } catch (ResponseException ex) {
+            response = ex.getResponse();
+        }
+
+        JSONObject resp = new JSONObject(TestUtils.getResponseBody(response));
+        assertThat(resp.getInt("status"), equalTo(400));
+        assertThat(resp.query("/error/reason"), equalTo("Invalid SQL query"));
+        assertThat(resp.query("/error/details"), equalTo("Failed to parse field [fetch_size]"));
+        assertThat(resp.query("/error/type"), equalTo("IllegalArgumentException"));
+    }
+
+    /**
+     * For fetch_size = 0, default to non-pagination behaviour for simple queries
+     * This can be verified by checking that cursor is not present, and old default limit applies
+     */
     @Test
     public void noPaginationWhenFetchSizeZero() throws IOException {
-        // fetch_size = 0, default to non-pagination behaviour for simple queries
-        // this can be checked by checking that cursor is not present, and old default limit applies
         String selectQuery = StringUtils.format("SELECT firstname, state FROM %s", TEST_INDEX_ACCOUNT);
         JSONObject response = new JSONObject(executeFetchQuery(selectQuery, 0, JDBC));
         assertFalse(response.has("cursor"));
         assertThat(response.getJSONArray("datarows").length(), equalTo(200));
     }
 
+    /**
+     * The index has 1000 records, with fetch size of 50 we should get 20 pages with no cursor on last page
+     */
     @Test
     public void validNumberOfPages() throws IOException {
-        // the index has 1000 records, with fetch size of 50 we should get 20 pages with no cursor on last page
         String selectQuery = StringUtils.format("SELECT firstname, state FROM %s", TEST_INDEX_ACCOUNT);
         JSONObject response = new JSONObject(executeFetchQuery(selectQuery, 50, JDBC));
         String cursor = response.getString("cursor");
@@ -182,7 +211,7 @@ public class CursorIT extends SQLIntegTestCase {
 
 
     @Test
-    public void testDefaultFetchSize() throws IOException {
+    public void testDefaultFetchSizeFromClusterSettings() throws IOException {
         // the default fetch size is 1000
         // using non-nested query here as page will have more rows on flattening
         String query = StringUtils.format("SELECT firstname, email, state FROM %s", TEST_INDEX_ACCOUNT);
@@ -259,7 +288,7 @@ public class CursorIT extends SQLIntegTestCase {
     public void respectLimitPassedInSelectClause() throws IOException {
         //TODO:
 //        String query = StringUtils.format("SELECT firstname, email, state FROM %s LIMIT 800", TEST_INDEX_ACCOUNT);
-//        String result = executeFetchQuery(query, 50, "jdbc");
+//        String result = executeFetchQuery(query, 50, JDBC);
         assertThat(1, equalTo(1));
     }
 
@@ -288,15 +317,15 @@ public class CursorIT extends SQLIntegTestCase {
         JSONArray schema = withCursorResponse.getJSONArray("schema");
         JSONArray dataRows = withCursorResponse.getJSONArray("datarows");
 
-        JSONObject tempResponse = new JSONObject(executeFetchQuery(cursorQuery, fetch_size, JDBC));
-        tempResponse.optJSONArray("schema").forEach(schema::put);
-        tempResponse.optJSONArray("datarows").forEach(dataRows::put);
+        JSONObject response = new JSONObject(executeFetchQuery(cursorQuery, fetch_size, JDBC));
+        response.optJSONArray("schema").forEach(schema::put);
+        response.optJSONArray("datarows").forEach(dataRows::put);
 
-        String cursor = tempResponse.getString("cursor");
+        String cursor = response.getString("cursor");
         while (!cursor.isEmpty()) {
-            tempResponse = executeCursorQuery(cursor);
-            tempResponse.optJSONArray("datarows").forEach(dataRows::put);
-            cursor = tempResponse.optString("cursor");
+            response = executeCursorQuery(cursor);
+            response.optJSONArray("datarows").forEach(dataRows::put);
+            cursor = response.optString("cursor");
         }
 
         verifySchema(withoutCursorResponse.optJSONArray("schema"), withCursorResponse.optJSONArray("schema"));
@@ -309,6 +338,26 @@ public class CursorIT extends SQLIntegTestCase {
 
     public void verifyDataRows(JSONArray dataRowsOne, JSONArray dataRowsTwo) {
         assertTrue(dataRowsOne.similar(dataRowsTwo));
+    }
+
+
+    public String executeFetchAsStringQuery(String query, String fetchSize, String requestType) throws IOException {
+        String endpoint = "/_opendistro/_sql?format=" + requestType;
+        String requestBody = makeRequest(query, fetchSize);
+
+        Request sqlRequest = new Request("POST", endpoint);
+        sqlRequest.setJsonEntity(requestBody);
+
+        Response response = client().performRequest(sqlRequest);
+        String responseString = getResponseBody(response, true);
+        return responseString;
+    }
+
+    private String makeRequest(String query, String fetch_size) {
+        return String.format("{\n" +
+                "  \"fetch_size\": \"%s\",\n" +
+                "  \"query\": \"%s\"\n" +
+                "}", fetch_size, query);
     }
 
 }

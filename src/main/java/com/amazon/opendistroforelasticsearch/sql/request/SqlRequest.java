@@ -70,12 +70,10 @@ public class SqlRequest {
 
     public String cursor() {
         return this.cursor;
-//        return (jsonContent == null) ? null : jsonContent.getString(SqlRequestFactory.SQL_CURSOR_FIELD_NAME);
     }
 
     public Integer fetchSize() {
         return this.fetchSize;
-//        return (jsonContent == null) ? null : jsonContent.getInt(SqlRequestFactory.SQL_FETCH_FIELD_NAME);
     }
 
     public JSONObject getJsonContent() {
