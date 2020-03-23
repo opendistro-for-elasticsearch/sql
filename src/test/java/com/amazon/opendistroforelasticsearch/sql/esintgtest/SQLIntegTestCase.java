@@ -108,14 +108,14 @@ public abstract class SQLIntegTestCase extends ESRestTestCase {
 
     @AfterClass
     public static void dumpCoverage() throws IOException, MalformedObjectNameException {
-        // jacoco.dir is set in esplugin-coverage.gradle, if it doesn't exist we don't
+        // jacoco.dir is set in sqlplugin-coverage.gradle, if it doesn't exist we don't
         // want to collect coverage so we can return early
         String jacocoBuildPath = System.getProperty("jacoco.dir");
         if (jacocoBuildPath.isEmpty()) {
             return;
         }
 
-        String  serverUrl = "service:jmx:rmi:///jndi/rmi://127.0.0.1:7777/jmxrmi";
+        String serverUrl = "service:jmx:rmi:///jndi/rmi://127.0.0.1:7777/jmxrmi";
         JMXConnector connector = JMXConnectorFactory.connect(new JMXServiceURL(serverUrl));
         IProxy proxy = MBeanServerInvocationHandler.newProxyInstance(
                 connector.getMBeanServerConnection(), new ObjectName("org.jacoco:type=Runtime"), IProxy.class,
