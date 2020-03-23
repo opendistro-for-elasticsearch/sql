@@ -24,19 +24,52 @@ import org.junit.Ignore;
 public class ComplexQueryIT extends DocTest {
 
     @Section(1)
-    public void subqueries() {
+    public void subquery() {
         section(
-            title("Subqueries"),
-            description(""),
+            title("Subquery"),
+            description(
+                ""
+            ),
+            /*
+            Issue: https://github.com/opendistro-for-elasticsearch/sql/issues/375
             example(
-                title("IN/EXISTS"),
+                title("Scalar Value Subquery"),
+                description(
+                    ""
+                ),
+                post(
+                    "SELECT firstname, lastname, balance " +
+                    "FROM accounts " +
+                    "WHERE balance >= ( " +
+                    " SELECT AVG(balance) FROM accounts " +
+                    ") "
+                )
+            ),*/
+            example(
+                title("Table Subquery"),
                 description(""),
-                post("SELECT * FROM accounts")
+                post(
+                    "SELECT a1.firstname, a1.lastname, a1.balance " +
+                    "FROM accounts a1 " +
+                    "WHERE a1.account_number IN ( " +
+                    " SELECT a2.account_number " +
+                    " FROM accounts a2 " +
+                    " WHERE a2.balance > 10000 " +
+                    ") "
+                )
             )/*,
+            Issue: https://github.com/opendistro-for-elasticsearch/sql/issues/355
             example(
-                title("Subqueries in FROM clause"),
+                title("Subquery in FROM Clause"),
                 description(""),
-                post("SELECT * FROM (SELECT * FROM accounts) AS a")
+                post(
+                    "SELECT a.state, a.bal " +
+                    "FROM ( " +
+                    " SELECT state, AVG(balance) AS bal " +
+                    " FROM accounts " +
+                    " GROUP BY state " +
+                    ") AS a "
+                )
             )*/
         );
     }
@@ -58,10 +91,12 @@ public class ComplexQueryIT extends DocTest {
                     "by ``ON`` clause."
                 ),
                 post(
-                    "SELECT a.firstname, a.lastname, e.name " +
+                    "SELECT " +
+                    " a.account_number, a.firstname, a.lastname, " +
+                    " e.id, e.name " +
                     "FROM accounts a " +
                     "JOIN employees_nested e " +
-                    " ON a.account_number = e.id"
+                    " ON a.account_number = e.id "
                 )
             ),
             example(
@@ -74,7 +109,9 @@ public class ComplexQueryIT extends DocTest {
                     "our circuit breaker to terminate the query to avoid out of memory issue."
                 ),
                 post(
-                    "SELECT a.firstname, a.lastname, e.name " +
+                    "SELECT " +
+                    " a.account_number, a.firstname, a.lastname, " +
+                    " e.id, e.name " +
                     "FROM accounts a " +
                     "JOIN employees_nested e "
                 )
@@ -87,7 +124,9 @@ public class ComplexQueryIT extends DocTest {
                     "Note that keyword ``OUTER`` is optional."
                 ),
                 post(
-                    "SELECT a.account_number " +
+                    "SELECT " +
+                    " a.account_number, a.firstname, a.lastname, " +
+                    " e.id, e.name " +
                     "FROM accounts a " +
                     "LEFT JOIN employees_nested e " +
                     " ON a.account_number = e.id "
@@ -114,9 +153,11 @@ public class ComplexQueryIT extends DocTest {
                     "result set from data partitioned in indices daily or monthly."
                 ),
                 post(
-                    "SELECT balance, firstname, lastname FROM accounts WHERE balance < 10000 " +
+                    "SELECT balance, firstname, lastname " +
+                    "FROM accounts WHERE balance < 10000 " +
                     "UNION " +
-                    "SELECT balance, firstname, lastname FROM accounts WHERE balance > 30000 "
+                    "SELECT balance, firstname, lastname " +
+                    "FROM accounts WHERE balance > 30000 "
                 )
             ),
             example(
@@ -126,9 +167,13 @@ public class ComplexQueryIT extends DocTest {
                     "do not appear in the other query. Duplicate rows are removed automatically as well."
                 ),
                 post(
-                    "SELECT balance, age FROM accounts WHERE balance < 10000 " +
+                    "SELECT balance, age " +
+                    "FROM accounts " +
+                    "WHERE balance < 10000 " +
                     "MINUS " +
-                    "SELECT balance, age FROM accounts WHERE age < 35 "
+                    "SELECT balance, age " +
+                    "FROM accounts " +
+                    "WHERE age < 35 "
                 )
             )
         );

@@ -10,39 +10,149 @@ Complex Query
    :depth: 2
 
 
-Subqueries
-==========
+Subquery
+========
 
-Example: IN/EXISTS
-------------------
+Example: Table Subquery
+-----------------------
 
 SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT * FROM accounts"
+	  "query" : "SELECT a1.firstname, a1.lastname, a1.balance FROM accounts a1 WHERE a1.account_number IN (  SELECT a2.account_number  FROM accounts a2  WHERE a2.balance > 10000 ) "
 	}
 
 Explain::
 
 	{
-	  "from" : 0,
-	  "size" : 200
+	  "Physical Plan" : {
+	    "Project [ columns=[a1.balance, a1.firstname, a1.lastname] ]" : {
+	      "Top [ count=200 ]" : {
+	        "BlockHashJoin[ conditions=( a1.account_number = a2.account_number ), type=JOIN, blockSize=[FixedBlockSize with size=10000] ]" : {
+	          "Scroll [ accounts as a2, pageSize=10000 ]" : {
+	            "request" : {
+	              "size" : 200,
+	              "query" : {
+	                "bool" : {
+	                  "filter" : [
+	                    {
+	                      "bool" : {
+	                        "adjust_pure_negative" : true,
+	                        "must" : [
+	                          {
+	                            "bool" : {
+	                              "adjust_pure_negative" : true,
+	                              "must" : [
+	                                {
+	                                  "bool" : {
+	                                    "adjust_pure_negative" : true,
+	                                    "must_not" : [
+	                                      {
+	                                        "bool" : {
+	                                          "adjust_pure_negative" : true,
+	                                          "must_not" : [
+	                                            {
+	                                              "exists" : {
+	                                                "field" : "account_number",
+	                                                "boost" : 1
+	                                              }
+	                                            }
+	                                          ],
+	                                          "boost" : 1
+	                                        }
+	                                      }
+	                                    ],
+	                                    "boost" : 1
+	                                  }
+	                                },
+	                                {
+	                                  "range" : {
+	                                    "balance" : {
+	                                      "include_lower" : false,
+	                                      "include_upper" : true,
+	                                      "from" : 10000,
+	                                      "boost" : 1,
+	                                      "to" : null
+	                                    }
+	                                  }
+	                                }
+	                              ],
+	                              "boost" : 1
+	                            }
+	                          }
+	                        ],
+	                        "boost" : 1
+	                      }
+	                    }
+	                  ],
+	                  "adjust_pure_negative" : true,
+	                  "boost" : 1
+	                }
+	              },
+	              "from" : 0
+	            }
+	          },
+	          "Scroll [ accounts as a1, pageSize=10000 ]" : {
+	            "request" : {
+	              "size" : 200,
+	              "from" : 0,
+	              "_source" : {
+	                "excludes" : [ ],
+	                "includes" : [
+	                  "firstname",
+	                  "lastname",
+	                  "balance",
+	                  "account_number"
+	                ]
+	              }
+	            }
+	          },
+	          "useTermsFilterOptimization" : false
+	        }
+	      }
+	    }
+	  },
+	  "description" : "Hash Join algorithm builds hash table based on result of first query, and then probes hash table to find matched rows for each row returned by second query",
+	  "Logical Plan" : {
+	    "Project [ columns=[a1.balance, a1.firstname, a1.lastname] ]" : {
+	      "Top [ count=200 ]" : {
+	        "Join [ conditions=( a1.account_number = a2.account_number ) type=JOIN ]" : {
+	          "Group" : [
+	            {
+	              "Project [ columns=[a1.balance, a1.firstname, a1.lastname, a1.account_number] ]" : {
+	                "TableScan" : {
+	                  "tableAlias" : "a1",
+	                  "tableName" : "accounts"
+	                }
+	              }
+	            },
+	            {
+	              "Project [ columns=[a2.account_number] ]" : {
+	                "Filter [ conditions=[AND ( AND account_number ISN null, AND balance GT 10000 ) ] ]" : {
+	                  "TableScan" : {
+	                    "tableAlias" : "a2",
+	                    "tableName" : "accounts"
+	                  }
+	                }
+	              }
+	            }
+	          ]
+	        }
+	      }
+	    }
+	  }
 	}
 
 Result set:
 
-+--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
-|account_number|firstname|gender|  city|balance|employer|state|                   email|             address|lastname|age|
-+==============+=========+======+======+=======+========+=====+========================+====================+========+===+
-|             1|    Amber|     M|Brogan|  39225|  Pyrami|   IL|    amberduke@pyrami.com|     880 Holmes Lane|    Duke| 32|
-+--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
-|             6|   Hattie|     M| Dante|   5686|  Netagy|   TN|   hattiebond@netagy.com|  671 Bristol Street|    Bond| 36|
-+--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
-|            13|  Nanette|     F| Nogal|  32838| Quility|   VA|nanettebates@quility.com|  789 Madison Street|   Bates| 28|
-+--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
-|            18|     Dale|     M| Orick|   4180|    null|   MD|     daleadams@boink.com|467 Hutchinson Court|   Adams| 33|
-+--------------+---------+------+------+-------+--------+-----+------------------------+--------------------+--------+---+
++------------+-----------+----------+
+|a1.firstname|a1.lastname|a1.balance|
++============+===========+==========+
+|       Amber|       Duke|     39225|
++------------+-----------+----------+
+|     Nanette|      Bates|     32838|
++------------+-----------+----------+
 
 
 JOINs
@@ -62,14 +172,14 @@ SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT a.firstname, a.lastname, e.name FROM accounts a JOIN employees_nested e  ON a.account_number = e.id"
+	  "query" : "SELECT  a.account_number, a.firstname, a.lastname,  e.id, e.name FROM accounts a JOIN employees_nested e  ON a.account_number = e.id "
 	}
 
 Explain::
 
 	{
 	  "Physical Plan" : {
-	    "Project [ columns=[a.firstname, a.lastname, e.name] ]" : {
+	    "Project [ columns=[a.account_number, a.firstname, a.lastname, e.name, e.id] ]" : {
 	      "Top [ count=200 ]" : {
 	        "BlockHashJoin[ conditions=( a.account_number = e.id ), type=JOIN, blockSize=[FixedBlockSize with size=10000] ]" : {
 	          "Scroll [ employees_nested as e, pageSize=10000 ]" : {
@@ -79,8 +189,8 @@ Explain::
 	              "_source" : {
 	                "excludes" : [ ],
 	                "includes" : [
-	                  "name",
-	                  "id"
+	                  "id",
+	                  "name"
 	                ]
 	              }
 	            }
@@ -92,9 +202,9 @@ Explain::
 	              "_source" : {
 	                "excludes" : [ ],
 	                "includes" : [
+	                  "account_number",
 	                  "firstname",
-	                  "lastname",
-	                  "account_number"
+	                  "lastname"
 	                ]
 	              }
 	            }
@@ -106,7 +216,7 @@ Explain::
 	  },
 	  "description" : "Hash Join algorithm builds hash table based on result of first query, and then probes hash table to find matched rows for each row returned by second query",
 	  "Logical Plan" : {
-	    "Project [ columns=[a.firstname, a.lastname, e.name] ]" : {
+	    "Project [ columns=[a.account_number, a.firstname, a.lastname, e.name, e.id] ]" : {
 	      "Top [ count=200 ]" : {
 	        "Join [ conditions=( a.account_number = e.id ) type=JOIN ]" : {
 	          "Group" : [
@@ -135,11 +245,11 @@ Explain::
 
 Result set:
 
-+-----------+----------+----------+
-|a.firstname|a.lastname|    e.name|
-+===========+==========+==========+
-|     Hattie|      Bond|Jane Smith|
-+-----------+----------+----------+
++----------------+-----------+----------+----+----------+
+|a.account_number|a.firstname|a.lastname|e.id|    e.name|
++================+===========+==========+====+==========+
+|               6|     Hattie|      Bond|   6|Jane Smith|
++----------------+-----------+----------+----+----------+
 
 
 Example 2: Cross Join
@@ -151,14 +261,14 @@ SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT a.firstname, a.lastname, e.name FROM accounts a JOIN employees_nested e "
+	  "query" : "SELECT  a.account_number, a.firstname, a.lastname,  e.id, e.name FROM accounts a JOIN employees_nested e "
 	}
 
 Explain::
 
 	{
 	  "Physical Plan" : {
-	    "Project [ columns=[a.firstname, a.lastname, e.name] ]" : {
+	    "Project [ columns=[a.account_number, a.firstname, a.lastname, e.name, e.id] ]" : {
 	      "Top [ count=200 ]" : {
 	        "BlockHashJoin[ conditions=, type=JOIN, blockSize=[FixedBlockSize with size=10000] ]" : {
 	          "Scroll [ employees_nested as e, pageSize=10000 ]" : {
@@ -168,6 +278,7 @@ Explain::
 	              "_source" : {
 	                "excludes" : [ ],
 	                "includes" : [
+	                  "id",
 	                  "name"
 	                ]
 	              }
@@ -180,6 +291,7 @@ Explain::
 	              "_source" : {
 	                "excludes" : [ ],
 	                "includes" : [
+	                  "account_number",
 	                  "firstname",
 	                  "lastname"
 	                ]
@@ -193,12 +305,12 @@ Explain::
 	  },
 	  "description" : "Hash Join algorithm builds hash table based on result of first query, and then probes hash table to find matched rows for each row returned by second query",
 	  "Logical Plan" : {
-	    "Project [ columns=[a.firstname, a.lastname, e.name] ]" : {
+	    "Project [ columns=[a.account_number, a.firstname, a.lastname, e.name, e.id] ]" : {
 	      "Top [ count=200 ]" : {
 	        "Join [ conditions= type=JOIN ]" : {
 	          "Group" : [
 	            {
-	              "Project [ columns=[a.firstname, a.lastname] ]" : {
+	              "Project [ columns=[a.account_number, a.firstname, a.lastname] ]" : {
 	                "TableScan" : {
 	                  "tableAlias" : "a",
 	                  "tableName" : "accounts"
@@ -206,7 +318,7 @@ Explain::
 	              }
 	            },
 	            {
-	              "Project [ columns=[e.name] ]" : {
+	              "Project [ columns=[e.name, e.id] ]" : {
 	                "TableScan" : {
 	                  "tableAlias" : "e",
 	                  "tableName" : "employees_nested"
@@ -222,33 +334,33 @@ Explain::
 
 Result set:
 
-+-----------+----------+-----------+
-|a.firstname|a.lastname|     e.name|
-+===========+==========+===========+
-|      Amber|      Duke|  Bob Smith|
-+-----------+----------+-----------+
-|      Amber|      Duke| Jane Smith|
-+-----------+----------+-----------+
-|      Amber|      Duke|Susan Smith|
-+-----------+----------+-----------+
-|       Dale|     Adams|  Bob Smith|
-+-----------+----------+-----------+
-|       Dale|     Adams| Jane Smith|
-+-----------+----------+-----------+
-|       Dale|     Adams|Susan Smith|
-+-----------+----------+-----------+
-|     Hattie|      Bond|  Bob Smith|
-+-----------+----------+-----------+
-|     Hattie|      Bond| Jane Smith|
-+-----------+----------+-----------+
-|     Hattie|      Bond|Susan Smith|
-+-----------+----------+-----------+
-|    Nanette|     Bates|  Bob Smith|
-+-----------+----------+-----------+
-|    Nanette|     Bates| Jane Smith|
-+-----------+----------+-----------+
-|    Nanette|     Bates|Susan Smith|
-+-----------+----------+-----------+
++----------------+-----------+----------+----+-----------+
+|a.account_number|a.firstname|a.lastname|e.id|     e.name|
++================+===========+==========+====+===========+
+|               1|      Amber|      Duke|   3|  Bob Smith|
++----------------+-----------+----------+----+-----------+
+|               1|      Amber|      Duke|   4|Susan Smith|
++----------------+-----------+----------+----+-----------+
+|               1|      Amber|      Duke|   6| Jane Smith|
++----------------+-----------+----------+----+-----------+
+|               6|     Hattie|      Bond|   3|  Bob Smith|
++----------------+-----------+----------+----+-----------+
+|               6|     Hattie|      Bond|   4|Susan Smith|
++----------------+-----------+----------+----+-----------+
+|               6|     Hattie|      Bond|   6| Jane Smith|
++----------------+-----------+----------+----+-----------+
+|              13|    Nanette|     Bates|   3|  Bob Smith|
++----------------+-----------+----------+----+-----------+
+|              13|    Nanette|     Bates|   4|Susan Smith|
++----------------+-----------+----------+----+-----------+
+|              13|    Nanette|     Bates|   6| Jane Smith|
++----------------+-----------+----------+----+-----------+
+|              18|       Dale|     Adams|   3|  Bob Smith|
++----------------+-----------+----------+----+-----------+
+|              18|       Dale|     Adams|   4|Susan Smith|
++----------------+-----------+----------+----+-----------+
+|              18|       Dale|     Adams|   6| Jane Smith|
++----------------+-----------+----------+----+-----------+
 
 
 Example 3: Outer Join
@@ -260,20 +372,27 @@ SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT a.account_number FROM accounts a LEFT JOIN employees_nested e  ON a.account_number = e.id "
+	  "query" : "SELECT  a.account_number, a.firstname, a.lastname,  e.id, e.name FROM accounts a LEFT JOIN employees_nested e  ON a.account_number = e.id "
 	}
 
 Explain::
 
 	{
 	  "Physical Plan" : {
-	    "Project [ columns=[a.account_number] ]" : {
+	    "Project [ columns=[a.account_number, a.firstname, a.lastname, e.name, e.id] ]" : {
 	      "Top [ count=200 ]" : {
 	        "BlockHashJoin[ conditions=( a.account_number = e.id ), type=LEFT_OUTER_JOIN, blockSize=[FixedBlockSize with size=10000] ]" : {
 	          "Scroll [ employees_nested as e, pageSize=10000 ]" : {
 	            "request" : {
 	              "size" : 200,
-	              "from" : 0
+	              "from" : 0,
+	              "_source" : {
+	                "excludes" : [ ],
+	                "includes" : [
+	                  "id",
+	                  "name"
+	                ]
+	              }
 	            }
 	          },
 	          "Scroll [ accounts as a, pageSize=10000 ]" : {
@@ -283,7 +402,9 @@ Explain::
 	              "_source" : {
 	                "excludes" : [ ],
 	                "includes" : [
-	                  "account_number"
+	                  "account_number",
+	                  "firstname",
+	                  "lastname"
 	                ]
 	              }
 	            }
@@ -295,12 +416,12 @@ Explain::
 	  },
 	  "description" : "Hash Join algorithm builds hash table based on result of first query, and then probes hash table to find matched rows for each row returned by second query",
 	  "Logical Plan" : {
-	    "Project [ columns=[a.account_number] ]" : {
+	    "Project [ columns=[a.account_number, a.firstname, a.lastname, e.name, e.id] ]" : {
 	      "Top [ count=200 ]" : {
 	        "Join [ conditions=( a.account_number = e.id ) type=LEFT_OUTER_JOIN ]" : {
 	          "Group" : [
 	            {
-	              "Project [ columns=[a.account_number] ]" : {
+	              "Project [ columns=[a.account_number, a.firstname, a.lastname] ]" : {
 	                "TableScan" : {
 	                  "tableAlias" : "a",
 	                  "tableName" : "accounts"
@@ -308,7 +429,7 @@ Explain::
 	              }
 	            },
 	            {
-	              "Project [ columns=[e.id] ]" : {
+	              "Project [ columns=[e.name, e.id] ]" : {
 	                "TableScan" : {
 	                  "tableAlias" : "e",
 	                  "tableName" : "employees_nested"
@@ -324,16 +445,16 @@ Explain::
 
 Result set:
 
-+----------------+
-|a.account_number|
-+================+
-|               1|
-+----------------+
-|               6|
-+----------------+
-|              13|
-+----------------+
-|              18|
-+----------------+
++----------------+-----------+----------+----+----------+
+|a.account_number|a.firstname|a.lastname|e.id|    e.name|
++================+===========+==========+====+==========+
+|               1|      Amber|      Duke|null|      null|
++----------------+-----------+----------+----+----------+
+|               6|     Hattie|      Bond|   6|Jane Smith|
++----------------+-----------+----------+----+----------+
+|              13|    Nanette|     Bates|null|      null|
++----------------+-----------+----------+----+----------+
+|              18|       Dale|     Adams|null|      null|
++----------------+-----------+----------+----+----------+
 
 
