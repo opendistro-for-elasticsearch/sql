@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
+import com.google.common.base.Strings;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
@@ -110,7 +111,7 @@ public abstract class SQLIntegTestCase extends ESRestTestCase {
         // jacoco.dir is set in sqlplugin-coverage.gradle, if it doesn't exist we don't
         // want to collect coverage so we can return early
         String jacocoBuildPath = System.getProperty("jacoco.dir");
-        if (jacocoBuildPath == null || jacocoBuildPath.isEmpty()) {
+        if (Strings.isNullOrEmpty(jacocoBuildPath)) {
             return;
         }
 
@@ -123,7 +124,7 @@ public abstract class SQLIntegTestCase extends ESRestTestCase {
             Path path = Paths.get(jacocoBuildPath + "/integTest.exec");
             Files.write(path, proxy.getExecutionData(false));
         } catch (Exception ex) {
-            throw new RuntimeException("Failed to dump coverage: " + ex);
+            throw new RuntimeException("Failed to dump coverage", ex);
         }
     }
 
