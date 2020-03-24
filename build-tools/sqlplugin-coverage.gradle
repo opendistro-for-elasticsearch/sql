@@ -39,7 +39,6 @@ task dummyTest(type: Test) {
     }
 }
 
-/*
 task dummyIntegTest(type: Test) {
     enabled = false
     workingDir = file("/") // Force absolute path to jacoco agent jar
@@ -51,18 +50,21 @@ task dummyIntegTest(type: Test) {
 }
 
 integTest.runner {
-    jvmArgs += " ${dummyIntegTest.jacoco.getAsJvmArg()}"
+    systemProperty 'jacoco.dir', "${buildDir}/jacoco"
+}
+
+testClusters.integTest {
+    jvmArgs " ${dummyIntegTest.jacoco.getAsJvmArg()}"
     systemProperty 'com.sun.management.jmxremote', "true"
     systemProperty 'com.sun.management.jmxremote.authenticate', "false"
     systemProperty 'com.sun.management.jmxremote.port', "7777"
     systemProperty 'com.sun.management.jmxremote.ssl', "false"
     systemProperty 'java.rmi.server.hostname', "127.0.0.1"
 }
-*/
 
 jacocoTestReport {
     dependsOn integTest, test
-    executionData.from = [dummyTest.jacoco.destinationFile/*, dummyIntegTest.jacoco.destinationFile*/]
+    executionData.from = [dummyTest.jacoco.destinationFile, dummyIntegTest.jacoco.destinationFile]
     sourceDirectories.from = sourceSets.main.java.sourceDirectories
     classDirectories.from = files(sourceSets.main.java.outputDir)
 
@@ -73,29 +75,6 @@ jacocoTestReport {
     }
 }
 
-/*
-// See https://www.eclemma.org/jacoco/trunk/doc/api/org/jacoco/agent/rt/IAgent.html
-task dumpCoverage {
-    onlyIf {
-        // ignore the integ test coverage result when integTestRunner failed.
-        integTest.runner.getState().getFailure() == null
-    }
-    doFirst () {
-        def serverUrl = "service:jmx:rmi:///jndi/rmi://127.0.0.1:7777/jmxrmi"
-        def connector = JMXConnectorFactory.connect(new JMXServiceURL(serverUrl))
-        try {
-            def jacocoMBean = new GroovyMBean(connector.MBeanServerConnection, "org.jacoco:type=Runtime")
-            byte[] data = jacocoMBean.getExecutionData(false)
-            file(dummyIntegTest.jacoco.destinationFile).setBytes(data)
-        } finally {
-            connector.close()
-        }
-    }
-}
-
 project.gradle.projectsEvaluated {
-    integTest.runner.finalizedBy dumpCoverage
-    tasks['integTest.runner#stop'].dependsOn dumpCoverage
-    jacocoTestReport.dependsOn dumpCoverage
+    jacocoTestReport.dependsOn integTest.runner
 }
-*/
