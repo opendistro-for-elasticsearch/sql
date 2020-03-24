@@ -26,7 +26,6 @@ import org.junit.Assert;
 import org.junit.Before;
 
 import javax.management.MBeanServerInvocationHandler;
-import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
@@ -107,23 +106,25 @@ public abstract class SQLIntegTestCase extends ESRestTestCase {
     }
 
     @AfterClass
-    public static void dumpCoverage() throws IOException, MalformedObjectNameException {
+    public static void dumpCoverage() {
         // jacoco.dir is set in sqlplugin-coverage.gradle, if it doesn't exist we don't
         // want to collect coverage so we can return early
         String jacocoBuildPath = System.getProperty("jacoco.dir");
-        if (jacocoBuildPath.isEmpty()) {
+        if (jacocoBuildPath == null || jacocoBuildPath.isEmpty()) {
             return;
         }
 
         String serverUrl = "service:jmx:rmi:///jndi/rmi://127.0.0.1:7777/jmxrmi";
-        JMXConnector connector = JMXConnectorFactory.connect(new JMXServiceURL(serverUrl));
-        IProxy proxy = MBeanServerInvocationHandler.newProxyInstance(
-                connector.getMBeanServerConnection(), new ObjectName("org.jacoco:type=Runtime"), IProxy.class,
-                false);
+        try(JMXConnector connector = JMXConnectorFactory.connect(new JMXServiceURL(serverUrl))) {
+            IProxy proxy = MBeanServerInvocationHandler.newProxyInstance(
+                    connector.getMBeanServerConnection(), new ObjectName("org.jacoco:type=Runtime"), IProxy.class,
+                    false);
 
-        Path path = Paths.get(jacocoBuildPath + "/integTest.exec");
-        Files.write(path, proxy.getExecutionData(false));
-        connector.close();
+            Path path = Paths.get(jacocoBuildPath + "/integTest.exec");
+            Files.write(path, proxy.getExecutionData(false));
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to dump coverage: " + ex);
+        }
     }
 
     /**
