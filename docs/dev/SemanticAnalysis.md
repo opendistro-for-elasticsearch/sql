@@ -257,7 +257,7 @@ Suppose an index `accounts` has mapping as below:
 }
 ``` 
 
-Firstly, visitor needs to enforce the visiting order of SQL query. Because some clause like FROM is essentially the definition of symbol, it is required to be visited before other clause such as WHERE which is the resolution of symbol. Currently the visiting process is being performed in the following order:
+Firstly, nodeVisitor needs to enforce the visiting order of SQL query. Because some clause like FROM is essentially the definition of symbol, it is required to be visited before other clause such as WHERE which is the resolution of symbol. Currently the visiting process is being performed in the following order:
 
  1. **FROM**: define all symbols in index mapping in context for later resolution
  2. **WHERE**
@@ -269,7 +269,7 @@ Firstly, visitor needs to enforce the visiting order of SQL query. Because some 
 
 ### 4.2 Context Initialization
 
-This part is done in `ESMappingLoader` visitor each of whose visit methods runs ahead of `TypeChecker`. Take query `SELECT * FROM accounts a, a.projects p WHERE age > 20 AND p.active IS TRUE` for example. After visiting the FROM clause, the context completes the initialization with symbol well defined as follows:
+This part is done in `ESMappingLoader` nodeVisitor each of whose visit methods runs ahead of `TypeChecker`. Take query `SELECT * FROM accounts a, a.projects p WHERE age > 20 AND p.active IS TRUE` for example. After visiting the FROM clause, the context completes the initialization with symbol well defined as follows:
 
 ```
  # field names without alias prefix because alias is optional

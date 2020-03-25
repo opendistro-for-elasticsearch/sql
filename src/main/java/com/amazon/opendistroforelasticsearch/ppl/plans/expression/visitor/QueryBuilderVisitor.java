@@ -15,15 +15,16 @@
 
 package com.amazon.opendistroforelasticsearch.ppl.plans.expression.visitor;
 
+import com.amazon.opendistroforelasticsearch.ppl.node.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.And;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.AttributeReference;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Literal;
-import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Expression;
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Expression;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 
-public class QueryBuilderVisitor extends AbstractExprVisitor<QueryBuilder> {
+public class QueryBuilderVisitor extends AbstractNodeVisitor<QueryBuilder> {
     @Override
     public QueryBuilder visitEqualTo(EqualTo node) {
         Expression left = node.getLeft();

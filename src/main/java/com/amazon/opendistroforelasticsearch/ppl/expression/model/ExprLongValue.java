@@ -13,8 +13,28 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.ppl.plans.logical;
+package com.amazon.opendistroforelasticsearch.ppl.expression.model;
 
-public abstract class Node {
+import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 
+@EqualsAndHashCode
+@RequiredArgsConstructor
+public class ExprLongValue implements ExprValue {
+    private final Long value;
+
+    @Override
+    public Object value() {
+        return value;
+    }
+
+    @Override
+    public ExprValueKind kind() {
+        return ExprValueKind.LONG_VALUE;
+    }
+
+    @Override
+    public String toString() {
+        return value.toString();
+    }
 }

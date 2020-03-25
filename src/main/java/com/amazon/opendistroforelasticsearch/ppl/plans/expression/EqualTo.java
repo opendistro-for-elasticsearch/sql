@@ -15,10 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.ppl.plans.expression;
 
-import com.amazon.opendistroforelasticsearch.ppl.plans.expression.visitor.AbstractExprVisitor;
-import com.amazon.opendistroforelasticsearch.ppl.plans.expression.visitor.ExprVisitor;
-import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Expression;
-import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Visitor;
+import com.amazon.opendistroforelasticsearch.ppl.node.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.ppl.node.NodeVisitor;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -37,21 +35,14 @@ public class EqualTo extends Expression {
     private Expression right;
 
     @Override
-    public Expression bottomUp(Visitor<Expression> visitor) {
-        left = left.bottomUp(visitor);
-        right = right.bottomUp(visitor);
-        return visitor.visit(this);
-    }
-
-    @Override
     public List<Expression> getChild() {
         return Arrays.asList(left, right);
     }
 
     @Override
-    public <T> T accept(ExprVisitor<T> visitor) {
-        if (visitor instanceof AbstractExprVisitor) {
-            return ((AbstractExprVisitor<T>) visitor).visitEqualTo(this);
+    public <T> T accept(NodeVisitor<T> visitor) {
+        if (visitor instanceof AbstractNodeVisitor) {
+            return ((AbstractNodeVisitor<T>) visitor).visitEqualTo(this);
         } else {
             return visitor.visitChildren(this);
         }

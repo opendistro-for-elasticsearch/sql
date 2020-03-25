@@ -15,11 +15,16 @@
 
 package com.amazon.opendistroforelasticsearch.ppl.plans.logical;
 
+import com.amazon.opendistroforelasticsearch.ppl.node.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.ppl.node.NodeVisitor;
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Expression;
+import com.google.common.collect.ImmutableList;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.util.List;
 
 @ToString
 @EqualsAndHashCode
@@ -38,5 +43,19 @@ public class Filter extends LogicalPlan {
     public Filter withInput(LogicalPlan input) {
         this.input = input;
         return this;
+    }
+
+    @Override
+    public List<LogicalPlan> getChild() {
+        return ImmutableList.of(input);
+    }
+
+    @Override
+    public <R> R accept(NodeVisitor<R> nodeVisitor) {
+        if (nodeVisitor instanceof AbstractNodeVisitor) {
+            return ((AbstractNodeVisitor<R>) nodeVisitor).visitFilter(this);
+        } else {
+            return nodeVisitor.visitChildren(this);
+        }
     }
 }

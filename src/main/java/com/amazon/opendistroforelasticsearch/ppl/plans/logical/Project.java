@@ -15,9 +15,12 @@
 
 package com.amazon.opendistroforelasticsearch.ppl.plans.logical;
 
+import com.amazon.opendistroforelasticsearch.ppl.node.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.ppl.node.NodeVisitor;
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Expression;
+import com.google.common.collect.ImmutableList;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -40,5 +43,19 @@ public class Project extends LogicalPlan {
     public Project withInput(LogicalPlan input) {
         this.input = input;
         return this;
+    }
+
+    @Override
+    public List<LogicalPlan> getChild() {
+        return ImmutableList.of(input);
+    }
+
+    @Override
+    public <T> T accept(NodeVisitor<T> visitor) {
+        if (visitor instanceof AbstractNodeVisitor) {
+            return ((AbstractNodeVisitor<T>) visitor).visitProject(this);
+        } else {
+            return visitor.visitChildren(this);
+        }
     }
 }

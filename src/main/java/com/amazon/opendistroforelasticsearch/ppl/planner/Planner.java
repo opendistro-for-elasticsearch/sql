@@ -39,7 +39,7 @@ public class Planner {
     public PhysicalOperator<BindingTuple> plan(LogicalPlan inputLogicalPlan) {
         // select..from..where..agg
         AggregationBuilder aggBuilder = null;
-        LogicalPlan logicalPlan = inputLogicalPlan.getInput();
+        LogicalPlan logicalPlan = inputLogicalPlan.getChild().get(0);
         if (inputLogicalPlan instanceof Aggregation) {
             Aggregation agg = (Aggregation) inputLogicalPlan;
             aggBuilder = agg.compile();
@@ -54,7 +54,7 @@ public class Planner {
         }
 
         if ((logicalPlan instanceof Filter) &&
-            (logicalPlan.getInput() instanceof Relation)) {
+            (logicalPlan.getChild().get(0) instanceof Relation)) {
 
             Filter filter = (Filter) logicalPlan;
             Relation relation = (Relation) filter.getInput();
@@ -72,11 +72,11 @@ public class Planner {
 
         // select..from..where
         if ((logicalPlan instanceof Project) &&
-            (logicalPlan.getInput() instanceof Filter) &&
-            (logicalPlan.getInput().getInput() instanceof Relation)) {
+            (logicalPlan.getChild().get(0) instanceof Filter) &&
+            (logicalPlan.getChild().get(0).getChild().get(0) instanceof Relation)) {
 
             Project project = (Project) logicalPlan;
-            Filter filter = (Filter) logicalPlan.getInput();
+            Filter filter = (Filter) logicalPlan.getChild().get(0);
             Relation relation = (Relation) filter.getInput();
 
             QueryBuilder queryBuilder = new QueryBuilderVisitor().visit(filter.getCondition());
@@ -93,7 +93,7 @@ public class Planner {
         }
 
         // select..from..
-        if ((logicalPlan instanceof Project) && (logicalPlan.getInput() instanceof Relation)) {
+        if ((logicalPlan instanceof Project) && (logicalPlan.getChild().get(0) instanceof Relation)) {
 
             Project project = (Project) logicalPlan;
             Relation relation = (Relation) project.getInput();

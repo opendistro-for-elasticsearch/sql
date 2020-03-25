@@ -5,7 +5,7 @@
  *   You may not use this file except in compliance with the License.
  *   A copy of the License is located at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  *   or in the "license" file accompanying this file. This file is distributed
  *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
@@ -13,30 +13,36 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.ppl.plans.expression;
+package com.amazon.opendistroforelasticsearch.ppl.expression.model;
 
-import com.amazon.opendistroforelasticsearch.ppl.node.NodeVisitor;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@ToString
+import static com.amazon.opendistroforelasticsearch.ppl.expression.model.ExprValue.ExprValueKind.COLLECTION_VALUE;
+
+
 @EqualsAndHashCode
 @RequiredArgsConstructor
-public class Alias extends Expression {
-    private final Expression expr;
-    private final String alias;
+public class ExprCollectionValue implements ExprValue {
+    private final List<ExprValue> valueList;
 
     @Override
-    public List<Expression> getChild() {
-        return Arrays.asList(expr);
+    public Object value() {
+        return valueList;
     }
 
     @Override
-    public <T> T accept(NodeVisitor<T> visitor) {
-        return visitor.visit(this);
+    public ExprValueKind kind() {
+        return COLLECTION_VALUE;
+    }
+
+    @Override
+    public String toString() {
+        return valueList.stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(",", "[", "]"));
     }
 }

@@ -1,10 +1,7 @@
 package com.amazon.opendistroforelasticsearch.ppl.analysis;
 
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.LogicalPlan;
-import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Node;
 import com.amazon.opendistroforelasticsearch.ppl.spec.scope.Context;
-import com.amazon.opendistroforelasticsearch.sql.antlr.OpenDistroSqlAnalyzer;
-import com.amazon.opendistroforelasticsearch.sql.antlr.SqlAnalysisConfig;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
@@ -122,7 +119,6 @@ public class AnalyzerTest {
     }
 
     public void assertEqual(LogicalPlan testPlan, LogicalPlan expectedPlan) {
-        assertEquals(analyzer.analyze(testPlan),
-                     expectedPlan);
+        assertEquals(expectedPlan, analyzer.analyze(testPlan));
     }
 }

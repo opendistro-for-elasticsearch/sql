@@ -15,10 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.ppl.parser;
 
-import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Count;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Literal;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Aggregation;
-import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Expression;
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Expression;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Filter;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Project;

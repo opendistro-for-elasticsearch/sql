@@ -8,7 +8,7 @@ import com.amazon.opendistroforelasticsearch.ppl.plans.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Literal;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Or;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.UnresolvedAttribute;
-import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Expression;
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.PPLParser;
 import com.amazon.opendistroforelasticsearch.sql.antlr.parser.PPLParserBaseVisitor;
 import java.util.stream.Collectors;

@@ -15,21 +15,21 @@
 
 package com.amazon.opendistroforelasticsearch.ppl.plans.logical;
 
+import com.amazon.opendistroforelasticsearch.ppl.node.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.ppl.node.NodeVisitor;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.AggCount;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.AttributeReference;
-import com.amazon.opendistroforelasticsearch.ppl.plans.expression.visitor.AbstractExprVisitor;
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Expression;
+import com.google.common.collect.ImmutableList;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.composite.CompositeValuesSourceBuilder;
-import org.elasticsearch.search.aggregations.bucket.composite.TermsValuesSourceBuilder;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Getter
 @ToString
@@ -63,14 +63,28 @@ public class Aggregation extends LogicalPlan {
                 .reduce(groupBy.get(), (agg1, agg2) -> agg1.subAggregation(agg2));
     }
 
-    private class GroupTermVisitor extends AbstractExprVisitor<AggregationBuilder> {
+    @Override
+    public List<LogicalPlan> getChild() {
+        return ImmutableList.of(input);
+    }
+
+    @Override
+    public <R> R accept(NodeVisitor<R> nodeVisitor) {
+        if (nodeVisitor instanceof AbstractNodeVisitor) {
+            return ((AbstractNodeVisitor<R>) nodeVisitor).visitAggregation(this);
+        } else {
+            return nodeVisitor.visitChildren(this);
+        }
+    }
+
+    private class GroupTermVisitor extends AbstractNodeVisitor<AggregationBuilder> {
         @Override
         public AggregationBuilder visitAttributeReference(AttributeReference node) {
             return AggregationBuilders.terms(node.getAttr()).field(node.getAttr());
         }
     }
 
-    private static class AggTermVisitor extends AbstractExprVisitor<AggregationBuilder> {
+    private static class AggTermVisitor extends AbstractNodeVisitor<AggregationBuilder> {
         @Override
         public AggregationBuilder visitAggCount(AggCount node) {
             if (node.getField() instanceof AttributeReference) {

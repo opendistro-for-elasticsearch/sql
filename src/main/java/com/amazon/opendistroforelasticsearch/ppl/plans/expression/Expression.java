@@ -15,28 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.ppl.plans.expression;
 
-import com.amazon.opendistroforelasticsearch.ppl.node.NodeVisitor;
-import lombok.EqualsAndHashCode;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
+import com.amazon.opendistroforelasticsearch.ppl.node.Node;
 
-import java.util.Arrays;
-import java.util.List;
+public abstract class Expression implements Node<Expression> {
 
-@ToString
-@EqualsAndHashCode
-@RequiredArgsConstructor
-public class Alias extends Expression {
-    private final Expression expr;
-    private final String alias;
-
-    @Override
-    public List<Expression> getChild() {
-        return Arrays.asList(expr);
-    }
-
-    @Override
-    public <T> T accept(NodeVisitor<T> visitor) {
-        return visitor.visit(this);
-    }
 }

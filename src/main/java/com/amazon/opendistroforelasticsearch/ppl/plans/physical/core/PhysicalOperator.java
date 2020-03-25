@@ -13,10 +13,13 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.ppl.plans.logical;
+package com.amazon.opendistroforelasticsearch.ppl.plans.physical.core;
 
-import com.amazon.opendistroforelasticsearch.ppl.node.Node;
+import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
 
-public abstract class LogicalPlan implements Node<LogicalPlan>, HasInput<LogicalPlan, LogicalPlan> {
+import java.util.Iterator;
 
+public interface PhysicalOperator extends Iterator<BindingTuple>, AutoCloseable{
+
+    void Open();
 }

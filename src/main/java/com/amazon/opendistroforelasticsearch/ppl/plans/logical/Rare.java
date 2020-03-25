@@ -15,9 +15,12 @@
 
 package com.amazon.opendistroforelasticsearch.ppl.plans.logical;
 
+import com.amazon.opendistroforelasticsearch.ppl.node.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.ppl.node.NodeVisitor;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.AttributeReference;
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Expression;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Literal;
-import com.amazon.opendistroforelasticsearch.ppl.plans.expression.visitor.AbstractExprVisitor;
+import com.google.common.collect.ImmutableList;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -65,7 +68,21 @@ public class Rare extends LogicalPlan{
                 .reduce(groupBy.get(), (agg1, agg2) -> agg1.subAggregation(agg2));
     }
 
-    private class GroupTermVisitor extends AbstractExprVisitor<AggregationBuilder> {
+    @Override
+    public List<LogicalPlan> getChild() {
+        return ImmutableList.of(input);
+    }
+
+    @Override
+    public <R> R accept(NodeVisitor<R> nodeVisitor) {
+        if (nodeVisitor instanceof AbstractNodeVisitor) {
+            return ((AbstractNodeVisitor<R>) nodeVisitor).visitRare(this);
+        } else {
+            return nodeVisitor.visitChildren(this);
+        }
+    }
+
+    private class GroupTermVisitor extends AbstractNodeVisitor<AggregationBuilder> {
         @Override
         public AggregationBuilder visitAttributeReference(AttributeReference node) {
             return AggregationBuilders.terms(node.getAttr())
@@ -73,7 +90,7 @@ public class Rare extends LogicalPlan{
         }
     }
 
-    private class AggTermVisitor extends AbstractExprVisitor<AggregationBuilder> {
+    private class AggTermVisitor extends AbstractNodeVisitor<AggregationBuilder> {
         @Override
         public AggregationBuilder visitAttributeReference(AttributeReference node) {
             return AggregationBuilders.terms(node.getAttr())

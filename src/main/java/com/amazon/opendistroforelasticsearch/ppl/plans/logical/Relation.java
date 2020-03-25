@@ -15,10 +15,15 @@
 
 package com.amazon.opendistroforelasticsearch.ppl.plans.logical;
 
+import com.amazon.opendistroforelasticsearch.ppl.node.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.ppl.node.NodeVisitor;
+import com.google.common.collect.ImmutableList;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+
+import java.util.List;
 
 @ToString
 @EqualsAndHashCode
@@ -32,7 +37,16 @@ public class Relation extends LogicalPlan {
     }
 
     @Override
-    public LogicalPlan getInput() {
-        return null;
+    public List<LogicalPlan> getChild() {
+        return ImmutableList.of();
+    }
+
+    @Override
+    public <R> R accept(NodeVisitor<R> nodeVisitor) {
+        if (nodeVisitor instanceof AbstractNodeVisitor) {
+            return ((AbstractNodeVisitor<R>) nodeVisitor).visitRelation(this);
+        } else {
+            return nodeVisitor.visitChildren(this);
+        }
     }
 }

@@ -1,7 +1,7 @@
 package com.amazon.opendistroforelasticsearch.ppl.parser;
 
 import com.amazon.opendistroforelasticsearch.ppl.antlr.PPLSyntaxParser;
-import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Node;
+import com.amazon.opendistroforelasticsearch.ppl.node.Node;
 import org.junit.Test;
 
 import java.util.Arrays;

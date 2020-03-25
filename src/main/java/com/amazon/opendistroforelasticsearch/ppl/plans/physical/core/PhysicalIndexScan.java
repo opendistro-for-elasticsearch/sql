@@ -13,17 +13,29 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.ppl.plans.logical;
+package com.amazon.opendistroforelasticsearch.ppl.plans.physical.core;
 
-import com.amazon.opendistroforelasticsearch.ppl.plans.expression.visitor.ExprVisitor;
+import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
 
-import java.util.List;
+public class PhysicalIndexScan implements PhysicalOperator {
 
-public abstract class Expression extends Node {
+    @Override
+    public void Open() {
 
-    abstract public List<Expression> getChild();
+    }
 
-    abstract public Expression bottomUp(Visitor<Expression> visitor);
+    @Override
+    public void close() throws Exception {
 
-    abstract public <T> T accept(ExprVisitor<T> visitor);
+    }
+
+    @Override
+    public boolean hasNext() {
+        return false;
+    }
+
+    @Override
+    public BindingTuple next() {
+        return null;
+    }
 }

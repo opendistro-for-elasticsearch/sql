@@ -13,26 +13,23 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.ppl.plans.expression.visitor;
+package com.amazon.opendistroforelasticsearch.ppl.node;
 
-import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Expression;
-
-public interface ExprVisitor<T> {
-    default T visit(Expression tree) {
+public interface NodeVisitor<T> {
+    default T visit(Node<?> tree) {
         return tree.accept(this);
     }
 
-    default public T visitChildren(Expression node) {
+    default public T visitChildren(Node<?> node) {
         T result = defaultResult();
 
-        for (Expression child : node.getChild()) {
+        for (Node<?> child : node.getChild()) {
             if (!shouldVisitNextChild(child, result)) {
                 break;
             }
             T childResult = child.accept(this);
             result = aggregateResult(result, childResult);
         }
-
         return result;
     }
 
@@ -44,7 +41,7 @@ public interface ExprVisitor<T> {
         return nextResult;
     }
 
-    default boolean shouldVisitNextChild(Expression node, T currentResult) {
+    default boolean shouldVisitNextChild(Node<?> node, T currentResult) {
         return true;
     }
 }

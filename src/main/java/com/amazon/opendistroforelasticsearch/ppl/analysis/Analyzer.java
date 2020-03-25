@@ -1,14 +1,17 @@
 package com.amazon.opendistroforelasticsearch.ppl.analysis;
 
+import com.amazon.opendistroforelasticsearch.ppl.node.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.AggCount;
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.And;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.AttributeReference;
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.EqualTo;
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Expression;
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Literal;
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Or;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Aggregation;
-import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Expression;
-import com.amazon.opendistroforelasticsearch.ppl.plans.logical.ExpressionVisitor;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Filter;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.LogicalPlan;
-import com.amazon.opendistroforelasticsearch.ppl.plans.logical.LogicalPlanVisitor;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Project;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Rare;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Relation;
@@ -33,11 +36,11 @@ import java.util.stream.Collectors;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESIndex.IndexType.INDEX;
 
 @RequiredArgsConstructor
-public class Analyzer implements LogicalPlanVisitor {
+public class Analyzer extends AbstractNodeVisitor<LogicalPlan> {
     private final Context<Type> context;
     private final LocalClusterState clusterState;
     private final int threshold;
-    private final ExpressionVisitor expressionAnalyzer = new ExpressionVisitor() {
+    private final AbstractNodeVisitor<Expression> expressionAnalyzer = new AbstractNodeVisitor<Expression>() {
         @Override
         public Expression visitUnresolvedAttribute(UnresolvedAttribute node) {
             Optional<Type> resolve = environment().resolve(new Symbol(Namespace.FIELD_NAME, node.getAttr()));
@@ -49,18 +52,39 @@ public class Analyzer implements LogicalPlanVisitor {
         }
 
         @Override
+        public Expression visitLiteral(Literal node) {
+            return node;
+        }
+
+        @Override
+        public Expression visitEqualTo(EqualTo node) {
+            return new EqualTo(this.visit(node.getLeft()), this.visit(node.getRight()));
+        }
+
+        @Override
+        public Expression visitAnd(And node) {
+            return new And(this.visit(node.getLeft()), this.visit(node.getRight()));
+        }
+
+        @Override
+        public Expression visitOr(Or node) {
+            return new Or(this.visit(node.getLeft()), this.visit(node.getRight()));
+        }
+
+        @Override
         public Expression visitAggCount(AggCount node) {
             return new AggCount(visit(node.getField()));
         }
     };
 
     public LogicalPlan analyze(LogicalPlan unresolved) {
-        unresolved.bottomUp(this);
+        unresolved.accept(this);
         return unresolved;
     }
 
     @Override
     public LogicalPlan visitProject(Project node) {
+        node.getChild().forEach(n -> n.accept(this));
         node.setProjectList(node.getProjectList()
                                     .stream()
                                     .map(expressionAnalyzer::visit)
@@ -70,12 +94,14 @@ public class Analyzer implements LogicalPlanVisitor {
 
     @Override
     public LogicalPlan visitFilter(Filter node) {
-        node.setCondition(node.getCondition().bottomUp(expressionAnalyzer));
+        node.getChild().forEach(n -> n.accept(this));
+        node.setCondition(node.getCondition().accept(expressionAnalyzer));
         return node;
     }
 
     @Override
     public LogicalPlan visitAggregation(Aggregation node) {
+        node.getChild().forEach(n -> n.accept(this));
         node.setAggExprs(node.getAggExprs().stream().map(expressionAnalyzer::visit).collect(Collectors.toList()));
         node.setGroupExprs(node.getGroupExprs().stream().map(expressionAnalyzer::visit).collect(Collectors.toList()));
         return node;
@@ -83,6 +109,7 @@ public class Analyzer implements LogicalPlanVisitor {
 
     @Override
     public LogicalPlan visitTop(Top node) {
+        node.getChild().forEach(n -> n.accept(this));
         node.setFieldExprs(node.getFieldExprs().stream().map(expressionAnalyzer::visit).collect(Collectors.toList()));
         node.setGroupExprs(node.getGroupExprs().stream().map(expressionAnalyzer::visit).collect(Collectors.toList()));
         return node;
@@ -90,6 +117,7 @@ public class Analyzer implements LogicalPlanVisitor {
 
     @Override
     public LogicalPlan visitRare(Rare node) {
+        node.getChild().forEach(n -> n.accept(this));
         node.setFieldExprs(node.getFieldExprs().stream().map(expressionAnalyzer::visit).collect(Collectors.toList()));
         node.setGroupExprs(node.getGroupExprs().stream().map(expressionAnalyzer::visit).collect(Collectors.toList()));
         return node;
@@ -97,6 +125,7 @@ public class Analyzer implements LogicalPlanVisitor {
 
     @Override
     public LogicalPlan visitRelation(Relation node) {
+        node.getChild().forEach(n -> n.accept(this));
         defineIndex(node.getTableName());
         loadAllFieldsWith(node.getTableName());
         return node;

@@ -13,30 +13,28 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.ppl.plans.expression;
+package com.amazon.opendistroforelasticsearch.ppl.expression.model;
 
-import com.amazon.opendistroforelasticsearch.ppl.node.NodeVisitor;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
-import java.util.Arrays;
-import java.util.List;
-
-@ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor
-public class Alias extends Expression {
-    private final Expression expr;
-    private final String alias;
+public class ExprFloatValue implements ExprValue {
+    private final Float value;
 
     @Override
-    public List<Expression> getChild() {
-        return Arrays.asList(expr);
+    public Object value() {
+        return value;
     }
 
     @Override
-    public <T> T accept(NodeVisitor<T> visitor) {
-        return visitor.visit(this);
+    public ExprValueKind kind() {
+        return ExprValueKind.DOUBLE_VALUE;
+    }
+
+    @Override
+    public String toString() {
+        return value.toString();
     }
 }

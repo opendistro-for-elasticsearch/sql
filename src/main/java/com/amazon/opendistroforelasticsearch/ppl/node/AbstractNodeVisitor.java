@@ -13,18 +13,50 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.ppl.plans.expression.visitor;
+package com.amazon.opendistroforelasticsearch.ppl.node;
+
 
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.AggCount;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.And;
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.AttributeList;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.AttributeReference;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Count;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Literal;
 import com.amazon.opendistroforelasticsearch.ppl.plans.expression.Or;
-import com.amazon.opendistroforelasticsearch.ppl.plans.expression.AttributeList;
+import com.amazon.opendistroforelasticsearch.ppl.plans.expression.UnresolvedAttribute;
+import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Aggregation;
+import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Filter;
+import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Project;
+import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Rare;
+import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Relation;
+import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Top;
 
-public class AbstractExprVisitor<T> implements ExprVisitor<T> {
+public class AbstractNodeVisitor<T> implements NodeVisitor<T> {
+
+    public T visitTop(Top node) {
+        return visitChildren(node);
+    }
+
+    public T visitProject(Project node) {
+        return visitChildren(node);
+    }
+
+    public T visitRare(Rare node) {
+        return visitChildren(node);
+    }
+
+    public T visitRelation(Relation node) {
+        return visitChildren(node);
+    }
+
+    public T visitFilter(Filter node) {
+        return visitChildren(node);
+    }
+
+    public T visitAggregation(Aggregation node) {
+        return visitChildren(node);
+    }
 
     public T visitLiteral(Literal node) {
         return visitChildren(node);
@@ -52,6 +84,10 @@ public class AbstractExprVisitor<T> implements ExprVisitor<T> {
 
     public T visitCount(Count node) {
         return visitCount(node);
+    }
+
+    public T visitUnresolvedAttribute(UnresolvedAttribute node) {
+        return visitChildren(node);
     }
 
     public T visitUnresolvedAttributeList(AttributeList node) {

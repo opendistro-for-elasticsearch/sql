@@ -15,9 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.ppl.plans.expression;
 
-import com.amazon.opendistroforelasticsearch.ppl.plans.expression.visitor.ExprVisitor;
-import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Expression;
-import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Visitor;
+import com.amazon.opendistroforelasticsearch.ppl.node.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.ppl.node.NodeVisitor;
 import com.google.common.collect.ImmutableList;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -39,12 +38,11 @@ public class UnresolvedAttribute extends Expression {
     }
 
     @Override
-    public Expression bottomUp(Visitor<Expression> visitor) {
-        return visitor.visit(this);
-    }
-
-    @Override
-    public <T> T accept(ExprVisitor<T> visitor) {
-        return visitor.visitChildren(this);
+    public <R> R accept(NodeVisitor<R> nodeVisitor) {
+        if (nodeVisitor instanceof AbstractNodeVisitor) {
+            return ((AbstractNodeVisitor<R>) nodeVisitor).visitUnresolvedAttribute(this);
+        } else {
+            return nodeVisitor.visitChildren(this);
+        }
     }
 }

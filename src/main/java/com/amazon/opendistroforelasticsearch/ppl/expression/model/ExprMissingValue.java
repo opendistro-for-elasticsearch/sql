@@ -5,7 +5,7 @@
  *   You may not use this file except in compliance with the License.
  *   A copy of the License is located at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  *   or in the "license" file accompanying this file. This file is distributed
  *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
@@ -13,10 +13,14 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.ppl.plans.logical;
+package com.amazon.opendistroforelasticsearch.ppl.expression.model;
 
-import com.amazon.opendistroforelasticsearch.ppl.node.Node;
-
-public abstract class LogicalPlan implements Node<LogicalPlan>, HasInput<LogicalPlan, LogicalPlan> {
-
+/**
+ * The definition of the missing value.
+ */
+public class ExprMissingValue implements ExprValue {
+    @Override
+    public ExprValueKind kind() {
+        return ExprValueKind.MISSING_VALUE;
+    }
 }

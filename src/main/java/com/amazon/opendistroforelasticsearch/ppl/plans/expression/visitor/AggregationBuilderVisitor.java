@@ -1,16 +1,10 @@
 package com.amazon.opendistroforelasticsearch.ppl.plans.expression.visitor;
 
-import com.amazon.opendistroforelasticsearch.ppl.plans.expression.UnresolvedAttribute;
-import com.amazon.opendistroforelasticsearch.ppl.plans.expression.AttributeList;
-import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Expression;
-import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Project;
+import com.amazon.opendistroforelasticsearch.ppl.node.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Top;
-import java.util.List;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.metrics.TopHitsAggregationBuilder;
 
-public class AggregationBuilderVisitor extends AbstractExprVisitor<AggregationBuilder> {
+public class AggregationBuilderVisitor extends AbstractNodeVisitor<AggregationBuilder> {
 
     public AggregationBuilder visitAggregationBuilder(Top node) {
 //        String[] byClauses = ((AttributeList) node.getByClause()).getAttrList().stream()

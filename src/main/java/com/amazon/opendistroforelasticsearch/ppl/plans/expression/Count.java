@@ -1,9 +1,7 @@
 package com.amazon.opendistroforelasticsearch.ppl.plans.expression;
 
-import com.amazon.opendistroforelasticsearch.ppl.plans.expression.visitor.AbstractExprVisitor;
-import com.amazon.opendistroforelasticsearch.ppl.plans.expression.visitor.ExprVisitor;
-import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Expression;
-import com.amazon.opendistroforelasticsearch.ppl.plans.logical.Visitor;
+import com.amazon.opendistroforelasticsearch.ppl.node.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.ppl.node.NodeVisitor;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -27,15 +25,9 @@ public class Count extends Expression {
     }
 
     @Override
-    public Expression bottomUp(Visitor<Expression> visitor) {
-        count = count.bottomUp(visitor);
-        return visitor.visit(this);
-    }
-
-    @Override
-    public <T> T accept(ExprVisitor<T> visitor) {
-        if (visitor instanceof AbstractExprVisitor) {
-            return ((AbstractExprVisitor<T>) visitor).visitCount(this);
+    public <T> T accept(NodeVisitor<T> visitor) {
+        if (visitor instanceof AbstractNodeVisitor) {
+            return ((AbstractNodeVisitor<T>) visitor).visitCount(this);
         } else {
             return visitor.visitChildren(this);
         }
