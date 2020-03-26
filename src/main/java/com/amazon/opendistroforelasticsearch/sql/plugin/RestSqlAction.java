@@ -94,9 +94,6 @@ public class RestSqlAction extends BaseRestHandler {
         restController.registerHandler(RestRequest.Method.POST, EXPLAIN_API_ENDPOINT, this);
         restController.registerHandler(RestRequest.Method.GET, EXPLAIN_API_ENDPOINT, this);
         restController.registerHandler(RestRequest.Method.POST, CURSOR_CLOSE_ENDPOINT, this);
-        // TODO : Should we support GET endpoint to clear cursor context?
-        // GET _opendistro/_sql?cursor=hbhjbghbhjdbhjdbjkdbnjxndjnjxd
-        // restController.registerHandler(RestRequest.Method.GET, CURSOR_CLOSE_ENDPOINT, this);
 
         this.allowExplicitIndex = MULTI_ALLOW_EXPLICIT_INDEX.get(settings);
     }
@@ -122,8 +119,12 @@ public class RestSqlAction extends BaseRestHandler {
 
             final SqlRequest sqlRequest = SqlRequestFactory.getSqlRequest(request);
             if (sqlRequest.cursor() != null) {
-                LOG.info("[{}] Cursor request {}: {}", LogUtils.getRequestId(), request.uri(), sqlRequest.cursor());
-                return channel -> handleCursorRequest(request, sqlRequest.cursor(), client, channel);
+                if (isExplainRequest(request)) {
+                    throw new VerificationException("Invalid request. Cannot explain cursor");
+                } else {
+                    LOG.info("[{}] Cursor request {}: {}", LogUtils.getRequestId(), request.uri(), sqlRequest.cursor());
+                    return channel -> handleCursorRequest(request, sqlRequest.cursor(), client, channel);
+                }
             }
 
             LOG.info("[{}] Incoming request {}: {}", LogUtils.getRequestId(), request.uri(), sqlRequest.getSql());
