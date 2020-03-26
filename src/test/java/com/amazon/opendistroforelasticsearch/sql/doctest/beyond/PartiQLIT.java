@@ -67,7 +67,8 @@ public class PartiQLIT extends DocTest {
                     "     e.projects AS p " +
                     "WHERE p.name LIKE '%security%'"
                 )
-            )/*,
+            ),
+            /*
             example(
                 title("Preserving Parent Information with LEFT JOIN"),
                 description(
@@ -84,6 +85,20 @@ public class PartiQLIT extends DocTest {
                     "LEFT JOIN e.projects AS p"
                 )
             )*/
+            example(
+                title("Unnesting in Existential Subquery"),
+                description(
+                    "Alternatively, a nested collection can be unnested in subquery to check if it",
+                    "satisfies a condition."
+                ),
+                post(
+                    "SELECT e.name AS employeeName " +
+                    "FROM employees_nested AS e " +
+                    "WHERE EXISTS (SELECT * " +
+                    "              FROM e.projects AS p " +
+                    "              WHERE p.name LIKE '%security%') "
+                )
+            )
         );
     }
 

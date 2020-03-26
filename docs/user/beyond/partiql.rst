@@ -45,8 +45,8 @@ Description
 
 In SQL-92, a database table can only have tuples that consists of scalar values. PartiQL extends SQL-92 to allow you query and unnest nested collection conveniently. In Elasticsearch world, this is very useful for index with object or nested field.
 
-Example: Unnesting a Nested Collection
---------------------------------------
+Example 1: Unnesting a Nested Collection
+----------------------------------------
 
 In the following example, it finds nested document (project) with field value (name) that satisfies the predicate (contains 'security'). Note that because each parent document can have more than one nested documents, the matched nested document is flattened. In other word, the final result is the Cartesian Product between parent and nested documents.
 
@@ -130,5 +130,111 @@ Result set:
 +------------+---------------------+
 |  Jane Smith|AWS Redshift security|
 +------------+---------------------+
+
+
+Example 2: Unnesting in Existential Subquery
+--------------------------------------------
+
+Alternatively, a nested collection can be unnested in subquery to check if it satisfies a condition.
+
+SQL query::
+
+	POST /_opendistro/_sql
+	{
+	  "query" : "SELECT e.name AS employeeName FROM employees_nested AS e WHERE EXISTS (SELECT *               FROM e.projects AS p               WHERE p.name LIKE '%security%') "
+	}
+
+Explain::
+
+	{
+	  "from" : 0,
+	  "size" : 200,
+	  "query" : {
+	    "bool" : {
+	      "filter" : [
+	        {
+	          "bool" : {
+	            "must" : [
+	              {
+	                "nested" : {
+	                  "query" : {
+	                    "bool" : {
+	                      "must" : [
+	                        {
+	                          "bool" : {
+	                            "must" : [
+	                              {
+	                                "bool" : {
+	                                  "must_not" : [
+	                                    {
+	                                      "bool" : {
+	                                        "must_not" : [
+	                                          {
+	                                            "exists" : {
+	                                              "field" : "projects",
+	                                              "boost" : 1.0
+	                                            }
+	                                          }
+	                                        ],
+	                                        "adjust_pure_negative" : true,
+	                                        "boost" : 1.0
+	                                      }
+	                                    }
+	                                  ],
+	                                  "adjust_pure_negative" : true,
+	                                  "boost" : 1.0
+	                                }
+	                              },
+	                              {
+	                                "wildcard" : {
+	                                  "projects.name" : {
+	                                    "wildcard" : "*security*",
+	                                    "boost" : 1.0
+	                                  }
+	                                }
+	                              }
+	                            ],
+	                            "adjust_pure_negative" : true,
+	                            "boost" : 1.0
+	                          }
+	                        }
+	                      ],
+	                      "adjust_pure_negative" : true,
+	                      "boost" : 1.0
+	                    }
+	                  },
+	                  "path" : "projects",
+	                  "ignore_unmapped" : false,
+	                  "score_mode" : "none",
+	                  "boost" : 1.0
+	                }
+	              }
+	            ],
+	            "adjust_pure_negative" : true,
+	            "boost" : 1.0
+	          }
+	        }
+	      ],
+	      "adjust_pure_negative" : true,
+	      "boost" : 1.0
+	    }
+	  },
+	  "_source" : {
+	    "includes" : [
+	      "name"
+	    ],
+	    "excludes" : [ ]
+	  }
+	}
+
+Result set:
+
++------------+
+|employeeName|
++============+
+|   Bob Smith|
++------------+
+|  Jane Smith|
++------------+
 
 
