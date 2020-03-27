@@ -60,13 +60,13 @@ public class PartiQLIT extends DocTest {
                     "can have more than one nested documents, the matched nested document is flattened. In other",
                     "word, the final result is the Cartesian Product between parent and nested documents."
                 ),
-                post(
-                    "SELECT e.name AS employeeName, " +
-                    "       p.name AS projectName " +
-                    "FROM employees_nested AS e, " +
-                    "     e.projects AS p " +
+                post(multiLine(
+                    "SELECT e.name AS employeeName,",
+                    "       p.name AS projectName",
+                    "FROM employees_nested AS e,",
+                    "     e.projects AS p",
                     "WHERE p.name LIKE '%security%'"
-                )
+                ))
             ),
             /*
             Issue: https://github.com/opendistro-for-elasticsearch/sql/issues/397
@@ -92,30 +92,30 @@ public class PartiQLIT extends DocTest {
                     "Alternatively, a nested collection can be unnested in subquery to check if it",
                     "satisfies a condition."
                 ),
-                post(
-                    "SELECT e.name AS employeeName " +
-                    "FROM employees_nested AS e " +
-                    "WHERE EXISTS (SELECT * " +
-                    "              FROM e.projects AS p " +
-                    "              WHERE p.name LIKE '%security%') "
-                )
+                post(multiLine(
+                    "SELECT e.name AS employeeName",
+                    "FROM employees_nested AS e",
+                    "WHERE EXISTS (SELECT *",
+                    "              FROM e.projects AS p",
+                    "              WHERE p.name LIKE '%security%')"
+                ))
             ),
             example(
                 title("Aggregating over a Nested Collection"),
                 description(
-                    "While being unnested, a nested collection can be aggregated just like a regular field."
+                    "After unnested, a nested collection can be aggregated just like a regular field."
                 ),
-                post(
-                    "SELECT " +
-                    "  e.name AS employeeName, " +
-                    "  COUNT(*) AS cnt " +
-                    "FROM employees_nested AS e, " +
-                    "     e.projects AS p " +
-                    "WHERE p.name LIKE '%security%' " +
-                    "GROUP BY e.id, e.name " +
-                    "HAVING COUNT(*) >= 1 "
+                post(multiLine(
+                    "SELECT",
+                    "  e.name AS employeeName,",
+                    "  COUNT(*) AS cnt",
+                    "FROM employees_nested AS e,",
+                    "     e.projects AS p",
+                    "WHERE p.name LIKE '%security%'",
+                    "GROUP BY e.id, e.name",
+                    "HAVING COUNT(*) >= 1"
                 )
-            )
+            ))
         );
     }
 

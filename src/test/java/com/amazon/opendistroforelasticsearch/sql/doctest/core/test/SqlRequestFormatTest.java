@@ -21,8 +21,8 @@ import com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequest
 import org.junit.Test;
 
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.CURL_REQUEST;
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.KIBANA_REQUEST;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.IGNORE_REQUEST;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.KIBANA_REQUEST;
 import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -61,6 +61,26 @@ public class SqlRequestFormatTest {
             "  \"query\" : \"SELECT * FROM accounts\"\n" +
             "}";
         assertThat(KIBANA_REQUEST.format(sqlRequest), is(expected));
+    }
+
+    @Test
+    public void multiLineSqlInKibanaRequestShouldBeWellFormatted() {
+        SqlRequest multiLineSqlRequest = new SqlRequest(
+            "POST",
+            "/_opendistro/_sql",
+            "{\"query\":\"SELECT *\\nFROM accounts\\nWHERE age > 30\"}"
+        );
+
+        String expected =
+            "POST /_opendistro/_sql\n" +
+            "{\n" +
+            "  \"query\" : \"\"\"\n" +
+            "\tSELECT *\n" +
+            "\tFROM accounts\n" +
+            "\tWHERE age > 30\n" +
+            "\"\"\"\n" +
+            "}";
+        assertThat(KIBANA_REQUEST.format(multiLineSqlRequest), is(expected));
     }
 
 }

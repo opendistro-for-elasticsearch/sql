@@ -31,7 +31,7 @@ public class ComplexQueryIT extends DocTest {
                 ""
             ),
             /*
-            Issue: https://github.com/opendistro-for-elasticsearch/sql/issues/375
+            Issue: https://github.com/opendistro-for-elasticsearch/sql/issues/355
             example(
                 title("Scalar Value Subquery"),
                 description(
@@ -58,7 +58,7 @@ public class ComplexQueryIT extends DocTest {
                     ") "
                 )
             )/*,
-            Issue: https://github.com/opendistro-for-elasticsearch/sql/issues/355
+            Issue: https://github.com/opendistro-for-elasticsearch/sql/issues/375
             example(
                 title("Subquery in FROM Clause"),
                 description(""),

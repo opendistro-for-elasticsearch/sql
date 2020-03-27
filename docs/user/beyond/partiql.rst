@@ -54,7 +54,13 @@ SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT e.name AS employeeName,        p.name AS projectName FROM employees_nested AS e,      e.projects AS p WHERE p.name LIKE '%security%'"
+	  "query" : """
+		SELECT e.name AS employeeName,
+		       p.name AS projectName
+		FROM employees_nested AS e,
+		     e.projects AS p
+		WHERE p.name LIKE '%security%'
+	"""
 	}
 
 Explain::
@@ -141,7 +147,13 @@ SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT e.name AS employeeName FROM employees_nested AS e WHERE EXISTS (SELECT *               FROM e.projects AS p               WHERE p.name LIKE '%security%') "
+	  "query" : """
+		SELECT e.name AS employeeName
+		FROM employees_nested AS e
+		WHERE EXISTS (SELECT *
+		              FROM e.projects AS p
+		              WHERE p.name LIKE '%security%')
+	"""
 	}
 
 Explain::
@@ -247,7 +259,16 @@ SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT   e.name AS employeeName,   COUNT(*) AS cnt FROM employees_nested AS e,      e.projects AS p WHERE p.name LIKE '%security%' GROUP BY e.id, e.name HAVING COUNT(*) >= 1 "
+	  "query" : """
+		SELECT
+		  e.name AS employeeName,
+		  COUNT(*) AS cnt
+		FROM employees_nested AS e,
+		     e.projects AS p
+		WHERE p.name LIKE '%security%'
+		GROUP BY e.id, e.name
+		HAVING COUNT(*) >= 1
+	"""
 	}
 
 Explain::
