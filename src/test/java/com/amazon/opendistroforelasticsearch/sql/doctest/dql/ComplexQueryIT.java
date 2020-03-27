@@ -31,7 +31,6 @@ public class ComplexQueryIT extends DocTest {
                 ""
             ),
             /*
-            Issue: https://github.com/opendistro-for-elasticsearch/sql/issues/355
             example(
                 title("Scalar Value Subquery"),
                 description(
@@ -48,15 +47,15 @@ public class ComplexQueryIT extends DocTest {
             example(
                 title("Table Subquery"),
                 description(""),
-                post(
-                    "SELECT a1.firstname, a1.lastname, a1.balance " +
-                    "FROM accounts a1 " +
-                    "WHERE a1.account_number IN ( " +
-                    " SELECT a2.account_number " +
-                    " FROM accounts a2 " +
-                    " WHERE a2.balance > 10000 " +
-                    ") "
-                )
+                post(multiLine(
+                    "SELECT a1.firstname, a1.lastname, a1.balance",
+                    "FROM accounts a1",
+                    "WHERE a1.account_number IN (",
+                    " SELECT a2.account_number",
+                    " FROM accounts a2",
+                    " WHERE a2.balance > 10000",
+                    ")"
+                ))
             )/*,
             Issue: https://github.com/opendistro-for-elasticsearch/sql/issues/375
             example(
@@ -90,14 +89,14 @@ public class ComplexQueryIT extends DocTest {
                     "is used and preceded by ``INNER`` keyword optionally. The join predicates is specified",
                     "by ``ON`` clause."
                 ),
-                post(
-                    "SELECT " +
-                    " a.account_number, a.firstname, a.lastname, " +
-                    " e.id, e.name " +
-                    "FROM accounts a " +
-                    "JOIN employees_nested e " +
-                    " ON a.account_number = e.id "
-                )
+                post(multiLine(
+                    "SELECT",
+                    " a.account_number, a.firstname, a.lastname,",
+                    " e.id, e.name",
+                    "FROM accounts a",
+                    "JOIN employees_nested e",
+                    " ON a.account_number = e.id"
+                ))
             ),
             example(
                 title("Cross Join"),
@@ -108,13 +107,13 @@ public class ComplexQueryIT extends DocTest {
                     "Caveat: It is risky to do cross join even on two indices of medium size. This may trigger",
                     "our circuit breaker to terminate the query to avoid out of memory issue."
                 ),
-                post(
-                    "SELECT " +
-                    " a.account_number, a.firstname, a.lastname, " +
-                    " e.id, e.name " +
-                    "FROM accounts a " +
-                    "JOIN employees_nested e "
-                )
+                post(multiLine(
+                    "SELECT",
+                    " a.account_number, a.firstname, a.lastname,",
+                    " e.id, e.name",
+                    "FROM accounts a",
+                    "JOIN employees_nested e"
+                ))
             ),
             example(
                 title("Outer Join"),
@@ -123,14 +122,14 @@ public class ComplexQueryIT extends DocTest {
                     "join predicate. For now, only ``LEFT OUTER JOIN`` is supported to retain rows from first index.",
                     "Note that keyword ``OUTER`` is optional."
                 ),
-                post(
-                    "SELECT " +
-                    " a.account_number, a.firstname, a.lastname, " +
-                    " e.id, e.name " +
-                    "FROM accounts a " +
-                    "LEFT JOIN employees_nested e " +
-                    " ON a.account_number = e.id "
-                )
+                post(multiLine(
+                    "SELECT",
+                    " a.account_number, a.firstname, a.lastname,",
+                    " e.id, e.name",
+                    "FROM accounts a",
+                    "LEFT JOIN employees_nested e",
+                    " ON a.account_number = e.id"
+                ))
             )
         );
     }
@@ -152,13 +151,13 @@ public class ComplexQueryIT extends DocTest {
                     "are removed unless ``UNION ALL`` clause is being used. A common use case of ``UNION`` is to combine",
                     "result set from data partitioned in indices daily or monthly."
                 ),
-                post(
-                    "SELECT balance, firstname, lastname " +
-                    "FROM accounts WHERE balance < 10000 " +
-                    "UNION " +
-                    "SELECT balance, firstname, lastname " +
-                    "FROM accounts WHERE balance > 30000 "
-                )
+                post(multiLine(
+                    "SELECT balance, firstname, lastname",
+                    "FROM accounts WHERE balance < 10000",
+                    "UNION",
+                    "SELECT balance, firstname, lastname",
+                    "FROM accounts WHERE balance > 30000"
+                ))
             ),
             example(
                 title("MINUS Operator"),
@@ -166,15 +165,15 @@ public class ComplexQueryIT extends DocTest {
                     "A ``MINUS`` clause takes two queries too but returns resulting rows of first query that",
                     "do not appear in the other query. Duplicate rows are removed automatically as well."
                 ),
-                post(
-                    "SELECT balance, age " +
-                    "FROM accounts " +
-                    "WHERE balance < 10000 " +
-                    "MINUS " +
-                    "SELECT balance, age " +
-                    "FROM accounts " +
-                    "WHERE age < 35 "
-                )
+                post(multiLine(
+                    "SELECT balance, age",
+                    "FROM accounts",
+                    "WHERE balance < 10000",
+                    "MINUS",
+                    "SELECT balance, age",
+                    "FROM accounts",
+                    "WHERE age < 35"
+                ))
             )
         );
     }

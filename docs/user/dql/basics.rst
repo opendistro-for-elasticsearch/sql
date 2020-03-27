@@ -328,7 +328,11 @@ SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT account_number FROM accounts WHERE account_number = 1"
+	  "query" : """
+		SELECT account_number
+		FROM accounts
+		WHERE account_number = 1
+		"""
 	}
 
 Explain::
@@ -388,7 +392,11 @@ SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT account_number, employer FROM accounts WHERE employer IS NULL"
+	  "query" : """
+		SELECT account_number, employer
+		FROM accounts
+		WHERE employer IS NULL
+		"""
 	}
 
 Explain::
@@ -461,7 +469,11 @@ SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT age FROM accounts GROUP BY age"
+	  "query" : """
+		SELECT age
+		FROM accounts
+		GROUP BY age
+		"""
 	}
 
 Explain::
@@ -521,7 +533,11 @@ SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT account_number AS num FROM accounts GROUP BY num"
+	  "query" : """
+		SELECT account_number AS num
+		FROM accounts
+		GROUP BY num
+		"""
 	}
 
 Explain::
@@ -581,7 +597,11 @@ SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT age FROM accounts GROUP BY 1"
+	  "query" : """
+		SELECT age
+		FROM accounts
+		GROUP BY 1
+		"""
 	}
 
 Explain::
@@ -641,7 +661,11 @@ SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT ABS(age) AS a FROM accounts GROUP BY ABS(age)"
+	  "query" : """
+		SELECT ABS(age) AS a
+		FROM accounts
+		GROUP BY ABS(age)
+		"""
 	}
 
 Explain::
@@ -719,7 +743,12 @@ SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT age, MAX(balance) FROM accounts GROUP BY age HAVING MIN(balance) > 10000"
+	  "query" : """
+		SELECT age, MAX(balance)
+		FROM accounts
+		GROUP BY age
+		HAVING MIN(balance) > 10000
+		"""
 	}
 
 Explain::
@@ -856,7 +885,11 @@ SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT employer FROM accounts ORDER BY employer IS NOT NULL"
+	  "query" : """
+		SELECT employer
+		FROM accounts
+		ORDER BY employer IS NOT NULL
+		"""
 	}
 
 Explain::
@@ -912,7 +945,11 @@ SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT account_number FROM accounts ORDER BY account_number LIMIT 1"
+	  "query" : """
+		SELECT account_number
+		FROM accounts
+		ORDER BY account_number LIMIT 1
+		"""
 	}
 
 Explain::
@@ -953,7 +990,11 @@ SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT account_number FROM accounts ORDER BY account_number LIMIT 1, 1"
+	  "query" : """
+		SELECT account_number
+		FROM accounts
+		ORDER BY account_number LIMIT 1, 1
+		"""
 	}
 
 Explain::

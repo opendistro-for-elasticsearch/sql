@@ -20,7 +20,15 @@ SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT a1.firstname, a1.lastname, a1.balance FROM accounts a1 WHERE a1.account_number IN (  SELECT a2.account_number  FROM accounts a2  WHERE a2.balance > 10000 ) "
+	  "query" : """
+		SELECT a1.firstname, a1.lastname, a1.balance
+		FROM accounts a1
+		WHERE a1.account_number IN (
+		 SELECT a2.account_number
+		 FROM accounts a2
+		 WHERE a2.balance > 10000
+		)
+		"""
 	}
 
 Explain::
@@ -172,7 +180,14 @@ SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT  a.account_number, a.firstname, a.lastname,  e.id, e.name FROM accounts a JOIN employees_nested e  ON a.account_number = e.id "
+	  "query" : """
+		SELECT
+		 a.account_number, a.firstname, a.lastname,
+		 e.id, e.name
+		FROM accounts a
+		JOIN employees_nested e
+		 ON a.account_number = e.id
+		"""
 	}
 
 Explain::
@@ -261,7 +276,13 @@ SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT  a.account_number, a.firstname, a.lastname,  e.id, e.name FROM accounts a JOIN employees_nested e "
+	  "query" : """
+		SELECT
+		 a.account_number, a.firstname, a.lastname,
+		 e.id, e.name
+		FROM accounts a
+		JOIN employees_nested e
+		"""
 	}
 
 Explain::
@@ -372,7 +393,14 @@ SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT  a.account_number, a.firstname, a.lastname,  e.id, e.name FROM accounts a LEFT JOIN employees_nested e  ON a.account_number = e.id "
+	  "query" : """
+		SELECT
+		 a.account_number, a.firstname, a.lastname,
+		 e.id, e.name
+		FROM accounts a
+		LEFT JOIN employees_nested e
+		 ON a.account_number = e.id
+		"""
 	}
 
 Explain::
