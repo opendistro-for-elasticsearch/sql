@@ -78,7 +78,7 @@ public class SqlRequestFormatTest {
             "\tSELECT *\n" +
             "\tFROM accounts\n" +
             "\tWHERE age > 30\n" +
-            "\"\"\"\n" +
+            "\t\"\"\"\n" +
             "}";
         assertThat(KIBANA_REQUEST.format(multiLineSqlRequest), is(expected));
     }

@@ -124,7 +124,7 @@ public class DocBuilderTest implements DocBuilder {
                 "\tSELECT firstname\n" +
                 "\tFROM accounts\n" +
                 "\tWHERE age > 30\n" +
-                "\"\"\"\n" +
+                "\t\"\"\"\n" +
                 "}"
             );
     }

@@ -115,7 +115,7 @@ public enum SqlRequestFormat {
                     String multiLineSql = Arrays.stream(sql.split("\\n")). // '\\n' is to escape backslash in regex
                                                  collect(joining("\n\t",
                                                                  "\"\"\"\n\t",
-                                                                 "\n\"\"\""));
+                                                                 "\n\t\"\"\""));
                     body = body.replace("\"" + sql.replace("\n", "\\n") + "\"", multiLineSql);
                 }
             }

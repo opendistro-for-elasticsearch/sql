@@ -60,7 +60,7 @@ SQL query::
 		FROM employees_nested AS e,
 		     e.projects AS p
 		WHERE p.name LIKE '%security%'
-	"""
+		"""
 	}
 
 Explain::
@@ -153,7 +153,7 @@ SQL query::
 		WHERE EXISTS (SELECT *
 		              FROM e.projects AS p
 		              WHERE p.name LIKE '%security%')
-	"""
+		"""
 	}
 
 Explain::
@@ -248,147 +248,5 @@ Result set:
 +------------+
 |  Jane Smith|
 +------------+
-
-
-Example 3: Aggregating over a Nested Collection
------------------------------------------------
-
-While being unnested, a nested collection can be aggregated just like a regular field.
-
-SQL query::
-
-	POST /_opendistro/_sql
-	{
-	  "query" : """
-		SELECT
-		  e.name AS employeeName,
-		  COUNT(*) AS cnt
-		FROM employees_nested AS e,
-		     e.projects AS p
-		WHERE p.name LIKE '%security%'
-		GROUP BY e.id, e.name
-		HAVING COUNT(*) >= 1
-	"""
-	}
-
-Explain::
-
-	{
-	  "from" : 0,
-	  "size" : 0,
-	  "query" : {
-	    "bool" : {
-	      "filter" : [
-	        {
-	          "bool" : {
-	            "must" : [
-	              {
-	                "nested" : {
-	                  "query" : {
-	                    "wildcard" : {
-	                      "projects.name" : {
-	                        "wildcard" : "*security*",
-	                        "boost" : 1.0
-	                      }
-	                    }
-	                  },
-	                  "path" : "projects",
-	                  "ignore_unmapped" : false,
-	                  "score_mode" : "none",
-	                  "boost" : 1.0
-	                }
-	              }
-	            ],
-	            "adjust_pure_negative" : true,
-	            "boost" : 1.0
-	          }
-	        }
-	      ],
-	      "adjust_pure_negative" : true,
-	      "boost" : 1.0
-	    }
-	  },
-	  "_source" : {
-	    "includes" : [
-	      "name",
-	      "COUNT"
-	    ],
-	    "excludes" : [ ]
-	  },
-	  "stored_fields" : "name",
-	  "aggregations" : {
-	    "id" : {
-	      "terms" : {
-	        "field" : "id",
-	        "size" : 200,
-	        "min_doc_count" : 1,
-	        "shard_min_doc_count" : 0,
-	        "show_term_doc_count_error" : false,
-	        "order" : [
-	          {
-	            "_count" : "desc"
-	          },
-	          {
-	            "_key" : "asc"
-	          }
-	        ]
-	      },
-	      "aggregations" : {
-	        "name.keyword" : {
-	          "terms" : {
-	            "field" : "name.keyword",
-	            "size" : 10,
-	            "min_doc_count" : 1,
-	            "shard_min_doc_count" : 0,
-	            "show_term_doc_count_error" : false,
-	            "order" : [
-	              {
-	                "_count" : "desc"
-	              },
-	              {
-	                "_key" : "asc"
-	              }
-	            ]
-	          },
-	          "aggregations" : {
-	            "cnt" : {
-	              "value_count" : {
-	                "field" : "_index"
-	              }
-	            },
-	            "count_0" : {
-	              "value_count" : {
-	                "field" : "_index"
-	              }
-	            },
-	            "bucket_filter" : {
-	              "bucket_selector" : {
-	                "buckets_path" : {
-	                  "count_0" : "count_0",
-	                  "cnt" : "cnt"
-	                },
-	                "script" : {
-	                  "source" : "params.count_0 >= 1",
-	                  "lang" : "painless"
-	                },
-	                "gap_policy" : "skip"
-	              }
-	            }
-	          }
-	        }
-	      }
-	    }
-	  }
-	}
-
-Result set:
-
-+--+------------+---+
-|id|name.keyword|cnt|
-+==+============+===+
-| 3|   Bob Smith|1.0|
-+--+------------+---+
-| 6|  Jane Smith|1.0|
-+--+------------+---+
 
 
