@@ -20,18 +20,16 @@ import com.amazon.opendistroforelasticsearch.sql.executor.format.ErrorMessageFac
 import com.amazon.opendistroforelasticsearch.sql.utils.LogUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.elasticsearch.action.admin.cluster.settings.ClusterUpdateSettingsRequest;
+import org.elasticsearch.client.Requests;
 import org.elasticsearch.client.node.NodeClient;
-import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentParser;
-import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.rest.BaseRestHandler;
 import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestController;
 import org.elasticsearch.rest.RestRequest;
-import org.elasticsearch.rest.RestStatus;
+import org.elasticsearch.rest.action.RestToXContentListener;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -39,14 +37,19 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.elasticsearch.rest.RestStatus.SERVICE_UNAVAILABLE;
+import static org.elasticsearch.rest.RestStatus.INTERNAL_SERVER_ERROR;
 
 /**
- * Currently this interface is for node level.
- * Cluster level is coming up soon. https://github.com/opendistro-for-elasticsearch/sql/issues/41
+ * Interface to manage opendistro.sql.* cluster settings
+ * All non-sql settings are ignored.
+ * Any non-transient and non-persistent settings are ignored.
  */
 public class RestSqlSettingsAction extends BaseRestHandler {
-    private static final Logger LOG = LogManager.getLogger(RestSqlStatsAction.class);
+    private static final Logger LOG = LogManager.getLogger(RestSqlSettingsAction.class);
+
+    private static final String PERSISTENT = "persistent";
+    private static final String TRANSIENT = "transient";
+    private static final String SQL_SETTINGS_PREFIX = "opendistro.sql.";
 
     /**
      * API endpoint path
@@ -63,21 +66,44 @@ public class RestSqlSettingsAction extends BaseRestHandler {
         return "sql_stats_action";
     }
 
+    /**
+     * @see org.elasticsearch.rest.action.admin.cluster.RestClusterUpdateSettingsAction
+     */
     @Override
     protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient client) throws IOException {
         LogUtils.addRequestId();
+        final ClusterUpdateSettingsRequest clusterUpdateSettingsRequest = Requests.clusterUpdateSettingsRequest();
+        clusterUpdateSettingsRequest.timeout(request.paramAsTime("timeout", clusterUpdateSettingsRequest.timeout()));
+        clusterUpdateSettingsRequest.masterNodeTimeout(
+                request.paramAsTime("master_timeout", clusterUpdateSettingsRequest.masterNodeTimeout()));
         Map<String, Object> source;
         try (XContentParser parser = request.contentParser()) {
             source = parser.map();
-            XContentBuilder builder = XContentFactory.contentBuilder(XContentType.JSON);
-            builder.map(source);
-            String s = Strings.toString(builder);
-            return channel -> channel.sendResponse(new BytesRestResponse(RestStatus.OK, s));
-        } catch (Exception e) {
-            LOG.error("Failed during Query SQL STATS Action.", e);
+        }
 
-            return channel -> channel.sendResponse(new BytesRestResponse(SERVICE_UNAVAILABLE,
-                    ErrorMessageFactory.createErrorMessage(e, SERVICE_UNAVAILABLE.getStatus()).toString()));
+        try {
+            if (source.containsKey(TRANSIENT)) {
+                clusterUpdateSettingsRequest.transientSettings((Map) source.get(TRANSIENT));
+            }
+            if (source.containsKey(PERSISTENT)) {
+                clusterUpdateSettingsRequest.persistentSettings((Map) source.get(PERSISTENT));
+            }
+
+            // filter out all non-sql settings
+            clusterUpdateSettingsRequest.transientSettings(
+                    filterSettings(clusterUpdateSettingsRequest.transientSettings())
+            );
+            clusterUpdateSettingsRequest.persistentSettings(
+                    filterSettings(clusterUpdateSettingsRequest.persistentSettings())
+            );
+
+            return channel -> client.admin().cluster().updateSettings(
+                    clusterUpdateSettingsRequest, new RestToXContentListener<>(channel));
+        } catch (Exception e) {
+            LOG.error("Error changing OpenDistro SQL plugin cluster settings", e);
+            e.printStackTrace();
+            return channel -> channel.sendResponse(new BytesRestResponse(INTERNAL_SERVER_ERROR,
+                    ErrorMessageFactory.createErrorMessage(e, INTERNAL_SERVER_ERROR.getStatus()).toString()));
         }
     }
 
@@ -88,4 +114,9 @@ public class RestSqlSettingsAction extends BaseRestHandler {
         return responseParams;
     }
 
+    private Settings filterSettings(Settings settings) {
+        Settings.Builder builder = Settings.builder().put(settings);
+        builder.keys().removeIf(key -> !key.startsWith(SQL_SETTINGS_PREFIX));
+        return builder.build();
+    }
 }
