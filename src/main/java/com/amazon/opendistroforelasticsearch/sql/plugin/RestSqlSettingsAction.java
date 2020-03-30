@@ -63,7 +63,7 @@ public class RestSqlSettingsAction extends BaseRestHandler {
 
     @Override
     public String getName() {
-        return "sql_stats_action";
+        return "sql_settings_action";
     }
 
     /**
