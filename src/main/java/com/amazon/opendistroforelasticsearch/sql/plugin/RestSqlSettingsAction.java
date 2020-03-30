@@ -101,7 +101,6 @@ public class RestSqlSettingsAction extends BaseRestHandler {
                     clusterUpdateSettingsRequest, new RestToXContentListener<>(channel));
         } catch (Exception e) {
             LOG.error("Error changing OpenDistro SQL plugin cluster settings", e);
-            e.printStackTrace();
             return channel -> channel.sendResponse(new BytesRestResponse(INTERNAL_SERVER_ERROR,
                     ErrorMessageFactory.createErrorMessage(e, INTERNAL_SERVER_ERROR.getStatus()).toString()));
         }
