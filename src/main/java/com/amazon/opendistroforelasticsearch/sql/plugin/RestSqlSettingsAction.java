@@ -20,11 +20,16 @@ import com.amazon.opendistroforelasticsearch.sql.executor.format.ErrorMessageFac
 import com.amazon.opendistroforelasticsearch.sql.utils.LogUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.elasticsearch.ElasticsearchGenerationException;
 import org.elasticsearch.action.admin.cluster.settings.ClusterUpdateSettingsRequest;
 import org.elasticsearch.client.Requests;
 import org.elasticsearch.client.node.NodeClient;
+import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentParser;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.rest.BaseRestHandler;
 import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestController;
@@ -83,19 +88,11 @@ public class RestSqlSettingsAction extends BaseRestHandler {
 
         try {
             if (source.containsKey(TRANSIENT)) {
-                clusterUpdateSettingsRequest.transientSettings((Map) source.get(TRANSIENT));
+                clusterUpdateSettingsRequest.transientSettings(getAndFilterSettings((Map) source.get(TRANSIENT)));
             }
             if (source.containsKey(PERSISTENT)) {
-                clusterUpdateSettingsRequest.persistentSettings((Map) source.get(PERSISTENT));
+                clusterUpdateSettingsRequest.persistentSettings(getAndFilterSettings((Map) source.get(PERSISTENT)));
             }
-
-            // filter out all non-sql settings
-            clusterUpdateSettingsRequest.transientSettings(
-                    filterSettings(clusterUpdateSettingsRequest.transientSettings())
-            );
-            clusterUpdateSettingsRequest.persistentSettings(
-                    filterSettings(clusterUpdateSettingsRequest.persistentSettings())
-            );
 
             return channel -> client.admin().cluster().updateSettings(
                     clusterUpdateSettingsRequest, new RestToXContentListener<>(channel));
@@ -113,9 +110,16 @@ public class RestSqlSettingsAction extends BaseRestHandler {
         return responseParams;
     }
 
-    private Settings filterSettings(Settings settings) {
-        Settings.Builder builder = Settings.builder().put(settings);
-        builder.keys().removeIf(key -> !key.startsWith(SQL_SETTINGS_PREFIX));
-        return builder.build();
+    private Settings getAndFilterSettings(Map<String, ?> source) {
+        try {
+            XContentBuilder builder = XContentFactory.contentBuilder(XContentType.JSON);
+            builder.map(source);
+            Settings.Builder settingsBuilder = Settings.builder().
+                    loadFromSource(Strings.toString(builder), builder.contentType());
+            settingsBuilder.keys().removeIf(key -> !key.startsWith(SQL_SETTINGS_PREFIX));
+            return settingsBuilder.build();
+        } catch (IOException e) {
+            throw new ElasticsearchGenerationException("Failed to generate [" + source + "]", e);
+        }
     }
 }
