@@ -63,7 +63,7 @@ public class RestSqlSettingsAction extends BaseRestHandler {
 
     public RestSqlSettingsAction(Settings settings, RestController restController) {
         super();
-        restController.registerHandler(RestRequest.Method.POST, SETTINGS_API_ENDPOINT, this);
+        restController.registerHandler(RestRequest.Method.PUT, SETTINGS_API_ENDPOINT, this);
     }
 
     @Override

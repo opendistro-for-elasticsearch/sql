@@ -442,7 +442,7 @@ public class PluginIT extends SQLIntegTestCase {
     }
 
     protected static JSONObject updateViaSQLSettingsAPI(String body) throws IOException {
-        Request request = new Request("POST", "/_opendistro/_sql/settings");
+        Request request = new Request("PUT", "/_opendistro/_sql/settings");
         request.setJsonEntity(body);
         RequestOptions.Builder restOptionsBuilder = RequestOptions.DEFAULT.toBuilder();
         restOptionsBuilder.addHeader("Content-Type", "application/json");
