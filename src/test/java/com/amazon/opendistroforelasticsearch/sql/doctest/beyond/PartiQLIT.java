@@ -95,9 +95,11 @@ public class PartiQLIT extends DocTest {
                 post(multiLine(
                     "SELECT e.name AS employeeName",
                     "FROM employees_nested AS e",
-                    "WHERE EXISTS (SELECT *",
-                    "              FROM e.projects AS p",
-                    "              WHERE p.name LIKE '%security%')"
+                    "WHERE EXISTS (",
+                    "  SELECT *",
+                    "  FROM e.projects AS p",
+                    "  WHERE p.name LIKE '%security%'",
+                    ")"
                 ))
             )/*,
             Issue: https://github.com/opendistro-for-elasticsearch/sql/issues/398

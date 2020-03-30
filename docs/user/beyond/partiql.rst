@@ -151,9 +151,11 @@ SQL query::
 	  "query" : """
 		SELECT e.name AS employeeName
 		FROM employees_nested AS e
-		WHERE EXISTS (SELECT *
-		              FROM e.projects AS p
-		              WHERE p.name LIKE '%security%')
+		WHERE EXISTS (
+		  SELECT *
+		  FROM e.projects AS p
+		  WHERE p.name LIKE '%security%'
+		)
 		"""
 	}
 

@@ -28,7 +28,8 @@ public class ComplexQueryIT extends DocTest {
         section(
             title("Subquery"),
             description(
-                ""
+                "A subquery is a complete ``SELECT`` statement which is used within another statement",
+                "and enclosed in parenthesis."
             ),
             /*
             example(
@@ -51,25 +52,24 @@ public class ComplexQueryIT extends DocTest {
                     "SELECT a1.firstname, a1.lastname, a1.balance",
                     "FROM accounts a1",
                     "WHERE a1.account_number IN (",
-                    " SELECT a2.account_number",
-                    " FROM accounts a2",
-                    " WHERE a2.balance > 10000",
+                    "  SELECT a2.account_number",
+                    "  FROM accounts a2",
+                    "  WHERE a2.balance > 10000",
                     ")"
                 ))
-            )/*,
-            Issue: https://github.com/opendistro-for-elasticsearch/sql/issues/375
+            ),
             example(
                 title("Subquery in FROM Clause"),
                 description(""),
-                post(
-                    "SELECT a.state, a.bal " +
-                    "FROM ( " +
-                    " SELECT state, AVG(balance) AS bal " +
-                    " FROM accounts " +
-                    " GROUP BY state " +
-                    ") AS a "
-                )
-            )*/
+                post(multiLine(
+                    "SELECT a.firstname, a.lastname, a.age",
+                    "FROM (",
+                    "  SELECT firstname, lastname, age",
+                    "  FROM accounts",
+                    "  WHERE age > 30",
+                    ") AS a"
+                ))
+            )
         );
     }
 
@@ -91,8 +91,8 @@ public class ComplexQueryIT extends DocTest {
                 ),
                 post(multiLine(
                     "SELECT",
-                    " a.account_number, a.firstname, a.lastname,",
-                    " e.id, e.name",
+                    "  a.account_number, a.firstname, a.lastname,",
+                    "  e.id, e.name",
                     "FROM accounts a",
                     "JOIN employees_nested e",
                     " ON a.account_number = e.id"
@@ -109,8 +109,8 @@ public class ComplexQueryIT extends DocTest {
                 ),
                 post(multiLine(
                     "SELECT",
-                    " a.account_number, a.firstname, a.lastname,",
-                    " e.id, e.name",
+                    "  a.account_number, a.firstname, a.lastname,",
+                    "  e.id, e.name",
                     "FROM accounts a",
                     "JOIN employees_nested e"
                 ))
@@ -124,8 +124,8 @@ public class ComplexQueryIT extends DocTest {
                 ),
                 post(multiLine(
                     "SELECT",
-                    " a.account_number, a.firstname, a.lastname,",
-                    " e.id, e.name",
+                    "  a.account_number, a.firstname, a.lastname,",
+                    "  e.id, e.name",
                     "FROM accounts a",
                     "LEFT JOIN employees_nested e",
                     " ON a.account_number = e.id"
