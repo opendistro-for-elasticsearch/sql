@@ -147,7 +147,7 @@ public abstract class SQLIntegTestCase extends ESRestTestCase {
         updateClusterSettings(new ClusterSetting("transient", "script.max_compilations_rate", "10000/1m"));
     }
 
-    private static void wipeAllClusterSettings() throws IOException {
+    protected static void wipeAllClusterSettings() throws IOException {
         updateClusterSettings(new ClusterSetting("persistent", "*", null));
         updateClusterSettings(new ClusterSetting("transient", "*", null));
     }

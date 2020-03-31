@@ -37,7 +37,7 @@ You can update the setting with a new value like this.
 
 SQL query::
 
-	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_cluster/settings -d '{
+	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_opendistro/_sql/settings -d '{
 	  "transient" : {
 	    "opendistro.sql.enabled" : "false"
 	  }
@@ -99,7 +99,7 @@ You can update the setting with a new value like this.
 
 SQL query::
 
-	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_cluster/settings -d '{
+	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_opendistro/_sql/settings -d '{
 	  "transient" : {
 	    "opendistro.sql.query.slowlog" : "10"
 	  }
@@ -141,7 +141,7 @@ You can update the setting with a new value like this.
 
 SQL query::
 
-	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_cluster/settings -d '{
+	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_opendistro/_sql/settings -d '{
 	  "transient" : {
 	    "opendistro.sql.query.analysis.enabled" : "false"
 	  }
@@ -185,7 +185,7 @@ You can update the setting with a new value like this.
 
 SQL query::
 
-	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_cluster/settings -d '{
+	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_opendistro/_sql/settings -d '{
 	  "transient" : {
 	    "opendistro.sql.query.analysis.semantic.suggestion" : "true"
 	  }
@@ -253,7 +253,7 @@ You can update the setting with a new value like this.
 
 SQL query::
 
-	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_cluster/settings -d '{
+	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_opendistro/_sql/settings -d '{
 	  "transient" : {
 	    "opendistro.sql.query.analysis.semantic.threshold" : "50"
 	  }
@@ -299,7 +299,7 @@ You can update the setting with a new value like this.
 
 SQL query::
 
-	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_cluster/settings -d '{
+	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_opendistro/_sql/settings -d '{
 	  "transient" : {
 	    "opendistro.sql.query.response.format" : "json"
 	  }
