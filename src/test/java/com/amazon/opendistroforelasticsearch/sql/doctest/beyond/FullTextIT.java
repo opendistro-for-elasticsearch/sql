@@ -31,7 +31,7 @@ public class FullTextIT extends DocTest {
                 "``MATCH_QUERY`` are functions for performing match query."
             ),
             example(
-                description("Both functions can accept field name as first argument and text as second."),
+                description("Both functions can accept field name as first argument and a text as second argument."),
                 post(multiLine(
                     "SELECT account_number, address",
                     "FROM accounts",
@@ -50,6 +50,29 @@ public class FullTextIT extends DocTest {
     }
 
     @Section(2)
+    public void multiMatchQuery() {
+        section(
+            title("Multi-match Query"),
+            description(
+                "Besides match query against a single field, you can search for a text with multiple fields.",
+                "Function ``MULTI_MATCH``, ``MULTIMATCH`` and ``MULTIMATCHQUERY`` are provided for this."
+            ),
+            example(
+                description(
+                    "Each preceding function accepts ``query`` for a text and ``fields`` for field names or pattern",
+                    "that the text given is searched against. For example, the following query is searching for",
+                    "documents in index accounts with 'Dale' as either firstname or lastname."
+                ),
+                post(multiLine(
+                    "SELECT firstname, lastname",
+                    "FROM accounts",
+                    "WHERE MULTI_MATCH('query'='Dale', 'fields'='*name')"
+                ))
+            )
+        );
+    }
+
+    @Section(3)
     public void queryStringQuery() {
         section(
             title("Query String Query"),
@@ -73,7 +96,7 @@ public class FullTextIT extends DocTest {
         );
     }
 
-    @Section(3)
+    @Section(4)
     public void matchPhraseQuery() {
         section(
             title("Match Phrase Query"),
@@ -92,7 +115,7 @@ public class FullTextIT extends DocTest {
         );
     }
 
-    @Section(4)
+    @Section(5)
     public void scoreQuery() {
         section(
             title("Score Query"),

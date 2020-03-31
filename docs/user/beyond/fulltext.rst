@@ -25,7 +25,7 @@ Match query is the standard query for full-text search in Elasticsearch. Both ``
 Example 1
 ---------
 
-Both functions can accept field name as first argument and text as second.
+Both functions can accept field name as first argument and a text as second argument.
 
 SQL query::
 
@@ -160,6 +160,86 @@ Result set:
 +==============+===============+
 |             1|880 Holmes Lane|
 +--------------+---------------+
+
+
+Multi-match Query
+=================
+
+Description
+-----------
+
+Besides match query against a single field, you can search for a text with multiple fields. Function ``MULTI_MATCH``, ``MULTIMATCH`` and ``MULTIMATCHQUERY`` are provided for this.
+
+Example
+-------
+
+Each preceding function accepts ``query`` for a text and ``fields`` for field names or pattern that the text given is searched against. For example, the following query is searching for documents in index accounts with 'Dale' as either firstname or lastname.
+
+SQL query::
+
+	POST /_opendistro/_sql
+	{
+	  "query" : """
+		SELECT firstname, lastname
+		FROM accounts
+		WHERE MULTI_MATCH('query'='Dale', 'fields'='*name')
+		"""
+	}
+
+Explain::
+
+	{
+	  "from" : 0,
+	  "size" : 200,
+	  "query" : {
+	    "bool" : {
+	      "filter" : [
+	        {
+	          "bool" : {
+	            "must" : [
+	              {
+	                "multi_match" : {
+	                  "query" : "Dale",
+	                  "fields" : [
+	                    "*name^1.0"
+	                  ],
+	                  "type" : "best_fields",
+	                  "operator" : "OR",
+	                  "slop" : 0,
+	                  "prefix_length" : 0,
+	                  "max_expansions" : 50,
+	                  "zero_terms_query" : "NONE",
+	                  "auto_generate_synonyms_phrase_query" : true,
+	                  "fuzzy_transpositions" : true,
+	                  "boost" : 1.0
+	                }
+	              }
+	            ],
+	            "adjust_pure_negative" : true,
+	            "boost" : 1.0
+	          }
+	        }
+	      ],
+	      "adjust_pure_negative" : true,
+	      "boost" : 1.0
+	    }
+	  },
+	  "_source" : {
+	    "includes" : [
+	      "firstname",
+	      "lastname"
+	    ],
+	    "excludes" : [ ]
+	  }
+	}
+
+Result set:
+
++---------+--------+
+|firstname|lastname|
++=========+========+
+|     Dale|   Adams|
++---------+--------+
 
 
 Query String Query
