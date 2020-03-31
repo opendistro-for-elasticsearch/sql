@@ -39,7 +39,7 @@ public class FullTextIT extends DocTest {
                 ))
             ),
             example(
-                description("Both functions can be used in the following manner."),
+                description("Both functions can also accept single argument and be used in the following manner."),
                 post(multiLine(
                     "SELECT account_number, address",
                     "FROM accounts",
@@ -87,6 +87,32 @@ public class FullTextIT extends DocTest {
                     "SELECT account_number, address",
                     "FROM accounts",
                     "WHERE MATCH_PHRASE(address, '880 Holmes Lane')"
+                ))
+            )
+        );
+    }
+
+    @Section(4)
+    public void scoreQuery() {
+        section(
+            title("Score Query"),
+            description(
+                "Elasticsearch supports to wrap a filter query so as to return a relevance score along with",
+                "every matching document. ``SCORE``, ``SCOREQUERY`` and ``SCORE_QUERY`` can be used for this."
+            ),
+            example(
+                description(
+                    "The first argument is a match query expression and the second argument is for an optional",
+                    "floating point number to boost the score. The default value is 1.0. Apart from this, an",
+                    "implicit variable ``_score`` is available in this case so you can return score for each",
+                    "document or use it for sorting."
+                ),
+                post(multiLine(
+                    "SELECT account_number, address, _score",
+                    "FROM accounts",
+                    "WHERE SCORE(MATCH_QUERY(address, 'Lane'), 0.5) OR",
+                    "  SCORE(MATCH_QUERY(address, 'Street'), 100)",
+                    "ORDER BY _score"
                 ))
             )
         );

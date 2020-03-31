@@ -95,7 +95,7 @@ Result set:
 Example 2
 ---------
 
-Both functions can be used in the following manner.
+Both functions can also accept single argument and be used in the following manner.
 
 SQL query::
 
@@ -316,5 +316,122 @@ Result set:
 +==============+===============+
 |             1|880 Holmes Lane|
 +--------------+---------------+
+
+
+Score Query
+===========
+
+Description
+-----------
+
+Elasticsearch supports to wrap a filter query so as to return a relevance score along with every matching document. ``SCORE``, ``SCOREQUERY`` and ``SCORE_QUERY`` can be used for this.
+
+Example
+-------
+
+The first argument is a match query expression and the second argument is for an optional floating point number to boost the score. The default value is 1.0. Apart from this, an implicit variable ``_score`` is available in this case so you can return score for each document or use it for sorting.
+
+SQL query::
+
+	POST /_opendistro/_sql
+	{
+	  "query" : """
+		SELECT account_number, address, _score
+		FROM accounts
+		WHERE SCORE(MATCH_QUERY(address, 'Lane'), 0.5) OR
+		  SCORE(MATCH_QUERY(address, 'Street'), 100)
+		ORDER BY _score
+		"""
+	}
+
+Explain::
+
+	{
+	  "from" : 0,
+	  "size" : 200,
+	  "query" : {
+	    "bool" : {
+	      "must" : [
+	        {
+	          "bool" : {
+	            "should" : [
+	              {
+	                "constant_score" : {
+	                  "filter" : {
+	                    "match" : {
+	                      "address" : {
+	                        "query" : "Lane",
+	                        "operator" : "OR",
+	                        "prefix_length" : 0,
+	                        "max_expansions" : 50,
+	                        "fuzzy_transpositions" : true,
+	                        "lenient" : false,
+	                        "zero_terms_query" : "NONE",
+	                        "auto_generate_synonyms_phrase_query" : true,
+	                        "boost" : 1.0
+	                      }
+	                    }
+	                  },
+	                  "boost" : 0.5
+	                }
+	              },
+	              {
+	                "constant_score" : {
+	                  "filter" : {
+	                    "match" : {
+	                      "address" : {
+	                        "query" : "Street",
+	                        "operator" : "OR",
+	                        "prefix_length" : 0,
+	                        "max_expansions" : 50,
+	                        "fuzzy_transpositions" : true,
+	                        "lenient" : false,
+	                        "zero_terms_query" : "NONE",
+	                        "auto_generate_synonyms_phrase_query" : true,
+	                        "boost" : 1.0
+	                      }
+	                    }
+	                  },
+	                  "boost" : 100.0
+	                }
+	              }
+	            ],
+	            "adjust_pure_negative" : true,
+	            "boost" : 1.0
+	          }
+	        }
+	      ],
+	      "adjust_pure_negative" : true,
+	      "boost" : 1.0
+	    }
+	  },
+	  "_source" : {
+	    "includes" : [
+	      "account_number",
+	      "address",
+	      "_score"
+	    ],
+	    "excludes" : [ ]
+	  },
+	  "sort" : [
+	    {
+	      "_score" : {
+	        "order" : "asc"
+	      }
+	    }
+	  ]
+	}
+
+Result set:
+
++--------------+------------------+------+
+|account_number|           address|_score|
++==============+==================+======+
+|             1|   880 Holmes Lane|   0.5|
++--------------+------------------+------+
+|             6|671 Bristol Street|   100|
++--------------+------------------+------+
+|            13|789 Madison Street|   100|
++--------------+------------------+------+
 
 
