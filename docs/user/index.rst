@@ -35,7 +35,7 @@ Open Distro for Elasticsearch SQL enables you to extract insights out of Elastic
 
   - `PartiQL Compatibility <beyond/partiql.rst>`_
 
-  - TODO: Full Text Search
+  - `Full-text Search <beyond/fulltext.rst>`_
 
   - TODO: Elasticsearch special functions
 
