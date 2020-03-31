@@ -78,7 +78,8 @@ public class SqlPlug extends Plugin implements ActionPlugin {
         Metrics.getInstance().registerDefaultMetrics();
         return Arrays.asList(
                 new RestSqlAction(settings, restController),
-                new RestSqlStatsAction(settings, restController));
+                new RestSqlStatsAction(settings, restController),
+                new RestSqlSettingsAction(settings, restController));
     }
 
     @Override
