@@ -23,7 +23,7 @@ Open Distro for Elasticsearch SQL enables you to extract insights out of Elastic
 
   - `Complex Query <dql/complex.rst>`_
 
-  - TODO: SHOW/DESCRIBE
+  - `Metadata Query <dql/metadata.rst>`_
 
   - TODO: SQL Functions
 

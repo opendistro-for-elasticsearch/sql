@@ -44,7 +44,7 @@ public class PartiQLIT extends DocTest {
     }
 
     @Section(2)
-    public void queryingNestedCollection() {
+    public void queryNestedCollection() {
         section(
             title("Querying Nested Collection"),
             description(
