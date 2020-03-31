@@ -409,7 +409,7 @@ Elasticsearch supports to wrap a filter query so as to return a relevance score 
 Example
 -------
 
-The first argument is a match query expression and the second argument is for an optional floating point number to boost the score. The default value is 1.0. Apart from this, an implicit variable ``_score`` is available in this case so you can return score for each document or use it for sorting.
+The first argument is a match query expression and the second argument is for an optional floating point number to boost the score. The default value is 1.0. Apart from this, an implicit variable ``_score`` is available so you can return score for each document or use it for sorting.
 
 SQL query::
 

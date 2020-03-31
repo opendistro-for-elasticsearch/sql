@@ -29,7 +29,7 @@ Open Distro for Elasticsearch SQL enables you to extract insights out of Elastic
 
 * **Data Manipulation Language**
 
-  - TODO: DELETE
+  - `DELETE Statement <dml/delete.rst>`_
 
 * **Beyond SQL**
 

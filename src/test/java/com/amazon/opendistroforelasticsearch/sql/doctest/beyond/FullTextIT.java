@@ -127,8 +127,8 @@ public class FullTextIT extends DocTest {
                 description(
                     "The first argument is a match query expression and the second argument is for an optional",
                     "floating point number to boost the score. The default value is 1.0. Apart from this, an",
-                    "implicit variable ``_score`` is available in this case so you can return score for each",
-                    "document or use it for sorting."
+                    "implicit variable ``_score`` is available so you can return score for each document or",
+                    "use it for sorting."
                 ),
                 post(multiLine(
                     "SELECT account_number, address, _score",
