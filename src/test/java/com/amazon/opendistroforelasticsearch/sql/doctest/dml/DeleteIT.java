@@ -34,7 +34,7 @@ public class DeleteIT extends DocTest {
                 "``DELETE`` statement deletes documents that satisfy the predicates in ``WHERE`` clause.",
                 "Note that all documents are deleted in the case of ``WHERE`` clause absent."
             ),
-            images("singleDeleteStatement.png"),
+            images("rdd/singleDeleteStatement.png"),
             example(
                 description(
                     "The ``datarows`` field in this case shows rows impacted, in other words how many",

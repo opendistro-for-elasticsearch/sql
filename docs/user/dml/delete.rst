@@ -23,7 +23,7 @@ Syntax
 
 Rule ``singleDeleteStatement``:
 
-.. image:: /docs/user/img/singleDeleteStatement.png
+.. image:: /docs/user/img/rdd/singleDeleteStatement.png
 
 Example
 -------

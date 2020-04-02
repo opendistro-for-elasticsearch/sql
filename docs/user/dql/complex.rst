@@ -246,16 +246,17 @@ Syntax
 
 Rule ``tableSource``:
 
-.. image:: /docs/user/img/tableSource.png
+.. image:: /docs/user/img/rdd/tableSource.png
 
 Rule ``joinPart``:
 
-.. image:: /docs/user/img/joinPart.png
+.. image:: /docs/user/img/rdd/joinPart.png
 
 Example 1: Inner Join
 ---------------------
 
 Inner join is very commonly used that creates a new result set by combining columns of two indices based on the join predicates specified. It iterates both indices and compare each document to find all that satisfy the join predicates. Keyword ``JOIN`` is used and preceded by ``INNER`` keyword optionally. The join predicates is specified by ``ON`` clause.
+
  Remark that the explain API output for join queries looks complicated. This is because a join query is associated with two Elasticsearch DSL queries underlying and execute in the separate query planner framework. You can interpret it by looking into the logical plan and physical plan.
 
 SQL query::

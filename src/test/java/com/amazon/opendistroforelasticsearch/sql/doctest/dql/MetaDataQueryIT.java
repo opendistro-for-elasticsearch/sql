@@ -38,7 +38,7 @@ public class MetaDataQueryIT extends DocTest {
                 "very useful for database management tool to enumerate all existing indices and get basic information",
                 "from the cluster."
             ),
-            images("showStatement.png", "showFilter.png"),
+            images("rdd/showStatement.png", "rdd/showFilter.png"),
             metadataQueryExample(
                 title("Show All Indices Information"),
                 description(

@@ -23,11 +23,11 @@ Syntax
 
 Rule ``showStatement``:
 
-.. image:: /docs/user/img/showStatement.png
+.. image:: /docs/user/img/rdd/showStatement.png
 
 Rule ``showFilter``:
 
-.. image:: /docs/user/img/showFilter.png
+.. image:: /docs/user/img/rdd/showFilter.png
 
 Example 1: Show All Indices Information
 ---------------------------------------

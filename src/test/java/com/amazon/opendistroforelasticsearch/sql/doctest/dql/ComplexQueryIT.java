@@ -87,7 +87,7 @@ public class ComplexQueryIT extends DocTest {
             description(
                 "A ``JOIN`` clause combines columns from one or more indices by using values common to each."
             ),
-            images("tableSource.png", "joinPart.png"),
+            images("rdd/tableSource.png", "rdd/joinPart.png"),
             example(
                 title("Inner Join"),
                 description(
@@ -95,7 +95,7 @@ public class ComplexQueryIT extends DocTest {
                     "of two indices based on the join predicates specified. It iterates both indices and",
                     "compare each document to find all that satisfy the join predicates. Keyword ``JOIN``",
                     "is used and preceded by ``INNER`` keyword optionally. The join predicates is specified",
-                    "by ``ON`` clause.\n",
+                    "by ``ON`` clause.\n\n",
                     "Remark that the explain API output for join queries looks complicated. This is because",
                     "a join query is associated with two Elasticsearch DSL queries underlying and execute in",
                     "the separate query planner framework. You can interpret it by looking into the logical",
