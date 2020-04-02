@@ -241,6 +241,17 @@ Description
 
 A ``JOIN`` clause combines columns from one or more indices by using values common to each.
 
+Syntax
+------
+
+Rule ``tableSource``:
+
+.. image:: /docs/user/img/tableSource.png
+
+Rule ``joinPart``:
+
+.. image:: /docs/user/img/joinPart.png
+
 Example 1: Inner Join
 ---------------------
 

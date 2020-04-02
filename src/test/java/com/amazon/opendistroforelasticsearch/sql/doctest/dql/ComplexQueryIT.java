@@ -87,6 +87,7 @@ public class ComplexQueryIT extends DocTest {
             description(
                 "A ``JOIN`` clause combines columns from one or more indices by using values common to each."
             ),
+            images("tableSource.png", "joinPart.png"),
             example(
                 title("Inner Join"),
                 description(

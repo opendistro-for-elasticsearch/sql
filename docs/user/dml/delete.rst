@@ -18,6 +18,13 @@ Description
 
 ``DELETE`` statement deletes documents that satisfy the predicates in ``WHERE`` clause. Note that all documents are deleted in the case of ``WHERE`` clause absent.
 
+Syntax
+------
+
+Rule ``singleDeleteStatement``:
+
+.. image:: /docs/user/img/singleDeleteStatement.png
+
 Example
 -------
 

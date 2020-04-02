@@ -18,6 +18,17 @@ Description
 
 You can query your indices metadata by ``SHOW`` and ``DESCRIBE`` statement. These commands are very useful for database management tool to enumerate all existing indices and get basic information from the cluster.
 
+Syntax
+------
+
+Rule ``showStatement``:
+
+.. image:: /docs/user/img/showStatement.png
+
+Rule ``showFilter``:
+
+.. image:: /docs/user/img/showFilter.png
+
 Example 1: Show All Indices Information
 ---------------------------------------
 
