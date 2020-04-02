@@ -27,7 +27,7 @@ import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.Sq
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.TABLE_RESPONSE;
 
 @DocTestConfig(template = "dql/metadata.rst", testData = {"accounts.json", "employees_nested.json"})
-public class MetaDataIT extends DocTest {
+public class MetaDataQueryIT extends DocTest {
 
     @Section(1)
     public void queryMetaData() {
@@ -35,7 +35,8 @@ public class MetaDataIT extends DocTest {
             title("Querying Metadata"),
             description(
                 "You can query your indices metadata by ``SHOW`` and ``DESCRIBE`` statement. These commands are",
-                "very useful for database management tool to enumerate and get basic information for the cluster."
+                "very useful for database management tool to enumerate all existing indices and get basic information",
+                "from the cluster."
             ),
             metadataQueryExample(
                 title("Show All Indices Information"),

@@ -16,7 +16,7 @@ Querying Metadata
 Description
 -----------
 
-You can query your indices metadata by ``SHOW`` and ``DESCRIBE`` statement. These commands are very useful for database management tool to enumerate and get basic information for the cluster.
+You can query your indices metadata by ``SHOW`` and ``DESCRIBE`` statement. These commands are very useful for database management tool to enumerate all existing indices and get basic information from the cluster.
 
 Example 1: Show All Indices Information
 ---------------------------------------

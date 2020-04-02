@@ -9,6 +9,7 @@ Complex Query
    :local:
    :depth: 2
 
+Besides simple SFW queries (SELECT-FROM-WHERE), there are also limited supports for complex queries such as Subquery, ``JOIN``, ``UNION`` and ``MINUS``. For these queries, more than one Elasticsearch DSL query is correspondent behind the scene. You can check out how they are performed behind the scene by our explain API.
 
 Subquery
 ========
@@ -244,6 +245,7 @@ Example 1: Inner Join
 ---------------------
 
 Inner join is very commonly used that creates a new result set by combining columns of two indices based on the join predicates specified. It iterates both indices and compare each document to find all that satisfy the join predicates. Keyword ``JOIN`` is used and preceded by ``INNER`` keyword optionally. The join predicates is specified by ``ON`` clause.
+ Remark that the explain API output for join queries looks complicated. This is because a join query is associated with two Elasticsearch DSL queries underlying and execute in the separate query planner framework. You can interpret it by looking into the logical plan and physical plan.
 
 SQL query::
 
@@ -354,74 +356,6 @@ SQL query::
 		"""
 	}
 
-Explain::
-
-	{
-	  "Physical Plan" : {
-	    "Project [ columns=[a.account_number, a.firstname, a.lastname, e.name, e.id] ]" : {
-	      "Top [ count=200 ]" : {
-	        "BlockHashJoin[ conditions=, type=JOIN, blockSize=[FixedBlockSize with size=10000] ]" : {
-	          "Scroll [ employees_nested as e, pageSize=10000 ]" : {
-	            "request" : {
-	              "size" : 200,
-	              "from" : 0,
-	              "_source" : {
-	                "excludes" : [ ],
-	                "includes" : [
-	                  "id",
-	                  "name"
-	                ]
-	              }
-	            }
-	          },
-	          "Scroll [ accounts as a, pageSize=10000 ]" : {
-	            "request" : {
-	              "size" : 200,
-	              "from" : 0,
-	              "_source" : {
-	                "excludes" : [ ],
-	                "includes" : [
-	                  "account_number",
-	                  "firstname",
-	                  "lastname"
-	                ]
-	              }
-	            }
-	          },
-	          "useTermsFilterOptimization" : false
-	        }
-	      }
-	    }
-	  },
-	  "description" : "Hash Join algorithm builds hash table based on result of first query, and then probes hash table to find matched rows for each row returned by second query",
-	  "Logical Plan" : {
-	    "Project [ columns=[a.account_number, a.firstname, a.lastname, e.name, e.id] ]" : {
-	      "Top [ count=200 ]" : {
-	        "Join [ conditions= type=JOIN ]" : {
-	          "Group" : [
-	            {
-	              "Project [ columns=[a.account_number, a.firstname, a.lastname] ]" : {
-	                "TableScan" : {
-	                  "tableAlias" : "a",
-	                  "tableName" : "accounts"
-	                }
-	              }
-	            },
-	            {
-	              "Project [ columns=[e.name, e.id] ]" : {
-	                "TableScan" : {
-	                  "tableAlias" : "e",
-	                  "tableName" : "employees_nested"
-	                }
-	              }
-	            }
-	          ]
-	        }
-	      }
-	    }
-	  }
-	}
-
 Result set:
 
 +----------------+-----------+----------+----+-----------+
@@ -470,74 +404,6 @@ SQL query::
 		LEFT JOIN employees_nested e
 		 ON a.account_number = e.id
 		"""
-	}
-
-Explain::
-
-	{
-	  "Physical Plan" : {
-	    "Project [ columns=[a.account_number, a.firstname, a.lastname, e.name, e.id] ]" : {
-	      "Top [ count=200 ]" : {
-	        "BlockHashJoin[ conditions=( a.account_number = e.id ), type=LEFT_OUTER_JOIN, blockSize=[FixedBlockSize with size=10000] ]" : {
-	          "Scroll [ employees_nested as e, pageSize=10000 ]" : {
-	            "request" : {
-	              "size" : 200,
-	              "from" : 0,
-	              "_source" : {
-	                "excludes" : [ ],
-	                "includes" : [
-	                  "id",
-	                  "name"
-	                ]
-	              }
-	            }
-	          },
-	          "Scroll [ accounts as a, pageSize=10000 ]" : {
-	            "request" : {
-	              "size" : 200,
-	              "from" : 0,
-	              "_source" : {
-	                "excludes" : [ ],
-	                "includes" : [
-	                  "account_number",
-	                  "firstname",
-	                  "lastname"
-	                ]
-	              }
-	            }
-	          },
-	          "useTermsFilterOptimization" : false
-	        }
-	      }
-	    }
-	  },
-	  "description" : "Hash Join algorithm builds hash table based on result of first query, and then probes hash table to find matched rows for each row returned by second query",
-	  "Logical Plan" : {
-	    "Project [ columns=[a.account_number, a.firstname, a.lastname, e.name, e.id] ]" : {
-	      "Top [ count=200 ]" : {
-	        "Join [ conditions=( a.account_number = e.id ) type=LEFT_OUTER_JOIN ]" : {
-	          "Group" : [
-	            {
-	              "Project [ columns=[a.account_number, a.firstname, a.lastname] ]" : {
-	                "TableScan" : {
-	                  "tableAlias" : "a",
-	                  "tableName" : "accounts"
-	                }
-	              }
-	            },
-	            {
-	              "Project [ columns=[e.name, e.id] ]" : {
-	                "TableScan" : {
-	                  "tableAlias" : "e",
-	                  "tableName" : "employees_nested"
-	                }
-	              }
-	            }
-	          ]
-	        }
-	      }
-	    }
-	  }
 	}
 
 Result set:

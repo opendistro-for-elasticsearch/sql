@@ -18,7 +18,14 @@ package com.amazon.opendistroforelasticsearch.sql.doctest.dql;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.DocTest;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.DocTestConfig;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.Section;
+import com.amazon.opendistroforelasticsearch.sql.doctest.core.builder.Example;
+import com.amazon.opendistroforelasticsearch.sql.doctest.core.builder.Requests;
 import org.junit.Ignore;
+
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.IGNORE_REQUEST;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.KIBANA_REQUEST;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.IGNORE_RESPONSE;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.TABLE_RESPONSE;
 
 @DocTestConfig(template = "dql/complex.rst", testData = {"accounts.json", "employees_nested.json"})
 public class ComplexQueryIT extends DocTest {
@@ -87,7 +94,11 @@ public class ComplexQueryIT extends DocTest {
                     "of two indices based on the join predicates specified. It iterates both indices and",
                     "compare each document to find all that satisfy the join predicates. Keyword ``JOIN``",
                     "is used and preceded by ``INNER`` keyword optionally. The join predicates is specified",
-                    "by ``ON`` clause."
+                    "by ``ON`` clause.\n",
+                    "Remark that the explain API output for join queries looks complicated. This is because",
+                    "a join query is associated with two Elasticsearch DSL queries underlying and execute in",
+                    "the separate query planner framework. You can interpret it by looking into the logical",
+                    "plan and physical plan."
                 ),
                 post(multiLine(
                     "SELECT",
@@ -98,7 +109,7 @@ public class ComplexQueryIT extends DocTest {
                     " ON a.account_number = e.id"
                 ))
             ),
-            example(
+            joinExampleWithoutExplain(
                 title("Cross Join"),
                 description(
                     "Cross join or Cartesian join combines each document from the first index with each from",
@@ -115,7 +126,7 @@ public class ComplexQueryIT extends DocTest {
                     "JOIN employees_nested e"
                 ))
             ),
-            example(
+            joinExampleWithoutExplain(
                 title("Outer Join"),
                 description(
                     "Outer join is used to retain documents from one or both indices although it does not satisfy",
@@ -175,6 +186,13 @@ public class ComplexQueryIT extends DocTest {
                     "WHERE age < 35"
                 ))
             )
+        );
+    }
+
+    private Example joinExampleWithoutExplain(String title, String description, Requests requests) {
+        return example(title, description, requests,
+            queryFormat(KIBANA_REQUEST, TABLE_RESPONSE),
+            explainFormat(IGNORE_REQUEST, IGNORE_RESPONSE)
         );
     }
 
