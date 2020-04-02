@@ -20,23 +20,58 @@ Test Data
 Description
 -----------
 
-The test index ``employees_nested`` used by all examples in this document is the same as the one used in official PartiQL documentation.
+The test index ``employees_nested`` used by all examples in this document is very similar to the one used in official PartiQL documentation.
 
-Example
--------
-
-Result set:
-
-+--------------+-----------+--+----------------------------------------------------------------------------------------------------------------------------------------------------------+----+
-|         title|       name|id|                                                                                                                                                          |    |
-+==============+===========+==+==========================================================================================================================================================+====+
-|          null|  Bob Smith| 3|[{name=AWS Redshift Spectrum querying, started_year=1990}, {name=AWS Redshift security, started_year=1999}, {name=AWS Aurora security, started_year=2015}]|null|
-+--------------+-----------+--+----------------------------------------------------------------------------------------------------------------------------------------------------------+----+
-|       Dev Mgr|Susan Smith| 4|                                                                                                                                                        []|null|
-+--------------+-----------+--+----------------------------------------------------------------------------------------------------------------------------------------------------------+----+
-|Software Eng 2| Jane Smith| 6|                        [{name=AWS Redshift security, started_year=1998}, {address=[{city=Dallas, state=TX}], name=AWS Hello security, started_year=2015}]|null|
-+--------------+-----------+--+----------------------------------------------------------------------------------------------------------------------------------------------------------+----+
-
+{
+  "employees" : [
+    {
+      "id" : 3,
+      "name" : "Bob Smith",
+      "title" : null,
+      "projects" : [
+        {
+          "name" : "AWS Redshift Spectrum querying",
+          "started_year" : 1990
+        },
+        {
+          "name" : "AWS Redshift security",
+          "started_year" : 1999
+        },
+        {
+          "name" : "AWS Aurora security",
+          "started_year" : 2015
+        }
+      ]
+    },
+    {
+      "id" : 4,
+      "name" : "Susan Smith",
+      "title" : "Dev Mgr",
+      "projects" : [ ]
+    },
+    {
+      "id" : 6,
+      "name" : "Jane Smith",
+      "title" : "Software Eng 2",
+      "projects" : [
+        {
+          "name" : "AWS Redshift security",
+          "started_year" : 1998
+        },
+        {
+          "name" : "AWS Hello security",
+          "started_year" : 2015,
+          "address" : [
+            {
+              "city" : "Dallas",
+              "state" : "TX"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
 
 Querying Nested Collection
 ==========================

@@ -18,10 +18,18 @@ package com.amazon.opendistroforelasticsearch.sql.doctest.beyond;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.DocTest;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.DocTestConfig;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.Section;
+import com.amazon.opendistroforelasticsearch.sql.utils.JsonPrettyFormatter;
 
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.IGNORE_REQUEST;
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.IGNORE_RESPONSE;
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.TABLE_RESPONSE;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.TestData.TEST_DATA_FOLDER_ROOT;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getResourceFilePath;
 
 @DocTestConfig(template = "beyond/partiql.rst", testData = {"employees_nested.json"})
 public class PartiQLIT extends DocTest {
@@ -31,14 +39,9 @@ public class PartiQLIT extends DocTest {
         section(
             title("Test Data"),
             description(
-                "The test index ``employees_nested`` used by all examples in this document is the same as",
-                "the one used in official PartiQL documentation."
-            ),
-            example(
-                description(),
-                post("SELECT * FROM employees_nested"),
-                queryFormat(IGNORE_REQUEST, TABLE_RESPONSE),
-                explainFormat(IGNORE_REQUEST, IGNORE_RESPONSE)
+                "The test index ``employees_nested`` used by all examples in this document is very similar to",
+                "the one used in official PartiQL documentation.\n\n" +
+                    dumpTestDataInPrettyJsonFormat("employees_nested.json")
             )
         );
     }
@@ -121,6 +124,20 @@ public class PartiQLIT extends DocTest {
             ))
             */
         );
+    }
+
+    private String dumpTestDataInPrettyJsonFormat(String fileName) {
+        Path path = Paths.get(getResourceFilePath(TEST_DATA_FOLDER_ROOT + fileName));
+        try {
+            List<String> lines = Files.readAllLines(path);
+            String json = IntStream.range(0, lines.size()).
+                                    filter(i -> i % 2 == 1).
+                                    mapToObj(lines::get).
+                                    collect(Collectors.joining(",", "{\"employees\":[", "]}"));
+            return JsonPrettyFormatter.format(json);
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to load test data: " + path, e);
+        }
     }
 
 }

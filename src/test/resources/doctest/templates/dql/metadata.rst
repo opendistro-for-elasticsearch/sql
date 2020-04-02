@@ -1,12 +1,12 @@
 
-=============
-Complex Query
-=============
+==============
+Metadata Query
+==============
 
 .. rubric:: Table of contents
 
 .. contents::
    :local:
-   :depth: 2
+   :depth: 1
 
 
