@@ -255,18 +255,18 @@ public class AggregationQueryAction extends QueryAction {
 
         if (shadowField == null) {
             for (Field selectField: select.getFields()) {
-                if (selectField.getAlias() != null
-                        && (groupByField.getName().equals(selectField.getAlias())
-                            || groupByField.getExpression().equals(selectField.getExpression()))) {
+                if (groupByField.getName().equals(selectField.getAlias())
+                            || groupByField.getExpression().equals(selectField.getExpression()) 
+                            || groupByField.getName().equals(selectField.getName()+ ".keyword")) {
                     shadowField = selectField;
                 }
             }
-
         }
 
         if (null != shadowField) {
-            groupByField.setAlias(shadowField.getAlias());
-            groupByField = shadowField;
+            String alias = shadowField.getAlias() != null? shadowField.getAlias() : shadowField.getName();
+            groupByField.setAlias(alias);
+            //groupByField = shadowField;
         }
 
         lastAgg = aggMaker.makeGroupAgg(groupByField);
