@@ -33,6 +33,7 @@ import static org.hamcrest.Matchers.containsString;
 public class CursorIT extends SQLIntegTestCase {
 
     private static final String JDBC = "jdbc";
+    private static final String NEW_LINE = "\n";
 
     @Override
     protected void init() throws Exception {
@@ -172,6 +173,29 @@ public class CursorIT extends SQLIntegTestCase {
         assertFalse(response.has("cursor"));
     }
 
+    @Test
+    public void testCursorWithPreparedStatement() throws IOException {
+        JSONObject response = executeJDBCRequest(String.format("{" +
+                "  \"fetch_size\": 200," +
+                "  \"query\": \" SELECT age, state FROM %s WHERE age > ? OR state IN (?, ?)\"," +
+                "  \"parameters\": [" +
+                "    {" +
+                "      \"type\": \"integer\"," +
+                "      \"value\": 25" +
+                "    }," +
+                "        {" +
+                "      \"type\": \"string\"," +
+                "      \"value\": \"WA\"" +
+                "    }," +
+                "            {" +
+                "      \"type\": \"string\"," +
+                "      \"value\": \"UT\"" +
+                "    }" +
+                "  ]" +
+                "}", TestsConstants.TEST_INDEX_ACCOUNT));
+
+        assertTrue(response.has("cursor"));
+    }
 
 
     @Test
@@ -302,12 +326,12 @@ public class CursorIT extends SQLIntegTestCase {
         // checking for CSV, RAW format
         String query = StringUtils.format("SELECT firstname, email, state FROM %s LIMIT 2000", TEST_INDEX_ACCOUNT);
         String csvResult = executeFetchQuery(query, 100, "csv");
-        String[] rows = csvResult.split("\n");
+        String[] rows = csvResult.split(NEW_LINE);
         // all the 1000 records (+1 for header) are retrieved instead of fetch_size number of records
         assertThat(rows.length, equalTo(1001));
 
         String rawResult = executeFetchQuery(query, 100, "raw");
-        rows = rawResult.split("\n");
+        rows = rawResult.split(NEW_LINE);
         // all the 1000 records (NO headers) are retrieved instead of fetch_size number of records
         assertThat(rows.length, equalTo(1000));
     }
@@ -361,12 +385,16 @@ public class CursorIT extends SQLIntegTestCase {
     }
 
     private String makeRequest(String query, String fetch_size) {
-        return String.format("{\n" +
-                "  \"fetch_size\": \"%s\",\n" +
-                "  \"query\": \"%s\"\n" +
+        return String.format("{" +
+                "  \"fetch_size\": \"%s\"," +
+                "  \"query\": \"%s\"" +
                 "}", fetch_size, query);
     }
 
+    private JSONObject executeJDBCRequest(String requestBody) throws IOException {
+        Request sqlRequest = getSqlRequest(requestBody, false, JDBC);
+        return new JSONObject(executeRequest(sqlRequest));
+    }
 }
 
 

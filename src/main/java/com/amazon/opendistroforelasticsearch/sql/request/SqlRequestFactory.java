@@ -72,7 +72,7 @@ public class SqlRequestFactory {
         if (jsonContent.has(PARAM_FIELD_NAME)) { // is a PreparedStatement
             JSONArray paramArray = jsonContent.getJSONArray(PARAM_FIELD_NAME);
             List<PreparedStatementRequest.PreparedStatementParameter> parameters = parseParameters(paramArray);
-            return new PreparedStatementRequest(sql, jsonContent, parameters);
+            return new PreparedStatementRequest(sql, validateAndGetFetchSize(jsonContent), jsonContent, parameters);
         }
         return new SqlRequest(sql, validateAndGetFetchSize(jsonContent), jsonContent);
     }
