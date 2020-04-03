@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.doctest.beyond;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.DocTest;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.DocTestConfig;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.Section;
+import com.amazon.opendistroforelasticsearch.sql.doctest.core.builder.Example;
 import com.amazon.opendistroforelasticsearch.sql.utils.JsonPrettyFormatter;
 
 import java.io.IOException;
@@ -40,9 +41,9 @@ public class PartiQLIT extends DocTest {
             title("Test Data"),
             description(
                 "The test index ``employees_nested`` used by all examples in this document is very similar to",
-                "the one used in official PartiQL documentation.\n\n" +
-                    dumpTestDataInPrettyJsonFormat("employees_nested.json")
-            )
+                "the one used in official PartiQL documentation."
+            ),
+            createDummyExampleForTestData("employees_nested.json")
         );
     }
 
@@ -126,14 +127,23 @@ public class PartiQLIT extends DocTest {
         );
     }
 
-    private String dumpTestDataInPrettyJsonFormat(String fileName) {
-        Path path = Paths.get(getResourceFilePath(TEST_DATA_FOLDER_ROOT + fileName));
+    private Example createDummyExampleForTestData(String fileName) {
+        Example example = new Example();
+        example.setTitle("Employees");
+        example.setDescription("");
+        example.setResult(parseJsonFromTestData(fileName));
+        return example;
+    }
+
+    /** Concat and pretty format document at odd number line in bulk request file */
+    private String parseJsonFromTestData(String fileName) {
+    Path path = Paths.get(getResourceFilePath(TEST_DATA_FOLDER_ROOT + fileName));
         try {
             List<String> lines = Files.readAllLines(path);
             String json = IntStream.range(0, lines.size()).
                                     filter(i -> i % 2 == 1).
                                     mapToObj(lines::get).
-                                    collect(Collectors.joining(",", "{\"employees\":[", "]}"));
+                                    collect(Collectors.joining(",","{\"employees\":[", "]}"));
             return JsonPrettyFormatter.format(json);
         } catch (IOException e) {
             throw new IllegalStateException("Failed to load test data: " + path, e);
