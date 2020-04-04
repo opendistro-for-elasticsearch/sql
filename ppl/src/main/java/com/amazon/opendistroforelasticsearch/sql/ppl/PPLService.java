@@ -5,7 +5,7 @@
  *   You may not use this file except in compliance with the License.
  *   A copy of the License is located at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  *   or in the "license" file accompanying this file. This file is distributed
  *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
@@ -13,8 +13,16 @@
  *   permissions and limitations under the License.
  */
 
-rootProject.name = 'opendistro-sql'
+package com.amazon.opendistroforelasticsearch.sql.ppl;
 
-include 'plugin'
-include 'ppl'
-include 'integ-test'
+import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryRequest;
+import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryResponse;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
+public class PPLService {
+
+    public void execute(PPLQueryRequest request, ResponseListener<PPLQueryResponse> listener) {
+        listener.onResponse(new PPLQueryResponse());
+    }
+}
