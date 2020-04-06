@@ -1,0 +1,40 @@
+apply plugin: 'elasticsearch.build'
+apply plugin: 'elasticsearch.rest-test'
+apply plugin: 'java'
+
+ext {
+    projectSubstitutions = [:]
+    licenseFile = rootProject.file('LICENSE.TXT')
+    noticeFile = rootProject.file('NOTICE')
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'org.elasticsearch.test', name: 'framework', version: '7.6.1'
+    testCompile group: 'org.elasticsearch.client', name: 'elasticsearch-rest-high-level-client', version: '7.6.1'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile group: 'org.hamcrest', name: 'hamcrest', version: '2.1'
+    testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', version:'2.11.1'
+}
+
+dependencyLicenses.enabled = false
+testingConventions.enabled = false
+checkstyleTest.ignoreFailures = true
+
+tasks.integTest.dependsOn(':plugin:bundlePlugin')
+testClusters.integTest {
+    testDistribution='oss'
+    plugin file(tasks.getByPath(':plugin:bundlePlugin').archiveFile)
+}
+
+integTest.runner {
+    systemProperty 'tests.security.manager', 'false'
+    systemProperty('project.root', project.rootDir.absolutePath)
+
+    if (System.getProperty("test.debug") != null) {
+        jvmArgs '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005'
+    }
+}

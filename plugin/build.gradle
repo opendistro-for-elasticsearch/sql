@@ -1,0 +1,26 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+
+ext {
+    projectSubstitutions = [:]
+    licenseFile = rootProject.file('LICENSE.TXT')
+    noticeFile = rootProject.file('NOTICE')
+}
+
+repositories {
+    mavenCentral()
+}
+
+esplugin {
+    name 'opendistro_sql'
+    description 'Open Distro for Elasticsearch SQL'
+    classname 'com.amazon.opendistroforelasticsearch.sql.plugin.SQLPlugin'
+}
+
+test.enabled = false
+integTest.enabled = false
+dependencyLicenses.enabled = false
+
+dependencies {
+    compile project(":ppl")
+}

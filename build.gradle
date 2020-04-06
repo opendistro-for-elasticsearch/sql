@@ -14,16 +14,15 @@
  */
 
 buildscript {
-
     ext {
-        // When upgrading to version after 7.3.0, must remove also
-        // project substitution from configurations.all (line 39)
-        es_version = System.getProperty("es.version", "7.6.1")
+        es_version = "7.6.1"
     }
-    // This isn't applying from repositories.gradle so repeating it here
+
     repositories {
         mavenCentral()
-    } 
+        maven { url "https://plugins.gradle.org/m2/" }
+        jcenter()
+    }
 
     dependencies {
         classpath "org.elasticsearch.gradle:build-tools:${es_version}"
@@ -37,18 +36,6 @@ plugins {
     id "io.freefair.lombok" version "5.0.0-rc4"
 }
 
-/*
-Temporary fix, must be removed after 7.3.0 See
-https://github.com/elastic/elasticsearch/issues/45073
-
-Also must remove include ':rest-api-spec' from settings.gradle
-*/
-configurations.all {
-  resolutionStrategy.dependencySubstitution {
-    substitute project(':rest-api-spec') with module ("org.elasticsearch:rest-api-spec:${es_version}")
-  }
-}
-
 // Repository on root level is for dependencies that project code depends on. And this block must be placed after plugins{}
 repositories {
     mavenCentral() // For Elastic Libs that you can use to get started coding until open ES libs are available
@@ -59,10 +46,24 @@ ext {
     isSnapshot = "true" == System.getProperty("build.snapshot", "true")
 }
 
-version = "${opendistroVersion}.0" 
+allprojects {
+    version = "${opendistroVersion}.0"
+
+    plugins.withId('java') {
+        sourceCompatibility = targetCompatibility = "1.8"
+    }
+}
 
 apply plugin: 'elasticsearch.esplugin'
 apply plugin: 'elasticsearch.testclusters'
+// Todo, removed after migrate SQL to subProject
+project('plugin') {
+    apply plugin: 'elasticsearch.esplugin'
+}
+// Todo, removed after migrate SQL to subProject
+project('integ-test') {
+    apply plugin: 'elasticsearch.testclusters'
+}
 apply plugin: 'jacoco'
 if (!System.properties.containsKey('tests.rest.cluster') && !System.properties.containsKey('tests.cluster')){
     apply from: 'build-tools/sqlplugin-coverage.gradle'
@@ -291,7 +292,7 @@ afterEvaluate {
         maintainer 'OpenDistro for Elasticsearch Team <opendistro@amazon.com>'
         url 'https://opendistro.github.io/elasticsearch/downloads'
         summary '''
-         SQL plugin for OpenDistro for Elasticsearch. 
+         SQL plugin for OpenDistro for Elasticsearch.
          Reference documentation can be found at https://opendistro.github.io/for-elasticsearch-docs/.
     '''.stripIndent().replace('\n', ' ').trim()
     }
