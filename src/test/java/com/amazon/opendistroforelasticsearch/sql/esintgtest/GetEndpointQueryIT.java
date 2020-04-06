@@ -15,21 +15,22 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.junit.Assert;
+import org.elasticsearch.client.ResponseException;
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Locale;
+import org.junit.rules.ExpectedException;
 
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
-import static org.hamcrest.Matchers.equalTo;
 
 /**
  * Tests to cover requests with "?format=csv" parameter
  */
 public class GetEndpointQueryIT extends SQLIntegTestCase {
+
+    @Rule
+    public ExpectedException rule = ExpectedException.none();
 
     @Override
     protected void init() throws Exception {
@@ -37,17 +38,10 @@ public class GetEndpointQueryIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void unicodeTermInQuery() throws IOException  {
-
-        // NOTE: There are unicode characters in name, not just whitespace.
-        final String name = "盛虹";
-        final String query = String.format(Locale.ROOT, "SELECT _id, firstname FROM %s " +
-                "WHERE firstname=matchQuery('%s') LIMIT 2", TEST_INDEX_ACCOUNT, name);
-
-        final JSONObject result = executeQueryWithGetRequest(query);
-        final JSONArray hits = getHits(result);
-        Assert.assertThat(hits.length(), equalTo(1));
-        Assert.assertThat(hits.query("/0/_id"), equalTo("919"));
-        Assert.assertThat(hits.query("/0/_source/firstname"), equalTo(name));
+    public void getEndPointShouldBeInvalid() throws IOException {
+        rule.expect(ResponseException.class);
+        rule.expectMessage("Incorrect HTTP method");
+        String query = "select name from " + TEST_INDEX_ACCOUNT;
+        executeQueryWithGetRequest(query);
     }
 }
