@@ -1,7 +1,7 @@
 
-==============
-Metadata Query
-==============
+================
+Metadata Queries
+================
 
 .. rubric:: Table of contents
 

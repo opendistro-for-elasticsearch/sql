@@ -1,7 +1,7 @@
 
-=============
-Complex Query
-=============
+===============
+Complex Queries
+===============
 
 .. rubric:: Table of contents
 
