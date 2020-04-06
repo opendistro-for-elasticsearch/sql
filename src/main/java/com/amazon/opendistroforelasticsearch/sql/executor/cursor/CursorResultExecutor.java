@@ -30,11 +30,14 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestChannel;
+import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.sql.SQLFeatureNotSupportedException;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Map;
 
@@ -100,20 +103,35 @@ public class CursorResultExecutor implements CursorRestExecutor {
         throw new VerificationException("Invalid cursor");
     }
 
-    private String handleDefaultCursorRequest(Client client, JSONObject cursorContext) {
+    private String handleDefaultCursorRequest(Client client, JSONObject cursorContext) throws IOException {
         String previousScrollId = cursorContext.getString("scrollId");
         LocalClusterState clusterState = LocalClusterState.state();
         TimeValue scrollTimeout = clusterState.getSettingValue(CURSOR_KEEPALIVE);
         SearchResponse scrollResponse = client.prepareSearchScroll(previousScrollId).setScroll(scrollTimeout).get();
         SearchHits searchHits = scrollResponse.getHits();
+        SearchHit[] searchHitArray = searchHits.getHits();
         String newScrollId = scrollResponse.getScrollId();
 
         int rowsLeft = cursorContext.getInt("left");
         int fetch = cursorContext.getInt("f");
+
+        if (rowsLeft < fetch && rowsLeft < searchHitArray.length) {
+            /**
+             * This condition implies we are on the last page, and we might need to truncate the result from SearchHit[]
+             * Avoid truncating in following two scenarios
+             * 1. number of rows to be sent equals fetchSize
+             * 2. size of SearchHit[] is already less that rows that needs to be sent
+             *
+             * Else truncate to desired number of rows
+             */
+            SearchHit[] newSearchHits = Arrays.copyOf(searchHitArray, rowsLeft);
+            searchHits =  new SearchHits(newSearchHits, searchHits.getTotalHits(), searchHits.getMaxScore());
+        }
+
         rowsLeft = rowsLeft - fetch;
 
         if (rowsLeft <=0) {
-            // Close the scroll context on last page
+            /** Clear the scroll context on last page */
             ClearScrollResponse clearScrollResponse = client.prepareClearScroll().addScrollId(newScrollId).get();
             if (!clearScrollResponse.isSucceeded()) {
                 Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
