@@ -108,15 +108,16 @@ public class CursorResultExecutor implements CursorRestExecutor {
         SearchHits searchHits = scrollResponse.getHits();
         String newScrollId = scrollResponse.getScrollId();
 
-        int pagesLeft = cursorContext.getInt("left");
-        pagesLeft--;
+        int rowsLeft = cursorContext.getInt("left");
+        int fetch = cursorContext.getInt("f");
+        rowsLeft = rowsLeft - fetch;
 
-        if (pagesLeft <=0) {
+        if (rowsLeft <=0) {
             // Close the scroll context on last page
             ClearScrollResponse clearScrollResponse = client.prepareClearScroll().addScrollId(newScrollId).get();
             if (!clearScrollResponse.isSucceeded()) {
                 Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
-                LOG.info("Problem closing the cursor context {} ", newScrollId);
+                LOG.info("Error closing the cursor context {} ", newScrollId);
             }
 
             Protocol protocol = new Protocol(client, searchHits, cursorContext, format.name().toLowerCase());
@@ -124,7 +125,7 @@ public class CursorResultExecutor implements CursorRestExecutor {
             return protocol.cursorFormat();
 
         } else {
-            cursorContext.put("left", pagesLeft);
+            cursorContext.put("left", rowsLeft);
             cursorContext.put("scrollId", newScrollId);
             Protocol protocol = new Protocol(client, searchHits, cursorContext, format.name().toLowerCase());
             String cursorId = protocol.encodeCursorContext(cursorContext);

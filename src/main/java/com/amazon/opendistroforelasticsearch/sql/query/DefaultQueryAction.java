@@ -130,6 +130,11 @@ public class DefaultQueryAction extends QueryAction {
         return Optional.of(fieldNames);
     }
 
+
+    public Select getSelect() {
+        return select;
+    }
+
     /**
      * Set indices and types to the search request.
      */

@@ -197,6 +197,32 @@ public class CursorIT extends SQLIntegTestCase {
         assertTrue(response.has("cursor"));
     }
 
+    @Test
+    public void testRegressionOnDateFormatChange() throws IOException {
+        // manually tested itd working fine
+
+//        JSONObject response = executeJDBCRequest(String.format("{" +
+//                "  \"fetch_size\": 200," +
+//                "  \"query\": \" SELECT age, state FROM %s WHERE age > ? OR state IN (?, ?)\"," +
+//                "  \"parameters\": [" +
+//                "    {" +
+//                "      \"type\": \"integer\"," +
+//                "      \"value\": 25" +
+//                "    }," +
+//                "        {" +
+//                "      \"type\": \"string\"," +
+//                "      \"value\": \"WA\"" +
+//                "    }," +
+//                "            {" +
+//                "      \"type\": \"string\"," +
+//                "      \"value\": \"UT\"" +
+//                "    }" +
+//                "  ]" +
+//                "}", TestsConstants.TEST_INDEX_ACCOUNT));
+//
+//        assertTrue(response.has("cursor"));
+    }
+
 
     @Test
     public void defaultBehaviorWhenCursorSettingIsDisabled() throws IOException {

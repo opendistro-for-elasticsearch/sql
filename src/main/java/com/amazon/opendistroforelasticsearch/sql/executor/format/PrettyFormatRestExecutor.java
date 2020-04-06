@@ -104,6 +104,7 @@ public class PrettyFormatRestExecutor implements RestExecutor {
         String scrollId = response.getScrollId();
         if (!Strings.isNullOrEmpty(scrollId)) {
             protocol.addOption("scrollId", scrollId);
+            protocol.addOption("limit", queryAction.getSelect().getRowCount());
             protocol.setCursorType(CursorType.DEFAULT);
             protocol.generateCursorId();
         }

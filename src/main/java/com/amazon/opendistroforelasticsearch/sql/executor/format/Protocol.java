@@ -284,13 +284,14 @@ public class Protocol {
         // for subsequent pages the cursorType and cursor should be set from
         switch(cursorType) {
             case DEFAULT:
-                int pages_left = pagesLeft();
-                if (options.get("scrollId") != null && pages_left > 0) {
+                long rowsLeft = rowsLeft();
+                if (options.get("scrollId") != null && rowsLeft > 0) {
                     JSONObject cursorJson = new JSONObject();
                     cursorJson.put("type", cursorType.name());
                     cursorJson.put("schema", getSchemaAsJson());
                     cursorJson.put("scrollId", options.get("scrollId"));
-                    cursorJson.put("left", pagesLeft());
+                    cursorJson.put("f", options.get("fetch_size")); // fetchSize
+                    cursorJson.put("left", rowsLeft);
                     setIndexNameInCursor(cursorJson);
                     setFieldAliasMapInCursor(cursorJson);
                     cursor = encodeCursorContext(cursorJson);
@@ -342,15 +343,21 @@ public class Protocol {
         }
     }
 
-    private int pagesLeft() {
+    private long rowsLeft() {
         Integer fetch = (Integer) options.get("fetch_size");
-        int pagesLeft = 0;
+        Integer limit = (Integer) options.get("limit");
+        long rowsLeft = 0;
         if (fetch == null || fetch == 0) {
             //TODO: should we throw an exception here, ideally we should not be reaching here,
-            return pagesLeft;
+            return rowsLeft;
         }
-        pagesLeft = (int) Math.ceil(((double) getScrollTotalHits())/fetch) - 1;
-        return pagesLeft;
 
+        long totalHits = getScrollTotalHits();
+        if (limit != null && limit < totalHits) {
+            rowsLeft = limit - fetch;
+        } else {
+            rowsLeft = totalHits - fetch;
+        }
+        return rowsLeft;
     }
 }
