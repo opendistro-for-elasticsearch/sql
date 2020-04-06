@@ -29,6 +29,8 @@ import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.Format;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema;
+import com.amazon.opendistroforelasticsearch.sql.metrics.MetricName;
+import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
 import com.amazon.opendistroforelasticsearch.sql.query.maker.QueryMaker;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.nestedfield.NestedFieldProjection;
 import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
@@ -111,6 +113,8 @@ public class DefaultQueryAction extends QueryAction {
         Integer rowCount = select.getRowCount();
 
         if (checkIfScrollNeeded(cursorEnabled, fetchSize, rowCount)) {
+            Metrics.getInstance().getNumericalMetric(MetricName.DEFAULT_CURSOR_REQUEST_COUNT_TOTAL).increment();
+            Metrics.getInstance().getNumericalMetric(MetricName.DEFAULT_CURSOR_REQUEST_TOTAL).increment();
             request.setSize(fetchSize).setScroll(timeValue);
         } else {
             request.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);

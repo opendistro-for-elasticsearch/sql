@@ -125,7 +125,7 @@ public class CursorResultExecutor implements CursorRestExecutor {
              * Else truncate to desired number of rows
              */
             SearchHit[] newSearchHits = Arrays.copyOf(searchHitArray, rowsLeft);
-            searchHits =  new SearchHits(newSearchHits, searchHits.getTotalHits(), searchHits.getMaxScore());
+            searchHits = new SearchHits(newSearchHits, searchHits.getTotalHits(), searchHits.getMaxScore());
         }
 
         rowsLeft = rowsLeft - fetch;
