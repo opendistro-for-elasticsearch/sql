@@ -658,6 +658,25 @@ public class DateFieldFormatterTest {
         verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
     }
 
+    @Test
+    public void testStrictDateOptionalTimeOrEpochMillsShouldPass()
+    {
+        String columnName = "date_field";
+        String dateFormat = "strict_date_optional_time||epoch_millis";
+
+        String originalDateValue = "2015-01-01";
+        String expectedDateValue = "2015-01-01 00:00:00.000";
+        verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
+
+        originalDateValue = "2015-01-01T12:10:30Z";
+        expectedDateValue = "2015-01-01 12:10:30.000";
+        verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
+
+        originalDateValue = "1420070400001";
+        expectedDateValue = "2015-01-01 00:00:00.001";
+        verifyFormatting(columnName, dateFormat, originalDateValue, expectedDateValue);
+    }
+
     private void verifyFormatting(String columnName, String dateFormatProperty, String originalDateValue, String expectedDateValue)
     {
         List<Schema.Column> columns = buildColumnList(columnName);
