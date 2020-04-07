@@ -9,7 +9,7 @@ jobs:
   Build-SQL:
     strategy:
       matrix:
-        java: [12]
+        java: [13]
 
     name: Build and Test SQL Plugin
     runs-on: ubuntu-latest

@@ -1,4 +1,4 @@
-## 2020-03-17 Version 1.6.0.0 (Current)
+## 2020-03-24 Version 1.6.0.0 (Current)
 
 ### Features
 #### Elasticsearch Compatibility
@@ -6,6 +6,7 @@
 
 #### Testing
 * Feature [#374](https://github.com/opendistro-for-elasticsearch/sql/pull/374): Integration test with external ES cluster (issue: [353](https://github.com/opendistro-for-elasticsearch/sql/issues/353))
+* Feature [#384](https://github.com/opendistro-for-elasticsearch/sql/pull/384): CI/CD using github Actions workflow
 
 #### Documentation
 * Feature [#366](https://github.com/opendistro-for-elasticsearch/sql/pull/366): Documentation for simple query (issue: [#363](https://github.com/opendistro-for-elasticsearch/sql/issues/363)) 
@@ -20,8 +21,10 @@
 * Enhancement [#372](https://github.com/opendistro-for-elasticsearch/sql/pull/372): Modified the wording of exception messages and created the troubleshooting page(issue: [#320](https://github.com/opendistro-for-elasticsearch/sql/issues/320))
 
 ### Bugfixes
+* Bugfix [#310](https://github.com/opendistro-for-elasticsearch/sql/pull/310): Add DATETIME cast support (issue: [#268](https://github.com/opendistro-for-elasticsearch/sql/issues/268))
 * BugFix [#365](https://github.com/opendistro-for-elasticsearch/sql/pull/365): Return Correct Type Information for Fields (issue: [#316](https://github.com/opendistro-for-elasticsearch/sql/issues/316))
 * BugFix [#377](https://github.com/opendistro-for-elasticsearch/sql/pull/377): Return object type for field which has implicit object datatype when describe the table (issue:[sql-jdbc#57](https://github.com/opendistro-for-elasticsearch/sql-jdbc/issues/57))
+* BugFix [#381](https://github.com/opendistro-for-elasticsearch/sql/pull/381): FIX field function name letter case preserved in select with group by (issue: [#373](https://github.com/opendistro-for-elasticsearch/sql/issues/373))
 
 ## 2020-01-24, Version 1.4.0
 

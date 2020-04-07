@@ -193,7 +193,7 @@ public interface DocBuilder {
                 StringUtils.format("\"%s\": {\"%s\": \"%s\"}", "transient", name, value);
         return new Requests(
             restClient(),
-            new SqlRequest("PUT", "/_cluster/settings", new Body(setting).toString()),
+            new SqlRequest("PUT", "/_opendistro/_sql/settings", new Body(setting).toString()),
             null
         );
     }
