@@ -31,9 +31,13 @@ import com.alibaba.druid.sql.ast.statement.SQLJoinTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLSelectQueryBlock;
 import com.alibaba.druid.sql.ast.statement.SQLTableSource;
 import com.alibaba.druid.sql.ast.statement.SQLUnionQuery;
+import com.alibaba.druid.sql.parser.ParserException;
+import com.alibaba.druid.sql.parser.SQLExprParser;
+import com.alibaba.druid.sql.parser.Token;
 import com.amazon.opendistroforelasticsearch.sql.domain.IndexStatement;
 import com.amazon.opendistroforelasticsearch.sql.domain.KVValue;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequestBuilder;
 import org.elasticsearch.client.Client;
@@ -259,6 +263,16 @@ public class Util {
         }
 
         return indexRequestBuilder;
+    }
+
+    public static SQLExpr toSqlExpr(String sql) {
+        SQLExprParser parser = new ElasticSqlExprParser(sql);
+        SQLExpr expr = parser.expr();
+
+        if (parser.getLexer().token() != Token.EOF) {
+            throw new ParserException("Illegal SQL expression : " + sql);
+        }
+        return expr;
     }
 
 }

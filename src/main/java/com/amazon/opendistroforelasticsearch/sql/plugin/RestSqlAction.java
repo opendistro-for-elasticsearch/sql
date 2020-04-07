@@ -112,7 +112,7 @@ public class RestSqlAction extends BaseRestHandler {
             }
 
             final SqlRequest sqlRequest = SqlRequestFactory.getSqlRequest(request);
-            LOG.info("[{}] Incoming request {}: {}", LogUtils.getRequestId(), request.uri(), sqlRequest.getSql());
+            LOG.info("[{}] Incoming request {}: {}", LogUtils.getRequestId(), request.uri(), sqlRequest.removeSensitiveInfo().getSql());
 
             final QueryAction queryAction =
                     explainRequest(client, sqlRequest, SqlRequestParam.getFormat(request.params()));

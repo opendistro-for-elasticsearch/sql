@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.query;
 
-import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLAggregateExpr;
 import com.alibaba.druid.sql.ast.expr.SQLAllColumnExpr;
 import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
@@ -28,10 +27,7 @@ import com.alibaba.druid.sql.ast.statement.SQLUnionQuery;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
 import com.alibaba.druid.sql.dialect.mysql.parser.MySqlStatementParser;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
-import com.alibaba.druid.sql.parser.ParserException;
-import com.alibaba.druid.sql.parser.SQLExprParser;
 import com.alibaba.druid.sql.parser.SQLStatementParser;
-import com.alibaba.druid.sql.parser.Token;
 import com.amazon.opendistroforelasticsearch.sql.domain.ColumnTypeProvider;
 import com.amazon.opendistroforelasticsearch.sql.domain.Delete;
 import com.amazon.opendistroforelasticsearch.sql.domain.IndexStatement;
@@ -46,7 +42,6 @@ import com.amazon.opendistroforelasticsearch.sql.executor.QueryActionElasticExec
 import com.amazon.opendistroforelasticsearch.sql.executor.adapter.QueryPlanQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.executor.adapter.QueryPlanRequestBuilder;
 import com.amazon.opendistroforelasticsearch.sql.parser.ElasticLexer;
-import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
 import com.amazon.opendistroforelasticsearch.sql.parser.SqlParser;
 import com.amazon.opendistroforelasticsearch.sql.parser.SubQueryExpression;
 import com.amazon.opendistroforelasticsearch.sql.query.join.ESJoinQueryActionFactory;
@@ -73,6 +68,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.amazon.opendistroforelasticsearch.sql.domain.IndexStatement.StatementType;
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.getFirstWord;
+import static com.amazon.opendistroforelasticsearch.sql.utils.Util.toSqlExpr;
 
 public class ESActionFactory {
 
@@ -145,11 +142,6 @@ public class ESActionFactory {
         }
     }
 
-    private static String getFirstWord(String sql) {
-        int endOfFirstWord = sql.indexOf(' ');
-        return sql.substring(0, endOfFirstWord > 0 ? endOfFirstWord : sql.length()).toUpperCase();
-    }
-
     private static boolean isMulti(SQLQueryExpr sqlExpr) {
         return sqlExpr.getSubQuery().getQuery() instanceof SQLUnionQuery;
     }
@@ -195,16 +187,6 @@ public class ESActionFactory {
         MySqlSelectQueryBlock query = (MySqlSelectQueryBlock) sqlExpr.getSubQuery().getQuery();
         return query.getFrom() instanceof SQLJoinTableSource
                && ((SQLJoinTableSource) query.getFrom()).getJoinType() != SQLJoinTableSource.JoinType.COMMA;
-    }
-
-    private static SQLExpr toSqlExpr(String sql) {
-        SQLExprParser parser = new ElasticSqlExprParser(sql);
-        SQLExpr expr = parser.expr();
-
-        if (parser.getLexer().token() != Token.EOF) {
-            throw new ParserException("Illegal SQL expression : " + sql);
-        }
-        return expr;
     }
 
     @VisibleForTesting

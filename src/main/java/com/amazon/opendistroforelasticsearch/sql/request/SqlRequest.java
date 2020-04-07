@@ -15,7 +15,11 @@
 
 package com.amazon.opendistroforelasticsearch.sql.request;
 
+import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.RewriteRuleExecutor;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.identifier.RemoveSensitiveInfoRule;
+import java.sql.SQLFeatureNotSupportedException;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.LoggingDeprecationHandler;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;
@@ -29,6 +33,9 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.Collections;
+
+import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.getFirstWord;
+import static com.amazon.opendistroforelasticsearch.sql.utils.Util.toSqlExpr;
 
 public class SqlRequest {
 
@@ -104,5 +111,17 @@ public class SqlRequest {
             addFilterFromJson(boolQuery);
         }
         return boolQuery;
+    }
+
+    public SqlRequest removeSensitiveInfo() throws SQLFeatureNotSupportedException {
+        SQLQueryExpr expr = (SQLQueryExpr) toSqlExpr(this.sql);
+        if(getFirstWord(sql).equals("SELECT")) {
+            RewriteRuleExecutor<SQLQueryExpr> ruleExecutor = RewriteRuleExecutor.builder()
+                    .withRule(new RemoveSensitiveInfoRule())
+                    .build();
+            ruleExecutor.executeOn(expr);
+        }
+        // TODO: retrieve new query from ast [root: expr]
+        return new SqlRequest(null, null);
     }
 }
