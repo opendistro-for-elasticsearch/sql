@@ -160,6 +160,7 @@ public class DateFieldFormatter {
             try {
                 switch (columnFormat) {
                     case "date_optional_time":
+                    case "strict_date_optional_time":
                         parsedDate = DateUtils.parseDate(
                             columnOriginalDate,
                             FORMAT_DOT_KIBANA_SAMPLE_DATA_LOGS_EXCEPTION,
