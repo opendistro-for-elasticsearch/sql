@@ -15,18 +15,22 @@
 
 package com.amazon.opendistroforelasticsearch.sql.plugin.rest;
 
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.security.SecurityAccess;
+import com.amazon.opendistroforelasticsearch.sql.plugin.request.PPLQueryRequestFactory;
 import com.amazon.opendistroforelasticsearch.sql.ppl.PPLService;
 import com.amazon.opendistroforelasticsearch.sql.ppl.ResponseListener;
-import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryRequest;
+import com.amazon.opendistroforelasticsearch.sql.ppl.config.PPLServiceConfig;
 import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryResponse;
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.rest.BaseRestHandler;
 import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestController;
 import org.elasticsearch.rest.RestRequest;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.io.IOException;
 
+import static org.elasticsearch.rest.RestStatus.INTERNAL_SERVER_ERROR;
 import static org.elasticsearch.rest.RestStatus.OK;
 
 public class RestPPLQueryAction extends BaseRestHandler {
@@ -44,17 +48,23 @@ public class RestPPLQueryAction extends BaseRestHandler {
 
     @Override
     protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient client) throws IOException {
-        PPLService pplService = new PPLService();
-        return channel -> pplService.execute(new PPLQueryRequest(), new ResponseListener<PPLQueryResponse>() {
-            @Override
-            public void onResponse(PPLQueryResponse pplQueryResponse) {
-                channel.sendResponse(new BytesRestResponse(OK, "application/json; charset=UTF-8", "ok"));
-            }
+        AnnotationConfigApplicationContext context = SecurityAccess.doPrivileged(
+                () -> new AnnotationConfigApplicationContext(
+                        PPLServiceConfig.class));
+        PPLService pplService = context.getBean(PPLService.class);
+        return channel -> pplService.execute(PPLQueryRequestFactory.getPPLRequest(request),
+                new ResponseListener<PPLQueryResponse>() {
+                    @Override
+                    public void onResponse(PPLQueryResponse pplQueryResponse) {
+                        channel.sendResponse(new BytesRestResponse(OK, "application/json; charset=UTF-8", "ok"));
+                    }
 
-            @Override
-            public void onFailure(Exception e) {
-                channel.sendResponse(new BytesRestResponse(OK, "application/json; charset=UTF-8", "error"));
-            }
-        });
+                    @Override
+                    public void onFailure(Exception e) {
+                        channel.sendResponse(
+                                new BytesRestResponse(INTERNAL_SERVER_ERROR, "application/json; charset=UTF-8",
+                                        "error"));
+                    }
+                });
     }
 }

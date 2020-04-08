@@ -13,20 +13,18 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ppl.domain;
+package com.amazon.opendistroforelasticsearch.sql.ppl.config;
 
+import com.amazon.opendistroforelasticsearch.sql.ppl.PPLService;
+import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.PPLSyntaxParser;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-import lombok.RequiredArgsConstructor;
-import org.json.JSONObject;
-
-@RequiredArgsConstructor
-public class PPLQueryRequest {
-    public static final PPLQueryRequest NULL = new PPLQueryRequest("", null);
-
-    private final String pplQuery;
-    private final JSONObject jsonContent;
-
-    public String getRequest() {
-        return pplQuery;
+@Configuration
+public class PPLServiceConfig {
+    @Bean
+    public PPLService pplService() {
+        return new PPLService(new PPLSyntaxParser());
     }
 }

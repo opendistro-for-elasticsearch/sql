@@ -56,18 +56,7 @@ allprojects {
 
 apply plugin: 'elasticsearch.esplugin'
 apply plugin: 'elasticsearch.testclusters'
-// Todo, removed after migrate SQL to subProject
-project('plugin') {
-    apply plugin: 'elasticsearch.esplugin'
-}
-// Todo, removed after migrate SQL to subProject
-project('integ-test') {
-    apply plugin: 'elasticsearch.testclusters'
-}
 apply plugin: 'jacoco'
-if (!System.properties.containsKey('tests.rest.cluster') && !System.properties.containsKey('tests.cluster')){
-    apply from: 'build-tools/sqlplugin-coverage.gradle'
-}
 apply plugin: 'antlr'
 
 jacoco {

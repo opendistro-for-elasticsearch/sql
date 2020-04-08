@@ -13,20 +13,9 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ppl.domain;
-
-
-import lombok.RequiredArgsConstructor;
-import org.json.JSONObject;
-
-@RequiredArgsConstructor
-public class PPLQueryRequest {
-    public static final PPLQueryRequest NULL = new PPLQueryRequest("", null);
-
-    private final String pplQuery;
-    private final JSONObject jsonContent;
-
-    public String getRequest() {
-        return pplQuery;
-    }
-}
+grant {
+  // For Spring IOC
+  permission java.security.AllPermission;
+  permission java.lang.reflect.ReflectPermission "suppressAccessChecks";
+  permission java.lang.RuntimePermission "accessDeclaredMembers";
+};

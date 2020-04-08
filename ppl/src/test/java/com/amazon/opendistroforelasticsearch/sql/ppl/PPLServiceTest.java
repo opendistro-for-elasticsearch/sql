@@ -16,20 +16,28 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.PPLSyntaxParser;
+import com.amazon.opendistroforelasticsearch.sql.ppl.config.PPLServiceConfig;
 import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryRequest;
 import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryResponse;
-import lombok.RequiredArgsConstructor;
+import org.junit.Test;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-@RequiredArgsConstructor
-public class PPLService {
-    private final PPLSyntaxParser parser;
+public class PPLServiceTest {
+    @Test
+    public void testExecuteShouldPass() {
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
+                PPLServiceConfig.class);
+        PPLService pplService = context.getBean(PPLService.class);
+        pplService.execute(new PPLQueryRequest("search", null), new ResponseListener<PPLQueryResponse>() {
+            @Override
+            public void onResponse(PPLQueryResponse pplQueryResponse) {
 
-    public void execute(PPLQueryRequest request, ResponseListener<PPLQueryResponse> listener) {
-        try {
-            parser.analyzeSyntax(request.getRequest());
-            listener.onResponse(new PPLQueryResponse());
-        } catch (Exception e) {
-            listener.onFailure(e);
-        }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+
+            }
+        });
     }
 }
