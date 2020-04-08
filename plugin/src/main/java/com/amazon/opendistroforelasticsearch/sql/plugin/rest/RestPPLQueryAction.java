@@ -49,8 +49,7 @@ public class RestPPLQueryAction extends BaseRestHandler {
     @Override
     protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient client) throws IOException {
         AnnotationConfigApplicationContext context = SecurityAccess.doPrivileged(
-                () -> new AnnotationConfigApplicationContext(
-                        PPLServiceConfig.class));
+                () -> new AnnotationConfigApplicationContext(PPLServiceConfig.class));
         PPLService pplService = context.getBean(PPLService.class);
         return channel -> pplService.execute(PPLQueryRequestFactory.getPPLRequest(request),
                 new ResponseListener<PPLQueryResponse>() {

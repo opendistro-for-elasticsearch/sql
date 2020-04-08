@@ -15,7 +15,7 @@
 
 grant {
   // For Spring IOC
-  permission java.security.AllPermission;
   permission java.lang.reflect.ReflectPermission "suppressAccessChecks";
   permission java.lang.RuntimePermission "accessDeclaredMembers";
+  permission java.lang.RuntimePermission "defineClass";
 };
