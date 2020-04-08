@@ -679,9 +679,9 @@ Explain::
 	    ],
 	    "excludes" : [ ]
 	  },
-	  "stored_fields" : "a",
+	  "stored_fields" : "abs(age)",
 	  "script_fields" : {
-	    "a" : {
+	    "abs(age)" : {
 	      "script" : {
 	        "source" : "def abs_1 = Math.abs(doc['age'].value);return abs_1;",
 	        "lang" : "painless"
@@ -690,7 +690,7 @@ Explain::
 	    }
 	  },
 	  "aggregations" : {
-	    "a" : {
+	    "abs(age)" : {
 	      "terms" : {
 	        "script" : {
 	          "source" : "def abs_1 = Math.abs(doc['age'].value);return abs_1;",
