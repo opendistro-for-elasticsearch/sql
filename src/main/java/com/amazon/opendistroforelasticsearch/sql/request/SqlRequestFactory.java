@@ -34,8 +34,6 @@ public class SqlRequestFactory {
 
     public static SqlRequest getSqlRequest(RestRequest request) {
         switch (request.method()) {
-            case GET:
-                return parseSqlRequestFromUrl(request);
             case POST:
                 return parseSqlRequestFromPayload(request);
             default:

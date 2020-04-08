@@ -87,9 +87,7 @@ public class RestSqlAction extends BaseRestHandler {
 
         super();
         restController.registerHandler(RestRequest.Method.POST, QUERY_API_ENDPOINT, this);
-        restController.registerHandler(RestRequest.Method.GET, QUERY_API_ENDPOINT, this);
         restController.registerHandler(RestRequest.Method.POST, EXPLAIN_API_ENDPOINT, this);
-        restController.registerHandler(RestRequest.Method.GET, EXPLAIN_API_ENDPOINT, this);
 
         this.allowExplicitIndex = MULTI_ALLOW_EXPLICIT_INDEX.get(settings);
     }

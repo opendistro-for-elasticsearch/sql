@@ -16,21 +16,6 @@ Introduction
 
 To send query request to SQL plugin, you can either use a request parameter in HTTP GET or request body by HTTP POST request. POST request is recommended because it doesn't have length limitation and allows for other parameters passed to plugin for other functionality such as prepared statement. And also the explain endpoint is used very often for query translation and troubleshooting.
 
-GET
-===
-
-Description
------------
-
-You can send HTTP GET request with your query embedded in URL parameter.
-
-Example
--------
-
-SQL query::
-
-	>> curl -H 'Content-Type: application/json' -X GET localhost:9200/_opendistro/_sql?sql=SELECT * FROM accounts
-
 POST
 ====
 
