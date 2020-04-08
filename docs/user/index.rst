@@ -25,7 +25,7 @@ Open Distro for Elasticsearch SQL enables you to extract insights out of Elastic
 
   - `Metadata Queries <dql/metadata.rst>`_
 
-  - TODO: SQL Functions
+  - `SQL Functions <dql/functions.rst>`_
 
 * **Data Manipulation Language**
 
@@ -36,8 +36,6 @@ Open Distro for Elasticsearch SQL enables you to extract insights out of Elastic
   - `PartiQL (JSON) Support <beyond/partiql.rst>`_
 
   - `Full-text Search <beyond/fulltext.rst>`_
-
-  - TODO: Elasticsearch special functions
 
 * **Troubleshooting**
 
