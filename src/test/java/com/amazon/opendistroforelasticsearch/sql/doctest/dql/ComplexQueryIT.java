@@ -65,21 +65,19 @@ public class ComplexQueryIT extends DocTest {
                     "  WHERE a2.balance > 10000",
                     ")"
                 ))
-            )/*,
-            Issue: all columns are returned
+            ),
             example(
                 title("Subquery in FROM Clause"),
                 description(""),
                 post(multiLine(
-                    "SELECT a.firstname, a.lastname, a.age",
+                    "SELECT a.f, a.l, a.a",
                     "FROM (",
-                    "  SELECT firstname, lastname, age",
+                    "  SELECT firstname AS f, lastname AS l, age AS a",
                     "  FROM accounts",
                     "  WHERE age > 30",
                     ") AS a"
                 ))
             )
-            */
         );
     }
 

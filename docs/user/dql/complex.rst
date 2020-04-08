@@ -19,8 +19,8 @@ Description
 
 A subquery is a complete ``SELECT`` statement which is used within another statement and enclosed in parenthesis. From the explain output, you can notice that some subquery are actually transformed to an equivalent join query to execute.
 
-Example: Table Subquery
------------------------
+Example 1: Table Subquery
+-------------------------
 
 SQL query::
 
@@ -167,6 +167,78 @@ Result set:
 +------------+-----------+----------+
 |     Nanette|      Bates|     32838|
 +------------+-----------+----------+
+
+
+Example 2: Subquery in FROM Clause
+----------------------------------
+
+SQL query::
+
+	POST /_opendistro/_sql
+	{
+	  "query" : """
+		SELECT a.f, a.l, a.a
+		FROM (
+		  SELECT firstname AS f, lastname AS l, age AS a
+		  FROM accounts
+		  WHERE age > 30
+		) AS a
+		"""
+	}
+
+Explain::
+
+	{
+	  "from" : 0,
+	  "size" : 200,
+	  "query" : {
+	    "bool" : {
+	      "filter" : [
+	        {
+	          "bool" : {
+	            "must" : [
+	              {
+	                "range" : {
+	                  "age" : {
+	                    "from" : 30,
+	                    "to" : null,
+	                    "include_lower" : false,
+	                    "include_upper" : true,
+	                    "boost" : 1.0
+	                  }
+	                }
+	              }
+	            ],
+	            "adjust_pure_negative" : true,
+	            "boost" : 1.0
+	          }
+	        }
+	      ],
+	      "adjust_pure_negative" : true,
+	      "boost" : 1.0
+	    }
+	  },
+	  "_source" : {
+	    "includes" : [
+	      "firstname",
+	      "lastname",
+	      "age"
+	    ],
+	    "excludes" : [ ]
+	  }
+	}
+
+Result set:
+
++------+-----+--+
+|     f|    l| a|
++======+=====+==+
+| Amber| Duke|32|
++------+-----+--+
+|  Dale|Adams|33|
++------+-----+--+
+|Hattie| Bond|36|
++------+-----+--+
 
 
 JOINs
