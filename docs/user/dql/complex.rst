@@ -9,7 +9,7 @@ Complex Queries
    :local:
    :depth: 2
 
-Besides simple SFW queries (SELECT-FROM-WHERE), there are also limited supports for complex queries such as Subquery, ``JOIN``, ``UNION`` and ``MINUS``. For these queries, more than one Elasticsearch DSL query is correspondent behind the scene. You can check out how they are performed behind the scene by our explain API.
+Besides simple SFW queries (SELECT-FROM-WHERE), there is also support for complex queries such as Subquery, ``JOIN``, ``UNION`` and ``MINUS``. For these queries, more than one Elasticsearch index and DSL query is involved. You can check out how they are performed behind the scene by our explain API.
 
 Subquery
 ========
@@ -17,10 +17,10 @@ Subquery
 Description
 -----------
 
-A subquery is a complete ``SELECT`` statement which is used within another statement and enclosed in parenthesis.
+A subquery is a complete ``SELECT`` statement which is used within another statement and enclosed in parenthesis. From the explain output, you can notice that some subquery are actually transformed to an equivalent join query to execute.
 
-Example 1: Table Subquery
--------------------------
+Example: Table Subquery
+-----------------------
 
 SQL query::
 
@@ -169,70 +169,6 @@ Result set:
 +------------+-----------+----------+
 
 
-Example 2: Subquery in FROM Clause
-----------------------------------
-
-SQL query::
-
-	POST /_opendistro/_sql
-	{
-	  "query" : """
-		SELECT a.firstname, a.lastname, a.age
-		FROM (
-		  SELECT firstname, lastname, age
-		  FROM accounts
-		  WHERE age > 30
-		) AS a
-		"""
-	}
-
-Explain::
-
-	{
-	  "from" : 0,
-	  "size" : 200,
-	  "query" : {
-	    "bool" : {
-	      "filter" : [
-	        {
-	          "bool" : {
-	            "must" : [
-	              {
-	                "range" : {
-	                  "age" : {
-	                    "from" : 30,
-	                    "to" : null,
-	                    "include_lower" : false,
-	                    "include_upper" : true,
-	                    "boost" : 1.0
-	                  }
-	                }
-	              }
-	            ],
-	            "adjust_pure_negative" : true,
-	            "boost" : 1.0
-	          }
-	        }
-	      ],
-	      "adjust_pure_negative" : true,
-	      "boost" : 1.0
-	    }
-	  }
-	}
-
-Result set:
-
-+--------------+---------+------+------+-------+--------+-----+---------------------+--------------------+--------+---+
-|account_number|firstname|gender|  city|balance|employer|state|                email|             address|lastname|age|
-+==============+=========+======+======+=======+========+=====+=====================+====================+========+===+
-|             1|    Amber|     M|Brogan|  39225|  Pyrami|   IL| amberduke@pyrami.com|     880 Holmes Lane|    Duke| 32|
-+--------------+---------+------+------+-------+--------+-----+---------------------+--------------------+--------+---+
-|             6|   Hattie|     M| Dante|   5686|  Netagy|   TN|hattiebond@netagy.com|  671 Bristol Street|    Bond| 36|
-+--------------+---------+------+------+-------+--------+-----+---------------------+--------------------+--------+---+
-|            18|     Dale|     M| Orick|   4180|    null|   MD|  daleadams@boink.com|467 Hutchinson Court|   Adams| 33|
-+--------------+---------+------+------+-------+--------+-----+---------------------+--------------------+--------+---+
-
-
 JOINs
 =====
 
@@ -255,7 +191,7 @@ Rule ``joinPart``:
 Example 1: Inner Join
 ---------------------
 
-Inner join is very commonly used that creates a new result set by combining columns of two indices based on the join predicates specified. It iterates both indices and compare each document to find all that satisfy the join predicates. Keyword ``JOIN`` is used and preceded by ``INNER`` keyword optionally. The join predicates is specified by ``ON`` clause.
+Inner join is very commonly used that creates a new result set by combining columns of two indices based on the join predicates specified. It iterates both indices and compare each document to find all that satisfy the join predicates. Keyword ``JOIN`` is used and preceded by ``INNER`` keyword optionally. The join predicate(s) is specified by ``ON`` clause.
 
  Remark that the explain API output for join queries looks complicated. This is because a join query is associated with two Elasticsearch DSL queries underlying and execute in the separate query planner framework. You can interpret it by looking into the logical plan and physical plan.
 
@@ -353,7 +289,9 @@ Result set:
 Example 2: Cross Join
 ---------------------
 
-Cross join or Cartesian join combines each document from the first index with each from the second. The result set is the Cartesian Product of documents from both indices. It appears to be similar to inner join without ``ON`` clause to specify join condition. Caveat: It is risky to do cross join even on two indices of medium size. This may trigger our circuit breaker to terminate the query to avoid out of memory issue.
+Cross join or Cartesian join combines each document from the first index with each from the second. The result set is the Cartesian Product of documents from both indices. It appears to be similar to inner join without ``ON`` clause to specify join condition.
+
+ Caveat: It is risky to do cross join even on two indices of medium size. This may trigger our circuit breaker to terminate the query to avoid out of memory issue.
 
 SQL query::
 

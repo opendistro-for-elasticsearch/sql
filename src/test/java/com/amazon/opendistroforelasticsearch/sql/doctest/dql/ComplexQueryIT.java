@@ -36,7 +36,8 @@ public class ComplexQueryIT extends DocTest {
             title("Subquery"),
             description(
                 "A subquery is a complete ``SELECT`` statement which is used within another statement",
-                "and enclosed in parenthesis."
+                "and enclosed in parenthesis. From the explain output, you can notice that some subquery",
+                "are actually transformed to an equivalent join query to execute."
             ),
             /*
             example(
@@ -64,7 +65,8 @@ public class ComplexQueryIT extends DocTest {
                     "  WHERE a2.balance > 10000",
                     ")"
                 ))
-            ),
+            )/*,
+            Issue: all columns are returned
             example(
                 title("Subquery in FROM Clause"),
                 description(""),
@@ -77,6 +79,7 @@ public class ComplexQueryIT extends DocTest {
                     ") AS a"
                 ))
             )
+            */
         );
     }
 
@@ -94,7 +97,7 @@ public class ComplexQueryIT extends DocTest {
                     "Inner join is very commonly used that creates a new result set by combining columns",
                     "of two indices based on the join predicates specified. It iterates both indices and",
                     "compare each document to find all that satisfy the join predicates. Keyword ``JOIN``",
-                    "is used and preceded by ``INNER`` keyword optionally. The join predicates is specified",
+                    "is used and preceded by ``INNER`` keyword optionally. The join predicate(s) is specified",
                     "by ``ON`` clause.\n\n",
                     "Remark that the explain API output for join queries looks complicated. This is because",
                     "a join query is associated with two Elasticsearch DSL queries underlying and execute in",
@@ -115,7 +118,7 @@ public class ComplexQueryIT extends DocTest {
                 description(
                     "Cross join or Cartesian join combines each document from the first index with each from",
                     "the second. The result set is the Cartesian Product of documents from both indices.",
-                    "It appears to be similar to inner join without ``ON`` clause to specify join condition.",
+                    "It appears to be similar to inner join without ``ON`` clause to specify join condition.\n\n",
                     "Caveat: It is risky to do cross join even on two indices of medium size. This may trigger",
                     "our circuit breaker to terminate the query to avoid out of memory issue."
                 ),
