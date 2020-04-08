@@ -1,7 +1,7 @@
 
-===========
-Basic Query
-===========
+=============
+Basic Queries
+=============
 
 .. rubric:: Table of contents
 
@@ -313,7 +313,7 @@ WHERE
 Description
 -----------
 
-`WHERE` clause specifies only Elasticsearch documents that meet the criteria should be affected. It consists of predicates that uses ``=``, ``<>``, ``>``, ``>=``, ``<``, ``<=``, ``IN``, ``BETWEEN``, ``LIKE``, ``IS NULL`` or ``IS NOT NULL``. These predicates can be combined by logical operator ``NOT``, ``AND`` or ``OR`` to build more complex expression.
+``WHERE`` clause specifies only Elasticsearch documents that meet the criteria should be affected. It consists of predicates that uses ``=``, ``<>``, ``>``, ``>=``, ``<``, ``<=``, ``IN``, ``BETWEEN``, ``LIKE``, ``IS NULL`` or ``IS NOT NULL``. These predicates can be combined by logical operator ``NOT``, ``AND`` or ``OR`` to build more complex expression.
 
 For ``LIKE`` and other full text search topics, please refer to Full Text Search documentation.
 
@@ -328,7 +328,11 @@ SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT account_number FROM accounts WHERE account_number = 1"
+	  "query" : """
+		SELECT account_number
+		FROM accounts
+		WHERE account_number = 1
+		"""
 	}
 
 Explain::
@@ -388,7 +392,11 @@ SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT account_number, employer FROM accounts WHERE employer IS NULL"
+	  "query" : """
+		SELECT account_number, employer
+		FROM accounts
+		WHERE employer IS NULL
+		"""
 	}
 
 Explain::
@@ -461,7 +469,11 @@ SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT age FROM accounts GROUP BY age"
+	  "query" : """
+		SELECT age
+		FROM accounts
+		GROUP BY age
+		"""
 	}
 
 Explain::
@@ -521,7 +533,11 @@ SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT account_number AS num FROM accounts GROUP BY num"
+	  "query" : """
+		SELECT account_number AS num
+		FROM accounts
+		GROUP BY num
+		"""
 	}
 
 Explain::
@@ -581,7 +597,11 @@ SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT age FROM accounts GROUP BY 1"
+	  "query" : """
+		SELECT age
+		FROM accounts
+		GROUP BY 1
+		"""
 	}
 
 Explain::
@@ -641,7 +661,11 @@ SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT ABS(age) AS a FROM accounts GROUP BY ABS(age)"
+	  "query" : """
+		SELECT ABS(age) AS a
+		FROM accounts
+		GROUP BY ABS(age)
+		"""
 	}
 
 Explain::
@@ -655,9 +679,9 @@ Explain::
 	    ],
 	    "excludes" : [ ]
 	  },
-	  "stored_fields" : "a",
+	  "stored_fields" : "abs(age)",
 	  "script_fields" : {
-	    "a" : {
+	    "abs(age)" : {
 	      "script" : {
 	        "source" : "def abs_1 = Math.abs(doc['age'].value);return abs_1;",
 	        "lang" : "painless"
@@ -666,7 +690,7 @@ Explain::
 	    }
 	  },
 	  "aggregations" : {
-	    "a" : {
+	    "abs(age)" : {
 	      "terms" : {
 	        "script" : {
 	          "source" : "def abs_1 = Math.abs(doc['age'].value);return abs_1;",
@@ -719,7 +743,12 @@ SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT age, MAX(balance) FROM accounts GROUP BY age HAVING MIN(balance) > 10000"
+	  "query" : """
+		SELECT age, MAX(balance)
+		FROM accounts
+		GROUP BY age
+		HAVING MIN(balance) > 10000
+		"""
 	}
 
 Explain::
@@ -856,7 +885,11 @@ SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT employer FROM accounts ORDER BY employer IS NOT NULL"
+	  "query" : """
+		SELECT employer
+		FROM accounts
+		ORDER BY employer IS NOT NULL
+		"""
 	}
 
 Explain::
@@ -912,7 +945,11 @@ SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT account_number FROM accounts ORDER BY account_number LIMIT 1"
+	  "query" : """
+		SELECT account_number
+		FROM accounts
+		ORDER BY account_number LIMIT 1
+		"""
 	}
 
 Explain::
@@ -953,7 +990,11 @@ SQL query::
 
 	POST /_opendistro/_sql
 	{
-	  "query" : "SELECT account_number FROM accounts ORDER BY account_number LIMIT 1, 1"
+	  "query" : """
+		SELECT account_number
+		FROM accounts
+		ORDER BY account_number LIMIT 1, 1
+		"""
 	}
 
 Explain::

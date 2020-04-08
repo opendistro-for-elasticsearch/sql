@@ -52,7 +52,7 @@ Result set::
 	  "failed_request_count_cb" : 0,
 	  "failed_request_count_cuserr" : 0,
 	  "circuit_breaker" : 0,
-	  "request_total" : 0,
+	  "request_total" : 49,
 	  "request_count" : 0,
 	  "failed_request_count_syserr" : 0
 	}
