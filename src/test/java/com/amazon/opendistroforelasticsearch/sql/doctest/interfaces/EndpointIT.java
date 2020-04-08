@@ -31,20 +31,6 @@ import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.Sq
 public class EndpointIT extends DocTest {
 
     @Section(1)
-    public void queryByGet() {
-        section(
-            title("GET"),
-            description("You can send HTTP GET request with your query embedded in URL parameter."),
-            example(
-                description(),
-                get("SELECT * FROM accounts"),
-                queryFormat(CURL_REQUEST, IGNORE_RESPONSE),
-                explainFormat(IGNORE_REQUEST, IGNORE_RESPONSE)
-            )
-        );
-    }
-
-    @Section(2)
     public void queryByPost() {
         section(
             title("POST"),
@@ -58,7 +44,7 @@ public class EndpointIT extends DocTest {
         );
     }
 
-    @Section(3)
+    @Section(2)
     public void explainQuery() {
         section(
             title("Explain"),
