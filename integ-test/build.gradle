@@ -23,6 +23,7 @@ dependencies {
 dependencyLicenses.enabled = false
 testingConventions.enabled = false
 checkstyleTest.ignoreFailures = true
+forbiddenApisTest.enabled = false
 
 tasks.integTest.dependsOn(':plugin:bundlePlugin')
 testClusters.integTest {

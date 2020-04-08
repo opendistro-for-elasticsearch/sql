@@ -1,0 +1,10 @@
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'org.elasticsearch', name: 'elasticsearch', version: "${es_version}"
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}

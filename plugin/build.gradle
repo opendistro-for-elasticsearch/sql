@@ -1,5 +1,6 @@
 apply plugin: 'java'
 apply plugin: 'idea'
+apply plugin: 'elasticsearch.esplugin'
 
 ext {
     projectSubstitutions = [:]
@@ -20,7 +21,15 @@ esplugin {
 test.enabled = false
 integTest.enabled = false
 dependencyLicenses.enabled = false
+thirdPartyAudit.enabled = false
+
+configurations.all {
+    // conflict with spring-jcl
+    exclude group: "commons-logging", module: "commons-logging"
+}
 
 dependencies {
+    compile group: 'org.springframework', name: 'spring-beans', version: '5.2.5.RELEASE'
     compile project(":ppl")
+    compile project(':elasticsearch')
 }
