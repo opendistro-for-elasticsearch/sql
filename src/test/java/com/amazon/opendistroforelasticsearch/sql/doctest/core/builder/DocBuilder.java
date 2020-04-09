@@ -198,6 +198,10 @@ public interface DocBuilder {
         );
     }
 
+    default String multiLine(String... lines) {
+        return String.join("\\n", lines);
+    }
+
     /** Query by a simple SQL is too common and deserve a dedicated overload method */
     default Requests post(String sql, UrlParam... params) {
         return post(new Body("\"query\":\"" + sql + "\""), params);

@@ -1,0 +1,6 @@
+{"index":{"_id":"1"}}
+{"id":3,"name":"Bob Smith","title":null,"projects":[{"name":"AWS Redshift Spectrum querying","started_year":1990},{"name":"AWS Redshift security","started_year":1999},{"name":"AWS Aurora security","started_year":2015}]}
+{"index":{"_id":"2"}}
+{"id":4,"name":"Susan Smith","title":"Dev Mgr","projects":[]}
+{"index":{"_id":"3"}}
+{"id":6,"name":"Jane Smith","title":"Software Eng 2","projects":[{"name":"AWS Redshift security","started_year":1998},{"name":"AWS Hello security","started_year":2015,"address":[{"city":"Dallas","state":"TX"}]}]}

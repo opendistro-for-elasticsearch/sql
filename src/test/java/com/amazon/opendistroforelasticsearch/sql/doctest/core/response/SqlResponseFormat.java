@@ -119,10 +119,19 @@ public enum SqlResponseFormat {
     @SuppressWarnings({"rawtypes", "unchecked"})
     private static void sort(List<Object[]> lists) {
         lists.sort((list1, list2) -> {
+            if (list1 == null || list2 == null) {
+                return compareNullable(list1, list2);
+            }
+
             // Assume 2 lists are of same length and all elements are comparable
             for (int i = 0; i < list1.length; i++) {
                 Comparable obj1 = (Comparable) list1[i];
                 Comparable obj2 = (Comparable) list2[i];
+
+                if (obj1 == null || obj2 == null) {
+                    return compareNullable(obj1, obj2);
+                }
+
                 int result = obj1.compareTo(obj2);
                 if (result != 0) {
                     return result;
@@ -130,6 +139,17 @@ public enum SqlResponseFormat {
             }
             return 0;
         });
+    }
+
+    /** Put NULL first (as smaller element) */
+    private static int compareNullable(Object obj1, Object obj2) {
+        if (obj1 == null && obj2 == null) {
+            return 0;
+        } else if (obj1 == null) {
+            return -1;
+        } else { // obj2 == null
+            return 1;
+        }
     }
 
 }

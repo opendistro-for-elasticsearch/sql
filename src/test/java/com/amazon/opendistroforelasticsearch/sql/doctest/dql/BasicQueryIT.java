@@ -115,7 +115,7 @@ public class BasicQueryIT extends DocTest {
         section(
             title("WHERE"),
             description(
-                "`WHERE` clause specifies only Elasticsearch documents that meet the criteria should be affected.",
+                "``WHERE`` clause specifies only Elasticsearch documents that meet the criteria should be affected.",
                 "It consists of predicates that uses ``=``, ``<>``, ``>``, ``>=``, ``<``, ``<=``, ``IN``,",
                 "``BETWEEN``, ``LIKE``, ``IS NULL`` or ``IS NOT NULL``. These predicates can be combined by",
                 "logical operator ``NOT``, ``AND`` or ``OR`` to build more complex expression.\n\n" +
@@ -130,7 +130,11 @@ public class BasicQueryIT extends DocTest {
                     "number, string or date.",
                     "``IN`` and ``BETWEEN`` is convenient for comparison with multiple values or a range."
                 ),
-                post("SELECT account_number FROM accounts WHERE account_number = 1")
+                post(multiLine(
+                    "SELECT account_number",
+                    "FROM accounts",
+                    "WHERE account_number = 1"
+                ))
             ),
             example(
                 title("Missing Fields"),
@@ -140,7 +144,11 @@ public class BasicQueryIT extends DocTest {
                     "fields or existing fields only.\n\n" +
                     "Note that for now we don't differentiate missing field and field set to ``NULL`` explicitly."
                 ),
-                post("SELECT account_number, employer FROM accounts WHERE employer IS NULL")
+                post(multiLine(
+                    "SELECT account_number, employer",
+                    "FROM accounts",
+                    "WHERE employer IS NULL"
+                ))
             )
         );
     }
@@ -158,12 +166,20 @@ public class BasicQueryIT extends DocTest {
             example(
                 title("Grouping by Fields"),
                 description(),
-                post("SELECT age FROM accounts GROUP BY age")
+                post(multiLine(
+                    "SELECT age",
+                    "FROM accounts",
+                    "GROUP BY age"
+                ))
             ),
             example(
                 title("Grouping by Field Alias"),
                 description("Field alias is accessible in ``GROUP BY`` clause."),
-                post("SELECT account_number AS num FROM accounts GROUP BY num")
+                post(multiLine(
+                    "SELECT account_number AS num",
+                    "FROM accounts",
+                    "GROUP BY num"
+                ))
             ),
             example(
                 title("Grouping by Ordinal"),
@@ -172,7 +188,11 @@ public class BasicQueryIT extends DocTest {
                     "recommended because your ``GROUP BY`` clause depends on fields in ``SELECT`` clause",
                     "and require to change accordingly."
                 ),
-                post("SELECT age FROM accounts GROUP BY 1")
+                post(multiLine(
+                    "SELECT age",
+                    "FROM accounts",
+                    "GROUP BY 1"
+                ))
             ),
             example(
                 title("Grouping by Scalar Function"),
@@ -180,7 +200,11 @@ public class BasicQueryIT extends DocTest {
                     "Scalar function can be used in ``GROUP BY`` clause and it's required to be present in",
                     "``SELECT`` clause too."
                 ),
-                post("SELECT ABS(age) AS a FROM accounts GROUP BY ABS(age)")
+                post(multiLine(
+                    "SELECT ABS(age) AS a",
+                    "FROM accounts",
+                    "GROUP BY ABS(age)"
+                ))
             )
         );
     }
@@ -195,7 +219,12 @@ public class BasicQueryIT extends DocTest {
             ),
             example(
                 description(),
-                post("SELECT age, MAX(balance) FROM accounts GROUP BY age HAVING MIN(balance) > 10000")
+                post(multiLine(
+                    "SELECT age, MAX(balance)",
+                    "FROM accounts",
+                    "GROUP BY age",
+                    "HAVING MIN(balance) > 10000"
+                ))
             )
         );
     }
@@ -221,7 +250,11 @@ public class BasicQueryIT extends DocTest {
                     "The default behavior of Elasticsearch is to return nulls or missing last.",
                     "You can make them present before non-nulls by using ``IS NOT NULL``."
                 ),
-                post("SELECT employer FROM accounts ORDER BY employer IS NOT NULL")
+                post(multiLine(
+                    "SELECT employer",
+                    "FROM accounts",
+                    "ORDER BY employer IS NOT NULL"
+                ))
             )
         );
     }
@@ -239,7 +272,11 @@ public class BasicQueryIT extends DocTest {
                 description(
                     "Given a positive number, ``LIMIT`` uses it as page size to fetch result of that size at most."
                 ),
-                post("SELECT account_number FROM accounts ORDER BY account_number LIMIT 1")
+                post(multiLine(
+                    "SELECT account_number",
+                    "FROM accounts",
+                    "ORDER BY account_number LIMIT 1"
+                ))
             ),
             example(
                 title("Fetching at Offset"),
@@ -248,7 +285,11 @@ public class BasicQueryIT extends DocTest {
                     "This can be used as simple pagination solution though it's inefficient on large index.",
                     "Generally ``ORDER BY`` is required in this case to ensure the same order between pages."
                 ),
-                post("SELECT account_number FROM accounts ORDER BY account_number LIMIT 1, 1")
+                post(multiLine(
+                    "SELECT account_number",
+                    "FROM accounts",
+                    "ORDER BY account_number LIMIT 1, 1"
+                ))
             )
         );
     }

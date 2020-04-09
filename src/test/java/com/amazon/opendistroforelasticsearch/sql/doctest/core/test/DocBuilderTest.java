@@ -97,6 +97,39 @@ public class DocBuilderTest implements DocBuilder {
     }
 
     @Test
+    public void sectionShouldIncludeMultiLineSql() {
+        section(
+            title("Test"),
+            description("This is a test"),
+            example(
+                description("This is an example for the test"),
+                post(multiLine(
+                    "SELECT firstname",
+                    "FROM accounts",
+                    "WHERE age > 30")
+                )
+            )
+        );
+
+        verifier.section("Test").
+            subSection("Description").
+            paragraph("This is a test").
+            subSection("Example").
+            paragraph("This is an example for the test").
+            codeBlock(
+                "SQL query",
+                "POST /_opendistro/_sql\n" +
+                "{\n" +
+                "  \"query\" : \"\"\"\n" +
+                "\tSELECT firstname\n" +
+                "\tFROM accounts\n" +
+                "\tWHERE age > 30\n" +
+                "\t\"\"\"\n" +
+                "}"
+            );
+    }
+
+    @Test
     public void sectionShouldIncludeExample() {
         section(
             title("Test"),
