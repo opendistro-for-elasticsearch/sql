@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.utils;
 
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.identifier.RemoveSensitiveDataRule;
+import java.util.HashSet;
 import java.util.Set;
 
 import static com.amazon.opendistroforelasticsearch.sql.utils.Util.toSqlExpr;
@@ -38,20 +39,23 @@ public class QueryDataMask {
     }
 
     private static Set<String> getIdentifiers(String query) {
-        RemoveSensitiveDataRule rule = new RemoveSensitiveDataRule();
-        SQLQueryExpr sqlExpr = (SQLQueryExpr) toSqlExpr(query);
-        rule.rewrite(sqlExpr);
-        return rule.getIdentifierSet();
+        if (StringUtils.getFirstWord(query).toLowerCase().equals("select")) {
+            RemoveSensitiveDataRule rule = new RemoveSensitiveDataRule();
+            SQLQueryExpr sqlExpr = (SQLQueryExpr) toSqlExpr(query);
+            rule.rewrite(sqlExpr);
+            return rule.getIdentifierSet();
+        }
+        return new HashSet<>();
     }
 
     private static String[] getQueryComponents(String query) {
-        return replaceQuotedIdentifiers(query).trim().split("\\s");
+        return replaceIdentifiersInBrackets(replaceQuotedIdentifiers(query)).trim().split("\\s");
     }
 
     private static String rebuildQuery(String[] components, Set<String> identifiers) {
 
-        for (int i = 0; i < components.length; i ++) {
-            if (identifiers.contains(components[i])| components[i].equals("identifier")) {
+        for (int i = 0; i < components.length; i++) {
+            if (identifiers.contains(components[i])) {
                 components[i] = "***";
             }
         }
@@ -62,9 +66,18 @@ public class QueryDataMask {
      * This method is applied to replace quoted identifiers
      * since quoted identifiers with spaces are tricky to deal with
      * @param query sql query string
-     * @return all quoted identifiers are replaced by word "identifier"
+     * @return all quoted identifiers are replaced by word "***" directly
      */
     private static String replaceQuotedIdentifiers(String query) {
-        return query.replaceAll("'[^']*'|`[^`]*`", "identifier");
+        return query.replaceAll("'[^']*'|`[^`]*`", "***");
+    }
+
+    /**
+     * This method is applied to replace identifiers in functions
+     * @param query sql query string
+     * @return all parameters in functions are replaced by word "***" directly (but it covers more cases than needed)
+     */
+    private static String replaceIdentifiersInBrackets(String query) {
+        return query.replaceAll("\\([^\\(]*\\)", "(***)");
     }
 }

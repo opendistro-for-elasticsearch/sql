@@ -17,7 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.request;
 
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.utils.QueryDataMask;
-import java.sql.SQLFeatureNotSupportedException;
+import org.apache.logging.log4j.LogManager;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.LoggingDeprecationHandler;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;
@@ -108,7 +108,14 @@ public class SqlRequest {
         return boolQuery;
     }
 
-    public String removeSensitiveInfo() throws SQLFeatureNotSupportedException, SqlParseException {
-        return QueryDataMask.maskData(this.sql);
+    public String removeSensitiveData() {
+        String query = "";
+        try {
+            query = QueryDataMask.maskData(this.sql);
+        } catch (Exception e) {
+            LogManager.getLogger().error("Caught an exception when removing sensitive data: "
+                    + e.getClass().getSimpleName());
+        }
+        return query;
     }
 }
