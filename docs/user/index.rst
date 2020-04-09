@@ -19,17 +19,23 @@ Open Distro for Elasticsearch SQL enables you to extract insights out of Elastic
 
 * **Data Query Language**
 
-  - `Basic Query <dql/basics.rst>`_
+  - `Basic Queries <dql/basics.rst>`_
 
-  - TODO: Subquery, JOIN, MINUS/UNION, SHOW/DESCRIBE, Full Text Search, SQL Functions
+  - `Complex Queries <dql/complex.rst>`_
+
+  - `Metadata Queries <dql/metadata.rst>`_
+
+  - `SQL Functions <dql/functions.rst>`_
 
 * **Data Manipulation Language**
 
-  - TODO: DELETE
+  - `DELETE Statement <dml/delete.rst>`_
 
 * **Beyond SQL**
 
-  - TODO: Elasticsearch features
+  - `PartiQL (JSON) Support <beyond/partiql.rst>`_
+
+  - `Full-text Search <beyond/fulltext.rst>`_
 
 * **Troubleshooting**
 

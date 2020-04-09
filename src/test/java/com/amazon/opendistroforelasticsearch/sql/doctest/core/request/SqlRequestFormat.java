@@ -21,13 +21,16 @@ import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import org.apache.http.Header;
 import org.elasticsearch.client.Request;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.joining;
 
 /**
  * Different SQL request formats.
@@ -51,7 +54,7 @@ public enum SqlRequestFormat {
             if (!headers.isEmpty()) {
                 str.append(headers.stream().
                            map(header -> StringUtils.format("-H '%s: %s'", header.getName(), header.getValue())).
-                           collect(Collectors.joining(" ", "", " ")));
+                           collect(joining(" ", "", " ")));
             }
 
             str.append(StringUtils.format("-X %s ", request.getMethod())).
@@ -103,7 +106,18 @@ public enum SqlRequestFormat {
             InputStream content = request.getEntity().getContent();
             String rawBody = CharStreams.toString(new InputStreamReader(content, Charsets.UTF_8));
             if (!rawBody.isEmpty()) {
+                JSONObject json = new JSONObject(rawBody);
+                String sql = json.optString("query"); // '\\n' in literal is replaced by '\n' after unquote
                 body = JsonPrettyFormatter.format(rawBody);
+
+                // Format and replace multi-line sql literal
+                if (!sql.isEmpty() && sql.contains("\n")) {
+                    String multiLineSql = Arrays.stream(sql.split("\\n")). // '\\n' is to escape backslash in regex
+                                                 collect(joining("\n\t",
+                                                                 "\"\"\"\n\t",
+                                                                 "\n\t\"\"\""));
+                    body = body.replace("\"" + sql.replace("\n", "\\n") + "\"", multiLineSql);
+                }
             }
         } catch (IOException e) {
             throw new IllegalStateException("Failed to parse and format body from request", e);
@@ -114,6 +128,6 @@ public enum SqlRequestFormat {
     protected String formatParams(Map<String, String> params) {
         return params.entrySet().stream().
                map(e -> e.getKey() + "=" + e.getValue()).
-               collect(Collectors.joining("&", "?", ""));
+               collect(joining("&", "?", ""));
     }
 }
