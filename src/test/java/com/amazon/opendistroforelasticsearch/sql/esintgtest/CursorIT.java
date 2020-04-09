@@ -91,6 +91,24 @@ public class CursorIT extends SQLIntegTestCase {
         assertThat(resp.query("/error/type"), equalTo("IllegalArgumentException"));
     }
 
+    @Test
+    public void testExceptionOnCursorExplain() throws IOException {
+        String cursorRequest = "{\"cursor\":\"d:eyJhIjp7fSwicyI6IkRYRjFaWEo1\"}";
+        Request sqlRequest = getSqlRequest(cursorRequest, true);
+        Response response = null;
+        try {
+            String queryResult = executeRequest(sqlRequest);
+        } catch (ResponseException ex) {
+            response = ex.getResponse();
+        }
+
+        JSONObject resp = new JSONObject(TestUtils.getResponseBody(response));
+        assertThat(resp.getInt("status"), equalTo(400));
+        assertThat(resp.query("/error/reason"), equalTo("Invalid SQL query"));
+        assertThat(resp.query("/error/details"), equalTo("Invalid request. Cannot explain cursor"));
+        assertThat(resp.query("/error/type"), equalTo("IllegalArgumentException"));
+    }
+
     /**
      * For fetch_size = 0, default to non-pagination behaviour for simple queries
      * This can be verified by checking that cursor is not present, and old default limit applies
@@ -222,7 +240,8 @@ public class CursorIT extends SQLIntegTestCase {
          * TEST_INDEX_DATE_TIME has three docs with login_time as date field with following values
          * 1.2015-01-01
          * 2.2015-01-01T12:10:30Z
-         * 3.2020-04-08T11:10:30+05:00
+         * 3.1585882955
+         * 4.2020-04-08T11:10:30+05:00
          */
 
         List<String> actualDateList = new ArrayList<>();
@@ -240,6 +259,7 @@ public class CursorIT extends SQLIntegTestCase {
         List<String> expectedDateList = Arrays.asList(
                 "2015-01-01 00:00:00.000",
                 "2015-01-01 12:10:30.000",
+                "1585882955", // by existing design, this is not formatted in MySQL standard format
                 "2020-04-08 06:10:30.000");
 
         assertThat(actualDateList, equalTo(expectedDateList));

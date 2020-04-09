@@ -118,7 +118,7 @@ public class RestSqlAction extends BaseRestHandler {
             final SqlRequest sqlRequest = SqlRequestFactory.getSqlRequest(request);
             if (sqlRequest.cursor() != null) {
                 if (isExplainRequest(request)) {
-                    throw new VerificationException("Invalid request. Cannot explain cursor");
+                    throw new IllegalArgumentException("Invalid request. Cannot explain cursor");
                 } else {
                     LOG.info("[{}] Cursor request {}: {}", LogUtils.getRequestId(), request.uri(), sqlRequest.cursor());
                     return channel -> handleCursorRequest(request, sqlRequest.cursor(), client, channel);
