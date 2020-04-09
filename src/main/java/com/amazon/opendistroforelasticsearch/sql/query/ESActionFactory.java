@@ -141,7 +141,7 @@ public class ESActionFactory {
         }
     }
 
-    public static String getFirstWord(String sql) {
+    private static String getFirstWord(String sql) {
         int endOfFirstWord = sql.indexOf(' ');
         return sql.substring(0, endOfFirstWord > 0 ? endOfFirstWord : sql.length()).toUpperCase();
     }
