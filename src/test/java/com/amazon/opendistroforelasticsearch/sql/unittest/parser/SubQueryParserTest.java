@@ -47,6 +47,21 @@ public class SubQueryParserTest {
     }
 
     @Test
+    public void selectFromSubqueryWithoutAliasShouldPass() throws SqlParseException {
+        Select select = parseSelect(
+                StringUtils.format(
+                        "SELECT t.age as finalAge, t.balance as finalBalance " +
+                                "FROM (SELECT age, balance FROM %s/account) t",
+                        TEST_INDEX_ACCOUNT));
+
+        assertEquals(2, select.getFields().size());
+        assertEquals("age", select.getFields().get(0).getName());
+        assertEquals("finalAge", select.getFields().get(0).getAlias());
+        assertEquals("balance", select.getFields().get(1).getName());
+        assertEquals("finalBalance", select.getFields().get(1).getAlias());
+    }
+
+    @Test
     public void selectFromSubqueryShouldIgnoreUnusedField() throws SqlParseException {
         Select select = parseSelect(
                 StringUtils.format(
