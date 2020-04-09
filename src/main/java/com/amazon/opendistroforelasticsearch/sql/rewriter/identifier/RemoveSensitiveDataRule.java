@@ -17,20 +17,19 @@ package com.amazon.opendistroforelasticsearch.sql.rewriter.identifier;
 
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
-import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.RewriteRule;
+import java.util.HashSet;
+import java.util.Set;
 
-public class RemoveSensitiveInfoRule extends MySqlASTVisitorAdapter implements RewriteRule<SQLQueryExpr> {
+public class RemoveSensitiveDataRule extends MySqlASTVisitorAdapter implements RewriteRule<SQLQueryExpr> {
+
+    private Set<String> identifierSet = new HashSet<>();
 
     @Override
-    public void endVisit(SQLIdentifierExpr identifierExpr) {
-        identifierExpr.setName("***");
-    }
-
-    @Override
-    public void endVisit(SQLExprTableSource tableSource) {
-        tableSource.setAlias("***");
+    public boolean visit(SQLIdentifierExpr identifierExpr) {
+        identifierSet.add(identifierExpr.getName());
+        return true;
     }
 
     @Override
@@ -40,6 +39,10 @@ public class RemoveSensitiveInfoRule extends MySqlASTVisitorAdapter implements R
 
     @Override
     public void rewrite(SQLQueryExpr expr) {
-        expr.accept(new RemoveSensitiveInfoRule());
+        expr.accept(this);
+    }
+
+    public Set<String> getIdentifierSet() {
+        return this.identifierSet;
     }
 }
