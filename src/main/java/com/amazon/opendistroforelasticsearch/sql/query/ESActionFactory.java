@@ -141,13 +141,13 @@ public class ESActionFactory {
         }
     }
 
-    private static boolean isMulti(SQLQueryExpr sqlExpr) {
-        return sqlExpr.getSubQuery().getQuery() instanceof SQLUnionQuery;
-    }
-
     public static String getFirstWord(String sql) {
         int endOfFirstWord = sql.indexOf(' ');
         return sql.substring(0, endOfFirstWord > 0 ? endOfFirstWord : sql.length()).toUpperCase();
+    }
+
+    private static boolean isMulti(SQLQueryExpr sqlExpr) {
+        return sqlExpr.getSubQuery().getQuery() instanceof SQLUnionQuery;
     }
 
     private static void executeAndFillSubQuery(Client client,
