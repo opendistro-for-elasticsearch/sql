@@ -14,11 +14,8 @@
  */
 
 buildscript {
-
     ext {
-        // When upgrading to version after 7.3.0, must remove also
-        // project substitution from configurations.all (line 39)
-        es_version = System.getProperty("es.version", "7.6.1")
+        es_version = "7.6.1"
     }
     // This isn't applying from repositories.gradle so repeating it here
     repositories {
@@ -35,18 +32,6 @@ plugins {
     id 'java-library'
     id 'checkstyle'
     id "io.freefair.lombok" version "5.0.0-rc4"
-}
-
-/*
-Temporary fix, must be removed after 7.3.0 See
-https://github.com/elastic/elasticsearch/issues/45073
-
-Also must remove include ':rest-api-spec' from settings.gradle
-*/
-configurations.all {
-  resolutionStrategy.dependencySubstitution {
-    substitute project(':rest-api-spec') with module ("org.elasticsearch:rest-api-spec:${es_version}")
-  }
 }
 
 // Repository on root level is for dependencies that project code depends on. And this block must be placed after plugins{}
