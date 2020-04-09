@@ -24,14 +24,22 @@ import org.json.JSONObject;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getResponseBody;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_DATE_TIME;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_NESTED_SIMPLE;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.containsString;
 
 public class CursorIT extends SQLIntegTestCase {
 
+    private static final String CURSOR = "cursor";
+    private static final String DATAROWS = "datarows";
+    private static final String SCHEMA = "schema";
     private static final String JDBC = "jdbc";
     private static final String NEW_LINE = "\n";
 
@@ -91,8 +99,8 @@ public class CursorIT extends SQLIntegTestCase {
     public void noPaginationWhenFetchSizeZero() throws IOException {
         String selectQuery = StringUtils.format("SELECT firstname, state FROM %s", TEST_INDEX_ACCOUNT);
         JSONObject response = new JSONObject(executeFetchQuery(selectQuery, 0, JDBC));
-        assertFalse(response.has("cursor"));
-        assertThat(response.getJSONArray("datarows").length(), equalTo(200));
+        assertFalse(response.has(CURSOR));
+        assertThat(response.getJSONArray(DATAROWS).length(), equalTo(200));
     }
 
     /**
@@ -102,12 +110,12 @@ public class CursorIT extends SQLIntegTestCase {
     public void validNumberOfPages() throws IOException {
         String selectQuery = StringUtils.format("SELECT firstname, state FROM %s", TEST_INDEX_ACCOUNT);
         JSONObject response = new JSONObject(executeFetchQuery(selectQuery, 50, JDBC));
-        String cursor = response.getString("cursor");
+        String cursor = response.getString(CURSOR);
         int pageCount = 1;
 
         while (!cursor.isEmpty()) { //this condition also checks that there is no cursor on last page
             response = executeCursorQuery(cursor);
-            cursor = response.optString("cursor");
+            cursor = response.optString(CURSOR);
             pageCount++;
         }
 
@@ -115,13 +123,13 @@ public class CursorIT extends SQLIntegTestCase {
 
         // using random value here, with fetch size of 28 we should get 36 pages (ceil of 1000/28)
         response = new JSONObject(executeFetchQuery(selectQuery, 28, JDBC));
-        cursor = response.getString("cursor");
+        cursor = response.getString(CURSOR);
         System.out.println(response);
         pageCount = 1;
 
         while (!cursor.isEmpty()) {
             response = executeCursorQuery(cursor);
-            cursor = response.optString("cursor");
+            cursor = response.optString(CURSOR);
             pageCount++;
         }
         assertThat(pageCount, equalTo(36));
@@ -160,7 +168,14 @@ public class CursorIT extends SQLIntegTestCase {
 
     }
 
-    //TODO: add test cases for nested and subqueries after checking both works as part of query coverage test
+    @Test
+    public void validTotalResultWithAndWithoutPaginationNested() throws IOException {
+        loadIndex(Index.NESTED_SIMPLE);
+        String selectQuery = StringUtils.format(
+                "SELECT name, a.city, a.state FROM %s m , m.address as a ", TEST_INDEX_NESTED_SIMPLE
+        );
+        verifyWithAndWithoutPaginationResponse(selectQuery + " LIMIT 2000" , selectQuery , 1);
+    }
 
     @Test
     public void noCursorWhenResultsLessThanFetchSize() throws IOException {
@@ -170,7 +185,7 @@ public class CursorIT extends SQLIntegTestCase {
                 "SELECT * FROM %s WHERE balance < 25000 AND age > 36 LIMIT 2000", TEST_INDEX_ACCOUNT
         );
         JSONObject response = new JSONObject(executeFetchQuery(selectQuery, 100, JDBC));
-        assertFalse(response.has("cursor"));
+        assertFalse(response.has(CURSOR));
     }
 
     @Test
@@ -194,33 +209,40 @@ public class CursorIT extends SQLIntegTestCase {
                 "  ]" +
                 "}", TestsConstants.TEST_INDEX_ACCOUNT));
 
-        assertTrue(response.has("cursor"));
+        assertTrue(response.has(CURSOR));
     }
 
     @Test
     public void testRegressionOnDateFormatChange() throws IOException {
-        // manually tested itd working fine
+        loadIndex(Index.DATETIME);
+        /**
+         * With pagination, the field should be date formatted to MySQL format as in
+         * @see <a href="https://github.com/opendistro-for-elasticsearch/sql/pull/367">PR #367</a
+         *
+         * TEST_INDEX_DATE_TIME has three docs with login_time as date field with following values
+         * 1.2015-01-01
+         * 2.2015-01-01T12:10:30Z
+         * 3.2020-04-08T11:10:30+05:00
+         */
 
-//        JSONObject response = executeJDBCRequest(String.format("{" +
-//                "  \"fetch_size\": 200," +
-//                "  \"query\": \" SELECT age, state FROM %s WHERE age > ? OR state IN (?, ?)\"," +
-//                "  \"parameters\": [" +
-//                "    {" +
-//                "      \"type\": \"integer\"," +
-//                "      \"value\": 25" +
-//                "    }," +
-//                "        {" +
-//                "      \"type\": \"string\"," +
-//                "      \"value\": \"WA\"" +
-//                "    }," +
-//                "            {" +
-//                "      \"type\": \"string\"," +
-//                "      \"value\": \"UT\"" +
-//                "    }" +
-//                "  ]" +
-//                "}", TestsConstants.TEST_INDEX_ACCOUNT));
-//
-//        assertTrue(response.has("cursor"));
+        List<String> actualDateList = new ArrayList<>();
+        String selectQuery = StringUtils.format("SELECT login_time FROM %s LIMIT 500", TEST_INDEX_DATE_TIME);
+        JSONObject response = new JSONObject(executeFetchQuery(selectQuery, 1, JDBC));
+        String cursor = response.getString(CURSOR);
+        actualDateList.add(response.getJSONArray(DATAROWS).getJSONArray(0).getString(0));
+
+        while (!cursor.isEmpty()) {
+            response = executeCursorQuery(cursor);
+            cursor = response.optString(CURSOR);
+            actualDateList.add(response.getJSONArray(DATAROWS).getJSONArray(0).getString(0));
+        }
+
+        List<String> expectedDateList = Arrays.asList(
+                "2015-01-01 00:00:00.000",
+                "2015-01-01 12:10:30.000",
+                "2020-04-08 06:10:30.000");
+
+        assertThat(actualDateList, equalTo(expectedDateList));
     }
 
 
@@ -229,12 +251,12 @@ public class CursorIT extends SQLIntegTestCase {
         updateClusterSettings(new ClusterSetting(PERSISTENT, "opendistro.sql.cursor.enabled", "false"));
         String query = StringUtils.format("SELECT firstname, email, state FROM %s", TEST_INDEX_ACCOUNT);
         JSONObject response = new JSONObject(executeFetchQuery(query, 100, JDBC));
-        assertFalse(response.has("cursor"));
+        assertFalse(response.has(CURSOR));
 
         updateClusterSettings(new ClusterSetting(PERSISTENT, "opendistro.sql.cursor.enabled", "true"));
         query = StringUtils.format("SELECT firstname, email, state FROM %s", TEST_INDEX_ACCOUNT);
         response = new JSONObject(executeFetchQuery(query, 100, JDBC));
-        assertTrue(response.has("cursor"));
+        assertTrue(response.has(CURSOR));
 
         wipeAllClusterSettings();
     }
@@ -270,12 +292,12 @@ public class CursorIT extends SQLIntegTestCase {
         // using non-nested query here as page will have more rows on flattening
         String query = StringUtils.format("SELECT firstname, email, state FROM %s", TEST_INDEX_ACCOUNT);
         JSONObject response = new JSONObject(executeFetchLessQuery(query, JDBC));
-        JSONArray datawRows = response.optJSONArray("datarows");
+        JSONArray datawRows = response.optJSONArray(DATAROWS);
         assertThat(datawRows.length(), equalTo(1000));
 
         updateClusterSettings(new ClusterSetting(TRANSIENT, "opendistro.sql.cursor.fetch_size", "786"));
         response = new JSONObject(executeFetchLessQuery(query, JDBC));
-        datawRows = response.optJSONArray("datarows");
+        datawRows = response.optJSONArray(DATAROWS);
         assertThat(datawRows.length(), equalTo(786));
 
         wipeAllClusterSettings();
@@ -288,12 +310,12 @@ public class CursorIT extends SQLIntegTestCase {
         String selectQuery = StringUtils.format(
                 "SELECT firstname, state FROM %s WHERE balance > 100 and age < 40", TEST_INDEX_ACCOUNT);
         JSONObject result = new JSONObject(executeFetchQuery(selectQuery, 50, JDBC));
-        String cursor = result.getString("cursor");
+        String cursor = result.getString(CURSOR);
 
         // Retrieving next 10 pages out of remaining 19 pages
         for(int i =0 ; i < 10 ; i++) {
             result = executeCursorQuery(cursor);
-            cursor = result.optString("cursor");
+            cursor = result.optString(CURSOR);
         }
         //Closing the cursor
         JSONObject closeResp = executeCursorCloseQuery(cursor);
@@ -324,7 +346,7 @@ public class CursorIT extends SQLIntegTestCase {
     @Test
     public void invalidCursorIdNotDecodable() throws IOException {
         // could be either not decode-able
-        String randomCursor = "eyJzY2hlbWEiOlt7Im5hbWUiOiJmaXJzdG5hbWUiLCJ0eXBlIjoidGV4dCJ9LHsibmFtZSI6InN0Y";
+        String randomCursor = "d:eyJzY2hlbWEiOlt7Im5hbWUiOiJmaXJzdG5hbWUiLCJ0eXBlIjoidGV4dCJ9LHsibmFtZSI6InN0Y";
 
         Response response = null;
         try {
@@ -338,12 +360,29 @@ public class CursorIT extends SQLIntegTestCase {
         assertThat(resp.query("/error/type"), equalTo("illegal_argument_exception"));
     }
 
+    /**
+     * The index has 1000 records, with fetch size of 50 and LIMIT in place
+     * we should get Math.ceil(limit/fetchSize) pages and LIMIT number of rows.
+     * Basically it should not retrieve all records in presence of a smaller LIMIT value.
+     */
     @Test
     public void respectLimitPassedInSelectClause() throws IOException {
-        //TODO:
-//        String query = StringUtils.format("SELECT firstname, email, state FROM %s LIMIT 800", TEST_INDEX_ACCOUNT);
-//        String result = executeFetchQuery(query, 50, JDBC);
-        assertThat(1, equalTo(1));
+        int limit = 234;
+        String selectQuery = StringUtils.format("SELECT age, balance FROM %s LIMIT %s", TEST_INDEX_ACCOUNT, limit);
+        JSONObject response = new JSONObject(executeFetchQuery(selectQuery, 50, JDBC));
+        String cursor = response.getString(CURSOR);
+        int actualDataRowCount = response.getJSONArray(DATAROWS).length();
+        int pageCount = 1;
+
+        while (!cursor.isEmpty()) {
+            response = executeCursorQuery(cursor);
+            cursor = response.optString(CURSOR);
+            actualDataRowCount += response.getJSONArray(DATAROWS).length();
+            pageCount++;
+        }
+
+        assertThat(pageCount, equalTo(5));
+        assertThat(actualDataRowCount, equalTo(limit));
     }
 
 
@@ -353,7 +392,7 @@ public class CursorIT extends SQLIntegTestCase {
         String query = StringUtils.format("SELECT firstname, email, state FROM %s LIMIT 2000", TEST_INDEX_ACCOUNT);
         String csvResult = executeFetchQuery(query, 100, "csv");
         String[] rows = csvResult.split(NEW_LINE);
-        // all the 1000 records (+1 for header) are retrieved instead of fetch_size number of records
+        // all the 1001 records (+1 for header) are retrieved instead of fetch_size number of records
         assertThat(rows.length, equalTo(1001));
 
         String rawResult = executeFetchQuery(query, 100, "raw");
@@ -364,26 +403,26 @@ public class CursorIT extends SQLIntegTestCase {
 
 
     public void verifyWithAndWithoutPaginationResponse(String sqlQuery, String cursorQuery, int fetch_size) throws IOException {
-        // we are only checking here for schema and aatarows
+        // we are only checking here for schema and datarows
         JSONObject withoutCursorResponse = new JSONObject(executeFetchQuery(sqlQuery, 0, JDBC));
 
         JSONObject withCursorResponse = new JSONObject("{\"schema\":[],\"datarows\":[]}");
-        JSONArray schema = withCursorResponse.getJSONArray("schema");
-        JSONArray dataRows = withCursorResponse.getJSONArray("datarows");
+        JSONArray schema = withCursorResponse.getJSONArray(SCHEMA);
+        JSONArray dataRows = withCursorResponse.getJSONArray(DATAROWS);
 
         JSONObject response = new JSONObject(executeFetchQuery(cursorQuery, fetch_size, JDBC));
-        response.optJSONArray("schema").forEach(schema::put);
-        response.optJSONArray("datarows").forEach(dataRows::put);
+        response.optJSONArray(SCHEMA).forEach(schema::put);
+        response.optJSONArray(DATAROWS).forEach(dataRows::put);
 
-        String cursor = response.getString("cursor");
+        String cursor = response.getString(CURSOR);
         while (!cursor.isEmpty()) {
             response = executeCursorQuery(cursor);
-            response.optJSONArray("datarows").forEach(dataRows::put);
-            cursor = response.optString("cursor");
+            response.optJSONArray(DATAROWS).forEach(dataRows::put);
+            cursor = response.optString(CURSOR);
         }
 
-        verifySchema(withoutCursorResponse.optJSONArray("schema"), withCursorResponse.optJSONArray("schema"));
-        verifyDataRows(withoutCursorResponse.optJSONArray("datarows"), withCursorResponse.optJSONArray("datarows"));
+        verifySchema(withoutCursorResponse.optJSONArray(SCHEMA), withCursorResponse.optJSONArray(SCHEMA));
+        verifyDataRows(withoutCursorResponse.optJSONArray(DATAROWS), withCursorResponse.optJSONArray(DATAROWS));
     }
 
     public void verifySchema(JSONArray schemaOne, JSONArray schemaTwo) {
@@ -422,6 +461,3 @@ public class CursorIT extends SQLIntegTestCase {
         return new JSONObject(executeRequest(sqlRequest));
     }
 }
-
-
-

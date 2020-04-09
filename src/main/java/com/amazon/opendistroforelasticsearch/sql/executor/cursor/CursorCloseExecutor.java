@@ -18,20 +18,22 @@ package com.amazon.opendistroforelasticsearch.sql.executor.cursor;
 import com.amazon.opendistroforelasticsearch.sql.metrics.MetricName;
 import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.VerificationException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.search.ClearScrollResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestChannel;
 import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.util.Base64;
 import java.util.Map;
 
 import static org.elasticsearch.rest.RestStatus.OK;
 
 public class CursorCloseExecutor implements CursorRestExecutor {
+
+    private static final Logger LOG = LogManager.getLogger(CursorCloseExecutor.class);
 
     private static final String SUCCEEDED_TRUE = "{\"succeeded\":true}";
     private static final String SUCCEEDED_FALSE = "{\"succeeded\":false}";
@@ -48,7 +50,7 @@ public class CursorCloseExecutor implements CursorRestExecutor {
             channel.sendResponse(new BytesRestResponse(OK, "application/json; charset=UTF-8", formattedResponse));
         } catch (IllegalArgumentException | JSONException e) {
             Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_CUS).increment();
-            e.printStackTrace();
+            LOG.error("Error parsing the cursor", e);
             channel.sendResponse(new BytesRestResponse(channel, e));
         } catch (ElasticsearchException e) {
             int status = (e.status().getStatus());
@@ -57,30 +59,28 @@ public class CursorCloseExecutor implements CursorRestExecutor {
             } else if (status > 499) {
                 Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
             }
-            e.printStackTrace();
+            LOG.error("Error completing cursor request", e);
             channel.sendResponse(new BytesRestResponse(channel, e));
         }
     }
 
     public String execute(Client client, Map<String, String> params) throws Exception {
-        String decodedCursorContext = new String(Base64.getDecoder().decode(cursorId));
-        JSONObject cursorJson = new JSONObject(decodedCursorContext);
+        String[] splittedCursor = cursorId.split(":");
 
-        String type = cursorJson.optString("type", null); // see if it is a good case to use Optionals
-        CursorType cursorType = null;
-
-        if (type != null) {
-            cursorType = CursorType.valueOf(type);
+        if (splittedCursor.length!=2) {
+            throw new VerificationException("Not able to parse invalid cursor");
         }
+
+        String type = splittedCursor[0];
+        CursorType cursorType = CursorType.getById(type);
 
         if (cursorType!=null) {
             switch(cursorType) {
                 case DEFAULT:
-                    return handleDefaultCursorCloseRequest(client, cursorJson);
+                    DefaultCursor defaultCursor = DefaultCursor.from(splittedCursor[1]);
+                    return handleDefaultCursorCloseRequest(client, defaultCursor);
                 case AGGREGATION:
-                    return handleAggregationCursorCloseRequest(client, cursorJson);
                 case JOIN:
-                    return handleJoinCursorCloseRequest(client, cursorJson);
                 default: throw new VerificationException("Unsupported cursor");
             }
         }
@@ -88,8 +88,8 @@ public class CursorCloseExecutor implements CursorRestExecutor {
         throw new VerificationException("Invalid cursor");
     }
 
-    private String handleDefaultCursorCloseRequest(Client client, JSONObject cursorContext) {
-        String scrollId = cursorContext.getString("scrollId");
+    private String handleDefaultCursorCloseRequest(Client client, DefaultCursor cursor) {
+        String scrollId = cursor.getScrollId();
         ClearScrollResponse clearScrollResponse = client.prepareClearScroll().addScrollId(scrollId).get();
         if (clearScrollResponse.isSucceeded()) {
             return SUCCEEDED_TRUE;
@@ -98,13 +98,4 @@ public class CursorCloseExecutor implements CursorRestExecutor {
             return SUCCEEDED_FALSE;
         }
     }
-
-    private String handleAggregationCursorCloseRequest(Client client, JSONObject cursorContext) {
-        return SUCCEEDED_TRUE;
-    }
-
-    private String handleJoinCursorCloseRequest(Client client, JSONObject cursorContext) {
-        return SUCCEEDED_TRUE;
-    }
-
 }

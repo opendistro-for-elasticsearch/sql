@@ -45,6 +45,8 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.get
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getBankIndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getBankWithNullValuesIndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getDateIndexMapping;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getDateTimeIndexMapping;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getNestedSimpleIndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getDogIndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getDogs2IndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getDogs3IndexMapping;
@@ -503,7 +505,15 @@ public abstract class SQLIntegTestCase extends ESRestTestCase {
         DATE(TestsConstants.TEST_INDEX_DATE,
                 "dates",
                 getDateIndexMapping(),
-                "src/test/resources/dates.json");
+                "src/test/resources/dates.json"),
+        DATETIME(TestsConstants.TEST_INDEX_DATE_TIME,
+                "_doc",
+                getDateTimeIndexMapping(),
+                "src/test/resources/datetime.json"),
+        NESTED_SIMPLE(TestsConstants.TEST_INDEX_NESTED_SIMPLE,
+                "_doc",
+                getNestedSimpleIndexMapping(),
+                "src/test/resources/nested_simple.json");
 
         private final String name;
         private final String type;

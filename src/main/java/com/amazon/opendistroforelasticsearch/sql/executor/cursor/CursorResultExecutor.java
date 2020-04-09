@@ -33,12 +33,8 @@ import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.IOException;
-import java.sql.SQLFeatureNotSupportedException;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.Map;
 
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.CURSOR_KEEPALIVE;
@@ -62,7 +58,7 @@ public class CursorResultExecutor implements CursorRestExecutor {
             channel.sendResponse(new BytesRestResponse(OK, "application/json; charset=UTF-8", formattedResponse));
         } catch (IllegalArgumentException | JSONException e) {
             Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_CUS).increment();
-            e.printStackTrace();
+            LOG.error("Error parsing the cursor", e);
             channel.sendResponse(new BytesRestResponse(channel, e));
         } catch (ElasticsearchException e) {
             int status = (e.status().getStatus());
@@ -71,40 +67,41 @@ public class CursorResultExecutor implements CursorRestExecutor {
             } else if (status > 499) {
                 Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
             }
-            e.printStackTrace();
+            LOG.error("Error completing cursor request", e);
             channel.sendResponse(new BytesRestResponse(channel, e));
         }
     }
 
     public String execute(Client client, Map<String, String> params) throws Exception {
+        /**
+         * All cursor's are of the form <cursorType>:<base64 encoded cursor>
+         * The serialized form before encoding is upto Cursor implementation
+         */
+        String[] splittedCursor = cursorId.split(":");
 
-        String decodedCursorContext = new String(Base64.getDecoder().decode(cursorId));
-        JSONObject cursorJson = new JSONObject(decodedCursorContext);
-
-        String type = cursorJson.optString("type", null); // see if it is a good case to use Optionals
-        CursorType cursorType = null;
-
-        if (type != null) {
-            cursorType = CursorType.valueOf(type);
+        if (splittedCursor.length!=2) {
+            throw new VerificationException("Not able to parse invalid cursor");
         }
 
-        if (cursorType!=null) {
+        String type = splittedCursor[0];
+        CursorType cursorType = CursorType.getById(type);
+
+        if (cursorType!=CursorType.NULL) {
             switch(cursorType) {
                 case DEFAULT:
-                    return handleDefaultCursorRequest(client, cursorJson);
+                    DefaultCursor defaultCursor = DefaultCursor.from(splittedCursor[1]);
+                    return handleDefaultCursorRequest(client, defaultCursor);
                 case AGGREGATION:
-                    return handleAggregationCursorRequest(client, cursorJson);
                 case JOIN:
-                    return handleJoinCursorRequest(client, cursorJson);
                 default: throw new VerificationException("Unsupported cursor");
             }
         }
 
-        throw new VerificationException("Invalid cursor");
+        throw new VerificationException("Not able to parse invalid cursor");
     }
 
-    private String handleDefaultCursorRequest(Client client, JSONObject cursorContext) throws IOException {
-        String previousScrollId = cursorContext.getString("scrollId");
+    private String handleDefaultCursorRequest(Client client, DefaultCursor cursor) {
+        String previousScrollId = cursor.getScrollId();
         LocalClusterState clusterState = LocalClusterState.state();
         TimeValue scrollTimeout = clusterState.getSettingValue(CURSOR_KEEPALIVE);
         SearchResponse scrollResponse = client.prepareSearchScroll(previousScrollId).setScroll(scrollTimeout).get();
@@ -112,8 +109,8 @@ public class CursorResultExecutor implements CursorRestExecutor {
         SearchHit[] searchHitArray = searchHits.getHits();
         String newScrollId = scrollResponse.getScrollId();
 
-        int rowsLeft = cursorContext.getInt("left");
-        int fetch = cursorContext.getInt("f");
+        int rowsLeft = (int) cursor.getRowsLeft();
+        int fetch = cursor.getFetchSize();
 
         if (rowsLeft < fetch && rowsLeft < searchHitArray.length) {
             /**
@@ -137,29 +134,11 @@ public class CursorResultExecutor implements CursorRestExecutor {
                 Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
                 LOG.info("Error closing the cursor context {} ", newScrollId);
             }
-
-            Protocol protocol = new Protocol(client, searchHits, cursorContext, format.name().toLowerCase());
-            protocol.setCursor(null);
-            return protocol.cursorFormat();
-
-        } else {
-            cursorContext.put("left", rowsLeft);
-            cursorContext.put("scrollId", newScrollId);
-            Protocol protocol = new Protocol(client, searchHits, cursorContext, format.name().toLowerCase());
-            String cursorId = protocol.encodeCursorContext(cursorContext);
-            protocol.setCursor(cursorId);
-            return protocol.cursorFormat();
         }
-    }
 
-    private String handleAggregationCursorRequest(Client client, JSONObject cursorContext)
-            throws SQLFeatureNotSupportedException {
-        throw new SQLFeatureNotSupportedException("Aggregations not supported over cursor");
+        cursor.setRowsLeft(rowsLeft);
+        cursor.setScrollId(newScrollId);
+        Protocol protocol = new Protocol(client, searchHits, format.name().toLowerCase(), cursor);
+        return protocol.cursorFormat();
     }
-
-    private String handleJoinCursorRequest(Client client, JSONObject cursorContext)
-            throws SQLFeatureNotSupportedException {
-        throw new SQLFeatureNotSupportedException("Joins not supported over cursor");
-    }
-
 }

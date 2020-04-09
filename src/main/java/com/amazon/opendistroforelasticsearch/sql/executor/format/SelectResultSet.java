@@ -29,9 +29,16 @@ import com.amazon.opendistroforelasticsearch.sql.domain.TableOnJoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMapping;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlFeatureNotImplementedException;
 import com.amazon.opendistroforelasticsearch.sql.executor.Format;
+import com.amazon.opendistroforelasticsearch.sql.executor.cursor.Cursor;
+import com.amazon.opendistroforelasticsearch.sql.executor.cursor.DefaultCursor;
+import com.amazon.opendistroforelasticsearch.sql.metrics.MetricName;
+import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
 import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
+import org.elasticsearch.action.search.ClearScrollResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.document.DocumentField;
@@ -43,8 +50,6 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.NumericMetricsAggregation;
 import org.elasticsearch.search.aggregations.metrics.Percentile;
 import org.elasticsearch.search.aggregations.metrics.Percentiles;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,7 +61,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
 import static java.util.Collections.unmodifiableMap;
@@ -64,6 +68,8 @@ import static java.util.stream.Collectors.toSet;
 import static org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse.FieldMappingMetaData;
 
 public class SelectResultSet extends ResultSet {
+
+    private static final Logger LOG = LogManager.getLogger(SelectResultSet.class);
 
     public static final String SCORE = "_score";
     private final String formatType;
@@ -80,8 +86,9 @@ public class SelectResultSet extends ResultSet {
     private List<String> head;
     private long size;
     private long totalHits;
+    private long internalTotalHits;
     private List<DataRows.Row> rows;
-    private long cursorTotalHits;
+    private Cursor cursor;
 
     private DateFieldFormatter dateFieldFormatter;
     // alias -> base field name
@@ -91,13 +98,15 @@ public class SelectResultSet extends ResultSet {
                            Query query,
                            Object queryResult,
                            ColumnTypeProvider outputColumnType,
-                           String formatType) {
+                           String formatType,
+                           Cursor cursor) {
         this.client = client;
         this.query = query;
         this.queryResult = queryResult;
         this.selectAll = false;
         this.formatType = formatType;
         this.outputColumnType = outputColumnType;
+        this.cursor = cursor;
 
         if (isJoinQuery()) {
             JoinSelect joinQuery = (JoinSelect) query;
@@ -112,29 +121,16 @@ public class SelectResultSet extends ResultSet {
 
         extractData();
         this.dataRows = new DataRows(size, totalHits, rows);
+        populateCursor();
     }
 
-
-    public SelectResultSet(Client client, Object queryResult, JSONObject cursorContext, String formatType) {
+    public SelectResultSet(Client client, Object queryResult, String formatType, Cursor cursor) {
+        this.cursor = cursor;
         this.client = client;
         this.queryResult = queryResult;
         this.selectAll = false;
         this.formatType = formatType;
-        this.columns = getColumnsFromSchema(cursorContext);
-        this.schema = new Schema(null, null, columns);
-        this.head = schema.getHeaders();
-        this.dateFieldFormatter = new DateFieldFormatter(
-                cursorContext.getString("i"),
-                columns,
-                fieldAliasMap(cursorContext)
-        );
-        extractData();
-        this.dataRows = new DataRows(size, totalHits, rows);
-
-    }
-
-    public long getCursorTotalHits() {
-        return cursorTotalHits;
+        populateResultSetFromCursor(cursor);
     }
 
     public String indexName(){
@@ -145,28 +141,26 @@ public class SelectResultSet extends ResultSet {
         return unmodifiableMap(this.fieldAliasMap);
     }
 
-    private Map<String, String> fieldAliasMap(JSONObject json) {
-        Map<String, String> fieldToAliasMap = new HashMap<>();
-        json.keySet().forEach(key -> fieldToAliasMap.put(key, json.get(key).toString()));
-        return fieldToAliasMap;
+    public void populateResultSetFromCursor(Cursor cursor) {
+        switch (cursor.getType()) {
+            case DEFAULT:
+                populateResultSetFromDefaultCursor((DefaultCursor) cursor);
+            default:
+                return;
+        }
     }
 
-    public List<Schema.Column> getColumnsFromSchema(JSONObject cursorContext) {
-
-        JSONArray schema = cursorContext.getJSONArray("schema");
-
-        List<Schema.Column> columns = IntStream.
-                range(0, schema.length()).
-                mapToObj(i -> {
-                            JSONObject jsonColumn = schema.getJSONObject(i);
-                            return new Schema.Column(
-                                    jsonColumn.getString("name"),
-                                    jsonColumn.optString("alias", null),
-                                    Schema.Type.valueOf(jsonColumn.getString("type").toUpperCase())
-                            );
-                        }
-                ).collect(Collectors.toList());
-        return columns;
+    private void populateResultSetFromDefaultCursor(DefaultCursor cursor) {
+        this.columns = cursor.getColumns();
+        this.schema = new Schema(null, null, columns);
+        this.head = schema.getHeaders();
+        this.dateFieldFormatter = new DateFieldFormatter(
+                cursor.getIndexPattern(),
+                columns,
+                cursor.getFieldAliasMap()
+        );
+        extractData();
+        this.dataRows = new DataRows(size, totalHits, rows);
     }
 
     //***********************************************************
@@ -585,19 +579,67 @@ public class SelectResultSet extends ResultSet {
 
             this.rows = populateRows(searchHits);
             this.size = rows.size();
-            this.totalHits = Math.max(size, // size may be greater than totalHits after nested rows be flatten
-                    Optional.ofNullable(searchHits.getTotalHits()).map(th -> th.value)
-                            .orElse(0L));
-            this.cursorTotalHits = Optional.ofNullable(searchHits.getTotalHits()).map(th -> th.value).orElse(totalHits);
+            this.internalTotalHits = Optional.ofNullable(searchHits.getTotalHits()).map(th -> th.value).orElse(0L);
+            // size may be greater than totalHits after nested rows be flatten
+            this.totalHits = Math.max(size, internalTotalHits);
         } else if (queryResult instanceof Aggregations) {
             Aggregations aggregations = (Aggregations) queryResult;
 
             this.rows = populateRows(aggregations);
             this.size = rows.size();
+            this.internalTotalHits = size;
             // Total hits is not available from Aggregations so 'size' is used
             this.totalHits = size;
-            this.cursorTotalHits = size;
         }
+    }
+
+    private void populateCursor() {
+        switch(cursor.getType()) {
+            case DEFAULT:
+                populateDefaultCursor((DefaultCursor) cursor);
+            default:
+                return;
+        }
+    }
+
+    public void populateDefaultCursor(DefaultCursor cursor) {
+        /**
+         * Assumption: scrollId, fetchSize, limit already being set in
+         * @see PrettyFormatRestExecutor.buildProtocolForDefaultQuery()
+         */
+
+        long rowsLeft = rowsLeft(cursor.getFetchSize(), cursor.getLimit());
+        if (rowsLeft <= 0) {
+            // close the cursor
+            String scrollId = cursor.getScrollId();
+            ClearScrollResponse clearScrollResponse = client.prepareClearScroll().addScrollId(scrollId).get();
+            if (!clearScrollResponse.isSucceeded()) {
+                Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
+                LOG.error("Error closing the cursor context {} ", scrollId);
+            }
+            return;
+        }
+
+        cursor.setRowsLeft(rowsLeft);
+        cursor.setIndexPattern(indexName);
+        cursor.setFieldAliasMap(fieldAliasMap());
+        cursor.setColumns(columns);
+    }
+
+    private long rowsLeft(Integer fetchSize, Integer limit) {
+        long rowsLeft = 0;
+        if (fetchSize == null || fetchSize == 0) {
+            // Ideally we should not be reaching here,
+            return rowsLeft;
+        }
+
+        long totalHits = internalTotalHits;
+        if (limit != null && limit < totalHits) {
+            rowsLeft = limit - fetchSize;
+        } else {
+            rowsLeft = totalHits - fetchSize;
+        }
+        return rowsLeft;
     }
 
     private List<DataRows.Row> populateRows(SearchHits searchHits) {

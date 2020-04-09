@@ -15,34 +15,24 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.cursor;
 
-import java.util.HashMap;
-import java.util.Map;
+/**
+ * A placeholder Cursor implementation to work with non-paginated queries.
+ */
+public class NullCursor implements Cursor {
 
-public enum CursorType {
-    NULL(null),
-    DEFAULT("d"),
-    AGGREGATION("a"),
-    JOIN("j");
+    private final CursorType type = CursorType.NULL;
 
-    public String id;
-
-    CursorType(String id) {
-        this.id = id;
+    @Override
+    public String generateCursorId() {
+        return null;
     }
 
-    public String getId() {
-        return this.id;
+    @Override
+    public CursorType getType() {
+        return type;
     }
 
-    public static final Map<String, CursorType> LOOKUP = new HashMap<>();
-
-    static {
-        for (CursorType type : CursorType.values()) {
-            LOOKUP.put(type.getId(), type);
-        }
-    }
-
-    public static CursorType getById(String id) {
-        return LOOKUP.getOrDefault(id, NULL);
+    public NullCursor from(String cursorId) {
+        return new NullCursor();
     }
 }

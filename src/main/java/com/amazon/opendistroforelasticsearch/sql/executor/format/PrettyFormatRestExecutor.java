@@ -18,7 +18,8 @@ package com.amazon.opendistroforelasticsearch.sql.executor.format;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.QueryActionElasticExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.RestExecutor;
-import com.amazon.opendistroforelasticsearch.sql.executor.cursor.CursorType;
+import com.amazon.opendistroforelasticsearch.sql.executor.cursor.DefaultCursor;
+import com.amazon.opendistroforelasticsearch.sql.executor.cursor.NullCursor;
 import com.amazon.opendistroforelasticsearch.sql.query.DefaultQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.join.BackOffRetryStrategy;
@@ -76,7 +77,7 @@ public class PrettyFormatRestExecutor implements RestExecutor {
                 protocol = buildProtocolForDefaultQuery(client, (DefaultQueryAction) queryAction);
             } else {
                 Object queryResult = QueryActionElasticExecutor.executeAnyAction(client, queryAction);
-                protocol = new Protocol(client, queryAction, queryResult, format);
+                protocol = new Protocol(client, queryAction, queryResult, format, new NullCursor());
             }
         } catch (Exception e) {
             if (e instanceof ElasticsearchException) {
@@ -99,14 +100,18 @@ public class PrettyFormatRestExecutor implements RestExecutor {
             throws SqlParseException {
 
         SearchResponse response = (SearchResponse) queryAction.explain().get();
-        Protocol protocol = new Protocol(client, queryAction, response.getHits(), format);
-
         String scrollId = response.getScrollId();
+
+        Protocol protocol;
         if (!Strings.isNullOrEmpty(scrollId)) {
-            protocol.addOption("scrollId", scrollId);
-            protocol.addOption("limit", queryAction.getSelect().getRowCount());
-            protocol.setCursorType(CursorType.DEFAULT);
-            protocol.generateCursorId();
+            DefaultCursor defaultCursor = new DefaultCursor();
+            defaultCursor.setScrollId(scrollId);
+            defaultCursor.setLimit(queryAction.getSelect().getRowCount());
+            defaultCursor.setFetchSize(queryAction.getSqlRequest().fetchSize());
+            protocol = new Protocol(client, queryAction, response.getHits(), format, defaultCursor);
+        } else {
+            NullCursor nullCursor = new NullCursor();
+            protocol = new Protocol(client, queryAction, response.getHits(), format, nullCursor);
         }
 
         return protocol;
