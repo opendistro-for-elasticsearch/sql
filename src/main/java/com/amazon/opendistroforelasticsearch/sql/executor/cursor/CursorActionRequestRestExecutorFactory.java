@@ -21,7 +21,7 @@ import org.elasticsearch.rest.RestRequest;
 public class CursorActionRequestRestExecutorFactory {
     //TODO: add javadocs, see RestExecutor
 
-    public static CursorRestExecutor createExecutor(RestRequest request, String cursor, Format format) {
+    public static CursorAsyncRestExecutor createExecutor(RestRequest request, String cursor, Format format) {
         if (isCursorCloseRequest(request)) {
             return new CursorAsyncRestExecutor(new CursorCloseExecutor(cursor));
         } else {

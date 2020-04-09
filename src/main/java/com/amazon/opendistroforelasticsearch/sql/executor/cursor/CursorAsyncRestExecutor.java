@@ -18,7 +18,6 @@ package com.amazon.opendistroforelasticsearch.sql.executor.cursor;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.metrics.MetricName;
 import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
-import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.join.BackOffRetryStrategy;
 import com.amazon.opendistroforelasticsearch.sql.utils.LogUtils;
 import org.apache.logging.log4j.LogManager;
@@ -33,11 +32,10 @@ import org.elasticsearch.threadpool.ThreadPool;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Map;
-import java.util.function.Predicate;
 
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_SLOWLOG;
 
-public class CursorAsyncRestExecutor implements CursorRestExecutor {
+public class CursorAsyncRestExecutor {
     /**
      * Custom thread pool name managed by ES
      */
@@ -45,35 +43,18 @@ public class CursorAsyncRestExecutor implements CursorRestExecutor {
 
     private static final Logger LOG = LogManager.getLogger(CursorAsyncRestExecutor.class);
 
-    private static final Predicate<QueryAction> ALL_ACTION_IS_BLOCKING = anyAction -> true;
-
     /**
      * Delegated rest executor to async
      */
     private final CursorRestExecutor executor;
 
-    /**
-     * Request type that expect to async to avoid blocking
-     */
-    private final Predicate<QueryAction> isBlocking;
 
     CursorAsyncRestExecutor(CursorRestExecutor executor) {
-        this(executor, ALL_ACTION_IS_BLOCKING);
-    }
-
-    CursorAsyncRestExecutor(CursorRestExecutor executor, Predicate<QueryAction> isBlocking) {
         this.executor = executor;
-        this.isBlocking = isBlocking;
     }
 
-
-    public void execute(Client client, Map<String, String> params, RestChannel channel) throws Exception {
-        LOG.info("executing something inside CursorAsyncRestExecutor execute ");
+    public void execute(Client client, Map<String, String> params, RestChannel channel) {
         async(client, params, channel);
-    }
-
-    public String execute(Client client, Map<String, String> params) throws Exception {
-        return "string from CursorAsyncRestExecutor execute()";
     }
 
     /**

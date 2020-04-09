@@ -29,7 +29,7 @@ import com.amazon.opendistroforelasticsearch.sql.executor.ActionRequestRestExecu
 import com.amazon.opendistroforelasticsearch.sql.executor.Format;
 import com.amazon.opendistroforelasticsearch.sql.executor.RestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.cursor.CursorActionRequestRestExecutorFactory;
-import com.amazon.opendistroforelasticsearch.sql.executor.cursor.CursorRestExecutor;
+import com.amazon.opendistroforelasticsearch.sql.executor.cursor.CursorAsyncRestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.ErrorMessageFactory;
 import com.amazon.opendistroforelasticsearch.sql.metrics.MetricName;
 import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
@@ -145,7 +145,7 @@ public class RestSqlAction extends BaseRestHandler {
 
     private void handleCursorRequest(final RestRequest request, final String cursor, final Client client,
                                      final RestChannel channel) throws Exception {
-        CursorRestExecutor cursorRestExecutor = CursorActionRequestRestExecutorFactory.createExecutor(
+        CursorAsyncRestExecutor cursorRestExecutor = CursorActionRequestRestExecutorFactory.createExecutor(
                 request, cursor, SqlRequestParam.getFormat(request.params()));
         cursorRestExecutor.execute(client, request.params(), channel);
     }

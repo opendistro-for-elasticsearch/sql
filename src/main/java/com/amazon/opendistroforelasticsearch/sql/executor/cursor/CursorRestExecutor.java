@@ -21,6 +21,9 @@ import org.elasticsearch.rest.RestChannel;
 
 import java.util.Map;
 
+/**
+ * Interface to execute cursor request.
+ */
 public interface CursorRestExecutor {
 
     void execute(Client client, Map<String, String> params, RestChannel channel)
