@@ -1,16 +1,16 @@
 /*
+ *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
- *  * Licensed under the Apache License, Version 2.0 (the "License").
- *  * You may not use this file except in compliance with the License.
- *  * A copy of the License is located at
- *  *
- *  *    http://www.apache.org/licenses/LICENSE-2.0
- *  *
- *  * or in the "license" file accompanying this file. This file is distributed
- *  * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
- *  * express or implied. See the License for the specific language governing
- *  * permissions and limitations under the License.
+ *   Licensed under the Apache License, Version 2.0 (the "License").
+ *   You may not use this file except in compliance with the License.
+ *   A copy of the License is located at
  *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   or in the "license" file accompanying this file. This file is distributed
+ *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ *   express or implied. See the License for the specific language governing
+ *   permissions and limitations under the License.
  */
 
 package com.amazon.opendistroforelasticsearch.sql.utils;
@@ -23,12 +23,12 @@ import java.util.Set;
 import static com.amazon.opendistroforelasticsearch.sql.utils.Util.toSqlExpr;
 
 /**
- * Utility class for mask sensitive info in incoming sql queries
+ * Utility class to mask sensitive information in incoming SQL queries
  */
 public class QueryDataMask {
 
     /**
-     * This method is used to mask sensitive data in sql query.
+     * This method is used to mask sensitive data in SQL query.
      * Sensitive data includes index names, column names etc.,
      * which in druid parser are parsed to SQLIdentifierExpr instances
      * @param query entire sql query string
@@ -65,7 +65,7 @@ public class QueryDataMask {
     /**
      * This method is applied to replace quoted identifiers
      * since quoted identifiers with spaces are tricky to deal with
-     * @param query sql query string
+     * @param query SQL query string
      * @return all quoted identifiers are replaced by word "***" directly
      */
     private static String replaceQuotedIdentifiers(String query) {
@@ -74,7 +74,7 @@ public class QueryDataMask {
 
     /**
      * This method is applied to replace identifiers in functions
-     * @param query sql query string
+     * @param query SQL query string
      * @return all parameters in functions are replaced by word "***" directly (but it covers more cases than needed)
      */
     private static String replaceIdentifiersInBrackets(String query) {
