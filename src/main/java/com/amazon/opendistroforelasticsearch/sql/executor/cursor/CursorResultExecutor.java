@@ -15,6 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.cursor;
 
+import com.amazon.opendistroforelasticsearch.sql.cursor.CursorType;
+import com.amazon.opendistroforelasticsearch.sql.cursor.DefaultCursor;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.executor.Format;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.Protocol;

@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.executor.cursor;
+package com.amazon.opendistroforelasticsearch.sql.cursor;
 
 import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema;
 import com.google.common.base.Strings;

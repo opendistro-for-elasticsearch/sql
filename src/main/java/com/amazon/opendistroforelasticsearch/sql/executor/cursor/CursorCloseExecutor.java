@@ -15,6 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.cursor;
 
+import com.amazon.opendistroforelasticsearch.sql.cursor.CursorType;
+import com.amazon.opendistroforelasticsearch.sql.cursor.DefaultCursor;
 import com.amazon.opendistroforelasticsearch.sql.metrics.MetricName;
 import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.VerificationException;
