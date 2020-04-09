@@ -16,9 +16,6 @@
 package com.amazon.opendistroforelasticsearch.sql.request;
 
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
-import com.amazon.opendistroforelasticsearch.sql.utils.QueryDataAnonymizer;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.LoggingDeprecationHandler;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;
@@ -39,8 +36,6 @@ public class SqlRequest {
 
     String sql;
     JSONObject jsonContent;
-
-    private static final Logger LOG = LogManager.getLogger(SqlRequest.class);
 
     public SqlRequest(final String sql, final JSONObject jsonContent) {
 
@@ -108,15 +103,5 @@ public class SqlRequest {
             addFilterFromJson(boolQuery);
         }
         return boolQuery;
-    }
-
-    public String removeSensitiveData() {
-        String query = "";
-        try {
-            query = QueryDataAnonymizer.anonymizeData(this.sql);
-        } catch (Exception e) {
-            LOG.error("Caught an exception when removing sensitive data", e);
-        }
-        return query;
     }
 }

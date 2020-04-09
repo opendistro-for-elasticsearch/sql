@@ -25,7 +25,7 @@ import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.RewriteRule;
 
-public class RemoveSensitiveDataRule extends MySqlASTVisitorAdapter implements RewriteRule<SQLQueryExpr> {
+public class AnonymizeSensitiveDataRule extends MySqlASTVisitorAdapter implements RewriteRule<SQLQueryExpr> {
 
     @Override
     public boolean visit(SQLIdentifierExpr identifierExpr) {

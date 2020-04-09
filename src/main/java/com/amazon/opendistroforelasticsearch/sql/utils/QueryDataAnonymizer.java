@@ -17,7 +17,9 @@ package com.amazon.opendistroforelasticsearch.sql.utils;
 
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
-import com.amazon.opendistroforelasticsearch.sql.rewriter.identifier.RemoveSensitiveDataRule;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.identifier.AnonymizeSensitiveDataRule;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import static com.amazon.opendistroforelasticsearch.sql.utils.Util.toSqlExpr;
 
@@ -25,6 +27,8 @@ import static com.amazon.opendistroforelasticsearch.sql.utils.Util.toSqlExpr;
  * Utility class to mask sensitive information in incoming SQL queries
  */
 public class QueryDataAnonymizer {
+
+    private static final Logger LOG = LogManager.getLogger(QueryDataAnonymizer.class);
 
     /**
      * This method is used to anonymize sensitive data in SQL query.
@@ -34,10 +38,17 @@ public class QueryDataAnonymizer {
      * @return sql query string with all identifiers replaced with "***"
      */
     public static String anonymizeData(String query) {
-        RemoveSensitiveDataRule rule = new RemoveSensitiveDataRule();
-        SQLQueryExpr sqlExpr = (SQLQueryExpr) toSqlExpr(query);
-        rule.rewrite(sqlExpr);
-        return SQLUtils.toMySqlString(sqlExpr).replaceAll("0", "number")
-                .replaceAll("false", "boolean_literal");
+        String resultQuery;
+        try {
+            AnonymizeSensitiveDataRule rule = new AnonymizeSensitiveDataRule();
+            SQLQueryExpr sqlExpr = (SQLQueryExpr) toSqlExpr(query);
+            rule.rewrite(sqlExpr);
+            resultQuery = SQLUtils.toMySqlString(sqlExpr).replaceAll("0", "number")
+                    .replaceAll("false", "boolean_literal");
+        } catch (Exception e) {
+            LOG.error("Caught an exception when removing sensitive data", e);
+            resultQuery = query;
+        }
+        return resultQuery;
     }
 }

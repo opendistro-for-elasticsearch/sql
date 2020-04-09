@@ -38,6 +38,7 @@ import com.amazon.opendistroforelasticsearch.sql.request.SqlRequestParam;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.VerificationException;
 import com.amazon.opendistroforelasticsearch.sql.utils.JsonPrettyFormatter;
 import com.amazon.opendistroforelasticsearch.sql.utils.LogUtils;
+import com.amazon.opendistroforelasticsearch.sql.utils.QueryDataAnonymizer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.Client;
@@ -113,7 +114,7 @@ public class RestSqlAction extends BaseRestHandler {
 
             final SqlRequest sqlRequest = SqlRequestFactory.getSqlRequest(request);
             LOG.info("[{}] Incoming request {}: {}", LogUtils.getRequestId(), request.uri(),
-                    sqlRequest.removeSensitiveData());
+                    QueryDataAnonymizer.anonymizeData(sqlRequest.getSql()));
 
             final QueryAction queryAction =
                     explainRequest(client, sqlRequest, SqlRequestParam.getFormat(request.params()));
