@@ -27,6 +27,8 @@ import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.Sql
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.IGNORE_REQUEST;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.IGNORE_RESPONSE;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.PRETTY_JSON_RESPONSE;
+import static com.amazon.opendistroforelasticsearch.sql.metrics.MetricName.DEFAULT_CURSOR_REQUEST_COUNT_TOTAL;
+import static com.amazon.opendistroforelasticsearch.sql.metrics.MetricName.DEFAULT_CURSOR_REQUEST_TOTAL;
 import static com.amazon.opendistroforelasticsearch.sql.metrics.MetricName.FAILED_REQ_COUNT_CB;
 import static com.amazon.opendistroforelasticsearch.sql.metrics.MetricName.FAILED_REQ_COUNT_CUS;
 import static com.amazon.opendistroforelasticsearch.sql.metrics.MetricName.FAILED_REQ_COUNT_SYS;
@@ -58,9 +60,12 @@ public class MonitoringIT extends DocTest {
         DataTable table = new DataTable(new String[]{ "Field name", "Description" });
         table.addRow(row(REQ_TOTAL, "Total count of request"));
         table.addRow(row(REQ_COUNT_TOTAL, "Total count of request within the interval"));
+        table.addRow(row(DEFAULT_CURSOR_REQUEST_TOTAL, "Total count of simple cursor request"));
+        table.addRow(row(DEFAULT_CURSOR_REQUEST_COUNT_TOTAL, "Total count of simple cursor request within the interval"));
         table.addRow(row(FAILED_REQ_COUNT_SYS, "Count of failed request due to system error within the interval"));
         table.addRow(row(FAILED_REQ_COUNT_CUS, "Count of failed request due to bad request within the interval"));
         table.addRow(row(FAILED_REQ_COUNT_CB, "Indicate if plugin is being circuit broken within the interval"));
+
         return table.toString();
     }
 

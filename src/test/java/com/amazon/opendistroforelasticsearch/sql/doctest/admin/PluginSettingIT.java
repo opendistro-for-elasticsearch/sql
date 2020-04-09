@@ -124,7 +124,7 @@ public class PluginSettingIT extends DocTest {
         docSetting(
                 CURSOR_ENABLED,
                 "User can enable/disable pagination for all queries that are supported.",
-                false
+                true
         );
     }
 
