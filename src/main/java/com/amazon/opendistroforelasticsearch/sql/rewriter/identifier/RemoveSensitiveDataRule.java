@@ -15,10 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.rewriter.identifier;
 
-import com.alibaba.druid.sql.ast.expr.SQLBooleanExpr;
-import com.alibaba.druid.sql.ast.expr.SQLCharExpr;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
-import com.alibaba.druid.sql.ast.expr.SQLNumberExpr;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.RewriteRule;
@@ -34,24 +31,6 @@ public class RemoveSensitiveDataRule extends MySqlASTVisitorAdapter implements R
         dataSet.add(identifierExpr.getName());
         return true;
     }
-
-//    @Override
-//    public boolean visit(SQLNumberExpr numberExpr) {
-//        dataSet.add(numberExpr.getNumber().toString());
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean visit(SQLCharExpr charExpr) {
-//        dataSet.add(charExpr.getText());
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean visit(SQLBooleanExpr booleanExpr) {
-//        dataSet.add(String.valueOf(booleanExpr.getValue()));
-//        return true;
-//    }
 
     @Override
     public boolean match(SQLQueryExpr expr) {
