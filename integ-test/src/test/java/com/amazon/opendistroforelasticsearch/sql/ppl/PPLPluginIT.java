@@ -17,16 +17,57 @@ package com.amazon.opendistroforelasticsearch.sql.ppl;
 
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
+import org.elasticsearch.client.ResponseException;
 import org.elasticsearch.test.rest.ESRestTestCase;
+import org.hamcrest.Description;
+import org.hamcrest.TypeSafeMatcher;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
+import java.util.Locale;
 
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.hasProperty;
 
 public class PPLPluginIT extends ESRestTestCase {
+    @Rule
+    public ExpectedException exceptionRule = ExpectedException.none();
 
+    @Test
     public void testQueryEndpointShouldOK() throws IOException {
-        Response response = client().performRequest(new Request("POST", "/_opendistro/_ppl"));
-        assertThat(response.getStatusLine().getStatusCode(), is(200));
+        Response response = client().performRequest(makeRequest("search source=a"));
+        assertThat(response, statusCode(200));
+    }
+
+    @Test
+    public void testQueryEndpointShouldFail() throws IOException {
+        exceptionRule.expect(ResponseException.class);
+        exceptionRule.expect(hasProperty("response", statusCode(500)));
+
+        client().performRequest(makeRequest("search invalid"));
+    }
+
+    protected Request makeRequest(String query) {
+        Request post = new Request("POST", "/_opendistro/_ppl");
+        post.setJsonEntity(String.format(Locale.ROOT,
+                "{\n" +
+                        "  \"query\": \"%s\"\n" +
+                        "}", query));
+        return post;
+    }
+
+    private TypeSafeMatcher<Response> statusCode(int statusCode) {
+        return new TypeSafeMatcher<Response>() {
+            @Override
+            public void describeTo(Description description) {
+                description.appendText(String.format(Locale.ROOT, "statusCode=%d", statusCode));
+            }
+
+            @Override
+            protected boolean matchesSafely(Response resp) {
+                return resp.getStatusLine().getStatusCode() == statusCode;
+            }
+        };
     }
 }
