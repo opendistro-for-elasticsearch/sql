@@ -121,7 +121,7 @@ public class QueryDataAnonymizerTest {
     }
 
     @Test
-    public void unionQueriesShouldAnonymiazeSensitiveData() {
+    public void unionQueriesShouldAnonymizeSensitiveData() {
         String query = "SELECT name, age FROM accounts UNION SELECT name, age FROM employees";
         String expectedQuery = "(\n" +
                 "\tSELECT identifier, identifier\n" +

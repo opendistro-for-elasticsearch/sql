@@ -68,7 +68,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.amazon.opendistroforelasticsearch.sql.domain.IndexStatement.StatementType;
-import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.getFirstWord;
 import static com.amazon.opendistroforelasticsearch.sql.utils.Util.toSqlExpr;
 
 public class ESActionFactory {
@@ -82,7 +81,7 @@ public class ESActionFactory {
      * Create the compatible Query object
      * based on the SQL query.
      *
-     * @param sql The SQL query.
+     * @param request The SQL query.
      * @return Query object.
      */
     public static QueryAction create(Client client, QueryActionRequest request)
@@ -144,6 +143,11 @@ public class ESActionFactory {
 
     private static boolean isMulti(SQLQueryExpr sqlExpr) {
         return sqlExpr.getSubQuery().getQuery() instanceof SQLUnionQuery;
+    }
+
+    public static String getFirstWord(String sql) {
+        int endOfFirstWord = sql.indexOf(' ');
+        return sql.substring(0, endOfFirstWord > 0 ? endOfFirstWord : sql.length()).toUpperCase();
     }
 
     private static void executeAndFillSubQuery(Client client,

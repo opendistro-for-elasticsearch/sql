@@ -126,11 +126,6 @@ public class StringUtils {
         return Doubles.tryParse(text) != null;
     }
 
-    public static String getFirstWord(String sql) {
-        int endOfFirstWord = sql.indexOf(' ');
-        return sql.substring(0, endOfFirstWord > 0 ? endOfFirstWord : sql.length()).toUpperCase();
-    }
-
     private StringUtils() {
         throw new AssertionError(getClass().getCanonicalName() + " is a utility class and must not be initialized");
     }

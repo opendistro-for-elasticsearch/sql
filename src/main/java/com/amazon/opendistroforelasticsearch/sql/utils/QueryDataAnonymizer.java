@@ -34,13 +34,10 @@ public class QueryDataAnonymizer {
      * @return sql query string with all identifiers replaced with "***"
      */
     public static String anonymizeData(String query) {
-        if (StringUtils.getFirstWord(query).toLowerCase().equals("select")) {
-            RemoveSensitiveDataRule rule = new RemoveSensitiveDataRule();
-            SQLQueryExpr sqlExpr = (SQLQueryExpr) toSqlExpr(query);
-            rule.rewrite(sqlExpr);
-            return SQLUtils.toMySqlString(sqlExpr).replaceAll("0", "number")
-                    .replaceAll("false", "boolean_literal");
-        }
-        return query;
+        RemoveSensitiveDataRule rule = new RemoveSensitiveDataRule();
+        SQLQueryExpr sqlExpr = (SQLQueryExpr) toSqlExpr(query);
+        rule.rewrite(sqlExpr);
+        return SQLUtils.toMySqlString(sqlExpr).replaceAll("0", "number")
+                .replaceAll("false", "boolean_literal");
     }
 }
