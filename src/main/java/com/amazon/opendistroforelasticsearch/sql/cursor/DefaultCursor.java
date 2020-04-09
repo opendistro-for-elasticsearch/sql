@@ -17,6 +17,9 @@ package com.amazon.opendistroforelasticsearch.sql.cursor;
 
 import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema;
 import com.google.common.base.Strings;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -32,6 +35,9 @@ import java.util.stream.IntStream;
  * Minimum metdata that will be serialized for generating cursorId for
  * SELECT .... FROM .. ORDER BY .... queries
  */
+@Getter
+@Setter
+@NoArgsConstructor
 public class DefaultCursor implements Cursor {
 
     /** Make sure all keys are unique to prevent overriding
@@ -107,63 +113,6 @@ public class DefaultCursor implements Cursor {
          cursor.setFieldAliasMap(fieldAliasMap(json.getJSONObject(FIELD_ALIAS_MAP)));
 
          return cursor;
-    }
-
-
-    public String getIndexPattern() {
-        return indexPattern;
-    }
-
-    public void setIndexPattern(String indexPattern) {
-        this.indexPattern = indexPattern;
-    }
-
-    public List<Schema.Column> getColumns() {
-        return this.columns;
-    }
-
-    public void setColumns(List<Schema.Column> columns) {
-        this.columns = columns;
-    }
-
-    public long getRowsLeft() {
-        return rowsLeft;
-    }
-
-    public void setRowsLeft(long rowsLeft) {
-        this.rowsLeft = rowsLeft;
-    }
-
-    public Map<String, String> getFieldAliasMap() {
-        return fieldAliasMap;
-    }
-
-    public void setFieldAliasMap(Map<String, String> fieldAliasMap) {
-        this.fieldAliasMap = fieldAliasMap;
-    }
-
-    public String getScrollId() {
-        return scrollId;
-    }
-
-    public void setScrollId(String scrollId) {
-        this.scrollId = scrollId;
-    }
-
-    public Integer getLimit() {
-        return limit;
-    }
-
-    public void setLimit(Integer limit) {
-        this.limit = limit;
-    }
-
-    public Integer getFetchSize() {
-        return fetchSize;
-    }
-
-    public void setFetchSize(Integer fetchSize) {
-        this.fetchSize = fetchSize;
     }
 
     private JSONArray getSchemaAsJson() {
