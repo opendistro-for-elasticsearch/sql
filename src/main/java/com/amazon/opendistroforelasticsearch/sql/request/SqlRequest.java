@@ -16,7 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.request;
 
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
-import com.amazon.opendistroforelasticsearch.sql.utils.QueryDataMask;
+import com.amazon.opendistroforelasticsearch.sql.utils.QueryDataAnonymizer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.common.settings.Settings;
@@ -113,7 +113,7 @@ public class SqlRequest {
     public String removeSensitiveData() {
         String query = "";
         try {
-            query = QueryDataMask.maskData(this.sql);
+            query = QueryDataAnonymizer.anonymizeData(this.sql);
         } catch (Exception e) {
             LOG.error("Caught an exception when removing sensitive data", e);
         }
