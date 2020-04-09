@@ -37,6 +37,7 @@ public class SqlRequest {
     String sql;
     JSONObject jsonContent;
 
+
     public SqlRequest(final String sql, final JSONObject jsonContent) {
 
         this.sql = sql;
