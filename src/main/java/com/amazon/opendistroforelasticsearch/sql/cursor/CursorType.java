@@ -18,6 +18,11 @@ package com.amazon.opendistroforelasticsearch.sql.cursor;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Different types queries for which cursor is supported.
+ * The result execution, and cursor genreation/parsing will depend on the cursor type.
+ * NullCursor is the placeholder implementation in case of non-cursor query.
+ */
 public enum CursorType {
     NULL(null),
     DEFAULT("d"),

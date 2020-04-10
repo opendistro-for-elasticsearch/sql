@@ -432,7 +432,7 @@ opendistro.sql.cursor.fetch_size
 Description
 -----------
 
-User can set the default fetch_size for all queries that are supported by pagination.explicit `fetch_size` passed in request will override this value
+User can set the default fetch_size for all queries that are supported by pagination. Explicit `fetch_size` passed in request will override this value
 
 1. The default value is 1000.
 2. This setting is node scope.
@@ -474,7 +474,7 @@ opendistro.sql.cursor.keep_alive
 Description
 -----------
 
-User can set this value to indicate how long the cursor context should be kept open.Cursor contexts are resource heavy, and a lower value should be used if possible.
+User can set this value to indicate how long the cursor context should be kept open. Cursor contexts are resource heavy, and a lower value should be used if possible.
 
 1. The default value is 1m.
 2. This setting is node scope.

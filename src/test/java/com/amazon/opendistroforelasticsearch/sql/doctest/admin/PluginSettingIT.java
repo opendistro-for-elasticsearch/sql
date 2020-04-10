@@ -132,8 +132,8 @@ public class PluginSettingIT extends DocTest {
     public void cursorDefaultFetchSizeSetting() {
         docSetting(
                 CURSOR_FETCH_SIZE,
-                "User can set the default fetch_size for all queries that are supported by pagination." +
-                "explicit `fetch_size` passed in request will override this value",
+                "User can set the default fetch_size for all queries that are supported by pagination. " +
+                "Explicit `fetch_size` passed in request will override this value",
                 50
         );
     }
@@ -142,7 +142,7 @@ public class PluginSettingIT extends DocTest {
     public void cursorDefaultContextKeepAliveSetting() {
         docSetting(
                 CURSOR_KEEPALIVE,
-                "User can set this value to indicate how long the cursor context should be kept open." +
+                "User can set this value to indicate how long the cursor context should be kept open. " +
                 "Cursor contexts are resource heavy, and a lower value should be used if possible.",
                 "5m"
         );
