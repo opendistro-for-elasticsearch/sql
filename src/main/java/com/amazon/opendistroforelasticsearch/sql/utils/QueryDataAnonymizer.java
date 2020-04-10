@@ -44,7 +44,8 @@ public class QueryDataAnonymizer {
             SQLQueryExpr sqlExpr = (SQLQueryExpr) toSqlExpr(query);
             rule.rewrite(sqlExpr);
             resultQuery = SQLUtils.toMySqlString(sqlExpr).replaceAll("0", "number")
-                    .replaceAll("false", "boolean_literal");
+                    .replaceAll("false", "boolean_literal")
+                    .replaceAll("[\\n][\\t]+", " ");
         } catch (Exception e) {
             LOG.error("Caught an exception when removing sensitive data", e);
             resultQuery = query;

@@ -25,6 +25,11 @@ import com.alibaba.druid.sql.ast.statement.SQLExprTableSource;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.RewriteRule;
 
+/**
+ * Rewrite rule to anonymize sensitive data in logging queries.
+ * This rule replace the content of specific nodes (that might involve index data) in AST
+ * to anonymous content.
+ */
 public class AnonymizeSensitiveDataRule extends MySqlASTVisitorAdapter implements RewriteRule<SQLQueryExpr> {
 
     @Override
