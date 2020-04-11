@@ -36,6 +36,10 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstant
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.hitAll;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvInt;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvString;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.schema;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySchema;
 import static org.hamcrest.Matchers.both;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
@@ -352,5 +356,27 @@ public class SubqueryIT extends SQLIntegTestCase {
 
         assertThat(result.query("/aggregations/count/value"), equalTo(1000));
         assertThat(result.query("/aggregations/balance/value"), equalTo(25714837.0));
+    }
+
+    @Test
+    public void selectFromSubqueryWithoutAliasShouldPass() throws IOException {
+        JSONObject response = executeJdbcRequest(
+                StringUtils.format(
+                        "SELECT a.firstname AS my_first, a.lastname AS my_last, a.age AS my_age " +
+                        "FROM (SELECT firstname, lastname, age " +
+                                "FROM %s " +
+                                "WHERE age = 40 and account_number = 291) AS a",
+                        TEST_INDEX_ACCOUNT));
+
+        verifySchema(response,
+                schema("firstname", "my_first", "text"),
+                schema("lastname", "my_last", "text"),
+                schema("age", "my_age", "long"));
+        verifyDataRows(response,
+                rows("Lynn", "Pollard", 40));
+    }
+
+    private JSONObject executeJdbcRequest(String query) {
+        return new JSONObject(executeQuery(query, "jdbc"));
     }
 }
