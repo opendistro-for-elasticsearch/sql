@@ -19,6 +19,7 @@ import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema;
 import com.google.common.base.Strings;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.Setter;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -52,9 +53,11 @@ public class DefaultCursor implements Cursor {
 
     /** To get mappings for index to check if type is date needed for
      * @see com.amazon.opendistroforelasticsearch.sql.executor.format.DateFieldFormatter */
+    @NonNull
     private String indexPattern;
 
     /** List of Schema.Column for maintaining field order and generating null values of missing fields */
+    @NonNull
     private List<Schema.Column> columns;
 
     /** To delegate to correct cursor handler to get next page*/
@@ -67,14 +70,15 @@ public class DefaultCursor implements Cursor {
     private long rowsLeft;
 
     /** @see com.amazon.opendistroforelasticsearch.sql.executor.format.SelectResultSet */
+    @NonNull
     private Map<String, String> fieldAliasMap;
 
     /** To get next batch of result */
     private String scrollId;
 
     /** To reduce the number of rows left by fetchSize */
+    @NonNull
     private Integer fetchSize;
-
 
     private Integer limit;
 

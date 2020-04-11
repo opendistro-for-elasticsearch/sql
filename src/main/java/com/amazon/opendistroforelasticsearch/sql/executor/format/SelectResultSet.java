@@ -120,8 +120,8 @@ public class SelectResultSet extends ResultSet {
         this.dateFieldFormatter = new DateFieldFormatter(indexName, columns, fieldAliasMap);
 
         extractData();
-        this.dataRows = new DataRows(size, totalHits, rows);
         populateCursor();
+        this.dataRows = new DataRows(size, totalHits, rows);
     }
 
     public SelectResultSet(Client client, Object queryResult, String formatType, Cursor cursor) {
@@ -602,12 +602,13 @@ public class SelectResultSet extends ResultSet {
         }
     }
 
-    public void populateDefaultCursor(DefaultCursor cursor) {
+    private void populateDefaultCursor(DefaultCursor cursor) {
         /**
          * Assumption: scrollId, fetchSize, limit already being set in
          * @see PrettyFormatRestExecutor.buildProtocolForDefaultQuery()
          */
 
+        Integer limit = cursor.getLimit();
         long rowsLeft = rowsLeft(cursor.getFetchSize(), cursor.getLimit());
         if (rowsLeft <= 0) {
             // close the cursor
@@ -624,15 +625,11 @@ public class SelectResultSet extends ResultSet {
         cursor.setIndexPattern(indexName);
         cursor.setFieldAliasMap(fieldAliasMap());
         cursor.setColumns(columns);
+        this.totalHits = limit != null && limit < internalTotalHits ? limit : internalTotalHits;
     }
 
     private long rowsLeft(Integer fetchSize, Integer limit) {
         long rowsLeft = 0;
-        if (fetchSize == null || fetchSize == 0) {
-            // Ideally we should not be reaching here,
-            return rowsLeft;
-        }
-
         long totalHits = internalTotalHits;
         if (limit != null && limit < totalHits) {
             rowsLeft = limit - fetchSize;

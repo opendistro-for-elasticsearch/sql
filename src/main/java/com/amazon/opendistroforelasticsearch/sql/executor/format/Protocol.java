@@ -187,11 +187,9 @@ public class Protocol {
             switch (formatType) {
                 case "jdbc":
                     return cursorOutputInJDBCFormat();
-                case "table":
-                case "raw":
                 default:
-                    throw new UnsupportedOperationException(
-                            String.format("The following format is not supported: %s", formatType));
+                    throw new UnsupportedOperationException(String.format(
+                            "The following response format is not supported for cursor: [%s]", formatType));
             }
         }
         return error.toString();

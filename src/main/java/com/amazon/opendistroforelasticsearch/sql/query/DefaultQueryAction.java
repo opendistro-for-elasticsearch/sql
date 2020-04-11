@@ -35,6 +35,7 @@ import com.amazon.opendistroforelasticsearch.sql.query.maker.QueryMaker;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.nestedfield.NestedFieldProjection;
 import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.elasticsearch.action.search.SearchAction;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchType;
@@ -60,7 +61,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.CURSOR_ENABLED;
-import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.CURSOR_FETCH_SIZE;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.CURSOR_KEEPALIVE;
 
 /**
@@ -103,11 +103,11 @@ public class DefaultQueryAction extends QueryAction {
         updateRequestWithInnerHits(select, request);
     }
 
-    private void checkAndSetScroll() {
+    @VisibleForTesting
+    public void checkAndSetScroll() {
         LocalClusterState clusterState = LocalClusterState.state();
 
-        Integer fetchSize = sqlRequest.fetchSize() != null
-                ? sqlRequest.fetchSize() : clusterState.getSettingValue(CURSOR_FETCH_SIZE);
+        Integer fetchSize = sqlRequest.fetchSize();
         TimeValue timeValue = clusterState.getSettingValue(CURSOR_KEEPALIVE);
         Boolean cursorEnabled = clusterState.getSettingValue(CURSOR_ENABLED);
         Integer rowCount = select.getRowCount();
@@ -121,6 +121,7 @@ public class DefaultQueryAction extends QueryAction {
             setLimit(select.getOffset(), rowCount != null ? rowCount : Select.DEFAULT_LIMIT);
         }
     }
+
 
     private boolean checkIfScrollNeeded(boolean cursorEnabled, Integer fetchSize, Integer rowCount) {
         return cursorEnabled

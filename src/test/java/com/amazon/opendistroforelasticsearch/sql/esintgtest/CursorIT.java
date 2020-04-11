@@ -319,6 +319,7 @@ public class CursorIT extends SQLIntegTestCase {
         response = new JSONObject(executeFetchLessQuery(query, JDBC));
         datawRows = response.optJSONArray(DATAROWS);
         assertThat(datawRows.length(), equalTo(786));
+        assertTrue(response.has(CURSOR));
 
         wipeAllClusterSettings();
     }

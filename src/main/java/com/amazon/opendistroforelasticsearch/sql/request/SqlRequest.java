@@ -39,7 +39,6 @@ public class SqlRequest {
     String cursor;
     Integer fetchSize;
 
-
     public SqlRequest(final String sql, final JSONObject jsonContent) {
         this.sql = sql;
         this.jsonContent = jsonContent;

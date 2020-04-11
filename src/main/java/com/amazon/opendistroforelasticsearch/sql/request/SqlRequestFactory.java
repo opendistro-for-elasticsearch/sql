@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.request;
 
+import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import org.elasticsearch.rest.RestRequest;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,6 +23,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.CURSOR_FETCH_SIZE;
 
 public class SqlRequestFactory {
 
@@ -77,18 +81,18 @@ public class SqlRequestFactory {
 
 
     private static Integer validateAndGetFetchSize(JSONObject jsonContent) {
-        Integer fetchSize = null;
+        Optional<Integer> fetchSize = Optional.empty();
         try {
             if (jsonContent.has(SQL_FETCH_FIELD_NAME)) {
-                fetchSize = jsonContent.getInt(SQL_FETCH_FIELD_NAME);
-                if (fetchSize < 0) {
+                fetchSize = Optional.of(jsonContent.getInt(SQL_FETCH_FIELD_NAME));
+                if (fetchSize.get() < 0) {
                     throw new IllegalArgumentException("Fetch_size must be greater or equal to 0");
                 }
             }
         } catch (JSONException e) {
             throw new IllegalArgumentException("Failed to parse field [" + SQL_FETCH_FIELD_NAME +"]", e);
         }
-        return fetchSize;
+        return fetchSize.orElse(LocalClusterState.state().getSettingValue(CURSOR_FETCH_SIZE));
     }
 
     private static List<PreparedStatementRequest.PreparedStatementParameter> parseParameters(
