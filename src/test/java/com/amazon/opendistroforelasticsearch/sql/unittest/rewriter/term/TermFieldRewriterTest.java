@@ -20,12 +20,10 @@ import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.TermFieldRewriter;
+import com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils;
 import com.amazon.opendistroforelasticsearch.sql.util.SqlParserUtils;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -57,7 +55,7 @@ public class TermFieldRewriterTest {
         String expected = "SELECT t.age as a FROM (SELECT age FROM semantics WHERE employer.keyword = 'david') t";
 
         assertThat(rewriteTerm(sql),
-                IsEqualIgnoreCaseAndWhiteSpace.equalToIgnoreCaseAndWhiteSpace(expected));
+                MatcherUtils.IsEqualIgnoreCaseAndWhiteSpace.equalToIgnoreCaseAndWhiteSpace(expected));
     }
 
     @Test
@@ -66,7 +64,7 @@ public class TermFieldRewriterTest {
         String expected = sql;
 
         assertThat(rewriteTerm(sql),
-                IsEqualIgnoreCaseAndWhiteSpace.equalToIgnoreCaseAndWhiteSpace(expected));
+                MatcherUtils.IsEqualIgnoreCaseAndWhiteSpace.equalToIgnoreCaseAndWhiteSpace(expected));
     }
 
     private String rewriteTerm(String sql) {
@@ -77,48 +75,5 @@ public class TermFieldRewriterTest {
                 .replaceAll("^\\(", " ")
                 .replaceAll("\\)$", " ")
                 .trim();
-    }
-
-    /**
-     * Tests if a string is equal to another string, ignore the case and whitespace.
-     */
-    public static class IsEqualIgnoreCaseAndWhiteSpace extends TypeSafeMatcher<String> {
-        private final String string;
-
-        public IsEqualIgnoreCaseAndWhiteSpace(String string) {
-            if (string == null) {
-                throw new IllegalArgumentException("Non-null value required");
-            }
-            this.string = string;
-        }
-
-        @Override
-        public boolean matchesSafely(String item) {
-            return ignoreCase(ignoreSpaces(string)).equals(ignoreCase(ignoreSpaces(item)));
-        }
-
-        @Override
-        public void describeMismatchSafely(String item, Description mismatchDescription) {
-            mismatchDescription.appendText("was ").appendValue(item);
-        }
-
-        @Override
-        public void describeTo(Description description) {
-            description.appendText("a string equal to ")
-                    .appendValue(string)
-                    .appendText(" ignore case and white space");
-        }
-
-        public String ignoreSpaces(String toBeStripped) {
-            return toBeStripped.replaceAll("\\s+", "").trim();
-        }
-
-        public String ignoreCase(String toBeLower) {
-            return toBeLower.toLowerCase();
-        }
-
-        public static Matcher<String> equalToIgnoreCaseAndWhiteSpace(String expectedString) {
-            return new IsEqualIgnoreCaseAndWhiteSpace(expectedString);
-        }
     }
 }
