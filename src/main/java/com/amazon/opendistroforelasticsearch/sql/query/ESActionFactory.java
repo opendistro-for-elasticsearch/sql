@@ -105,17 +105,17 @@ public class ESActionFactory {
                 sqlExpr.accept(new NestedFieldRewriter());
 
                 if (isMulti(sqlExpr)) {
-                    sqlExpr.accept(new TermFieldRewriter(client, TermRewriterFilter.MULTI_QUERY));
+                    sqlExpr.accept(new TermFieldRewriter(TermRewriterFilter.MULTI_QUERY));
                     MultiQuerySelect multiSelect =
                             new SqlParser().parseMultiSelect((SQLUnionQuery) sqlExpr.getSubQuery().getQuery());
                     return new MultiQueryAction(client, multiSelect);
                 } else if (isJoin(sqlExpr, sql)) {
                     new JoinRewriteRule(LocalClusterState.state()).rewrite(sqlExpr);
-                    sqlExpr.accept(new TermFieldRewriter(client, TermRewriterFilter.JOIN));
+                    sqlExpr.accept(new TermFieldRewriter(TermRewriterFilter.JOIN));
                     JoinSelect joinSelect = new SqlParser().parseJoinSelect(sqlExpr);
                     return ESJoinQueryActionFactory.createJoinAction(client, joinSelect);
                 } else {
-                    sqlExpr.accept(new TermFieldRewriter(client));
+                    sqlExpr.accept(new TermFieldRewriter());
                     // migrate aggregation to query planner framework.
                     if (shouldMigrateToQueryPlan(sqlExpr, request.getFormat())) {
                         return new QueryPlanQueryAction(new QueryPlanRequestBuilder(
