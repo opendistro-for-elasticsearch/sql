@@ -35,7 +35,6 @@ import com.alibaba.druid.sql.parser.ParserException;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMappings;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.IndexMappings;
-import org.elasticsearch.client.Client;
 import org.json.JSONObject;
 
 import java.util.ArrayDeque;
@@ -56,16 +55,13 @@ import java.util.stream.Stream;
 public class TermFieldRewriter extends MySqlASTVisitorAdapter {
 
     private Deque<TermFieldScope> environment = new ArrayDeque<>();
-    private Client client;
     private TermRewriterFilter filterType;
 
-    public TermFieldRewriter(Client client) {
-        this.client = client;
+    public TermFieldRewriter() {
         this.filterType = TermRewriterFilter.COMMA;
     }
 
-    public TermFieldRewriter(Client client, TermRewriterFilter filterType) {
-        this.client = client;
+    public TermFieldRewriter(TermRewriterFilter filterType) {
         this.filterType = filterType;
     }
 
@@ -78,6 +74,10 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
 
         Map<String, String> indexToType = new HashMap<>();
         collect(query.getFrom(), indexToType, curScope().getAliases());
+        if (indexToType.isEmpty()) {
+            // no index found for current scope, continue.
+            return true;
+        }
         curScope().setMapper(getMappings(indexToType));
 
         if (this.filterType == TermRewriterFilter.COMMA || this.filterType == TermRewriterFilter.MULTI_QUERY) {
