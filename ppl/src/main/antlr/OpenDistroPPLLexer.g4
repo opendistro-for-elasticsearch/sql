@@ -240,6 +240,7 @@ WILDCARDQUERY:                      'WILDCARDQUERY';
 WILDCARD_QUERY:                     'WILDCARD_QUERY';
 
 // LITERALS AND VALUES
+WILDCARD:                           (MODULE | DOT_ID)+;
 STRING_LITERAL:                     DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING;
 ID:                                 ID_LITERAL;
 DOT_ID:                             '.' ID;

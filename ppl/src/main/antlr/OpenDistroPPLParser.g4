@@ -43,7 +43,7 @@ whereCommand
     ;
 
 fieldsCommand
-    : FIELDS fieldList
+    : FIELDS (PLUS | MINUS)? wcFieldList
     ;
 
 renameCommand
@@ -202,6 +202,10 @@ fieldList
     : fieldExpression (COMMA fieldExpression)*
     ;
 
+wcFieldList
+    : wcField (COMMA wcField)*
+    ;
+
 sortField
     : fieldExpression                                               #defaultSort
     | AUTO LT_PRTHS fieldExpression RT_PRTHS                        #autoSort
@@ -211,11 +215,15 @@ sortField
     ;
 
 wcField
-    : WCFIELD
+    : fieldExpression | wcFieldExpression
     ;
 
 fieldExpression
     : ident
+    ;
+
+wcFieldExpression
+    :
     ;
 
 /** functions */
@@ -304,11 +312,3 @@ ident
     | DOT_ID
     ;
 
-/** dataset */
-datasetType
-    : DATAMODEL | LOOKUP | SAVEDSEARCH
-    ;
-
-datasetName
-    :
-    ;
