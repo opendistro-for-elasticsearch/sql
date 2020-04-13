@@ -19,18 +19,17 @@ import com.amazon.opendistroforelasticsearch.sql.executor.Format;
 import org.elasticsearch.rest.RestRequest;
 
 public class CursorActionRequestRestExecutorFactory {
-    //TODO: add javadocs, see RestExecutor
 
-    public static CursorAsyncRestExecutor createExecutor(RestRequest request, String cursor, Format format) {
+    public static CursorAsyncRestExecutor createExecutor(RestRequest request, String cursorId, Format format) {
+
         if (isCursorCloseRequest(request)) {
-            return new CursorAsyncRestExecutor(new CursorCloseExecutor(cursor));
+            return new CursorAsyncRestExecutor(new CursorCloseExecutor(cursorId));
         } else {
-            return new CursorAsyncRestExecutor(new CursorResultExecutor(cursor, format));
+            return new CursorAsyncRestExecutor(new CursorResultExecutor(cursorId, format));
         }
     }
 
     private static boolean isCursorCloseRequest(final RestRequest request) {
         return request.path().endsWith("/_sql/close");
     }
-
 }
