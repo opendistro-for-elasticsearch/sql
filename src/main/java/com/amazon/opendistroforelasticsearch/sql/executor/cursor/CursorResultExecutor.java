@@ -79,7 +79,7 @@ public class CursorResultExecutor implements CursorRestExecutor {
          * All cursor's are of the form <cursorType>:<base64 encoded cursor>
          * The serialized form before encoding is upto Cursor implementation
          */
-        String[] splittedCursor = cursorId.split(":");
+        String[] splittedCursor = cursorId.split(":", 2);
 
         if (splittedCursor.length!=2) {
             throw new VerificationException("Not able to parse invalid cursor");
@@ -88,18 +88,14 @@ public class CursorResultExecutor implements CursorRestExecutor {
         String type = splittedCursor[0];
         CursorType cursorType = CursorType.getById(type);
 
-        if (cursorType!=CursorType.NULL) {
-            switch(cursorType) {
-                case DEFAULT:
-                    DefaultCursor defaultCursor = DefaultCursor.from(splittedCursor[1]);
-                    return handleDefaultCursorRequest(client, defaultCursor);
-                case AGGREGATION:
-                case JOIN:
-                default: throw new VerificationException("Unsupported cursor");
-            }
+        switch(cursorType) {
+            case DEFAULT:
+                DefaultCursor defaultCursor = DefaultCursor.from(splittedCursor[1]);
+                return handleDefaultCursorRequest(client, defaultCursor);
+            case AGGREGATION:
+            case JOIN:
+            default: throw new VerificationException("Unsupported cursor type [" + type + "]");
         }
-
-        throw new VerificationException("Not able to parse invalid cursor");
     }
 
     private String handleDefaultCursorRequest(Client client, DefaultCursor cursor) {

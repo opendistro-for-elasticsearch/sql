@@ -15,11 +15,11 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
+import com.amazon.opendistroforelasticsearch.sql.cursor.Cursor;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.QueryActionElasticExecutor;
 import com.amazon.opendistroforelasticsearch.sql.executor.RestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.cursor.DefaultCursor;
-import com.amazon.opendistroforelasticsearch.sql.cursor.NullCursor;
 import com.amazon.opendistroforelasticsearch.sql.query.DefaultQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.join.BackOffRetryStrategy;
@@ -77,7 +77,7 @@ public class PrettyFormatRestExecutor implements RestExecutor {
                 protocol = buildProtocolForDefaultQuery(client, (DefaultQueryAction) queryAction);
             } else {
                 Object queryResult = QueryActionElasticExecutor.executeAnyAction(client, queryAction);
-                protocol = new Protocol(client, queryAction, queryResult, format, new NullCursor());
+                protocol = new Protocol(client, queryAction, queryResult, format, Cursor.NULL_CURSOR);
             }
         } catch (Exception e) {
             if (e instanceof ElasticsearchException) {
@@ -110,8 +110,7 @@ public class PrettyFormatRestExecutor implements RestExecutor {
             defaultCursor.setFetchSize(queryAction.getSqlRequest().fetchSize());
             protocol = new Protocol(client, queryAction, response.getHits(), format, defaultCursor);
         } else {
-            NullCursor nullCursor = new NullCursor();
-            protocol = new Protocol(client, queryAction, response.getHits(), format, nullCursor);
+            protocol = new Protocol(client, queryAction, response.getHits(), format, Cursor.NULL_CURSOR);
         }
 
         return protocol;

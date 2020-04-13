@@ -76,18 +76,15 @@ public class CursorCloseExecutor implements CursorRestExecutor {
         String type = splittedCursor[0];
         CursorType cursorType = CursorType.getById(type);
 
-        if (cursorType!=CursorType.NULL) {
-            switch(cursorType) {
-                case DEFAULT:
-                    DefaultCursor defaultCursor = DefaultCursor.from(splittedCursor[1]);
-                    return handleDefaultCursorCloseRequest(client, defaultCursor);
-                case AGGREGATION:
-                case JOIN:
-                default: throw new VerificationException("Unsupported cursor");
-            }
+        switch(cursorType) {
+            case DEFAULT:
+                DefaultCursor defaultCursor = DefaultCursor.from(splittedCursor[1]);
+                return handleDefaultCursorCloseRequest(client, defaultCursor);
+            case AGGREGATION:
+            case JOIN:
+            default: throw new VerificationException("Unsupported cursor type [" + type + "]");
         }
-        LOG.error("Invalid cursor type {}", cursorType.name());
-        throw new VerificationException("Not able to parse invalid cursor");
+
     }
 
     private String handleDefaultCursorCloseRequest(Client client, DefaultCursor cursor) {

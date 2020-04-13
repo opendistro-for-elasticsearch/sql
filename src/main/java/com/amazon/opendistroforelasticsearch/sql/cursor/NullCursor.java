@@ -33,6 +33,6 @@ public class NullCursor implements Cursor {
     }
 
     public NullCursor from(String cursorId) {
-        return new NullCursor();
+        return NULL_CURSOR;
     }
 }
