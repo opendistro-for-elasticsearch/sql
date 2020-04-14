@@ -91,3 +91,62 @@ Explain::
 	  }
 	}
 
+Cursor
+======
+
+Description
+-----------
+
+To get paginated response for a query, user needs to provide `fetch_size` parameter as part of normal query. The value of `fetch_size` should be greater than `0`. In absence of `fetch_size`, default value of 1000 is used. A value of `0` will fallback to non-paginated response. This feature is only available over `jdbc` format for now.
+
+Example
+-------
+
+SQL query::
+
+	>> curl -H 'Content-Type: application/json' -X POST localhost:9200/_opendistro/_sql -d '{
+	  "fetch_size" : 5,
+	  "query" : "SELECT firstname, lastname FROM accounts WHERE age > 20 ORDER BY state ASC"
+	}'
+
+Result set::
+
+    {
+      "schema": [
+        {
+          "name": "firstname",
+          "type": "text"
+        },
+        {
+          "name": "lastname",
+          "type": "text"
+        }
+      ],
+      "cursor": "d:eyJhIjp7fSwicyI6IkRYRjFaWEo1UVc1a1JtVjBZMmdCQUFBQUFBQUFBQU1XZWpkdFRFRkZUMlpTZEZkeFdsWnJkRlZoYnpaeVVRPT0iLCJjIjpbeyJuYW1lIjoiZmlyc3RuYW1lIiwidHlwZSI6InRleHQifSx7Im5hbWUiOiJsYXN0bmFtZSIsInR5cGUiOiJ0ZXh0In1dLCJmIjo1LCJpIjoiYWNjb3VudHMiLCJsIjo5NTF9",
+      "total": 956,
+      "datarows": [
+        [
+          "Cherry",
+          "Carey"
+        ],
+        [
+          "Lindsey",
+          "Hawkins"
+        ],
+        [
+          "Sargent",
+          "Powers"
+        ],
+        [
+          "Campos",
+          "Olsen"
+        ],
+        [
+          "Savannah",
+          "Kirby"
+        ]
+      ],
+      "size": 5,
+      "status": 200
+    }
+

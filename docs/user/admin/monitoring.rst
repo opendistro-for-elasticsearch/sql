@@ -24,19 +24,23 @@ Description
 
 The meaning of fields in the response is as follows:
 
-+---------------------------+---------------------------------------------------------------+
-|                 Field name|                                                    Description|
-+===========================+===============================================================+
-|              request_total|                                         Total count of request|
-+---------------------------+---------------------------------------------------------------+
-|              request_count|                     Total count of request within the interval|
-+---------------------------+---------------------------------------------------------------+
-|failed_request_count_syserr|Count of failed request due to system error within the interval|
-+---------------------------+---------------------------------------------------------------+
-|failed_request_count_cuserr| Count of failed request due to bad request within the interval|
-+---------------------------+---------------------------------------------------------------+
-|    failed_request_count_cb| Indicate if plugin is being circuit broken within the interval|
-+---------------------------+---------------------------------------------------------------+
++----------------------------+---------------------------------------------------------------+
+|                  Field name|                                                    Description|
++============================+===============================================================+
+|               request_total|                                         Total count of request|
++----------------------------+---------------------------------------------------------------+
+|               request_count|                     Total count of request within the interval|
++----------------------------+---------------------------------------------------------------+
+|default_cursor_request_total|                           Total count of simple cursor request|
++----------------------------+---------------------------------------------------------------+
+|default_cursor_request_count|       Total count of simple cursor request within the interval|
++----------------------------+---------------------------------------------------------------+
+| failed_request_count_syserr|Count of failed request due to system error within the interval|
++----------------------------+---------------------------------------------------------------+
+| failed_request_count_cuserr| Count of failed request due to bad request within the interval|
++----------------------------+---------------------------------------------------------------+
+|     failed_request_count_cb| Indicate if plugin is being circuit broken within the interval|
++----------------------------+---------------------------------------------------------------+
 
 
 Example
@@ -50,9 +54,11 @@ Result set::
 
 	{
 	  "failed_request_count_cb" : 0,
+	  "default_cursor_request_count" : 10,
+	  "default_cursor_request_total" : 3,
 	  "failed_request_count_cuserr" : 0,
 	  "circuit_breaker" : 0,
-	  "request_total" : 49,
+	  "request_total" : 70,
 	  "request_count" : 0,
 	  "failed_request_count_syserr" : 0
 	}

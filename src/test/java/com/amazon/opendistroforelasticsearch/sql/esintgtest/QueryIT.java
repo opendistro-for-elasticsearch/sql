@@ -1297,55 +1297,6 @@ public class QueryIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void useScrollWithoutParams() throws IOException {
-        JSONObject response = executeQuery(
-                        String.format(Locale.ROOT, "SELECT /*! USE_SCROLL*/ age, gender, firstname, balance " +
-                                      "FROM  %s " +
-                                      "LIMIT 2000",
-                                TEST_INDEX_ACCOUNT));
-
-        Assert.assertNotNull(getScrollId(response));
-        JSONArray hits = getHits(response);
-        // By default, 50 results are returned
-        Assert.assertEquals(50, hits.length());
-        Assert.assertEquals(1000, getTotalHits(response));
-    }
-
-    @Test
-    public void useScrollWithParams() throws IOException {
-        JSONObject response = executeQuery(
-                        String.format(Locale.ROOT,
-                                "SELECT /*! USE_SCROLL(10, 5000) */ age, gender, firstname, balance FROM  %s",
-                                TEST_INDEX_ACCOUNT));
-
-        Assert.assertNotNull(getScrollId(response));
-        JSONArray hits = getHits(response);
-        Assert.assertEquals(10, hits.length());
-        Assert.assertEquals(1000, getTotalHits(response));
-    }
-
-    @Test
-    public void useScrollWithOrderByAndParams() throws IOException {
-        JSONObject response = executeQuery(
-                        String.format(Locale.ROOT,
-                                "SELECT /*! USE_SCROLL(5, 50000) */ age, gender, firstname, balance " +
-                                      "FROM %s " +
-                                      "ORDER BY age",
-                                TEST_INDEX_ACCOUNT));
-
-        Assert.assertNotNull(getScrollId(response));
-        JSONArray hits = getHits(response);
-        Assert.assertEquals(5, hits.length());
-        Assert.assertEquals(1000, getTotalHits(response));
-        for (int i = 0; i < hits.length(); i++) {
-            JSONObject hit = hits.getJSONObject(i);
-            JSONObject source = getSource(hit);
-
-            Assert.assertEquals(20, source.getInt("age"));
-        }
-    }
-
-    @Test
     public void innerQueryTest() throws IOException {
         JSONObject response = executeQuery(
                         String.format(Locale.ROOT, "SELECT * " +

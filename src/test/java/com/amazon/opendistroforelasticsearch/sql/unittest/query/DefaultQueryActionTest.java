@@ -19,11 +19,17 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.KVValue;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Select;
+import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.executor.Format;
+import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
 import com.amazon.opendistroforelasticsearch.sql.query.DefaultQueryAction;
+import com.amazon.opendistroforelasticsearch.sql.request.SqlRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.script.Script;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,12 +40,19 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.CURSOR_ENABLED;
+import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.CURSOR_FETCH_SIZE;
+import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.CURSOR_KEEPALIVE;
+import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.METRICS_ROLLING_WINDOW;
+import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.METRICS_ROLLING_INTERVAL;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 
 public class DefaultQueryActionTest {
 
@@ -67,6 +80,11 @@ public class DefaultQueryActionTest {
 
         queryAction = new DefaultQueryAction(mockClient, mockSelect);
         queryAction.initialize(mockRequestBuilder);
+    }
+
+    @After
+    public void cleanup() {
+        LocalClusterState.state(null);
     }
 
     @Test
@@ -121,6 +139,133 @@ public class DefaultQueryActionTest {
                 false, true, true));
 
         queryAction.setFields(fields);
+    }
+
+    @Test
+    public void testIfScrollShouldBeOpenWithDifferentFormats() {
+        int settingFetchSize = 500;
+        TimeValue timeValue = new TimeValue(120000);
+        int limit = 2300;
+        mockLocalClusterStateAndInitializeMetrics(true, settingFetchSize, timeValue);
+
+        doReturn(limit).when(mockSelect).getRowCount();
+        doReturn(mockRequestBuilder).when(mockRequestBuilder).setSize(settingFetchSize);
+        SqlRequest mockSqlRequest = mock(SqlRequest.class);
+        doReturn(settingFetchSize).when(mockSqlRequest).fetchSize();
+        queryAction.setSqlRequest(mockSqlRequest);
+
+        Format[] formats = new Format[] {Format.CSV, Format.RAW, Format.JSON, Format.TABLE};
+        for (Format format : formats) {
+            queryAction.setFormat(format);
+            queryAction.checkAndSetScroll();
+        }
+
+        Mockito.verify(mockRequestBuilder, times(4)).setSize(limit);
+        Mockito.verify(mockRequestBuilder, never()).setScroll(any(TimeValue.class));
+
+        queryAction.setFormat(Format.JDBC);
+        queryAction.checkAndSetScroll();
+        Mockito.verify(mockRequestBuilder).setSize(settingFetchSize);
+        Mockito.verify(mockRequestBuilder).setScroll(timeValue);
+
+    }
+
+    @Test
+    public void testIfScrollShouldBeOpenWithCursorEnabled() {
+        int settingFetchSize = 500;
+        TimeValue timeValue = new TimeValue(120000);
+        int limit = 2300;
+
+        doReturn(limit).when(mockSelect).getRowCount();
+        doReturn(mockRequestBuilder).when(mockRequestBuilder).setSize(settingFetchSize);
+        SqlRequest mockSqlRequest = mock(SqlRequest.class);
+        doReturn(settingFetchSize).when(mockSqlRequest).fetchSize();
+        queryAction.setSqlRequest(mockSqlRequest);
+        queryAction.setFormat(Format.JDBC);
+
+        mockLocalClusterStateAndInitializeMetrics(false, settingFetchSize, timeValue);
+        queryAction.checkAndSetScroll();
+        Mockito.verify(mockRequestBuilder).setSize(limit);
+        Mockito.verify(mockRequestBuilder, never()).setScroll(any(TimeValue.class));
+
+        mockLocalClusterStateAndInitializeMetrics(true, settingFetchSize, timeValue);
+        queryAction.checkAndSetScroll();
+        Mockito.verify(mockRequestBuilder).setSize(settingFetchSize);
+        Mockito.verify(mockRequestBuilder).setScroll(timeValue);
+
+    }
+
+    @Test
+    public void testIfScrollShouldBeOpenWithDifferentFetchSize() {
+        int fetchSize = 500;
+        TimeValue timeValue = new TimeValue(120000);
+        int limit = 2300;
+        mockLocalClusterStateAndInitializeMetrics(true, fetchSize, timeValue);
+
+        doReturn(limit).when(mockSelect).getRowCount();
+        SqlRequest mockSqlRequest = mock(SqlRequest.class);
+        queryAction.setSqlRequest(mockSqlRequest);
+        queryAction.setFormat(Format.JDBC);
+
+        int[] fetchSizes = new int[] {0, -10};
+        for (int fetch : fetchSizes) {
+            doReturn(fetch).when(mockSqlRequest).fetchSize();
+            queryAction.checkAndSetScroll();
+        }
+        Mockito.verify(mockRequestBuilder, times(2)).setSize(limit);
+        Mockito.verify(mockRequestBuilder, never()).setScroll(timeValue);
+
+        int userFetchSize = 20;
+        doReturn(userFetchSize).when(mockSqlRequest).fetchSize();
+        doReturn(mockRequestBuilder).when(mockRequestBuilder).setSize(userFetchSize);
+        queryAction.checkAndSetScroll();
+        Mockito.verify(mockRequestBuilder).setSize(20);
+        Mockito.verify(mockRequestBuilder).setScroll(timeValue);
+    }
+
+
+    @Test
+    public void testIfScrollShouldBeOpenWithDifferentValidFetchSizeAndLimit() {
+        int fetchSize = 1000;
+        TimeValue timeValue = new TimeValue(120000);
+        mockLocalClusterStateAndInitializeMetrics(true, fetchSize, timeValue);
+
+        int limit = 2300;
+        doReturn(limit).when(mockSelect).getRowCount();
+        SqlRequest mockSqlRequest = mock(SqlRequest.class);
+
+        /** fetchSize <= LIMIT - open scroll*/
+        int userFetchSize = 1500;
+        doReturn(userFetchSize).when(mockSqlRequest).fetchSize();
+        doReturn(mockRequestBuilder).when(mockRequestBuilder).setSize(userFetchSize);
+        queryAction.setSqlRequest(mockSqlRequest);
+        queryAction.setFormat(Format.JDBC);
+
+        queryAction.checkAndSetScroll();
+        Mockito.verify(mockRequestBuilder).setSize(userFetchSize);
+        Mockito.verify(mockRequestBuilder).setScroll(timeValue);
+
+        /** fetchSize > LIMIT - no scroll */
+        userFetchSize = 5000;
+        doReturn(userFetchSize).when(mockSqlRequest).fetchSize();
+        mockRequestBuilder = mock(SearchRequestBuilder.class);
+        queryAction.initialize(mockRequestBuilder);
+        queryAction.checkAndSetScroll();
+        Mockito.verify(mockRequestBuilder).setSize(limit);
+        Mockito.verify(mockRequestBuilder, never()).setScroll(timeValue);
+    }
+
+    private void mockLocalClusterStateAndInitializeMetrics(boolean cursorEnabled, Integer fetchSize, TimeValue time) {
+        LocalClusterState mockLocalClusterState = mock(LocalClusterState.class);
+        LocalClusterState.state(mockLocalClusterState);
+        doReturn(cursorEnabled).when(mockLocalClusterState).getSettingValue(CURSOR_ENABLED);
+        doReturn(fetchSize).when(mockLocalClusterState).getSettingValue(CURSOR_FETCH_SIZE);
+        doReturn(time).when(mockLocalClusterState).getSettingValue(CURSOR_KEEPALIVE);
+        doReturn(3600L).when(mockLocalClusterState).getSettingValue(METRICS_ROLLING_WINDOW);
+        doReturn(2L).when(mockLocalClusterState).getSettingValue(METRICS_ROLLING_INTERVAL);
+
+        Metrics.getInstance().registerDefaultMetrics();
+
     }
 
     private Field createScriptField(final String name, final String script, final boolean addScriptLanguage,

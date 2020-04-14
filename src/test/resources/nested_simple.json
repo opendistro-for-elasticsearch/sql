@@ -1,0 +1,10 @@
+{"index":{"_id":"1"}}
+{"name":"abbas","age":24,"address":[{"city":"New york city","state":"NY"},{"city":"bellevue","state":"WA"},{"city":"seattle","state":"WA"},{"city":"chicago","state":"IL"}]}
+{"index":{"_id":"2"}}
+{"name":"chen","age":32,"address":[{"city":"Miami","state":"Florida"},{"city":"los angeles","state":"CA"}]}
+{"index":{"_id":"3"}}
+{"name":"peng","age":26,"address":[{"city":"san diego","state":"CA"},{"city":"austin","state":"TX"}]}
+{"index":{"_id":"4"}}
+{"name":"andy","age":19,"id":4,"address":[{"city":"houston","state":"TX"}]}
+{"index":{"_id":"5"}}
+{"name":"david","age":25,"address":[{"city":"raleigh","state":"NC"},{"city":"charlotte","state":"SC"}]}
