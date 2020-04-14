@@ -15,8 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl.node;
 
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Literal;
-
 public interface NodeVisitor<T> {
     default T visit(Node<?> tree) {
         return tree.accept(this);
