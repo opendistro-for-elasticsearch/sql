@@ -31,6 +31,12 @@ public class PreparedStatementRequest extends SqlRequest {
         this.sql = this.substituteParameters();
     }
 
+    public PreparedStatementRequest(String sql, final Integer fetchSize,
+                                    JSONObject payloadJson, List<PreparedStatementParameter> parameters) {
+        this(sql, payloadJson, parameters);
+        this.fetchSize = fetchSize;
+    }
+
     public List<PreparedStatementParameter> getParameters() {
         return this.parameters;
     }

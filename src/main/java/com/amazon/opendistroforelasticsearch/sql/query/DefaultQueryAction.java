@@ -25,17 +25,19 @@ import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Order;
 import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.domain.Where;
-import com.amazon.opendistroforelasticsearch.sql.domain.hints.Hint;
-import com.amazon.opendistroforelasticsearch.sql.domain.hints.HintType;
+import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.executor.Format;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema;
+import com.amazon.opendistroforelasticsearch.sql.metrics.MetricName;
+import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
 import com.amazon.opendistroforelasticsearch.sql.query.maker.QueryMaker;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.nestedfield.NestedFieldProjection;
 import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
+
+import com.google.common.annotations.VisibleForTesting;
 import org.elasticsearch.action.search.SearchAction;
 import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.search.SearchScrollAction;
-import org.elasticsearch.action.search.SearchScrollRequestBuilder;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
@@ -55,7 +57,11 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+
+import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.CURSOR_ENABLED;
+import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.CURSOR_KEEPALIVE;
 
 /**
  * Transform SQL query to standard Elasticsearch search query
@@ -78,49 +84,60 @@ public class DefaultQueryAction extends QueryAction {
 
     @Override
     public SqlElasticSearchRequestBuilder explain() throws SqlParseException {
-        Hint scrollHint = null;
-        for (Hint hint : select.getHints()) {
-            if (hint.getType() == HintType.USE_SCROLL) {
-                scrollHint = hint;
-                break;
-            }
-        }
-        if (scrollHint != null && scrollHint.getParams()[0] instanceof String) {
-            return new SqlElasticSearchRequestBuilder(new SearchScrollRequestBuilder(client,
-                    SearchScrollAction.INSTANCE, (String) scrollHint.getParams()[0])
-                    .setScroll(new TimeValue((Integer) scrollHint.getParams()[1])));
-        }
+        Objects.requireNonNull(this.sqlRequest, "SqlRequest is required for ES request build");
+        buildRequest();
+        checkAndSetScroll();
+        return new SqlElasticSearchRequestBuilder(request);
+    }
 
+    private void buildRequest() throws SqlParseException {
         this.request = new SearchRequestBuilder(client, SearchAction.INSTANCE);
         setIndicesAndTypes();
-
         setFields(select.getFields());
         setWhere(select.getWhere());
         setSorts(select.getOrderBys());
-        setLimit(select.getOffset(), select.getRowCount());
-
-        if (scrollHint != null) {
-            if (!select.isOrderdSelect()) {
-                request.addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC);
-            }
-            request.setSize((Integer) scrollHint.getParams()[0])
-                    .setScroll(new TimeValue((Integer) scrollHint.getParams()[1]));
-        } else {
-            request.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
-        }
         updateRequestWithIndexAndRoutingOptions(select, request);
         updateRequestWithHighlight(select, request);
         updateRequestWithCollapse(select, request);
         updateRequestWithPostFilter(select, request);
         updateRequestWithInnerHits(select, request);
+    }
 
-        return new SqlElasticSearchRequestBuilder(request);
+    @VisibleForTesting
+    public void checkAndSetScroll() {
+        LocalClusterState clusterState = LocalClusterState.state();
+
+        Integer fetchSize = sqlRequest.fetchSize();
+        TimeValue timeValue = clusterState.getSettingValue(CURSOR_KEEPALIVE);
+        Boolean cursorEnabled = clusterState.getSettingValue(CURSOR_ENABLED);
+        Integer rowCount = select.getRowCount();
+
+        if (checkIfScrollNeeded(cursorEnabled, fetchSize, rowCount)) {
+            Metrics.getInstance().getNumericalMetric(MetricName.DEFAULT_CURSOR_REQUEST_COUNT_TOTAL).increment();
+            Metrics.getInstance().getNumericalMetric(MetricName.DEFAULT_CURSOR_REQUEST_TOTAL).increment();
+            request.setSize(fetchSize).setScroll(timeValue);
+        } else {
+            request.setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
+            setLimit(select.getOffset(), rowCount != null ? rowCount : Select.DEFAULT_LIMIT);
+        }
+    }
+
+
+    private boolean checkIfScrollNeeded(boolean cursorEnabled, Integer fetchSize, Integer rowCount) {
+        return cursorEnabled
+                && (format !=null && format.equals(Format.JDBC))
+                && fetchSize > 0
+                && (rowCount == null || (rowCount > fetchSize));
     }
 
     @Override
     public Optional<List<String>> getFieldNames() {
-
         return Optional.of(fieldNames);
+    }
+
+
+    public Select getSelect() {
+        return select;
     }
 
     /**

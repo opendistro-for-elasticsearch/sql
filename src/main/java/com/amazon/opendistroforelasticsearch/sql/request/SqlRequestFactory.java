@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.request;
 
+import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import org.elasticsearch.rest.RestRequest;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,15 +23,20 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.CURSOR_FETCH_SIZE;
 
 public class SqlRequestFactory {
 
     private static final String SQL_URL_PARAM_KEY = "sql";
     private static final String SQL_FIELD_NAME = "query";
     private static final String PARAM_FIELD_NAME = "parameters";
-
     private static final String PARAM_TYPE_FIELD_NAME = "type";
     private static final String PARAM_VALUE_FIELD_NAME = "value";
+
+    public static final String SQL_CURSOR_FIELD_NAME = "cursor";
+    public static final String SQL_FETCH_FIELD_NAME = "fetch_size";
 
     public static SqlRequest getSqlRequest(RestRequest request) {
         switch (request.method()) {
@@ -57,16 +63,36 @@ public class SqlRequestFactory {
         JSONObject jsonContent;
         try {
             jsonContent = new JSONObject(content);
+            if (jsonContent.has(SQL_CURSOR_FIELD_NAME)) {
+                return new SqlRequest(jsonContent.getString(SQL_CURSOR_FIELD_NAME));
+            }
         } catch (JSONException e) {
             throw new IllegalArgumentException("Failed to parse request payload", e);
         }
         String sql = jsonContent.getString(SQL_FIELD_NAME);
+
         if (jsonContent.has(PARAM_FIELD_NAME)) { // is a PreparedStatement
             JSONArray paramArray = jsonContent.getJSONArray(PARAM_FIELD_NAME);
             List<PreparedStatementRequest.PreparedStatementParameter> parameters = parseParameters(paramArray);
-            return new PreparedStatementRequest(sql, jsonContent, parameters);
+            return new PreparedStatementRequest(sql, validateAndGetFetchSize(jsonContent), jsonContent, parameters);
         }
-        return new SqlRequest(sql, jsonContent);
+        return new SqlRequest(sql, validateAndGetFetchSize(jsonContent), jsonContent);
+    }
+
+
+    private static Integer validateAndGetFetchSize(JSONObject jsonContent) {
+        Optional<Integer> fetchSize = Optional.empty();
+        try {
+            if (jsonContent.has(SQL_FETCH_FIELD_NAME)) {
+                fetchSize = Optional.of(jsonContent.getInt(SQL_FETCH_FIELD_NAME));
+                if (fetchSize.get() < 0) {
+                    throw new IllegalArgumentException("Fetch_size must be greater or equal to 0");
+                }
+            }
+        } catch (JSONException e) {
+            throw new IllegalArgumentException("Failed to parse field [" + SQL_FETCH_FIELD_NAME +"]", e);
+        }
+        return fetchSize.orElse(LocalClusterState.state().getSettingValue(CURSOR_FETCH_SIZE));
     }
 
     private static List<PreparedStatementRequest.PreparedStatementParameter> parseParameters(

@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.unmodifiableList;
+
 public class Schema implements Iterable<Schema.Column> {
 
     private String indexName;
@@ -62,6 +64,10 @@ public class Schema implements Iterable<Schema.Column> {
         return columns.stream()
                 .map(column -> column.getName())
                 .collect(Collectors.toList());
+    }
+
+    public List<Column> getColumns() {
+        return unmodifiableList(columns);
     }
 
     private static Set<String> getTypes() {

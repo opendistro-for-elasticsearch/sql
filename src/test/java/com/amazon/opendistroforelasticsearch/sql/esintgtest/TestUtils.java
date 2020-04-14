@@ -608,6 +608,64 @@ public class TestUtils {
                 "}";
     }
 
+    public static String getDateTimeIndexMapping() {
+        return "{" +
+                "  \"mappings\": {" +
+                "    \"properties\": {" +
+                "      \"birthday\": {" +
+                "        \"type\": \"date\"" +
+                "      }" +
+                "    }" +
+                "  }" +
+                "}";
+    }
+
+    public static String getNestedSimpleIndexMapping() {
+        return "{" +
+                "  \"mappings\": {" +
+                "    \"properties\": {" +
+                "      \"address\": {" +
+                "        \"type\": \"nested\"," +
+                "        \"properties\": {" +
+                "          \"city\": {" +
+                "            \"type\": \"text\"," +
+                "            \"fields\": {" +
+                "              \"keyword\": {" +
+                "                \"type\": \"keyword\"," +
+                "                \"ignore_above\": 256" +
+                "              }" +
+                "            }" +
+                "          }," +
+                "          \"state\": {" +
+                "            \"type\": \"text\"," +
+                "            \"fields\": {" +
+                "              \"keyword\": {" +
+                "                \"type\": \"keyword\"," +
+                "                \"ignore_above\": 256" +
+                "              }" +
+                "            }" +
+                "          }" +
+                "        }" +
+                "      }," +
+                "      \"age\": {" +
+                "        \"type\": \"long\"" +
+                "      }," +
+                "      \"id\": {" +
+                "        \"type\": \"long\"" +
+                "      }," +
+                "      \"name\": {" +
+                "        \"type\": \"text\"," +
+                "        \"fields\": {" +
+                "          \"keyword\": {" +
+                "            \"type\": \"keyword\"," +
+                "            \"ignore_above\": 256" +
+                "          }" +
+                "        }" +
+                "      }" +
+                "    }" +
+                "  }" +
+                "}";
+    }
     public static void loadBulk(Client client, String jsonPath, String defaultIndex) throws Exception {
         System.out.println(String.format("Loading file %s into elasticsearch cluster", jsonPath));
         String absJsonPath = getResourceFilePath(jsonPath);

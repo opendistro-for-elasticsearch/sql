@@ -36,6 +36,8 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.get
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getBankIndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getBankWithNullValuesIndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getDateIndexMapping;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getDateTimeIndexMapping;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getNestedSimpleIndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getDogIndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getDogs2IndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getDogs3IndexMapping;
@@ -54,6 +56,7 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.isI
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.loadDataByRestClient;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.EXPLAIN_API_ENDPOINT;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.QUERY_API_ENDPOINT;
+import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.CURSOR_CLOSE_ENDPOINT;
 
 /**
  * SQL plugin integration test base class.
@@ -67,6 +70,9 @@ import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.QUE
  *   XXXTIT:                  3) init()             5) init()
  */
 public abstract class SQLIntegTestCase extends ESRestTestCase {
+
+    public static final String PERSISTENT = "persistent";
+    public static final String TRANSIENT = "transient";
 
     @Before
     public void setUpIndices() throws Exception {
@@ -128,9 +134,24 @@ public abstract class SQLIntegTestCase extends ESRestTestCase {
     }
 
     protected Request getSqlRequest(String request, boolean explain) {
-        String queryEndpoint = String.format("%s?format=%s", QUERY_API_ENDPOINT, "json");
+        return getSqlRequest(request, explain, "json");
+    }
+
+    protected Request getSqlRequest(String request, boolean explain, String requestType) {
+        String queryEndpoint = String.format("%s?format=%s", QUERY_API_ENDPOINT, requestType);
         Request sqlRequest = new Request("POST", explain ? EXPLAIN_API_ENDPOINT : queryEndpoint);
         sqlRequest.setJsonEntity(request);
+        RequestOptions.Builder restOptionsBuilder = RequestOptions.DEFAULT.toBuilder();
+        restOptionsBuilder.addHeader("Content-Type", "application/json");
+        sqlRequest.setOptions(restOptionsBuilder);
+
+        return sqlRequest;
+    }
+
+    protected Request getSqlCursorCloseRequest(String cursorRequest) {
+        String queryEndpoint = String.format("%s?format=%s", CURSOR_CLOSE_ENDPOINT, "jdbc");
+        Request sqlRequest = new Request("POST", queryEndpoint);
+        sqlRequest.setJsonEntity(cursorRequest);
         RequestOptions.Builder restOptionsBuilder = RequestOptions.DEFAULT.toBuilder();
         restOptionsBuilder.addHeader("Content-Type", "application/json");
         sqlRequest.setOptions(restOptionsBuilder);
@@ -154,6 +175,31 @@ public abstract class SQLIntegTestCase extends ESRestTestCase {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    protected String executeFetchQuery(String query, int fetchSize, String requestType) throws IOException {
+            String endpoint = "/_opendistro/_sql?format=" + requestType;
+            String requestBody = makeRequest(query, fetchSize);
+
+            Request sqlRequest = new Request("POST", endpoint);
+            sqlRequest.setJsonEntity(requestBody);
+
+            Response response = client().performRequest(sqlRequest);
+            String responseString = getResponseBody(response, true);
+            return responseString;
+    }
+
+    protected String executeFetchLessQuery(String query, String requestType) throws IOException {
+
+            String endpoint = "/_opendistro/_sql?format=" + requestType;
+            String requestBody = makeFetchLessRequest(query);
+
+            Request sqlRequest = new Request("POST", endpoint);
+            sqlRequest.setJsonEntity(requestBody);
+
+            Response response = client().performRequest(sqlRequest);
+            String responseString = getResponseBody(response, true);
+            return responseString;
     }
 
     protected Request buildGetEndpointRequest(final String sqlQuery) {
@@ -221,11 +267,31 @@ public abstract class SQLIntegTestCase extends ESRestTestCase {
         return new JSONObject(result);
     }
 
+    protected JSONObject executeCursorQuery(final String cursor) throws IOException {
+        final String requestBody = makeCursorRequest(cursor);
+        Request sqlRequest = getSqlRequest(requestBody, false, "jdbc");
+        return new JSONObject(executeRequest(sqlRequest));
+    }
+
+    protected JSONObject executeCursorCloseQuery(final String cursor) throws IOException {
+        final String requestBody = makeCursorRequest(cursor);
+        Request sqlRequest = getSqlCursorCloseRequest(requestBody);
+        return new JSONObject(executeRequest(sqlRequest));
+    }
+
     protected static JSONObject updateClusterSettings(ClusterSetting setting) throws IOException {
         Request request = new Request("PUT", "/_cluster/settings");
         String persistentSetting = String.format(Locale.ROOT,
             "{\"%s\": {\"%s\": %s}}", setting.type, setting.name, setting.value);
         request.setJsonEntity(persistentSetting);
+        RequestOptions.Builder restOptionsBuilder = RequestOptions.DEFAULT.toBuilder();
+        restOptionsBuilder.addHeader("Content-Type", "application/json");
+        request.setOptions(restOptionsBuilder);
+        return new JSONObject(executeRequest(request));
+    }
+
+    protected static JSONObject getAllClusterSettings() throws IOException {
+        Request request = new Request("GET", "/_cluster/settings?flat_settings&include_defaults");
         RequestOptions.Builder restOptionsBuilder = RequestOptions.DEFAULT.toBuilder();
         restOptionsBuilder.addHeader("Content-Type", "application/json");
         request.setOptions(restOptionsBuilder);
@@ -258,9 +324,24 @@ public abstract class SQLIntegTestCase extends ESRestTestCase {
     }
 
     protected String makeRequest(String query) {
+        return makeRequest(query, 0);
+    }
+
+    protected String makeRequest(String query, int fetch_size) {
+        return String.format("{\n" +
+                "  \"fetch_size\": \"%s\",\n" +
+                "  \"query\": \"%s\"\n" +
+                "}", fetch_size, query);
+    }
+
+    protected String makeFetchLessRequest(String query) {
         return String.format("{\n" +
                 "  \"query\": \"%s\"\n" +
                 "}", query);
+    }
+
+    protected String makeCursorRequest(String cursor) {
+        return String.format("{\"cursor\":\"%s\"}" , cursor);
     }
 
     protected JSONArray getHits(JSONObject response) {
@@ -379,7 +460,15 @@ public abstract class SQLIntegTestCase extends ESRestTestCase {
         DATE(TestsConstants.TEST_INDEX_DATE,
                 "dates",
                 getDateIndexMapping(),
-                "src/test/resources/dates.json");
+                "src/test/resources/dates.json"),
+        DATETIME(TestsConstants.TEST_INDEX_DATE_TIME,
+                "_doc",
+                getDateTimeIndexMapping(),
+                "src/test/resources/datetime.json"),
+        NESTED_SIMPLE(TestsConstants.TEST_INDEX_NESTED_SIMPLE,
+                "_doc",
+                getNestedSimpleIndexMapping(),
+                "src/test/resources/nested_simple.json");
 
         private final String name;
         private final String type;
