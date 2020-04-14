@@ -240,12 +240,11 @@ WILDCARDQUERY:                      'WILDCARDQUERY';
 WILDCARD_QUERY:                     'WILDCARD_QUERY';
 
 // LITERALS AND VALUES
-WILDCARD:                           (MODULE | DOT_ID)+;
 STRING_LITERAL:                     DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING;
 ID:                                 ID_LITERAL;
 DOT_ID:                             '.' ID;
-DECIMAL_LITERAL:                    DEC_DIGIT+;
-// TODO: define WCFIELD
+INTEGER_LITERAL:                    DEC_DIGIT+;
+DECIMAL_LITERAL:                    (DEC_DIGIT+)? '.' DEC_DIGIT+;
 
 fragment ID_LITERAL:                [A-Z_$0-9@]*?[A-Z_$\-]+?[A-Z_$\-0-9]*;
 fragment DQUOTA_STRING:             '"' ( '\\'. | '""' | ~('"'| '\\') )* '"';
