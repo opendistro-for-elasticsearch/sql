@@ -13,12 +13,23 @@
  *   permissions and limitations under the License.
  */
 
-rootProject.name = 'opendistro-sql'
+package com.amazon.opendistroforelasticsearch.sql.data.model;
 
-include 'plugin'
-include 'ppl'
-include 'integ-test'
-include 'common'
-include 'elasticsearch'
-include 'core'
+import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
+import lombok.RequiredArgsConstructor;
 
+/**
+ * The definition of the missing value.
+ */
+@RequiredArgsConstructor
+public class ExprMissingValue implements ExprValue {
+    @Override
+    public Object value() {
+        throw new ExpressionEvaluationException("invalid to call value operation on missing value");
+    }
+
+    @Override
+    public ExprType type() {
+        return ExprType.MISSING;
+    }
+}
