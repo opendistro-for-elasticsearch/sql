@@ -190,6 +190,7 @@ booleanExpression
 /** tables */
 tableSource
     : ident
+    | stringLiteral
     ;
 
 /** fields */
@@ -209,9 +210,19 @@ sortField
     | NUM LT_PRTHS fieldExpression RT_PRTHS                         #numSort
     ;
 
-
 fieldExpression
-    : ident
+    : nestedFieldExpression
+    | SINGLE_QUOTE nestedFieldExpression SINGLE_QUOTE
+    | DOUBLE_QUOTE nestedFieldExpression DOUBLE_QUOTE
+    | BACKTICK nestedFieldExpression BACKTICK
+    ;
+
+nestedFieldExpression
+    : ident                                                         #nestedFieldLastLayerExpr
+    | ident DOT nestedFieldExpression                               #nestedFieldExpr
+    | ident LT_SQR_PRTHS integerLiteral RT_SQR_PRTHS                #nestedFieldLastLayerArrayExpr
+    | ident LT_SQR_PRTHS integerLiteral RT_SQR_PRTHS DOT
+    nestedFieldExpression                                           #nestedFieldArrayExpr
     ;
 
 wcFieldExpression
@@ -270,7 +281,7 @@ literalValue
     ;
 
 stringLiteral
-    : STRING_LITERAL
+    : DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING
     ;
 
 integerLiteral
@@ -289,25 +300,14 @@ valueList
     : LT_PRTHS literalValue (COMMA literalValue)* RT_PRTHS
     ;
 
-fullColumnName
-    : simpleId DOT_ID*
-    ;
-
 constant
-    : stringLiteral | decimalLiteral
-    | MINUS decimalLiteral
+    : stringLiteral | decimalLiteral | integerLiteral
+    | MINUS (decimalLiteral | integerLiteral)
     | booleanLiteral
     ;
 
-simpleId
-    : ID
-    | DOT_ID
-    | STRING_LITERAL
-    ;
-
 ident
-    : ID
-    | DOT_ID
+    : (DOT)? ID
     ;
 
 wildcard

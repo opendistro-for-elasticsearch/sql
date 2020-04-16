@@ -90,6 +90,11 @@ EXCLAMATION_SYMBOL:                 '!';
 COLON:                              ':';
 LT_PRTHS:                           '(';
 RT_PRTHS:                           ')';
+LT_SQR_PRTHS:                       '[';
+RT_SQR_PRTHS:                       ']';
+SINGLE_QUOTE:                       '\'';
+DOUBLE_QUOTE:                       '"';
+BACKTICK:                           '`';
 
 // AGGREGATIONS
 AVG:                                'AVG';
@@ -240,16 +245,15 @@ WILDCARDQUERY:                      'WILDCARDQUERY';
 WILDCARD_QUERY:                     'WILDCARD_QUERY';
 
 // LITERALS AND VALUES
-STRING_LITERAL:                     DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING;
+//STRING_LITERAL:                     DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING;
 ID:                                 ID_LITERAL;
-DOT_ID:                             '.' ID;
 INTEGER_LITERAL:                    DEC_DIGIT+;
 DECIMAL_LITERAL:                    (DEC_DIGIT+)? '.' DEC_DIGIT+;
 
 fragment ID_LITERAL:                [A-Z_$0-9@]*?[A-Z_$\-]+?[A-Z_$\-0-9]*;
-fragment DQUOTA_STRING:             '"' ( '\\'. | '""' | ~('"'| '\\') )* '"';
-fragment SQUOTA_STRING:             '\'' ('\\'. | '\'\'' | ~('\'' | '\\'))* '\'';
-fragment BQUOTA_STRING:             '`' ( '\\'. | '``' | ~('`'|'\\'))* '`';
+DQUOTA_STRING:             '"' ( '\\'. | '""' | ~('"'| '\\') )* '"';
+SQUOTA_STRING:             '\'' ('\\'. | '\'\'' | ~('\'' | '\\'))* '\'';
+BQUOTA_STRING:             '`' ( '\\'. | '``' | ~('`'|'\\'))* '`';
 fragment DEC_DIGIT:                 [0-9];
 
 

@@ -19,6 +19,7 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLP
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.And;
+import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Array;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.AttributeList;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.EqualTo;
@@ -26,6 +27,7 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Expression
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.In;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Literal;
+import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Nest;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Not;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Or;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.UnresolvedAttribute;
@@ -92,8 +94,35 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Express
 
     /** Field expression */
     @Override
-    public Expression visitFieldExpression(OpenDistroPPLParser.FieldExpressionContext ctx) {
-        return new UnresolvedAttribute(ctx.getText());
+    public Expression visitNestedFieldLastLayerExpr(OpenDistroPPLParser.NestedFieldLastLayerExprContext ctx) {
+        return new UnresolvedAttribute(ctx.ident().getText());
+    }
+
+    @Override
+    public Expression visitNestedFieldExpr(OpenDistroPPLParser.NestedFieldExprContext ctx) {
+        return new Nest(
+                visit(ctx.ident()),
+                visit(ctx.nestedFieldExpression())
+        );
+    }
+
+    @Override
+    public Expression visitNestedFieldLastLayerArrayExpr(OpenDistroPPLParser.NestedFieldLastLayerArrayExprContext ctx) {
+        return new Array(
+                new UnresolvedAttribute(ctx.ident().getText()),
+                visit(ctx.integerLiteral())
+        );
+    }
+
+    @Override
+    public Expression visitNestedFieldArrayExpr(OpenDistroPPLParser.NestedFieldArrayExprContext ctx) {
+        return new Nest(
+                new Array(
+                        new UnresolvedAttribute(ctx.ident().getText()),
+                        visit(ctx.integerLiteral())
+                ),
+                visit(ctx.nestedFieldExpression())
+        );
     }
 
     @Override
