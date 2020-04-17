@@ -17,7 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression;
 
 import com.amazon.opendistroforelasticsearch.sql.ppl.node.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ppl.node.NodeVisitor;
-import com.google.common.collect.ImmutableList;
+import java.util.Arrays;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -39,7 +39,7 @@ public class Nest extends Expression {
 
     @Override
     public List<Expression> getChild() {
-        return ImmutableList.of();
+        return Arrays.asList(currentLayer, deeperLayer);
     }
 
     @Override
