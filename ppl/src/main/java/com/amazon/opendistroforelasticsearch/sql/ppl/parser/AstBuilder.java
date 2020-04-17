@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
-import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Map;
@@ -31,6 +30,19 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.DedupCommandContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.EvalCommandContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.FieldsCommandContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.FromClauseContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.PplStatementContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.RenameCommandContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.SearchFilterFromContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.SearchFromContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.SearchFromFilterContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.SortCommandContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.StatsCommandContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.WhereCommandContext;
+
 /**
  * Class of walking the AST
  * Refines the visit path and build the LogicalPlan and Expression nodes interface
@@ -40,7 +52,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<LogicalPlan> {
     private final AstExpressionBuilder expressionBuilder;
 
     @Override
-    public LogicalPlan visitPplStatement(OpenDistroPPLParser.PplStatementContext ctx) {
+    public LogicalPlan visitPplStatement(PplStatementContext ctx) {
         LogicalPlan search = visit(ctx.searchCommand());
         LogicalPlan reduce = ctx.commands().stream().map(this::visit).reduce(search, (r, e) -> e.withInput(r));
         return reduce;
@@ -48,29 +60,29 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<LogicalPlan> {
 
     /** Search command */
     @Override
-    public LogicalPlan visitSearchFrom(OpenDistroPPLParser.SearchFromContext ctx) {
+    public LogicalPlan visitSearchFrom(SearchFromContext ctx) {
         return visitFromClause(ctx.fromClause());
     }
 
     @Override
-    public LogicalPlan visitSearchFromFilter(OpenDistroPPLParser.SearchFromFilterContext ctx) {
+    public LogicalPlan visitSearchFromFilter(SearchFromFilterContext ctx) {
         return new Filter(visitExpression(ctx.logicalExpression())).withInput(visit(ctx.fromClause()));
     }
 
     @Override
-    public LogicalPlan visitSearchFilterFrom(OpenDistroPPLParser.SearchFilterFromContext ctx) {
+    public LogicalPlan visitSearchFilterFrom(SearchFilterFromContext ctx) {
         return new Filter(visitExpression(ctx.logicalExpression())).withInput(visit(ctx.fromClause()));
     }
 
     /** Where command */
     @Override
-    public LogicalPlan visitWhereCommand(OpenDistroPPLParser.WhereCommandContext ctx) {
+    public LogicalPlan visitWhereCommand(WhereCommandContext ctx) {
         return new Filter(visitExpression(ctx.logicalExpression()));
     }
 
     /** Fields command */
     @Override
-    public LogicalPlan visitFieldsCommand(OpenDistroPPLParser.FieldsCommandContext ctx) {
+    public LogicalPlan visitFieldsCommand(FieldsCommandContext ctx) {
         return new Project(
                 ctx.wcFieldList()
                         .wcFieldExpression()
@@ -82,7 +94,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<LogicalPlan> {
 
     /** Rename command */
     @Override
-    public LogicalPlan visitRenameCommand(OpenDistroPPLParser.RenameCommandContext ctx) {
+    public LogicalPlan visitRenameCommand(RenameCommandContext ctx) {
         return new Project(
                 new ArrayList<>(
                         Collections.singletonList(
@@ -97,7 +109,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<LogicalPlan> {
 
     /** Stats command */
     @Override
-    public LogicalPlan visitStatsCommand(OpenDistroPPLParser.StatsCommandContext ctx) {
+    public LogicalPlan visitStatsCommand(StatsCommandContext ctx) {
         List<Expression> groupList = ctx.byClause() == null ? null :
                 ctx.byClause()
                         .fieldList()
@@ -114,7 +126,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<LogicalPlan> {
 
     /** Dedup command */
     @Override
-    public LogicalPlan visitDedupCommand(OpenDistroPPLParser.DedupCommandContext ctx) {
+    public LogicalPlan visitDedupCommand(DedupCommandContext ctx) {
         List<Expression> sortList = ctx.sortbyClause() == null ? null :
                 ctx.sortbyClause()
                         .sortField()
@@ -134,7 +146,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<LogicalPlan> {
 
     /** Sort command */
     @Override
-    public LogicalPlan visitSortCommand(OpenDistroPPLParser.SortCommandContext ctx) {
+    public LogicalPlan visitSortCommand(SortCommandContext ctx) {
         return new Aggregation(
                 null,
                 ctx.sortbyClause()
@@ -148,7 +160,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<LogicalPlan> {
 
     /** Eval command */
     @Override
-    public LogicalPlan visitEvalCommand(OpenDistroPPLParser.EvalCommandContext ctx) {
+    public LogicalPlan visitEvalCommand(EvalCommandContext ctx) {
         return new Project(
                 ctx.evalExpression()
                         .stream()
@@ -159,7 +171,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<LogicalPlan> {
 
     /** From clause */
     @Override
-    public LogicalPlan visitFromClause(OpenDistroPPLParser.FromClauseContext ctx) {
+    public LogicalPlan visitFromClause(FromClauseContext ctx) {
         return new Relation(ctx.tableSource().getText());
     }
 
