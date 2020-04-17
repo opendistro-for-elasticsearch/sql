@@ -15,6 +15,11 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical;
 
+/**
+ * The interface to set the parent for current LogicalPlan/Expression node
+ * @param <T> type of parent node
+ * @param <R> type of current node
+ */
 public interface HasInput<T, R> {
     R withInput(T input);
 }

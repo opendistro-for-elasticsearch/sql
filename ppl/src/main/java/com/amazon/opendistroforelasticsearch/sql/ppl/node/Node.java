@@ -17,6 +17,9 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.node;
 
 import java.util.List;
 
+/**
+ * Interface AST nodes to construct
+ */
 public interface Node<T extends Node> {
 
     List<T> getChild();

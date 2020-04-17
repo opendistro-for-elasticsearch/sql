@@ -73,7 +73,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
     }
 
     @Test
-    public void testLogicalAndExprWithoutKeyWordAnd() {
+    public void testLogicalAndExprWithoutKeywordAnd() {
         assertEqual("source=t a=1 b=2",
                 filter(
                         relation("t"),

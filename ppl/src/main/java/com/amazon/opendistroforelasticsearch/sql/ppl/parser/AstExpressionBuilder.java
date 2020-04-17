@@ -91,7 +91,7 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Express
         Expression field = visit(ctx.left);
         Expression value = visit(ctx.right);
         String operator = ctx.comparisonOperator().getText();
-        switch (operator.replaceAll("\\s","")) {
+        switch (operator) {
             case "==":
             case "=":
                 return new EqualTo(field, value);

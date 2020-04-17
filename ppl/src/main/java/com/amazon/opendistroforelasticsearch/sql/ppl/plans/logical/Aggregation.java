@@ -32,7 +32,6 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode
 public class Aggregation extends LogicalPlan {
-    @Getter
     private LogicalPlan input;
     @Setter
     private List<Expression> aggExprList;
