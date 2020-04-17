@@ -24,6 +24,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
+/**
+ * Expression node of binary operator or comparison relation EQUAL
+ */
 @ToString
 @EqualsAndHashCode
 @AllArgsConstructor

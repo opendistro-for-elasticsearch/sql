@@ -24,6 +24,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
+/**
+ * Expression node that includes a list of Expression nodes
+ */
 @ToString
 @EqualsAndHashCode
 @AllArgsConstructor

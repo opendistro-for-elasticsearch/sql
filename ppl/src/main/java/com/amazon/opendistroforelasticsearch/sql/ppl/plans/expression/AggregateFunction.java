@@ -24,6 +24,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+/**
+ * Expression node of aggregate functions
+ * Params include aggregate function name (AVG, SUM, MAX etc.) and the field to aggregate
+ */
 @Getter
 @ToString
 @EqualsAndHashCode

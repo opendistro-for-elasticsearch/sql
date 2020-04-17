@@ -31,6 +31,10 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+/**
+ * Class of walking the AST
+ * Refines the visit path and build the LogicalPlan and Expression nodes interface
+ */
 @RequiredArgsConstructor
 public class AstBuilder extends OpenDistroPPLParserBaseVisitor<LogicalPlan> {
     private final AstExpressionBuilder expressionBuilder;

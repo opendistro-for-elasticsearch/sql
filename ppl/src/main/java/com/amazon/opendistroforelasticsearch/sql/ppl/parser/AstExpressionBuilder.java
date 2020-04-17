@@ -33,6 +33,10 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Or;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.UnresolvedAttribute;
 import java.util.stream.Collectors;
 
+/**
+ * Class of constructed AST Expression nodes visitor
+ *
+ */
 public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Expression> {
     /** Logical expression excluding boolean, eval, comparison */
     @Override

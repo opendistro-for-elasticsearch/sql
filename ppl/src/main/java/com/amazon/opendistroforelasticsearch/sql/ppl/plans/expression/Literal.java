@@ -24,6 +24,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+/**
+ * Expression node of literal type
+ * Params include literal value (@value) and literal data type (@type) which can be selected from {@link DataType}
+ */
 @Getter
 @ToString
 @EqualsAndHashCode

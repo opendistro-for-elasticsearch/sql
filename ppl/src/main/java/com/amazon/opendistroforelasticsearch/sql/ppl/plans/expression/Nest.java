@@ -24,6 +24,11 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+/**
+ * Expression node representing nested expressions
+ * Params include current layer expression (@currentLayer), at which the visitor is currently visiting
+ * And next layer expression (@deeperLayer), meaning the next layer is nested in the current expression
+ */
 @Getter
 @ToString
 @EqualsAndHashCode

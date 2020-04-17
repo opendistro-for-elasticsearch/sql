@@ -24,6 +24,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+/**
+ * Logical plan node of Relation, the interface for building the searching sources
+ */
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor

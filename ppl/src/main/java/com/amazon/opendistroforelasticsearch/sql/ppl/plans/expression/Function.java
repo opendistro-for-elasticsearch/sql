@@ -24,13 +24,17 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+/**
+ * Expression node of scalar function
+ * Params include function name (@funcName) and function arguments (@funcArgs)
+ */
 @Getter
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor
 public class Function extends Expression {
     private final Expression funcName;
-    private final List<Expression> functionArgs;
+    private final List<Expression> funcArgs;
 
     @Override
     public List<Expression> getChild() {

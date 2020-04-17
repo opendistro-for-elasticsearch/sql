@@ -24,6 +24,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+/**
+ * Expression node, representing the syntax that is not resolved to any other expression nodes yet but non-negligible
+ * This expression is often created as the index name, field name etc.
+ */
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor

@@ -25,6 +25,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * Logical plan node of Aggregation, the interface for building aggregation actions in queries
+ */
 @Getter
 @ToString
 @EqualsAndHashCode

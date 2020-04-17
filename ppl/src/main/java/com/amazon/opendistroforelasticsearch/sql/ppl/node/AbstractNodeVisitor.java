@@ -19,7 +19,6 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.AggregateF
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Array;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.AttributeList;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.AttributeReference;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.In;
@@ -34,6 +33,10 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.Project;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.Relation;
 
+/**
+ * Node visitor for nodes at the constructed (LogicalPlan and Expression) interface
+ * Defines the traverse path among LogicalPlan and Expression nodes
+ */
 public class AbstractNodeVisitor<T> implements NodeVisitor<T> {
 
     public T visitRelation(Relation node) {
@@ -61,10 +64,6 @@ public class AbstractNodeVisitor<T> implements NodeVisitor<T> {
     }
 
     public T visitUnresolvedAttribute(UnresolvedAttribute node) {
-        return visitChildren(node);
-    }
-
-    public T visitAttributeReference(AttributeReference node) {
         return visitChildren(node);
     }
 

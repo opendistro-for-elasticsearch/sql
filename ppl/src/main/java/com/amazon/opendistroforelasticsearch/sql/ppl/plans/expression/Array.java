@@ -24,6 +24,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+/**
+ * Expression node of struct array
+ * Params include array name and index (0, 1, 2..)
+ */
 @Getter
 @ToString
 @EqualsAndHashCode

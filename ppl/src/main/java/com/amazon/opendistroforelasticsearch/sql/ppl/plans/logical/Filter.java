@@ -25,6 +25,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * Logical plan node of Filter, the interface for building filters in queries
+ */
 @ToString
 @EqualsAndHashCode
 public class Filter extends LogicalPlan {

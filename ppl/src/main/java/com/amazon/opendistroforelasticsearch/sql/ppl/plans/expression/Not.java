@@ -24,6 +24,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+/**
+ * Expression node of the logic NOT
+ */
 @Getter
 @ToString
 @EqualsAndHashCode

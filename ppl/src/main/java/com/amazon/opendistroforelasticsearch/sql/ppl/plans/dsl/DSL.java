@@ -37,6 +37,9 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.Relation;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Class of static methods to create specific node instances
+ */
 public class DSL {
 
     public static LogicalPlan filter(LogicalPlan input, Expression expression) {

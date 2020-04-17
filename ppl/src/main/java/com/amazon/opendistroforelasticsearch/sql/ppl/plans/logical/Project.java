@@ -25,6 +25,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+/**
+ * Logical plan node of Project, the interface for building the list of searching fields
+ */
 @ToString
 @EqualsAndHashCode
 public class Project extends LogicalPlan {

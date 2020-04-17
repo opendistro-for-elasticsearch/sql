@@ -24,6 +24,11 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+/**
+ * Expression node of one-to-many mapping relation IN
+ * Params include the field expression and/or wildcard field expression, nested field expression (@field)
+ * And the values that the field is mapped to (@valueList)
+ */
 @Getter
 @ToString
 @EqualsAndHashCode
