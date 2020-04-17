@@ -101,7 +101,7 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Express
     @Override
     public Expression visitNestedFieldExpr(OpenDistroPPLParser.NestedFieldExprContext ctx) {
         return new Nest(
-                visit(ctx.ident()),
+                new UnresolvedAttribute(ctx.ident().getText()),
                 visit(ctx.nestedFieldExpression())
         );
     }

@@ -26,6 +26,7 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.Project;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.Relation;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -93,36 +94,36 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<LogicalPlan> {
     /** Stats command */
     @Override
     public LogicalPlan visitStatsCommand(OpenDistroPPLParser.StatsCommandContext ctx) {
-        return new Aggregation(
-                new ArrayList<>(
-                        Collections.singletonList(
-                                visitExpression(ctx.statsAggTerm())
-                        )
-                ),
-                null,
+        List<Expression> groupList = ctx.byClause() == null ? null :
                 ctx.byClause()
                         .fieldList()
                         .fieldExpression()
                         .stream()
                         .map(this::visitExpression)
-                        .collect(Collectors.toList())
+                        .collect(Collectors.toList());
+        return new Aggregation(
+                new ArrayList<>(Collections.singletonList(visitExpression(ctx.statsAggTerm()))),
+                null,
+                groupList
         );
     }
 
     /** Dedup command */
     @Override
     public LogicalPlan visitDedupCommand(OpenDistroPPLParser.DedupCommandContext ctx) {
+        List<Expression> sortList = ctx.sortbyClause() == null ? null :
+                ctx.sortbyClause()
+                        .sortField()
+                        .stream()
+                        .map(this::visitExpression)
+                        .collect(Collectors.toList());
         return new Aggregation(
                 ctx.fieldList()
                         .fieldExpression()
                         .stream()
                         .map(this::visitExpression)
                         .collect(Collectors.toList()),
-                ctx.sortbyClause()
-                        .sortField()
-                        .stream()
-                        .map(this::visitExpression)
-                        .collect(Collectors.toList()),
+                sortList,
                 null
         );
     }
