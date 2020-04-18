@@ -56,8 +56,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.WcFieldListContext;
 
 /**
- * Class of constructed AST Expression nodes visitor
- *
+ * Class of building AST Expression nodes
  */
 public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Expression> {
     /** Logical expression excluding boolean, eval, comparison */

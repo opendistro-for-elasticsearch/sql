@@ -16,7 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl.node;
 
 /**
- * Node visitor interface and default traverse rules for node visitor
+ * AST visitor interface and default traverse rules
  */
 public interface NodeVisitor<T> {
     default T visit(Node<?> tree) {

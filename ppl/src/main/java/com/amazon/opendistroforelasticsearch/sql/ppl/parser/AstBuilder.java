@@ -44,8 +44,8 @@ import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.WhereCommandContext;
 
 /**
- * Class of walking the AST
- * Refines the visit path and build the LogicalPlan and Expression nodes interface
+ * Class of building the AST
+ * Refines the visit path and build the AST nodes
  */
 @RequiredArgsConstructor
 public class AstBuilder extends OpenDistroPPLParserBaseVisitor<LogicalPlan> {

@@ -34,8 +34,8 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.Project;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.Relation;
 
 /**
- * Node visitor for nodes at the constructed (LogicalPlan and Expression) interface
- * Defines the traverse path among LogicalPlan and Expression nodes
+ * AST nodes visitor
+ * Defines the traverse path
  */
 public class AbstractNodeVisitor<T> implements NodeVisitor<T> {
 
