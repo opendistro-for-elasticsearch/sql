@@ -13,12 +13,28 @@
  *   permissions and limitations under the License.
  */
 
-rootProject.name = 'opendistro-sql'
+package com.amazon.opendistroforelasticsearch.sql.data.model;
 
-include 'plugin'
-include 'ppl'
-include 'integ-test'
-include 'common'
-include 'elasticsearch'
-include 'core'
+import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 
+@EqualsAndHashCode
+@RequiredArgsConstructor
+public class ExprStringValue implements ExprValue {
+    private final String value;
+
+    @Override
+    public Object value() {
+        return value;
+    }
+
+    @Override
+    public ExprType type() {
+        return ExprType.STRING;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("\"%s\"", value);
+    }
+}
