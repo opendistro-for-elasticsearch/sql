@@ -13,26 +13,13 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.data.model;
+package com.amazon.opendistroforelasticsearch.sql.expression.function;
 
-import java.util.Arrays;
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
+
 import java.util.List;
 
-public enum ExprType {
-    UNKNOWN,
-
-    DOUBLE,
-    FLOAT,
-    LONG,
-    INTEGER,
-
-    BOOLEAN,
-    STRING,
-    STRUCT,
-    ARRAY,
-
-    MISSING;
-
-    public static List<ExprType> NUMBERS = Arrays.asList(DOUBLE, FLOAT, LONG, INTEGER);
-    public static List<ExprType> VALID = Arrays.asList(DOUBLE, FLOAT, LONG, INTEGER, BOOLEAN, STRING, STRING, ARRAY);
+public interface FunctionExpressionBuilder {
+    FunctionExpression apply(List<Expression> arguments);
 }

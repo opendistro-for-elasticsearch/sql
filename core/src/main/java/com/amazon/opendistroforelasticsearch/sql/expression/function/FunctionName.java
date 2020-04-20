@@ -13,26 +13,17 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.data.model;
+package com.amazon.opendistroforelasticsearch.sql.expression.function;
 
-import java.util.Arrays;
-import java.util.List;
+import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 
-public enum ExprType {
-    UNKNOWN,
+@EqualsAndHashCode
+@RequiredArgsConstructor
+public class FunctionName {
+    private final String functionName;
 
-    DOUBLE,
-    FLOAT,
-    LONG,
-    INTEGER,
-
-    BOOLEAN,
-    STRING,
-    STRUCT,
-    ARRAY,
-
-    MISSING;
-
-    public static List<ExprType> NUMBERS = Arrays.asList(DOUBLE, FLOAT, LONG, INTEGER);
-    public static List<ExprType> VALID = Arrays.asList(DOUBLE, FLOAT, LONG, INTEGER, BOOLEAN, STRING, STRING, ARRAY);
+    public static FunctionName of(String functionName) {
+        return new FunctionName(functionName);
+    }
 }

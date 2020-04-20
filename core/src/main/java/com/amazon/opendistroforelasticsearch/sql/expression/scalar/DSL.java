@@ -13,26 +13,15 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.data.model;
+package com.amazon.opendistroforelasticsearch.sql.expression.scalar;
 
-import java.util.Arrays;
-import java.util.List;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
+import lombok.experimental.UtilityClass;
 
-public enum ExprType {
-    UNKNOWN,
-
-    DOUBLE,
-    FLOAT,
-    LONG,
-    INTEGER,
-
-    BOOLEAN,
-    STRING,
-    STRUCT,
-    ARRAY,
-
-    MISSING;
-
-    public static List<ExprType> NUMBERS = Arrays.asList(DOUBLE, FLOAT, LONG, INTEGER);
-    public static List<ExprType> VALID = Arrays.asList(DOUBLE, FLOAT, LONG, INTEGER, BOOLEAN, STRING, STRING, ARRAY);
+@UtilityClass
+public class DSL {
+    public static LiteralExpression literal(ExprValue value) {
+        return new LiteralExpression(value);
+    }
 }

@@ -13,26 +13,26 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.data.model;
+package com.amazon.opendistroforelasticsearch.sql.expression;
 
-import java.util.Arrays;
-import java.util.List;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.expression.visitor.ExpressionVisitor;
 
-public enum ExprType {
-    UNKNOWN,
+public interface Expression {
 
-    DOUBLE,
-    FLOAT,
-    LONG,
-    INTEGER,
+    /**
+     * Evaluate the value of expression.
+     * @return
+     */
+    ExprValue valueOf();
 
-    BOOLEAN,
-    STRING,
-    STRUCT,
-    ARRAY,
+    /**
+     * Evaluate the type of expression.
+     * @return
+     */
+    ExprType type();
 
-    MISSING;
 
-    public static List<ExprType> NUMBERS = Arrays.asList(DOUBLE, FLOAT, LONG, INTEGER);
-    public static List<ExprType> VALID = Arrays.asList(DOUBLE, FLOAT, LONG, INTEGER, BOOLEAN, STRING, STRING, ARRAY);
+    <R, C> R accept(ExpressionVisitor<R, C> visitor, C context);
 }
