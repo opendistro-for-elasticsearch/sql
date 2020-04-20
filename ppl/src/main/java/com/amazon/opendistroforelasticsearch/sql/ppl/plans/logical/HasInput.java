@@ -16,7 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical;
 
 /**
- * The interface to set the parent for current LogicalPlan/Expression node
+ * The interface to set the parent for current UnresolvedPlan/Expression node
  * @param <T> type of parent node
  * @param <R> type of current node
  */

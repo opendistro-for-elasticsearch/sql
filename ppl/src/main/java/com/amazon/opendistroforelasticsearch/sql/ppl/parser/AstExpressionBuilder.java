@@ -192,7 +192,7 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Express
     @Override
     public Expression visitEvalFunctionCall(EvalFunctionCallContext ctx) {
         return new Function(
-                visit(ctx.evalFunctionName()),
+                ctx.evalFunctionName().getText(),
                 ctx.functionArgs()
                         .functionArg()
                         .stream()

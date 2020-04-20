@@ -17,6 +17,6 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical;
 
 import com.amazon.opendistroforelasticsearch.sql.ppl.node.Node;
 
-public abstract class LogicalPlan implements Node<LogicalPlan>, HasInput<LogicalPlan, LogicalPlan> {
+public abstract class UnresolvedPlan implements Node<UnresolvedPlan>, HasInput<UnresolvedPlan, UnresolvedPlan> {
 
 }

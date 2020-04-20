@@ -31,8 +31,8 @@ import lombok.ToString;
 @Getter
 @ToString
 @EqualsAndHashCode
-public class Aggregation extends LogicalPlan {
-    private LogicalPlan input;
+public class Aggregation extends UnresolvedPlan {
+    private UnresolvedPlan input;
     @Setter
     private List<Expression> aggExprList;
     @Setter
@@ -49,13 +49,13 @@ public class Aggregation extends LogicalPlan {
     }
 
     @Override
-    public Aggregation withInput(LogicalPlan input) {
+    public Aggregation withInput(UnresolvedPlan input) {
         this.input = input;
         return this;
     }
 
     @Override
-    public List<LogicalPlan> getChild() {
+    public List<UnresolvedPlan> getChild() {
         return ImmutableList.of(input);
     }
 

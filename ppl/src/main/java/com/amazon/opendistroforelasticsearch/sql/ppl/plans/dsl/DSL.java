@@ -31,7 +31,7 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Or;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.Filter;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.LogicalPlan;
+import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.Project;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.Relation;
 import java.util.Arrays;
@@ -42,20 +42,20 @@ import java.util.List;
  */
 public class DSL {
 
-    public static LogicalPlan filter(LogicalPlan input, Expression expression) {
+    public static UnresolvedPlan filter(UnresolvedPlan input, Expression expression) {
         return new Filter(expression).withInput(input);
     }
 
-    public static LogicalPlan relation(String tableName) {
+    public static UnresolvedPlan relation(String tableName) {
         return new Relation(tableName);
     }
 
-    public static LogicalPlan project(LogicalPlan input, Expression... projectList) {
+    public static UnresolvedPlan project(UnresolvedPlan input, Expression... projectList) {
         return new Project(Arrays.asList(projectList)).withInput(input);
     }
 
-    public static LogicalPlan agg(LogicalPlan input, List<Expression> aggList, List<Expression> sortList,
-                                  List<Expression> groupList) {
+    public static UnresolvedPlan agg(UnresolvedPlan input, List<Expression> aggList, List<Expression> sortList,
+                                     List<Expression> groupList) {
         return new Aggregation(aggList, sortList, groupList).withInput(input);
     }
 
@@ -95,8 +95,8 @@ public class DSL {
         return new AggregateFunction(func, field);
     }
 
-    public static Expression function(Expression func, Expression... functionArgs) {
-        return new Function(func, Arrays.asList(functionArgs));
+    public static Expression function(String funcName, Expression... funcArgs) {
+        return new Function(funcName, Arrays.asList(funcArgs));
     }
 
     public static Expression not(Expression expression) {

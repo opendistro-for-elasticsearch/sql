@@ -30,25 +30,25 @@ import lombok.ToString;
  */
 @ToString
 @EqualsAndHashCode
-public class Filter extends LogicalPlan {
+public class Filter extends UnresolvedPlan {
     @Getter
     @Setter
     private Expression condition;
     @Getter
-    private LogicalPlan input;
+    private UnresolvedPlan input;
 
     public Filter(Expression condition) {
         this.condition = condition;
     }
 
     @Override
-    public Filter withInput(LogicalPlan input) {
+    public Filter withInput(UnresolvedPlan input) {
         this.input = input;
         return this;
     }
 
     @Override
-    public List<LogicalPlan> getChild() {
+    public List<UnresolvedPlan> getChild() {
         return ImmutableList.of(input);
     }
 

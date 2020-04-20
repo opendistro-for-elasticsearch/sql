@@ -136,8 +136,17 @@ public class AstBuilderTest {
                         relation("t"),
                         equalTo(
                                 unresolvedAttr("r"),
-                                function(unresolvedAttr("abs"), unresolvedAttr("f"))
+                                function("abs", unresolvedAttr("f"))
                         )
+                ));
+    }
+
+    @Test
+    public void testIndexName() {
+        assertEqual("source=\"log.2020.04.20.\" a=1",
+                filter(
+                        relation("log.2020.04.20."),
+                        equalTo(unresolvedAttr("a"), intLiteral(1))
                 ));
     }
 

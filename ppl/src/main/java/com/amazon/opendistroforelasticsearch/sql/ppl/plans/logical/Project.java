@@ -30,25 +30,25 @@ import lombok.ToString;
  */
 @ToString
 @EqualsAndHashCode
-public class Project extends LogicalPlan {
+public class Project extends UnresolvedPlan {
     @Getter
     @Setter
     private List<Expression> projectList;
     @Getter
-    private LogicalPlan input;
+    private UnresolvedPlan input;
 
     public Project(List<Expression> projectList) {
         this.projectList = projectList;
     }
 
     @Override
-    public Project withInput(LogicalPlan input) {
+    public Project withInput(UnresolvedPlan input) {
         this.input = input;
         return this;
     }
 
     @Override
-    public List<LogicalPlan> getChild() {
+    public List<UnresolvedPlan> getChild() {
         return ImmutableList.of(input);
     }
 

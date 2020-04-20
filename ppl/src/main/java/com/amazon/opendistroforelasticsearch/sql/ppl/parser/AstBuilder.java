@@ -15,12 +15,13 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
+import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Map;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.Filter;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.LogicalPlan;
+import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.Project;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.Relation;
 import java.util.ArrayList;
@@ -48,41 +49,41 @@ import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDis
  * Refines the visit path and build the AST nodes
  */
 @RequiredArgsConstructor
-public class AstBuilder extends OpenDistroPPLParserBaseVisitor<LogicalPlan> {
+public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
     private final AstExpressionBuilder expressionBuilder;
 
     @Override
-    public LogicalPlan visitPplStatement(PplStatementContext ctx) {
-        LogicalPlan search = visit(ctx.searchCommand());
-        LogicalPlan reduce = ctx.commands().stream().map(this::visit).reduce(search, (r, e) -> e.withInput(r));
+    public UnresolvedPlan visitPplStatement(PplStatementContext ctx) {
+        UnresolvedPlan search = visit(ctx.searchCommand());
+        UnresolvedPlan reduce = ctx.commands().stream().map(this::visit).reduce(search, (r, e) -> e.withInput(r));
         return reduce;
     }
 
     /** Search command */
     @Override
-    public LogicalPlan visitSearchFrom(SearchFromContext ctx) {
+    public UnresolvedPlan visitSearchFrom(SearchFromContext ctx) {
         return visitFromClause(ctx.fromClause());
     }
 
     @Override
-    public LogicalPlan visitSearchFromFilter(SearchFromFilterContext ctx) {
+    public UnresolvedPlan visitSearchFromFilter(SearchFromFilterContext ctx) {
         return new Filter(visitExpression(ctx.logicalExpression())).withInput(visit(ctx.fromClause()));
     }
 
     @Override
-    public LogicalPlan visitSearchFilterFrom(SearchFilterFromContext ctx) {
+    public UnresolvedPlan visitSearchFilterFrom(SearchFilterFromContext ctx) {
         return new Filter(visitExpression(ctx.logicalExpression())).withInput(visit(ctx.fromClause()));
     }
 
     /** Where command */
     @Override
-    public LogicalPlan visitWhereCommand(WhereCommandContext ctx) {
+    public UnresolvedPlan visitWhereCommand(WhereCommandContext ctx) {
         return new Filter(visitExpression(ctx.logicalExpression()));
     }
 
     /** Fields command */
     @Override
-    public LogicalPlan visitFieldsCommand(FieldsCommandContext ctx) {
+    public UnresolvedPlan visitFieldsCommand(FieldsCommandContext ctx) {
         return new Project(
                 ctx.wcFieldList()
                         .wcFieldExpression()
@@ -94,7 +95,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<LogicalPlan> {
 
     /** Rename command */
     @Override
-    public LogicalPlan visitRenameCommand(RenameCommandContext ctx) {
+    public UnresolvedPlan visitRenameCommand(RenameCommandContext ctx) {
         return new Project(
                 new ArrayList<>(
                         Collections.singletonList(
@@ -109,7 +110,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<LogicalPlan> {
 
     /** Stats command */
     @Override
-    public LogicalPlan visitStatsCommand(StatsCommandContext ctx) {
+    public UnresolvedPlan visitStatsCommand(StatsCommandContext ctx) {
         List<Expression> groupList = ctx.byClause() == null ? null :
                 ctx.byClause()
                         .fieldList()
@@ -126,7 +127,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<LogicalPlan> {
 
     /** Dedup command */
     @Override
-    public LogicalPlan visitDedupCommand(DedupCommandContext ctx) {
+    public UnresolvedPlan visitDedupCommand(DedupCommandContext ctx) {
         List<Expression> sortList = ctx.sortbyClause() == null ? null :
                 ctx.sortbyClause()
                         .sortField()
@@ -146,7 +147,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<LogicalPlan> {
 
     /** Sort command */
     @Override
-    public LogicalPlan visitSortCommand(SortCommandContext ctx) {
+    public UnresolvedPlan visitSortCommand(SortCommandContext ctx) {
         return new Aggregation(
                 null,
                 ctx.sortbyClause()
@@ -160,7 +161,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<LogicalPlan> {
 
     /** Eval command */
     @Override
-    public LogicalPlan visitEvalCommand(EvalCommandContext ctx) {
+    public UnresolvedPlan visitEvalCommand(EvalCommandContext ctx) {
         return new Project(
                 ctx.evalExpression()
                         .stream()
@@ -171,8 +172,8 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<LogicalPlan> {
 
     /** From clause */
     @Override
-    public LogicalPlan visitFromClause(FromClauseContext ctx) {
-        return new Relation(ctx.tableSource().getText());
+    public UnresolvedPlan visitFromClause(FromClauseContext ctx) {
+        return new Relation(StringUtils.unquoteIdentifier(ctx.tableSource().getText()));
     }
 
     /** Navigate to & build AST expression */
@@ -184,7 +185,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<LogicalPlan> {
      * Simply return non-default value for now
      */
     @Override
-    protected LogicalPlan aggregateResult(LogicalPlan aggregate, LogicalPlan nextResult) {
+    protected UnresolvedPlan aggregateResult(UnresolvedPlan aggregate, UnresolvedPlan nextResult) {
         if (nextResult != defaultResult()) {
             return nextResult;
         }

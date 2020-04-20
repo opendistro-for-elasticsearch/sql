@@ -91,7 +91,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                         relation("t"),
                         equalTo(
                                 unresolvedAttr("f"),
-                                function(unresolvedAttr("abs"), unresolvedAttr("a"))
+                                function("abs", unresolvedAttr("a"))
                         )
                 ));
     }
@@ -169,7 +169,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                         relation("t"),
                         equalTo(
                                 unresolvedAttr("f"),
-                                function(unresolvedAttr("abs"), unresolvedAttr("a"))
+                                function("abs", unresolvedAttr("a"))
                         )
                 ));
     }

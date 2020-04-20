@@ -17,7 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression;
 
 import com.amazon.opendistroforelasticsearch.sql.ppl.node.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ppl.node.NodeVisitor;
-import java.util.Arrays;
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -33,12 +33,12 @@ import lombok.ToString;
 @EqualsAndHashCode
 @RequiredArgsConstructor
 public class Function extends Expression {
-    private final Expression funcName;
+    private final String funcName;
     private final List<Expression> funcArgs;
 
     @Override
     public List<Expression> getChild() {
-        return Arrays.asList(funcName);
+        return ImmutableList.of();
     }
 
     @Override

@@ -30,17 +30,17 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor
-public class Relation extends LogicalPlan {
+public class Relation extends UnresolvedPlan {
     @Getter
     private final String tableName;
 
     @Override
-    public Relation withInput(LogicalPlan input) {
+    public Relation withInput(UnresolvedPlan input) {
         return this;
     }
 
     @Override
-    public List<LogicalPlan> getChild() {
+    public List<UnresolvedPlan> getChild() {
         return ImmutableList.of();
     }
 
