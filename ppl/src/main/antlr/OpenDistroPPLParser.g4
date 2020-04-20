@@ -178,7 +178,8 @@ evalExpression
     ;
 
 comparisonExpression
-    : left=fieldExpression comparisonOperator right=literalValue    #compareExpr
+    : left=fieldExpression comparisonOperator
+    (field=fieldExpression | literal=literalValue)                  #compareExpr
     | fieldExpression IN valueList                                  #inExpr
     ;
 

@@ -20,6 +20,7 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.AggregateF
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Array;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.AttributeList;
+import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Compare;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Expression;
@@ -87,16 +88,19 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Express
     /** Comparison expression */
     @Override
     public Expression visitCompareExpr(CompareExprContext ctx) {
-        Expression field = visit(ctx.left);
-        Expression value = visit(ctx.right);
-        String operator = ctx.comparisonOperator().getText();
-        switch (operator) {
-            case "==":
-            case "=":
-                return new EqualTo(field, value);
-            default:
-                throw new UnsupportedOperationException(String.format("unsupported operator [%s]", operator));
-        }
+//        Expression field = visit(ctx.left);
+//        Expression value = visit(ctx.right);
+//        String operator = ctx.comparisonOperator().getText();
+//        switch (operator) {
+//            case "==":
+//            case "=":
+//                return new EqualTo(field, value);
+//            default:
+//                throw new UnsupportedOperationException(String.format("unsupported operator [%s]", operator));
+//        }
+        Expression right = ctx.field != null ? visit(ctx.field) : visit(ctx.literal);
+//        return new EqualTo(visit(ctx.left), right);
+        return new Compare(ctx.comparisonOperator().getText(), visit(ctx.left), right);
     }
 
     @Override

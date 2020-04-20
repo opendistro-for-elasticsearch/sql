@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Array;
+import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Compare;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Expression;
@@ -121,6 +122,10 @@ public class DSL {
 
     public static Expression array(String name, Integer index) {
         return new Array(new UnresolvedAttribute(name), intLiteral(index));
+    }
+
+    public static Expression compare(String operator, Expression left, Expression right) {
+        return new Compare(operator, left, right);
     }
 
 }

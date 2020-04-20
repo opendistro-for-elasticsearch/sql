@@ -21,6 +21,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.agg;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.aggregate;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.and;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.array;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.compare;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.doubleLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.equalTo;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.filter;
@@ -43,7 +44,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 filter(
                         relation("t"),
                         not(
-                                equalTo(unresolvedAttr("a"), intLiteral(1))
+                                compare("=", unresolvedAttr("a"), intLiteral(1))
                         )
                 ));
     }
@@ -54,8 +55,8 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 filter(
                         relation("t"),
                         or(
-                                equalTo(unresolvedAttr("a"), intLiteral(1)),
-                                equalTo(unresolvedAttr("b"), intLiteral(2))
+                                compare("=", unresolvedAttr("a"), intLiteral(1)),
+                                compare("=", unresolvedAttr("b"), intLiteral(2))
                         )
                 ));
     }
@@ -66,8 +67,8 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 filter(
                         relation("t"),
                         and(
-                                equalTo(unresolvedAttr("a"), intLiteral(1)),
-                                equalTo(unresolvedAttr("b"), intLiteral(2))
+                                compare("=", unresolvedAttr("a"), intLiteral(1)),
+                                compare("=", unresolvedAttr("b"), intLiteral(2))
                         )
                 ));
     }
@@ -78,8 +79,8 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 filter(
                         relation("t"),
                         and(
-                                equalTo(unresolvedAttr("a"), intLiteral(1)),
-                                equalTo(unresolvedAttr("b"), intLiteral(2))
+                                compare("=", unresolvedAttr("a"), intLiteral(1)),
+                                compare("=", unresolvedAttr("b"), intLiteral(2))
                         )
                 ));
     }
@@ -101,7 +102,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
         assertEqual("source=t a='b'",
                 filter(
                         relation("t"),
-                        equalTo(unresolvedAttr("a"), stringLiteral("b"))
+                        compare("=", unresolvedAttr("a"), stringLiteral("b"))
                 ));
     }
 
@@ -179,7 +180,8 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
         assertEqual("source=t a=\"string\"",
                 filter(
                         relation("t"),
-                        equalTo(
+                        compare(
+                                "=",
                                 unresolvedAttr("a"),
                                 stringLiteral("string")
                         )
@@ -191,7 +193,8 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
         assertEqual("source=t a=1",
                 filter(
                         relation("t"),
-                        equalTo(
+                        compare(
+                                "=",
                                 unresolvedAttr("a"),
                                 intLiteral(1)
                         )
@@ -203,7 +206,8 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
         assertEqual("source=t b=0.1",
                 filter(
                         relation("t"),
-                        equalTo(
+                        compare(
+                                "=",
                                 unresolvedAttr("b"),
                                 doubleLiteral(0.1)
                         )

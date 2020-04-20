@@ -22,6 +22,7 @@ import java.util.Collections;
 import org.junit.Test;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.agg;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.aggregate;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.compare;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.equalTo;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.function;
@@ -40,7 +41,7 @@ public class AstBuilderTest {
         assertEqual("search source=t a=1",
                 filter(
                         relation("t"),
-                        equalTo(unresolvedAttr("a"), intLiteral(1))
+                        compare("=", unresolvedAttr("a"), intLiteral(1))
                 )
         );
     }
@@ -50,7 +51,7 @@ public class AstBuilderTest {
         assertEqual("search source=t a=\"a\"",
                 filter(
                         relation("t"),
-                        equalTo(unresolvedAttr("a"), stringLiteral("a"))
+                        compare("=", unresolvedAttr("a"), stringLiteral("a"))
                 )
         );
     }
@@ -60,7 +61,7 @@ public class AstBuilderTest {
         assertEqual("source=t a=1",
                 filter(
                         relation("t"),
-                        equalTo(unresolvedAttr("a"), intLiteral(1))
+                        compare("=", unresolvedAttr("a"), intLiteral(1))
                 )
         );
     }
@@ -70,7 +71,7 @@ public class AstBuilderTest {
         assertEqual("search source=t | where a=1",
                 filter(
                         relation("t"),
-                        equalTo(unresolvedAttr("a"), intLiteral(1))
+                        compare("=", unresolvedAttr("a"), intLiteral(1))
                 )
         );
     }
@@ -146,7 +147,7 @@ public class AstBuilderTest {
         assertEqual("source=\"log.2020.04.20.\" a=1",
                 filter(
                         relation("log.2020.04.20."),
-                        equalTo(unresolvedAttr("a"), intLiteral(1))
+                        compare("=", unresolvedAttr("a"), intLiteral(1))
                 ));
     }
 
