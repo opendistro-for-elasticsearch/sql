@@ -13,12 +13,19 @@
  *   permissions and limitations under the License.
  */
 
-rootProject.name = 'opendistro-sql'
+package com.amazon.opendistroforelasticsearch.sql.data.model;
 
-include 'plugin'
-include 'ppl'
-include 'integ-test'
-include 'common'
-include 'elasticsearch'
-include 'core'
+/**
+ * The definition of the Expression Value.
+ */
+public interface ExprValue {
+    /**
+     * Get the Object value of the Expression Value.
+     */
+    Object value();
 
+    /**
+     * Get the {@link ExprType} of the Expression Value.
+     */
+    ExprType type();
+}

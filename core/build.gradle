@@ -1,0 +1,45 @@
+plugins {
+    id 'java'
+    id "io.freefair.lombok"
+    id 'jacoco'
+}
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile group: 'com.google.guava', name: 'guava', version: '23.0'
+
+    testImplementation('org.junit.jupiter:junit-jupiter:5.6.2')
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+jacoco {
+    toolVersion = "0.8.3"
+}
+jacocoTestReport {
+    reports {
+        html.enabled true
+    }
+}
+test.finalizedBy(project.tasks.jacocoTestReport)
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 1.0
+            }
+
+        }
+    }
+}
+check.dependsOn jacocoTestCoverageVerification
