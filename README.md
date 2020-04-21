@@ -1,4 +1,4 @@
-# Open Distro for Elasticsearch SQL
+### Open Distro for Elasticsearch SQL
 
 
 Open Distro for Elasticsearch enables you to extract insights out of Elasticsearch using the familiar SQL query syntax. Use aggregations, group by, and where clauses to investigate your data. Read your data as JSON documents or CSV tables so you have the flexibility to use the format that works best for you.
