@@ -16,8 +16,12 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
 import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
+import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParserBaseVisitor;
+import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Argument;
+import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Map;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.Filter;
@@ -84,12 +88,18 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
     /** Fields command */
     @Override
     public UnresolvedPlan visitFieldsCommand(FieldsCommandContext ctx) {
+        List<Expression> argList = new ArrayList<Expression>() {{
+            add(ctx.MINUS() != null
+                    ? new Argument("exclude", new Literal(true, DataType.BOOLEAN))
+                    : new Argument("exclude", new Literal(false, DataType.BOOLEAN)));
+        }};
         return new Project(
                 ctx.wcFieldList()
                         .wcFieldExpression()
                         .stream()
                         .map(this::visitExpression)
-                        .collect(Collectors.toList())
+                        .collect(Collectors.toList()),
+                argList
         );
     }
 
@@ -118,10 +128,27 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
                         .stream()
                         .map(this::visitExpression)
                         .collect(Collectors.toList());
+
+        List<Expression> argList = new ArrayList<Expression>(){{
+            add(ctx.PARTITIONS() != null
+                    ? new Argument("partitions", visitExpression(ctx.partitions))
+                    : new Argument("partitions", new Literal(1, DataType.INTEGER)));
+            add(ctx.ALLNUM() != null
+                    ? new Argument("allnum", visitExpression(ctx.allnum))
+                    : new Argument("allnum", new Literal(false, DataType.BOOLEAN)));
+            add(ctx.DELIM() != null
+                    ? new Argument("delim", visitExpression(ctx.delim))
+                    : new Argument("delim", new Literal(" ", DataType.STRING)));
+            add(ctx.DEDUP_SPLITVALUES() != null
+                    ? new Argument("dedupsplit", visitExpression(ctx.dedupsplit))
+                    : new Argument("dedupsplit", new Literal(false, DataType.BOOLEAN)));
+        }};
+
         return new Aggregation(
                 new ArrayList<>(Collections.singletonList(visitExpression(ctx.statsAggTerm()))),
                 null,
-                groupList
+                groupList,
+                argList
         );
     }
 
@@ -134,6 +161,23 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
                         .stream()
                         .map(this::visitExpression)
                         .collect(Collectors.toList());
+
+        List<Expression> argList = new ArrayList<Expression>() {{
+            add(ctx.number != null
+                    ? new Argument("number", visitExpression(ctx.number))
+                    : new Argument("number", new Literal(1, DataType.INTEGER)));
+
+            add(ctx.KEEPEVENTS() != null
+                    ? new Argument("keepevents", visitExpression(ctx.keeevents))
+                    : new Argument("keepevents", new Literal(false, DataType.BOOLEAN)));
+            add(ctx.KEEPEMPTY() != null
+                    ? new Argument("keepempty", visitExpression(ctx.keepempty))
+                    : new Argument("keepempty", new Literal(false, DataType.BOOLEAN)));
+            add(ctx.CONSECUTIVE() != null
+                    ? new Argument("consecutive", visitExpression(ctx.consecutive))
+                    : new Argument("consecutive", new Literal(false, DataType.BOOLEAN)));
+        }};
+
         return new Aggregation(
                 ctx.fieldList()
                         .fieldExpression()
@@ -141,13 +185,22 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
                         .map(this::visitExpression)
                         .collect(Collectors.toList()),
                 sortList,
-                null
+                null,
+                argList
         );
     }
 
     /** Sort command */
     @Override
     public UnresolvedPlan visitSortCommand(SortCommandContext ctx) {
+        List<Expression> argList = new ArrayList<Expression>() {{
+            add(ctx.count != null
+                    ? new Argument("count", visitExpression(ctx.count))
+                    : new Argument("count", new Literal(1000, DataType.INTEGER)));
+            add(ctx.D() != null || ctx.DESC() != null
+                    ? new Argument("desc", new Literal(true, DataType.BOOLEAN))
+                    : new Argument("desc", new Literal(false, DataType.BOOLEAN)));
+        }};
         return new Aggregation(
                 null,
                 ctx.sortbyClause()
@@ -155,7 +208,8 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
                         .stream()
                         .map(this::visitExpression)
                         .collect(Collectors.toList()),
-                null
+                null,
+                argList
         );
     }
 

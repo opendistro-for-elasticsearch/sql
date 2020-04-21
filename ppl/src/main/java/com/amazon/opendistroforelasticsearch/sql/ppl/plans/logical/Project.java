@@ -30,15 +30,21 @@ import lombok.ToString;
  */
 @ToString
 @EqualsAndHashCode
+@Getter
 public class Project extends UnresolvedPlan {
-    @Getter
     @Setter
     private List<Expression> projectList;
-    @Getter
+    private List<Expression> argExprList;
     private UnresolvedPlan input;
 
     public Project(List<Expression> projectList) {
         this.projectList = projectList;
+        this.argExprList = null;
+    }
+
+    public Project(List<Expression> projectList, List<Expression> argExprList) {
+        this.projectList = projectList;
+        this.argExprList = argExprList;
     }
 
     @Override

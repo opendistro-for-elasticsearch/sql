@@ -42,7 +42,6 @@ import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.EvalExpressionContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.EvalFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.EvalFunctionNameContext;
-import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.FieldListContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.InExprContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.IntegerLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.LogicalAndContext;
@@ -54,7 +53,6 @@ import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.NestedFieldLastLayerExprContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.StringLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.WcFieldExpressionContext;
-import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.WcFieldListContext;
 
 /**
  * Class of building AST Expression nodes
@@ -88,18 +86,7 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Express
     /** Comparison expression */
     @Override
     public Expression visitCompareExpr(CompareExprContext ctx) {
-//        Expression field = visit(ctx.left);
-//        Expression value = visit(ctx.right);
-//        String operator = ctx.comparisonOperator().getText();
-//        switch (operator) {
-//            case "==":
-//            case "=":
-//                return new EqualTo(field, value);
-//            default:
-//                throw new UnsupportedOperationException(String.format("unsupported operator [%s]", operator));
-//        }
         Expression right = ctx.field != null ? visit(ctx.field) : visit(ctx.literal);
-//        return new EqualTo(visit(ctx.left), right);
         return new Compare(ctx.comparisonOperator().getText(), visit(ctx.left), right);
     }
 
@@ -155,28 +142,8 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Express
     }
 
     @Override
-    public Expression visitFieldList(FieldListContext ctx) {
-        return new AttributeList(
-                ctx.fieldExpression()
-                        .stream()
-                        .map(this::visitFieldExpression)
-                        .collect(Collectors.toList())
-        );
-    }
-
-    @Override
     public Expression visitWcFieldExpression(WcFieldExpressionContext ctx) {
         return new UnresolvedAttribute(ctx.getText());
-    }
-
-    @Override
-    public Expression visitWcFieldList(WcFieldListContext ctx) {
-        return new AttributeList(
-                ctx.wcFieldExpression()
-                        .stream()
-                        .map(this::visitWcFieldExpression)
-                        .collect(Collectors.toList())
-        );
     }
 
     /** Aggregation term */

@@ -50,11 +50,23 @@ renameCommand
     ;
 
 statsCommand
-    : STATS (statsArgument)* statsAggTerm (byClause)? (dedupSplitValues)?
+    : STATS
+    (PARTITIONS EQUAL partitions=integerLiteral)?
+    (ALLNUM EQUAL allnum=booleanLiteral)?
+    (DELIM EQUAL delim=stringLiteral)?
+    statsAggTerm
+    (byClause)?
+    (DEDUP_SPLITVALUES EQUAL dedupsplit=booleanLiteral)?
     ;
 
 dedupCommand
-    : DEDUP (number=decimalLiteral)? fieldList (dedupArgument)* (SORTBY sortbyClause)?
+    : DEDUP
+    (number=decimalLiteral)?
+    fieldList
+    (KEEPEVENTS EQUAL keeevents=booleanLiteral)?
+    (KEEPEMPTY EQUAL keepempty=booleanLiteral)?
+    (CONSECUTIVE EQUAL consecutive=booleanLiteral)?
+    (SORTBY sortbyClause)?
     ;
 
 sortCommand
@@ -63,23 +75,6 @@ sortCommand
 
 evalCommand
     : EVAL evalExpression (COMMA evalExpression)*
-    ;
-
-/** arguments */
-dedupArgument
-    : KEEPEVENTS EQUAL booleanLiteral                                #keepevents
-    | KEEPEMPTY EQUAL booleanLiteral                                 #keepempty
-    | CONSECUTIVE EQUAL booleanLiteral                               #consecutive
-    ;
-
-dedupSplitValues
-    : DEDUP_SPLITVALUES EQUAL booleanLiteral
-    ;
-
-statsArgument
-    : PARTITIONS EQUAL decimalLiteral                                #partitions
-    | ALLNUM EQUAL booleanLiteral                                    #allnum
-    | DELIM EQUAL stringLiteral                                      #delim
     ;
 
 /** clauses */

@@ -39,6 +39,8 @@ public class Aggregation extends UnresolvedPlan {
     private List<Expression> sortExprList;
     @Setter
     private List<Expression> groupExprList;
+    @Setter
+    private List<Expression> argExprList;
 
     public Aggregation(List<Expression> aggExprList,
                        List<Expression> sortExprList,
@@ -46,6 +48,17 @@ public class Aggregation extends UnresolvedPlan {
         this.aggExprList = aggExprList;
         this.sortExprList = sortExprList;
         this.groupExprList = groupExprList;
+        this.argExprList = null;
+    }
+
+    public Aggregation(List<Expression> aggExprList,
+                       List<Expression> sortExprList,
+                       List<Expression> groupExprList,
+                       List<Expression> argExprList) {
+        this.aggExprList = aggExprList;
+        this.sortExprList = sortExprList;
+        this.groupExprList = groupExprList;
+        this.argExprList = argExprList;
     }
 
     @Override

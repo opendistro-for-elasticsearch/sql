@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.node;
 
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.And;
+import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Array;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.AttributeList;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Compare;
@@ -109,6 +110,10 @@ public class AbstractNodeVisitor<T> implements NodeVisitor<T> {
     }
 
     public T visitCompare(Compare node) {
+        return visitChildren(node);
+    }
+
+    public T visitArgument(Argument node) {
         return visitChildren(node);
     }
 
