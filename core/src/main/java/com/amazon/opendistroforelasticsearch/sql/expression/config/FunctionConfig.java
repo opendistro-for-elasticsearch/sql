@@ -15,18 +15,32 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.config;
 
+import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.scalar.arthmetic.ArithmeticFunction;
+import com.amazon.opendistroforelasticsearch.sql.expression.scalar.conversion.ToStringFunction;
+import com.amazon.opendistroforelasticsearch.sql.expression.scalar.predicate.BinaryPredicateFunction;
+import com.amazon.opendistroforelasticsearch.sql.expression.scalar.predicate.UnaryPredicateFunction;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.HashMap;
 
 @Configuration
 public class FunctionConfig {
 
     @Bean
     public BuiltinFunctionRepository functionRepository() {
-        BuiltinFunctionRepository builtinFunctionRepository = new BuiltinFunctionRepository();
+        BuiltinFunctionRepository builtinFunctionRepository = new BuiltinFunctionRepository(new HashMap<>());
         ArithmeticFunction.register(builtinFunctionRepository);
+        ToStringFunction.register(builtinFunctionRepository);
+        BinaryPredicateFunction.register(builtinFunctionRepository);
+        UnaryPredicateFunction.register(builtinFunctionRepository);
         return builtinFunctionRepository;
+    }
+
+    @Bean
+    public DSL dsl(BuiltinFunctionRepository repository) {
+        return new DSL(repository);
     }
 }

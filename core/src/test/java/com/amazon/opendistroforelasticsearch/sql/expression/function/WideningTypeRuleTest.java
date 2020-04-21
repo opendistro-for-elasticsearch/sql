@@ -13,11 +13,10 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.expression;
+package com.amazon.opendistroforelasticsearch.sql.expression.function;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.WideningTypeRule;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;

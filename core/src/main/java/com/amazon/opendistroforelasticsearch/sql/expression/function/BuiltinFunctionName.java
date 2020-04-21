@@ -7,6 +7,9 @@ import lombok.RequiredArgsConstructor;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Builtin Function Name
+ */
 @Getter
 @RequiredArgsConstructor
 public enum BuiltinFunctionName {
@@ -22,8 +25,8 @@ public enum BuiltinFunctionName {
     NOT(FunctionName.of("not")),
     NOTEQUAL(FunctionName.of("notequal")),
     EQUAL(FunctionName.of("equal")),
-//
-//    TOSTRING("tostring"),
+
+    TOSTRING(FunctionName.of("tostring")),
     ;
 
     private final FunctionName name;
@@ -39,6 +42,6 @@ public enum BuiltinFunctionName {
     }
 
     public static Optional<BuiltinFunctionName> of(String str) {
-        return Optional.ofNullable(ALL_NATIVE_FUNCTIONS.getOrDefault(str, null));
+        return Optional.ofNullable(ALL_NATIVE_FUNCTIONS.getOrDefault(FunctionName.of(str), null));
     }
 }

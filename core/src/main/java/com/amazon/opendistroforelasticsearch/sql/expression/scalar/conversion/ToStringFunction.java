@@ -20,15 +20,14 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionExpressionBuilder;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionExpressionBuilder;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature;
+import com.google.common.collect.ImmutableMap;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -42,24 +41,23 @@ public class ToStringFunction {
     }
 
     private static Map<FunctionSignature, FunctionExpressionBuilder> tostring(FunctionName functionName) {
-        Map<FunctionSignature, FunctionExpressionBuilder> functionMap = new HashMap<>();
-        register(functionMap, new FunctionSignature(functionName, Arrays.asList(ExprType.INTEGER, ExprType.STRING)),
-                ExprType.STRING);
-        register(functionMap, new FunctionSignature(functionName, Arrays.asList(ExprType.LONG, ExprType.STRING)),
-                ExprType.STRING);
-        register(functionMap, new FunctionSignature(functionName, Arrays.asList(ExprType.FLOAT, ExprType.STRING)),
-                ExprType.STRING);
-        register(functionMap, new FunctionSignature(functionName, Arrays.asList(ExprType.DOUBLE, ExprType.STRING)),
-                ExprType.STRING);
-        register(functionMap, new FunctionSignature(functionName, Arrays.asList(ExprType.BOOLEAN, ExprType.STRING)),
-                ExprType.STRING);
-        return functionMap;
+        ImmutableMap.Builder<FunctionSignature, FunctionExpressionBuilder> builder = new ImmutableMap.Builder<>();
+        builder.put(new FunctionSignature(functionName, Arrays.asList(ExprType.INTEGER, ExprType.STRING)),
+                tostring(functionName, ExprType.STRING));
+        builder.put(new FunctionSignature(functionName, Arrays.asList(ExprType.LONG, ExprType.STRING)),
+                tostring(functionName, ExprType.STRING));
+        builder.put(new FunctionSignature(functionName, Arrays.asList(ExprType.FLOAT, ExprType.STRING)),
+                tostring(functionName, ExprType.STRING));
+        builder.put(new FunctionSignature(functionName, Arrays.asList(ExprType.DOUBLE, ExprType.STRING)),
+                tostring(functionName, ExprType.STRING));
+        builder.put(new FunctionSignature(functionName, Arrays.asList(ExprType.BOOLEAN, ExprType.STRING)),
+                tostring(functionName, ExprType.STRING));
+        return builder.build();
     }
 
-    private static void register(Map<FunctionSignature, FunctionExpressionBuilder> repo,
-                                                      FunctionSignature fs,
+    private static FunctionExpressionBuilder tostring(FunctionName functionName,
                                                       ExprType returnType) {
-        repo.put(fs, arguments -> new FunctionExpression(fs, arguments) {
+        return arguments -> new FunctionExpression(functionName, arguments) {
             @Override
             public ExprValue valueOf() {
                 Expression x = arguments.get(0);
@@ -75,8 +73,8 @@ public class ToStringFunction {
 
             @Override
             public ExprType type() {
-                return null;
+                return returnType;
             }
-        });
+        };
     }
 }

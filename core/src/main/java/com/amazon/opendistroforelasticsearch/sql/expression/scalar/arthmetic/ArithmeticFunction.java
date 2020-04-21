@@ -25,12 +25,15 @@ import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunc
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature;
+import com.google.common.collect.ImmutableMap;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+
+import static com.amazon.opendistroforelasticsearch.sql.expression.scalar.OperatorUtils.binaryOperator;
 
 public class ArithmeticFunction {
 
@@ -98,44 +101,21 @@ public class ArithmeticFunction {
         );
     }
 
-    private static <T> void register(Map<FunctionSignature, FunctionExpressionBuilder> repo,
-                                     FunctionSignature fs,
-                                     BiFunction<T, T, T> function,
-                                     Function<ExprValue, T> observer,
-                                     ExprType returnType) {
-        repo.put(fs,
-                arguments -> new FunctionExpression(fs.getFunctionName(), arguments) {
-                    @Override
-                    public ExprValue valueOf() {
-                        ExprValue arg1 = arguments.get(0).valueOf();
-                        ExprValue arg2 = arguments.get(1).valueOf();
-                        return ExprValueUtils.fromObjectValue(
-                                function.apply(observer.apply(arg1), observer.apply(arg2)));
-                    }
-
-                    @Override
-                    public ExprType type() {
-                        return returnType;
-                    }
-                }
-        );
-    }
-
     private static Map<FunctionSignature, FunctionExpressionBuilder> scalarFunction(
             FunctionName functionName,
             BiFunction<Integer, Integer, Integer> integerFunc,
             BiFunction<Long, Long, Long> longFunc,
             BiFunction<Float, Float, Float> floatFunc,
             BiFunction<Double, Double, Double> doubleFunc) {
-        Map<FunctionSignature, FunctionExpressionBuilder> functionMap = new HashMap<>();
-        register(functionMap, new FunctionSignature(functionName, Arrays.asList(ExprType.INTEGER, ExprType.INTEGER)),
-                integerFunc, ExprValueUtils::getIntegerValue, ExprType.INTEGER);
-        register(functionMap, new FunctionSignature(functionName, Arrays.asList(ExprType.LONG, ExprType.LONG)),
-                longFunc, ExprValueUtils::getLongValue, ExprType.LONG);
-        register(functionMap, new FunctionSignature(functionName, Arrays.asList(ExprType.FLOAT, ExprType.FLOAT)),
-                floatFunc, ExprValueUtils::getFloatValue, ExprType.FLOAT);
-        register(functionMap, new FunctionSignature(functionName, Arrays.asList(ExprType.DOUBLE, ExprType.DOUBLE)),
-                doubleFunc, ExprValueUtils::getDoubleValue, ExprType.DOUBLE);
-        return functionMap;
+        ImmutableMap.Builder<FunctionSignature, FunctionExpressionBuilder> builder = new ImmutableMap.Builder<>();
+        builder.put(new FunctionSignature(functionName, Arrays.asList(ExprType.INTEGER, ExprType.INTEGER)),
+                binaryOperator(functionName, integerFunc, ExprValueUtils::getIntegerValue, ExprType.INTEGER));
+        builder.put(new FunctionSignature(functionName, Arrays.asList(ExprType.LONG, ExprType.LONG)),
+                binaryOperator(functionName, longFunc, ExprValueUtils::getLongValue, ExprType.LONG));
+        builder.put(new FunctionSignature(functionName, Arrays.asList(ExprType.FLOAT, ExprType.FLOAT)),
+                binaryOperator(functionName, floatFunc, ExprValueUtils::getFloatValue, ExprType.FLOAT));
+        builder.put(new FunctionSignature(functionName, Arrays.asList(ExprType.DOUBLE, ExprType.DOUBLE)),
+                binaryOperator(functionName, doubleFunc, ExprValueUtils::getDoubleValue, ExprType.DOUBLE));
+        return builder.build();
     }
 }

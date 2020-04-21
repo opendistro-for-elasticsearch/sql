@@ -13,22 +13,26 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.expression.scalar;
+package com.amazon.opendistroforelasticsearch.sql.expression.scalar.arthmetic;
 
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
+import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.config.FunctionConfig;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.WideningTypeRule;
-import com.amazon.opendistroforelasticsearch.sql.expression.scalar.arthmetic.ArithmeticFunction;
 import com.google.common.collect.Lists;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Arrays;
 import java.util.List;
@@ -37,21 +41,19 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = {FunctionConfig.class})
 class ArithmeticFunctionTest {
-    private static BuiltinFunctionRepository builtinFunctionRepository;
-
-    @BeforeAll
-    public static void setup() {
-        builtinFunctionRepository = new BuiltinFunctionRepository();
-        ArithmeticFunction.register(builtinFunctionRepository);
-    }
+    @Autowired
+    private BuiltinFunctionRepository functionRepository;
 
     private static Stream<Arguments> arithmeticFunctionArguments() {
         List<ExprValue> numberOp1 = Stream.of(3, 3L, 3f, 3D)
                 .map(ExprValueUtils::fromObjectValue).collect(Collectors.toList());
         List<ExprValue> numberOp2 = Stream.of(2, 2L, 2f, 2D)
                 .map(ExprValueUtils::fromObjectValue).collect(Collectors.toList());
-        List<BuiltinFunctionName> functions = Arrays.asList(BuiltinFunctionName.ADD, BuiltinFunctionName.SUBTRACT, BuiltinFunctionName.MULTIPLY,
+        List<BuiltinFunctionName> functions = Arrays.asList(BuiltinFunctionName.ADD, BuiltinFunctionName.SUBTRACT,
+                BuiltinFunctionName.MULTIPLY,
                 BuiltinFunctionName.DIVIDE, BuiltinFunctionName.MODULES);
         return Lists.cartesianProduct(functions, numberOp1, numberOp2).stream()
                 .map(list -> Arguments.of(list.get(0), list.get(1), list.get(2)));
@@ -60,14 +62,15 @@ class ArithmeticFunctionTest {
     @ParameterizedTest(name = "{0}({1}, {2})")
     @MethodSource("arithmeticFunctionArguments")
     public void arithmeticFunction(BuiltinFunctionName builtinFunctionName, ExprValue op1, ExprValue op2) {
-        FunctionExpression expression = builtinFunctionRepository.resolve(builtinFunctionName.getName(),
+        FunctionExpression expression = functionRepository.compile(builtinFunctionName.getName(),
                 Arrays.asList(DSL.literal(op1), DSL.literal(op2)));
         ExprType expectedType = WideningTypeRule.max(op1.type(), op2.type());
         assertEquals(expectedType, expression.type());
         assertValueEqual(builtinFunctionName, expectedType, op1, op2, expression.valueOf());
     }
 
-    protected void assertValueEqual(BuiltinFunctionName builtinFunctionName, ExprType type, ExprValue op1, ExprValue op2,
+    protected void assertValueEqual(BuiltinFunctionName builtinFunctionName, ExprType type, ExprValue op1,
+                                    ExprValue op2,
                                     ExprValue actual) {
         switch (type) {
             case INTEGER:

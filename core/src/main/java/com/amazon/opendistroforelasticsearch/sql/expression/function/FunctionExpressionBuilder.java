@@ -20,6 +20,15 @@ import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 
 import java.util.List;
 
+/**
+ * The definition of function which create {@link FunctionExpression} from input {@link Expression} list.
+ */
 public interface FunctionExpressionBuilder {
+
+    /**
+     * Create {@link FunctionExpression} from input {@link Expression} list
+     * @param arguments {@link Expression} list
+     * @return {@link FunctionExpression}
+     */
     FunctionExpression apply(List<Expression> arguments);
 }

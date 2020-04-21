@@ -1,12 +1,16 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.function;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
+/**
+ * Function signature is composed by function name and arguments list.
+ */
 @Getter
 @RequiredArgsConstructor
 @EqualsAndHashCode
@@ -15,15 +19,21 @@ public class FunctionSignature {
     private final List<ExprType> paramTypeList;
 
     /**
-     * The small number means good match.
+     * Check the function signature match or not.
      *
-     * @return 0: exactly match, Integer.MAX: not match
+     * @return 0: exactly match, Integer.MAX: not match, by widening rule small number means better match.
      */
     public int match(FunctionSignature functionSignature) {
-        List<ExprType> functionTypeList = functionSignature.paramTypeList;
+        if (!functionName.equals(functionSignature.getFunctionName())) {
+            throw new ExpressionEvaluationException(
+                    String.format("expression name: %s and %s doesn't match",
+                            functionName,
+                            functionSignature.getFunctionName()));
+        }
+        List<ExprType> functionTypeList = functionSignature.getParamTypeList();
         if (paramTypeList.size() != functionTypeList.size()) {
-            throw new UnsupportedOperationException(
-                    String.format("%s expression %d argument, but actually are %d",
+            throw new ExpressionEvaluationException(
+                    String.format("%s expression expected %d argument, but actually are %d",
                             functionName,
                             paramTypeList.size(),
                             functionTypeList.size()));

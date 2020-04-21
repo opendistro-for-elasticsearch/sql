@@ -16,14 +16,21 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.function;
 
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @EqualsAndHashCode
 @RequiredArgsConstructor
 public class FunctionName {
+    @Getter
     private final String functionName;
 
     public static FunctionName of(String functionName) {
         return new FunctionName(functionName);
+    }
+
+    @Override
+    public String toString() {
+        return functionName;
     }
 }

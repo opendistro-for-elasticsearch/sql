@@ -17,29 +17,30 @@ package com.amazon.opendistroforelasticsearch.sql.expression.scalar.conversion;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
+import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.config.FunctionConfig;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
-import com.amazon.opendistroforelasticsearch.sql.expression.scalar.DSL;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = {FunctionConfig.class})
 class ToStringFunctionTest {
-    private static BuiltinFunctionRepository builtinFunctionRepository;
-
-    @BeforeAll
-    public static void setup() {
-        builtinFunctionRepository = new BuiltinFunctionRepository();
-        ToStringFunction.register(builtinFunctionRepository);
-    }
+    @Autowired
+    private BuiltinFunctionRepository repository;
 
     @Test
     public void tostring() {
-        FunctionExpression hex = builtinFunctionRepository.resolve(BuiltinFunctionName.TOSTRING.getName(),
+        FunctionExpression hex = repository.compile(BuiltinFunctionName.TOSTRING.getName(),
                 Arrays.asList(DSL.literal(ExprValueUtils.integerValue(15)),
                         DSL.literal(ExprValueUtils.stringValue("hex"))));
         assertEquals(ExprType.STRING, hex.type());
