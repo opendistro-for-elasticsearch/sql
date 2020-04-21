@@ -257,7 +257,7 @@ functionArgs
     ;
 
 functionArg
-    : expression | fieldExpression | constant
+    : expression | fieldExpression | literalValue
     ;
 
 /** operators */
@@ -268,8 +268,9 @@ comparisonOperator
 /** literals and values*/
 literalValue
     : stringLiteral
-    | integerLiteral
-    | decimalLiteral
+    | (PLUS | MINUS)? integerLiteral
+    | (PLUS | MINUS)? decimalLiteral
+    | booleanLiteral
     ;
 
 stringLiteral
@@ -290,12 +291,6 @@ booleanLiteral
 
 valueList
     : LT_PRTHS literalValue (COMMA literalValue)* RT_PRTHS
-    ;
-
-constant
-    : stringLiteral | decimalLiteral | integerLiteral
-    | MINUS (decimalLiteral | integerLiteral)
-    | booleanLiteral
     ;
 
 ident

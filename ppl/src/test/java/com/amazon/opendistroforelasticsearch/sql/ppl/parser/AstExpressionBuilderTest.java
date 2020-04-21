@@ -20,6 +20,7 @@ import org.junit.Test;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.agg;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.aggregate;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.and;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.doubleLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.equalTo;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.filter;
@@ -186,5 +187,16 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 ));
     }
 
+    @Test
+    public void testBooleanLiteralExpr() {
+        assertEqual("source=t a=true",
+                filter(
+                        relation("t"),
+                        equalTo(
+                                unresolvedAttr("a"),
+                                booleanLiteral(true)
+                        )
+                ));
+    }
 
 }

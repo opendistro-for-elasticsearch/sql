@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
-import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.And;
@@ -33,8 +32,8 @@ import java.util.stream.Collectors;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.AggFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.AggFunctionNameContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.BooleanExpressionContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.BooleanLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.CompareExprContext;
-import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.ConstantContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.DecimalLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.EvalExpressionContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.EvalFunctionCallContext;
@@ -160,6 +159,7 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Express
         return new Literal(identifier, DataType.STRING);
     }
 
+    @Override
     public Expression visitIntegerLiteral(IntegerLiteralContext ctx) {
         return new Literal(Integer.valueOf(ctx.getText()), DataType.INTEGER);
     }
@@ -170,8 +170,8 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Express
     }
 
     @Override
-    public Expression visitConstant(ConstantContext ctx) {
-        return new UnresolvedAttribute(ctx.getText());
+    public Expression visitBooleanLiteral(BooleanLiteralContext ctx) {
+        return new Literal(Boolean.valueOf(ctx.getText()), DataType.BOOLEAN);
     }
 
 }
