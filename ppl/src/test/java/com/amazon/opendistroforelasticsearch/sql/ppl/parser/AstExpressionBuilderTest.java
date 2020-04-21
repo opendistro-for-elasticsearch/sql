@@ -20,14 +20,12 @@ import org.junit.Test;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.agg;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.aggregate;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.and;
-import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.array;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.doubleLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.equalTo;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.function;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.in;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.intLiteral;
-import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.nest;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.not;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.or;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.project;
@@ -123,28 +121,6 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                         relation("t"),
                         null,
                         Collections.singletonList(unresolvedAttr("f")),
-                        null
-                ));
-    }
-
-    @Test
-    public void testNestedFieldExpr() {
-        assertEqual("source=t | stats sum(L1.L2[2].L3)",
-                agg(
-                        relation("t"),
-                        Collections.singletonList(
-                                aggregate(
-                                        unresolvedAttr("sum"),
-                                        nest(
-                                                unresolvedAttr("L1"),
-                                                nest(
-                                                        array("L2", 2),
-                                                        unresolvedAttr("L3")
-                                                )
-                                        )
-                                )
-                        ),
-                        null,
                         null
                 ));
     }

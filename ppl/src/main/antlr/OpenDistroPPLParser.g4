@@ -211,18 +211,10 @@ sortField
     ;
 
 fieldExpression
-    : nestedFieldExpression
-    | SINGLE_QUOTE nestedFieldExpression SINGLE_QUOTE
-    | DOUBLE_QUOTE nestedFieldExpression DOUBLE_QUOTE
-    | BACKTICK nestedFieldExpression BACKTICK
-    ;
-
-nestedFieldExpression
-    : ident                                                         #nestedFieldLastLayerExpr
-    | ident DOT nestedFieldExpression                               #nestedFieldExpr
-    | ident LT_SQR_PRTHS integerLiteral RT_SQR_PRTHS                #nestedFieldLastLayerArrayExpr
-    | ident LT_SQR_PRTHS integerLiteral RT_SQR_PRTHS DOT
-    nestedFieldExpression                                           #nestedFieldArrayExpr
+    : ident
+    | SINGLE_QUOTE ident SINGLE_QUOTE
+    | DOUBLE_QUOTE ident DOUBLE_QUOTE
+    | BACKTICK ident BACKTICK
     ;
 
 wcFieldExpression

@@ -17,7 +17,6 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl;
 
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.And;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Array;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Expression;
@@ -25,7 +24,6 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.In;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Map;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Nest;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Not;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Or;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.UnresolvedAttribute;
@@ -113,14 +111,6 @@ public class DSL {
 
     public static Expression in(Expression field, Expression... valueList) {
         return new In(field, Arrays.asList(valueList));
-    }
-
-    public static Expression nest(Expression current, Expression next) {
-        return new Nest(current, next);
-    }
-
-    public static Expression array(String name, Integer index) {
-        return new Array(new UnresolvedAttribute(name), intLiteral(index));
     }
 
 }

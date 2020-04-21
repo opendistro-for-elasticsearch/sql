@@ -15,18 +15,16 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
+import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.And;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Array;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.AttributeList;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.In;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Literal;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Nest;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Not;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Or;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.UnresolvedAttribute;
@@ -41,19 +39,14 @@ import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.EvalExpressionContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.EvalFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.EvalFunctionNameContext;
-import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.FieldListContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.FieldExpressionContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.InExprContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.IntegerLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.LogicalAndContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.LogicalNotContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.LogicalOrContext;
-import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.NestedFieldArrayExprContext;
-import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.NestedFieldExprContext;
-import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.NestedFieldLastLayerArrayExprContext;
-import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.NestedFieldLastLayerExprContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.StringLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.WcFieldExpressionContext;
-import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.WcFieldListContext;
 
 /**
  * Class of building AST Expression nodes
@@ -119,60 +112,13 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Express
 
     /** Field expression */
     @Override
-    public Expression visitNestedFieldLastLayerExpr(NestedFieldLastLayerExprContext ctx) {
-        return new UnresolvedAttribute(ctx.ident().getText());
-    }
-
-    @Override
-    public Expression visitNestedFieldExpr(NestedFieldExprContext ctx) {
-        return new Nest(
-                new UnresolvedAttribute(ctx.ident().getText()),
-                visit(ctx.nestedFieldExpression())
-        );
-    }
-
-    @Override
-    public Expression visitNestedFieldLastLayerArrayExpr(NestedFieldLastLayerArrayExprContext ctx) {
-        return new Array(
-                new UnresolvedAttribute(ctx.ident().getText()),
-                visit(ctx.integerLiteral())
-        );
-    }
-
-    @Override
-    public Expression visitNestedFieldArrayExpr(NestedFieldArrayExprContext ctx) {
-        return new Nest(
-                new Array(
-                        new UnresolvedAttribute(ctx.ident().getText()),
-                        visit(ctx.integerLiteral())
-                ),
-                visit(ctx.nestedFieldExpression())
-        );
-    }
-
-    @Override
-    public Expression visitFieldList(FieldListContext ctx) {
-        return new AttributeList(
-                ctx.fieldExpression()
-                        .stream()
-                        .map(this::visitFieldExpression)
-                        .collect(Collectors.toList())
-        );
+    public Expression visitFieldExpression(FieldExpressionContext ctx) {
+        return new UnresolvedAttribute(ctx.getText());
     }
 
     @Override
     public Expression visitWcFieldExpression(WcFieldExpressionContext ctx) {
         return new UnresolvedAttribute(ctx.getText());
-    }
-
-    @Override
-    public Expression visitWcFieldList(WcFieldListContext ctx) {
-        return new AttributeList(
-                ctx.wcFieldExpression()
-                        .stream()
-                        .map(this::visitWcFieldExpression)
-                        .collect(Collectors.toList())
-        );
     }
 
     /** Aggregation term */

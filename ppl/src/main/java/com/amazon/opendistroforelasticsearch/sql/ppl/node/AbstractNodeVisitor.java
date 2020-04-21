@@ -17,14 +17,12 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.node;
 
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.And;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Array;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.AttributeList;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.In;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Map;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Nest;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Not;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Or;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.UnresolvedAttribute;
@@ -96,14 +94,6 @@ public class AbstractNodeVisitor<T> implements NodeVisitor<T> {
     }
 
     public T visitIn(In node) {
-        return visitChildren(node);
-    }
-
-    public T visitNest(Nest node) {
-        return visitChildren(node);
-    }
-
-    public T visitArray(Array node) {
         return visitChildren(node);
     }
 
