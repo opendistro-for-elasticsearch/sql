@@ -24,6 +24,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionNam
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature;
 import com.google.common.collect.ImmutableMap;
+import lombok.experimental.UtilityClass;
 
 import java.util.Arrays;
 import java.util.List;
@@ -32,13 +33,20 @@ import java.util.function.BiFunction;
 
 import static com.amazon.opendistroforelasticsearch.sql.expression.scalar.OperatorUtils.binaryOperator;
 
+/**
+ * The definition of binary predicate function
+ * and, Accepts two Boolean values and produces a Boolean.
+ * or,  Accepts two Boolean values and produces a Boolean.
+ * xor, Accepts two Boolean values and produces a Boolean.
+ * equal, Compare the left expression and right expression and produces a Boolean.
+ */
+@UtilityClass
 public class BinaryPredicateFunction {
     public static void register(BuiltinFunctionRepository repository) {
         repository.register(and());
         repository.register(or());
         repository.register(xor());
         repository.register(equal());
-        repository.register(notEqual());
     }
 
     private static FunctionResolver and() {
@@ -84,23 +92,6 @@ public class BinaryPredicateFunction {
                         Boolean::equals,
                         List::equals,
                         Map::equals
-                )
-        );
-    }
-
-    private static FunctionResolver notEqual() {
-        return new FunctionResolver(
-                BuiltinFunctionName.NOTEQUAL.getName(),
-                predicateFunction(
-                        BuiltinFunctionName.NOTEQUAL.getName(),
-                        (v1, v2) -> !v1.equals(v2),
-                        (v1, v2) -> !v1.equals(v2),
-                        (v1, v2) -> !v1.equals(v2),
-                        (v1, v2) -> !v1.equals(v2),
-                        (v1, v2) -> !v1.equals(v2),
-                        (v1, v2) -> !v1.equals(v2),
-                        (v1, v2) -> !v1.equals(v2),
-                        (v1, v2) -> !v1.equals(v2)
                 )
         );
     }

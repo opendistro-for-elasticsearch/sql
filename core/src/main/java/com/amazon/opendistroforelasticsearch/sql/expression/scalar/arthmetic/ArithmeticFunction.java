@@ -16,25 +16,31 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.scalar.arthmetic;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
-import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionExpressionBuilder;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionExpressionBuilder;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature;
 import com.google.common.collect.ImmutableMap;
+import lombok.experimental.UtilityClass;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 import static com.amazon.opendistroforelasticsearch.sql.expression.scalar.OperatorUtils.binaryOperator;
 
+/**
+ * The definition of arithmetic function
+ * add, Accepts two numbers and produces a number.
+ * subtract, Accepts two numbers and produces a number.
+ * multiply, Accepts two numbers and produces a number.
+ * divide, Accepts two numbers and produces a number.
+ * module, Accepts two numbers and produces a number.
+ */
+@UtilityClass
 public class ArithmeticFunction {
 
     public static void register(BuiltinFunctionRepository repository) {

@@ -15,10 +15,13 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.config;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.scalar.arthmetic.ArithmeticFunction;
-import com.amazon.opendistroforelasticsearch.sql.expression.scalar.conversion.ToStringFunction;
 import com.amazon.opendistroforelasticsearch.sql.expression.scalar.predicate.BinaryPredicateFunction;
 import com.amazon.opendistroforelasticsearch.sql.expression.scalar.predicate.UnaryPredicateFunction;
 import org.springframework.context.annotation.Bean;
@@ -26,14 +29,22 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.HashMap;
 
+/**
+ * Expression Config for Spring IoC.
+ */
 @Configuration
-public class FunctionConfig {
+public class ExpressionConfig {
+    @Bean
+    public Environment<Expression, ExprType> emptyEnv() {
+        return var -> {
+            throw new ExpressionEvaluationException("empty env");
+        };
+    }
 
     @Bean
-    public BuiltinFunctionRepository functionRepository() {
-        BuiltinFunctionRepository builtinFunctionRepository = new BuiltinFunctionRepository(new HashMap<>());
+    public BuiltinFunctionRepository functionRepository(Environment<Expression, ExprType> typeEnv) {
+        BuiltinFunctionRepository builtinFunctionRepository = new BuiltinFunctionRepository(new HashMap<>(), typeEnv);
         ArithmeticFunction.register(builtinFunctionRepository);
-        ToStringFunction.register(builtinFunctionRepository);
         BinaryPredicateFunction.register(builtinFunctionRepository);
         UnaryPredicateFunction.register(builtinFunctionRepository);
         return builtinFunctionRepository;

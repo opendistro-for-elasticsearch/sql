@@ -15,29 +15,20 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression;
 
-import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature;
-import com.amazon.opendistroforelasticsearch.sql.expression.visitor.ExpressionVisitor;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
+/**
+ * Function Expression
+ */
 @RequiredArgsConstructor
 public abstract class FunctionExpression implements Expression {
+    @Getter
     private final FunctionName functionName;
+
+    @Getter
     private final List<Expression> arguments;
-
-    public List<Expression> arguments() {
-        return arguments;
-    }
-
-    public FunctionName functionName() {
-        return functionName;
-    }
-
-    @Override
-    public <R, C> R accept(ExpressionVisitor<R, C> visitor, C context) {
-        return visitor.visitFunction(this, context);
-    }
 }

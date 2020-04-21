@@ -19,7 +19,6 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.UtilityClass;
 
 import java.util.Arrays;
 
@@ -29,6 +28,26 @@ public class DSL {
 
     public static LiteralExpression literal(ExprValue value) {
         return new LiteralExpression(value);
+    }
+
+    public FunctionExpression add(Expression... expressions) {
+        return repository.compile(BuiltinFunctionName.ADD.getName(), Arrays.asList(expressions));
+    }
+
+    public FunctionExpression subtract(Expression... expressions) {
+        return repository.compile(BuiltinFunctionName.SUBTRACT.getName(), Arrays.asList(expressions));
+    }
+
+    public FunctionExpression multiply(Expression... expressions) {
+        return repository.compile(BuiltinFunctionName.MULTIPLY.getName(), Arrays.asList(expressions));
+    }
+
+    public FunctionExpression divide(Expression... expressions) {
+        return repository.compile(BuiltinFunctionName.DIVIDE.getName(), Arrays.asList(expressions));
+    }
+
+    public FunctionExpression module(Expression... expressions) {
+        return repository.compile(BuiltinFunctionName.MODULES.getName(), Arrays.asList(expressions));
     }
 
     public FunctionExpression and(Expression... expressions) {
@@ -41,5 +60,13 @@ public class DSL {
 
     public FunctionExpression xor(Expression... expressions) {
         return repository.compile(BuiltinFunctionName.XOR.getName(), Arrays.asList(expressions));
+    }
+
+    public FunctionExpression not(Expression... expressions) {
+        return repository.compile(BuiltinFunctionName.NOT.getName(), Arrays.asList(expressions));
+    }
+
+    public FunctionExpression equal(Expression... expressions) {
+        return repository.compile(BuiltinFunctionName.EQUAL.getName(), Arrays.asList(expressions));
     }
 }

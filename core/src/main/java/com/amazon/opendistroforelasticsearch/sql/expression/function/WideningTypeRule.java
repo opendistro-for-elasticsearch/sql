@@ -20,7 +20,6 @@ import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationE
 import com.google.common.collect.ImmutableMap;
 import lombok.experimental.UtilityClass;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.ARRAY;

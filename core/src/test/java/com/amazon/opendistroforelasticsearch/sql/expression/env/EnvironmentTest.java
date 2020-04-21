@@ -13,37 +13,33 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.expression.scalar.conversion;
+package com.amazon.opendistroforelasticsearch.sql.expression.env;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
+import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
-import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
-import com.amazon.opendistroforelasticsearch.sql.expression.config.FunctionConfig;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Arrays;
-
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {FunctionConfig.class})
-class ToStringFunctionTest {
+@ContextConfiguration(classes = {ExpressionConfig.class})
+class EnvironmentTest {
     @Autowired
-    private BuiltinFunctionRepository repository;
+    private Environment<Expression, ExprType> emptyEnv;
 
     @Test
-    public void tostring() {
-        FunctionExpression hex = repository.compile(BuiltinFunctionName.TOSTRING.getName(),
-                Arrays.asList(DSL.literal(ExprValueUtils.integerValue(15)),
-                        DSL.literal(ExprValueUtils.stringValue("hex"))));
-        assertEquals(ExprType.STRING, hex.type());
-        assertEquals("0xF", hex.valueOf().value());
+    public void resolve_from_empty_env_should_throw_exception() {
+        ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
+                () -> emptyEnv.resolve(DSL.literal(integerValue(1))));
+        assertEquals("empty env", exception.getMessage());
     }
 }

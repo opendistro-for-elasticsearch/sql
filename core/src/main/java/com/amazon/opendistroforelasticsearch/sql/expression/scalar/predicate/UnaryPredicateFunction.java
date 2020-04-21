@@ -18,19 +18,27 @@ package com.amazon.opendistroforelasticsearch.sql.expression.scalar.predicate;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionExpressionBuilder;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature;
+import lombok.experimental.UtilityClass;
 
 import java.util.Arrays;
 import java.util.function.Predicate;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getBooleanValue;
 
+/**
+ * The definition of unary predicate function
+ * not, Accepts one Boolean value and produces a Boolean.
+ */
+@UtilityClass
 public class UnaryPredicateFunction {
     public static void register(BuiltinFunctionRepository repository) {
         repository.register(not());
@@ -52,13 +60,13 @@ public class UnaryPredicateFunction {
             ExprType returnType) {
         return arguments -> new FunctionExpression(functionName, arguments) {
             @Override
-            public ExprValue valueOf() {
-                ExprValue arg1 = arguments.get(0).valueOf();
+            public ExprValue valueOf(Environment<Expression, ExprValue> env) {
+                ExprValue arg1 = arguments.get(0).valueOf(env);
                 return ExprValueUtils.fromObjectValue(predicate.test(getBooleanValue(arg1)));
             }
 
             @Override
-            public ExprType type() {
+            public ExprType type(Environment<Expression, ExprType> env) {
                 return returnType;
             }
         };

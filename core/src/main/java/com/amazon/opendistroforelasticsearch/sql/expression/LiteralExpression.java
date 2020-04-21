@@ -17,25 +17,23 @@ package com.amazon.opendistroforelasticsearch.sql.expression;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
-import com.amazon.opendistroforelasticsearch.sql.expression.visitor.ExpressionVisitor;
+import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Literal Expression
+ */
 @RequiredArgsConstructor
 public class LiteralExpression implements Expression {
     private final ExprValue exprValue;
 
     @Override
-    public ExprValue valueOf() {
+    public ExprValue valueOf(Environment<Expression, ExprValue> env) {
         return exprValue;
     }
 
     @Override
-    public ExprType type() {
+    public ExprType type(Environment<Expression, ExprType> env) {
         return exprValue.type();
-    }
-
-    @Override
-    public <R, C> R accept(ExpressionVisitor<R, C> visitor, C context) {
-        return visitor.visitLiteral(this, context);
     }
 }

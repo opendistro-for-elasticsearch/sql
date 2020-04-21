@@ -70,7 +70,7 @@ class FunctionSignatureTest {
         when(funcSignature.getParamTypeList()).thenReturn(unresolvedParamTypeList);
         FunctionSignature unresolvedFunSig = new FunctionSignature(unresolvedFuncName, unresolvedParamTypeList);
 
-        assertEquals(TYPE_EQUAL, unresolvedFunSig.match(funcSignature));;
+        assertEquals(TYPE_EQUAL, unresolvedFunSig.match(funcSignature));
     }
 
     @Test
@@ -79,7 +79,7 @@ class FunctionSignatureTest {
         when(funcSignature.getParamTypeList()).thenReturn(Arrays.asList(ExprType.STRING, ExprType.STRING));
         FunctionSignature unresolvedFunSig = new FunctionSignature(unresolvedFuncName, unresolvedParamTypeList);
 
-        assertEquals(IMPOSSIBLE_WIDENING, unresolvedFunSig.match(funcSignature));;
+        assertEquals(IMPOSSIBLE_WIDENING, unresolvedFunSig.match(funcSignature));
     }
 
     @Test
@@ -88,6 +88,6 @@ class FunctionSignatureTest {
         when(funcSignature.getParamTypeList()).thenReturn(Arrays.asList(ExprType.FLOAT, ExprType.FLOAT));
         FunctionSignature unresolvedFunSig = new FunctionSignature(unresolvedFuncName, unresolvedParamTypeList);
 
-        assertEquals(2, unresolvedFunSig.match(funcSignature));;
+        assertEquals(2, unresolvedFunSig.match(funcSignature));
     }
 }

@@ -18,7 +18,9 @@ package com.amazon.opendistroforelasticsearch.sql.expression.scalar;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionExpressionBuilder;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import lombok.experimental.UtilityClass;
@@ -42,15 +44,15 @@ public class OperatorUtils {
                                                                      ExprType returnType) {
         return arguments -> new FunctionExpression(functionName, arguments) {
             @Override
-            public ExprValue valueOf() {
-                ExprValue arg1 = arguments.get(0).valueOf();
-                ExprValue arg2 = arguments.get(1).valueOf();
+            public ExprValue valueOf(Environment<Expression, ExprValue> env) {
+                ExprValue arg1 = arguments.get(0).valueOf(env);
+                ExprValue arg2 = arguments.get(1).valueOf(env);
                 return ExprValueUtils.fromObjectValue(
                         function.apply(observer1.apply(arg1), observer2.apply(arg2)));
             }
 
             @Override
-            public ExprType type() {
+            public ExprType type(Environment<Expression, ExprType> env) {
                 return returnType;
             }
         };

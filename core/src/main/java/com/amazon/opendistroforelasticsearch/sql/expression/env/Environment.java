@@ -13,27 +13,15 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.expression.function;
-
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+package com.amazon.opendistroforelasticsearch.sql.expression.env;
 
 /**
- * The definition of Function Name.
+ * The definition of the environment.
  */
-@EqualsAndHashCode
-@RequiredArgsConstructor
-public class FunctionName {
-    @Getter
-    private final String functionName;
+public interface Environment<T, R> {
 
-    public static FunctionName of(String functionName) {
-        return new FunctionName(functionName);
-    }
-
-    @Override
-    public String toString() {
-        return functionName;
-    }
+    /**
+     * resolve the value of var from the environment.
+     */
+    R resolve(T var);
 }

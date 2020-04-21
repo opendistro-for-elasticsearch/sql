@@ -19,31 +19,25 @@ package com.amazon.opendistroforelasticsearch.sql.expression.scalar.arthmetic;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
-import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
-import com.amazon.opendistroforelasticsearch.sql.expression.config.FunctionConfig;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.WideningTypeRule;
+import com.amazon.opendistroforelasticsearch.sql.expression.scalar.FunctionTestBase;
 import com.google.common.collect.Lists;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {FunctionConfig.class})
-class ArithmeticFunctionTest {
+class ArithmeticFunctionTest extends FunctionTestBase {
     @Autowired
     private BuiltinFunctionRepository functionRepository;
 
@@ -52,21 +46,53 @@ class ArithmeticFunctionTest {
                 .map(ExprValueUtils::fromObjectValue).collect(Collectors.toList());
         List<ExprValue> numberOp2 = Stream.of(2, 2L, 2f, 2D)
                 .map(ExprValueUtils::fromObjectValue).collect(Collectors.toList());
-        List<BuiltinFunctionName> functions = Arrays.asList(BuiltinFunctionName.ADD, BuiltinFunctionName.SUBTRACT,
-                BuiltinFunctionName.MULTIPLY,
-                BuiltinFunctionName.DIVIDE, BuiltinFunctionName.MODULES);
-        return Lists.cartesianProduct(functions, numberOp1, numberOp2).stream()
-                .map(list -> Arguments.of(list.get(0), list.get(1), list.get(2)));
+        return Lists.cartesianProduct(numberOp1, numberOp2).stream()
+                .map(list -> Arguments.of(list.get(0), list.get(1)));
     }
 
-    @ParameterizedTest(name = "{0}({1}, {2})")
+    @ParameterizedTest(name = "add({1}, {2})")
     @MethodSource("arithmeticFunctionArguments")
-    public void arithmeticFunction(BuiltinFunctionName builtinFunctionName, ExprValue op1, ExprValue op2) {
-        FunctionExpression expression = functionRepository.compile(builtinFunctionName.getName(),
-                Arrays.asList(DSL.literal(op1), DSL.literal(op2)));
+    public void add(ExprValue op1, ExprValue op2) {
+        FunctionExpression expression = dsl.add(literal(op1), literal(op2));
         ExprType expectedType = WideningTypeRule.max(op1.type(), op2.type());
-        assertEquals(expectedType, expression.type());
-        assertValueEqual(builtinFunctionName, expectedType, op1, op2, expression.valueOf());
+        assertEquals(expectedType, expression.type(null));
+        assertValueEqual(BuiltinFunctionName.ADD, expectedType, op1, op2, expression.valueOf(null));
+    }
+
+    @ParameterizedTest(name = "subtract({1}, {2})")
+    @MethodSource("arithmeticFunctionArguments")
+    public void subtract(ExprValue op1, ExprValue op2) {
+        FunctionExpression expression = dsl.subtract(literal(op1), literal(op2));
+        ExprType expectedType = WideningTypeRule.max(op1.type(), op2.type());
+        assertEquals(expectedType, expression.type(null));
+        assertValueEqual(BuiltinFunctionName.SUBTRACT, expectedType, op1, op2, expression.valueOf(null));
+    }
+
+    @ParameterizedTest(name = "multiply({1}, {2})")
+    @MethodSource("arithmeticFunctionArguments")
+    public void multiply(ExprValue op1, ExprValue op2) {
+        FunctionExpression expression = dsl.multiply(literal(op1), literal(op2));
+        ExprType expectedType = WideningTypeRule.max(op1.type(), op2.type());
+        assertEquals(expectedType, expression.type(null));
+        assertValueEqual(BuiltinFunctionName.MULTIPLY, expectedType, op1, op2, expression.valueOf(null));
+    }
+
+    @ParameterizedTest(name = "divide({1}, {2})")
+    @MethodSource("arithmeticFunctionArguments")
+    public void divide(ExprValue op1, ExprValue op2) {
+        FunctionExpression expression = dsl.divide(literal(op1), literal(op2));
+        ExprType expectedType = WideningTypeRule.max(op1.type(), op2.type());
+        assertEquals(expectedType, expression.type(null));
+        assertValueEqual(BuiltinFunctionName.DIVIDE, expectedType, op1, op2, expression.valueOf(null));
+    }
+
+    @ParameterizedTest(name = "module({1}, {2})")
+    @MethodSource("arithmeticFunctionArguments")
+    public void module(ExprValue op1, ExprValue op2) {
+        FunctionExpression expression = dsl.module(literal(op1), literal(op2));
+        ExprType expectedType = WideningTypeRule.max(op1.type(), op2.type());
+        assertEquals(expectedType, expression.type(null));
+        assertValueEqual(BuiltinFunctionName.MODULES, expectedType, op1, op2, expression.valueOf(null));
     }
 
     protected void assertValueEqual(BuiltinFunctionName builtinFunctionName, ExprType type, ExprValue op1,
