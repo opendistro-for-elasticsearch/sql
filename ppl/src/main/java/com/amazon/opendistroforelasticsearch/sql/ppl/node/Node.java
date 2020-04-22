@@ -20,7 +20,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
- * AST node interface to construct
+ * AST node
  */
 @EqualsAndHashCode
 @ToString
