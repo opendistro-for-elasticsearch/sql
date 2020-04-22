@@ -16,7 +16,6 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical;
 
 import com.amazon.opendistroforelasticsearch.sql.ppl.node.AbstractNodeVisitor;
-import com.amazon.opendistroforelasticsearch.sql.ppl.node.NodeVisitor;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import lombok.EqualsAndHashCode;
@@ -27,17 +26,12 @@ import lombok.ToString;
 /**
  * Logical plan node of Relation, the interface for building the searching sources
  */
+@Getter
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
 public class Relation extends UnresolvedPlan {
-    @Getter
     private final String tableName;
-
-    @Override
-    public Relation withInput(UnresolvedPlan input) {
-        return this;
-    }
 
     @Override
     public List<UnresolvedPlan> getChild() {
@@ -45,11 +39,7 @@ public class Relation extends UnresolvedPlan {
     }
 
     @Override
-    public <R> R accept(NodeVisitor<R> nodeVisitor) {
-        if (nodeVisitor instanceof AbstractNodeVisitor) {
-            return ((AbstractNodeVisitor<R>) nodeVisitor).visitRelation(this);
-        } else {
-            return nodeVisitor.visitChildren(this);
-        }
+    public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
+        return nodeVisitor.visitRelation(this, context);
     }
 }

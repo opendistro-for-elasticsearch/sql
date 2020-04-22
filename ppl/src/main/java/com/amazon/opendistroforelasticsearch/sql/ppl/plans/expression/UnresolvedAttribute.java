@@ -16,7 +16,6 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression;
 
 import com.amazon.opendistroforelasticsearch.sql.ppl.node.AbstractNodeVisitor;
-import com.amazon.opendistroforelasticsearch.sql.ppl.node.NodeVisitor;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import lombok.EqualsAndHashCode;
@@ -29,10 +28,10 @@ import lombok.ToString;
  * This expression is often created as the index name, field name etc.
  */
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
+@Getter
 public class UnresolvedAttribute extends Expression {
-    @Getter
     private final String attr;
 
     @Override
@@ -41,11 +40,7 @@ public class UnresolvedAttribute extends Expression {
     }
 
     @Override
-    public <R> R accept(NodeVisitor<R> nodeVisitor) {
-        if (nodeVisitor instanceof AbstractNodeVisitor) {
-            return ((AbstractNodeVisitor<R>) nodeVisitor).visitUnresolvedAttribute(this);
-        } else {
-            return nodeVisitor.visitChildren(this);
-        }
+    public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
+        return nodeVisitor.visitUnresolvedAttribute(this, context);
     }
 }

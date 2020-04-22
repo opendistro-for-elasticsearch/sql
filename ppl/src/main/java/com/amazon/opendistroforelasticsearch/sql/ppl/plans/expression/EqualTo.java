@@ -16,7 +16,6 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression;
 
 import com.amazon.opendistroforelasticsearch.sql.ppl.node.AbstractNodeVisitor;
-import com.amazon.opendistroforelasticsearch.sql.ppl.node.NodeVisitor;
 import java.util.Arrays;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -28,7 +27,7 @@ import lombok.ToString;
  * Expression node of binary operator or comparison relation EQUAL
  */
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @AllArgsConstructor
 public class EqualTo extends Expression {
     @Getter
@@ -42,11 +41,7 @@ public class EqualTo extends Expression {
     }
 
     @Override
-    public <T> T accept(NodeVisitor<T> visitor) {
-        if (visitor instanceof AbstractNodeVisitor) {
-            return ((AbstractNodeVisitor<T>) visitor).visitEqualTo(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
+    public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
+        return nodeVisitor.visitEqualTo(this, context);
     }
 }

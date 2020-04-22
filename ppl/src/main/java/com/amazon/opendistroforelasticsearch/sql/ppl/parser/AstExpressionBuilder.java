@@ -125,7 +125,7 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Express
     /** Aggregation function */
     @Override
     public Expression visitAggFunctionCall(AggFunctionCallContext ctx) {
-        return new AggregateFunction(visit(ctx.aggFunctionName()), visit(ctx.fieldExpression()));
+        return new AggregateFunction(ctx.aggFunctionName().getText(), visit(ctx.fieldExpression()));
     }
 
     @Override

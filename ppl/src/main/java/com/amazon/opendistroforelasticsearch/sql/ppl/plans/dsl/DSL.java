@@ -89,7 +89,7 @@ public class DSL {
         return new Map(new UnresolvedAttribute(origin), new UnresolvedAttribute(target));
     }
 
-    public static Expression aggregate(Expression func, Expression field) {
+    public static Expression aggregate(String func, Expression field) {
         return new AggregateFunction(func, field);
     }
 

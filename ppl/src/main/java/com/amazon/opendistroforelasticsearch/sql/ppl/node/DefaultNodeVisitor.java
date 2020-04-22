@@ -31,42 +31,19 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.Project;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.Relation;
 
-/**
- * AST nodes visitor
- * Defines the traverse path
- */
-public abstract class AbstractNodeVisitor<T, C> {
+public abstract class DefaultNodeVisitor<T, C> extends AbstractNodeVisitor<T, C> {
 
-    public T visit(Node node, C context) {
-        return null;
-    }
-
-    public T visitChildren(Node node, C context) {
-        T result = defaultResult();
-
-        for (Node child : node.getChild()) {
-            T childResult = child.accept(this, context);
-            result = aggregateResult(result, childResult);
-        }
-        return result;
-    }
-
-    private T defaultResult() {
-        return null;
-    }
-
-    private T aggregateResult(T aggregate, T nextResult) {
-        return nextResult;
-    }
-
+    @Override
     public T visitRelation(Relation node, C context) {
-        return visitChildren(node, context);
+        return null;
     }
 
+    @Override
     public T visitFilter(Filter node, C context) {
         return visitChildren(node, context);
     }
 
+    @Override
     public T visitProject(Project node, C context) {
         return visitChildren(node, context);
     }
@@ -108,7 +85,7 @@ public abstract class AbstractNodeVisitor<T, C> {
     }
 
     public T visitAggregateFunction(AggregateFunction node, C context) {
-        return visitChildren(node, context);
+        return this.visitChildren(node, context);
     }
 
     public T visitFunction(Function node, C context) {
@@ -120,4 +97,3 @@ public abstract class AbstractNodeVisitor<T, C> {
     }
 
 }
-

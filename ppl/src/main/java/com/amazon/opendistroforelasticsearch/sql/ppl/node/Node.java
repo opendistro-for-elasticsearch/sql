@@ -16,13 +16,21 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl.node;
 
 import java.util.List;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  * AST node interface to construct
  */
-public interface Node<T extends Node> {
+@EqualsAndHashCode
+@ToString
+public abstract class Node {
 
-    List<T> getChild();
+    public <R, C> R accept(AbstractNodeVisitor<R, C> visitor, C context) {
+        return visitor.visitChildren(this, context);
+    }
 
-    <R> R accept(NodeVisitor<R> nodeVisitor);
+    public List<? extends Node> getChild() {
+        return null;
+    }
 }

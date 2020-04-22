@@ -22,7 +22,6 @@ import java.util.Collections;
 import org.junit.Test;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.agg;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.aggregate;
-import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.equalTo;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.plans.dsl.DSL.function;
@@ -101,7 +100,7 @@ public class AstBuilderTest {
                         relation("t"),
                         Collections.singletonList(
                                 aggregate(
-                                        unresolvedAttr("count"), unresolvedAttr("a")
+                                        "count", unresolvedAttr("a")
                                 )),
                         null,
                         Collections.singletonList(unresolvedAttr("b"))

@@ -132,7 +132,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 agg(
                         relation("t"),
                         Collections.singletonList(
-                                aggregate(unresolvedAttr("avg"), unresolvedAttr("a"))
+                                aggregate("avg", unresolvedAttr("a"))
                         ),
                         null,
                         Collections.singletonList(unresolvedAttr("b"))
