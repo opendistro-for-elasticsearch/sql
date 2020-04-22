@@ -74,7 +74,7 @@ public class AggregationExpressionIT extends SQLIntegTestCase {
                         "FROM %s",
                 Index.BANK.getName()));
 
-        verifySchema(response, schema("avg", "avg", "integer"));
+        verifySchema(response, schema("avg", "avg", "double"));
         verifyDataRows(response, rows(34));
     }
 
