@@ -78,7 +78,6 @@ public class AggregationExpressionIT extends SQLIntegTestCase {
         verifyDataRows(response, rows(34));
     }
 
-
     @Test
     public void hasGroupKeyAvgOnIntegerShouldPass() {
         JSONObject response = executeJdbcRequest(String.format(
