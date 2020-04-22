@@ -16,7 +16,6 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression;
 
 import com.amazon.opendistroforelasticsearch.sql.ppl.node.AbstractNodeVisitor;
-import com.amazon.opendistroforelasticsearch.sql.ppl.node.NodeVisitor;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import lombok.EqualsAndHashCode;
@@ -30,7 +29,7 @@ import lombok.ToString;
  */
 @Getter
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
 public class Literal extends Expression {
 
@@ -43,11 +42,7 @@ public class Literal extends Expression {
     }
 
     @Override
-    public <R> R accept(NodeVisitor<R> nodeVisitor) {
-        if (nodeVisitor instanceof AbstractNodeVisitor) {
-            return ((AbstractNodeVisitor<R>) nodeVisitor).visitLiteral(this);
-        } else {
-            return nodeVisitor.visitChildren(this);
-        }
+    public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
+        return nodeVisitor.visitLiteral(this, context);
     }
 }

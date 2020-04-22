@@ -16,10 +16,10 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical;
 
 import com.amazon.opendistroforelasticsearch.sql.ppl.node.AbstractNodeVisitor;
-import com.amazon.opendistroforelasticsearch.sql.ppl.node.NodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Expression;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,18 +29,15 @@ import lombok.ToString;
  * Logical plan node of Aggregation, the interface for building aggregation actions in queries
  */
 @Getter
+@Setter
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 public class Aggregation extends UnresolvedPlan {
-    private UnresolvedPlan input;
-    @Setter
     private List<Expression> aggExprList;
-    @Setter
     private List<Expression> sortExprList;
-    @Setter
     private List<Expression> groupExprList;
-    @Setter
     private List<Expression> argExprList;
+    private UnresolvedPlan input;
 
     public Aggregation(List<Expression> aggExprList,
                        List<Expression> sortExprList,
@@ -69,15 +66,11 @@ public class Aggregation extends UnresolvedPlan {
 
     @Override
     public List<UnresolvedPlan> getChild() {
-        return ImmutableList.of(input);
+        return ImmutableList.of(this.input);
     }
 
     @Override
-    public <R> R accept(NodeVisitor<R> nodeVisitor) {
-        if (nodeVisitor instanceof AbstractNodeVisitor) {
-            return ((AbstractNodeVisitor<R>) nodeVisitor).visitAggregation(this);
-        } else {
-            return nodeVisitor.visitChildren(this);
-        }
+    public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
+        return nodeVisitor.visitAggregation(this, context);
     }
 }

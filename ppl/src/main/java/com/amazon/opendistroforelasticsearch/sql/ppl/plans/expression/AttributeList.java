@@ -16,7 +16,6 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression;
 
 import com.amazon.opendistroforelasticsearch.sql.ppl.node.AbstractNodeVisitor;
-import com.amazon.opendistroforelasticsearch.sql.ppl.node.NodeVisitor;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -28,7 +27,7 @@ import lombok.ToString;
  * Expression node that includes a list of Expression nodes
  */
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @AllArgsConstructor
 public class AttributeList extends Expression {
     @Getter
@@ -40,11 +39,7 @@ public class AttributeList extends Expression {
     }
 
     @Override
-    public <T> T accept(NodeVisitor<T> visitor) {
-        if (visitor instanceof AbstractNodeVisitor) {
-            return ((AbstractNodeVisitor<T>) visitor).visitUnresolvedAttributeList(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
+    public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
+        return nodeVisitor.visitAttributeList(this, context);
     }
 }

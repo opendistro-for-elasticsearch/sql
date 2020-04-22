@@ -15,8 +15,20 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical;
 
+import com.amazon.opendistroforelasticsearch.sql.ppl.node.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ppl.node.Node;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
-public abstract class UnresolvedPlan implements Node<UnresolvedPlan>, HasInput<UnresolvedPlan, UnresolvedPlan> {
+@EqualsAndHashCode(callSuper = false)
+@ToString
+public abstract class UnresolvedPlan extends Node {
+    @Override
+    public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
+        return nodeVisitor.visitChildren(this, context);
+    }
 
+    public UnresolvedPlan withInput(UnresolvedPlan input) {
+        return this;
+    }
 }

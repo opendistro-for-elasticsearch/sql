@@ -101,7 +101,7 @@ public class AstBuilderTest {
                         relation("t"),
                         Collections.singletonList(
                                 aggregate(
-                                        unresolvedAttr("count"), unresolvedAttr("a")
+                                        "count", unresolvedAttr("a")
                                 )),
                         null,
                         Collections.singletonList(unresolvedAttr("b"))

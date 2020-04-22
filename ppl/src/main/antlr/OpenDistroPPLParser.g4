@@ -207,18 +207,10 @@ sortField
     ;
 
 fieldExpression
-    : nestedFieldExpression
-    | SINGLE_QUOTE nestedFieldExpression SINGLE_QUOTE
-    | DOUBLE_QUOTE nestedFieldExpression DOUBLE_QUOTE
-    | BACKTICK nestedFieldExpression BACKTICK
-    ;
-
-nestedFieldExpression
-    : ident                                                         #nestedFieldLastLayerExpr
-    | ident DOT nestedFieldExpression                               #nestedFieldExpr
-    | ident LT_SQR_PRTHS integerLiteral RT_SQR_PRTHS                #nestedFieldLastLayerArrayExpr
-    | ident LT_SQR_PRTHS integerLiteral RT_SQR_PRTHS DOT
-    nestedFieldExpression                                           #nestedFieldArrayExpr
+    : ident
+    | SINGLE_QUOTE ident SINGLE_QUOTE
+    | DOUBLE_QUOTE ident DOUBLE_QUOTE
+    | BACKTICK ident BACKTICK
     ;
 
 wcFieldExpression
@@ -261,7 +253,7 @@ functionArgs
     ;
 
 functionArg
-    : expression | fieldExpression | constant
+    : expression | fieldExpression | literalValue
     ;
 
 /** operators */
@@ -272,8 +264,9 @@ comparisonOperator
 /** literals and values*/
 literalValue
     : stringLiteral
-    | integerLiteral
-    | decimalLiteral
+    | (PLUS | MINUS)? integerLiteral
+    | (PLUS | MINUS)? decimalLiteral
+    | booleanLiteral
     ;
 
 stringLiteral
@@ -294,12 +287,6 @@ booleanLiteral
 
 valueList
     : LT_PRTHS literalValue (COMMA literalValue)* RT_PRTHS
-    ;
-
-constant
-    : stringLiteral | decimalLiteral | integerLiteral
-    | MINUS (decimalLiteral | integerLiteral)
-    | booleanLiteral
     ;
 
 ident

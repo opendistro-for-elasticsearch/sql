@@ -16,7 +16,6 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression;
 
 import com.amazon.opendistroforelasticsearch.sql.ppl.node.AbstractNodeVisitor;
-import com.amazon.opendistroforelasticsearch.sql.ppl.node.NodeVisitor;
 import java.util.Arrays;
 import java.util.List;
 import lombok.EqualsAndHashCode;
@@ -27,7 +26,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @RequiredArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 public class Argument extends Expression {
     private final String argName;
     private final Expression value;
@@ -38,11 +37,7 @@ public class Argument extends Expression {
     }
 
     @Override
-    public <R> R accept(NodeVisitor<R> nodeVisitor) {
-        if (nodeVisitor instanceof AbstractNodeVisitor) {
-            return ((AbstractNodeVisitor<R>) nodeVisitor).visitArgument(this);
-        } else {
-            return nodeVisitor.visitChildren(this);
-        }
+    public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
+        return nodeVisitor.visitArgument(this, context);
     }
 }

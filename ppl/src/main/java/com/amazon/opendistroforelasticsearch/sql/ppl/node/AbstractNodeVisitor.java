@@ -18,7 +18,6 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.node;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Argument;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Array;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.AttributeList;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Compare;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.EqualTo;
@@ -26,7 +25,6 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.In;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Map;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Nest;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Not;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Or;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.UnresolvedAttribute;
@@ -39,82 +37,96 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.Relation;
  * AST nodes visitor
  * Defines the traverse path
  */
-public class AbstractNodeVisitor<T> implements NodeVisitor<T> {
+public abstract class AbstractNodeVisitor<T, C> {
 
-    public T visitRelation(Relation node) {
-        return visitChildren(node);
+    public T visit(Node node, C context) {
+        return null;
     }
 
-    public T visitFilter(Filter node) {
-        return visitChildren(node);
+    public T visitChildren(Node node, C context) {
+        T result = defaultResult();
+
+        for (Node child : node.getChild()) {
+            T childResult = child.accept(this, context);
+            result = aggregateResult(result, childResult);
+        }
+        return result;
     }
 
-    public T visitProject(Project node) {
-        return visitChildren(node);
+    private T defaultResult() {
+        return null;
     }
 
-    public T visitAggregation(Aggregation node) {
-        return visitChildren(node);
+    private T aggregateResult(T aggregate, T nextResult) {
+        return nextResult;
     }
 
-    public T visitEqualTo(EqualTo node) {
-        return visitChildren(node);
+    public T visitRelation(Relation node, C context) {
+        return visitChildren(node, context);
     }
 
-    public T visitLiteral(Literal node) {
-        return visitChildren(node);
+    public T visitFilter(Filter node, C context) {
+        return visitChildren(node, context);
     }
 
-    public T visitUnresolvedAttribute(UnresolvedAttribute node) {
-        return visitChildren(node);
+    public T visitProject(Project node, C context) {
+        return visitChildren(node, context);
     }
 
-    public T visitUnresolvedAttributeList(AttributeList node) {
-        return visitChildren(node);
+    public T visitAggregation(Aggregation node, C context) {
+        return visitChildren(node, context);
     }
 
-    public T visitMap(Map node) {
-        return visitChildren(node);
+    public T visitEqualTo(EqualTo node, C context) {
+        return visitChildren(node, context);
     }
 
-    public T visitNot(Not node) {
-        return visitChildren(node);
+    public T visitLiteral(Literal node, C context) {
+        return visitChildren(node, context);
     }
 
-    public T visitOr(Or node) {
-        return visitChildren(node);
+    public T visitUnresolvedAttribute(UnresolvedAttribute node, C context) {
+        return visitChildren(node, context);
     }
 
-    public T visitAnd(And node) {
-        return visitChildren(node);
+    public T visitAttributeList(AttributeList node, C context) {
+        return visitChildren(node, context);
     }
 
-    public T visitAggregateFunction(AggregateFunction node) {
-        return visitChildren(node);
+    public T visitMap(Map node, C context) {
+        return visitChildren(node, context);
     }
 
-    public T visitFunction(Function node) {
-        return visitChildren(node);
+    public T visitNot(Not node, C context) {
+        return visitChildren(node, context);
     }
 
-    public T visitIn(In node) {
-        return visitChildren(node);
+    public T visitOr(Or node, C context) {
+        return visitChildren(node, context);
     }
 
-    public T visitNest(Nest node) {
-        return visitChildren(node);
+    public T visitAnd(And node, C context) {
+        return visitChildren(node, context);
     }
 
-    public T visitArray(Array node) {
-        return visitChildren(node);
+    public T visitAggregateFunction(AggregateFunction node, C context) {
+        return visitChildren(node, context);
     }
 
-    public T visitCompare(Compare node) {
-        return visitChildren(node);
+    public T visitFunction(Function node, C context) {
+        return visitChildren(node, context);
     }
 
-    public T visitArgument(Argument node) {
-        return visitChildren(node);
+    public T visitIn(In node, C context) {
+        return visitChildren(node, context);
+    }
+
+    public T visitArgument(Argument node, C context) {
+        return visitChildren(node, context);
+    }
+
+    public T visitCompare(Compare node, C context) {
+        return visitChildren(node, context);
     }
 
 }

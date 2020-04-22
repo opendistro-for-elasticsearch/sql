@@ -16,7 +16,6 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical;
 
 import com.amazon.opendistroforelasticsearch.sql.ppl.node.AbstractNodeVisitor;
-import com.amazon.opendistroforelasticsearch.sql.ppl.node.NodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Expression;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
@@ -29,8 +28,8 @@ import lombok.ToString;
  * Logical plan node of Project, the interface for building the list of searching fields
  */
 @ToString
-@EqualsAndHashCode
 @Getter
+@EqualsAndHashCode(callSuper = false)
 public class Project extends UnresolvedPlan {
     @Setter
     private List<Expression> projectList;
@@ -55,15 +54,12 @@ public class Project extends UnresolvedPlan {
 
     @Override
     public List<UnresolvedPlan> getChild() {
-        return ImmutableList.of(input);
+        return ImmutableList.of(this.input);
     }
 
     @Override
-    public <T> T accept(NodeVisitor<T> visitor) {
-        if (visitor instanceof AbstractNodeVisitor) {
-            return ((AbstractNodeVisitor<T>) visitor).visitProject(this);
-        } else {
-            return visitor.visitChildren(this);
-        }
+    public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
+        this.input = (UnresolvedPlan) context;
+        return nodeVisitor.visitProject(this, context);
     }
 }
