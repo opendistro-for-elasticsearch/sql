@@ -499,8 +499,9 @@ public class TestUtils {
                 "        \"type\": \"text\"\n" +
                 "      },\n" +
                 "      \"gender\": {\n" +
-                "        \"type\": \"text\"\n" +
-                "      },\n" +
+                "        \"type\": \"text\",\n" +
+                "        \"fielddata\": true\n" +
+                "      }," +
                 "      \"lastname\": {\n" +
                 "        \"type\": \"keyword\"\n" +
                 "      },\n" +
