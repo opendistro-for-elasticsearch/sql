@@ -29,6 +29,7 @@ public class AggregationExpressionIT extends SQLIntegTestCase {
     @Override
     protected void init() throws Exception {
         loadIndex(Index.ACCOUNT);
+        loadIndex(Index.BANK);
     }
 
     @Test
@@ -64,6 +65,34 @@ public class AggregationExpressionIT extends SQLIntegTestCase {
 
         verifySchema(response, schema("add", "add", "long"));
         verifyDataRows(response, rows(41));
+    }
+
+    @Test
+    public void noGroupKeyAvgOnIntegerShouldPass() {
+        JSONObject response = executeJdbcRequest(String.format(
+                "SELECT AVG(age) as avg " +
+                        "FROM %s",
+                Index.BANK.getName()));
+
+        verifySchema(response, schema("avg", "avg", "integer"));
+        verifyDataRows(response, rows(34));
+    }
+
+
+    @Test
+    public void hasGroupKeyAvgOnIntegerShouldPass() {
+        JSONObject response = executeJdbcRequest(String.format(
+                "SELECT gender, AVG(age) as avg " +
+                "FROM %s " +
+                "GROUP BY gender",
+                Index.BANK.getName()));
+
+        verifySchema(response,
+                schema("gender", null, "text"),
+                schema("avg", "avg", "double"));
+        verifyDataRows(response,
+                rows("m", 34.25),
+                rows("f", 33.666666666666664d));
     }
 
     @Test
