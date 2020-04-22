@@ -18,7 +18,6 @@ package com.amazon.opendistroforelasticsearch.sql.unittest.planner;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.hamcrest.Matcher;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -39,7 +38,6 @@ import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kv;
  */
 @SuppressWarnings("unchecked")
 @RunWith(Parameterized.class)
-@Ignore
 public class QueryPlannerBatchTest extends QueryPlannerTest {
 
     private static final String TEST_SQL1 =
