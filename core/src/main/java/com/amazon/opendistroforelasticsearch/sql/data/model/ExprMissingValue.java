@@ -16,13 +16,22 @@
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
-import lombok.RequiredArgsConstructor;
+import lombok.EqualsAndHashCode;
 
 /**
- * The definition of the missing value.
+ * The definition of the expression missing value.
  */
-@RequiredArgsConstructor
+@EqualsAndHashCode
 public class ExprMissingValue implements ExprValue {
+    private static final ExprValue instance = new ExprMissingValue();
+
+    private ExprMissingValue() {
+    }
+
+    public static ExprValue of() {
+        return instance;
+    }
+
     @Override
     public Object value() {
         throw new ExpressionEvaluationException("invalid to call value operation on missing value");
@@ -30,6 +39,11 @@ public class ExprMissingValue implements ExprValue {
 
     @Override
     public ExprType type() {
-        return ExprType.MISSING;
+        throw new ExpressionEvaluationException("invalid to call type operation on missing value");
+    }
+
+    @Override
+    public boolean isMissing() {
+        return true;
     }
 }

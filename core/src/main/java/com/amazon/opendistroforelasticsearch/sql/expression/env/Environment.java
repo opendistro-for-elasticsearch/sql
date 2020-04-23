@@ -13,21 +13,15 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.data.model;
+package com.amazon.opendistroforelasticsearch.sql.expression.env;
 
 /**
- * Expression Type.
+ * The definition of the environment.
  */
-public enum ExprType {
-    UNKNOWN,
+public interface Environment<Expr, Value> {
 
-    DOUBLE,
-    FLOAT,
-    LONG,
-    INTEGER,
-
-    BOOLEAN,
-    STRING,
-    STRUCT,
-    ARRAY
+    /**
+     * resolve the value of expression from the environment.
+     */
+    Value resolve(Expr var);
 }

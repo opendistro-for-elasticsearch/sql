@@ -13,21 +13,27 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.data.model;
+package com.amazon.opendistroforelasticsearch.sql.expression.function;
+
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
- * Expression Type.
+ * The definition of Function Name.
  */
-public enum ExprType {
-    UNKNOWN,
+@EqualsAndHashCode
+@RequiredArgsConstructor
+public class FunctionName {
+    @Getter
+    private final String functionName;
 
-    DOUBLE,
-    FLOAT,
-    LONG,
-    INTEGER,
+    public static FunctionName of(String functionName) {
+        return new FunctionName(functionName);
+    }
 
-    BOOLEAN,
-    STRING,
-    STRUCT,
-    ARRAY
+    @Override
+    public String toString() {
+        return functionName;
+    }
 }
