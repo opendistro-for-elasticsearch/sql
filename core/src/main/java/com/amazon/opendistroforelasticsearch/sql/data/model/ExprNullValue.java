@@ -5,7 +5,7 @@
  *   You may not use this file except in compliance with the License.
  *   A copy of the License is located at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  *   or in the "license" file accompanying this file. This file is distributed
  *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
@@ -15,39 +15,35 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
+import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import lombok.EqualsAndHashCode;
 
+/**
+ * The definition of the expression null value.
+ */
 @EqualsAndHashCode
-public class ExprBooleanValue implements ExprValue {
-    private static final ExprValue TRUE = new ExprBooleanValue(true);
-    private static final ExprValue FALSE = new ExprBooleanValue(false);
+public class ExprNullValue implements ExprValue {
+    private static final ExprValue instance = new ExprNullValue();
 
-    private final Boolean value;
-
-    private ExprBooleanValue(Boolean value) {
-        this.value = value;
+    private ExprNullValue() {
     }
 
-    public static ExprValue ofTrue() {
-        return TRUE;
-    }
-
-    public static ExprValue ofFalse() {
-        return FALSE;
+    public static ExprValue of() {
+        return instance;
     }
 
     @Override
     public Object value() {
-        return value;
+        return null;
     }
 
     @Override
     public ExprType type() {
-        return ExprType.BOOLEAN;
+        throw new ExpressionEvaluationException("invalid to call type operation on null value");
     }
 
     @Override
-    public String toString() {
-        return value.toString();
+    public boolean isNull() {
+        return true;
     }
 }

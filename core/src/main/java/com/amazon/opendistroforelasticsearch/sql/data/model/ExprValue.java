@@ -28,4 +28,20 @@ public interface ExprValue {
      * Get the {@link ExprType} of the Expression Value.
      */
     ExprType type();
+
+    /**
+     * Is null value?
+     * @return true: is null value, otherwise false
+     */
+    default boolean isNull() {
+        return false;
+    }
+
+    /**
+     * Is missing value?
+     * @return true: is missing value, otherwise false
+     */
+    default boolean isMissing() {
+        return false;
+    }
 }
