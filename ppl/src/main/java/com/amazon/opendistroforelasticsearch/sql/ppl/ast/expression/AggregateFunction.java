@@ -13,9 +13,9 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression;
+package com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression;
 
-import com.amazon.opendistroforelasticsearch.sql.ppl.node.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.AbstractNodeVisitor;
 import java.util.Arrays;
 import java.util.List;
 import lombok.EqualsAndHashCode;

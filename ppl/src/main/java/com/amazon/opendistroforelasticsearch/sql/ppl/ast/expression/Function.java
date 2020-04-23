@@ -13,25 +13,27 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression;
+package com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression;
 
-import com.amazon.opendistroforelasticsearch.sql.ppl.node.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.AbstractNodeVisitor;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Expression node that includes a list of Expression nodes
+ * Expression node of scalar function
+ * Params include function name (@funcName) and function arguments (@funcArgs)
  */
+@Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
-@AllArgsConstructor
-public class AttributeList extends Expression {
-    @Getter
-    private List<Expression> attrList;
+@RequiredArgsConstructor
+public class Function extends Expression {
+    private final String funcName;
+    private final List<Expression> funcArgs;
 
     @Override
     public List<Expression> getChild() {
@@ -40,6 +42,6 @@ public class AttributeList extends Expression {
 
     @Override
     public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
-        return nodeVisitor.visitAttributeList(this, context);
+        return nodeVisitor.visitFunction(this, context);
     }
 }

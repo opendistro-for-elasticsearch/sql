@@ -13,35 +13,23 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression;
+package com.amazon.opendistroforelasticsearch.sql.ppl.ast.tree;
 
-import com.amazon.opendistroforelasticsearch.sql.ppl.node.AbstractNodeVisitor;
-import java.util.Arrays;
-import java.util.List;
-import lombok.AllArgsConstructor;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.Node;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.ToString;
 
 /**
- * Expression node of binary operator or comparison relation EQUAL
+ * Abstract unresolved plan
  */
-@ToString
 @EqualsAndHashCode(callSuper = false)
-@AllArgsConstructor
-public class EqualTo extends Expression {
-    @Getter
-    private Expression left;
-    @Getter
-    private Expression right;
-
+@ToString
+public abstract class UnresolvedPlan extends Node {
     @Override
-    public List<Expression> getChild() {
-        return Arrays.asList(left, right);
+    public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
+        return nodeVisitor.visitChildren(this, context);
     }
 
-    @Override
-    public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
-        return nodeVisitor.visitEqualTo(this, context);
-    }
+    public abstract UnresolvedPlan attach(UnresolvedPlan child);
 }

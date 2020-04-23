@@ -13,10 +13,10 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression;
+package com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression;
 
-import com.amazon.opendistroforelasticsearch.sql.ppl.node.AbstractNodeVisitor;
-import java.util.Arrays;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.AbstractNodeVisitor;
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -24,23 +24,25 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Expression node of the logic OR
+ * Expression node of literal type
+ * Params include literal value (@value) and literal data type (@type) which can be selected from {@link DataType}
  */
 @Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
-public class Or extends Expression {
-    private final Expression left;
-    private final Expression right;
+public class Literal extends Expression {
+
+    private final Object value;
+    private final DataType type;
 
     @Override
     public List<Expression> getChild() {
-        return Arrays.asList(left, right);
+        return ImmutableList.of();
     }
 
     @Override
     public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
-        return nodeVisitor.visitOr(this, context);
+        return nodeVisitor.visitLiteral(this, context);
     }
 }

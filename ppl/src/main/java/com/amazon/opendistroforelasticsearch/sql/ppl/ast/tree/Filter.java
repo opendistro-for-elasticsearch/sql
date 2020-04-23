@@ -13,36 +13,43 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression;
+package com.amazon.opendistroforelasticsearch.sql.ppl.ast.tree;
 
-import com.amazon.opendistroforelasticsearch.sql.ppl.node.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.Expression;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Expression node of literal type
- * Params include literal value (@value) and literal data type (@type) which can be selected from {@link DataType}
+ * Logical plan node of Filter, the interface for building filters in queries
  */
-@Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
-@RequiredArgsConstructor
-public class Literal extends Expression {
+@Getter
+public class Filter extends UnresolvedPlan {
+    private Expression condition;
+    private UnresolvedPlan child;
 
-    private final Object value;
-    private final DataType type;
-
-    @Override
-    public List<Expression> getChild() {
-        return ImmutableList.of();
+    public Filter(Expression condition) {
+        this.condition = condition;
     }
 
     @Override
-    public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
-        return nodeVisitor.visitLiteral(this, context);
+    public Filter attach(UnresolvedPlan child) {
+        this.child = child;
+        return this;
+    }
+
+    @Override
+    public List<UnresolvedPlan> getChild() {
+        return ImmutableList.of(child);
+    }
+
+    @Override
+    public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
+        return nodeVisitor.visitFilter(this, context);
     }
 }

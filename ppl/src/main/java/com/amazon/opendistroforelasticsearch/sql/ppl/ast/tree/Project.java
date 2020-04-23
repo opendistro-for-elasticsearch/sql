@@ -13,10 +13,10 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical;
+package com.amazon.opendistroforelasticsearch.sql.ppl.ast.tree;
 
-import com.amazon.opendistroforelasticsearch.sql.ppl.node.AbstractNodeVisitor;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.Expression;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -26,31 +26,26 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * Logical plan node of Aggregation, the interface for building aggregation actions in queries
+ * Logical plan node of Project, the interface for building the list of searching fields
  */
-@Getter
-@Setter
 @ToString
+@Getter
 @EqualsAndHashCode(callSuper = false)
 @AllArgsConstructor
-public class Aggregation extends UnresolvedPlan {
-    private List<Expression> aggExprList;
-    private List<Expression> sortExprList;
-    private List<Expression> groupExprList;
+public class Project extends UnresolvedPlan {
+    @Setter
+    private List<Expression> projectList;
     private UnresolvedPlan child;
 
-    public Aggregation(List<Expression> aggExprList, List<Expression> sortExprList, List<Expression> groupExprList) {
-        this.aggExprList = aggExprList;
-        this.sortExprList = sortExprList;
-        this.groupExprList = groupExprList;
+    public Project(List<Expression> projectList) {
+        this.projectList = projectList;
     }
 
     @Override
-    public Aggregation attach(UnresolvedPlan child) {
+    public Project attach(UnresolvedPlan child) {
         this.child = child;
         return this;
     }
-
 
     @Override
     public List<UnresolvedPlan> getChild() {
@@ -59,6 +54,7 @@ public class Aggregation extends UnresolvedPlan {
 
     @Override
     public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
-        return nodeVisitor.visitAggregation(this, context);
+
+        return nodeVisitor.visitProject(this, context);
     }
 }

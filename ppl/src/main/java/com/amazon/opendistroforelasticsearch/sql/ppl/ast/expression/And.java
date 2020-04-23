@@ -13,10 +13,10 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression;
+package com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression;
 
-import com.amazon.opendistroforelasticsearch.sql.ppl.node.AbstractNodeVisitor;
-import com.google.common.collect.ImmutableList;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.AbstractNodeVisitor;
+import java.util.Arrays;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -24,23 +24,23 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Expression node, representing the syntax that is not resolved to any other expression nodes yet but non-negligible
- * This expression is often created as the index name, field name etc.
+ * Expression node of logic AND
  */
+@Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
-@Getter
-public class UnresolvedAttribute extends Expression {
-    private final String attr;
+public class And extends Expression {
+    private final Expression left;
+    private final Expression right;
 
     @Override
     public List<Expression> getChild() {
-        return ImmutableList.of();
+        return Arrays.asList(left, right);
     }
 
     @Override
     public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
-        return nodeVisitor.visitUnresolvedAttribute(this, context);
+        return nodeVisitor.visitAnd(this, context);
     }
 }

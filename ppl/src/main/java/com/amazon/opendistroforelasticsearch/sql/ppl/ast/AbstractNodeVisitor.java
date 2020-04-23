@@ -5,7 +5,7 @@
  *   You may not use this file except in compliance with the License.
  *   A copy of the License is located at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  *   or in the "license" file accompanying this file. This file is distributed
  *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
@@ -13,23 +13,23 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ppl.node;
+package com.amazon.opendistroforelasticsearch.sql.ppl.ast;
 
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.AggregateFunction;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.And;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.AttributeList;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.EqualTo;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Function;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.In;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Literal;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Map;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Not;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Or;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.UnresolvedAttribute;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.Aggregation;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.Filter;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.Project;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.Relation;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.AggregateFunction;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.And;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.AttributeList;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.EqualTo;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.Function;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.In;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.Literal;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.Map;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.Not;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.Or;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.UnresolvedAttribute;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.tree.Aggregation;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.tree.Filter;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.tree.Project;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.tree.Relation;
 
 /**
  * AST nodes visitor

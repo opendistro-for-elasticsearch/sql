@@ -16,17 +16,17 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParserBaseVisitor;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.AggregateFunction;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.And;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.DataType;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.EqualTo;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Function;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.In;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Literal;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Not;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Or;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.UnresolvedAttribute;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.AggregateFunction;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.And;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.DataType;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.EqualTo;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.Function;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.In;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.Literal;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.Not;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.Or;
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.UnresolvedAttribute;
 import java.util.stream.Collectors;
 
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.AggFunctionCallContext;

@@ -13,24 +13,33 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ppl.node;
+package com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression;
 
+import com.amazon.opendistroforelasticsearch.sql.ppl.ast.AbstractNodeVisitor;
+import java.util.Arrays;
 import java.util.List;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * AST node
+ * Expression node of the logic NOT
  */
-@EqualsAndHashCode
+@Getter
 @ToString
-public abstract class Node {
+@EqualsAndHashCode(callSuper = false)
+@RequiredArgsConstructor
+public class Not extends Expression {
+    private final Expression expression;
 
-    public <R, C> R accept(AbstractNodeVisitor<R, C> visitor, C context) {
-        return visitor.visitChildren(this, context);
+    @Override
+    public List<Expression> getChild() {
+        return Arrays.asList(expression);
     }
 
-    public List<? extends Node> getChild() {
-        return null;
+    @Override
+    public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
+        return nodeVisitor.visitNot(this, context);
     }
 }
