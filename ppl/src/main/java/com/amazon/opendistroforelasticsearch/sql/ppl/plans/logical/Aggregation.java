@@ -47,6 +47,13 @@ public class Aggregation extends UnresolvedPlan {
     }
 
     @Override
+    public Aggregation attach(UnresolvedPlan child) {
+        this.child = child;
+        return this;
+    }
+
+
+    @Override
     public List<UnresolvedPlan> getChild() {
         return ImmutableList.of(this.child);
     }
