@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BuiltinFunctionRepository {
     private final Map<FunctionName, FunctionResolver> functionResolverMap;
-    private final Environment<Expression, ExprType> env;
 
     /**
      * Register {@link FunctionResolver} to the Builtin Function Repository.
@@ -32,7 +31,8 @@ public class BuiltinFunctionRepository {
     /**
      * Compile FunctionExpression
      */
-    public FunctionExpression compile(FunctionName functionName, List<Expression> expressions) {
+    public FunctionExpression compile(FunctionName functionName, List<Expression> expressions,
+                                      Environment<Expression, ExprType> env) {
         FunctionExpressionBuilder resolvedFunctionBuilder = resolve(new FunctionSignature(functionName,
                 expressions.stream().map(expression -> expression.type(env)).collect(Collectors.toList())));
         return resolvedFunctionBuilder.apply(expressions);

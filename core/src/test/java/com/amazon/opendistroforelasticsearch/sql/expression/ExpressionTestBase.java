@@ -31,7 +31,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.booleanValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.collectionValue;
@@ -55,12 +55,6 @@ public class ExpressionTestBase {
 
     @Autowired
     protected DSL dsl;
-
-    @Autowired
-    protected Environment<Expression, ExprValue> valueEnv;
-
-    @Autowired
-    protected Environment<Expression, ExprType> typeEnv;
 
     @Bean
     protected Environment<Expression, ExprValue> valueEnv() {
@@ -124,18 +118,19 @@ public class ExpressionTestBase {
         };
     }
 
-    protected Function<List<Expression>, FunctionExpression> functionMapping(BuiltinFunctionName builtinFunctionName) {
+    protected BiFunction<Environment<Expression, ExprType>,
+            List<Expression>, FunctionExpression> functionMapping(BuiltinFunctionName builtinFunctionName) {
         switch (builtinFunctionName) {
             case ADD:
-                return expressions -> dsl.add(expressions.get(0), expressions.get(1));
+                return (env, expressions) -> dsl.add(env, expressions.get(0), expressions.get(1));
             case SUBTRACT:
-                return expressions -> dsl.subtract(expressions.get(0), expressions.get(1));
+                return (env, expressions) -> dsl.subtract(env, expressions.get(0), expressions.get(1));
             case MULTIPLY:
-                return expressions -> dsl.multiply(expressions.get(0), expressions.get(1));
+                return (env, expressions) -> dsl.multiply(env, expressions.get(0), expressions.get(1));
             case DIVIDE:
-                return expressions -> dsl.divide(expressions.get(0), expressions.get(1));
+                return (env, expressions) -> dsl.divide(env, expressions.get(0), expressions.get(1));
             case MODULES:
-                return expressions -> dsl.module(expressions.get(0), expressions.get(1));
+                return (env, expressions) -> dsl.module(env, expressions.get(0), expressions.get(1));
             default:
                 throw new RuntimeException();
         }

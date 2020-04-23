@@ -54,7 +54,7 @@ class BuiltinFunctionRepositoryTest {
 
     @Test
     void register() {
-        BuiltinFunctionRepository repo = new BuiltinFunctionRepository(mockMap, emptyEnv);
+        BuiltinFunctionRepository repo = new BuiltinFunctionRepository(mockMap);
         when(mockfunctionResolver.getFunctionName()).thenReturn(mockFunctionName);
         repo.register(mockfunctionResolver);
 
@@ -63,21 +63,21 @@ class BuiltinFunctionRepositoryTest {
 
     @Test
     void compile() {
-        BuiltinFunctionRepository repo = new BuiltinFunctionRepository(mockMap, emptyEnv);
+        BuiltinFunctionRepository repo = new BuiltinFunctionRepository(mockMap);
         when(mockfunctionResolver.getFunctionName()).thenReturn(mockFunctionName);
         when(mockfunctionResolver.resolve(any())).thenReturn(functionExpressionBuilder);
         when(mockMap.containsKey(any())).thenReturn(true);
         when(mockMap.get(any())).thenReturn(mockfunctionResolver);
         repo.register(mockfunctionResolver);
 
-        repo.compile(mockFunctionName, Arrays.asList(mockExpression));
+        repo.compile(mockFunctionName, Arrays.asList(mockExpression), emptyEnv);
         verify(functionExpressionBuilder, times(1)).apply(any());
     }
 
     @Test
     @DisplayName("resolve registered function should pass")
     void resolve() {
-        BuiltinFunctionRepository repo = new BuiltinFunctionRepository(mockMap, emptyEnv);
+        BuiltinFunctionRepository repo = new BuiltinFunctionRepository(mockMap);
         when(functionSignature.getFunctionName()).thenReturn(mockFunctionName);
         when(mockfunctionResolver.getFunctionName()).thenReturn(mockFunctionName);
         when(mockfunctionResolver.resolve(functionSignature)).thenReturn(functionExpressionBuilder);
@@ -91,7 +91,7 @@ class BuiltinFunctionRepositoryTest {
     @Test
     @DisplayName("resolve unregistered function should throw exception")
     void resolve_unregistered() {
-        BuiltinFunctionRepository repo = new BuiltinFunctionRepository(mockMap, emptyEnv);
+        BuiltinFunctionRepository repo = new BuiltinFunctionRepository(mockMap);
         when(mockMap.containsKey(any())).thenReturn(false);
         repo.register(mockfunctionResolver);
 

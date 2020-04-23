@@ -62,239 +62,243 @@ class BinaryPredicateFunctionTest extends ExpressionTestBase {
     @ParameterizedTest(name = "and({0}, {1})")
     @MethodSource("binaryPredicateArguments")
     public void test_and(Boolean v1, Boolean v2) {
-        FunctionExpression and = dsl.and(DSL.literal(booleanValue(v1)), DSL.literal(booleanValue(v2)));
-        assertEquals(ExprType.BOOLEAN, and.type(typeEnv));
-        assertEquals(v1 && v2, ExprValueUtils.getBooleanValue(and.valueOf(valueEnv)));
+        FunctionExpression and = dsl.and(typeEnv(), DSL.literal(booleanValue(v1)), DSL.literal(booleanValue(v2)));
+        assertEquals(ExprType.BOOLEAN, and.type(typeEnv()));
+        assertEquals(v1 && v2, ExprValueUtils.getBooleanValue(and.valueOf(valueEnv())));
     }
 
     @Test
     public void test_boolean_and_null() {
-        FunctionExpression and = dsl.and(DSL.literal(LITERAL_TRUE), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
-        assertEquals(ExprType.BOOLEAN, and.type(typeEnv));
-        assertEquals(LITERAL_NULL, and.valueOf(valueEnv));
+        FunctionExpression and = dsl.and(typeEnv(), DSL.literal(LITERAL_TRUE), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, and.type(typeEnv()));
+        assertEquals(LITERAL_NULL, and.valueOf(valueEnv()));
 
-        and = dsl.and(DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD), DSL.literal(LITERAL_TRUE));
-        assertEquals(ExprType.BOOLEAN, and.type(typeEnv));
-        assertEquals(LITERAL_NULL, and.valueOf(valueEnv));
+        and = dsl.and(typeEnv(), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD), DSL.literal(LITERAL_TRUE));
+        assertEquals(ExprType.BOOLEAN, and.type(typeEnv()));
+        assertEquals(LITERAL_NULL, and.valueOf(valueEnv()));
 
-        and = dsl.and(DSL.literal(LITERAL_FALSE), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
-        assertEquals(ExprType.BOOLEAN, and.type(typeEnv));
-        assertEquals(LITERAL_FALSE, and.valueOf(valueEnv));
+        and = dsl.and(typeEnv(), DSL.literal(LITERAL_FALSE), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, and.type(typeEnv()));
+        assertEquals(LITERAL_FALSE, and.valueOf(valueEnv()));
 
-        and = dsl.and(DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD), DSL.literal(LITERAL_FALSE));
-        assertEquals(ExprType.BOOLEAN, and.type(typeEnv));
-        assertEquals(LITERAL_FALSE, and.valueOf(valueEnv));
+        and = dsl.and(typeEnv(), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD), DSL.literal(LITERAL_FALSE));
+        assertEquals(ExprType.BOOLEAN, and.type(typeEnv()));
+        assertEquals(LITERAL_FALSE, and.valueOf(valueEnv()));
     }
 
     @Test
     public void test_boolean_and_missing() {
-        FunctionExpression and = dsl.and(DSL.literal(LITERAL_TRUE), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
-        assertEquals(ExprType.BOOLEAN, and.type(typeEnv));
-        assertEquals(LITERAL_MISSING, and.valueOf(valueEnv));
+        FunctionExpression and = dsl.and(typeEnv(), DSL.literal(LITERAL_TRUE), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, and.type(typeEnv()));
+        assertEquals(LITERAL_MISSING, and.valueOf(valueEnv()));
 
-        and = dsl.and(DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD), DSL.literal(LITERAL_TRUE));
-        assertEquals(ExprType.BOOLEAN, and.type(typeEnv));
-        assertEquals(LITERAL_MISSING, and.valueOf(valueEnv));
+        and = dsl.and(typeEnv(), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD), DSL.literal(LITERAL_TRUE));
+        assertEquals(ExprType.BOOLEAN, and.type(typeEnv()));
+        assertEquals(LITERAL_MISSING, and.valueOf(valueEnv()));
 
-        and = dsl.and(DSL.literal(LITERAL_FALSE), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
-        assertEquals(ExprType.BOOLEAN, and.type(typeEnv));
-        assertEquals(LITERAL_FALSE, and.valueOf(valueEnv));
+        and = dsl.and(typeEnv(), DSL.literal(LITERAL_FALSE), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, and.type(typeEnv()));
+        assertEquals(LITERAL_FALSE, and.valueOf(valueEnv()));
 
-        and = dsl.and(DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD), DSL.literal(LITERAL_FALSE));
-        assertEquals(ExprType.BOOLEAN, and.type(typeEnv));
-        assertEquals(LITERAL_FALSE, and.valueOf(valueEnv));
+        and = dsl.and(typeEnv(), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD), DSL.literal(LITERAL_FALSE));
+        assertEquals(ExprType.BOOLEAN, and.type(typeEnv()));
+        assertEquals(LITERAL_FALSE, and.valueOf(valueEnv()));
     }
 
     @Test
     public void test_null_and_missing() {
-        FunctionExpression and = dsl.and(DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
-        assertEquals(ExprType.BOOLEAN, and.type(typeEnv));
-        assertEquals(LITERAL_MISSING, and.valueOf(valueEnv));
+        FunctionExpression and = dsl.and(typeEnv(), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD),
+                DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, and.type(typeEnv()));
+        assertEquals(LITERAL_MISSING, and.valueOf(valueEnv()));
 
-        and = dsl.and(DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
-        assertEquals(ExprType.BOOLEAN, and.type(typeEnv));
-        assertEquals(LITERAL_NULL, and.valueOf(valueEnv));
+        and = dsl.and(typeEnv(), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, and.type(typeEnv()));
+        assertEquals(LITERAL_NULL, and.valueOf(valueEnv()));
 
-        and = dsl.and(DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
-        assertEquals(ExprType.BOOLEAN, and.type(typeEnv));
-        assertEquals(LITERAL_MISSING, and.valueOf(valueEnv));
+        and = dsl.and(typeEnv(), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, and.type(typeEnv()));
+        assertEquals(LITERAL_MISSING, and.valueOf(valueEnv()));
 
-        and = dsl.and(DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
-        assertEquals(ExprType.BOOLEAN, and.type(typeEnv));
-        assertEquals(LITERAL_MISSING, and.valueOf(valueEnv));
+        and = dsl.and(typeEnv(), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, and.type(typeEnv()));
+        assertEquals(LITERAL_MISSING, and.valueOf(valueEnv()));
     }
 
     @ParameterizedTest(name = "or({0}, {1})")
     @MethodSource("binaryPredicateArguments")
     public void test_or(Boolean v1, Boolean v2) {
-        FunctionExpression and = dsl.or(DSL.literal(booleanValue(v1)), DSL.literal(booleanValue(v2)));
-        assertEquals(ExprType.BOOLEAN, and.type(typeEnv));
-        assertEquals(v1 || v2, ExprValueUtils.getBooleanValue(and.valueOf(valueEnv)));
+        FunctionExpression and = dsl.or(typeEnv(), DSL.literal(booleanValue(v1)), DSL.literal(booleanValue(v2)));
+        assertEquals(ExprType.BOOLEAN, and.type(typeEnv()));
+        assertEquals(v1 || v2, ExprValueUtils.getBooleanValue(and.valueOf(valueEnv())));
     }
 
     @Test
     public void test_boolean_or_null() {
-        FunctionExpression or = dsl.or(DSL.literal(LITERAL_TRUE), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
-        assertEquals(ExprType.BOOLEAN, or.type(typeEnv));
-        assertEquals(LITERAL_TRUE, or.valueOf(valueEnv));
+        FunctionExpression or = dsl.or(typeEnv(), DSL.literal(LITERAL_TRUE), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, or.type(typeEnv()));
+        assertEquals(LITERAL_TRUE, or.valueOf(valueEnv()));
 
-        or = dsl.or(DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD), DSL.literal(LITERAL_TRUE));
-        assertEquals(ExprType.BOOLEAN, or.type(typeEnv));
-        assertEquals(LITERAL_TRUE, or.valueOf(valueEnv));
+        or = dsl.or(typeEnv(), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD), DSL.literal(LITERAL_TRUE));
+        assertEquals(ExprType.BOOLEAN, or.type(typeEnv()));
+        assertEquals(LITERAL_TRUE, or.valueOf(valueEnv()));
 
-        or = dsl.or(DSL.literal(LITERAL_FALSE), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
-        assertEquals(ExprType.BOOLEAN, or.type(typeEnv));
-        assertEquals(LITERAL_NULL, or.valueOf(valueEnv));
+        or = dsl.or(typeEnv(), DSL.literal(LITERAL_FALSE), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, or.type(typeEnv()));
+        assertEquals(LITERAL_NULL, or.valueOf(valueEnv()));
 
-        or = dsl.or(DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD), DSL.literal(LITERAL_FALSE));
-        assertEquals(ExprType.BOOLEAN, or.type(typeEnv));
-        assertEquals(LITERAL_NULL, or.valueOf(valueEnv));
+        or = dsl.or(typeEnv(), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD), DSL.literal(LITERAL_FALSE));
+        assertEquals(ExprType.BOOLEAN, or.type(typeEnv()));
+        assertEquals(LITERAL_NULL, or.valueOf(valueEnv()));
     }
 
     @Test
     public void test_boolean_or_missing() {
-        FunctionExpression or = dsl.or(DSL.literal(LITERAL_TRUE), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
-        assertEquals(ExprType.BOOLEAN, or.type(typeEnv));
-        assertEquals(LITERAL_TRUE, or.valueOf(valueEnv));
+        FunctionExpression or = dsl.or(typeEnv(), DSL.literal(LITERAL_TRUE), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, or.type(typeEnv()));
+        assertEquals(LITERAL_TRUE, or.valueOf(valueEnv()));
 
-        or = dsl.or(DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD), DSL.literal(LITERAL_TRUE));
-        assertEquals(ExprType.BOOLEAN, or.type(typeEnv));
-        assertEquals(LITERAL_TRUE, or.valueOf(valueEnv));
+        or = dsl.or(typeEnv(), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD), DSL.literal(LITERAL_TRUE));
+        assertEquals(ExprType.BOOLEAN, or.type(typeEnv()));
+        assertEquals(LITERAL_TRUE, or.valueOf(valueEnv()));
 
-        or = dsl.or(DSL.literal(LITERAL_FALSE), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
-        assertEquals(ExprType.BOOLEAN, or.type(typeEnv));
-        assertEquals(LITERAL_MISSING, or.valueOf(valueEnv));
+        or = dsl.or(typeEnv(), DSL.literal(LITERAL_FALSE), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, or.type(typeEnv()));
+        assertEquals(LITERAL_MISSING, or.valueOf(valueEnv()));
 
-        or = dsl.or(DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD), DSL.literal(LITERAL_FALSE));
-        assertEquals(ExprType.BOOLEAN, or.type(typeEnv));
-        assertEquals(LITERAL_MISSING, or.valueOf(valueEnv));
+        or = dsl.or(typeEnv(), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD), DSL.literal(LITERAL_FALSE));
+        assertEquals(ExprType.BOOLEAN, or.type(typeEnv()));
+        assertEquals(LITERAL_MISSING, or.valueOf(valueEnv()));
     }
 
     @Test
     public void test_null_or_missing() {
-        FunctionExpression or = dsl.or(DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
-        assertEquals(ExprType.BOOLEAN, or.type(typeEnv));
-        assertEquals(LITERAL_MISSING, or.valueOf(valueEnv));
+        FunctionExpression or = dsl.or(typeEnv(), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD),
+                DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, or.type(typeEnv()));
+        assertEquals(LITERAL_MISSING, or.valueOf(valueEnv()));
 
-        or = dsl.or(DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
-        assertEquals(ExprType.BOOLEAN, or.type(typeEnv));
-        assertEquals(LITERAL_NULL, or.valueOf(valueEnv));
+        or = dsl.or(typeEnv(), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, or.type(typeEnv()));
+        assertEquals(LITERAL_NULL, or.valueOf(valueEnv()));
 
-        or = dsl.or(DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
-        assertEquals(ExprType.BOOLEAN, or.type(typeEnv));
-        assertEquals(LITERAL_NULL, or.valueOf(valueEnv));
+        or = dsl.or(typeEnv(), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, or.type(typeEnv()));
+        assertEquals(LITERAL_NULL, or.valueOf(valueEnv()));
 
-        or = dsl.or(DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
-        assertEquals(ExprType.BOOLEAN, or.type(typeEnv));
-        assertEquals(LITERAL_NULL, or.valueOf(valueEnv));
+        or = dsl.or(typeEnv(), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, or.type(typeEnv()));
+        assertEquals(LITERAL_NULL, or.valueOf(valueEnv()));
     }
 
 
     @ParameterizedTest(name = "xor({0}, {1})")
     @MethodSource("binaryPredicateArguments")
     public void test_xor(Boolean v1, Boolean v2) {
-        FunctionExpression and = dsl.xor(DSL.literal(booleanValue(v1)), DSL.literal(booleanValue(v2)));
-        assertEquals(ExprType.BOOLEAN, and.type(typeEnv));
-        assertEquals(v1 ^ v2, ExprValueUtils.getBooleanValue(and.valueOf(valueEnv)));
+        FunctionExpression and = dsl.xor(typeEnv(), DSL.literal(booleanValue(v1)), DSL.literal(booleanValue(v2)));
+        assertEquals(ExprType.BOOLEAN, and.type(typeEnv()));
+        assertEquals(v1 ^ v2, ExprValueUtils.getBooleanValue(and.valueOf(valueEnv())));
     }
 
     @Test
     public void test_boolean_xor_null() {
-        FunctionExpression xor = dsl.xor(DSL.literal(LITERAL_TRUE), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
-        assertEquals(ExprType.BOOLEAN, xor.type(typeEnv));
-        assertEquals(LITERAL_TRUE, xor.valueOf(valueEnv));
+        FunctionExpression xor = dsl.xor(typeEnv(), DSL.literal(LITERAL_TRUE), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, xor.type(typeEnv()));
+        assertEquals(LITERAL_TRUE, xor.valueOf(valueEnv()));
 
-        xor = dsl.xor(DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD), DSL.literal(LITERAL_TRUE));
-        assertEquals(ExprType.BOOLEAN, xor.type(typeEnv));
-        assertEquals(LITERAL_TRUE, xor.valueOf(valueEnv));
+        xor = dsl.xor(typeEnv(), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD), DSL.literal(LITERAL_TRUE));
+        assertEquals(ExprType.BOOLEAN, xor.type(typeEnv()));
+        assertEquals(LITERAL_TRUE, xor.valueOf(valueEnv()));
 
-        xor = dsl.xor(DSL.literal(LITERAL_FALSE), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
-        assertEquals(ExprType.BOOLEAN, xor.type(typeEnv));
-        assertEquals(LITERAL_NULL, xor.valueOf(valueEnv));
+        xor = dsl.xor(typeEnv(), DSL.literal(LITERAL_FALSE), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, xor.type(typeEnv()));
+        assertEquals(LITERAL_NULL, xor.valueOf(valueEnv()));
 
-        xor = dsl.xor(DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD), DSL.literal(LITERAL_FALSE));
-        assertEquals(ExprType.BOOLEAN, xor.type(typeEnv));
-        assertEquals(LITERAL_NULL, xor.valueOf(valueEnv));
+        xor = dsl.xor(typeEnv(), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD), DSL.literal(LITERAL_FALSE));
+        assertEquals(ExprType.BOOLEAN, xor.type(typeEnv()));
+        assertEquals(LITERAL_NULL, xor.valueOf(valueEnv()));
     }
 
     @Test
     public void test_boolean_xor_missing() {
-        FunctionExpression xor = dsl.xor(DSL.literal(LITERAL_TRUE), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
-        assertEquals(ExprType.BOOLEAN, xor.type(typeEnv));
-        assertEquals(LITERAL_TRUE, xor.valueOf(valueEnv));
+        FunctionExpression xor = dsl.xor(typeEnv(), DSL.literal(LITERAL_TRUE), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, xor.type(typeEnv()));
+        assertEquals(LITERAL_TRUE, xor.valueOf(valueEnv()));
 
-        xor = dsl.xor(DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD), DSL.literal(LITERAL_TRUE));
-        assertEquals(ExprType.BOOLEAN, xor.type(typeEnv));
-        assertEquals(LITERAL_TRUE, xor.valueOf(valueEnv));
+        xor = dsl.xor(typeEnv(), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD), DSL.literal(LITERAL_TRUE));
+        assertEquals(ExprType.BOOLEAN, xor.type(typeEnv()));
+        assertEquals(LITERAL_TRUE, xor.valueOf(valueEnv()));
 
-        xor = dsl.xor(DSL.literal(LITERAL_FALSE), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
-        assertEquals(ExprType.BOOLEAN, xor.type(typeEnv));
-        assertEquals(LITERAL_MISSING, xor.valueOf(valueEnv));
+        xor = dsl.xor(typeEnv(), DSL.literal(LITERAL_FALSE), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, xor.type(typeEnv()));
+        assertEquals(LITERAL_MISSING, xor.valueOf(valueEnv()));
 
-        xor = dsl.xor(DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD), DSL.literal(LITERAL_FALSE));
-        assertEquals(ExprType.BOOLEAN, xor.type(typeEnv));
-        assertEquals(LITERAL_MISSING, xor.valueOf(valueEnv));
+        xor = dsl.xor(typeEnv(), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD), DSL.literal(LITERAL_FALSE));
+        assertEquals(ExprType.BOOLEAN, xor.type(typeEnv()));
+        assertEquals(LITERAL_MISSING, xor.valueOf(valueEnv()));
     }
 
     @Test
     public void test_null_xor_missing() {
-        FunctionExpression xor = dsl.xor(DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
-        assertEquals(ExprType.BOOLEAN, xor.type(typeEnv));
-        assertEquals(LITERAL_MISSING, xor.valueOf(valueEnv));
+        FunctionExpression xor = dsl.xor(typeEnv(), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD),
+                DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, xor.type(typeEnv()));
+        assertEquals(LITERAL_MISSING, xor.valueOf(valueEnv()));
 
-        xor = dsl.xor(DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
-        assertEquals(ExprType.BOOLEAN, xor.type(typeEnv));
-        assertEquals(LITERAL_NULL, xor.valueOf(valueEnv));
+        xor = dsl.xor(typeEnv(), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, xor.type(typeEnv()));
+        assertEquals(LITERAL_NULL, xor.valueOf(valueEnv()));
 
-        xor = dsl.xor(DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
-        assertEquals(ExprType.BOOLEAN, xor.type(typeEnv));
-        assertEquals(LITERAL_NULL, xor.valueOf(valueEnv));
+        xor = dsl.xor(typeEnv(), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, xor.type(typeEnv()));
+        assertEquals(LITERAL_NULL, xor.valueOf(valueEnv()));
 
-        xor = dsl.xor(DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
-        assertEquals(ExprType.BOOLEAN, xor.type(typeEnv));
-        assertEquals(LITERAL_NULL, xor.valueOf(valueEnv));
+        xor = dsl.xor(typeEnv(), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, xor.type(typeEnv()));
+        assertEquals(LITERAL_NULL, xor.valueOf(valueEnv()));
     }
 
     @ParameterizedTest(name = "equal({0}, {1})")
     @MethodSource("testEqualArguments")
     public void test_equal(ExprValue v1, ExprValue v2) {
-        FunctionExpression equal = dsl.equal(DSL.literal(v1), DSL.literal(v2));
-        assertEquals(ExprType.BOOLEAN, equal.type(typeEnv));
-        assertEquals(v1.value().equals(v2.value()), ExprValueUtils.getBooleanValue(equal.valueOf(valueEnv)));
+        FunctionExpression equal = dsl.equal(typeEnv(), DSL.literal(v1), DSL.literal(v2));
+        assertEquals(ExprType.BOOLEAN, equal.type(typeEnv()));
+        assertEquals(v1.value().equals(v2.value()), ExprValueUtils.getBooleanValue(equal.valueOf(valueEnv())));
     }
 
     @Test
     public void test_null_equal_missing() {
-        FunctionExpression equal = dsl.equal(DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
-        assertEquals(ExprType.BOOLEAN, equal.type(typeEnv));
-        assertEquals(LITERAL_TRUE, equal.valueOf(valueEnv));
+        FunctionExpression equal = dsl.equal(typeEnv(), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD),
+                DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, equal.type(typeEnv()));
+        assertEquals(LITERAL_TRUE, equal.valueOf(valueEnv()));
 
-        equal = dsl.equal(DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
-        assertEquals(ExprType.BOOLEAN, equal.type(typeEnv));
-        assertEquals(LITERAL_TRUE, equal.valueOf(valueEnv));
+        equal = dsl.equal(typeEnv(), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, equal.type(typeEnv()));
+        assertEquals(LITERAL_TRUE, equal.valueOf(valueEnv()));
 
-        equal = dsl.equal(DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
-        assertEquals(ExprType.BOOLEAN, equal.type(typeEnv));
-        assertEquals(LITERAL_FALSE, equal.valueOf(valueEnv));
+        equal = dsl.equal(typeEnv(), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, equal.type(typeEnv()));
+        assertEquals(LITERAL_FALSE, equal.valueOf(valueEnv()));
 
-        equal = dsl.equal(DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
-        assertEquals(ExprType.BOOLEAN, equal.type(typeEnv));
-        assertEquals(LITERAL_FALSE, equal.valueOf(valueEnv));
+        equal = dsl.equal(typeEnv(), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, equal.type(typeEnv()));
+        assertEquals(LITERAL_FALSE, equal.valueOf(valueEnv()));
 
-        equal = dsl.equal(DSL.literal(LITERAL_TRUE), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
-        assertEquals(ExprType.BOOLEAN, equal.type(typeEnv));
-        assertEquals(LITERAL_FALSE, equal.valueOf(valueEnv));
+        equal = dsl.equal(typeEnv(), DSL.literal(LITERAL_TRUE), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, equal.type(typeEnv()));
+        assertEquals(LITERAL_FALSE, equal.valueOf(valueEnv()));
 
-        equal = dsl.equal(DSL.literal(LITERAL_TRUE), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
-        assertEquals(ExprType.BOOLEAN, equal.type(typeEnv));
-        assertEquals(LITERAL_FALSE, equal.valueOf(valueEnv));
+        equal = dsl.equal(typeEnv(), DSL.literal(LITERAL_TRUE), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, equal.type(typeEnv()));
+        assertEquals(LITERAL_FALSE, equal.valueOf(valueEnv()));
 
-        equal = dsl.equal(DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD), DSL.literal(LITERAL_TRUE));
-        assertEquals(ExprType.BOOLEAN, equal.type(typeEnv));
-        assertEquals(LITERAL_FALSE, equal.valueOf(valueEnv));
+        equal = dsl.equal(typeEnv(), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD), DSL.literal(LITERAL_TRUE));
+        assertEquals(ExprType.BOOLEAN, equal.type(typeEnv()));
+        assertEquals(LITERAL_FALSE, equal.valueOf(valueEnv()));
 
-        equal = dsl.equal(DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD), DSL.literal(LITERAL_TRUE));
-        assertEquals(ExprType.BOOLEAN, equal.type(typeEnv));
-        assertEquals(LITERAL_FALSE, equal.valueOf(valueEnv));
+        equal = dsl.equal(typeEnv(), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD), DSL.literal(LITERAL_TRUE));
+        assertEquals(ExprType.BOOLEAN, equal.type(typeEnv()));
+        assertEquals(LITERAL_FALSE, equal.valueOf(valueEnv()));
     }
 }

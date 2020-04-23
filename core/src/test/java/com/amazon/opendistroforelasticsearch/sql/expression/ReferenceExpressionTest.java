@@ -41,28 +41,28 @@ class ReferenceExpressionTest extends ExpressionTestBase {
 
     @Test
     public void resolve_value() {
-        assertEquals(integerValue(1), DSL.ref("integer_value").valueOf(valueEnv));
-        assertEquals(longValue(1L), DSL.ref("long_value").valueOf(valueEnv));
-        assertEquals(floatValue(1f), DSL.ref("float_value").valueOf(valueEnv));
-        assertEquals(doubleValue(1d), DSL.ref("double_value").valueOf(valueEnv));
-        assertEquals(booleanValue(true), DSL.ref("boolean_value").valueOf(valueEnv));
-        assertEquals(stringValue("str"), DSL.ref("string_value").valueOf(valueEnv));
-        assertEquals(tupleValue(ImmutableMap.of("str", 1)), DSL.ref("struct_value").valueOf(valueEnv));
-        assertEquals(collectionValue(ImmutableList.of(1)), DSL.ref("array_value").valueOf(valueEnv));
-        assertEquals(LITERAL_NULL, DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD).valueOf(valueEnv));
-        assertEquals(LITERAL_MISSING, DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD).valueOf(valueEnv));
+        assertEquals(integerValue(1), DSL.ref("integer_value").valueOf(valueEnv()));
+        assertEquals(longValue(1L), DSL.ref("long_value").valueOf(valueEnv()));
+        assertEquals(floatValue(1f), DSL.ref("float_value").valueOf(valueEnv()));
+        assertEquals(doubleValue(1d), DSL.ref("double_value").valueOf(valueEnv()));
+        assertEquals(booleanValue(true), DSL.ref("boolean_value").valueOf(valueEnv()));
+        assertEquals(stringValue("str"), DSL.ref("string_value").valueOf(valueEnv()));
+        assertEquals(tupleValue(ImmutableMap.of("str", 1)), DSL.ref("struct_value").valueOf(valueEnv()));
+        assertEquals(collectionValue(ImmutableList.of(1)), DSL.ref("array_value").valueOf(valueEnv()));
+        assertEquals(LITERAL_NULL, DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD).valueOf(valueEnv()));
+        assertEquals(LITERAL_MISSING, DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD).valueOf(valueEnv()));
     }
 
     @Test
     public void resolve_type() {
-        assertEquals(ExprType.INTEGER, DSL.ref("integer_value").type(typeEnv));
-        assertEquals(ExprType.LONG, DSL.ref("long_value").type(typeEnv));
-        assertEquals(ExprType.FLOAT, DSL.ref("float_value").type(typeEnv));
-        assertEquals(ExprType.DOUBLE, DSL.ref("double_value").type(typeEnv));
-        assertEquals(ExprType.BOOLEAN, DSL.ref("boolean_value").type(typeEnv));
-        assertEquals(ExprType.STRING, DSL.ref("string_value").type(typeEnv));
-        assertEquals(ExprType.STRUCT, DSL.ref("struct_value").type(typeEnv));
-        assertEquals(ExprType.ARRAY, DSL.ref("array_value").type(typeEnv));
-        assertThrows(ExpressionEvaluationException.class, () -> DSL.ref("not_exist_field").type(typeEnv));
+        assertEquals(ExprType.INTEGER, DSL.ref("integer_value").type(typeEnv()));
+        assertEquals(ExprType.LONG, DSL.ref("long_value").type(typeEnv()));
+        assertEquals(ExprType.FLOAT, DSL.ref("float_value").type(typeEnv()));
+        assertEquals(ExprType.DOUBLE, DSL.ref("double_value").type(typeEnv()));
+        assertEquals(ExprType.BOOLEAN, DSL.ref("boolean_value").type(typeEnv()));
+        assertEquals(ExprType.STRING, DSL.ref("string_value").type(typeEnv()));
+        assertEquals(ExprType.STRUCT, DSL.ref("struct_value").type(typeEnv()));
+        assertEquals(ExprType.ARRAY, DSL.ref("array_value").type(typeEnv()));
+        assertThrows(ExpressionEvaluationException.class, () -> DSL.ref("not_exist_field").type(typeEnv()));
     }
 }
