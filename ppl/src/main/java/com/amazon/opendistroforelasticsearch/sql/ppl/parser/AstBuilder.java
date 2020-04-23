@@ -55,8 +55,10 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
     @Override
     public UnresolvedPlan visitPplStatement(PplStatementContext ctx) {
         UnresolvedPlan search = visit(ctx.searchCommand());
-        UnresolvedPlan reduce = ctx.commands().stream().map(this::visit).reduce(search, (r, e) -> e.attach(r));
-        return reduce;
+        return ctx.commands()
+                .stream()
+                .map(this::visit)
+                .reduce(search, (r, e) -> e.attach(r));
     }
 
     /** Search command */
