@@ -13,10 +13,10 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression;
+package com.amazon.opendistroforelasticsearch.sql.ast.tree;
 
-import com.amazon.opendistroforelasticsearch.sql.ppl.ast.AbstractNodeVisitor;
-import java.util.Arrays;
+import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -24,25 +24,27 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Expression node of one-to-many mapping relation IN
- * Params include the field expression and/or wildcard field expression, nested field expression (@field)
- * And the values that the field is mapped to (@valueList)
+ * Logical plan node of Relation, the interface for building the searching sources
  */
 @Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
-public class In extends Expression {
-    private final Expression field;
-    private final List<Expression> valueList;
+public class Relation extends UnresolvedPlan {
+    private final String tableName;
 
     @Override
-    public List<Expression> getChild() {
-        return Arrays.asList(field);
+    public List<UnresolvedPlan> getChild() {
+        return ImmutableList.of();
     }
 
     @Override
-    public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
-        return nodeVisitor.visitIn(this, context);
+    public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
+        return nodeVisitor.visitRelation(this, context);
+    }
+
+    @Override
+    public UnresolvedPlan attach(UnresolvedPlan child) {
+        return this;
     }
 }

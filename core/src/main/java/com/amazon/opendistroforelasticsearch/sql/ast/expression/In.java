@@ -13,10 +13,10 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression;
+package com.amazon.opendistroforelasticsearch.sql.ast.expression;
 
-import com.amazon.opendistroforelasticsearch.sql.ppl.ast.AbstractNodeVisitor;
-import com.google.common.collect.ImmutableList;
+import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
+import java.util.Arrays;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -24,25 +24,25 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Expression node of literal type
- * Params include literal value (@value) and literal data type (@type) which can be selected from {@link DataType}
+ * Expression node of one-to-many mapping relation IN
+ * Params include the field expression and/or wildcard field expression, nested field expression (@field)
+ * And the values that the field is mapped to (@valueList)
  */
 @Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
-public class Literal extends Expression {
-
-    private final Object value;
-    private final DataType type;
+public class In extends Expression {
+    private final Expression field;
+    private final List<Expression> valueList;
 
     @Override
     public List<Expression> getChild() {
-        return ImmutableList.of();
+        return Arrays.asList(field);
     }
 
     @Override
     public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
-        return nodeVisitor.visitLiteral(this, context);
+        return nodeVisitor.visitIn(this, context);
     }
 }

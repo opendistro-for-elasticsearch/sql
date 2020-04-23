@@ -13,10 +13,10 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression;
+package com.amazon.opendistroforelasticsearch.sql.ast.expression;
 
-import com.amazon.opendistroforelasticsearch.sql.ppl.ast.AbstractNodeVisitor;
-import java.util.Arrays;
+import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -24,24 +24,23 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Expression node of aggregate functions
- * Params include aggregate function name (AVG, SUM, MAX etc.) and the field to aggregate
+ * Expression node, representing the syntax that is not resolved to any other expression nodes yet but non-negligible
+ * This expression is often created as the index name, field name etc.
  */
-@Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
-public class AggregateFunction extends Expression {
-    private final String funcName;
-    private final Expression field;
+@Getter
+public class UnresolvedAttribute extends Expression {
+    private final String attr;
 
     @Override
     public List<Expression> getChild() {
-        return Arrays.asList(field);
+        return ImmutableList.of();
     }
 
     @Override
     public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
-        return nodeVisitor.visitAggregateFunction(this, context);
+        return nodeVisitor.visitUnresolvedAttribute(this, context);
     }
 }

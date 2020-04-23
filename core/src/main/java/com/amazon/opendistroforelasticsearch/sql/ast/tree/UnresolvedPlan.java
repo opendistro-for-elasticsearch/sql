@@ -13,10 +13,10 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ppl.ast.tree;
+package com.amazon.opendistroforelasticsearch.sql.ast.tree;
 
-import com.amazon.opendistroforelasticsearch.sql.ppl.ast.AbstractNodeVisitor;
-import com.amazon.opendistroforelasticsearch.sql.ppl.ast.Node;
+import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.ast.Node;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 

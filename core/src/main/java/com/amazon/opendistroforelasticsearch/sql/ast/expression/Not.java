@@ -13,10 +13,10 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ppl.ast.tree;
+package com.amazon.opendistroforelasticsearch.sql.ast.expression;
 
-import com.amazon.opendistroforelasticsearch.sql.ppl.ast.AbstractNodeVisitor;
-import com.google.common.collect.ImmutableList;
+import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
+import java.util.Arrays;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -24,27 +24,22 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Logical plan node of Relation, the interface for building the searching sources
+ * Expression node of the logic NOT
  */
 @Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
-public class Relation extends UnresolvedPlan {
-    private final String tableName;
+public class Not extends Expression {
+    private final Expression expression;
 
     @Override
-    public List<UnresolvedPlan> getChild() {
-        return ImmutableList.of();
+    public List<Expression> getChild() {
+        return Arrays.asList(expression);
     }
 
     @Override
-    public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
-        return nodeVisitor.visitRelation(this, context);
-    }
-
-    @Override
-    public UnresolvedPlan attach(UnresolvedPlan child) {
-        return this;
+    public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
+        return nodeVisitor.visitNot(this, context);
     }
 }

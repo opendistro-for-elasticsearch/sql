@@ -13,25 +13,25 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ppl.ast.dsl;
+package com.amazon.opendistroforelasticsearch.sql.ast.dsl;
 
-import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.AggregateFunction;
-import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.And;
-import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.DataType;
-import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.EqualTo;
-import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.Function;
-import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.In;
-import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.Literal;
-import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.Map;
-import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.Not;
-import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.Or;
-import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.UnresolvedAttribute;
-import com.amazon.opendistroforelasticsearch.sql.ppl.ast.tree.Aggregation;
-import com.amazon.opendistroforelasticsearch.sql.ppl.ast.tree.Filter;
-import com.amazon.opendistroforelasticsearch.sql.ppl.ast.tree.UnresolvedPlan;
-import com.amazon.opendistroforelasticsearch.sql.ppl.ast.tree.Project;
-import com.amazon.opendistroforelasticsearch.sql.ppl.ast.tree.Relation;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Not;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import java.util.Arrays;
 import java.util.List;
 

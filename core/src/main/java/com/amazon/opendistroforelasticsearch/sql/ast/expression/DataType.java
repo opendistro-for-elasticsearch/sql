@@ -5,7 +5,7 @@
  *   You may not use this file except in compliance with the License.
  *   A copy of the License is located at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  *   or in the "license" file accompanying this file. This file is distributed
  *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
@@ -13,24 +13,14 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ppl.ast;
+package com.amazon.opendistroforelasticsearch.sql.ast.expression;
 
-import java.util.List;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+public enum DataType {
+    TYPE_ERROR,
+    NULL,
 
-/**
- * AST node
- */
-@EqualsAndHashCode
-@ToString
-public abstract class Node {
-
-    public <R, C> R accept(AbstractNodeVisitor<R, C> visitor, C context) {
-        return visitor.visitChildren(this, context);
-    }
-
-    public List<? extends Node> getChild() {
-        return null;
-    }
+    INTEGER,
+    DOUBLE,
+    STRING,
+    BOOLEAN
 }

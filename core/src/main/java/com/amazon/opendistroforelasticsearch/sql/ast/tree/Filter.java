@@ -13,52 +13,43 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ppl.ast.tree;
+package com.amazon.opendistroforelasticsearch.sql.ast.tree;
 
-import com.amazon.opendistroforelasticsearch.sql.ppl.ast.AbstractNodeVisitor;
-import com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Expression;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 
 /**
- * Logical plan node of Aggregation, the interface for building aggregation actions in queries
+ * Logical plan node of Filter, the interface for building filters in queries
  */
-@Getter
-@Setter
 @ToString
 @EqualsAndHashCode(callSuper = false)
-@AllArgsConstructor
-public class Aggregation extends UnresolvedPlan {
-    private List<Expression> aggExprList;
-    private List<Expression> sortExprList;
-    private List<Expression> groupExprList;
+@Getter
+public class Filter extends UnresolvedPlan {
+    private Expression condition;
     private UnresolvedPlan child;
 
-    public Aggregation(List<Expression> aggExprList, List<Expression> sortExprList, List<Expression> groupExprList) {
-        this.aggExprList = aggExprList;
-        this.sortExprList = sortExprList;
-        this.groupExprList = groupExprList;
+    public Filter(Expression condition) {
+        this.condition = condition;
     }
 
     @Override
-    public Aggregation attach(UnresolvedPlan child) {
+    public Filter attach(UnresolvedPlan child) {
         this.child = child;
         return this;
     }
 
-
     @Override
     public List<UnresolvedPlan> getChild() {
-        return ImmutableList.of(this.child);
+        return ImmutableList.of(child);
     }
 
     @Override
     public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
-        return nodeVisitor.visitAggregation(this, context);
+        return nodeVisitor.visitFilter(this, context);
     }
 }

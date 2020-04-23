@@ -13,33 +13,18 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ppl.ast.expression;
+package com.amazon.opendistroforelasticsearch.sql.ast.expression;
 
-import com.amazon.opendistroforelasticsearch.sql.ppl.ast.AbstractNodeVisitor;
-import com.google.common.collect.ImmutableList;
-import java.util.List;
-import lombok.AllArgsConstructor;
+import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.ast.Node;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.ToString;
 
-/**
- * Expression node that includes a list of Expression nodes
- */
-@ToString
 @EqualsAndHashCode(callSuper = false)
-@AllArgsConstructor
-public class AttributeList extends Expression {
-    @Getter
-    private List<Expression> attrList;
-
+@ToString
+public abstract class Expression extends Node {
     @Override
-    public List<Expression> getChild() {
-        return ImmutableList.of();
-    }
-
-    @Override
-    public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
-        return nodeVisitor.visitAttributeList(this, context);
+    public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
+        return nodeVisitor.visitChildren(this, context);
     }
 }
