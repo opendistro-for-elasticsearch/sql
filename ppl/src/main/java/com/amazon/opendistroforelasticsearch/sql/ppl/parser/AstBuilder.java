@@ -130,20 +130,23 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
                         .map(this::visitExpression)
                         .collect(Collectors.toList());
 
-        List<Expression> argList = new ArrayList<Expression>(){{
-            add(ctx.PARTITIONS() != null
-                    ? new Argument("partitions", visitExpression(ctx.partitions))
-                    : new Argument("partitions", new Literal(1, DataType.INTEGER)));
-            add(ctx.ALLNUM() != null
-                    ? new Argument("allnum", visitExpression(ctx.allnum))
-                    : new Argument("allnum", new Literal(false, DataType.BOOLEAN)));
-            add(ctx.DELIM() != null
-                    ? new Argument("delim", visitExpression(ctx.delim))
-                    : new Argument("delim", new Literal(" ", DataType.STRING)));
-            add(ctx.DEDUP_SPLITVALUES() != null
-                    ? new Argument("dedupsplit", visitExpression(ctx.dedupsplit))
-                    : new Argument("dedupsplit", new Literal(false, DataType.BOOLEAN)));
-        }};
+//        List<Expression> argList = new ArrayList<Expression>(){{
+//            add(ctx.PARTITIONS() != null
+//                    ? new Argument("partitions", visitExpression(ctx.partitions))
+//                    : new Argument("partitions", new Literal(1, DataType.INTEGER)));
+//            add(ctx.ALLNUM() != null
+//                    ? new Argument("allnum", visitExpression(ctx.allnum))
+//                    : new Argument("allnum", new Literal(false, DataType.BOOLEAN)));
+//            add(ctx.DELIM() != null
+//                    ? new Argument("delim", visitExpression(ctx.delim))
+//                    : new Argument("delim", new Literal(" ", DataType.STRING)));
+//            add(ctx.DEDUP_SPLITVALUES() != null
+//                    ? new Argument("dedupsplit", visitExpression(ctx.dedupsplit))
+//                    : new Argument("dedupsplit", new Literal(false, DataType.BOOLEAN)));
+//        }};
+
+        List<Expression> argList = new ArrayList<>();
+
 
         return new Aggregation(
                 new ArrayList<>(Collections.singletonList(visitExpression(ctx.statsAggTerm()))),
