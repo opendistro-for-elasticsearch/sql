@@ -16,7 +16,6 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.function;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
-import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -27,8 +26,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.amazon.opendistroforelasticsearch.sql.expression.function.WideningTypeRule.IMPOSSIBLE_WIDENING;
-import static com.amazon.opendistroforelasticsearch.sql.expression.function.WideningTypeRule.TYPE_EQUAL;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature.EXACTLY_MATCH;
+import static com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature.NOT_MATCH;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
@@ -40,7 +39,6 @@ class FunctionSignatureTest {
     @Mock
     private List<ExprType> funcParamTypeList;
 
-
     private FunctionName unresolvedFuncName = FunctionName.of("add");
     private List<ExprType> unresolvedParamTypeList = Arrays.asList(ExprType.INTEGER, ExprType.FLOAT);
 
@@ -48,9 +46,8 @@ class FunctionSignatureTest {
     void signature_name_not_match() {
         when(funcSignature.getFunctionName()).thenReturn(FunctionName.of(("diff")));
         FunctionSignature unresolvedFunSig = new FunctionSignature(this.unresolvedFuncName, unresolvedParamTypeList);
-        ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
-                () -> unresolvedFunSig.match(funcSignature));
-        assertEquals("expression name: add and diff doesn't match", exception.getMessage());
+
+        assertEquals(NOT_MATCH, unresolvedFunSig.match(funcSignature));
     }
 
     @Test
@@ -59,9 +56,8 @@ class FunctionSignatureTest {
         when(funcSignature.getParamTypeList()).thenReturn(funcParamTypeList);
         when(funcParamTypeList.size()).thenReturn(1);
         FunctionSignature unresolvedFunSig = new FunctionSignature(unresolvedFuncName, unresolvedParamTypeList);
-        ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
-                () -> unresolvedFunSig.match(funcSignature));
-        assertEquals("add expression expected 2 argument, but actually are 1", exception.getMessage());
+
+        assertEquals(NOT_MATCH, unresolvedFunSig.match(funcSignature));
     }
 
     @Test
@@ -70,7 +66,7 @@ class FunctionSignatureTest {
         when(funcSignature.getParamTypeList()).thenReturn(unresolvedParamTypeList);
         FunctionSignature unresolvedFunSig = new FunctionSignature(unresolvedFuncName, unresolvedParamTypeList);
 
-        assertEquals(TYPE_EQUAL, unresolvedFunSig.match(funcSignature));
+        assertEquals(EXACTLY_MATCH, unresolvedFunSig.match(funcSignature));
     }
 
     @Test
@@ -79,7 +75,7 @@ class FunctionSignatureTest {
         when(funcSignature.getParamTypeList()).thenReturn(Arrays.asList(ExprType.STRING, ExprType.STRING));
         FunctionSignature unresolvedFunSig = new FunctionSignature(unresolvedFuncName, unresolvedParamTypeList);
 
-        assertEquals(IMPOSSIBLE_WIDENING, unresolvedFunSig.match(funcSignature));
+        assertEquals(NOT_MATCH, unresolvedFunSig.match(funcSignature));
     }
 
     @Test
@@ -89,5 +85,12 @@ class FunctionSignatureTest {
         FunctionSignature unresolvedFunSig = new FunctionSignature(unresolvedFuncName, unresolvedParamTypeList);
 
         assertEquals(2, unresolvedFunSig.match(funcSignature));
+    }
+
+    @Test
+    void format_types() {
+        FunctionSignature unresolvedFunSig = new FunctionSignature(unresolvedFuncName, unresolvedParamTypeList);
+
+        assertEquals("[INTEGER,FLOAT]", unresolvedFunSig.formatTypes());
     }
 }

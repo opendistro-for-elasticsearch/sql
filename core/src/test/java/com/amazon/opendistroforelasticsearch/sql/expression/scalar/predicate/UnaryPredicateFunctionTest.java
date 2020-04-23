@@ -19,19 +19,36 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
-import com.amazon.opendistroforelasticsearch.sql.expression.scalar.FunctionTestBase;
+import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.booleanValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class UnaryPredicateFunctionTest extends FunctionTestBase {
+class UnaryPredicateFunctionTest extends ExpressionTestBase {
     @ParameterizedTest(name = "not({0})")
     @ValueSource(booleans = {true, false})
     public void test_not(Boolean v) {
         FunctionExpression and = dsl.not(DSL.literal(booleanValue(v)));
-        assertEquals(ExprType.BOOLEAN, and.type(emptyTypeEnv()));
-        assertEquals(!v, ExprValueUtils.getBooleanValue(and.valueOf(emptyValueEnv())));
+        assertEquals(ExprType.BOOLEAN, and.type(typeEnv));
+        assertEquals(!v, ExprValueUtils.getBooleanValue(and.valueOf(valueEnv)));
+    }
+
+    @Test
+    public void test_not_null() {
+        FunctionExpression and = dsl.not(DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, and.type(typeEnv));
+        assertEquals(LITERAL_NULL, and.valueOf(valueEnv));
+    }
+
+    @Test
+    public void test_not_missing() {
+        FunctionExpression and = dsl.not(DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
+        assertEquals(ExprType.BOOLEAN, and.type(typeEnv));
+        assertEquals(LITERAL_MISSING, and.valueOf(valueEnv));
     }
 }

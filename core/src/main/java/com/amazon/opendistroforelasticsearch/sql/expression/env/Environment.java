@@ -18,10 +18,10 @@ package com.amazon.opendistroforelasticsearch.sql.expression.env;
 /**
  * The definition of the environment.
  */
-public interface Environment<T, R> {
+public interface Environment<Expr, Value> {
 
     /**
-     * resolve the value of var from the environment.
+     * resolve the value of expression from the environment.
      */
-    R resolve(T var);
+    Value resolve(Expr var);
 }

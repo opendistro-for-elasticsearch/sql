@@ -16,7 +16,6 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.config;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
-import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
@@ -34,13 +33,6 @@ import java.util.HashMap;
  */
 @Configuration
 public class ExpressionConfig {
-    @Bean
-    public Environment<Expression, ExprType> emptyEnv() {
-        return var -> {
-            throw new ExpressionEvaluationException("empty env");
-        };
-    }
-
     @Bean
     public BuiltinFunctionRepository functionRepository(Environment<Expression, ExprType> typeEnv) {
         BuiltinFunctionRepository builtinFunctionRepository = new BuiltinFunctionRepository(new HashMap<>(), typeEnv);

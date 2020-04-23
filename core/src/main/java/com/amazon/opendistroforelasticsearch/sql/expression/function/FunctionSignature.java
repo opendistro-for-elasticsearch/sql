@@ -1,12 +1,12 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.function;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
-import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Function signature is composed by function name and arguments list.
@@ -15,40 +15,44 @@ import java.util.List;
 @RequiredArgsConstructor
 @EqualsAndHashCode
 public class FunctionSignature {
+    public static final Integer NOT_MATCH = Integer.MAX_VALUE;
+    public static final Integer EXACTLY_MATCH = 0;
+
     private final FunctionName functionName;
     private final List<ExprType> paramTypeList;
 
     /**
-     * Check the function signature match or not.
+     * calculate the function signature match degree.
      *
-     * @return 0: exactly match, Integer.MAX: not match, by widening rule small number means better match.
+     * @return EXACTLY_MATCH: exactly match, NOT_MATCH: not match, by widening rule small number means better match.
      */
     public int match(FunctionSignature functionSignature) {
-        if (!functionName.equals(functionSignature.getFunctionName())) {
-            throw new ExpressionEvaluationException(
-                    String.format("expression name: %s and %s doesn't match",
-                            functionName,
-                            functionSignature.getFunctionName()));
-        }
         List<ExprType> functionTypeList = functionSignature.getParamTypeList();
-        if (paramTypeList.size() != functionTypeList.size()) {
-            throw new ExpressionEvaluationException(
-                    String.format("%s expression expected %d argument, but actually are %d",
-                            functionName,
-                            paramTypeList.size(),
-                            functionTypeList.size()));
+        if (!functionName.equals(functionSignature.getFunctionName())
+                || paramTypeList.size() != functionTypeList.size()) {
+            return NOT_MATCH;
         }
-        int matchDegree = 0;
+
+        int matchDegree = EXACTLY_MATCH;
         for (int i = 0; i < paramTypeList.size(); i++) {
             ExprType paramType = paramTypeList.get(i);
             ExprType funcType = functionTypeList.get(i);
             int match = WideningTypeRule.distance(paramType, funcType);
-            if (match == Integer.MAX_VALUE) {
-                return match;
+            if (match == WideningTypeRule.IMPOSSIBLE_WIDENING) {
+                return NOT_MATCH;
             } else {
                 matchDegree += match;
             }
         }
         return matchDegree;
+    }
+
+    /**
+     * util function for formatted arguments list
+     */
+    public String formatTypes() {
+        return getParamTypeList().stream()
+                .map(Enum::toString)
+                .collect(Collectors.joining(",", "[", "]"));
     }
 }

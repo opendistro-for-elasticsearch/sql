@@ -28,7 +28,6 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.DOUB
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.FLOAT;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.LONG;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.MISSING;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.STRUCT;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.UNKNOWN;
@@ -62,7 +61,6 @@ public class WideningTypeRule {
         builder.put(BOOLEAN, UNKNOWN);
         builder.put(ARRAY, UNKNOWN);
         builder.put(STRUCT, UNKNOWN);
-        builder.put(MISSING, UNKNOWN);
         typeToWidenParent = builder.build();
     }
 

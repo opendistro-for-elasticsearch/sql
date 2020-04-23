@@ -19,27 +19,33 @@ package com.amazon.opendistroforelasticsearch.sql.expression.scalar.arthmetic;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.WideningTypeRule;
-import com.amazon.opendistroforelasticsearch.sql.expression.scalar.FunctionTestBase;
 import com.google.common.collect.Lists;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
+import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ArithmeticFunctionTest extends FunctionTestBase {
-    @Autowired
-    private BuiltinFunctionRepository functionRepository;
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
+class ArithmeticFunctionTest extends ExpressionTestBase {
 
     private static Stream<Arguments> arithmeticFunctionArguments() {
         List<ExprValue> numberOp1 = Stream.of(3, 3L, 3f, 3D)
@@ -50,6 +56,11 @@ class ArithmeticFunctionTest extends FunctionTestBase {
                 .map(list -> Arguments.of(list.get(0), list.get(1)));
     }
 
+    private static Stream<Arguments> arithmeticOperatorArguments() {
+        return Stream.of(BuiltinFunctionName.ADD, BuiltinFunctionName.SUBTRACT, BuiltinFunctionName.MULTIPLY,
+                BuiltinFunctionName.DIVIDE, BuiltinFunctionName.DIVIDE).map(Arguments::of);
+    }
+
     @ParameterizedTest(name = "add({1}, {2})")
     @MethodSource("arithmeticFunctionArguments")
     public void add(ExprValue op1, ExprValue op2) {
@@ -57,6 +68,60 @@ class ArithmeticFunctionTest extends FunctionTestBase {
         ExprType expectedType = WideningTypeRule.max(op1.type(), op2.type());
         assertEquals(expectedType, expression.type(null));
         assertValueEqual(BuiltinFunctionName.ADD, expectedType, op1, op2, expression.valueOf(null));
+    }
+
+    @ParameterizedTest(name = "{0}(int,null)")
+    @MethodSource("arithmeticOperatorArguments")
+    public void arithmetic_int_null(BuiltinFunctionName builtinFunctionName) {
+        Function<List<Expression>, FunctionExpression> function = functionMapping(builtinFunctionName);
+
+        FunctionExpression functionExpression = function.apply(Arrays.asList(literal(integerValue(1)),
+                ref(INT_TYPE_NULL_VALUE_FIELD)));
+        assertEquals(ExprType.INTEGER, functionExpression.type(typeEnv));
+        assertEquals(LITERAL_NULL, functionExpression.valueOf(valueEnv));
+
+        functionExpression = function.apply(Arrays.asList(ref(INT_TYPE_NULL_VALUE_FIELD), literal(integerValue(1))));
+        assertEquals(ExprType.INTEGER, functionExpression.type(typeEnv));
+        assertEquals(LITERAL_NULL, functionExpression.valueOf(valueEnv));
+    }
+
+    @ParameterizedTest(name = "{0}(int,missing)")
+    @MethodSource("arithmeticOperatorArguments")
+    public void arithmetic_int_missing(BuiltinFunctionName builtinFunctionName) {
+        Function<List<Expression>, FunctionExpression> function = functionMapping(builtinFunctionName);
+        FunctionExpression functionExpression = function.apply(Arrays.asList(literal(integerValue(1)),
+                ref(INT_TYPE_MISSING_VALUE_FIELD)));
+        assertEquals(ExprType.INTEGER, functionExpression.type(typeEnv));
+        assertEquals(LITERAL_MISSING, functionExpression.valueOf(valueEnv));
+
+        functionExpression = function.apply(Arrays.asList(ref(INT_TYPE_MISSING_VALUE_FIELD), literal(integerValue(1))));
+        assertEquals(ExprType.INTEGER, functionExpression.type(typeEnv));
+        assertEquals(LITERAL_MISSING, functionExpression.valueOf(valueEnv));
+    }
+
+    @ParameterizedTest(name = "{0}(null,missing)")
+    @MethodSource("arithmeticOperatorArguments")
+    public void arithmetic_null_missing(BuiltinFunctionName builtinFunctionName) {
+        Function<List<Expression>, FunctionExpression> function = functionMapping(builtinFunctionName);
+        FunctionExpression functionExpression = function.apply(
+                Arrays.asList(ref(INT_TYPE_NULL_VALUE_FIELD), ref(INT_TYPE_NULL_VALUE_FIELD)));
+        assertEquals(ExprType.INTEGER, functionExpression.type(typeEnv));
+        assertEquals(LITERAL_NULL, functionExpression.valueOf(valueEnv));
+
+        functionExpression = function.apply(
+                Arrays.asList(ref(INT_TYPE_MISSING_VALUE_FIELD), ref(INT_TYPE_MISSING_VALUE_FIELD)));
+        assertEquals(ExprType.INTEGER, functionExpression.type(typeEnv));
+        assertEquals(LITERAL_MISSING, functionExpression.valueOf(valueEnv));
+
+        functionExpression = function.apply(
+                Arrays.asList(ref(INT_TYPE_MISSING_VALUE_FIELD), ref(INT_TYPE_NULL_VALUE_FIELD)));
+        assertEquals(ExprType.INTEGER, functionExpression.type(typeEnv));
+        assertEquals(LITERAL_MISSING, functionExpression.valueOf(valueEnv));
+
+        functionExpression = function.apply(
+                Arrays.asList(ref(INT_TYPE_NULL_VALUE_FIELD), ref(INT_TYPE_MISSING_VALUE_FIELD)));
+        assertEquals(ExprType.INTEGER, functionExpression.type(typeEnv));
+        assertEquals(LITERAL_MISSING, functionExpression.valueOf(valueEnv));
     }
 
     @ParameterizedTest(name = "subtract({1}, {2})")

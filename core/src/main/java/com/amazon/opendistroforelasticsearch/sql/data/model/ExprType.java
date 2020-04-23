@@ -15,9 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
-import java.util.Arrays;
-import java.util.List;
-
+/**
+ * Expression Type.
+ */
 public enum ExprType {
     UNKNOWN,
 
@@ -29,10 +29,5 @@ public enum ExprType {
     BOOLEAN,
     STRING,
     STRUCT,
-    ARRAY,
-
-    MISSING;
-
-    public static List<ExprType> NUMBERS = Arrays.asList(DOUBLE, FLOAT, LONG, INTEGER);
-    public static List<ExprType> VALID = Arrays.asList(DOUBLE, FLOAT, LONG, INTEGER, BOOLEAN, STRING, STRING, ARRAY);
+    ARRAY
 }

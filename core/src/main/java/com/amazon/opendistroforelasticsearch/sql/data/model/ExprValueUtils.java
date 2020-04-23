@@ -34,9 +34,13 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.STRU
  */
 @UtilityClass
 public class ExprValueUtils {
+    public static final ExprValue LITERAL_TRUE = ExprBooleanValue.ofTrue();
+    public static final ExprValue LITERAL_FALSE = ExprBooleanValue.ofFalse();
+    public static final ExprValue LITERAL_NULL = ExprNullValue.of();
+    public static final ExprValue LITERAL_MISSING = ExprMissingValue.of();
 
     public static ExprValue booleanValue(Boolean value) {
-        return new ExprBooleanValue(value);
+        return value ? LITERAL_TRUE : LITERAL_FALSE;
     }
 
     public static ExprValue integerValue(Integer value) {
@@ -69,6 +73,14 @@ public class ExprValueUtils {
         List<ExprValue> valueList = new ArrayList<>();
         list.forEach(o -> valueList.add(fromObjectValue(o)));
         return new ExprCollectionValue(valueList);
+    }
+
+    public static ExprValue missingValue() {
+        return ExprMissingValue.of();
+    }
+
+    public static ExprValue nullValue() {
+        return ExprNullValue.of();
     }
 
     public static ExprValue fromObjectValue(Object o) {

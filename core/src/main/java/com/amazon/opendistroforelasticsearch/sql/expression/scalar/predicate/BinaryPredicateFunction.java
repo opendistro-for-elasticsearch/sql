@@ -16,7 +16,11 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.scalar.predicate;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionExpressionBuilder;
@@ -24,14 +28,20 @@ import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionNam
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableTable;
+import com.google.common.collect.Table;
 import lombok.experimental.UtilityClass;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
-import static com.amazon.opendistroforelasticsearch.sql.expression.scalar.OperatorUtils.binaryOperator;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_FALSE;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
 
 /**
  * The definition of binary predicate function
@@ -49,13 +59,113 @@ public class BinaryPredicateFunction {
         repository.register(equal());
     }
 
+    /**
+     * The and logic
+     * A       B       A AND B
+     * TRUE    TRUE    TRUE
+     * TRUE    FALSE   FALSE
+     * TRUE    NULL    NULL
+     * TRUE    MISSING MISSING
+     * FALSE   FALSE   FALSE
+     * FALSE   NULL    FALSE
+     * FALSE   MISSING FALSE
+     * NULL    NULL    NULL
+     * NULL    MISSING MISSING
+     * MISSING MISSING MISSING
+     */
+    private static Table<ExprValue, ExprValue, ExprValue> andTable =
+            new ImmutableTable.Builder<ExprValue, ExprValue, ExprValue>()
+                    .put(LITERAL_TRUE, LITERAL_TRUE, LITERAL_TRUE)
+                    .put(LITERAL_TRUE, LITERAL_FALSE, LITERAL_FALSE)
+                    .put(LITERAL_TRUE, LITERAL_NULL, LITERAL_NULL)
+                    .put(LITERAL_TRUE, LITERAL_MISSING, LITERAL_MISSING)
+                    .put(LITERAL_FALSE, LITERAL_FALSE, LITERAL_FALSE)
+                    .put(LITERAL_FALSE, LITERAL_NULL, LITERAL_FALSE)
+                    .put(LITERAL_FALSE, LITERAL_MISSING, LITERAL_FALSE)
+                    .put(LITERAL_NULL, LITERAL_NULL, LITERAL_NULL)
+                    .put(LITERAL_NULL, LITERAL_MISSING, LITERAL_MISSING)
+                    .put(LITERAL_MISSING, LITERAL_MISSING, LITERAL_MISSING)
+                    .build();
+
+    /**
+     * The or logic
+     * A       B       A AND B
+     * TRUE    TRUE    TRUE
+     * TRUE    FALSE   TRUE
+     * TRUE    NULL    TRUE
+     * TRUE    MISSING TRUE
+     * FALSE   FALSE   FALSE
+     * FALSE   NULL    NULL
+     * FALSE   MISSING MISSING
+     * NULL    NULL    NULL
+     * NULL    MISSING NULL
+     * MISSING MISSING MISSING
+     */
+    private static Table<ExprValue, ExprValue, ExprValue> orTable =
+            new ImmutableTable.Builder<ExprValue, ExprValue, ExprValue>()
+                    .put(LITERAL_TRUE, LITERAL_TRUE, LITERAL_TRUE)
+                    .put(LITERAL_TRUE, LITERAL_FALSE, LITERAL_TRUE)
+                    .put(LITERAL_TRUE, LITERAL_NULL, LITERAL_TRUE)
+                    .put(LITERAL_TRUE, LITERAL_MISSING, LITERAL_TRUE)
+                    .put(LITERAL_FALSE, LITERAL_FALSE, LITERAL_FALSE)
+                    .put(LITERAL_FALSE, LITERAL_NULL, LITERAL_NULL)
+                    .put(LITERAL_FALSE, LITERAL_MISSING, LITERAL_MISSING)
+                    .put(LITERAL_NULL, LITERAL_NULL, LITERAL_NULL)
+                    .put(LITERAL_NULL, LITERAL_MISSING, LITERAL_NULL)
+                    .put(LITERAL_MISSING, LITERAL_MISSING, LITERAL_MISSING)
+                    .build();
+
+    /**
+     * The xor logic
+     * A       B       A AND B
+     * TRUE    TRUE    FALSE
+     * TRUE    FALSE   TRUE
+     * TRUE    NULL    TRUE
+     * TRUE    MISSING TRUE
+     * FALSE   FALSE   FALSE
+     * FALSE   NULL    NULL
+     * FALSE   MISSING MISSING
+     * NULL    NULL    NULL
+     * NULL    MISSING NULL
+     * MISSING MISSING MISSING
+     */
+    private static Table<ExprValue, ExprValue, ExprValue> xorTable =
+            new ImmutableTable.Builder<ExprValue, ExprValue, ExprValue>()
+                    .put(LITERAL_TRUE, LITERAL_TRUE, LITERAL_FALSE)
+                    .put(LITERAL_TRUE, LITERAL_FALSE, LITERAL_TRUE)
+                    .put(LITERAL_TRUE, LITERAL_NULL, LITERAL_TRUE)
+                    .put(LITERAL_TRUE, LITERAL_MISSING, LITERAL_TRUE)
+                    .put(LITERAL_FALSE, LITERAL_FALSE, LITERAL_FALSE)
+                    .put(LITERAL_FALSE, LITERAL_NULL, LITERAL_NULL)
+                    .put(LITERAL_FALSE, LITERAL_MISSING, LITERAL_MISSING)
+                    .put(LITERAL_NULL, LITERAL_NULL, LITERAL_NULL)
+                    .put(LITERAL_NULL, LITERAL_MISSING, LITERAL_NULL)
+                    .put(LITERAL_MISSING, LITERAL_MISSING, LITERAL_MISSING)
+                    .build();
+
+    /**
+     * The equal logic
+     * A       B       A == B
+     * NULL    NULL    TRUE
+     * NULL    MISSING FALSE
+     * MISSING NULL    FALSE
+     * MISSING MISSING TRUE
+     */
+    private static Table<ExprValue, ExprValue, ExprValue> equalTable =
+            new ImmutableTable.Builder<ExprValue, ExprValue, ExprValue>()
+                    .put(LITERAL_NULL, LITERAL_NULL, LITERAL_TRUE)
+                    .put(LITERAL_NULL, LITERAL_MISSING, LITERAL_FALSE)
+                    .put(LITERAL_MISSING, LITERAL_NULL, LITERAL_FALSE)
+                    .put(LITERAL_MISSING, LITERAL_MISSING, LITERAL_TRUE)
+                    .build();
+
     private static FunctionResolver and() {
         FunctionName functionName = BuiltinFunctionName.AND.getName();
         return FunctionResolver.builder()
                 .functionName(functionName)
                 .functionBundle(new FunctionSignature(functionName,
-                        Arrays.asList(ExprType.BOOLEAN, ExprType.BOOLEAN)), binaryOperator(functionName,
-                        (v1, v2) -> v1 && v2, ExprValueUtils::getBooleanValue, ExprType.BOOLEAN))
+                        Arrays.asList(ExprType.BOOLEAN, ExprType.BOOLEAN)), binaryPredicate(functionName,
+                        andTable, ExprType.BOOLEAN))
                 .build();
     }
 
@@ -64,8 +174,8 @@ public class BinaryPredicateFunction {
         return FunctionResolver.builder()
                 .functionName(functionName)
                 .functionBundle(new FunctionSignature(functionName,
-                        Arrays.asList(ExprType.BOOLEAN, ExprType.BOOLEAN)), binaryOperator(functionName,
-                        (v1, v2) -> v1 || v2, ExprValueUtils::getBooleanValue, ExprType.BOOLEAN))
+                        Arrays.asList(ExprType.BOOLEAN, ExprType.BOOLEAN)), binaryPredicate(functionName,
+                        orTable, ExprType.BOOLEAN))
                 .build();
     }
 
@@ -74,8 +184,8 @@ public class BinaryPredicateFunction {
         return FunctionResolver.builder()
                 .functionName(functionName)
                 .functionBundle(new FunctionSignature(functionName,
-                        Arrays.asList(ExprType.BOOLEAN, ExprType.BOOLEAN)), binaryOperator(functionName,
-                        (v1, v2) -> v1 ^ v2, ExprValueUtils::getBooleanValue, ExprType.BOOLEAN))
+                        Arrays.asList(ExprType.BOOLEAN, ExprType.BOOLEAN)), binaryPredicate(functionName,
+                        xorTable, ExprType.BOOLEAN))
                 .build();
     }
 
@@ -108,29 +218,77 @@ public class BinaryPredicateFunction {
             BiFunction<Map, Map, Boolean> mapFunc) {
         ImmutableMap.Builder<FunctionSignature, FunctionExpressionBuilder> builder = new ImmutableMap.Builder<>();
         builder.put(new FunctionSignature(functionName, Arrays.asList(ExprType.INTEGER, ExprType.INTEGER)),
-                binaryOperator(functionName, integerFunc, ExprValueUtils::getIntegerValue,
+                equal(functionName, integerFunc, ExprValueUtils::getIntegerValue,
                         ExprType.BOOLEAN));
         builder.put(new FunctionSignature(functionName, Arrays.asList(ExprType.LONG, ExprType.LONG)),
-                binaryOperator(functionName, longFunc, ExprValueUtils::getLongValue,
+                equal(functionName, longFunc, ExprValueUtils::getLongValue,
                         ExprType.BOOLEAN));
         builder.put(new FunctionSignature(functionName, Arrays.asList(ExprType.FLOAT, ExprType.FLOAT)),
-                binaryOperator(functionName, floatFunc, ExprValueUtils::getFloatValue,
+                equal(functionName, floatFunc, ExprValueUtils::getFloatValue,
                         ExprType.BOOLEAN));
         builder.put(new FunctionSignature(functionName, Arrays.asList(ExprType.DOUBLE, ExprType.DOUBLE)),
-                binaryOperator(functionName, doubleFunc, ExprValueUtils::getDoubleValue,
+                equal(functionName, doubleFunc, ExprValueUtils::getDoubleValue,
                         ExprType.BOOLEAN));
         builder.put(new FunctionSignature(functionName, Arrays.asList(ExprType.STRING, ExprType.STRING)),
-                binaryOperator(functionName, stringFunc, ExprValueUtils::getStringValue,
+                equal(functionName, stringFunc, ExprValueUtils::getStringValue,
                         ExprType.BOOLEAN));
         builder.put(new FunctionSignature(functionName, Arrays.asList(ExprType.BOOLEAN, ExprType.BOOLEAN)),
-                binaryOperator(functionName, booleanFunc, ExprValueUtils::getBooleanValue,
+                equal(functionName, booleanFunc, ExprValueUtils::getBooleanValue,
                         ExprType.BOOLEAN));
         builder.put(new FunctionSignature(functionName, Arrays.asList(ExprType.ARRAY, ExprType.ARRAY)),
-                binaryOperator(functionName, listFunc, ExprValueUtils::getCollectionValue,
+                equal(functionName, listFunc, ExprValueUtils::getCollectionValue,
                         ExprType.BOOLEAN));
         builder.put(new FunctionSignature(functionName, Arrays.asList(ExprType.STRUCT, ExprType.STRUCT)),
-                binaryOperator(functionName, mapFunc, ExprValueUtils::getTupleValue,
+                equal(functionName, mapFunc, ExprValueUtils::getTupleValue,
                         ExprType.BOOLEAN));
         return builder.build();
+    }
+
+    private static FunctionExpressionBuilder binaryPredicate(FunctionName functionName,
+                                                             Table<ExprValue, ExprValue, ExprValue> logicalTable,
+                                                             ExprType returnType) {
+        return arguments -> new FunctionExpression(functionName, arguments) {
+            @Override
+            public ExprValue valueOf(Environment<Expression, ExprValue> env) {
+                ExprValue arg1 = arguments.get(0).valueOf(env);
+                ExprValue arg2 = arguments.get(1).valueOf(env);
+                if (logicalTable.contains(arg1, arg2)) {
+                    return logicalTable.get(arg1, arg2);
+                } else {
+                    return logicalTable.get(arg2, arg1);
+                }
+            }
+
+            @Override
+            public ExprType type(Environment<Expression, ExprType> env) {
+                return returnType;
+            }
+        };
+    }
+
+    private static <T, R> FunctionExpressionBuilder equal(FunctionName functionName,
+                                                          BiFunction<T, T, R> function,
+                                                          Function<ExprValue, T> observer,
+                                                          ExprType returnType) {
+        return arguments -> new FunctionExpression(functionName, arguments) {
+            @Override
+            public ExprValue valueOf(Environment<Expression, ExprValue> env) {
+                ExprValue arg1 = arguments.get(0).valueOf(env);
+                ExprValue arg2 = arguments.get(1).valueOf(env);
+                if (equalTable.contains(arg1, arg2)) {
+                    return equalTable.get(arg1, arg2);
+                } else if (arg1.isMissing() || arg1.isNull() || arg2.isMissing() || arg2.isNull()) {
+                    return LITERAL_FALSE;
+                } else {
+                    return ExprValueUtils.fromObjectValue(
+                            function.apply(observer.apply(arg1), observer.apply(arg2)));
+                }
+            }
+
+            @Override
+            public ExprType type(Environment<Expression, ExprType> env) {
+                return returnType;
+            }
+        };
     }
 }

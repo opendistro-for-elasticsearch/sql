@@ -30,6 +30,10 @@ public class DSL {
         return new LiteralExpression(value);
     }
 
+    public static ReferenceExpression ref(String ref) {
+        return new ReferenceExpression(ref);
+    }
+
     public FunctionExpression add(Expression... expressions) {
         return repository.compile(BuiltinFunctionName.ADD.getName(), Arrays.asList(expressions));
     }

@@ -18,30 +18,28 @@ package com.amazon.opendistroforelasticsearch.sql.data.model;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import org.junit.jupiter.api.Test;
 
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
-class ExprMissingValueTest {
+public class ExprNullValueTest {
 
     @Test
-    public void test_is_missing() {
-        assertTrue(LITERAL_MISSING.isMissing());
+    public void test_is_null() {
+        assertTrue(LITERAL_NULL.isNull());
     }
 
     @Test
     public void getValue() {
-        ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
-                () -> LITERAL_MISSING.value());
-        assertEquals("invalid to call value operation on missing value", exception.getMessage());
+        assertNull(LITERAL_NULL.value());
     }
 
     @Test
     public void getType() {
         ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
-                () -> LITERAL_MISSING.type());
-        assertEquals("invalid to call type operation on missing value", exception.getMessage());
+                () -> LITERAL_NULL.type());
+        assertEquals("invalid to call type operation on null value", exception.getMessage());
     }
 }

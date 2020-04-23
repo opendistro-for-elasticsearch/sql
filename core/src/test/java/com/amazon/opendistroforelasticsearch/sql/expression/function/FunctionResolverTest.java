@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.function;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -24,9 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Arrays;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -76,10 +72,9 @@ class FunctionResolverTest {
 
     @Test
     void resolve_function_not_match() {
-        List<ExprType> exprTypes = Arrays.asList(ExprType.INTEGER, ExprType.INTEGER);
         when(functionSignature.match(notMatchFS)).thenReturn(WideningTypeRule.IMPOSSIBLE_WIDENING);
-        when(notMatchFS.getParamTypeList()).thenReturn(exprTypes);
-        when(functionSignature.getParamTypeList()).thenReturn(Arrays.asList(ExprType.BOOLEAN, ExprType.BOOLEAN));
+        when(notMatchFS.formatTypes()).thenReturn("[INTEGER,INTEGER]");
+        when(functionSignature.formatTypes()).thenReturn("[BOOLEAN,BOOLEAN]");
         FunctionResolver resolver = new FunctionResolver(functionName,
                 ImmutableMap.of(notMatchFS, notMatchBuilder));
 
