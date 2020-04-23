@@ -27,8 +27,8 @@ import org.antlr.v4.runtime.tree.ParseTree;
  * PPL Syntax Parser
  */
 public class PPLSyntaxParser {
-    public ParseTree analyzeSyntax(String sql) {
-        OpenDistroPPLParser parser = createParser(createLexer(sql));
+    public ParseTree analyzeSyntax(String query) {
+        OpenDistroPPLParser parser = createParser(createLexer(query));
         parser.addErrorListener(new SyntaxAnalysisErrorListener());
         return parser.root();
     }
@@ -38,8 +38,8 @@ public class PPLSyntaxParser {
                 new CommonTokenStream(lexer));
     }
 
-    private OpenDistroPPLLexer createLexer(String sql) {
+    private OpenDistroPPLLexer createLexer(String query) {
         return new OpenDistroPPLLexer(
-                new CaseInsensitiveCharStream(sql));
+                new CaseInsensitiveCharStream(query));
     }
 }

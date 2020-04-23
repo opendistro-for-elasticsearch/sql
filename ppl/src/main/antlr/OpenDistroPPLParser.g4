@@ -26,32 +26,31 @@ pplStatement
     : searchCommand (PIPE commands)*
     ;
 
-
 /** commands */
 commands
     : whereCommand | fieldsCommand | renameCommand | statsCommand | dedupCommand | sortCommand | evalCommand
     ;
 
 searchCommand
-    : (SEARCH)? fromClause                                          #searchWithoutFilter
-    | (SEARCH)? fromClause logicalExpression                        #searchFromClauseLogicExpr
-    | (SEARCH)? logicalExpression fromClause                        #searchLogicExprFromClause
+    : (SEARCH)? fromClause                                          #searchFrom
+    | (SEARCH)? fromClause logicalExpression                        #searchFromFilter
+    | (SEARCH)? logicalExpression fromClause                        #searchFilterFrom
     ;
 
 whereCommand
-    : WHERE evalExpression
+    : WHERE logicalExpression
     ;
 
 fieldsCommand
-    : FIELDS fieldList
+    : FIELDS (PLUS | MINUS)? wcFieldList
     ;
 
 renameCommand
-    : RENAME wcField AS wcField
+    : RENAME orignalField=wcFieldExpression AS renamedField=wcFieldExpression
     ;
 
 statsCommand
-    : STATS (statsArgument)* (statsAggTerm | sparklineAggTerm) (byClause)? (dedupSplitValues)?
+    : STATS (statsArgument)* statsAggTerm (byClause)? (dedupSplitValues)?
     ;
 
 dedupCommand
@@ -63,7 +62,7 @@ sortCommand
     ;
 
 evalCommand
-    : EVAL fieldExpression EQUAL evalExpression (COMMA fieldExpression EQUAL evalExpression)
+    : EVAL evalExpression (COMMA evalExpression)*
     ;
 
 /** arguments */
@@ -94,16 +93,12 @@ byClause
     ;
 
 sortbyClause
-    : (PLUS | MINUS) sortField (COMMA (PLUS | MINUS) sortField)*
+    : (PLUS | MINUS)? sortField (COMMA (PLUS | MINUS)? sortField)*
     ;
 
 /** aggregation terms */
-aggregationTerm
-    : statsAggTerm | sparklineAggTerm
-    ;
-
 statsAggTerm
-    : statsFunction LT_PRTHS (fieldExpression)? RT_PRTHS
+    : statsFunction
     ;
 
 sparklineAggTerm
@@ -116,8 +111,8 @@ statsFunction
     ;
 
 aggregationFunction
-    : aggFunctionName LT_PRTHS fieldExpression RT_PRTHS
-    | percentileAggFunction
+    : aggFunctionName LT_PRTHS fieldExpression RT_PRTHS             #aggFunctionCall
+    | percentileAggFunction                                         #percentileAggFunctionCall
     ;
 
 aggFunctionName
@@ -126,7 +121,7 @@ aggFunctionName
     ;
 
 percentileAggFunction
-    : PERCENTILE LESS fieldExpression GREATER LT_PRTHS fieldExpression RT_PRTHS
+    : PERCENTILE LESS value=decimalLiteral GREATER LT_PRTHS aggField=fieldExpression RT_PRTHS
     ;
 
 eventOrderFunction
@@ -148,8 +143,8 @@ timeFunctionName
     ;
 
 sparklineAggregation
-    : SPARKLINE LT_PRTHS COUNT LT_PRTHS wcField RT_PRTHS COMMA spanLength=decimalLiteral RT_PRTHS
-    | SPARKLINE RT_PRTHS sparklineFunction LT_PRTHS wcField RT_PRTHS COMMA spanLength=decimalLiteral RT_PRTHS
+    : SPARKLINE LT_PRTHS COUNT LT_PRTHS wcFieldExpression RT_PRTHS COMMA spanLength=decimalLiteral RT_PRTHS
+    | SPARKLINE RT_PRTHS sparklineFunction LT_PRTHS wcFieldExpression RT_PRTHS COMMA spanLength=decimalLiteral RT_PRTHS
     ;
 
 sparklineFunction
@@ -157,7 +152,8 @@ sparklineFunction
     ;
 
 sparklineFunctionName
-    : C | COUNT | DC | MEAN | AVG | STDEV | STDEVP | VAR | VARP | SUM | SUMSQ | MIN | MAX | RANGE
+    :
+//    | C | COUNT | DC | MEAN | AVG | STDEV | STDEVP | VAR | VARP | SUM | SUMSQ | MIN | MAX | RANGE
     ;
 
 /** expressions */
@@ -173,33 +169,37 @@ logicalExpression
     | comparisonExpression                                          #comparsion
     | evalExpression                                                #eval
     | NOT logicalExpression                                         #logicalNot
-    | left=logicalExpression OR right=logicalExpression             #logicalOrBinary
-    | left=logicalExpression (AND)? right=logicalExpression         #logicalAndBinary
+    | left=logicalExpression OR right=logicalExpression             #logicalOr
+    | left=logicalExpression (AND)? right=logicalExpression         #logicalAnd
     ;
 
 evalExpression
-    : literalValue EQUAL literalValue
-    | evalFunctionCall
+    : fieldExpression EQUAL evalFunctionCall
     ;
 
 comparisonExpression
-    : left=fieldExpression comparisonOperator right=literalValue
-    | fieldExpression IN valueList
+    : left=fieldExpression comparisonOperator right=literalValue    #compareExpr
+    | fieldExpression IN valueList                                  #inExpr
     ;
 
 booleanExpression
-    : LT_PRTHS booleanExpression RT_PRTHS
+    : LT_PRTHS booleanLiteral RT_PRTHS
     | booleanLiteral
     ;
 
 /** tables */
 tableSource
     : ident
+    | stringLiteral
     ;
 
 /** fields */
 fieldList
     : fieldExpression (COMMA fieldExpression)*
+    ;
+
+wcFieldList
+    : wcFieldExpression (COMMA wcFieldExpression)*
     ;
 
 sortField
@@ -210,13 +210,17 @@ sortField
     | NUM LT_PRTHS fieldExpression RT_PRTHS                         #numSort
     ;
 
-wcField
-    : WCFIELD
-    ;
-
 fieldExpression
     : ident
+    | SINGLE_QUOTE ident SINGLE_QUOTE
+    | DOUBLE_QUOTE ident DOUBLE_QUOTE
+    | BACKTICK ident BACKTICK
     ;
+
+wcFieldExpression
+    : wildcard
+    ;
+
 
 /** functions */
 evalFunctionCall
@@ -253,7 +257,7 @@ functionArgs
     ;
 
 functionArg
-    : constant | fullColumnName | expression | evalFunctionCall
+    : expression | fieldExpression | literalValue
     ;
 
 /** operators */
@@ -264,11 +268,17 @@ comparisonOperator
 /** literals and values*/
 literalValue
     : stringLiteral
-    | decimalLiteral
+    | (PLUS | MINUS)? integerLiteral
+    | (PLUS | MINUS)? decimalLiteral
+    | booleanLiteral
     ;
 
 stringLiteral
-    : STRING_LITERAL
+    : DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING
+    ;
+
+integerLiteral
+    : INTEGER_LITERAL
     ;
 
 decimalLiteral
@@ -283,32 +293,10 @@ valueList
     : LT_PRTHS literalValue (COMMA literalValue)* RT_PRTHS
     ;
 
-fullColumnName
-    : simpleId DOT_ID*
-    ;
-
-constant
-    : stringLiteral | decimalLiteral
-    | MINUS decimalLiteral
-    | booleanLiteral
-    ;
-
-simpleId
-    : ID
-    | DOT_ID
-    | STRING_LITERAL
-    ;
-
 ident
-    : ID
-    | DOT_ID
+    : (DOT)? ID
     ;
 
-/** dataset */
-datasetType
-    : DATAMODEL | LOOKUP | SAVEDSEARCH
-    ;
-
-datasetName
-    :
+wildcard
+    : (MODULE | ident)+
     ;
