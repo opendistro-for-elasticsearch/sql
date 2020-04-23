@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical;
 
 import com.amazon.opendistroforelasticsearch.sql.ppl.node.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.builder.UnresolvedPlanBuilder;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -37,7 +38,7 @@ public class Aggregation extends UnresolvedPlan {
     private List<Expression> aggExprList;
     private List<Expression> sortExprList;
     private List<Expression> groupExprList;
-    private UnresolvedPlan input;
+    private UnresolvedPlan child;
 
     public Aggregation(List<Expression> aggExprList, List<Expression> sortExprList, List<Expression> groupExprList) {
         this.aggExprList = aggExprList;
@@ -47,11 +48,37 @@ public class Aggregation extends UnresolvedPlan {
 
     @Override
     public List<UnresolvedPlan> getChild() {
-        return ImmutableList.of(this.input);
+        return ImmutableList.of(this.child);
     }
 
     @Override
     public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
         return nodeVisitor.visitAggregation(this, context);
+    }
+
+    private Aggregation(Builder builder) {
+        this.child = builder.child;
+    }
+
+    /**
+     * Aggregation plan builder
+     */
+    public static class Builder extends UnresolvedPlanBuilder<Aggregation> {
+        private UnresolvedPlan child;
+
+        public Builder(Aggregation plan) {
+            super(plan);
+        }
+
+        @Override
+        public UnresolvedPlanBuilder attachPlan(UnresolvedPlan attach) {
+            this.child = attach;
+            return this;
+        }
+
+        @Override
+        public Aggregation build() {
+            return new Aggregation(this);
+        }
     }
 }

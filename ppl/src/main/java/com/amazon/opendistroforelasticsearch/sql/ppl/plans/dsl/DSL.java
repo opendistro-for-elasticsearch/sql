@@ -41,7 +41,7 @@ import java.util.List;
 public class DSL {
 
     public static UnresolvedPlan filter(UnresolvedPlan input, Expression expression) {
-        return new Filter(expression).withInput(input);
+        return new Filter.Builder(new Filter(expression)).attachPlan(input).build();
     }
 
     public static UnresolvedPlan relation(String tableName) {
@@ -49,12 +49,12 @@ public class DSL {
     }
 
     public static UnresolvedPlan project(UnresolvedPlan input, Expression... projectList) {
-        return new Project(Arrays.asList(projectList)).withInput(input);
+        return new Project.Builder(new Project(Arrays.asList(projectList))).attachPlan(input).build();
     }
 
     public static UnresolvedPlan agg(UnresolvedPlan input, List<Expression> aggList, List<Expression> sortList,
                                      List<Expression> groupList) {
-        return new Aggregation(aggList, sortList, groupList).withInput(input);
+        return new Aggregation.Builder(new Aggregation(aggList, sortList, groupList)).attachPlan(input).build();
     }
 
     public static Expression equalTo(Expression left, Expression right) {

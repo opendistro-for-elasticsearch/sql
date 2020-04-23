@@ -13,13 +13,20 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical;
+package com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.builder;
+
+import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.UnresolvedPlan;
+import lombok.AllArgsConstructor;
 
 /**
- * The interface to set the parent for current UnresolvedPlan/Expression node
- * @param <T> type of parent node
- * @param <R> type of current node
+ * Abstract builder for unresolved plans
+ * @param <T> UnresolvedPlan subclass
  */
-public interface HasInput<T, R> {
-    R withInput(T input);
+@AllArgsConstructor
+public abstract class UnresolvedPlanBuilder<T extends UnresolvedPlan> {
+    private T plan;
+
+    public abstract UnresolvedPlan build();
+
+    public abstract UnresolvedPlanBuilder attachPlan(UnresolvedPlan attach);
 }
