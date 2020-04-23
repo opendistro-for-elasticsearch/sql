@@ -17,7 +17,6 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical;
 
 import com.amazon.opendistroforelasticsearch.sql.ppl.node.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.builder.UnresolvedPlanBuilder;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -55,33 +54,7 @@ public class Project extends UnresolvedPlan {
 
     @Override
     public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
-        this.child = (UnresolvedPlan) context;
+
         return nodeVisitor.visitProject(this, context);
-    }
-
-    private Project(Builder builder) {
-        this.child = builder.child;
-    }
-
-    /**
-     * Project plan builder
-     */
-    public static class Builder extends UnresolvedPlanBuilder<Project> {
-        private UnresolvedPlan child;
-
-        public Builder(Project plan) {
-            super(plan);
-        }
-
-        @Override
-        public UnresolvedPlanBuilder attachPlan(UnresolvedPlan attach) {
-            this.child = attach;
-            return this;
-        }
-
-        @Override
-        public Project build() {
-            return new Project(this);
-        }
     }
 }

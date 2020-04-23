@@ -24,7 +24,6 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.Project;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.Relation;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.builder.UnresolvedPlanBuilder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -56,13 +55,8 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
     @Override
     public UnresolvedPlan visitPplStatement(PplStatementContext ctx) {
         UnresolvedPlan search = visit(ctx.searchCommand());
-        return ctx
-                .commands()
-                .stream()
-                .map(this::visit)
-                .reduce(search,
-                        (r, e) -> createBuilder(e).attachPlan(r).build()
-                );
+        UnresolvedPlan reduce = ctx.commands().stream().map(this::visit).reduce(search, (r, e) -> e.attach(r));
+        return reduce;
     }
 
     /** Search command */
@@ -73,12 +67,12 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
 
     @Override
     public UnresolvedPlan visitSearchFromFilter(SearchFromFilterContext ctx) {
-        return new Filter.Builder(new Filter(visitExpression(ctx.logicalExpression()))).attachPlan(visit(ctx.fromClause())).build();
+        return new Filter(visitExpression(ctx.logicalExpression())).attach(visit(ctx.fromClause()));
     }
 
     @Override
     public UnresolvedPlan visitSearchFilterFrom(SearchFilterFromContext ctx) {
-        return new Filter.Builder(new Filter(visitExpression(ctx.logicalExpression()))).attachPlan(visit(ctx.fromClause())).build();
+        return new Filter(visitExpression(ctx.logicalExpression())).attach(visit(ctx.fromClause()));
     }
 
     /** Where command */
@@ -196,24 +190,6 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
             return nextResult;
         }
         return aggregate;
-    }
-
-    /**
-     * Create plan builder for accumulator in reduce
-     * @param plan UnresolvedPlan concrete subclass instance
-     * @return UnresolvedPlanBuilder concrete subclass instance or null
-     */
-    private UnresolvedPlanBuilder createBuilder(UnresolvedPlan plan) {
-        if (plan instanceof Filter) {
-            return new Filter.Builder((Filter) plan);
-        }
-        if (plan instanceof Project) {
-            return new Project.Builder((Project) plan);
-        }
-        if (plan instanceof Aggregation) {
-            return new Aggregation.Builder((Aggregation) plan);
-        }
-        return null;
     }
 
 }

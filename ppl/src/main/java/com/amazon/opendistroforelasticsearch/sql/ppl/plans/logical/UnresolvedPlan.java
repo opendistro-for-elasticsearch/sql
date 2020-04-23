@@ -30,4 +30,6 @@ public abstract class UnresolvedPlan extends Node {
     public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
         return nodeVisitor.visitChildren(this, context);
     }
+
+    public abstract UnresolvedPlan attach(UnresolvedPlan child);
 }

@@ -17,7 +17,6 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical;
 
 import com.amazon.opendistroforelasticsearch.sql.ppl.node.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical.builder.UnresolvedPlanBuilder;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import lombok.EqualsAndHashCode;
@@ -39,6 +38,12 @@ public class Filter extends UnresolvedPlan {
     }
 
     @Override
+    public Filter attach(UnresolvedPlan child) {
+        this.child = child;
+        return this;
+    }
+
+    @Override
     public List<UnresolvedPlan> getChild() {
         return ImmutableList.of(child);
     }
@@ -46,31 +51,5 @@ public class Filter extends UnresolvedPlan {
     @Override
     public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
         return nodeVisitor.visitFilter(this, context);
-    }
-
-    private Filter(Builder builder) {
-        this.child = builder.child;
-    }
-
-    /**
-     * Filter plan builder
-     */
-    public static class Builder extends UnresolvedPlanBuilder<Filter> {
-        UnresolvedPlan child;
-
-        public Builder(Filter plan) {
-            super(plan);
-        }
-
-        @Override
-        public Builder attachPlan(UnresolvedPlan attach) {
-            this.child = attach;
-            return this;
-        }
-
-        @Override
-        public Filter build() {
-            return new Filter(this);
-        }
     }
 }
