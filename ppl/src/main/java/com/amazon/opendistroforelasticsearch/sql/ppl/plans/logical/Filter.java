@@ -31,21 +31,21 @@ import lombok.ToString;
 @Getter
 public class Filter extends UnresolvedPlan {
     private Expression condition;
-    private UnresolvedPlan input;
+    private UnresolvedPlan child;
 
     public Filter(Expression condition) {
         this.condition = condition;
     }
 
     @Override
-    public Filter withInput(UnresolvedPlan input) {
-        this.input = input;
+    public Filter attach(UnresolvedPlan child) {
+        this.child = child;
         return this;
     }
 
     @Override
     public List<UnresolvedPlan> getChild() {
-        return ImmutableList.of(input);
+        return ImmutableList.of(child);
     }
 
     @Override

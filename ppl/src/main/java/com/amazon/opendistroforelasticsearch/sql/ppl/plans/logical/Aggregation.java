@@ -19,7 +19,6 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.node.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Expression;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,7 +36,7 @@ public class Aggregation extends UnresolvedPlan {
     private List<Expression> sortExprList;
     private List<Expression> groupExprList;
     private List<Expression> argExprList;
-    private UnresolvedPlan input;
+    private UnresolvedPlan child;
 
     public Aggregation(List<Expression> aggExprList,
                        List<Expression> sortExprList,
@@ -59,14 +58,15 @@ public class Aggregation extends UnresolvedPlan {
     }
 
     @Override
-    public Aggregation withInput(UnresolvedPlan input) {
-        this.input = input;
+    public Aggregation attach(UnresolvedPlan child) {
+        this.child = child;
         return this;
     }
 
+
     @Override
     public List<UnresolvedPlan> getChild() {
-        return ImmutableList.of(this.input);
+        return ImmutableList.of(this.child);
     }
 
     @Override

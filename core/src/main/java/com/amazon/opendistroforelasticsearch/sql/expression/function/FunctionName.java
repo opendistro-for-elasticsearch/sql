@@ -5,7 +5,7 @@
  *   You may not use this file except in compliance with the License.
  *   A copy of the License is located at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  *   or in the "license" file accompanying this file. This file is distributed
  *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
@@ -13,13 +13,27 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical;
+package com.amazon.opendistroforelasticsearch.sql.expression.function;
+
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
- * The interface to set the parent for current UnresolvedPlan/Expression node
- * @param <T> type of parent node
- * @param <R> type of current node
+ * The definition of Function Name.
  */
-public interface HasInput<T, R> {
-    R withInput(T input);
+@EqualsAndHashCode
+@RequiredArgsConstructor
+public class FunctionName {
+    @Getter
+    private final String functionName;
+
+    public static FunctionName of(String functionName) {
+        return new FunctionName(functionName);
+    }
+
+    @Override
+    public String toString() {
+        return functionName;
+    }
 }

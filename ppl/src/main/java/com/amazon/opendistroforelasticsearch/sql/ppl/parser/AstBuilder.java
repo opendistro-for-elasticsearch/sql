@@ -16,7 +16,6 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
 import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
-import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.DataType;
@@ -59,8 +58,10 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
     @Override
     public UnresolvedPlan visitPplStatement(PplStatementContext ctx) {
         UnresolvedPlan search = visit(ctx.searchCommand());
-        UnresolvedPlan reduce = ctx.commands().stream().map(this::visit).reduce(search, (r, e) -> e.withInput(r));
-        return reduce;
+        return ctx.commands()
+                .stream()
+                .map(this::visit)
+                .reduce(search, (r, e) -> e.attach(r));
     }
 
     /** Search command */
@@ -71,12 +72,12 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
 
     @Override
     public UnresolvedPlan visitSearchFromFilter(SearchFromFilterContext ctx) {
-        return new Filter(visitExpression(ctx.logicalExpression())).withInput(visit(ctx.fromClause()));
+        return new Filter(visitExpression(ctx.logicalExpression())).attach(visit(ctx.fromClause()));
     }
 
     @Override
     public UnresolvedPlan visitSearchFilterFrom(SearchFilterFromContext ctx) {
-        return new Filter(visitExpression(ctx.logicalExpression())).withInput(visit(ctx.fromClause()));
+        return new Filter(visitExpression(ctx.logicalExpression())).attach(visit(ctx.fromClause()));
     }
 
     /** Where command */

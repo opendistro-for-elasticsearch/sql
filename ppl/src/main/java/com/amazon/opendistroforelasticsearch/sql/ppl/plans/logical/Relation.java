@@ -42,4 +42,9 @@ public class Relation extends UnresolvedPlan {
     public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
         return nodeVisitor.visitRelation(this, context);
     }
+
+    @Override
+    public UnresolvedPlan attach(UnresolvedPlan child) {
+        return this;
+    }
 }

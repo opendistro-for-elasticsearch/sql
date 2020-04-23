@@ -34,7 +34,7 @@ public class Project extends UnresolvedPlan {
     @Setter
     private List<Expression> projectList;
     private List<Expression> argExprList;
-    private UnresolvedPlan input;
+    private UnresolvedPlan child;
 
     public Project(List<Expression> projectList) {
         this.projectList = projectList;
@@ -47,19 +47,19 @@ public class Project extends UnresolvedPlan {
     }
 
     @Override
-    public Project withInput(UnresolvedPlan input) {
-        this.input = input;
+    public Project attach(UnresolvedPlan child) {
+        this.child = child;
         return this;
     }
 
     @Override
     public List<UnresolvedPlan> getChild() {
-        return ImmutableList.of(this.input);
+        return ImmutableList.of(this.child);
     }
 
     @Override
     public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
-        this.input = (UnresolvedPlan) context;
+
         return nodeVisitor.visitProject(this, context);
     }
 }

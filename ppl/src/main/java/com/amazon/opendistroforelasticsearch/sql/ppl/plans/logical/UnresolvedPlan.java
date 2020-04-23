@@ -20,6 +20,9 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.node.Node;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+/**
+ * Abstract unresolved plan
+ */
 @EqualsAndHashCode(callSuper = false)
 @ToString
 public abstract class UnresolvedPlan extends Node {
@@ -28,7 +31,5 @@ public abstract class UnresolvedPlan extends Node {
         return nodeVisitor.visitChildren(this, context);
     }
 
-    public UnresolvedPlan withInput(UnresolvedPlan input) {
-        return this;
-    }
+    public abstract UnresolvedPlan attach(UnresolvedPlan child);
 }

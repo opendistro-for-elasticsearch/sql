@@ -13,21 +13,22 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.data.model;
+package com.amazon.opendistroforelasticsearch.sql.expression;
+
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 /**
- * Expression Type.
+ * Function Expression
  */
-public enum ExprType {
-    UNKNOWN,
+@RequiredArgsConstructor
+public abstract class FunctionExpression implements Expression {
+    @Getter
+    private final FunctionName functionName;
 
-    DOUBLE,
-    FLOAT,
-    LONG,
-    INTEGER,
-
-    BOOLEAN,
-    STRING,
-    STRUCT,
-    ARRAY
+    @Getter
+    private final List<Expression> arguments;
 }
