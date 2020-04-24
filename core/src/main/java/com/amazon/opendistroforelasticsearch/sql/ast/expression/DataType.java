@@ -13,17 +13,14 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression;
+package com.amazon.opendistroforelasticsearch.sql.ast.expression;
 
-import java.util.List;
+public enum DataType {
+    TYPE_ERROR,
+    NULL,
 
-public class ArgumentFactory {
-
-    public static List<Argument> getArgumentList() {
-        return null;
-    }
-
-    public static Argument getArgument() {
-        return null;
-    }
+    INTEGER,
+    DOUBLE,
+    STRING,
+    BOOLEAN
 }

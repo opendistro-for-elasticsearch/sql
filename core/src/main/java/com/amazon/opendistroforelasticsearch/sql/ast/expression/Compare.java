@@ -13,9 +13,9 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression;
+package com.amazon.opendistroforelasticsearch.sql.ast.expression;
 
-import com.amazon.opendistroforelasticsearch.sql.ppl.node.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import java.util.Arrays;
 import java.util.List;
 import lombok.EqualsAndHashCode;
@@ -25,19 +25,19 @@ import lombok.ToString;
 
 @Getter
 @ToString
-@RequiredArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class Argument extends Expression {
-    private final String argName;
-    private final Expression value;
-//    private final DataType valueType;
+@RequiredArgsConstructor
+public class Compare extends Expression {
+    private final String operator;
+    private final Expression left;
+    private final Expression right;
     @Override
     public List<Expression> getChild() {
-        return Arrays.asList(value);
+        return Arrays.asList(left, right);
     }
 
     @Override
     public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
-        return nodeVisitor.visitArgument(this, context);
+        return nodeVisitor.visitCompare(this, context);
     }
 }

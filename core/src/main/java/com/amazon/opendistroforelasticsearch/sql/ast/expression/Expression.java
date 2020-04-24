@@ -13,24 +13,18 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ppl.node;
+package com.amazon.opendistroforelasticsearch.sql.ast.expression;
 
-import java.util.List;
+import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.ast.Node;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-/**
- * AST node
- */
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @ToString
-public abstract class Node {
-
-    public <R, C> R accept(AbstractNodeVisitor<R, C> visitor, C context) {
-        return visitor.visitChildren(this, context);
-    }
-
-    public List<? extends Node> getChild() {
-        return null;
+public abstract class Expression extends Node {
+    @Override
+    public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
+        return nodeVisitor.visitChildren(this, context);
     }
 }
