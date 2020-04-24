@@ -29,14 +29,14 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @AllArgsConstructor
-public class EqualTo extends Expression {
+public class EqualTo extends UnresolvedExpression {
     @Getter
-    private Expression left;
+    private UnresolvedExpression left;
     @Getter
-    private Expression right;
+    private UnresolvedExpression right;
 
     @Override
-    public List<Expression> getChild() {
+    public List<UnresolvedExpression> getChild() {
         return Arrays.asList(left, right);
     }
 

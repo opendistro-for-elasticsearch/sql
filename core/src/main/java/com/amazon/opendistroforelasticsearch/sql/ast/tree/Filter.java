@@ -16,7 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.ast.tree;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import lombok.EqualsAndHashCode;
@@ -28,12 +28,12 @@ import lombok.ToString;
  */
 @ToString
 @EqualsAndHashCode(callSuper = false)
-@Getter
 public class Filter extends UnresolvedPlan {
-    private Expression condition;
+    @Getter
+    private UnresolvedExpression condition;
     private UnresolvedPlan child;
 
-    public Filter(Expression condition) {
+    public Filter(UnresolvedExpression condition) {
         this.condition = condition;
     }
 

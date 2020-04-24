@@ -29,12 +29,12 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @AllArgsConstructor
-public class AttributeList extends Expression {
+public class AttributeList extends UnresolvedExpression {
     @Getter
-    private List<Expression> attrList;
+    private List<UnresolvedExpression> attrList;
 
     @Override
-    public List<Expression> getChild() {
+    public List<UnresolvedExpression> getChild() {
         return ImmutableList.of();
     }
 

@@ -5,7 +5,7 @@
  *   You may not use this file except in compliance with the License.
  *   A copy of the License is located at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  *   or in the "license" file accompanying this file. This file is distributed
  *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
@@ -13,34 +13,33 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ast.expression;
+package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
-import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
-import java.util.Arrays;
-import java.util.List;
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.planner.AbstractPlanNodeVisitor;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-/**
- * Expression node of one-to-one mapping relation
- */
-@Getter
+import java.util.List;
+
+@Builder
 @ToString
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode
 @RequiredArgsConstructor
-public class Map extends UnresolvedExpression {
-    private final UnresolvedExpression origin;
-    private final UnresolvedExpression target;
+public class LogicalFilter extends LogicalPlan {
+    private final Expression condition;
+    private final LogicalPlan child;
 
     @Override
-    public List<UnresolvedExpression> getChild() {
-        return Arrays.asList(origin, target);
+    public List<LogicalPlan> getChild() {
+        return null;
     }
 
     @Override
-    public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
-        return nodeVisitor.visitMap(this, context);
+    public <R, C> R accept(AbstractPlanNodeVisitor<R, C> visitor, C context) {
+        return visitor.visitFilter(this, context);
     }
 }
