@@ -16,17 +16,17 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParserBaseVisitor;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.AggregateFunction;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.And;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.DataType;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.EqualTo;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Function;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.In;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Literal;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Not;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Or;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.UnresolvedAttribute;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Not;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
 import java.util.stream.Collectors;
 
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.AggFunctionCallContext;

@@ -13,35 +13,35 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression;
+package com.amazon.opendistroforelasticsearch.sql.ast.expression;
 
-import com.amazon.opendistroforelasticsearch.sql.ppl.node.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import java.util.Arrays;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Expression node of binary operator or comparison relation EQUAL
+ * Expression node of aggregate functions
+ * Params include aggregate function name (AVG, SUM, MAX etc.) and the field to aggregate
  */
+@Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
-@AllArgsConstructor
-public class EqualTo extends Expression {
-    @Getter
-    private Expression left;
-    @Getter
-    private Expression right;
+@RequiredArgsConstructor
+public class AggregateFunction extends Expression {
+    private final String funcName;
+    private final Expression field;
 
     @Override
     public List<Expression> getChild() {
-        return Arrays.asList(left, right);
+        return Arrays.asList(field);
     }
 
     @Override
     public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
-        return nodeVisitor.visitEqualTo(this, context);
+        return nodeVisitor.visitAggregateFunction(this, context);
     }
 }

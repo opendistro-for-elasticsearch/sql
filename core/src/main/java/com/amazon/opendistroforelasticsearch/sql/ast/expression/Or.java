@@ -13,9 +13,9 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression;
+package com.amazon.opendistroforelasticsearch.sql.ast.expression;
 
-import com.amazon.opendistroforelasticsearch.sql.ppl.node.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import java.util.Arrays;
 import java.util.List;
 import lombok.EqualsAndHashCode;
@@ -24,24 +24,23 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Expression node of aggregate functions
- * Params include aggregate function name (AVG, SUM, MAX etc.) and the field to aggregate
+ * Expression node of the logic OR
  */
 @Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
-public class AggregateFunction extends Expression {
-    private final String funcName;
-    private final Expression field;
+public class Or extends Expression {
+    private final Expression left;
+    private final Expression right;
 
     @Override
     public List<Expression> getChild() {
-        return Arrays.asList(field);
+        return Arrays.asList(left, right);
     }
 
     @Override
     public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
-        return nodeVisitor.visitAggregateFunction(this, context);
+        return nodeVisitor.visitOr(this, context);
     }
 }

@@ -13,34 +13,23 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression;
+package com.amazon.opendistroforelasticsearch.sql.ast.tree;
 
-import com.amazon.opendistroforelasticsearch.sql.ppl.node.AbstractNodeVisitor;
-import java.util.Arrays;
-import java.util.List;
+import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.ast.Node;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Expression node of one-to-one mapping relation
+ * Abstract unresolved plan
  */
-@Getter
-@ToString
 @EqualsAndHashCode(callSuper = false)
-@RequiredArgsConstructor
-public class Map extends Expression {
-    private final Expression origin;
-    private final Expression target;
-
+@ToString
+public abstract class UnresolvedPlan extends Node {
     @Override
-    public List<Expression> getChild() {
-        return Arrays.asList(origin, target);
+    public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
+        return nodeVisitor.visitChildren(this, context);
     }
 
-    @Override
-    public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
-        return nodeVisitor.visitMap(this, context);
-    }
+    public abstract UnresolvedPlan attach(UnresolvedPlan child);
 }

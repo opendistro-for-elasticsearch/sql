@@ -13,43 +13,38 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical;
+package com.amazon.opendistroforelasticsearch.sql.ast.tree;
 
-import com.amazon.opendistroforelasticsearch.sql.ppl.node.AbstractNodeVisitor;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Logical plan node of Filter, the interface for building filters in queries
+ * Logical plan node of Relation, the interface for building the searching sources
  */
+@Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
-@Getter
-public class Filter extends UnresolvedPlan {
-    private Expression condition;
-    private UnresolvedPlan child;
-
-    public Filter(Expression condition) {
-        this.condition = condition;
-    }
-
-    @Override
-    public Filter attach(UnresolvedPlan child) {
-        this.child = child;
-        return this;
-    }
+@RequiredArgsConstructor
+public class Relation extends UnresolvedPlan {
+    private final String tableName;
 
     @Override
     public List<UnresolvedPlan> getChild() {
-        return ImmutableList.of(child);
+        return ImmutableList.of();
     }
 
     @Override
     public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
-        return nodeVisitor.visitFilter(this, context);
+        return nodeVisitor.visitRelation(this, context);
+    }
+
+    @Override
+    public UnresolvedPlan attach(UnresolvedPlan child) {
+        return this;
     }
 }

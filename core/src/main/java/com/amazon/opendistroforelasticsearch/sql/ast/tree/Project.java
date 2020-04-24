@@ -13,10 +13,10 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ppl.plans.logical;
+package com.amazon.opendistroforelasticsearch.sql.ast.tree;
 
-import com.amazon.opendistroforelasticsearch.sql.ppl.node.AbstractNodeVisitor;
-import com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Expression;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import lombok.AllArgsConstructor;

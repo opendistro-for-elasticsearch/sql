@@ -13,18 +13,14 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.ppl.plans.expression;
+package com.amazon.opendistroforelasticsearch.sql.ast.expression;
 
-import com.amazon.opendistroforelasticsearch.sql.ppl.node.AbstractNodeVisitor;
-import com.amazon.opendistroforelasticsearch.sql.ppl.node.Node;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+public enum DataType {
+    TYPE_ERROR,
+    NULL,
 
-@EqualsAndHashCode(callSuper = false)
-@ToString
-public abstract class Expression extends Node {
-    @Override
-    public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
-        return nodeVisitor.visitChildren(this, context);
-    }
+    INTEGER,
+    DOUBLE,
+    STRING,
+    BOOLEAN
 }
