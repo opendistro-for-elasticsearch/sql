@@ -30,11 +30,11 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
-public class Not extends Expression {
-    private final Expression expression;
+public class Not extends UnresolvedExpression {
+    private final UnresolvedExpression expression;
 
     @Override
-    public List<Expression> getChild() {
+    public List<UnresolvedExpression> getChild() {
         return Arrays.asList(expression);
     }
 

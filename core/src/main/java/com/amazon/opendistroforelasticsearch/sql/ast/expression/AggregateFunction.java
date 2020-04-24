@@ -31,12 +31,12 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
-public class AggregateFunction extends Expression {
+public class AggregateFunction extends UnresolvedExpression {
     private final String funcName;
-    private final Expression field;
+    private final UnresolvedExpression field;
 
     @Override
-    public List<Expression> getChild() {
+    public List<UnresolvedExpression> getChild() {
         return Arrays.asList(field);
     }
 

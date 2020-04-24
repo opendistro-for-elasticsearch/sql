@@ -19,7 +19,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunctio
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
@@ -40,7 +40,7 @@ import java.util.List;
  */
 public class DSL {
 
-    public static UnresolvedPlan filter(UnresolvedPlan input, Expression expression) {
+    public static UnresolvedPlan filter(UnresolvedPlan input, UnresolvedExpression expression) {
         return new Filter(expression).attach(input);
     }
 
@@ -48,68 +48,68 @@ public class DSL {
         return new Relation(tableName);
     }
 
-    public static UnresolvedPlan project(UnresolvedPlan input, Expression... projectList) {
+    public static UnresolvedPlan project(UnresolvedPlan input, UnresolvedExpression... projectList) {
         return new Project(Arrays.asList(projectList)).attach(input);
     }
 
-    public static UnresolvedPlan agg(UnresolvedPlan input, List<Expression> aggList, List<Expression> sortList,
-                                     List<Expression> groupList) {
+    public static UnresolvedPlan agg(UnresolvedPlan input, List<UnresolvedExpression> aggList, List<UnresolvedExpression> sortList,
+                                     List<UnresolvedExpression> groupList) {
         return new Aggregation(aggList, sortList, groupList).attach(input);
     }
 
-    public static Expression equalTo(Expression left, Expression right) {
+    public static UnresolvedExpression equalTo(UnresolvedExpression left, UnresolvedExpression right) {
         return new EqualTo(left, right);
     }
 
-    public static Expression unresolvedAttr(String attr) {
+    public static UnresolvedExpression unresolvedAttr(String attr) {
         return new UnresolvedAttribute(attr);
     }
 
-    private static Expression literal(Object value, DataType type) {
+    private static UnresolvedExpression literal(Object value, DataType type) {
         return new Literal(value, type);
     }
 
-    public static Expression intLiteral(Integer value) {
+    public static UnresolvedExpression intLiteral(Integer value) {
         return literal(value, DataType.INTEGER);
     }
 
-    public static Expression doubleLiteral(Double value) {
+    public static UnresolvedExpression doubleLiteral(Double value) {
         return literal(value, DataType.DOUBLE);
     }
 
-    public static Expression stringLiteral(String value) {
+    public static UnresolvedExpression stringLiteral(String value) {
         return literal(value, DataType.STRING);
     }
 
-    public static Expression booleanLiteral(Boolean value) {
+    public static UnresolvedExpression booleanLiteral(Boolean value) {
         return literal(value, DataType.BOOLEAN);
     }
 
-    public static Expression map(String origin, String target) {
+    public static UnresolvedExpression map(String origin, String target) {
         return new Map(new UnresolvedAttribute(origin), new UnresolvedAttribute(target));
     }
 
-    public static Expression aggregate(String func, Expression field) {
+    public static UnresolvedExpression aggregate(String func, UnresolvedExpression field) {
         return new AggregateFunction(func, field);
     }
 
-    public static Expression function(String funcName, Expression... funcArgs) {
+    public static UnresolvedExpression function(String funcName, UnresolvedExpression... funcArgs) {
         return new Function(funcName, Arrays.asList(funcArgs));
     }
 
-    public static Expression not(Expression expression) {
+    public static UnresolvedExpression not(UnresolvedExpression expression) {
         return new Not(expression);
     }
 
-    public static Expression or(Expression left, Expression right) {
+    public static UnresolvedExpression or(UnresolvedExpression left, UnresolvedExpression right) {
         return new Or(left, right);
     }
 
-    public static Expression and(Expression left, Expression right) {
+    public static UnresolvedExpression and(UnresolvedExpression left, UnresolvedExpression right) {
         return new And(left, right);
     }
 
-    public static Expression in(Expression field, Expression... valueList) {
+    public static UnresolvedExpression in(UnresolvedExpression field, UnresolvedExpression... valueList) {
         return new In(field, Arrays.asList(valueList));
     }
 
