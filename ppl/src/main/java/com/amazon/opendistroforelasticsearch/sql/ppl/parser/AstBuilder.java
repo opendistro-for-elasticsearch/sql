@@ -27,6 +27,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
+import com.amazon.opendistroforelasticsearch.sql.ppl.utils.ArgumentFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -89,18 +90,13 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
     /** Fields command */
     @Override
     public UnresolvedPlan visitFieldsCommand(FieldsCommandContext ctx) {
-        List<Expression> argList = new ArrayList<Expression>() {{
-            add(ctx.MINUS() != null
-                    ? new Argument("exclude", new Literal(true, DataType.BOOLEAN))
-                    : new Argument("exclude", new Literal(false, DataType.BOOLEAN)));
-        }};
         return new Project(
                 ctx.wcFieldList()
                         .wcFieldExpression()
                         .stream()
                         .map(this::visitExpression)
                         .collect(Collectors.toList()),
-                argList
+                ArgumentFactory.getArgumentList(ctx)
         );
     }
 
@@ -129,30 +125,11 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
                         .stream()
                         .map(this::visitExpression)
                         .collect(Collectors.toList());
-
-//        List<Expression> argList = new ArrayList<Expression>(){{
-//            add(ctx.PARTITIONS() != null
-//                    ? new Argument("partitions", visitExpression(ctx.partitions))
-//                    : new Argument("partitions", new Literal(1, DataType.INTEGER)));
-//            add(ctx.ALLNUM() != null
-//                    ? new Argument("allnum", visitExpression(ctx.allnum))
-//                    : new Argument("allnum", new Literal(false, DataType.BOOLEAN)));
-//            add(ctx.DELIM() != null
-//                    ? new Argument("delim", visitExpression(ctx.delim))
-//                    : new Argument("delim", new Literal(" ", DataType.STRING)));
-//            add(ctx.DEDUP_SPLITVALUES() != null
-//                    ? new Argument("dedupsplit", visitExpression(ctx.dedupsplit))
-//                    : new Argument("dedupsplit", new Literal(false, DataType.BOOLEAN)));
-//        }};
-
-        List<Expression> argList = new ArrayList<>();
-
-
         return new Aggregation(
                 new ArrayList<>(Collections.singletonList(visitExpression(ctx.statsAggTerm()))),
                 null,
                 groupList,
-                argList
+                ArgumentFactory.getArgumentList(ctx)
         );
     }
 
@@ -165,23 +142,6 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
                         .stream()
                         .map(this::visitExpression)
                         .collect(Collectors.toList());
-
-        List<Expression> argList = new ArrayList<Expression>() {{
-            add(ctx.number != null
-                    ? new Argument("number", visitExpression(ctx.number))
-                    : new Argument("number", new Literal(1, DataType.INTEGER)));
-
-            add(ctx.KEEPEVENTS() != null
-                    ? new Argument("keepevents", visitExpression(ctx.keeevents))
-                    : new Argument("keepevents", new Literal(false, DataType.BOOLEAN)));
-            add(ctx.KEEPEMPTY() != null
-                    ? new Argument("keepempty", visitExpression(ctx.keepempty))
-                    : new Argument("keepempty", new Literal(false, DataType.BOOLEAN)));
-            add(ctx.CONSECUTIVE() != null
-                    ? new Argument("consecutive", visitExpression(ctx.consecutive))
-                    : new Argument("consecutive", new Literal(false, DataType.BOOLEAN)));
-        }};
-
         return new Aggregation(
                 ctx.fieldList()
                         .fieldExpression()
@@ -190,7 +150,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
                         .collect(Collectors.toList()),
                 sortList,
                 null,
-                argList
+                ArgumentFactory.getArgumentList(ctx)
         );
     }
 

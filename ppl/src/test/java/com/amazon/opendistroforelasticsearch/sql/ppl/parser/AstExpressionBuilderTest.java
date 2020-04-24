@@ -22,6 +22,8 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.aggregate;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.and;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.compare;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.defaultSortArgs;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.defaultStatsArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.doubleLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.equalTo;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.filter;
@@ -123,7 +125,8 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                         relation("t"),
                         null,
                         Collections.singletonList(unresolvedAttr("f")),
-                        null
+                        null,
+                        defaultSortArgs()
                 ));
     }
 
@@ -136,7 +139,8 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                                 aggregate("avg", unresolvedAttr("a"))
                         ),
                         null,
-                        Collections.singletonList(unresolvedAttr("b"))
+                        Collections.singletonList(unresolvedAttr("b")),
+                        defaultStatsArgs()
                 ));
     }
 

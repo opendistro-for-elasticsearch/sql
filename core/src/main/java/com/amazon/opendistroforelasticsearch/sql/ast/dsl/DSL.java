@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.ast.dsl;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
@@ -53,9 +54,13 @@ public class DSL {
         return new Project(Arrays.asList(projectList)).attach(input);
     }
 
+    public static UnresolvedPlan projectWithArg(UnresolvedPlan input, List<Expression> argList, Expression... projectList) {
+        return new Project(Arrays.asList(projectList), argList).attach(input);
+    }
+
     public static UnresolvedPlan agg(UnresolvedPlan input, List<Expression> aggList, List<Expression> sortList,
-                                     List<Expression> groupList) {
-        return new Aggregation(aggList, sortList, groupList).attach(input);
+                                     List<Expression> groupList, List<Expression> argList) {
+        return new Aggregation(aggList, sortList, groupList, argList).attach(input);
     }
 
     public static Expression equalTo(Expression left, Expression right) {
@@ -116,6 +121,45 @@ public class DSL {
 
     public static Expression compare(String operator, Expression left, Expression right) {
         return new Compare(operator, left, right);
+    }
+
+    public static Expression argument(String argName, Expression argValue) {
+        return new Argument(argName, argValue);
+    }
+
+    public static List<Expression> exprList(Expression... exprList) {
+        return Arrays.asList(exprList);
+    }
+
+    public static List<Expression> defaultFieldsArgs() {
+        return exprList(
+                argument("exclude", booleanLiteral(false))
+        );
+    }
+
+    public static List<Expression> defaultStatsArgs() {
+        return exprList(
+                argument("partitions", intLiteral(1)),
+                argument("allnum", booleanLiteral(false)),
+                argument("delim", stringLiteral(" ")),
+                argument("dedupsplit", booleanLiteral(false))
+        );
+    }
+
+    public static List<Expression> defaultDedupArgs() {
+        return exprList(
+                argument("number", intLiteral(1)),
+                argument("keepevents", booleanLiteral(false)),
+                argument("keepempty", booleanLiteral(false)),
+                argument("consecutive", booleanLiteral(false))
+        );
+    }
+
+    public static List<Expression> defaultSortArgs() {
+        return exprList(
+                argument("count", intLiteral(1000)),
+                argument("desc", booleanLiteral(false))
+        );
     }
 
 }

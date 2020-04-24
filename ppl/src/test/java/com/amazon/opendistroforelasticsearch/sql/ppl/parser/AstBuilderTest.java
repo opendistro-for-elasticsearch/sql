@@ -22,13 +22,21 @@ import java.util.Collections;
 import org.junit.Test;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.agg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.aggregate;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.argument;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.compare;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.defaultDedupArgs;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.defaultFieldsArgs;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.defaultSortArgs;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.defaultStatsArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.equalTo;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.exprList;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.function;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.map;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.project;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.projectWithArg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.stringLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.unresolvedAttr;
@@ -79,8 +87,9 @@ public class AstBuilderTest {
     @Test
     public void testFieldsCommand() {
         assertEqual("source=t | fields f, g",
-                project(
+                projectWithArg(
                         relation("t"),
+                        defaultFieldsArgs(),
                         unresolvedAttr("f"), unresolvedAttr("g")
                 ));
     }
@@ -104,7 +113,8 @@ public class AstBuilderTest {
                                         "count", unresolvedAttr("a")
                                 )),
                         null,
-                        Collections.singletonList(unresolvedAttr("b"))
+                        Collections.singletonList(unresolvedAttr("b")),
+                        defaultStatsArgs()
                 ));
     }
 
@@ -115,7 +125,8 @@ public class AstBuilderTest {
                         relation("t"),
                         Arrays.asList(unresolvedAttr("f1"), unresolvedAttr("f2")),
                         Collections.singletonList(unresolvedAttr("f3")),
-                        null
+                        null,
+                        defaultDedupArgs()
                 ));
     }
 
@@ -126,7 +137,8 @@ public class AstBuilderTest {
                         relation("t"),
                         null,
                         Arrays.asList(unresolvedAttr("f1"), unresolvedAttr("f2")),
-                        null
+                        null,
+                        defaultSortArgs()
                 ));
     }
 
