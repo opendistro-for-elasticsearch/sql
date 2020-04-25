@@ -15,9 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
-import com.amazon.opendistroforelasticsearch.sql.analysis.scheme.Namespace;
-import com.amazon.opendistroforelasticsearch.sql.analysis.scheme.Symbol;
-import com.amazon.opendistroforelasticsearch.sql.analysis.scheme.SymbolTable;
+import com.amazon.opendistroforelasticsearch.sql.schema.Namespace;
+import com.amazon.opendistroforelasticsearch.sql.schema.Symbol;
+import com.amazon.opendistroforelasticsearch.sql.schema.SymbolTable;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
@@ -64,8 +64,9 @@ public class TypeEnvironment implements Environment<Expression, ExprType> {
         if (var instanceof ReferenceExpression) {
             ReferenceExpression ref = (ReferenceExpression) var;
             symbolTable.store(new Symbol(Namespace.FIELD_NAME, ref.getAttr()), type);
+        } else {
+            throw new SemanticCheckException(String.format("can't define expression %s in type env", var));
         }
-        throw new SemanticCheckException(String.format("can't define expression %s in type env", var));
     }
 
 }

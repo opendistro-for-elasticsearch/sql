@@ -15,21 +15,24 @@
 
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
-import com.amazon.opendistroforelasticsearch.sql.analysis.scheme.Scheme;
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
+import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
+import com.amazon.opendistroforelasticsearch.sql.schema.Namespace;
+import com.amazon.opendistroforelasticsearch.sql.schema.Schema;
+import com.amazon.opendistroforelasticsearch.sql.schema.SymbolTable;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> {
     private final ExpressionAnalyzer expressionAnalyzer;
-    private final Scheme typeScheme;
+    private final Schema schema;
 
     public LogicalPlan analyze(UnresolvedPlan unresolved, AnalysisContext context) {
         return unresolved.accept(this, context);
@@ -37,7 +40,10 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
 
     @Override
     public LogicalPlan visitRelation(Relation node, AnalysisContext context) {
-
+        context.push();
+        TypeEnvironment curEnv = context.peek();
+        SymbolTable symbolTable = schema.resolveSymbolTable(node.getTableName());
+        symbolTable.lookupAll(Namespace.FIELD_NAME).forEach((k, v) -> curEnv.define(DSL.ref(k), v));
         return new LogicalRelation(node.getTableName());
     }
 

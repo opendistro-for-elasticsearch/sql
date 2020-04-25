@@ -13,9 +13,18 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.analysis.scheme;
+package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
-public interface Scheme {
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import lombok.experimental.UtilityClass;
 
-    SymbolTable resolveSymbolTable(String table);
+@UtilityClass
+public class LogicalPlanDSL {
+    public static LogicalPlan filter(Expression expression, LogicalPlan input) {
+        return new LogicalFilter(expression, input);
+    }
+
+    public static LogicalPlan relation(String tableName) {
+        return new LogicalRelation(tableName);
+    }
 }
