@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
+import com.amazon.opendistroforelasticsearch.sql.analysis.scheme.Scheme;
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
@@ -28,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> {
     private final ExpressionAnalyzer expressionAnalyzer;
+    private final Scheme typeScheme;
 
     public LogicalPlan analyze(UnresolvedPlan unresolved, AnalysisContext context) {
         return unresolved.accept(this, context);
@@ -35,6 +37,7 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
 
     @Override
     public LogicalPlan visitRelation(Relation node, AnalysisContext context) {
+
         return new LogicalRelation(node.getTableName());
     }
 

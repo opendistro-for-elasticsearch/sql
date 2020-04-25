@@ -38,7 +38,7 @@ import java.util.List;
 /**
  * Class of static methods to create specific node instances
  */
-public class DSL {
+public class AstDSL {
 
     public static UnresolvedPlan filter(UnresolvedPlan input, UnresolvedExpression expression) {
         return new Filter(expression).attach(input);

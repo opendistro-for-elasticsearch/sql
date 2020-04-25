@@ -13,14 +13,13 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.planner;
+package com.amazon.opendistroforelasticsearch.sql.exception;
 
-import org.junit.jupiter.api.Test;
-
-class AnalyzerTest {
-
-    @Test
-    public void test() {
-
+/**
+ * Semantic Check Exception.
+ */
+public class SemanticCheckException extends QueryEngineException {
+    public SemanticCheckException(String message) {
+        super(message);
     }
 }

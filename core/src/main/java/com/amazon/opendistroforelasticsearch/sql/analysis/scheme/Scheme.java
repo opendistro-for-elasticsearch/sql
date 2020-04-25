@@ -13,14 +13,9 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.planner;
+package com.amazon.opendistroforelasticsearch.sql.analysis.scheme;
 
-import org.junit.jupiter.api.Test;
+public interface Scheme {
 
-class AnalyzerTest {
-
-    @Test
-    public void test() {
-
-    }
+    SymbolTable resolveSymbolTable(String table);
 }

@@ -13,14 +13,25 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.planner;
+package com.amazon.opendistroforelasticsearch.sql.analysis.scheme;
 
-import org.junit.jupiter.api.Test;
+/**
+ * Namespace of symbol to avoid naming conflict
+ */
+public enum Namespace {
 
-class AnalyzerTest {
+    FIELD_NAME("Field"),
+    FUNCTION_NAME("Function");
 
-    @Test
-    public void test() {
+    private final String name;
 
+    Namespace(String name) {
+        this.name = name;
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+
 }

@@ -25,7 +25,6 @@ import lombok.ToString;
 
 import java.util.List;
 
-@Builder
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor

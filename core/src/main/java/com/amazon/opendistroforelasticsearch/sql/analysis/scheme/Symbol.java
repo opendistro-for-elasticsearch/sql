@@ -13,14 +13,22 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.planner;
+package com.amazon.opendistroforelasticsearch.sql.analysis.scheme;
 
-import org.junit.jupiter.api.Test;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-class AnalyzerTest {
+/**
+ * Symbol in the scope
+ */
+@Getter
+@RequiredArgsConstructor
+public class Symbol {
+    private final Namespace namespace;
+    private final String name;
 
-    @Test
-    public void test() {
-
+    @Override
+    public String toString() {
+        return namespace + " [" + name + "]";
     }
 }

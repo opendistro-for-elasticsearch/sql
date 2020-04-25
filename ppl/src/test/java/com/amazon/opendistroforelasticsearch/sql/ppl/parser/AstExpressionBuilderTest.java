@@ -17,22 +17,22 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
 import java.util.Collections;
 import org.junit.Test;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.agg;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.aggregate;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.and;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.booleanLiteral;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.doubleLiteral;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.equalTo;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.filter;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.function;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.in;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.intLiteral;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.not;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.or;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.project;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.relation;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.stringLiteral;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.unresolvedAttr;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.agg;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.and;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.doubleLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.equalTo;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.filter;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.in;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.not;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.or;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.project;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.unresolvedAttr;
 
 public class AstExpressionBuilderTest extends AstBuilderTest{
 
