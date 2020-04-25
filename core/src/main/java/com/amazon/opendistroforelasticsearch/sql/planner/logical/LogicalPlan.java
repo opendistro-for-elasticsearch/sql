@@ -16,8 +16,6 @@
 package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
 import com.amazon.opendistroforelasticsearch.sql.planner.PlanNode;
-import lombok.Builder;
 
-@Builder
 public abstract class LogicalPlan implements PlanNode<LogicalPlan> {
 }

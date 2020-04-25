@@ -18,9 +18,13 @@ package com.amazon.opendistroforelasticsearch.sql.expression;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.util.Locale;
+
+@EqualsAndHashCode
 @RequiredArgsConstructor
 public class ReferenceExpression implements Expression {
     @Getter
@@ -34,5 +38,10 @@ public class ReferenceExpression implements Expression {
     @Override
     public ExprType type(Environment<Expression, ExprType> env) {
         return env.resolve(this);
+    }
+
+    @Override
+    public String toString() {
+        return attr;
     }
 }

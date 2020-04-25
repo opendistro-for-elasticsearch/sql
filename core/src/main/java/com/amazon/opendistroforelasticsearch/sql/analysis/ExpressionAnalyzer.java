@@ -18,13 +18,13 @@ package com.amazon.opendistroforelasticsearch.sql.analysis;
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
-import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -37,14 +37,10 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
 
     @Override
     public Expression visitUnresolvedAttribute(UnresolvedAttribute node, AnalysisContext context) {
-        Environment<Expression, ExprType> typeEnv = context.getTypeEnv();
-        try {
-            ReferenceExpression ref = DSL.ref(node.getAttr());
-            typeEnv.resolve(ref);
-            return ref;
-        } catch (Exception e) {
-
-        }
+        TypeEnvironment typeEnv = context.peek();
+        ReferenceExpression ref = DSL.ref(node.getAttr());
+        typeEnv.resolve(ref);
+        return ref;
     }
 
     @Override
@@ -52,7 +48,12 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
         Expression left = node.getLeft().accept(this, context);
         Expression right = node.getRight().accept(this, context);
 
-        return dsl.equal(context.getTypeEnv(), left, right);
+        return dsl.equal(context.peek(), left, right);
+    }
+
+    @Override
+    public Expression visitLiteral(Literal node, AnalysisContext context) {
+        return DSL.literal(ExprValueUtils.fromObjectValue(node.getValue()));
     }
 
     @Override
@@ -60,6 +61,8 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
         Expression left = node.getLeft().accept(this, context);
         Expression right = node.getRight().accept(this, context);
 
-        return dsl.and(context.getTypeEnv(), left, right);
+        return dsl.and(context.peek(), left, right);
     }
+
+
 }

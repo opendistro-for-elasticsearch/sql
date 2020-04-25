@@ -15,13 +15,45 @@
 
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
-import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
-import lombok.Getter;
+import java.util.Objects;
 
 public class AnalysisContext {
+    /** Environment stack for symbol scope management */
+    private TypeEnvironment environment;
 
-    @Getter
-    public Environment<Expression, ExprType> typeEnv;
+    public AnalysisContext() {
+        this.environment = new TypeEnvironment(null);
+    }
+
+    public AnalysisContext(TypeEnvironment environment) {
+        this.environment = environment;
+    }
+
+
+    /**
+     * Push a new environment
+     */
+    public void push() {
+        environment = new TypeEnvironment(environment);
+    }
+
+    /**
+     * Return current environment
+     * @return  current environment
+     */
+    public TypeEnvironment peek() {
+        return environment;
+    }
+
+    /**
+     * Pop up current environment from environment chain
+     * @return  current environment (before pop)
+     */
+    public TypeEnvironment pop() {
+        Objects.requireNonNull(environment, "Fail to pop context due to no environment present");
+
+        TypeEnvironment curEnv = environment;
+        environment = curEnv.getParent();
+        return curEnv;
+    }
 }

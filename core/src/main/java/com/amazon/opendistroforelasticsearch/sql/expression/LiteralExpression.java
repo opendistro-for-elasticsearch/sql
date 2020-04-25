@@ -18,11 +18,13 @@ package com.amazon.opendistroforelasticsearch.sql.expression;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
+import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
 /**
  * Literal Expression
  */
+@EqualsAndHashCode
 @RequiredArgsConstructor
 public class LiteralExpression implements Expression {
     private final ExprValue exprValue;
