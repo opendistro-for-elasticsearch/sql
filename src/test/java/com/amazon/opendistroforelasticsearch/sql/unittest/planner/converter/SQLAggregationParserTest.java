@@ -263,6 +263,20 @@ public class SQLAggregationParserTest {
                 columnNode("avg(age)", null, ExpressionFactory.ref("avg_0"))));
     }
 
+    @Test
+    public void aggWithDistinctShouldPass() {
+        String sql = "SELECT count(distinct gender) FROM t GROUP BY age";
+        SQLAggregationParser parser = new SQLAggregationParser(new ColumnTypeProvider());
+        parser.parse(mYSqlSelectQueryBlock(sql));
+        List<SQLSelectItem> sqlSelectItems = parser.selectItemList();
+        List<ColumnNode> columnNodes = parser.getColumnNodes();
+
+        assertThat(sqlSelectItems, containsInAnyOrder(
+                agg("count", "gender", "count_0")));
+        assertThat(columnNodes, containsInAnyOrder(
+                columnNode("count(distinct gender)", null, ExpressionFactory.ref("count_0"))));
+    }
+
     /**
      * TermQueryExplainIT.testNestedSingleGroupBy
      */

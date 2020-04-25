@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.query.maker;
 
+import com.alibaba.druid.sql.ast.expr.SQLAggregateOption;
 import com.amazon.opendistroforelasticsearch.sql.domain.Condition;
 import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.KVValue;
@@ -697,7 +698,7 @@ public class AggMaker {
     private ValuesSourceAggregationBuilder makeCountAgg(MethodField field) {
 
         // Cardinality is approximate DISTINCT.
-        if ("DISTINCT".equals(field.getOption())) {
+        if (SQLAggregateOption.DISTINCT.equals(field.getOption())) {
 
             if (field.getParams().size() == 1) {
                 return AggregationBuilders.cardinality(field.getAlias()).field(field.getParams().get(0).value
