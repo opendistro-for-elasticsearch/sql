@@ -15,9 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
-import com.amazon.opendistroforelasticsearch.sql.analysis.scheme.Namespace;
-import com.amazon.opendistroforelasticsearch.sql.analysis.scheme.Symbol;
-import com.amazon.opendistroforelasticsearch.sql.analysis.scheme.SymbolTable;
+import com.amazon.opendistroforelasticsearch.sql.schema.Namespace;
+import com.amazon.opendistroforelasticsearch.sql.schema.Schema;
+import com.amazon.opendistroforelasticsearch.sql.schema.Symbol;
+import com.amazon.opendistroforelasticsearch.sql.schema.SymbolTable;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
@@ -53,6 +54,9 @@ public class AnalyzerTestBase {
     @Autowired
     protected ExpressionAnalyzer expressionAnalyzer;
 
+    @Autowired
+    protected Analyzer analyzer;
+
 
     protected SymbolTable symbolTable() {
         SymbolTable symbolTable = new SymbolTable();
@@ -73,6 +77,22 @@ public class AnalyzerTestBase {
                         entry -> symbolTable.store(new Symbol(Namespace.FIELD_NAME, entry.getKey()), entry.getValue()));
         return symbolTable;
     }
+
+    @Bean
+    protected Schema schema() {
+        return new Schema() {
+            @Override
+            public SymbolTable resolveSymbolTable(String table) {
+                return symbolTable();
+            }
+        };
+    }
+
+    @Bean
+    protected Analyzer analyzer(ExpressionAnalyzer expressionAnalyzer, Schema schema) {
+        return new Analyzer(expressionAnalyzer, schema);
+    }
+
 
     protected TypeEnvironment typeEnvironment() {
         return new TypeEnvironment(null, symbolTable());

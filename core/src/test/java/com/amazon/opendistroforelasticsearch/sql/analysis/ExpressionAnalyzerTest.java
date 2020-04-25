@@ -20,7 +20,6 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpres
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import org.junit.jupiter.api.Test;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
