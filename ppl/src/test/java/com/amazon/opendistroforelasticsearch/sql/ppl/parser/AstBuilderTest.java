@@ -75,6 +75,15 @@ public class AstBuilderTest {
     }
 
     @Test
+    public void testSearchCommandWithFilterBeforeSource() {
+        assertEqual("search a=1 source=t",
+                filter(
+                        relation("t"),
+                        compare("=", unresolvedAttr("a"), intLiteral(1))
+                ));
+    }
+
+    @Test
     public void testWhereCommand() {
         assertEqual("search source=t | where a=1",
                 filter(
@@ -105,21 +114,64 @@ public class AstBuilderTest {
 
     @Test
     public void testStatsCommand() {
+        assertEqual("source=t | stats count(a)",
+                agg(
+                        relation("t"),
+                        Collections.singletonList(
+                                map(aggregate("count", unresolvedAttr("a")), null)
+                        ),
+                        null,
+                        null,
+                        defaultStatsArgs()
+                ));
+    }
+
+    @Test
+    public void testStatsCommandWithByClause() {
         assertEqual("source=t | stats count(a) by b",
                 agg(
                         relation("t"),
                         Collections.singletonList(
-                                aggregate(
-                                        "count", unresolvedAttr("a")
-                                )),
+                                map(aggregate("count", unresolvedAttr("a")), null)
+                        ),
                         null,
                         Collections.singletonList(unresolvedAttr("b")),
                         defaultStatsArgs()
                 ));
     }
 
+
+    @Test
+    public void testStatsCommandWithAlias() {
+        assertEqual("source=t | stats count(a) as alias",
+                agg(
+                        relation("t"),
+                        Collections.singletonList(
+                                map(
+                                        aggregate("count", unresolvedAttr("a")),
+                                        unresolvedAttr("alias")
+                                )
+                        ),
+                        null,
+                        null,
+                        defaultStatsArgs()
+                ));
+    }
+
     @Test
     public void testDedupCommand() {
+        assertEqual("source=t | dedup f1, f2",
+                agg(
+                        relation("t"),
+                        Arrays.asList(unresolvedAttr("f1"), unresolvedAttr("f2")),
+                        null,
+                        null,
+                        defaultDedupArgs()
+                ));
+    }
+
+    @Test
+    public void testDedupCommandWithSortby() {
         assertEqual("source=t | dedup f1, f2 sortby f3",
                 agg(
                         relation("t"),

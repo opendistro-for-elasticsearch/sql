@@ -42,12 +42,6 @@ public class ArgumentFactory {
         }};
     }
 
-    public static List<Expression> getDefaultArgumentList(FieldsCommandContext ctx) {
-        return new ArrayList<Expression>() {{
-            add(new Argument("exclude", new Literal(false, DataType.BOOLEAN)));
-        }};
-    }
-
     public static List<Expression> getArgumentList(StatsCommandContext ctx) {
         return new ArrayList<Expression>(){{
             add(ctx.PARTITIONS() != null
@@ -62,15 +56,6 @@ public class ArgumentFactory {
             add(ctx.DEDUP_SPLITVALUES() != null
                     ? new Argument("dedupsplit", getArgumentValue(ctx.dedupsplit))
                     : new Argument("dedupsplit", new Literal(false, DataType.BOOLEAN)));
-        }};
-    }
-
-    public static List<Expression> getDefaultArgumentList(StatsCommandContext ctx) {
-        return new ArrayList<Expression>() {{
-           add(new Argument("partitions", new Literal(1, DataType.INTEGER)));
-           add(new Argument("allnum", new Literal(false, DataType.BOOLEAN)));
-           add(new Argument("delim", new Literal(" ", DataType.STRING)));
-           add(new Argument("dedupsplit", new Literal(false, DataType.BOOLEAN)));
         }};
     }
 
@@ -92,15 +77,6 @@ public class ArgumentFactory {
         }};
     }
 
-    private static List<Expression> getDefaultArgumentList(DedupCommandContext ctx) {
-        return new ArrayList<Expression>() {{
-            add(new Argument("number", new Literal(1, DataType.INTEGER)));
-            add(new Argument("keepevents", new Literal(false, DataType.BOOLEAN)));
-            add(new Argument("keepempty", new Literal(false, DataType.BOOLEAN)));
-            add(new Argument("consecutive", new Literal(false, DataType.BOOLEAN)));
-        }};
-    }
-
     public static List<Expression> getArgumentList(SortCommandContext ctx) {
         return new ArrayList<Expression>() {{
             add(ctx.count != null
@@ -109,13 +85,6 @@ public class ArgumentFactory {
             add(ctx.D() != null || ctx.DESC() != null
                     ? new Argument("desc", new Literal(true, DataType.BOOLEAN))
                     : new Argument("desc", new Literal(false, DataType.BOOLEAN)));
-        }};
-    }
-
-    private static List<Expression> getDefaultArgumentList(SortCommandContext ctx) {
-        return new ArrayList<Expression>() {{
-            add(new Argument("count", new Literal(1000, DataType.INTEGER)));
-            add(new Argument("desc", new Literal(false, DataType.BOOLEAN)));
         }};
     }
 

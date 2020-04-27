@@ -20,6 +20,7 @@ import org.junit.Test;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.agg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.aggregate;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.and;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.argument;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.compare;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.defaultSortArgs;
@@ -30,6 +31,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.function;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.in;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.intLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.map;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.not;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.or;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.project;
@@ -99,11 +101,20 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
     }
 
     @Test
-    public void testCompareExprWhenEqual() {
+    public void testCompareExpr() {
         assertEqual("source=t a='b'",
                 filter(
                         relation("t"),
                         compare("=", unresolvedAttr("a"), stringLiteral("b"))
+                ));
+    }
+
+    @Test
+    public void testCompareFieldsExpr() {
+        assertEqual("source=t a>b",
+                filter(
+                        relation("t"),
+                        compare(">", unresolvedAttr("a"), unresolvedAttr("b"))
                 ));
     }
 
@@ -136,10 +147,35 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 agg(
                         relation("t"),
                         Collections.singletonList(
-                                aggregate("avg", unresolvedAttr("a"))
+                                map(
+                                        aggregate("avg", unresolvedAttr("a")),
+                                        null
+                                )
+
                         ),
                         null,
                         Collections.singletonList(unresolvedAttr("b")),
+                        defaultStatsArgs()
+                ));
+    }
+
+    @Test
+    public void testPercentileAggFuncExpr() {
+        assertEqual("source=t | stats percentile<1>(a)",
+                agg(
+                        relation("t"),
+                        Collections.singletonList(
+                                map(
+                                        aggregate(
+                                                "percentile",
+                                                unresolvedAttr("a"),
+                                                argument("rank", intLiteral(1))
+                                        ),
+                                        null
+                                )
+                        ),
+                        null,
+                        null,
                         defaultStatsArgs()
                 ));
     }

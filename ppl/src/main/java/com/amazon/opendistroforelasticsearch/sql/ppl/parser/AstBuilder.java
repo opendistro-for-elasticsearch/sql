@@ -29,6 +29,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ppl.utils.ArgumentFactory;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -118,11 +119,10 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
     /** Stats command */
     @Override
     public UnresolvedPlan visitStatsCommand(StatsCommandContext ctx) {
-        List<Expression> aggList = new ArrayList<>(Collections.singletonList(
-                ctx.statsAggTerm() != null
-                        ? visitExpression(ctx.statsAggTerm())
-                        : visitExpression(ctx.sparklineAggTerm())
-        ));
+        List<Expression> aggList = Collections.singletonList(
+                new Map(visitExpression(ctx.statsAggTerm()),
+                        ctx.alias != null ? visitExpression(ctx.alias) : null)
+        );
         List<Expression> groupList = ctx.byClause() == null ? null :
                 ctx.byClause()
                         .fieldList()

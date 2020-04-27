@@ -95,8 +95,16 @@ public class DSL {
         return new Map(new UnresolvedAttribute(origin), new UnresolvedAttribute(target));
     }
 
+    public static Expression map(Expression origin, Expression target) {
+        return new Map(origin, target);
+    }
+
     public static Expression aggregate(String func, Expression field) {
         return new AggregateFunction(func, field);
+    }
+
+    public static Expression aggregate(String func, Expression field, Expression... args) {
+        return new AggregateFunction(func, field, Arrays.asList(args));
     }
 
     public static Expression function(String funcName, Expression... funcArgs) {

@@ -54,7 +54,7 @@ statsCommand
     (PARTITIONS EQUAL partitions=integerLiteral)?
     (ALLNUM EQUAL allnum=booleanLiteral)?
     (DELIM EQUAL delim=stringLiteral)?
-    (statsAggTerm | sparklineAggTerm) (AS alias=wcFieldExpression)?
+    statsAggTerm (AS alias=wcFieldExpression)?
     (byClause)?
     (DEDUP_SPLITVALUES EQUAL dedupsplit=booleanLiteral)?
     ;
@@ -119,7 +119,7 @@ statsFunctionName
     ;
 
 percentileAggFunction
-    : PERCENTILE '<' value=decimalLiteral '>' LT_PRTHS aggField=fieldExpression RT_PRTHS
+    : PERCENTILE '<' value=integerLiteral '>' LT_PRTHS aggField=fieldExpression RT_PRTHS
     ;
 
 sparklineAggregation
@@ -134,14 +134,12 @@ sparklineFunctionName
 /** expressions */
 expression
     : logicalExpression
-    | booleanExpression
     | comparisonExpression
     | evalExpression
     ;
 
 logicalExpression
-    : booleanExpression                                             #booleanLabel
-    | comparisonExpression                                          #comparsion
+    : comparisonExpression                                          #comparsion
     | evalExpression                                                #eval
     | NOT logicalExpression                                         #logicalNot
     | left=logicalExpression OR right=logicalExpression             #logicalOr
@@ -156,11 +154,6 @@ comparisonExpression
     : left=fieldExpression comparisonOperator
     (field=fieldExpression | literal=literalValue)                  #compareExpr
     | fieldExpression IN valueList                                  #inExpr
-    ;
-
-booleanExpression
-    : LT_PRTHS booleanLiteral RT_PRTHS
-    | booleanLiteral
     ;
 
 /** tables */
