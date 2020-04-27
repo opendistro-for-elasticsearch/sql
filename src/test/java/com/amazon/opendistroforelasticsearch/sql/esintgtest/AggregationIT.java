@@ -38,6 +38,10 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstant
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_GAME_OF_THRONES;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_NESTED_TYPE;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ONLINE;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.schema;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySchema;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
@@ -62,6 +66,14 @@ public class AggregationIT extends SQLIntegTestCase {
         JSONObject result = executeQuery(String.format("SELECT COUNT(*) FROM %s", TEST_INDEX_ACCOUNT));
         Assert.assertThat(getTotalHits(result), equalTo(1000));
         Assert.assertThat(getIntAggregationValue(result, "COUNT(*)", "value"), equalTo(1000));
+    }
+
+    @Test
+    public void countDistinctTest() {
+        JSONObject response = executeJdbcRequest(String.format("SELECT COUNT(distinct gender) FROM %s", TEST_INDEX_ACCOUNT));
+
+        verifySchema(response, schema("COUNT(DISTINCT gender)", null, "integer"));
+        verifyDataRows(response, rows(2));
     }
 
     @Test
@@ -1237,5 +1249,9 @@ public class AggregationIT extends SQLIntegTestCase {
         Assert.assertTrue(targetField.has(subFieldName));
 
         return targetField.getDouble(subFieldName);
+    }
+
+    private JSONObject executeJdbcRequest(String query) {
+        return new JSONObject(executeQuery(query, "jdbc"));
     }
 }
