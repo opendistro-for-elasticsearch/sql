@@ -54,7 +54,7 @@ statsCommand
     (PARTITIONS EQUAL partitions=integerLiteral)?
     (ALLNUM EQUAL allnum=booleanLiteral)?
     (DELIM EQUAL delim=stringLiteral)?
-    statsAggTerm
+    (statsAggTerm | sparklineAggTerm) (AS alias=wcFieldExpression)?
     (byClause)?
     (DEDUP_SPLITVALUES EQUAL dedupsplit=booleanLiteral)?
     ;
@@ -97,58 +97,38 @@ statsAggTerm
     ;
 
 sparklineAggTerm
-    : sparklineAggregation | sparklineFunction
+    : sparklineAggregation
     ;
 
 /** aggregation functions */
 statsFunction
-    : aggregationFunction | eventOrderFunction | multivalueStatsChartFunction | timeFunction
-    ;
-
-aggregationFunction
-    : aggFunctionName LT_PRTHS fieldExpression RT_PRTHS             #aggFunctionCall
+    : statsFunctionName LT_PRTHS fieldExpression RT_PRTHS           #statsFunctionCall
     | percentileAggFunction                                         #percentileAggFunctionCall
     ;
 
-aggFunctionName
-    : AVG | COUNT | DISTINCT_COUNT | ESTDC | ESTDC_ERROR | MAX | MEAN | MEDIAN | MIN | MODE | RANGE
-    | STDEV | STDEVP | SUM | SUMSQ | VAR | VARP
+statsFunctionName
+    // aggregation function name
+    : AVG | COUNT | DISTINCT_COUNT | ESTDC | ESTDC_ERROR | MAX | MEAN | MEDIAN | MIN | MODE | RANGE| STDEV
+    | STDEVP | SUM | SUMSQ | VAR | VARP
+    // event order function name
+    | FIRST | LAST
+    // multivalue stats chart function name
+    | LIST | VALUES
+    // time function name
+    | EARLIEST | EARLIEST_TIME | LATEST | LATEST_TIME | PER_DAY | PER_HOUR | PER_MINUTE | PER_SECOND | RATE
     ;
 
 percentileAggFunction
-    : PERCENTILE LESS value=decimalLiteral GREATER LT_PRTHS aggField=fieldExpression RT_PRTHS
-    ;
-
-eventOrderFunction
-    : FIRST LT_PRTHS fieldExpression RT_PRTHS
-    | LAST LT_PRTHS fieldExpression RT_PRTHS
-    ;
-
-multivalueStatsChartFunction
-    : LIST LT_PRTHS fieldExpression RT_PRTHS
-    | VALUES LT_PRTHS fieldExpression RT_PRTHS
-    ;
-
-timeFunction
-    : timeFunctionName LT_PRTHS fieldExpression RT_PRTHS
-    ;
-
-timeFunctionName
-    : EARLIEST | EARLIEST_TIME | LATEST | LATEST_TIME | PER_DAY | PER_HOUR | PER_MINUTE | PER_SECOND | RATE
+    : PERCENTILE '<' value=decimalLiteral '>' LT_PRTHS aggField=fieldExpression RT_PRTHS
     ;
 
 sparklineAggregation
-    : SPARKLINE LT_PRTHS COUNT LT_PRTHS wcFieldExpression RT_PRTHS COMMA spanLength=decimalLiteral RT_PRTHS
-    | SPARKLINE RT_PRTHS sparklineFunction LT_PRTHS wcFieldExpression RT_PRTHS COMMA spanLength=decimalLiteral RT_PRTHS
-    ;
-
-sparklineFunction
-    : sparklineFunctionName LT_PRTHS fieldExpression RT_PRTHS
+    : SPARKLINE LT_PRTHS sparklineFunctionName LT_PRTHS wcFieldExpression RT_PRTHS COMMA spanLength=integerLiteral RT_PRTHS
     ;
 
 sparklineFunctionName
     :
-//    | C | COUNT | DC | MEAN | AVG | STDEV | STDEVP | VAR | VARP | SUM | SUMSQ | MIN | MAX | RANGE
+    | C | COUNT | DC | MEAN | AVG | STDEV | STDEVP | VAR | VARP | SUM | SUMSQ | MIN | MAX | RANGE
     ;
 
 /** expressions */

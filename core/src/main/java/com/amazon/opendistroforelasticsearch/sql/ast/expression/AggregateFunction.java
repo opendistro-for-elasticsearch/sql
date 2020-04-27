@@ -34,6 +34,13 @@ import lombok.ToString;
 public class AggregateFunction extends Expression {
     private final String funcName;
     private final Expression field;
+    private final List<Expression> argList;
+
+    public AggregateFunction(String funcName, Expression field) {
+        this.funcName = funcName;
+        this.field = field;
+        this.argList = null;
+    }
 
     @Override
     public List<Expression> getChild() {

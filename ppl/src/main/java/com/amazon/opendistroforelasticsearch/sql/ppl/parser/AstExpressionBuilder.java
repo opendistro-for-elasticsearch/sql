@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
+import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
@@ -28,10 +29,9 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Not;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
+import java.util.Collections;
 import java.util.stream.Collectors;
 
-import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.AggFunctionCallContext;
-import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.AggFunctionNameContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.BooleanExpressionContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.BooleanLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.CompareExprContext;
@@ -45,6 +45,9 @@ import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.LogicalAndContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.LogicalNotContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.LogicalOrContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.PercentileAggFunctionContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.SparklineAggregationContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.StatsFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.StringLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.WcFieldExpressionContext;
 
@@ -114,16 +117,22 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Express
     }
 
     /** Aggregation term */
+    @Override
+    public Expression visitSparklineAggregation(SparklineAggregationContext ctx) {
+        return new AggregateFunction(ctx.sparklineFunctionName().getText(), visit(ctx.wcFieldExpression()),
+                Collections.singletonList(visit(ctx.spanLength)));
+    }
 
     /** Aggregation function */
     @Override
-    public Expression visitAggFunctionCall(AggFunctionCallContext ctx) {
-        return new AggregateFunction(ctx.aggFunctionName().getText(), visit(ctx.fieldExpression()));
+    public Expression visitStatsFunctionCall(StatsFunctionCallContext ctx) {
+        return new AggregateFunction(ctx.statsFunctionName().getText(), visit(ctx.fieldExpression()));
     }
 
     @Override
-    public Expression visitAggFunctionName(AggFunctionNameContext ctx) {
-        return new UnresolvedAttribute(ctx.getText());
+    public Expression visitPercentileAggFunction(PercentileAggFunctionContext ctx) {
+        return new AggregateFunction(ctx.PERCENTILE().getText(), visit(ctx.aggField),
+                Collections.singletonList(visit(ctx.value)));
     }
 
     /** Eval function */

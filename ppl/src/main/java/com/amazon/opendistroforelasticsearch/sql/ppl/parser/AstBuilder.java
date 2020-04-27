@@ -118,6 +118,11 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
     /** Stats command */
     @Override
     public UnresolvedPlan visitStatsCommand(StatsCommandContext ctx) {
+        List<Expression> aggList = new ArrayList<>(Collections.singletonList(
+                ctx.statsAggTerm() != null
+                        ? visitExpression(ctx.statsAggTerm())
+                        : visitExpression(ctx.sparklineAggTerm())
+        ));
         List<Expression> groupList = ctx.byClause() == null ? null :
                 ctx.byClause()
                         .fieldList()
@@ -126,7 +131,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
                         .map(this::visitExpression)
                         .collect(Collectors.toList());
         return new Aggregation(
-                new ArrayList<>(Collections.singletonList(visitExpression(ctx.statsAggTerm()))),
+                aggList,
                 null,
                 groupList,
                 ArgumentFactory.getArgumentList(ctx)
@@ -157,14 +162,6 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
     /** Sort command */
     @Override
     public UnresolvedPlan visitSortCommand(SortCommandContext ctx) {
-        List<Expression> argList = new ArrayList<Expression>() {{
-            add(ctx.count != null
-                    ? new Argument("count", visitExpression(ctx.count))
-                    : new Argument("count", new Literal(1000, DataType.INTEGER)));
-            add(ctx.D() != null || ctx.DESC() != null
-                    ? new Argument("desc", new Literal(true, DataType.BOOLEAN))
-                    : new Argument("desc", new Literal(false, DataType.BOOLEAN)));
-        }};
         return new Aggregation(
                 null,
                 ctx.sortbyClause()
@@ -173,7 +170,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
                         .map(this::visitExpression)
                         .collect(Collectors.toList()),
                 null,
-                argList
+                ArgumentFactory.getArgumentList(ctx)
         );
     }
 
