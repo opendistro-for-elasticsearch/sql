@@ -19,6 +19,12 @@ import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
 
+/**
+ * Abstract {@link PlanNode} Visitor.
+ *
+ * @param <R> return object type.
+ * @param <C> context type.
+ */
 public abstract class AbstractPlanNodeVisitor<R, C>  {
 
     protected R visitNode(LogicalPlan plan, C context) {

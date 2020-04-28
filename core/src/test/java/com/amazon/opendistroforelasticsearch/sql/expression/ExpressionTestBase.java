@@ -15,9 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression;
 
+import com.amazon.opendistroforelasticsearch.sql.config.TestConfig;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
-import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
@@ -33,6 +33,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.List;
 import java.util.function.BiFunction;
 
+import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.BOOL_TYPE_NULL_VALUE_FIELD;
+import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.INT_TYPE_NULL_VALUE_FIELD;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.booleanValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.collectionValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.doubleValue;
@@ -46,15 +48,13 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 
 @Configuration
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {ExpressionConfig.class, ExpressionTestBase.class})
+@ContextConfiguration(classes = {ExpressionConfig.class, ExpressionTestBase.class, TestConfig.class})
 public class ExpressionTestBase {
-    public static final String INT_TYPE_NULL_VALUE_FIELD = "int_null_value";
-    public static final String INT_TYPE_MISSING_VALUE_FIELD = "int_missing_value";
-    public static final String BOOL_TYPE_NULL_VALUE_FIELD = "null_value_boolean";
-    public static final String BOOL_TYPE_MISSING_VALUE_FIELD = "missing_value_boolean";
-
     @Autowired
     protected DSL dsl;
+
+    @Autowired
+    protected Environment<Expression, ExprType> typeEnv;
 
     @Bean
     protected Environment<Expression, ExprValue> valueEnv() {
@@ -88,34 +88,7 @@ public class ExpressionTestBase {
 
     @Bean
     protected Environment<Expression, ExprType> typeEnv() {
-        return var -> {
-            if (var instanceof ReferenceExpression) {
-                switch (((ReferenceExpression) var).getAttr()) {
-                    case "integer_value":
-                    case INT_TYPE_NULL_VALUE_FIELD:
-                    case INT_TYPE_MISSING_VALUE_FIELD:
-                        return ExprType.INTEGER;
-                    case "long_value":
-                        return ExprType.LONG;
-                    case "float_value":
-                        return ExprType.FLOAT;
-                    case "double_value":
-                        return ExprType.DOUBLE;
-                    case "boolean_value":
-                        return ExprType.BOOLEAN;
-                    case "string_value":
-                        return ExprType.STRING;
-                    case "struct_value":
-                        return ExprType.STRUCT;
-                    case "array_value":
-                        return ExprType.ARRAY;
-                    case BOOL_TYPE_NULL_VALUE_FIELD:
-                    case BOOL_TYPE_MISSING_VALUE_FIELD:
-                        return ExprType.BOOLEAN;
-                }
-            }
-            throw new ExpressionEvaluationException("type resolved failed");
-        };
+        return typeEnv;
     }
 
     protected BiFunction<Environment<Expression, ExprType>,

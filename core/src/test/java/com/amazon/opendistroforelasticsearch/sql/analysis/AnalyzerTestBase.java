@@ -15,18 +15,14 @@
 
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
-import com.amazon.opendistroforelasticsearch.sql.schema.Namespace;
-import com.amazon.opendistroforelasticsearch.sql.schema.Schema;
-import com.amazon.opendistroforelasticsearch.sql.schema.Symbol;
-import com.amazon.opendistroforelasticsearch.sql.schema.SymbolTable;
+import com.amazon.opendistroforelasticsearch.sql.config.TestConfig;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
-import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
-import com.google.common.collect.ImmutableMap;
+import com.amazon.opendistroforelasticsearch.sql.schema.Schema;
+import com.amazon.opendistroforelasticsearch.sql.schema.SymbolTable;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -34,17 +30,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.Map;
-
-import static com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase.BOOL_TYPE_MISSING_VALUE_FIELD;
-import static com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase.BOOL_TYPE_NULL_VALUE_FIELD;
-import static com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase.INT_TYPE_MISSING_VALUE_FIELD;
-import static com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase.INT_TYPE_NULL_VALUE_FIELD;
 
 @Configuration
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {ExpressionConfig.class, AnalyzerTestBase.class})
+@ContextConfiguration(classes = {ExpressionConfig.class, AnalyzerTestBase.class, TestConfig.class})
 public class AnalyzerTestBase {
+
     @Autowired
     protected DSL dsl;
 
@@ -57,86 +48,26 @@ public class AnalyzerTestBase {
     @Autowired
     protected Analyzer analyzer;
 
-
-    protected SymbolTable symbolTable() {
-        SymbolTable symbolTable = new SymbolTable();
-        Map<String, ExprType> map = new ImmutableMap.Builder<String, ExprType>()
-                .put("integer_value", ExprType.INTEGER)
-                .put(INT_TYPE_NULL_VALUE_FIELD, ExprType.INTEGER)
-                .put(INT_TYPE_MISSING_VALUE_FIELD, ExprType.INTEGER)
-                .put("long_value", ExprType.LONG)
-                .put("float_value", ExprType.FLOAT)
-                .put("double_value", ExprType.DOUBLE)
-                .put("boolean_value", ExprType.BOOLEAN)
-                .put("string_value", ExprType.STRING)
-                .put("struct_value", ExprType.STRUCT)
-                .put("array_value", ExprType.ARRAY)
-                .build();
-        map.entrySet()
-                .forEach(
-                        entry -> symbolTable.store(new Symbol(Namespace.FIELD_NAME, entry.getKey()), entry.getValue()));
-        return symbolTable;
-    }
-
-    @Bean
-    protected Schema schema() {
-        return new Schema() {
-            @Override
-            public SymbolTable resolveSymbolTable(String table) {
-                return symbolTable();
-            }
-        };
-    }
+    @Autowired
+    protected Environment<Expression, ExprType> typeEnv;
 
     @Bean
     protected Analyzer analyzer(ExpressionAnalyzer expressionAnalyzer, Schema schema) {
         return new Analyzer(expressionAnalyzer, schema);
     }
 
-
-    protected TypeEnvironment typeEnvironment() {
-        return new TypeEnvironment(null, symbolTable());
+    @Bean
+    protected TypeEnvironment typeEnvironment(SymbolTable symbolTable) {
+        return new TypeEnvironment(null, symbolTable);
     }
 
     @Bean
-    protected AnalysisContext analysisContext() {
-        return new AnalysisContext(typeEnvironment());
+    protected AnalysisContext analysisContext(TypeEnvironment typeEnvironment) {
+        return new AnalysisContext(typeEnvironment);
     }
 
     @Bean
     protected ExpressionAnalyzer expressionAnalyzer(DSL dsl) {
         return new ExpressionAnalyzer(dsl);
-    }
-
-    @Bean
-    protected Environment<Expression, ExprType> typeEnv() {
-        return var -> {
-            if (var instanceof ReferenceExpression) {
-                switch (((ReferenceExpression) var).getAttr()) {
-                    case "integer_value":
-                    case INT_TYPE_NULL_VALUE_FIELD:
-                    case INT_TYPE_MISSING_VALUE_FIELD:
-                        return ExprType.INTEGER;
-                    case "long_value":
-                        return ExprType.LONG;
-                    case "float_value":
-                        return ExprType.FLOAT;
-                    case "double_value":
-                        return ExprType.DOUBLE;
-                    case "boolean_value":
-                        return ExprType.BOOLEAN;
-                    case "string_value":
-                        return ExprType.STRING;
-                    case "struct_value":
-                        return ExprType.STRUCT;
-                    case "array_value":
-                        return ExprType.ARRAY;
-                    case BOOL_TYPE_NULL_VALUE_FIELD:
-                    case BOOL_TYPE_MISSING_VALUE_FIELD:
-                        return ExprType.BOOLEAN;
-                }
-            }
-            throw new ExpressionEvaluationException("type resolved failed");
-        };
     }
 }

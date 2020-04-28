@@ -16,12 +16,16 @@
 package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
 import com.amazon.opendistroforelasticsearch.sql.planner.AbstractPlanNodeVisitor;
+import com.google.common.collect.ImmutableList;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 import java.util.List;
 
+/**
+ * Logical Relation represent the data source.
+ */
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor
@@ -30,7 +34,7 @@ public class LogicalRelation extends LogicalPlan {
 
     @Override
     public List<LogicalPlan> getChild() {
-        return null;
+        return ImmutableList.of();
     }
 
     @Override

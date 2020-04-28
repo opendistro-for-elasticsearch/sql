@@ -15,10 +15,15 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
-import com.amazon.opendistroforelasticsearch.sql.planner.PlanNode;
+import org.junit.jupiter.api.Test;
 
-/**
- * The abstract base class for all the Logical Plan node.
- */
-public abstract class LogicalPlan implements PlanNode<LogicalPlan> {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class LogicalRelationTest {
+
+    @Test
+    public void logicalRelationHasNoInput() {
+        LogicalPlan relation = LogicalPlanDSL.relation("index");
+        assertEquals(0, relation.getChild().size());
+    }
 }

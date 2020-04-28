@@ -17,14 +17,16 @@ package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.planner.AbstractPlanNodeVisitor;
-import lombok.Builder;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Logical Filter represent the filter relation.
+ */
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor
@@ -34,7 +36,7 @@ public class LogicalFilter extends LogicalPlan {
 
     @Override
     public List<LogicalPlan> getChild() {
-        return null;
+        return Arrays.asList(child);
     }
 
     @Override

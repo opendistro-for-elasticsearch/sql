@@ -27,6 +27,9 @@ import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Analyze the {@link UnresolvedExpression} in the {@link AnalysisContext} to construct the {@link Expression}
+ */
 @RequiredArgsConstructor
 public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, AnalysisContext> {
     private final DSL dsl;
@@ -63,6 +66,4 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
 
         return dsl.and(context.peek(), left, right);
     }
-
-
 }

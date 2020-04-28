@@ -27,6 +27,9 @@ import lombok.Getter;
 
 import java.util.Optional;
 
+/**
+ * The definition of Type Environment.
+ */
 public class TypeEnvironment implements Environment<Expression, ExprType> {
     @Getter
     private final TypeEnvironment parent;
@@ -42,13 +45,22 @@ public class TypeEnvironment implements Environment<Expression, ExprType> {
         this.symbolTable = symbolTable;
     }
 
+    /**
+     * Resolve the {@link Expression} from environment.
+     *
+     * @param var expression
+     * @return resolved {@link ExprType}
+     */
     @Override
     public ExprType resolve(Expression var) {
         if (var instanceof ReferenceExpression) {
             ReferenceExpression ref = (ReferenceExpression) var;
-            Optional<ExprType> typeOptional = symbolTable.lookup(new Symbol(Namespace.FIELD_NAME, ref.getAttr()));
-            if (typeOptional.isPresent()) {
-                return typeOptional.get();
+            for (TypeEnvironment cur = this; cur != null; cur = cur.parent) {
+                Optional<ExprType> typeOptional = cur.symbolTable.lookup(new Symbol(Namespace.FIELD_NAME,
+                        ref.getAttr()));
+                if (typeOptional.isPresent()) {
+                    return typeOptional.get();
+                }
             }
         }
         throw new SemanticCheckException(String.format("can't resolve expression %s in type env", var));
@@ -65,7 +77,8 @@ public class TypeEnvironment implements Environment<Expression, ExprType> {
             ReferenceExpression ref = (ReferenceExpression) var;
             symbolTable.store(new Symbol(Namespace.FIELD_NAME, ref.getAttr()), type);
         } else {
-            throw new SemanticCheckException(String.format("can't define expression %s in type env", var));
+            throw new IllegalArgumentException(String.format("only support define reference, unexpected expression %s"
+                    , var));
         }
     }
 

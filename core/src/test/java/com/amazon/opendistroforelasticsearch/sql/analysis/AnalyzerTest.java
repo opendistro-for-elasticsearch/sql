@@ -31,7 +31,7 @@ class AnalyzerTest extends AnalyzerTestBase {
     public void filter_relation() {
         assertAnalyzeEqual(
                 LogicalPlanDSL.filter(
-                        dsl.equal(typeEnv(), DSL.ref("integer_value"), DSL.literal(integerValue(1))),
+                        dsl.equal(typeEnv, DSL.ref("integer_value"), DSL.literal(integerValue(1))),
                         LogicalPlanDSL.relation("schema")
                 ),
                 AstDSL.filter(

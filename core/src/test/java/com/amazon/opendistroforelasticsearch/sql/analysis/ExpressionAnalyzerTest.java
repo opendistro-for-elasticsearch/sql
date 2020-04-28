@@ -27,12 +27,13 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+
 class ExpressionAnalyzerTest extends AnalyzerTestBase {
 
     @Test
     public void equal() {
         assertAnalyzeEqual(
-                dsl.equal(typeEnv(), DSL.ref("integer_value"), DSL.literal(integerValue(1))),
+                dsl.equal(typeEnv, DSL.ref("integer_value"), DSL.literal(integerValue(1))),
                 AstDSL.equalTo(AstDSL.unresolvedAttr("integer_value"), AstDSL.intLiteral(1))
         );
     }
@@ -40,7 +41,7 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
     @Test
     public void and() {
         assertAnalyzeEqual(
-                dsl.and(typeEnv(), DSL.ref("boolean_value"), DSL.literal(LITERAL_TRUE)),
+                dsl.and(typeEnv, DSL.ref("boolean_value"), DSL.literal(LITERAL_TRUE)),
                 AstDSL.and(AstDSL.unresolvedAttr("boolean_value"), AstDSL.booleanLiteral(true))
         );
     }

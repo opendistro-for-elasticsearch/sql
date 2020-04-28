@@ -17,16 +17,26 @@ package com.amazon.opendistroforelasticsearch.sql.planner;
 
 import java.util.List;
 
+/**
+ * The definition of Plan Node
+ */
 public interface PlanNode<T extends PlanNode> {
 
+    /**
+     * Return the child nodes.
+     *
+     * @return child nodes.
+     */
     List<T> getChild();
 
     /**
-     * @param visitor
-     * @param context
+     * Accept the visitor.
+     *
+     * @param visitor visitor.
+     * @param context visitor context.
      * @param <R>     returned object type.
      * @param <C>     context type.
-     * @return
+     * @return returned object.
      */
     <R, C> R accept(AbstractPlanNodeVisitor<R, C> visitor, C context);
 }

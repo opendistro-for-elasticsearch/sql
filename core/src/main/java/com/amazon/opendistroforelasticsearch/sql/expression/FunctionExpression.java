@@ -17,7 +17,6 @@ package com.amazon.opendistroforelasticsearch.sql.expression;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import lombok.EqualsAndHashCode;
-import lombok.Generated;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

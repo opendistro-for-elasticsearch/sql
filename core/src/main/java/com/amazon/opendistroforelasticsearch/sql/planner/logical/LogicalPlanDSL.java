@@ -18,6 +18,9 @@ package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import lombok.experimental.UtilityClass;
 
+/**
+ * Logical Plan DSL.
+ */
 @UtilityClass
 public class LogicalPlanDSL {
     public static LogicalPlan filter(Expression expression, LogicalPlan input) {
