@@ -32,8 +32,16 @@ import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.SortCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.StatsCommandContext;
 
+
+/**
+ * Util class to get all arguments as a list from the PPL command
+ */
 public class ArgumentFactory {
 
+    /**
+     * @param ctx FieldsCommandContext instance
+     * @return the list of arguments fetched from the fields command
+     */
     public static List<Expression> getArgumentList(FieldsCommandContext ctx) {
         return Collections.singletonList(
                 ctx.MINUS() != null
@@ -42,6 +50,10 @@ public class ArgumentFactory {
         );
     }
 
+    /**
+     * @param ctx StatsCommandContext instance
+     * @return the list of arguments fetched from the stats command
+     */
     public static List<Expression> getArgumentList(StatsCommandContext ctx) {
         return Arrays.asList(
                 ctx.partitions != null
@@ -59,6 +71,10 @@ public class ArgumentFactory {
         );
     }
 
+    /**
+     * @param ctx DedupCommandContext instance
+     * @return the list of arguments fetched from the dedup command
+     */
     public static List<Expression> getArgumentList(DedupCommandContext ctx) {
         return Arrays.asList(
                 ctx.number != null
@@ -76,6 +92,10 @@ public class ArgumentFactory {
         );
     }
 
+    /**
+     * @param ctx SortCommandContext instance
+     * @return the list of arguments fetched from the sort command
+     */
     public static List<Expression> getArgumentList(SortCommandContext ctx) {
         return Arrays.asList(
                 ctx.count != null
