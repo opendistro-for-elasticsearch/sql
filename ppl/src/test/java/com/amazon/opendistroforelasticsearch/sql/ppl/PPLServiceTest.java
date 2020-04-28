@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
-import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.PPLSyntaxParser;
 import com.amazon.opendistroforelasticsearch.sql.ppl.config.PPLServiceConfig;
 import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryRequest;
 import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryResponse;
@@ -23,11 +22,26 @@ import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 public class PPLServiceTest {
+    private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
+            PPLServiceConfig.class);
+    private PPLService pplService = context.getBean(PPLService.class);
     @Test
     public void testExecuteShouldPass() {
-        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
-                PPLServiceConfig.class);
-        PPLService pplService = context.getBean(PPLService.class);
+        pplService.execute(new PPLQueryRequest("search source=t a=1", null), new ResponseListener<PPLQueryResponse>() {
+            @Override
+            public void onResponse(PPLQueryResponse pplQueryResponse) {
+
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+
+            }
+        });
+    }
+
+    @Test
+    public void testExecuteWithIllegalQueryShouldBeCaughtByHandler() {
         pplService.execute(new PPLQueryRequest("search", null), new ResponseListener<PPLQueryResponse>() {
             @Override
             public void onResponse(PPLQueryResponse pplQueryResponse) {

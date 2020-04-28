@@ -32,11 +32,6 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.unresolvedAt
 public class ArgumentFactoryTest extends AstBuilderTest {
 
     @Test
-    public void testArgumentFactoryClass() {
-
-    }
-
-    @Test
     public void testFieldsCommandArgument() {
         assertEqual("source=t | fields - a",
                 projectWithArg(
@@ -122,6 +117,11 @@ public class ArgumentFactoryTest extends AstBuilderTest {
                 "source=t | sort 1000 field0",
                 "source=t | sort field0"
         );
+    }
+
+    @Test
+    public void testNoArgConstructorForArgumentFactoryShouldPass() {
+        new ArgumentFactory();
     }
 
 }

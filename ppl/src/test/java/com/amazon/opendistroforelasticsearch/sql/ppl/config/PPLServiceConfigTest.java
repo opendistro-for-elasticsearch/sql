@@ -5,7 +5,7 @@
  *   You may not use this file except in compliance with the License.
  *   A copy of the License is located at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  *   or in the "license" file accompanying this file. This file is distributed
  *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
@@ -16,14 +16,14 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl.config;
 
 import com.amazon.opendistroforelasticsearch.sql.ppl.PPLService;
-import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.PPLSyntaxParser;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.junit.Test;
+import static org.junit.Assert.assertNotNull;
 
-@Configuration
-public class PPLServiceConfig {
-    @Bean
-    public PPLService pplService() {
-        return new PPLService(new PPLSyntaxParser());
+public class PPLServiceConfigTest {
+    @Test
+    public void testConfigPPLServiceShouldPass() {
+        PPLServiceConfig config = new PPLServiceConfig();
+        PPLService service = config.pplService();
+        assertNotNull(service);
     }
 }
