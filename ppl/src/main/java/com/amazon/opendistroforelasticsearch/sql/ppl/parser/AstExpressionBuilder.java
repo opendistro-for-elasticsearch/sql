@@ -32,6 +32,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttrib
 import java.util.Collections;
 import java.util.stream.Collectors;
 
+import static com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils.unquoteIdentifier;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.BooleanLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.CompareExprContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.DecimalLiteralContext;
@@ -133,10 +134,7 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Express
     /** Literal and value */
     @Override
     public Expression visitStringLiteral(StringLiteralContext ctx) {
-        String token = ctx.getText();
-        String identifier = token.substring(1, token.length() - 1)
-                .replace("\"\"", "\"");
-        return new Literal(identifier, DataType.STRING);
+        return new Literal(unquoteIdentifier(ctx.getText()), DataType.STRING);
     }
 
     @Override

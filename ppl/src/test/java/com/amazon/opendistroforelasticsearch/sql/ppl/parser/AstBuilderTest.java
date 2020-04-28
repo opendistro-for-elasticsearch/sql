@@ -19,6 +19,7 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.PPLSyntaxParser;
 import com.amazon.opendistroforelasticsearch.sql.ast.Node;
 import java.util.Arrays;
 import java.util.Collections;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.Test;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.agg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.aggregate;
@@ -128,7 +129,7 @@ public class AstBuilderTest {
 
     @Test
     public void testStatsCommandWithByClause() {
-        assertEqual("source=t | stats count(a) by b",
+        assertEqual("source=t | stats count(a) by b DEDUP_SPLITVALUES=false",
                 agg(
                         relation("t"),
                         Collections.singletonList(
@@ -218,6 +219,11 @@ public class AstBuilderTest {
     protected void assertEqual(String query, Node expectedPlan) {
         Node actualPlan = plan(query);
         assertEquals(expectedPlan, actualPlan);
+    }
+
+    protected void assertEqual(String query, String expected) {
+        Node expectedPlan = plan(expected);
+        assertEqual(query, expectedPlan);
     }
 
     private PPLSyntaxParser parser = new PPLSyntaxParser();

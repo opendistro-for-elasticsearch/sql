@@ -61,7 +61,7 @@ statsCommand
 
 dedupCommand
     : DEDUP
-    (number=decimalLiteral)?
+    (number=integerLiteral)?
     fieldList
     (KEEPEVENTS EQUAL keeevents=booleanLiteral)?
     (KEEPEMPTY EQUAL keepempty=booleanLiteral)?
@@ -70,7 +70,7 @@ dedupCommand
     ;
 
 sortCommand
-    : SORT (count=decimalLiteral)? sortbyClause (D | DESC)?
+    : SORT (count=integerLiteral)? sortbyClause (D | DESC)?
     ;
 
 evalCommand
