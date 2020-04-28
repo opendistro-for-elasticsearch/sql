@@ -29,6 +29,9 @@ import com.amazon.opendistroforelasticsearch.sql.schema.Schema;
 import com.amazon.opendistroforelasticsearch.sql.schema.SymbolTable;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Analyze the {@link UnresolvedPlan} in the {@link AnalysisContext} to construct the {@link LogicalPlan}
+ */
 @RequiredArgsConstructor
 public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> {
     private final ExpressionAnalyzer expressionAnalyzer;

@@ -22,8 +22,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Locale;
-
 @EqualsAndHashCode
 @RequiredArgsConstructor
 public class ReferenceExpression implements Expression {

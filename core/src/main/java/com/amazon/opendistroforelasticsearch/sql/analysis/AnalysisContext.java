@@ -17,6 +17,9 @@ package com.amazon.opendistroforelasticsearch.sql.analysis;
 
 import java.util.Objects;
 
+/**
+ * The context used for Analyzer.
+ */
 public class AnalysisContext {
     /** Environment stack for symbol scope management */
     private TypeEnvironment environment;
@@ -28,7 +31,6 @@ public class AnalysisContext {
     public AnalysisContext(TypeEnvironment environment) {
         this.environment = environment;
     }
-
 
     /**
      * Push a new environment

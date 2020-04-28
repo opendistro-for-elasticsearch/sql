@@ -26,9 +26,4 @@ import lombok.RequiredArgsConstructor;
 public class Symbol {
     private final Namespace namespace;
     private final String name;
-
-    @Override
-    public String toString() {
-        return namespace + " [" + name + "]";
-    }
 }

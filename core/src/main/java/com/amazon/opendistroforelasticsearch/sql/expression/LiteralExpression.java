@@ -38,4 +38,9 @@ public class LiteralExpression implements Expression {
     public ExprType type(Environment<Expression, ExprType> env) {
         return exprValue.type();
     }
+
+    @Override
+    public String toString() {
+        return exprValue.toString();
+    }
 }

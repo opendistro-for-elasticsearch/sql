@@ -15,7 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.schema;
 
-
+/**
+ * The Schema for data storage provider.
+ * Todo.
+ */
 public interface Schema {
 
     SymbolTable resolveSymbolTable(String table);
