@@ -17,6 +17,8 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
+import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
@@ -29,6 +31,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Not;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
@@ -99,12 +102,33 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Express
     /** Field expression */
     @Override
     public Expression visitFieldExpression(FieldExpressionContext ctx) {
-        return new UnresolvedAttribute(ctx.getText());
+        return new Field(ctx.getText());
     }
 
     @Override
     public Expression visitWcFieldExpression(WcFieldExpressionContext ctx) {
-        return new UnresolvedAttribute(ctx.getText());
+        return new Field(ctx.getText());
+    }
+
+    @Override
+    public Expression visitSortField(OpenDistroPPLParser.SortFieldContext ctx) {
+        return new Field(
+                ctx.sortFieldExpression().fieldExpression().getText(),
+                Arrays.asList(
+                        ctx.MINUS() != null
+                                ? new Argument("exclude", new Literal(true, DataType.BOOLEAN))
+                                : new Argument("exclude", new Literal(false, DataType.BOOLEAN)),
+                        ctx.sortFieldExpression().AUTO() != null
+                                ? new Argument("type", new Literal("auto", DataType.STRING))
+                                : ctx.sortFieldExpression().IP() != null
+                                ? new Argument("type", new Literal("ip", DataType.STRING))
+                                : ctx.sortFieldExpression().NUM() != null
+                                ? new Argument("type", new Literal("num", DataType.STRING))
+                                : ctx.sortFieldExpression().STR() != null
+                                ? new Argument("type", new Literal("str", DataType.STRING))
+                                : new Argument("type", new Literal(null, DataType.NULL))
+                )
+        );
     }
 
     /** Aggregation function */

@@ -19,19 +19,17 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.PPLSyntaxParser;
 import com.amazon.opendistroforelasticsearch.sql.ast.Node;
 import java.util.Arrays;
 import java.util.Collections;
-import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.Test;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.agg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.aggregate;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.argument;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.compare;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.defaultDedupArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.defaultFieldsArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.defaultSortArgs;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.defaultSortFieldArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.defaultStatsArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.equalTo;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.exprList;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.field;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.function;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.intLiteral;
@@ -40,7 +38,6 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.projectWithArg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.stringLiteral;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.unresolvedAttr;
 import static org.junit.Assert.assertEquals;
 
 public class AstBuilderTest {
@@ -50,7 +47,7 @@ public class AstBuilderTest {
         assertEqual("search source=t a=1",
                 filter(
                         relation("t"),
-                        compare("=", unresolvedAttr("a"), intLiteral(1))
+                        compare("=", field("a"), intLiteral(1))
                 )
         );
     }
@@ -60,7 +57,7 @@ public class AstBuilderTest {
         assertEqual("search source=t a=\"a\"",
                 filter(
                         relation("t"),
-                        compare("=", unresolvedAttr("a"), stringLiteral("a"))
+                        compare("=", field("a"), stringLiteral("a"))
                 )
         );
     }
@@ -70,7 +67,7 @@ public class AstBuilderTest {
         assertEqual("source=t a=1",
                 filter(
                         relation("t"),
-                        compare("=", unresolvedAttr("a"), intLiteral(1))
+                        compare("=", field("a"), intLiteral(1))
                 )
         );
     }
@@ -80,7 +77,7 @@ public class AstBuilderTest {
         assertEqual("search a=1 source=t",
                 filter(
                         relation("t"),
-                        compare("=", unresolvedAttr("a"), intLiteral(1))
+                        compare("=", field("a"), intLiteral(1))
                 ));
     }
 
@@ -89,7 +86,7 @@ public class AstBuilderTest {
         assertEqual("search source=t | where a=1",
                 filter(
                         relation("t"),
-                        compare("=", unresolvedAttr("a"), intLiteral(1))
+                        compare("=", field("a"), intLiteral(1))
                 )
         );
     }
@@ -100,7 +97,7 @@ public class AstBuilderTest {
                 projectWithArg(
                         relation("t"),
                         defaultFieldsArgs(),
-                        unresolvedAttr("f"), unresolvedAttr("g")
+                        field("f"), field("g")
                 ));
     }
 
@@ -119,7 +116,7 @@ public class AstBuilderTest {
                 agg(
                         relation("t"),
                         Collections.singletonList(
-                                map(aggregate("count", unresolvedAttr("a")), null)
+                                map(aggregate("count", field("a")), null)
                         ),
                         null,
                         null,
@@ -133,10 +130,10 @@ public class AstBuilderTest {
                 agg(
                         relation("t"),
                         Collections.singletonList(
-                                map(aggregate("count", unresolvedAttr("a")), null)
+                                map(aggregate("count", field("a")), null)
                         ),
                         null,
-                        Collections.singletonList(unresolvedAttr("b")),
+                        Collections.singletonList(field("b")),
                         defaultStatsArgs()
                 ));
     }
@@ -149,8 +146,8 @@ public class AstBuilderTest {
                         relation("t"),
                         Collections.singletonList(
                                 map(
-                                        aggregate("count", unresolvedAttr("a")),
-                                        unresolvedAttr("alias")
+                                        aggregate("count", field("a")),
+                                        field("alias")
                                 )
                         ),
                         null,
@@ -164,7 +161,7 @@ public class AstBuilderTest {
         assertEqual("source=t | dedup f1, f2",
                 agg(
                         relation("t"),
-                        Arrays.asList(unresolvedAttr("f1"), unresolvedAttr("f2")),
+                        Arrays.asList(field("f1"), field("f2")),
                         null,
                         null,
                         defaultDedupArgs()
@@ -176,8 +173,8 @@ public class AstBuilderTest {
         assertEqual("source=t | dedup f1, f2 sortby f3",
                 agg(
                         relation("t"),
-                        Arrays.asList(unresolvedAttr("f1"), unresolvedAttr("f2")),
-                        Collections.singletonList(unresolvedAttr("f3")),
+                        Arrays.asList(field("f1"), field("f2")),
+                        Collections.singletonList(field("f3", defaultSortFieldArgs())),
                         null,
                         defaultDedupArgs()
                 ));
@@ -189,7 +186,10 @@ public class AstBuilderTest {
                 agg(
                         relation("t"),
                         null,
-                        Arrays.asList(unresolvedAttr("f1"), unresolvedAttr("f2")),
+                        Arrays.asList(
+                                field("f1", defaultSortFieldArgs()),
+                                field("f2", defaultSortFieldArgs())
+                        ),
                         null,
                         defaultSortArgs()
                 ));
@@ -201,8 +201,8 @@ public class AstBuilderTest {
                 project(
                         relation("t"),
                         equalTo(
-                                unresolvedAttr("r"),
-                                function("abs", unresolvedAttr("f"))
+                                field("r"),
+                                function("abs", field("f"))
                         )
                 ));
     }
@@ -212,7 +212,7 @@ public class AstBuilderTest {
         assertEqual("source=\"log.2020.04.20.\" a=1",
                 filter(
                         relation("log.2020.04.20."),
-                        compare("=", unresolvedAttr("a"), intLiteral(1))
+                        compare("=", field("a"), intLiteral(1))
                 ));
     }
 

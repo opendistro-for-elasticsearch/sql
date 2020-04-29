@@ -88,7 +88,7 @@ byClause
     ;
 
 sortbyClause
-    : (PLUS | MINUS)? sortField (COMMA (PLUS | MINUS)? sortField)*
+    : sortField (COMMA sortField)*
     ;
 
 /** aggregation terms */
@@ -172,11 +172,15 @@ wcFieldList
     ;
 
 sortField
-    : fieldExpression                                               #defaultSort
-    | AUTO LT_PRTHS fieldExpression RT_PRTHS                        #autoSort
-    | STR LT_PRTHS fieldExpression RT_PRTHS                         #strSort
-    | IP LT_PRTHS fieldExpression RT_PRTHS                          #ipSort
-    | NUM LT_PRTHS fieldExpression RT_PRTHS                         #numSort
+    : (PLUS | MINUS)? sortFieldExpression
+    ;
+
+sortFieldExpression
+    : fieldExpression
+    | AUTO LT_PRTHS fieldExpression RT_PRTHS
+    | STR LT_PRTHS fieldExpression RT_PRTHS
+    | IP LT_PRTHS fieldExpression RT_PRTHS
+    | NUM LT_PRTHS fieldExpression RT_PRTHS
     ;
 
 fieldExpression

@@ -22,6 +22,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
@@ -91,8 +92,12 @@ public class DSL {
         return literal(value, DataType.BOOLEAN);
     }
 
+    public static Expression nullLiteral() {
+        return literal(null, DataType.NULL);
+    }
+
     public static Expression map(String origin, String target) {
-        return new Map(new UnresolvedAttribute(origin), new UnresolvedAttribute(target));
+        return new Map(new Field(origin), new Field(target));
     }
 
     public static Expression map(Expression origin, Expression target) {
@@ -135,6 +140,18 @@ public class DSL {
         return new Argument(argName, argValue);
     }
 
+    public static Expression field(String field) {
+        return new Field(field);
+    }
+
+    public static Expression field(String field, Expression... fieldArgs) {
+        return new Field(field, Arrays.asList(fieldArgs));
+    }
+
+    public static Expression field(String field, List<Expression> fieldArgs) {
+        return new Field(field, fieldArgs);
+    }
+
     public static List<Expression> exprList(Expression... exprList) {
         return Arrays.asList(exprList);
     }
@@ -167,6 +184,13 @@ public class DSL {
         return exprList(
                 argument("count", intLiteral(1000)),
                 argument("desc", booleanLiteral(false))
+        );
+    }
+
+    public static List<Expression> defaultSortFieldArgs() {
+        return exprList(
+                argument("exclude", booleanLiteral(false)),
+                argument("type", nullLiteral())
         );
     }
 

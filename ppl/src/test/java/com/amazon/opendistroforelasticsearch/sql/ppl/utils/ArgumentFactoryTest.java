@@ -21,13 +21,14 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.agg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.aggregate;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.argument;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.booleanLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.defaultSortFieldArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.exprList;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.field;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.map;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.projectWithArg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.stringLiteral;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.unresolvedAttr;
 
 public class ArgumentFactoryTest extends AstBuilderTest {
 
@@ -37,7 +38,7 @@ public class ArgumentFactoryTest extends AstBuilderTest {
                 projectWithArg(
                         relation("t"),
                         exprList(argument("exclude", booleanLiteral(true))),
-                        unresolvedAttr("a")
+                        field("a")
                 ));
     }
 
@@ -51,7 +52,7 @@ public class ArgumentFactoryTest extends AstBuilderTest {
         assertEqual("source=t | stats partitions=1 allnum=false delim=',' avg(a) dedup_splitvalues=true",
                 agg(
                         relation("t"),
-                        exprList(map(aggregate("avg", unresolvedAttr("a")), null)),
+                        exprList(map(aggregate("avg", field("a")), null)),
                         null,
                         null,
                         exprList(
@@ -75,7 +76,7 @@ public class ArgumentFactoryTest extends AstBuilderTest {
         assertEqual("source=t | dedup 3 field0 keepevents=true keepempty=false consecutive=true",
                 agg(
                         relation("t"),
-                        exprList(unresolvedAttr("field0")),
+                        exprList(field("field0")),
                         null,
                         null,
                         exprList(
@@ -101,7 +102,7 @@ public class ArgumentFactoryTest extends AstBuilderTest {
                 agg(
                         relation("t"),
                         null,
-                        exprList(unresolvedAttr("field0")),
+                        exprList(field("field0", defaultSortFieldArgs())),
                         null,
                         exprList(
                                 argument("count", intLiteral(3)),

@@ -24,20 +24,22 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.argument;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.compare;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.defaultSortArgs;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.defaultSortFieldArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.defaultStatsArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.doubleLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.equalTo;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.field;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.function;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.in;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.map;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.not;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.nullLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.or;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.stringLiteral;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.unresolvedAttr;
 
 public class AstExpressionBuilderTest extends AstBuilderTest{
 
@@ -47,7 +49,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 filter(
                         relation("t"),
                         not(
-                                compare("=", unresolvedAttr("a"), intLiteral(1))
+                                compare("=", field("a"), intLiteral(1))
                         )
                 ));
     }
@@ -58,8 +60,8 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 filter(
                         relation("t"),
                         or(
-                                compare("=", unresolvedAttr("a"), intLiteral(1)),
-                                compare("=", unresolvedAttr("b"), intLiteral(2))
+                                compare("=", field("a"), intLiteral(1)),
+                                compare("=", field("b"), intLiteral(2))
                         )
                 ));
     }
@@ -70,8 +72,8 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 filter(
                         relation("t"),
                         and(
-                                compare("=", unresolvedAttr("a"), intLiteral(1)),
-                                compare("=", unresolvedAttr("b"), intLiteral(2))
+                                compare("=", field("a"), intLiteral(1)),
+                                compare("=", field("b"), intLiteral(2))
                         )
                 ));
     }
@@ -82,8 +84,8 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 filter(
                         relation("t"),
                         and(
-                                compare("=", unresolvedAttr("a"), intLiteral(1)),
-                                compare("=", unresolvedAttr("b"), intLiteral(2))
+                                compare("=", field("a"), intLiteral(1)),
+                                compare("=", field("b"), intLiteral(2))
                         )
                 ));
     }
@@ -94,8 +96,8 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 filter(
                         relation("t"),
                         equalTo(
-                                unresolvedAttr("f"),
-                                function("abs", unresolvedAttr("a"))
+                                field("f"),
+                                function("abs", field("a"))
                         )
                 ));
     }
@@ -105,7 +107,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
         assertEqual("source=t a='b'",
                 filter(
                         relation("t"),
-                        compare("=", unresolvedAttr("a"), stringLiteral("b"))
+                        compare("=", field("a"), stringLiteral("b"))
                 ));
     }
 
@@ -114,7 +116,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
         assertEqual("source=t a>b",
                 filter(
                         relation("t"),
-                        compare(">", unresolvedAttr("a"), unresolvedAttr("b"))
+                        compare(">", field("a"), field("b"))
                 ));
     }
 
@@ -124,18 +126,109 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 filter(
                         relation("t"),
                         in(
-                                unresolvedAttr("f"),
+                                field("f"),
                                 intLiteral(1), intLiteral(2), intLiteral(3))
                 ));
     }
 
     @Test
     public void testFieldExpr() {
-        assertEqual("source=t | sort +f",
+        assertEqual("source=t | sort + f",
                 agg(
                         relation("t"),
                         null,
-                        Collections.singletonList(unresolvedAttr("f")),
+                        Collections.singletonList(field("f", defaultSortFieldArgs())),
+                        null,
+                        defaultSortArgs()
+                ));
+    }
+
+    @Test
+    public void testSortFieldWithMinusKeyword() {
+        assertEqual("source=t | sort - f",
+                agg(
+                        relation("t"),
+                        null,
+                        Collections.singletonList(
+                                field(
+                                        "f",
+                                        argument("exclude", booleanLiteral(true)),
+                                        argument("type", nullLiteral())
+                                )
+                        ),
+                        null,
+                        defaultSortArgs()
+                ));
+    }
+
+    @Test
+    public void testSortFieldWithAutoKeyword() {
+        assertEqual("source=t | sort auto(f)",
+                agg(
+                        relation("t"),
+                        null,
+                        Collections.singletonList(
+                                field(
+                                        "f",
+                                        argument("exclude", booleanLiteral(false)),
+                                        argument("type", stringLiteral("auto"))
+                                )
+                        ),
+                        null,
+                        defaultSortArgs()
+                ));
+    }
+
+    @Test
+    public void testSortFieldWithIpKeyword() {
+        assertEqual("source=t | sort ip(f)",
+                agg(
+                        relation("t"),
+                        null,
+                        Collections.singletonList(
+                                field(
+                                        "f",
+                                        argument("exclude", booleanLiteral(false)),
+                                        argument("type", stringLiteral("ip"))
+                                )
+                        ),
+                        null,
+                        defaultSortArgs()
+                ));
+    }
+
+    @Test
+    public void testSortFieldWithNumKeyword() {
+        assertEqual("source=t | sort num(f)",
+                agg(
+                        relation("t"),
+                        null,
+                        Collections.singletonList(
+                                field(
+                                        "f",
+                                        argument("exclude", booleanLiteral(false)),
+                                        argument("type", stringLiteral("num"))
+                                )
+                        ),
+                        null,
+                        defaultSortArgs()
+
+                ));
+    }
+
+    @Test
+    public void testSortFieldWithStrKeyword() {
+        assertEqual("source=t | sort str(f)",
+                agg(
+                        relation("t"),
+                        null,
+                        Collections.singletonList(
+                                field(
+                                        "f",
+                                        argument("exclude", booleanLiteral(false)),
+                                        argument("type", stringLiteral("str"))
+                                )
+                        ),
                         null,
                         defaultSortArgs()
                 ));
@@ -148,13 +241,13 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                         relation("t"),
                         Collections.singletonList(
                                 map(
-                                        aggregate("avg", unresolvedAttr("a")),
+                                        aggregate("avg", field("a")),
                                         null
                                 )
 
                         ),
                         null,
-                        Collections.singletonList(unresolvedAttr("b")),
+                        Collections.singletonList(field("b")),
                         defaultStatsArgs()
                 ));
     }
@@ -168,7 +261,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                                 map(
                                         aggregate(
                                                 "percentile",
-                                                unresolvedAttr("a"),
+                                                field("a"),
                                                 argument("rank", intLiteral(1))
                                         ),
                                         null
@@ -186,8 +279,8 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 project(
                         relation("t"),
                         equalTo(
-                                unresolvedAttr("f"),
-                                function("abs", unresolvedAttr("a"))
+                                field("f"),
+                                function("abs", field("a"))
                         )
                 ));
     }
@@ -199,7 +292,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                         relation("t"),
                         compare(
                                 "=",
-                                unresolvedAttr("a"),
+                                field("a"),
                                 stringLiteral("string")
                         )
                 ));
@@ -212,7 +305,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                         relation("t"),
                         compare(
                                 "=",
-                                unresolvedAttr("a"),
+                                field("a"),
                                 intLiteral(1)
                         )
                 ));
@@ -225,7 +318,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                         relation("t"),
                         compare(
                                 "=",
-                                unresolvedAttr("b"),
+                                field("b"),
                                 doubleLiteral(0.1)
                         )
                 ));
@@ -238,7 +331,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                         relation("t"),
                         compare(
                                 "=",
-                                unresolvedAttr("a"),
+                                field("a"),
                                 booleanLiteral(true)
                         )
                 ));
