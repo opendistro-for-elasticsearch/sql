@@ -1,4 +1,27 @@
-## 2020-03-24 Version 1.6.0.0 (Current)
+## 2020-04-29 Version 1.6.1.0 (Current)
+
+#### Breaking Changes
+* Change [#414](https://github.com/opendistro-for-elasticsearch/sql/pull/414): Invalidate HTTP GET method.
+
+### Features
+#### SQL Features
+* Feature [#390](https://github.com/opendistro-for-elasticsearch/sql/pull/390): Simple Query Cursor support. (issue: [#16](https://github.com/opendistro-for-elasticsearch/sql/issues/16))
+* Feature [#400](https://github.com/opendistro-for-elasticsearch/sql/pull/400): New SQL cluster settings endpoint.
+#### Documentation
+* Feature [#417](https://github.com/opendistro-for-elasticsearch/sql/pull/417): More docs in reference manual and add architecture doc. (issue: [#380](https://github.com/opendistro-for-elasticsearch/sql/issues/380)) 
+#### Security
+* Change [#447](https://github.com/opendistro-for-elasticsearch/sql/pull/447): Fix CSV injection issue. (issue: [#449](https://github.com/opendistro-for-elasticsearch/sql/issues/449))
+* Change [#419](https://github.com/opendistro-for-elasticsearch/sql/pull/419): Anonymize sensitive data in queries exposed to RestSqlAction logs. (issue: [#97](https://github.com/opendistro-for-elasticsearch/sql/issues/97))
+
+### Bugfixes
+* Bugfix [#442](https://github.com/opendistro-for-elasticsearch/sql/pull/442): count(distinct field) should translate to cardinality aggregation. (issue: [#439](https://github.com/opendistro-for-elasticsearch/sql/issues/439))
+* Bugfix [#437](https://github.com/opendistro-for-elasticsearch/sql/pull/437): Enforce AVG return double data type. (issue: [#408](https://github.com/opendistro-for-elasticsearch/sql/issues/408))
+* Bugfix [#425](https://github.com/opendistro-for-elasticsearch/sql/pull/425): ignore the term query rewrite if there is no index found. (issue: [#355](https://github.com/opendistro-for-elasticsearch/sql/issues/355))
+* Bugfix [#418](https://github.com/opendistro-for-elasticsearch/sql/pull/418): support subquery in from doesn't have alias. (issue: [#416](https://github.com/opendistro-for-elasticsearch/sql/issues/416))
+* Bugfix [#412](https://github.com/opendistro-for-elasticsearch/sql/pull/412): add support for strict_date_optional_time. (issue: [#411](https://github.com/opendistro-for-elasticsearch/sql/issues/411))
+* Bugfix [#381](https://github.com/opendistro-for-elasticsearch/sql/pull/381): field function name letter case preserved in select with group by. (issue: [#373](https://github.com/opendistro-for-elasticsearch/sql/issues/373))
+
+## 2020-03-24 Version 1.6.0.0
 
 ### Features
 #### Elasticsearch Compatibility
