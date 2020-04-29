@@ -158,8 +158,7 @@ comparisonExpression
 
 /** tables */
 tableSource
-    : ident
-    | stringLiteral
+    : qualifiedName
     ;
 
 /** fields */
@@ -184,14 +183,11 @@ sortFieldExpression
     ;
 
 fieldExpression
-    : ident
-    | SINGLE_QUOTE ident SINGLE_QUOTE
-    | DOUBLE_QUOTE ident DOUBLE_QUOTE
-    | BACKTICK ident BACKTICK
+    : qualifiedName
     ;
 
 wcFieldExpression
-    : wildcard
+    : wcQualifiedName
     ;
 
 
@@ -247,7 +243,7 @@ literalValue
     ;
 
 stringLiteral
-    : DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING
+    : DQUOTA_STRING | SQUOTA_STRING
     ;
 
 integerLiteral
@@ -266,10 +262,23 @@ valueList
     : LT_PRTHS literalValue (COMMA literalValue)* RT_PRTHS
     ;
 
+qualifiedName
+    : ident (DOT ident)*
+    ;
+
+wcQualifiedName
+    : wildcard (DOT wildcard)*
+    ;
+
 ident
     : (DOT)? ID
+    | BACKTICK ident BACKTICK
+    | BQUOTA_STRING
     ;
 
 wildcard
-    : (MODULE | ident)+
+    : ident (MODULE ident)* (MODULE)?
+    | SINGLE_QUOTE wildcard SINGLE_QUOTE
+    | DOUBLE_QUOTE wildcard DOUBLE_QUOTE
+    | BACKTICK wildcard BACKTICK
     ;

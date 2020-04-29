@@ -18,6 +18,8 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
+import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
@@ -30,10 +32,11 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Not;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.stream.Collectors;
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.RuleContext;
 
 import static com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils.unquoteIdentifier;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.BooleanLiteralContext;
@@ -48,6 +51,8 @@ import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.LogicalNotContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.LogicalOrContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.PercentileAggFunctionContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.QualifiedNameContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.SortFieldContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.StatsFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.StringLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.WcFieldExpressionContext;
@@ -102,16 +107,16 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Express
     /** Field expression */
     @Override
     public Expression visitFieldExpression(FieldExpressionContext ctx) {
-        return new Field(ctx.getText());
+        return new Field((QualifiedName) visit(ctx.qualifiedName()));
     }
 
     @Override
     public Expression visitWcFieldExpression(WcFieldExpressionContext ctx) {
-        return new Field(ctx.getText());
+        return new Field((QualifiedName) visit(ctx.wcQualifiedName()));
     }
 
     @Override
-    public Expression visitSortField(OpenDistroPPLParser.SortFieldContext ctx) {
+    public Expression visitSortField(SortFieldContext ctx) {
         return new Field(
                 ctx.sortFieldExpression().fieldExpression().getText(),
                 Arrays.asList(
@@ -156,6 +161,28 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Express
     }
 
     /** Literal and value */
+    @Override
+    public Expression visitQualifiedName(QualifiedNameContext ctx) {
+        return new QualifiedName(
+                ctx.ident()
+                        .stream()
+                        .map(ParserRuleContext::getText)
+                        .map(StringUtils::unquoteIdentifier)
+                        .collect(Collectors.toList())
+        );
+    }
+
+    @Override
+    public Expression visitWcQualifiedName(OpenDistroPPLParser.WcQualifiedNameContext ctx) {
+        return new QualifiedName(
+                ctx.wildcard()
+                        .stream()
+                        .map(ParserRuleContext::getText)
+                        .map(StringUtils::unquoteIdentifier)
+                        .collect(Collectors.toList())
+        );
+    }
+
     @Override
     public Expression visitStringLiteral(StringLiteralContext ctx) {
         return new Literal(unquoteIdentifier(ctx.getText()), DataType.STRING);

@@ -28,14 +28,22 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = false)
 @AllArgsConstructor
 public class Field extends Expression {
-    private String field;
+    private QualifiedName field;
     private List<Expression> fieldArgs;
 
-    public Field(String field) {
+    public Field(QualifiedName field) {
         this.field = field;
         this.fieldArgs = null;
     }
 
+    public Field(String field) {
+        this.field = new QualifiedName(field);
+    }
+
+    public Field(String field, List<Expression> fieldArgs) {
+        this.field = new QualifiedName(field);
+        this.fieldArgs = fieldArgs;
+    }
 
     @Override
     public List<Expression> getChild() {

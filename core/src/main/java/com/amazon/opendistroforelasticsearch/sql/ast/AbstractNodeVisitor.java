@@ -28,6 +28,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Not;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
@@ -131,6 +132,10 @@ public abstract class AbstractNodeVisitor<T, C> {
     }
 
     public T visitField(Field node, C context) {
+        return visitChildren(node, context);
+    }
+
+    public T visitQualifiedName(QualifiedName node, C context) {
         return visitChildren(node, context);
     }
 }

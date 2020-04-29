@@ -17,8 +17,6 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.PPLSyntaxParser;
 import com.amazon.opendistroforelasticsearch.sql.ast.Node;
-import java.util.Arrays;
-import java.util.Collections;
 import org.junit.Test;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.agg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.aggregate;
@@ -29,6 +27,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.defaultSortA
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.defaultSortFieldArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.defaultStatsArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.equalTo;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.exprList;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.field;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.function;
@@ -115,7 +114,7 @@ public class AstBuilderTest {
         assertEqual("source=t | stats count(a)",
                 agg(
                         relation("t"),
-                        Collections.singletonList(
+                        exprList(
                                 map(aggregate("count", field("a")), null)
                         ),
                         null,
@@ -129,11 +128,11 @@ public class AstBuilderTest {
         assertEqual("source=t | stats count(a) by b DEDUP_SPLITVALUES=false",
                 agg(
                         relation("t"),
-                        Collections.singletonList(
+                        exprList(
                                 map(aggregate("count", field("a")), null)
                         ),
                         null,
-                        Collections.singletonList(field("b")),
+                        exprList(field("b")),
                         defaultStatsArgs()
                 ));
     }
@@ -144,7 +143,7 @@ public class AstBuilderTest {
         assertEqual("source=t | stats count(a) as alias",
                 agg(
                         relation("t"),
-                        Collections.singletonList(
+                        exprList(
                                 map(
                                         aggregate("count", field("a")),
                                         field("alias")
@@ -161,7 +160,7 @@ public class AstBuilderTest {
         assertEqual("source=t | dedup f1, f2",
                 agg(
                         relation("t"),
-                        Arrays.asList(field("f1"), field("f2")),
+                        exprList(field("f1"), field("f2")),
                         null,
                         null,
                         defaultDedupArgs()
@@ -173,8 +172,8 @@ public class AstBuilderTest {
         assertEqual("source=t | dedup f1, f2 sortby f3",
                 agg(
                         relation("t"),
-                        Arrays.asList(field("f1"), field("f2")),
-                        Collections.singletonList(field("f3", defaultSortFieldArgs())),
+                        exprList(field("f1"), field("f2")),
+                        exprList(field("f3", defaultSortFieldArgs())),
                         null,
                         defaultDedupArgs()
                 ));
@@ -186,7 +185,7 @@ public class AstBuilderTest {
                 agg(
                         relation("t"),
                         null,
-                        Arrays.asList(
+                        exprList(
                                 field("f1", defaultSortFieldArgs()),
                                 field("f2", defaultSortFieldArgs())
                         ),
@@ -209,7 +208,7 @@ public class AstBuilderTest {
 
     @Test
     public void testIndexName() {
-        assertEqual("source=\"log.2020.04.20.\" a=1",
+        assertEqual("source=`log.2020.04.20.` a=1",
                 filter(
                         relation("log.2020.04.20."),
                         compare("=", field("a"), intLiteral(1))

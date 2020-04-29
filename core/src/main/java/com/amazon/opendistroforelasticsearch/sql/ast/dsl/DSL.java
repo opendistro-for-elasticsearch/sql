@@ -29,6 +29,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Not;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
@@ -48,7 +49,7 @@ public class DSL {
     }
 
     public static UnresolvedPlan relation(String tableName) {
-        return new Relation(tableName);
+        return new Relation(qualifiedName(tableName));
     }
 
     public static UnresolvedPlan project(UnresolvedPlan input, Expression... projectList) {
@@ -62,6 +63,10 @@ public class DSL {
     public static UnresolvedPlan agg(UnresolvedPlan input, List<Expression> aggList, List<Expression> sortList,
                                      List<Expression> groupList, List<Expression> argList) {
         return new Aggregation(aggList, sortList, groupList, argList).attach(input);
+    }
+
+    public static Expression qualifiedName(String... parts) {
+        return new QualifiedName(Arrays.asList(parts));
     }
 
     public static Expression equalTo(Expression left, Expression right) {
@@ -140,12 +145,24 @@ public class DSL {
         return new Argument(argName, argValue);
     }
 
+    public static Expression field(Expression field) {
+        return new Field((QualifiedName) field);
+    }
+
     public static Expression field(String field) {
         return new Field(field);
     }
 
+    public static Expression field(Expression field, Expression... fieldArgs) {
+        return new Field((QualifiedName) field, Arrays.asList(fieldArgs));
+    }
+
     public static Expression field(String field, Expression... fieldArgs) {
         return new Field(field, Arrays.asList(fieldArgs));
+    }
+
+    public static Expression field(Expression field, List<Expression> fieldArgs) {
+        return new Field((QualifiedName) field, fieldArgs);
     }
 
     public static Expression field(String field, List<Expression> fieldArgs) {

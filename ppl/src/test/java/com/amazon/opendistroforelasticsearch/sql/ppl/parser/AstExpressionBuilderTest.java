@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
-import java.util.Collections;
 import org.junit.Test;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.agg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.aggregate;
@@ -23,11 +22,13 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.and;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.argument;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.compare;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.defaultFieldsArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.defaultSortArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.defaultSortFieldArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.defaultStatsArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.doubleLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.equalTo;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.exprList;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.field;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.function;
@@ -38,6 +39,8 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.not;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.nullLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.or;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.project;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.projectWithArg;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.qualifiedName;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.stringLiteral;
 
@@ -137,7 +140,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 agg(
                         relation("t"),
                         null,
-                        Collections.singletonList(field("f", defaultSortFieldArgs())),
+                        exprList(field("f", defaultSortFieldArgs())),
                         null,
                         defaultSortArgs()
                 ));
@@ -149,7 +152,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 agg(
                         relation("t"),
                         null,
-                        Collections.singletonList(
+                        exprList(
                                 field(
                                         "f",
                                         argument("exclude", booleanLiteral(true)),
@@ -167,7 +170,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 agg(
                         relation("t"),
                         null,
-                        Collections.singletonList(
+                        exprList(
                                 field(
                                         "f",
                                         argument("exclude", booleanLiteral(false)),
@@ -185,7 +188,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 agg(
                         relation("t"),
                         null,
-                        Collections.singletonList(
+                        exprList(
                                 field(
                                         "f",
                                         argument("exclude", booleanLiteral(false)),
@@ -203,7 +206,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 agg(
                         relation("t"),
                         null,
-                        Collections.singletonList(
+                        exprList(
                                 field(
                                         "f",
                                         argument("exclude", booleanLiteral(false)),
@@ -222,7 +225,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 agg(
                         relation("t"),
                         null,
-                        Collections.singletonList(
+                        exprList(
                                 field(
                                         "f",
                                         argument("exclude", booleanLiteral(false)),
@@ -239,7 +242,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
         assertEqual("source=t | stats avg(a) by b",
                 agg(
                         relation("t"),
-                        Collections.singletonList(
+                        exprList(
                                 map(
                                         aggregate("avg", field("a")),
                                         null
@@ -247,7 +250,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
 
                         ),
                         null,
-                        Collections.singletonList(field("b")),
+                        exprList(field("b")),
                         defaultStatsArgs()
                 ));
     }
@@ -257,7 +260,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
         assertEqual("source=t | stats percentile<1>(a)",
                 agg(
                         relation("t"),
-                        Collections.singletonList(
+                        exprList(
                                 map(
                                         aggregate(
                                                 "percentile",
@@ -281,6 +284,30 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                         equalTo(
                                 field("f"),
                                 function("abs", field("a"))
+                        )
+                ));
+    }
+
+    @Test
+    public void testNestedFieldName() {
+        assertEqual("source=t | fields field0.field1.field2",
+                projectWithArg(
+                        relation("t"),
+                        defaultFieldsArgs(),
+                        field(
+                                qualifiedName("field0", "field1", "field2")
+                        )
+                ));
+    }
+
+    @Test
+    public void testFieldNameWithSpecialChars() {
+        assertEqual("source=t | fields `field-0`.`field#1`.`field*2`",
+                projectWithArg(
+                        relation("t"),
+                        defaultFieldsArgs(),
+                        field(
+                                qualifiedName("field-0", "field#1", "field*2")
                         )
                 ));
     }
