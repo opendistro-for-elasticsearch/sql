@@ -18,7 +18,6 @@ package com.amazon.opendistroforelasticsearch.sql.executor.csv;
 import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
 import com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.utils.Util;
-import com.google.common.base.Joiner;
 import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -66,44 +65,33 @@ public class CSVResultsExtractor {
             SearchHit[] hits = ((SearchHits) queryResult).getHits();
             List<Map<String, Object>> docsAsMap = new ArrayList<>();
             List<String> headers = createHeadersAndFillDocsMap(flat, hits, docsAsMap, fieldNames);
-            List<String> csvLines = createCSVLinesFromDocs(flat, separator, docsAsMap, headers);
-            return new CSVResult(headers, csvLines);
+            List<List<String>> csvLines = createCSVLinesFromDocs(flat, separator, docsAsMap, headers);
+            return new CSVResult(separator, headers, csvLines);
         }
         if (queryResult instanceof Aggregations) {
             List<String> headers = new ArrayList<>();
             List<List<String>> lines = new ArrayList<>();
             lines.add(new ArrayList<String>());
             handleAggregations((Aggregations) queryResult, headers, lines);
-
-            List<String> csvLines = new ArrayList<>();
-            for (List<String> simpleLine : lines) {
-                csvLines.add(Joiner.on(separator).join(simpleLine));
-            }
-
-            //todo: need to handle more options for aggregations:
-            //Aggregations that inhrit from base
-            //ScriptedMetric
-
-            return new CSVResult(headers, csvLines);
-
+            return new CSVResult(separator, headers, lines);
         }
         // Handle List<BindingTuple> result.
         if (queryResult instanceof List) {
             List<BindingTuple> bindingTuples = (List<BindingTuple>) queryResult;
-            List<String> csvLines = bindingTuples.stream().map(tuple -> {
+            List<List<String>> csvLines = bindingTuples.stream().map(tuple -> {
                 Map<String, ExprValue> bindingMap = tuple.getBindingMap();
-                List<Object> rowValues = new ArrayList<>();
+                List<String> rowValues = new ArrayList<>();
                 for (String fieldName : fieldNames) {
                     if (bindingMap.containsKey(fieldName)) {
-                        rowValues.add(bindingMap.get(fieldName).value());
+                        rowValues.add(String.valueOf(bindingMap.get(fieldName).value()));
                     } else {
                         rowValues.add("");
                     }
                 }
-                return Joiner.on(separator).join(rowValues);
+                return rowValues;
             }).collect(Collectors.toList());
 
-            return new CSVResult(fieldNames, csvLines);
+            return new CSVResult(separator, fieldNames, csvLines);
         }
         return null;
     }
@@ -283,15 +271,16 @@ public class CSVResultsExtractor {
         return aggregations.asList().get(0);
     }
 
-    private List<String> createCSVLinesFromDocs(boolean flat, String separator, List<Map<String, Object>> docsAsMap,
-                                                List<String> headers) {
-        List<String> csvLines = new ArrayList<>();
+    private List<List<String>> createCSVLinesFromDocs(boolean flat, String separator,
+                                                      List<Map<String, Object>> docsAsMap,
+                                                      List<String> headers) {
+        List<List<String>> csvLines = new ArrayList<>();
         for (Map<String, Object> doc : docsAsMap) {
-            String line = "";
+            List<String> line = new ArrayList<>();
             for (String header : headers) {
-                line += findFieldValue(header, doc, flat, separator);
+                line.add(findFieldValue(header, doc, flat, separator));
             }
-            csvLines.add(line.substring(0, line.lastIndexOf(separator)));
+            csvLines.add(line);
         }
         return csvLines;
     }
@@ -335,11 +324,11 @@ public class CSVResultsExtractor {
 
             for (String innerField : split) {
                 if (!(innerDoc instanceof Map)) {
-                    return separator;
+                    return "";
                 }
                 innerDoc = ((Map<String, Object>) innerDoc).get(innerField);
                 if (innerDoc == null) {
-                    return separator;
+                    return "";
                 }
             }
             return quoteValueIfRequired(innerDoc.toString(), separator);
@@ -348,14 +337,14 @@ public class CSVResultsExtractor {
                 return quoteValueIfRequired(String.valueOf(doc.get(header)), separator);
             }
         }
-        return separator;
+        return "";
     }
 
     private String quoteValueIfRequired(final String input, final String separator) {
         final String quote = "\"";
 
         return input.contains(separator)
-                ? quote + input.replaceAll("\"", "\"\"") + quote + separator : input + separator;
+                ? quote + input.replaceAll("\"", "\"\"") + quote : input;
     }
 
     private void mergeHeaders(Set<String> headers, Map<String, Object> doc, boolean flat) {
