@@ -100,7 +100,7 @@ public class TestUtils {
         try {
             Response response = client.performRequest(request);
             int status = response.getStatusLine().getStatusCode();
-            if (status != 200) {
+            if (status >= 400) {
                 throw new IllegalStateException("Failed to perform request. Error code: " + status);
             }
             return response;
