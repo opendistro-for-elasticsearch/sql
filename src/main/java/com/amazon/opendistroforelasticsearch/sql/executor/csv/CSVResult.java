@@ -33,7 +33,8 @@ public class CSVResult {
     private final List<String> lines;
 
     /**
-     * Skip sanitizing if appended lines provided.
+     * Skip sanitizing if string line provided. This constructor is basically used by
+     * assertion in test code.
      */
     public CSVResult(List<String> headers, List<String> lines) {
         this.headers = headers;
@@ -46,8 +47,8 @@ public class CSVResult {
     }
 
     /**
-     * Return CSV header names which are sanitized too just in case Elasticsearch allows
-     * sensitive character present in field name.
+     * Return CSV header names which are sanitized because Elasticsearch allows
+     * special character present in field name too.
      * @return  CSV header name list after sanitized
      */
     public List<String> getHeaders() {

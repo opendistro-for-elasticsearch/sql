@@ -610,6 +610,30 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     }
     //endregion Tests migrated from CSVResultsExtractorTests
 
+    @Test
+    public void sensitiveCharacterSanitizeTest() throws IOException {
+        String requestBody =
+            "{" +
+            "  \"=cmd|' /C notepad'!_xlbgnm.A1\": \"+cmd|' /C notepad'!_xlbgnm.A1\",\n" +
+            "  \"-cmd|' /C notepad'!_xlbgnm.A1\": \"@cmd|' /C notepad'!_xlbgnm.A1\"\n" +
+            "}";
+
+        Request request = new Request("PUT", "/userdata/_doc/1?refresh=true");
+        request.setJsonEntity(requestBody);
+        TestUtils.performRequest(client(), request);
+
+        CSVResult csvResult = executeCsvRequest("SELECT * FROM userdata", false, false, false, false);
+        List<String> headers = csvResult.getHeaders();
+        Assert.assertEquals(2, headers.size());
+        Assert.assertTrue(headers.contains("'=cmd|' /C notepad'!_xlbgnm.A1"));
+        Assert.assertTrue(headers.contains("'-cmd|' /C notepad'!_xlbgnm.A1"));
+
+        List<String> lines = csvResult.getLines();
+        Assert.assertEquals(1, lines.size());
+        Assert.assertTrue(lines.get(0).contains("'+cmd|' /C notepad'!_xlbgnm.A1"));
+        Assert.assertTrue(lines.get(0).contains("'@cmd|' /C notepad'!_xlbgnm.A1"));
+    }
+
     private void verifyFieldOrder(final String[] expectedFields) throws IOException {
 
         final String fields = String.join(", ", expectedFields);
