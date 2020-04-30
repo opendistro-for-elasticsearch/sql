@@ -46,4 +46,9 @@ public class ExprNullValue implements ExprValue {
     public boolean isNull() {
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "null";
+    }
 }

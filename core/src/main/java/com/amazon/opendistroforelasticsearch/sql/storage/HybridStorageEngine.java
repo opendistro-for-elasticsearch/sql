@@ -18,14 +18,17 @@
 package com.amazon.opendistroforelasticsearch.sql.storage;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
-import lombok.RequiredArgsConstructor;
 
+import java.util.Arrays;
 import java.util.List;
 
-@RequiredArgsConstructor
 public class HybridStorageEngine implements StorageEngine {
 
     private final List<StorageEngine> engines;
+
+    public HybridStorageEngine(StorageEngine... engines) {
+        this.engines = Arrays.asList(engines);
+    }
 
     @Override
     public ExprType getType(String name) {
@@ -34,7 +37,13 @@ public class HybridStorageEngine implements StorageEngine {
 
     @Override
     public Table getTable(String name) {
-        return null;
+        for (StorageEngine engine : engines) {
+            Table table = engine.getTable(name);
+            if (table != Table.NONE) {
+                return table;
+            }
+        }
+        return Table.NONE;
     }
 
 }

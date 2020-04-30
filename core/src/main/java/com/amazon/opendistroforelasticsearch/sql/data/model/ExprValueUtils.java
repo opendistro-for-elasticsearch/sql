@@ -84,6 +84,10 @@ public class ExprValueUtils {
     }
 
     public static ExprValue fromObjectValue(Object o) {
+        if (o == null) {
+            return ExprNullValue.of();
+        }
+
         if (o instanceof Map) {
             return tupleValue((Map) o);
         } else if (o instanceof List) {

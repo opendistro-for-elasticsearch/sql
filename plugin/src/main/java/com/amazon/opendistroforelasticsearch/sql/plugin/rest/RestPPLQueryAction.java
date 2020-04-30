@@ -28,7 +28,9 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.config.PPLServiceConfig;
 import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryResponse;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryEngine;
 import com.amazon.opendistroforelasticsearch.sql.storage.BindingTuple;
+import com.amazon.opendistroforelasticsearch.sql.storage.HybridStorageEngine;
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
+import com.amazon.opendistroforelasticsearch.sql.storage.file.FileStorageEngine;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.node.NodeClient;
@@ -65,7 +67,10 @@ public class RestPPLQueryAction extends BaseRestHandler {
                 () -> new AnnotationConfigApplicationContext(PPLServiceConfig.class));
         //PPLService pplService = context.getBean(PPLService.class);
 
-        StorageEngine storageEngine = new ElasticsearchStorageEngine(client); // TODO: client is per-request. how to make PPLService long living?
+        StorageEngine fileStorageEngine = new FileStorageEngine(getDatabaseFileContent());
+        StorageEngine esStorageEngine = new ElasticsearchStorageEngine(client); // TODO: client is per-request. how to make PPLService long living?
+        StorageEngine storageEngine = new HybridStorageEngine(fileStorageEngine, esStorageEngine);
+
         QueryEngine queryEngine = new QueryEngine(new PPLSyntaxParser(), storageEngine);
         ExecutionEngine executionEngine = new ElasticsearchExecutionEngine(client);
 
@@ -87,5 +92,30 @@ public class RestPPLQueryAction extends BaseRestHandler {
                                         e.getMessage() == null ? "error" : e.getMessage()));
                     }
                 });
+    }
+
+    // Because of ES sandbox, this is only for demo.
+    private String getDatabaseFileContent() {
+        return "{\n" +
+            "  \"hr\": {\n" +
+            "    \"employees\": [\n" +
+            "      {\n" +
+            "        \"id\": 3,\n" +
+            "        \"name\": \"Bob Smith\",\n" +
+            "        \"title\": null\n" +
+            "      },\n" +
+            "      {\n" +
+            "        \"id\": 4,\n" +
+            "        \"name\": \"Susan Smith\",\n" +
+            "        \"title\": \"Dev Mgr\"\n" +
+            "      },\n" +
+            "      {\n" +
+            "        \"id\": 6,\n" +
+            "        \"name\": \"Jane Smith\",\n" +
+            "        \"title\": \"Software Eng 2\"\n" +
+            "      }\n" +
+            "    ]\n" +
+            "  }\n" +
+            "}";
     }
 }
