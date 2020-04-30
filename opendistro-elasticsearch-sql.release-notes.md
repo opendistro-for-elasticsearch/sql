@@ -14,7 +14,6 @@
 * Change [#419](https://github.com/opendistro-for-elasticsearch/sql/pull/419): Anonymize sensitive data in queries exposed to RestSqlAction logs. (issue: [#97](https://github.com/opendistro-for-elasticsearch/sql/issues/97))
 
 ### Bugfixes
-* Bugfix [#446](https://github.com/opendistro-for-elasticsearch/sql/pull/446): Mock LocalClusterState settings in QueryPlanner base test class. (issue: [#443](https://github.com/opendistro-for-elasticsearch/sql/issues/443))
 * Bugfix [#442](https://github.com/opendistro-for-elasticsearch/sql/pull/442): Count(distinct field) should translate to cardinality aggregation. (issue: [#439](https://github.com/opendistro-for-elasticsearch/sql/issues/439))
 * Bugfix [#437](https://github.com/opendistro-for-elasticsearch/sql/pull/437): Enforce AVG return double data type. (issue: [#408](https://github.com/opendistro-for-elasticsearch/sql/issues/408))
 * Bugfix [#425](https://github.com/opendistro-for-elasticsearch/sql/pull/425): Ignore the term query rewrite if there is no index found. (issue: [#355](https://github.com/opendistro-for-elasticsearch/sql/issues/355))
