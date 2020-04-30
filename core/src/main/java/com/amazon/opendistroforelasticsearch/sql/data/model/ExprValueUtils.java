@@ -85,7 +85,7 @@ public class ExprValueUtils {
 
     public static ExprValue fromObjectValue(Object o) {
         if (o == null) {
-            return ExprNullValue.of();
+            return nullValue();
         }
 
         if (o instanceof Map) {

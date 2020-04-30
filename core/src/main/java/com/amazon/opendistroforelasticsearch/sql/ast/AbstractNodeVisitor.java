@@ -28,6 +28,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Join;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 
@@ -68,6 +69,10 @@ public abstract class AbstractNodeVisitor<T, C> {
     }
 
     public T visitProject(Project node, C context) {
+        return visitChildren(node, context);
+    }
+
+    public T visitJoin(Join node, C context) {
         return visitChildren(node, context);
     }
 

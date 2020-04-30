@@ -15,26 +15,30 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
-import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
-import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParserBaseVisitor;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Join;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
+import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
+import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParserBaseVisitor;
+import lombok.RequiredArgsConstructor;
+import org.antlr.v4.runtime.RuleContext;
+import org.antlr.v4.runtime.tree.ParseTree;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
-import org.antlr.v4.runtime.tree.ParseTree;
 
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.DedupCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.EvalCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.FieldsCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.FromClauseContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.JoinCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.PplStatementContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.RenameCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.SearchFilterFromContext;
@@ -169,6 +173,19 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
                         .stream()
                         .map(this::visitExpression)
                         .collect(Collectors.toList())
+        );
+    }
+
+    @Override
+    public UnresolvedPlan visitJoinCommand(JoinCommandContext ctx) {
+        if (ctx.joinTypeClause() == null) {
+            return new Join("cross", Collections.emptyList());
+        }
+        return new Join(
+            ctx.joinTypeClause().joinType.getText(),
+            ctx.joinFields.fieldExpression().stream().
+                                             map(RuleContext::getText).
+                                             collect(Collectors.toList())
         );
     }
 

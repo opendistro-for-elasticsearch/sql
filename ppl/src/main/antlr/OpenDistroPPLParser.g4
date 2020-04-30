@@ -29,6 +29,7 @@ pplStatement
 /** commands */
 commands
     : whereCommand | fieldsCommand | renameCommand | statsCommand | dedupCommand | sortCommand | evalCommand
+    | joinCommand
     ;
 
 searchCommand
@@ -63,6 +64,14 @@ sortCommand
 
 evalCommand
     : EVAL evalExpression (COMMA evalExpression)*
+    ;
+
+joinCommand
+    : JOIN (joinTypeClause joinFields=fieldList)? LT_SQR_PRTHS searchCommand RT_SQR_PRTHS
+    ;
+
+joinTypeClause
+    : TYPE EQUAL joinType=(INNER | LEFT | RIGHT)
     ;
 
 /** arguments */

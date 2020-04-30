@@ -17,10 +17,12 @@ package com.amazon.opendistroforelasticsearch.sql.analysis;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Join;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalJoin;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
@@ -53,4 +55,15 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
         Expression condition = expressionAnalyzer.analyze(node.getCondition(), context);
         return new LogicalFilter(condition, child);
     }
+
+    @Override
+    public LogicalPlan visitJoin(Join node, AnalysisContext context) {
+        return new LogicalJoin(
+            node.getChildren().get(0).accept(this, context),
+            node.getChildren().get(1).accept(this, context),
+            node.getJoinType(),
+            node.getJoinFieldNames()
+        );
+    }
+
 }

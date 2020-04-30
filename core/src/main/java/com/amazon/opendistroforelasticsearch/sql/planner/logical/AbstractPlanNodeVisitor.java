@@ -39,4 +39,9 @@ public abstract class AbstractPlanNodeVisitor<R, C> implements PlanNodeVisitor<R
     public R visitFilter(LogicalFilter plan, C context) {
         return visitNode(plan, context);
     }
+
+    public R visitJoin(LogicalJoin plan, C context) {
+        return visitNode(plan, context);
+    }
+
 }

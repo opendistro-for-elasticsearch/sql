@@ -28,6 +28,7 @@ STATS:                              'STATS';
 DEDUP:                              'DEDUP';
 SORT:                               'SORT';
 EVAL:                               'EVAL';
+JOIN:                               'JOIN';
 
 // COMMAND ASSIST KEYWORDS
 AS:                                 'AS';
@@ -45,6 +46,12 @@ AUTO:                               'AUTO';
 STR:                                'STR';
 IP:                                 'IP';
 NUM:                                'NUM';
+
+// JOIN KEYWORDS
+TYPE:                               'TYPE';
+INNER:                              'INNER';
+//LEFT:                               'TYPE'; // already defined as function name
+//RIGHT:                              'RIGHT';
 
 // ARGUMENT KEYWORDS
 KEEPEVENTS:                         'KEEPEVENTS';

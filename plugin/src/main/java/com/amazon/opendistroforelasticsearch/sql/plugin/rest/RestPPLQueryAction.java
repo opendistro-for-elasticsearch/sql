@@ -74,8 +74,8 @@ public class RestPPLQueryAction extends BaseRestHandler {
         QueryEngine queryEngine = new QueryEngine(new PPLSyntaxParser(), storageEngine);
         ExecutionEngine executionEngine = new ElasticsearchExecutionEngine(client);
 
-        DatabaseEngine queryEnvironment = new DatabaseEngine(queryEngine, storageEngine, executionEngine);
-        PPLService pplService = new PPLService(queryEnvironment);
+        DatabaseEngine databaseEngine = new DatabaseEngine(queryEngine, storageEngine, executionEngine);
+        PPLService pplService = new PPLService(databaseEngine);
 
         return channel -> pplService.execute(PPLQueryRequestFactory.getPPLRequest(request),
                 new ResponseListener<List<BindingTuple>>() {
