@@ -1,4 +1,7 @@
-apply plugin: 'java'
+plugins {
+    id 'java'
+    id "io.freefair.lombok"
+}
 
 repositories {
     mavenCentral()
@@ -6,5 +9,6 @@ repositories {
 
 dependencies {
     compile group: 'org.elasticsearch', name: 'elasticsearch', version: "${es_version}"
+    compile project(':core')
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }

@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.planner;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.AbstractPlanNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL;

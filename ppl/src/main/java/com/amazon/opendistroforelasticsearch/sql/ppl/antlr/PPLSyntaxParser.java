@@ -15,10 +15,14 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl.antlr;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.CaseInsensitiveCharStream;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxAnalysisErrorListener;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLLexer;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser;
+import com.amazon.opendistroforelasticsearch.sql.ppl.parser.AstBuilder;
+import com.amazon.opendistroforelasticsearch.sql.ppl.parser.AstExpressionBuilder;
+import com.amazon.opendistroforelasticsearch.sql.query.Parser;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -26,7 +30,13 @@ import org.antlr.v4.runtime.tree.ParseTree;
 /**
  * PPL Syntax Parser
  */
-public class PPLSyntaxParser {
+public class PPLSyntaxParser implements Parser {
+
+    @Override
+    public UnresolvedPlan parse(String query) {
+        return analyzeSyntax(query).accept(new AstBuilder(new AstExpressionBuilder()));
+    }
+
     public ParseTree analyzeSyntax(String query) {
         OpenDistroPPLParser parser = createParser(createLexer(query));
         parser.addErrorListener(new SyntaxAnalysisErrorListener());
@@ -42,4 +52,5 @@ public class PPLSyntaxParser {
         return new OpenDistroPPLLexer(
                 new CaseInsensitiveCharStream(query));
     }
+
 }

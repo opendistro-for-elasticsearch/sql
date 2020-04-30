@@ -38,5 +38,5 @@ public interface PlanNode<T extends PlanNode> {
      * @param <C>     context type.
      * @return returned object.
      */
-    <R, C> R accept(AbstractPlanNodeVisitor<R, C> visitor, C context);
+    <R, C> R accept(PlanNodeVisitor<R, C> visitor, C context);
 }

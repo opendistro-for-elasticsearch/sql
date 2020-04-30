@@ -16,7 +16,6 @@
 package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.planner.AbstractPlanNodeVisitor;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;

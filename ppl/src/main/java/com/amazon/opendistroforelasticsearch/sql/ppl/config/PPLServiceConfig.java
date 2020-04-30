@@ -25,6 +25,7 @@ import org.springframework.context.annotation.Configuration;
 public class PPLServiceConfig {
     @Bean
     public PPLService pplService() {
-        return new PPLService(new PPLSyntaxParser());
+        //return new PPLService(new PPLSyntaxParser());
+        return new PPLService(null);
     }
 }

@@ -15,12 +15,22 @@
 
 package com.amazon.opendistroforelasticsearch.sql.plugin.rest;
 
+import com.amazon.opendistroforelasticsearch.sql.DatabaseEngine;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.ElasticsearchExecutionEngine;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.security.SecurityAccess;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.ElasticsearchStorageEngine;
+import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
 import com.amazon.opendistroforelasticsearch.sql.plugin.request.PPLQueryRequestFactory;
 import com.amazon.opendistroforelasticsearch.sql.ppl.PPLService;
-import com.amazon.opendistroforelasticsearch.sql.ppl.ResponseListener;
+import com.amazon.opendistroforelasticsearch.sql.executor.ResponseListener;
+import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.PPLSyntaxParser;
 import com.amazon.opendistroforelasticsearch.sql.ppl.config.PPLServiceConfig;
 import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryResponse;
+import com.amazon.opendistroforelasticsearch.sql.query.QueryEngine;
+import com.amazon.opendistroforelasticsearch.sql.storage.BindingTuple;
+import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.rest.BaseRestHandler;
 import org.elasticsearch.rest.BytesRestResponse;
@@ -29,12 +39,15 @@ import org.elasticsearch.rest.RestRequest;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.io.IOException;
+import java.util.List;
 
 import static org.elasticsearch.rest.RestStatus.INTERNAL_SERVER_ERROR;
 import static org.elasticsearch.rest.RestStatus.OK;
 
 public class RestPPLQueryAction extends BaseRestHandler {
     public static final String QUERY_API_ENDPOINT = "/_opendistro/_ppl";
+
+    private static final Logger LOG = LogManager.getLogger(RestPPLQueryAction.class);
 
     public RestPPLQueryAction(RestController restController) {
         super();
@@ -50,19 +63,28 @@ public class RestPPLQueryAction extends BaseRestHandler {
     protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient client) throws IOException {
         AnnotationConfigApplicationContext context = SecurityAccess.doPrivileged(
                 () -> new AnnotationConfigApplicationContext(PPLServiceConfig.class));
-        PPLService pplService = context.getBean(PPLService.class);
+        //PPLService pplService = context.getBean(PPLService.class);
+
+        StorageEngine storageEngine = new ElasticsearchStorageEngine(client); // TODO: client is per-request. how to make PPLService long living?
+        QueryEngine queryEngine = new QueryEngine(new PPLSyntaxParser(), storageEngine);
+        ExecutionEngine executionEngine = new ElasticsearchExecutionEngine(client);
+
+        DatabaseEngine queryEnvironment = new DatabaseEngine(queryEngine, storageEngine, executionEngine);
+        PPLService pplService = new PPLService(queryEnvironment);
+
         return channel -> pplService.execute(PPLQueryRequestFactory.getPPLRequest(request),
-                new ResponseListener<PPLQueryResponse>() {
+                new ResponseListener<List<BindingTuple>>() {
                     @Override
-                    public void onResponse(PPLQueryResponse pplQueryResponse) {
-                        channel.sendResponse(new BytesRestResponse(OK, "application/json; charset=UTF-8", "ok"));
+                    public void onResponse(List<BindingTuple> result) {
+                        channel.sendResponse(new BytesRestResponse(OK, "application/json; charset=UTF-8", result.toString()));
                     }
 
                     @Override
                     public void onFailure(Exception e) {
+                        LOG.error("Error", e);
                         channel.sendResponse(
                                 new BytesRestResponse(INTERNAL_SERVER_ERROR, "application/json; charset=UTF-8",
-                                        "error"));
+                                        e.getMessage() == null ? "error" : e.getMessage()));
                     }
                 });
     }

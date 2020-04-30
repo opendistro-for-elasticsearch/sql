@@ -15,19 +15,24 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
-import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.PPLSyntaxParser;
+import com.amazon.opendistroforelasticsearch.sql.DatabaseEngine;
+import com.amazon.opendistroforelasticsearch.sql.executor.ResponseListener;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryRequest;
-import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryResponse;
+import com.amazon.opendistroforelasticsearch.sql.storage.BindingTuple;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 public class PPLService {
-    private final PPLSyntaxParser parser;
 
-    public void execute(PPLQueryRequest request, ResponseListener<PPLQueryResponse> listener) {
+    private final DatabaseEngine queryEnvironment;
+
+    public void execute(PPLQueryRequest request, ResponseListener<List<BindingTuple>> listener) {
         try {
-            parser.analyzeSyntax(request.getRequest());
-            listener.onResponse(new PPLQueryResponse());
+            PhysicalPlan plan = queryEnvironment.getQueryEngine().plan(request.getRequest());
+            queryEnvironment.getExecutionEngine().execute(plan, listener);
         } catch (Exception e) {
             listener.onFailure(e);
         }
