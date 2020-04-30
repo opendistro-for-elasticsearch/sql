@@ -41,12 +41,11 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstant
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.schema;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRowsInOrder;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySchema;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.isEmptyString;
-import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.not;
 
 public class AggregationIT extends SQLIntegTestCase {
@@ -442,7 +441,7 @@ public class AggregationIT extends SQLIntegTestCase {
                 "GROUP BY gender ORDER BY count", TEST_INDEX_ACCOUNT));
 
         verifySchema(response, schema("count", "count", "integer"));
-        verifyDataRows(response,
+        verifyDataRowsInOrder(response,
                 rows(493),
                 rows(507));
     }
@@ -453,9 +452,9 @@ public class AggregationIT extends SQLIntegTestCase {
                 "GROUP BY gender ORDER BY COUNT(*) DESC", TEST_INDEX_ACCOUNT));
 
         verifySchema(response, schema("COUNT(*)", null, "integer"));
-        verifyDataRows(response,
-                rows(493),
-                rows(507));
+        verifyDataRowsInOrder(response,
+                rows(507),
+                rows(493));
     }
 
     @Test
@@ -464,9 +463,9 @@ public class AggregationIT extends SQLIntegTestCase {
                 "GROUP BY gender ORDER BY count DESC", TEST_INDEX_ACCOUNT));
 
         verifySchema(response, schema("count", "count", "integer"));
-        verifyDataRows(response,
-                rows(493),
-                rows(507));
+        verifyDataRowsInOrder(response,
+                rows(507),
+                rows(493));
     }
 
     @Test
@@ -475,7 +474,7 @@ public class AggregationIT extends SQLIntegTestCase {
                 "GROUP BY age ORDER BY COUNT(*) LIMIT 5", TEST_INDEX_ACCOUNT));
 
         verifySchema(response, schema("COUNT(*)", null, "integer"));
-        verifyDataRows(response,
+        verifyDataRowsInOrder(response,
                 rows(35),
                 rows(39),
                 rows(39),
