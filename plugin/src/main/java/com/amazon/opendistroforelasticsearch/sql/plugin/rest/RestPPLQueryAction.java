@@ -42,6 +42,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.elasticsearch.rest.RestStatus.INTERNAL_SERVER_ERROR;
 import static org.elasticsearch.rest.RestStatus.OK;
@@ -81,7 +82,11 @@ public class RestPPLQueryAction extends BaseRestHandler {
                 new ResponseListener<List<BindingTuple>>() {
                     @Override
                     public void onResponse(List<BindingTuple> result) {
-                        channel.sendResponse(new BytesRestResponse(OK, "application/json; charset=UTF-8", result.toString()));
+                        channel.sendResponse(new BytesRestResponse(
+                            OK, "application/json; charset=UTF-8",
+                            result.stream().
+                                   map(BindingTuple::toString).
+                                   collect(Collectors.joining("\n\t", "[\n\t", "\n]\n"))));
                     }
 
                     @Override

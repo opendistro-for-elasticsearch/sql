@@ -17,25 +17,39 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner;
 
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.AbstractPlanNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalJoin;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.HashJoin;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class Planner {
+public class Planner extends AbstractPlanNodeVisitor<PhysicalPlan, Object> {
 
     private final StorageEngine storageEngine;
 
     public PhysicalPlan plan(LogicalPlan logicalPlan) {
-        if (logicalPlan instanceof LogicalRelation) {
-            LogicalRelation relation = (LogicalRelation) logicalPlan;
-            Table table = storageEngine.getTable(relation.getRelationName());
-            return table.find(logicalPlan);
-        }
-        throw new UnsupportedOperationException("Unsupported plan: " + logicalPlan);
+        return logicalPlan.accept(this, null);
+    }
+
+    @Override
+    public PhysicalPlan visitJoin(LogicalJoin join, Object context) {
+        return new HashJoin(
+            join.getLeft().accept(this, context),
+            join.getRight().accept(this, context),
+            join.getJoinType(),
+            join.getJoinFieldNames()
+        );
+    }
+
+    @Override
+    public PhysicalPlan visitRelation(LogicalRelation relation, Object context) {
+        Table table = storageEngine.getTable(relation.getRelationName());
+        return table.find(relation);
     }
 
 }

@@ -36,7 +36,15 @@ public class PPLPluginIT extends ESRestTestCase {
 
     @Test
     public void testQueryEndpointShouldOK() throws IOException {
-        Response response = client().performRequest(makeRequest("search source=a"));
+        Request request = new Request("POST", "/accounts/_doc/1?refresh=true");
+        request.setJsonEntity(
+            "{\n" +
+            "    \"id\": 4,\n" +
+            "    \"city\": \"Seattle\"\n" +
+            "}");
+        client().performRequest(request);
+
+        Response response = client().performRequest(makeRequest("source=accounts | join [search source=employees]"));
         assertThat(response, statusCode(200));
     }
 

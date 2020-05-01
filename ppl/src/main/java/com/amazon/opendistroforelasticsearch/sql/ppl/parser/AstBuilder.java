@@ -178,15 +178,20 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
 
     @Override
     public UnresolvedPlan visitJoinCommand(JoinCommandContext ctx) {
+        Join join;
         if (ctx.joinTypeClause() == null) {
-            return new Join("cross", Collections.emptyList());
+            join = new Join("cross", Collections.emptyList());
+        } else {
+            join = new Join(
+                ctx.joinTypeClause().joinType.getText(),
+                ctx.joinFields.fieldExpression().stream().
+                                                 map(RuleContext::getText).
+                                                 collect(Collectors.toList())
+            );
         }
-        return new Join(
-            ctx.joinTypeClause().joinType.getText(),
-            ctx.joinFields.fieldExpression().stream().
-                                             map(RuleContext::getText).
-                                             collect(Collectors.toList())
-        );
+
+        join.attach(visit(ctx.searchCommand()));
+        return join;
     }
 
     /** From clause */

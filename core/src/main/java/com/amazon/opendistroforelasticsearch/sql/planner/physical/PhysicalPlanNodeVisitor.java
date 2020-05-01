@@ -25,8 +25,12 @@ public abstract class PhysicalPlanNodeVisitor<R, C> implements PlanNodeVisitor<R
         return null;
     }
 
-    public R visitTableScan(TableScan plan, C context) {
-        return visitNode(plan, context);
+    public R visitTableScan(TableScan node, C context) {
+        return visitNode(node, context);
+    }
+
+    public R visitHashJoin(HashJoin node, C context) {
+        return visitNode(node, context);
     }
 
 }

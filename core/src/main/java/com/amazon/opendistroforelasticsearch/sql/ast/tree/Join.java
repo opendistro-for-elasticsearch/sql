@@ -17,6 +17,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ast.tree;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -43,4 +44,10 @@ public class Join extends UnresolvedPlan {
         children.add(child);
         return this;
     }
+
+    @Override
+    public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
+        return nodeVisitor.visitJoin(this, context);
+    }
+
 }
