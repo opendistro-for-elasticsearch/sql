@@ -331,20 +331,13 @@ public class CSVResultsExtractor {
                     return "";
                 }
             }
-            return quoteValueIfRequired(innerDoc.toString(), separator);
+            return innerDoc.toString();
         } else {
             if (doc.containsKey(header)) {
-                return quoteValueIfRequired(String.valueOf(doc.get(header)), separator);
+                return String.valueOf(doc.get(header));
             }
         }
         return "";
-    }
-
-    private String quoteValueIfRequired(final String input, final String separator) {
-        final String quote = "\"";
-
-        return input.contains(separator)
-                ? quote + input.replaceAll("\"", "\"\"") + quote : input;
     }
 
     private void mergeHeaders(Set<String> headers, Map<String, Object> doc, boolean flat) {

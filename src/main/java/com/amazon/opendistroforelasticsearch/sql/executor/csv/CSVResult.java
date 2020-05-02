@@ -41,8 +41,13 @@ public class CSVResult {
         this.lines = lines;
     }
 
+    /**
+     * Sanitize both headers and data lines by:
+     *  1) First prepend single quote if first char is sensitive (= - + @)
+     *  2) Second double quote entire cell if any comma found
+     */
     public CSVResult(String separator, List<String> headers, List<List<String>> lines) {
-        this.headers = sanitizeHeaders(headers);
+        this.headers = sanitizeHeaders(separator, headers);
         this.lines = sanitizeLines(separator, lines);
     }
 
@@ -63,9 +68,10 @@ public class CSVResult {
         return lines;
     }
 
-    private List<String> sanitizeHeaders(List<String> headers) {
+    private List<String> sanitizeHeaders(String separator, List<String> headers) {
         return headers.stream().
                        map(this::sanitizeCell).
+                       map(cell -> quoteIfRequired(separator, cell)).
                        collect(Collectors.toList());
     }
 
@@ -74,6 +80,7 @@ public class CSVResult {
         for (List<String> line : lines) {
             result.add(line.stream().
                             map(this::sanitizeCell).
+                            map(cell -> quoteIfRequired(separator, cell)).
                             collect(Collectors.joining(separator)));
         }
         return result;
@@ -84,6 +91,12 @@ public class CSVResult {
             return "'" + cell;
         }
         return cell;
+    }
+
+    private String quoteIfRequired(String separator, String cell) {
+        final String quote = "\"";
+        return cell.contains(separator)
+            ? quote + cell.replaceAll("\"", "\"\"") + quote : cell;
     }
 
     private boolean isStartWithSensitiveChar(String cell) {
