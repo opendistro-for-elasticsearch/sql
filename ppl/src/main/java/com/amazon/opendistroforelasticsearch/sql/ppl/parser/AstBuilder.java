@@ -16,7 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParserBaseVisitor;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
@@ -114,11 +114,11 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
     /** Stats command */
     @Override
     public UnresolvedPlan visitStatsCommand(StatsCommandContext ctx) {
-        List<Expression> aggList = Collections.singletonList(
+        List<UnresolvedExpression> aggList = Collections.singletonList(
                 new Map(visitExpression(ctx.statsAggTerm()),
                         ctx.alias != null ? visitExpression(ctx.alias) : null)
         );
-        List<Expression> groupList = ctx.byClause() == null ? null :
+        List<UnresolvedExpression> groupList = ctx.byClause() == null ? null :
                 ctx.byClause()
                         .fieldList()
                         .fieldExpression()
@@ -136,7 +136,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
     /** Dedup command */
     @Override
     public UnresolvedPlan visitDedupCommand(DedupCommandContext ctx) {
-        List<Expression> sortList = ctx.sortbyClause() == null ? null :
+        List<UnresolvedExpression> sortList = ctx.sortbyClause() == null ? null :
                 ctx.sortbyClause()
                         .sortField()
                         .stream()
@@ -187,7 +187,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
     }
 
     /** Navigate to & build AST expression */
-    private Expression visitExpression(ParseTree tree) {
+    private UnresolvedExpression visitExpression(ParseTree tree) {
         return expressionBuilder.visit(tree);
     }
 

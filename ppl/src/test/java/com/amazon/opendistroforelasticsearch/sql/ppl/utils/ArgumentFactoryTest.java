@@ -17,18 +17,18 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.utils;
 
 import com.amazon.opendistroforelasticsearch.sql.ppl.parser.AstBuilderTest;
 import org.junit.Test;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.agg;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.aggregate;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.argument;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.booleanLiteral;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.defaultSortFieldArgs;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.exprList;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.field;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.intLiteral;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.map;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.projectWithArg;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.relation;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.stringLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.agg;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.argument;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortFieldArgs;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.exprList;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.map;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.projectWithArg;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
 
 public class ArgumentFactoryTest extends AstBuilderTest {
 

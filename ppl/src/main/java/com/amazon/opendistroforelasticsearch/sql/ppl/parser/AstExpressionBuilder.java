@@ -26,7 +26,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunctio
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
@@ -36,7 +36,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.RuleContext;
 
 import static com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils.unquoteIdentifier;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.BooleanLiteralContext;
@@ -60,41 +59,41 @@ import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDis
 /**
  * Class of building AST Expression nodes
  */
-public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Expression> {
+public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedExpression> {
     /** Logical expression excluding boolean, eval, comparison */
     @Override
-    public Expression visitLogicalNot(LogicalNotContext ctx) {
+    public UnresolvedExpression visitLogicalNot(LogicalNotContext ctx) {
         return new Not(visit(ctx.logicalExpression()));
     }
 
     @Override
-    public Expression visitLogicalOr(LogicalOrContext ctx) {
+    public UnresolvedExpression visitLogicalOr(LogicalOrContext ctx) {
         return new Or(visit(ctx.left), visit(ctx.right));
     }
 
     @Override
-    public Expression visitLogicalAnd(LogicalAndContext ctx) {
+    public UnresolvedExpression visitLogicalAnd(LogicalAndContext ctx) {
         return new And(visit(ctx.left), visit(ctx.right));
     }
 
 
     /** Eval expression */
     @Override
-    public Expression visitEvalExpression(EvalExpressionContext ctx) {
-        Expression field = visit(ctx.fieldExpression());
-        Expression evalFunctionCall = visit(ctx.evalFunctionCall());
+    public UnresolvedExpression visitEvalExpression(EvalExpressionContext ctx) {
+        UnresolvedExpression field = visit(ctx.fieldExpression());
+        UnresolvedExpression evalFunctionCall = visit(ctx.evalFunctionCall());
         return new EqualTo(field, evalFunctionCall);
     }
 
     /** Comparison expression */
     @Override
-    public Expression visitCompareExpr(CompareExprContext ctx) {
-        Expression right = ctx.field != null ? visit(ctx.field) : visit(ctx.literal);
+    public UnresolvedExpression visitCompareExpr(CompareExprContext ctx) {
+        UnresolvedExpression right = ctx.field != null ? visit(ctx.field) : visit(ctx.literal);
         return new Compare(ctx.comparisonOperator().getText(), visit(ctx.left), right);
     }
 
     @Override
-    public Expression visitInExpr(InExprContext ctx) {
+    public UnresolvedExpression visitInExpr(InExprContext ctx) {
         return new In(
                 visit(ctx.fieldExpression()),
                 ctx.valueList()
@@ -106,17 +105,17 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Express
 
     /** Field expression */
     @Override
-    public Expression visitFieldExpression(FieldExpressionContext ctx) {
+    public UnresolvedExpression visitFieldExpression(FieldExpressionContext ctx) {
         return new Field((QualifiedName) visit(ctx.qualifiedName()));
     }
 
     @Override
-    public Expression visitWcFieldExpression(WcFieldExpressionContext ctx) {
+    public UnresolvedExpression visitWcFieldExpression(WcFieldExpressionContext ctx) {
         return new Field((QualifiedName) visit(ctx.wcQualifiedName()));
     }
 
     @Override
-    public Expression visitSortField(SortFieldContext ctx) {
+    public UnresolvedExpression visitSortField(SortFieldContext ctx) {
         return new Field(
                 ctx.sortFieldExpression().fieldExpression().getText(),
                 Arrays.asList(
@@ -138,19 +137,19 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Express
 
     /** Aggregation function */
     @Override
-    public Expression visitStatsFunctionCall(StatsFunctionCallContext ctx) {
+    public UnresolvedExpression visitStatsFunctionCall(StatsFunctionCallContext ctx) {
         return new AggregateFunction(ctx.statsFunctionName().getText(), visit(ctx.fieldExpression()));
     }
 
     @Override
-    public Expression visitPercentileAggFunction(PercentileAggFunctionContext ctx) {
+    public UnresolvedExpression visitPercentileAggFunction(PercentileAggFunctionContext ctx) {
         return new AggregateFunction(ctx.PERCENTILE().getText(), visit(ctx.aggField),
                 Collections.singletonList(new Argument("rank", visit(ctx.value))));
     }
 
     /** Eval function */
     @Override
-    public Expression visitEvalFunctionCall(EvalFunctionCallContext ctx) {
+    public UnresolvedExpression visitEvalFunctionCall(EvalFunctionCallContext ctx) {
         return new Function(
                 ctx.evalFunctionName().getText(),
                 ctx.functionArgs()
@@ -162,7 +161,7 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Express
 
     /** Literal and value */
     @Override
-    public Expression visitQualifiedName(QualifiedNameContext ctx) {
+    public UnresolvedExpression visitQualifiedName(QualifiedNameContext ctx) {
         return new QualifiedName(
                 ctx.ident()
                         .stream()
@@ -173,7 +172,7 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Express
     }
 
     @Override
-    public Expression visitWcQualifiedName(OpenDistroPPLParser.WcQualifiedNameContext ctx) {
+    public UnresolvedExpression visitWcQualifiedName(OpenDistroPPLParser.WcQualifiedNameContext ctx) {
         return new QualifiedName(
                 ctx.wildcard()
                         .stream()
@@ -184,22 +183,22 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Express
     }
 
     @Override
-    public Expression visitStringLiteral(StringLiteralContext ctx) {
+    public UnresolvedExpression visitStringLiteral(StringLiteralContext ctx) {
         return new Literal(unquoteIdentifier(ctx.getText()), DataType.STRING);
     }
 
     @Override
-    public Expression visitIntegerLiteral(IntegerLiteralContext ctx) {
+    public UnresolvedExpression visitIntegerLiteral(IntegerLiteralContext ctx) {
         return new Literal(Integer.valueOf(ctx.getText()), DataType.INTEGER);
     }
 
     @Override
-    public Expression visitDecimalLiteral(DecimalLiteralContext ctx) {
+    public UnresolvedExpression visitDecimalLiteral(DecimalLiteralContext ctx) {
         return new Literal(Double.valueOf(ctx.getText()), DataType.DOUBLE);
     }
 
     @Override
-    public Expression visitBooleanLiteral(BooleanLiteralContext ctx) {
+    public UnresolvedExpression visitBooleanLiteral(BooleanLiteralContext ctx) {
         return new Literal(Boolean.valueOf(ctx.getText()), DataType.BOOLEAN);
     }
 

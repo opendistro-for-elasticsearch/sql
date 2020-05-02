@@ -27,12 +27,12 @@ import lombok.ToString;
 @ToString
 @RequiredArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class Argument extends Expression {
+public class Argument extends UnresolvedExpression {
     private final String argName;
-    private final Expression value;
+    private final UnresolvedExpression value;
     //    private final DataType valueType;
     @Override
-    public List<Expression> getChild() {
+    public List<UnresolvedExpression> getChild() {
         return Arrays.asList(value);
     }
 

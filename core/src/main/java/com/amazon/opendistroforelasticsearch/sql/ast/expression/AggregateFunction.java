@@ -31,19 +31,19 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
-public class AggregateFunction extends Expression {
+public class AggregateFunction extends UnresolvedExpression {
     private final String funcName;
-    private final Expression field;
-    private final List<Expression> argList;
+    private final UnresolvedExpression field;
+    private final List<UnresolvedExpression> argList;
 
-    public AggregateFunction(String funcName, Expression field) {
+    public AggregateFunction(String funcName, UnresolvedExpression field) {
         this.funcName = funcName;
         this.field = field;
         this.argList = null;
     }
 
     @Override
-    public List<Expression> getChild() {
+    public List<UnresolvedExpression> getChild() {
         return Arrays.asList(field);
     }
 

@@ -16,10 +16,9 @@
 package com.amazon.opendistroforelasticsearch.sql.ast.tree;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,16 +32,16 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = false)
 public class Project extends UnresolvedPlan {
     @Setter
-    private List<Expression> projectList;
-    private List<Expression> argExprList;
+    private List<UnresolvedExpression> projectList;
+    private List<UnresolvedExpression> argExprList;
     private UnresolvedPlan child;
 
-    public Project(List<Expression> projectList) {
+    public Project(List<UnresolvedExpression> projectList) {
         this.projectList = projectList;
         this.argExprList = null;
     }
 
-    public Project(List<Expression> projectList, List<Expression> argExprList) {
+    public Project(List<UnresolvedExpression> projectList, List<UnresolvedExpression> argExprList) {
         this.projectList = projectList;
         this.argExprList = argExprList;
     }

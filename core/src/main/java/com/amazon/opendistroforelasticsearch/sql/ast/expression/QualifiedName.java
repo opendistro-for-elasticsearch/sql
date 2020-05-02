@@ -32,7 +32,7 @@ import static java.util.stream.Collectors.toList;
 @Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
-public class QualifiedName extends Expression {
+public class QualifiedName extends UnresolvedExpression {
     private final List<String> parts;
 
     public QualifiedName(String name) {
@@ -71,7 +71,7 @@ public class QualifiedName extends Expression {
     }
 
     @Override
-    public List<Expression> getChild() {
+    public List<UnresolvedExpression> getChild() {
         return ImmutableList.of();
     }
 

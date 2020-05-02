@@ -31,11 +31,11 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
 @Getter
-public class UnresolvedAttribute extends Expression {
+public class UnresolvedAttribute extends UnresolvedExpression {
     private final String attr;
 
     @Override
-    public List<Expression> getChild() {
+    public List<UnresolvedExpression> getChild() {
         return ImmutableList.of();
     }
 

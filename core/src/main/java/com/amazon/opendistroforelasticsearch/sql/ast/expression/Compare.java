@@ -27,12 +27,12 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
-public class Compare extends Expression {
+public class Compare extends UnresolvedExpression {
     private final String operator;
-    private final Expression left;
-    private final Expression right;
+    private final UnresolvedExpression left;
+    private final UnresolvedExpression right;
     @Override
-    public List<Expression> getChild() {
+    public List<UnresolvedExpression> getChild() {
         return Arrays.asList(left, right);
     }
 

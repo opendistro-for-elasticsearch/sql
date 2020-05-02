@@ -16,8 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.ast.tree;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import lombok.EqualsAndHashCode;
@@ -33,7 +32,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
 public class Relation extends UnresolvedPlan {
-    private final Expression tableName;
+    private final UnresolvedExpression tableName;
 
     @Override
     public List<UnresolvedPlan> getChild() {

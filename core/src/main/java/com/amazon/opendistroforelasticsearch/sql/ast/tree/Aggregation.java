@@ -16,10 +16,9 @@
 package com.amazon.opendistroforelasticsearch.sql.ast.tree;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,25 +32,25 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class Aggregation extends UnresolvedPlan {
-    private List<Expression> aggExprList;
-    private List<Expression> sortExprList;
-    private List<Expression> groupExprList;
-    private List<Expression> argExprList;
+    private List<UnresolvedExpression> aggExprList;
+    private List<UnresolvedExpression> sortExprList;
+    private List<UnresolvedExpression> groupExprList;
+    private List<UnresolvedExpression> argExprList;
     private UnresolvedPlan child;
 
-    public Aggregation(List<Expression> aggExprList,
-                       List<Expression> sortExprList,
-                       List<Expression> groupExprList) {
+    public Aggregation(List<UnresolvedExpression> aggExprList,
+                       List<UnresolvedExpression> sortExprList,
+                       List<UnresolvedExpression> groupExprList) {
         this.aggExprList = aggExprList;
         this.sortExprList = sortExprList;
         this.groupExprList = groupExprList;
         this.argExprList = null;
     }
 
-    public Aggregation(List<Expression> aggExprList,
-                       List<Expression> sortExprList,
-                       List<Expression> groupExprList,
-                       List<Expression> argExprList) {
+    public Aggregation(List<UnresolvedExpression> aggExprList,
+                       List<UnresolvedExpression> sortExprList,
+                       List<UnresolvedExpression> groupExprList,
+                       List<UnresolvedExpression> argExprList) {
         this.aggExprList = aggExprList;
         this.sortExprList = sortExprList;
         this.groupExprList = groupExprList;

@@ -27,9 +27,9 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @AllArgsConstructor
-public class Field extends Expression {
+public class Field extends UnresolvedExpression {
     private QualifiedName field;
-    private List<Expression> fieldArgs;
+    private List<UnresolvedExpression> fieldArgs;
 
     public Field(QualifiedName field) {
         this.field = field;
@@ -40,13 +40,13 @@ public class Field extends Expression {
         this.field = new QualifiedName(field);
     }
 
-    public Field(String field, List<Expression> fieldArgs) {
+    public Field(String field, List<UnresolvedExpression> fieldArgs) {
         this.field = new QualifiedName(field);
         this.fieldArgs = fieldArgs;
     }
 
     @Override
-    public List<Expression> getChild() {
+    public List<UnresolvedExpression> getChild() {
         return ImmutableList.of();
     }
 
