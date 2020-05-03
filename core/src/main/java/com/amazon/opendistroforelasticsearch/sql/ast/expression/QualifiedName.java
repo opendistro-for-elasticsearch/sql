@@ -30,7 +30,6 @@ import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 
 @Getter
-@ToString
 @EqualsAndHashCode(callSuper = false)
 public class QualifiedName extends UnresolvedExpression {
     private final List<String> parts;
@@ -68,6 +67,10 @@ public class QualifiedName extends UnresolvedExpression {
 
     public String getSuffix() {
         return parts.get(parts.size() - 1);
+    }
+
+    public String toString() {
+        return String.join(".", this.parts);
     }
 
     @Override
