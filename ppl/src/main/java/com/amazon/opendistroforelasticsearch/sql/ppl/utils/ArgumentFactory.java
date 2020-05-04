@@ -19,6 +19,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
+import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -104,6 +105,27 @@ public class ArgumentFactory {
                 ctx.D() != null || ctx.DESC() != null
                     ? new Argument("desc", new Literal(true, DataType.BOOLEAN))
                     : new Argument("desc", new Literal(false, DataType.BOOLEAN))
+        );
+    }
+
+    /**
+     * @param ctx SortFieldContext instance
+     * @return the list of arguments fetched from the sort field in sort command
+     */
+    public static List<UnresolvedExpression> getArgumentList(OpenDistroPPLParser.SortFieldContext ctx) {
+        return Arrays.asList(
+                ctx.MINUS() != null
+                        ? new Argument("exclude", new Literal(true, DataType.BOOLEAN))
+                        : new Argument("exclude", new Literal(false, DataType.BOOLEAN)),
+                ctx.sortFieldExpression().AUTO() != null
+                        ? new Argument("type", new Literal("auto", DataType.STRING))
+                        : ctx.sortFieldExpression().IP() != null
+                        ? new Argument("type", new Literal("ip", DataType.STRING))
+                        : ctx.sortFieldExpression().NUM() != null
+                        ? new Argument("type", new Literal("num", DataType.STRING))
+                        : ctx.sortFieldExpression().STR() != null
+                        ? new Argument("type", new Literal("str", DataType.STRING))
+                        : new Argument("type", new Literal(null, DataType.NULL))
         );
     }
 

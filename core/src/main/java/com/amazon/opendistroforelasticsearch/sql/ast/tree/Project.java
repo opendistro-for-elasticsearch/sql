@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.ast.tree;
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.google.common.collect.ImmutableList;
+import java.util.Collections;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -38,7 +39,7 @@ public class Project extends UnresolvedPlan {
 
     public Project(List<UnresolvedExpression> projectList) {
         this.projectList = projectList;
-        this.argExprList = null;
+        this.argExprList = Collections.emptyList();
     }
 
     public Project(List<UnresolvedExpression> projectList, List<UnresolvedExpression> argExprList) {

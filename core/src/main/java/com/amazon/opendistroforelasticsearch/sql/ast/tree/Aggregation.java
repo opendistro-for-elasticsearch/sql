@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.ast.tree;
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.google.common.collect.ImmutableList;
+import java.util.Collections;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -44,7 +45,7 @@ public class Aggregation extends UnresolvedPlan {
         this.aggExprList = aggExprList;
         this.sortExprList = sortExprList;
         this.groupExprList = groupExprList;
-        this.argExprList = null;
+        this.argExprList = Collections.emptyList();
     }
 
     public Aggregation(List<UnresolvedExpression> aggExprList,

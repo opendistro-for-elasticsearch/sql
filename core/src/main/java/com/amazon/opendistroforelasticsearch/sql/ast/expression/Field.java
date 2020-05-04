@@ -47,7 +47,7 @@ public class Field extends UnresolvedExpression {
 
     @Override
     public List<UnresolvedExpression> getChild() {
-        return ImmutableList.of();
+        return ImmutableList.of(this.field);
     }
 
     @Override

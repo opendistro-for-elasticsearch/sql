@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.ast.expression;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -39,7 +40,7 @@ public class AggregateFunction extends UnresolvedExpression {
     public AggregateFunction(String funcName, UnresolvedExpression field) {
         this.funcName = funcName;
         this.field = field;
-        this.argList = null;
+        this.argList = Collections.emptyList();
     }
 
     @Override

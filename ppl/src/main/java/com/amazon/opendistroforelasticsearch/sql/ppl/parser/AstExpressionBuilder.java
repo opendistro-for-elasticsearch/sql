@@ -32,6 +32,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Not;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
+import com.amazon.opendistroforelasticsearch.sql.ppl.utils.ArgumentFactory;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.stream.Collectors;
@@ -118,20 +119,7 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Unresol
     public UnresolvedExpression visitSortField(SortFieldContext ctx) {
         return new Field(
                 ctx.sortFieldExpression().fieldExpression().getText(),
-                Arrays.asList(
-                        ctx.MINUS() != null
-                                ? new Argument("exclude", new Literal(true, DataType.BOOLEAN))
-                                : new Argument("exclude", new Literal(false, DataType.BOOLEAN)),
-                        ctx.sortFieldExpression().AUTO() != null
-                                ? new Argument("type", new Literal("auto", DataType.STRING))
-                                : ctx.sortFieldExpression().IP() != null
-                                ? new Argument("type", new Literal("ip", DataType.STRING))
-                                : ctx.sortFieldExpression().NUM() != null
-                                ? new Argument("type", new Literal("num", DataType.STRING))
-                                : ctx.sortFieldExpression().STR() != null
-                                ? new Argument("type", new Literal("str", DataType.STRING))
-                                : new Argument("type", new Literal(null, DataType.NULL))
-                )
+                ArgumentFactory.getArgumentList(ctx)
         );
     }
 

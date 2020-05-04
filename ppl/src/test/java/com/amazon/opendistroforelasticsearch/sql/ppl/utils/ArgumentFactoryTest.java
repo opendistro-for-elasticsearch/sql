@@ -21,6 +21,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.agg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.argument;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortFieldArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.exprList;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
@@ -118,6 +119,26 @@ public class ArgumentFactoryTest extends AstBuilderTest {
                 "source=t | sort 1000 field0",
                 "source=t | sort field0"
         );
+    }
+
+    @Test
+    public void testSortFieldArgument() {
+        assertEqual("source=t | sort - auto(field0)",
+                agg(
+                        relation("t"),
+                        null,
+                        exprList(
+                                field(
+                                        "field0",
+                                        exprList(
+                                                argument("exclude", booleanLiteral(true)),
+                                                argument("type", stringLiteral("auto"))
+                                        )
+                                )
+                        ),
+                        null,
+                        defaultSortArgs()
+                ));
     }
 
     @Test

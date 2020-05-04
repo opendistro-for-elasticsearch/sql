@@ -35,7 +35,7 @@ public class AttributeList extends UnresolvedExpression {
 
     @Override
     public List<UnresolvedExpression> getChild() {
-        return ImmutableList.of();
+        return ImmutableList.copyOf(attrList);
     }
 
     @Override
