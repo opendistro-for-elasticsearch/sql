@@ -34,6 +34,7 @@ import java.util.function.Function;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.greaterThan;
@@ -141,11 +142,23 @@ public class MatcherUtils {
     }
 
     @SuppressWarnings("unchecked")
+    public static void verifyDataRowsInOrder(JSONObject response, Matcher<JSONArray>... matchers) {
+        verifyInOrder(response.getJSONArray("datarows"), matchers);
+    }
+
+    @SuppressWarnings("unchecked")
     public static <T> void verify(JSONArray array, Matcher<T>... matchers) {
         List<T> objects = new ArrayList<>();
         array.iterator().forEachRemaining(o -> objects.add((T) o));
         assertEquals(matchers.length, objects.size());
         assertThat(objects, containsInAnyOrder(matchers));
+    }
+
+    public static <T> void verifyInOrder(JSONArray array, Matcher<T>... matchers) {
+        List<T> objects = new ArrayList<>();
+        array.iterator().forEachRemaining(o -> objects.add((T) o));
+        assertEquals(matchers.length, objects.size());
+        assertThat(objects, contains(matchers));
     }
 
     @SuppressWarnings("unchecked")

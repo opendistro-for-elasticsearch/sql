@@ -28,6 +28,7 @@ import com.amazon.opendistroforelasticsearch.sql.parser.ChildrenType;
 import com.amazon.opendistroforelasticsearch.sql.parser.NestedType;
 import com.amazon.opendistroforelasticsearch.sql.utils.Util;
 import com.fasterxml.jackson.core.JsonFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.ParsingException;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.xcontent.LoggingDeprecationHandler;
@@ -89,7 +90,7 @@ public class AggMaker {
             MethodField methodField = (MethodField) field;
             TermsAggregationBuilder termsBuilder = AggregationBuilders.terms(methodField.getAlias())
                     .script(new Script(methodField.getParams().get(1).value.toString()));
-            groupMap.put(methodField.getAlias(), new KVValue("KEY", termsBuilder));
+            extendGroupMap(methodField, new KVValue("KEY", termsBuilder));
             return termsBuilder;
         }
 
@@ -122,7 +123,7 @@ public class AggMaker {
      * @throws SqlParseException in case of unrecognized function
      */
     public AggregationBuilder makeFieldAgg(MethodField field, AggregationBuilder parent) throws SqlParseException {
-        groupMap.put(field.getAlias(), new KVValue("FIELD", parent));
+        extendGroupMap(field, new KVValue("FIELD", parent));
         ValuesSourceAggregationBuilder builder;
         field.setAlias(fixAlias(field.getAlias()));
         switch (field.getName().toUpperCase()) {
@@ -153,7 +154,7 @@ public class AggMaker {
             case "SCRIPTED_METRIC":
                 return scriptedMetric(field);
             case "COUNT":
-                groupMap.put(field.getAlias(), new KVValue("COUNT", parent));
+                extendGroupMap(field, new KVValue("COUNT", parent));
                 return addFieldToAgg(field, makeCountAgg(field));
             default:
                 throw new SqlParseException("the agg function not to define !");
@@ -780,7 +781,7 @@ public class AggMaker {
                     .filter(condition -> condition instanceof Condition)
                     .map(condition -> (Condition) condition)
                     .filter(condition -> condition.isNestedComplex()
-                                         || nestedType.path.equalsIgnoreCase(condition.getNestedPath()))
+                            || nestedType.path.equalsIgnoreCase(condition.getNestedPath()))
                     // ignore the OR condition on nested field.
                     .filter(condition -> CONN.AND.equals(condition.getConn()))
                     .collect(Collectors.toList());
@@ -804,5 +805,20 @@ public class AggMaker {
             }
         }
         return builder;
+    }
+
+    /**
+     * The groupMap is used when parsing order by to find out the corresponding field in aggregation.
+     * There are two cases.
+     * 1) using alias in order by, e.g. SELECT COUNT(*) as c FROM T GROUP BY age ORDER BY c
+     * 2) using full name in order by, e.g. SELECT COUNT(*) as c FROM T GROUP BY age ORDER BY COUNT(*)
+     * Then, the groupMap should support these two cases by maintain the mapping of
+     * {alias, value} and {full_name, value}
+     */
+    private void extendGroupMap(Field field, KVValue value) {
+        groupMap.put(field.toString(), value);
+        if (!StringUtils.isEmpty(field.getAlias())) {
+            groupMap.putIfAbsent(field.getAlias(), value);
+        }
     }
 }
