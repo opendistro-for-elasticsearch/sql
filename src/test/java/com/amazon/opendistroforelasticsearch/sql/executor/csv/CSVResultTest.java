@@ -66,6 +66,60 @@ public class CSVResultTest {
         );
     }
 
+    @Test
+    public void getHeadersShouldReturnHeadersQuotedIfRequired() {
+        CSVResult csv = csv(headers("na,me", ",,age"), lines(line("John", "30")));
+        assertEquals(
+            headers("\"na,me\"", "\",,age\""),
+            csv.getHeaders()
+        );
+    }
+
+    @Test
+    public void getLinesShouldReturnLinesQuotedIfRequired() {
+        CSVResult csv = csv(headers("name", "age"), lines(line("John,Smith", "30,,,")));
+        assertEquals(
+            line("\"John,Smith\",\"30,,,\""),
+            csv.getLines()
+        );
+    }
+
+    @Test
+    public void getHeadersShouldReturnHeadersBothSanitizedAndQuotedIfRequired() {
+        CSVResult csv = csv(headers("na,+me", ",,,=age", "=city,"), lines(line("John", "30", "Seattle")));
+        assertEquals(
+            headers("\"na,+me\"", "\",,,=age\"", "\"'=city,\""),
+            csv.getHeaders()
+        );
+    }
+
+    @Test
+    public void getLinesShouldReturnLinesBothSanitizedAndQuotedIfRequired() {
+        CSVResult csv = csv(
+            headers("name", "city"),
+            lines(
+                line("John", "Seattle"),
+                line("John", "=Seattle"),
+                line("John", "+Sea,ttle"),
+                line(",-John", "Seattle"),
+                line(",,,@John", "Seattle"),
+                line("John", "Seattle=")
+            )
+        );
+
+        assertEquals(
+            line(
+                "John,Seattle",
+                "John,'=Seattle",
+                "John,\"'+Sea,ttle\"",
+                "\",-John\",Seattle",
+                "\",,,@John\",Seattle",
+                "John,Seattle="
+            ),
+            csv.getLines()
+        );
+    }
+
     private CSVResult csv(List<String> headers, List<List<String>> lines) {
         return new CSVResult(SEPARATOR, headers, lines);
     }
