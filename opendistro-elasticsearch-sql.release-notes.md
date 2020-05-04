@@ -1,4 +1,4 @@
-## 2020-04-29 Version 1.6.1.0 (Current)
+## 2020-05-04 Version 1.7.0.0 (Current)
 
 #### Breaking Changes
 * Change [#414](https://github.com/opendistro-for-elasticsearch/sql/pull/414): Invalidate HTTP GET method.
@@ -10,10 +10,12 @@
 #### Documentation
 * Feature [#417](https://github.com/opendistro-for-elasticsearch/sql/pull/417): More docs in reference manual and add architecture doc. (issue: [#380](https://github.com/opendistro-for-elasticsearch/sql/issues/380)) 
 #### Security
+* Change [#456](https://github.com/opendistro-for-elasticsearch/sql/pull/456): Escape comma for CSV header and all queries. (issue: [#455](https://github.com/opendistro-for-elasticsearch/sql/issues/455))
 * Change [#447](https://github.com/opendistro-for-elasticsearch/sql/pull/447): Fix CSV injection issue. (issue: [#449](https://github.com/opendistro-for-elasticsearch/sql/issues/449))
 * Change [#419](https://github.com/opendistro-for-elasticsearch/sql/pull/419): Anonymize sensitive data in queries exposed to RestSqlAction logs. (issue: [#97](https://github.com/opendistro-for-elasticsearch/sql/issues/97))
 
 ### Bugfixes
+* Bugfix [#452](https://github.com/opendistro-for-elasticsearch/sql/pull/452): Support using aggregation function in order by clause. (issue: [#277](https://github.com/opendistro-for-elasticsearch/sql/issues/277))
 * Bugfix [#442](https://github.com/opendistro-for-elasticsearch/sql/pull/442): Count(distinct field) should translate to cardinality aggregation. (issue: [#439](https://github.com/opendistro-for-elasticsearch/sql/issues/439))
 * Bugfix [#437](https://github.com/opendistro-for-elasticsearch/sql/pull/437): Enforce AVG return double data type. (issue: [#408](https://github.com/opendistro-for-elasticsearch/sql/issues/408))
 * Bugfix [#425](https://github.com/opendistro-for-elasticsearch/sql/pull/425): Ignore the term query rewrite if there is no index found. (issue: [#355](https://github.com/opendistro-for-elasticsearch/sql/issues/355))
