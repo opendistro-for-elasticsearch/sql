@@ -86,10 +86,10 @@ public class ESHashJoinQueryAction extends ESJoinQueryAction {
         List<Map.Entry<Field, Field>> comparisonFields = new ArrayList<>();
         for (Condition condition : connectedConditions) {
 
-            if (condition.getOpear() != Condition.OPEAR.EQ) {
+            if (condition.getOPERATOR() != Condition.OPERATOR.EQ) {
                 throw new SqlParseException(
                         String.format("HashJoin should only be with EQ conditions, got:%s on condition:%s",
-                                condition.getOpear().name(), condition.toString()));
+                                condition.getOPERATOR().name(), condition.toString()));
             }
 
             String firstField = condition.getName();

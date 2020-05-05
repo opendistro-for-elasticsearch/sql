@@ -15,14 +15,25 @@
 
 package com.amazon.opendistroforelasticsearch.sql.unittest.rewriter.inline;
 
+import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
+import com.amazon.opendistroforelasticsearch.sql.esintgtest.SQLIntegTestCase;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.parser.SqlParser;
 import com.amazon.opendistroforelasticsearch.sql.query.AggregationQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.DefaultQueryAction;
+import com.amazon.opendistroforelasticsearch.sql.request.SqlRequest;
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
 import org.elasticsearch.client.Client;
 import org.json.JSONObject;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.net.URL;
+
+import static com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents.mockLocalClusterState;
 import static com.amazon.opendistroforelasticsearch.sql.util.SqlParserUtils.parse;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -30,6 +41,14 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.mock;
 
 public class AliasInliningTests {
+
+    private static final String TEST_MAPPING_FILE = "mappings/semantics.json";
+    @Before
+    public void setUp() throws IOException {
+        URL url = Resources.getResource(TEST_MAPPING_FILE);
+        String mappings = Resources.toString(url, Charsets.UTF_8);
+        mockLocalClusterState(mappings);
+    }
 
     @Test
     public void orderByAliasedFieldTest() throws SqlParseException {
@@ -50,16 +69,14 @@ public class AliasInliningTests {
 
     @Test
     public void orderByAliasedScriptedField() throws SqlParseException {
-        String originalDsl = parseAsSimpleQuery("SELECT date_format(utc_time, 'dd-MM-YYYY') date " +
-                "FROM kibana_sample_data_logs " +
+        String originalDsl = parseAsSimpleQuery("SELECT date_format(birthday, 'dd-MM-YYYY') date " +
+                "FROM bank " +
                 "ORDER BY date");
-
-        String rewrittenQuery = "SELECT date_format(utc_time, 'dd-MM-YYYY') date " +
-                "FROM kibana_sample_data_logs " +
-                "ORDER BY date_format(utc_time, 'dd-MM-YYYY')";
+        String rewrittenQuery = "SELECT date_format(birthday, 'dd-MM-YYYY') date " +
+                "FROM bank " +
+                "ORDER BY date_format(birthday, 'dd-MM-YYYY')";
 
         String rewrittenDsl = parseAsSimpleQuery(rewrittenQuery);
-
         assertThat(originalDsl, equalTo(rewrittenDsl));
     }
 
@@ -111,8 +128,11 @@ public class AliasInliningTests {
     }
 
     private String parseAsSimpleQuery(String originalQuery) throws SqlParseException {
-        return new DefaultQueryAction(mock(Client.class),
-                new SqlParser().parseSelect(parse(originalQuery))).explain().explain();
+        SqlRequest sqlRequest = new SqlRequest(originalQuery, new JSONObject());
+        DefaultQueryAction defaultQueryAction = new DefaultQueryAction(mock(Client.class),
+                new SqlParser().parseSelect(parse(originalQuery)));
+        defaultQueryAction.setSqlRequest(sqlRequest);
+        return defaultQueryAction.explain().explain();
     }
 
     private String parseAsAggregationQuery(String originalQuery) throws SqlParseException {

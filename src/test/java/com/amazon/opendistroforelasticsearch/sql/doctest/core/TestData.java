@@ -15,16 +15,24 @@
 
 package com.amazon.opendistroforelasticsearch.sql.doctest.core;
 
-import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.createIndexByRestClient;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getResourceFilePath;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.loadDataByRestClient;
 
 /**
  * Test data for document generation
  */
 public class TestData {
 
+    public static final String MAPPINGS_FOLDER_ROOT = "src/test/resources/doctest/mappings/";
     public static final String TEST_DATA_FOLDER_ROOT = "src/test/resources/doctest/testdata/";
 
     private final String[] testFilePaths;
@@ -39,13 +47,15 @@ public class TestData {
      */
     public void loadToES(DocTest test) {
         for (String filePath : testFilePaths) {
+            String indexName = indexName(filePath);
             try {
-                TestUtils.loadBulk(test.client(), TEST_DATA_FOLDER_ROOT + filePath, indexName(filePath));
+                createIndexByRestClient(test.restClient(), indexName, getIndexMapping(filePath));
+                loadDataByRestClient(test.restClient(), indexName, TEST_DATA_FOLDER_ROOT + filePath);
             } catch (Exception e) {
                 throw new IllegalStateException(StringUtils.format(
-                    "Failed to load test filePath from %s", filePath), e);
+                    "Failed to load mapping and test filePath from %s", filePath), e);
             }
-            test.ensureGreen(indexName(filePath));
+            test.ensureGreen(indexName);
         }
     }
 
@@ -58,6 +68,14 @@ public class TestData {
             filePath.lastIndexOf(File.separatorChar) + 1,
             filePath.lastIndexOf('.')
         );
+    }
+
+    private String getIndexMapping(String filePath) throws IOException {
+        Path path = Paths.get(getResourceFilePath(MAPPINGS_FOLDER_ROOT + filePath));
+        if (Files.notExists(path)) {
+            return "";
+        }
+        return new String(Files.readAllBytes(path));
     }
 
 }

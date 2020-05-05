@@ -28,7 +28,9 @@ import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.ActionRequestRestExecutorFactory;
 import com.amazon.opendistroforelasticsearch.sql.executor.Format;
 import com.amazon.opendistroforelasticsearch.sql.executor.RestExecutor;
-import com.amazon.opendistroforelasticsearch.sql.executor.format.ErrorMessage;
+import com.amazon.opendistroforelasticsearch.sql.executor.cursor.CursorActionRequestRestExecutorFactory;
+import com.amazon.opendistroforelasticsearch.sql.executor.cursor.CursorAsyncRestExecutor;
+import com.amazon.opendistroforelasticsearch.sql.executor.format.ErrorMessageFactory;
 import com.amazon.opendistroforelasticsearch.sql.metrics.MetricName;
 import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
@@ -38,6 +40,7 @@ import com.amazon.opendistroforelasticsearch.sql.request.SqlRequestParam;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.VerificationException;
 import com.amazon.opendistroforelasticsearch.sql.utils.JsonPrettyFormatter;
 import com.amazon.opendistroforelasticsearch.sql.utils.LogUtils;
+import com.amazon.opendistroforelasticsearch.sql.utils.QueryDataAnonymizer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.Client;
@@ -82,14 +85,14 @@ public class RestSqlAction extends BaseRestHandler {
      */
     public static final String QUERY_API_ENDPOINT = "/_opendistro/_sql";
     public static final String EXPLAIN_API_ENDPOINT = QUERY_API_ENDPOINT + "/_explain";
+    public static final String CURSOR_CLOSE_ENDPOINT = QUERY_API_ENDPOINT + "/close";
 
     RestSqlAction(Settings settings, RestController restController) {
 
         super();
         restController.registerHandler(RestRequest.Method.POST, QUERY_API_ENDPOINT, this);
-        restController.registerHandler(RestRequest.Method.GET, QUERY_API_ENDPOINT, this);
         restController.registerHandler(RestRequest.Method.POST, EXPLAIN_API_ENDPOINT, this);
-        restController.registerHandler(RestRequest.Method.GET, EXPLAIN_API_ENDPOINT, this);
+        restController.registerHandler(RestRequest.Method.POST, CURSOR_CLOSE_ENDPOINT, this);
 
         this.allowExplicitIndex = MULTI_ALLOW_EXPLICIT_INDEX.get(settings);
     }
@@ -114,7 +117,17 @@ public class RestSqlAction extends BaseRestHandler {
             }
 
             final SqlRequest sqlRequest = SqlRequestFactory.getSqlRequest(request);
-            LOG.info("[{}] Incoming request {}: {}", LogUtils.getRequestId(), request.uri(), sqlRequest.getSql());
+            if (sqlRequest.cursor() != null) {
+                if (isExplainRequest(request)) {
+                    throw new IllegalArgumentException("Invalid request. Cannot explain cursor");
+                } else {
+                    LOG.info("[{}] Cursor request {}: {}", LogUtils.getRequestId(), request.uri(), sqlRequest.cursor());
+                    return channel -> handleCursorRequest(request, sqlRequest.cursor(), client, channel);
+                }
+            }
+
+            LOG.info("[{}] Incoming request {}: {}", LogUtils.getRequestId(), request.uri(),
+                    QueryDataAnonymizer.anonymizeData(sqlRequest.getSql()));
 
             final QueryAction queryAction =
                     explainRequest(client, sqlRequest, SqlRequestParam.getFormat(request.params()));
@@ -130,6 +143,13 @@ public class RestSqlAction extends BaseRestHandler {
         Set<String> responseParams = new HashSet<>(super.responseParams());
         responseParams.addAll(Arrays.asList("sql", "flat", "separator", "_score", "_type", "_id", "newLine", "format"));
         return responseParams;
+    }
+
+    private void handleCursorRequest(final RestRequest request, final String cursor, final Client client,
+                                     final RestChannel channel) throws Exception {
+        CursorAsyncRestExecutor cursorRestExecutor = CursorActionRequestRestExecutorFactory.createExecutor(
+                request, cursor, SqlRequestParam.getFormat(request.params()));
+        cursorRestExecutor.execute(client, request.params(), channel);
     }
 
     private static void logAndPublishMetrics(final Exception e) {
@@ -150,6 +170,8 @@ public class RestSqlAction extends BaseRestHandler {
         final QueryAction queryAction = new SearchDao(client)
                 .explain(new QueryActionRequest(sqlRequest.getSql(), typeProvider, format));
         queryAction.setSqlRequest(sqlRequest);
+        queryAction.setFormat(format);
+        queryAction.setColumnTypeProvider(typeProvider);
         return queryAction;
     }
 
@@ -201,7 +223,7 @@ public class RestSqlAction extends BaseRestHandler {
     }
 
     private void reportError(final RestChannel channel, final Exception e, final RestStatus status) {
-        sendResponse(channel, new ErrorMessage(e, status.getStatus()).toString(), status);
+        sendResponse(channel, ErrorMessageFactory.createErrorMessage(e, status.getStatus()).toString(), status);
     }
 
     private boolean isSQLFeatureEnabled() {

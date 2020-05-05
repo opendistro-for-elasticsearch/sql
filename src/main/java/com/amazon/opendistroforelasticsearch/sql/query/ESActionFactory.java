@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.query;
 
-import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLAggregateExpr;
 import com.alibaba.druid.sql.ast.expr.SQLAllColumnExpr;
 import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
@@ -28,10 +27,7 @@ import com.alibaba.druid.sql.ast.statement.SQLUnionQuery;
 import com.alibaba.druid.sql.dialect.mysql.ast.statement.MySqlSelectQueryBlock;
 import com.alibaba.druid.sql.dialect.mysql.parser.MySqlStatementParser;
 import com.alibaba.druid.sql.dialect.mysql.visitor.MySqlASTVisitorAdapter;
-import com.alibaba.druid.sql.parser.ParserException;
-import com.alibaba.druid.sql.parser.SQLExprParser;
 import com.alibaba.druid.sql.parser.SQLStatementParser;
-import com.alibaba.druid.sql.parser.Token;
 import com.amazon.opendistroforelasticsearch.sql.domain.ColumnTypeProvider;
 import com.amazon.opendistroforelasticsearch.sql.domain.Delete;
 import com.amazon.opendistroforelasticsearch.sql.domain.IndexStatement;
@@ -46,7 +42,6 @@ import com.amazon.opendistroforelasticsearch.sql.executor.QueryActionElasticExec
 import com.amazon.opendistroforelasticsearch.sql.executor.adapter.QueryPlanQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.executor.adapter.QueryPlanRequestBuilder;
 import com.amazon.opendistroforelasticsearch.sql.parser.ElasticLexer;
-import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
 import com.amazon.opendistroforelasticsearch.sql.parser.SqlParser;
 import com.amazon.opendistroforelasticsearch.sql.parser.SubQueryExpression;
 import com.amazon.opendistroforelasticsearch.sql.query.join.ESJoinQueryActionFactory;
@@ -73,6 +68,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.amazon.opendistroforelasticsearch.sql.domain.IndexStatement.StatementType;
+import static com.amazon.opendistroforelasticsearch.sql.utils.Util.toSqlExpr;
 
 public class ESActionFactory {
 
@@ -85,7 +81,7 @@ public class ESActionFactory {
      * Create the compatible Query object
      * based on the SQL query.
      *
-     * @param sql The SQL query.
+     * @param request The SQL query.
      * @return Query object.
      */
     public static QueryAction create(Client client, QueryActionRequest request)
@@ -109,17 +105,17 @@ public class ESActionFactory {
                 sqlExpr.accept(new NestedFieldRewriter());
 
                 if (isMulti(sqlExpr)) {
-                    sqlExpr.accept(new TermFieldRewriter(client, TermRewriterFilter.MULTI_QUERY));
+                    sqlExpr.accept(new TermFieldRewriter(TermRewriterFilter.MULTI_QUERY));
                     MultiQuerySelect multiSelect =
                             new SqlParser().parseMultiSelect((SQLUnionQuery) sqlExpr.getSubQuery().getQuery());
                     return new MultiQueryAction(client, multiSelect);
                 } else if (isJoin(sqlExpr, sql)) {
                     new JoinRewriteRule(LocalClusterState.state()).rewrite(sqlExpr);
-                    sqlExpr.accept(new TermFieldRewriter(client, TermRewriterFilter.JOIN));
+                    sqlExpr.accept(new TermFieldRewriter(TermRewriterFilter.JOIN));
                     JoinSelect joinSelect = new SqlParser().parseJoinSelect(sqlExpr);
                     return ESJoinQueryActionFactory.createJoinAction(client, joinSelect);
                 } else {
-                    sqlExpr.accept(new TermFieldRewriter(client));
+                    sqlExpr.accept(new TermFieldRewriter());
                     // migrate aggregation to query planner framework.
                     if (shouldMigrateToQueryPlan(sqlExpr, request.getFormat())) {
                         return new QueryPlanQueryAction(new QueryPlanRequestBuilder(
@@ -195,16 +191,6 @@ public class ESActionFactory {
         MySqlSelectQueryBlock query = (MySqlSelectQueryBlock) sqlExpr.getSubQuery().getQuery();
         return query.getFrom() instanceof SQLJoinTableSource
                && ((SQLJoinTableSource) query.getFrom()).getJoinType() != SQLJoinTableSource.JoinType.COMMA;
-    }
-
-    private static SQLExpr toSqlExpr(String sql) {
-        SQLExprParser parser = new ElasticSqlExprParser(sql);
-        SQLExpr expr = parser.expr();
-
-        if (parser.getLexer().token() != Token.EOF) {
-            throw new ParserException("Illegal SQL expression : " + sql);
-        }
-        return expr;
     }
 
     @VisibleForTesting

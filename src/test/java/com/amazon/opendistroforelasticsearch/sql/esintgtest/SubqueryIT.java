@@ -18,9 +18,6 @@ package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import com.google.common.collect.Ordering;
 import org.elasticsearch.client.ResponseException;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Ignore;
@@ -39,6 +36,10 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstant
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.hitAll;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvInt;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvString;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.schema;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySchema;
 import static org.hamcrest.Matchers.both;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.core.Is.is;
@@ -60,8 +61,8 @@ public class SubqueryIT extends SQLIntegTestCase {
     public void testIN() throws IOException {
         String query = String.format(Locale.ROOT,
                 "SELECT dog_name " +
-                            "FROM %s/dog A " +
-                            "WHERE holdersName IN (SELECT firstname FROM %s/account B) " +
+                            "FROM %s A " +
+                            "WHERE holdersName IN (SELECT firstname FROM %s B) " +
                             "AND dog_name <> 'babala'",
                 TEST_INDEX_DOGSUBQUERY, TEST_INDEX_ACCOUNT);
 
@@ -79,8 +80,8 @@ public class SubqueryIT extends SQLIntegTestCase {
     public void testINWithAlias() throws IOException {
         String query = String.format(Locale.ROOT,
                 "SELECT A.dog_name " +
-                            "FROM %s/dog A " +
-                            "WHERE A.holdersName IN (SELECT B.firstname FROM %s/account B) " +
+                            "FROM %s A " +
+                            "WHERE A.holdersName IN (SELECT B.firstname FROM %s B) " +
                             "AND A.dog_name <> 'babala'",
                 TEST_INDEX_DOGSUBQUERY, TEST_INDEX_ACCOUNT);
 
@@ -98,8 +99,8 @@ public class SubqueryIT extends SQLIntegTestCase {
     public void testINSelectAll() throws IOException {
         String query = String.format(Locale.ROOT,
                 "SELECT * " +
-                            "FROM %s/dog A " +
-                            "WHERE holdersName IN (SELECT firstname FROM %s/account B) " +
+                            "FROM %s A " +
+                            "WHERE holdersName IN (SELECT firstname FROM %s B) " +
                             "AND dog_name <> 'babala'",
                 TEST_INDEX_DOGSUBQUERY, TEST_INDEX_ACCOUNT);
 
@@ -121,8 +122,8 @@ public class SubqueryIT extends SQLIntegTestCase {
     public void testINWithInnerWhere() throws IOException {
         String query = String.format(Locale.ROOT,
                 "SELECT dog_name " +
-                            "FROM %s/dog A " +
-                            "WHERE holdersName IN (SELECT firstname FROM %s/account B WHERE age <> 36) " +
+                            "FROM %s A " +
+                            "WHERE holdersName IN (SELECT firstname FROM %s B WHERE age <> 36) " +
                             "AND dog_name <> 'babala'",
                 TEST_INDEX_DOGSUBQUERY, TEST_INDEX_ACCOUNT);
 
@@ -141,8 +142,8 @@ public class SubqueryIT extends SQLIntegTestCase {
         exceptionRule.expectMessage("Unsupported subquery");
         String query = String.format(Locale.ROOT,
                 "SELECT dog_name " +
-                        "FROM %s/dog A " +
-                        "WHERE holdersName NOT IN (SELECT firstname FROM %s/account B WHERE age <> 36) " +
+                        "FROM %s A " +
+                        "WHERE holdersName NOT IN (SELECT firstname FROM %s B WHERE age <> 36) " +
                         "AND dog_name <> 'babala'",
                 TEST_INDEX_DOGSUBQUERY, TEST_INDEX_ACCOUNT);
         executeQuery(query);
@@ -154,8 +155,8 @@ public class SubqueryIT extends SQLIntegTestCase {
     public void testINWithDuplicate() throws IOException {
         String query = String.format(Locale.ROOT,
                 "SELECT dog_name " +
-                            "FROM %s/dog A " +
-                            "WHERE holdersName IN (SELECT firstname FROM %s/account B)",
+                            "FROM %s A " +
+                            "WHERE holdersName IN (SELECT firstname FROM %s B)",
                 TEST_INDEX_DOGSUBQUERY, TEST_INDEX_ACCOUNT);
 
         JSONObject response = executeQuery(query);
@@ -280,7 +281,7 @@ public class SubqueryIT extends SQLIntegTestCase {
     public void selectFromSubqueryWithCountShouldPass() throws IOException {
         JSONObject result = executeQuery(
                 StringUtils.format("SELECT t.TEMP as count " +
-                              "FROM (SELECT COUNT(*) as TEMP FROM %s/account) t", TEST_INDEX_ACCOUNT));
+                              "FROM (SELECT COUNT(*) as TEMP FROM %s) t", TEST_INDEX_ACCOUNT));
 
         assertThat(result.query("/aggregations/count/value"), equalTo(1000));
     }
@@ -289,7 +290,7 @@ public class SubqueryIT extends SQLIntegTestCase {
     public void selectFromSubqueryWithWhereAndCountShouldPass() throws IOException {
         JSONObject result = executeQuery(
                 StringUtils.format("SELECT t.TEMP as count " +
-                              "FROM (SELECT COUNT(*) as TEMP FROM %s/account WHERE age > 30) t", TEST_INDEX_ACCOUNT));
+                              "FROM (SELECT COUNT(*) as TEMP FROM %s WHERE age > 30) t", TEST_INDEX_ACCOUNT));
 
         assertThat(result.query("/aggregations/count/value"), equalTo(502));
     }
@@ -298,7 +299,7 @@ public class SubqueryIT extends SQLIntegTestCase {
     public void selectFromSubqueryWithCountAndGroupByShouldPass() throws Exception {
         JSONObject result = executeQuery(
                 StringUtils.format("SELECT t.TEMP as count " +
-                              "FROM (SELECT COUNT(*) as TEMP FROM %s/account GROUP BY gender) t", TEST_INDEX_ACCOUNT));
+                              "FROM (SELECT COUNT(*) as TEMP FROM %s GROUP BY gender) t", TEST_INDEX_ACCOUNT));
 
         assertThat(getTotalHits(result), equalTo(1000));
         JSONObject gender = (JSONObject) result.query("/aggregations/gender");
@@ -322,7 +323,7 @@ public class SubqueryIT extends SQLIntegTestCase {
         JSONObject result = executeQuery(
                 StringUtils.format(
                         "SELECT t.TEMP as count " +
-                        "FROM (SELECT COUNT(*) as TEMP FROM %s/account GROUP BY age ORDER BY TEMP) t",
+                        "FROM (SELECT COUNT(*) as TEMP FROM %s GROUP BY age ORDER BY TEMP) t",
                         TEST_INDEX_ACCOUNT));
         JSONArray buckets = (JSONArray) result.query("/aggregations/age/buckets");
         List<Integer> countList = new ArrayList<>();
@@ -338,7 +339,7 @@ public class SubqueryIT extends SQLIntegTestCase {
         JSONObject result = executeQuery(
                 StringUtils.format("SELECT t.T1 as g, t.T2 as c " +
                               "FROM (SELECT gender as T1, COUNT(*) as T2 " +
-                              "      FROM %s/account " +
+                              "      FROM %s " +
                               "      GROUP BY gender " +
                               "      HAVING T2 > 500) t", TEST_INDEX_ACCOUNT));
         assertThat(result.query("/aggregations/g/buckets/0/c/value"), equalTo(507));
@@ -350,10 +351,32 @@ public class SubqueryIT extends SQLIntegTestCase {
                 StringUtils.format(
                         "SELECT t.TEMP1 as count, t.TEMP2 as balance " +
                         "FROM (SELECT COUNT(*) as TEMP1, SUM(balance) as TEMP2 " +
-                        "      FROM %s/account) t",
+                        "      FROM %s) t",
                         TEST_INDEX_ACCOUNT));
 
         assertThat(result.query("/aggregations/count/value"), equalTo(1000));
         assertThat(result.query("/aggregations/balance/value"), equalTo(25714837.0));
+    }
+
+    @Test
+    public void selectFromSubqueryWithoutAliasShouldPass() throws IOException {
+        JSONObject response = executeJdbcRequest(
+                StringUtils.format(
+                        "SELECT a.firstname AS my_first, a.lastname AS my_last, a.age AS my_age " +
+                        "FROM (SELECT firstname, lastname, age " +
+                                "FROM %s " +
+                                "WHERE age = 40 and account_number = 291) AS a",
+                        TEST_INDEX_ACCOUNT));
+
+        verifySchema(response,
+                schema("firstname", "my_first", "text"),
+                schema("lastname", "my_last", "text"),
+                schema("age", "my_age", "long"));
+        verifyDataRows(response,
+                rows("Lynn", "Pollard", 40));
+    }
+
+    private JSONObject executeJdbcRequest(String query) {
+        return new JSONObject(executeQuery(query, "jdbc"));
     }
 }

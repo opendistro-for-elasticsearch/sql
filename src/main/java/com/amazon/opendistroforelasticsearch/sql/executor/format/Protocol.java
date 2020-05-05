@@ -15,21 +15,28 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
+import com.amazon.opendistroforelasticsearch.sql.domain.ColumnTypeProvider;
 import com.amazon.opendistroforelasticsearch.sql.domain.Delete;
 import com.amazon.opendistroforelasticsearch.sql.domain.IndexStatement;
 import com.amazon.opendistroforelasticsearch.sql.domain.Query;
 import com.amazon.opendistroforelasticsearch.sql.domain.QueryStatement;
+import com.amazon.opendistroforelasticsearch.sql.cursor.Cursor;
+import com.amazon.opendistroforelasticsearch.sql.cursor.NullCursor;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.DataRows.Row;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema.Column;
 import com.amazon.opendistroforelasticsearch.sql.executor.adapter.QueryPlanQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.executor.adapter.QueryPlanRequestBuilder;
 import com.amazon.opendistroforelasticsearch.sql.expression.domain.BindingTuple;
-import com.amazon.opendistroforelasticsearch.sql.query.planner.core.ColumnNode;
+import com.amazon.opendistroforelasticsearch.sql.query.DefaultQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.query.QueryAction;
+
+import com.google.common.base.Strings;
+
+import com.amazon.opendistroforelasticsearch.sql.query.planner.core.ColumnNode;
+
 import org.elasticsearch.client.Client;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -48,12 +55,19 @@ public class Protocol {
     private ResultSet resultSet;
     private ErrorMessage error;
     private List<ColumnNode> columnNodeList;
+    private Cursor cursor = new NullCursor();
+    private ColumnTypeProvider scriptColumnType = new ColumnTypeProvider();
 
-    public Protocol(Client client, QueryAction queryAction, Object queryResult, String formatType) {
+    public Protocol(Client client, QueryAction queryAction, Object queryResult, String formatType, Cursor cursor) {
+        this.cursor = cursor;
+
         if (queryAction instanceof QueryPlanQueryAction) {
             this.columnNodeList =
                     ((QueryPlanRequestBuilder) (((QueryPlanQueryAction) queryAction).explain())).outputColumns();
+        } else if (queryAction instanceof DefaultQueryAction) {
+            scriptColumnType = queryAction.getScriptColumnType();
         }
+
         this.formatType = formatType;
         QueryStatement query = queryAction.getQueryStatement();
         this.status = OK_STATUS;
@@ -62,10 +76,22 @@ public class Protocol {
         this.total = resultSet.getDataRows().getTotalHits();
     }
 
+
+    public Protocol(Client client, Object queryResult, String formatType, Cursor cursor) {
+        this.cursor = cursor;
+        this.status = OK_STATUS;
+        this.formatType = formatType;
+        this.resultSet = loadResultSetForCursor(client, queryResult);
+    }
+
     public Protocol(Exception e) {
         this.formatType = null;
         this.status = ERROR_STATUS;
-        this.error = new ErrorMessage(e, ERROR_STATUS);
+        this.error = ErrorMessageFactory.createErrorMessage(e, status);
+    }
+
+    private ResultSet loadResultSetForCursor(Client client, Object queryResult) {
+        return new SelectResultSet(client, queryResult, formatType, cursor);
     }
 
     private ResultSet loadResultSet(Client client, QueryStatement queryStatement, Object queryResult) {
@@ -75,7 +101,8 @@ public class Protocol {
         if (queryStatement instanceof Delete) {
             return new DeleteResultSet(client, (Delete) queryStatement, queryResult);
         } else if (queryStatement instanceof Query) {
-            return new SelectResultSet(client, (Query) queryStatement, queryResult);
+            return new SelectResultSet(client, (Query) queryStatement, queryResult,
+                                        scriptColumnType, formatType, cursor);
         } else if (queryStatement instanceof IndexStatement) {
             IndexStatement statement = (IndexStatement) queryStatement;
             StatementType statementType = statement.getStatementType();
@@ -126,8 +153,15 @@ public class Protocol {
         formattedOutput.put("size", size);
         formattedOutput.put("total", total);
 
-        formattedOutput.put("schema", getSchemaAsJson());
+        JSONArray schema = getSchemaAsJson();
+
+        formattedOutput.put("schema", schema);
         formattedOutput.put("datarows", getDataRowsAsJson());
+
+        String cursorId = cursor.generateCursorId();
+        if (!Strings.isNullOrEmpty(cursorId)) {
+            formattedOutput.put("cursor", cursorId);
+        }
 
         return formattedOutput.toString(2);
     }
@@ -146,6 +180,30 @@ public class Protocol {
 
     private String outputInTableFormat() {
         return null;
+    }
+
+    public String cursorFormat() {
+        if (status == OK_STATUS) {
+            switch (formatType) {
+                case "jdbc":
+                    return cursorOutputInJDBCFormat();
+                default:
+                    throw new UnsupportedOperationException(String.format(
+                            "The following response format is not supported for cursor: [%s]", formatType));
+            }
+        }
+        return error.toString();
+    }
+
+    private String cursorOutputInJDBCFormat() {
+        JSONObject formattedOutput = new JSONObject();
+        formattedOutput.put("datarows", getDataRowsAsJson());
+
+        String cursorId = cursor.generateCursorId();
+        if (!Strings.isNullOrEmpty(cursorId)) {
+            formattedOutput.put("cursor", cursorId);
+        }
+        return formattedOutput.toString(2);
     }
 
     private String rawEntry(Row row, Schema schema) {

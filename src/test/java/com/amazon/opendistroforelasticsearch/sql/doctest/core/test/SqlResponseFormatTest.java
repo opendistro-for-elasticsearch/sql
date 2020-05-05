@@ -29,6 +29,7 @@ import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.Sq
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.ORIGINAL_RESPONSE;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.PRETTY_JSON_RESPONSE;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.TABLE_RESPONSE;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.TABLE_UNSORTED_RESPONSE;
 import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -53,11 +54,7 @@ public class SqlResponseFormatTest {
 
     @Before
     public void setUp() throws IOException {
-        Response response = mock(Response.class);
-        HttpEntity entity = mock(HttpEntity.class);
-        when(response.getEntity()).thenReturn(entity);
-        when(entity.getContent()).thenReturn(new ByteArrayInputStream(expected.getBytes()));
-        sqlResponse = new SqlResponse(response);
+        mockResponse(expected);
     }
 
     @Test
@@ -100,13 +97,91 @@ public class SqlResponseFormatTest {
         assertThat(
             TABLE_RESPONSE.format(sqlResponse),
             is(
-                "+----------------+\n" +
-                "|firstname (text)|\n" +
-                "+================+\n" +
-                "|            John|\n" +
-                "+----------------+\n"
+                "+---------+\n" +
+                "|firstname|\n" +
+                "+=========+\n" +
+                "|     John|\n" +
+                "+---------+\n"
             )
         );
+    }
+
+    @Test
+    public void rowsInTableShouldBeSorted() throws IOException {
+        mockResponse(
+            "{" +
+                "\"schema\":[" +
+                    "{\"name\":\"firstname\",\"type\":\"text\"}," +
+                    "{\"name\":\"age\",\"type\":\"integer\"}" +
+                "]," +
+                "\"datarows\":[" +
+                    "[\"John\", 30]," +
+                    "[\"John\", 24]," +
+                    "[\"Allen\", 45]" +
+                "]," +
+                "\"total\":10," +
+                "\"size\":3," +
+                "\"status\":200" +
+            "}"
+        );
+
+        assertThat(
+            TABLE_RESPONSE.format(sqlResponse),
+            is(
+                "+---------+---+\n" +
+                "|firstname|age|\n" +
+                "+=========+===+\n" +
+                "|    Allen| 45|\n" +
+                "+---------+---+\n" +
+                "|     John| 24|\n" +
+                "+---------+---+\n" +
+                "|     John| 30|\n" +
+                "+---------+---+\n"
+            )
+        );
+    }
+
+    @Test
+    public void rowsInTableUnsortedShouldMaintainOriginalOrder() throws IOException {
+        mockResponse(
+            "{" +
+                "\"schema\":[" +
+                    "{\"name\":\"firstname\",\"type\":\"text\"}," +
+                    "{\"name\":\"age\",\"type\":\"integer\"}" +
+                "]," +
+                "\"datarows\":[" +
+                    "[\"John\", 30]," +
+                    "[\"John\", 24]," +
+                    "[\"Allen\", 45]" +
+                "]," +
+                "\"total\":10," +
+                "\"size\":3," +
+                "\"status\":200" +
+            "}"
+        );
+
+        assertThat(
+            TABLE_UNSORTED_RESPONSE.format(sqlResponse),
+            is(
+                "+---------+---+\n" +
+                "|firstname|age|\n" +
+                "+=========+===+\n" +
+                "|     John| 30|\n" +
+                "+---------+---+\n" +
+                "|     John| 24|\n" +
+                "+---------+---+\n" +
+                "|    Allen| 45|\n" +
+                "+---------+---+\n"
+            )
+        );
+    }
+
+    private void mockResponse(String content) throws IOException {
+        Response response = mock(Response.class);
+        HttpEntity entity = mock(HttpEntity.class);
+        when(response.getEntity()).thenReturn(entity);
+        when(entity.getContent()).thenReturn(new ByteArrayInputStream(content.getBytes()));
+        sqlResponse = new SqlResponse(response);
     }
 
 }

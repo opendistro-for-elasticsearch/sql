@@ -73,7 +73,7 @@ public class JoinIT extends SQLIntegTestCase {
     public void joinParseWithHintsCheckSelectedFieldsSplitHASH() throws IOException {
 
         String query = String.format(Locale.ROOT, "SELECT /*! HASH_WITH_TERMS_FILTER*/ " +
-                "a.firstname ,a.lastname, a.gender ,d.dog_name FROM %s/people a JOIN %s/dog d " +
+                "a.firstname ,a.lastname, a.gender ,d.dog_name FROM %s a JOIN %s d " +
                 "ON d.holdersName = a.firstname WHERE (a.age > 10 OR a.balance > 2000) AND d.age > 1",
                 TEST_INDEX_PEOPLE, TEST_INDEX_DOG);
 
@@ -105,8 +105,8 @@ public class JoinIT extends SQLIntegTestCase {
     @Test
     public void joinWithStarHASH() throws IOException {
 
-        String query = String.format(Locale.ROOT, "SELECT * FROM %1$s/gotCharacters c " +
-                "JOIN %1$s/gotCharacters h ON h.hname = c.house ", TEST_INDEX_GAME_OF_THRONES);
+        String query = String.format(Locale.ROOT, "SELECT * FROM %1$s c " +
+                "JOIN %1$s h ON h.hname = c.house ", TEST_INDEX_GAME_OF_THRONES);
 
         JSONObject result = executeQuery(query);
         JSONArray hits = getHits(result);
@@ -279,8 +279,8 @@ public class JoinIT extends SQLIntegTestCase {
     public void hintMultiSearchCanRunFewTimesNL() throws IOException {
 
         String query = String.format(Locale.ROOT, "SELECT /*! USE_NL*/ /*! NL_MULTISEARCH_SIZE(2)*/ " +
-                "c.name.firstname,c.parents.father,h.hname,h.words FROM %1$s/gotCharacters c " +
-                "JOIN %1$s/gotCharacters h", TEST_INDEX_GAME_OF_THRONES);
+                "c.name.firstname,c.parents.father,h.hname,h.words FROM %1$s c " +
+                "JOIN %1$s h", TEST_INDEX_GAME_OF_THRONES);
 
         JSONObject result = executeQuery(query);
         JSONArray hits = getHits(result);
@@ -291,7 +291,7 @@ public class JoinIT extends SQLIntegTestCase {
     public void joinWithGeoIntersectNL() throws IOException {
 
         String query = String.format(Locale.ROOT, "SELECT p1.description,p2.description " +
-                "FROM %s/location p1 JOIN %s/location2 p2 ON GEO_INTERSECTS(p2.place,p1.place)",
+                "FROM %s p1 JOIN %s p2 ON GEO_INTERSECTS(p2.place,p1.place)",
                 TEST_INDEX_LOCATION, TEST_INDEX_LOCATION2);
 
         JSONObject result = executeQuery(query);
@@ -310,8 +310,8 @@ public class JoinIT extends SQLIntegTestCase {
 
         //TODO: Either change the ON condition field to keyword or create a different subquery
         String query = String.format(Locale.ROOT, "SELECT c.gender,c.name.firstname,h.hname,h.words " +
-                "FROM %1$s/gotCharacters c JOIN %1$s/gotCharacters h ON h.hname = c.house " +
-                "WHERE c.name.firstname IN (SELECT holdersName FROM %2$s/dog)",
+                "FROM %1$s c JOIN %1$s h ON h.hname = c.house " +
+                "WHERE c.name.firstname IN (SELECT holdersName FROM %2$s)",
                 TEST_INDEX_GAME_OF_THRONES, TEST_INDEX_DOG);
 
         JSONObject result = executeQuery(query);
@@ -337,8 +337,8 @@ public class JoinIT extends SQLIntegTestCase {
     public void joinWithOrWithTermsFilterOpt() throws IOException {
 
         String query = String.format(Locale.ROOT, "SELECT /*! HASH_WITH_TERMS_FILTER*/ " +
-                        "d.dog_name,c.name.firstname FROM %s/gotCharacters c " +
-                        "JOIN %s/dog d ON d.holdersName = c.name.firstname OR d.age = c.name.ofHisName",
+                        "d.dog_name,c.name.firstname FROM %s c " +
+                        "JOIN %s d ON d.holdersName = c.name.firstname OR d.age = c.name.ofHisName",
                 TEST_INDEX_GAME_OF_THRONES, TEST_INDEX_DOG);
 
         executeQuery(query);
@@ -404,7 +404,7 @@ public class JoinIT extends SQLIntegTestCase {
     public void joinParseCheckSelectedFieldsSplitNLConditionOrderEQ() throws IOException {
 
         final String query = String.format(Locale.ROOT, "SELECT /*! USE_NL*/ " +
-                "a.firstname, a.lastname, a.gender, d.dog_name FROM %s/people a JOIN %s/dog d " +
+                "a.firstname, a.lastname, a.gender, d.dog_name FROM %s a JOIN %s d " +
                 "ON a.firstname = d.holdersName WHERE (a.age > 10 OR a.balance > 2000) AND d.age > 1",
                 TEST_INDEX_PEOPLE2, TEST_INDEX_DOG2);
 
@@ -433,7 +433,7 @@ public class JoinIT extends SQLIntegTestCase {
 
         final String query = String.format(Locale.ROOT, "SELECT /*! USE_NL*/ " +
                 "a.firstname, a.lastname, a.gender, d.firstname, d.age  FROM " +
-                "%s/people a JOIN %s/account d on a.age < d.age " +
+                "%s a JOIN %s d on a.age < d.age " +
                 "WHERE (d.firstname = 'Lynn' OR d.firstname = 'Obrien') AND a.firstname = 'Mcgee'",
                 TEST_INDEX_PEOPLE, TEST_INDEX_ACCOUNT);
 
@@ -456,7 +456,7 @@ public class JoinIT extends SQLIntegTestCase {
 
         final String query = String.format(Locale.ROOT, "SELECT /*! USE_NL*/ " +
                 "a.firstname, a.lastname, a.gender, d.firstname, d.age  FROM " +
-                "%s/people a JOIN %s/account d on a.age > d.age " +
+                "%s a JOIN %s d on a.age > d.age " +
                 "WHERE (d.firstname = 'Sandoval' OR d.firstname = 'Hewitt') AND a.firstname = 'Fulton'",
                 TEST_INDEX_PEOPLE, TEST_INDEX_ACCOUNT);
 
@@ -526,7 +526,7 @@ public class JoinIT extends SQLIntegTestCase {
 
         final String hint = useNestedLoops ? USE_NL_HINT : "";
         final String query = String.format(Locale.ROOT, "SELECT%1$s c.name.firstname, d.* " +
-                        "FROM %2$s/gotCharacters c JOIN %2$s/gotCharacters d ON d.hname = c.house",
+                        "FROM %2$s c JOIN %2$s d ON d.hname = c.house",
                 hint, TEST_INDEX_GAME_OF_THRONES);
 
         JSONObject result = executeQuery(query);
@@ -544,7 +544,7 @@ public class JoinIT extends SQLIntegTestCase {
 
         final String hint = useNestedLoops ? USE_NL_HINT : "";
         final String query = String.format(Locale.ROOT, "SELECT%1$s c.name.firstname " +
-                        "FROM %2$s/gotCharacters d JOIN %2$s/gotCharacters c ON c.house = d.hname",
+                        "FROM %2$s d JOIN %2$s c ON c.house = d.hname",
                 hint, TEST_INDEX_GAME_OF_THRONES);
 
         JSONObject result = executeQuery(query);
@@ -562,7 +562,7 @@ public class JoinIT extends SQLIntegTestCase {
 
         final String hint = useNestedLoops ? USE_NL_HINT : "";
         final String query = String.format(Locale.ROOT, "SELECT%1$s c.name.firstname, d.* " +
-                        "FROM %2$s/gotCharacters c LEFT JOIN %2$s/gotCharacters d ON d.hname = c.house",
+                        "FROM %2$s c LEFT JOIN %2$s d ON d.hname = c.house",
                 hint, TEST_INDEX_GAME_OF_THRONES);
 
         JSONObject result = executeQuery(query);
@@ -582,7 +582,7 @@ public class JoinIT extends SQLIntegTestCase {
 
         final String hint = useNestedLoops ? USE_NL_HINT : "";
         String query = String.format(Locale.ROOT, "SELECT%s a.firstname ,a.lastname,a.gender,d.dog_name " +
-                "FROM %s/people a JOIN %s/dog d ON d.holdersName = a.firstname " +
+                "FROM %s a JOIN %s d ON d.holdersName = a.firstname " +
                 "WHERE (a.age > 10 OR a.balance > 2000) AND d.age > 1", hint, TEST_INDEX_PEOPLE, TEST_INDEX_DOG);
 
         JSONObject result = executeQuery(query);
@@ -592,8 +592,8 @@ public class JoinIT extends SQLIntegTestCase {
     private void joinNoConditionButWithWhere(boolean useNestedLoops) throws IOException {
 
         final String hint = useNestedLoops ? USE_NL_HINT : "";
-        String query = String.format(Locale.ROOT, "SELECT%s c.gender,h.hname,h.words FROM %2$s/gotCharacters c " +
-                        "JOIN %2$s/gotCharacters h WHERE match_phrase(c.name.firstname, 'Daenerys')",
+        String query = String.format(Locale.ROOT, "SELECT%s c.gender,h.hname,h.words FROM %2$s c " +
+                        "JOIN %2$s h WHERE match_phrase(c.name.firstname, 'Daenerys')",
                 hint, TEST_INDEX_GAME_OF_THRONES);
 
         JSONObject result = executeQuery(query);
@@ -605,7 +605,7 @@ public class JoinIT extends SQLIntegTestCase {
 
         final String hint = useNestedLoops ? USE_NL_HINT : "";
         String query = String.format(Locale.ROOT, "SELECT%s c.name.firstname,c.parents.father,h.hname,h.words " +
-                        "FROM %2$s/gotCharacters c JOIN %2$s/gotCharacters h",
+                        "FROM %2$s c JOIN %2$s h",
                 hint, TEST_INDEX_GAME_OF_THRONES);
 
         JSONObject result = executeQuery(query);
@@ -617,7 +617,7 @@ public class JoinIT extends SQLIntegTestCase {
 
         final String hint = useNestedLoops ? USE_NL_HINT : "";
         String query = String.format(Locale.ROOT, "SELECT%s c.gender,h.hname,h.words " +
-                        "FROM %2$s/gotCharacters c JOIN %2$s/gotCharacters h ON h.hname = c.house",
+                        "FROM %2$s c JOIN %2$s h ON h.hname = c.house",
                 hint, TEST_INDEX_GAME_OF_THRONES);
 
         JSONObject result = executeQuery(query);
@@ -667,7 +667,7 @@ public class JoinIT extends SQLIntegTestCase {
 
         final String hint = useNestedLoops ? USE_NL_HINT : "";
         String query = String.format(Locale.ROOT, "SELECT%s c.name.firstname,c.parents.father,h.hname,h.words" +
-                        " FROM %2$s/gotCharacters c JOIN %2$s/gotCharacters h LIMIT 9",
+                        " FROM %2$s c JOIN %2$s h LIMIT 9",
                 hint, TEST_INDEX_GAME_OF_THRONES);
 
         JSONObject result = executeQuery(query);
@@ -679,7 +679,7 @@ public class JoinIT extends SQLIntegTestCase {
 
         final String hint = useNestedLoops ? USE_NL_HINT : "";
         String query = String.format(Locale.ROOT, "SELECT%s c.name.firstname,c.parents.father,h.hname,h.words " +
-                        "FROM %2$s/gotCharacters c JOIN %2$s/gotCharacters h ON h.hname = c.house " +
+                        "FROM %2$s c JOIN %2$s h ON h.hname = c.house " +
                         "WHERE match_phrase(c.name.firstname, 'Daenerys')",
                 hint, TEST_INDEX_GAME_OF_THRONES);
 
@@ -702,7 +702,7 @@ public class JoinIT extends SQLIntegTestCase {
 
         final String hint = useNestedLoops ? USE_NL_HINT : "";
         String query = String.format(Locale.ROOT, "SELECT%s c.name.firstname name,c.parents.father father," +
-                        "h.hname house FROM %2$s/gotCharacters c JOIN %2$s/gotCharacters h ON h.hname = c.house " +
+                        "h.hname house FROM %2$s c JOIN %2$s h ON h.hname = c.house " +
                         "WHERE match_phrase(c.name.firstname, 'Daenerys')",
                 hint, TEST_INDEX_GAME_OF_THRONES);
 
@@ -725,7 +725,7 @@ public class JoinIT extends SQLIntegTestCase {
 
         final String hint = useNestedLoops ? USE_NL_HINT : "";
         String query = String.format(Locale.ROOT, "SELECT%s c.name.firstname ,c.parents.father father, " +
-                        "h.hname house FROM %2$s/gotCharacters c JOIN %2$s/gotCharacters h ON h.hname = c.house " +
+                        "h.hname house FROM %2$s c JOIN %2$s h ON h.hname = c.house " +
                         "WHERE match_phrase(c.name.firstname, 'Daenerys')",
                 hint, TEST_INDEX_GAME_OF_THRONES);
 
@@ -749,7 +749,7 @@ public class JoinIT extends SQLIntegTestCase {
 
         final String hint = useNestedLoops ? USE_NL_HINT : "";
         String query = String.format(Locale.ROOT, "SELECT%s c.name.firstname,c.parents.father, h.hname,h.words " +
-                        " FROM %2$s/gotCharacters c JOIN %2$s/gotCharacters h ON h.hname = c.name.lastname " +
+                        " FROM %2$s c JOIN %2$s h ON h.hname = c.name.lastname " +
                         "WHERE match_phrase(c.name.firstname, 'Daenerys')",
                 hint, TEST_INDEX_GAME_OF_THRONES);
 
@@ -773,7 +773,7 @@ public class JoinIT extends SQLIntegTestCase {
 
         final String hint = useNestedLoops ? USE_NL_HINT : "";
         String query = String.format("SELECT%s c.name.firstname, f.name.firstname,f.name.lastname " +
-                        "FROM %2$s/gotCharacters c LEFT JOIN %2$s/gotCharacters f " +
+                        "FROM %2$s c LEFT JOIN %2$s f " +
                         "ON f.name.firstname = c.parents.father",
                 hint, TEST_INDEX_GAME_OF_THRONES);
 
@@ -806,7 +806,7 @@ public class JoinIT extends SQLIntegTestCase {
         final String hint = useNestedLoops ? USE_NL_HINT : "";
         String query = String.format(Locale.ROOT, "SELECT%s /*! JOIN_TABLES_LIMIT(2,null) */ " +
                         "c.name.firstname,c.parents.father, h.hname,h.words " +
-                        "FROM %2$s/gotCharacters c JOIN %2$s/gotCharacters h",
+                        "FROM %2$s c JOIN %2$s h",
                 hint, TEST_INDEX_GAME_OF_THRONES);
 
         JSONObject result = executeQuery(query);
@@ -818,8 +818,8 @@ public class JoinIT extends SQLIntegTestCase {
 
         final String hint = useNestedLoops ? USE_NL_HINT : "";
         String query = String.format(Locale.ROOT, "SELECT%s /*! JOIN_TABLES_LIMIT(2,2) */ " +
-                "c.name.firstname,c.parents.father, h.hname,h.words FROM %2$s/gotCharacters c " +
-                "JOIN %2$s/gotCharacters h", hint, TEST_INDEX_GAME_OF_THRONES);
+                "c.name.firstname,c.parents.father, h.hname,h.words FROM %2$s c " +
+                "JOIN %2$s h", hint, TEST_INDEX_GAME_OF_THRONES);
 
         JSONObject result = executeQuery(query);
         JSONArray hits = getHits(result);
@@ -830,8 +830,8 @@ public class JoinIT extends SQLIntegTestCase {
 
         final String hint = useNestedLoops ? USE_NL_HINT : "";
         String query = String.format(Locale.ROOT, "SELECT%s /*! JOIN_TABLES_LIMIT(3,1) */ " +
-                        "c.name.firstname,c.parents.father , h.hname,h.words FROM %2$s/gotCharacters h " +
-                        "JOIN  %2$s/gotCharacters c  ON c.name.lastname = h.hname",
+                        "c.name.firstname,c.parents.father , h.hname,h.words FROM %2$s h " +
+                        "JOIN  %2$s c  ON c.name.lastname = h.hname",
                 hint, TEST_INDEX_GAME_OF_THRONES);
 
         JSONObject result = executeQuery(query);
@@ -843,8 +843,8 @@ public class JoinIT extends SQLIntegTestCase {
 
         final String hint = useNestedLoops ? USE_NL_HINT : "";
         String query = String.format(Locale.ROOT, "SELECT%s /*! JOIN_TABLES_LIMIT(null,2) */ " +
-                "c.name.firstname,c.parents.father , h.hname,h.words FROM %2$s/gotCharacters c " +
-                "JOIN %2$s/gotCharacters h", hint, TEST_INDEX_GAME_OF_THRONES);
+                "c.name.firstname,c.parents.father , h.hname,h.words FROM %2$s c " +
+                "JOIN %2$s h", hint, TEST_INDEX_GAME_OF_THRONES);
 
         JSONObject result = executeQuery(query);
         JSONArray hits = getHits(result);
@@ -855,8 +855,8 @@ public class JoinIT extends SQLIntegTestCase {
 
         final String hint = useNestedLoops ? USE_NL_HINT : "";
         String query = String.format(Locale.ROOT, "SELECT%s /*! JOIN_TABLES_LIMIT(3,null) */ " +
-                        "c.name.firstname, f.name.firstname,f.name.lastname FROM %2$s/gotCharacters c " +
-                        "LEFT JOIN %2$s/gotCharacters f ON f.name.firstname = c.parents.father",
+                        "c.name.firstname, f.name.firstname,f.name.lastname FROM %2$s c " +
+                        "LEFT JOIN %2$s f ON f.name.firstname = c.parents.father",
                 hint, TEST_INDEX_GAME_OF_THRONES);
 
         JSONObject result = executeQuery(query);
@@ -868,7 +868,7 @@ public class JoinIT extends SQLIntegTestCase {
 
         final String hint = useNestedLoops ? USE_NL_HINT : "";
         String query = String.format(Locale.ROOT, "SELECT%s d.dog_name,c.name.firstname " +
-                        "FROM %s/gotCharacters c JOIN %s/dog d " +
+                        "FROM %s c JOIN %s d " +
                         "ON d.holdersName = c.name.firstname OR d.age = c.name.ofHisName",
                 hint, TEST_INDEX_GAME_OF_THRONES, TEST_INDEX_DOG);
 
@@ -896,7 +896,7 @@ public class JoinIT extends SQLIntegTestCase {
 
         final String hint = useNestedLoops ? USE_NL_HINT : "";
         String query = String.format(Locale.ROOT, "SELECT%s c.name.firstname,d.words " +
-                        "FROM %2$s/gotCharacters c JOIN %2$s/gotCharacters d ON d.hname = c.house " +
+                        "FROM %2$s c JOIN %2$s d ON d.hname = c.house " +
                         "ORDER BY c.name.firstname",
                 hint, TEST_INDEX_GAME_OF_THRONES);
 
@@ -934,8 +934,8 @@ public class JoinIT extends SQLIntegTestCase {
 
         final String hint = useNestedLoops ? USE_NL_HINT : "";
         String query = String.format(Locale.ROOT, "SELECT%s c.name.firstname,c.parents.father,c.hname," +
-                        "f.name.firstname,f.house,f.hname FROM %s/gotCharacters c " +
-                        "%s JOIN %s/gotCharacters f ON f.name.firstname = c.parents.father " +
+                        "f.name.firstname,f.house,f.hname FROM %s c " +
+                        "%s JOIN %s f ON f.name.firstname = c.parents.father " +
                         "%s f.house = c.hname %s f.house = c.name.firstname",
                 hint, TEST_INDEX_GAME_OF_THRONES, left, TEST_INDEX_GAME_OF_THRONES, oper1, oper2);
 

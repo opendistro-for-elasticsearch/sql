@@ -66,6 +66,10 @@ public class AggregationQueryAction extends QueryAction {
     public SqlElasticSearchRequestBuilder explain() throws SqlParseException {
         this.request = new SearchRequestBuilder(client, SearchAction.INSTANCE);
 
+        if (select.getRowCount() == null) {
+            select.setRowCount(Select.DEFAULT_LIMIT);
+        }
+
         setIndicesAndTypes();
 
         setWhere(select.getWhere());
@@ -81,7 +85,7 @@ public class AggregationQueryAction extends QueryAction {
                 if (lastAgg instanceof TermsAggregationBuilder) {
 
                     // TODO: Consider removing that condition
-                    // in theory we should be able to apply this for all types of fiels, but
+                    // in theory we should be able to apply this for all types of fields, but
                     // this change requires too much of related integration tests (e.g. there are comparisons against
                     // raw javascript dsl, so I'd like to scope the changes as of now to one particular fix for
                     // scripted functions

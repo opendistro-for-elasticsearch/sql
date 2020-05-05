@@ -66,7 +66,7 @@ public class ChildrenType {
             Where where = Where.newInstance();
             new WhereParser(new SqlParser()).parseWhere(secondParameter, where);
             if (where.getWheres().size() == 0) {
-                throw new SqlParseException("unable to parse filter where.");
+                throw new SqlParseException("Failed to parse filter condition");
             }
             this.where = where;
             simple = false;

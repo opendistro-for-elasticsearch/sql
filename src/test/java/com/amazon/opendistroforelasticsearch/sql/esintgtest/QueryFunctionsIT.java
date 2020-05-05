@@ -49,9 +49,9 @@ import static org.hamcrest.Matchers.startsWith;
 public class QueryFunctionsIT extends SQLIntegTestCase {
 
     private static final String SELECT_ALL = "SELECT *";
-    private static final String FROM_ACCOUNTS = "FROM " + TEST_INDEX_ACCOUNT + "/account";
-    private static final String FROM_NESTED = "FROM " + TEST_INDEX_NESTED_TYPE + "/nestedType";
-    private static final String FROM_PHRASE = "FROM " + TEST_INDEX_PHRASE + "/phrase";
+    private static final String FROM_ACCOUNTS = "FROM " + TEST_INDEX_ACCOUNT;
+    private static final String FROM_NESTED = "FROM " + TEST_INDEX_NESTED_TYPE;
+    private static final String FROM_PHRASE = "FROM " + TEST_INDEX_PHRASE;
 
     /**
      * TODO Looks like Math/Date Functions test all use the same query() and execute() functions

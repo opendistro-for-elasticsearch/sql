@@ -37,7 +37,7 @@ You can update the setting with a new value like this.
 
 SQL query::
 
-	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_cluster/settings -d '{
+	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_opendistro/_sql/settings -d '{
 	  "transient" : {
 	    "opendistro.sql.enabled" : "false"
 	  }
@@ -99,7 +99,7 @@ You can update the setting with a new value like this.
 
 SQL query::
 
-	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_cluster/settings -d '{
+	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_opendistro/_sql/settings -d '{
 	  "transient" : {
 	    "opendistro.sql.query.slowlog" : "10"
 	  }
@@ -141,7 +141,7 @@ You can update the setting with a new value like this.
 
 SQL query::
 
-	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_cluster/settings -d '{
+	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_opendistro/_sql/settings -d '{
 	  "transient" : {
 	    "opendistro.sql.query.analysis.enabled" : "false"
 	  }
@@ -185,7 +185,7 @@ You can update the setting with a new value like this.
 
 SQL query::
 
-	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_cluster/settings -d '{
+	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_opendistro/_sql/settings -d '{
 	  "transient" : {
 	    "opendistro.sql.query.analysis.semantic.suggestion" : "true"
 	  }
@@ -253,7 +253,7 @@ You can update the setting with a new value like this.
 
 SQL query::
 
-	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_cluster/settings -d '{
+	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_opendistro/_sql/settings -d '{
 	  "transient" : {
 	    "opendistro.sql.query.analysis.semantic.threshold" : "50"
 	  }
@@ -299,7 +299,7 @@ You can update the setting with a new value like this.
 
 SQL query::
 
-	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_cluster/settings -d '{
+	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_opendistro/_sql/settings -d '{
 	  "transient" : {
 	    "opendistro.sql.query.response.format" : "json"
 	  }
@@ -347,7 +347,7 @@ Result set::
 	    "hits" : [
 	      {
 	        "_index" : "accounts",
-	        "_type" : "account",
+	        "_type" : "_doc",
 	        "_source" : {
 	          "firstname" : "Nanette",
 	          "age" : 28,
@@ -361,7 +361,7 @@ Result set::
 	      },
 	      {
 	        "_index" : "accounts",
-	        "_type" : "account",
+	        "_type" : "_doc",
 	        "_source" : {
 	          "firstname" : "Amber",
 	          "age" : 32,
@@ -382,5 +382,131 @@ Result set::
 	  },
 	  "took" : 100,
 	  "timed_out" : false
+	}
+
+opendistro.sql.cursor.enabled
+=============================
+
+Description
+-----------
+
+User can enable/disable pagination for all queries that are supported.
+
+1. The default value is false.
+2. This setting is node scope.
+3. This setting can be updated dynamically.
+
+
+Example
+-------
+
+You can update the setting with a new value like this.
+
+SQL query::
+
+	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_opendistro/_sql/settings -d '{
+	  "transient" : {
+	    "opendistro.sql.cursor.enabled" : "true"
+	  }
+	}'
+
+Result set::
+
+	{
+	  "acknowledged" : true,
+	  "persistent" : { },
+	  "transient" : {
+	    "opendistro" : {
+	      "sql" : {
+	        "cursor" : {
+	          "enabled" : "true"
+	        }
+	      }
+	    }
+	  }
+	}
+
+opendistro.sql.cursor.fetch_size
+================================
+
+Description
+-----------
+
+User can set the default fetch_size for all queries that are supported by pagination. Explicit `fetch_size` passed in request will override this value
+
+1. The default value is 1000.
+2. This setting is node scope.
+3. This setting can be updated dynamically.
+
+
+Example
+-------
+
+You can update the setting with a new value like this.
+
+SQL query::
+
+	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_opendistro/_sql/settings -d '{
+	  "transient" : {
+	    "opendistro.sql.cursor.fetch_size" : "50"
+	  }
+	}'
+
+Result set::
+
+	{
+	  "acknowledged" : true,
+	  "persistent" : { },
+	  "transient" : {
+	    "opendistro" : {
+	      "sql" : {
+	        "cursor" : {
+	          "fetch_size" : "50"
+	        }
+	      }
+	    }
+	  }
+	}
+
+opendistro.sql.cursor.keep_alive
+================================
+
+Description
+-----------
+
+User can set this value to indicate how long the cursor context should be kept open. Cursor contexts are resource heavy, and a lower value should be used if possible.
+
+1. The default value is 1m.
+2. This setting is node scope.
+3. This setting can be updated dynamically.
+
+
+Example
+-------
+
+You can update the setting with a new value like this.
+
+SQL query::
+
+	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_opendistro/_sql/settings -d '{
+	  "transient" : {
+	    "opendistro.sql.cursor.keep_alive" : "5m"
+	  }
+	}'
+
+Result set::
+
+	{
+	  "acknowledged" : true,
+	  "persistent" : { },
+	  "transient" : {
+	    "opendistro" : {
+	      "sql" : {
+	        "cursor" : {
+	          "keep_alive" : "5m"
+	        }
+	      }
+	    }
+	  }
 	}
 

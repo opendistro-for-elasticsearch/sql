@@ -63,7 +63,9 @@ version = "${opendistroVersion}.0"
 
 apply plugin: 'elasticsearch.esplugin'
 apply plugin: 'jacoco'
-apply from: 'build-tools/sqlplugin-coverage.gradle'
+if (!System.properties.containsKey('tests.rest.cluster') && !System.properties.containsKey('tests.cluster')){
+    apply from: 'build-tools/sqlplugin-coverage.gradle'
+}
 apply plugin: 'antlr'
 
 jacoco {
@@ -134,6 +136,15 @@ integTestRunner {
     // allows integration test classes to access test resource from project root path
     systemProperty('project.root', project.rootDir.absolutePath)
 
+    // Tell the test JVM if the cluster JVM is running under a debugger so that tests can use longer timeouts for
+    // requests. The 'doFirst' delays reading the debug setting on the cluster till execution time.
+    doFirst { systemProperty 'cluster.debug', integTestCluster.debug }
+
+    // The --debug-jvm command-line option makes the cluster debuggable; this makes the tests debuggable
+    if (System.getProperty("test.debug") != null) {
+        jvmArgs '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005'
+    }
+
     // Run different task based on test type. "exclude" is required for each task.
     def testType = System.getProperty("testType")
     if (testType == 'doctest') { // Doctest to generate documentation
@@ -155,15 +166,19 @@ integTestRunner {
         systemProperty "otherDbUrls", System.getProperty("otherDbUrls")
         systemProperty "queries", System.getProperty("queries")
 
-    } else { // Run all other integration tests and doctest by default
+    } else { // Run all other integration tests. Skip doctest for now due to randomness in our stats API.
         include 'com/amazon/opendistroforelasticsearch/sql/esintgtest/**/*IT.class'
-        include 'com/amazon/opendistroforelasticsearch/sql/doctest/**/*IT.class'
+        exclude 'com/amazon/opendistroforelasticsearch/sql/doctest/**/*IT.class'
         exclude 'com/amazon/opendistroforelasticsearch/sql/correctness/**'
     }
 }
 
 integTestCluster {
     // use elasticsearch oss distribution for integration test.
+    distribution = "oss-zip"
+}
+
+run {
     distribution = "oss-zip"
 }
 
@@ -223,6 +238,7 @@ dependencies {
     compile group: "org.elasticsearch.plugin", name: 'reindex-client', version: "${es_version}"
     compile group: 'com.google.guava', name: 'guava', version:'15.0'
     compile group: 'org.json', name: 'json', version:'20180813'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
 
     // ANTLR gradle plugin and runtime dependency
     antlr "org.antlr:antlr4:4.7.1"

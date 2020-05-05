@@ -36,6 +36,12 @@ public class DescribeResultSet extends ResultSet {
     private static final int DEFAULT_NUM_PREC_RADIX = 10;
     private static final String IS_AUTOINCREMENT = "NO";
 
+    /**
+     * You are not required to set the field type to object explicitly, as this is the default value.
+     * https://www.elastic.co/guide/en/elasticsearch/reference/current/object.html
+     */
+    private static final String DEFAULT_OBJECT_DATATYPE = "object";
+
     private IndexStatement statement;
     private Object queryResult;
 
@@ -159,7 +165,7 @@ public class DescribeResultSet extends ResultSet {
             Map<String, Object> metaData = (Map<String, Object>) entry.getValue();
 
             String fullPath = addToPath(currPath, entry.getKey());
-            flattenedMapping.put(fullPath, (String) metaData.get("type"));
+            flattenedMapping.put(fullPath, (String) metaData.getOrDefault("type", DEFAULT_OBJECT_DATATYPE));
             if (metaData.containsKey("properties")) {
                 flattenedMapping = flattenMappingMetaData(metaData, fullPath, flattenedMapping);
             }

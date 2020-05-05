@@ -15,12 +15,14 @@
 
 package com.amazon.opendistroforelasticsearch.sql.query;
 
+import com.amazon.opendistroforelasticsearch.sql.domain.ColumnTypeProvider;
 import com.amazon.opendistroforelasticsearch.sql.domain.Query;
 import com.amazon.opendistroforelasticsearch.sql.domain.QueryStatement;
 import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.domain.hints.Hint;
 import com.amazon.opendistroforelasticsearch.sql.domain.hints.HintType;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.executor.Format;
 import com.amazon.opendistroforelasticsearch.sql.request.SqlRequest;
 import com.fasterxml.jackson.core.JsonFactory;
 import org.elasticsearch.action.search.SearchRequestBuilder;
@@ -48,6 +50,8 @@ public abstract class QueryAction {
     protected Query query;
     protected Client client;
     protected SqlRequest sqlRequest = SqlRequest.NULL;
+    protected ColumnTypeProvider scriptColumnType;
+    protected Format format;
 
     public QueryAction(Client client, Query query) {
         this.client = client;
@@ -66,8 +70,24 @@ public abstract class QueryAction {
         this.sqlRequest = sqlRequest;
     }
 
+    public void setColumnTypeProvider(ColumnTypeProvider scriptColumnType) {
+        this.scriptColumnType = scriptColumnType;
+    }
+
     public SqlRequest getSqlRequest() {
         return sqlRequest;
+    }
+
+    public void setFormat(Format format) {
+        this.format = format;
+    }
+
+    public Format getFormat() {
+        return this.format;
+    }
+
+    public ColumnTypeProvider getScriptColumnType() {
+        return scriptColumnType;
     }
 
     /**

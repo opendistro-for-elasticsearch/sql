@@ -29,9 +29,6 @@ The package uses the [Gradle](https://docs.gradle.org/4.10.2/userguide/userguide
 To use the feature, send requests to the `_opendistro/_sql` URI. You can use a request parameter or the request body (recommended).
 
 * Simple query
-```
-GET https://<host>:<port>/_opendistro/_sql?sql=select * from my-index limit 50
-```
 
 ```
 POST https://<host>:<port>/_opendistro/_sql
@@ -186,7 +183,7 @@ If you discover a potential security issue in this project we ask that you notif
 
 ## Licensing
 
-See the [LICENSE](./LICENSE) file for our project's licensing. We will ask you to confirm the licensing of your contribution.
+See the [LICENSE](./LICENSE.txt) file for our project's licensing. We will ask you to confirm the licensing of your contribution.
 
 
 ## Copyright

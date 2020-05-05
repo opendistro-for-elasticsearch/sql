@@ -16,14 +16,19 @@
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
 import org.elasticsearch.client.Request;
+import org.hamcrest.Description;
+import org.hamcrest.TypeSafeMatcher;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_GAME_OF_THRONES;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySome;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasItems;
@@ -291,6 +296,31 @@ public class MetaDataQueriesIT extends SQLIntegTestCase {
     }
 
     @Test
+    public void describeSingleIndexWithObjectFieldShouldPass() throws IOException {
+        JSONObject response =
+                executeQuery(String.format("DESCRIBE TABLES LIKE %s", TEST_INDEX_GAME_OF_THRONES));
+
+        // Schema for DESCRIBE is filled with a lot of fields that aren't used so only the important
+        // ones are checked for here
+        String[] fields = {"TABLE_NAME", "COLUMN_NAME", "TYPE_NAME"};
+        checkContainsColumns(getSchema(response), fields);
+
+        JSONArray dataRows = getDataRows(response);
+        assertThat(dataRows.length(), greaterThan(0));
+        assertThat(dataRows.getJSONArray(0).length(), equalTo(DESCRIBE_FIELD_LENGTH));
+
+        verifySome(dataRows,
+                   describeRow(TEST_INDEX_GAME_OF_THRONES, "nickname", "text"),
+                   describeRow(TEST_INDEX_GAME_OF_THRONES, "name", "object"),
+                   describeRow(TEST_INDEX_GAME_OF_THRONES, "name.firstname", "text"),
+                   describeRow(TEST_INDEX_GAME_OF_THRONES, "name.lastname", "text"),
+                   describeRow(TEST_INDEX_GAME_OF_THRONES, "name.ofHerName", "integer"),
+                   describeRow(TEST_INDEX_GAME_OF_THRONES, "name.ofHisName", "integer"),
+                   describeRow(TEST_INDEX_GAME_OF_THRONES, "house", "text"),
+                   describeRow(TEST_INDEX_GAME_OF_THRONES, "gender", "text"));
+    }
+
+    @Test
     public void describeCaseSensitivityCheck() throws IOException {
         JSONObject response = executeQuery(String.format("describe tables like %s", TestsConstants.TEST_INDEX_ACCOUNT));
 
@@ -360,13 +390,6 @@ public class MetaDataQueriesIT extends SQLIntegTestCase {
         return jdbcResponse.getJSONArray("datarows");
     }
 
-    private String getClusterName() {
-        return this.admin().cluster()
-                .prepareHealth()
-                .get()
-                .getClusterName();
-    }
-
     private void checkContainsColumns(JSONArray schema, String... fields) {
         List<String> columnNames = new ArrayList<>();
         for (int i = 0; i < schema.length(); i++) {
@@ -375,5 +398,31 @@ public class MetaDataQueriesIT extends SQLIntegTestCase {
         }
 
         assertThat(columnNames, hasItems(fields));
+    }
+
+    private String getClusterName() throws IOException {
+        String response = executeRequest(new Request("GET", "_cluster/health"));
+        return new JSONObject(response).optString("cluster_name", "");
+    }
+
+    public static TypeSafeMatcher<JSONArray> describeRow(Object... expectedObjects) {
+        return new TypeSafeMatcher<JSONArray>() {
+            @Override
+            public void describeTo(Description description) {
+                description.appendText(String.join(",", Arrays.asList(expectedObjects).toString()));
+            }
+
+            @Override
+            protected boolean matchesSafely(JSONArray array) {
+                List<Object> actualObjects = new ArrayList<>();
+                // TABLE_NAME
+                actualObjects.add(array.get(2));
+                // COLUMN_NAME
+                actualObjects.add(array.get(3));
+                // TYPE_NAME
+                actualObjects.add(array.get(5));
+                return Arrays.asList(expectedObjects).equals(actualObjects);
+            }
+        };
     }
 }

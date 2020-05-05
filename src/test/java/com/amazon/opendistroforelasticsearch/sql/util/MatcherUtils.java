@@ -37,6 +37,7 @@ import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyArray;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasItems;
 import static org.junit.Assert.assertEquals;
@@ -141,11 +142,34 @@ public class MatcherUtils {
     }
 
     @SuppressWarnings("unchecked")
+    public static void verifyDataRowsInOrder(JSONObject response, Matcher<JSONArray>... matchers) {
+        verifyInOrder(response.getJSONArray("datarows"), matchers);
+    }
+
+    @SuppressWarnings("unchecked")
     public static <T> void verify(JSONArray array, Matcher<T>... matchers) {
         List<T> objects = new ArrayList<>();
         array.iterator().forEachRemaining(o -> objects.add((T) o));
         assertEquals(matchers.length, objects.size());
         assertThat(objects, containsInAnyOrder(matchers));
+    }
+
+    public static <T> void verifyInOrder(JSONArray array, Matcher<T>... matchers) {
+        List<T> objects = new ArrayList<>();
+        array.iterator().forEachRemaining(o -> objects.add((T) o));
+        assertEquals(matchers.length, objects.size());
+        assertThat(objects, contains(matchers));
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> void verifySome(JSONArray array, Matcher<T>... matchers) {
+        List<T> objects = new ArrayList<>();
+        array.iterator().forEachRemaining(o -> objects.add((T) o));
+
+        assertThat(matchers.length, greaterThan(0));
+        for (Matcher<T> matcher : matchers) {
+            assertThat(objects, hasItems(matcher));
+        }
     }
 
     public static TypeSafeMatcher<JSONObject> schema(String expectedName, String expectedAlias, String expectedType) {
@@ -183,5 +207,49 @@ public class MatcherUtils {
                 return Arrays.asList(expectedObjects).equals(actualObjects);
             }
         };
+    }
+
+
+    /**
+     * Tests if a string is equal to another string, ignore the case and whitespace.
+     */
+    public static class IsEqualIgnoreCaseAndWhiteSpace extends TypeSafeMatcher<String> {
+        private final String string;
+
+        public IsEqualIgnoreCaseAndWhiteSpace(String string) {
+            if (string == null) {
+                throw new IllegalArgumentException("Non-null value required");
+            }
+            this.string = string;
+        }
+
+        @Override
+        public boolean matchesSafely(String item) {
+            return ignoreCase(ignoreSpaces(string)).equals(ignoreCase(ignoreSpaces(item)));
+        }
+
+        @Override
+        public void describeMismatchSafely(String item, Description mismatchDescription) {
+            mismatchDescription.appendText("was ").appendValue(item);
+        }
+
+        @Override
+        public void describeTo(Description description) {
+            description.appendText("a string equal to ")
+                    .appendValue(string)
+                    .appendText(" ignore case and white space");
+        }
+
+        public String ignoreSpaces(String toBeStripped) {
+            return toBeStripped.replaceAll("\\s+", "").trim();
+        }
+
+        public String ignoreCase(String toBeLower) {
+            return toBeLower.toLowerCase();
+        }
+
+        public static Matcher<String> equalToIgnoreCaseAndWhiteSpace(String expectedString) {
+            return new IsEqualIgnoreCaseAndWhiteSpace(expectedString);
+        }
     }
 }

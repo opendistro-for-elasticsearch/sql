@@ -33,7 +33,7 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 
 public class MathFunctionsIT extends SQLIntegTestCase {
 
-    private static final String FROM = "FROM " + TestsConstants.TEST_INDEX_ACCOUNT + "/account";
+    private static final String FROM = "FROM " + TestsConstants.TEST_INDEX_ACCOUNT;
 
     @Override
     protected void init() throws Exception {

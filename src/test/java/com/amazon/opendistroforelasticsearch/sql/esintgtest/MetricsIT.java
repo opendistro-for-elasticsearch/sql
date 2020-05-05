@@ -18,8 +18,6 @@ package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 import com.amazon.opendistroforelasticsearch.sql.metrics.MetricName;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.test.ESIntegTestCase;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -65,8 +63,7 @@ public class MetricsIT extends SQLIntegTestCase {
 
     private String executeStatRequest(final Request request) throws IOException {
 
-        RestClient restClient = ESIntegTestCase.getRestClient();
-        Response sqlResponse = restClient.performRequest(request);
+        Response sqlResponse = client().performRequest(request);
 
         Assert.assertTrue(sqlResponse.getStatusLine().getStatusCode() == 200);
 

@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 
 import org.elasticsearch.client.ResponseException;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -106,6 +107,7 @@ public class JoinAliasWriterRuleIT extends SQLIntegTestCase {
         );
     }
 
+    @Ignore
     @Test
     public void tableNamesWithTypeNameExplicitTableAlias() throws IOException {
         sameExplain(
@@ -128,13 +130,13 @@ public class JoinAliasWriterRuleIT extends SQLIntegTestCase {
         sameExplain(
             query(
                 "SELECT elasticsearch-sql_test_index_order.id, b.firstname " ,
-                "FROM elasticsearch-sql_test_index_order/_doc " ,
-                "INNER JOIN elasticsearch-sql_test_index_bank/account b ",
+                "FROM elasticsearch-sql_test_index_order " ,
+                "INNER JOIN elasticsearch-sql_test_index_bank b ",
                 "ON elasticsearch-sql_test_index_order.name = firstname WHERE state = 'WA' OR id < 7"),
             query(
                 "SELECT elasticsearch-sql_test_index_order_0.id, b.firstname ",
-                "FROM elasticsearch-sql_test_index_order/_doc  elasticsearch-sql_test_index_order_0 ",
-                "INNER JOIN elasticsearch-sql_test_index_bank/account b " ,
+                "FROM elasticsearch-sql_test_index_order  elasticsearch-sql_test_index_order_0 ",
+                "INNER JOIN elasticsearch-sql_test_index_bank b " ,
                 "ON elasticsearch-sql_test_index_order_0.name = b.firstname ",
                 "WHERE b.state = 'WA' OR elasticsearch-sql_test_index_order_0.id < 7")
         );
@@ -145,14 +147,14 @@ public class JoinAliasWriterRuleIT extends SQLIntegTestCase {
         sameExplain(
             query(
                 "SELECT elasticsearch-sql_test_index_order.id, elasticsearch-sql_test_index_bank.firstname " ,
-                "FROM elasticsearch-sql_test_index_order/_doc " ,
-                "INNER JOIN elasticsearch-sql_test_index_bank/account ",
+                "FROM elasticsearch-sql_test_index_order " ,
+                "INNER JOIN elasticsearch-sql_test_index_bank ",
                 "ON elasticsearch-sql_test_index_order.name = firstname ",
                 "WHERE elasticsearch-sql_test_index_bank.state = 'WA' OR id < 7"),
             query(
                 "SELECT elasticsearch-sql_test_index_order_0.id, elasticsearch-sql_test_index_bank_1.firstname ",
-                "FROM elasticsearch-sql_test_index_order/_doc  elasticsearch-sql_test_index_order_0 ",
-                "INNER JOIN elasticsearch-sql_test_index_bank/account elasticsearch-sql_test_index_bank_1" ,
+                "FROM elasticsearch-sql_test_index_order  elasticsearch-sql_test_index_order_0 ",
+                "INNER JOIN elasticsearch-sql_test_index_bank elasticsearch-sql_test_index_bank_1" ,
                 "ON elasticsearch-sql_test_index_order_0.name = elasticsearch-sql_test_index_bank_1.firstname ",
                 "WHERE elasticsearch-sql_test_index_bank_1.state = 'WA' OR elasticsearch-sql_test_index_order_0.id < 7")
         );

@@ -20,6 +20,7 @@ import com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequest
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import com.google.common.base.Strings;
 import org.elasticsearch.client.RestClient;
 
 import java.util.Arrays;
@@ -39,6 +40,9 @@ import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.QUE
  */
 public interface DocBuilder {
 
+    String DOCUMENT_FOLDER_ROOT = "/docs/user/";
+    String IMAGE_FOLDER_PATH = DOCUMENT_FOLDER_ROOT + "img/";
+
     /**
      * Get client connection to cluster for sending request
      * @return  REST client
@@ -50,6 +54,10 @@ public interface DocBuilder {
      * @return  document class
      */
     Document openDocument();
+
+    default void section(String title, String description, Example... examples) {
+        section(title, description, new String[0], examples);
+    }
 
     /**
      * Entry point to start building document by DSL.
@@ -67,7 +75,7 @@ public interface DocBuilder {
      * @param description   description paragraph
      * @param examples      examples for the section
      */
-    default void section(String title, String description, Example... examples) {
+    default void section(String title, String description, String[] images, Example... examples) {
         try (Document document = openDocument()) {
             document.section(title);
 
@@ -75,12 +83,26 @@ public interface DocBuilder {
                 document.subSection("Description").paragraph(description);
             }
 
-            for (int i = 0; i < examples.length; i++) {
-                if (examples.length > 1) {
-                    document.subSection("Example " + (i + 1));
-                } else {
-                    document.subSection("Example");
+            if (images.length > 0) {
+                document.subSection("Syntax");
+                for (String image : images) {
+                    // Convert image name ex. "rdd/queryStatement.png" to "queryStatement" as description.
+                    String imageDesc = image.substring(image.lastIndexOf('/') + 1, image.lastIndexOf('.'));
+                    document.image("Rule ``" + imageDesc + "``", IMAGE_FOLDER_PATH + image);
                 }
+            }
+
+            for (int i = 0; i < examples.length; i++) {
+                String exampleTitle;
+                if (examples.length > 1) {
+                    exampleTitle = "Example " + (i + 1);
+                } else {
+                    exampleTitle = "Example";
+                }
+                if (!Strings.isNullOrEmpty(examples[i].getTitle())) {
+                    exampleTitle += (": " + examples[i].getTitle());
+                }
+                document.subSection(exampleTitle);
 
                 Example example = examples[i];
                 if (!example.getDescription().isEmpty()) {
@@ -100,9 +122,13 @@ public interface DocBuilder {
         }
     }
 
-    /** Construct an example by default query and explain format */
     default Example example(String description, Requests requests) {
-        return example(description, requests,
+        return example("", description, requests);
+    }
+
+    /** Construct an example by default query and explain format */
+    default Example example(String title, String description, Requests requests) {
+        return example(title, description, requests,
             queryFormat(KIBANA_REQUEST, TABLE_RESPONSE),
             explainFormat(IGNORE_REQUEST, PRETTY_JSON_RESPONSE)
         );
@@ -112,7 +138,16 @@ public interface DocBuilder {
                             Requests requests,
                             Formats queryFormat,
                             Formats explainFormat) {
+        return example("", description, requests, queryFormat, explainFormat);
+    }
+
+    default Example example(String title,
+                            String description,
+                            Requests requests,
+                            Formats queryFormat,
+                            Formats explainFormat) {
         Example example = new Example();
+        example.setTitle(title);
         example.setDescription(description);
         example.setQuery(queryFormat.format(requests.query()));
         example.setTable(queryFormat.isTableFormat());
@@ -129,6 +164,10 @@ public interface DocBuilder {
 
     default String description(String... sentences) {
         return String.join(" ", sentences);
+    }
+
+    default String[] images(String... images) {
+        return images;
     }
 
     default Formats queryFormat(SqlRequestFormat requestFormat, SqlResponseFormat responseFormat) {
@@ -154,9 +193,13 @@ public interface DocBuilder {
                 StringUtils.format("\"%s\": {\"%s\": \"%s\"}", "transient", name, value);
         return new Requests(
             restClient(),
-            new SqlRequest("PUT", "/_cluster/settings", new Body(setting).toString()),
+            new SqlRequest("PUT", "/_opendistro/_sql/settings", new Body(setting).toString()),
             null
         );
+    }
+
+    default String multiLine(String... lines) {
+        return String.join("\\n", lines);
     }
 
     /** Query by a simple SQL is too common and deserve a dedicated overload method */

@@ -118,11 +118,9 @@ public class FieldMaker {
             if (alias == null) {
                 alias = "cast_" + castExpr.getExpr().toString();
             }
-            String scriptCode = new CastParser(castExpr, alias, tableAlias).parse(true);
-            List<KVValue> methodParameters = new ArrayList<>();
-            methodParameters.add(new KVValue(alias));
-            methodParameters.add(new KVValue(scriptCode));
-            return new MethodField("script", methodParameters, null, alias);
+            ArrayList<SQLExpr> methodParameters = new ArrayList<>();
+            methodParameters.add(((SQLCastExpr) expr).getExpr());
+            return makeMethodField("CAST", methodParameters, null, alias, tableAlias, true);
         } else if (expr instanceof SQLNumericLiteralExpr) {
             SQLMethodInvokeExpr methodInvokeExpr = new SQLMethodInvokeExpr("assign", null);
             methodInvokeExpr.addParameter(expr);
@@ -198,7 +196,7 @@ public class FieldMaker {
         Where where = Where.newInstance();
         new WhereParser(new SqlParser()).parseWhere(exprToCheck, where);
         if (where.getWheres().size() == 0) {
-            throw new SqlParseException("unable to parse filter where.");
+            throw new SqlParseException("Failed to parse filter condition");
         }
         List<KVValue> methodParameters = new ArrayList<>();
         methodParameters.add(new KVValue("where", where));
@@ -250,7 +248,7 @@ public class FieldMaker {
             case Subtract:
                 return convertBinaryOperatorToMethod("subtract", expr);
             default:
-                throw new SqlParseException(expr.getOperator().getName() + " is not support");
+                throw new SqlParseException("Unsupported operator: " + expr.getOperator().getName());
         }
     }
 
@@ -319,7 +317,7 @@ public class FieldMaker {
                     NestedType nestedType = new NestedType();
 
                     if (!nestedType.tryFillFromExpr(object)) {
-                        throw new SqlParseException("failed parsing nested expr " + object);
+                        throw new SqlParseException("Failed to parse nested expression: " + object);
                     }
 
                     // Fix bug: method name of reversed_nested() was set to "nested" wrongly
@@ -328,7 +326,7 @@ public class FieldMaker {
                     ChildrenType childrenType = new ChildrenType();
 
                     if (!childrenType.tryFillFromExpr(object)) {
-                        throw new SqlParseException("failed parsing children expr " + object);
+                        throw new SqlParseException("Failed to parse children expression: " + object);
                     }
 
                     paramers.add(new KVValue("children", childrenType));
@@ -344,7 +342,12 @@ public class FieldMaker {
                 String scriptCode = new CaseWhenParser((SQLCaseExpr) object, alias, tableAlias).parse();
                 paramers.add(new KVValue("script", new SQLCharExpr(scriptCode)));
             } else if (object instanceof SQLCastExpr) {
-                String scriptCode = new CastParser((SQLCastExpr) object, alias, tableAlias).parse(false);
+                String castName = sqlFunctions.nextId("cast");
+                List<KVValue> methodParameters = new ArrayList<>();
+                methodParameters.add(new KVValue(((SQLCastExpr) object).getExpr().toString()));
+                String castType = ((SQLCastExpr) object).getDataType().getName();
+                String scriptCode = sqlFunctions.getCastScriptStatement(castName, castType, methodParameters);
+                methodParameters.add(new KVValue(scriptCode));
                 paramers.add(new KVValue("script", new SQLCharExpr(scriptCode)));
             } else if (object instanceof SQLAggregateExpr) {
                 SQLObject parent = object.getParent();

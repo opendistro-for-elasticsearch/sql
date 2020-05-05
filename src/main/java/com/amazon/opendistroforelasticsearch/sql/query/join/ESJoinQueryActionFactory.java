@@ -32,7 +32,7 @@ public class ESJoinQueryActionFactory {
         List<Condition> connectedConditions = joinSelect.getConnectedConditions();
         boolean allEqual = true;
         for (Condition condition : connectedConditions) {
-            if (condition.getOpear() != Condition.OPEAR.EQ) {
+            if (condition.getOPERATOR() != Condition.OPERATOR.EQ) {
                 allEqual = false;
                 break;
             }

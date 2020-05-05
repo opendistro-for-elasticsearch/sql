@@ -15,20 +15,30 @@
 
 package com.amazon.opendistroforelasticsearch.sql.executor.format;
 
+import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLCaseExpr;
 import com.alibaba.druid.sql.ast.expr.SQLCastExpr;
+import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
+import com.amazon.opendistroforelasticsearch.sql.domain.ColumnTypeProvider;
 import com.amazon.opendistroforelasticsearch.sql.domain.Field;
 import com.amazon.opendistroforelasticsearch.sql.domain.JoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.domain.MethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Query;
-import com.amazon.opendistroforelasticsearch.sql.domain.ScriptMethodField;
 import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.domain.TableOnJoinSelect;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMapping;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlFeatureNotImplementedException;
+import com.amazon.opendistroforelasticsearch.sql.executor.Format;
+import com.amazon.opendistroforelasticsearch.sql.cursor.Cursor;
+import com.amazon.opendistroforelasticsearch.sql.cursor.DefaultCursor;
+import com.amazon.opendistroforelasticsearch.sql.metrics.MetricName;
+import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
 import com.amazon.opendistroforelasticsearch.sql.utils.SQLFunctions;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse;
+import org.elasticsearch.action.search.ClearScrollResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.Strings;
 import org.elasticsearch.common.document.DocumentField;
@@ -53,12 +63,16 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import static java.util.Collections.unmodifiableMap;
 import static java.util.stream.Collectors.toSet;
 import static org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse.FieldMappingMetaData;
 
 public class SelectResultSet extends ResultSet {
 
+    private static final Logger LOG = LogManager.getLogger(SelectResultSet.class);
+
     public static final String SCORE = "_score";
+    private final String formatType;
 
     private Query query;
     private Object queryResult;
@@ -67,17 +81,32 @@ public class SelectResultSet extends ResultSet {
     private String indexName;
     private String typeName;
     private List<Schema.Column> columns = new ArrayList<>();
+    private ColumnTypeProvider outputColumnType;
 
     private List<String> head;
     private long size;
     private long totalHits;
+    private long internalTotalHits;
     private List<DataRows.Row> rows;
+    private Cursor cursor;
 
-    public SelectResultSet(Client client, Query query, Object queryResult) {
+    private DateFieldFormatter dateFieldFormatter;
+    // alias -> base field name
+    private Map<String, String> fieldAliasMap = new HashMap<>();
+
+    public SelectResultSet(Client client,
+                           Query query,
+                           Object queryResult,
+                           ColumnTypeProvider outputColumnType,
+                           String formatType,
+                           Cursor cursor) {
         this.client = client;
         this.query = query;
         this.queryResult = queryResult;
         this.selectAll = false;
+        this.formatType = formatType;
+        this.outputColumnType = outputColumnType;
+        this.cursor = cursor;
 
         if (isJoinQuery()) {
             JoinSelect joinQuery = (JoinSelect) query;
@@ -88,7 +117,48 @@ public class SelectResultSet extends ResultSet {
         }
         this.schema = new Schema(indexName, typeName, columns);
         this.head = schema.getHeaders();
+        this.dateFieldFormatter = new DateFieldFormatter(indexName, columns, fieldAliasMap);
 
+        extractData();
+        populateCursor();
+        this.dataRows = new DataRows(size, totalHits, rows);
+    }
+
+    public SelectResultSet(Client client, Object queryResult, String formatType, Cursor cursor) {
+        this.cursor = cursor;
+        this.client = client;
+        this.queryResult = queryResult;
+        this.selectAll = false;
+        this.formatType = formatType;
+        populateResultSetFromCursor(cursor);
+    }
+
+    public String indexName(){
+        return this.indexName;
+    }
+
+    public Map<String, String> fieldAliasMap() {
+        return unmodifiableMap(this.fieldAliasMap);
+    }
+
+    public void populateResultSetFromCursor(Cursor cursor) {
+        switch (cursor.getType()) {
+            case DEFAULT:
+                populateResultSetFromDefaultCursor((DefaultCursor) cursor);
+            default:
+                return;
+        }
+    }
+
+    private void populateResultSetFromDefaultCursor(DefaultCursor cursor) {
+        this.columns = cursor.getColumns();
+        this.schema = new Schema(null, null, columns);
+        this.head = schema.getHeaders();
+        this.dateFieldFormatter = new DateFieldFormatter(
+                cursor.getIndexPattern(),
+                columns,
+                cursor.getFieldAliasMap()
+        );
         extractData();
         this.dataRows = new DataRows(size, totalHits, rows);
     }
@@ -310,7 +380,7 @@ public class SelectResultSet extends ResultSet {
         }
     }
 
-    private Schema.Type fetchMethodReturnType(Field field) {
+    private Schema.Type fetchMethodReturnType(int fieldIndex, MethodField field) {
         switch (field.getName().toLowerCase()) {
             case "count":
                 return Schema.Type.LONG;
@@ -324,14 +394,11 @@ public class SelectResultSet extends ResultSet {
                 // TODO: return type information is disconnected from the function definitions in SQLFunctions.
                 // Refactor SQLFunctions to have functions self-explanatory (types, scripts) and pluggable
                 // (similar to Strategy pattern)
-                if (field.getExpression() instanceof SQLCastExpr) {
-                    return SQLFunctions.getCastFunctionReturnType(
-                            ((SQLCastExpr) field.getExpression()).getDataType().getName());
-                } else if (field.getExpression() instanceof SQLCaseExpr) {
+                if (field.getExpression() instanceof SQLCaseExpr) {
                     return Schema.Type.TEXT;
                 }
-                return SQLFunctions.getScriptFunctionReturnType(
-                        ((ScriptMethodField) field).getFunctionName());
+                Schema.Type resolvedType = outputColumnType.get(fieldIndex);
+                return SQLFunctions.getScriptFunctionReturnType(field, resolvedType);
             }
             default:
                 throw new UnsupportedOperationException(
@@ -380,12 +447,22 @@ public class SelectResultSet extends ResultSet {
              * name instead.
              */
             if (fieldMap.get(fieldName) instanceof MethodField) {
-                Field methodField = fieldMap.get(fieldName);
+                MethodField methodField = (MethodField) fieldMap.get(fieldName);
+                int fieldIndex = fieldNameList.indexOf(fieldName);
+
+                SQLExpr expr = methodField.getExpression();
+                if (expr instanceof SQLCastExpr) {
+                    // Since CAST expressions create an alias for a field, we need to save the original field name
+                    // for this alias for formatting data later.
+                    SQLIdentifierExpr castFieldIdentifier = (SQLIdentifierExpr) ((SQLCastExpr) expr).getExpr();
+                    fieldAliasMap.put(methodField.getAlias(), castFieldIdentifier.getName());
+                }
+
                 columns.add(
                         new Schema.Column(
                                 methodField.getAlias(),
                                 null,
-                                fetchMethodReturnType(methodField)
+                                fetchMethodReturnType(fieldIndex, methodField)
                         )
                 );
             }
@@ -502,18 +579,64 @@ public class SelectResultSet extends ResultSet {
 
             this.rows = populateRows(searchHits);
             this.size = rows.size();
-            this.totalHits = Math.max(size, // size may be greater than totalHits after nested rows be flatten
-                    Optional.ofNullable(searchHits.getTotalHits()).map(th -> th.value)
-                            .orElse(0L));
-
+            this.internalTotalHits = Optional.ofNullable(searchHits.getTotalHits()).map(th -> th.value).orElse(0L);
+            // size may be greater than totalHits after nested rows be flatten
+            this.totalHits = Math.max(size, internalTotalHits);
         } else if (queryResult instanceof Aggregations) {
             Aggregations aggregations = (Aggregations) queryResult;
 
             this.rows = populateRows(aggregations);
             this.size = rows.size();
+            this.internalTotalHits = size;
             // Total hits is not available from Aggregations so 'size' is used
             this.totalHits = size;
         }
+    }
+
+    private void populateCursor() {
+        switch(cursor.getType()) {
+            case DEFAULT:
+                populateDefaultCursor((DefaultCursor) cursor);
+            default:
+                return;
+        }
+    }
+
+    private void populateDefaultCursor(DefaultCursor cursor) {
+        /**
+         * Assumption: scrollId, fetchSize, limit already being set in
+         * @see PrettyFormatRestExecutor.buildProtocolForDefaultQuery()
+         */
+
+        Integer limit = cursor.getLimit();
+        long rowsLeft = rowsLeft(cursor.getFetchSize(), cursor.getLimit());
+        if (rowsLeft <= 0) {
+            // close the cursor
+            String scrollId = cursor.getScrollId();
+            ClearScrollResponse clearScrollResponse = client.prepareClearScroll().addScrollId(scrollId).get();
+            if (!clearScrollResponse.isSucceeded()) {
+                Metrics.getInstance().getNumericalMetric(MetricName.FAILED_REQ_COUNT_SYS).increment();
+                LOG.error("Error closing the cursor context {} ", scrollId);
+            }
+            return;
+        }
+
+        cursor.setRowsLeft(rowsLeft);
+        cursor.setIndexPattern(indexName);
+        cursor.setFieldAliasMap(fieldAliasMap());
+        cursor.setColumns(columns);
+        this.totalHits = limit != null && limit < internalTotalHits ? limit : internalTotalHits;
+    }
+
+    private long rowsLeft(Integer fetchSize, Integer limit) {
+        long rowsLeft = 0;
+        long totalHits = internalTotalHits;
+        if (limit != null && limit < totalHits) {
+            rowsLeft = limit - fetchSize;
+        } else {
+            rowsLeft = totalHits - fetchSize;
+        }
+        return rowsLeft;
     }
 
     private List<DataRows.Row> populateRows(SearchHits searchHits) {
@@ -531,8 +654,14 @@ public class SelectResultSet extends ResultSet {
                 for (Map.Entry<String, DocumentField> field : hit.getFields().entrySet()) {
                     rowSource.put(field.getKey(), field.getValue().getValue());
                 }
+                if (formatType.equalsIgnoreCase(Format.JDBC.getFormatName())) {
+                    dateFieldFormatter.applyJDBCDateFormat(rowSource);
+                }
                 result = flatNestedField(newKeys, rowSource, hit.getInnerHits());
             } else {
+                if (formatType.equalsIgnoreCase(Format.JDBC.getFormatName())) {
+                    dateFieldFormatter.applyJDBCDateFormat(rowSource);
+                }
                 result = new ArrayList<>();
                 result.add(new DataRows.Row(rowSource));
             }

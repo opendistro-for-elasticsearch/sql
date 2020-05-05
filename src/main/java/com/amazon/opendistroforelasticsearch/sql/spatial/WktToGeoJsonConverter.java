@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.spatial;
 
-
+import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import com.google.common.base.Joiner;
 
 import java.util.ArrayList;
@@ -29,7 +29,8 @@ public class WktToGeoJsonConverter {
         wkt = wkt.toLowerCase();
         int startOfCoordinates = wkt.indexOf("(");
         if (startOfCoordinates == -1) {
-            throw new IllegalArgumentException("not valid wkt");
+            throw new IllegalArgumentException(
+                    StringUtils.format("Failed to convert well-known-text [%s] to geometry type", wkt));
         }
 
         String wktType = wkt.substring(0, startOfCoordinates).trim();
@@ -63,7 +64,7 @@ public class WktToGeoJsonConverter {
                 coordinates = multiLineStringCoordinatesFromWkt(wkt);
                 break;
             default:
-                throw new IllegalArgumentException("not supported wkt type");
+                throw new IllegalArgumentException("Unsupported well-known-text type: " + wktType);
 
         }
 
@@ -169,7 +170,7 @@ public class WktToGeoJsonConverter {
             int lastClosingBrackets = result.lastIndexOf(")");
             int firstOpenBrackets = result.indexOf("(");
             if (lastClosingBrackets == -1 || firstOpenBrackets == -1) {
-                throw new IllegalArgumentException("not enough brackets");
+                throw new IllegalArgumentException("Illegal syntax: " + wkt);
             }
             result = result.substring(firstOpenBrackets + 1, lastClosingBrackets);
         }
