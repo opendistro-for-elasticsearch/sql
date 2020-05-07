@@ -251,9 +251,9 @@ INTEGER_LITERAL:                    DEC_DIGIT+;
 DECIMAL_LITERAL:                    (DEC_DIGIT+)? '.' DEC_DIGIT+;
 
 fragment ID_LITERAL:                [A-Z_$0-9@]*?[A-Z_$\-]+?[A-Z_$\-0-9]*;
-DQUOTA_STRING:             '"' ( '\\'. | '""' | ~('"'| '\\') )* '"';
-SQUOTA_STRING:             '\'' ('\\'. | '\'\'' | ~('\'' | '\\'))* '\'';
-BQUOTA_STRING:             '`' ( '\\'. | '``' | ~('`'|'\\'))* '`';
+DQUOTA_STRING:                      '"' ( '\\'. | '""' | ~('"'| '\\') )* '"';
+SQUOTA_STRING:                      '\'' ('\\'. | '\'\'' | ~('\'' | '\\'))* '\'';
+BQUOTA_STRING:                      '`' ( '\\'. | '``' | ~('`'|'\\'))* '`';
 fragment DEC_DIGIT:                 [0-9];
 
 

@@ -16,22 +16,25 @@
 package com.amazon.opendistroforelasticsearch.sql.ast.tree;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
  * Logical plan node of Relation, the interface for building the searching sources
  */
-@Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
 public class Relation extends UnresolvedPlan {
-    private final String tableName;
+    private final UnresolvedExpression tableName;
+
+    public String getTableName() {
+        return tableName.toString();
+    }
 
     @Override
     public List<UnresolvedPlan> getChild() {

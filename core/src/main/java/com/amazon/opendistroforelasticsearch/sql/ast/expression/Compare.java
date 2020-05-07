@@ -16,30 +16,28 @@
 package com.amazon.opendistroforelasticsearch.sql.ast.expression;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
-import com.google.common.collect.ImmutableList;
+import java.util.Arrays;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-/**
- * Expression node that includes a list of Expression nodes
- */
+@Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
-@AllArgsConstructor
-public class AttributeList extends UnresolvedExpression {
-    @Getter
-    private List<UnresolvedExpression> attrList;
-
+@RequiredArgsConstructor
+public class Compare extends UnresolvedExpression {
+    private final String operator;
+    private final UnresolvedExpression left;
+    private final UnresolvedExpression right;
     @Override
     public List<UnresolvedExpression> getChild() {
-        return ImmutableList.copyOf(attrList);
+        return Arrays.asList(left, right);
     }
 
     @Override
     public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
-        return nodeVisitor.visitAttributeList(this, context);
+        return nodeVisitor.visitCompare(this, context);
     }
 }

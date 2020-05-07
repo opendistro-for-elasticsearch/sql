@@ -17,14 +17,18 @@ package com.amazon.opendistroforelasticsearch.sql.ast;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AttributeList;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Not;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
@@ -119,5 +123,20 @@ public abstract class AbstractNodeVisitor<T, C> {
         return visitChildren(node, context);
     }
 
+    public T visitCompare(Compare node, C context) {
+        return visitChildren(node, context);
+    }
+
+    public T visitArgument(Argument node, C context) {
+        return visitChildren(node, context);
+    }
+
+    public T visitField(Field node, C context) {
+        return visitChildren(node, context);
+    }
+
+    public T visitQualifiedName(QualifiedName node, C context) {
+        return visitChildren(node, context);
+    }
 }
 

@@ -23,23 +23,35 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-/**
- * Expression node that includes a list of Expression nodes
- */
+@Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @AllArgsConstructor
-public class AttributeList extends UnresolvedExpression {
-    @Getter
-    private List<UnresolvedExpression> attrList;
+public class Field extends UnresolvedExpression {
+    private QualifiedName field;
+    private List<UnresolvedExpression> fieldArgs;
+
+    public Field(QualifiedName field) {
+        this.field = field;
+        this.fieldArgs = null;
+    }
+
+    public Field(String field) {
+        this.field = new QualifiedName(field);
+    }
+
+    public Field(String field, List<UnresolvedExpression> fieldArgs) {
+        this.field = new QualifiedName(field);
+        this.fieldArgs = fieldArgs;
+    }
 
     @Override
     public List<UnresolvedExpression> getChild() {
-        return ImmutableList.copyOf(attrList);
+        return ImmutableList.of(this.field);
     }
 
     @Override
     public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
-        return nodeVisitor.visitAttributeList(this, context);
+        return nodeVisitor.visitField(this, context);
     }
 }

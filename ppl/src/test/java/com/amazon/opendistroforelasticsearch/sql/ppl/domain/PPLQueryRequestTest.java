@@ -15,18 +15,12 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl.domain;
 
+import org.junit.Test;
 
-import lombok.RequiredArgsConstructor;
-import org.json.JSONObject;
-
-@RequiredArgsConstructor
-public class PPLQueryRequest {
-    public static final PPLQueryRequest NULL = new PPLQueryRequest("", null);
-
-    private final String pplQuery;
-    private final JSONObject jsonContent;
-
-    public String getRequest() {
-        return pplQuery;
+public class PPLQueryRequestTest {
+    @Test
+    public void getRequestShouldPass() {
+        PPLQueryRequest request = new PPLQueryRequest("source=t a=1", null);
+        request.getRequest();
     }
 }

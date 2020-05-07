@@ -50,36 +50,31 @@ renameCommand
     ;
 
 statsCommand
-    : STATS (statsArgument)* statsAggTerm (byClause)? (dedupSplitValues)?
+    : STATS
+    (PARTITIONS EQUAL partitions=integerLiteral)?
+    (ALLNUM EQUAL allnum=booleanLiteral)?
+    (DELIM EQUAL delim=stringLiteral)?
+    statsAggTerm (AS alias=wcFieldExpression)?
+    (byClause)?
+    (DEDUP_SPLITVALUES EQUAL dedupsplit=booleanLiteral)?
     ;
 
 dedupCommand
-    : DEDUP (number=decimalLiteral)? fieldList (dedupArgument)* (SORTBY sortbyClause)?
+    : DEDUP
+    (number=integerLiteral)?
+    fieldList
+    (KEEPEVENTS EQUAL keeevents=booleanLiteral)?
+    (KEEPEMPTY EQUAL keepempty=booleanLiteral)?
+    (CONSECUTIVE EQUAL consecutive=booleanLiteral)?
+    (SORTBY sortbyClause)?
     ;
 
 sortCommand
-    : SORT (count=decimalLiteral)? sortbyClause (D | DESC)?
+    : SORT (count=integerLiteral)? sortbyClause (D | DESC)?
     ;
 
 evalCommand
     : EVAL evalExpression (COMMA evalExpression)*
-    ;
-
-/** arguments */
-dedupArgument
-    : KEEPEVENTS EQUAL booleanLiteral                                #keepevents
-    | KEEPEMPTY EQUAL booleanLiteral                                 #keepempty
-    | CONSECUTIVE EQUAL booleanLiteral                               #consecutive
-    ;
-
-dedupSplitValues
-    : DEDUP_SPLITVALUES EQUAL booleanLiteral
-    ;
-
-statsArgument
-    : PARTITIONS EQUAL decimalLiteral                                #partitions
-    | ALLNUM EQUAL booleanLiteral                                    #allnum
-    | DELIM EQUAL stringLiteral                                      #delim
     ;
 
 /** clauses */
@@ -93,7 +88,7 @@ byClause
     ;
 
 sortbyClause
-    : (PLUS | MINUS)? sortField (COMMA (PLUS | MINUS)? sortField)*
+    : sortField (COMMA sortField)*
     ;
 
 /** aggregation terms */
@@ -102,71 +97,49 @@ statsAggTerm
     ;
 
 sparklineAggTerm
-    : sparklineAggregation | sparklineFunction
+    : sparklineAggregation
     ;
 
 /** aggregation functions */
 statsFunction
-    : aggregationFunction | eventOrderFunction | multivalueStatsChartFunction | timeFunction
-    ;
-
-aggregationFunction
-    : aggFunctionName LT_PRTHS fieldExpression RT_PRTHS             #aggFunctionCall
+    : statsFunctionName LT_PRTHS fieldExpression RT_PRTHS           #statsFunctionCall
     | percentileAggFunction                                         #percentileAggFunctionCall
     ;
 
-aggFunctionName
-    : AVG | COUNT | DISTINCT_COUNT | ESTDC | ESTDC_ERROR | MAX | MEAN | MEDIAN | MIN | MODE | RANGE
-    | STDEV | STDEVP | SUM | SUMSQ | VAR | VARP
+statsFunctionName
+    // aggregation function name
+    : AVG | COUNT | DISTINCT_COUNT | ESTDC | ESTDC_ERROR | MAX | MEAN | MEDIAN | MIN | MODE | RANGE| STDEV
+    | STDEVP | SUM | SUMSQ | VAR | VARP
+    // event order function name
+    | FIRST | LAST
+    // multivalue stats chart function name
+    | LIST | VALUES
+    // time function name
+    | EARLIEST | EARLIEST_TIME | LATEST | LATEST_TIME | PER_DAY | PER_HOUR | PER_MINUTE | PER_SECOND | RATE
     ;
 
 percentileAggFunction
-    : PERCENTILE LESS value=decimalLiteral GREATER LT_PRTHS aggField=fieldExpression RT_PRTHS
-    ;
-
-eventOrderFunction
-    : FIRST LT_PRTHS fieldExpression RT_PRTHS
-    | LAST LT_PRTHS fieldExpression RT_PRTHS
-    ;
-
-multivalueStatsChartFunction
-    : LIST LT_PRTHS fieldExpression RT_PRTHS
-    | VALUES LT_PRTHS fieldExpression RT_PRTHS
-    ;
-
-timeFunction
-    : timeFunctionName LT_PRTHS fieldExpression RT_PRTHS
-    ;
-
-timeFunctionName
-    : EARLIEST | EARLIEST_TIME | LATEST | LATEST_TIME | PER_DAY | PER_HOUR | PER_MINUTE | PER_SECOND | RATE
+    : PERCENTILE '<' value=integerLiteral '>' LT_PRTHS aggField=fieldExpression RT_PRTHS
     ;
 
 sparklineAggregation
-    : SPARKLINE LT_PRTHS COUNT LT_PRTHS wcFieldExpression RT_PRTHS COMMA spanLength=decimalLiteral RT_PRTHS
-    | SPARKLINE RT_PRTHS sparklineFunction LT_PRTHS wcFieldExpression RT_PRTHS COMMA spanLength=decimalLiteral RT_PRTHS
-    ;
-
-sparklineFunction
-    : sparklineFunctionName LT_PRTHS fieldExpression RT_PRTHS
+    : SPARKLINE LT_PRTHS sparklineFunctionName LT_PRTHS wcFieldExpression RT_PRTHS COMMA spanLength=integerLiteral RT_PRTHS
     ;
 
 sparklineFunctionName
     :
-//    | C | COUNT | DC | MEAN | AVG | STDEV | STDEVP | VAR | VARP | SUM | SUMSQ | MIN | MAX | RANGE
+    | C | COUNT | DC | MEAN | AVG | STDEV | STDEVP | VAR | VARP | SUM | SUMSQ | MIN | MAX | RANGE
     ;
 
 /** expressions */
 expression
     : logicalExpression
-    | booleanExpression
     | comparisonExpression
     | evalExpression
     ;
 
 logicalExpression
-    : booleanExpression                                             #booleanLabel
-    | comparisonExpression                                          #comparsion
+    : comparisonExpression                                          #comparsion
     | evalExpression                                                #eval
     | NOT logicalExpression                                         #logicalNot
     | left=logicalExpression OR right=logicalExpression             #logicalOr
@@ -178,19 +151,14 @@ evalExpression
     ;
 
 comparisonExpression
-    : left=fieldExpression comparisonOperator right=literalValue    #compareExpr
+    : left=fieldExpression comparisonOperator
+    (field=fieldExpression | literal=literalValue)                  #compareExpr
     | fieldExpression IN valueList                                  #inExpr
-    ;
-
-booleanExpression
-    : LT_PRTHS booleanLiteral RT_PRTHS
-    | booleanLiteral
     ;
 
 /** tables */
 tableSource
-    : ident
-    | stringLiteral
+    : qualifiedName
     ;
 
 /** fields */
@@ -203,22 +171,23 @@ wcFieldList
     ;
 
 sortField
-    : fieldExpression                                               #defaultSort
-    | AUTO LT_PRTHS fieldExpression RT_PRTHS                        #autoSort
-    | STR LT_PRTHS fieldExpression RT_PRTHS                         #strSort
-    | IP LT_PRTHS fieldExpression RT_PRTHS                          #ipSort
-    | NUM LT_PRTHS fieldExpression RT_PRTHS                         #numSort
+    : (PLUS | MINUS)? sortFieldExpression
+    ;
+
+sortFieldExpression
+    : fieldExpression
+    | AUTO LT_PRTHS fieldExpression RT_PRTHS
+    | STR LT_PRTHS fieldExpression RT_PRTHS
+    | IP LT_PRTHS fieldExpression RT_PRTHS
+    | NUM LT_PRTHS fieldExpression RT_PRTHS
     ;
 
 fieldExpression
-    : ident
-    | SINGLE_QUOTE ident SINGLE_QUOTE
-    | DOUBLE_QUOTE ident DOUBLE_QUOTE
-    | BACKTICK ident BACKTICK
+    : qualifiedName
     ;
 
 wcFieldExpression
-    : wildcard
+    : wcQualifiedName
     ;
 
 
@@ -274,7 +243,7 @@ literalValue
     ;
 
 stringLiteral
-    : DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING
+    : DQUOTA_STRING | SQUOTA_STRING
     ;
 
 integerLiteral
@@ -293,10 +262,23 @@ valueList
     : LT_PRTHS literalValue (COMMA literalValue)* RT_PRTHS
     ;
 
+qualifiedName
+    : ident (DOT ident)*
+    ;
+
+wcQualifiedName
+    : wildcard (DOT wildcard)*
+    ;
+
 ident
     : (DOT)? ID
+    | BACKTICK ident BACKTICK
+    | BQUOTA_STRING
     ;
 
 wildcard
-    : (MODULE | ident)+
+    : ident (MODULE ident)* (MODULE)?
+    | SINGLE_QUOTE wildcard SINGLE_QUOTE
+    | DOUBLE_QUOTE wildcard DOUBLE_QUOTE
+    | BACKTICK wildcard BACKTICK
     ;

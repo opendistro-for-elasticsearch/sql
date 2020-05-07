@@ -31,13 +31,13 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
-public class Literal extends Expression {
+public class Literal extends UnresolvedExpression {
 
     private final Object value;
     private final DataType type;
 
     @Override
-    public List<Expression> getChild() {
+    public List<UnresolvedExpression> getChild() {
         return ImmutableList.of();
     }
 

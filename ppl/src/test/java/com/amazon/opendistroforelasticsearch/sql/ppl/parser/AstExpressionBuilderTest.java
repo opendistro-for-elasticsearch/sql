@@ -1,5 +1,5 @@
 /*
- *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *   Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  *   Licensed under the Apache License, Version 2.0 (the "License").
  *   You may not use this file except in compliance with the License.
@@ -15,24 +15,34 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
-import java.util.Collections;
 import org.junit.Test;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.agg;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.aggregate;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.and;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.booleanLiteral;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.doubleLiteral;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.equalTo;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.filter;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.function;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.in;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.intLiteral;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.not;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.or;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.project;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.relation;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.stringLiteral;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.DSL.unresolvedAttr;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.agg;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.and;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.argument;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.compare;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultFieldsArgs;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortArgs;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortFieldArgs;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultStatsArgs;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.doubleLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.equalTo;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.exprList;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.filter;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.in;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.map;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.not;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.nullLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.or;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.project;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.projectWithArg;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
 
 public class AstExpressionBuilderTest extends AstBuilderTest{
 
@@ -42,7 +52,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 filter(
                         relation("t"),
                         not(
-                                equalTo(unresolvedAttr("a"), intLiteral(1))
+                                compare("=", field("a"), intLiteral(1))
                         )
                 ));
     }
@@ -53,8 +63,8 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 filter(
                         relation("t"),
                         or(
-                                equalTo(unresolvedAttr("a"), intLiteral(1)),
-                                equalTo(unresolvedAttr("b"), intLiteral(2))
+                                compare("=", field("a"), intLiteral(1)),
+                                compare("=", field("b"), intLiteral(2))
                         )
                 ));
     }
@@ -65,8 +75,8 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 filter(
                         relation("t"),
                         and(
-                                equalTo(unresolvedAttr("a"), intLiteral(1)),
-                                equalTo(unresolvedAttr("b"), intLiteral(2))
+                                compare("=", field("a"), intLiteral(1)),
+                                compare("=", field("b"), intLiteral(2))
                         )
                 ));
     }
@@ -77,8 +87,8 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 filter(
                         relation("t"),
                         and(
-                                equalTo(unresolvedAttr("a"), intLiteral(1)),
-                                equalTo(unresolvedAttr("b"), intLiteral(2))
+                                compare("=", field("a"), intLiteral(1)),
+                                compare("=", field("b"), intLiteral(2))
                         )
                 ));
     }
@@ -89,18 +99,27 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 filter(
                         relation("t"),
                         equalTo(
-                                unresolvedAttr("f"),
-                                function("abs", unresolvedAttr("a"))
+                                field("f"),
+                                function("abs", field("a"))
                         )
                 ));
     }
 
     @Test
-    public void testCompareExprWhenEqual() {
+    public void testCompareExpr() {
         assertEqual("source=t a='b'",
                 filter(
                         relation("t"),
-                        equalTo(unresolvedAttr("a"), stringLiteral("b"))
+                        compare("=", field("a"), stringLiteral("b"))
+                ));
+    }
+
+    @Test
+    public void testCompareFieldsExpr() {
+        assertEqual("source=t a>b",
+                filter(
+                        relation("t"),
+                        compare(">", field("a"), field("b"))
                 ));
     }
 
@@ -110,19 +129,111 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 filter(
                         relation("t"),
                         in(
-                                unresolvedAttr("f"),
+                                field("f"),
                                 intLiteral(1), intLiteral(2), intLiteral(3))
                 ));
     }
 
     @Test
     public void testFieldExpr() {
-        assertEqual("source=t | sort +f",
+        assertEqual("source=t | sort + f",
                 agg(
                         relation("t"),
                         null,
-                        Collections.singletonList(unresolvedAttr("f")),
-                        null
+                        exprList(field("f", defaultSortFieldArgs())),
+                        null,
+                        defaultSortArgs()
+                ));
+    }
+
+    @Test
+    public void testSortFieldWithMinusKeyword() {
+        assertEqual("source=t | sort - f",
+                agg(
+                        relation("t"),
+                        null,
+                        exprList(
+                                field(
+                                        "f",
+                                        argument("exclude", booleanLiteral(true)),
+                                        argument("type", nullLiteral())
+                                )
+                        ),
+                        null,
+                        defaultSortArgs()
+                ));
+    }
+
+    @Test
+    public void testSortFieldWithAutoKeyword() {
+        assertEqual("source=t | sort auto(f)",
+                agg(
+                        relation("t"),
+                        null,
+                        exprList(
+                                field(
+                                        "f",
+                                        argument("exclude", booleanLiteral(false)),
+                                        argument("type", stringLiteral("auto"))
+                                )
+                        ),
+                        null,
+                        defaultSortArgs()
+                ));
+    }
+
+    @Test
+    public void testSortFieldWithIpKeyword() {
+        assertEqual("source=t | sort ip(f)",
+                agg(
+                        relation("t"),
+                        null,
+                        exprList(
+                                field(
+                                        "f",
+                                        argument("exclude", booleanLiteral(false)),
+                                        argument("type", stringLiteral("ip"))
+                                )
+                        ),
+                        null,
+                        defaultSortArgs()
+                ));
+    }
+
+    @Test
+    public void testSortFieldWithNumKeyword() {
+        assertEqual("source=t | sort num(f)",
+                agg(
+                        relation("t"),
+                        null,
+                        exprList(
+                                field(
+                                        "f",
+                                        argument("exclude", booleanLiteral(false)),
+                                        argument("type", stringLiteral("num"))
+                                )
+                        ),
+                        null,
+                        defaultSortArgs()
+
+                ));
+    }
+
+    @Test
+    public void testSortFieldWithStrKeyword() {
+        assertEqual("source=t | sort str(f)",
+                agg(
+                        relation("t"),
+                        null,
+                        exprList(
+                                field(
+                                        "f",
+                                        argument("exclude", booleanLiteral(false)),
+                                        argument("type", stringLiteral("str"))
+                                )
+                        ),
+                        null,
+                        defaultSortArgs()
                 ));
     }
 
@@ -131,11 +242,37 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
         assertEqual("source=t | stats avg(a) by b",
                 agg(
                         relation("t"),
-                        Collections.singletonList(
-                                aggregate("avg", unresolvedAttr("a"))
+                        exprList(
+                                map(
+                                        aggregate("avg", field("a")),
+                                        null
+                                )
+
                         ),
                         null,
-                        Collections.singletonList(unresolvedAttr("b"))
+                        exprList(field("b")),
+                        defaultStatsArgs()
+                ));
+    }
+
+    @Test
+    public void testPercentileAggFuncExpr() {
+        assertEqual("source=t | stats percentile<1>(a)",
+                agg(
+                        relation("t"),
+                        exprList(
+                                map(
+                                        aggregate(
+                                                "percentile",
+                                                field("a"),
+                                                argument("rank", intLiteral(1))
+                                        ),
+                                        null
+                                )
+                        ),
+                        null,
+                        null,
+                        defaultStatsArgs()
                 ));
     }
 
@@ -145,8 +282,32 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 project(
                         relation("t"),
                         equalTo(
-                                unresolvedAttr("f"),
-                                function("abs", unresolvedAttr("a"))
+                                field("f"),
+                                function("abs", field("a"))
+                        )
+                ));
+    }
+
+    @Test
+    public void testNestedFieldName() {
+        assertEqual("source=t | fields field0.field1.field2",
+                projectWithArg(
+                        relation("t"),
+                        defaultFieldsArgs(),
+                        field(
+                                qualifiedName("field0", "field1", "field2")
+                        )
+                ));
+    }
+
+    @Test
+    public void testFieldNameWithSpecialChars() {
+        assertEqual("source=t | fields `field-0`.`field#1`.`field*2`",
+                projectWithArg(
+                        relation("t"),
+                        defaultFieldsArgs(),
+                        field(
+                                qualifiedName("field-0", "field#1", "field*2")
                         )
                 ));
     }
@@ -156,8 +317,9 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
         assertEqual("source=t a=\"string\"",
                 filter(
                         relation("t"),
-                        equalTo(
-                                unresolvedAttr("a"),
+                        compare(
+                                "=",
+                                field("a"),
                                 stringLiteral("string")
                         )
                 ));
@@ -168,8 +330,9 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
         assertEqual("source=t a=1",
                 filter(
                         relation("t"),
-                        equalTo(
-                                unresolvedAttr("a"),
+                        compare(
+                                "=",
+                                field("a"),
                                 intLiteral(1)
                         )
                 ));
@@ -180,8 +343,9 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
         assertEqual("source=t b=0.1",
                 filter(
                         relation("t"),
-                        equalTo(
-                                unresolvedAttr("b"),
+                        compare(
+                                "=",
+                                field("b"),
                                 doubleLiteral(0.1)
                         )
                 ));
@@ -192,8 +356,9 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
         assertEqual("source=t a=true",
                 filter(
                         relation("t"),
-                        equalTo(
-                                unresolvedAttr("a"),
+                        compare(
+                                "=",
+                                field("a"),
                                 booleanLiteral(true)
                         )
                 ));

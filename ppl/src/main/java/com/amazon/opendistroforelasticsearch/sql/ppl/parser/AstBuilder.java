@@ -1,5 +1,5 @@
 /*
- *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *   Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  *   Licensed under the Apache License, Version 2.0 (the "License").
  *   You may not use this file except in compliance with the License.
@@ -15,15 +15,15 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
-import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParserBaseVisitor;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
+import com.amazon.opendistroforelasticsearch.sql.ppl.utils.ArgumentFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -91,7 +91,8 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
                         .wcFieldExpression()
                         .stream()
                         .map(this::visitExpression)
-                        .collect(Collectors.toList())
+                        .collect(Collectors.toList()),
+                ArgumentFactory.getArgumentList(ctx)
         );
     }
 
@@ -113,7 +114,11 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
     /** Stats command */
     @Override
     public UnresolvedPlan visitStatsCommand(StatsCommandContext ctx) {
-        List<Expression> groupList = ctx.byClause() == null ? null :
+        List<UnresolvedExpression> aggList = Collections.singletonList(
+                new Map(visitExpression(ctx.statsAggTerm()),
+                        ctx.alias != null ? visitExpression(ctx.alias) : null)
+        );
+        List<UnresolvedExpression> groupList = ctx.byClause() == null ? null :
                 ctx.byClause()
                         .fieldList()
                         .fieldExpression()
@@ -121,16 +126,17 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
                         .map(this::visitExpression)
                         .collect(Collectors.toList());
         return new Aggregation(
-                new ArrayList<>(Collections.singletonList(visitExpression(ctx.statsAggTerm()))),
+                aggList,
                 null,
-                groupList
+                groupList,
+                ArgumentFactory.getArgumentList(ctx)
         );
     }
 
     /** Dedup command */
     @Override
     public UnresolvedPlan visitDedupCommand(DedupCommandContext ctx) {
-        List<Expression> sortList = ctx.sortbyClause() == null ? null :
+        List<UnresolvedExpression> sortList = ctx.sortbyClause() == null ? null :
                 ctx.sortbyClause()
                         .sortField()
                         .stream()
@@ -143,7 +149,8 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
                         .map(this::visitExpression)
                         .collect(Collectors.toList()),
                 sortList,
-                null
+                null,
+                ArgumentFactory.getArgumentList(ctx)
         );
     }
 
@@ -157,7 +164,8 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
                         .stream()
                         .map(this::visitExpression)
                         .collect(Collectors.toList()),
-                null
+                null,
+                ArgumentFactory.getArgumentList(ctx)
         );
     }
 
@@ -175,11 +183,11 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
     /** From clause */
     @Override
     public UnresolvedPlan visitFromClause(FromClauseContext ctx) {
-        return new Relation(StringUtils.unquoteIdentifier(ctx.tableSource().getText()));
+        return new Relation(visitExpression(ctx.tableSource().qualifiedName()));
     }
 
     /** Navigate to & build AST expression */
-    private Expression visitExpression(ParseTree tree) {
+    private UnresolvedExpression visitExpression(ParseTree tree) {
         return expressionBuilder.visit(tree);
     }
 
