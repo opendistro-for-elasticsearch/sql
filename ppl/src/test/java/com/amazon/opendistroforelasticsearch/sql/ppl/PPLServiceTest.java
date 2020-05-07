@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.ppl;
 import com.amazon.opendistroforelasticsearch.sql.ppl.config.PPLServiceConfig;
 import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryRequest;
 import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryResponse;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -35,7 +36,7 @@ public class PPLServiceTest {
 
             @Override
             public void onFailure(Exception e) {
-
+                Assert.fail();
             }
         });
     }
@@ -45,7 +46,7 @@ public class PPLServiceTest {
         pplService.execute(new PPLQueryRequest("search", null), new ResponseListener<PPLQueryResponse>() {
             @Override
             public void onResponse(PPLQueryResponse pplQueryResponse) {
-
+                Assert.fail();
             }
 
             @Override
