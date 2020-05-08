@@ -310,7 +310,11 @@ public class CSVResultsExtractor {
                 doc.put("_type", hit.getType());
             }
 
-            mergeHeaders(csvHeaders, doc, flat);
+            // select function as field is a special case where each hit has non-null field (function)
+            // and sourceAsMap is all columns in index (the same as 'SELECT *')
+            if (fields.isEmpty()) {
+                mergeHeaders(csvHeaders, doc, flat);
+            }
             docsAsMap.add(doc);
         }
 
