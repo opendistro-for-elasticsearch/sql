@@ -660,6 +660,14 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
         Assert.assertTrue(lines.get(0).contains("\",,,@cmd|' /C notepad'!_xlbgnm.A1\""));
     }
 
+    @Test
+    public void selectFunctionAsFieldTest() throws IOException {
+        String query = "select log(age) from " + TEST_INDEX_ACCOUNT;
+        CSVResult result = executeCsvRequest(query, false, false, false, false);
+        List<String> headers = result.getHeaders();
+        Assert.assertEquals(1, headers.size());
+    }
+
     private void verifyFieldOrder(final String[] expectedFields) throws IOException {
 
         final String fields = String.join(", ", expectedFields);
