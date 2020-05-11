@@ -13,24 +13,30 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.expression;
-
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+package com.amazon.opendistroforelasticsearch.sql.planner;
 
 import java.util.List;
 
 /**
- * Function Expression
+ * The definition of Plan Node
  */
-@EqualsAndHashCode
-@RequiredArgsConstructor
-public abstract class FunctionExpression implements Expression {
-    @Getter
-    private final FunctionName functionName;
+public interface PlanNode<T extends PlanNode> {
 
-    @Getter
-    private final List<Expression> arguments;
+    /**
+     * Return the child nodes.
+     *
+     * @return child nodes.
+     */
+    List<T> getChild();
+
+    /**
+     * Accept the visitor.
+     *
+     * @param visitor visitor.
+     * @param context visitor context.
+     * @param <R>     returned object type.
+     * @param <C>     context type.
+     * @return returned object.
+     */
+    <R, C> R accept(AbstractPlanNodeVisitor<R, C> visitor, C context);
 }

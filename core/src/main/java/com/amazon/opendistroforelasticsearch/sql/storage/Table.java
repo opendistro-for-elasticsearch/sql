@@ -13,24 +13,19 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.expression;
+package com.amazon.opendistroforelasticsearch.sql.storage;
 
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 
-import java.util.List;
+import java.util.Map;
 
 /**
- * Function Expression
+ * Table
  */
-@EqualsAndHashCode
-@RequiredArgsConstructor
-public abstract class FunctionExpression implements Expression {
-    @Getter
-    private final FunctionName functionName;
+public interface Table {
+    /**
+     * Get the {@link ExprType} for each field in the table.
+     */
+    Map<String, ExprType> getFieldTypes();
 
-    @Getter
-    private final List<Expression> arguments;
 }

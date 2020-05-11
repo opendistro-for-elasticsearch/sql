@@ -30,3 +30,4 @@ build/
 # git mergetool artifact
 *.orig
 gen
+*.tokens

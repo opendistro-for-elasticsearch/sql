@@ -13,24 +13,17 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.expression;
+package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.Test;
 
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/**
- * Function Expression
- */
-@EqualsAndHashCode
-@RequiredArgsConstructor
-public abstract class FunctionExpression implements Expression {
-    @Getter
-    private final FunctionName functionName;
+class LogicalRelationTest {
 
-    @Getter
-    private final List<Expression> arguments;
+    @Test
+    public void logicalRelationHasNoInput() {
+        LogicalPlan relation = LogicalPlanDSL.relation("index");
+        assertEquals(0, relation.getChild().size());
+    }
 }

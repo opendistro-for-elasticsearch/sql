@@ -13,33 +13,32 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.expression;
+package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
-import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
+import com.amazon.opendistroforelasticsearch.sql.planner.AbstractPlanNodeVisitor;
+import com.google.common.collect.ImmutableList;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
+import java.util.List;
+
+/**
+ * Logical Relation represent the data source.
+ */
+@ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor
-public class ReferenceExpression implements Expression {
-    @Getter
-    private final String attr;
+public class LogicalRelation extends LogicalPlan {
+    private final String relationName;
 
     @Override
-    public ExprValue valueOf(Environment<Expression, ExprValue> env) {
-        return env.resolve(this);
+    public List<LogicalPlan> getChild() {
+        return ImmutableList.of();
     }
 
     @Override
-    public ExprType type(Environment<Expression, ExprType> env) {
-        return env.resolve(this);
-    }
-
-    @Override
-    public String toString() {
-        return attr;
+    public <R, C> R accept(AbstractPlanNodeVisitor<R, C> visitor, C context) {
+        return visitor.visitRelation(this, context);
     }
 }
