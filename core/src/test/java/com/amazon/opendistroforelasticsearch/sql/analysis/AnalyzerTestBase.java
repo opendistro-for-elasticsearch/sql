@@ -15,14 +15,13 @@
 
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.SymbolTable;
 import com.amazon.opendistroforelasticsearch.sql.config.TestConfig;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
-import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Schema;
-import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.SymbolTable;
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -15,15 +15,14 @@
 
 package com.amazon.opendistroforelasticsearch.sql.config;
 
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.SymbolTable;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
-import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
-import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Schema;
-import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
-import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.SymbolTable;
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
 import com.google.common.collect.ImmutableMap;
@@ -80,11 +79,6 @@ public class TestConfig {
                 .forEach(
                         entry -> symbolTable.store(new Symbol(Namespace.FIELD_NAME, entry.getKey()), entry.getValue()));
         return symbolTable;
-    }
-
-    @Bean
-    protected Schema schema(SymbolTable symbolTable) {
-        return table -> symbolTable;
     }
 
     @Bean
