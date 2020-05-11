@@ -16,6 +16,7 @@ dependencies {
     compile group: 'org.springframework', name: 'spring-beans', version: '5.2.5.RELEASE'
 
     testImplementation('org.junit.jupiter:junit-jupiter:5.6.2')
+    testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: '2.1'
     testCompile group: 'org.springframework', name: 'spring-test', version: '5.2.5.RELEASE'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '3.3.3'
     testCompile group: 'org.mockito', name: 'mockito-junit-jupiter', version: '3.3.3'
@@ -34,6 +35,12 @@ jacoco {
 jacocoTestReport {
     reports {
         html.enabled true
+    }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it,
+                    exclude: ['**/ast/**'])
+        }))
     }
 }
 test.finalizedBy(project.tasks.jacocoTestReport)

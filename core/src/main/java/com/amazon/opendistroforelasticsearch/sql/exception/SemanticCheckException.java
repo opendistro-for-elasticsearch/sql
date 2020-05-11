@@ -13,24 +13,13 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.expression;
-
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-import java.util.List;
+package com.amazon.opendistroforelasticsearch.sql.exception;
 
 /**
- * Function Expression
+ * Semantic Check Exception.
  */
-@EqualsAndHashCode
-@RequiredArgsConstructor
-public abstract class FunctionExpression implements Expression {
-    @Getter
-    private final FunctionName functionName;
-
-    @Getter
-    private final List<Expression> arguments;
+public class SemanticCheckException extends QueryEngineException {
+    public SemanticCheckException(String message) {
+        super(message);
+    }
 }

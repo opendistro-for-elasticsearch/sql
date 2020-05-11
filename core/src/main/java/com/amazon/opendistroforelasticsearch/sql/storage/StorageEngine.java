@@ -13,24 +13,15 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.expression;
-
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-import java.util.List;
+package com.amazon.opendistroforelasticsearch.sql.storage;
 
 /**
- * Function Expression
+ * Storage engine for different storage to provide data access API implementation
  */
-@EqualsAndHashCode
-@RequiredArgsConstructor
-public abstract class FunctionExpression implements Expression {
-    @Getter
-    private final FunctionName functionName;
+public interface StorageEngine {
 
-    @Getter
-    private final List<Expression> arguments;
+    /**
+     * Get {@link Table} from storage engine.
+     */
+    Table getTable(String name);
 }

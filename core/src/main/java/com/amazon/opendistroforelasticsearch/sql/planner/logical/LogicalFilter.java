@@ -13,33 +13,34 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.expression;
+package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
-import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.planner.AbstractPlanNodeVisitor;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * Logical Filter represent the filter relation.
+ */
+@ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor
-public class ReferenceExpression implements Expression {
-    @Getter
-    private final String attr;
+public class LogicalFilter extends LogicalPlan {
+    private final Expression condition;
+    private final LogicalPlan child;
 
     @Override
-    public ExprValue valueOf(Environment<Expression, ExprValue> env) {
-        return env.resolve(this);
+    public List<LogicalPlan> getChild() {
+        return Arrays.asList(child);
     }
 
     @Override
-    public ExprType type(Environment<Expression, ExprType> env) {
-        return env.resolve(this);
-    }
-
-    @Override
-    public String toString() {
-        return attr;
+    public <R, C> R accept(AbstractPlanNodeVisitor<R, C> visitor, C context) {
+        return visitor.visitFilter(this, context);
     }
 }

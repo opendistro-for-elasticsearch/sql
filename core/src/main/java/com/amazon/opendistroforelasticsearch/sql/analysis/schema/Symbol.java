@@ -13,24 +13,17 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.expression;
+package com.amazon.opendistroforelasticsearch.sql.analysis.schema;
 
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.List;
-
 /**
- * Function Expression
+ * Symbol in the scope
  */
-@EqualsAndHashCode
+@Getter
 @RequiredArgsConstructor
-public abstract class FunctionExpression implements Expression {
-    @Getter
-    private final FunctionName functionName;
-
-    @Getter
-    private final List<Expression> arguments;
+public class Symbol {
+    private final Namespace namespace;
+    private final String name;
 }

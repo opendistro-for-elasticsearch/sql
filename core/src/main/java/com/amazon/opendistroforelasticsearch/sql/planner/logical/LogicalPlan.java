@@ -13,24 +13,12 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.expression;
+package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-import java.util.List;
+import com.amazon.opendistroforelasticsearch.sql.planner.PlanNode;
 
 /**
- * Function Expression
+ * The abstract base class for all the Logical Plan node.
  */
-@EqualsAndHashCode
-@RequiredArgsConstructor
-public abstract class FunctionExpression implements Expression {
-    @Getter
-    private final FunctionName functionName;
-
-    @Getter
-    private final List<Expression> arguments;
+public abstract class LogicalPlan implements PlanNode<LogicalPlan> {
 }

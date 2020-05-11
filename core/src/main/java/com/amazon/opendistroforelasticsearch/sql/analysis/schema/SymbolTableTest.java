@@ -1,0 +1,86 @@
+/*
+ *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License").
+ *   You may not use this file except in compliance with the License.
+ *   A copy of the License is located at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   or in the "license" file accompanying this file. This file is distributed
+ *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ *   express or implied. See the License for the specific language governing
+ *   permissions and limitations under the License.
+ */
+
+package com.amazon.opendistroforelasticsearch.sql.analysis.schema;
+
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
+import org.junit.jupiter.api.Test;
+
+import java.util.Map;
+import java.util.Optional;
+
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.BOOLEAN;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.STRING;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.aMapWithSize;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.anEmptyMap;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+
+public class SymbolTableTest {
+
+    private final SymbolTable symbolTable = new SymbolTable();
+
+    @Test
+    public void defineFieldSymbolShouldBeAbleToResolve() {
+        defineSymbolShouldBeAbleToResolve(new Symbol(Namespace.FIELD_NAME, "age"), INTEGER);
+    }
+
+
+    @Test
+    public void defineFieldSymbolShouldBeAbleToResolveByPrefix() {
+        symbolTable.store(new Symbol(Namespace.FIELD_NAME, "s.projects.active"), BOOLEAN);
+        symbolTable.store(new Symbol(Namespace.FIELD_NAME, "s.address"), STRING);
+        symbolTable.store(new Symbol(Namespace.FIELD_NAME, "s.manager.name"), STRING);
+
+        Map<String, ExprType> typeByName = symbolTable.lookupByPrefix(new Symbol(Namespace.FIELD_NAME, "s.projects"));
+
+        assertThat(
+                typeByName,
+                allOf(
+                        aMapWithSize(1),
+                        hasEntry("s.projects.active", BOOLEAN)
+                )
+        );
+    }
+
+    @Test
+    public void failedToResolveSymbolNoNamespaceMatched() {
+        symbolTable.store(new Symbol(Namespace.FUNCTION_NAME, "customFunction"), BOOLEAN);
+        assertFalse(symbolTable.lookup(new Symbol(Namespace.FIELD_NAME, "s.projects")).isPresent());
+
+        assertThat(symbolTable.lookupByPrefix(new Symbol(Namespace.FIELD_NAME, "s.projects")), anEmptyMap());
+    }
+
+    @Test
+    public void isEmpty() {
+        symbolTable.store(new Symbol(Namespace.FUNCTION_NAME, "customFunction"), BOOLEAN);
+        assertTrue(symbolTable.isEmpty(Namespace.FIELD_NAME));
+    }
+
+    private void defineSymbolShouldBeAbleToResolve(Symbol symbol, ExprType expectedType) {
+        symbolTable.store(symbol, expectedType);
+
+        Optional<ExprType> actualType = symbolTable.lookup(symbol);
+        assertTrue(actualType.isPresent());
+        assertEquals(expectedType, actualType.get());
+    }
+
+}
