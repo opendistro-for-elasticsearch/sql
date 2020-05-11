@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.analysis.schema;
+package com.amazon.opendistroforelasticsearch.sql.analysis.symbol;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 

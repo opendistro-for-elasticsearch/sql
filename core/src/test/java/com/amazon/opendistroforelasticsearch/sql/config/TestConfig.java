@@ -20,10 +20,10 @@ import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationE
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
-import com.amazon.opendistroforelasticsearch.sql.analysis.schema.Namespace;
-import com.amazon.opendistroforelasticsearch.sql.analysis.schema.Schema;
-import com.amazon.opendistroforelasticsearch.sql.analysis.schema.Symbol;
-import com.amazon.opendistroforelasticsearch.sql.analysis.schema.SymbolTable;
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Schema;
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.SymbolTable;
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
 import com.google.common.collect.ImmutableMap;

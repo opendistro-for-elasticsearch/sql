@@ -15,9 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
-import com.amazon.opendistroforelasticsearch.sql.analysis.schema.Namespace;
-import com.amazon.opendistroforelasticsearch.sql.analysis.schema.Symbol;
-import com.amazon.opendistroforelasticsearch.sql.analysis.schema.SymbolTable;
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.SymbolTable;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;

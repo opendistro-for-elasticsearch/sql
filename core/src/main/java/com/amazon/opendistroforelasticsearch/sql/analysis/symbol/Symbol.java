@@ -13,20 +13,17 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.analysis.schema;
+package com.amazon.opendistroforelasticsearch.sql.analysis.symbol;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 /**
- * Namespace of symbol to avoid naming conflict
+ * Symbol in the scope
  */
-public enum Namespace {
-
-    FIELD_NAME("Field"),
-    FUNCTION_NAME("Function");
-
+@Getter
+@RequiredArgsConstructor
+public class Symbol {
+    private final Namespace namespace;
     private final String name;
-
-    Namespace(String name) {
-        this.name = name;
-    }
-
 }
