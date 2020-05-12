@@ -25,7 +25,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation
  * @param <R> return object type.
  * @param <C> context type.
  */
-public abstract class AbstractPlanNodeVisitor<R, C>  {
+public abstract class AbstractPlanNodeVisitor<R, C> implements PlanNodeVisitor<R, C> {
 
     protected R visitNode(LogicalPlan plan, C context) {
         return null;

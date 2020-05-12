@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.expression;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
@@ -28,6 +29,10 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class DSL {
     private final BuiltinFunctionRepository repository;
+
+    public static LiteralExpression literal(Integer value) {
+        return new LiteralExpression(ExprValueUtils.integerValue(value));
+    }
 
     public static LiteralExpression literal(ExprValue value) {
         return new LiteralExpression(value);

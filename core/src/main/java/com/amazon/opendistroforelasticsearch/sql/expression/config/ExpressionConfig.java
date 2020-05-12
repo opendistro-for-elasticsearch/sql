@@ -15,10 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.config;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
-import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.scalar.arthmetic.ArithmeticFunction;
 import com.amazon.opendistroforelasticsearch.sql.expression.scalar.predicate.BinaryPredicateFunction;
@@ -34,7 +31,7 @@ import java.util.HashMap;
 @Configuration
 public class ExpressionConfig {
     @Bean
-    public BuiltinFunctionRepository functionRepository(Environment<Expression, ExprType> typeEnv) {
+    public BuiltinFunctionRepository functionRepository() {
         BuiltinFunctionRepository builtinFunctionRepository = new BuiltinFunctionRepository(new HashMap<>());
         ArithmeticFunction.register(builtinFunctionRepository);
         BinaryPredicateFunction.register(builtinFunctionRepository);

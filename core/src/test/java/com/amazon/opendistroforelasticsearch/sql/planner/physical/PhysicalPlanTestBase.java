@@ -1,0 +1,115 @@
+/*
+ *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License").
+ *   You may not use this file except in compliance with the License.
+ *   A copy of the License is located at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   or in the "license" file accompanying this file. This file is distributed
+ *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ *   express or implied. See the License for the specific language governing
+ *   permissions and limitations under the License.
+ */
+
+package com.amazon.opendistroforelasticsearch.sql.planner.physical;
+
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
+import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
+import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
+import com.amazon.opendistroforelasticsearch.sql.storage.BindingTuple;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+@Configuration
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = {ExpressionConfig.class})
+public class PhysicalPlanTestBase {
+    @Autowired
+    protected DSL dsl;
+
+    private final List<BindingTuple> inputs = new ImmutableList.Builder<BindingTuple>()
+            .add(BindingTuple.from(ImmutableMap.of("ip", "209.160.24.63", "action", "GET", "response", 200, "referer", "www.amazon.com")))
+            .add(BindingTuple.from(ImmutableMap.of("ip", "209.160.24.63", "action", "GET", "response", 404, "referer", "www.amazon.com")))
+            .add(BindingTuple.from(ImmutableMap.of("ip", "112.111.162.4", "action", "GET", "response", 200, "referer", "www.amazon.com")))
+            .add(BindingTuple.from(ImmutableMap.of("ip", "74.125.19.106", "action", "POST", "response", 200, "referer", "www.google.com")))
+            .add(BindingTuple.from(ImmutableMap.of("ip", "74.125.19.106", "action", "POST", "response", 500)))
+            .build();
+
+    private static Map<String, ExprType> typeMapping = new ImmutableMap.Builder<String, ExprType>()
+            .put("ip", ExprType.STRING)
+            .put("action", ExprType.STRING)
+            .put("response", ExprType.INTEGER)
+            .put("referer", ExprType.STRING)
+            .build();
+
+    @Bean
+    protected Environment<Expression, ExprType> typeEnv() {
+        return var -> {
+            if (var instanceof ReferenceExpression) {
+                ReferenceExpression refExpr = (ReferenceExpression) var;
+                if (typeMapping.containsKey(refExpr.getAttr())) {
+                    return typeMapping.get(refExpr.getAttr());
+                }
+            }
+            throw new ExpressionEvaluationException("type resolved failed");
+        };
+    }
+
+    protected List<BindingTuple> execute(PhysicalPlan plan) {
+        ImmutableList.Builder<BindingTuple> builder = new ImmutableList.Builder<>();
+        plan.open();
+        while (plan.hasNext()) {
+            builder.add(plan.next());
+        }
+        return builder.build();
+    }
+
+    protected class TestScan extends PhysicalPlan {
+        private final Iterator<BindingTuple> iterator;
+
+        public TestScan() {
+            iterator = inputs.iterator();
+        }
+
+        @Override
+        public <R, C> R accept(PhysicalPlanNodeVisitor<R, C> visitor, C context) {
+            return null;
+        }
+
+        @Override
+        public List<PhysicalPlan> getChild() {
+            return null;
+        }
+
+        @Override
+        public void close() throws Exception {
+
+        }
+
+        @Override
+        public boolean hasNext() {
+            return iterator.hasNext();
+        }
+
+        @Override
+        public BindingTuple next() {
+            return iterator.next();
+        }
+    }
+}
