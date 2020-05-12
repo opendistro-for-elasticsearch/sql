@@ -19,7 +19,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionExpressionBuilder;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionBuilder;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature;
@@ -107,13 +107,13 @@ public class ArithmeticFunction {
         );
     }
 
-    private static Map<FunctionSignature, FunctionExpressionBuilder> scalarFunction(
+    private static Map<FunctionSignature, FunctionBuilder> scalarFunction(
             FunctionName functionName,
             BiFunction<Integer, Integer, Integer> integerFunc,
             BiFunction<Long, Long, Long> longFunc,
             BiFunction<Float, Float, Float> floatFunc,
             BiFunction<Double, Double, Double> doubleFunc) {
-        ImmutableMap.Builder<FunctionSignature, FunctionExpressionBuilder> builder = new ImmutableMap.Builder<>();
+        ImmutableMap.Builder<FunctionSignature, FunctionBuilder> builder = new ImmutableMap.Builder<>();
         builder.put(new FunctionSignature(functionName, Arrays.asList(ExprType.INTEGER, ExprType.INTEGER)),
                 binaryOperator(functionName, integerFunc, ExprValueUtils::getIntegerValue, ExprType.INTEGER));
         builder.put(new FunctionSignature(functionName, Arrays.asList(ExprType.LONG, ExprType.LONG)),

@@ -23,7 +23,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionExpressionBuilder;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionBuilder;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature;
@@ -206,7 +206,7 @@ public class BinaryPredicateFunction {
         );
     }
 
-    private static Map<FunctionSignature, FunctionExpressionBuilder> predicateFunction(
+    private static Map<FunctionSignature, FunctionBuilder> predicateFunction(
             FunctionName functionName,
             BiFunction<Integer, Integer, Boolean> integerFunc,
             BiFunction<Long, Long, Boolean> longFunc,
@@ -216,7 +216,7 @@ public class BinaryPredicateFunction {
             BiFunction<Boolean, Boolean, Boolean> booleanFunc,
             BiFunction<List, List, Boolean> listFunc,
             BiFunction<Map, Map, Boolean> mapFunc) {
-        ImmutableMap.Builder<FunctionSignature, FunctionExpressionBuilder> builder = new ImmutableMap.Builder<>();
+        ImmutableMap.Builder<FunctionSignature, FunctionBuilder> builder = new ImmutableMap.Builder<>();
         builder.put(new FunctionSignature(functionName, Arrays.asList(ExprType.INTEGER, ExprType.INTEGER)),
                 equal(functionName, integerFunc, ExprValueUtils::getIntegerValue,
                         ExprType.BOOLEAN));
@@ -244,9 +244,9 @@ public class BinaryPredicateFunction {
         return builder.build();
     }
 
-    private static FunctionExpressionBuilder binaryPredicate(FunctionName functionName,
-                                                             Table<ExprValue, ExprValue, ExprValue> logicalTable,
-                                                             ExprType returnType) {
+    private static FunctionBuilder binaryPredicate(FunctionName functionName,
+                                                   Table<ExprValue, ExprValue, ExprValue> logicalTable,
+                                                   ExprType returnType) {
         return arguments -> new FunctionExpression(functionName, arguments) {
             @Override
             public ExprValue valueOf(Environment<Expression, ExprValue> env) {
@@ -266,10 +266,10 @@ public class BinaryPredicateFunction {
         };
     }
 
-    private static <T, R> FunctionExpressionBuilder equal(FunctionName functionName,
-                                                          BiFunction<T, T, R> function,
-                                                          Function<ExprValue, T> observer,
-                                                          ExprType returnType) {
+    private static <T, R> FunctionBuilder equal(FunctionName functionName,
+                                                BiFunction<T, T, R> function,
+                                                Function<ExprValue, T> observer,
+                                                ExprType returnType) {
         return arguments -> new FunctionExpression(functionName, arguments) {
             @Override
             public ExprValue valueOf(Environment<Expression, ExprValue> env) {

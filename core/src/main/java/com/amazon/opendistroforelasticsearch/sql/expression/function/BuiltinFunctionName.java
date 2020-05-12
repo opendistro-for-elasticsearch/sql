@@ -27,6 +27,8 @@ public enum BuiltinFunctionName {
     EQUAL(FunctionName.of("equal")),
 
     TOSTRING(FunctionName.of("tostring")),
+
+    AVG(FunctionName.of("avg"))
     ;
 
     private final FunctionName name;

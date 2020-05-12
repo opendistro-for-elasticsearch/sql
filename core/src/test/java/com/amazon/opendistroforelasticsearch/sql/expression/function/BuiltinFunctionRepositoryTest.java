@@ -44,7 +44,7 @@ class BuiltinFunctionRepositoryTest {
     @Mock
     private FunctionName mockFunctionName;
     @Mock
-    private FunctionExpressionBuilder functionExpressionBuilder;
+    private FunctionBuilder functionExpressionBuilder;
     @Mock
     private FunctionSignature functionSignature;
     @Mock

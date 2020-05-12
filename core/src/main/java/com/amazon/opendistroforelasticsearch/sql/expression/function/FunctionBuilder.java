@@ -16,19 +16,19 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.function;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 
 import java.util.List;
 
 /**
- * The definition of function which create {@link FunctionExpression} from input {@link Expression} list.
+ * The definition of function which create {@link FunctionImplementation} from input {@link Expression} list.
  */
-public interface FunctionExpressionBuilder {
+public interface FunctionBuilder {
 
     /**
-     * Create {@link FunctionExpression} from input {@link Expression} list
+     * Create {@link FunctionImplementation} from input {@link Expression} list
+     *
      * @param arguments {@link Expression} list
-     * @return {@link FunctionExpression}
+     * @return {@link FunctionImplementation}
      */
-    FunctionExpression apply(List<Expression> arguments);
+    FunctionImplementation apply(List<Expression> arguments);
 }

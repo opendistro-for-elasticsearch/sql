@@ -13,25 +13,28 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.expression;
+package com.amazon.opendistroforelasticsearch.sql.expression.aggregation;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionImplementation;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
-import java.util.List;
+import com.amazon.opendistroforelasticsearch.sql.storage.BindingTuple;
 
 /**
- * Function Expression
+ * Aggregator which will iterate on the {@link BindingTuple}s to aggregate the result.
  */
-@EqualsAndHashCode
-@RequiredArgsConstructor
-public abstract class FunctionExpression implements Expression, FunctionImplementation {
-    @Getter
-    private final FunctionName functionName;
+public interface Aggregator extends FunctionImplementation {
+    /**
+     * Open the {@link Aggregator}.
+     */
+    void open();
 
-    @Getter
-    private final List<Expression> arguments;
+    /**
+     * Iterate on the {@link BindingTuple}.
+     */
+    void iterate(BindingTuple tuple);
+
+    /**
+     * Retrive the result from {@link Aggregator}.
+     */
+    ExprValue result();
 }
