@@ -30,7 +30,7 @@
           "employer": {
             "type": "text",
             "fields": {
-              "keyword": {
+              "raw": {
                 "type": "keyword",
                 "ignore_above": 256
               }

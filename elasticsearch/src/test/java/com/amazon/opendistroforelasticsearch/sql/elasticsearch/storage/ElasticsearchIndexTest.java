@@ -44,20 +44,26 @@ class ElasticsearchIndexTest {
     public void setUp() {
         when(client.getIndexMappings("test")).thenReturn(
             ImmutableMap.of("test", new IndexMapping(
-                ImmutableMap.of("name", "text")
+                ImmutableMap.of(
+                    "name", "keyword",
+                    "address", "text",
+                    "age", "integer"
+                )
             ))
         );
     }
 
     @Test
-    public void getTextFieldTypeShouldReturnString() {
+    public void testGetFieldTypes() {
         ElasticsearchIndex index = new ElasticsearchIndex(client, "test");
         Map<String, ExprType> fieldTypes = index.getFieldTypes();
         assertThat(
             fieldTypes,
             allOf(
-                aMapWithSize(1),
-                hasEntry("name", ExprType.STRING)
+                aMapWithSize(3),
+                hasEntry("name", ExprType.STRING),
+                hasEntry("address", ExprType.STRING),
+                hasEntry("age", ExprType.INTEGER)
             )
         );
     }

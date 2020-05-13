@@ -111,7 +111,7 @@ public class ElasticsearchNodeClient implements ElasticsearchClient {
         if (indexMapping.isEmpty()) {
             throw new IllegalStateException("Index mapping is empty.");
         }
-        return new IndexMapping(indexMapping.iterator().next().value.getSourceAsMap());
+        return new IndexMapping(indexMapping.iterator().next().value);
     }
 
 }

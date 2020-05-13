@@ -20,6 +20,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
+import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
 
 import java.util.HashMap;
@@ -30,6 +31,14 @@ import java.util.Map;
  */
 @RequiredArgsConstructor
 public class ElasticsearchIndex implements Table {
+
+    private final static Map<String, ExprType> ES_TYPE_TO_EXPR_TYPE_MAPPING =
+        ImmutableMap.<String, ExprType>builder().put("text", ExprType.STRING).
+                                                 put("keyword", ExprType.STRING).
+                                                 put("integer", ExprType.INTEGER).
+                                                 put("float", ExprType.FLOAT).
+                                                 put("boolean", ExprType.BOOLEAN).
+                                                 build();
 
     private final ElasticsearchClient client;
 
@@ -50,7 +59,7 @@ public class ElasticsearchIndex implements Table {
         return fieldTypes;
     }
 
-    private ExprType transform(Object fieldMapping) {
-        return ExprType.STRING;
+    private ExprType transform(String esType) {
+        return ES_TYPE_TO_EXPR_TYPE_MAPPING.getOrDefault(esType, ExprType.UNKNOWN);
     }
 }
