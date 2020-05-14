@@ -41,6 +41,7 @@ import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.Verificati
 import com.amazon.opendistroforelasticsearch.sql.utils.JsonPrettyFormatter;
 import com.amazon.opendistroforelasticsearch.sql.utils.LogUtils;
 import com.amazon.opendistroforelasticsearch.sql.utils.QueryDataAnonymizer;
+import com.google.common.collect.ImmutableList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.Client;
@@ -58,6 +59,7 @@ import java.sql.SQLFeatureNotSupportedException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -88,13 +90,17 @@ public class RestSqlAction extends BaseRestHandler {
     public static final String CURSOR_CLOSE_ENDPOINT = QUERY_API_ENDPOINT + "/close";
 
     RestSqlAction(Settings settings, RestController restController) {
-
         super();
-        restController.registerHandler(RestRequest.Method.POST, QUERY_API_ENDPOINT, this);
-        restController.registerHandler(RestRequest.Method.POST, EXPLAIN_API_ENDPOINT, this);
-        restController.registerHandler(RestRequest.Method.POST, CURSOR_CLOSE_ENDPOINT, this);
-
         this.allowExplicitIndex = MULTI_ALLOW_EXPLICIT_INDEX.get(settings);
+    }
+
+    @Override
+    public List<Route> routes() {
+        return ImmutableList.of(
+                new Route(RestRequest.Method.POST, QUERY_API_ENDPOINT),
+                new Route(RestRequest.Method.POST, EXPLAIN_API_ENDPOINT),
+                new Route(RestRequest.Method.POST, CURSOR_CLOSE_ENDPOINT)
+        );
     }
 
     @Override

@@ -16,8 +16,8 @@
 package com.amazon.opendistroforelasticsearch.sql.plugin;
 
 import com.amazon.opendistroforelasticsearch.sql.executor.format.ErrorMessageFactory;
-
 import com.amazon.opendistroforelasticsearch.sql.utils.LogUtils;
+import com.google.common.collect.ImmutableList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.ElasticsearchGenerationException;
@@ -39,6 +39,7 @@ import org.elasticsearch.rest.action.RestToXContentListener;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -63,12 +64,18 @@ public class RestSqlSettingsAction extends BaseRestHandler {
 
     public RestSqlSettingsAction(Settings settings, RestController restController) {
         super();
-        restController.registerHandler(RestRequest.Method.PUT, SETTINGS_API_ENDPOINT, this);
     }
 
     @Override
     public String getName() {
         return "sql_settings_action";
+    }
+
+    @Override
+    public List<Route> routes() {
+        return ImmutableList.of(
+                new Route(RestRequest.Method.PUT, SETTINGS_API_ENDPOINT)
+        );
     }
 
     /**

@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.plugin;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.ErrorMessageFactory;
 import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
 import com.amazon.opendistroforelasticsearch.sql.utils.LogUtils;
+import com.google.common.collect.ImmutableList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.node.NodeClient;
@@ -30,6 +31,7 @@ import org.elasticsearch.rest.RestStatus;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.elasticsearch.rest.RestStatus.SERVICE_UNAVAILABLE;
@@ -48,13 +50,19 @@ public class RestSqlStatsAction extends BaseRestHandler {
 
     public RestSqlStatsAction(Settings settings, RestController restController) {
         super();
-        restController.registerHandler(RestRequest.Method.POST, STATS_API_ENDPOINT, this);
-        restController.registerHandler(RestRequest.Method.GET, STATS_API_ENDPOINT, this);
     }
 
     @Override
     public String getName() {
         return "sql_stats_action";
+    }
+
+    @Override
+    public List<Route> routes() {
+        return ImmutableList.of(
+                new Route(RestRequest.Method.POST, STATS_API_ENDPOINT),
+                new Route(RestRequest.Method.GET, STATS_API_ENDPOINT)
+        );
     }
 
     @Override

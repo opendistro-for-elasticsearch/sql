@@ -61,6 +61,23 @@ public class TestUtils {
     }
 
     /**
+     * https://github.com/elastic/elasticsearch/pull/49959
+     * Deprecate creation of dot-prefixed index names except for hidden and system indices.
+     * Create hidden index by REST client.
+     * @param client        client connection
+     * @param indexName     test index name
+     * @param mapping       test index mapping or null if no predefined mapping
+     */
+    public static void createHiddenIndexByRestClient(RestClient client, String indexName, String mapping) {
+        Request request = new Request("PUT", "/" + indexName);
+        JSONObject jsonObject = isNullOrEmpty(mapping) ? new JSONObject() : new JSONObject(mapping);
+        jsonObject.put("settings", new JSONObject("{\"index\":{\"hidden\":true}}"));
+        request.setJsonEntity(jsonObject.toString());
+
+        performRequest(client, request);
+    }
+
+    /**
      * Check if index already exists by ES index exists API which returns:
      *  200 - specified indices or aliases exist
      *  404 - one or more indices specified or aliases do not exist
