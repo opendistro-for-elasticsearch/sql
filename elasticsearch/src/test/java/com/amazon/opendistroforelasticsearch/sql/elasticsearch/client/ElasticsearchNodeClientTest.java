@@ -57,7 +57,7 @@ class ElasticsearchNodeClientTest {
     private NodeClient esClient;
 
     @Test
-    public void testGetIndexMappings() throws IOException {
+    public void getIndexMappings() throws IOException {
         URL url = Resources.getResource(TEST_MAPPING_FILE);
         String mappings = Resources.toString(url, Charsets.UTF_8);
         String indexName = "test";
@@ -91,7 +91,7 @@ class ElasticsearchNodeClientTest {
     }
 
     @Test
-    public void testGetIndexMappingsWithEmptyMapping() {
+    public void getIndexMappingsWithEmptyMapping() {
         String indexName = "test";
         ElasticsearchNodeClient client = mockClient(indexName, "");
         Map<String, IndexMapping> indexMappings = client.getIndexMappings(indexName);
@@ -102,7 +102,7 @@ class ElasticsearchNodeClientTest {
     }
 
     @Test
-    public void testGetIndexMappingsWithIOException() {
+    public void getIndexMappingsWithIOException() {
         ClusterService clusterService = mockClusterService(new IOException());
         IndexNameExpressionResolver resolver = mockIndexNameExpressionResolver();
         ElasticsearchNodeClient client = new ElasticsearchNodeClient(clusterService, resolver, esClient);

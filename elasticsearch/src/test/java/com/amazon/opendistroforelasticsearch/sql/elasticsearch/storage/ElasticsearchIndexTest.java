@@ -55,7 +55,7 @@ class ElasticsearchIndexTest {
     }
 
     @Test
-    public void testGetFieldTypes() {
+    public void getFieldTypes() {
         Table index = new ElasticsearchIndex(client, "test");
         Map<String, ExprType> fieldTypes = index.getFieldTypes();
         assertThat(

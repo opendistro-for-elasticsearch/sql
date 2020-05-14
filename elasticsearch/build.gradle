@@ -40,9 +40,14 @@ jacocoTestReport {
     }
 }
 test.finalizedBy(project.tasks.jacocoTestReport)
+
 jacocoTestCoverageVerification {
     violationRules {
         rule {
+            element = 'CLASS'
+            excludes = [
+                'com.amazon.opendistroforelasticsearch.sql.elasticsearch.security.SecurityAccess'
+            ]
             limit {
                 minimum = 1.0
             }
@@ -57,3 +62,4 @@ jacocoTestCoverageVerification {
     }
 }
 check.dependsOn jacocoTestCoverageVerification
+jacocoTestCoverageVerification.dependsOn jacocoTestReport

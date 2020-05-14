@@ -32,7 +32,7 @@ class ElasticsearchStorageEngineTest {
     private ElasticsearchClient client;
 
     @Test
-    public void testGetTable() {
+    public void getTable() {
         ElasticsearchStorageEngine engine = new ElasticsearchStorageEngine(client);
         Table table = engine.getTable("test");
         assertNotNull(table);
