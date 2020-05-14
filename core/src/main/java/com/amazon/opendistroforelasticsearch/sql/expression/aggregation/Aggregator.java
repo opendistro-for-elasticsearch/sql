@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.aggregation;
 
+import com.amazon.opendistroforelasticsearch.sql.analysis.ExpressionAnalyzer;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
@@ -31,17 +32,17 @@ import java.util.List;
 
 /**
  * Aggregator which will iterate on the {@link BindingTuple}s to aggregate the result.
+ * The Aggregator is not well fit into Expression, because it has side effect.
+ * But we still want to make it implement {@link Expression} interface to make {@link ExpressionAnalyzer} easier.
  */
 @EqualsAndHashCode
 @RequiredArgsConstructor
 public abstract class Aggregator<S extends AggregationState> implements FunctionImplementation, Expression {
     @Getter
     private final FunctionName functionName;
-
     @Getter
     private final List<Expression> arguments;
-
-    private final ExprType returnType;
+    protected final ExprType returnType;
 
     /**
      * Create an {@link AggregationState} which will be used for aggregation
@@ -50,6 +51,10 @@ public abstract class Aggregator<S extends AggregationState> implements Function
 
     /**
      * Iterate on the {@link BindingTuple}.
+     *
+     * @param tuple {@link BindingTuple}
+     * @param state {@link AggregationState}
+     * @return {@link AggregationState}
      */
     public abstract S iterate(BindingTuple tuple, S state);
 

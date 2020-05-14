@@ -21,7 +21,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +39,7 @@ public class LogicalRename extends LogicalPlan {
 
     @Override
     public List<LogicalPlan> getChild() {
-        return Arrays.asList(child);
+        return Collections.singletonList(child);
     }
 
     @Override

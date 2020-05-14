@@ -25,21 +25,22 @@ import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSig
 import com.google.common.collect.ImmutableMap;
 import lombok.experimental.UtilityClass;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * The definition of aggregator function
  * avg, Accepts two numbers and produces a number.
- * count, Accepts two numbers and produces a number.
  * sum, Accepts two numbers and produces a number.
  * max, Accepts two numbers and produces a number.
  * min, Accepts two numbers and produces a number.
+ * count, Accepts two numbers and produces a number.
  */
 @UtilityClass
 public class AggregatorFunction {
 
     public static void register(BuiltinFunctionRepository repository) {
         repository.register(avg());
+        repository.register(sum());
     }
 
     private static FunctionResolver avg() {
@@ -47,8 +48,25 @@ public class AggregatorFunction {
         return new FunctionResolver(
                 functionName,
                 new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
-                        .put(new FunctionSignature(functionName, Arrays.asList(ExprType.DOUBLE)),
+                        .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.DOUBLE)),
                                 arguments -> new AvgAggregator(arguments, ExprType.DOUBLE))
+                        .build()
+        );
+    }
+
+    private static FunctionResolver sum() {
+        FunctionName functionName = BuiltinFunctionName.SUM.getName();
+        return new FunctionResolver(
+                functionName,
+                new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
+                        .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.INTEGER)),
+                                arguments -> new SumAggregator(arguments, ExprType.INTEGER))
+                        .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.LONG)),
+                                arguments -> new SumAggregator(arguments, ExprType.LONG))
+                        .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.FLOAT)),
+                                arguments -> new SumAggregator(arguments, ExprType.FLOAT))
+                        .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.DOUBLE)),
+                                arguments -> new SumAggregator(arguments, ExprType.DOUBLE))
                         .build()
         );
     }

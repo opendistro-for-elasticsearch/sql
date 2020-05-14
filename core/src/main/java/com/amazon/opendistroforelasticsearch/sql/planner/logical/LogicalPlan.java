@@ -22,7 +22,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.PlanNode;
  */
 public abstract class LogicalPlan implements PlanNode<LogicalPlan> {
     /**
-     * Accept the visitor.
+     * Accept the {@link LogicalPlanNodeVisitor}.
      *
      * @param visitor visitor.
      * @param context visitor context.

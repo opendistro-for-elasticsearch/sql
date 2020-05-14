@@ -28,7 +28,11 @@ public enum BuiltinFunctionName {
 
     TOSTRING(FunctionName.of("tostring")),
 
-    AVG(FunctionName.of("avg"))
+    /**
+     * Aggregation Function.
+     */
+    AVG(FunctionName.of("avg")),
+    SUM(FunctionName.of("sum"))
     ;
 
     private final FunctionName name;

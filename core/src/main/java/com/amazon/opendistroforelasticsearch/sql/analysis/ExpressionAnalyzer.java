@@ -33,7 +33,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunc
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 
 /**
@@ -58,8 +58,8 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
 
     @Override
     public Expression visitEqualTo(EqualTo node, AnalysisContext context) {
-        Expression left = (Expression) node.getLeft().accept(this, context);
-        Expression right = (Expression) node.getRight().accept(this, context);
+        Expression left = node.getLeft().accept(this, context);
+        Expression right = node.getRight().accept(this, context);
 
         return dsl.equal(context.peek(), left, right);
     }
@@ -71,8 +71,8 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
 
     @Override
     public Expression visitAnd(And node, AnalysisContext context) {
-        Expression left = (Expression) node.getLeft().accept(this, context);
-        Expression right = (Expression) node.getRight().accept(this, context);
+        Expression left = node.getLeft().accept(this, context);
+        Expression right = node.getRight().accept(this, context);
 
         return dsl.and(context.peek(), left, right);
     }
@@ -81,9 +81,9 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     public Expression visitAggregateFunction(AggregateFunction node, AnalysisContext context) {
         Optional<BuiltinFunctionName> builtinFunctionName = BuiltinFunctionName.of(node.getFuncName());
         if (builtinFunctionName.isPresent()) {
-            Expression arg = (Expression) node.getField().accept(this, context);
+            Expression arg = node.getField().accept(this, context);
             return (Aggregator) repository.compile(builtinFunctionName.get().getName(),
-                    Arrays.asList(arg),
+                    Collections.singletonList(arg),
                     context.peek());
         } else {
             throw new SemanticCheckException("Unsupported aggregation function " + node.getFuncName());

@@ -18,9 +18,10 @@ package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
 import com.google.common.collect.ImmutableMap;
+import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.amazon.opendistroforelasticsearch.sql.utils.MatcherUtils.tuple;
@@ -30,10 +31,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class AggregationOperatorTest extends PhysicalPlanTestBase {
     @Test
-    public void avg_aggregation() {
+    public void avg_with_one_groups() {
         PhysicalPlan plan = new AggregationOperator(new TestScan(),
-                Arrays.asList(dsl.avg(typeEnv(), DSL.ref("response"))),
-                Arrays.asList(DSL.ref("action")));
+                Collections.singletonList(dsl.avg(typeEnv(), DSL.ref("response"))),
+                Collections.singletonList(DSL.ref("action")));
         List<BindingTuple> result = execute(plan);
         assertEquals(2, result.size());
         assertThat(result, containsInAnyOrder(
@@ -43,11 +44,25 @@ class AggregationOperatorTest extends PhysicalPlanTestBase {
     }
 
     @Test
+    public void avg_with_two_groups() {
+        PhysicalPlan plan = new AggregationOperator(new TestScan(),
+                Collections.singletonList(dsl.avg(typeEnv(), DSL.ref("response"))),
+                Arrays.asList(DSL.ref("action"), DSL.ref("ip")));
+        List<BindingTuple> result = execute(plan);
+        assertEquals(3, result.size());
+        assertThat(result, containsInAnyOrder(
+                tuple(ImmutableMap.of("action", "GET", "ip", "209.160.24.63", "avg(response)", 302d)),
+                tuple(ImmutableMap.of("action", "GET", "ip", "112.111.162.4", "avg(response)", 200d)),
+                tuple(ImmutableMap.of("action", "POST", "ip", "74.125.19.106", "avg(response)", 350d))
+        ));
+    }
+
+    @Test
     public void avg_aggregation_rename() {
         PhysicalPlan plan = new RenameOperator(
                 new AggregationOperator(new TestScan(),
-                        Arrays.asList(dsl.avg(typeEnv(), DSL.ref("response"))),
-                        Arrays.asList(DSL.ref("action"))),
+                        Collections.singletonList(dsl.avg(typeEnv(), DSL.ref("response"))),
+                        Collections.singletonList(DSL.ref("action"))),
                 ImmutableMap.of(DSL.ref("avg"), DSL.ref("avg(response)"))
         );
         List<BindingTuple> result = execute(plan);
@@ -55,6 +70,19 @@ class AggregationOperatorTest extends PhysicalPlanTestBase {
         assertThat(result, containsInAnyOrder(
                 tuple(ImmutableMap.of("action", "GET", "avg", 268d)),
                 tuple(ImmutableMap.of("action", "POST", "avg", 350d))
+        ));
+    }
+
+    @Test
+    public void sum_with_one_groups() {
+        PhysicalPlan plan = new AggregationOperator(new TestScan(),
+                Collections.singletonList(dsl.sum(typeEnv(), DSL.ref("response"))),
+                Collections.singletonList(DSL.ref("action")));
+        List<BindingTuple> result = execute(plan);
+        assertEquals(2, result.size());
+        assertThat(result, containsInAnyOrder(
+                tuple(ImmutableMap.of("action", "GET", "sum(response)", 804)),
+                tuple(ImmutableMap.of("action", "POST", "sum(response)", 700))
         ));
     }
 }

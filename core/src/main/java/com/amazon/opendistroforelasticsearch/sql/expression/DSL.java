@@ -85,4 +85,8 @@ public class DSL {
     public Aggregator avg(Environment<Expression, ExprType> env, Expression... expressions) {
         return (Aggregator) repository.compile(BuiltinFunctionName.AVG.getName(), Arrays.asList(expressions), env);
     }
+
+    public Aggregator sum(Environment<Expression, ExprType> env, Expression... expressions) {
+        return (Aggregator) repository.compile(BuiltinFunctionName.SUM.getName(), Arrays.asList(expressions), env);
+    }
 }

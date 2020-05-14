@@ -19,7 +19,6 @@ import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import lombok.experimental.UtilityClass;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +27,11 @@ import java.util.Map;
  */
 @UtilityClass
 public class LogicalPlanDSL {
+    public static LogicalPlan aggregation(LogicalPlan input, List<Aggregator> aggregatorList,
+                                          List<Expression> groupByList) {
+        return new LogicalAggregation(input, aggregatorList, groupByList);
+    }
+
     public static LogicalPlan filter(LogicalPlan input, Expression expression) {
         return new LogicalFilter(input, expression);
     }
@@ -38,10 +42,5 @@ public class LogicalPlanDSL {
 
     public static LogicalPlan rename(LogicalPlan input, Map<Expression, Expression> renameMap) {
         return new LogicalRename(input, renameMap);
-    }
-
-    public static LogicalPlan aggregation(LogicalPlan input, List<Aggregator> aggregatorList,
-                                          List<Expression> groupByList) {
-        return new LogicalAggregation(input, aggregatorList, groupByList);
     }
 }

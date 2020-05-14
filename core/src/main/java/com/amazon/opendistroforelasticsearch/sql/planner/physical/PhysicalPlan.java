@@ -29,7 +29,7 @@ public abstract class PhysicalPlan implements PlanNode<PhysicalPlan>,
         Iterator<BindingTuple>,
         AutoCloseable {
     /**
-     * Accept the visitor.
+     * Accept the {@link PhysicalPlanNodeVisitor}.
      *
      * @param visitor visitor.
      * @param context visitor context.

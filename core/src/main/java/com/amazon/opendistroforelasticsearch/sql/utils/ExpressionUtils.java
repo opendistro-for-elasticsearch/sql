@@ -21,9 +21,15 @@ import lombok.experimental.UtilityClass;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Utils for {@link Expression}.
+ */
 @UtilityClass
 public class ExpressionUtils {
 
+    /**
+     * Format the list of {@link Expression}
+     */
     public static String format(List<Expression> expressionList) {
         return expressionList.stream().map(Expression::toString).collect(Collectors.joining(","));
     }

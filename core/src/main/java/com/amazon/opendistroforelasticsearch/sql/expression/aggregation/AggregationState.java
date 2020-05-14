@@ -16,7 +16,14 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.aggregation;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
 
+/**
+ * Maintain the state when {@link Aggregator} iterate on the {@link BindingTuple}.
+ */
 public interface AggregationState {
+    /**
+     * Get {@link ExprValue} result.
+     */
     ExprValue result();
 }

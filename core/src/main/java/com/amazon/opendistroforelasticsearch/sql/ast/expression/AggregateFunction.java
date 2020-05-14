@@ -16,22 +16,17 @@
 package com.amazon.opendistroforelasticsearch.sql.ast.expression;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
-
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
 /**
  * Expression node of aggregate functions
  * Params include aggregate function name (AVG, SUM, MAX etc.) and the field to aggregate
  */
 @Getter
-@ToString
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
 public class AggregateFunction extends UnresolvedExpression {
@@ -47,7 +42,7 @@ public class AggregateFunction extends UnresolvedExpression {
 
     @Override
     public List<UnresolvedExpression> getChild() {
-        return Arrays.asList(field);
+        return Collections.singletonList(field);
     }
 
     @Override

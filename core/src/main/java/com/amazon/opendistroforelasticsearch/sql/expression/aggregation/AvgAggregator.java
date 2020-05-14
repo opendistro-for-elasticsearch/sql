@@ -29,7 +29,7 @@ import java.util.Locale;
 import static com.amazon.opendistroforelasticsearch.sql.utils.ExpressionUtils.format;
 
 /**
- * The Average aggregator aggregate the value evaluated by the expression.
+ * The average aggregator aggregate the value evaluated by the expression.
  * If the expression evaluated result is NULL or MISSING, then the result is NULL.
  */
 public class AvgAggregator extends Aggregator<AvgAggregator.AvgState> {
@@ -61,7 +61,10 @@ public class AvgAggregator extends Aggregator<AvgAggregator.AvgState> {
         return String.format(Locale.ROOT, "avg(%s)", format(getArguments()));
     }
 
-    public static class AvgState implements AggregationState {
+    /**
+     * Average State.
+     */
+    protected class AvgState implements AggregationState {
         private int count;
         private double total;
         private boolean isNullResult = false;

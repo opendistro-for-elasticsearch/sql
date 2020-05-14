@@ -39,7 +39,6 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.projectWi
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.rename;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.unresolvedAttr;
 import static org.junit.Assert.assertEquals;
 
 public class AstBuilderTest {
@@ -157,7 +156,6 @@ public class AstBuilderTest {
                         map(aggregate("count", field("a")), field("alias"))
                 )
         );
-
     }
 
     @Test

@@ -19,9 +19,18 @@ import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 
 import java.util.List;
 
+/**
+ * The definition of Function Implementation.
+ */
 public interface FunctionImplementation {
 
+    /**
+     * Get Function Name.
+     */
     FunctionName getFunctionName();
 
+    /**
+     * Get Function Arguments.
+     */
     List<Expression> getArguments();
 }

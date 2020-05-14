@@ -23,7 +23,7 @@ import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -46,7 +46,7 @@ public class RenameOperator extends PhysicalPlan {
 
     @Override
     public List<PhysicalPlan> getChild() {
-        return Arrays.asList(input);
+        return Collections.singletonList(input);
     }
 
     @Override

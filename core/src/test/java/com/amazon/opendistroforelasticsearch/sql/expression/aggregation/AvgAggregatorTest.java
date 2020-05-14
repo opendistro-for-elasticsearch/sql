@@ -28,13 +28,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class AvgAggregatorTest extends AggregationTest {
 
     @Test
-    public void avg_field_expresion() {
+    public void avg_field_expression() {
         ExprValue result = aggregation(dsl.avg(typeEnv,DSL.ref("integer_value")), tuples);
         assertEquals(2.5, result.value());
     }
 
     @Test
-    public void avg_arithmetic_expresion() {
+    public void avg_arithmetic_expression() {
         ExprValue result = aggregation(dsl.avg(typeEnv,
                 dsl.multiply(typeEnv, DSL.ref("integer_value"), DSL.literal(ExprValueUtils.integerValue(10)))), tuples);
         assertEquals(25.0, result.value());
