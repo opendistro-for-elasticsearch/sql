@@ -15,7 +15,7 @@
 
 buildscript {
     ext {
-        es_version = "7.6.1"
+        es_version = "7.7.0"
     }
     // This isn't applying from repositories.gradle so repeating it here
     repositories {
@@ -28,7 +28,7 @@ buildscript {
 }
 
 plugins {
-    id 'nebula.ospackage' version "8.1.0"
+    id 'nebula.ospackage' version "8.3.0"
     id 'java-library'
     id 'checkstyle'
     id "io.freefair.lombok" version "5.0.0-rc4"
@@ -40,23 +40,50 @@ repositories {
 }
 
 ext {
-    opendistroVersion = '1.7.0'
+    opendistroVersion = '1.8.0'
     isSnapshot = "true" == System.getProperty("build.snapshot", "true")
 }
 
-version = "${opendistroVersion}.0" 
+version = "${opendistroVersion}.0"
 
 apply plugin: 'elasticsearch.esplugin'
 apply plugin: 'elasticsearch.testclusters'
 apply plugin: 'jacoco'
-if (!System.properties.containsKey('tests.rest.cluster') && !System.properties.containsKey('tests.cluster')){
-    apply from: 'build-tools/sqlplugin-coverage.gradle'
-}
 apply plugin: 'antlr'
 
 jacoco {
-    toolVersion = "0.8.3"
+    toolVersion = "0.8.5"
 }
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        csv.enabled false
+    }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it,
+                    exclude: ['**/antlr/parser/**'])
+        }))
+    }
+}
+test.finalizedBy(project.tasks.jacocoTestReport)
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.5
+            }
+
+        }
+    }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it,
+                    exclude: ['**/antlr/parser/**'])
+        }))
+    }
+}
+check.dependsOn jacocoTestCoverageVerification
 
 ext {
     projectSubstitutions = [:]

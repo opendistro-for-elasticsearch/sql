@@ -1243,7 +1243,7 @@ public class QueryIT extends SQLIntegTestCase {
 
     @Test
     public void queryWithDotAtStartOfIndexName() throws Exception {
-        TestUtils.createIndexByRestClient(client(), ".bank", null);
+        TestUtils.createHiddenIndexByRestClient(client(), ".bank", null);
         TestUtils.loadDataByRestClient(client(), ".bank", "/src/test/resources/.bank.json");
 
         String response = executeQuery("SELECT education FROM .bank WHERE account_number = 12345",
