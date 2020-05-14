@@ -16,16 +16,25 @@
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
+import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import lombok.RequiredArgsConstructor;
+
+import java.util.Arrays;
+import java.util.Optional;
 
 /**
  * Analyze the {@link UnresolvedExpression} in the {@link AnalysisContext} to construct the {@link Expression}
@@ -33,6 +42,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, AnalysisContext> {
     private final DSL dsl;
+    private final BuiltinFunctionRepository repository;
 
     public Expression analyze(UnresolvedExpression unresolved, AnalysisContext context) {
         return unresolved.accept(this, context);
@@ -48,8 +58,8 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
 
     @Override
     public Expression visitEqualTo(EqualTo node, AnalysisContext context) {
-        Expression left = node.getLeft().accept(this, context);
-        Expression right = node.getRight().accept(this, context);
+        Expression left = (Expression) node.getLeft().accept(this, context);
+        Expression right = (Expression) node.getRight().accept(this, context);
 
         return dsl.equal(context.peek(), left, right);
     }
@@ -61,9 +71,31 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
 
     @Override
     public Expression visitAnd(And node, AnalysisContext context) {
-        Expression left = node.getLeft().accept(this, context);
-        Expression right = node.getRight().accept(this, context);
+        Expression left = (Expression) node.getLeft().accept(this, context);
+        Expression right = (Expression) node.getRight().accept(this, context);
 
         return dsl.and(context.peek(), left, right);
+    }
+
+    @Override
+    public Expression visitAggregateFunction(AggregateFunction node, AnalysisContext context) {
+        Optional<BuiltinFunctionName> builtinFunctionName = BuiltinFunctionName.of(node.getFuncName());
+        if (builtinFunctionName.isPresent()) {
+            Expression arg = (Expression) node.getField().accept(this, context);
+            return (Aggregator) repository.compile(builtinFunctionName.get().getName(),
+                    Arrays.asList(arg),
+                    context.peek());
+        } else {
+            throw new SemanticCheckException("Unsupported aggregation function " + node.getFuncName());
+        }
+    }
+
+    @Override
+    public Expression visitField(Field node, AnalysisContext context) {
+        String attr = node.getField().toString();
+        TypeEnvironment typeEnv = context.peek();
+        ReferenceExpression ref = DSL.ref(attr);
+        typeEnv.resolve(ref);
+        return ref;
     }
 }

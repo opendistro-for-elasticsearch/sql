@@ -17,31 +17,36 @@ package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.storage.BindingTuple;
+import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
+import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
+import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
+/**
+ * Rename the binding name in {@link BindingTuple}.
+ * The mapping maintain the relation between target and source.
+ * it means BindingTuple.resolve(target) = BindingTuple.resolve(source).
+ */
+@EqualsAndHashCode
+@ToString
 @RequiredArgsConstructor
-public class SelectOperator extends PhysicalPlan {
+public class RenameOperator extends PhysicalPlan {
     private final PhysicalPlan input;
-    private final List<Expression> selectList;
-    private BindingTuple next = null;
+    private final Map<Expression, Expression> mapping;
 
     @Override
     public <R, C> R accept(PhysicalPlanNodeVisitor<R, C> visitor, C context) {
-        return null;
+        return visitor.visitRename(this, context);
     }
 
     @Override
     public List<PhysicalPlan> getChild() {
         return Arrays.asList(input);
-    }
-
-    @Override
-    public void close() throws Exception {
-
     }
 
     @Override
@@ -51,12 +56,12 @@ public class SelectOperator extends PhysicalPlan {
 
     @Override
     public BindingTuple next() {
-        BindingTuple next = input.next();
-        BindingTuple.BindingTupleBuilder builder = BindingTuple.builder();
-        for (Expression select : selectList) {
-            ExprValue exprValue = select.valueOf(next);
-            builder.binding(select.toString(), exprValue);
-        }
-        return builder.build();
+        BindingTuple bindingTuple = input.next();
+        return new BindingTuple() {
+            @Override
+            public ExprValue resolve(ReferenceExpression ref) {
+                return bindingTuple.resolve(mapping.getOrDefault(ref, ref));
+            }
+        };
     }
 }

@@ -13,35 +13,27 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.planner.logical;
+package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import lombok.experimental.UtilityClass;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Logical Plan DSL.
- */
 @UtilityClass
-public class LogicalPlanDSL {
-    public static LogicalPlan filter(LogicalPlan input, Expression expression) {
-        return new LogicalFilter(input, expression);
+public class PhysicalPlanDSL {
+
+    public static AggregationOperator agg(PhysicalPlan input, List<Aggregator> aggregators, List<Expression> groups) {
+        return new AggregationOperator(input, aggregators, groups);
     }
 
-    public static LogicalPlan relation(String tableName) {
-        return new LogicalRelation(tableName);
+    public static FilterOperator filter(PhysicalPlan input, Expression condition) {
+        return new FilterOperator(input, condition);
     }
 
-    public static LogicalPlan rename(LogicalPlan input, Map<Expression, Expression> renameMap) {
-        return new LogicalRename(input, renameMap);
-    }
-
-    public static LogicalPlan aggregation(LogicalPlan input, List<Aggregator> aggregatorList,
-                                          List<Expression> groupByList) {
-        return new LogicalAggregation(input, aggregatorList, groupByList);
+    public static RenameOperator rename(PhysicalPlan input, Map<Expression, Expression> renameMap) {
+        return new RenameOperator(input, renameMap);
     }
 }

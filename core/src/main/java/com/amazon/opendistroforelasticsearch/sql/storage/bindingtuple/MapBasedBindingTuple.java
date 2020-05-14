@@ -13,15 +13,11 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.storage;
+package com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprMissingValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
-import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
-import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
-import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -32,36 +28,22 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * BindingTuple represents the a relationship between bindingName and ExprValue.
- * e.g. The operation output column name is bindingName, the value is the ExprValue.
+ * The {@link BindingTuple} backed with Map.
  */
 @Builder
 @Getter
 @EqualsAndHashCode
 @RequiredArgsConstructor
-public class BindingTuple implements Environment<Expression, ExprValue> {
+public class MapBasedBindingTuple extends BindingTuple {
     @Singular("binding")
     private final Map<String, ExprValue> bindingMap;
 
     /**
-     * Resolve the Binding Name in BindingTuple context.
-     *
-     * @param bindingName binding name.
-     * @return binding value.
+     * Resolve the {@link ReferenceExpression} in BindingTuple context.
      */
-    public ExprValue resolve(String bindingName) {
-        return bindingMap.getOrDefault(bindingName, ExprMissingValue.of());
+    public ExprValue resolve(ReferenceExpression ref) {
+        return bindingMap.getOrDefault(ref.getAttr(), ExprMissingValue.of());
     }
-
-    @Override
-    public ExprValue resolve(Expression var) {
-        if(var instanceof ReferenceExpression) {
-            return resolve(((ReferenceExpression) var).getAttr());
-        } else {
-            throw new ExpressionEvaluationException("can't resolve expression");
-        }
-    }
-
 
     @Override
     public String toString() {
@@ -69,11 +51,5 @@ public class BindingTuple implements Environment<Expression, ExprValue> {
                 .stream()
                 .map(entry -> String.format("%s:%s", entry.getKey(), entry.getValue()))
                 .collect(Collectors.joining(",", "<", ">"));
-    }
-
-    public static BindingTuple from(Map<String, Object> map) {
-        BindingTupleBuilder bindingTupleBuilder = BindingTuple.builder();
-        map.forEach((key, value) -> bindingTupleBuilder.binding(key, ExprValueUtils.fromObjectValue(value)));
-        return bindingTupleBuilder.build();
     }
 }

@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -25,15 +26,17 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Logical Filter represent the filter relation.
+ * Logical Aggregation.
  */
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor
-public class LogicalFilter extends LogicalPlan {
+public class LogicalAggregation extends LogicalPlan {
     private final LogicalPlan child;
     @Getter
-    private final Expression condition;
+    private final List<Aggregator> aggregatorList;
+    @Getter
+    private final List<Expression> groupByList;
 
     @Override
     public List<LogicalPlan> getChild() {
@@ -42,6 +45,6 @@ public class LogicalFilter extends LogicalPlan {
 
     @Override
     public <R, C> R accept(LogicalPlanNodeVisitor<R, C> visitor, C context) {
-        return visitor.visitFilter(this, context);
+        return visitor.visitAggregation(this, context);
     }
 }

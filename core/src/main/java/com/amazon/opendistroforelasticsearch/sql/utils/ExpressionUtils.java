@@ -13,7 +13,18 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.planner;
+package com.amazon.opendistroforelasticsearch.sql.utils;
 
-public interface PlanNodeVisitor<R, C> {
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import lombok.experimental.UtilityClass;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@UtilityClass
+public class ExpressionUtils {
+
+    public static String format(List<Expression> expressionList) {
+        return expressionList.stream().map(Expression::toString).collect(Collectors.joining(","));
+    }
 }

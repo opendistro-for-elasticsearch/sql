@@ -54,7 +54,7 @@ statsCommand
     (PARTITIONS EQUAL partitions=integerLiteral)?
     (ALLNUM EQUAL allnum=booleanLiteral)?
     (DELIM EQUAL delim=stringLiteral)?
-    statsAggTerm (AS alias=wcFieldExpression)?
+    statsAggTerm (COMMA statsAggTerm)*
     (byClause)?
     (DEDUP_SPLITVALUES EQUAL dedupsplit=booleanLiteral)?
     ;
@@ -93,7 +93,7 @@ sortbyClause
 
 /** aggregation terms */
 statsAggTerm
-    : statsFunction
+    : statsFunction (AS alias=wcFieldExpression)?
     ;
 
 sparklineAggTerm

@@ -15,19 +15,20 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
-import com.amazon.opendistroforelasticsearch.sql.planner.AbstractPlanNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.planner.PlanNode;
-import com.amazon.opendistroforelasticsearch.sql.planner.PlanNodeVisitor;
 
 /**
  * The abstract base class for all the Logical Plan node.
  */
 public abstract class LogicalPlan implements PlanNode<LogicalPlan> {
-
-    @Override
-    public <R, C> R accept(PlanNodeVisitor<R, C> visitor, C context) {
-        return accept((AbstractPlanNodeVisitor<R, C>) visitor, context);
-    }
-
-    public abstract <R, C> R accept(AbstractPlanNodeVisitor<R, C> visitor, C context);
+    /**
+     * Accept the visitor.
+     *
+     * @param visitor visitor.
+     * @param context visitor context.
+     * @param <R>     returned object type.
+     * @param <C>     context type.
+     * @return returned object.
+     */
+    public abstract <R, C> R accept(LogicalPlanNodeVisitor<R, C> visitor, C context);
 }

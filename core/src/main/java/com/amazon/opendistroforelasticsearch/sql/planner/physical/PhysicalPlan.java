@@ -18,8 +18,7 @@
 package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
 import com.amazon.opendistroforelasticsearch.sql.planner.PlanNode;
-import com.amazon.opendistroforelasticsearch.sql.planner.PlanNodeVisitor;
-import com.amazon.opendistroforelasticsearch.sql.storage.BindingTuple;
+import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
 
 import java.util.Iterator;
 
@@ -29,15 +28,22 @@ import java.util.Iterator;
 public abstract class PhysicalPlan implements PlanNode<PhysicalPlan>,
         Iterator<BindingTuple>,
         AutoCloseable {
-
-    @Override
-    public final <R, C> R accept(PlanNodeVisitor<R, C> visitor, C context) {
-        return accept(((PhysicalPlanNodeVisitor<R, C>) visitor), context);
-    }
-
+    /**
+     * Accept the visitor.
+     *
+     * @param visitor visitor.
+     * @param context visitor context.
+     * @param <R>     returned object type.
+     * @param <C>     context type.
+     * @return returned object.
+     */
     public abstract <R, C> R accept(PhysicalPlanNodeVisitor<R, C> visitor, C context);
 
     public void open() {
+        getChild().forEach(PhysicalPlan::open);
+    }
 
+    public void close() {
+        getChild().forEach(PhysicalPlan::open);
     }
 }

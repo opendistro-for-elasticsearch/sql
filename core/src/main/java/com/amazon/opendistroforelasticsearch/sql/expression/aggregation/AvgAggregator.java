@@ -16,45 +16,64 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.aggregation;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprNullValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionImplementation;
-import com.amazon.opendistroforelasticsearch.sql.storage.BindingTuple;
-import lombok.RequiredArgsConstructor;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
+import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
 
 import java.util.List;
+import java.util.Locale;
+
+import static com.amazon.opendistroforelasticsearch.sql.utils.ExpressionUtils.format;
 
 /**
- * Average Aggregator
+ * The Average aggregator aggregate the value evaluated by the expression.
+ * If the expression evaluated result is NULL or MISSING, then the result is NULL.
  */
-@RequiredArgsConstructor
-public class AvgAggregator implements Aggregator {
-    private final List<Expression> expressionList;
-    private int count;
-    private double total;
-    private boolean isNullResult = false;
+public class AvgAggregator extends Aggregator<AvgAggregator.AvgState> {
 
-    @Override
-    public void open() {
-        count = 0;
-        total = 0d;
+    public AvgAggregator(List<Expression> arguments, ExprType returnType) {
+        super(BuiltinFunctionName.AVG.getName(), arguments, returnType);
     }
 
     @Override
-    public void iterate(BindingTuple tuple) {
-        Expression expression = expressionList.get(0);
+    public AvgState create() {
+        return new AvgState();
+    }
+
+    @Override
+    public AvgState iterate(BindingTuple tuple, AvgState state) {
+        Expression expression = getArguments().get(0);
         ExprValue value = expression.valueOf(tuple);
         if (value.isNull() || value.isMissing()) {
-            isNullResult = true;
+            state.isNullResult = true;
         } else {
-            count++;
-            total += ExprValueUtils.getDoubleValue(value);
+            state.count++;
+            state.total += ExprValueUtils.getDoubleValue(value);
         }
+        return state;
     }
 
     @Override
-    public ExprValue result() {
-        return isNullResult ? ExprNullValue.of() : ExprValueUtils.doubleValue(total / count);
+    public String toString() {
+        return String.format(Locale.ROOT, "avg(%s)", format(getArguments()));
+    }
+
+    public static class AvgState implements AggregationState {
+        private int count;
+        private double total;
+        private boolean isNullResult = false;
+
+        public AvgState() {
+            this.count = 0;
+            this.total = 0d;
+        }
+
+        @Override
+        public ExprValue result() {
+            return isNullResult ? ExprNullValue.of() : ExprValueUtils.doubleValue(total / count);
+        }
     }
 }

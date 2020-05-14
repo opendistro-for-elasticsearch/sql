@@ -13,19 +13,10 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.planner;
+package com.amazon.opendistroforelasticsearch.sql.expression.aggregation;
 
-import java.util.List;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 
-/**
- * The definition of Plan Node
- */
-public interface PlanNode<T extends PlanNode> {
-
-    /**
-     * Return the child nodes.
-     *
-     * @return child nodes.
-     */
-    List<T> getChild();
+public interface AggregationState {
+    ExprValue result();
 }

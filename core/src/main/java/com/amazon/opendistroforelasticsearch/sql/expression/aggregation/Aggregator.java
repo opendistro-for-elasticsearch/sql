@@ -15,26 +15,51 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.aggregation;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionImplementation;
-import com.amazon.opendistroforelasticsearch.sql.storage.BindingTuple;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
+import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 /**
  * Aggregator which will iterate on the {@link BindingTuple}s to aggregate the result.
  */
-public interface Aggregator extends FunctionImplementation {
+@EqualsAndHashCode
+@RequiredArgsConstructor
+public abstract class Aggregator<S extends AggregationState> implements FunctionImplementation, Expression {
+    @Getter
+    private final FunctionName functionName;
+
+    @Getter
+    private final List<Expression> arguments;
+
+    private final ExprType returnType;
+
     /**
-     * Open the {@link Aggregator}.
+     * Create an {@link AggregationState} which will be used for aggregation
      */
-    void open();
+    public abstract S create();
 
     /**
      * Iterate on the {@link BindingTuple}.
      */
-    void iterate(BindingTuple tuple);
+    public abstract S iterate(BindingTuple tuple, S state);
 
-    /**
-     * Retrive the result from {@link Aggregator}.
-     */
-    ExprValue result();
+    @Override
+    public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
+        throw new ExpressionEvaluationException(String.format("can't evaluate on aggregator: %s", functionName));
+    }
+
+    @Override
+    public ExprType type(Environment<Expression, ExprType> typeEnv) {
+        return returnType;
+    }
 }

@@ -22,7 +22,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
-import com.amazon.opendistroforelasticsearch.sql.storage.BindingTuple;
+import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,7 +43,7 @@ public class PhysicalPlanTestBase {
     @Autowired
     protected DSL dsl;
 
-    private final List<BindingTuple> inputs = new ImmutableList.Builder<BindingTuple>()
+    private static final List<BindingTuple> inputs = new ImmutableList.Builder<BindingTuple>()
             .add(BindingTuple.from(ImmutableMap.of("ip", "209.160.24.63", "action", "GET", "response", 200, "referer", "www.amazon.com")))
             .add(BindingTuple.from(ImmutableMap.of("ip", "209.160.24.63", "action", "GET", "response", 404, "referer", "www.amazon.com")))
             .add(BindingTuple.from(ImmutableMap.of("ip", "112.111.162.4", "action", "GET", "response", 200, "referer", "www.amazon.com")))
@@ -77,10 +77,11 @@ public class PhysicalPlanTestBase {
         while (plan.hasNext()) {
             builder.add(plan.next());
         }
+        plan.close();
         return builder.build();
     }
 
-    protected class TestScan extends PhysicalPlan {
+    protected static class TestScan extends PhysicalPlan {
         private final Iterator<BindingTuple> iterator;
 
         public TestScan() {
@@ -94,12 +95,7 @@ public class PhysicalPlanTestBase {
 
         @Override
         public List<PhysicalPlan> getChild() {
-            return null;
-        }
-
-        @Override
-        public void close() throws Exception {
-
+            return ImmutableList.of();
         }
 
         @Override

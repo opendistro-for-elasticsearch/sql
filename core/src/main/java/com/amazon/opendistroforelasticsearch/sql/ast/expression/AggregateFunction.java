@@ -16,9 +16,11 @@
 package com.amazon.opendistroforelasticsearch.sql.ast.expression;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -51,5 +53,10 @@ public class AggregateFunction extends UnresolvedExpression {
     @Override
     public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
         return nodeVisitor.visitAggregateFunction(this, context);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s(%s)", funcName, field);
     }
 }

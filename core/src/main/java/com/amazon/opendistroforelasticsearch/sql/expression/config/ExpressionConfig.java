@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.config;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AggregatorFunction;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.scalar.arthmetic.ArithmeticFunction;
 import com.amazon.opendistroforelasticsearch.sql.expression.scalar.predicate.BinaryPredicateFunction;
@@ -36,6 +37,7 @@ public class ExpressionConfig {
         ArithmeticFunction.register(builtinFunctionRepository);
         BinaryPredicateFunction.register(builtinFunctionRepository);
         UnaryPredicateFunction.register(builtinFunctionRepository);
+        AggregatorFunction.register(builtinFunctionRepository);
         return builtinFunctionRepository;
     }
 

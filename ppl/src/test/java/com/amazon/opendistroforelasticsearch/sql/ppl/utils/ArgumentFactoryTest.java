@@ -53,7 +53,7 @@ public class ArgumentFactoryTest extends AstBuilderTest {
         assertEqual("source=t | stats partitions=1 allnum=false delim=',' avg(a) dedup_splitvalues=true",
                 agg(
                         relation("t"),
-                        exprList(map(aggregate("avg", field("a")), null)),
+                        exprList(aggregate("avg", field("a"))),
                         null,
                         null,
                         exprList(

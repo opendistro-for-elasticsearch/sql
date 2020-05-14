@@ -17,21 +17,38 @@ package com.amazon.opendistroforelasticsearch.sql.expression.aggregation;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionBuilder;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature;
 import com.google.common.collect.ImmutableMap;
+import lombok.experimental.UtilityClass;
 
 import java.util.Arrays;
 
+/**
+ * The definition of aggregator function
+ * avg, Accepts two numbers and produces a number.
+ * count, Accepts two numbers and produces a number.
+ * sum, Accepts two numbers and produces a number.
+ * max, Accepts two numbers and produces a number.
+ * min, Accepts two numbers and produces a number.
+ */
+@UtilityClass
 public class AggregatorFunction {
 
+    public static void register(BuiltinFunctionRepository repository) {
+        repository.register(avg());
+    }
+
     private static FunctionResolver avg() {
+        FunctionName functionName = BuiltinFunctionName.AVG.getName();
         return new FunctionResolver(
-                BuiltinFunctionName.AVG.getName(),
+                functionName,
                 new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
-                        .put(new FunctionSignature(BuiltinFunctionName.AVG.getName(), Arrays.asList(ExprType.DOUBLE)),
-                                arguments -> new AvgAggregator(arguments))
+                        .put(new FunctionSignature(functionName, Arrays.asList(ExprType.DOUBLE)),
+                                arguments -> new AvgAggregator(arguments, ExprType.DOUBLE))
                         .build()
         );
     }

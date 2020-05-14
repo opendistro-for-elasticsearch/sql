@@ -23,17 +23,19 @@ import lombok.ToString;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
- * Logical Filter represent the filter relation.
+ * Rename Operator.
+ * renameList is list of mapping of target and source.
  */
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor
-public class LogicalFilter extends LogicalPlan {
+public class LogicalRename extends LogicalPlan {
     private final LogicalPlan child;
     @Getter
-    private final Expression condition;
+    private final Map<Expression, Expression> renameMap;
 
     @Override
     public List<LogicalPlan> getChild() {
@@ -42,6 +44,6 @@ public class LogicalFilter extends LogicalPlan {
 
     @Override
     public <R, C> R accept(LogicalPlanNodeVisitor<R, C> visitor, C context) {
-        return visitor.visitFilter(this, context);
+        return visitor.visitRename(this, context);
     }
 }

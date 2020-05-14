@@ -13,20 +13,15 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.planner;
-
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
+package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
 /**
- * Abstract {@link PlanNode} Visitor.
+ * The visitor of {@link LogicalPlan}.
  *
  * @param <R> return object type.
  * @param <C> context type.
  */
-public abstract class AbstractPlanNodeVisitor<R, C> implements PlanNodeVisitor<R, C> {
-
+public abstract class LogicalPlanNodeVisitor<R, C> {
     protected R visitNode(LogicalPlan plan, C context) {
         return null;
     }
@@ -36,6 +31,14 @@ public abstract class AbstractPlanNodeVisitor<R, C> implements PlanNodeVisitor<R
     }
 
     public R visitFilter(LogicalFilter plan, C context) {
+        return visitNode(plan, context);
+    }
+
+    public R visitAggregation(LogicalAggregation plan, C context) {
+        return visitNode(plan, context);
+    }
+
+    public R visitRename(LogicalRename plan, C context) {
         return visitNode(plan, context);
     }
 }
