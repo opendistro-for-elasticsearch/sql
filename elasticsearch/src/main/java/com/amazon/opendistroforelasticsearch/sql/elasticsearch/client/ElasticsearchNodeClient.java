@@ -20,8 +20,6 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapp
 import com.carrotsearch.hppc.cursors.ObjectObjectCursor;
 import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.cluster.ClusterState;
@@ -29,8 +27,9 @@ import org.elasticsearch.cluster.metadata.IndexNameExpressionResolver;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.cluster.service.ClusterService;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
-import org.elasticsearch.index.IndexNotFoundException;
 
+import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -41,13 +40,11 @@ import java.util.function.Predicate;
 @RequiredArgsConstructor
 public class ElasticsearchNodeClient implements ElasticsearchClient {
 
-    private static final Logger LOG = LogManager.getLogger();
-
     /**
      * Default types and field filter to match all
      */
-    private static final String[] ALL_TYPES = new String[0];
-    private static final Function<String, Predicate<String>> ALL_FIELDS = (anyIndex -> (anyField -> true));
+    public static final String[] ALL_TYPES = new String[0];
+    public static final Function<String, Predicate<String>> ALL_FIELDS = (anyIndex -> (anyField -> true));
 
     /**
      * Current cluster state on local node
@@ -65,15 +62,10 @@ public class ElasticsearchNodeClient implements ElasticsearchClient {
     private final NodeClient client;
 
     /**
-     * Get field mappings by index expressions, type and field filter. Because IndexMetaData/MappingMetaData
-     * is hard to convert to FieldMappingMetaData, custom mapping domain objects are being used here. In future,
-     * it should be moved to domain model layer for all ES specific knowledge.
-     * <p>
-     * Note that cluster state may be change inside ES so it's possible to read different state in 2 accesses
-     * to ClusterService.state() here.
+     * Get field mappings of index by an index expression. Majority is copied from legacy LocalClusterState.
      *
      * For simplicity, removed type (deprecated) and field filter in argument list.
-     * Also removed mapping cache, cluster state listener (mainly for debugging).
+     * Also removed mapping cache, cluster state listener (mainly for performance and debugging).
      *
      * @param indexExpression     index name expression
      * @return index mapping(s)
@@ -83,11 +75,9 @@ public class ElasticsearchNodeClient implements ElasticsearchClient {
         try {
             ClusterState state = clusterService.state();
             String[] concreteIndices = resolveIndexExpression(state, new String[]{ indexExpression });
-            return populateIndexMappings(state.metaData().findMappings(concreteIndices, ALL_TYPES, ALL_FIELDS));
 
-        } catch (IndexNotFoundException e) {
-            throw e;
-        } catch (Exception e) {
+            return populateIndexMappings(state.metaData().findMappings(concreteIndices, ALL_TYPES, ALL_FIELDS));
+        } catch (IOException e) {
             throw new IllegalStateException(
                 "Failed to read mapping in cluster state for index pattern [" + indexExpression + "]", e);
         }
@@ -109,7 +99,7 @@ public class ElasticsearchNodeClient implements ElasticsearchClient {
 
     private IndexMapping populateIndexMapping(ImmutableOpenMap<String, MappingMetaData> indexMapping) {
         if (indexMapping.isEmpty()) {
-            throw new IllegalStateException("Index mapping is empty.");
+            return new IndexMapping(Collections.emptyMap());
         }
         return new IndexMapping(indexMapping.iterator().next().value);
     }

@@ -16,7 +16,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.google.common.collect.ImmutableMap;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 
@@ -24,6 +23,8 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static java.util.Collections.emptyMap;
 
 /**
  * Elasticsearch index mapping
@@ -36,13 +37,11 @@ public class IndexMapping {
         this.fieldMappings = fieldMappings;
     }
 
-    @SuppressWarnings("unchecked")
     public IndexMapping(MappingMetaData metaData) {
         ImmutableMap.Builder<String, String> builder = new ImmutableMap.Builder<>();
         Map<String, Object> indexMapping = metaData.getSourceAsMap();
-        if (indexMapping.containsKey("properties")) {
-            flatMappings(((Map<String, Object>) indexMapping.get("properties")), "", builder::put);
-        }
+
+        flatMappings(indexMapping, builder::put);
         this.fieldMappings = builder.build();
     }
 
@@ -55,19 +54,19 @@ public class IndexMapping {
     }
 
     /**
-     * Return field type.
-     * @param fieldName
-     * @return
+     * Return field type by its name.
+     * @param fieldName     field name
+     * @return              field type in string
      */
     public String getFieldType(String fieldName) {
         return fieldMappings.get(fieldName);
     }
 
     /**
-     * Get all field types and transform raw type to expected type.
-     * @param transform
-     * @param <Type>
-     * @return
+     * Get all field types and transform raw string type to expected type.
+     * @param transform     transform function to transform field type in string to another type
+     * @param <Type>        expected field type class
+     * @return              mapping from field name to field type
      */
     public <Type> Map<String, Type> getAllFieldTypes(Function<String, Type> transform) {
         return fieldMappings.entrySet().
@@ -76,6 +75,15 @@ public class IndexMapping {
                                  Map.Entry::getKey,
                                  e -> transform.apply(e.getValue())
                              ));
+    }
+
+    @SuppressWarnings("unchecked")
+    private void flatMappings(Map<String, Object> indexMapping, BiConsumer<String, String> func) {
+        flatMappings(
+            ((Map<String, Object>) indexMapping.getOrDefault("properties", emptyMap())),
+            "",
+            func
+        );
     }
 
     @SuppressWarnings("unchecked")

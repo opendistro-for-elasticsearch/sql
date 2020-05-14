@@ -32,12 +32,15 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ElasticsearchIndex implements Table {
 
+    // TODO: date, geo, ip, array of primitive
     private final static Map<String, ExprType> ES_TYPE_TO_EXPR_TYPE_MAPPING =
         ImmutableMap.<String, ExprType>builder().put("text", ExprType.STRING).
                                                  put("keyword", ExprType.STRING).
                                                  put("integer", ExprType.INTEGER).
                                                  put("float", ExprType.FLOAT).
                                                  put("boolean", ExprType.BOOLEAN).
+                                                 put("nested", ExprType.ARRAY).
+                                                 put("object", ExprType.STRUCT).
                                                  build();
 
     private final ElasticsearchClient client;

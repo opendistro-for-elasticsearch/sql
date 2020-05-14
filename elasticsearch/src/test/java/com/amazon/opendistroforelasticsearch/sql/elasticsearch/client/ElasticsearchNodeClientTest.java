@@ -31,7 +31,6 @@ import org.elasticsearch.common.xcontent.DeprecationHandler;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;
 import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.common.xcontent.XContentType;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -43,6 +42,8 @@ import java.net.URL;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -52,27 +53,20 @@ class ElasticsearchNodeClientTest {
 
     private static final String TEST_MAPPING_FILE = "mappings/accounts.json";
 
-    private ElasticsearchNodeClient client;
-
     @Mock
     private NodeClient esClient;
 
-    @BeforeEach
-    public void setUp() throws IOException {
+    @Test
+    public void testGetIndexMappings() throws IOException {
         URL url = Resources.getResource(TEST_MAPPING_FILE);
         String mappings = Resources.toString(url, Charsets.UTF_8);
-        ClusterService clusterService = mockClusterService(mappings);
-        IndexNameExpressionResolver resolver = mockIndexNameExpressionResolver();
-        client = new ElasticsearchNodeClient(clusterService, resolver, esClient);
-    }
+        String indexName = "test";
+        ElasticsearchNodeClient client = mockClient(indexName, mappings);
 
-    @Test
-    public void testGetIndexMappings() {
-        Map<String, IndexMapping> indexMappings = client.getIndexMappings("test");
-
+        Map<String, IndexMapping> indexMappings = client.getIndexMappings(indexName);
         assertEquals(1, indexMappings.size());
-        IndexMapping indexMapping = indexMappings.values().iterator().next();
 
+        IndexMapping indexMapping = indexMappings.values().iterator().next();
         assertEquals(20, indexMapping.size());
         assertEquals("text", indexMapping.getFieldType("address"));
         assertEquals("integer", indexMapping.getFieldType("age"));
@@ -96,7 +90,39 @@ class ElasticsearchNodeClientTest {
         assertEquals("long", indexMapping.getFieldType("manager.salary"));
     }
 
-    public ClusterService mockClusterService(String mappings) {
+    @Test
+    public void testGetIndexMappingsWithEmptyMapping() {
+        String indexName = "test";
+        ElasticsearchNodeClient client = mockClient(indexName, "");
+        Map<String, IndexMapping> indexMappings = client.getIndexMappings(indexName);
+        assertEquals(1, indexMappings.size());
+
+        IndexMapping indexMapping = indexMappings.values().iterator().next();
+        assertEquals(0, indexMapping.size());
+    }
+
+    @Test
+    public void testGetIndexMappingsWithIOException() {
+        ClusterService clusterService = mockClusterService(new IOException());
+        IndexNameExpressionResolver resolver = mockIndexNameExpressionResolver();
+        ElasticsearchNodeClient client = new ElasticsearchNodeClient(clusterService, resolver, esClient);
+
+        assertThrows(IllegalStateException.class, () -> client.getIndexMappings("non_exist_index"));
+    }
+
+    /** Jacoco enforce this constant lambda be tested */
+    @Test
+    public void testAllFieldsPredicate() {
+        assertTrue(ElasticsearchNodeClient.ALL_FIELDS.apply("any_index").test("any_field"));
+    }
+
+    private ElasticsearchNodeClient mockClient(String indexName, String mappings) {
+        ClusterService clusterService = mockClusterService(indexName, mappings);
+        IndexNameExpressionResolver resolver = mockIndexNameExpressionResolver();
+        return new ElasticsearchNodeClient(clusterService, resolver, esClient);
+    }
+
+    public ClusterService mockClusterService(String indexName, String mappings) {
         ClusterService mockService = mock(ClusterService.class);
         ClusterState mockState = mock(ClusterState.class);
         MetaData mockMetaData = mock(MetaData.class);
@@ -105,8 +131,30 @@ class ElasticsearchNodeClientTest {
         when(mockState.metaData()).thenReturn(mockMetaData);
         try {
             ImmutableOpenMap.Builder<String, ImmutableOpenMap<String, MappingMetaData>> builder = ImmutableOpenMap.builder();
-            builder.put("test", IndexMetaData.fromXContent(createParser(mappings)).getMappings());
+            ImmutableOpenMap<String, MappingMetaData> metadata;
+            if (mappings.isEmpty()) {
+                metadata = ImmutableOpenMap.of();
+            } else {
+                metadata = IndexMetaData.fromXContent(createParser(mappings)).getMappings();
+            }
+            builder.put(indexName, metadata);
             when(mockMetaData.findMappings(any(), any(), any())).thenReturn(builder.build());
+        }
+        catch (IOException e) {
+            throw new IllegalStateException("Failed to mock cluster service", e);
+        }
+        return mockService;
+    }
+
+    public ClusterService mockClusterService(Throwable t) {
+        ClusterService mockService = mock(ClusterService.class);
+        ClusterState mockState = mock(ClusterState.class);
+        MetaData mockMetaData = mock(MetaData.class);
+
+        when(mockService.state()).thenReturn(mockState);
+        when(mockState.metaData()).thenReturn(mockMetaData);
+        try {
+            when(mockMetaData.findMappings(any(), any(), any())).thenThrow(t);
         }
         catch (IOException e) {
             throw new IllegalStateException("Failed to mock cluster service", e);

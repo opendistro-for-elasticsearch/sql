@@ -19,6 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
+import com.amazon.opendistroforelasticsearch.sql.storage.Table;
 import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,7 +56,7 @@ class ElasticsearchIndexTest {
 
     @Test
     public void testGetFieldTypes() {
-        ElasticsearchIndex index = new ElasticsearchIndex(client, "test");
+        Table index = new ElasticsearchIndex(client, "test");
         Map<String, ExprType> fieldTypes = index.getFieldTypes();
         assertThat(
             fieldTypes,
