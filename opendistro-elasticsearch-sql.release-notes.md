@@ -1,4 +1,10 @@
-## 2020-05-04 Version 1.7.0.0 (Current)
+## 2020-05-14 Version 1.8.0.0 (Current)
+
+### Features
+#### Elasticsearch Compatibility
+* Feature [#467](https://github.com/opendistro-for-elasticsearch/sql/issues/467): Elasticsearch 7.7.0 compatibility
+
+## 2020-05-04 Version 1.7.0.0
 
 #### Breaking Changes
 * Change [#414](https://github.com/opendistro-for-elasticsearch/sql/pull/414): Invalidate HTTP GET method.
