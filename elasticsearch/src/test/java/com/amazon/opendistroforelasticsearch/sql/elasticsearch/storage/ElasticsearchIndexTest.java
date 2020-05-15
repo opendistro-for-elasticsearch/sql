@@ -45,12 +45,20 @@ class ElasticsearchIndexTest {
     public void setUp() {
         when(client.getIndexMappings("test")).thenReturn(
             ImmutableMap.of("test", new IndexMapping(
-                ImmutableMap.of(
-                    "name", "keyword",
-                    "address", "text",
-                    "age", "integer"
+                ImmutableMap.<String, String>builder().
+                    put("name", "keyword").
+                    put("address", "text").
+                    put("age", "integer").
+                    put("account_number", "long").
+                    put("balance1", "float").
+                    put("balance2", "double").
+                    put("gender", "boolean").
+                    put("family", "nested").
+                    put("employer", "object").
+                    put("birthday", "date").
+                    build()
                 )
-            ))
+            )
         );
     }
 
@@ -61,10 +69,17 @@ class ElasticsearchIndexTest {
         assertThat(
             fieldTypes,
             allOf(
-                aMapWithSize(3),
+                aMapWithSize(10),
                 hasEntry("name", ExprType.STRING),
                 hasEntry("address", ExprType.STRING),
-                hasEntry("age", ExprType.INTEGER)
+                hasEntry("age", ExprType.INTEGER),
+                hasEntry("account_number", ExprType.LONG),
+                hasEntry("balance1", ExprType.FLOAT),
+                hasEntry("balance2", ExprType.DOUBLE),
+                hasEntry("gender", ExprType.BOOLEAN),
+                hasEntry("family", ExprType.ARRAY),
+                hasEntry("employer", ExprType.STRUCT),
+                hasEntry("birthday", ExprType.UNKNOWN)
             )
         );
     }
