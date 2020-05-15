@@ -27,10 +27,10 @@ import java.util.Map;
 public interface ElasticsearchClient {
 
     /**
-     * Fetch index mapping(s) according to index pattern given
-     * @param indexPattern  index pattern
-     * @return              index mapping(s) from index name to its mapping
+     * Fetch index mapping(s) according to index expression given
+     * @param indexExpression  index expression
+     * @return                 index mapping(s) from index name to its mapping
      */
-    Map<String, IndexMapping> getIndexMappings(String indexPattern);
+    Map<String, IndexMapping> getIndexMappings(String indexExpression);
 
 }

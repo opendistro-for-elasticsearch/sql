@@ -27,10 +27,14 @@ import java.util.stream.Collectors;
 import static java.util.Collections.emptyMap;
 
 /**
- * Elasticsearch index mapping
+ * Elasticsearch index mapping. Because there is no specific behavior for different field types,
+ * string is used to represent field types.
  */
 public class IndexMapping {
 
+    /**
+     * Field mappings from field name to field type in Elasticsearch date type system.
+     */
     private final Map<String, String> fieldMappings;
 
     public IndexMapping(Map<String, String> fieldMappings) {
@@ -38,11 +42,7 @@ public class IndexMapping {
     }
 
     public IndexMapping(MappingMetaData metaData) {
-        ImmutableMap.Builder<String, String> builder = new ImmutableMap.Builder<>();
-        Map<String, Object> indexMapping = metaData.getSourceAsMap();
-
-        flatMappings(indexMapping, builder::put);
-        this.fieldMappings = builder.build();
+        this.fieldMappings = flatMappings(metaData.getSourceAsMap());
     }
 
     /**
@@ -78,12 +78,15 @@ public class IndexMapping {
     }
 
     @SuppressWarnings("unchecked")
-    private void flatMappings(Map<String, Object> indexMapping, BiConsumer<String, String> func) {
+    private Map<String, String> flatMappings(Map<String, Object> indexMapping) {
+        ImmutableMap.Builder<String, String> builder = new ImmutableMap.Builder<>();
+
         flatMappings(
             ((Map<String, Object>) indexMapping.getOrDefault("properties", emptyMap())),
             "",
-            func
+            builder::put
         );
+        return builder.build();
     }
 
     @SuppressWarnings("unchecked")
@@ -97,7 +100,7 @@ public class IndexMapping {
                 String type = (String) mapping.getOrDefault("type", "object");
                 func.accept(fullFieldName, type);
 
-                if (mapping.containsKey("fields")) {
+                if (mapping.containsKey("fields")) { // Multi-field
                     ((Map<String, Map<String, Object>>) mapping.get("fields")).forEach(
                         (innerFieldName, innerMapping) ->
                             func.accept(fullFieldName + "." + innerFieldName,
@@ -105,7 +108,7 @@ public class IndexMapping {
                     );
                 }
 
-                if (mapping.containsKey("properties")) {
+                if (mapping.containsKey("properties")) { // Nested field
                     flatMappings(
                         (Map<String, Object>) mapping.get("properties"),
                         fullFieldName,

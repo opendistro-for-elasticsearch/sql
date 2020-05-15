@@ -32,7 +32,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ElasticsearchIndex implements Table {
 
-    // TODO: date, geo, ip etc.
+    /**
+     * Type mapping from Elasticsearch data type to expression type in our type system in query engine.
+     * TODO: date, geo, ip etc.
+     */
     private final static Map<String, ExprType> ES_TYPE_TO_EXPR_TYPE_MAPPING =
         ImmutableMap.<String, ExprType>builder().put("text", ExprType.STRING).
                                                  put("keyword", ExprType.STRING).
@@ -45,8 +48,14 @@ public class ElasticsearchIndex implements Table {
                                                  put("object", ExprType.STRUCT).
                                                  build();
 
+    /**
+     * Elasticsearch client connection.
+     */
     private final ElasticsearchClient client;
 
+    /**
+     * Current Elasticsearch index name.
+     */
     private final String indexName;
 
     /*
@@ -59,12 +68,12 @@ public class ElasticsearchIndex implements Table {
         Map<String, ExprType> fieldTypes = new HashMap<>();
         Map<String, IndexMapping> indexMappings = client.getIndexMappings(indexName);
         for (IndexMapping indexMapping : indexMappings.values()) {
-            fieldTypes.putAll(indexMapping.getAllFieldTypes(this::transform));
+            fieldTypes.putAll(indexMapping.getAllFieldTypes(this::transformESTypeToExprType));
         }
         return fieldTypes;
     }
 
-    private ExprType transform(String esType) {
+    private ExprType transformESTypeToExprType(String esType) {
         return ES_TYPE_TO_EXPR_TYPE_MAPPING.getOrDefault(esType, ExprType.UNKNOWN);
     }
 }

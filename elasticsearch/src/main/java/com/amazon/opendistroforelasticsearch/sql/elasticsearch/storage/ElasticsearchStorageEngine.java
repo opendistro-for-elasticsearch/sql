@@ -27,6 +27,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ElasticsearchStorageEngine implements StorageEngine {
 
+    /**
+     * Elasticsearch client connection
+     */
     private final ElasticsearchClient client;
 
     @Override

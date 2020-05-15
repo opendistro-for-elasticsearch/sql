@@ -54,7 +54,7 @@ class ElasticsearchNodeClientTest {
     private static final String TEST_MAPPING_FILE = "mappings/accounts.json";
 
     @Mock
-    private NodeClient esClient;
+    private NodeClient nodeClient;
 
     @Test
     public void getIndexMappings() throws IOException {
@@ -105,7 +105,7 @@ class ElasticsearchNodeClientTest {
     public void getIndexMappingsWithIOException() {
         ClusterService clusterService = mockClusterService(new IOException());
         IndexNameExpressionResolver resolver = mockIndexNameExpressionResolver();
-        ElasticsearchNodeClient client = new ElasticsearchNodeClient(clusterService, resolver, esClient);
+        ElasticsearchNodeClient client = new ElasticsearchNodeClient(clusterService, resolver, nodeClient);
 
         assertThrows(IllegalStateException.class, () -> client.getIndexMappings("non_exist_index"));
     }
@@ -119,7 +119,7 @@ class ElasticsearchNodeClientTest {
     private ElasticsearchNodeClient mockClient(String indexName, String mappings) {
         ClusterService clusterService = mockClusterService(indexName, mappings);
         IndexNameExpressionResolver resolver = mockIndexNameExpressionResolver();
-        return new ElasticsearchNodeClient(clusterService, resolver, esClient);
+        return new ElasticsearchNodeClient(clusterService, resolver, nodeClient);
     }
 
     public ClusterService mockClusterService(String indexName, String mappings) {
