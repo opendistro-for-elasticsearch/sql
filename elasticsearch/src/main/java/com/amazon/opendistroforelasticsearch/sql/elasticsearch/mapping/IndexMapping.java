@@ -17,6 +17,7 @@
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping;
 
 import com.google.common.collect.ImmutableMap;
+import lombok.ToString;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 
 import java.util.Map;
@@ -30,6 +31,7 @@ import static java.util.Collections.emptyMap;
  * Elasticsearch index mapping. Because there is no specific behavior for different field types,
  * string is used to represent field types.
  */
+@ToString
 public class IndexMapping {
 
     /**
