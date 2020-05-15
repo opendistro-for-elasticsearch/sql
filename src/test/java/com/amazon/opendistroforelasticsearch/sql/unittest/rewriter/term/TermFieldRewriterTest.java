@@ -18,41 +18,31 @@ package com.amazon.opendistroforelasticsearch.sql.unittest.rewriter.term;
 
 import com.alibaba.druid.sql.SQLUtils;
 import com.alibaba.druid.sql.ast.expr.SQLQueryExpr;
-import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.TermFieldRewriter;
+import com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm.VerificationException;
 import com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils;
 import com.amazon.opendistroforelasticsearch.sql.util.SqlParserUtils;
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.io.IOException;
-import java.net.URL;
-
-import static com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents.mockLocalClusterState;
+import static com.amazon.opendistroforelasticsearch.sql.util.MultipleIndexClusterUtils.mockMultipleIndexEnv;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class TermFieldRewriterTest {
-    private static final String TEST_MAPPING_FILE = "mappings/semantics.json";
-
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
     @Before
-    public void setup() throws IOException {
-        URL url = Resources.getResource(TEST_MAPPING_FILE);
-        String mappings = Resources.toString(url, Charsets.UTF_8);
-        LocalClusterState.state(null);
-        mockLocalClusterState(mappings);
+    public void setup() {
+        mockMultipleIndexEnv();
     }
 
     @Test
     public void testFromSubqueryShouldPass() {
-        String sql = "SELECT t.age as a FROM (SELECT age FROM semantics WHERE employer = 'david') t";
-        String expected = "SELECT t.age as a FROM (SELECT age FROM semantics WHERE employer.keyword = 'david') t";
+        String sql = "SELECT t.age as a FROM (SELECT age FROM account1 WHERE address = 'sea') t";
+        String expected = "SELECT t.age as a FROM (SELECT age FROM account1 WHERE address.keyword = 'sea') t";
 
         assertThat(rewriteTerm(sql),
                 MatcherUtils.IsEqualIgnoreCaseAndWhiteSpace.equalToIgnoreCaseAndWhiteSpace(expected));
@@ -60,11 +50,60 @@ public class TermFieldRewriterTest {
 
     @Test
     public void testFromSubqueryWithoutTermShouldPass() {
-        String sql = "SELECT t.age as a FROM (SELECT age FROM semantics WHERE age = 10) t";
+        String sql = "SELECT t.age as a FROM (SELECT age FROM account1 WHERE age = 10) t";
         String expected = sql;
 
         assertThat(rewriteTerm(sql),
                 MatcherUtils.IsEqualIgnoreCaseAndWhiteSpace.equalToIgnoreCaseAndWhiteSpace(expected));
+    }
+
+    @Test
+    public void testFieldShouldBeRewritten() {
+        String sql = "SELECT age FROM account1 WHERE address = 'sea'";
+        String expected = "SELECT age FROM account1 WHERE address.keyword = 'sea'";
+
+        assertThat(rewriteTerm(sql),
+                MatcherUtils.IsEqualIgnoreCaseAndWhiteSpace.equalToIgnoreCaseAndWhiteSpace(expected));
+    }
+
+    @Test
+    public void testSelectTheFieldWithCompatibleMappingShouldPass() {
+        String sql = "SELECT id FROM account* WHERE id = 10";
+        String expected = sql;
+
+        assertThat(rewriteTerm(sql),
+                MatcherUtils.IsEqualIgnoreCaseAndWhiteSpace.equalToIgnoreCaseAndWhiteSpace(expected));
+    }
+
+    @Test
+    public void testSelectTheFieldOnlyInOneIndexShouldPass() {
+        String sql = "SELECT address FROM account*";
+        String expected = sql;
+
+        assertThat(rewriteTerm(sql),
+                MatcherUtils.IsEqualIgnoreCaseAndWhiteSpace.equalToIgnoreCaseAndWhiteSpace(expected));
+    }
+
+    /**
+     * Ideally, it should fail. There are two reasons we didn't cover it now.
+     * 1. The semantic check already done that.
+     * 2. The {@link TermFieldRewriter} didn't touch allcolumn case.
+     */
+    @Test
+    public void testSelectAllFieldWithConflictMappingShouldPass() {
+        String sql = "SELECT * FROM account*";
+        String expected = sql;
+
+        assertThat(rewriteTerm(sql),
+                MatcherUtils.IsEqualIgnoreCaseAndWhiteSpace.equalToIgnoreCaseAndWhiteSpace(expected));
+    }
+
+    @Test
+    public void testSelectTheFieldWithConflictMappingShouldThrowException() {
+        String sql = "SELECT age FROM account* WHERE age = 10";
+        exception.expect(VerificationException.class);
+        exception.expectMessage("Different mappings are not allowed for the same field[age]");
+        rewriteTerm(sql);
     }
 
     private String rewriteTerm(String sql) {

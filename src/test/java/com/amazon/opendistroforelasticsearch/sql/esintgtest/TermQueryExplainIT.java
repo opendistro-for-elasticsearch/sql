@@ -71,8 +71,8 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
         } catch (ResponseException e) {
             assertThat(e.getResponse().getStatusLine().getStatusCode(), equalTo(RestStatus.BAD_REQUEST.getStatus()));
             final String entity = TestUtils.getResponseBody(e.getResponse());
-            assertThat(entity, containsString("Unknown index"));
-            assertThat(entity, containsString("\"type\": \"VerificationException\""));
+            assertThat(entity, containsString("Field [firstname] cannot be found or used here."));
+            assertThat(entity, containsString("\"type\": \"SemanticAnalysisException\""));
         }
     }
 
@@ -109,11 +109,23 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
         } catch (ResponseException e) {
             assertThat(e.getResponse().getStatusLine().getStatusCode(), equalTo(RestStatus.BAD_REQUEST.getStatus()));
             final String entity = TestUtils.getResponseBody(e.getResponse());
-            assertThat(entity, containsString("dog_name"));
-            assertThat(entity, containsString("{type:text,fields:{keyword:{type:keyword,ignore_above:256}}}"));
-            assertThat(entity, containsString("{type:text,fielddata:true}"));
-            assertThat(entity, containsString("\"type\": \"VerificationException\""));
+            assertThat(entity, containsString("Symbol [holdersName] have conflict type"));
+            assertThat(entity, containsString("\"type\": \"SemanticAnalysisException\""));
         }
+    }
+
+    /**
+     * The dog_name field has same type in dog and dog2 index.
+     * But, the holdersName field has different type.
+     */
+    @Test
+    public void testNonCompatibleMappingsButTheFieldIsNotUsed() throws IOException {
+        String result = explainQuery(
+                "SELECT dog_name " +
+                        "FROM elasticsearch-sql_test_index_dog, elasticsearch-sql_test_index_dog2 WHERE dog_name = 'dog'");
+        System.out.println(result);
+        assertThat(result, containsString("dog_name"));
+        assertThat(result, containsString("_source"));
     }
 
     @Test

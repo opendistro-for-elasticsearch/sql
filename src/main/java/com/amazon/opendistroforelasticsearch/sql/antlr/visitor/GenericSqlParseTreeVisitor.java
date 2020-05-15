@@ -32,6 +32,10 @@ public interface GenericSqlParseTreeVisitor<T> {
         return defaultValue();
     }
 
+    default T visitSelectAllColumn() {
+        return defaultValue();
+    }
+
     default void visitAs(String alias, T type) {}
 
     default T visitIndexName(String indexName) {
