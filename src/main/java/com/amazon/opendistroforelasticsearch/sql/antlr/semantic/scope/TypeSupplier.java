@@ -47,13 +47,13 @@ public class TypeSupplier implements Supplier<Type> {
     /**
      * Get the {@link Type}
      * Throw {@link SemanticAnalysisException} if conflict found.
-     * Currently, if the two type not equal, it been treated as conflict.
+     * Currently, if the two types not equal, they are treated as conflicting.
      */
     @Override
     public Type get() {
         if (types.size() > 1) {
             throw new SemanticAnalysisException(
-                    String.format("Symbol [%s] have conflict type [%s]", symbolName, types));
+                    String.format("Field [%s] have conflict type [%s]", symbolName, types));
         } else {
             return symbolType;
         }

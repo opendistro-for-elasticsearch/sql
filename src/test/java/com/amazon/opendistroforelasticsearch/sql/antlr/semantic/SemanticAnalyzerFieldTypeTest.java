@@ -48,7 +48,7 @@ public class SemanticAnalyzerFieldTypeTest extends SemanticAnalyzerTestBase {
     @Test
     public void accessConflictFieldTypeShouldFailSemanticCheck() {
         expectValidationFailWithErrorMessages("SELECT age FROM account* WHERE age = 30",
-                "Symbol [age] have conflict type");
+                "Field [age] have conflict type");
     }
 
     /**
@@ -57,16 +57,16 @@ public class SemanticAnalyzerFieldTypeTest extends SemanticAnalyzerTestBase {
     @Test
     public void mixNonConflictTypeAndConflictFieldTypeShouldFailSemanticCheck() {
         expectValidationFailWithErrorMessages("SELECT id, age FROM account* WHERE id = 1",
-                "Symbol [age] have conflict type");
+                "Field [age] have conflict type");
     }
 
     /**
      * age has different type in account1 and account2.
      */
     @Test
-    public void ConflictFieldTypeWithAliasShouldFailSemanticCheck() {
+    public void conflictFieldTypeWithAliasShouldFailSemanticCheck() {
         expectValidationFailWithErrorMessages("SELECT a.age FROM account* as a",
-                "Symbol [a.age] have conflict type");
+                "Field [a.age] have conflict type");
     }
 
     /**
@@ -76,7 +76,7 @@ public class SemanticAnalyzerFieldTypeTest extends SemanticAnalyzerTestBase {
     @Test
     public void selectAllFieldTypeShouldFailSemanticCheck() {
         expectValidationFailWithErrorMessages("SELECT * FROM account*",
-                "Symbol [account*.age] have conflict type");
+                "Field [account*.age] have conflict type");
     }
 
     /**
@@ -85,7 +85,7 @@ public class SemanticAnalyzerFieldTypeTest extends SemanticAnalyzerTestBase {
     @Test
     public void selectAllFieldTypeWithAliasShouldFailSemanticCheck() {
         expectValidationFailWithErrorMessages("SELECT a.* FROM account* as a",
-                "Symbol [a.age] have conflict type");
+                "Field [a.age] have conflict type");
     }
 
     /**
@@ -102,6 +102,6 @@ public class SemanticAnalyzerFieldTypeTest extends SemanticAnalyzerTestBase {
     @Test
     public void selectNestedConflictTypeShouldFailSemanticCheck() {
         expectValidationFailWithErrorMessages("SELECT a.projects.started_year FROM account* as a",
-                "Symbol [a.projects.started_year] have conflict type");
+                "Field [a.projects.started_year] have conflict type");
     }
 }

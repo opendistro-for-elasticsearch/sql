@@ -21,7 +21,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class TypeSupplierTest {
     @Rule
@@ -48,7 +48,7 @@ public class TypeSupplierTest {
         age.add(ESDataType.TEXT);
 
         exception.expect(SemanticAnalysisException.class);
-        exception.expectMessage("Symbol [age] have conflict type");
+        exception.expectMessage("Field [age] have conflict type");
         age.get();
     }
 }

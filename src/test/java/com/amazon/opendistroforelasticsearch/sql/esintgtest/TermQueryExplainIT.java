@@ -109,7 +109,7 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
         } catch (ResponseException e) {
             assertThat(e.getResponse().getStatusLine().getStatusCode(), equalTo(RestStatus.BAD_REQUEST.getStatus()));
             final String entity = TestUtils.getResponseBody(e.getResponse());
-            assertThat(entity, containsString("Symbol [holdersName] have conflict type"));
+            assertThat(entity, containsString("Field [holdersName] have conflict type"));
             assertThat(entity, containsString("\"type\": \"SemanticAnalysisException\""));
         }
     }
