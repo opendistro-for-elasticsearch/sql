@@ -78,7 +78,7 @@ import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.CUR
  *                                \                      \
  *   XXXTIT:                  3) init()             5) init()
  */
-public abstract class SQLIntegTestCase extends ESRestTestCase {
+public abstract class SQLIntegTestCase extends FGACEnabledODFETestCase {
 
     public static final String PERSISTENT = "persistent";
     public static final String TRANSIENT = "transient";
@@ -141,7 +141,7 @@ public abstract class SQLIntegTestCase extends ESRestTestCase {
      */
     @AfterClass
     public static void cleanUpIndices() throws IOException {
-        wipeAllIndices();
+        wipeAllODFEIndices();
         wipeAllClusterSettings();
     }
 
