@@ -199,6 +199,10 @@ public class TestUtils {
     public static String getDogs2IndexMapping() {
         return "{  \"mappings\": {" +
                 " \"properties\": {\n" +
+                "          \"dog_name\": {\n" +
+                "            \"type\": \"text\",\n" +
+                "            \"fielddata\": true\n" +
+                "          },\n"+
                 "          \"holdersName\": {\n" +
                 "            \"type\": \"keyword\"\n" +
                 "          }"+

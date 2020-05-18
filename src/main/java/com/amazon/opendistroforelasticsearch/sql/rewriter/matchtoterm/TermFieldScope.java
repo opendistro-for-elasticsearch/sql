@@ -17,9 +17,14 @@ package com.amazon.opendistroforelasticsearch.sql.rewriter.matchtoterm;
 
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMappings;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.IndexMappings;
+import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Index Mapping information in current query being visited.
@@ -52,12 +57,28 @@ public class TermFieldScope {
         this.mapper = mapper;
     }
 
-    public FieldMappings getFinalMapping() {
-        return this.finalMapping;
+    public Optional<Map<String, Object>> resolveFieldMapping(String fieldName) {
+        Set<FieldMappings> indexMappings = mapper.allMappings().stream().
+                flatMap(typeMappings -> typeMappings.allMappings().stream()).
+                collect(Collectors.toSet());
+        Optional<Map<String, Object>> resolvedMapping =
+                indexMappings.stream()
+                        .filter(mapping -> mapping.has(fieldName))
+                        .map(mapping -> mapping.mapping(fieldName)).reduce((map1, map2) -> {
+                    if (!map1.equals(map2)) {
+                        // TODO: Merge mappings if they are compatible, for text and text/keyword to text/keyword.
+                        String exceptionReason = String.format(Locale.ROOT, "Different mappings are not allowed "
+                                        + "for the same field[%s]: found [%s] and [%s] ",
+                                fieldName, pretty(map1), pretty(map2));
+                        throw new VerificationException(exceptionReason);
+                    }
+                    return map1;
+                });
+        return resolvedMapping;
     }
 
-    public void setFinalMapping(FieldMappings finalMapping) {
-        this.finalMapping = finalMapping;
+    private static String pretty(Map<String, Object> mapping) {
+        return new JSONObject(mapping).toString().replaceAll("\"", "");
     }
 
 }

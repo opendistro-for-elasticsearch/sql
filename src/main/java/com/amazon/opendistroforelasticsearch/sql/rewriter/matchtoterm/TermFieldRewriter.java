@@ -35,15 +35,12 @@ import com.alibaba.druid.sql.parser.ParserException;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMappings;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.IndexMappings;
-import org.json.JSONObject;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -122,8 +119,9 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
         if (isValidIdentifierForTerm(expr)) {
             Map<String, Object> source = null;
             if (this.filterType == TermRewriterFilter.COMMA || this.filterType == TermRewriterFilter.MULTI_QUERY) {
-                if (curScope().getFinalMapping().has(expr.getName())) {
-                    source = curScope().getFinalMapping().mapping(expr.getName());
+                Optional<Map<String, Object>> optionalMap = curScope().resolveFieldMapping(expr.getName());
+                if (optionalMap.isPresent()) {
+                    source = optionalMap.get();
                 } else {
                     return true;
                 }
@@ -252,51 +250,6 @@ public class TermFieldRewriter extends MySqlASTVisitorAdapter {
     private void checkMappingCompatibility(TermFieldScope scope, Map<String, String> indexToType) {
         if (scope.getMapper().isEmpty()) {
             throw new VerificationException("Unknown index " + indexToType.keySet());
-        }
-
-        Set<FieldMappings> indexMappings = curScope().getMapper().allMappings().stream().
-                flatMap(typeMappings -> typeMappings.allMappings().stream()).
-                collect(Collectors.toSet());
-
-        final FieldMappings fieldMappings;
-
-        if (indexMappings.size() > 1) {
-            Map<String, Map<String, Object>> mergedMapping = new HashMap<>();
-
-            for (FieldMappings f : indexMappings) {
-                Map<String, Map<String, Object>> m = f.data();
-                m.forEach((k, v) -> verifySingleFieldMapping(k, v, mergedMapping));
-            }
-
-            fieldMappings = new FieldMappings(mergedMapping);
-        } else {
-            fieldMappings = curScope().getMapper().firstMapping().firstMapping();
-        }
-        // We need finalMapping to lookup for rewriting
-        curScope().setFinalMapping(fieldMappings);
-    }
-
-    private void verifySingleFieldMapping(final String fieldName, final Map<String, Object> fieldMapping,
-                                          final Map<String, Map<String, Object>> mergedMapping) {
-
-        if (!mergedMapping.containsKey(fieldName)) {
-            mergedMapping.put(fieldName, fieldMapping);
-        } else {
-
-            final Map<String, Object> visitedMapping = mergedMapping.get(fieldName);
-            // check if types are same
-            if (!fieldMapping.equals(visitedMapping)) {
-                // TODO: Merge mappings if they are compatible, for text and text/keyword to text/keyword.
-
-                String firstFieldType = new JSONObject(fieldMapping).toString().replaceAll("\"", "");
-                String secondFieldType = new JSONObject(visitedMapping).toString().replaceAll("\"", "");
-
-                String exceptionReason = String.format(Locale.ROOT, "Different mappings are not allowed "
-                                + "for the same field[%s]: found [%s] and [%s] ",
-                        fieldName, firstFieldType, secondFieldType);
-
-                throw new VerificationException(exceptionReason);
-            }
         }
     }
 

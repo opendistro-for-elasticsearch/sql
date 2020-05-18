@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptyNavigableMap;
@@ -31,8 +32,10 @@ import static java.util.Collections.emptyNavigableMap;
  */
 public class SymbolTable {
 
-    /** Two-dimension hash table to manage symbols with type in different namespace */
-    private Map<Namespace, NavigableMap<String, Type>> tableByNamespace = new EnumMap<>(Namespace.class);
+    /**
+     * Two-dimension hash table to manage symbols with type in different namespace
+     */
+    private Map<Namespace, NavigableMap<String, TypeSupplier>> tableByNamespace = new EnumMap<>(Namespace.class);
 
     /**
      * Store symbol with the type. Create new map for namespace for the first time.
@@ -41,9 +44,12 @@ public class SymbolTable {
      */
     public void store(Symbol symbol, Type type) {
         tableByNamespace.computeIfAbsent(
-            symbol.getNamespace(),
-            ns -> new TreeMap<>()
-        ).put(symbol.getName(), type);
+                symbol.getNamespace(),
+                ns -> new TreeMap<>()
+        ).computeIfAbsent(
+                symbol.getName(),
+                symbolName -> new TypeSupplier(symbolName, type)
+        ).add(type);
     }
 
     /**
@@ -52,12 +58,12 @@ public class SymbolTable {
      * @return          symbol type which is optional
      */
     public Optional<Type> lookup(Symbol symbol) {
-        Map<String, Type> table = tableByNamespace.get(symbol.getNamespace());
-        Type type = null;
+        Map<String, TypeSupplier> table = tableByNamespace.get(symbol.getNamespace());
+        TypeSupplier typeSupplier = null;
         if (table != null) {
-            type = table.get(symbol.getName());
+            typeSupplier = table.get(symbol.getName());
         }
-        return Optional.ofNullable(type);
+        return Optional.ofNullable(typeSupplier).map(TypeSupplier::get);
     }
 
     /**
@@ -66,9 +72,12 @@ public class SymbolTable {
      * @return          symbols starting with the prefix
      */
     public Map<String, Type> lookupByPrefix(Symbol prefix) {
-        NavigableMap<String, Type> table = tableByNamespace.get(prefix.getNamespace());
+        NavigableMap<String, TypeSupplier> table = tableByNamespace.get(prefix.getNamespace());
         if (table != null) {
-            return table.subMap(prefix.getName(), prefix.getName() + Character.MAX_VALUE);
+            return table.subMap(prefix.getName(), prefix.getName() + Character.MAX_VALUE)
+                    .entrySet().stream()
+                    .filter(entry -> null != entry.getValue().get())
+                    .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().get()));
         }
         return emptyMap();
     }
@@ -79,7 +88,10 @@ public class SymbolTable {
      * @return              all symbols in the namespace map
      */
     public Map<String, Type> lookupAll(Namespace namespace) {
-        return tableByNamespace.getOrDefault(namespace, emptyNavigableMap());
+        return tableByNamespace.getOrDefault(namespace, emptyNavigableMap())
+                .entrySet().stream()
+                .filter(entry -> null != entry.getValue().get())
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().get()));
     }
 
     /**

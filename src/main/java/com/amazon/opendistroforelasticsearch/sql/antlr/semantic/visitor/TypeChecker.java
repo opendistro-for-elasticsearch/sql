@@ -33,6 +33,7 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.operator.S
 import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.special.Product;
 import com.amazon.opendistroforelasticsearch.sql.antlr.visitor.GenericSqlParseTreeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 import java.util.Optional;
@@ -107,9 +108,16 @@ public class TypeChecker implements GenericSqlParseTreeVisitor<Type> {
     public Type visitSelect(List<Type> itemTypes) {
         if (itemTypes.size() == 1) {
             return itemTypes.get(0);
+        } else if (itemTypes.size() == 0) {
+            return visitSelectAllColumn();
         }
         // Return product for empty (SELECT *) and #items > 1
         return new Product(itemTypes);
+    }
+
+    @Override
+    public Type visitSelectAllColumn() {
+        return resolveAllColumn();
     }
 
     @Override
@@ -216,6 +224,11 @@ public class TypeChecker implements GenericSqlParseTreeVisitor<Type> {
             errorMsg += StringUtils.format(" Did you mean [%s]?", suggestedWord);
         }
         throw new SemanticAnalysisException(errorMsg);
+    }
+
+    private Type resolveAllColumn() {
+        environment().resolveAll(Namespace.FIELD_NAME);
+        return new Product(ImmutableList.of());
     }
 
     private Environment environment() {

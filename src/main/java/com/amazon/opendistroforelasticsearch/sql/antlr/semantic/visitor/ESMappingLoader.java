@@ -30,6 +30,8 @@ import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.IndexMappings;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESIndex.IndexType.INDEX;
 import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.base.ESIndex.IndexType.NESTED_FIELD;
@@ -104,8 +106,8 @@ public class ESMappingLoader implements GenericSqlParseTreeVisitor<Type> {
     }
 
     private void loadAllFieldsWithType(String indexName) {
-        FieldMappings mappings = getFieldMappings(indexName);
-        mappings.flat(this::defineFieldName);
+        Set<FieldMappings> mappings = getFieldMappings(indexName);
+        mappings.forEach(mapping -> mapping.flat(this::defineFieldName));
     }
 
     /*
@@ -139,8 +141,9 @@ public class ESMappingLoader implements GenericSqlParseTreeVisitor<Type> {
      *      'accounts.projects.active' -> BOOLEAN
      */
     private void defineAllFieldNamesByAppendingAliasPrefix(String indexName, String alias) {
-        FieldMappings mappings = getFieldMappings(indexName);
-        mappings.flat((fieldName, type) -> defineFieldName(alias + "." + fieldName, type));
+        Set<FieldMappings> mappings = getFieldMappings(indexName);
+        mappings.stream().forEach(mapping -> mapping.flat((fieldName, type) ->
+                defineFieldName(alias + "." + fieldName, type)));
     }
 
     /*
@@ -177,16 +180,20 @@ public class ESMappingLoader implements GenericSqlParseTreeVisitor<Type> {
         return indexName.indexOf('.', 1) == -1; // taking care of .kibana
     }
 
-    private FieldMappings getFieldMappings(String indexName) {
+    private Set<FieldMappings> getFieldMappings(String indexName) {
         IndexMappings indexMappings = clusterState.getFieldMappings(new String[]{indexName});
-        FieldMappings fieldMappings = indexMappings.firstMapping().firstMapping();
+        Set<FieldMappings> fieldMappingsSet = indexMappings.allMappings().stream().
+                flatMap(typeMappings -> typeMappings.allMappings().stream()).
+                collect(Collectors.toSet());
 
-        int size = fieldMappings.data().size();
-        if (size > threshold) {
-            throw new EarlyExitAnalysisException(StringUtils.format(
-                "Index [%s] has [%d] fields more than threshold [%d]", indexName, size, threshold));
+        for (FieldMappings fieldMappings : fieldMappingsSet) {
+            int size = fieldMappings.data().size();
+            if (size > threshold) {
+                throw new EarlyExitAnalysisException(StringUtils.format(
+                        "Index [%s] has [%d] fields more than threshold [%d]", indexName, size, threshold));
+            }
         }
-        return fieldMappings;
+        return fieldMappingsSet;
     }
 
     private void defineFieldName(String fieldName, String type) {
@@ -199,9 +206,7 @@ public class ESMappingLoader implements GenericSqlParseTreeVisitor<Type> {
 
     private void defineFieldName(String fieldName, Type type) {
         Symbol symbol = new Symbol(Namespace.FIELD_NAME, fieldName);
-        if (!environment().resolve(symbol).isPresent()) { // TODO: why? add test for name shadow
-            environment().define(symbol, type);
-        }
+        environment().define(symbol, type);
     }
 
     private Environment environment() {
