@@ -26,6 +26,7 @@ import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class IndexMappingTest {
 
@@ -33,6 +34,7 @@ class IndexMappingTest {
     public void getFieldType() {
         IndexMapping indexMapping = new IndexMapping(ImmutableMap.of("name", "text"));
         assertEquals("text", indexMapping.getFieldType("name"));
+        assertNull(indexMapping.getFieldType("not_exist"));
     }
 
     @Test

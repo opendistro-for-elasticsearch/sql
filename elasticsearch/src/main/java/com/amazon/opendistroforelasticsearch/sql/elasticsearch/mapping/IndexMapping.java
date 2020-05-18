@@ -58,7 +58,7 @@ public class IndexMapping {
     /**
      * Return field type by its name.
      * @param fieldName     field name
-     * @return              field type in string
+     * @return              field type in string. Or null if not exist.
      */
     public String getFieldType(String fieldName) {
         return fieldMappings.get(fieldName);

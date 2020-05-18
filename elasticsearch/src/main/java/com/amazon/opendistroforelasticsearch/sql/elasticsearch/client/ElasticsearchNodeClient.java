@@ -68,7 +68,8 @@ public class ElasticsearchNodeClient implements ElasticsearchClient {
      * Also removed mapping cache, cluster state listener (mainly for performance and debugging).
      *
      * @param indexExpression     index name expression
-     * @return                    index mapping(s) in our class to isolate Elasticsearch API
+     * @return                    index mapping(s) in our class to isolate Elasticsearch API.
+     *                             IndexNotFoundException is thrown if no index matched.
      */
     @Override
     public Map<String, IndexMapping> getIndexMappings(String indexExpression) {

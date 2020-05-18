@@ -55,8 +55,7 @@ jacocoTestCoverageVerification {
     }
     afterEvaluate {
         classDirectories.setFrom(files(classDirectories.files.collect {
-            fileTree(dir: it,
-                    exclude: ['**/ast/**'])
+            fileTree(dir: it)
         }))
     }
 }
