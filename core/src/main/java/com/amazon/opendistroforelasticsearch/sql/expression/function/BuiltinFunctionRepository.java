@@ -4,7 +4,6 @@ package com.amazon.opendistroforelasticsearch.sql.expression.function;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import lombok.RequiredArgsConstructor;
 
@@ -31,20 +30,20 @@ public class BuiltinFunctionRepository {
     /**
      * Compile FunctionExpression
      */
-    public FunctionExpression compile(FunctionName functionName, List<Expression> expressions,
-                                      Environment<Expression, ExprType> env) {
-        FunctionExpressionBuilder resolvedFunctionBuilder = resolve(new FunctionSignature(functionName,
+    public FunctionImplementation compile(FunctionName functionName, List<Expression> expressions,
+                                          Environment<Expression, ExprType> env) {
+        FunctionBuilder resolvedFunctionBuilder = resolve(new FunctionSignature(functionName,
                 expressions.stream().map(expression -> expression.type(env)).collect(Collectors.toList())));
         return resolvedFunctionBuilder.apply(expressions);
     }
 
     /**
-     * Resolve the {@link FunctionExpressionBuilder} in Builtin Function Repository.
+     * Resolve the {@link FunctionBuilder} in Builtin Function Repository.
      *
      * @param functionSignature {@link FunctionSignature}
-     * @return {@link FunctionExpressionBuilder}
+     * @return {@link FunctionBuilder}
      */
-    public FunctionExpressionBuilder resolve(FunctionSignature functionSignature) {
+    public FunctionBuilder resolve(FunctionSignature functionSignature) {
         FunctionName functionName = functionSignature.getFunctionName();
         if (functionResolverMap.containsKey(functionName)) {
             return functionResolverMap.get(functionName).resolve(functionSignature);

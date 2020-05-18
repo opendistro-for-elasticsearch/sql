@@ -27,6 +27,12 @@ public enum BuiltinFunctionName {
     EQUAL(FunctionName.of("equal")),
 
     TOSTRING(FunctionName.of("tostring")),
+
+    /**
+     * Aggregation Function.
+     */
+    AVG(FunctionName.of("avg")),
+    SUM(FunctionName.of("sum"))
     ;
 
     private final FunctionName name;

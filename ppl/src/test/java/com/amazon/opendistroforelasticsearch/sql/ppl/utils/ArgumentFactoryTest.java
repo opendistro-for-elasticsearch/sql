@@ -26,7 +26,6 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSo
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.exprList;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.map;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.projectWithArg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
@@ -53,7 +52,7 @@ public class ArgumentFactoryTest extends AstBuilderTest {
         assertEqual("source=t | stats partitions=1 allnum=false delim=',' avg(a) dedup_splitvalues=true",
                 agg(
                         relation("t"),
-                        exprList(map(aggregate("avg", field("a")), null)),
+                        exprList(aggregate("avg", field("a"))),
                         null,
                         null,
                         exprList(
