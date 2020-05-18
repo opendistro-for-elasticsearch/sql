@@ -22,6 +22,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import org.junit.jupiter.api.Test;
 
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -51,6 +52,13 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
         SemanticCheckException exception = assertThrows(SemanticCheckException.class,
                 () -> analyze(AstDSL.and(AstDSL.unresolvedAttr("undefined_field"), AstDSL.booleanLiteral(true))));
         assertEquals("can't resolve expression undefined_field in type env", exception.getMessage());
+    }
+
+    @Test
+    public void undefined_aggregation_function() {
+        SemanticCheckException exception = assertThrows(SemanticCheckException.class,
+                () -> analyze(AstDSL.aggregate("ESTDC_ERROR", field("integer_value"))));
+        assertEquals("Unsupported aggregation function ESTDC_ERROR", exception.getMessage());
     }
 
     protected Expression analyze(UnresolvedExpression unresolvedExpression) {

@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression;
 
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionImplementation;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -27,7 +28,7 @@ import java.util.List;
  */
 @EqualsAndHashCode
 @RequiredArgsConstructor
-public abstract class FunctionExpression implements Expression {
+public abstract class FunctionExpression implements Expression, FunctionImplementation {
     @Getter
     private final FunctionName functionName;
 

@@ -22,7 +22,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionExpressionBuilder;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionBuilder;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature;
@@ -73,7 +73,7 @@ public class UnaryPredicateFunction {
                 .build();
     }
 
-    private static FunctionExpressionBuilder predicateFunction(
+    private static FunctionBuilder predicateFunction(
             FunctionName functionName,
             Map<ExprValue, ExprValue> map,
             ExprType returnType) {

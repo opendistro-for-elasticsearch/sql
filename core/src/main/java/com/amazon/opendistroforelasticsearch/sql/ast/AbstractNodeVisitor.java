@@ -34,6 +34,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
 
 /**
  * AST nodes visitor
@@ -136,6 +137,10 @@ public abstract class AbstractNodeVisitor<T, C> {
     }
 
     public T visitQualifiedName(QualifiedName node, C context) {
+        return visitChildren(node, context);
+    }
+
+    public T visitRename(Rename node, C context) {
         return visitChildren(node, context);
     }
 }

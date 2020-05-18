@@ -34,7 +34,6 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.in;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.map;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.not;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.nullLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.or;
@@ -243,10 +242,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 agg(
                         relation("t"),
                         exprList(
-                                map(
-                                        aggregate("avg", field("a")),
-                                        null
-                                )
+                                aggregate("avg", field("a"))
 
                         ),
                         null,
@@ -261,13 +257,10 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 agg(
                         relation("t"),
                         exprList(
-                                map(
-                                        aggregate(
-                                                "percentile",
-                                                field("a"),
-                                                argument("rank", intLiteral(1))
-                                        ),
-                                        null
+                                aggregate(
+                                        "percentile",
+                                        field("a"),
+                                        argument("rank", intLiteral(1))
                                 )
                         ),
                         null,

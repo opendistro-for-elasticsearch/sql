@@ -33,6 +33,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
@@ -63,6 +64,10 @@ public class AstDSL {
     public static UnresolvedPlan agg(UnresolvedPlan input, List<UnresolvedExpression> aggList, List<UnresolvedExpression> sortList,
                                      List<UnresolvedExpression> groupList, List<UnresolvedExpression> argList) {
         return new Aggregation(aggList, sortList, groupList, argList).attach(input);
+    }
+
+    public static UnresolvedPlan rename(UnresolvedPlan input, Map... maps) {
+        return new Rename(Arrays.asList(maps), input);
     }
 
     public static UnresolvedExpression qualifiedName(String... parts) {
@@ -105,7 +110,7 @@ public class AstDSL {
         return new Map(new Field(origin), new Field(target));
     }
 
-    public static UnresolvedExpression map(UnresolvedExpression origin, UnresolvedExpression target) {
+    public static Map map(UnresolvedExpression origin, UnresolvedExpression target) {
         return new Map(origin, target);
     }
 

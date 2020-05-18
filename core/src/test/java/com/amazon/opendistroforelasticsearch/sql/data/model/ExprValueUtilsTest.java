@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
+import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -36,6 +37,7 @@ import java.util.stream.Stream;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DisplayName("Test Expression Value Utils")
@@ -155,5 +157,16 @@ public class ExprValueUtilsTest {
                 () -> ExprValueUtils.fromObjectValue(integerValue(1)));
         assertEquals("unsupported object class com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue",
                 exception.getMessage());
+    }
+
+    @Test
+    public void bindingTuples() {
+        for (ExprValue value : allValues) {
+            if (ExprType.STRUCT == value.type()) {
+                assertNotEquals(BindingTuple.EMPTY, value.bindingTuples());
+            } else {
+                assertEquals(BindingTuple.EMPTY, value.bindingTuples());
+            }
+        }
     }
 }

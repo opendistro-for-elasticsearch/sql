@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
-import com.amazon.opendistroforelasticsearch.sql.planner.AbstractPlanNodeVisitor;
 import com.google.common.collect.ImmutableList;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +37,7 @@ public class LogicalRelation extends LogicalPlan {
     }
 
     @Override
-    public <R, C> R accept(AbstractPlanNodeVisitor<R, C> visitor, C context) {
+    public <R, C> R accept(LogicalPlanNodeVisitor<R, C> visitor, C context) {
         return visitor.visitRelation(this, context);
     }
 }

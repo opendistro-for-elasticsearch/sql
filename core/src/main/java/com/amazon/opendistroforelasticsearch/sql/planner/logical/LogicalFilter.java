@@ -16,8 +16,8 @@
 package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.planner.AbstractPlanNodeVisitor;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
@@ -31,8 +31,9 @@ import java.util.List;
 @EqualsAndHashCode
 @RequiredArgsConstructor
 public class LogicalFilter extends LogicalPlan {
-    private final Expression condition;
     private final LogicalPlan child;
+    @Getter
+    private final Expression condition;
 
     @Override
     public List<LogicalPlan> getChild() {
@@ -40,7 +41,7 @@ public class LogicalFilter extends LogicalPlan {
     }
 
     @Override
-    public <R, C> R accept(AbstractPlanNodeVisitor<R, C> visitor, C context) {
+    public <R, C> R accept(LogicalPlanNodeVisitor<R, C> visitor, C context) {
         return visitor.visitFilter(this, context);
     }
 }

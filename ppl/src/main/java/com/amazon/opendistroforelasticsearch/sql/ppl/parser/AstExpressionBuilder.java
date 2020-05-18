@@ -33,7 +33,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Not;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
 import com.amazon.opendistroforelasticsearch.sql.ppl.utils.ArgumentFactory;
-import java.util.Arrays;
+
 import java.util.Collections;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.ParserRuleContext;
