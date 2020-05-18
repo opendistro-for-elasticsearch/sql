@@ -42,8 +42,8 @@ import java.util.List;
  */
 public class SimpleJsonResponseFormatter extends JsonResponseFormatter<List<Object>> {
 
-    public SimpleJsonResponseFormatter(boolean isPretty) {
-        super(isPretty);
+    public SimpleJsonResponseFormatter(Style style) {
+        super(style);
     }
 
     @Override

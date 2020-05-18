@@ -20,13 +20,15 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
+import static com.amazon.opendistroforelasticsearch.sql.common.protocol.response.format.JsonResponseFormatter.Style.COMPACT;
+import static com.amazon.opendistroforelasticsearch.sql.common.protocol.response.format.JsonResponseFormatter.Style.PRETTY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class JsonResponseFormatterTest {
 
     @Test
     public void formatResponse() {
-        SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(false);
+        SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(COMPACT);
         assertEquals(
             "{\"schema\":[{\"name\":\"firstname\"}],\"datarows\":[{\"row\":[\"John\"]}]}",
             formatter.format(Collections.emptyList())
@@ -35,7 +37,7 @@ class JsonResponseFormatterTest {
 
     @Test
     public void formatResponsePretty() {
-        SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(true);
+        SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(PRETTY);
         assertEquals(
             "{\n" +
             "  \"schema\": [{\"name\": \"firstname\"}],\n" +
@@ -47,7 +49,7 @@ class JsonResponseFormatterTest {
 
     @Test
     public void formatError() {
-        SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(false);
+        SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(COMPACT);
         assertEquals(
             "{\"reason\":\"This is an exception\",\"type\":\"RuntimeException\"}",
             formatter.format(new RuntimeException("This is an exception"))
@@ -56,7 +58,7 @@ class JsonResponseFormatterTest {
 
     @Test
     public void formatErrorPretty() {
-        SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(true);
+        SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(PRETTY);
         assertEquals(
             "{\n" +
             "  \"reason\": \"This is an exception\",\n" +

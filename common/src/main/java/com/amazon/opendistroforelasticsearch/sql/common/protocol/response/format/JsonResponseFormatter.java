@@ -19,6 +19,8 @@ package com.amazon.opendistroforelasticsearch.sql.common.protocol.response.forma
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
 
+import static com.amazon.opendistroforelasticsearch.sql.common.protocol.response.format.JsonResponseFormatter.Style.PRETTY;
+
 /**
  * Abstract class for all JSON formatter.
  * @param <Response>
@@ -27,9 +29,17 @@ import org.json.JSONObject;
 public abstract class JsonResponseFormatter<Response> implements ResponseFormatter<Response> {
 
     /**
+     * JSON format styles
+     */
+    public enum Style {
+        PRETTY, COMPACT
+    }
+
+    /**
      * Should response be formatted in pretty json string.
      */
-    private final boolean isPretty;
+    private final Style style;
+
 
     @Override
     public String format(Response response) {
@@ -58,6 +68,6 @@ public abstract class JsonResponseFormatter<Response> implements ResponseFormatt
 
     private String jsonify(Object jsonObject) {
         JSONObject json = new JSONObject(jsonObject);
-        return isPretty ? json.toString(2) : json.toString();
+        return (style == PRETTY) ? json.toString(2) : json.toString();
     }
 }
