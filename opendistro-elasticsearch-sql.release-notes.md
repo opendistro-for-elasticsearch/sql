@@ -4,6 +4,10 @@
 #### Elasticsearch Compatibility
 * Feature [#467](https://github.com/opendistro-for-elasticsearch/sql/issues/467): Elasticsearch 7.7.0 compatibility
 
+### Enhancements
+#### SQL Features
+* Enhancement [#470](https://github.com/opendistro-for-elasticsearch/sql/pull/470): Add the field type conflict check in semantic check (issue: [#348](https://github.com/opendistro-for-elasticsearch/sql/issues/348))
+
 ## 2020-05-04 Version 1.7.0.0
 
 #### Breaking Changes
