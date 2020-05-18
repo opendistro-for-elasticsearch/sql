@@ -41,6 +41,6 @@ public abstract class PhysicalPlan implements PlanNode<PhysicalPlan>,
     }
 
     public void close() {
-        getChild().forEach(PhysicalPlan::open);
+        getChild().forEach(PhysicalPlan::close);
     }
 }
