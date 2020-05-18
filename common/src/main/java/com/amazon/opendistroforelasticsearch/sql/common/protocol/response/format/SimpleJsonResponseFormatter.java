@@ -30,8 +30,7 @@ import java.util.List;
  *  {
  *      "schema": [
  *          {
- *              "name": "name",
- *              "type": "xxx"
+ *              "name": "name"
  *          }
  *      ],
  *      "datarows": [

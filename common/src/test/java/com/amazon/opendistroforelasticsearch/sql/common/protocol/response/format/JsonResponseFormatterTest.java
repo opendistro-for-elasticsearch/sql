@@ -34,10 +34,34 @@ class JsonResponseFormatterTest {
     }
 
     @Test
-    public void formatException() {
+    public void formatResponsePretty() {
+        SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(true);
+        assertEquals(
+            "{\n" +
+            "  \"schema\": [{\"name\": \"firstname\"}],\n" +
+            "  \"datarows\": [{\"row\": [\"John\"]}]\n" +
+            "}",
+            formatter.format(Collections.emptyList())
+        );
+    }
+
+    @Test
+    public void formatError() {
         SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(false);
         assertEquals(
             "{\"reason\":\"This is an exception\",\"type\":\"RuntimeException\"}",
+            formatter.format(new RuntimeException("This is an exception"))
+        );
+    }
+
+    @Test
+    public void formatErrorPretty() {
+        SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(true);
+        assertEquals(
+            "{\n" +
+            "  \"reason\": \"This is an exception\",\n" +
+            "  \"type\": \"RuntimeException\"\n" +
+            "}",
             formatter.format(new RuntimeException("This is an exception"))
         );
     }
