@@ -16,25 +16,25 @@
 package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
-import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 @Configuration
 @ExtendWith(SpringExtension.class)
@@ -43,12 +43,12 @@ public class PhysicalPlanTestBase {
     @Autowired
     protected DSL dsl;
 
-    private static final List<BindingTuple> inputs = new ImmutableList.Builder<BindingTuple>()
-            .add(BindingTuple.from(ImmutableMap.of("ip", "209.160.24.63", "action", "GET", "response", 200, "referer", "www.amazon.com")))
-            .add(BindingTuple.from(ImmutableMap.of("ip", "209.160.24.63", "action", "GET", "response", 404, "referer", "www.amazon.com")))
-            .add(BindingTuple.from(ImmutableMap.of("ip", "112.111.162.4", "action", "GET", "response", 200, "referer", "www.amazon.com")))
-            .add(BindingTuple.from(ImmutableMap.of("ip", "74.125.19.106", "action", "POST", "response", 200, "referer", "www.google.com")))
-            .add(BindingTuple.from(ImmutableMap.of("ip", "74.125.19.106", "action", "POST", "response", 500)))
+    private static final List<ExprValue> inputs = new ImmutableList.Builder<ExprValue>()
+            .add(ExprValueUtils.tupleValue(ImmutableMap.of("ip", "209.160.24.63", "action", "GET", "response", 200, "referer", "www.amazon.com")))
+            .add(ExprValueUtils.tupleValue(ImmutableMap.of("ip", "209.160.24.63", "action", "GET", "response", 404, "referer", "www.amazon.com")))
+            .add(ExprValueUtils.tupleValue(ImmutableMap.of("ip", "112.111.162.4", "action", "GET", "response", 200, "referer", "www.amazon.com")))
+            .add(ExprValueUtils.tupleValue(ImmutableMap.of("ip", "74.125.19.106", "action", "POST", "response", 200, "referer", "www.google.com")))
+            .add(ExprValueUtils.tupleValue(ImmutableMap.of("ip", "74.125.19.106", "action", "POST", "response", 500)))
             .build();
 
     private static Map<String, ExprType> typeMapping = new ImmutableMap.Builder<String, ExprType>()
@@ -71,8 +71,8 @@ public class PhysicalPlanTestBase {
         };
     }
 
-    protected List<BindingTuple> execute(PhysicalPlan plan) {
-        ImmutableList.Builder<BindingTuple> builder = new ImmutableList.Builder<>();
+    protected List<ExprValue> execute(PhysicalPlan plan) {
+        ImmutableList.Builder<ExprValue> builder = new ImmutableList.Builder<>();
         plan.open();
         while (plan.hasNext()) {
             builder.add(plan.next());
@@ -82,7 +82,7 @@ public class PhysicalPlanTestBase {
     }
 
     protected static class TestScan extends PhysicalPlan {
-        private final Iterator<BindingTuple> iterator;
+        private final Iterator<ExprValue> iterator;
 
         public TestScan() {
             iterator = inputs.iterator();
@@ -104,7 +104,7 @@ public class PhysicalPlanTestBase {
         }
 
         @Override
-        public BindingTuple next() {
+        public ExprValue next() {
             return iterator.next();
         }
     }

@@ -15,20 +15,24 @@
 
 package com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprMissingValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
-
-import java.util.Map;
 
 /**
  * BindingTuple represents the a relationship between bindingName and ExprValue.
  * e.g. The operation output column name is bindingName, the value is the ExprValue.
  */
 public abstract class BindingTuple implements Environment<Expression, ExprValue> {
+    public static BindingTuple EMPTY = new BindingTuple() {
+        @Override
+        public ExprValue resolve(ReferenceExpression ref) {
+            return ExprMissingValue.of();
+        }
+    };
 
     /**
      * Resolve {@link Expression} in the BindingTuple environment.
@@ -46,13 +50,4 @@ public abstract class BindingTuple implements Environment<Expression, ExprValue>
      * Resolve the {@link ReferenceExpression} in BindingTuple context.
      */
     public abstract ExprValue resolve(ReferenceExpression ref);
-
-    /**
-     * Create {@link BindingTuple} from Map Object.
-     */
-    public static BindingTuple from(Map<String, Object> map) {
-        MapBasedBindingTuple.MapBasedBindingTupleBuilder builder = new MapBasedBindingTuple.MapBasedBindingTupleBuilder();
-        map.forEach((key, value) -> builder.binding(key, ExprValueUtils.fromObjectValue(value)));
-        return builder.build();
-    }
 }

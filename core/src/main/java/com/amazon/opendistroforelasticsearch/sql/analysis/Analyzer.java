@@ -73,7 +73,7 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     @Override
     public LogicalPlan visitRename(Rename node, AnalysisContext context) {
         LogicalPlan child = node.getChild().get(0).accept(this, context);
-        ImmutableMap.Builder<Expression, Expression> renameMapBuilder = new ImmutableMap.Builder<>();
+        ImmutableMap.Builder<ReferenceExpression, ReferenceExpression> renameMapBuilder = new ImmutableMap.Builder<>();
         for (com.amazon.opendistroforelasticsearch.sql.ast.expression.Map renameMap : node.getRenameList()) {
             Expression origin = expressionAnalyzer.analyze(renameMap.getOrigin(), context);
             // We should define the new target field in the context instead of analyze it.
@@ -81,7 +81,7 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
                 ReferenceExpression target =
                         new ReferenceExpression(((Field) renameMap.getTarget()).getField().toString());
                 context.peek().define(target, origin.type(context.peek()));
-                renameMapBuilder.put(target, DSL.ref(origin.toString()));
+                renameMapBuilder.put(DSL.ref(origin.toString()), target);
             } else {
                 throw new SemanticCheckException(String.format("the target expected to be field, but is %s",
                         renameMap.getTarget()));

@@ -16,51 +16,50 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.aggregation;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
-import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
 import com.google.common.collect.ImmutableMap;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 public class AggregationTest extends ExpressionTestBase {
 
-    protected static List<BindingTuple> tuples = Arrays.asList(
-            BindingTuple.from(ImmutableMap.of("integer_value", 2,
+    protected static List<ExprValue> tuples = Arrays.asList(
+            ExprValueUtils.tupleValue(ImmutableMap.of("integer_value", 2,
                     "long_value", 2L,
                     "string_value", "m",
                     "double_value", 2d,
                     "float_value", 2f)),
-            BindingTuple.from(ImmutableMap.of("integer_value", 1,
+            ExprValueUtils.tupleValue(ImmutableMap.of("integer_value", 1,
                     "long_value", 1L,
                     "string_value", "f",
                     "double_value", 1d,
                     "float_value", 1f)),
-            BindingTuple.from(ImmutableMap.of("integer_value", 3,
+            ExprValueUtils.tupleValue(ImmutableMap.of("integer_value", 3,
                     "long_value", 3L,
                     "string_value", "m",
                     "double_value", 3d,
                     "float_value", 3f)),
-            BindingTuple.from(ImmutableMap.of("integer_value", 4,
+            ExprValueUtils.tupleValue(ImmutableMap.of("integer_value", 4,
                     "long_value", 4L,
                     "string_value", "f",
                     "double_value", 4d,
                     "float_value", 4f)));
 
-    protected static List<BindingTuple> tuples_with_null_and_missing = Arrays.asList(
-            BindingTuple.from(ImmutableMap.of("integer_value", 2,
+    protected static List<ExprValue> tuples_with_null_and_missing = Arrays.asList(
+            ExprValueUtils.tupleValue(ImmutableMap.of("integer_value", 2,
                     "string_value", "m",
                     "double_value", 3d)),
-            BindingTuple.from(ImmutableMap.of("integer_value", 1,
+            ExprValueUtils.tupleValue(ImmutableMap.of("integer_value", 1,
                     "string_value", "f",
                     "double_value", 4d)),
-            BindingTuple.from(Collections.singletonMap("double_value", null)));
+            ExprValueUtils.tupleValue(Collections.singletonMap("double_value", null)));
 
-    protected ExprValue aggregation(Aggregator aggregator, List<BindingTuple> tuples) {
+    protected ExprValue aggregation(Aggregator aggregator, List<ExprValue> tuples) {
         AggregationState state = aggregator.create();
-        for (BindingTuple tuple : tuples) {
-            aggregator.iterate(tuple, state);
+        for (ExprValue tuple : tuples) {
+            aggregator.iterate(tuple.bindingTuples(), state);
         }
         return state.result();
     }

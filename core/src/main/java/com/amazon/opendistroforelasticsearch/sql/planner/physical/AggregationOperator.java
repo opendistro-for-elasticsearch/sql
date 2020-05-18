@@ -15,26 +15,26 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AggregationState;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
-import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.MapBasedBindingTuple;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
-import lombok.EqualsAndHashCode;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
-
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 /**
  * Group the all the input {@link BindingTuple} by {@link AggregationOperator#groupByExprList}, calculate the
@@ -50,7 +50,7 @@ public class AggregationOperator extends PhysicalPlan {
     @EqualsAndHashCode.Exclude
     private final Group group;
     @EqualsAndHashCode.Exclude
-    private Iterator<BindingTuple> iterator;
+    private Iterator<ExprValue> iterator;
 
     public AggregationOperator(PhysicalPlan input, List<Aggregator> aggregatorList,
             List<Expression> groupByExprList) {
@@ -77,7 +77,7 @@ public class AggregationOperator extends PhysicalPlan {
     }
 
     @Override
-    public BindingTuple next() {
+    public ExprValue next() {
         return iterator.next();
     }
 
@@ -100,8 +100,8 @@ public class AggregationOperator extends PhysicalPlan {
          * {@link GroupKey} and {@link AggregationState}
          * Key = GroupKey(bindingTuple), State = Aggregator(bindingTuple)
          */
-        public void push(BindingTuple bindingTuple) {
-            GroupKey groupKey = new GroupKey(bindingTuple);
+        public void push(ExprValue inputValue) {
+            GroupKey groupKey = new GroupKey(inputValue);
             groupListMap.computeIfAbsent(groupKey, k ->
                     aggregatorList.stream()
                             .map(aggregator -> new AbstractMap.SimpleEntry<>(aggregator,
@@ -110,7 +110,7 @@ public class AggregationOperator extends PhysicalPlan {
             );
             groupListMap.computeIfPresent(groupKey, (key, aggregatorList) -> {
                 aggregatorList
-                        .forEach(entry -> entry.getKey().iterate(bindingTuple, entry.getValue()));
+                        .forEach(entry -> entry.getKey().iterate(inputValue.bindingTuples(), entry.getValue()));
                 return aggregatorList;
             });
         }
@@ -118,18 +118,16 @@ public class AggregationOperator extends PhysicalPlan {
         /**
          * Get the list of {@link BindingTuple} for each group.
          */
-        public List<BindingTuple> result() {
-            ImmutableList.Builder<BindingTuple> resultBuilder = new ImmutableList.Builder<>();
+        public List<ExprValue> result() {
+            ImmutableList.Builder<ExprValue> resultBuilder = new ImmutableList.Builder<>();
             for (Map.Entry<GroupKey, List<Map.Entry<Aggregator, AggregationState>>> entry : groupListMap
                     .entrySet()) {
-                MapBasedBindingTuple.MapBasedBindingTupleBuilder tupleBuilder = MapBasedBindingTuple
-                        .builder();
-                tupleBuilder.bindingMap(entry.getKey().groupKeyMap());
+                LinkedHashMap<String, ExprValue> map = new LinkedHashMap<>();
+                map.putAll(entry.getKey().groupKeyMap());
                 for (Map.Entry<Aggregator, AggregationState> stateEntry : entry.getValue()) {
-                    tupleBuilder.binding(stateEntry.getKey().toString(),
-                            stateEntry.getValue().result());
+                    map.put(stateEntry.getKey().toString(), stateEntry.getValue().result());
                 }
-                resultBuilder.add(tupleBuilder.build());
+                resultBuilder.add(ExprTupleValue.fromExprValueMap(map));
             }
             return resultBuilder.build();
         }
@@ -144,18 +142,18 @@ public class AggregationOperator extends PhysicalPlan {
 
         private final List<ExprValue> groupByValueList;
 
-        public GroupKey(BindingTuple bindingTuple) {
+        public GroupKey(ExprValue value) {
             this.groupByValueList = new ArrayList<>();
             for (Expression groupExpr : groupByExprList) {
-                this.groupByValueList.add(groupExpr.valueOf(bindingTuple));
+                this.groupByValueList.add(groupExpr.valueOf(value.bindingTuples()));
             }
         }
 
         /**
          * Return the Map of group field and group field value.
          */
-        public Map<String, ExprValue> groupKeyMap() {
-            Map<String, ExprValue> map = new HashMap<>();
+        public LinkedHashMap<String, ExprValue> groupKeyMap() {
+            LinkedHashMap<String, ExprValue> map = new LinkedHashMap<>();
             for (int i = 0; i < groupByExprList.size(); i++) {
                 map.put(groupByExprList.get(i).toString(), groupByValueList.get(i));
             }

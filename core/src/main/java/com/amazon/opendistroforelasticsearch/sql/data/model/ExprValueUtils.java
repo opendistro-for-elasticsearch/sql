@@ -17,10 +17,10 @@ package com.amazon.opendistroforelasticsearch.sql.data.model;
 
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.google.common.annotations.VisibleForTesting;
+import java.util.LinkedHashMap;
 import lombok.experimental.UtilityClass;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -64,7 +64,7 @@ public class ExprValueUtils {
     }
 
     public static ExprValue tupleValue(Map<String, Object> map) {
-        Map<String, ExprValue> valueMap = new HashMap<>();
+        LinkedHashMap<String, ExprValue> valueMap = new LinkedHashMap<>();
         map.forEach((k, v) -> valueMap.put(k, fromObjectValue(v)));
         return new ExprTupleValue(valueMap);
     }

@@ -15,31 +15,38 @@
 
 package com.amazon.opendistroforelasticsearch.sql.utils;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
-import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
 import java.util.Map;
 
 public class MatcherUtils {
-    public static TypeSafeMatcher<BindingTuple> tuple(Map<String, Object> map) {
-        return new TypeSafeMatcher<BindingTuple>() {
+    public static TypeSafeMatcher<ExprValue> tuple(Map<String, Object> map) {
+        return new TypeSafeMatcher<ExprValue>() {
             @Override
             public void describeTo(Description description) {
                 description.appendText(map.toString());
             }
 
             @Override
-            protected boolean matchesSafely(BindingTuple bindingTuple) {
-                for (Map.Entry<String, Object> entry : map.entrySet()) {
-                    if (!bindingTuple.resolve(DSL.ref(entry.getKey()))
-                            .equals(ExprValueUtils.fromObjectValue(entry.getValue()))) {
-                        return false;
+            protected boolean matchesSafely(ExprValue value) {
+                if (ExprType.STRUCT == value.type()) {
+                    ExprTupleValue tupleValue = (ExprTupleValue) value;
+                    for (Map.Entry<String, Object> entry : map.entrySet()) {
+                        if (!tupleValue.bindingTuples().resolve(DSL.ref(entry.getKey()))
+                                .equals(ExprValueUtils.fromObjectValue(entry.getValue()))) {
+                            return false;
+                        }
                     }
+                    return true;
+                } else {
+                    return false;
                 }
-                return true;
             }
         };
     }

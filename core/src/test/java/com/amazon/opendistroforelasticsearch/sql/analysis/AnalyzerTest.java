@@ -51,7 +51,7 @@ class AnalyzerTest extends AnalyzerTestBase {
         assertAnalyzeEqual(
                 LogicalPlanDSL.rename(
                         LogicalPlanDSL.relation("schema"),
-                        ImmutableMap.of(DSL.ref("ivalue"), DSL.ref("integer_value"))
+                        ImmutableMap.of(DSL.ref("integer_value"), DSL.ref("ivalue"))
                 ),
                 AstDSL.rename(
                         AstDSL.relation("schema"),
@@ -70,7 +70,7 @@ class AnalyzerTest extends AnalyzerTestBase {
                                 ImmutableList.of(dsl.avg(typeEnv, DSL.ref("integer_value"))),
                                 ImmutableList.of()
                         ),
-                        ImmutableMap.of(DSL.ref("ivalue"), DSL.ref("avg(integer_value)"))
+                        ImmutableMap.of(DSL.ref("avg(integer_value)"), DSL.ref("ivalue"))
                 ),
                 AstDSL.rename(
                         AstDSL.agg(

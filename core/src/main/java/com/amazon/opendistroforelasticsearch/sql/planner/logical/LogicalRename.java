@@ -15,19 +15,18 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
-import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Rename Operator.
- * renameList is list of mapping of target and source.
+ * renameList is list of mapping of source and target.
  */
 @ToString
 @EqualsAndHashCode
@@ -35,7 +34,7 @@ import java.util.Map;
 public class LogicalRename extends LogicalPlan {
     private final LogicalPlan child;
     @Getter
-    private final Map<Expression, Expression> renameMap;
+    private final Map<ReferenceExpression, ReferenceExpression> renameMap;
 
     @Override
     public List<LogicalPlan> getChild() {

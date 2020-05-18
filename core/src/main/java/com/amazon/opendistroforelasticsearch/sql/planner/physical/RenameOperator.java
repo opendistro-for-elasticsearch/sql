@@ -15,21 +15,26 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.STRUCT;
+
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
-import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
+import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Rename the binding name in {@link BindingTuple}.
- * The mapping maintain the relation between target and source.
+ * The mapping maintain the relation between source and target.
  * it means BindingTuple.resolve(target) = BindingTuple.resolve(source).
  */
 @EqualsAndHashCode
@@ -37,7 +42,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class RenameOperator extends PhysicalPlan {
     private final PhysicalPlan input;
-    private final Map<Expression, Expression> mapping;
+    private final Map<ReferenceExpression, ReferenceExpression> mapping;
 
     @Override
     public <R, C> R accept(PhysicalPlanNodeVisitor<R, C> visitor, C context) {
@@ -55,13 +60,21 @@ public class RenameOperator extends PhysicalPlan {
     }
 
     @Override
-    public BindingTuple next() {
-        BindingTuple bindingTuple = input.next();
-        return new BindingTuple() {
-            @Override
-            public ExprValue resolve(ReferenceExpression ref) {
-                return bindingTuple.resolve(mapping.getOrDefault(ref, ref));
+    public ExprValue next() {
+        ExprValue inputValue = input.next();
+        if (STRUCT == inputValue.type()) {
+            Map<String, ExprValue> tupleValue = ExprValueUtils.getTupleValue(inputValue);
+            ImmutableMap.Builder<String, ExprValue> mapBuilder = new Builder<>();
+            for (String bindName : tupleValue.keySet()) {
+                if (mapping.containsKey(DSL.ref(bindName))) {
+                    mapBuilder.put(mapping.get(DSL.ref(bindName)).getAttr(), tupleValue.get(bindName));
+                } else {
+                    mapBuilder.put(bindName, tupleValue.get(bindName));
+                }
             }
-        };
+            return ExprTupleValue.fromExprValueMap(mapBuilder.build());
+        } else {
+            return inputValue;
+        }
     }
 }

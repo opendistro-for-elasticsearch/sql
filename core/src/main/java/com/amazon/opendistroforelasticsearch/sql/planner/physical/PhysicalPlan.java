@@ -15,16 +15,15 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.planner.PlanNode;
-import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
-
 import java.util.Iterator;
 
 /**
  * Physical plan
  */
 public abstract class PhysicalPlan implements PlanNode<PhysicalPlan>,
-        Iterator<BindingTuple>,
+        Iterator<ExprValue>,
         AutoCloseable {
     /**
      * Accept the {@link PhysicalPlanNodeVisitor}.

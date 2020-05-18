@@ -23,7 +23,7 @@ import java.util.List;
 public class FilterOperator extends PhysicalPlan {
     private final PhysicalPlan input;
     private final Expression conditions;
-    private BindingTuple next = null;
+    private ExprValue next = null;
 
     @Override
     public <R, C> R accept(PhysicalPlanNodeVisitor<R, C> visitor, C context) {
@@ -38,10 +38,10 @@ public class FilterOperator extends PhysicalPlan {
     @Override
     public boolean hasNext() {
         while (input.hasNext()) {
-            BindingTuple tuple = input.next();
-            ExprValue exprValue = conditions.valueOf(tuple);
+            ExprValue inputValue = input.next();
+            ExprValue exprValue = conditions.valueOf(inputValue.bindingTuples());
             if (ExprValueUtils.getBooleanValue(exprValue)) {
-                next = tuple;
+                next = inputValue;
                 return true;
             }
         }
@@ -49,7 +49,7 @@ public class FilterOperator extends PhysicalPlan {
     }
 
     @Override
-    public BindingTuple next() {
+    public ExprValue next() {
         return next;
     }
 }

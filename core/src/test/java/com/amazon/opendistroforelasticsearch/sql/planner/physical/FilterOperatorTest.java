@@ -15,16 +15,16 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
-import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
-import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
-import com.google.common.collect.ImmutableMap;
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
+import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
+import com.google.common.collect.ImmutableMap;
+import java.util.List;
+import org.junit.jupiter.api.Test;
 
 class FilterOperatorTest extends PhysicalPlanTestBase {
 
@@ -32,8 +32,9 @@ class FilterOperatorTest extends PhysicalPlanTestBase {
     public void filterTest() {
         FilterOperator plan = new FilterOperator(new TestScan(),
                 dsl.equal(typeEnv(), DSL.ref("response"), DSL.literal(404)));
-        List<BindingTuple> result = execute(plan);
+        List<ExprValue> result = execute(plan);
         assertEquals(1, result.size());
-        assertThat(result, containsInAnyOrder(BindingTuple.from(ImmutableMap.of("ip", "209.160.24.63", "action", "GET", "response", 404, "referer", "www.amazon.com"))));
+        assertThat(result, containsInAnyOrder(ExprValueUtils
+                .tupleValue(ImmutableMap.of("ip", "209.160.24.63", "action", "GET", "response", 404, "referer", "www.amazon.com"))));
     }
 }

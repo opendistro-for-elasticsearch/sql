@@ -15,41 +15,20 @@
 
 package com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprMissingValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
-import lombok.Singular;
-
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
- * The {@link BindingTuple} backed with Map.
+ * Lazy Implementation of {@link BindingTuple}.
  */
-@Builder
-@Getter
-@EqualsAndHashCode
 @RequiredArgsConstructor
-public class MapBasedBindingTuple extends BindingTuple {
-    @Singular("binding")
-    private final Map<String, ExprValue> bindingMap;
-
-    /**
-     * Resolve the {@link ReferenceExpression} in BindingTuple context.
-     */
-    public ExprValue resolve(ReferenceExpression ref) {
-        return bindingMap.getOrDefault(ref.getAttr(), ExprMissingValue.of());
-    }
+public class LazyBindingTuple extends BindingTuple {
+    private final Function<String, ExprValue> lazyBinding;
 
     @Override
-    public String toString() {
-        return bindingMap.entrySet()
-                .stream()
-                .map(entry -> String.format("%s:%s", entry.getKey(), entry.getValue()))
-                .collect(Collectors.joining(",", "<", ">"));
+    public ExprValue resolve(ReferenceExpression ref) {
+        return lazyBinding.apply(ref.getAttr());
     }
 }

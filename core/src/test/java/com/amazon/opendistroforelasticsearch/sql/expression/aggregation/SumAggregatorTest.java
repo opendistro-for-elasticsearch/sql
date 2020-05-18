@@ -25,7 +25,6 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.SumAggregator.SumState;
-import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.Test;
@@ -68,7 +67,8 @@ class SumAggregatorTest extends AggregationTest {
         SumAggregator sumAggregator = new SumAggregator(ImmutableList.of(DSL.ref("string_value")), ExprType.STRING);
         SumState sumState = sumAggregator.create();
         ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
-                () -> sumAggregator.iterate(BindingTuple.from(ImmutableMap.of("string_value", "m")), sumState)
+                () -> sumAggregator
+                        .iterate(ExprValueUtils.tupleValue(ImmutableMap.of("string_value", "m")).bindingTuples(), sumState)
         );
         assertEquals("unexpected type [STRING] in sum aggregation", exception.getMessage());
     }

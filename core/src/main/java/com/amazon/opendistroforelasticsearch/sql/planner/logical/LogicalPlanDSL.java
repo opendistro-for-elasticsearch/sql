@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import lombok.experimental.UtilityClass;
 
@@ -40,7 +41,7 @@ public class LogicalPlanDSL {
         return new LogicalRelation(tableName);
     }
 
-    public static LogicalPlan rename(LogicalPlan input, Map<Expression, Expression> renameMap) {
+    public static LogicalPlan rename(LogicalPlan input, Map<ReferenceExpression, ReferenceExpression> renameMap) {
         return new LogicalRename(input, renameMap);
     }
 }

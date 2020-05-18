@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -37,6 +38,8 @@ class LogicalPlanNodeVisitorTest {
     @Mock
     Expression expression;
     @Mock
+    ReferenceExpression ref;
+    @Mock
     Aggregator aggregator;
 
     @Test
@@ -50,7 +53,7 @@ class LogicalPlanNodeVisitorTest {
                                 ImmutableList.of(aggregator),
                                 ImmutableList.of(expression)
                         ),
-                        ImmutableMap.of(expression, expression)
+                        ImmutableMap.of(ref, ref)
                 );
 
         Integer result = logicalPlan.accept(new NodesCount(), null);
@@ -68,7 +71,7 @@ class LogicalPlanNodeVisitorTest {
         );
         LogicalPlan rename = LogicalPlanDSL.rename(
                 aggregation,
-                ImmutableMap.of(expression, expression)
+                ImmutableMap.of(ref, ref)
         );
 
         assertNull(relation.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
