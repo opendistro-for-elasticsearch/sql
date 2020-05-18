@@ -37,7 +37,7 @@ class JsonResponseFormatterTest {
     public void formatException() {
         SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(false);
         assertEquals(
-            "This is an exception",
+            "{\"reason\":\"This is an exception\",\"type\":\"RuntimeException\"}",
             formatter.format(new RuntimeException("This is an exception"))
         );
     }

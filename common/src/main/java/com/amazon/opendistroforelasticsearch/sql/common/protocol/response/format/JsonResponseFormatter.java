@@ -33,15 +33,31 @@ public abstract class JsonResponseFormatter<Response> implements ResponseFormatt
 
     @Override
     public String format(Response response) {
-        JSONObject json = new JSONObject(buildJsonObject(response));
-        return isPretty ? json.toString(2) : json.toString();
+        return jsonify(buildJsonObject(response));
+    }
+
+    @Override
+    public String format(Throwable t) {
+        return jsonify(buildJsonObject(t));
     }
 
     /**
-     * Build JSON object to generate json string.
+     * Build JSON object to generate response json string.
      * @param response  response
-     * @return          json object
+     * @return          json object for response
      */
     protected abstract Object buildJsonObject(Response response);
 
+    /**
+     * Build JSON object to generate error json string.
+     * @param t     exception
+     * @return      json object for error
+     */
+    protected abstract Object buildJsonObject(Throwable t);
+
+
+    private String jsonify(Object jsonObject) {
+        JSONObject json = new JSONObject(jsonObject);
+        return isPretty ? json.toString(2) : json.toString();
+    }
 }

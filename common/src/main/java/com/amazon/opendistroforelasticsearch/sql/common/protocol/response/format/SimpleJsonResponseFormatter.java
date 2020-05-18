@@ -56,8 +56,8 @@ public class SimpleJsonResponseFormatter extends JsonResponseFormatter<List<Obje
     }
 
     @Override
-    public String format(Throwable t) {
-        return t.getMessage();
+    public Object buildJsonObject(Throwable t) {
+        return new JsonError(t.getClass().getSimpleName(), t.getMessage());
     }
 
     /**
@@ -83,6 +83,13 @@ public class SimpleJsonResponseFormatter extends JsonResponseFormatter<List<Obje
     @Getter
     public static class DataRow {
         private final Object[] row;
+    }
+
+    @RequiredArgsConstructor
+    @Getter
+    public static class JsonError {
+        private final String type;
+        private final String reason;
     }
 
 }
