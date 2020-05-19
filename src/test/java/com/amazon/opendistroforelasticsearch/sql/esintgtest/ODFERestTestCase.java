@@ -6,18 +6,14 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.message.BasicHeader;
-import org.apache.http.nio.conn.ssl.SSLIOSessionStrategy;
 import org.apache.http.ssl.SSLContextBuilder;
-import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
-import org.elasticsearch.common.io.PathUtils;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.util.concurrent.ThreadContext;
@@ -25,27 +21,37 @@ import org.elasticsearch.test.rest.ESRestTestCase;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.Map;
+import java.util.Optional;
 
-public abstract class FGACEnabledODFETestCase extends ESRestTestCase {
-    protected String getProtocol() {
-        return "https";
+public abstract class ODFERestTestCase extends ESRestTestCase {
+
+    protected boolean isHttps() {
+        boolean isHttps = Optional.ofNullable(System.getProperty("https"))
+                .map("true"::equalsIgnoreCase).orElse(false);
+        if (isHttps) {
+            //currently only external cluster is supported for security enabled testing
+            if (!Optional.ofNullable(System.getProperty("tests.rest.cluster")).isPresent()) {
+                throw new RuntimeException("external cluster url should be provided for security enabled testing");
+            }
+        }
+
+        return isHttps;
     }
 
+    protected String getProtocol() {
+        return isHttps() ? "https" : "http";
+    }
 
     protected RestClient buildClient(Settings settings, HttpHost[] hosts) throws IOException {
         RestClientBuilder builder = RestClient.builder(hosts);
-        configureCustomClient(builder, settings);
+        if (isHttps()) {
+            configureHttpsClient(builder, settings);
+        } else {
+            configureClient(builder, settings);
+        }
+
         builder.setStrictDeprecationMode(true);
         return builder.build();
     }
@@ -56,12 +62,14 @@ public abstract class FGACEnabledODFETestCase extends ESRestTestCase {
         for (Object object : jsonArray) {
             JSONObject jsonObject = (JSONObject)object;
             String indexName = jsonObject.getString("index");
+            //.opendistro_security isn't allowed to delete from cluster
             if (!".opendistro_security".equals(indexName)) {
                 client().performRequest(new Request("DELETE", "/" + indexName));
             }
         }
     }
-    protected static void configureCustomClient(RestClientBuilder builder, Settings settings) throws IOException {
+
+    protected static void configureHttpsClient(RestClientBuilder builder, Settings settings) throws IOException {
         Map<String, String> headers = ThreadContext.buildDefaultHeaders(settings);
         Header[] defaultHeaders = new Header[headers.size()];
         int i = 0;
@@ -70,10 +78,15 @@ public abstract class FGACEnabledODFETestCase extends ESRestTestCase {
         }
         builder.setDefaultHeaders(defaultHeaders);
         builder.setHttpClientConfigCallback(httpClientBuilder -> {
+            String userName = Optional.ofNullable(System.getProperty("user"))
+                    .orElseThrow(() -> new RuntimeException("user name is missing"));
+            String password = Optional.ofNullable(System.getProperty("password"))
+                    .orElseThrow(() -> new RuntimeException("password is missing"));
             CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-            credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials("admin", "admin"));
+            credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(userName, password));
             try {
                 return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider)
+                        //disable the certificate since our testing cluster just uses the default security configuration
                         .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
                         .setSSLContext(SSLContextBuilder.create()
                                 .loadTrustMaterial(null, (chains, authType) -> true)
