@@ -31,3 +31,7 @@ build/
 *.orig
 gen
 *.tokens
+
+# Python
+*/.venv
+*/__pycache__

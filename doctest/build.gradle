@@ -1,0 +1,34 @@
+plugins {
+    id "com.wiredforcode.spawn" version "0.8.2"
+}
+
+def path = project(':').projectDir
+
+
+
+task bootstrap(type: Exec) {
+    inputs.file "$projectDir/bootstrap.sh"
+    outputs.dir "$projectDir/.venv"
+
+    commandLine 'sh', "$projectDir/bootstrap.sh"
+}
+
+//evaluationDependsOn(':')
+task startES(type: SpawnProcessTask) {
+    command "${path}/gradlew -p ${path} run"
+    ready 'started'
+}
+
+task doctest(type: Exec, dependsOn: ['bootstrap']) {
+
+    commandLine "$projectDir/bin/test-docs"
+
+    doLast {
+        println("doctest done")
+    }
+}
+
+task stopES(type: KillProcessTask)
+
+doctest.dependsOn startES
+doctest.finalizedBy stopES
