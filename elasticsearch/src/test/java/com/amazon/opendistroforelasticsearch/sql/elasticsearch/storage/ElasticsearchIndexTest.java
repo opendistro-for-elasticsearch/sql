@@ -19,9 +19,10 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
 import com.google.common.collect.ImmutableMap;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -29,10 +30,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Map;
 
+import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.relation;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.hasEntry;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,29 +44,26 @@ class ElasticsearchIndexTest {
     @Mock
     private ElasticsearchClient client;
 
-    @BeforeEach
-    public void setUp() {
+    @Test
+    public void getFieldTypes() {
         when(client.getIndexMappings("test")).thenReturn(
             ImmutableMap.of("test", new IndexMapping(
-                ImmutableMap.<String, String>builder().
-                    put("name", "keyword").
-                    put("address", "text").
-                    put("age", "integer").
-                    put("account_number", "long").
-                    put("balance1", "float").
-                    put("balance2", "double").
-                    put("gender", "boolean").
-                    put("family", "nested").
-                    put("employer", "object").
-                    put("birthday", "date").
-                    build()
+                    ImmutableMap.<String, String>builder().
+                        put("name", "keyword").
+                        put("address", "text").
+                        put("age", "integer").
+                        put("account_number", "long").
+                        put("balance1", "float").
+                        put("balance2", "double").
+                        put("gender", "boolean").
+                        put("family", "nested").
+                        put("employer", "object").
+                        put("birthday", "date").
+                        build()
                 )
             )
         );
-    }
 
-    @Test
-    public void getFieldTypes() {
         Table index = new ElasticsearchIndex(client, "test");
         Map<String, ExprType> fieldTypes = index.getFieldTypes();
         assertThat(
@@ -82,6 +82,16 @@ class ElasticsearchIndexTest {
                 hasEntry("birthday", ExprType.UNKNOWN)
             )
         );
+    }
+
+    @Test
+    public void implement() {
+        String indexName = "test";
+        Table index = new ElasticsearchIndex(client, indexName);
+        LogicalPlan plan = relation(indexName);
+
+        PhysicalPlan actual = index.implement(plan);
+        assertTrue(actual instanceof ElasticsearchIndexScan);
     }
 
 }

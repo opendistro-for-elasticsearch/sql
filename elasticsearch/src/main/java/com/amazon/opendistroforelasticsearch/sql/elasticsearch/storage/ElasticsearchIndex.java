@@ -19,6 +19,10 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
 import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
@@ -71,6 +75,16 @@ public class ElasticsearchIndex implements Table {
             fieldTypes.putAll(indexMapping.getAllFieldTypes(this::transformESTypeToExprType));
         }
         return fieldTypes;
+    }
+
+    @Override
+    public PhysicalPlan implement(LogicalPlan plan) {
+        return plan.accept(new LogicalPlanNodeVisitor<PhysicalPlan, Object>() {
+            @Override
+            public PhysicalPlan visitRelation(LogicalRelation plan, Object context) {
+                return new ElasticsearchIndexScan(plan.getRelationName());
+            }
+        }, null);
     }
 
     private ExprType transformESTypeToExprType(String esType) {

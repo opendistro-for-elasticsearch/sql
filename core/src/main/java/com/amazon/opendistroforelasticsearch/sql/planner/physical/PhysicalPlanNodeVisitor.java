@@ -15,6 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
+import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
+
 /**
  * The visitor of {@link PhysicalPlan}.
  *
@@ -36,6 +38,10 @@ public abstract class PhysicalPlanNodeVisitor<R, C> {
     }
 
     public R visitRename(RenameOperator node, C context) {
+        return visitNode(node, context);
+    }
+
+    public R visitTableScan(TableScanOperator node, C context) {
         return visitNode(node, context);
     }
 }
