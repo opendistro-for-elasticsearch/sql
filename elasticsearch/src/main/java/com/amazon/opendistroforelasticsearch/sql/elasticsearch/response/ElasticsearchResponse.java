@@ -32,14 +32,23 @@ public class ElasticsearchResponse implements Iterable<SearchHit> {
      */
     private final SearchHits hits;
 
+
     public ElasticsearchResponse(SearchResponse esResponse) {
         this.hits = esResponse.getHits(); //TODO: aggregation result is separate and not in SearchHit[]
     }
 
+    /**
+     * Is response empty
+     * @return  true for empty
+     */
     public boolean isEmpty() {
         return hits.getTotalHits().value == 0;
     }
 
+    /**
+     * Make response iterable without need to return internal data structure explicitly.
+     * @return  search hit iterator
+     */
     @Override
     public Iterator<SearchHit> iterator() {
         return hits.iterator();

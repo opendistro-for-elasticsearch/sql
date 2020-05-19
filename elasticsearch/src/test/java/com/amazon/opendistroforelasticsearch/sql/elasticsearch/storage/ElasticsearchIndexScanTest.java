@@ -30,8 +30,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
 import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -107,17 +105,9 @@ class ElasticsearchIndexScanTest {
         });
     }
 
-    protected SearchHit employee(int docId, String lastname, String departmentId) {
+    protected SearchHit employee(int docId, String name, String department) {
         SearchHit hit = new SearchHit(docId);
-        if (lastname == null) {
-            hit.sourceRef(new BytesArray("{\"departmentId\":\"" + departmentId + "\"}"));
-        }
-        else if (departmentId == null) {
-            hit.sourceRef(new BytesArray("{\"lastname\":\"" + lastname + "\"}"));
-        }
-        else {
-            hit.sourceRef(new BytesArray("{\"lastname\":\"" + lastname + "\",\"departmentId\":\"" + departmentId + "\"}"));
-        }
+        hit.sourceRef(new BytesArray("{\"name\":\"" + name + "\",\"department\":\"" + department + "\"}"));
         return hit;
     }
 
