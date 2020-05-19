@@ -36,7 +36,7 @@ import java.util.Objects;
 @ToString
 public class ElasticsearchRequest {
 
-    private static final TimeValue DEFAULT_SCROLL_TIMEOUT = TimeValue.timeValueMinutes(1L);
+    public static final TimeValue DEFAULT_SCROLL_TIMEOUT = TimeValue.timeValueMinutes(1L);
 
     /**
      * Index name.
@@ -80,7 +80,8 @@ public class ElasticsearchRequest {
      */
     public SearchScrollRequest scrollRequest() {
         Objects.requireNonNull(scrollId, "Scroll id cannot be null");
-        return new SearchScrollRequest().scrollId(scrollId);
+        return new SearchScrollRequest().scroll(DEFAULT_SCROLL_TIMEOUT).
+                                         scrollId(scrollId);
     }
 
 }
