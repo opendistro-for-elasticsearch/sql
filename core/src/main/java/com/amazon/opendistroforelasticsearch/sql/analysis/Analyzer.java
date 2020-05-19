@@ -25,6 +25,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprMissingValue;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
@@ -118,7 +119,12 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
 
     /**
      * Build {@link LogicalProject} or {@link LogicalRemove} from {@link Field}.
-     * Todo, the include/exclude fields should change the env definition.
+     *
+     * <p>Todo, the include/exclude fields should change the env definition. The cons of current
+     * implementation is even the query contain the field reference which has been excluded from fields command. There
+     * is no {@link SemanticCheckException} will be thrown. Instead, the during runtime evaluation, the not exist filed
+     * will be resolve to {@link ExprMissingValue} which will not impact the correctness.
+     *
      * Postpone the implementation when finding more use case.
      */
     @Override
@@ -128,7 +134,7 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
                 .map(expr -> (ReferenceExpression) expressionAnalyzer.analyze(expr, context))
                 .collect(Collectors.toList());
         Argument argument = node.getArgExprList().get(0);
-        Boolean exclude = (Boolean)argument.getValue().getValue();
+        Boolean exclude = (Boolean) argument.getValue().getValue();
         if (exclude) {
             return new LogicalRemove(child, ImmutableSet.copyOf(referenceExpressions));
         } else {

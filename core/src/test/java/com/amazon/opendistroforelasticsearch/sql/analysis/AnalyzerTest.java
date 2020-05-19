@@ -48,7 +48,7 @@ class AnalyzerTest extends AnalyzerTestBase {
                 )
         );
     }
-    
+
     @Test
     public void rename_relation() {
         assertAnalyzeEqual(
