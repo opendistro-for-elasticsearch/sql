@@ -14,7 +14,7 @@
  *
  */
 
-package com.amazon.opendistroforelasticsearch.sql.common.protocol.response.format;
+package com.amazon.opendistroforelasticsearch.sql.protocol.response.format;
 
 import lombok.Builder;
 import lombok.Getter;

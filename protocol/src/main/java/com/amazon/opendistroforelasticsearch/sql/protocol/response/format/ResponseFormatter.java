@@ -14,7 +14,7 @@
  *
  */
 
-package com.amazon.opendistroforelasticsearch.sql.common.protocol.response.format;
+package com.amazon.opendistroforelasticsearch.sql.protocol.response.format;
 
 /**
  * Response formatter to format response to different formats.

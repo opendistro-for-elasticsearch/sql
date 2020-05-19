@@ -14,14 +14,14 @@
  *
  */
 
-package com.amazon.opendistroforelasticsearch.sql.common.protocol.response.format;
+package com.amazon.opendistroforelasticsearch.sql.protocol.response.format;
 
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
-import static com.amazon.opendistroforelasticsearch.sql.common.protocol.response.format.JsonResponseFormatter.Style.COMPACT;
-import static com.amazon.opendistroforelasticsearch.sql.common.protocol.response.format.JsonResponseFormatter.Style.PRETTY;
+import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter.Style.COMPACT;
+import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter.Style.PRETTY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class JsonResponseFormatterTest {

@@ -14,12 +14,12 @@
  *
  */
 
-package com.amazon.opendistroforelasticsearch.sql.common.protocol.response.format;
+package com.amazon.opendistroforelasticsearch.sql.protocol.response.format;
 
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
 
-import static com.amazon.opendistroforelasticsearch.sql.common.protocol.response.format.JsonResponseFormatter.Style.PRETTY;
+import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter.Style.PRETTY;
 
 /**
  * Abstract class for all JSON formatter.
