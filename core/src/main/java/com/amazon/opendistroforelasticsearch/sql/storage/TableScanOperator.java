@@ -24,7 +24,7 @@ import java.util.List;
 
 /**
  * Abstract table scan class for different storage to implement.
- * This is also to avoid "polluting" physical plan visitor by concrete table scan implementation in various storage.
+ * This is also to avoid "polluting" physical plan visitor by concrete table scan implementation.
  */
 public abstract class TableScanOperator extends PhysicalPlan {
 

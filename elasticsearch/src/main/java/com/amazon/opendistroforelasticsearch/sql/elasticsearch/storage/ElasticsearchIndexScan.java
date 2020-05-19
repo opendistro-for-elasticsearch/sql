@@ -26,6 +26,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ElasticsearchIndexScan extends TableScanOperator {
 
+    /**
+     * ELasticsearch index name.
+     */
     private final String indexName;
 
     @Override
