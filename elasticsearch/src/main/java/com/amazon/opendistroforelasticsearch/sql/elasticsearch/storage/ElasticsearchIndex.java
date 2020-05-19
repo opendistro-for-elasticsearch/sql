@@ -48,15 +48,15 @@ public class ElasticsearchIndex implements Table {
      */
     private final static Map<String, ExprType> ES_TYPE_TO_EXPR_TYPE_MAPPING =
         ImmutableMap.<String, ExprType>builder().put("text", ExprType.STRING).
-                                  put("keyword", ExprType.STRING).
-                                  put("integer", ExprType.INTEGER).
-                                  put("long", ExprType.LONG).
-                                  put("float", ExprType.FLOAT).
-                                  put("double", ExprType.DOUBLE).
-                                  put("boolean", ExprType.BOOLEAN).
-                                  put("nested", ExprType.ARRAY).
-                                  put("object", ExprType.STRUCT).
-                                  build();
+                                                 put("keyword", ExprType.STRING).
+                                                 put("integer", ExprType.INTEGER).
+                                                 put("long", ExprType.LONG).
+                                                 put("float", ExprType.FLOAT).
+                                                 put("double", ExprType.DOUBLE).
+                                                 put("boolean", ExprType.BOOLEAN).
+                                                 put("nested", ExprType.ARRAY).
+                                                 put("object", ExprType.STRUCT).
+                                                 build();
 
     /**
      * Elasticsearch client connection.

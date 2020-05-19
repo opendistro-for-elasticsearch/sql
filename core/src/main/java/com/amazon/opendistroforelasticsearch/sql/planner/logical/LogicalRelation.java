@@ -17,7 +17,6 @@ package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
 import com.google.common.collect.ImmutableList;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
@@ -29,7 +28,6 @@ import java.util.List;
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor
-@Getter
 public class LogicalRelation extends LogicalPlan {
     private final String relationName;
 
