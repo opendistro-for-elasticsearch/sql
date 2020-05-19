@@ -65,6 +65,7 @@ class ElasticsearchIndexScanTest {
                 employee(3, "Allen", "IT")
             }
         );
+
         try (ElasticsearchIndexScan indexScan = new ElasticsearchIndexScan(client, "employees")) {
             indexScan.open();
 
@@ -96,7 +97,7 @@ class ElasticsearchIndexScanTest {
                 } else if (batchNum == totalBatch) {
                     when(response.isEmpty()).thenReturn(true);
                 } else {
-                    fail("Search request after empty response returned earlier");
+                    fail("Search request after empty response returned already");
                 }
 
                 batchNum++;

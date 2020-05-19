@@ -16,6 +16,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.response;
 
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -25,6 +27,8 @@ import java.util.Iterator;
 /**
  * Elasticsearch search response
  */
+@EqualsAndHashCode
+@ToString
 public class ElasticsearchResponse implements Iterable<SearchHit> {
 
     /**
