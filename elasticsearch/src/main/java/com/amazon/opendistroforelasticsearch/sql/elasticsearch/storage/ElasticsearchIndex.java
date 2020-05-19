@@ -85,7 +85,7 @@ public class ElasticsearchIndex implements Table {
     }
 
     /**
-     * TODO: Push down to scan operator as much as possible
+     * TODO: Push down operations to index scan operator as much as possible in future.
      */
     @Override
     public PhysicalPlan implement(LogicalPlan plan) {
@@ -118,9 +118,7 @@ public class ElasticsearchIndex implements Table {
             }
 
             private PhysicalPlan visitChild(LogicalPlan node, ElasticsearchIndexScan context) {
-                if (node.getChild().size() > 1) {
-                    throw new IllegalStateException("Failed to convert logical plan to physical plan");
-                }
+                // Logical operators visited here can only have single child.
                 return node.getChild().get(0).accept(this, context);
             }
         }, indexScan);
