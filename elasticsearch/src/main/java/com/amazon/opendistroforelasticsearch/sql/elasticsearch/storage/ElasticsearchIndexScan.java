@@ -23,6 +23,8 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.Elasticse
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
 import com.google.common.collect.Iterables;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.elasticsearch.search.SearchHit;
 
 import java.util.ArrayList;
@@ -32,6 +34,8 @@ import java.util.List;
 /**
  * Elasticsearch index scan operator
  */
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
+@ToString(onlyExplicitlyIncluded = true)
 public class ElasticsearchIndexScan extends TableScanOperator {
 
     /**
@@ -42,6 +46,8 @@ public class ElasticsearchIndexScan extends TableScanOperator {
     /**
      * Search request.
      */
+    @EqualsAndHashCode.Include
+    @ToString.Include
     private final ElasticsearchRequest request;
 
     /**

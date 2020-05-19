@@ -16,9 +16,11 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.request;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.common.unit.TimeValue;
@@ -29,7 +31,9 @@ import java.util.Objects;
 /**
  * Elasticsearch search request
  */
+@EqualsAndHashCode
 @RequiredArgsConstructor
+@ToString
 public class ElasticsearchRequest {
 
     private static final TimeValue DEFAULT_SCROLL_TIMEOUT = TimeValue.timeValueMinutes(1L);
@@ -53,8 +57,8 @@ public class ElasticsearchRequest {
     private final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
 
     /**
-     * Generate Elasicsearch search request.
-     * @return
+     * Generate Elasticsearch search request.
+     * @return  search request
      */
     public SearchRequest searchRequest() {
         return new SearchRequest().indices(indexName).
@@ -62,10 +66,18 @@ public class ElasticsearchRequest {
                                    source(sourceBuilder);
     }
 
+    /**
+     * Is scroll started which means pages after first is being requested
+     * @return  true if scroll started
+     */
     public boolean isScrollStarted() {
         return (scrollId != null);
     }
 
+    /**
+     * Generate Elasticsearch scroll request by scroll id maintained.
+     * @return  scroll request
+     */
     public SearchScrollRequest scrollRequest() {
         Objects.requireNonNull(scrollId, "Scroll id cannot be null");
         return new SearchScrollRequest().scrollId(scrollId);
