@@ -147,13 +147,19 @@ logicalExpression
     ;
 
 evalExpression
-    : fieldExpression EQUAL evalFunctionCall
+    : fieldExpression EQUAL evalFunctionCall                        #evalFuncExpr
+    | fieldExpression EQUAL binaryOperation                         #evalBinaryOpExpr
     ;
 
 comparisonExpression
     : left=fieldExpression comparisonOperator
     (field=fieldExpression | literal=literalValue)                  #compareExpr
     | fieldExpression IN valueList                                  #inExpr
+    ;
+
+binaryOperation
+    : left=functionArg binaryOperator right=functionArg
+    | LT_PRTHS binaryOperation RT_PRTHS
     ;
 
 /** tables */
@@ -232,6 +238,10 @@ functionArg
 /** operators */
 comparisonOperator
     : EQUAL | NOT_EQUAL | LESS | NOT_LESS | GREATER | NOT_GREATER
+    ;
+
+binaryOperator
+    : PLUS | MINUS | STAR | DIVIDE | MODULE
     ;
 
 /** literals and values*/

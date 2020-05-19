@@ -34,6 +34,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Not;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
 import com.amazon.opendistroforelasticsearch.sql.ppl.utils.ArgumentFactory;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -80,10 +81,17 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Unresol
 
     /** Eval expression */
     @Override
-    public UnresolvedExpression visitEvalExpression(EvalExpressionContext ctx) {
+    public UnresolvedExpression visitEvalFuncExpr(OpenDistroPPLParser.EvalFuncExprContext ctx) {
         UnresolvedExpression field = visit(ctx.fieldExpression());
         UnresolvedExpression evalFunctionCall = visit(ctx.evalFunctionCall());
         return new EqualTo(field, evalFunctionCall);
+    }
+
+    @Override
+    public UnresolvedExpression visitEvalBinaryOpExpr(OpenDistroPPLParser.EvalBinaryOpExprContext ctx) {
+        UnresolvedExpression field = visit(ctx.fieldExpression());
+        UnresolvedExpression binaryOperation = visit(ctx.binaryOperation());
+        return new EqualTo(field, binaryOperation);
     }
 
     /** Comparison expression */
@@ -102,6 +110,14 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Unresol
                         .stream()
                         .map(this::visitLiteralValue)
                         .collect(Collectors.toList()));
+    }
+
+    @Override
+    public UnresolvedExpression visitBinaryOperation(OpenDistroPPLParser.BinaryOperationContext ctx) {
+        return new Function(
+                ctx.binaryOperator().getText(),
+                Arrays.asList(visit(ctx.left), visit(ctx.right))
+        );
     }
 
     /** Field expression */

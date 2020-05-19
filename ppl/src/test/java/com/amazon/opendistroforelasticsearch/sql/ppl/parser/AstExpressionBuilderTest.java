@@ -105,6 +105,30 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
     }
 
     @Test
+    public void testEvalFunctionExpr() {
+        assertEqual("source=t | eval f=abs(a)",
+                project(
+                        relation("t"),
+                        equalTo(
+                                field("f"),
+                                function("abs", field("a"))
+                        )
+                ));
+    }
+
+    @Test
+    public void testEvalBinaryOperationExpr() {
+        assertEqual("source=t | eval f=a+b",
+                project(
+                        relation("t"),
+                        equalTo(
+                                field("f"),
+                                function("+", field("a"), field("b"))
+                        )
+                ));
+    }
+
+    @Test
     public void testCompareExpr() {
         assertEqual("source=t a='b'",
                 filter(
