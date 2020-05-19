@@ -25,6 +25,9 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * ODFE integration test base class to support both security disabled and enabled ODFE cluster.
+ */
 public abstract class ODFERestTestCase extends ESRestTestCase {
 
     protected boolean isHttps() {

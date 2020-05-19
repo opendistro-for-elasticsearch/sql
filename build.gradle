@@ -155,7 +155,7 @@ integTest.runner {
         testLogging.showStandardStreams true
 
         // Pass down system properties to IT class
-            systemProperty "esHost", System.getProperty("esHost")
+        systemProperty "esHost", System.getProperty("esHost")
         systemProperty "dbUrl", System.getProperty("dbUrl")
         systemProperty "otherDbUrls", System.getProperty("otherDbUrls")
         systemProperty "queries", System.getProperty("queries")
