@@ -22,31 +22,31 @@ package com.amazon.opendistroforelasticsearch.sql.planner.logical;
  * @param <C> context type.
  */
 public abstract class LogicalPlanNodeVisitor<R, C> {
-    protected R visitNode(LogicalPlan plan, C context) {
-        return null;
-    }
+  protected R visitNode(LogicalPlan plan, C context) {
+    return null;
+  }
 
-    public R visitRelation(LogicalRelation plan, C context) {
-        return visitNode(plan, context);
-    }
+  public R visitRelation(LogicalRelation plan, C context) {
+    return visitNode(plan, context);
+  }
 
-    public R visitFilter(LogicalFilter plan, C context) {
-        return visitNode(plan, context);
-    }
+  public R visitFilter(LogicalFilter plan, C context) {
+    return visitNode(plan, context);
+  }
 
-    public R visitAggregation(LogicalAggregation plan, C context) {
-        return visitNode(plan, context);
-    }
+  public R visitAggregation(LogicalAggregation plan, C context) {
+    return visitNode(plan, context);
+  }
 
-    public R visitRename(LogicalRename plan, C context) {
-        return visitNode(plan, context);
-    }
+  public R visitRename(LogicalRename plan, C context) {
+    return visitNode(plan, context);
+  }
 
-    public R visitProject(LogicalProject plan, C context) {
-        return visitNode(plan, context);
-    }
+  public R visitProject(LogicalProject plan, C context) {
+    return visitNode(plan, context);
+  }
 
-    public R visitRemove(LogicalRemove plan, C context) {
-        return visitNode(plan, context);
-    }
+  public R visitRemove(LogicalRemove plan, C context) {
+    return visitNode(plan, context);
+  }
 }

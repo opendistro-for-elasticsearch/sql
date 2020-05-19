@@ -24,6 +24,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+/**
+ * Remove field specified by the {@link LogicalRemove#removeList}.
+ */
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor

@@ -38,4 +38,11 @@ public abstract class PhysicalPlanNodeVisitor<R, C> {
     public R visitRename(RenameOperator node, C context) {
         return visitNode(node, context);
     }
+
+    public R visitProject(ProjectOperator node, C context) {
+        return visitNode(node, context);
+    }
+    public R visitRemove(RemoveOperator node, C context) {
+        return visitNode(node, context);
+    }
 }

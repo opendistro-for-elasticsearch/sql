@@ -15,20 +15,19 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.stream.Collectors;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Todo. Temporary added for UT coverage, Will be removed.
@@ -73,6 +72,8 @@ class LogicalPlanNodeVisitorTest {
                 aggregation,
                 ImmutableMap.of(ref, ref)
         );
+        LogicalPlan project = LogicalPlanDSL.project(relation, ref);
+        LogicalPlan remove = LogicalPlanDSL.remove(relation, ref);
 
         assertNull(relation.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
         }, null));
@@ -81,6 +82,10 @@ class LogicalPlanNodeVisitorTest {
         assertNull(aggregation.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
         }, null));
         assertNull(rename.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
+        }, null));
+        assertNull(project.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
+        }, null));
+        assertNull(remove.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
         }, null));
     }
 
