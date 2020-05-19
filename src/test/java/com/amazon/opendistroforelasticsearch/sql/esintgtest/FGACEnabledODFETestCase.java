@@ -10,6 +10,7 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.nio.conn.ssl.SSLIOSessionStrategy;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 import org.elasticsearch.client.Request;
@@ -30,6 +31,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
 import java.security.KeyManagementException;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -68,45 +70,17 @@ public abstract class FGACEnabledODFETestCase extends ESRestTestCase {
         }
         builder.setDefaultHeaders(defaultHeaders);
         builder.setHttpClientConfigCallback(httpClientBuilder -> {
-            SSLContext sslcontext = null;
-            try {
-                sslcontext = SSLContext.getInstance("TLS");
-                try {
-                    sslcontext.init(
-                            null, new TrustManager[]{
-                                new X509TrustManager(){
-
-                                    @Override
-                                    public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-
-                                    }
-
-                                    @Override
-                                    public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-
-                                    }
-
-                                    @Override
-                                    public X509Certificate[] getAcceptedIssuers() {
-                                        return new X509Certificate[0];
-                                    }
-                                }
-                            }
-                            ,
-                            null);
-                } catch (KeyManagementException e) {
-                    e.printStackTrace();
-                }
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            }
-            SSLIOSessionStrategy sessionStrategy = new SSLIOSessionStrategy(sslcontext);
-
             CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
             credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials("admin", "admin"));
-            return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider)
-                    .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
-                    .setSSLStrategy(sessionStrategy);
+            try {
+                return httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider)
+                        .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                        .setSSLContext(SSLContextBuilder.create()
+                                .loadTrustMaterial(null, (chains, authType) -> true)
+                                .build());
+            } catch (Exception e) {
+               throw new RuntimeException(e);
+            }
         });
 
         final String socketTimeoutString = settings.get(CLIENT_SOCKET_TIMEOUT);
