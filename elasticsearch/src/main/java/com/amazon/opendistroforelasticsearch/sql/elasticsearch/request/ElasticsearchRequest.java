@@ -36,6 +36,9 @@ import java.util.Objects;
 @ToString
 public class ElasticsearchRequest {
 
+    /**
+     * Default scroll context timeout in minutes
+     */
     public static final TimeValue DEFAULT_SCROLL_TIMEOUT = TimeValue.timeValueMinutes(1L);
 
     /**
