@@ -132,7 +132,7 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Unresol
     @Override
     public UnresolvedExpression visitPercentileAggFunction(PercentileAggFunctionContext ctx) {
         return new AggregateFunction(ctx.PERCENTILE().getText(), visit(ctx.aggField),
-                Collections.singletonList(new Argument("rank", visit(ctx.value))));
+                Collections.singletonList(new Argument("rank", (Literal) visit(ctx.value))));
     }
 
     /** Eval function */

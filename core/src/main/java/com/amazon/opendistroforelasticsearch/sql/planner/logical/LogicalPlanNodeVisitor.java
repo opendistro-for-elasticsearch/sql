@@ -41,4 +41,12 @@ public abstract class LogicalPlanNodeVisitor<R, C> {
     public R visitRename(LogicalRename plan, C context) {
         return visitNode(plan, context);
     }
+
+    public R visitProject(LogicalProject plan, C context) {
+        return visitNode(plan, context);
+    }
+
+    public R visitRemove(LogicalRemove plan, C context) {
+        return visitNode(plan, context);
+    }
 }

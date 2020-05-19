@@ -15,6 +15,13 @@
 
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.argument;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
@@ -23,12 +30,9 @@ import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.Collections;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class AnalyzerTest extends AnalyzerTestBase {
     @Test
@@ -44,8 +48,7 @@ class AnalyzerTest extends AnalyzerTestBase {
                 )
         );
     }
-
-
+    
     @Test
     public void rename_relation() {
         assertAnalyzeEqual(
@@ -124,6 +127,52 @@ class AnalyzerTest extends AnalyzerTestBase {
                 )
         ));
         assertEquals("the target expected to be field, but is avg(Field(field=integer_value, fieldArgs=null))", exception.getMessage());
+    }
+
+    @Test
+    public void project_source() {
+        assertAnalyzeEqual(
+                LogicalPlanDSL.project(
+                        LogicalPlanDSL.relation("schema"),
+                        DSL.ref("integer_value"), DSL.ref("double_value")
+                ),
+                AstDSL.projectWithArg(
+                        AstDSL.relation("schema"),
+                        AstDSL.defaultFieldsArgs(),
+                        AstDSL.field("integer_value"), AstDSL.field("double_value")
+                )
+        );
+    }
+
+    @Test
+    public void remove_source() {
+        assertAnalyzeEqual(
+                LogicalPlanDSL.remove(
+                        LogicalPlanDSL.relation("schema"),
+                        DSL.ref("integer_value"), DSL.ref("double_value")
+                ),
+                AstDSL.projectWithArg(
+                        AstDSL.relation("schema"),
+                        Collections.singletonList(argument("exclude", booleanLiteral(true))),
+                        AstDSL.field("integer_value"), AstDSL.field("double_value")
+                )
+        );
+    }
+
+    @Disabled("the project/remove command should shrink the type env")
+    @Test
+    public void project_source_change_type_env() {
+        SemanticCheckException exception = assertThrows(SemanticCheckException.class, () -> analyze(
+                AstDSL.projectWithArg(
+                        AstDSL.projectWithArg(
+                                AstDSL.relation("schema"),
+                                AstDSL.defaultFieldsArgs(),
+                                AstDSL.field("integer_value"), AstDSL.field("double_value")
+                        ),
+                        AstDSL.defaultFieldsArgs(),
+                        AstDSL.field("float_value")
+                )
+        ));
     }
 
     protected void assertAnalyzeEqual(LogicalPlan expected, UnresolvedPlan unresolvedPlan) {

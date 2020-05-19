@@ -29,7 +29,7 @@ import lombok.ToString;
 @AllArgsConstructor
 public class Field extends UnresolvedExpression {
     private QualifiedName field;
-    private List<UnresolvedExpression> fieldArgs;
+    private List<Argument> fieldArgs;
 
     public Field(QualifiedName field) {
         this.field = field;
@@ -40,7 +40,7 @@ public class Field extends UnresolvedExpression {
         this.field = new QualifiedName(field);
     }
 
-    public Field(String field, List<UnresolvedExpression> fieldArgs) {
+    public Field(String field, List<Argument> fieldArgs) {
         this.field = new QualifiedName(field);
         this.fieldArgs = fieldArgs;
     }

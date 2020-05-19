@@ -18,6 +18,8 @@ package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
+import com.google.common.collect.ImmutableSet;
+import java.util.Arrays;
 import lombok.experimental.UtilityClass;
 
 import java.util.List;
@@ -28,8 +30,9 @@ import java.util.Map;
  */
 @UtilityClass
 public class LogicalPlanDSL {
+
     public static LogicalPlan aggregation(LogicalPlan input, List<Aggregator> aggregatorList,
-                                          List<Expression> groupByList) {
+            List<Expression> groupByList) {
         return new LogicalAggregation(input, aggregatorList, groupByList);
     }
 
@@ -43,5 +46,13 @@ public class LogicalPlanDSL {
 
     public static LogicalPlan rename(LogicalPlan input, Map<ReferenceExpression, ReferenceExpression> renameMap) {
         return new LogicalRename(input, renameMap);
+    }
+
+    public static LogicalPlan project(LogicalPlan input, ReferenceExpression... fields) {
+        return new LogicalProject(input, Arrays.asList(fields));
+    }
+
+    public static LogicalPlan remove(LogicalPlan input, ReferenceExpression... fields) {
+        return new LogicalRemove(input, ImmutableSet.copyOf(fields));
     }
 }
