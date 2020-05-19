@@ -17,6 +17,8 @@
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.client;
 
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchRequest;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
 
 import java.util.Map;
 
@@ -32,5 +34,12 @@ public interface ElasticsearchClient {
      * @return                 index mapping(s) from index name to its mapping
      */
     Map<String, IndexMapping> getIndexMappings(String indexExpression);
+
+    /**
+     * Perform search query in the search request.
+     * @param request       search request
+     * @return              search response
+     */
+    ElasticsearchResponse search(ElasticsearchRequest request);
 
 }

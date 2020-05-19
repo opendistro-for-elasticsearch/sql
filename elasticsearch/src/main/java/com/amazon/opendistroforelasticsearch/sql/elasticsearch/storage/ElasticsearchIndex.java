@@ -19,10 +19,16 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregation;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRename;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.AggregationOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.RenameOperator;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
 import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
@@ -42,15 +48,15 @@ public class ElasticsearchIndex implements Table {
      */
     private final static Map<String, ExprType> ES_TYPE_TO_EXPR_TYPE_MAPPING =
         ImmutableMap.<String, ExprType>builder().put("text", ExprType.STRING).
-                                                 put("keyword", ExprType.STRING).
-                                                 put("integer", ExprType.INTEGER).
-                                                 put("long", ExprType.LONG).
-                                                 put("float", ExprType.FLOAT).
-                                                 put("double", ExprType.DOUBLE).
-                                                 put("boolean", ExprType.BOOLEAN).
-                                                 put("nested", ExprType.ARRAY).
-                                                 put("object", ExprType.STRUCT).
-                                                 build();
+                                  put("keyword", ExprType.STRING).
+                                  put("integer", ExprType.INTEGER).
+                                  put("long", ExprType.LONG).
+                                  put("float", ExprType.FLOAT).
+                                  put("double", ExprType.DOUBLE).
+                                  put("boolean", ExprType.BOOLEAN).
+                                  put("nested", ExprType.ARRAY).
+                                  put("object", ExprType.STRUCT).
+                                  build();
 
     /**
      * Elasticsearch client connection.
@@ -61,6 +67,7 @@ public class ElasticsearchIndex implements Table {
      * Current Elasticsearch index name.
      */
     private final String indexName;
+
 
     /*
      * TODO: Assume indexName doesn't have wildcard.
@@ -77,14 +84,46 @@ public class ElasticsearchIndex implements Table {
         return fieldTypes;
     }
 
+    /**
+     * TODO: Push down to scan operator as much as possible
+     */
     @Override
     public PhysicalPlan implement(LogicalPlan plan) {
-        return plan.accept(new LogicalPlanNodeVisitor<PhysicalPlan, Object>() {
+        ElasticsearchIndexScan indexScan = new ElasticsearchIndexScan(client, indexName);
+
+        /*
+         * Visit logical plan with index scan as context so logical operators visited, such as aggregation, filter,
+         * will accumulate (push down) Elasticsearch query and aggregation DSL on index scan.
+         */
+        return plan.accept(new LogicalPlanNodeVisitor<PhysicalPlan, ElasticsearchIndexScan>() {
+
             @Override
-            public PhysicalPlan visitRelation(LogicalRelation plan, Object context) {
-                return new ElasticsearchIndexScan(plan.getRelationName());
+            public PhysicalPlan visitRename(LogicalRename node, ElasticsearchIndexScan context) {
+                return new RenameOperator(visitChild(node, context), node.getRenameMap());
             }
-        }, null);
+
+            @Override
+            public PhysicalPlan visitAggregation(LogicalAggregation node, ElasticsearchIndexScan context) {
+                return new AggregationOperator(visitChild(node, context), node.getAggregatorList(), node.getGroupByList());
+            }
+
+            @Override
+            public PhysicalPlan visitFilter(LogicalFilter node, ElasticsearchIndexScan context) {
+                return new FilterOperator(visitChild(node, context), node.getCondition());
+            }
+
+            @Override
+            public PhysicalPlan visitRelation(LogicalRelation node, ElasticsearchIndexScan context) {
+                return indexScan;
+            }
+
+            private PhysicalPlan visitChild(LogicalPlan node, ElasticsearchIndexScan context) {
+                if (node.getChild().size() > 1) {
+                    throw new IllegalStateException("Failed to convert logical plan to physical plan");
+                }
+                return node.getChild().get(0).accept(this, context);
+            }
+        }, indexScan);
     }
 
     private ExprType transformESTypeToExprType(String esType) {

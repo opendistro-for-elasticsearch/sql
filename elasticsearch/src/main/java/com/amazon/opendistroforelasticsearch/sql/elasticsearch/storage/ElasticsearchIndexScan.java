@@ -17,27 +17,64 @@
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchRequest;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
-import lombok.RequiredArgsConstructor;
+import com.google.common.collect.Iterables;
+import org.elasticsearch.search.SearchHit;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Elasticsearch index scan operator
  */
-@RequiredArgsConstructor
 public class ElasticsearchIndexScan extends TableScanOperator {
 
     /**
-     * ELasticsearch index name.
+     * Elasticsearch client.
      */
-    private final String indexName;
+    private final ElasticsearchClient client;
+
+    /**
+     * Search request.
+     */
+    private final ElasticsearchRequest request;
+
+    /**
+     * Search response for current batch.
+     */
+    private Iterator<SearchHit> hits;
+
+
+    public ElasticsearchIndexScan(ElasticsearchClient client, String indexName) {
+        this.client = client;
+        this.request = new ElasticsearchRequest(indexName);
+    }
+
+    @Override
+    public void open() {
+        // For now pull all results immediately once open
+        List<ElasticsearchResponse> responses = new ArrayList<>();
+        ElasticsearchResponse response = client.search(request);
+        while (!response.isEmpty()) {
+            responses.add(response);
+            response = client.search(request);
+        }
+        hits = Iterables.concat(responses.toArray(new ElasticsearchResponse[0])).iterator();
+    }
 
     @Override
     public boolean hasNext() {
-        return false;
+        return hits.hasNext();
     }
 
     @Override
     public ExprValue next() {
-        return null;
+        return ExprValueUtils.fromObjectValue(hits.next().getSourceAsMap());
     }
+
 }
