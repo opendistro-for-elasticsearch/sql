@@ -16,10 +16,14 @@
 
 package com.amazon.opendistroforelasticsearch.sql.protocol.response.format;
 
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResponse;
+import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.Collections;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.tupleValue;
 import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter.Style.COMPACT;
 import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter.Style.PRETTY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,22 +32,49 @@ class JsonResponseFormatterTest {
 
     @Test
     public void formatResponse() {
+        QueryResponse response = new QueryResponse(Arrays.asList(
+            tupleValue(ImmutableMap.of("firstname", "John", "age", 20)),
+            tupleValue(ImmutableMap.of("firstname", "Smith", "age", 30))
+        ));
         SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(COMPACT);
         assertEquals(
-            "{\"schema\":[{\"name\":\"firstname\"}],\"datarows\":[{\"row\":[\"John\"]}]}",
-            formatter.format(Collections.emptyList())
+            "{\"schema\":[{\"name\":\"firstname\",\"type\":\"string\"},{\"name\":\"age\",\"type\":\"integer\"}],"
+                + "\"datarows\":[{\"row\":[\"John\",20]},{\"row\":[\"Smith\",30]}]}",
+            formatter.format(response)
         );
     }
 
     @Test
     public void formatResponsePretty() {
+        QueryResponse response = new QueryResponse(Arrays.asList(
+            tupleValue(ImmutableMap.of("firstname", "John", "age", 20)),
+            tupleValue(ImmutableMap.of("firstname", "Smith", "age", 30))
+        ));
         SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(PRETTY);
         assertEquals(
             "{\n" +
-            "  \"schema\": [{\"name\": \"firstname\"}],\n" +
-            "  \"datarows\": [{\"row\": [\"John\"]}]\n" +
+            "  \"schema\": [\n" +
+            "    {\n" +
+            "      \"name\": \"firstname\",\n" +
+            "      \"type\": \"string\"\n" +
+            "    },\n" +
+            "    {\n" +
+            "      \"name\": \"age\",\n" +
+            "      \"type\": \"integer\"\n" +
+            "    }\n" +
+            "  ],\n" +
+            "  \"datarows\": [\n" +
+            "    {\"row\": [\n" +
+            "      \"John\",\n" +
+            "      20\n" +
+            "    ]},\n" +
+            "    {\"row\": [\n" +
+            "      \"Smith\",\n" +
+            "      30\n" +
+            "    ]}\n" +
+            "  ]\n" +
             "}",
-            formatter.format(Collections.emptyList())
+            formatter.format(response)
         );
     }
 
