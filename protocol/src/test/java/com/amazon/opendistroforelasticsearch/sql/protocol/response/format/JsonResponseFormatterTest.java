@@ -21,7 +21,6 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.tupleValue;
 import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter.Style.COMPACT;
@@ -31,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class JsonResponseFormatterTest {
 
     @Test
-    public void formatResponse() {
+    void formatResponse() {
         QueryResponse response = new QueryResponse(Arrays.asList(
             tupleValue(ImmutableMap.of("firstname", "John", "age", 20)),
             tupleValue(ImmutableMap.of("firstname", "Smith", "age", 30))
@@ -45,7 +44,7 @@ class JsonResponseFormatterTest {
     }
 
     @Test
-    public void formatResponsePretty() {
+    void formatResponsePretty() {
         QueryResponse response = new QueryResponse(Arrays.asList(
             tupleValue(ImmutableMap.of("firstname", "John", "age", 20)),
             tupleValue(ImmutableMap.of("firstname", "Smith", "age", 30))
@@ -79,7 +78,7 @@ class JsonResponseFormatterTest {
     }
 
     @Test
-    public void formatError() {
+    void formatError() {
         SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(COMPACT);
         assertEquals(
             "{\"reason\":\"This is an exception\",\"type\":\"RuntimeException\"}",
@@ -88,7 +87,7 @@ class JsonResponseFormatterTest {
     }
 
     @Test
-    public void formatErrorPretty() {
+    void formatErrorPretty() {
         SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(PRETTY);
         assertEquals(
             "{\n" +

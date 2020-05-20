@@ -50,6 +50,16 @@ public class QueryResponse implements Iterable<Object[]> {
         return populateColumnNameAndTypes(tupleValue);
     }
 
+    @Override
+    public Iterator<Object[]> iterator() {
+        // Any chance to avoid copy for json response generation?
+        return exprValues.stream().
+                          map(ExprValueUtils::getTupleValue).
+                          map(Map::values).
+                          map(this::convertExprValuesToValues).
+                          iterator();
+    }
+
     private Map<String, ExprValue> getFirstTupleValue() {
         // Assume expression is always tuple on first level and columns of all tuples are exactly same
         ExprValue firstValue = exprValues.iterator().next();
@@ -62,16 +72,6 @@ public class QueryResponse implements Iterable<Object[]> {
             colNameTypes.put(name, expr.type().name().toLowerCase());
         });
         return colNameTypes;
-    }
-
-    @Override
-    public Iterator<Object[]> iterator() {
-        // Any chance to avoid copy for json response generation?
-        return exprValues.stream().
-                          map(ExprValueUtils::getTupleValue).
-                          map(Map::values).
-                          map(this::convertExprValuesToValues).
-                          iterator();
     }
 
     private Object[] convertExprValuesToValues(Collection<ExprValue> exprValues) {

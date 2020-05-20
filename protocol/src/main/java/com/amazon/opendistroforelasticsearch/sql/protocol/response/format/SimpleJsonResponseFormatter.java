@@ -31,7 +31,8 @@ import java.util.List;
  *  {
  *      "schema": [
  *          {
- *              "name": "name"
+ *              "name": "name",
+ *              "type": "string"
  *          }
  *      ],
  *      "datarows": [
