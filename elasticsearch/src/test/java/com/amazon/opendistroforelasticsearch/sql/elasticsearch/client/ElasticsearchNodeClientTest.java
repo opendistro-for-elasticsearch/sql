@@ -31,12 +31,14 @@ import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.cluster.metadata.MetaData;
 import org.elasticsearch.cluster.service.ClusterService;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.DeprecationHandler;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;
 import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.threadpool.ThreadPool;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -47,6 +49,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -54,6 +57,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -161,6 +165,27 @@ class ElasticsearchNodeClientTest {
         // Verify response for second scroll request
         ElasticsearchResponse response2 = client.search(request);
         assertTrue(response2.isEmpty());
+    }
+
+    @Test
+    void schedule() {
+        ThreadPool threadPool = mock(ThreadPool.class);
+        when(threadPool.preserveContext(any())).then(invocation -> invocation.getArgument(0));
+
+        // Instantiate NodeClient because Mockito cannot mock final method threadPool()
+        nodeClient = new NodeClient(Settings.EMPTY, threadPool);
+        doAnswer(invocation -> {
+            Runnable task = invocation.getArgument(0);
+            task.run();
+            return null;
+        }).when(threadPool).schedule(any(), any(), any());
+
+        ElasticsearchNodeClient client = new ElasticsearchNodeClient(mock(ClusterService.class),
+                                                                     mock(IndexNameExpressionResolver.class),
+                                                                     nodeClient);
+        AtomicBoolean isRun = new AtomicBoolean(false);
+        client.schedule(() -> isRun.set(true));
+        assertTrue(isRun.get());
     }
 
     private ElasticsearchNodeClient mockClient(String indexName, String mappings) {

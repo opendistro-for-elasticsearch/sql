@@ -22,6 +22,7 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.Elastics
 import com.carrotsearch.hppc.cursors.ObjectObjectCursor;
 import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.ThreadContext;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.client.node.NodeClient;
@@ -30,6 +31,8 @@ import org.elasticsearch.cluster.metadata.IndexNameExpressionResolver;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.cluster.service.ClusterService;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
+import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.threadpool.ThreadPool;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -111,7 +114,12 @@ public class ElasticsearchNodeClient implements ElasticsearchClient {
 
     @Override
     public void schedule(Runnable task) {
-
+        ThreadPool threadPool = client.threadPool();
+        threadPool.schedule(
+            threadPool.preserveContext(withCurrentContext(task)),
+            new TimeValue(0),
+            "search"    //TODO: use search worker pool for now
+        );
     }
 
     private String[] resolveIndexExpression(ClusterState state, String[] indices) {
@@ -133,6 +141,15 @@ public class ElasticsearchNodeClient implements ElasticsearchClient {
             return new IndexMapping(Collections.emptyMap());
         }
         return new IndexMapping(indexMapping.iterator().next().value);
+    }
+
+    /** Copy from LogUtils */
+    private static Runnable withCurrentContext(final Runnable task) {
+        final Map<String, String> currentContext = ThreadContext.getImmutableContext();
+        return () -> {
+            ThreadContext.putAll(currentContext);
+            task.run();
+        };
     }
 
 }
