@@ -129,6 +129,18 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
     }
 
     @Test
+    public void testLiteralValueBinaryOperationExpr() {
+        assertEqual("source=t | eval f=3+2",
+                project(
+                        relation("t"),
+                        equalTo(
+                                field("f"),
+                                function("+", intLiteral(3), intLiteral(2))
+                        )
+                ));
+    }
+
+    @Test
     public void testCompareExpr() {
         assertEqual("source=t a='b'",
                 filter(

@@ -122,7 +122,8 @@ percentileAggFunction
 expression
     : logicalExpression
     | comparisonExpression
-    | evalExpression
+    | evalFunctionCall
+    | binaryArithmetic
     ;
 
 logicalExpression
@@ -134,8 +135,7 @@ logicalExpression
     ;
 
 evalExpression
-    : fieldExpression EQUAL evalFunctionCall                        #evalFuncExpr
-    | fieldExpression EQUAL binaryOperation                         #evalBinaryOpExpr
+    : fieldExpression EQUAL expression
     ;
 
 comparisonExpression
@@ -144,9 +144,10 @@ comparisonExpression
     | fieldExpression IN valueList                                  #inExpr
     ;
 
-binaryOperation
-    : left=functionArg binaryOperator right=functionArg
-    | LT_PRTHS binaryOperation RT_PRTHS
+binaryArithmetic
+    : (leftField=fieldExpression | leftValue=literalValue) binaryOperator
+    (rightField=fieldExpression | rightValue=literalValue)
+    | LT_PRTHS binaryArithmetic RT_PRTHS
     ;
 
 /** tables */
