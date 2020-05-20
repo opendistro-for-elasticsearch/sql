@@ -24,13 +24,13 @@ import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format
 
 /**
  * Abstract class for all JSON formatter.
- * @param <Response>
+ * @param <Response>    response generic type which could be DQL or DML response
  */
 @RequiredArgsConstructor
 public abstract class JsonResponseFormatter<Response> implements ResponseFormatter<Response> {
 
     /**
-     * JSON format styles: pretty format or compact format without indent
+     * JSON format styles: pretty format or compact format without indent and space
      */
     public enum Style {
         PRETTY, COMPACT
