@@ -17,6 +17,7 @@
 package com.amazon.opendistroforelasticsearch.sql.protocol.response;
 
 import com.google.common.collect.ImmutableMap;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -56,6 +57,20 @@ class QueryResponseTest {
     void columnNameTypesFromEmptyExprValues() {
         QueryResponse response = new QueryResponse(Collections.emptyList());
         assertTrue(response.columnNameTypes().isEmpty());
+    }
+
+    @Disabled("Need to figure out column headers in some other way than inferring from data implicitly")
+    @Test
+    void columnNameTypesFromExprValuesWithMissing() {
+        QueryResponse response = new QueryResponse(Arrays.asList(
+            tupleValue(ImmutableMap.of("name", "John")),
+            tupleValue(ImmutableMap.of("name", "John", "age", 20))
+        ));
+
+        assertEquals(
+            ImmutableMap.of("name", "string", "age", "integer"),
+            response.columnNameTypes()
+        );
     }
 
     @Test

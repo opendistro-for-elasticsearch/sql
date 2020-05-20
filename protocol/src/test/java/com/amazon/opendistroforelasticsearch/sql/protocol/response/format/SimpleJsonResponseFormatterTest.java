@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.protocol.response.format;
 
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResponse;
 import com.google.common.collect.ImmutableMap;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -75,6 +76,21 @@ class SimpleJsonResponseFormatterTest {
             "  ],\n" +
             "  \"size\": 2\n" +
             "}",
+            formatter.format(response)
+        );
+    }
+
+    @Disabled("Need to figure out column headers in some other way than inferring from data implicitly")
+    @Test
+    void formatResponseWithMissingValue() {
+        QueryResponse response = new QueryResponse(Arrays.asList(
+            tupleValue(ImmutableMap.of("firstname", "John")),
+            tupleValue(ImmutableMap.of("firstname", "Smith", "age", 30))
+        ));
+        SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(COMPACT);
+        assertEquals(
+            "{\"schema\":[{\"name\":\"firstname\",\"type\":\"string\"},{\"name\":\"age\",\"type\":\"integer\"}]," +
+                "\"total\":2,\"datarows\":[{\"row\":[\"John\",null]},{\"row\":[\"Smith\",30]}],\"size\":2}",
             formatter.format(response)
         );
     }

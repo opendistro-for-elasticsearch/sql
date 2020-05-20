@@ -54,6 +54,7 @@ public class QueryResponse implements Iterable<Object[]> {
             return Collections.emptyMap();
         }
 
+        // TODO: Need other way to extract header than inferring from data implicitly
         Map<String, ExprValue> tupleValue = getFirstTupleValue();
         return populateColumnNameAndTypes(tupleValue);
     }
