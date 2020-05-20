@@ -41,7 +41,9 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.aggregation;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.filter;
+import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.relation;
+import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.remove;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.rename;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
@@ -107,36 +109,50 @@ class ElasticsearchIndexTest {
     @Test
     void implementOtherLogicalOperators() {
         String indexName = "test";
+        ReferenceExpression include = ref("age");
+        ReferenceExpression exclude = ref("name");
         Expression filterExpr = literal(ExprBooleanValue.ofTrue());
         List<Expression> groupByExprs = Arrays.asList(ref("age"));
         List<Aggregator> aggregators = Arrays.asList(new AvgAggregator(groupByExprs, ExprType.DOUBLE));
         Map<ReferenceExpression, ReferenceExpression> mappings = ImmutableMap.of(ref("name"), ref("lastname"));
 
         LogicalPlan plan =
-            rename(
-                aggregation(
-                    filter(
-                        relation(indexName),
-                        filterExpr
+            project(
+                remove(
+                    rename(
+                        aggregation(
+                            filter(
+                                relation(indexName),
+                                filterExpr
+                            ),
+                            aggregators,
+                            groupByExprs
+                        ),
+                        mappings
                     ),
-                    aggregators,
-                    groupByExprs
+                    exclude
                 ),
-                mappings
+                include
             );
 
         Table index = new ElasticsearchIndex(client, indexName);
         assertEquals(
-            PhysicalPlanDSL.rename(
-                PhysicalPlanDSL.agg(
-                    PhysicalPlanDSL.filter(
-                        new ElasticsearchIndexScan(client, indexName),
-                        filterExpr
+            PhysicalPlanDSL.project(
+                PhysicalPlanDSL.remove(
+                    PhysicalPlanDSL.rename(
+                        PhysicalPlanDSL.agg(
+                            PhysicalPlanDSL.filter(
+                                new ElasticsearchIndexScan(client, indexName),
+                                filterExpr
+                            ),
+                            aggregators,
+                            groupByExprs
+                        ),
+                        mappings
                     ),
-                    aggregators,
-                    groupByExprs
+                    exclude
                 ),
-                mappings
+                include
             ),
             index.implement(plan)
         );

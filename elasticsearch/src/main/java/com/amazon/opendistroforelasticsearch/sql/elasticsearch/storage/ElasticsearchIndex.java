@@ -23,11 +23,15 @@ import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregat
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalProject;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRemove;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRename;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.AggregationOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.ProjectOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.RemoveOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.RenameOperator;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
 import com.google.common.collect.ImmutableMap;
@@ -96,6 +100,16 @@ public class ElasticsearchIndex implements Table {
          * will accumulate (push down) Elasticsearch query and aggregation DSL on index scan.
          */
         return plan.accept(new LogicalPlanNodeVisitor<PhysicalPlan, ElasticsearchIndexScan>() {
+
+            @Override
+            public PhysicalPlan visitProject(LogicalProject node, ElasticsearchIndexScan context) {
+                return new ProjectOperator(visitChild(node, context), node.getProjectList());
+            }
+
+            @Override
+            public PhysicalPlan visitRemove(LogicalRemove node, ElasticsearchIndexScan context) {
+                return new RemoveOperator(visitChild(node, context), node.getRemoveList());
+            }
 
             @Override
             public PhysicalPlan visitRename(LogicalRename node, ElasticsearchIndexScan context) {
