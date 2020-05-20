@@ -21,4 +21,5 @@ include 'integ-test'
 include 'common'
 include 'elasticsearch'
 include 'core'
+include 'protocol'
 
