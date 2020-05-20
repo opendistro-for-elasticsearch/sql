@@ -29,14 +29,14 @@ import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format
 public abstract class JsonResponseFormatter<Response> implements ResponseFormatter<Response> {
 
     /**
-     * JSON format styles
+     * JSON format styles: pretty format or compact format without indent
      */
     public enum Style {
         PRETTY, COMPACT
     }
 
     /**
-     * Should response be formatted in pretty json string.
+     * JSON format style
      */
     private final Style style;
 
