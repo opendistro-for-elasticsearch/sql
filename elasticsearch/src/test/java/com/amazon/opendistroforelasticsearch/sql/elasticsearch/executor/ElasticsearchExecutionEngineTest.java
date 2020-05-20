@@ -25,14 +25,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.tupleValue;
 import static com.google.common.collect.ImmutableMap.of;
@@ -40,6 +39,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ElasticsearchExecutionEngineTest {
@@ -58,7 +59,7 @@ class ElasticsearchExecutionEngineTest {
     }
 
     @Test
-    void execute() {
+    void executeSuccessfully() {
         List<ExprValue> expected = Arrays.asList(
             tupleValue(of("name", "John", "age", 20)),
             tupleValue(of("name", "Allen", "age", 30))
@@ -79,6 +80,28 @@ class ElasticsearchExecutionEngineTest {
             }
         });
         assertEquals(expected, actual);
+    }
+
+    @Test
+    void executeWithFailure() {
+        PhysicalPlan plan = mock(PhysicalPlan.class);
+        RuntimeException expected = new RuntimeException("Execution error");
+        when(plan.hasNext()).thenThrow(expected);
+
+        ElasticsearchExecutionEngine executor = new ElasticsearchExecutionEngine(client);
+        AtomicReference<Exception> actual = new AtomicReference<>();
+        executor.execute(plan, new ResponseListener<List<ExprValue>>() {
+            @Override
+            public void onResponse(List<ExprValue> values) {
+                fail("Expected error didn't happen");
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                actual.set(e);
+            }
+        });
+        assertEquals(expected, actual.get());
     }
 
     private PhysicalPlan mockPlan(List<ExprValue> values) {
