@@ -29,16 +29,34 @@ import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanTestBase;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.RenameOperator;
+import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Answers.RETURNS_DEEP_STUBS;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 public class PlannerTest extends PhysicalPlanTestBase {
     @Mock
     private PhysicalPlan scan;
+
+    @Mock(answer = RETURNS_DEEP_STUBS)
+    private StorageEngine storageEngine;
+
+    @BeforeEach
+    public void setUp() {
+        when(storageEngine.getTable(any()).implement(any())).thenAnswer(
+            (Answer<PhysicalPlan>) invocation -> new MockTable().implement(invocation.getArgument(0), null));
+    }
 
     @Test
     public void planner_test() {
@@ -73,14 +91,11 @@ public class PlannerTest extends PhysicalPlanTestBase {
     }
 
     protected PhysicalPlan analyze(LogicalPlan logicalPlan) {
-        return new TestPlanner().plan(logicalPlan, ImmutableMap.of());
+        return new Planner(storageEngine).plan(logicalPlan);
     }
 
-    /**
-     * Todo, For test coverage only. Remove it when Planner is implemented.
-     */
-    protected class TestPlanner extends LogicalPlanNodeVisitor<PhysicalPlan, Object> {
-        public PhysicalPlan plan(LogicalPlan plan, Object o) {
+    protected class MockTable extends LogicalPlanNodeVisitor<PhysicalPlan, Object> {
+        public PhysicalPlan implement(LogicalPlan plan, Object o) {
             return plan.accept(this, o);
         }
 
