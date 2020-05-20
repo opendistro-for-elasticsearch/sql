@@ -51,9 +51,11 @@ public class SimpleJsonResponseFormatter extends JsonResponseFormatter<QueryResp
     @Override
     public Object buildJsonObject(QueryResponse response) {
         JsonResponse.JsonResponseBuilder json = JsonResponse.builder();
-        response.columnNameTypes().forEach((name, type) -> {
-            json.column(new Column(name, type));
-        });
+
+        json.total(response.size()).
+             size(response.size());
+
+        response.columnNameTypes().forEach((name, type) -> json.column(new Column(name, type)));
 
         for (Object[] values : response) {
             json.row(new DataRow(values));
@@ -77,6 +79,9 @@ public class SimpleJsonResponseFormatter extends JsonResponseFormatter<QueryResp
 
         @Singular("row")
         private final List<DataRow> datarows;
+
+        private long total;
+        private long size;
     }
 
     @RequiredArgsConstructor

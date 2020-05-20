@@ -31,6 +31,16 @@ import static org.junit.jupiter.api.Assertions.fail;
 class QueryResponseTest {
 
     @Test
+    void size() {
+        QueryResponse response = new QueryResponse(Arrays.asList(
+            tupleValue(ImmutableMap.of("name", "John", "age", 20)),
+            tupleValue(ImmutableMap.of("name", "Allen", "age", 30)),
+            tupleValue(ImmutableMap.of("name", "Smith", "age", 40))
+        ));
+        assertEquals(3, response.size());
+    }
+
+    @Test
     void columnNameTypes() {
         QueryResponse response = new QueryResponse(Collections.singletonList(
             tupleValue(ImmutableMap.of("name", "John", "age", 20))

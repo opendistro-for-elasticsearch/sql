@@ -37,6 +37,10 @@ public class QueryResponse implements Iterable<Object[]> {
      */
     private final Collection<ExprValue> exprValues;
 
+    public int size() {
+        return exprValues.size();
+    }
+
     /**
      * Parse column name from results
      * @return  mapping from column names to its expression type

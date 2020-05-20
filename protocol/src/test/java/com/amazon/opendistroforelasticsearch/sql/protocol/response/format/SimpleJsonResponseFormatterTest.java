@@ -37,8 +37,8 @@ class SimpleJsonResponseFormatterTest {
         ));
         SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(COMPACT);
         assertEquals(
-            "{\"schema\":[{\"name\":\"firstname\",\"type\":\"string\"},{\"name\":\"age\",\"type\":\"integer\"}],"
-                + "\"datarows\":[{\"row\":[\"John\",20]},{\"row\":[\"Smith\",30]}]}",
+            "{\"schema\":[{\"name\":\"firstname\",\"type\":\"string\"},{\"name\":\"age\",\"type\":\"integer\"}]," +
+                "\"total\":2,\"datarows\":[{\"row\":[\"John\",20]},{\"row\":[\"Smith\",30]}],\"size\":2}",
             formatter.format(response)
         );
     }
@@ -62,6 +62,7 @@ class SimpleJsonResponseFormatterTest {
             "      \"type\": \"integer\"\n" +
             "    }\n" +
             "  ],\n" +
+            "  \"total\": 2,\n" +
             "  \"datarows\": [\n" +
             "    {\"row\": [\n" +
             "      \"John\",\n" +
@@ -71,7 +72,8 @@ class SimpleJsonResponseFormatterTest {
             "      \"Smith\",\n" +
             "      30\n" +
             "    ]}\n" +
-            "  ]\n" +
+            "  ],\n" +
+            "  \"size\": 2\n" +
             "}",
             formatter.format(response)
         );
