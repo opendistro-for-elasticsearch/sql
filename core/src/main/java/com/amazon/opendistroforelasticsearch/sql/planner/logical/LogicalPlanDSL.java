@@ -18,30 +18,39 @@ package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
+import com.google.common.collect.ImmutableSet;
+import java.util.Arrays;
 import lombok.experimental.UtilityClass;
 
 import java.util.List;
 import java.util.Map;
 
-/**
- * Logical Plan DSL.
- */
+/** Logical Plan DSL. */
 @UtilityClass
 public class LogicalPlanDSL {
-    public static LogicalPlan aggregation(LogicalPlan input, List<Aggregator> aggregatorList,
-                                          List<Expression> groupByList) {
-        return new LogicalAggregation(input, aggregatorList, groupByList);
-    }
+  public static LogicalPlan aggregation(
+      LogicalPlan input, List<Aggregator> aggregatorList, List<Expression> groupByList) {
+    return new LogicalAggregation(input, aggregatorList, groupByList);
+  }
 
-    public static LogicalPlan filter(LogicalPlan input, Expression expression) {
-        return new LogicalFilter(input, expression);
-    }
+  public static LogicalPlan filter(LogicalPlan input, Expression expression) {
+    return new LogicalFilter(input, expression);
+  }
 
-    public static LogicalPlan relation(String tableName) {
-        return new LogicalRelation(tableName);
-    }
+  public static LogicalPlan relation(String tableName) {
+    return new LogicalRelation(tableName);
+  }
 
-    public static LogicalPlan rename(LogicalPlan input, Map<ReferenceExpression, ReferenceExpression> renameMap) {
-        return new LogicalRename(input, renameMap);
-    }
+  public static LogicalPlan rename(
+      LogicalPlan input, Map<ReferenceExpression, ReferenceExpression> renameMap) {
+    return new LogicalRename(input, renameMap);
+  }
+
+  public static LogicalPlan project(LogicalPlan input, ReferenceExpression... fields) {
+    return new LogicalProject(input, Arrays.asList(fields));
+  }
+
+  public static LogicalPlan remove(LogicalPlan input, ReferenceExpression... fields) {
+    return new LogicalRemove(input, ImmutableSet.copyOf(fields));
+  }
 }

@@ -17,10 +17,13 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.PPLSyntaxParser;
 import com.amazon.opendistroforelasticsearch.sql.ast.Node;
+import java.util.Collections;
 import org.junit.Test;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.agg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.argument;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.compare;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultDedupArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultFieldsArgs;
@@ -93,11 +96,31 @@ public class AstBuilderTest {
     }
 
     @Test
-    public void testFieldsCommand() {
+    public void testFieldsCommandWithoutArguments() {
         assertEqual("source=t | fields f, g",
                 projectWithArg(
                         relation("t"),
                         defaultFieldsArgs(),
+                        field("f"), field("g")
+                ));
+    }
+
+    @Test
+    public void testFieldsCommandWithIncludeArguments() {
+        assertEqual("source=t | fields + f, g",
+                projectWithArg(
+                        relation("t"),
+                        defaultFieldsArgs(),
+                        field("f"), field("g")
+                ));
+    }
+
+    @Test
+    public void testFieldsCommandWithExcludeArguments() {
+        assertEqual("source=t | fields - f, g",
+                projectWithArg(
+                        relation("t"),
+                        Collections.singletonList(argument("exclude", booleanLiteral(true))),
                         field("f"), field("g")
                 ));
     }

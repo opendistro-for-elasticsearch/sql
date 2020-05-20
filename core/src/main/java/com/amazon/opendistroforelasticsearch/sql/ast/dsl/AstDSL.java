@@ -57,12 +57,12 @@ public class AstDSL {
         return new Project(Arrays.asList(projectList)).attach(input);
     }
 
-    public static UnresolvedPlan projectWithArg(UnresolvedPlan input, List<UnresolvedExpression> argList, UnresolvedExpression... projectList) {
+    public static UnresolvedPlan projectWithArg(UnresolvedPlan input, List<Argument> argList, UnresolvedExpression... projectList) {
         return new Project(Arrays.asList(projectList), argList).attach(input);
     }
 
     public static UnresolvedPlan agg(UnresolvedPlan input, List<UnresolvedExpression> aggList, List<UnresolvedExpression> sortList,
-                                     List<UnresolvedExpression> groupList, List<UnresolvedExpression> argList) {
+                                     List<UnresolvedExpression> groupList, List<Argument> argList) {
         return new Aggregation(aggList, sortList, groupList, argList).attach(input);
     }
 
@@ -82,27 +82,27 @@ public class AstDSL {
         return new UnresolvedAttribute(attr);
     }
 
-    private static UnresolvedExpression literal(Object value, DataType type) {
+    private static Literal literal(Object value, DataType type) {
         return new Literal(value, type);
     }
 
-    public static UnresolvedExpression intLiteral(Integer value) {
+    public static Literal intLiteral(Integer value) {
         return literal(value, DataType.INTEGER);
     }
 
-    public static UnresolvedExpression doubleLiteral(Double value) {
+    public static Literal doubleLiteral(Double value) {
         return literal(value, DataType.DOUBLE);
     }
 
-    public static UnresolvedExpression stringLiteral(String value) {
+    public static Literal stringLiteral(String value) {
         return literal(value, DataType.STRING);
     }
 
-    public static UnresolvedExpression booleanLiteral(Boolean value) {
+    public static Literal booleanLiteral(Boolean value) {
         return literal(value, DataType.BOOLEAN);
     }
 
-    public static UnresolvedExpression nullLiteral() {
+    public static Literal nullLiteral() {
         return literal(null, DataType.NULL);
     }
 
@@ -146,7 +146,7 @@ public class AstDSL {
         return new Compare(operator, left, right);
     }
 
-    public static UnresolvedExpression argument(String argName, UnresolvedExpression argValue) {
+    public static Argument argument(String argName, Literal argValue) {
         return new Argument(argName, argValue);
     }
 
@@ -158,19 +158,19 @@ public class AstDSL {
         return new Field(field);
     }
 
-    public static UnresolvedExpression field(UnresolvedExpression field, UnresolvedExpression... fieldArgs) {
+    public static UnresolvedExpression field(UnresolvedExpression field, Argument... fieldArgs) {
         return new Field((QualifiedName) field, Arrays.asList(fieldArgs));
     }
 
-    public static UnresolvedExpression field(String field, UnresolvedExpression... fieldArgs) {
+    public static UnresolvedExpression field(String field, Argument... fieldArgs) {
         return new Field(field, Arrays.asList(fieldArgs));
     }
 
-    public static UnresolvedExpression field(UnresolvedExpression field, List<UnresolvedExpression> fieldArgs) {
+    public static UnresolvedExpression field(UnresolvedExpression field, List<Argument> fieldArgs) {
         return new Field((QualifiedName) field, fieldArgs);
     }
 
-    public static UnresolvedExpression field(String field, List<UnresolvedExpression> fieldArgs) {
+    public static UnresolvedExpression field(String field, List<Argument> fieldArgs) {
         return new Field(field, fieldArgs);
     }
 
@@ -178,13 +178,17 @@ public class AstDSL {
         return Arrays.asList(exprList);
     }
 
-    public static List<UnresolvedExpression> defaultFieldsArgs() {
+    public static List<Argument> exprList(Argument... exprList) {
+        return Arrays.asList(exprList);
+    }
+
+    public static List<Argument> defaultFieldsArgs() {
         return exprList(
                 argument("exclude", booleanLiteral(false))
         );
     }
 
-    public static List<UnresolvedExpression> defaultStatsArgs() {
+    public static List<Argument> defaultStatsArgs() {
         return exprList(
                 argument("partitions", intLiteral(1)),
                 argument("allnum", booleanLiteral(false)),
@@ -193,7 +197,7 @@ public class AstDSL {
         );
     }
 
-    public static List<UnresolvedExpression> defaultDedupArgs() {
+    public static List<Argument> defaultDedupArgs() {
         return exprList(
                 argument("number", intLiteral(1)),
                 argument("keepevents", booleanLiteral(false)),
@@ -202,14 +206,14 @@ public class AstDSL {
         );
     }
 
-    public static List<UnresolvedExpression> defaultSortArgs() {
+    public static List<Argument> defaultSortArgs() {
         return exprList(
                 argument("count", intLiteral(1000)),
                 argument("desc", booleanLiteral(false))
         );
     }
 
-    public static List<UnresolvedExpression> defaultSortFieldArgs() {
+    public static List<Argument> defaultSortFieldArgs() {
         return exprList(
                 argument("exclude", booleanLiteral(false)),
                 argument("type", nullLiteral())
