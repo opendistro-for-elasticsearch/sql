@@ -38,7 +38,9 @@ import java.util.List;
  *      "datarows": [
  *          ["John"],
  *          ["Smith"]
- *      ]
+ *      ],
+ *      "total": 2,
+ *      "size": 2
  *  }
  * </pre>
  */
@@ -61,11 +63,6 @@ public class SimpleJsonResponseFormatter extends JsonResponseFormatter<QueryResp
             json.row(new DataRow(values));
         }
         return json.build();
-    }
-
-    @Override
-    public Object buildJsonObject(Throwable t) {
-        return new JsonError(t.getClass().getSimpleName(), t.getMessage());
     }
 
     /**
@@ -95,13 +92,6 @@ public class SimpleJsonResponseFormatter extends JsonResponseFormatter<QueryResp
     @Getter
     public static class DataRow {
         private final Object[] row;
-    }
-
-    @RequiredArgsConstructor
-    @Getter
-    public static class JsonError {
-        private final String type;
-        private final String reason;
     }
 
 }

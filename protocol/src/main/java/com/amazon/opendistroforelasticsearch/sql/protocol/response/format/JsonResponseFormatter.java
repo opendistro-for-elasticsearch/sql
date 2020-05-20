@@ -16,6 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.protocol.response.format;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
 
@@ -48,7 +49,9 @@ public abstract class JsonResponseFormatter<Response> implements ResponseFormatt
 
     @Override
     public String format(Throwable t) {
-        return jsonify(buildJsonObject(t));
+        JsonError error = new JsonError(t.getClass().getSimpleName(),
+                                        t.getMessage());
+        return jsonify(error);
     }
 
     /**
@@ -58,16 +61,15 @@ public abstract class JsonResponseFormatter<Response> implements ResponseFormatt
      */
     protected abstract Object buildJsonObject(Response response);
 
-    /**
-     * Build JSON object to generate error json string.
-     * @param t     exception
-     * @return      json object for error
-     */
-    protected abstract Object buildJsonObject(Throwable t);
-
-
     private String jsonify(Object jsonObject) {
         JSONObject json = new JSONObject(jsonObject);
         return (style == PRETTY) ? json.toString(2) : json.toString();
+    }
+
+    @RequiredArgsConstructor
+    @Getter
+    public static class JsonError {
+        private final String type;
+        private final String reason;
     }
 }
