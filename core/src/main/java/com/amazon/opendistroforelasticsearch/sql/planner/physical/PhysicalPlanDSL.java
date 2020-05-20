@@ -18,26 +18,35 @@ package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
-import lombok.experimental.UtilityClass;
-
+import com.google.common.collect.ImmutableSet;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import lombok.experimental.UtilityClass;
 
-/**
- * Physical Plan DSL.
- */
+/** Physical Plan DSL. */
 @UtilityClass
 public class PhysicalPlanDSL {
 
-    public static AggregationOperator agg(PhysicalPlan input, List<Aggregator> aggregators, List<Expression> groups) {
-        return new AggregationOperator(input, aggregators, groups);
-    }
+  public static AggregationOperator agg(
+      PhysicalPlan input, List<Aggregator> aggregators, List<Expression> groups) {
+    return new AggregationOperator(input, aggregators, groups);
+  }
 
-    public static FilterOperator filter(PhysicalPlan input, Expression condition) {
-        return new FilterOperator(input, condition);
-    }
+  public static FilterOperator filter(PhysicalPlan input, Expression condition) {
+    return new FilterOperator(input, condition);
+  }
 
-    public static RenameOperator rename(PhysicalPlan input, Map<ReferenceExpression, ReferenceExpression> renameMap) {
-        return new RenameOperator(input, renameMap);
-    }
+  public static RenameOperator rename(
+      PhysicalPlan input, Map<ReferenceExpression, ReferenceExpression> renameMap) {
+    return new RenameOperator(input, renameMap);
+  }
+
+  public static ProjectOperator project(PhysicalPlan input, ReferenceExpression... fields) {
+    return new ProjectOperator(input, Arrays.asList(fields));
+  }
+
+  public static RemoveOperator remove(PhysicalPlan input, ReferenceExpression... fields) {
+    return new RemoveOperator(input, ImmutableSet.copyOf(fields));
+  }
 }

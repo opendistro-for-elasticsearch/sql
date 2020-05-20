@@ -16,13 +16,16 @@
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprMissingValue;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
@@ -31,12 +34,17 @@ import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregat
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregation;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalProject;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRemove;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRename;
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -107,5 +115,30 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
             groupbyBuilder.add(expressionAnalyzer.analyze(uExpr, context));
         }
         return new LogicalAggregation(child, aggregatorBuilder.build(), groupbyBuilder.build());
+    }
+
+    /**
+     * Build {@link LogicalProject} or {@link LogicalRemove} from {@link Field}.
+     *
+     * <p>Todo, the include/exclude fields should change the env definition. The cons of current
+     * implementation is even the query contain the field reference which has been excluded from fields command. There
+     * is no {@link SemanticCheckException} will be thrown. Instead, the during runtime evaluation, the not exist filed
+     * will be resolve to {@link ExprMissingValue} which will not impact the correctness.
+     *
+     * Postpone the implementation when finding more use case.
+     */
+    @Override
+    public LogicalPlan visitProject(Project node, AnalysisContext context) {
+        LogicalPlan child = node.getChild().get(0).accept(this, context);
+        List<ReferenceExpression> referenceExpressions = node.getProjectList().stream()
+                .map(expr -> (ReferenceExpression) expressionAnalyzer.analyze(expr, context))
+                .collect(Collectors.toList());
+        Argument argument = node.getArgExprList().get(0);
+        Boolean exclude = (Boolean) argument.getValue().getValue();
+        if (exclude) {
+            return new LogicalRemove(child, ImmutableSet.copyOf(referenceExpressions));
+        } else {
+            return new LogicalProject(child, referenceExpressions);
+        }
     }
 }
