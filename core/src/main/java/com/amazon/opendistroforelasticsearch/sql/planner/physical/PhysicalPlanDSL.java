@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import lombok.experimental.UtilityClass;
+import org.apache.commons.lang3.tuple.Pair;
 
 /** Physical Plan DSL. */
 @UtilityClass
@@ -48,5 +49,10 @@ public class PhysicalPlanDSL {
 
   public static RemoveOperator remove(PhysicalPlan input, ReferenceExpression... fields) {
     return new RemoveOperator(input, ImmutableSet.copyOf(fields));
+  }
+
+  public static EvalOperator eval(
+      PhysicalPlan input, Pair<ReferenceExpression, Expression>... expressions) {
+    return new EvalOperator(input, Arrays.asList(expressions));
   }
 }

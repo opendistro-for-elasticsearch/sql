@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.agg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
@@ -28,16 +29,17 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSo
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultStatsArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.doubleLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.equalTo;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.eval;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.exprList;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.in;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.let;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.not;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.nullLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.or;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.projectWithArg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
@@ -92,7 +94,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 ));
     }
 
-    @Test
+    @Ignore("search operator should not include functionCall, need to change antlr")
     public void testEvalExpr() {
         assertEqual("source=t f=abs(a)",
                 filter(
@@ -107,9 +109,9 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
     @Test
     public void testEvalFunctionExpr() {
         assertEqual("source=t | eval f=abs(a)",
-                project(
+                eval(
                         relation("t"),
-                        equalTo(
+                        let(
                                 field("f"),
                                 function("abs", field("a"))
                         )
@@ -119,9 +121,9 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
     @Test
     public void testEvalBinaryOperationExpr() {
         assertEqual("source=t | eval f=a+b",
-                project(
+                eval(
                         relation("t"),
-                        equalTo(
+                        let(
                                 field("f"),
                                 function("+", field("a"), field("b"))
                         )
@@ -131,9 +133,9 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
     @Test
     public void testLiteralValueBinaryOperationExpr() {
         assertEqual("source=t | eval f=3+2",
-                project(
+                eval(
                         relation("t"),
-                        equalTo(
+                        let(
                                 field("f"),
                                 function("+", intLiteral(3), intLiteral(2))
                         )
@@ -308,9 +310,9 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
     @Test
     public void testEvalFuncCallExpr() {
         assertEqual("source=t | eval f=abs(a)",
-                project(
+                eval(
                         relation("t"),
-                        equalTo(
+                        let(
                                 field("f"),
                                 function("abs", field("a"))
                         )

@@ -24,6 +24,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Let;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Not;
@@ -31,117 +32,122 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
 
-/**
- * AST nodes visitor
- * Defines the traverse path
- */
+/** AST nodes visitor Defines the traverse path */
 public abstract class AbstractNodeVisitor<T, C> {
 
-    public T visit(Node node, C context) {
-        return null;
-    }
+  public T visit(Node node, C context) {
+    return null;
+  }
 
-    public T visitChildren(Node node, C context) {
-        T result = defaultResult();
+  public T visitChildren(Node node, C context) {
+    T result = defaultResult();
 
-        for (Node child : node.getChild()) {
-            T childResult = child.accept(this, context);
-            result = aggregateResult(result, childResult);
-        }
-        return result;
+    for (Node child : node.getChild()) {
+      T childResult = child.accept(this, context);
+      result = aggregateResult(result, childResult);
     }
+    return result;
+  }
 
-    private T defaultResult() {
-        return null;
-    }
+  private T defaultResult() {
+    return null;
+  }
 
-    private T aggregateResult(T aggregate, T nextResult) {
-        return nextResult;
-    }
+  private T aggregateResult(T aggregate, T nextResult) {
+    return nextResult;
+  }
 
-    public T visitRelation(Relation node, C context) {
-        return visitChildren(node, context);
-    }
+  public T visitRelation(Relation node, C context) {
+    return visitChildren(node, context);
+  }
 
-    public T visitFilter(Filter node, C context) {
-        return visitChildren(node, context);
-    }
+  public T visitFilter(Filter node, C context) {
+    return visitChildren(node, context);
+  }
 
-    public T visitProject(Project node, C context) {
-        return visitChildren(node, context);
-    }
+  public T visitProject(Project node, C context) {
+    return visitChildren(node, context);
+  }
 
-    public T visitAggregation(Aggregation node, C context) {
-        return visitChildren(node, context);
-    }
+  public T visitAggregation(Aggregation node, C context) {
+    return visitChildren(node, context);
+  }
 
-    public T visitEqualTo(EqualTo node, C context) {
-        return visitChildren(node, context);
-    }
+  public T visitEqualTo(EqualTo node, C context) {
+    return visitChildren(node, context);
+  }
 
-    public T visitLiteral(Literal node, C context) {
-        return visitChildren(node, context);
-    }
+  public T visitLiteral(Literal node, C context) {
+    return visitChildren(node, context);
+  }
 
-    public T visitUnresolvedAttribute(UnresolvedAttribute node, C context) {
-        return visitChildren(node, context);
-    }
+  public T visitUnresolvedAttribute(UnresolvedAttribute node, C context) {
+    return visitChildren(node, context);
+  }
 
-    public T visitAttributeList(AttributeList node, C context) {
-        return visitChildren(node, context);
-    }
+  public T visitAttributeList(AttributeList node, C context) {
+    return visitChildren(node, context);
+  }
 
-    public T visitMap(Map node, C context) {
-        return visitChildren(node, context);
-    }
+  public T visitMap(Map node, C context) {
+    return visitChildren(node, context);
+  }
 
-    public T visitNot(Not node, C context) {
-        return visitChildren(node, context);
-    }
+  public T visitNot(Not node, C context) {
+    return visitChildren(node, context);
+  }
 
-    public T visitOr(Or node, C context) {
-        return visitChildren(node, context);
-    }
+  public T visitOr(Or node, C context) {
+    return visitChildren(node, context);
+  }
 
-    public T visitAnd(And node, C context) {
-        return visitChildren(node, context);
-    }
+  public T visitAnd(And node, C context) {
+    return visitChildren(node, context);
+  }
 
-    public T visitAggregateFunction(AggregateFunction node, C context) {
-        return visitChildren(node, context);
-    }
+  public T visitAggregateFunction(AggregateFunction node, C context) {
+    return visitChildren(node, context);
+  }
 
-    public T visitFunction(Function node, C context) {
-        return visitChildren(node, context);
-    }
+  public T visitFunction(Function node, C context) {
+    return visitChildren(node, context);
+  }
 
-    public T visitIn(In node, C context) {
-        return visitChildren(node, context);
-    }
+  public T visitIn(In node, C context) {
+    return visitChildren(node, context);
+  }
 
-    public T visitCompare(Compare node, C context) {
-        return visitChildren(node, context);
-    }
+  public T visitCompare(Compare node, C context) {
+    return visitChildren(node, context);
+  }
 
-    public T visitArgument(Argument node, C context) {
-        return visitChildren(node, context);
-    }
+  public T visitArgument(Argument node, C context) {
+    return visitChildren(node, context);
+  }
 
-    public T visitField(Field node, C context) {
-        return visitChildren(node, context);
-    }
+  public T visitField(Field node, C context) {
+    return visitChildren(node, context);
+  }
 
-    public T visitQualifiedName(QualifiedName node, C context) {
-        return visitChildren(node, context);
-    }
+  public T visitQualifiedName(QualifiedName node, C context) {
+    return visitChildren(node, context);
+  }
 
-    public T visitRename(Rename node, C context) {
-        return visitChildren(node, context);
-    }
+  public T visitRename(Rename node, C context) {
+    return visitChildren(node, context);
+  }
+
+  public T visitEval(Eval node, C context) {
+    return visitChildren(node, context);
+  }
+
+  public T visitLet(Let node, C context) {
+    return visitChildren(node, context);
+  }
 }
-

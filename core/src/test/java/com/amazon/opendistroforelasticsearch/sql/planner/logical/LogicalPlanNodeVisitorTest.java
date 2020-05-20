@@ -24,93 +24,82 @@ import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregat
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-/**
- * Todo. Temporary added for UT coverage, Will be removed.
- */
+/** Todo. Temporary added for UT coverage, Will be removed. */
 @ExtendWith(MockitoExtension.class)
 class LogicalPlanNodeVisitorTest {
-    @Mock
-    Expression expression;
-    @Mock
-    ReferenceExpression ref;
-    @Mock
-    Aggregator aggregator;
+  @Mock Expression expression;
+  @Mock ReferenceExpression ref;
+  @Mock Aggregator aggregator;
 
-    @Test
-    public void logicalPlanShouldTraversable() {
-        LogicalPlan logicalPlan =
-                LogicalPlanDSL.rename(
-                        LogicalPlanDSL.aggregation(
-                                LogicalPlanDSL.filter(
-                                        LogicalPlanDSL.relation("schema"),
-                                        expression),
-                                ImmutableList.of(aggregator),
-                                ImmutableList.of(expression)
-                        ),
-                        ImmutableMap.of(ref, ref)
-                );
-
-        Integer result = logicalPlan.accept(new NodesCount(), null);
-        assertEquals(4, result);
-    }
-
-    @Test
-    public void testAbstractPlanNodeVisitorShouldReturnNull() {
-        LogicalPlan relation = LogicalPlanDSL.relation("schema");
-        LogicalPlan filter = LogicalPlanDSL.filter(relation, expression);
-        LogicalPlan aggregation = LogicalPlanDSL.aggregation(
-                filter,
+  @Test
+  public void logicalPlanShouldTraversable() {
+    LogicalPlan logicalPlan =
+        LogicalPlanDSL.rename(
+            LogicalPlanDSL.aggregation(
+                LogicalPlanDSL.filter(LogicalPlanDSL.relation("schema"), expression),
                 ImmutableList.of(aggregator),
-                ImmutableList.of(expression)
-        );
-        LogicalPlan rename = LogicalPlanDSL.rename(
-                aggregation,
-                ImmutableMap.of(ref, ref)
-        );
-        LogicalPlan project = LogicalPlanDSL.project(relation, ref);
-        LogicalPlan remove = LogicalPlanDSL.remove(relation, ref);
+                ImmutableList.of(expression)),
+            ImmutableMap.of(ref, ref));
 
-        assertNull(relation.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
-        }, null));
-        assertNull(filter.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
-        }, null));
-        assertNull(aggregation.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
-        }, null));
-        assertNull(rename.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
-        }, null));
-        assertNull(project.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
-        }, null));
-        assertNull(remove.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
-        }, null));
+    Integer result = logicalPlan.accept(new NodesCount(), null);
+    assertEquals(4, result);
+  }
+
+  @Test
+  public void testAbstractPlanNodeVisitorShouldReturnNull() {
+    LogicalPlan relation = LogicalPlanDSL.relation("schema");
+    LogicalPlan filter = LogicalPlanDSL.filter(relation, expression);
+    LogicalPlan aggregation =
+        LogicalPlanDSL.aggregation(
+            filter, ImmutableList.of(aggregator), ImmutableList.of(expression));
+    LogicalPlan rename = LogicalPlanDSL.rename(aggregation, ImmutableMap.of(ref, ref));
+    LogicalPlan project = LogicalPlanDSL.project(relation, ref);
+    LogicalPlan remove = LogicalPlanDSL.remove(relation, ref);
+    LogicalPlan eval = LogicalPlanDSL.eval(relation, Pair.of(ref, expression));
+
+    assertNull(relation.accept(new LogicalPlanNodeVisitor<Integer, Object>() {}, null));
+    assertNull(filter.accept(new LogicalPlanNodeVisitor<Integer, Object>() {}, null));
+    assertNull(aggregation.accept(new LogicalPlanNodeVisitor<Integer, Object>() {}, null));
+    assertNull(rename.accept(new LogicalPlanNodeVisitor<Integer, Object>() {}, null));
+    assertNull(project.accept(new LogicalPlanNodeVisitor<Integer, Object>() {}, null));
+    assertNull(remove.accept(new LogicalPlanNodeVisitor<Integer, Object>() {}, null));
+    assertNull(eval.accept(new LogicalPlanNodeVisitor<Integer, Object>() {}, null));
+  }
+
+  private static class NodesCount extends LogicalPlanNodeVisitor<Integer, Object> {
+    @Override
+    public Integer visitRelation(LogicalRelation plan, Object context) {
+      return 1;
     }
 
-    private static class NodesCount extends LogicalPlanNodeVisitor<Integer, Object> {
-        @Override
-        public Integer visitRelation(LogicalRelation plan, Object context) {
-            return 1;
-        }
-
-        @Override
-        public Integer visitFilter(LogicalFilter plan, Object context) {
-            return 1 + plan.getChild().stream()
-                    .map(child -> child.accept(this, context)).collect(Collectors.summingInt(Integer::intValue));
-        }
-
-        @Override
-        public Integer visitAggregation(LogicalAggregation plan, Object context) {
-            return 1 + plan.getChild().stream()
-                    .map(child -> child.accept(this, context)).collect(Collectors.summingInt(Integer::intValue));
-        }
-
-        @Override
-        public Integer visitRename(LogicalRename plan, Object context) {
-            return 1 + plan.getChild().stream()
-                    .map(child -> child.accept(this, context)).collect(Collectors.summingInt(Integer::intValue));
-        }
+    @Override
+    public Integer visitFilter(LogicalFilter plan, Object context) {
+      return 1
+          + plan.getChild().stream()
+              .map(child -> child.accept(this, context))
+              .collect(Collectors.summingInt(Integer::intValue));
     }
+
+    @Override
+    public Integer visitAggregation(LogicalAggregation plan, Object context) {
+      return 1
+          + plan.getChild().stream()
+              .map(child -> child.accept(this, context))
+              .collect(Collectors.summingInt(Integer::intValue));
+    }
+
+    @Override
+    public Integer visitRename(LogicalRename plan, Object context) {
+      return 1
+          + plan.getChild().stream()
+              .map(child -> child.accept(this, context))
+              .collect(Collectors.summingInt(Integer::intValue));
+    }
+  }
 }

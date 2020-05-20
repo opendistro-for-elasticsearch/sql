@@ -49,4 +49,8 @@ public abstract class LogicalPlanNodeVisitor<R, C> {
   public R visitRemove(LogicalRemove plan, C context) {
     return visitNode(plan, context);
   }
+
+  public R visitEval(LogicalEval plan, C context) {
+    return visitNode(plan, context);
+  }
 }

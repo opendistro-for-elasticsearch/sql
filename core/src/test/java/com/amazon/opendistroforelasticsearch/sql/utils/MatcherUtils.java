@@ -50,4 +50,32 @@ public class MatcherUtils {
             }
         };
     }
+
+    public static TypeSafeMatcher<ExprValue> hasType(ExprType type) {
+        return new TypeSafeMatcher<ExprValue>() {
+            @Override
+            public void describeTo(Description description) {
+                description.appendText(type.toString());
+            }
+
+            @Override
+            protected boolean matchesSafely(ExprValue value) {
+                return type == value.type();
+            }
+        };
+    }
+
+    public static TypeSafeMatcher<ExprValue> hasValue(Object object) {
+        return new TypeSafeMatcher<ExprValue>() {
+            @Override
+            public void describeTo(Description description) {
+                description.appendText(object.toString());
+            }
+
+            @Override
+            protected boolean matchesSafely(ExprValue value) {
+                return object.equals(value.value());
+            }
+        };
+    }
 }

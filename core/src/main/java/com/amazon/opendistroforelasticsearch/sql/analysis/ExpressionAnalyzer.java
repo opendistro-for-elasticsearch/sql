@@ -20,6 +20,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunctio
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
@@ -31,71 +32,85 @@ import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Collections;
 import java.util.Optional;
 
 /**
- * Analyze the {@link UnresolvedExpression} in the {@link AnalysisContext} to construct the {@link Expression}
+ * Analyze the {@link UnresolvedExpression} in the {@link AnalysisContext} to construct the {@link
+ * Expression}
  */
 @RequiredArgsConstructor
 public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, AnalysisContext> {
-    private final DSL dsl;
-    private final BuiltinFunctionRepository repository;
+  private final DSL dsl;
+  private final BuiltinFunctionRepository repository;
 
-    public Expression analyze(UnresolvedExpression unresolved, AnalysisContext context) {
-        return unresolved.accept(this, context);
+  public Expression analyze(UnresolvedExpression unresolved, AnalysisContext context) {
+    return unresolved.accept(this, context);
+  }
+
+  @Override
+  public Expression visitUnresolvedAttribute(UnresolvedAttribute node, AnalysisContext context) {
+    TypeEnvironment typeEnv = context.peek();
+    ReferenceExpression ref = DSL.ref(node.getAttr());
+    typeEnv.resolve(ref);
+    return ref;
+  }
+
+  @Override
+  public Expression visitEqualTo(EqualTo node, AnalysisContext context) {
+    Expression left = node.getLeft().accept(this, context);
+    Expression right = node.getRight().accept(this, context);
+
+    return dsl.equal(context.peek(), left, right);
+  }
+
+  @Override
+  public Expression visitLiteral(Literal node, AnalysisContext context) {
+    return DSL.literal(ExprValueUtils.fromObjectValue(node.getValue()));
+  }
+
+  @Override
+  public Expression visitAnd(And node, AnalysisContext context) {
+    Expression left = node.getLeft().accept(this, context);
+    Expression right = node.getRight().accept(this, context);
+
+    return dsl.and(context.peek(), left, right);
+  }
+
+  @Override
+  public Expression visitAggregateFunction(AggregateFunction node, AnalysisContext context) {
+    Optional<BuiltinFunctionName> builtinFunctionName = BuiltinFunctionName.of(node.getFuncName());
+    if (builtinFunctionName.isPresent()) {
+      Expression arg = node.getField().accept(this, context);
+      return (Aggregator)
+          repository.compile(
+              builtinFunctionName.get().getName(), Collections.singletonList(arg), context.peek());
+    } else {
+      throw new SemanticCheckException("Unsupported aggregation function " + node.getFuncName());
     }
+  }
 
-    @Override
-    public Expression visitUnresolvedAttribute(UnresolvedAttribute node, AnalysisContext context) {
-        TypeEnvironment typeEnv = context.peek();
-        ReferenceExpression ref = DSL.ref(node.getAttr());
-        typeEnv.resolve(ref);
-        return ref;
-    }
+  @Override
+  public Expression visitFunction(Function node, AnalysisContext context) {
+    FunctionName functionName = FunctionName.of(node.getFuncName());
+    List<Expression> arguments =
+        node.getFuncArgs().stream()
+            .map(unresolvedExpression -> analyze(unresolvedExpression, context))
+            .collect(Collectors.toList());
+    return (Expression) repository.compile(functionName, arguments, context.peek());
+  }
 
-    @Override
-    public Expression visitEqualTo(EqualTo node, AnalysisContext context) {
-        Expression left = node.getLeft().accept(this, context);
-        Expression right = node.getRight().accept(this, context);
-
-        return dsl.equal(context.peek(), left, right);
-    }
-
-    @Override
-    public Expression visitLiteral(Literal node, AnalysisContext context) {
-        return DSL.literal(ExprValueUtils.fromObjectValue(node.getValue()));
-    }
-
-    @Override
-    public Expression visitAnd(And node, AnalysisContext context) {
-        Expression left = node.getLeft().accept(this, context);
-        Expression right = node.getRight().accept(this, context);
-
-        return dsl.and(context.peek(), left, right);
-    }
-
-    @Override
-    public Expression visitAggregateFunction(AggregateFunction node, AnalysisContext context) {
-        Optional<BuiltinFunctionName> builtinFunctionName = BuiltinFunctionName.of(node.getFuncName());
-        if (builtinFunctionName.isPresent()) {
-            Expression arg = node.getField().accept(this, context);
-            return (Aggregator) repository.compile(builtinFunctionName.get().getName(),
-                    Collections.singletonList(arg),
-                    context.peek());
-        } else {
-            throw new SemanticCheckException("Unsupported aggregation function " + node.getFuncName());
-        }
-    }
-
-    @Override
-    public Expression visitField(Field node, AnalysisContext context) {
-        String attr = node.getField().toString();
-        TypeEnvironment typeEnv = context.peek();
-        ReferenceExpression ref = DSL.ref(attr);
-        typeEnv.resolve(ref);
-        return ref;
-    }
+  @Override
+  public Expression visitField(Field node, AnalysisContext context) {
+    String attr = node.getField().toString();
+    TypeEnvironment typeEnv = context.peek();
+    ReferenceExpression ref = DSL.ref(attr);
+    typeEnv.resolve(ref);
+    return ref;
+  }
 }

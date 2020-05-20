@@ -28,65 +28,99 @@ import java.util.Arrays;
 
 @RequiredArgsConstructor
 public class DSL {
-    private final BuiltinFunctionRepository repository;
+  private final BuiltinFunctionRepository repository;
 
-    public static LiteralExpression literal(Integer value) {
-        return new LiteralExpression(ExprValueUtils.integerValue(value));
-    }
+  public static LiteralExpression literal(Integer value) {
+    return new LiteralExpression(ExprValueUtils.integerValue(value));
+  }
 
-    public static LiteralExpression literal(ExprValue value) {
-        return new LiteralExpression(value);
-    }
+  public static LiteralExpression literal(Long value) {
+    return new LiteralExpression(ExprValueUtils.longValue(value));
+  }
 
-    public static ReferenceExpression ref(String ref) {
-        return new ReferenceExpression(ref);
-    }
+  public static LiteralExpression literal(Float value) {
+    return new LiteralExpression(ExprValueUtils.floatValue(value));
+  }
 
-    public FunctionExpression add(Environment<Expression, ExprType> env, Expression... expressions) {
-        return (FunctionExpression) repository.compile(BuiltinFunctionName.ADD.getName(), Arrays.asList(expressions), env);
-    }
+  public static LiteralExpression literal(Double value) {
+    return new LiteralExpression(ExprValueUtils.doubleValue(value));
+  }
 
-    public FunctionExpression subtract(Environment<Expression, ExprType> env, Expression... expressions) {
-        return (FunctionExpression) repository.compile(BuiltinFunctionName.SUBTRACT.getName(), Arrays.asList(expressions), env);
-    }
+  public static LiteralExpression literal(ExprValue value) {
+    return new LiteralExpression(value);
+  }
 
-    public FunctionExpression multiply(Environment<Expression, ExprType> env, Expression... expressions) {
-        return (FunctionExpression) repository.compile(BuiltinFunctionName.MULTIPLY.getName(), Arrays.asList(expressions), env);
-    }
+  public static ReferenceExpression ref(String ref) {
+    return new ReferenceExpression(ref);
+  }
 
-    public FunctionExpression divide(Environment<Expression, ExprType> env, Expression... expressions) {
-        return (FunctionExpression) repository.compile(BuiltinFunctionName.DIVIDE.getName(), Arrays.asList(expressions), env);
-    }
+  public FunctionExpression abs(Environment<Expression, ExprType> env, Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.ABS.getName(), Arrays.asList(expressions), env);
+  }
 
-    public FunctionExpression module(Environment<Expression, ExprType> env, Expression... expressions) {
-        return (FunctionExpression) repository.compile(BuiltinFunctionName.MODULES.getName(), Arrays.asList(expressions), env);
-    }
+  public FunctionExpression add(Environment<Expression, ExprType> env, Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.ADD.getName(), Arrays.asList(expressions), env);
+  }
 
-    public FunctionExpression and(Environment<Expression, ExprType> env, Expression... expressions) {
-        return (FunctionExpression) repository.compile(BuiltinFunctionName.AND.getName(), Arrays.asList(expressions), env);
-    }
+  public FunctionExpression subtract(
+      Environment<Expression, ExprType> env, Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.SUBTRACT.getName(), Arrays.asList(expressions), env);
+  }
 
-    public FunctionExpression or(Environment<Expression, ExprType> env, Expression... expressions) {
-        return (FunctionExpression) repository.compile(BuiltinFunctionName.OR.getName(), Arrays.asList(expressions), env);
-    }
+  public FunctionExpression multiply(
+      Environment<Expression, ExprType> env, Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.MULTIPLY.getName(), Arrays.asList(expressions), env);
+  }
 
-    public FunctionExpression xor(Environment<Expression, ExprType> env, Expression... expressions) {
-        return (FunctionExpression) repository.compile(BuiltinFunctionName.XOR.getName(), Arrays.asList(expressions), env);
-    }
+  public FunctionExpression divide(
+      Environment<Expression, ExprType> env, Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.DIVIDE.getName(), Arrays.asList(expressions), env);
+  }
 
-    public FunctionExpression not(Environment<Expression, ExprType> env, Expression... expressions) {
-        return (FunctionExpression) repository.compile(BuiltinFunctionName.NOT.getName(), Arrays.asList(expressions), env);
-    }
+  public FunctionExpression module(
+      Environment<Expression, ExprType> env, Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.MODULES.getName(), Arrays.asList(expressions), env);
+  }
 
-    public FunctionExpression equal(Environment<Expression, ExprType> env, Expression... expressions) {
-        return (FunctionExpression) repository.compile(BuiltinFunctionName.EQUAL.getName(), Arrays.asList(expressions), env);
-    }
+  public FunctionExpression and(Environment<Expression, ExprType> env, Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.AND.getName(), Arrays.asList(expressions), env);
+  }
 
-    public Aggregator avg(Environment<Expression, ExprType> env, Expression... expressions) {
-        return (Aggregator) repository.compile(BuiltinFunctionName.AVG.getName(), Arrays.asList(expressions), env);
-    }
+  public FunctionExpression or(Environment<Expression, ExprType> env, Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.OR.getName(), Arrays.asList(expressions), env);
+  }
 
-    public Aggregator sum(Environment<Expression, ExprType> env, Expression... expressions) {
-        return (Aggregator) repository.compile(BuiltinFunctionName.SUM.getName(), Arrays.asList(expressions), env);
-    }
+  public FunctionExpression xor(Environment<Expression, ExprType> env, Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.XOR.getName(), Arrays.asList(expressions), env);
+  }
+
+  public FunctionExpression not(Environment<Expression, ExprType> env, Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.NOT.getName(), Arrays.asList(expressions), env);
+  }
+
+  public FunctionExpression equal(
+      Environment<Expression, ExprType> env, Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.EQUAL.getName(), Arrays.asList(expressions), env);
+  }
+
+  public Aggregator avg(Environment<Expression, ExprType> env, Expression... expressions) {
+    return (Aggregator)
+        repository.compile(BuiltinFunctionName.AVG.getName(), Arrays.asList(expressions), env);
+  }
+
+  public Aggregator sum(Environment<Expression, ExprType> env, Expression... expressions) {
+    return (Aggregator)
+        repository.compile(BuiltinFunctionName.SUM.getName(), Arrays.asList(expressions), env);
+  }
 }

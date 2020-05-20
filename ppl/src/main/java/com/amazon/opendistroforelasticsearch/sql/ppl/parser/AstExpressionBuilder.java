@@ -18,13 +18,13 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Let;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
@@ -83,9 +83,9 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Unresol
     /** Eval expression */
     @Override
     public UnresolvedExpression visitEvalExpression(EvalExpressionContext ctx) {
-        UnresolvedExpression field = visit(ctx.fieldExpression());
+        Field field = (Field) visit(ctx.fieldExpression());
         UnresolvedExpression evalFunctionCall = visit(ctx.expression());
-        return new EqualTo(field, evalFunctionCall);
+        return new Let(field, evalFunctionCall);
     }
 
     /** Comparison expression */

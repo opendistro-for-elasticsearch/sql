@@ -15,7 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.SymbolTable;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.config.TestConfig;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
@@ -23,6 +26,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,44 +35,46 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-
 @Configuration
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {ExpressionConfig.class, AnalyzerTestBase.class, TestConfig.class})
 public class AnalyzerTestBase {
 
-    @Autowired
-    protected DSL dsl;
+  @Autowired protected DSL dsl;
 
-    @Autowired
-    protected AnalysisContext analysisContext;
+  @Autowired protected AnalysisContext analysisContext;
 
-    @Autowired
-    protected ExpressionAnalyzer expressionAnalyzer;
+  @Autowired protected ExpressionAnalyzer expressionAnalyzer;
 
-    @Autowired
-    protected Analyzer analyzer;
+  @Autowired protected Analyzer analyzer;
 
-    @Autowired
-    protected Environment<Expression, ExprType> typeEnv;
+  @Autowired protected Environment<Expression, ExprType> typeEnv;
 
-    @Bean
-    protected Analyzer analyzer(ExpressionAnalyzer expressionAnalyzer, StorageEngine engine) {
-        return new Analyzer(expressionAnalyzer, engine);
-    }
+  @Bean
+  protected Analyzer analyzer(ExpressionAnalyzer expressionAnalyzer, StorageEngine engine) {
+    return new Analyzer(expressionAnalyzer, engine);
+  }
 
-    @Bean
-    protected TypeEnvironment typeEnvironment(SymbolTable symbolTable) {
-        return new TypeEnvironment(null, symbolTable);
-    }
+  @Bean
+  protected TypeEnvironment typeEnvironment(SymbolTable symbolTable) {
+    return new TypeEnvironment(null, symbolTable);
+  }
 
-    @Bean
-    protected AnalysisContext analysisContext(TypeEnvironment typeEnvironment) {
-        return new AnalysisContext(typeEnvironment);
-    }
+  @Bean
+  protected AnalysisContext analysisContext(TypeEnvironment typeEnvironment) {
+    return new AnalysisContext(typeEnvironment);
+  }
 
-    @Bean
-    protected ExpressionAnalyzer expressionAnalyzer(DSL dsl, BuiltinFunctionRepository repo) {
-        return new ExpressionAnalyzer(dsl, repo);
-    }
+  @Bean
+  protected ExpressionAnalyzer expressionAnalyzer(DSL dsl, BuiltinFunctionRepository repo) {
+    return new ExpressionAnalyzer(dsl, repo);
+  }
+
+  protected void assertAnalyzeEqual(LogicalPlan expected, UnresolvedPlan unresolvedPlan) {
+    assertEquals(expected, analyze(unresolvedPlan));
+  }
+
+  protected LogicalPlan analyze(UnresolvedPlan unresolvedPlan) {
+    return analyzer.analyze(unresolvedPlan, analysisContext);
+  }
 }
