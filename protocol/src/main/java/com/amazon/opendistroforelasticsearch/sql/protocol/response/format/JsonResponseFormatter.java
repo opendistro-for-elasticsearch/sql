@@ -61,6 +61,7 @@ public abstract class JsonResponseFormatter<Response> implements ResponseFormatt
      */
     protected abstract Object buildJsonObject(Response response);
 
+
     private String jsonify(Object jsonObject) {
         JSONObject json = new JSONObject(jsonObject);
         return (style == PRETTY) ? json.toString(2) : json.toString();

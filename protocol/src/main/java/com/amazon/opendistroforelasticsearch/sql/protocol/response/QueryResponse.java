@@ -37,6 +37,10 @@ public class QueryResponse implements Iterable<Object[]> {
      */
     private final Collection<ExprValue> exprValues;
 
+
+    /**
+     * @return  size of results
+     */
     public int size() {
         return exprValues.size();
     }
