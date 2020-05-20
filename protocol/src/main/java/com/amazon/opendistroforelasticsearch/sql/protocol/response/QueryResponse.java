@@ -27,7 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Query response that encapsulates query results and isolate expression related class from formatter implementation.
+ * Query response that encapsulates query results and isolate {@link ExprValue} related from formatter implementation.
  */
 @RequiredArgsConstructor
 public class QueryResponse implements Iterable<Object[]> {
@@ -61,16 +61,16 @@ public class QueryResponse implements Iterable<Object[]> {
     }
 
     private Map<String, ExprValue> getFirstTupleValue() {
-        // Assume expression is always tuple on first level and columns of all tuples are exactly same
+        // Assume expression is always tuple on first level
+        //  and columns (keys) of all tuple values are exactly same
         ExprValue firstValue = exprValues.iterator().next();
         return ExprValueUtils.getTupleValue(firstValue);
     }
 
     private Map<String, String> populateColumnNameAndTypes(Map<String, ExprValue> tupleValue) {
-        Map<String, String> colNameTypes = new LinkedHashMap<>(); // Maintain original order in tuple expression
-        tupleValue.forEach((name, expr) -> {
-            colNameTypes.put(name, expr.type().name().toLowerCase());
-        });
+        // Use linked hashmap to maintain original order in tuple expression
+        Map<String, String> colNameTypes = new LinkedHashMap<>();
+        tupleValue.forEach((name, expr) -> colNameTypes.put(name, getTypeString(expr)));
         return colNameTypes;
     }
 
@@ -78,6 +78,10 @@ public class QueryResponse implements Iterable<Object[]> {
         return exprValues.stream().
                           map(ExprValue::value).
                           toArray(Object[]::new);
+    }
+
+    private String getTypeString(ExprValue exprValue) {
+        return exprValue.type().name().toLowerCase();
     }
 
 }

@@ -27,7 +27,7 @@ import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format
 import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter.Style.PRETTY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class JsonResponseFormatterTest {
+class SimpleJsonResponseFormatterTest {
 
     @Test
     void formatResponse() {
