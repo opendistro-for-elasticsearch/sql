@@ -96,10 +96,6 @@ statsAggTerm
     : statsFunction (AS alias=wcFieldExpression)?
     ;
 
-sparklineAggTerm
-    : sparklineAggregation
-    ;
-
 /** aggregation functions */
 statsFunction
     : statsFunctionName LT_PRTHS fieldExpression RT_PRTHS           #statsFunctionCall
@@ -122,20 +118,12 @@ percentileAggFunction
     : PERCENTILE '<' value=integerLiteral '>' LT_PRTHS aggField=fieldExpression RT_PRTHS
     ;
 
-sparklineAggregation
-    : SPARKLINE LT_PRTHS sparklineFunctionName LT_PRTHS wcFieldExpression RT_PRTHS COMMA spanLength=integerLiteral RT_PRTHS
-    ;
-
-sparklineFunctionName
-    :
-    | C | COUNT | DC | MEAN | AVG | STDEV | STDEVP | VAR | VARP | SUM | SUMSQ | MIN | MAX | RANGE
-    ;
-
 /** expressions */
 expression
     : logicalExpression
     | comparisonExpression
-    | evalExpression
+    | evalFunctionCall
+    | binaryArithmetic
     ;
 
 logicalExpression
@@ -147,13 +135,19 @@ logicalExpression
     ;
 
 evalExpression
-    : fieldExpression EQUAL evalFunctionCall
+    : fieldExpression EQUAL expression
     ;
 
 comparisonExpression
     : left=fieldExpression comparisonOperator
     (field=fieldExpression | literal=literalValue)                  #compareExpr
     | fieldExpression IN valueList                                  #inExpr
+    ;
+
+binaryArithmetic
+    : (leftField=fieldExpression | leftValue=literalValue) binaryOperator
+    (rightField=fieldExpression | rightValue=literalValue)
+    | LT_PRTHS binaryArithmetic RT_PRTHS
     ;
 
 /** tables */
@@ -232,6 +226,10 @@ functionArg
 /** operators */
 comparisonOperator
     : EQUAL | NOT_EQUAL | LESS | NOT_LESS | GREATER | NOT_GREATER
+    ;
+
+binaryOperator
+    : PLUS | MINUS | STAR | DIVIDE | MODULE
     ;
 
 /** literals and values*/
