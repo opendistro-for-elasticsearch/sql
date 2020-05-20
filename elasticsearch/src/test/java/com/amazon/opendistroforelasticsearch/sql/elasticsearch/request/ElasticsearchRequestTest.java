@@ -31,7 +31,7 @@ class ElasticsearchRequestTest {
     private final ElasticsearchRequest request = new ElasticsearchRequest("test");
 
     @Test
-    public void searchRequest() {
+    void searchRequest() {
         request.getSourceBuilder().
                 query(QueryBuilders.termQuery("name", "John"));
 
@@ -44,7 +44,7 @@ class ElasticsearchRequestTest {
     }
 
     @Test
-    public void isScrollStarted() {
+    void isScrollStarted() {
         assertFalse(request.isScrollStarted());
 
         request.setScrollId("scroll123");
@@ -52,7 +52,7 @@ class ElasticsearchRequestTest {
     }
 
     @Test
-    public void scrollRequest() {
+    void scrollRequest() {
         request.setScrollId("scroll123");
         assertEquals(
             new SearchScrollRequest().scroll(ElasticsearchRequest.DEFAULT_SCROLL_TIMEOUT).

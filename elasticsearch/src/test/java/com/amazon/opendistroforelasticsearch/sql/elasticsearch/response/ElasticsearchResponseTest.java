@@ -39,7 +39,7 @@ class ElasticsearchResponseTest {
     private SearchResponse esResponse;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         when(esResponse.getHits()).thenReturn(
             new SearchHits(
                 new SearchHit[]{ new SearchHit(1), new SearchHit(2) },
@@ -50,7 +50,7 @@ class ElasticsearchResponseTest {
     }
 
     @Test
-    public void isEmpty() {
+    void isEmpty() {
         ElasticsearchResponse response1 = new ElasticsearchResponse(esResponse);
         assertFalse(response1.isEmpty());
 
@@ -60,7 +60,7 @@ class ElasticsearchResponseTest {
     }
 
     @Test
-    public void iterator() {
+    void iterator() {
         int i = 0;
         for (SearchHit hit : new ElasticsearchResponse(esResponse)) {
             if (i == 0) {

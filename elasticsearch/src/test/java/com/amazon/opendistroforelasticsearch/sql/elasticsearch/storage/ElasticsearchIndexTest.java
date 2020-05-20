@@ -57,21 +57,21 @@ class ElasticsearchIndexTest {
     private ElasticsearchClient client;
 
     @Test
-    public void getFieldTypes() {
+    void getFieldTypes() {
         when(client.getIndexMappings("test")).thenReturn(
             ImmutableMap.of("test", new IndexMapping(
-                    ImmutableMap.<String, String>builder().
-                        put("name", "keyword").
-                        put("address", "text").
-                        put("age", "integer").
-                        put("account_number", "long").
-                        put("balance1", "float").
-                        put("balance2", "double").
-                        put("gender", "boolean").
-                        put("family", "nested").
-                        put("employer", "object").
-                        put("birthday", "date").
-                        build()
+                ImmutableMap.<String, String>builder().
+                    put("name", "keyword").
+                    put("address", "text").
+                    put("age", "integer").
+                    put("account_number", "long").
+                    put("balance1", "float").
+                    put("balance2", "double").
+                    put("gender", "boolean").
+                    put("family", "nested").
+                    put("employer", "object").
+                    put("birthday", "date").
+                    build()
                 )
             )
         );
@@ -97,7 +97,7 @@ class ElasticsearchIndexTest {
     }
 
     @Test
-    public void implementRelationOperatorOnly() {
+    void implementRelationOperatorOnly() {
         String indexName = "test";
         LogicalPlan plan = relation(indexName);
         Table index = new ElasticsearchIndex(client, indexName);
@@ -105,7 +105,7 @@ class ElasticsearchIndexTest {
     }
 
     @Test
-    public void implementOtherLogicalOperators() {
+    void implementOtherLogicalOperators() {
         String indexName = "test";
         Expression filterExpr = literal(ExprBooleanValue.ofTrue());
         List<Expression> groupByExprs = Arrays.asList(ref("age"));

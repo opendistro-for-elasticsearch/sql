@@ -46,7 +46,7 @@ class ElasticsearchIndexScanTest {
     private ElasticsearchClient client;
 
     @Test
-    public void queryEmptyResult() {
+    void queryEmptyResult() {
         mockResponse();
         try (ElasticsearchIndexScan indexScan = new ElasticsearchIndexScan(client, "test")) {
             indexScan.open();
@@ -55,7 +55,7 @@ class ElasticsearchIndexScanTest {
     }
 
     @Test
-    public void queryAllResults() {
+    void queryAllResults() {
         mockResponse(
             new SearchHit[]{
                 employee(1, "John", "IT"),
