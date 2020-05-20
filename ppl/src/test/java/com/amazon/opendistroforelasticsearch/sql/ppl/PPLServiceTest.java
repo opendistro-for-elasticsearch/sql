@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
-import com.amazon.opendistroforelasticsearch.sql.protocol.response.ResponseListener;
+import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
 import com.amazon.opendistroforelasticsearch.sql.ppl.config.PPLServiceConfig;
 import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryRequest;
 import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryResponse;

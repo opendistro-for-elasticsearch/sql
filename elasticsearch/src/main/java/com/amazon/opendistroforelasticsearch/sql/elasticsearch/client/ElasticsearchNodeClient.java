@@ -109,6 +109,11 @@ public class ElasticsearchNodeClient implements ElasticsearchClient {
         return response;
     }
 
+    @Override
+    public void schedule(Runnable task) {
+
+    }
+
     private String[] resolveIndexExpression(ClusterState state, String[] indices) {
         return resolver.concreteIndexNames(state, IndicesOptions.strictExpandOpen(), indices);
     }

@@ -42,4 +42,10 @@ public interface ElasticsearchClient {
      */
     ElasticsearchResponse search(ElasticsearchRequest request);
 
+    /**
+     * Schedule a task to run.
+     * @param task      task
+     */
+    void schedule(Runnable task);
+
 }

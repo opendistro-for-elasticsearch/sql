@@ -18,7 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.plugin.rest;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.security.SecurityAccess;
 import com.amazon.opendistroforelasticsearch.sql.plugin.request.PPLQueryRequestFactory;
 import com.amazon.opendistroforelasticsearch.sql.ppl.PPLService;
-import com.amazon.opendistroforelasticsearch.sql.protocol.response.ResponseListener;
+import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
 import com.amazon.opendistroforelasticsearch.sql.ppl.config.PPLServiceConfig;
 import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryResponse;
 import org.elasticsearch.client.node.NodeClient;

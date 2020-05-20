@@ -14,7 +14,7 @@
  *
  */
 
-package com.amazon.opendistroforelasticsearch.sql.protocol.response;
+package com.amazon.opendistroforelasticsearch.sql.common.response;
 
 /**
  * Response listener for response post-processing callback.
