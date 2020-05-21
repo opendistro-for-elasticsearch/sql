@@ -21,6 +21,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_ACCOUNT;
 
 // Refer to https://www.elastic.co/guide/en/elasticsearch/reference/6.5/integration-tests.html
 // for detailed ESIntegTestCase usages doc.
@@ -55,7 +56,7 @@ public class PreparedStatementIT extends SQLIntegTestCase {
                 "      \"value\": \"20\"\n" +
                 "    }\n" +
                 "  ]\n" +
-                "}", TestsConstants.TEST_INDEX_ACCOUNT));
+                "}", TEST_INDEX_ACCOUNT));
 
         Assert.assertTrue(response.has("hits"));
         Assert.assertTrue(response.getJSONObject("hits").has("hits"));

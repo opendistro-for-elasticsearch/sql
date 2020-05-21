@@ -21,6 +21,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Locale;
 
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_ACCOUNT;
 import static org.hamcrest.Matchers.both;
 import static org.hamcrest.Matchers.containsString;
 
@@ -46,7 +47,7 @@ public class MethodQueryIT extends SQLIntegTestCase {
     public void queryTest() throws IOException {
         final String result = explainQuery(String.format(Locale.ROOT,
                 "select address from %s where query('address:880 Holmes Lane') limit 3",
-                TestsConstants.TEST_INDEX_ACCOUNT));
+                TEST_INDEX_ACCOUNT));
         Assert.assertThat(result,
                 containsString("query_string\":{\"query\":\"address:880 Holmes Lane"));
 
@@ -62,7 +63,7 @@ public class MethodQueryIT extends SQLIntegTestCase {
     public void matchQueryTest() throws IOException {
         final String result = explainQuery(String.format(Locale.ROOT,
                 "select address from %s where address= matchQuery('880 Holmes Lane') limit 3",
-                TestsConstants.TEST_INDEX_ACCOUNT));
+                TEST_INDEX_ACCOUNT));
         Assert.assertThat(result,
                 containsString("{\"match\":{\"address\":{\"query\":\"880 Holmes Lane\""));
     }
@@ -83,7 +84,7 @@ public class MethodQueryIT extends SQLIntegTestCase {
                 "select address from %s " +
                         "where score(matchQuery(address, 'Lane'),100) " +
                         "or score(matchQuery(address,'Street'),0.5)  order by _score desc limit 3",
-                TestsConstants.TEST_INDEX_ACCOUNT));
+                TEST_INDEX_ACCOUNT));
         Assert.assertThat(result,
                 both(containsString("{\"constant_score\":" +
                         "{\"filter\":{\"match\":{\"address\":{\"query\":\"Lane\"")).and(
@@ -101,7 +102,7 @@ public class MethodQueryIT extends SQLIntegTestCase {
     public void wildcardQueryTest() throws IOException {
         final String result = explainQuery(String.format(Locale.ROOT,
                 "select address from %s where address= wildcardQuery('l*e')  order by _score desc limit 3",
-                TestsConstants.TEST_INDEX_ACCOUNT));
+                TEST_INDEX_ACCOUNT));
         Assert.assertThat(result,
                 containsString("{\"wildcard\":{\"address\":{\"wildcard\":\"l*e\""));
     }
@@ -120,7 +121,7 @@ public class MethodQueryIT extends SQLIntegTestCase {
         final String result = explainQuery(String.format(Locale.ROOT,
                 "select address from %s " +
                         "where address= matchPhrase('671 Bristol Street')  order by _score desc limit 3",
-                TestsConstants.TEST_INDEX_ACCOUNT));
+                TEST_INDEX_ACCOUNT));
         Assert.assertThat(result,
                 containsString("{\"match_phrase\":{\"address\":{\"query\":\"671 Bristol Street\""));
     }

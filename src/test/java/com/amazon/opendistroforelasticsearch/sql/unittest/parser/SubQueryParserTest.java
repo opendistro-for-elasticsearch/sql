@@ -24,7 +24,7 @@ import com.amazon.opendistroforelasticsearch.sql.parser.SqlParser;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import org.junit.Test;
 
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_ACCOUNT;
 import static org.junit.Assert.assertEquals;
 
 public class SubQueryParserTest {

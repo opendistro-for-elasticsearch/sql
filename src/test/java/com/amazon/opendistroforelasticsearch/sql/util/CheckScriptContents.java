@@ -22,7 +22,6 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Condition;
 import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.domain.Where;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
-import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
 import com.amazon.opendistroforelasticsearch.sql.parser.ScriptFilter;
@@ -57,6 +56,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_BANK;
 import static java.util.Collections.emptyList;
 import static org.elasticsearch.search.builder.SearchSourceBuilder.ScriptField;
 import static org.junit.Assert.assertTrue;
@@ -245,7 +245,7 @@ public class CheckScriptContents {
         when(mockState.metaData()).thenReturn(mockMetaData);
         try {
             ImmutableOpenMap.Builder<String, ImmutableOpenMap<String, MappingMetaData>> builder = ImmutableOpenMap.builder();
-            builder.put(TestsConstants.TEST_INDEX_BANK, IndexMetaData.fromXContent(createParser(mappings)).getMappings());
+            builder.put(TEST_INDEX_BANK, IndexMetaData.fromXContent(createParser(mappings)).getMappings());
             when(mockMetaData.findMappings(any(), any(), any())).thenReturn(builder.build());
         }
         catch (IOException e) {

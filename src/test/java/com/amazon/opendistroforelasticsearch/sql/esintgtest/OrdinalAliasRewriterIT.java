@@ -20,6 +20,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_ACCOUNT;
 import static org.hamcrest.Matchers.equalTo;
 
 public class OrdinalAliasRewriterIT extends SQLIntegTestCase {
@@ -33,9 +34,9 @@ public class OrdinalAliasRewriterIT extends SQLIntegTestCase {
     @Test
     public void simpleGroupByOrdinal() {
         String expected = executeQuery(StringUtils.format(
-            "SELECT lastname FROM %s AS b GROUP BY lastname LIMIT 3", TestsConstants.TEST_INDEX_ACCOUNT), "jdbc");
+            "SELECT lastname FROM %s AS b GROUP BY lastname LIMIT 3", TEST_INDEX_ACCOUNT), "jdbc");
         String actual = executeQuery(StringUtils.format(
-            "SELECT lastname FROM %s AS b GROUP BY 1 LIMIT 3", TestsConstants.TEST_INDEX_ACCOUNT), "jdbc");
+            "SELECT lastname FROM %s AS b GROUP BY 1 LIMIT 3", TEST_INDEX_ACCOUNT), "jdbc");
         assertThat(actual, equalTo(expected));
     }
 
@@ -43,19 +44,19 @@ public class OrdinalAliasRewriterIT extends SQLIntegTestCase {
     public void multipleGroupByOrdinal() {
         String expected = executeQuery(StringUtils.format(
             "SELECT lastname, firstname, age FROM %s AS b GROUP BY firstname, age, lastname LIMIT 3",
-            TestsConstants.TEST_INDEX_ACCOUNT), "jdbc");
+            TEST_INDEX_ACCOUNT), "jdbc");
         String actual = executeQuery(StringUtils.format(
             "SELECT lastname, firstname, age FROM %s AS b GROUP BY 2, 3, 1 LIMIT 3",
-            TestsConstants.TEST_INDEX_ACCOUNT), "jdbc");
+            TEST_INDEX_ACCOUNT), "jdbc");
         assertThat(actual, equalTo(expected));
     }
 
     @Test
     public void selectFieldiWithBacticksGroupByOrdinal() {
         String expected = executeQuery(StringUtils.format(
-            "SELECT `lastname` FROM %s AS b GROUP BY `lastname` LIMIT 3", TestsConstants.TEST_INDEX_ACCOUNT), "jdbc");
+            "SELECT `lastname` FROM %s AS b GROUP BY `lastname` LIMIT 3", TEST_INDEX_ACCOUNT), "jdbc");
         String actual = executeQuery(StringUtils.format(
-            "SELECT `lastname` FROM %s AS b GROUP BY 1 LIMIT 3", TestsConstants.TEST_INDEX_ACCOUNT), "jdbc");
+            "SELECT `lastname` FROM %s AS b GROUP BY 1 LIMIT 3", TEST_INDEX_ACCOUNT), "jdbc");
         assertThat(actual, equalTo(expected));
     }
 
@@ -63,19 +64,19 @@ public class OrdinalAliasRewriterIT extends SQLIntegTestCase {
     public void selectFieldiWithBacticksAndTableAliasGroupByOrdinal() {
         String expected = executeQuery(StringUtils.format(
             "SELECT `b`.`lastname`, `age`, firstname FROM %s AS b GROUP BY `age`, `b`.`lastname` , firstname LIMIT 10",
-            TestsConstants.TEST_INDEX_ACCOUNT), "jdbc");
+            TEST_INDEX_ACCOUNT), "jdbc");
         String actual = executeQuery(StringUtils.format(
             "SELECT `b`.`lastname`, `age`, firstname  FROM %s AS b GROUP BY 2, 1, 3 LIMIT 10",
-            TestsConstants.TEST_INDEX_ACCOUNT), "jdbc");
+            TEST_INDEX_ACCOUNT), "jdbc");
         assertThat(actual, equalTo(expected));
     }
 
     @Test
     public void simpleOrderByOrdinal() {
         String expected = executeQuery(StringUtils.format(
-            "SELECT lastname FROM %s AS b ORDER BY lastname LIMIT 3", TestsConstants.TEST_INDEX_ACCOUNT), "jdbc");
+            "SELECT lastname FROM %s AS b ORDER BY lastname LIMIT 3", TEST_INDEX_ACCOUNT), "jdbc");
         String actual = executeQuery(StringUtils.format(
-            "SELECT lastname FROM %s AS b ORDER BY 1 LIMIT 3", TestsConstants.TEST_INDEX_ACCOUNT), "jdbc");
+            "SELECT lastname FROM %s AS b ORDER BY 1 LIMIT 3", TEST_INDEX_ACCOUNT), "jdbc");
         assertThat(actual, equalTo(expected));
     }
 
@@ -83,19 +84,19 @@ public class OrdinalAliasRewriterIT extends SQLIntegTestCase {
     public void multipleOrderByOrdinal() {
         String expected = executeQuery(StringUtils.format(
             "SELECT lastname, firstname, age FROM %s AS b ORDER BY firstname, age, lastname LIMIT 3",
-            TestsConstants.TEST_INDEX_ACCOUNT), "jdbc");
+            TEST_INDEX_ACCOUNT), "jdbc");
         String actual = executeQuery(StringUtils.format(
             "SELECT lastname, firstname, age FROM %s AS b ORDER BY 2, 3, 1 LIMIT 3",
-            TestsConstants.TEST_INDEX_ACCOUNT), "jdbc");
+            TEST_INDEX_ACCOUNT), "jdbc");
         assertThat(actual, equalTo(expected));
     }
 
     @Test
     public void selectFieldiWithBacticksOrderByOrdinal() {
         String expected = executeQuery(StringUtils.format(
-            "SELECT `lastname` FROM %s AS b ORDER BY `lastname` LIMIT 3", TestsConstants.TEST_INDEX_ACCOUNT), "jdbc");
+            "SELECT `lastname` FROM %s AS b ORDER BY `lastname` LIMIT 3", TEST_INDEX_ACCOUNT), "jdbc");
         String actual = executeQuery(StringUtils.format(
-            "SELECT `lastname` FROM %s AS b ORDER BY 1 LIMIT 3", TestsConstants.TEST_INDEX_ACCOUNT), "jdbc");
+            "SELECT `lastname` FROM %s AS b ORDER BY 1 LIMIT 3", TEST_INDEX_ACCOUNT), "jdbc");
         assertThat(actual, equalTo(expected));
     }
 
@@ -103,10 +104,10 @@ public class OrdinalAliasRewriterIT extends SQLIntegTestCase {
     public void selectFieldiWithBacticksAndTableAliasOrderByOrdinal() {
         String expected = executeQuery(StringUtils.format(
             "SELECT `b`.`lastname` FROM %s AS b ORDER BY `b`.`lastname` LIMIT 3",
-            TestsConstants.TEST_INDEX_ACCOUNT), "jdbc");
+            TEST_INDEX_ACCOUNT), "jdbc");
         String actual = executeQuery(StringUtils.format(
             "SELECT `b`.`lastname` FROM %s AS b ORDER BY 1 LIMIT 3",
-            TestsConstants.TEST_INDEX_ACCOUNT), "jdbc");
+            TEST_INDEX_ACCOUNT), "jdbc");
         assertThat(actual, equalTo(expected));
     }
 
@@ -115,10 +116,10 @@ public class OrdinalAliasRewriterIT extends SQLIntegTestCase {
     public void selectFieldiWithBacticksAndTableAliasOrderByOrdinalAndNull() {
         String expected = executeQuery(StringUtils.format(
             "SELECT `b`.`lastname`, age FROM %s AS b ORDER BY `b`.`lastname` IS NOT NULL DESC, age is NULL LIMIT 3",
-            TestsConstants.TEST_INDEX_ACCOUNT), "jdbc");
+            TEST_INDEX_ACCOUNT), "jdbc");
         String actual = executeQuery(StringUtils.format(
             "SELECT `b`.`lastname`, age FROM %s AS b ORDER BY 1 IS NOT NULL DESC, 2 IS NULL LIMIT 3",
-            TestsConstants.TEST_INDEX_ACCOUNT), "jdbc");
+            TEST_INDEX_ACCOUNT), "jdbc");
         assertThat(actual, equalTo(expected));
     }
 
@@ -128,10 +129,10 @@ public class OrdinalAliasRewriterIT extends SQLIntegTestCase {
     public void explainSelectFieldiWithBacticksAndTableAliasGroupByOrdinal() throws IOException {
         String expected = explainQuery(StringUtils.format(
             "SELECT `b`.`lastname` FROM %s AS b GROUP BY `b`.`lastname` LIMIT 3",
-            TestsConstants.TEST_INDEX_ACCOUNT));
+            TEST_INDEX_ACCOUNT));
         String actual = explainQuery(StringUtils.format(
             "SELECT `b`.`lastname` FROM %s AS b GROUP BY 1 LIMIT 3",
-            TestsConstants.TEST_INDEX_ACCOUNT));
+            TEST_INDEX_ACCOUNT));
         assertThat(actual, equalTo(expected));
     }
 
@@ -139,10 +140,10 @@ public class OrdinalAliasRewriterIT extends SQLIntegTestCase {
     public void explainSelectFieldiWithBacticksAndTableAliasOrderByOrdinal() throws IOException {
         String expected = explainQuery(StringUtils.format(
             "SELECT `b`.`lastname` FROM %s AS b ORDER BY `b`.`lastname` LIMIT 3",
-            TestsConstants.TEST_INDEX_ACCOUNT));
+            TEST_INDEX_ACCOUNT));
         String actual = explainQuery(StringUtils.format(
             "SELECT `b`.`lastname` FROM %s AS b ORDER BY 1 LIMIT 3",
-            TestsConstants.TEST_INDEX_ACCOUNT));
+            TEST_INDEX_ACCOUNT));
         assertThat(actual, equalTo(expected));
     }
 
@@ -151,10 +152,10 @@ public class OrdinalAliasRewriterIT extends SQLIntegTestCase {
     public void explainSelectFieldiWithBacticksAndTableAliasOrderByOrdinalAndNull()  throws IOException {
         String expected = explainQuery(StringUtils.format(
             "SELECT `b`.`lastname`, age FROM %s AS b ORDER BY `b`.`lastname` IS NOT NULL DESC, age is NULL LIMIT 3",
-            TestsConstants.TEST_INDEX_ACCOUNT));
+            TEST_INDEX_ACCOUNT));
         String actual = explainQuery(StringUtils.format(
             "SELECT `b`.`lastname`, age FROM %s AS b ORDER BY 1 IS NOT NULL DESC, 2 IS NULL LIMIT 3",
-            TestsConstants.TEST_INDEX_ACCOUNT));
+            TEST_INDEX_ACCOUNT));
         assertThat(actual, equalTo(expected));
     }
 }

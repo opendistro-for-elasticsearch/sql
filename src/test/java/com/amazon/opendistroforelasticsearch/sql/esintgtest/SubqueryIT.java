@@ -30,9 +30,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_DOGSUBQUERY;
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_EMPLOYEE_NESTED;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_DOGSUBQUERY;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_EMPLOYEE_NESTED;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.hitAll;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvInt;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvString;

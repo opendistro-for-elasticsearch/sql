@@ -33,6 +33,8 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.SIMPLE_DATE_FORMAT;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_ONLINE;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 
@@ -40,7 +42,7 @@ public class DateFormatIT extends SQLIntegTestCase {
 
     private static final String SELECT_FROM =
             "SELECT insert_time " +
-            "FROM " + TestsConstants.TEST_INDEX_ONLINE + " ";
+            "FROM " + TEST_INDEX_ONLINE + " ";
 
     @Override
     protected void init() throws Exception {
@@ -132,7 +134,7 @@ public class DateFormatIT extends SQLIntegTestCase {
 
         JSONArray hits =
                 getHits(executeQuery("SELECT all_client, insert_time " +
-                        " FROM " + TestsConstants.TEST_INDEX_ONLINE +
+                        " FROM " + TEST_INDEX_ONLINE +
                         " ORDER BY date_format(insert_time, 'dd-MM-YYYY', 'UTC') DESC, insert_time " +
                         " LIMIT 10"));
 
@@ -144,7 +146,7 @@ public class DateFormatIT extends SQLIntegTestCase {
     public void sortByAliasedDateFormat() throws IOException {
         JSONArray hits =
                 getHits(executeQuery("SELECT all_client, insert_time,  date_format(insert_time, 'dd-MM-YYYY', 'UTC') date" +
-                        " FROM " + TestsConstants.TEST_INDEX_ONLINE +
+                        " FROM " + TEST_INDEX_ONLINE +
                         " ORDER BY date DESC, insert_time " +
                         " LIMIT 10"));
 
@@ -212,7 +214,7 @@ public class DateFormatIT extends SQLIntegTestCase {
     }
 
     private Set<Object> getResult(JSONObject response, String fieldName) {
-        DateTimeFormatter formatter = DateTimeFormat.forPattern(TestsConstants.SIMPLE_DATE_FORMAT);
+        DateTimeFormatter formatter = DateTimeFormat.forPattern(SIMPLE_DATE_FORMAT);
 
         JSONArray hits = getHits(response);
         Set<Object> result = new TreeSet<>(); // Using TreeSet so order is maintained

@@ -15,12 +15,12 @@
 
 package com.amazon.opendistroforelasticsearch.sql.doctest.core.response;
 
-import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils;
 import org.elasticsearch.client.Response;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import static com.amazon.opendistroforelasticsearch.sql.TestUtils.getResponseBody;
 
 /**
  * Response from SQL plugin
@@ -42,7 +42,7 @@ public class SqlResponse {
      */
     public String body() {
         try {
-            return replaceChangingFields(TestUtils.getResponseBody(response, true));
+            return replaceChangingFields(getResponseBody(response, true));
         } catch (IOException e) {
             throw new IllegalStateException("Failed to read response body", e);
         }

@@ -18,6 +18,8 @@ package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 import org.json.JSONObject;
 import org.junit.Test;
 
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_ONLINE;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.schema;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySchema;
 
@@ -34,7 +36,7 @@ public class TypeInformationIT extends SQLIntegTestCase {
      */
     @Test
     public void testAbsWithIntFieldReturnsInt() {
-        JSONObject response = executeJdbcRequest("SELECT ABS(age) FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
+        JSONObject response = executeJdbcRequest("SELECT ABS(age) FROM " + TEST_INDEX_ACCOUNT +
                 " ORDER BY age LIMIT 5");
 
         verifySchema(response, schema("ABS(age)", null, "long"));
@@ -42,7 +44,7 @@ public class TypeInformationIT extends SQLIntegTestCase {
 
     @Test
     public void testCeilWithLongFieldReturnsLong() {
-        JSONObject response = executeJdbcRequest("SELECT CEIL(balance) FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
+        JSONObject response = executeJdbcRequest("SELECT CEIL(balance) FROM " + TEST_INDEX_ACCOUNT +
                 " ORDER BY balance LIMIT 5");
 
         verifySchema(response, schema("CEIL(balance)", null, "long"));
@@ -53,7 +55,7 @@ public class TypeInformationIT extends SQLIntegTestCase {
      */
     @Test
     public void testPiReturnsDouble() {
-        JSONObject response = executeJdbcRequest("SELECT PI() FROM " + TestsConstants.TEST_INDEX_ACCOUNT
+        JSONObject response = executeJdbcRequest("SELECT PI() FROM " + TEST_INDEX_ACCOUNT
                 + " LIMIT 1");
 
         verifySchema(response, schema("PI()", null, "double"));
@@ -65,7 +67,7 @@ public class TypeInformationIT extends SQLIntegTestCase {
     @Test
     public void testUpperWithStringFieldReturnsString() {
         JSONObject response = executeJdbcRequest("SELECT UPPER(firstname) AS firstname_alias FROM " +
-                TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY firstname_alias LIMIT 2");
+                TEST_INDEX_ACCOUNT + " ORDER BY firstname_alias LIMIT 2");
 
         verifySchema(response, schema("firstname_alias", null, "text"));
     }
@@ -73,7 +75,7 @@ public class TypeInformationIT extends SQLIntegTestCase {
     @Test
     public void testLowerWithTextFieldReturnsText() {
         JSONObject response = executeJdbcRequest("SELECT LOWER(firstname) FROM " +
-                TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY firstname LIMIT 2");
+                TEST_INDEX_ACCOUNT + " ORDER BY firstname LIMIT 2");
 
         verifySchema(response, schema("LOWER(firstname)", null, "text"));
     }
@@ -84,14 +86,14 @@ public class TypeInformationIT extends SQLIntegTestCase {
     @Test
     public void testLengthWithTextFieldReturnsInt() {
         JSONObject response = executeJdbcRequest("SELECT length(firstname) FROM " +
-                TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY firstname LIMIT 2");
+                TEST_INDEX_ACCOUNT + " ORDER BY firstname LIMIT 2");
 
         verifySchema(response, schema("length(firstname)", null, "integer"));
     }
 
     @Test
     public void testLengthWithGroupByExpr() {
-        JSONObject response = executeJdbcRequest("SELECT Length(firstname) FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
+        JSONObject response = executeJdbcRequest("SELECT Length(firstname) FROM " + TEST_INDEX_ACCOUNT +
                 " GROUP BY LENGTH(firstname) LIMIT 5");
 
         verifySchema(response, schema("Length(firstname)", null, "integer"));
@@ -103,7 +105,7 @@ public class TypeInformationIT extends SQLIntegTestCase {
     @Test
     public void testSinWithLongFieldReturnsDouble() {
         JSONObject response = executeJdbcRequest("SELECT sin(balance) FROM " +
-                TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY firstname LIMIT 2");
+                TEST_INDEX_ACCOUNT + " ORDER BY firstname LIMIT 2");
 
         verifySchema(response, schema("sin(balance)", null, "double"));
     }
@@ -111,7 +113,7 @@ public class TypeInformationIT extends SQLIntegTestCase {
     @Test
     public void testRadiansWithLongFieldReturnsDouble() {
         JSONObject response = executeJdbcRequest("SELECT radians(balance) FROM " +
-                TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY firstname LIMIT 2");
+                TEST_INDEX_ACCOUNT + " ORDER BY firstname LIMIT 2");
 
         verifySchema(response, schema("radians(balance)", null, "double"));
     }
@@ -122,7 +124,7 @@ public class TypeInformationIT extends SQLIntegTestCase {
     @Test
     public void testAddWithIntReturnsInt() {
         JSONObject response = executeJdbcRequest("SELECT (balance + 5) AS balance_add_five FROM " +
-                TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY firstname LIMIT 2");
+                TEST_INDEX_ACCOUNT + " ORDER BY firstname LIMIT 2");
 
         verifySchema(response, schema("balance_add_five", null, "integer"));
     }
@@ -130,7 +132,7 @@ public class TypeInformationIT extends SQLIntegTestCase {
     @Test
     public void testSubtractLongWithLongReturnsLong() {
         JSONObject response = executeJdbcRequest("SELECT (balance - balance) FROM " +
-                TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY firstname LIMIT 2");
+                TEST_INDEX_ACCOUNT + " ORDER BY firstname LIMIT 2");
 
         verifySchema(response, schema("subtract(balance, balance)", null, "long"));
     }
@@ -141,7 +143,7 @@ public class TypeInformationIT extends SQLIntegTestCase {
     @Test
     public void testDayOfWeekWithKeywordReturnsText() {
         JSONObject response = executeJdbcRequest("SELECT DAY_OF_WEEK(insert_time) FROM "
-                + TestsConstants.TEST_INDEX_ONLINE + " LIMIT 2");
+                + TEST_INDEX_ONLINE + " LIMIT 2");
 
         verifySchema(response,
                 schema("DAY_OF_WEEK(insert_time)", null, "integer"));
@@ -150,7 +152,7 @@ public class TypeInformationIT extends SQLIntegTestCase {
     @Test
     public void testYearWithKeywordReturnsText() {
         JSONObject response = executeJdbcRequest("SELECT YEAR(insert_time) FROM "
-                + TestsConstants.TEST_INDEX_ONLINE + " LIMIT 2");
+                + TEST_INDEX_ONLINE + " LIMIT 2");
 
         verifySchema(response, schema("YEAR(insert_time)", null, "integer"));
     }

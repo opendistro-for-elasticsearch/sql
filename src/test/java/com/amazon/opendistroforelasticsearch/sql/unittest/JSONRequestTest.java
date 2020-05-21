@@ -18,7 +18,6 @@ package com.amazon.opendistroforelasticsearch.sql.unittest;
 import com.alibaba.druid.sql.parser.ParserException;
 import com.amazon.opendistroforelasticsearch.sql.domain.ColumnTypeProvider;
 import com.amazon.opendistroforelasticsearch.sql.domain.QueryActionRequest;
-import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.Format;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema;
@@ -42,8 +41,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLFeatureNotSupportedException;
-import java.util.List;
 
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_ACCOUNT;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -272,7 +271,7 @@ public class JSONRequestTest {
                 "FROM %s " +
                 "WHERE firstname LIKE 'A%%' AND age > 20 " +
                 "GROUP BY gender " +
-                "ORDER BY _score\"}", TestsConstants.TEST_INDEX_ACCOUNT));
+                "ORDER BY _score\"}", TEST_INDEX_ACCOUNT));
         String expectedOutput = Files.toString(
                 new File(getResourcePath() + "src/test/resources/expectedOutput/search_explain.json"), StandardCharsets.UTF_8)
                 .replaceAll("\r", "");
@@ -287,7 +286,7 @@ public class JSONRequestTest {
         String result = explain(String.format("{\"query\":\"" +
                 "SELECT address, CASE WHEN gender='0' THEN 'aaa' ELSE 'bbb' END AS a2345, count(age) " +
                 "FROM %s " +
-                "GROUP BY terms('field'='address','execution_hint'='global_ordinals'), a2345\"}", TestsConstants.TEST_INDEX_ACCOUNT));
+                "GROUP BY terms('field'='address','execution_hint'='global_ordinals'), a2345\"}", TEST_INDEX_ACCOUNT));
         String expectedOutput = Files.toString(
                 new File(getResourcePath() + "src/test/resources/expectedOutput/aggregation_query_explain.json"), StandardCharsets.UTF_8)
                 .replaceAll("\r", "");
@@ -300,7 +299,7 @@ public class JSONRequestTest {
         String result = explain(String.format("{\"query\":\"" +
                 "DELETE " +
                 "FROM %s " +
-                "WHERE firstname LIKE 'A%%' AND age > 20\"}", TestsConstants.TEST_INDEX_ACCOUNT));
+                "WHERE firstname LIKE 'A%%' AND age > 20\"}", TEST_INDEX_ACCOUNT));
         String expectedOutput = Files.toString(
                 new File(getResourcePath() + "src/test/resources/expectedOutput/delete_explain.json"), StandardCharsets.UTF_8)
                 .replaceAll("\r", "");
@@ -327,7 +326,7 @@ public class JSONRequestTest {
                 "SELECT * " +
                 "FROM %s " +
                 "WHERE age > 25\"," +
-                "\"filter\":{\"range\":{\"balance\":{\"lte\":30000}}}}", TestsConstants.TEST_INDEX_ACCOUNT));
+                "\"filter\":{\"range\":{\"balance\":{\"lte\":30000}}}}", TEST_INDEX_ACCOUNT));
         String expectedOutput = Files.toString(
                 new File(getResourcePath() + "src/test/resources/expectedOutput/json_filter_explain.json"), StandardCharsets.UTF_8)
                 .replaceAll("\r", "");

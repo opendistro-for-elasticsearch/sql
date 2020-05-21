@@ -25,8 +25,8 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Locale;
 
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getResponseBody;
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.TestUtils.getResponseBody;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_ACCOUNT;
 import static org.hamcrest.Matchers.equalTo;
 
 public class PluginIT extends SQLIntegTestCase {
@@ -54,7 +54,7 @@ public class PluginIT extends SQLIntegTestCase {
             response = ex.getResponse();
         }
 
-        queryResult = new JSONObject(TestUtils.getResponseBody(response));
+        queryResult = new JSONObject(getResponseBody(response));
         assertThat(queryResult.getInt("status"), equalTo(400));
         JSONObject error = queryResult.getJSONObject("error");
         assertThat(error.getString("reason"), equalTo("Invalid SQL query"));
@@ -432,7 +432,7 @@ public class PluginIT extends SQLIntegTestCase {
             response = ex.getResponse();
         }
 
-        actual = new JSONObject(TestUtils.getResponseBody(response));
+        actual = new JSONObject(getResponseBody(response));
         assertThat(actual.getInt("status"), equalTo(400));
         assertThat(actual.query("/error/type"), equalTo("illegal_argument_exception"));
         assertThat(

@@ -29,6 +29,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_ACCOUNT;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
@@ -37,7 +38,7 @@ public class HavingIT extends SQLIntegTestCase {
 
     private static final String SELECT_FROM_WHERE_GROUP_BY =
             "SELECT state, COUNT(*) cnt " +
-            "FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " " +
+            "FROM " + TEST_INDEX_ACCOUNT + " " +
             "WHERE age = 30 " +
             "GROUP BY state ";
 

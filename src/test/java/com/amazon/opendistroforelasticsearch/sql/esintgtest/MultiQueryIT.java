@@ -24,6 +24,10 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_DOG;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_GAME_OF_THRONES;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_SYSTEM;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 
@@ -50,7 +54,7 @@ public class MultiQueryIT extends SQLIntegTestCase {
                                      "SELECT firstname " +
                                      "FROM %s " +
                                      "WHERE firstname = 'Amber'",
-                TestsConstants.TEST_INDEX_ACCOUNT, TestsConstants.TEST_INDEX_ACCOUNT);
+                TEST_INDEX_ACCOUNT, TEST_INDEX_ACCOUNT);
 
         JSONObject response = executeQuery(query);
         JSONArray hits = getHits(response);
@@ -69,7 +73,7 @@ public class MultiQueryIT extends SQLIntegTestCase {
         String query = String.format("SELECT firstname FROM %s WHERE firstname = 'Amber' " +
                                      "UNION ALL " +
                                      "SELECT dog_name as firstname FROM %s WHERE dog_name = 'rex'",
-                TestsConstants.TEST_INDEX_ACCOUNT, TestsConstants.TEST_INDEX_DOG);
+                TEST_INDEX_ACCOUNT, TEST_INDEX_DOG);
 
         JSONObject response = executeQuery(query);
         assertThat(getHits(response).length(), equalTo(2));
@@ -93,7 +97,7 @@ public class MultiQueryIT extends SQLIntegTestCase {
                                      "SELECT name.firstname as firstname " +
                                      "FROM %s " +
                                      "WHERE name.firstname = 'daenerys'",
-                TestsConstants.TEST_INDEX_ACCOUNT, TestsConstants.TEST_INDEX_GAME_OF_THRONES);
+                TEST_INDEX_ACCOUNT, TEST_INDEX_GAME_OF_THRONES);
 
         JSONObject response = executeQuery(query);
         assertThat(getHits(response).length(), equalTo(2));
@@ -155,7 +159,7 @@ public class MultiQueryIT extends SQLIntegTestCase {
         String query = String.format("SELECT pk, letter FROM %s WHERE system_name = 'C' " +
                                      "MINUS " +
                                      "SELECT myId as pk, myLetter as letter FROM %s WHERE system_name = 'E'",
-                TestsConstants.TEST_INDEX_SYSTEM, TestsConstants.TEST_INDEX_SYSTEM);
+                TEST_INDEX_SYSTEM, TEST_INDEX_SYSTEM);
 
         JSONObject response = executeQuery(query);
         assertThat(getHits(response).length(), equalTo(1));
@@ -185,7 +189,7 @@ public class MultiQueryIT extends SQLIntegTestCase {
         String query = String.format("SELECT pk as myId, letter FROM %s WHERE system_name = 'C' " +
                                      "MINUS " +
                                      "SELECT pk as myId, letter FROM %s WHERE system_name = 'C'",
-                TestsConstants.TEST_INDEX_SYSTEM, TestsConstants.TEST_INDEX_SYSTEM);
+                TEST_INDEX_SYSTEM, TEST_INDEX_SYSTEM);
 
         JSONObject response = executeQuery(query);
         assertThat(getHits(response).length(), equalTo(0));
@@ -196,7 +200,7 @@ public class MultiQueryIT extends SQLIntegTestCase {
         String query = String.format("SELECT pk, letter FROM %s WHERE system_name = 'C' " +
                                      "MINUS " +
                                      "SELECT pk, letter FROM %s WHERE system_name = 'T' ",
-                TestsConstants.TEST_INDEX_SYSTEM, TestsConstants.TEST_INDEX_SYSTEM);
+                TEST_INDEX_SYSTEM, TEST_INDEX_SYSTEM);
 
         JSONObject response = executeQuery(query);
         assertThat(getHits(response).length(), equalTo(3));
@@ -236,7 +240,7 @@ public class MultiQueryIT extends SQLIntegTestCase {
         String query = String.format("SELECT %s pk FROM %s WHERE system_name = 'A' " +
                                      "MINUS " +
                                      "SELECT pk FROM %s WHERE system_name = 'A'",
-                hint, TestsConstants.TEST_INDEX_SYSTEM, TestsConstants.TEST_INDEX_SYSTEM);
+                hint, TEST_INDEX_SYSTEM, TEST_INDEX_SYSTEM);
 
         JSONObject response = executeQuery(query);
         assertThat(getHits(response).length(), equalTo(0));
@@ -246,7 +250,7 @@ public class MultiQueryIT extends SQLIntegTestCase {
         String query = String.format("SELECT %s pk FROM %s WHERE system_name = 'A' " +
                                      "MINUS " +
                                      "SELECT pk FROM %s WHERE system_name = 'B'",
-                hint, TestsConstants.TEST_INDEX_SYSTEM, TestsConstants.TEST_INDEX_SYSTEM);
+                hint, TEST_INDEX_SYSTEM, TEST_INDEX_SYSTEM);
 
         JSONObject response = executeQuery(query);
         assertThat(getHits(response).length(), equalTo(1));
@@ -262,7 +266,7 @@ public class MultiQueryIT extends SQLIntegTestCase {
         String query = String.format("SELECT %s pk, letter FROM %s WHERE system_name = 'C' " +
                                      "MINUS " +
                                      "SELECT pk, letter FROM %s WHERE system_name = 'D'",
-                hint, TestsConstants.TEST_INDEX_SYSTEM, TestsConstants.TEST_INDEX_SYSTEM);
+                hint, TEST_INDEX_SYSTEM, TEST_INDEX_SYSTEM);
 
         JSONObject response = executeQuery(query);
         assertThat(getHits(response).length(), equalTo(1));
@@ -281,7 +285,7 @@ public class MultiQueryIT extends SQLIntegTestCase {
         String query = String.format("SELECT %s pk as myId, letter FROM %s WHERE system_name = 'C' " +
                                      "MINUS " +
                                      "SELECT myId, myLetter as letter FROM %s WHERE system_name = 'E'",
-                hint, TestsConstants.TEST_INDEX_SYSTEM, TestsConstants.TEST_INDEX_SYSTEM);
+                hint, TEST_INDEX_SYSTEM, TEST_INDEX_SYSTEM);
 
         JSONObject response = executeQuery(query);
         assertThat(getHits(response).length(), equalTo(1));
@@ -300,7 +304,7 @@ public class MultiQueryIT extends SQLIntegTestCase {
         String query = String.format("SELECT %s letter FROM %s WHERE system_name = 'C' " +
                                      "MINUS " +
                                      "SELECT letter FROM %s WHERE system_name = 'T'",
-                hint, TestsConstants.TEST_INDEX_SYSTEM, TestsConstants.TEST_INDEX_SYSTEM);
+                hint, TEST_INDEX_SYSTEM, TEST_INDEX_SYSTEM);
 
         JSONObject response = executeQuery(query);
         assertThat(getHits(response).length(), equalTo(3));
@@ -310,7 +314,7 @@ public class MultiQueryIT extends SQLIntegTestCase {
         String query = String.format("SELECT %s letter FROM %s WHERE system_name = 'T' " +
                                      "MINUS " +
                                      "SELECT letter FROM %s WHERE system_name = 'C'",
-                hint, TestsConstants.TEST_INDEX_SYSTEM, TestsConstants.TEST_INDEX_SYSTEM);
+                hint, TEST_INDEX_SYSTEM, TEST_INDEX_SYSTEM);
 
         JSONObject response = executeQuery(query);
         assertThat(getHits(response).length(), equalTo(0));

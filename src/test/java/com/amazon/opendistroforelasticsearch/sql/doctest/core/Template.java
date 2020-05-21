@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.doctest.core;
 
-import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 
 import java.io.IOException;
@@ -23,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static com.amazon.opendistroforelasticsearch.sql.TestUtils.getResourceFilePath;
 import static java.nio.file.StandardCopyOption.COPY_ATTRIBUTES;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -36,7 +36,7 @@ public class Template {
     private final Path templateFullPath;
 
     public Template(String templateRelativePath) {
-        this.templateFullPath = Paths.get(TestUtils.getResourceFilePath(TEMPLATE_FOLDER_ROOT + templateRelativePath));
+        this.templateFullPath = Paths.get(getResourceFilePath(TEMPLATE_FOLDER_ROOT + templateRelativePath));
     }
 
     /**

@@ -21,8 +21,8 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.createIndexByRestClient;
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.isIndexExist;
+import static com.amazon.opendistroforelasticsearch.sql.TestUtils.createIndexByRestClient;
+import static com.amazon.opendistroforelasticsearch.sql.TestUtils.isIndexExist;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 

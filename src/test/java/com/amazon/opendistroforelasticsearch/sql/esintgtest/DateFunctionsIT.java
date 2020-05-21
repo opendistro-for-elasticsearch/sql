@@ -31,6 +31,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.time.Month;
 
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_ONLINE;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.lessThan;
@@ -38,7 +39,7 @@ import static org.hamcrest.Matchers.matchesPattern;
 
 public class DateFunctionsIT extends SQLIntegTestCase {
 
-    private static final String FROM = "FROM " + TestsConstants.TEST_INDEX_ONLINE;
+    private static final String FROM = "FROM " + TEST_INDEX_ONLINE;
 
     /**
      * Some of the first few SQL functions are tested in both SELECT and WHERE cases for flexibility and the remainder

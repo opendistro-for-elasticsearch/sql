@@ -30,7 +30,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Set;
 
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_ACCOUNT;
 
 public class SourceFieldIT extends SQLIntegTestCase {
 

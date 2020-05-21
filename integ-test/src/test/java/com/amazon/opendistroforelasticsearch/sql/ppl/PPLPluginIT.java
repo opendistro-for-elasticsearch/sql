@@ -18,7 +18,6 @@ package com.amazon.opendistroforelasticsearch.sql.ppl;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseException;
-import org.elasticsearch.test.rest.ESRestTestCase;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Rule;
@@ -30,9 +29,14 @@ import java.util.Locale;
 
 import static org.hamcrest.Matchers.hasProperty;
 
-public class PPLPluginIT extends ESRestTestCase {
+public class PPLPluginIT extends PPLIntegTestCase {
     @Rule
     public ExpectedException exceptionRule = ExpectedException.none();
+
+    @Override
+    protected void init() throws Exception {
+        wipeAllClusterSettings();
+    }
 
     @Test
     public void testQueryEndpointShouldOK() throws IOException {

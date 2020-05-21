@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.unittest;
 
-import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.query.ESActionFactory;
 import com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents;
@@ -31,6 +30,9 @@ import org.mockito.Mockito;
 
 import java.sql.SQLFeatureNotSupportedException;
 
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_NESTED_TYPE;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_PHRASE;
 import static com.amazon.opendistroforelasticsearch.sql.util.SqlExplainUtils.explain;
 import static org.elasticsearch.index.query.QueryBuilders.constantScoreQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchPhraseQuery;
@@ -46,9 +48,9 @@ import static org.junit.Assert.assertTrue;
 public class QueryFunctionsTest {
 
     private static final String SELECT_ALL = "SELECT *";
-    private static final String FROM_ACCOUNTS = "FROM " + TestsConstants.TEST_INDEX_ACCOUNT + "/account";
-    private static final String FROM_NESTED = "FROM " + TestsConstants.TEST_INDEX_NESTED_TYPE + "/nestedType";
-    private static final String FROM_PHRASE = "FROM " + TestsConstants.TEST_INDEX_PHRASE + "/phrase";
+    private static final String FROM_ACCOUNTS = "FROM " + TEST_INDEX_ACCOUNT + "/account";
+    private static final String FROM_NESTED = "FROM " + TEST_INDEX_NESTED_TYPE + "/nestedType";
+    private static final String FROM_PHRASE = "FROM " + TEST_INDEX_PHRASE + "/phrase";
 
     @Test
     public void query() {

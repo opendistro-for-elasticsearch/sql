@@ -23,7 +23,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Locale;
 
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_ACCOUNT;
 import static org.hamcrest.Matchers.equalTo;
 
 /**

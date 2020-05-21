@@ -34,12 +34,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_DOG;
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_GAME_OF_THRONES;
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_NESTED_TYPE;
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_NESTED_WITH_QUOTES;
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ONLINE;
+import static com.amazon.opendistroforelasticsearch.sql.TestUtils.getPermutations;
+import static com.amazon.opendistroforelasticsearch.sql.TestUtils.getResponseBody;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_DOG;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_GAME_OF_THRONES;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_NESTED_TYPE;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_NESTED_WITH_QUOTES;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_ONLINE;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -652,7 +654,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
 
         final Response response = client().performRequest(sqlRequest);
         Assert.assertEquals(200, response.getStatusLine().getStatusCode());
-        final String responseString = TestUtils.getResponseBody(response, true);
+        final String responseString = getResponseBody(response, true);
 
         return csvResultFromStringResponse(responseString);
     }
@@ -684,7 +686,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
     private static AnyOf<List<String>> hasRow(final String prefix, final String suffix, final List<String> items,
                                               final boolean areItemsNested) {
 
-        final Collection<List<String>> permutations = TestUtils.getPermutations(items);
+        final Collection<List<String>> permutations = getPermutations(items);
 
         final List<Matcher<? super List<String>>> matchers = permutations.stream().map(permutation -> {
 

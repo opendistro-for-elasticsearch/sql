@@ -47,7 +47,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.TimeZone;
 
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getResourceFilePath;
+import static com.amazon.opendistroforelasticsearch.sql.TestUtils.getResourceFilePath;
 
 /**
  * Correctness integration test by performing comparison test with other databases.

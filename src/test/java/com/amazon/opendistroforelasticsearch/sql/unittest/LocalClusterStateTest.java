@@ -19,18 +19,17 @@ import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.FieldMappings;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.IndexMappings;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.mapping.TypeMappings;
-import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants;
 import com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings;
 import org.elasticsearch.cluster.ClusterChangedEvent;
 import org.elasticsearch.cluster.ClusterStateListener;
 import org.elasticsearch.cluster.service.ClusterService;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_BANK;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_SLOWLOG;
 import static com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents.mockClusterService;
 import static com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents.mockLocalClusterState;
@@ -50,7 +49,7 @@ import static org.mockito.Mockito.when;
  */
 public class LocalClusterStateTest {
 
-    private static final String INDEX_NAME = TestsConstants.TEST_INDEX_BANK;
+    private static final String INDEX_NAME = TEST_INDEX_BANK;
     private static final String TYPE_NAME = "account";
 
     private static final String MAPPING = "{\n" +

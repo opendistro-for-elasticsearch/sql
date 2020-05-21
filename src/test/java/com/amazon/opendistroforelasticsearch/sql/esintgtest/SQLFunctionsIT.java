@@ -44,7 +44,9 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.stream.IntStream;
 
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_DATE;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.hitAny;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvDouble;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvInt;
@@ -175,7 +177,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
     @Test
     public void castIntFieldToDoubleWithoutAliasTest() throws IOException {
-        String query = "SELECT CAST(age AS DOUBLE) FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
+        String query = "SELECT CAST(age AS DOUBLE) FROM " + TEST_INDEX_ACCOUNT +
                         " ORDER BY age DESC LIMIT 5";
 
         SearchHit[] hits = query(query).getHits();
@@ -187,7 +189,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
     @Test
     public void castIntFieldToDoubleWithAliasTest() throws IOException {
-        String query = "SELECT CAST(age AS DOUBLE) AS test_alias FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
+        String query = "SELECT CAST(age AS DOUBLE) AS test_alias FROM " + TEST_INDEX_ACCOUNT +
                         " ORDER BY age LIMIT 5";
 
         SearchHit[] hits = query(query).getHits();
@@ -199,7 +201,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
     @Test
     public void castIntFieldToStringWithoutAliasTest() throws IOException {
-        String query = "SELECT CAST(balance AS STRING) FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
+        String query = "SELECT CAST(balance AS STRING) FROM " + TEST_INDEX_ACCOUNT +
                         " ORDER BY balance LIMIT 1";
 
         SearchHit[] hits = query(query).getHits();
@@ -211,7 +213,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
     @Test
     public void castIntFieldToStringWithAliasTest() throws IOException {
-        String query = "SELECT CAST(balance AS STRING) AS cast_string_alias FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
+        String query = "SELECT CAST(balance AS STRING) AS cast_string_alias FROM " + TEST_INDEX_ACCOUNT +
                         " ORDER BY cast_string_alias DESC LIMIT 1";
 
         SearchHit[] hits = query(query).getHits();
@@ -225,7 +227,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     @Test
     public void castIntFieldToFloatWithoutAliasJdbcFormatTest() {
         JSONObject response = executeJdbcRequest(
-                "SELECT CAST(balance AS FLOAT) FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
+                "SELECT CAST(balance AS FLOAT) FROM " + TEST_INDEX_ACCOUNT +
                         " ORDER BY balance DESC LIMIT 1");
 
         verifySchema(response,
@@ -239,7 +241,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     public void castIntFieldToFloatWithAliasJdbcFormatTest() {
         JSONObject response = executeJdbcRequest(
                 "SELECT CAST(balance AS FLOAT) AS jdbc_float_alias " +
-                        "FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY jdbc_float_alias LIMIT 1");
+                        "FROM " + TEST_INDEX_ACCOUNT + " ORDER BY jdbc_float_alias LIMIT 1");
 
         verifySchema(response,
                 schema("jdbc_float_alias", null, "float"));
@@ -250,7 +252,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
     @Test
     public void castIntFieldToDoubleWithoutAliasOrderByTest() throws IOException {
-        String query = "SELECT CAST(age AS DOUBLE) FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY age LIMIT 1";
+        String query = "SELECT CAST(age AS DOUBLE) FROM " + TEST_INDEX_ACCOUNT + " ORDER BY age LIMIT 1";
 
         SearchHit[] hits = query(query).getHits();
         checkSuccessfulFieldCast(hits, "cast_age", "DOUBLE");
@@ -261,7 +263,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
     @Test
     public void castIntFieldToDoubleWithAliasOrderByTest() throws IOException {
-        String query = "SELECT CAST(age AS DOUBLE) AS alias FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
+        String query = "SELECT CAST(age AS DOUBLE) AS alias FROM " + TEST_INDEX_ACCOUNT +
                         " ORDER BY alias DESC LIMIT 1";
 
         SearchHit[] hits = query(query).getHits();
@@ -276,7 +278,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     public void castIntFieldToFloatWithoutAliasJdbcFormatGroupByTest() {
         JSONObject response = executeJdbcRequest(
                 "SELECT CAST(balance AS FLOAT) FROM " +
-                        TestsConstants.TEST_INDEX_ACCOUNT + " GROUP BY balance DESC LIMIT 5");
+                        TEST_INDEX_ACCOUNT + " GROUP BY balance DESC LIMIT 5");
 
         verifySchema(response,
                 schema("CAST(balance AS FLOAT)", null, "float"));
@@ -293,7 +295,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     public void castIntFieldToFloatWithAliasJdbcFormatGroupByTest() {
         JSONObject response = executeJdbcRequest(
                 "SELECT CAST(balance AS FLOAT) AS jdbc_float_alias " +
-                        "FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " GROUP BY jdbc_float_alias ASC LIMIT 5");
+                        "FROM " + TEST_INDEX_ACCOUNT + " GROUP BY jdbc_float_alias ASC LIMIT 5");
 
         verifySchema(response,
                 schema("jdbc_float_alias", "jdbc_float_alias", "float"));
@@ -310,7 +312,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     public void castIntFieldToDoubleWithAliasJdbcFormatGroupByTest() {
         JSONObject response = executeJdbcRequest(
                 "SELECT CAST(age AS DOUBLE) AS jdbc_double_alias " +
-                        "FROM " + TestsConstants.TEST_INDEX_ACCOUNT + " GROUP BY jdbc_double_alias DESC LIMIT 5");
+                        "FROM " + TEST_INDEX_ACCOUNT + " GROUP BY jdbc_double_alias DESC LIMIT 5");
 
         verifySchema(response,
                 schema("jdbc_double_alias", "jdbc_double_alias", "double"));
@@ -326,7 +328,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     @Test
     public void castKeywordFieldToDatetimeWithoutAliasJdbcFormatTest() {
         JSONObject response = executeJdbcRequest("SELECT CAST(date_keyword AS DATETIME) FROM "
-                + TestsConstants.TEST_INDEX_DATE + " ORDER BY date_keyword");
+                + TEST_INDEX_DATE + " ORDER BY date_keyword");
 
         verifySchema(response, schema("cast_date_keyword", null, "date"));
 
@@ -338,7 +340,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     @Test
     public void castKeywordFieldToDatetimeWithAliasJdbcFormatTest() {
         JSONObject response = executeJdbcRequest("SELECT CAST(date_keyword AS DATETIME) AS test_alias FROM "
-                + TestsConstants.TEST_INDEX_DATE + " ORDER BY date_keyword");
+                + TEST_INDEX_DATE + " ORDER BY date_keyword");
 
         verifySchema(response, schema("test_alias", null, "date"));
 
@@ -350,7 +352,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     @Test
     public void castFieldToDatetimeWithWhereClauseJdbcFormatTest() {
         JSONObject response = executeJdbcRequest("SELECT CAST(date_keyword AS DATETIME) FROM "
-                + TestsConstants.TEST_INDEX_DATE + " WHERE date_keyword IS NOT NULL ORDER BY date_keyword");
+                + TEST_INDEX_DATE + " WHERE date_keyword IS NOT NULL ORDER BY date_keyword");
 
         verifySchema(response, schema("cast_date_keyword", null, "date"));
 
@@ -362,7 +364,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     @Test
     public void castFieldToDatetimeWithGroupByJdbcFormatTest() {
         JSONObject response = executeJdbcRequest("SELECT CAST(date_keyword AS DATETIME) AS test_alias FROM "
-                + TestsConstants.TEST_INDEX_DATE + " GROUP BY test_alias DESC");
+                + TEST_INDEX_DATE + " GROUP BY test_alias DESC");
 
         verifySchema(response, schema("test_alias", "test_alias", "double"));
 
@@ -437,7 +439,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     @Test
     public void castStatementInWhereClauseDatetimeCastTest() {
         JSONObject response = executeJdbcRequest("SELECT date_keyword FROM "
-                + TestsConstants.TEST_INDEX_DATE
+                + TEST_INDEX_DATE
                 + " WHERE (CAST(date_keyword AS DATETIME) = \'2014-08-19T07:09:13.434Z\')");
 
         String schema_result = "{\"name\":\"date_keyword\",\"type\":\"keyword\"}";
@@ -467,7 +469,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
         String query = "SELECT " +
                 " * from " +
-                TestsConstants.TEST_INDEX + " " +
+                TEST_INDEX + " " +
                 " where split(address,' ')[0]='806' limit 1000  ";
 
         assertThat(executeQuery(query).query("/hits/total"), equalTo(4));
@@ -482,7 +484,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
 
         String query = "SELECT " +
                 " * from " +
-                TestsConstants.TEST_INDEX + " " +
+                TEST_INDEX + " " +
                 " where floor(split(address,' ')[0]+0) > 805 limit 1000  ";
 
         assertThat(executeQuery(query).query("/hits/total"), equalTo(223));
@@ -761,7 +763,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         //here is a bug,csv field with spa
         String query = "SELECT " +
                 " split(address,' ')[0],age from " +
-                TestsConstants.TEST_INDEX + " where address is not null " +
+                TEST_INDEX + " where address is not null " +
                 " limit 10  ";
     }
 

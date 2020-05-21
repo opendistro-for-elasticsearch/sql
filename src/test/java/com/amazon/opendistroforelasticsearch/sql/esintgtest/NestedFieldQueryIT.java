@@ -39,6 +39,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.function.Function;
 
+import static com.amazon.opendistroforelasticsearch.sql.TestUtils.getResponseBody;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_NESTED_TYPE;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.hitAll;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.kvString;
 import static org.hamcrest.Matchers.allOf;
@@ -68,7 +70,7 @@ import static org.hamcrest.Matchers.is;
  */
 public class NestedFieldQueryIT extends SQLIntegTestCase {
 
-    private static final String FROM = "FROM " + TestsConstants.TEST_INDEX_NESTED_TYPE + " n, n.message m";
+    private static final String FROM = "FROM " + TEST_INDEX_NESTED_TYPE + " n, n.message m";
 
 
     @Override
@@ -308,7 +310,7 @@ public class NestedFieldQueryIT extends SQLIntegTestCase {
             Assert.fail("Expected ResponseException, but none was thrown");
         } catch (ResponseException e) {
             assertThat(e.getResponse().getStatusLine().getStatusCode(), equalTo(RestStatus.BAD_REQUEST.getStatus()));
-            final String entity = TestUtils.getResponseBody(e.getResponse());
+            final String entity = getResponseBody(e.getResponse());
             assertThat(entity, containsString("only single nested field is allowed as right table for LEFT JOIN"));
             assertThat(entity, containsString("\"type\":\"verification_exception\""));
         }

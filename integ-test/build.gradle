@@ -1,6 +1,7 @@
 apply plugin: 'elasticsearch.build'
 apply plugin: 'elasticsearch.rest-test'
 apply plugin: 'java'
+apply plugin: 'io.freefair.lombok'
 
 ext {
     projectSubstitutions = [:]
@@ -12,18 +13,44 @@ repositories {
     mavenCentral()
 }
 
+compileTestJava.options.warnings = false
+compileTestJava {
+    options.compilerArgs.addAll(["-processor", 'lombok.launch.AnnotationProcessorHider$AnnotationProcessor'])
+    doFirst {
+        options.compilerArgs.remove('-Werror')
+        options.compilerArgs.remove('-Xdoclint:all')
+    }
+}
+
 dependencies {
-    testCompile group: 'org.elasticsearch.test', name: 'framework', version: '7.6.1'
-    testCompile group: 'org.elasticsearch.client', name: 'elasticsearch-rest-high-level-client', version: '7.6.1'
+    testCompile group: 'com.google.guava', name: 'guava', version: '23.0'
+    testCompile group: 'org.elasticsearch', name: 'elasticsearch-x-content', version:"${es_version}"
+    testCompile group: 'org.elasticsearch.test', name: 'framework', version:"${es_version}"
+    testCompile group: 'org.elasticsearch.client', name: 'elasticsearch-rest-high-level-client', version:"${es_version}"
+    testCompile group: 'org.elasticsearch.client', name: 'elasticsearch-rest-client', version:"${es_version}"
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.hamcrest', name: 'hamcrest', version: '2.1'
     testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', version:'2.11.1'
+    testCompile group: 'org.json', name: 'json', version:'20180813'
 }
 
 dependencyLicenses.enabled = false
 testingConventions.enabled = false
 checkstyleTest.ignoreFailures = true
 forbiddenApisTest.enabled = false
+
+task testJar (type: Jar, dependsOn: testClasses) {
+    baseName = 'integ-test'
+    from sourceSets.test.output
+}
+
+configurations {
+    integtest
+}
+
+artifacts {
+    integtest testJar
+}
 
 tasks.integTest.dependsOn(':plugin:bundlePlugin')
 testClusters.integTest {

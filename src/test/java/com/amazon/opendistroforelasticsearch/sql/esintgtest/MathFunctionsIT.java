@@ -26,6 +26,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_ACCOUNT;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
@@ -33,7 +34,7 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 
 public class MathFunctionsIT extends SQLIntegTestCase {
 
-    private static final String FROM = "FROM " + TestsConstants.TEST_INDEX_ACCOUNT;
+    private static final String FROM = "FROM " + TEST_INDEX_ACCOUNT;
 
     @Override
     protected void init() throws Exception {
@@ -196,14 +197,14 @@ public class MathFunctionsIT extends SQLIntegTestCase {
     public void logInAggregationShouldPass() {
         assertThat(
                 executeQuery(
-                        "SELECT LOG(age) FROM " + TestsConstants.TEST_INDEX_ACCOUNT
+                        "SELECT LOG(age) FROM " + TEST_INDEX_ACCOUNT
                                 + " WHERE age IS NOT NULL GROUP BY LOG(age) ORDER BY LOG(age)", "jdbc"
                 ),
                 containsString("\"type\": \"double\"")
         );
         assertThat(
                 executeQuery(
-                        "SELECT LOG(2, age) FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
+                        "SELECT LOG(2, age) FROM " + TEST_INDEX_ACCOUNT +
                                 " WHERE age IS NOT NULL GROUP BY LOG(2, age) ORDER BY LOG(2, age)", "jdbc"
                 ),
                 containsString("\"type\": \"double\"")
@@ -228,7 +229,7 @@ public class MathFunctionsIT extends SQLIntegTestCase {
     public void lnInAggregationShouldPass() {
         assertThat(
                 executeQuery(
-                        "SELECT LN(age) FROM " + TestsConstants.TEST_INDEX_ACCOUNT +
+                        "SELECT LN(age) FROM " + TEST_INDEX_ACCOUNT +
                                 " WHERE age IS NOT NULL GROUP BY LN(age) ORDER BY LN(age)", "jdbc"
                 ),
                 containsString("\"type\": \"double\"")

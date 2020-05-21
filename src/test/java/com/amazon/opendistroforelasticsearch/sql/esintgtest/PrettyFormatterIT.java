@@ -25,7 +25,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.TestUtils.getResourceFilePath;
+import static com.amazon.opendistroforelasticsearch.sql.TestUtils.getResponseBody;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_ACCOUNT;
 import static org.hamcrest.Matchers.equalTo;
 
 public class PrettyFormatterIT extends SQLIntegTestCase{
@@ -39,14 +41,14 @@ public class PrettyFormatterIT extends SQLIntegTestCase{
     public void assertExplainPrettyFormatted() throws IOException {
         String query = StringUtils.format("SELECT firstname FROM %s", TEST_INDEX_ACCOUNT);
 
-        String notPrettyExplainOutputFilePath = TestUtils.getResourceFilePath(
+        String notPrettyExplainOutputFilePath = getResourceFilePath(
                 "src/test/resources/expectedOutput/explainIT_format_not_pretty.json");
         String notPrettyExplainOutput = Files.toString(new File(notPrettyExplainOutputFilePath), StandardCharsets.UTF_8);
 
         assertThat(executeExplainRequest(query, ""), equalTo(notPrettyExplainOutput));
         assertThat(executeExplainRequest(query, "pretty=false"), equalTo(notPrettyExplainOutput));
 
-        String prettyExplainOutputFilePath = TestUtils.getResourceFilePath(
+        String prettyExplainOutputFilePath = getResourceFilePath(
                 "src/test/resources/expectedOutput/explainIT_format_pretty.json");
         String prettyExplainOutput = Files.toString(new File(prettyExplainOutputFilePath), StandardCharsets.UTF_8);
 
@@ -62,7 +64,7 @@ public class PrettyFormatterIT extends SQLIntegTestCase{
         sqlRequest.setJsonEntity(request);
 
         Response response = client().performRequest(sqlRequest);
-        String responseString = TestUtils.getResponseBody(response, true);
+        String responseString = getResponseBody(response, true);
 
         return responseString;
     }

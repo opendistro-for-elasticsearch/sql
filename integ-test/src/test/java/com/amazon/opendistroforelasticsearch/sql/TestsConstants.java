@@ -13,12 +13,15 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.esintgtest;
+package com.amazon.opendistroforelasticsearch.sql;
 
 /**
  * Created by omershelef on 18/12/14.
  */
 public class TestsConstants {
+
+    public final static String PERSISTENT = "persistent";
+    public final static String TRANSIENT = "transient";
 
     public final static String TEST_INDEX = "elasticsearch-sql_test_index";
 

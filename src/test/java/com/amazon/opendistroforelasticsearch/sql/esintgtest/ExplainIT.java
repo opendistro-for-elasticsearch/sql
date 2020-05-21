@@ -26,12 +26,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_DOG;
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_LOCATION;
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_NESTED_TYPE;
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_PEOPLE;
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_PHRASE;
+import static com.amazon.opendistroforelasticsearch.sql.TestUtils.getResourceFilePath;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_DOG;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_LOCATION;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_NESTED_TYPE;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_PEOPLE;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_PHRASE;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -50,7 +51,7 @@ public class ExplainIT extends SQLIntegTestCase {
     @Test
     public void searchSanity() throws IOException {
 
-        String expectedOutputFilePath = TestUtils.getResourceFilePath(
+        String expectedOutputFilePath = getResourceFilePath(
                 "src/test/resources/expectedOutput/search_explain.json");
         String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8)
                 .replaceAll("\r","");
@@ -65,7 +66,7 @@ public class ExplainIT extends SQLIntegTestCase {
     @Test
     public void aggregationQuery() throws IOException {
 
-        String expectedOutputFilePath = TestUtils.getResourceFilePath(
+        String expectedOutputFilePath = getResourceFilePath(
                 "src/test/resources/expectedOutput/aggregation_query_explain.json");
         String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8)
                 .replaceAll("\r","");
@@ -79,7 +80,7 @@ public class ExplainIT extends SQLIntegTestCase {
     @Test
     public void explainScriptValue() throws IOException {
 
-        String expectedOutputFilePath = TestUtils.getResourceFilePath(
+        String expectedOutputFilePath = getResourceFilePath(
                 "src/test/resources/expectedOutput/script_value.json");
         String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8)
                 .replaceAll("\r","");
@@ -92,7 +93,7 @@ public class ExplainIT extends SQLIntegTestCase {
     @Test
     public void betweenScriptValue() throws IOException {
 
-        String expectedOutputFilePath = TestUtils.getResourceFilePath(
+        String expectedOutputFilePath = getResourceFilePath(
                 "src/test/resources/expectedOutput/between_query.json");
         String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8)
                 .replaceAll("\r","");
@@ -105,7 +106,7 @@ public class ExplainIT extends SQLIntegTestCase {
     @Test
     public void searchSanityFilter() throws IOException {
 
-        String expectedOutputFilePath = TestUtils.getResourceFilePath(
+        String expectedOutputFilePath = getResourceFilePath(
                 "src/test/resources/expectedOutput/search_explain_filter.json");
         String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8)
                 .replaceAll("\r","");
@@ -118,7 +119,7 @@ public class ExplainIT extends SQLIntegTestCase {
     @Test
     public void deleteSanity() throws IOException {
 
-        String expectedOutputFilePath = TestUtils.getResourceFilePath(
+        String expectedOutputFilePath = getResourceFilePath(
                 "src/test/resources/expectedOutput/delete_explain.json");
         String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8)
                 .replaceAll("\r","");;
@@ -131,7 +132,7 @@ public class ExplainIT extends SQLIntegTestCase {
     @Test
     public void spatialFilterExplainTest() throws IOException {
 
-        String expectedOutputFilePath = TestUtils.getResourceFilePath(
+        String expectedOutputFilePath = getResourceFilePath(
                 "src/test/resources/expectedOutput/search_spatial_explain.json");
         String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8)
                 .replaceAll("\r","");;
@@ -154,7 +155,7 @@ public class ExplainIT extends SQLIntegTestCase {
     @Test
     public void multiMatchQuery() throws IOException {
 
-        String expectedOutputFilePath = TestUtils.getResourceFilePath(
+        String expectedOutputFilePath = getResourceFilePath(
                 "src/test/resources/expectedOutput/multi_match_query.json");
         String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8)
                 .replaceAll("\r", "");
@@ -190,7 +191,7 @@ public class ExplainIT extends SQLIntegTestCase {
     @Test
     public void explainNLJoin() throws IOException {
 
-        String expectedOutputFilePath = TestUtils.getResourceFilePath(
+        String expectedOutputFilePath = getResourceFilePath(
                 "src/test/resources/expectedOutput/nested_loop_join_explain.json");
         String expectedOutput = Files.toString(new File(expectedOutputFilePath), StandardCharsets.UTF_8)
                 .replaceAll("\r", "");

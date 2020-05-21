@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.esintgtest;
+package com.amazon.opendistroforelasticsearch.sql;
 
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;

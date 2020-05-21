@@ -29,6 +29,8 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Map;
 
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_NESTED_TYPE;
 import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
@@ -49,7 +51,7 @@ public class JSONRequestIT extends SQLIntegTestCase {
                 "SELECT * " +
                 "FROM %s " +
                 "WHERE age > %s " +
-                "LIMIT 1000\"}", TestsConstants.TEST_INDEX_ACCOUNT, ageToCompare));
+                "LIMIT 1000\"}", TEST_INDEX_ACCOUNT, ageToCompare));
         SearchHit[] hits = response.getHits();
         for (SearchHit hit : hits) {
             int age = (int) hit.getSourceAsMap().get("age");
@@ -76,7 +78,7 @@ public class JSONRequestIT extends SQLIntegTestCase {
         SearchHits response = query(String.format("{\"query\":\"" +
                 "SELECT * " +
                 "FROM %s " +
-                "LIMIT 1000\",\"filter\":{\"range\":{\"age\":{\"gt\":%s}}}}", TestsConstants.TEST_INDEX_ACCOUNT, ageToCompare));
+                "LIMIT 1000\",\"filter\":{\"range\":{\"age\":{\"gt\":%s}}}}", TEST_INDEX_ACCOUNT, ageToCompare));
         SearchHit[] hits = response.getHits();
         for (SearchHit hit : hits) {
             int age = (int) hit.getSourceAsMap().get("age");
@@ -106,7 +108,7 @@ public class JSONRequestIT extends SQLIntegTestCase {
                 "FROM %s " +
                 "WHERE age > %s " +
                 "LIMIT 1000\",\"filter\":{\"range\":{\"balance\":{\"lt\":%s}}}}",
-                TestsConstants.TEST_INDEX_ACCOUNT, ageToCompare, balanceToCompare));
+                TEST_INDEX_ACCOUNT, ageToCompare, balanceToCompare));
         SearchHit[] hits = response.getHits();
         for (SearchHit hit : hits) {
             int age = (int) hit.getSourceAsMap().get("age");
@@ -140,7 +142,7 @@ public class JSONRequestIT extends SQLIntegTestCase {
                 "FROM %s " +
                 "WHERE nested(comment.likes) < %s\"," +
                 "\"filter\":{\"term\":{\"someField\":\"%s\"}}}",
-                TestsConstants.TEST_INDEX_NESTED_TYPE, likesToCompare, fieldToCompare));
+                TEST_INDEX_NESTED_TYPE, likesToCompare, fieldToCompare));
         SearchHit[] hits = response.getHits();
         for (SearchHit hit : hits) {
             int likes = (int) ((Map) hit.getSourceAsMap().get("comment")).get("likes");
@@ -180,7 +182,7 @@ public class JSONRequestIT extends SQLIntegTestCase {
                 "WHERE nested(comment.likes) > %s\"," +
                 "\"filter\":{\"nested\":{\"path\":\"comment\"," +
                 "\"query\":{\"bool\":{\"must\":{\"term\":{\"comment.data\":\"%s\"}}}}}}}",
-                TestsConstants.TEST_INDEX_NESTED_TYPE, likesToCompare, dataToCompare));
+                TEST_INDEX_NESTED_TYPE, likesToCompare, dataToCompare));
         SearchHit[] hits = response.getHits();
         for (SearchHit hit : hits) {
             int likes = (int) ((Map) hit.getSourceAsMap().get("comment")).get("likes");

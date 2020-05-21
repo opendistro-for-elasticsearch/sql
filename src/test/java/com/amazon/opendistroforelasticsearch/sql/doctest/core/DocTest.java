@@ -21,7 +21,6 @@ import com.amazon.opendistroforelasticsearch.sql.doctest.core.builder.DocBuilder
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.Document;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.RstDocument;
 import com.amazon.opendistroforelasticsearch.sql.esintgtest.CustomExternalTestCluster;
-import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils;
 import com.carrotsearch.randomizedtesting.AnnotatedMethodProvider;
 import com.carrotsearch.randomizedtesting.TestMethodAndParams;
 import com.carrotsearch.randomizedtesting.annotations.TestCaseOrdering;
@@ -44,6 +43,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
 
+import static com.amazon.opendistroforelasticsearch.sql.TestUtils.getResourceFilePath;
 import static com.carrotsearch.randomizedtesting.annotations.ThreadLeakScope.Scope;
 import static java.nio.file.StandardOpenOption.APPEND;
 import static org.elasticsearch.test.ESIntegTestCase.Scope.SUITE;
@@ -119,7 +119,7 @@ public abstract class DocTest extends ESIntegTestCase implements DocBuilder {
     }
 
     private Path absolutePath(String templateRelativePath) {
-        return Paths.get(TestUtils.getResourceFilePath(DOCUMENT_FOLDER_ROOT + templateRelativePath));
+        return Paths.get(getResourceFilePath(DOCUMENT_FOLDER_ROOT + templateRelativePath));
     }
 
     @Override

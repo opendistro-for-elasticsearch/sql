@@ -15,10 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.doctest.core;
 
-import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 
 import java.io.File;
+import static com.amazon.opendistroforelasticsearch.sql.TestUtils.loadDataByRestClient;
 
 /**
  * Test data for document generation
@@ -40,7 +40,7 @@ public class TestData {
     public void loadToES(DocTest test) {
         for (String filePath : testFilePaths) {
             try {
-                TestUtils.loadDataByRestClient(test.restClient(), indexName(filePath), TEST_DATA_FOLDER_ROOT + filePath);
+                loadDataByRestClient(test.restClient(), indexName(filePath), TEST_DATA_FOLDER_ROOT + filePath);
             } catch (Exception e) {
                 throw new IllegalStateException(StringUtils.format(
                     "Failed to load test filePath from %s", filePath), e);

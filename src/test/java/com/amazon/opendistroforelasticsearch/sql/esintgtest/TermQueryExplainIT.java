@@ -24,6 +24,8 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Locale;
 
+import static com.amazon.opendistroforelasticsearch.sql.TestUtils.fileToString;
+import static com.amazon.opendistroforelasticsearch.sql.TestUtils.getResponseBody;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
@@ -54,7 +56,7 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
 
         } catch (ResponseException e) {
             assertThat(e.getResponse().getStatusLine().getStatusCode(), equalTo(RestStatus.BAD_REQUEST.getStatus()));
-            final String entity = TestUtils.getResponseBody(e.getResponse());
+            final String entity = getResponseBody(e.getResponse());
             assertThat(entity, containsString("no such index"));
             assertThat(entity, containsString("\"type\": \"IndexNotFoundException\""));
         }
@@ -70,7 +72,7 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
 
         } catch (ResponseException e) {
             assertThat(e.getResponse().getStatusLine().getStatusCode(), equalTo(RestStatus.BAD_REQUEST.getStatus()));
-            final String entity = TestUtils.getResponseBody(e.getResponse());
+            final String entity = getResponseBody(e.getResponse());
             assertThat(entity, containsString("Unknown index"));
             assertThat(entity, containsString("\"type\": \"VerificationException\""));
         }
@@ -95,7 +97,7 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
             Assert.fail("Expected ResponseException, but none was thrown");
         } catch (ResponseException e) {
             assertThat(e.getResponse().getStatusLine().getStatusCode(), equalTo(RestStatus.BAD_REQUEST.getStatus()));
-            final String entity = TestUtils.getResponseBody(e.getResponse());
+            final String entity = getResponseBody(e.getResponse());
             assertThat(entity, containsString("no such index"));
             assertThat(entity, containsString("\"type\": \"IndexNotFoundException\""));
         }
@@ -108,7 +110,7 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
             Assert.fail("Expected ResponseException, but none was thrown");
         } catch (ResponseException e) {
             assertThat(e.getResponse().getStatusLine().getStatusCode(), equalTo(RestStatus.BAD_REQUEST.getStatus()));
-            final String entity = TestUtils.getResponseBody(e.getResponse());
+            final String entity = getResponseBody(e.getResponse());
             assertThat(entity, containsString("dog_name"));
             assertThat(entity, containsString("{type:text,fields:{keyword:{type:keyword,ignore_above:256}}}"));
             assertThat(entity, containsString("{type:text,fielddata:true}"));
@@ -277,7 +279,7 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
     @Test
     @Ignore // TODO: verify the returned query is correct and fix the expected output
     public void testJoinWhere() throws IOException {
-        String expectedOutput = TestUtils.fileToString("src/test/resources/expectedOutput/term_join_where", true);
+        String expectedOutput = fileToString("src/test/resources/expectedOutput/term_join_where", true);
         String result = explainQuery(
             "SELECT a.firstname, a.lastname , b.city " +
             "FROM elasticsearch-sql_test_index_account a " +
@@ -302,7 +304,7 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
             Assert.fail("Expected ResponseException, but none was thrown");
         } catch (ResponseException e) {
             assertThat(e.getResponse().getStatusLine().getStatusCode(), equalTo(RestStatus.BAD_REQUEST.getStatus()));
-            final String entity = TestUtils.getResponseBody(e.getResponse());
+            final String entity = getResponseBody(e.getResponse());
             assertThat(entity, containsString("Field name [city] is ambiguous"));
             assertThat(entity, containsString("\"type\": \"VerificationException\""));
         }
@@ -393,7 +395,7 @@ public class TermQueryExplainIT extends SQLIntegTestCase {
     @Test
     @Ignore // TODO: enable when subqueries are fixed
     public void testMultiQuery() throws IOException {
-        String expectedOutput = TestUtils.fileToString("src/test/resources/expectedOutput/term_union_where", true);
+        String expectedOutput = fileToString("src/test/resources/expectedOutput/term_union_where", true);
         String result = explainQuery(
             "SELECT firstname " +
             "FROM elasticsearch-sql_test_index_account/account " +

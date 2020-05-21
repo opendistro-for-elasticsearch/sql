@@ -20,6 +20,8 @@ import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TEST_INDEX_WEBLOG;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -134,7 +136,7 @@ public class JdbcTestIT extends SQLIntegTestCase {
     @Test
     public void ipTypeShouldPassJdbcFormatter() {
         assertThat(
-                executeQuery("SELECT host AS hostIP FROM " + TestsConstants.TEST_INDEX_WEBLOG
+                executeQuery("SELECT host AS hostIP FROM " + TEST_INDEX_WEBLOG
                         + " ORDER BY hostIP", "jdbc"),
                 containsString("\"type\": \"ip\"")
         );
@@ -143,7 +145,7 @@ public class JdbcTestIT extends SQLIntegTestCase {
     @Test
     public void functionWithoutAliasShouldHaveEntireFunctionAsNameInSchema() {
         assertThat(
-                executeQuery("SELECT substring(lastname, 1, 2) FROM " + TestsConstants.TEST_INDEX_ACCOUNT
+                executeQuery("SELECT substring(lastname, 1, 2) FROM " + TEST_INDEX_ACCOUNT
                         + " ORDER BY substring(lastname, 1, 2)", "jdbc"),
                 containsString("\"name\": \"substring(lastname, 1, 2)\"")
         );
@@ -153,7 +155,7 @@ public class JdbcTestIT extends SQLIntegTestCase {
     public void functionWithAliasShouldHaveAliasAsNameInSchema() {
         assertThat(
                 executeQuery("SELECT substring(lastname, 1, 2) AS substring FROM "
-                        + TestsConstants.TEST_INDEX_ACCOUNT + " ORDER BY substring", "jdbc"),
+                        + TEST_INDEX_ACCOUNT + " ORDER BY substring", "jdbc"),
                 containsString("\"name\": \"substring\"")
         );
     }
