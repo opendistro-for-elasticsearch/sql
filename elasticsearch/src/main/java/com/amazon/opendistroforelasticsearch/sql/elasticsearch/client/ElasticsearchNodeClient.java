@@ -58,14 +58,14 @@ public class ElasticsearchNodeClient implements ElasticsearchClient {
     private final ClusterService clusterService;
 
     /**
-     * Index name expression resolver to get concrete index name
-     */
-    private final IndexNameExpressionResolver resolver;
-
-    /**
      * Node client provided by Elasticsearch container
      */
     private final NodeClient client;
+
+    /**
+     * Index name expression resolver to get concrete index name
+     */
+    private final IndexNameExpressionResolver resolver = new IndexNameExpressionResolver();
 
     /**
      * Get field mappings of index by an index expression. Majority is copied from legacy LocalClusterState.
