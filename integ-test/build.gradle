@@ -22,6 +22,11 @@ compileTestJava {
     }
 }
 
+configurations.all {
+    // conflict with spring-jcl in ':plugin'
+    exclude group: "commons-logging", module: "commons-logging"
+}
+
 dependencies {
     testCompile group: 'com.google.guava', name: 'guava', version: '23.0'
     testCompile group: 'org.elasticsearch', name: 'elasticsearch-x-content', version:"${es_version}"
@@ -32,6 +37,7 @@ dependencies {
     testCompile group: 'org.hamcrest', name: 'hamcrest', version: '2.1'
     testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', version:'2.11.1'
     testCompile group: 'org.json', name: 'json', version:'20180813'
+    testCompile project(':plugin')
 }
 
 dependencyLicenses.enabled = false
