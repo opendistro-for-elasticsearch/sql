@@ -22,9 +22,9 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
 import org.junit.Assert;
 import static com.amazon.opendistroforelasticsearch.sql.TestUtils.getResponseBody;
-import static com.amazon.opendistroforelasticsearch.sql.plugin.rest.RestPPLQueryAction.QUERY_API_ENDPOINT;
 
 public abstract class PPLIntegTestCase extends RestIntegTestCase {
+    private static final String QUERY_API_ENDPOINT = "/_opendistro/_ppl";
 
     protected String executeQuery(String query) throws IOException {
         Response response = client().performRequest(buildRequest(query));
