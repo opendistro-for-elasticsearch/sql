@@ -168,6 +168,19 @@ integTest.runner {
     }
 }
 
+task testJar (type: Jar, dependsOn: testClasses) {
+    baseName = 'integtest'
+    from sourceSets.test.output
+}
+
+configurations {
+    integtest
+}
+
+artifacts {
+    integtest testJar
+}
+
 generateGrammarSource {
     arguments += ['-visitor', '-package', 'com.amazon.opendistroforelasticsearch.sql.antlr.parser']
     source = sourceSets.main.antlr
