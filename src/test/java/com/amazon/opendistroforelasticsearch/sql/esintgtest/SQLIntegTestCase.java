@@ -18,7 +18,6 @@ package com.amazon.opendistroforelasticsearch.sql.esintgtest;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
-import org.elasticsearch.test.rest.ESRestTestCase;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -33,6 +32,9 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.get
 import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.EXPLAIN_API_ENDPOINT;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.QUERY_API_ENDPOINT;
 
+/**
+ * ES Rest integration test base for SQL testing
+ */
 public abstract class SQLIntegTestCase extends RestIntegTestCase {
 
     protected Request getSqlRequest(String request, boolean explain) {

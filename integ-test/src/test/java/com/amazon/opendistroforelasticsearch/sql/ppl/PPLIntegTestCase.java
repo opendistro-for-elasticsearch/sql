@@ -24,6 +24,9 @@ import org.junit.Assert;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getResponseBody;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.rest.RestPPLQueryAction.QUERY_API_ENDPOINT;
 
+/**
+ * ES Rest integration test base for PPL testing
+ */
 public abstract class PPLIntegTestCase extends RestIntegTestCase {
 
     protected String executeQuery(String query) throws IOException {
