@@ -57,19 +57,19 @@ import static com.amazon.opendistroforelasticsearch.sql.TestUtils.loadDataByRest
 import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.PERSISTENT;
 import static com.amazon.opendistroforelasticsearch.sql.TestsConstants.TRANSIENT;
 
-///**
-// * SQL plugin integration test base class (migrated from SQLIntegTestCase)
-// *
-// * The execution of order is as follows:
-// *
-// *   ESRestTestCase:   1) initClient()                                       N+1) closeClient()
-// *                            \                                                     /
-// *   SQLIntegTestCase:     2) setUpIndices()  -> 4) setUpIndices() ... -> N) cleanUpIndices()
-// *                                \                      \
-// *   XXXTIT:                  3) init()             5) init()
-// *
-// * TODO: this base class should extends ODFERestTestCase
-// */
+/**
+ * SQL plugin integration test base class (migrated from SQLIntegTestCase)
+ *
+ * The execution of order is as follows:
+ *
+ *   ESRestTestCase:   1) initClient()                                       N+1) closeClient()
+ *                            \                                                     /
+ *   SQLIntegTestCase:     2) setUpIndices()  -> 4) setUpIndices() ... -> N) cleanUpIndices()
+ *                                \                      \
+ *   XXXTIT:                  3) init()             5) init()
+ *
+ * TODO: this base class should extends ODFERestTestCase
+ */
 public abstract class RestIntegTestCase extends ESRestTestCase {
 
     @Before
