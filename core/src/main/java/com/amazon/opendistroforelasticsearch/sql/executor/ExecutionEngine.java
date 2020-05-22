@@ -35,6 +35,9 @@ public interface ExecutionEngine {
      */
     void execute(PhysicalPlan plan, ResponseListener<QueryResponse> listener);
 
+    /**
+     * Data class that encapsulates ExprValue
+     */
     @Data
     class QueryResponse {
         private final List<ExprValue> results;

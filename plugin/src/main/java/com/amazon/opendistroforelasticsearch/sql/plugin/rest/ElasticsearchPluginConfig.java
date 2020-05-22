@@ -28,6 +28,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Elasticsearch plugin config that injects cluster service and node client from plugin
+ * and initialize Elasticsearch storage and execution engine.
+ */
 @Configuration
 public class ElasticsearchPluginConfig {
 

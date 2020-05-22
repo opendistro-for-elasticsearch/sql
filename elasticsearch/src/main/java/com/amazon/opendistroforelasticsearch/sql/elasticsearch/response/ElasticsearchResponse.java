@@ -42,7 +42,8 @@ public class ElasticsearchResponse implements Iterable<SearchHit> {
     }
 
     /**
-     * Is response empty
+     * Is response empty. As ES doc says, "Each call to the scroll API returns the next batch of results
+     * until there are no more results left to return, ie the hits array is empty."
      * @return  true for empty
      */
     public boolean isEmpty() {
