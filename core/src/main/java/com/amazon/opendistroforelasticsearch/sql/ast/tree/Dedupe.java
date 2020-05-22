@@ -39,7 +39,7 @@ import lombok.ToString;
 public class Dedupe extends UnresolvedPlan {
   private UnresolvedPlan child;
   private final List<Argument> options;
-  private final List<Field> sortList;
+  private final List<Field> fields;
 
   @Override
   public Dedupe attach(UnresolvedPlan child) {
@@ -54,6 +54,6 @@ public class Dedupe extends UnresolvedPlan {
 
   @Override
   public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
-    return nodeVisitor.visit(this, context);
+    return nodeVisitor.visitDedupe(this, context);
   }
 }

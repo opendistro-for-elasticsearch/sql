@@ -33,6 +33,7 @@ public class LogicalDedupe extends LogicalPlan {
   private final List<Expression> dedupeList;
   private final Integer allowedDuplication;
   private final Boolean keepEmpty;
+  private final Boolean consecutive;
 
   @Override
   public List<LogicalPlan> getChild() {

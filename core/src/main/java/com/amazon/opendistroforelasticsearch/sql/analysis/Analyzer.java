@@ -18,9 +18,11 @@ package com.amazon.opendistroforelasticsearch.sql.analysis;
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Let;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Dedupe;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
@@ -36,6 +38,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregation;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalDedupe;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalEval;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
@@ -188,5 +191,25 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
             .collect(Collectors.toList());
 
     return new LogicalSort(child, count, sortList);
+  }
+
+  /** Build {@link LogicalDedupe} */
+  @Override
+  public LogicalPlan visitDedupe(Dedupe node, AnalysisContext context) {
+    LogicalPlan child = node.getChild().get(0).accept(this, context);
+    List<Argument> options = node.getOptions();
+    // Todo, refactor the option.
+    Integer allowedDuplication = (Integer) options.get(0).getValue().getValue();
+    Boolean keepEmpty = (Boolean) options.get(1).getValue().getValue();
+    Boolean consecutive = (Boolean) options.get(2).getValue().getValue();
+
+    return new LogicalDedupe(
+        child,
+        node.getFields().stream()
+            .map(f -> expressionAnalyzer.analyze(f, context))
+            .collect(Collectors.toList()),
+        allowedDuplication,
+        keepEmpty,
+        consecutive);
   }
 }

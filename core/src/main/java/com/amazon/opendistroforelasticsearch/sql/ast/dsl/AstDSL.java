@@ -216,7 +216,6 @@ public class AstDSL {
   public static List<Argument> defaultDedupArgs() {
     return exprList(
         argument("number", intLiteral(1)),
-        argument("keepevents", booleanLiteral(false)),
         argument("keepempty", booleanLiteral(false)),
         argument("consecutive", booleanLiteral(false)));
   }

@@ -63,10 +63,8 @@ dedupCommand
     : DEDUP
     (number=integerLiteral)?
     fieldList
-    (KEEPEVENTS EQUAL keeevents=booleanLiteral)?
     (KEEPEMPTY EQUAL keepempty=booleanLiteral)?
     (CONSECUTIVE EQUAL consecutive=booleanLiteral)?
-    (SORTBY sortbyClause)?
     ;
 
 sortCommand

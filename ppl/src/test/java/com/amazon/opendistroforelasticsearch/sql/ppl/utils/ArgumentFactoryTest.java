@@ -75,12 +75,11 @@ public class ArgumentFactoryTest extends AstBuilderTest {
 
     @Test
     public void testDedupCommandArgument() {
-        assertEqual("source=t | dedup 3 field0 keepevents=true keepempty=false consecutive=true",
+        assertEqual("source=t | dedup 3 field0 keepempty=false consecutive=true",
                 dedupe(
                         relation("t"),
                         exprList(
                                 argument("number", intLiteral(3)),
-                                argument("keepevents", booleanLiteral(true)),
                                 argument("keepempty", booleanLiteral(false)),
                                 argument("consecutive", booleanLiteral(true))
                         ),
@@ -91,7 +90,7 @@ public class ArgumentFactoryTest extends AstBuilderTest {
     @Test
     public void testDedupCommandDefaultArgument() {
         assertEqual(
-                "source=t | dedup 1 field0 keepevents=false keepempty=false consecutive=false",
+                "source=t | dedup 1 field0 keepempty=false consecutive=false",
                 "source=t | dedup field0"
         );
     }
