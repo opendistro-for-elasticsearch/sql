@@ -20,33 +20,37 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapp
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchRequest;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
 import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.io.Resources;
 import org.apache.lucene.search.TotalHits;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.cluster.ClusterState;
+import org.elasticsearch.cluster.metadata.AliasOrIndex;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
-import org.elasticsearch.cluster.metadata.IndexNameExpressionResolver;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.cluster.metadata.MetaData;
 import org.elasticsearch.cluster.service.ClusterService;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.DeprecationHandler;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;
 import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.threadpool.ThreadPool;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -54,6 +58,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -112,11 +117,18 @@ class ElasticsearchNodeClientTest {
 
     @Test
     public void getIndexMappingsWithIOException() {
-        ClusterService clusterService = mockClusterService(new IOException());
-        IndexNameExpressionResolver resolver = mockIndexNameExpressionResolver();
-        ElasticsearchNodeClient client = new ElasticsearchNodeClient(clusterService, resolver, nodeClient);
+        String indexName = "test";
+        ClusterService clusterService = mockClusterService(indexName, new IOException());
+        ElasticsearchNodeClient client = new ElasticsearchNodeClient(clusterService, nodeClient);
 
-        assertThrows(IllegalStateException.class, () -> client.getIndexMappings("non_exist_index"));
+        assertThrows(IllegalStateException.class, () -> client.getIndexMappings(indexName));
+    }
+
+    @Test
+    public void getIndexMappingsWithNonExistIndex() {
+        ElasticsearchNodeClient client = new ElasticsearchNodeClient(mockClusterService("test"), nodeClient);
+
+        assertThrows(IndexNotFoundException.class, () -> client.getIndexMappings("non_exist_index"));
     }
 
     /** Jacoco enforce this constant lambda be tested */
@@ -128,7 +140,6 @@ class ElasticsearchNodeClientTest {
     @Test
     public void search() {
         ElasticsearchNodeClient client = new ElasticsearchNodeClient(mock(ClusterService.class),
-                                                                     mock(IndexNameExpressionResolver.class),
                                                                      nodeClient);
 
         // Mock first scroll request
@@ -163,10 +174,41 @@ class ElasticsearchNodeClientTest {
         assertTrue(response2.isEmpty());
     }
 
+    @Test
+    void schedule() {
+        ThreadPool threadPool = mock(ThreadPool.class);
+        when(threadPool.preserveContext(any())).then(invocation -> invocation.getArgument(0));
+
+        // Instantiate NodeClient because Mockito cannot mock final method threadPool()
+        nodeClient = new NodeClient(Settings.EMPTY, threadPool);
+        doAnswer(invocation -> {
+            Runnable task = invocation.getArgument(0);
+            task.run();
+            return null;
+        }).when(threadPool).schedule(any(), any(), any());
+
+        ElasticsearchNodeClient client = new ElasticsearchNodeClient(mock(ClusterService.class),
+                                                                     nodeClient);
+        AtomicBoolean isRun = new AtomicBoolean(false);
+        client.schedule(() -> isRun.set(true));
+        assertTrue(isRun.get());
+    }
+
     private ElasticsearchNodeClient mockClient(String indexName, String mappings) {
         ClusterService clusterService = mockClusterService(indexName, mappings);
-        IndexNameExpressionResolver resolver = mockIndexNameExpressionResolver();
-        return new ElasticsearchNodeClient(clusterService, resolver, nodeClient);
+        return new ElasticsearchNodeClient(clusterService, nodeClient);
+    }
+
+    /** Mock getAliasAndIndexLookup() only for index name resolve test */
+    public ClusterService mockClusterService(String indexName) {
+        ClusterService mockService = mock(ClusterService.class);
+        ClusterState mockState = mock(ClusterState.class);
+        MetaData mockMetaData = mock(MetaData.class);
+
+        when(mockService.state()).thenReturn(mockState);
+        when(mockState.metaData()).thenReturn(mockMetaData);
+        when(mockMetaData.getAliasAndIndexLookup()).thenReturn(ImmutableSortedMap.of(indexName, mock(AliasOrIndex.class)));
+        return mockService;
     }
 
     public ClusterService mockClusterService(String indexName, String mappings) {
@@ -186,6 +228,9 @@ class ElasticsearchNodeClientTest {
             }
             builder.put(indexName, metadata);
             when(mockMetaData.findMappings(any(), any(), any())).thenReturn(builder.build());
+
+            // IndexNameExpressionResolver use this method to check if index exists. If not, IndexNotFoundException is thrown.
+            when(mockMetaData.getAliasAndIndexLookup()).thenReturn(ImmutableSortedMap.of(indexName, mock(AliasOrIndex.class)));
         }
         catch (IOException e) {
             throw new IllegalStateException("Failed to mock cluster service", e);
@@ -193,7 +238,7 @@ class ElasticsearchNodeClientTest {
         return mockService;
     }
 
-    public ClusterService mockClusterService(Throwable t) {
+    public ClusterService mockClusterService(String indexName, Throwable t) {
         ClusterService mockService = mock(ClusterService.class);
         ClusterState mockState = mock(ClusterState.class);
         MetaData mockMetaData = mock(MetaData.class);
@@ -202,26 +247,12 @@ class ElasticsearchNodeClientTest {
         when(mockState.metaData()).thenReturn(mockMetaData);
         try {
             when(mockMetaData.findMappings(any(), any(), any())).thenThrow(t);
+            when(mockMetaData.getAliasAndIndexLookup()).thenReturn(ImmutableSortedMap.of(indexName, mock(AliasOrIndex.class)));
         }
         catch (IOException e) {
             throw new IllegalStateException("Failed to mock cluster service", e);
         }
         return mockService;
-    }
-
-    private IndexNameExpressionResolver mockIndexNameExpressionResolver() {
-        IndexNameExpressionResolver mockResolver = mock(IndexNameExpressionResolver.class);
-        when(mockResolver.concreteIndexNames(any(), any(), any())).thenAnswer(
-            (Answer<String[]>) invocation -> {
-                // Return index expression directly without resolving
-                Object indexExprs = invocation.getArguments()[2];
-                if (indexExprs instanceof String) {
-                    return new String[]{ (String) indexExprs };
-                }
-                return (String[]) indexExprs;
-            }
-        );
-        return mockResolver;
     }
 
     private XContentParser createParser(String mappings) throws IOException {

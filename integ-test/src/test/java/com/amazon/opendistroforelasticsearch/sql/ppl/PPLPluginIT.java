@@ -18,7 +18,6 @@ package com.amazon.opendistroforelasticsearch.sql.ppl;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseException;
-import org.elasticsearch.test.rest.ESRestTestCase;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Rule;
@@ -41,8 +40,23 @@ public class PPLPluginIT extends PPLIntegTestCase {
 
     @Test
     public void testQueryEndpointShouldOK() throws IOException {
-        Response response = client().performRequest(makeRequest("search source=a"));
-        assertThat(response, statusCode(200));
+        Request request = new Request("PUT", "/a/_doc/1?refresh=true");
+        request.setJsonEntity("{\"name\": \"hello\"}");
+        client().performRequest(request);
+
+        String response = executeQuery("search source=a");
+        assertEquals(
+            "{\n" +
+            "  \"schema\": [{\n" +
+            "    \"name\": \"name\",\n" +
+            "    \"type\": \"string\"\n" +
+            "  }],\n" +
+            "  \"total\": 1,\n" +
+            "  \"datarows\": [{\"row\": [\"hello\"]}],\n" +
+            "  \"size\": 1\n" +
+            "}\n",
+            response
+        );
     }
 
     @Test

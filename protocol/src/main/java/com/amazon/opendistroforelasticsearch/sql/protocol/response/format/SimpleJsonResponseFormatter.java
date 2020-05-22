@@ -16,7 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.protocol.response.format;
 
-import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResponse;
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -44,14 +44,14 @@ import java.util.List;
  *  }
  * </pre>
  */
-public class SimpleJsonResponseFormatter extends JsonResponseFormatter<QueryResponse> {
+public class SimpleJsonResponseFormatter extends JsonResponseFormatter<QueryResult> {
 
     public SimpleJsonResponseFormatter(Style style) {
         super(style);
     }
 
     @Override
-    public Object buildJsonObject(QueryResponse response) {
+    public Object buildJsonObject(QueryResult response) {
         JsonResponse.JsonResponseBuilder json = JsonResponse.builder();
 
         json.total(response.size()).
