@@ -16,6 +16,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 
+
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
@@ -28,6 +30,8 @@ import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -40,11 +44,13 @@ import java.util.Map;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.aggregation;
+import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.eval;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.remove;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.rename;
+import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.sort;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.allOf;
@@ -115,22 +121,32 @@ class ElasticsearchIndexTest {
         List<Expression> groupByExprs = Arrays.asList(ref("age"));
         List<Aggregator> aggregators = Arrays.asList(new AvgAggregator(groupByExprs, ExprType.DOUBLE));
         Map<ReferenceExpression, ReferenceExpression> mappings = ImmutableMap.of(ref("name"), ref("lastname"));
+        Pair<ReferenceExpression, Expression> newEvalField = ImmutablePair.of(ref("name1"), ref("name"));
+        Integer sortCount = 100;
+        Pair<SortOption, Expression> sortField = ImmutablePair.of(SortOption.PPL_ASC, ref("name1"));
 
         LogicalPlan plan =
             project(
-                remove(
-                    rename(
-                        aggregation(
-                            filter(
-                                relation(indexName),
-                                filterExpr
+                sort(
+                    eval(
+                        remove(
+                            rename(
+                                aggregation(
+                                    filter(
+                                        relation(indexName),
+                                        filterExpr
+                                    ),
+                                    aggregators,
+                                    groupByExprs
+                                ),
+                                mappings
                             ),
-                            aggregators,
-                            groupByExprs
+                            exclude
                         ),
-                        mappings
+                        newEvalField
                     ),
-                    exclude
+                    sortCount,
+                    sortField
                 ),
                 include
             );
@@ -138,19 +154,26 @@ class ElasticsearchIndexTest {
         Table index = new ElasticsearchIndex(client, indexName);
         assertEquals(
             PhysicalPlanDSL.project(
-                PhysicalPlanDSL.remove(
-                    PhysicalPlanDSL.rename(
-                        PhysicalPlanDSL.agg(
-                            PhysicalPlanDSL.filter(
-                                new ElasticsearchIndexScan(client, indexName),
-                                filterExpr
+                PhysicalPlanDSL.sort(
+                    PhysicalPlanDSL.eval(
+                        PhysicalPlanDSL.remove(
+                            PhysicalPlanDSL.rename(
+                                PhysicalPlanDSL.agg(
+                                    PhysicalPlanDSL.filter(
+                                        new ElasticsearchIndexScan(client, indexName),
+                                        filterExpr
+                                    ),
+                                    aggregators,
+                                    groupByExprs
+                                ),
+                                mappings
                             ),
-                            aggregators,
-                            groupByExprs
+                            exclude
                         ),
-                        mappings
+                        newEvalField
                     ),
-                    exclude
+                    sortCount,
+                    sortField
                 ),
                 include
             ),

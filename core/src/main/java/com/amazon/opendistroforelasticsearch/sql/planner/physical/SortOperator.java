@@ -36,10 +36,9 @@ import lombok.ToString;
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
- * Sort Operator.
- * The input data is sorted by the sort fields in the {@link SortOperator#sortList}.
- * The sort field is specified by the {@link Expression} with {@link SortOption}.
- * The count indicate how many sorted result should been return.
+ * Sort Operator. The input data is sorted by the sort fields in the {@link SortOperator#sortList}.
+ * The sort field is specified by the {@link Expression} with {@link SortOption}. The count indicate
+ * how many sorted result should been return.
  */
 @ToString
 @EqualsAndHashCode
@@ -47,11 +46,11 @@ public class SortOperator extends PhysicalPlan {
   private final PhysicalPlan input;
   private final Integer count;
   private final List<Pair<SortOption, Expression>> sortList;
-  private final Sorter sorter;
-  private Iterator<ExprValue> iterator;
+  @EqualsAndHashCode.Exclude private final Sorter sorter;
+  @EqualsAndHashCode.Exclude private Iterator<ExprValue> iterator;
 
-  public SortOperator(PhysicalPlan input,
-      Integer count, List<Pair<SortOption, Expression>> sortList) {
+  public SortOperator(
+      PhysicalPlan input, Integer count, List<Pair<SortOption, Expression>> sortList) {
     this.input = input;
     this.count = count;
     this.sortList = sortList;

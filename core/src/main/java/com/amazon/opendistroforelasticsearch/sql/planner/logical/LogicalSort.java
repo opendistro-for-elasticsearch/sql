@@ -28,13 +28,13 @@ import org.apache.commons.lang3.tuple.Pair;
 /**
  * Sort Plan.
  */
+@Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
 public class LogicalSort extends LogicalPlan {
   private final LogicalPlan child;
   private final Integer count;
-  @Getter
   private final List<Pair<SortOption, Expression>> sortList;
 
   @Override
