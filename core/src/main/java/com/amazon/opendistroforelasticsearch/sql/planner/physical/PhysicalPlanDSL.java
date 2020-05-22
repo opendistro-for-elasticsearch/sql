@@ -1,5 +1,5 @@
 /*
- *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *   Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  *   Licensed under the Apache License, Version 2.0 (the "License").
  *   You may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
@@ -54,5 +55,10 @@ public class PhysicalPlanDSL {
   public static EvalOperator eval(
       PhysicalPlan input, Pair<ReferenceExpression, Expression>... expressions) {
     return new EvalOperator(input, Arrays.asList(expressions));
+  }
+
+  public static SortOperator sort(PhysicalPlan input, Integer count, Pair<SortOption,
+      Expression>... sorts) {
+    return new SortOperator(input, count, Arrays.asList(sorts));
   }
 }

@@ -27,7 +27,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLi
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.compare;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultDedupArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultFieldsArgs;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortArgs;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortOptions;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortFieldArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultStatsArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.eval;
@@ -38,10 +38,13 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.let;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.map;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.nullLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.projectWithArg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.rename;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sort;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sortOptions;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static org.junit.Assert.assertEquals;
 
@@ -209,16 +212,24 @@ public class AstBuilderTest {
     @Test
     public void testSortCommand() {
         assertEqual("source=t | sort f1, f2",
-                agg(
-                        relation("t"),
-                        null,
-                        exprList(
-                                field("f1", defaultSortFieldArgs()),
-                                field("f2", defaultSortFieldArgs())
-                        ),
-                        null,
-                        defaultSortArgs()
+                sort(
+                    relation("t"),
+                    defaultSortOptions(),
+                    field("f1", defaultSortFieldArgs()),
+                    field("f2", defaultSortFieldArgs())
                 ));
+    }
+
+    @Test
+    public void testSortCommandWithOptions() {
+      assertEqual("source=t | sort 100 - f1, + f2",
+          sort(
+              relation("t"),
+              sortOptions(100),
+              field("f1", exprList(argument("asc", booleanLiteral(false)),
+                  argument("type", nullLiteral()))),
+              field("f2", defaultSortFieldArgs())
+          ));
     }
 
     @Test

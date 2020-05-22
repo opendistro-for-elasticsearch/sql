@@ -24,7 +24,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.argument;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.compare;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultFieldsArgs;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortArgs;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortOptions;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortFieldArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultStatsArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.doubleLiteral;
@@ -43,6 +43,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.or;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.projectWithArg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sort;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
 
 public class AstExpressionBuilderTest extends AstBuilderTest{
@@ -174,103 +175,80 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
     @Test
     public void testFieldExpr() {
         assertEqual("source=t | sort + f",
-                agg(
+                sort(
                         relation("t"),
-                        null,
-                        exprList(field("f", defaultSortFieldArgs())),
-                        null,
-                        defaultSortArgs()
+                        defaultSortOptions(),
+                        field("f", defaultSortFieldArgs())
                 ));
     }
 
     @Test
     public void testSortFieldWithMinusKeyword() {
         assertEqual("source=t | sort - f",
-                agg(
+                sort(
                         relation("t"),
-                        null,
-                        exprList(
-                                field(
-                                        "f",
-                                        argument("exclude", booleanLiteral(true)),
-                                        argument("type", nullLiteral())
-                                )
-                        ),
-                        null,
-                        defaultSortArgs()
+                        defaultSortOptions(),
+                        field(
+                            "f",
+                            argument("asc", booleanLiteral(false)),
+                            argument("type", nullLiteral())
+                        )
                 ));
     }
 
     @Test
     public void testSortFieldWithAutoKeyword() {
         assertEqual("source=t | sort auto(f)",
-                agg(
+                sort(
                         relation("t"),
-                        null,
-                        exprList(
-                                field(
-                                        "f",
-                                        argument("exclude", booleanLiteral(false)),
-                                        argument("type", stringLiteral("auto"))
-                                )
-                        ),
-                        null,
-                        defaultSortArgs()
+                        defaultSortOptions(),
+                        field(
+                                "f",
+                                argument("asc", booleanLiteral(true)),
+                                argument("type", stringLiteral("auto"))
+                        )
                 ));
     }
 
     @Test
     public void testSortFieldWithIpKeyword() {
         assertEqual("source=t | sort ip(f)",
-                agg(
+              sort(
                         relation("t"),
-                        null,
-                        exprList(
-                                field(
-                                        "f",
-                                        argument("exclude", booleanLiteral(false)),
-                                        argument("type", stringLiteral("ip"))
-                                )
-                        ),
-                        null,
-                        defaultSortArgs()
+                        defaultSortOptions(),
+                        field(
+                                "f",
+                                argument("asc", booleanLiteral(true)),
+                                argument("type", stringLiteral("ip"))
+                        )
                 ));
     }
 
     @Test
     public void testSortFieldWithNumKeyword() {
         assertEqual("source=t | sort num(f)",
-                agg(
+                sort(
                         relation("t"),
-                        null,
-                        exprList(
-                                field(
-                                        "f",
-                                        argument("exclude", booleanLiteral(false)),
-                                        argument("type", stringLiteral("num"))
-                                )
-                        ),
-                        null,
-                        defaultSortArgs()
-
+                        defaultSortOptions(),
+                        field(
+                            "f",
+                            argument("asc", booleanLiteral(true)),
+                            argument("type", stringLiteral("num"))
+                        )
                 ));
     }
 
     @Test
     public void testSortFieldWithStrKeyword() {
         assertEqual("source=t | sort str(f)",
-                agg(
-                        relation("t"),
-                        null,
-                        exprList(
-                                field(
-                                        "f",
-                                        argument("exclude", booleanLiteral(false)),
-                                        argument("type", stringLiteral("str"))
-                                )
-                        ),
-                        null,
-                        defaultSortArgs()
+                sort(
+                      relation("t"),
+                      defaultSortOptions(),
+                      field(
+                          "f",
+                          argument("asc", booleanLiteral(true)),
+                          argument("type", stringLiteral("str"))
+                      )
                 ));
     }
 

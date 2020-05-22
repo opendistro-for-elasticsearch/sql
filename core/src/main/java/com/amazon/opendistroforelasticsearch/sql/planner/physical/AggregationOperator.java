@@ -83,6 +83,7 @@ public class AggregationOperator extends PhysicalPlan {
 
     @Override
     public void open() {
+        super.open();
         while (input.hasNext()) {
             group.push(input.next());
         }
