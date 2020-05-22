@@ -71,19 +71,29 @@ public class ElasticsearchRestClient implements ElasticsearchClient {
                 esResponse = client.scroll(request.scrollRequest(), RequestOptions.DEFAULT);
             } else {
                 esResponse = client.search(request.searchRequest(), RequestOptions.DEFAULT);
-                request.setScrollId(esResponse.getScrollId());
             }
+            request.setScrollId(esResponse.getScrollId());
 
             ElasticsearchResponse response = new ElasticsearchResponse(esResponse);
             if (response.isEmpty()) {
-                ClearScrollRequest clearRequest = new ClearScrollRequest();
-                clearRequest.addScrollId(esResponse.getScrollId());
-                client.clearScroll(clearRequest, RequestOptions.DEFAULT);
+                cleanup(request);
             }
             return response;
         } catch (IOException e) {
             throw new IllegalStateException(
-                "Failed to perform search operation with request=" + request, e);
+                "Failed to perform search operation with request " + request, e);
+        }
+    }
+
+    @Override
+    public void cleanup(ElasticsearchRequest request) {
+        try {
+            ClearScrollRequest clearRequest = new ClearScrollRequest();
+            clearRequest.addScrollId(request.getScrollId());
+            client.clearScroll(clearRequest, RequestOptions.DEFAULT);
+        } catch (IOException e) {
+            throw new IllegalStateException(
+                "Failed to clean up resources for search request " + request, e);
         }
     }
 

@@ -54,6 +54,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -161,6 +162,23 @@ class ElasticsearchRestClientTest {
             isRun.set(true);
         });
         assertTrue(isRun.get());
+    }
+
+    @Test
+    void cleanup() throws IOException {
+        ElasticsearchRequest request = new ElasticsearchRequest("test");
+        request.setScrollId("scroll123");
+        client.cleanup(request);
+        verify(restClient).clearScroll(any(), any());
+    }
+
+    @Test
+    void cleanupWithIOException() throws IOException {
+        when(restClient.clearScroll(any(), any())).thenThrow(new IOException());
+
+        ElasticsearchRequest request = new ElasticsearchRequest("test");
+        request.setScrollId("scroll123");
+        assertThrows(IllegalStateException.class, () -> client.cleanup(request));
     }
 
     private Map<String, MappingMetaData> mockFieldMappings(String indexName, String mappings) throws IOException {

@@ -23,6 +23,7 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.io.Resources;
 import org.apache.lucene.search.TotalHits;
+import org.elasticsearch.action.search.ClearScrollRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.cluster.ClusterState;
@@ -32,7 +33,6 @@ import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.cluster.metadata.MetaData;
 import org.elasticsearch.cluster.service.ClusterService;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
-import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.DeprecationHandler;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;
 import org.elasticsearch.common.xcontent.XContentParser;
@@ -43,7 +43,9 @@ import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.threadpool.ThreadPool;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
@@ -191,6 +193,26 @@ class ElasticsearchNodeClientTest {
         AtomicBoolean isRun = new AtomicBoolean(false);
         client.schedule(() -> isRun.set(true));
         assertTrue(isRun.get());
+    }
+
+    @Test
+    void cleanup() {
+        ElasticsearchNodeClient client = new ElasticsearchNodeClient(mock(ClusterService.class),
+                                                                     nodeClient);
+
+        ClearScrollRequestBuilder requestBuilder = mock(ClearScrollRequestBuilder.class);
+        when(nodeClient.prepareClearScroll()).thenReturn(requestBuilder);
+        when(requestBuilder.addScrollId(any())).thenReturn(requestBuilder);
+        when(requestBuilder.get()).thenReturn(null);
+
+        ElasticsearchRequest request = new ElasticsearchRequest("test");
+        request.setScrollId("scroll123");
+        client.cleanup(request);
+
+        InOrder inOrder = Mockito.inOrder(nodeClient, requestBuilder);
+        inOrder.verify(nodeClient).prepareClearScroll();
+        inOrder.verify(requestBuilder).addScrollId("scroll123");
+        inOrder.verify(requestBuilder).get();
     }
 
     private ElasticsearchNodeClient mockClient(String indexName, String mappings) {

@@ -33,6 +33,7 @@ import java.util.Objects;
  */
 @EqualsAndHashCode
 @RequiredArgsConstructor
+@Getter
 @ToString
 public class ElasticsearchRequest {
 
@@ -56,7 +57,6 @@ public class ElasticsearchRequest {
     /**
      * Search request source builder.
      */
-    @Getter
     private final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
 
     /**
