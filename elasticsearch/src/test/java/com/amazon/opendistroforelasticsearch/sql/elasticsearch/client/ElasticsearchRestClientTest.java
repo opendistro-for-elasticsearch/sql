@@ -172,7 +172,7 @@ class ElasticsearchRestClientTest {
     }
 
     @Test
-    void cleanupAgain() throws IOException {
+    void cleanupWithoutScrollId() throws IOException {
         ElasticsearchRequest request = new ElasticsearchRequest("test");
         client.cleanup(request);
         verify(restClient, never()).clearScroll(any(), any());

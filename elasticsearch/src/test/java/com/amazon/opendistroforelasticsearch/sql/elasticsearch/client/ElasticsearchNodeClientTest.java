@@ -216,7 +216,7 @@ class ElasticsearchNodeClientTest {
     }
 
     @Test
-    void cleanupAgain() {
+    void cleanupWithoutScrollId() {
         ElasticsearchNodeClient client = new ElasticsearchNodeClient(mock(ClusterService.class),
                                                                      nodeClient);
 
