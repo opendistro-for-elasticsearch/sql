@@ -30,9 +30,14 @@ import java.util.Locale;
 
 import static org.hamcrest.Matchers.hasProperty;
 
-public class PPLPluginIT extends ESRestTestCase {
+public class PPLPluginIT extends PPLIntegTestCase {
     @Rule
     public ExpectedException exceptionRule = ExpectedException.none();
+
+    @Override
+    protected void init() throws Exception {
+        wipeAllClusterSettings();
+    }
 
     @Test
     public void testQueryEndpointShouldOK() throws IOException {
