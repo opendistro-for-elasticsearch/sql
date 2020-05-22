@@ -19,12 +19,14 @@ import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import java.util.Arrays;
 import java.util.List;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
  * Logical Dedupe Plan
  */
+@Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor

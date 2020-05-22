@@ -24,18 +24,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
+import lombok.EqualsAndHashCode;
 
 /**
  * Dedupe operator. Dedupe the input {@link ExprValue} by using the {@link
  * DedupeOperator#dedupeList} The result order follow the input order.
  */
+@EqualsAndHashCode
 public class DedupeOperator extends PhysicalPlan {
   private final PhysicalPlan input;
   private final List<Expression> dedupeList;
-  private final Deduper<List<ExprValue>> deduper;
   private final Integer allowedDuplication;
   private final Boolean keepEmpty;
-  private ExprValue next;
+  private final Boolean consecutive;
+
+  @EqualsAndHashCode.Exclude private final Deduper<List<ExprValue>> deduper;
+  @EqualsAndHashCode.Exclude private ExprValue next;
 
   private static final Integer ALL_ONE_DUPLICATION = 1;
   private static final Boolean IGNORE_EMPTY = false;
@@ -57,7 +61,8 @@ public class DedupeOperator extends PhysicalPlan {
     this.dedupeList = dedupeList;
     this.allowedDuplication = allowedDuplication;
     this.keepEmpty = keepEmpty;
-    this.deduper = consecutive ? new ConsecutiveDeduper<>() : new HistoricalDeduper<>();
+    this.consecutive = consecutive;
+    this.deduper = this.consecutive ? new ConsecutiveDeduper<>() : new HistoricalDeduper<>();
   }
 
   @Override

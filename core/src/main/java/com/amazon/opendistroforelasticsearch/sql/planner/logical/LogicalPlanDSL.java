@@ -66,7 +66,11 @@ public class LogicalPlanDSL {
     return new LogicalSort(input, count, Arrays.asList(sorts));
   }
 
-  public static LogicalPlan dedup(
+  public static LogicalPlan dedupe(LogicalPlan input, Expression... fields) {
+    return dedupe(input, 1, false, false, fields);
+  }
+
+  public static LogicalPlan dedupe(
       LogicalPlan input,
       int allowedDuplication,
       boolean keepEmpty,
