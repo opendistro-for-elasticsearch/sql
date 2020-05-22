@@ -17,9 +17,13 @@
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.client;
 
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchRequest;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
+import org.apache.lucene.search.TotalHits;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.GetMappingsRequest;
 import org.elasticsearch.client.indices.GetMappingsResponse;
@@ -29,6 +33,8 @@ import org.elasticsearch.common.xcontent.DeprecationHandler;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;
 import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,9 +43,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
@@ -98,11 +109,58 @@ class ElasticsearchRestClientTest {
     }
 
     @Test
-    void search() {
+    void getIndexMappingsWithIOException() throws IOException {
+        when(restClient.indices().getMapping(any(GetMappingsRequest.class), any())).thenThrow(new IOException());
+        assertThrows(IllegalStateException.class, () -> client.getIndexMappings("test"));
+    }
+
+    @Test
+    void search() throws IOException {
+        // Mock first scroll request
+        SearchResponse searchResponse = mock(SearchResponse.class);
+        when(restClient.search(any(), any())).thenReturn(searchResponse);
+        when(searchResponse.getScrollId()).thenReturn("scroll123");
+        when(searchResponse.getHits()).thenReturn(new SearchHits(new SearchHit[]{new SearchHit(1)},
+                                                                 new TotalHits(1L, TotalHits.Relation.EQUAL_TO),
+                                                                 1.0F));
+
+        // Mock second scroll request followed
+        SearchResponse scrollResponse = mock(SearchResponse.class);
+        when(restClient.scroll(any(), any())).thenReturn(scrollResponse);
+        when(scrollResponse.getScrollId()).thenReturn("scroll456");
+        when(scrollResponse.getHits()).thenReturn(SearchHits.empty());
+
+        // Mock clear scroll request
+        when(restClient.clearScroll(any(), any())).thenReturn(null);
+
+        // Verify response for first scroll request
+        ElasticsearchRequest request = new ElasticsearchRequest("test");
+        ElasticsearchResponse response1 = client.search(request);
+        assertFalse(response1.isEmpty());
+
+        Iterator<SearchHit> hits = response1.iterator();
+        assertTrue(hits.hasNext());
+        assertEquals(new SearchHit(1), hits.next());
+        assertFalse(hits.hasNext());
+
+        // Verify response for second scroll request
+        ElasticsearchResponse response2 = client.search(request);
+        assertTrue(response2.isEmpty());
+    }
+
+    @Test
+    void searchWithIOException() throws IOException {
+        when(restClient.search(any(), any())).thenThrow(new IOException());
+        assertThrows(IllegalStateException.class, () -> client.search(new ElasticsearchRequest("test")));
     }
 
     @Test
     void schedule() {
+        AtomicBoolean isRun = new AtomicBoolean(false);
+        client.schedule(() -> {
+            isRun.set(true);
+        });
+        assertTrue(isRun.get());
     }
 
     private Map<String, MappingMetaData> mockFieldMappings(String indexName, String mappings) throws IOException {

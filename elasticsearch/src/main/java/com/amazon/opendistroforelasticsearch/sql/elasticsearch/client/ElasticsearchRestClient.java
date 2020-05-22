@@ -33,6 +33,8 @@ import java.util.stream.Collectors;
 
 /**
  * Elasticsearch REST client to support standalone mode that runs entire engine from remote.
+ *
+ * TODO: Support for authN and authZ with AWS Sigv4 or security plugin.
  */
 @RequiredArgsConstructor
 public class ElasticsearchRestClient implements ElasticsearchClient {
