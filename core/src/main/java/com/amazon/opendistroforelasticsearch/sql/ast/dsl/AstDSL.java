@@ -1,5 +1,5 @@
 /*
- *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *   Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  *   Licensed under the Apache License, Version 2.0 (the "License").
  *   You may not use this file except in compliance with the License.
@@ -21,24 +21,25 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Let;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Let;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Not;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import java.util.Arrays;
 import java.util.List;
 
@@ -179,7 +180,7 @@ public class AstDSL {
     return new Field((QualifiedName) field, Arrays.asList(fieldArgs));
   }
 
-  public static UnresolvedExpression field(String field, Argument... fieldArgs) {
+  public static Field field(String field, Argument... fieldArgs) {
     return new Field(field, Arrays.asList(fieldArgs));
   }
 
@@ -187,7 +188,7 @@ public class AstDSL {
     return new Field((QualifiedName) field, fieldArgs);
   }
 
-  public static UnresolvedExpression field(String field, List<Argument> fieldArgs) {
+  public static Field field(String field, List<Argument> fieldArgs) {
     return new Field(field, fieldArgs);
   }
 
@@ -219,11 +220,19 @@ public class AstDSL {
         argument("consecutive", booleanLiteral(false)));
   }
 
-  public static List<Argument> defaultSortArgs() {
+  public static List<Argument> defaultSortOptions() {
     return exprList(argument("count", intLiteral(1000)), argument("desc", booleanLiteral(false)));
   }
 
+  public static List<Argument> sortOptions(int count) {
+    return exprList(argument("count", intLiteral(count)), argument("desc", booleanLiteral(false)));
+  }
+
   public static List<Argument> defaultSortFieldArgs() {
-    return exprList(argument("exclude", booleanLiteral(false)), argument("type", nullLiteral()));
+    return exprList(argument("asc", booleanLiteral(true)), argument("type", nullLiteral()));
+  }
+
+  public static Sort sort(UnresolvedPlan input, List<Argument> options, Field... sorts) {
+    return new Sort(input, options, Arrays.asList(sorts));
   }
 }

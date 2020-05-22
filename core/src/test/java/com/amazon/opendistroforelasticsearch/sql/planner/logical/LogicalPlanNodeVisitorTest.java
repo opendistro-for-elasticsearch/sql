@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
@@ -62,6 +63,7 @@ class LogicalPlanNodeVisitorTest {
     LogicalPlan project = LogicalPlanDSL.project(relation, ref);
     LogicalPlan remove = LogicalPlanDSL.remove(relation, ref);
     LogicalPlan eval = LogicalPlanDSL.eval(relation, Pair.of(ref, expression));
+    LogicalPlan sort = LogicalPlanDSL.sort(relation, 100, Pair.of(SortOption.PPL_ASC, expression));
 
     assertNull(relation.accept(new LogicalPlanNodeVisitor<Integer, Object>() {}, null));
     assertNull(filter.accept(new LogicalPlanNodeVisitor<Integer, Object>() {}, null));
@@ -70,6 +72,7 @@ class LogicalPlanNodeVisitorTest {
     assertNull(project.accept(new LogicalPlanNodeVisitor<Integer, Object>() {}, null));
     assertNull(remove.accept(new LogicalPlanNodeVisitor<Integer, Object>() {}, null));
     assertNull(eval.accept(new LogicalPlanNodeVisitor<Integer, Object>() {}, null));
+    assertNull(sort.accept(new LogicalPlanNodeVisitor<Integer, Object>() {}, null));
   }
 
   private static class NodesCount extends LogicalPlanNodeVisitor<Integer, Object> {

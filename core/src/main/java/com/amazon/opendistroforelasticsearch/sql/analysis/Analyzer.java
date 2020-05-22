@@ -1,5 +1,5 @@
 /*
- *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *   Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  *   Licensed under the Apache License, Version 2.0 (the "License").
  *   You may not use this file except in compliance with the License.
@@ -26,6 +26,8 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprMissingValue;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
@@ -41,6 +43,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalProject;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRemove;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRename;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalSort;
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
 import com.google.common.collect.ImmutableList;
@@ -164,5 +167,26 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
       typeEnvironment.define(ref, expression.type(typeEnvironment));
     }
     return new LogicalEval(child, expressionsBuilder.build());
+  }
+
+  /** Build {@link LogicalSort} */
+  @Override
+  public LogicalPlan visitSort(Sort node, AnalysisContext context) {
+    LogicalPlan child = node.getChild().get(0).accept(this, context);
+    // the first options is {"count": "integer"}
+    Integer count = (Integer) node.getOptions().get(0).getValue().getValue();
+    List<Pair<SortOption, Expression>> sortList =
+        node.getSortList().stream()
+            .map(
+                sortField -> {
+                  // the first options is {"asc": "true/false"}
+                  Boolean asc = (Boolean) sortField.getFieldArgs().get(0).getValue().getValue();
+                  Expression expression = expressionAnalyzer.analyze(sortField, context);
+                  return ImmutablePair.of(
+                      asc ? SortOption.PPL_ASC : SortOption.PPL_DESC, expression);
+                })
+            .collect(Collectors.toList());
+
+    return new LogicalSort(child, count, sortList);
   }
 }

@@ -1,5 +1,5 @@
 /*
- *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *   Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  *
  *   Licensed under the Apache License, Version 2.0 (the "License").
  *   You may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 
 /** AST nodes visitor Defines the traverse path */
 public abstract class AbstractNodeVisitor<T, C> {
@@ -148,6 +149,10 @@ public abstract class AbstractNodeVisitor<T, C> {
   }
 
   public T visitLet(Let node, C context) {
+    return visitChildren(node, context);
+  }
+
+  public T visitSort(Sort node, C context) {
     return visitChildren(node, context);
   }
 }
