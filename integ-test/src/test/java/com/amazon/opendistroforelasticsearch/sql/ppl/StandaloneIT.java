@@ -41,7 +41,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter.Style.PRETTY;
 
 /**
- * Run PPL with query engine outside Elasticsearch cluster.
+ * Run PPL with query engine outside Elasticsearch cluster. This IT doesn't require out plugin installed actually.
  * The client application, ex. JDBC driver, needs to initialize all components itself required by ppl service.
  */
 public class StandaloneIT extends PPLIntegTestCase {

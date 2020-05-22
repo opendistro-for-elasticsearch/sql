@@ -17,24 +17,38 @@
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.client;
 
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
+import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.io.Resources;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.client.indices.GetFieldMappingsRequest;
-import org.elasticsearch.client.indices.GetFieldMappingsResponse;
+import org.elasticsearch.client.indices.GetMappingsRequest;
+import org.elasticsearch.client.indices.GetMappingsResponse;
+import org.elasticsearch.cluster.metadata.IndexMetaData;
+import org.elasticsearch.cluster.metadata.MappingMetaData;
+import org.elasticsearch.common.xcontent.DeprecationHandler;
+import org.elasticsearch.common.xcontent.NamedXContentRegistry;
+import org.elasticsearch.common.xcontent.XContentParser;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.net.URL;
 import java.util.Map;
 
-import static org.elasticsearch.client.indices.GetFieldMappingsResponse.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class ElasticsearchRestClientTest {
+
+    private static final String TEST_MAPPING_FILE = "mappings/accounts.json";
 
     @Mock(answer = RETURNS_DEEP_STUBS)
     private RestHighLevelClient restClient;
@@ -48,19 +62,39 @@ class ElasticsearchRestClientTest {
 
     @Test
     void getIndexMappings() throws IOException {
+        URL url = Resources.getResource(TEST_MAPPING_FILE);
+        String mappings = Resources.toString(url, Charsets.UTF_8);
         String indexName = "test";
-        Map<String, Map<String, FieldMappingMetaData>> indexMappings = new HashMap<>();
-        Map<String, FieldMappingMetaData> fieldMappings = new HashMap<>();
 
+        GetMappingsResponse response = mock(GetMappingsResponse.class);
+        when(response.mappings()).thenReturn(mockFieldMappings(indexName, mappings));
+        when(restClient.indices().getMapping(any(GetMappingsRequest.class), any())).thenReturn(response);
 
-        indexMappings.put(indexName, fieldMappings);
+        Map<String, IndexMapping> indexMappings = client.getIndexMappings(indexName);
+        assertEquals(1, indexMappings.size());
 
-        GetFieldMappingsResponse response = mock(GetFieldMappingsResponse.class);
-        when(response.mappings()).thenReturn(indexMappings);
-        when(restClient.indices().getFieldMapping(
-            any(GetFieldMappingsRequest.class), any())).thenReturn(response);
-
-        Map<String, IndexMapping> actual = client.getIndexMappings(indexName);
+        IndexMapping indexMapping = indexMappings.values().iterator().next();
+        assertEquals(20, indexMapping.size());
+        assertEquals("text", indexMapping.getFieldType("address"));
+        assertEquals("integer", indexMapping.getFieldType("age"));
+        assertEquals("double", indexMapping.getFieldType("balance"));
+        assertEquals("keyword", indexMapping.getFieldType("city"));
+        assertEquals("date", indexMapping.getFieldType("birthday"));
+        assertEquals("geo_point", indexMapping.getFieldType("location"));
+        assertEquals("some_new_es_type_outside_type_system", indexMapping.getFieldType("new_field"));
+        assertEquals("text", indexMapping.getFieldType("field with spaces"));
+        assertEquals("text", indexMapping.getFieldType("employer"));
+        assertEquals("keyword", indexMapping.getFieldType("employer.raw"));
+        assertEquals("nested", indexMapping.getFieldType("projects"));
+        assertEquals("boolean", indexMapping.getFieldType("projects.active"));
+        assertEquals("date", indexMapping.getFieldType("projects.release"));
+        assertEquals("nested", indexMapping.getFieldType("projects.members"));
+        assertEquals("text", indexMapping.getFieldType("projects.members.name"));
+        assertEquals("object", indexMapping.getFieldType("manager"));
+        assertEquals("text", indexMapping.getFieldType("manager.name"));
+        assertEquals("keyword", indexMapping.getFieldType("manager.name.keyword"));
+        assertEquals("keyword", indexMapping.getFieldType("manager.address"));
+        assertEquals("long", indexMapping.getFieldType("manager.salary"));
     }
 
     @Test
@@ -69,5 +103,17 @@ class ElasticsearchRestClientTest {
 
     @Test
     void schedule() {
+    }
+
+    private Map<String, MappingMetaData> mockFieldMappings(String indexName, String mappings) throws IOException {
+        return ImmutableMap.of(indexName, IndexMetaData.fromXContent(createParser(mappings)).mapping());
+    }
+
+    private XContentParser createParser(String mappings) throws IOException {
+        return XContentType.JSON.xContent().createParser(
+            NamedXContentRegistry.EMPTY,
+            DeprecationHandler.THROW_UNSUPPORTED_OPERATION,
+            mappings
+        );
     }
 }

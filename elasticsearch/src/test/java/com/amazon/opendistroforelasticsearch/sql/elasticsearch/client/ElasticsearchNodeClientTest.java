@@ -178,9 +178,8 @@ class ElasticsearchNodeClientTest {
     void schedule() {
         ThreadPool threadPool = mock(ThreadPool.class);
         when(threadPool.preserveContext(any())).then(invocation -> invocation.getArgument(0));
+        when(nodeClient.threadPool()).thenReturn(threadPool);
 
-        // Instantiate NodeClient because Mockito cannot mock final method threadPool()
-        nodeClient = new NodeClient(Settings.EMPTY, threadPool);
         doAnswer(invocation -> {
             Runnable task = invocation.getArgument(0);
             task.run();
