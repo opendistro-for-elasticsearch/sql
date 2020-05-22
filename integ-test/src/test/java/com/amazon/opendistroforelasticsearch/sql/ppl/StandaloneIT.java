@@ -76,25 +76,7 @@ public class StandaloneIT extends PPLIntegTestCase {
         request2.setJsonEntity("{\"name\": \"world\", \"age\": 30}");
         client().performRequest(request2);
 
-        AtomicReference<String> actual = new AtomicReference<>();
-        pplService.execute(
-            new PPLQueryRequest("source=test | fields name", null),
-            new ResponseListener<QueryResponse>() {
-
-            @Override
-            public void onResponse(QueryResponse response) {
-                QueryResult result = new QueryResult(response.getResults());
-                String json = new SimpleJsonResponseFormatter(PRETTY).format(result);
-                actual.set(json);
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                throw new IllegalStateException("Exception happened during execution", e);
-            }
-        });
-
-        assertNotNull(actual.get());
+        String actual = executeByStandaloneQueryEngine("source=test | fields name");
         assertEquals(
             "{\n" +
             "  \"schema\": [{\n" +
@@ -108,8 +90,29 @@ public class StandaloneIT extends PPLIntegTestCase {
             "  ],\n" +
             "  \"size\": 2\n" +
             "}",
-            actual.get()
+            actual
         );
+    }
+
+    private String executeByStandaloneQueryEngine(String query) {
+        AtomicReference<String> actual = new AtomicReference<>();
+        pplService.execute(
+            new PPLQueryRequest(query, null),
+            new ResponseListener<QueryResponse>() {
+
+                @Override
+                public void onResponse(QueryResponse response) {
+                    QueryResult result = new QueryResult(response.getResults());
+                    String json = new SimpleJsonResponseFormatter(PRETTY).format(result);
+                    actual.set(json);
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    throw new IllegalStateException("Exception happened during execution", e);
+                }
+            });
+        return actual.get();
     }
 
 }
