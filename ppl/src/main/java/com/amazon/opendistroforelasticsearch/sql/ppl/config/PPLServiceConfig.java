@@ -15,15 +15,26 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl.config;
 
+import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
 import com.amazon.opendistroforelasticsearch.sql.ppl.PPLService;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.PPLSyntaxParser;
+import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class PPLServiceConfig {
+
+    @Autowired
+    private StorageEngine storageEngine;
+
+    @Autowired
+    private ExecutionEngine executionEngine;
+
     @Bean
     public PPLService pplService() {
-        return new PPLService(new PPLSyntaxParser());
+        return new PPLService(new PPLSyntaxParser(), storageEngine, executionEngine);
     }
+
 }

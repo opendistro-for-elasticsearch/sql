@@ -22,6 +22,7 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.Elastics
 import com.carrotsearch.hppc.cursors.ObjectObjectCursor;
 import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.apache.logging.log4j.ThreadContext;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.IndicesOptions;
@@ -58,14 +59,27 @@ public class ElasticsearchNodeClient implements ElasticsearchClient {
     private final ClusterService clusterService;
 
     /**
-     * Node client provided by Elasticsearch container
+     * Node client provided by Elasticsearch container.
+     * Because node client is per request, the setter method is required for injection.
      */
-    private final NodeClient client;
+    @Setter
+    private NodeClient client;
 
     /**
      * Index name expression resolver to get concrete index name
      */
     private final IndexNameExpressionResolver resolver = new IndexNameExpressionResolver();
+
+
+    /**
+     * Initialize directly
+     * @param clusterService    cluster service
+     * @param client            node client
+     */
+    public ElasticsearchNodeClient(ClusterService clusterService, NodeClient client) {
+        this.clusterService = clusterService;
+        this.client = client;
+    }
 
     /**
      * Get field mappings of index by an index expression. Majority is copied from legacy LocalClusterState.

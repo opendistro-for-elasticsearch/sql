@@ -39,12 +39,16 @@ public class ElasticsearchExecutionEngine implements ExecutionEngine<List<ExprVa
         client.schedule(() -> {
             try {
                 List<ExprValue> result = new ArrayList<>();
+                plan.open();
+
                 while (plan.hasNext()) {
                     result.add(plan.next());
                 }
                 listener.onResponse(result);
             } catch (Exception e) {
                 listener.onFailure(e);
+            } finally {
+                plan.close();
             }
         });
     }

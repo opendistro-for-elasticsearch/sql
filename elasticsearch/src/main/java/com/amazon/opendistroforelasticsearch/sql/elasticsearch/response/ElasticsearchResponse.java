@@ -46,7 +46,7 @@ public class ElasticsearchResponse implements Iterable<SearchHit> {
      * @return  true for empty
      */
     public boolean isEmpty() {
-        return hits.getTotalHits().value == 0;
+        return (hits.getHits() == null) || (hits.getHits().length == 0);
     }
 
     /**
