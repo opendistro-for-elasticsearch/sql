@@ -17,12 +17,16 @@ package com.amazon.opendistroforelasticsearch.sql.plugin.rest;
 
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
-import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchNodeClient;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.security.SecurityAccess;
 import com.amazon.opendistroforelasticsearch.sql.plugin.request.PPLQueryRequestFactory;
 import com.amazon.opendistroforelasticsearch.sql.ppl.PPLService;
+import com.amazon.opendistroforelasticsearch.sql.ppl.config.PPLServiceConfig;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResponse;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.SimpleJsonResponseFormatter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.node.NodeClient;
+import org.elasticsearch.cluster.service.ClusterService;
 import org.elasticsearch.rest.BaseRestHandler;
 import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestChannel;
@@ -31,6 +35,8 @@ import org.elasticsearch.rest.RestRequest;
 import org.elasticsearch.rest.RestStatus;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+import java.io.IOException;
+import java.security.PrivilegedExceptionAction;
 import java.util.List;
 
 import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter.Style.PRETTY;
@@ -40,16 +46,17 @@ import static org.elasticsearch.rest.RestStatus.OK;
 public class RestPPLQueryAction extends BaseRestHandler {
     public static final String QUERY_API_ENDPOINT = "/_opendistro/_ppl";
 
+    private static final Logger LOG = LogManager.getLogger();
+
     /**
-     * Spring container
+     * Cluster service required by bean initialization
      */
-    private final AnnotationConfigApplicationContext context;
+    private final ClusterService clusterService;
 
-
-    public RestPPLQueryAction(RestController restController, AnnotationConfigApplicationContext context) {
+    public RestPPLQueryAction(RestController restController, ClusterService clusterService) {
         super();
         restController.registerHandler(RestRequest.Method.POST, QUERY_API_ENDPOINT, this);
-        this.context = context;
+        this.clusterService = clusterService;
     }
 
     @Override
@@ -59,12 +66,21 @@ public class RestPPLQueryAction extends BaseRestHandler {
 
     @Override
     protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient nodeClient) {
-        ElasticsearchNodeClient client = context.getBean(ElasticsearchNodeClient.class);
-        client.setClient(nodeClient);
-
-        PPLService pplService = context.getBean(PPLService.class);
+        PPLService pplService = createPPLService(nodeClient);
         return channel -> pplService.execute(
             PPLQueryRequestFactory.getPPLRequest(request), createListener(channel));
+    }
+
+    private PPLService createPPLService(NodeClient client) {
+        return doPrivileged(() -> {
+            AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+            context.registerBean(ClusterService.class, () -> clusterService);
+            context.registerBean(NodeClient.class, () -> client);
+            context.register(ElasticsearchPluginConfig.class);
+            context.register(PPLServiceConfig.class);
+            context.refresh();
+            return context.getBean(PPLService.class);
+        });
     }
 
     private ResponseListener<List<ExprValue>> createListener(RestChannel channel) {
@@ -77,6 +93,7 @@ public class RestPPLQueryAction extends BaseRestHandler {
 
             @Override
             public void onFailure(Exception e) {
+                LOG.error("Error happened during query handling", e);
                 sendResponse(INTERNAL_SERVER_ERROR, formatter.format(e));
             }
 
@@ -85,4 +102,13 @@ public class RestPPLQueryAction extends BaseRestHandler {
             }
         };
     }
+
+    private <T> T doPrivileged(PrivilegedExceptionAction<T> action) {
+        try {
+            return SecurityAccess.doPrivileged(action);
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to perform privileged action", e);
+        }
+    }
+
 }

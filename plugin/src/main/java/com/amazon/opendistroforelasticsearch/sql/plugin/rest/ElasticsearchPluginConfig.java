@@ -23,12 +23,11 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.Elastics
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.ElasticsearchStorageEngine;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
+import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.cluster.service.ClusterService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
 
 import java.util.List;
 
@@ -38,10 +37,12 @@ public class ElasticsearchPluginConfig {
     @Autowired
     private ClusterService clusterService;
 
+    @Autowired
+    private NodeClient nodeClient;
+
     @Bean
-    //@Scope(BeanDefinition.SCOPE_PROTOTYPE)
     public ElasticsearchClient client() {
-        return new ElasticsearchNodeClient(clusterService);
+        return new ElasticsearchNodeClient(clusterService, nodeClient);
     }
 
     @Bean

@@ -25,9 +25,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.hasProperty;
 
 public class PPLPluginIT extends PPLIntegTestCase {
@@ -41,8 +47,28 @@ public class PPLPluginIT extends PPLIntegTestCase {
 
     @Test
     public void testQueryEndpointShouldOK() throws IOException {
+        Request request = new Request("PUT", "/a/_doc/1");
+        request.setJsonEntity("{\"name\": \"hello\"}");
+        client().performRequest(request);
+
         Response response = client().performRequest(makeRequest("search source=a"));
-        assertThat(response, statusCode(200));
+        assertThat(
+            response,
+            allOf(
+                statusCode(200),
+                content(
+                    "{\n" +
+                    "  \"schema\": [{\n" +
+                    "    \"name\": \"name\",\n" +
+                    "    \"type\": \"string\"\n" +
+                    "  }],\n" +
+                    "  \"total\": 1,\n" +
+                    "  \"datarows\": [{\"row\": [\"hello\"]}],\n" +
+                    "  \"size\": 1\n" +
+                    "}"
+                )
+            )
+        );
     }
 
     @Test
@@ -75,4 +101,30 @@ public class PPLPluginIT extends PPLIntegTestCase {
             }
         };
     }
+
+    private TypeSafeMatcher<Response> content(String expected) {
+        return new TypeSafeMatcher<Response>() {
+            @Override
+            public void describeTo(Description description) {
+                description.appendText(String.format(Locale.ROOT, "content=%s", expected));
+            }
+
+            @Override
+            protected boolean matchesSafely(Response resp) {
+                try {
+                    String actual = toString(resp.getEntity().getContent());
+                    return expected.equals(actual);
+                } catch (IOException e) {
+                    throw new IllegalStateException("Failed to get response body", e);
+                }
+            }
+
+            private String toString(InputStream inputStream) {
+                return new BufferedReader(
+                    new InputStreamReader(inputStream, StandardCharsets.UTF_8)).
+                        lines().collect(Collectors.joining("\n"));
+            }
+        };
+    }
+
 }
