@@ -35,7 +35,7 @@ public class ElasticsearchExecutionEngine implements ExecutionEngine {
     private final ElasticsearchClient client;
 
     @Override
-    public void execute(PhysicalPlan plan, ResponseListener<List<ExprValue>> listener) {
+    public void execute(PhysicalPlan plan, ResponseListener<QueryResponse> listener) {
         client.schedule(() -> {
             try {
                 List<ExprValue> result = new ArrayList<>();
@@ -44,7 +44,9 @@ public class ElasticsearchExecutionEngine implements ExecutionEngine {
                 while (plan.hasNext()) {
                     result.add(plan.next());
                 }
-                listener.onResponse(result);
+
+                QueryResponse response = new QueryResponse(result);
+                listener.onResponse(response);
             } catch (Exception e) {
                 listener.onFailure(e);
             } finally {

@@ -16,8 +16,8 @@
 package com.amazon.opendistroforelasticsearch.sql.plugin.rest;
 
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.security.SecurityAccess;
+import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.QueryResponse;
 import com.amazon.opendistroforelasticsearch.sql.plugin.request.PPLQueryRequestFactory;
 import com.amazon.opendistroforelasticsearch.sql.ppl.PPLService;
 import com.amazon.opendistroforelasticsearch.sql.ppl.config.PPLServiceConfig;
@@ -37,7 +37,6 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
-import java.util.List;
 
 import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter.Style.PRETTY;
 import static org.elasticsearch.rest.RestStatus.INTERNAL_SERVER_ERROR;
@@ -83,12 +82,12 @@ public class RestPPLQueryAction extends BaseRestHandler {
         });
     }
 
-    private ResponseListener<List<ExprValue>> createListener(RestChannel channel) {
+    private ResponseListener<QueryResponse> createListener(RestChannel channel) {
         SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(PRETTY); // TODO: decide format and pretty from URL param
-        return new ResponseListener<List<ExprValue>>() {
+        return new ResponseListener<QueryResponse>() {
             @Override
-            public void onResponse(List<ExprValue> values) {
-                sendResponse(OK, formatter.format(new QueryResult(values)));
+            public void onResponse(QueryResponse response) {
+                sendResponse(OK, formatter.format(new QueryResult(response.getResults())));
             }
 
             @Override

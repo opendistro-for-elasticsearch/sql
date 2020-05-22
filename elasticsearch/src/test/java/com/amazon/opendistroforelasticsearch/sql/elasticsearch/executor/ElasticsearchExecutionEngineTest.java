@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.tupleValue;
+import static com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.QueryResponse;
 import static com.google.common.collect.ImmutableMap.of;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -68,10 +69,10 @@ class ElasticsearchExecutionEngineTest {
 
         ElasticsearchExecutionEngine executor = new ElasticsearchExecutionEngine(client);
         List<ExprValue> actual = new ArrayList<>();
-        executor.execute(plan, new ResponseListener<List<ExprValue>>() {
+        executor.execute(plan, new ResponseListener<QueryResponse>() {
             @Override
-            public void onResponse(List<ExprValue> values) {
-                actual.addAll(values);
+            public void onResponse(QueryResponse response) {
+                actual.addAll(response.getResults());
             }
 
             @Override
@@ -90,9 +91,9 @@ class ElasticsearchExecutionEngineTest {
 
         ElasticsearchExecutionEngine executor = new ElasticsearchExecutionEngine(client);
         AtomicReference<Exception> actual = new AtomicReference<>();
-        executor.execute(plan, new ResponseListener<List<ExprValue>>() {
+        executor.execute(plan, new ResponseListener<QueryResponse>() {
             @Override
-            public void onResponse(List<ExprValue> values) {
+            public void onResponse(QueryResponse response) {
                 fail("Expected error didn't happen");
             }
 

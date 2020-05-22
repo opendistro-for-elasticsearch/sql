@@ -19,6 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.executor;
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
+import lombok.Data;
 
 import java.util.List;
 
@@ -32,6 +33,11 @@ public interface ExecutionEngine {
      * @param plan      executable physical plan
      * @param listener  response listener
      */
-    void execute(PhysicalPlan plan, ResponseListener<List<ExprValue>> listener);
+    void execute(PhysicalPlan plan, ResponseListener<QueryResponse> listener);
+
+    @Data
+    class QueryResponse {
+        private final List<ExprValue> results;
+    }
 
 }

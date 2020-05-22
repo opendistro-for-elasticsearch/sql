@@ -20,7 +20,6 @@ import com.amazon.opendistroforelasticsearch.sql.analysis.Analyzer;
 import com.amazon.opendistroforelasticsearch.sql.analysis.ExpressionAnalyzer;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
@@ -36,7 +35,8 @@ import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.HashMap;
-import java.util.List;
+
+import static com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.QueryResponse;
 
 @RequiredArgsConstructor
 public class PPLService {
@@ -46,7 +46,7 @@ public class PPLService {
 
     private final ExecutionEngine executionEngine;
 
-    public void execute(PPLQueryRequest request, ResponseListener<List<ExprValue>> listener) {
+    public void execute(PPLQueryRequest request, ResponseListener<QueryResponse> listener) {
         try {
             // 1.Parse query and convert parse tree (CST) to abstract syntax tree (AST)
             ParseTree cst = parser.analyzeSyntax(request.getRequest());
