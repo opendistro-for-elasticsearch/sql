@@ -15,9 +15,11 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Let;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
@@ -186,10 +188,10 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
     /** Eval command */
     @Override
     public UnresolvedPlan visitEvalCommand(EvalCommandContext ctx) {
-        return new Project(
+        return new Eval(
                 ctx.evalExpression()
                         .stream()
-                        .map(this::visitExpression)
+                        .map(ct -> (Let) visitExpression(ct))
                         .collect(Collectors.toList())
         );
     }

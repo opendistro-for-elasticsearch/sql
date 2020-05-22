@@ -15,13 +15,30 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.env;
 
-/**
- * The definition of the environment.
- */
+/** The definition of the environment. */
 public interface Environment<Expr, Value> {
 
-    /**
-     * resolve the value of expression from the environment.
-     */
-    Value resolve(Expr var);
+  /** resolve the value of expression from the environment. */
+  Value resolve(Expr var);
+
+  /**
+   * Extend the environment.
+   *
+   * @param env environment
+   * @param expr expression.
+   * @param value expression value.
+   * @param <Expr> the type of expression
+   * @param <Value> the type of expression value
+   * @return extended environment.
+   */
+  static <Expr, Value> Environment<Expr, Value> extendEnv(
+      Environment<Expr, Value> env, Expr expr, Value value) {
+    return var -> {
+      if (var.equals(expr)) {
+        return value;
+      } else {
+        return env.resolve(var);
+      }
+    };
+  }
 }

@@ -24,6 +24,7 @@ import lombok.experimental.UtilityClass;
 
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.tuple.Pair;
 
 /** Logical Plan DSL. */
 @UtilityClass
@@ -52,5 +53,9 @@ public class LogicalPlanDSL {
 
   public static LogicalPlan remove(LogicalPlan input, ReferenceExpression... fields) {
     return new LogicalRemove(input, ImmutableSet.copyOf(fields));
+  }
+
+  public static LogicalPlan eval(LogicalPlan input, Pair<ReferenceExpression, Expression>... expressions) {
+    return new LogicalEval(input, Arrays.asList(expressions));
   }
 }

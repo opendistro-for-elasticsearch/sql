@@ -30,12 +30,13 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultFi
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortFieldArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultStatsArgs;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.equalTo;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.eval;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.exprList;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.let;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.map;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.projectWithArg;
@@ -223,9 +224,9 @@ public class AstBuilderTest {
     @Test
     public void testEvalCommand() {
         assertEqual("source=t | eval r=abs(f)",
-                project(
+                eval(
                         relation("t"),
-                        equalTo(
+                        let(
                                 field("r"),
                                 function("abs", field("f"))
                         )

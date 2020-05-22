@@ -19,6 +19,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AggregatorFunction;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.scalar.arthmetic.ArithmeticFunction;
+import com.amazon.opendistroforelasticsearch.sql.expression.scalar.arthmetic.UnaryFunction;
 import com.amazon.opendistroforelasticsearch.sql.expression.scalar.predicate.BinaryPredicateFunction;
 import com.amazon.opendistroforelasticsearch.sql.expression.scalar.predicate.UnaryPredicateFunction;
 import org.springframework.context.annotation.Bean;
@@ -26,23 +27,23 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.HashMap;
 
-/**
- * Expression Config for Spring IoC.
- */
+/** Expression Config for Spring IoC. */
 @Configuration
 public class ExpressionConfig {
-    @Bean
-    public BuiltinFunctionRepository functionRepository() {
-        BuiltinFunctionRepository builtinFunctionRepository = new BuiltinFunctionRepository(new HashMap<>());
-        ArithmeticFunction.register(builtinFunctionRepository);
-        BinaryPredicateFunction.register(builtinFunctionRepository);
-        UnaryPredicateFunction.register(builtinFunctionRepository);
-        AggregatorFunction.register(builtinFunctionRepository);
-        return builtinFunctionRepository;
-    }
+  @Bean
+  public BuiltinFunctionRepository functionRepository() {
+    BuiltinFunctionRepository builtinFunctionRepository =
+        new BuiltinFunctionRepository(new HashMap<>());
+    ArithmeticFunction.register(builtinFunctionRepository);
+    BinaryPredicateFunction.register(builtinFunctionRepository);
+    UnaryFunction.register(builtinFunctionRepository);
+    UnaryPredicateFunction.register(builtinFunctionRepository);
+    AggregatorFunction.register(builtinFunctionRepository);
+    return builtinFunctionRepository;
+  }
 
-    @Bean
-    public DSL dsl(BuiltinFunctionRepository repository) {
-        return new DSL(repository);
-    }
+  @Bean
+  public DSL dsl(BuiltinFunctionRepository repository) {
+    return new DSL(repository);
+  }
 }
