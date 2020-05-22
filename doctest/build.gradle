@@ -1,10 +1,9 @@
 plugins {
     id "com.wiredforcode.spawn" version "0.8.2"
+    id 'base'
 }
 
 def path = project(':').projectDir
-
-
 
 task bootstrap(type: Exec) {
     inputs.file "$projectDir/bootstrap.sh"
@@ -24,7 +23,7 @@ task doctest(type: Exec, dependsOn: ['bootstrap']) {
     commandLine "$projectDir/bin/test-docs"
 
     doLast {
-        println("doctest done")
+        println("Doctest Done")
     }
 }
 
@@ -32,3 +31,6 @@ task stopES(type: KillProcessTask)
 
 doctest.dependsOn startES
 doctest.finalizedBy stopES
+
+build.dependsOn doctest
+clean.dependsOn(cleanBootstrap)

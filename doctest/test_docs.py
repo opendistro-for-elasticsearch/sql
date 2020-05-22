@@ -15,6 +15,8 @@ from odfe_sql_cli.formatter import Formatter
 from elasticsearch import Elasticsearch, helpers
 
 ENDPOINT = "http://localhost:9200"
+ACCOUNTS = "accounts"
+EMPLOYEES = "employees"
 
 
 class DocTestConnection(ESConnection):
@@ -52,7 +54,7 @@ def cli_transform(s):
 
 def bash_transform(s):
     if s.startswith("odfesql"):
-        s = re.search(r"crash\s+-q\s+\"(.*?)\"", s).group(1)
+        s = re.search(r"odfesql\s+-q\s+\"(.*?)\"", s).group(1)
         return u'cmd.process({0})'.format(repr(s.strip().rstrip(';')))
     return (r'pretty_print(sh("""%s""").stdout.decode("utf-8"))' % s) + '\n'
 
@@ -66,13 +68,14 @@ bash_parser = zc.customdoctests.DocTestParser(
 
 def set_up_accounts(test):
     set_up(test)
-    load_file("accounts.json", "accounts")
+    load_file("accounts.json", index_name=ACCOUNTS)
 
 
 def load_file(filename, index_name):
     # todo: using one client under the hood for both uploading test data and set up cli connection?
     #   cmd.client?
     filepath = "./test_data/" + filename
+
     # generate iterable data
     def load_json():
         with open(filepath, "r") as f:
@@ -90,7 +93,8 @@ def set_up(test):
 
 def tear_down(test):
     # drop leftover tables after each test
-    test_data_client.indices.delete(index="_all")
+    # TODO: delete all will potentially also delete AES FGAC metadata index
+    test_data_client.indices.delete(index=[ACCOUNTS, EMPLOYEES], ignore_unavailable=True)
 
 
 docsuite = partial(doctest.DocFileSuite,
