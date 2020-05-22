@@ -168,6 +168,7 @@ integTest.runner {
     }
 }
 
+// export of test so that other modules can use the utilities there as well.
 task testJar (type: Jar, dependsOn: testClasses) {
     baseName = 'integtest'
     from sourceSets.test.output
