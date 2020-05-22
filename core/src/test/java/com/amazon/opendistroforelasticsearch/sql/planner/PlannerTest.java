@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregation;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
@@ -29,16 +30,34 @@ import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanTestBase;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.RenameOperator;
+import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
+import com.amazon.opendistroforelasticsearch.sql.storage.Table;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 public class PlannerTest extends PhysicalPlanTestBase {
     @Mock
     private PhysicalPlan scan;
+
+    @Mock
+    private StorageEngine storageEngine;
+
+    @BeforeEach
+    public void setUp() {
+        when(storageEngine.getTable(any())).thenReturn(new MockTable());
+    }
 
     @Test
     public void planner_test() {
@@ -73,15 +92,19 @@ public class PlannerTest extends PhysicalPlanTestBase {
     }
 
     protected PhysicalPlan analyze(LogicalPlan logicalPlan) {
-        return new TestPlanner().plan(logicalPlan, ImmutableMap.of());
+        return new Planner(storageEngine).plan(logicalPlan);
     }
 
-    /**
-     * Todo, For test coverage only. Remove it when Planner is implemented.
-     */
-    protected class TestPlanner extends LogicalPlanNodeVisitor<PhysicalPlan, Object> {
-        public PhysicalPlan plan(LogicalPlan plan, Object o) {
-            return plan.accept(this, o);
+    protected class MockTable extends LogicalPlanNodeVisitor<PhysicalPlan, Object> implements Table {
+
+        @Override
+        public Map<String, ExprType> getFieldTypes() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public PhysicalPlan implement(LogicalPlan plan) {
+            return plan.accept(this, null);
         }
 
         @Override

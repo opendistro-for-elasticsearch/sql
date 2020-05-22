@@ -17,9 +17,12 @@
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.client;
 
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchRequest;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
 import com.carrotsearch.hppc.cursors.ObjectObjectCursor;
 import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.cluster.ClusterState;
@@ -82,6 +85,28 @@ public class ElasticsearchNodeClient implements ElasticsearchClient {
             throw new IllegalStateException(
                 "Failed to read mapping in cluster state for index pattern [" + indexExpression + "]", e);
         }
+    }
+
+    /**
+     * TODO: Scroll doesn't work for aggregation. Support aggregation later.
+     */
+    @Override
+    public ElasticsearchResponse search(ElasticsearchRequest request) {
+        SearchResponse esResponse;
+        if (request.isScrollStarted()) {
+            esResponse = client.searchScroll(request.scrollRequest()).actionGet();
+        } else {
+            esResponse = client.search(request.searchRequest()).actionGet();
+            request.setScrollId(esResponse.getScrollId());
+        }
+
+        ElasticsearchResponse response = new ElasticsearchResponse(esResponse);
+        if (response.isEmpty()) {
+            client.prepareClearScroll().
+                   addScrollId(esResponse.getScrollId()).
+                   get();
+        }
+        return response;
     }
 
     private String[] resolveIndexExpression(ClusterState state, String[] indices) {

@@ -19,6 +19,20 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregation;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalProject;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRemove;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRename;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.AggregationOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.ProjectOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.RemoveOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.RenameOperator;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
 import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
@@ -58,6 +72,7 @@ public class ElasticsearchIndex implements Table {
      */
     private final String indexName;
 
+
     /*
      * TODO: Assume indexName doesn't have wildcard.
      *  Need to either handle field name conflicts
@@ -71,6 +86,56 @@ public class ElasticsearchIndex implements Table {
             fieldTypes.putAll(indexMapping.getAllFieldTypes(this::transformESTypeToExprType));
         }
         return fieldTypes;
+    }
+
+    /**
+     * TODO: Push down operations to index scan operator as much as possible in future.
+     */
+    @Override
+    public PhysicalPlan implement(LogicalPlan plan) {
+        ElasticsearchIndexScan indexScan = new ElasticsearchIndexScan(client, indexName);
+
+        /*
+         * Visit logical plan with index scan as context so logical operators visited, such as aggregation, filter,
+         * will accumulate (push down) Elasticsearch query and aggregation DSL on index scan.
+         */
+        return plan.accept(new LogicalPlanNodeVisitor<PhysicalPlan, ElasticsearchIndexScan>() {
+
+            @Override
+            public PhysicalPlan visitProject(LogicalProject node, ElasticsearchIndexScan context) {
+                return new ProjectOperator(visitChild(node, context), node.getProjectList());
+            }
+
+            @Override
+            public PhysicalPlan visitRemove(LogicalRemove node, ElasticsearchIndexScan context) {
+                return new RemoveOperator(visitChild(node, context), node.getRemoveList());
+            }
+
+            @Override
+            public PhysicalPlan visitRename(LogicalRename node, ElasticsearchIndexScan context) {
+                return new RenameOperator(visitChild(node, context), node.getRenameMap());
+            }
+
+            @Override
+            public PhysicalPlan visitAggregation(LogicalAggregation node, ElasticsearchIndexScan context) {
+                return new AggregationOperator(visitChild(node, context), node.getAggregatorList(), node.getGroupByList());
+            }
+
+            @Override
+            public PhysicalPlan visitFilter(LogicalFilter node, ElasticsearchIndexScan context) {
+                return new FilterOperator(visitChild(node, context), node.getCondition());
+            }
+
+            @Override
+            public PhysicalPlan visitRelation(LogicalRelation node, ElasticsearchIndexScan context) {
+                return indexScan;
+            }
+
+            private PhysicalPlan visitChild(LogicalPlan node, ElasticsearchIndexScan context) {
+                // Logical operators visited here can only have single child.
+                return node.getChild().get(0).accept(this, context);
+            }
+        }, indexScan);
     }
 
     private ExprType transformESTypeToExprType(String esType) {

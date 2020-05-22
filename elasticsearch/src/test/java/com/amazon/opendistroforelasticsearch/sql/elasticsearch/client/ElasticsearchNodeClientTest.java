@@ -17,8 +17,12 @@
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.client;
 
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchRequest;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
+import org.apache.lucene.search.TotalHits;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.cluster.ClusterState;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
@@ -31,6 +35,8 @@ import org.elasticsearch.common.xcontent.DeprecationHandler;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;
 import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -39,11 +45,14 @@ import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Iterator;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -53,7 +62,7 @@ class ElasticsearchNodeClientTest {
 
     private static final String TEST_MAPPING_FILE = "mappings/accounts.json";
 
-    @Mock
+    @Mock(answer = RETURNS_DEEP_STUBS)
     private NodeClient nodeClient;
 
     @Test
@@ -114,6 +123,44 @@ class ElasticsearchNodeClientTest {
     @Test
     public void testAllFieldsPredicate() {
         assertTrue(ElasticsearchNodeClient.ALL_FIELDS.apply("any_index").test("any_field"));
+    }
+
+    @Test
+    public void search() {
+        ElasticsearchNodeClient client = new ElasticsearchNodeClient(mock(ClusterService.class),
+                                                                     mock(IndexNameExpressionResolver.class),
+                                                                     nodeClient);
+
+        // Mock first scroll request
+        SearchResponse searchResponse = mock(SearchResponse.class);
+        when(nodeClient.search(any()).actionGet()).thenReturn(searchResponse);
+        when(searchResponse.getScrollId()).thenReturn("scroll123");
+        when(searchResponse.getHits()).thenReturn(new SearchHits(new SearchHit[]{new SearchHit(1)},
+                                                                 new TotalHits(1L, TotalHits.Relation.EQUAL_TO),
+                                                                 1.0F));
+
+        // Mock second scroll request followed
+        SearchResponse scrollResponse = mock(SearchResponse.class);
+        when(nodeClient.searchScroll(any()).actionGet()).thenReturn(scrollResponse);
+        when(scrollResponse.getScrollId()).thenReturn("scroll456");
+        when(scrollResponse.getHits()).thenReturn(SearchHits.empty());
+
+        // Mock clear scroll request
+        when(nodeClient.prepareClearScroll().addScrollId("scroll456").get()).thenReturn(null);
+
+        // Verify response for first scroll request
+        ElasticsearchRequest request = new ElasticsearchRequest("test");
+        ElasticsearchResponse response1 = client.search(request);
+        assertFalse(response1.isEmpty());
+
+        Iterator<SearchHit> hits = response1.iterator();
+        assertTrue(hits.hasNext());
+        assertEquals(new SearchHit(1), hits.next());
+        assertFalse(hits.hasNext());
+
+        // Verify response for second scroll request
+        ElasticsearchResponse response2 = client.search(request);
+        assertTrue(response2.isEmpty());
     }
 
     private ElasticsearchNodeClient mockClient(String indexName, String mappings) {
