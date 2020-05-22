@@ -33,6 +33,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Dedupe;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
@@ -234,5 +235,9 @@ public class AstDSL {
 
   public static Sort sort(UnresolvedPlan input, List<Argument> options, Field... sorts) {
     return new Sort(input, options, Arrays.asList(sorts));
+  }
+
+  public static Dedupe dedupe(UnresolvedPlan input, List<Argument> options, Field... fields) {
+    return new Dedupe(input, options, Arrays.asList(fields));
   }
 }

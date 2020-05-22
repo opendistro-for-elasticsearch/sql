@@ -20,6 +20,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Let;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Dedupe;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
@@ -154,21 +155,13 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
     /** Dedup command */
     @Override
     public UnresolvedPlan visitDedupCommand(DedupCommandContext ctx) {
-        List<UnresolvedExpression> sortList = ctx.sortbyClause() == null ? null :
-                ctx.sortbyClause()
-                        .sortField()
-                        .stream()
-                        .map(this::visitExpression)
-                        .collect(Collectors.toList());
-        return new Aggregation(
+        return new Dedupe(
+                ArgumentFactory.getArgumentList(ctx),
                 ctx.fieldList()
                         .fieldExpression()
                         .stream()
-                        .map(this::visitExpression)
-                        .collect(Collectors.toList()),
-                sortList,
-                null,
-                ArgumentFactory.getArgumentList(ctx)
+                        .map(field -> (Field) visitExpression(field))
+                        .collect(Collectors.toList())
         );
     }
 
