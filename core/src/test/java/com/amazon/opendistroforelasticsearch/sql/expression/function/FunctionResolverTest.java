@@ -24,7 +24,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -41,13 +42,13 @@ class FunctionResolverTest {
     @Mock
     private FunctionSignature functionSignature;
     @Mock
-    private FunctionExpressionBuilder exactlyMatchBuilder;
+    private FunctionBuilder exactlyMatchBuilder;
     @Mock
-    private FunctionExpressionBuilder bestMatchBuilder;
+    private FunctionBuilder bestMatchBuilder;
     @Mock
-    private FunctionExpressionBuilder leastMatchBuilder;
+    private FunctionBuilder leastMatchBuilder;
     @Mock
-    private FunctionExpressionBuilder notMatchBuilder;
+    private FunctionBuilder notMatchBuilder;
 
     private FunctionName functionName = FunctionName.of("add");
 

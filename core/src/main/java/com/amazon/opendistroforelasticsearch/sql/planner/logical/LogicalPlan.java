@@ -21,4 +21,14 @@ import com.amazon.opendistroforelasticsearch.sql.planner.PlanNode;
  * The abstract base class for all the Logical Plan node.
  */
 public abstract class LogicalPlan implements PlanNode<LogicalPlan> {
+    /**
+     * Accept the {@link LogicalPlanNodeVisitor}.
+     *
+     * @param visitor visitor.
+     * @param context visitor context.
+     * @param <R>     returned object type.
+     * @param <C>     context type.
+     * @return returned object.
+     */
+    public abstract <R, C> R accept(LogicalPlanNodeVisitor<R, C> visitor, C context);
 }

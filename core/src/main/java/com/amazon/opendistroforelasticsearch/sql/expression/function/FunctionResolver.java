@@ -13,9 +13,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * The Function Resolver hold the overload {@link FunctionExpressionBuilder} implementation.
+ * The Function Resolver hold the overload {@link FunctionBuilder} implementation.
  * is composed by {@link FunctionName} which identified the function name
- * and a map of {@link FunctionSignature} and {@link FunctionExpressionBuilder}
+ * and a map of {@link FunctionSignature} and {@link FunctionBuilder}
  * to represent the overloaded implementation
  */
 @Builder
@@ -24,15 +24,15 @@ public class FunctionResolver {
     @Getter
     private final FunctionName functionName;
     @Singular("functionBundle")
-    private final Map<FunctionSignature, FunctionExpressionBuilder> functionBundle;
+    private final Map<FunctionSignature, FunctionBuilder> functionBundle;
 
     /**
-     * Resolve the {@link FunctionExpressionBuilder} by using input {@link FunctionSignature}.
-     * If found the {@link FunctionExpressionBuilder} exactly match the input {@link FunctionSignature}, return it.
+     * Resolve the {@link FunctionBuilder} by using input {@link FunctionSignature}.
+     * If found the {@link FunctionBuilder} exactly match the input {@link FunctionSignature}, return it.
      * If applying the widening rule, found the most match one, return it.
      * If nothing found, throw {@link ExpressionEvaluationException}
      */
-    public FunctionExpressionBuilder resolve(FunctionSignature unresolvedSignature) {
+    public FunctionBuilder resolve(FunctionSignature unresolvedSignature) {
         PriorityQueue<Map.Entry<Integer, FunctionSignature>> functionMatchQueue = new PriorityQueue<>(
                 Map.Entry.comparingByKey());
 

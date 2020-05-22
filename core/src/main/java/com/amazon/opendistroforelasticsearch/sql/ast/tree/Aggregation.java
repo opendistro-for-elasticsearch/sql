@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.ast.tree;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.google.common.collect.ImmutableList;
 import java.util.Collections;
@@ -36,7 +37,7 @@ public class Aggregation extends UnresolvedPlan {
     private List<UnresolvedExpression> aggExprList;
     private List<UnresolvedExpression> sortExprList;
     private List<UnresolvedExpression> groupExprList;
-    private List<UnresolvedExpression> argExprList;
+    private List<Argument> argExprList;
     private UnresolvedPlan child;
 
     public Aggregation(List<UnresolvedExpression> aggExprList,
@@ -51,7 +52,7 @@ public class Aggregation extends UnresolvedPlan {
     public Aggregation(List<UnresolvedExpression> aggExprList,
                        List<UnresolvedExpression> sortExprList,
                        List<UnresolvedExpression> groupExprList,
-                       List<UnresolvedExpression> argExprList) {
+                       List<Argument> argExprList) {
         this.aggExprList = aggExprList;
         this.sortExprList = sortExprList;
         this.groupExprList = groupExprList;

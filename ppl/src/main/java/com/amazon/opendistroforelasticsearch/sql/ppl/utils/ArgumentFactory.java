@@ -43,7 +43,7 @@ public class ArgumentFactory {
      * @param ctx FieldsCommandContext instance
      * @return the list of arguments fetched from the fields command
      */
-    public static List<UnresolvedExpression> getArgumentList(FieldsCommandContext ctx) {
+    public static List<Argument> getArgumentList(FieldsCommandContext ctx) {
         return Collections.singletonList(
                 ctx.MINUS() != null
                         ? new Argument("exclude", new Literal(true, DataType.BOOLEAN))
@@ -55,7 +55,7 @@ public class ArgumentFactory {
      * @param ctx StatsCommandContext instance
      * @return the list of arguments fetched from the stats command
      */
-    public static List<UnresolvedExpression> getArgumentList(StatsCommandContext ctx) {
+    public static List<Argument> getArgumentList(StatsCommandContext ctx) {
         return Arrays.asList(
                 ctx.partitions != null
                     ? new Argument("partitions", getArgumentValue(ctx.partitions))
@@ -76,7 +76,7 @@ public class ArgumentFactory {
      * @param ctx DedupCommandContext instance
      * @return the list of arguments fetched from the dedup command
      */
-    public static List<UnresolvedExpression> getArgumentList(DedupCommandContext ctx) {
+    public static List<Argument> getArgumentList(DedupCommandContext ctx) {
         return Arrays.asList(
                 ctx.number != null
                     ? new Argument("number", getArgumentValue(ctx.number))
@@ -97,7 +97,7 @@ public class ArgumentFactory {
      * @param ctx SortCommandContext instance
      * @return the list of arguments fetched from the sort command
      */
-    public static List<UnresolvedExpression> getArgumentList(SortCommandContext ctx) {
+    public static List<Argument> getArgumentList(SortCommandContext ctx) {
         return Arrays.asList(
                 ctx.count != null
                     ? new Argument("count", getArgumentValue(ctx.count))
@@ -112,7 +112,7 @@ public class ArgumentFactory {
      * @param ctx SortFieldContext instance
      * @return the list of arguments fetched from the sort field in sort command
      */
-    public static List<UnresolvedExpression> getArgumentList(OpenDistroPPLParser.SortFieldContext ctx) {
+    public static List<Argument> getArgumentList(OpenDistroPPLParser.SortFieldContext ctx) {
         return Arrays.asList(
                 ctx.MINUS() != null
                         ? new Argument("exclude", new Literal(true, DataType.BOOLEAN))
@@ -129,7 +129,7 @@ public class ArgumentFactory {
         );
     }
 
-    private static UnresolvedExpression getArgumentValue(ParserRuleContext ctx) {
+    private static Literal getArgumentValue(ParserRuleContext ctx) {
         return ctx instanceof IntegerLiteralContext ? new Literal(Integer.parseInt(ctx.getText()), DataType.INTEGER)
                 : ctx instanceof BooleanLiteralContext ? new Literal(Boolean.valueOf(ctx.getText()), DataType.BOOLEAN)
                 : new Literal(unquoteIdentifier(ctx.getText()), DataType.STRING);

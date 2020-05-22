@@ -17,9 +17,13 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.PPLSyntaxParser;
 import com.amazon.opendistroforelasticsearch.sql.ast.Node;
+import java.util.Collections;
 import org.junit.Test;
+
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.agg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.argument;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.compare;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultDedupArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultFieldsArgs;
@@ -36,6 +40,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.map;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.projectWithArg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.rename;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static org.junit.Assert.assertEquals;
 
@@ -91,11 +96,31 @@ public class AstBuilderTest {
     }
 
     @Test
-    public void testFieldsCommand() {
+    public void testFieldsCommandWithoutArguments() {
         assertEqual("source=t | fields f, g",
                 projectWithArg(
                         relation("t"),
                         defaultFieldsArgs(),
+                        field("f"), field("g")
+                ));
+    }
+
+    @Test
+    public void testFieldsCommandWithIncludeArguments() {
+        assertEqual("source=t | fields + f, g",
+                projectWithArg(
+                        relation("t"),
+                        defaultFieldsArgs(),
+                        field("f"), field("g")
+                ));
+    }
+
+    @Test
+    public void testFieldsCommandWithExcludeArguments() {
+        assertEqual("source=t | fields - f, g",
+                projectWithArg(
+                        relation("t"),
+                        Collections.singletonList(argument("exclude", booleanLiteral(true))),
                         field("f"), field("g")
                 ));
     }
@@ -115,7 +140,7 @@ public class AstBuilderTest {
                 agg(
                         relation("t"),
                         exprList(
-                                map(aggregate("count", field("a")), null)
+                                aggregate("count", field("a"))
                         ),
                         null,
                         null,
@@ -129,7 +154,7 @@ public class AstBuilderTest {
                 agg(
                         relation("t"),
                         exprList(
-                                map(aggregate("count", field("a")), null)
+                                aggregate("count", field("a"))
                         ),
                         null,
                         exprList(field("b")),
@@ -141,18 +166,19 @@ public class AstBuilderTest {
     @Test
     public void testStatsCommandWithAlias() {
         assertEqual("source=t | stats count(a) as alias",
-                agg(
-                        relation("t"),
-                        exprList(
-                                map(
-                                        aggregate("count", field("a")),
-                                        field("alias")
-                                )
+                rename(
+                        agg(
+                                relation("t"),
+                                exprList(
+                                    aggregate("count", field("a"))
+                                ),
+                                null,
+                                null,
+                                defaultStatsArgs()
                         ),
-                        null,
-                        null,
-                        defaultStatsArgs()
-                ));
+                        map(aggregate("count", field("a")), field("alias"))
+                )
+        );
     }
 
     @Test

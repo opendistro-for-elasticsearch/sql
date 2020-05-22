@@ -23,6 +23,8 @@ import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationE
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
 import com.google.common.collect.ImmutableMap;
@@ -65,6 +67,11 @@ public class TestConfig {
                     @Override
                     public Map<String, ExprType> getFieldTypes() {
                         return typeMapping;
+                    }
+
+                    @Override
+                    public PhysicalPlan implement(LogicalPlan plan) {
+                        throw new UnsupportedOperationException();
                     }
                 };
             }

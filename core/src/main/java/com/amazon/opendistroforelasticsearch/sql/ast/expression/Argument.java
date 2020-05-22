@@ -29,7 +29,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = false)
 public class Argument extends UnresolvedExpression {
     private final String argName;
-    private final UnresolvedExpression value;
+    private final Literal value;
     //    private final DataType valueType;
     @Override
     public List<UnresolvedExpression> getChild() {

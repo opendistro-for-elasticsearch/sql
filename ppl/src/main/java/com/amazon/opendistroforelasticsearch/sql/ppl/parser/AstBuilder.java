@@ -15,21 +15,25 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
-import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParserBaseVisitor;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
+import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser;
+import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ppl.utils.ArgumentFactory;
+import com.google.common.collect.ImmutableList;
+import lombok.RequiredArgsConstructor;
+import org.antlr.v4.runtime.tree.ParseTree;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
-import org.antlr.v4.runtime.tree.ParseTree;
 
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.DedupCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.EvalCommandContext;
@@ -111,13 +115,21 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
         );
     }
 
-    /** Stats command */
+    /**
+     * Stats command
+     */
     @Override
     public UnresolvedPlan visitStatsCommand(StatsCommandContext ctx) {
-        List<UnresolvedExpression> aggList = Collections.singletonList(
-                new Map(visitExpression(ctx.statsAggTerm()),
-                        ctx.alias != null ? visitExpression(ctx.alias) : null)
-        );
+        ImmutableList.Builder<UnresolvedExpression> aggListBuilder = new ImmutableList.Builder<>();
+        ImmutableList.Builder<Map> renameListBuilder = new ImmutableList.Builder<>();
+        for (OpenDistroPPLParser.StatsAggTermContext aggCtx : ctx.statsAggTerm()) {
+            UnresolvedExpression aggExpression = visitExpression(aggCtx.statsFunction());
+            aggListBuilder.add(aggExpression);
+            if (aggCtx.alias != null) {
+                renameListBuilder
+                        .add(new Map(aggExpression, visitExpression(aggCtx.alias)));
+            }
+        }
         List<UnresolvedExpression> groupList = ctx.byClause() == null ? null :
                 ctx.byClause()
                         .fieldList()
@@ -125,12 +137,14 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
                         .stream()
                         .map(this::visitExpression)
                         .collect(Collectors.toList());
-        return new Aggregation(
-                aggList,
+        Aggregation aggregation = new Aggregation(
+                aggListBuilder.build(),
                 null,
                 groupList,
                 ArgumentFactory.getArgumentList(ctx)
         );
+        List<Map> renameList = renameListBuilder.build();
+        return renameList.isEmpty() ? aggregation : new Rename(renameList, aggregation);
     }
 
     /** Dedup command */

@@ -28,15 +28,4 @@ public interface PlanNode<T extends PlanNode> {
      * @return child nodes.
      */
     List<T> getChild();
-
-    /**
-     * Accept the visitor.
-     *
-     * @param visitor visitor.
-     * @param context visitor context.
-     * @param <R>     returned object type.
-     * @param <C>     context type.
-     * @return returned object.
-     */
-    <R, C> R accept(AbstractPlanNodeVisitor<R, C> visitor, C context);
 }

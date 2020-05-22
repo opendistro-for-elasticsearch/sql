@@ -34,7 +34,6 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.in;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.map;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.not;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.nullLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.or;
@@ -101,6 +100,42 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                         equalTo(
                                 field("f"),
                                 function("abs", field("a"))
+                        )
+                ));
+    }
+
+    @Test
+    public void testEvalFunctionExpr() {
+        assertEqual("source=t | eval f=abs(a)",
+                project(
+                        relation("t"),
+                        equalTo(
+                                field("f"),
+                                function("abs", field("a"))
+                        )
+                ));
+    }
+
+    @Test
+    public void testEvalBinaryOperationExpr() {
+        assertEqual("source=t | eval f=a+b",
+                project(
+                        relation("t"),
+                        equalTo(
+                                field("f"),
+                                function("+", field("a"), field("b"))
+                        )
+                ));
+    }
+
+    @Test
+    public void testLiteralValueBinaryOperationExpr() {
+        assertEqual("source=t | eval f=3+2",
+                project(
+                        relation("t"),
+                        equalTo(
+                                field("f"),
+                                function("+", intLiteral(3), intLiteral(2))
                         )
                 ));
     }
@@ -243,10 +278,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 agg(
                         relation("t"),
                         exprList(
-                                map(
-                                        aggregate("avg", field("a")),
-                                        null
-                                )
+                                aggregate("avg", field("a"))
 
                         ),
                         null,
@@ -261,13 +293,10 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                 agg(
                         relation("t"),
                         exprList(
-                                map(
-                                        aggregate(
-                                                "percentile",
-                                                field("a"),
-                                                argument("rank", intLiteral(1))
-                                        ),
-                                        null
+                                aggregate(
+                                        "percentile",
+                                        field("a"),
+                                        argument("rank", intLiteral(1))
                                 )
                         ),
                         null,

@@ -15,6 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
+import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
+
 /**
  * The definition of the Expression Value.
  */
@@ -43,5 +45,12 @@ public interface ExprValue {
      */
     default boolean isMissing() {
         return false;
+    }
+
+    /**
+     * Get the {@link BindingTuple}
+     */
+    default BindingTuple bindingTuples() {
+        return BindingTuple.EMPTY;
     }
 }

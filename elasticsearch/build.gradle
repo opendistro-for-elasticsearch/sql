@@ -1,10 +1,63 @@
-apply plugin: 'java'
+plugins {
+    id 'java'
+    id "io.freefair.lombok"
+    id 'jacoco'
+}
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
+    compile project(':core')
     compile group: 'org.elasticsearch', name: 'elasticsearch', version: "${es_version}"
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+
+    testImplementation('org.junit.jupiter:junit-jupiter:5.6.2')
+    testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: '2.1'
+    testCompile group: 'org.mockito', name: 'mockito-core', version: '3.3.3'
+    testCompile group: 'org.mockito', name: 'mockito-junit-jupiter', version: '3.3.3'
 }
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+jacoco {
+    toolVersion = "0.8.3"
+}
+jacocoTestReport {
+    reports {
+        html.enabled true
+    }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it)
+        }))
+    }
+}
+test.finalizedBy(project.tasks.jacocoTestReport)
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            element = 'CLASS'
+            excludes = [
+                'com.amazon.opendistroforelasticsearch.sql.elasticsearch.security.SecurityAccess'
+            ]
+            limit {
+                minimum = 1.0
+            }
+
+        }
+    }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it)
+        }))
+    }
+}
+check.dependsOn jacocoTestCoverageVerification
+jacocoTestCoverageVerification.dependsOn jacocoTestReport
