@@ -16,7 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.protocol.response.format;
 
-import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResponse;
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
 import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -32,7 +32,7 @@ class SimpleJsonResponseFormatterTest {
 
     @Test
     void formatResponse() {
-        QueryResponse response = new QueryResponse(Arrays.asList(
+        QueryResult response = new QueryResult(Arrays.asList(
             tupleValue(ImmutableMap.of("firstname", "John", "age", 20)),
             tupleValue(ImmutableMap.of("firstname", "Smith", "age", 30))
         ));
@@ -46,7 +46,7 @@ class SimpleJsonResponseFormatterTest {
 
     @Test
     void formatResponsePretty() {
-        QueryResponse response = new QueryResponse(Arrays.asList(
+        QueryResult response = new QueryResult(Arrays.asList(
             tupleValue(ImmutableMap.of("firstname", "John", "age", 20)),
             tupleValue(ImmutableMap.of("firstname", "Smith", "age", 30))
         ));
@@ -83,7 +83,7 @@ class SimpleJsonResponseFormatterTest {
     @Disabled("Need to figure out column headers in some other way than inferring from data implicitly")
     @Test
     void formatResponseWithMissingValue() {
-        QueryResponse response = new QueryResponse(Arrays.asList(
+        QueryResult response = new QueryResult(Arrays.asList(
             tupleValue(ImmutableMap.of("firstname", "John")),
             tupleValue(ImmutableMap.of("firstname", "Smith", "age", 30))
         ));

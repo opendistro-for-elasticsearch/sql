@@ -30,7 +30,7 @@ import java.util.Map;
  * Query response that encapsulates query results and isolate {@link ExprValue} related from formatter implementation.
  */
 @RequiredArgsConstructor
-public class QueryResponse implements Iterable<Object[]> {
+public class QueryResult implements Iterable<Object[]> {
 
     /**
      * Results which are collection of expression

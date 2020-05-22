@@ -21,7 +21,7 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.security.Security
 import com.amazon.opendistroforelasticsearch.sql.plugin.request.PPLQueryRequestFactory;
 import com.amazon.opendistroforelasticsearch.sql.ppl.PPLService;
 import com.amazon.opendistroforelasticsearch.sql.ppl.config.PPLServiceConfig;
-import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResponse;
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.SimpleJsonResponseFormatter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -88,7 +88,7 @@ public class RestPPLQueryAction extends BaseRestHandler {
         return new ResponseListener<List<ExprValue>>() {
             @Override
             public void onResponse(List<ExprValue> values) {
-                sendResponse(OK, formatter.format(new QueryResponse(values)));
+                sendResponse(OK, formatter.format(new QueryResult(values)));
             }
 
             @Override

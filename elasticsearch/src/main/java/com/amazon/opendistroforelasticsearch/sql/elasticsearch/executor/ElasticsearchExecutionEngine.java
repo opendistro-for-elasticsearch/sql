@@ -30,7 +30,7 @@ import java.util.List;
  * Elasticsearch execution engine implementation.
  */
 @RequiredArgsConstructor
-public class ElasticsearchExecutionEngine implements ExecutionEngine<List<ExprValue>> {
+public class ElasticsearchExecutionEngine implements ExecutionEngine {
 
     private final ElasticsearchClient client;
 

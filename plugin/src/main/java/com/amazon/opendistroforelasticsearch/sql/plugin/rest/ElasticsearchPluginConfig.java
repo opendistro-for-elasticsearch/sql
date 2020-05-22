@@ -16,7 +16,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.plugin.rest;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchNodeClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.ElasticsearchExecutionEngine;
@@ -28,8 +27,6 @@ import org.elasticsearch.cluster.service.ClusterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.List;
 
 @Configuration
 public class ElasticsearchPluginConfig {
@@ -51,7 +48,7 @@ public class ElasticsearchPluginConfig {
     }
 
     @Bean
-    public ExecutionEngine<List<ExprValue>> executionEngine() {
+    public ExecutionEngine executionEngine() {
         return new ElasticsearchExecutionEngine(client());
     }
 

@@ -17,18 +17,21 @@
 package com.amazon.opendistroforelasticsearch.sql.executor;
 
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
+
+import java.util.List;
 
 /**
  * Execution engine that encapsulates execution details.
  */
-public interface ExecutionEngine<Response> {
+public interface ExecutionEngine {
 
     /**
      * Execute physical plan and call back response listener
      * @param plan      executable physical plan
      * @param listener  response listener
      */
-    void execute(PhysicalPlan plan, ResponseListener<Response> listener);
+    void execute(PhysicalPlan plan, ResponseListener<List<ExprValue>> listener);
 
 }

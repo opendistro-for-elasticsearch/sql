@@ -16,22 +16,72 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.ppl.config.PPLServiceConfig;
 import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryRequest;
-import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryResponse;
+import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
+import com.amazon.opendistroforelasticsearch.sql.storage.Table;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+import java.util.Collections;
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
 public class PPLServiceTest {
-    private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
-            PPLServiceConfig.class);
-    private PPLService pplService = context.getBean(PPLService.class);
+    private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+
+    private PPLService pplService;
+
+    @Mock
+    private StorageEngine storageEngine;
+
+    @Mock
+    private ExecutionEngine executionEngine;
+
+    @Mock
+    private Table table;
+
+    @Mock
+    private PhysicalPlan plan;
+
+    @Before
+    public void setUp() {
+        when(table.getFieldTypes()).thenReturn(ImmutableMap.of("a", ExprType.INTEGER));
+        when(table.implement(any())).thenReturn(plan);
+        when(storageEngine.getTable(any())).thenReturn(table);
+
+        context.registerBean(StorageEngine.class, () -> storageEngine);
+        context.registerBean(ExecutionEngine.class, () -> executionEngine);
+        context.register(PPLServiceConfig.class);
+        context.refresh();
+        pplService = context.getBean(PPLService.class);
+    }
+
     @Test
     public void testExecuteShouldPass() {
-        pplService.execute(new PPLQueryRequest("search source=t a=1", null), new ResponseListener<PPLQueryResponse>() {
+        doAnswer(invocation -> {
+            ResponseListener<List<ExprValue>> listener = invocation.getArgument(1);
+            listener.onResponse(Collections.emptyList());
+            return null;
+        }).when(executionEngine).execute(any(), any());
+
+        pplService.execute(new PPLQueryRequest("search source=t a=1", null), new ResponseListener<List<ExprValue>>() {
             @Override
-            public void onResponse(PPLQueryResponse pplQueryResponse) {
+            public void onResponse(List<ExprValue> pplQueryResponse) {
 
             }
 
@@ -44,9 +94,9 @@ public class PPLServiceTest {
 
     @Test
     public void testExecuteWithIllegalQueryShouldBeCaughtByHandler() {
-        pplService.execute(new PPLQueryRequest("search", null), new ResponseListener<PPLQueryResponse>() {
+        pplService.execute(new PPLQueryRequest("search", null), new ResponseListener<List<ExprValue>>() {
             @Override
-            public void onResponse(PPLQueryResponse pplQueryResponse) {
+            public void onResponse(List<ExprValue> pplQueryResponse) {
                 Assert.fail();
             }
 

@@ -29,11 +29,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-class QueryResponseTest {
+class QueryResultTest {
 
     @Test
     void size() {
-        QueryResponse response = new QueryResponse(Arrays.asList(
+        QueryResult response = new QueryResult(Arrays.asList(
             tupleValue(ImmutableMap.of("name", "John", "age", 20)),
             tupleValue(ImmutableMap.of("name", "Allen", "age", 30)),
             tupleValue(ImmutableMap.of("name", "Smith", "age", 40))
@@ -43,7 +43,7 @@ class QueryResponseTest {
 
     @Test
     void columnNameTypes() {
-        QueryResponse response = new QueryResponse(Collections.singletonList(
+        QueryResult response = new QueryResult(Collections.singletonList(
             tupleValue(ImmutableMap.of("name", "John", "age", 20))
         ));
 
@@ -55,14 +55,14 @@ class QueryResponseTest {
 
     @Test
     void columnNameTypesFromEmptyExprValues() {
-        QueryResponse response = new QueryResponse(Collections.emptyList());
+        QueryResult response = new QueryResult(Collections.emptyList());
         assertTrue(response.columnNameTypes().isEmpty());
     }
 
     @Disabled("Need to figure out column headers in some other way than inferring from data implicitly")
     @Test
     void columnNameTypesFromExprValuesWithMissing() {
-        QueryResponse response = new QueryResponse(Arrays.asList(
+        QueryResult response = new QueryResult(Arrays.asList(
             tupleValue(ImmutableMap.of("name", "John")),
             tupleValue(ImmutableMap.of("name", "John", "age", 20))
         ));
@@ -75,7 +75,7 @@ class QueryResponseTest {
 
     @Test
     void iterate() {
-        QueryResponse response = new QueryResponse(Arrays.asList(
+        QueryResult response = new QueryResult(Arrays.asList(
             tupleValue(ImmutableMap.of("name", "John", "age", 20)),
             tupleValue(ImmutableMap.of("name", "Allen", "age", 30))
         ));
