@@ -27,25 +27,24 @@ import java.util.function.Predicate;
 
 /**
  * Dedupe operator. Dedupe the input {@link ExprValue} by using the {@link
- * DedupeOperator#dedupeList}
- * The result order follow the input order.
- *
+ * DedupeOperator#dedupeList} The result order follow the input order.
  */
 public class DedupeOperator extends PhysicalPlan {
   private final PhysicalPlan input;
   private final List<Expression> dedupeList;
-  private final Decider decider;
-  private Integer allowedDuplication = 1;
-  private Boolean keepEmpty = false;
-  private Boolean consecutive = false;
+  private final Deduper<List<ExprValue>> deduper;
+  private final Integer allowedDuplication;
+  private final Boolean keepEmpty;
   private ExprValue next;
+
+  private static final Integer ALL_ONE_DUPLICATION = 1;
+  private static final Boolean IGNORE_EMPTY = false;
+  private static final Boolean NON_CONSECUTIVE = false;
 
   private static final Predicate<ExprValue> NULL_OR_MISSING = v -> v.isNull() || v.isMissing();
 
   public DedupeOperator(PhysicalPlan input, List<Expression> dedupeList) {
-    this.input = input;
-    this.dedupeList = dedupeList;
-    this.decider = new Dedupe();
+    this(input, dedupeList, ALL_ONE_DUPLICATION, IGNORE_EMPTY, NON_CONSECUTIVE);
   }
 
   public DedupeOperator(
@@ -58,8 +57,7 @@ public class DedupeOperator extends PhysicalPlan {
     this.dedupeList = dedupeList;
     this.allowedDuplication = allowedDuplication;
     this.keepEmpty = keepEmpty;
-    this.consecutive = consecutive;
-    this.decider = this.consecutive ? new ConsecutiveDedupe() : new Dedupe();
+    this.deduper = consecutive ? new ConsecutiveDeduper<>() : new HistoricalDeduper<>();
   }
 
   @Override
@@ -76,7 +74,7 @@ public class DedupeOperator extends PhysicalPlan {
   public boolean hasNext() {
     while (input.hasNext()) {
       ExprValue next = input.next();
-      if (decider.keep(next)) {
+      if (keep(next)) {
         this.next = next;
         return true;
       }
@@ -90,50 +88,61 @@ public class DedupeOperator extends PhysicalPlan {
   }
 
   /**
-   * The Decider test the {@link ExprValue} should be keep (return true) or ignored (return false).
+   * Test the {@link ExprValue} should be keep or ignore
    *
-   * <p>If any value evaluted by {@link DedupeOperator#dedupeList} is NULL or MISSING, then the
+   * <p>If any value evaluted by {@link DedupeOperator#dedupeList} is NULL or MISSING, then the *
    * return value is decided by keepEmpty option, default value is ignore.
+   *
+   * @param value
+   * @return true: keep, false: ignore
    */
-  abstract class Decider {
-    public boolean keep(ExprValue value) {
-      BindingTuple bindingTuple = value.bindingTuples();
-      ImmutableList.Builder<ExprValue> dedupeKeyBuilder = new ImmutableList.Builder<>();
-      for (Expression expression : dedupeList) {
-        ExprValue exprValue = expression.valueOf(bindingTuple);
-        if (NULL_OR_MISSING.test(exprValue)) {
-          return keepEmpty;
-        }
-        dedupeKeyBuilder.add(exprValue);
+  public boolean keep(ExprValue value) {
+    BindingTuple bindingTuple = value.bindingTuples();
+    ImmutableList.Builder<ExprValue> dedupeKeyBuilder = new ImmutableList.Builder<>();
+    for (Expression expression : dedupeList) {
+      ExprValue exprValue = expression.valueOf(bindingTuple);
+      if (NULL_OR_MISSING.test(exprValue)) {
+        return keepEmpty;
       }
-      List<ExprValue> dedupeKey = dedupeKeyBuilder.build();
-      int seenTimes = seenTimes(dedupeKey);
-      return seenTimes <= allowedDuplication;
+      dedupeKeyBuilder.add(exprValue);
     }
-
-    /**
-     * Return how many times the dedupeKey has been seen before. The side effect is the seen times
-     * will add 1 times after calling this function.
-     */
-    abstract int seenTimes(List<ExprValue> dedupeKey);
+    List<ExprValue> dedupeKey = dedupeKeyBuilder.build();
+    int seenTimes = deduper.seenTimes(dedupeKey);
+    return seenTimes <= allowedDuplication;
   }
 
-  class Dedupe extends Decider {
-    private final Map<List<ExprValue>, Integer> seenMap = new ConcurrentHashMap<>();
+  /**
+   * Return how many times the dedupeKey has been seen before. The side effect is the seen times
+   * will add 1 times after calling this function.
+   *
+   * @param <K> dedupe key
+   */
+  interface Deduper<K> {
+
+    int seenTimes(K dedupeKey);
+  }
+
+  /** The Historical Deduper monitor the duplicated element with all the seen value. */
+  static class HistoricalDeduper<K> implements Deduper<K> {
+    private final Map<K, Integer> seenMap = new ConcurrentHashMap<>();
 
     @Override
-    int seenTimes(List<ExprValue> dedupeKey) {
+    public int seenTimes(K dedupeKey) {
       seenMap.putIfAbsent(dedupeKey, 0);
       return seenMap.computeIfPresent(dedupeKey, (k, v) -> v + 1);
     }
   }
 
-  class ConsecutiveDedupe extends Decider {
-    private List<ExprValue> lastSeenDedupeKey = null;
+  /**
+   * The Consecutive Deduper monitor the duplicated element with consecutive seen value. It means
+   * only the consecutive duplicated value will be counted.
+   */
+  static class ConsecutiveDeduper<K> implements Deduper<K> {
+    private K lastSeenDedupeKey = null;
     private Integer consecutiveCount = 0;
 
     @Override
-    int seenTimes(List<ExprValue> dedupeKey) {
+    public int seenTimes(K dedupeKey) {
       if (dedupeKey.equals(lastSeenDedupeKey)) {
         return ++consecutiveCount;
       } else {

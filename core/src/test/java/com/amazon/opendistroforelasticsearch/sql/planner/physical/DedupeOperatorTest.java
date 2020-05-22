@@ -19,9 +19,12 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.dedupe;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.DedupeOperator.ConsecutiveDeduper;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.DedupeOperator.HistoricalDeduper;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.Map;
@@ -235,5 +238,33 @@ class DedupeOperatorTest extends PhysicalPlanTestBase {
         execute(dedupe(inputPlan, DSL.ref("region"))),
         contains(
             tupleValue(ImmutableMap.of("region", "us-east-1", "action", "GET", "response", 200))));
+  }
+
+  @Test
+  public void historical_deduper() {
+    HistoricalDeduper<Integer> deduper = new HistoricalDeduper<>();
+
+    // first time seen 1
+    assertEquals(1, deduper.seenTimes(1));
+    // second time seen 1
+    assertEquals(2, deduper.seenTimes(1));
+    // first time seen 2
+    assertEquals(1, deduper.seenTimes(2));
+    // third time seen 1
+    assertEquals(3, deduper.seenTimes(1));
+  }
+
+  @Test
+  public void consecutive_deduper() {
+    ConsecutiveDeduper<Integer> deduper = new ConsecutiveDeduper<>();
+
+    // first time seen 1
+    assertEquals(1, deduper.seenTimes(1));
+    // consecutive second time seen 1
+    assertEquals(2, deduper.seenTimes(1));
+    // first time seen 2
+    assertEquals(1, deduper.seenTimes(2));
+    // first time seen 1
+    assertEquals(1, deduper.seenTimes(1));
   }
 }
