@@ -23,10 +23,12 @@ import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionBuilder;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
-import lombok.experimental.UtilityClass;
-
+import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
+import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class OperatorUtils {
@@ -133,4 +135,16 @@ public class OperatorUtils {
           }
         };
   }
+
+  /** String comparator */
+  public static final BiFunction<String, String, Integer> STRING_COMPARATOR = String::compareTo;
+  /** List comparator */
+  public static final BiFunction<List, List, Integer> LIST_COMPARATOR =
+      (left, right) -> Integer.compare(left.size(), right.size());
+  /** Map comparator */
+  public static final BiFunction<Map, Map, Integer> MAP_COMPARATOR =
+      (left, right) -> Integer.compare(left.size(), right.size());
+  /** Predicate NULL or MISSING */
+  public static final BiPredicate<ExprValue, ExprValue> COMPARE_WITH_NULL_OR_MISSING =
+      (left, right) -> left.isMissing() || right.isMissing() || left.isNull() || right.isNull();
 }

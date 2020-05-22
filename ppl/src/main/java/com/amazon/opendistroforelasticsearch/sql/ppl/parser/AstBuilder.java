@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Let;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
@@ -24,6 +25,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParserBaseVisitor;
@@ -173,15 +175,13 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
     /** Sort command */
     @Override
     public UnresolvedPlan visitSortCommand(SortCommandContext ctx) {
-        return new Aggregation(
-                null,
+        return new Sort(
+                ArgumentFactory.getArgumentList(ctx),
                 ctx.sortbyClause()
                         .sortField()
                         .stream()
-                        .map(this::visitExpression)
-                        .collect(Collectors.toList()),
-                null,
-                ArgumentFactory.getArgumentList(ctx)
+                        .map(sort -> (Field) visitExpression(sort))
+                        .collect(Collectors.toList())
         );
     }
 

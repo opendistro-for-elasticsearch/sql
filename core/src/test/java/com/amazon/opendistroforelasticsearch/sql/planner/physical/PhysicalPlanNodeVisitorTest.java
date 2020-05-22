@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.google.common.base.Strings;
@@ -75,6 +76,7 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
     PhysicalPlan project = PhysicalPlanDSL.project(plan, ref);
     PhysicalPlan remove = PhysicalPlanDSL.remove(plan, ref);
     PhysicalPlan eval = PhysicalPlanDSL.eval(plan, Pair.of(ref, ref));
+    PhysicalPlan sort = PhysicalPlanDSL.sort(plan, 100, Pair.of(SortOption.PPL_ASC, ref));
 
     assertNull(filter.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {}, null));
     assertNull(aggregation.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {}, null));
@@ -82,6 +84,7 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
     assertNull(project.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {}, null));
     assertNull(remove.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {}, null));
     assertNull(eval.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {}, null));
+    assertNull(sort.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {}, null));
   }
 
   public static class PhysicalPlanPrinter extends PhysicalPlanNodeVisitor<String, Integer> {
