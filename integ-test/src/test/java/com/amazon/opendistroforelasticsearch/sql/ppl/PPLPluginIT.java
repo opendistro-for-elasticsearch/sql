@@ -18,20 +18,14 @@ package com.amazon.opendistroforelasticsearch.sql.ppl;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseException;
-import org.elasticsearch.test.rest.ESRestTestCase;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 import static org.hamcrest.Matchers.hasProperty;
 
@@ -46,29 +40,23 @@ public class PPLPluginIT extends PPLIntegTestCase {
 
     @Test
     public void testQueryEndpointShouldOK() throws IOException {
-        Request request = new Request("PUT", "/a/_doc/1");
+        Request request = new Request("PUT", "/a/_doc/1?refresh=true");
         request.setJsonEntity("{\"name\": \"hello\"}");
         client().performRequest(request);
 
-        Response response = client().performRequest(makeRequest("search source=a"));
-        assertThat(response, statusCode(200));
-        /*assertThat(
-            response,
-            allOf(
-                statusCode(200),
-                content(
-                    "{\n" +
-                    "  \"schema\": [{\n" +
-                    "    \"name\": \"name\",\n" +
-                    "    \"type\": \"string\"\n" +
-                    "  }],\n" +
-                    "  \"total\": 1,\n" +
-                    "  \"datarows\": [{\"row\": [\"hello\"]}],\n" +
-                    "  \"size\": 1\n" +
-                    "}"
-                )
-            )
-        );*/
+        String response = executeQuery("search source=a");
+        assertEquals(
+            "{\n" +
+            "  \"schema\": [{\n" +
+            "    \"name\": \"name\",\n" +
+            "    \"type\": \"string\"\n" +
+            "  }],\n" +
+            "  \"total\": 1,\n" +
+            "  \"datarows\": [{\"row\": [\"hello\"]}],\n" +
+            "  \"size\": 1\n" +
+            "}\n",
+            response
+        );
     }
 
     @Test
@@ -101,38 +89,4 @@ public class PPLPluginIT extends PPLIntegTestCase {
             }
         };
     }
-
-    private TypeSafeMatcher<Response> content(String expected) {
-        return new TypeSafeMatcher<Response>() {
-            @Override
-            public void describeTo(Description description) {
-                description.appendText(String.format(Locale.ROOT, "content=%s", expected));
-            }
-
-            @Override
-            protected void describeMismatchSafely(Response resp, Description description) {
-                description.appendText(String.format(Locale.ROOT, "content=%s", getBody(resp)));
-            }
-
-            @Override
-            protected boolean matchesSafely(Response resp) {
-                return expected.equals(getBody(resp));
-            }
-
-            private String getBody(Response resp) {
-                try {
-                    return toString(resp.getEntity().getContent());
-                } catch (IOException e) {
-                    throw new IllegalStateException("Failed to get response body", e);
-                }
-            }
-
-            private String toString(InputStream inputStream) {
-                return new BufferedReader(
-                    new InputStreamReader(inputStream, StandardCharsets.UTF_8)).
-                        lines().collect(Collectors.joining("\n"));
-            }
-        };
-    }
-
 }

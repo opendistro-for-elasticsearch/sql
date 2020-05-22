@@ -16,11 +16,14 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
 import com.amazon.opendistroforelasticsearch.sql.esintgtest.RestIntegTestCase;
-import java.io.IOException;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
 import org.junit.Assert;
+
+import java.io.IOException;
+import java.util.Locale;
+
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getResponseBody;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.rest.RestPPLQueryAction.QUERY_API_ENDPOINT;
 
@@ -37,10 +40,15 @@ public abstract class PPLIntegTestCase extends RestIntegTestCase {
 
     protected Request buildRequest(String query) {
         Request request = new Request("POST", QUERY_API_ENDPOINT);
-        request.setJsonEntity(query);
+        request.setJsonEntity(String.format(Locale.ROOT,
+            "{\n" +
+            "  \"query\": \"%s\"\n" +
+            "}", query));
+
         RequestOptions.Builder restOptionsBuilder = RequestOptions.DEFAULT.toBuilder();
         restOptionsBuilder.addHeader("Content-Type", "application/json");
         request.setOptions(restOptionsBuilder);
         return request;
     }
+
 }
