@@ -62,6 +62,8 @@ import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -208,11 +210,22 @@ class ElasticsearchNodeClientTest {
         ElasticsearchRequest request = new ElasticsearchRequest("test");
         request.setScrollId("scroll123");
         client.cleanup(request);
+        assertFalse(request.isScrollStarted());
 
         InOrder inOrder = Mockito.inOrder(nodeClient, requestBuilder);
         inOrder.verify(nodeClient).prepareClearScroll();
         inOrder.verify(requestBuilder).addScrollId("scroll123");
         inOrder.verify(requestBuilder).get();
+    }
+
+    @Test
+    void cleanupAgain() {
+        ElasticsearchNodeClient client = new ElasticsearchNodeClient(mock(ClusterService.class),
+                                                                     nodeClient);
+
+        ElasticsearchRequest request = new ElasticsearchRequest("test");
+        client.cleanup(request);
+        verify(nodeClient, never()).prepareClearScroll();
     }
 
     private ElasticsearchNodeClient mockClient(String indexName, String mappings) {

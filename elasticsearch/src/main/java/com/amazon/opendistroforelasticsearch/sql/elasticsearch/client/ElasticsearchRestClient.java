@@ -88,12 +88,18 @@ public class ElasticsearchRestClient implements ElasticsearchClient {
     @Override
     public void cleanup(ElasticsearchRequest request) {
         try {
+            if (!request.isScrollStarted()) {
+                return;
+            }
+
             ClearScrollRequest clearRequest = new ClearScrollRequest();
             clearRequest.addScrollId(request.getScrollId());
             client.clearScroll(clearRequest, RequestOptions.DEFAULT);
         } catch (IOException e) {
             throw new IllegalStateException(
                 "Failed to clean up resources for search request " + request, e);
+        } finally {
+            request.reset();
         }
     }
 

@@ -87,4 +87,11 @@ public class ElasticsearchRequest {
                                          scrollId(scrollId);
     }
 
+    /**
+     * Reset internal state
+     */
+    public void reset() {
+        scrollId = null;
+    }
+
 }

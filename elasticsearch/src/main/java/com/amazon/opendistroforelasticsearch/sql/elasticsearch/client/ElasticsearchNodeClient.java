@@ -113,9 +113,12 @@ public class ElasticsearchNodeClient implements ElasticsearchClient {
 
     @Override
     public void cleanup(ElasticsearchRequest request) {
-        client.prepareClearScroll().
-               addScrollId(request.getScrollId()).
-               get();
+        if (request.isScrollStarted()) {
+            client.prepareClearScroll().
+                   addScrollId(request.getScrollId()).
+                   get();
+            request.reset();
+        }
     }
 
     @Override

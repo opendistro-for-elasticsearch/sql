@@ -54,6 +54,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -170,6 +171,14 @@ class ElasticsearchRestClientTest {
         request.setScrollId("scroll123");
         client.cleanup(request);
         verify(restClient).clearScroll(any(), any());
+        assertFalse(request.isScrollStarted());
+    }
+
+    @Test
+    void cleanupAgain() throws IOException {
+        ElasticsearchRequest request = new ElasticsearchRequest("test");
+        client.cleanup(request);
+        verify(restClient, never()).clearScroll(any(), any());
     }
 
     @Test
