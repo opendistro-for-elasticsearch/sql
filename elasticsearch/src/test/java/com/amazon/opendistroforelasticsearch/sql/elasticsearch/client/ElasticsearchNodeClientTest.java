@@ -160,9 +160,6 @@ class ElasticsearchNodeClientTest {
         when(scrollResponse.getScrollId()).thenReturn("scroll456");
         when(scrollResponse.getHits()).thenReturn(SearchHits.empty());
 
-        // Mock clear scroll request
-        when(nodeClient.prepareClearScroll().addScrollId("scroll456").get()).thenReturn(null);
-
         // Verify response for first scroll request
         ElasticsearchRequest request = new ElasticsearchRequest("test");
         ElasticsearchResponse response1 = client.search(request);

@@ -50,9 +50,7 @@ public class ElasticsearchRestClient implements ElasticsearchClient {
         GetMappingsRequest request = new GetMappingsRequest().indices(indexExpression);
         try {
             GetMappingsResponse response = client.indices().getMapping(request, RequestOptions.DEFAULT);
-            return response.mappings().
-                            entrySet().
-                            stream().
+            return response.mappings().entrySet().stream().
                             collect(Collectors.toMap(
                                 Map.Entry::getKey,
                                 e -> new IndexMapping(e.getValue()))
@@ -74,11 +72,7 @@ public class ElasticsearchRestClient implements ElasticsearchClient {
             }
             request.setScrollId(esResponse.getScrollId());
 
-            ElasticsearchResponse response = new ElasticsearchResponse(esResponse);
-            if (response.isEmpty()) {
-                cleanup(request);
-            }
-            return response;
+            return new ElasticsearchResponse(esResponse);
         } catch (IOException e) {
             throw new IllegalStateException(
                 "Failed to perform search operation with request " + request, e);
