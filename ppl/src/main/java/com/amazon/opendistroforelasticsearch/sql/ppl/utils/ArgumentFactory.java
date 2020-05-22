@@ -114,8 +114,8 @@ public class ArgumentFactory {
     public static List<Argument> getArgumentList(OpenDistroPPLParser.SortFieldContext ctx) {
         return Arrays.asList(
                 ctx.MINUS() != null
-                        ? new Argument("exclude", new Literal(true, DataType.BOOLEAN))
-                        : new Argument("exclude", new Literal(false, DataType.BOOLEAN)),
+                        ? new Argument("asc", new Literal(false, DataType.BOOLEAN))
+                        : new Argument("asc", new Literal(true, DataType.BOOLEAN)),
                 ctx.sortFieldExpression().AUTO() != null
                         ? new Argument("type", new Literal("auto", DataType.STRING))
                         : ctx.sortFieldExpression().IP() != null

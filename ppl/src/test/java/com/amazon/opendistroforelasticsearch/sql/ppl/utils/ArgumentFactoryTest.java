@@ -21,13 +21,14 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.agg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.argument;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortArgs;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortOptions;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortFieldArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.exprList;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.projectWithArg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sort;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
 
 public class ArgumentFactoryTest extends AstBuilderTest {
@@ -99,15 +100,13 @@ public class ArgumentFactoryTest extends AstBuilderTest {
     @Test
     public void testSortCommandArgument() {
         assertEqual("source=t | sort 3 field0 desc",
-                agg(
+                sort(
                         relation("t"),
-                        null,
-                        exprList(field("field0", defaultSortFieldArgs())),
-                        null,
                         exprList(
-                                argument("count", intLiteral(3)),
-                                argument("desc", booleanLiteral(true))
-                        )
+                            argument("count", intLiteral(3)),
+                            argument("desc", booleanLiteral(true))
+                        ),
+                        field("field0", defaultSortFieldArgs())
                 ));
         assertEqual("source=t | sort 3 field0 d", "source=t | sort 3 field0 desc");
     }
@@ -123,20 +122,16 @@ public class ArgumentFactoryTest extends AstBuilderTest {
     @Test
     public void testSortFieldArgument() {
         assertEqual("source=t | sort - auto(field0)",
-                agg(
+                sort(
                         relation("t"),
-                        null,
-                        exprList(
-                                field(
-                                        "field0",
-                                        exprList(
-                                                argument("exclude", booleanLiteral(true)),
-                                                argument("type", stringLiteral("auto"))
-                                        )
+                        defaultSortOptions(),
+                        field(
+                                "field0",
+                                exprList(
+                                        argument("asc", booleanLiteral(false)),
+                                        argument("type", stringLiteral("auto"))
                                 )
-                        ),
-                        null,
-                        defaultSortArgs()
+                        )
                 ));
     }
 
