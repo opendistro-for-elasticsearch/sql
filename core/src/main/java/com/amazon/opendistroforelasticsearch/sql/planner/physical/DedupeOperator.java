@@ -23,8 +23,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Dedupe operator. Dedupe the input {@link ExprValue} by using the {@link
@@ -44,13 +47,15 @@ public class DedupeOperator extends PhysicalPlan {
   private static final Integer ALL_ONE_DUPLICATION = 1;
   private static final Boolean IGNORE_EMPTY = false;
   private static final Boolean NON_CONSECUTIVE = false;
-
   private static final Predicate<ExprValue> NULL_OR_MISSING = v -> v.isNull() || v.isMissing();
+  private static final Integer SEEN_FIRST_TIME = 1;
 
+  @NonNull
   public DedupeOperator(PhysicalPlan input, List<Expression> dedupeList) {
     this(input, dedupeList, ALL_ONE_DUPLICATION, IGNORE_EMPTY, NON_CONSECUTIVE);
   }
 
+  @NonNull
   public DedupeOperator(
       PhysicalPlan input,
       List<Expression> dedupeList,
@@ -62,7 +67,7 @@ public class DedupeOperator extends PhysicalPlan {
     this.allowedDuplication = allowedDuplication;
     this.keepEmpty = keepEmpty;
     this.consecutive = consecutive;
-    this.deduper = this.consecutive ? new ConsecutiveDeduper<>() : new HistoricalDeduper<>();
+    this.deduper = this.consecutive ? Deduper.consecutiveDeduper() : Deduper.historicalDeduper();
   }
 
   @Override
@@ -122,38 +127,38 @@ public class DedupeOperator extends PhysicalPlan {
    *
    * @param <K> dedupe key
    */
-  interface Deduper<K> {
-
-    int seenTimes(K dedupeKey);
-  }
-
-  /** The Historical Deduper monitor the duplicated element with all the seen value. */
-  static class HistoricalDeduper<K> implements Deduper<K> {
+  @RequiredArgsConstructor
+  static class Deduper<K> {
+    private final BiFunction<Map<K, Integer>, K, Integer> seenFirstTime;
     private final Map<K, Integer> seenMap = new ConcurrentHashMap<>();
 
-    @Override
-    public int seenTimes(K dedupeKey) {
-      seenMap.putIfAbsent(dedupeKey, 0);
-      return seenMap.computeIfPresent(dedupeKey, (k, v) -> v + 1);
+    /** The Historical Deduper monitor the duplicated element with all the seen value. */
+    public static <K> Deduper<K> historicalDeduper() {
+      return new Deduper<>(
+          (map, key) -> {
+            map.put(key, SEEN_FIRST_TIME);
+            return SEEN_FIRST_TIME;
+          });
     }
-  }
 
-  /**
-   * The Consecutive Deduper monitor the duplicated element with consecutive seen value. It means
-   * only the consecutive duplicated value will be counted.
-   */
-  static class ConsecutiveDeduper<K> implements Deduper<K> {
-    private K lastSeenDedupeKey = null;
-    private Integer consecutiveCount = 0;
+    /**
+     * The Consecutive Deduper monitor the duplicated element with consecutive seen value. It means
+     * only the consecutive duplicated value will be counted.
+     */
+    public static <K> Deduper<K> consecutiveDeduper() {
+      return new Deduper<>(
+          (map, key) -> {
+            map.clear();
+            map.put(key, SEEN_FIRST_TIME);
+            return SEEN_FIRST_TIME;
+          });
+    }
 
-    @Override
     public int seenTimes(K dedupeKey) {
-      if (dedupeKey.equals(lastSeenDedupeKey)) {
-        return ++consecutiveCount;
+      if (seenMap.containsKey(dedupeKey)) {
+        return seenMap.computeIfPresent(dedupeKey, (k, v) -> v + 1);
       } else {
-        lastSeenDedupeKey = dedupeKey;
-        consecutiveCount = 1;
-        return consecutiveCount;
+        return seenFirstTime.apply(seenMap, dedupeKey);
       }
     }
   }

@@ -23,8 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.DedupeOperator.ConsecutiveDeduper;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.DedupeOperator.HistoricalDeduper;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.DedupeOperator.Deduper;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.Map;
@@ -242,7 +241,7 @@ class DedupeOperatorTest extends PhysicalPlanTestBase {
 
   @Test
   public void historical_deduper() {
-    HistoricalDeduper<Integer> deduper = new HistoricalDeduper<>();
+    Deduper<Integer> deduper = Deduper.historicalDeduper();
 
     // first time seen 1
     assertEquals(1, deduper.seenTimes(1));
@@ -256,7 +255,7 @@ class DedupeOperatorTest extends PhysicalPlanTestBase {
 
   @Test
   public void consecutive_deduper() {
-    ConsecutiveDeduper<Integer> deduper = new ConsecutiveDeduper<>();
+    Deduper<Integer> deduper = Deduper.consecutiveDeduper();
 
     // first time seen 1
     assertEquals(1, deduper.seenTimes(1));
