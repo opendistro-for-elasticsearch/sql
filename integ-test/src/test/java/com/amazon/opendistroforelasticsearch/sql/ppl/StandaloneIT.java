@@ -90,8 +90,8 @@ public class StandaloneIT extends PPLIntegTestCase {
             "  }],\n" +
             "  \"total\": 2,\n" +
             "  \"datarows\": [\n" +
-            "    {\"row\": [\"hello\"]},\n" +
-            "    {\"row\": [\"world\"]}\n" +
+            "    [\"hello\"],\n" +
+            "    [\"world\"]\n" +
             "  ],\n" +
             "  \"size\": 2\n" +
             "}",
