@@ -23,7 +23,7 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.Elastics
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.ElasticsearchStorageEngine;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.QueryResponse;
-import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.PPLSyntaxParser;
+import com.amazon.opendistroforelasticsearch.sql.ppl.config.PPLServiceConfig;
 import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryRequest;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.SimpleJsonResponseFormatter;
@@ -34,6 +34,7 @@ import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -56,9 +57,13 @@ public class StandaloneIT extends PPLIntegTestCase {
             RestClient.builder(client().getNodes().toArray(new Node[0])));
 
         ElasticsearchClient client = new ElasticsearchRestClient(restClient);
-        StorageEngine storageEngine = new ElasticsearchStorageEngine(client);
-        ExecutionEngine executionEngine = new ElasticsearchExecutionEngine(client);
-        pplService = new PPLService(new PPLSyntaxParser(), storageEngine, executionEngine);
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+        context.registerBean(StorageEngine.class, () -> new ElasticsearchStorageEngine(client));
+        context.registerBean(ExecutionEngine.class, () -> new ElasticsearchExecutionEngine(client));
+        context.register(PPLServiceConfig.class);
+        context.refresh();
+
+        pplService = context.getBean(PPLService.class);
     }
 
     @AfterEach
