@@ -21,6 +21,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.agg;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.argument;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.dedupe;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortOptions;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortFieldArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.exprList;
@@ -74,25 +75,22 @@ public class ArgumentFactoryTest extends AstBuilderTest {
 
     @Test
     public void testDedupCommandArgument() {
-        assertEqual("source=t | dedup 3 field0 keepevents=true keepempty=false consecutive=true",
-                agg(
+        assertEqual("source=t | dedup 3 field0 keepempty=false consecutive=true",
+                dedupe(
                         relation("t"),
-                        exprList(field("field0")),
-                        null,
-                        null,
                         exprList(
                                 argument("number", intLiteral(3)),
-                                argument("keepevents", booleanLiteral(true)),
                                 argument("keepempty", booleanLiteral(false)),
                                 argument("consecutive", booleanLiteral(true))
-                        )
+                        ),
+                        field("field0")
                 ));
     }
 
     @Test
     public void testDedupCommandDefaultArgument() {
         assertEqual(
-                "source=t | dedup 1 field0 keepevents=false keepempty=false consecutive=false",
+                "source=t | dedup 1 field0 keepempty=false consecutive=false",
                 "source=t | dedup field0"
         );
     }

@@ -20,6 +20,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregation;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalDedupe;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalEval;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
@@ -30,6 +31,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRemove;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRename;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalSort;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.AggregationOperator;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.DedupeOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.EvalOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
@@ -104,6 +106,11 @@ public class ElasticsearchIndex implements Table {
          * will accumulate (push down) Elasticsearch query and aggregation DSL on index scan.
          */
         return plan.accept(new LogicalPlanNodeVisitor<PhysicalPlan, ElasticsearchIndexScan>() {
+            @Override
+            public PhysicalPlan visitDedupe(LogicalDedupe node, ElasticsearchIndexScan context) {
+                return new DedupeOperator(visitChild(node, context), node.getDedupeList(),
+                    node.getAllowedDuplication(), node.getKeepEmpty(), node.getConsecutive());
+            }
 
             @Override
             public PhysicalPlan visitProject(LogicalProject node, ElasticsearchIndexScan context) {

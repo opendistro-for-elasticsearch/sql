@@ -27,6 +27,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AvgAggregator;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
 import com.google.common.collect.ImmutableMap;
@@ -44,6 +45,7 @@ import java.util.Map;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.aggregation;
+import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.dedupe;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.eval;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.project;
@@ -117,6 +119,7 @@ class ElasticsearchIndexTest {
         String indexName = "test";
         ReferenceExpression include = ref("age");
         ReferenceExpression exclude = ref("name");
+        ReferenceExpression dedupeField = ref("name");
         Expression filterExpr = literal(ExprBooleanValue.ofTrue());
         List<Expression> groupByExprs = Arrays.asList(ref("age"));
         List<Aggregator> aggregators = Arrays.asList(new AvgAggregator(groupByExprs, ExprType.DOUBLE));
@@ -125,28 +128,32 @@ class ElasticsearchIndexTest {
         Integer sortCount = 100;
         Pair<SortOption, Expression> sortField = ImmutablePair.of(SortOption.PPL_ASC, ref("name1"));
 
+
         LogicalPlan plan =
             project(
-                sort(
-                    eval(
-                        remove(
-                            rename(
-                                aggregation(
-                                    filter(
-                                        relation(indexName),
-                                        filterExpr
+                LogicalPlanDSL.dedupe(
+                    sort(
+                        eval(
+                            remove(
+                                rename(
+                                    aggregation(
+                                        filter(
+                                            relation(indexName),
+                                            filterExpr
+                                        ),
+                                        aggregators,
+                                        groupByExprs
                                     ),
-                                    aggregators,
-                                    groupByExprs
+                                    mappings
                                 ),
-                                mappings
+                                exclude
                             ),
-                            exclude
+                            newEvalField
                         ),
-                        newEvalField
+                        sortCount,
+                        sortField
                     ),
-                    sortCount,
-                    sortField
+                    dedupeField
                 ),
                 include
             );
@@ -154,26 +161,29 @@ class ElasticsearchIndexTest {
         Table index = new ElasticsearchIndex(client, indexName);
         assertEquals(
             PhysicalPlanDSL.project(
-                PhysicalPlanDSL.sort(
-                    PhysicalPlanDSL.eval(
-                        PhysicalPlanDSL.remove(
-                            PhysicalPlanDSL.rename(
-                                PhysicalPlanDSL.agg(
-                                    PhysicalPlanDSL.filter(
-                                        new ElasticsearchIndexScan(client, indexName),
-                                        filterExpr
+                PhysicalPlanDSL.dedupe(
+                    PhysicalPlanDSL.sort(
+                        PhysicalPlanDSL.eval(
+                            PhysicalPlanDSL.remove(
+                                PhysicalPlanDSL.rename(
+                                    PhysicalPlanDSL.agg(
+                                        PhysicalPlanDSL.filter(
+                                            new ElasticsearchIndexScan(client, indexName),
+                                            filterExpr
+                                        ),
+                                        aggregators,
+                                        groupByExprs
                                     ),
-                                    aggregators,
-                                    groupByExprs
+                                    mappings
                                 ),
-                                mappings
+                                exclude
                             ),
-                            exclude
+                            newEvalField
                         ),
-                        newEvalField
+                        sortCount,
+                        sortField
                     ),
-                    sortCount,
-                    sortField
+                    dedupeField
                 ),
                 include
             ),

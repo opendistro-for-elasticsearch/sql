@@ -47,7 +47,6 @@ IP:                                 'IP';
 NUM:                                'NUM';
 
 // ARGUMENT KEYWORDS
-KEEPEVENTS:                         'KEEPEVENTS';
 KEEPEMPTY:                          'KEEPEMPTY';
 CONSECUTIVE:                        'CONSECUTIVE';
 DEDUP_SPLITVALUES:                  'DEDUP_SPLITVALUES';
