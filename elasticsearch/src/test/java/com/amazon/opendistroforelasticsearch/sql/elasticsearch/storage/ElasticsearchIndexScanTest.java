@@ -37,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -52,6 +53,7 @@ class ElasticsearchIndexScanTest {
             indexScan.open();
             assertFalse(indexScan.hasNext());
         }
+        verify(client).cleanup(any());
     }
 
     @Test
@@ -80,6 +82,7 @@ class ElasticsearchIndexScanTest {
 
             assertFalse(indexScan.hasNext());
         }
+        verify(client).cleanup(any());
     }
 
     private void mockResponse(SearchHit[]... searchHitBatches) {

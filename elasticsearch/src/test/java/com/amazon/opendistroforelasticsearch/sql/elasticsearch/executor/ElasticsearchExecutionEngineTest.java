@@ -21,6 +21,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,10 +38,12 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.QueryResponse;
 import static com.google.common.collect.ImmutableMap.of;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -65,7 +68,7 @@ class ElasticsearchExecutionEngineTest {
             tupleValue(of("name", "John", "age", 20)),
             tupleValue(of("name", "Allen", "age", 30))
         );
-        PhysicalPlan plan = mockPlan(expected);
+        FakePhysicalPlan plan = new FakePhysicalPlan(expected.iterator());
 
         ElasticsearchExecutionEngine executor = new ElasticsearchExecutionEngine(client);
         List<ExprValue> actual = new ArrayList<>();
@@ -80,7 +83,10 @@ class ElasticsearchExecutionEngineTest {
                 fail("Error occurred during execution", e);
             }
         });
+
+        assertTrue(plan.hasOpen);
         assertEquals(expected, actual);
+        assertTrue(plan.hasClosed);
     }
 
     @Test
@@ -103,22 +109,36 @@ class ElasticsearchExecutionEngineTest {
             }
         });
         assertEquals(expected, actual.get());
+        verify(plan).close();
     }
 
-    private PhysicalPlan mockPlan(List<ExprValue> values) {
-        return new TableScanOperator() {
-            private final Iterator<ExprValue> it = values.iterator();
+    @RequiredArgsConstructor
+    private static class FakePhysicalPlan extends TableScanOperator {
+        private final Iterator<ExprValue> it;
+        private boolean hasOpen;
+        private boolean hasClosed;
 
-            @Override
-            public boolean hasNext() {
-                return it.hasNext();
-            }
+        @Override
+        public void open() {
+            super.open();
+            hasOpen = true;
+        }
 
-            @Override
-            public ExprValue next() {
-                return it.next();
-            }
-        };
+        @Override
+        public void close() {
+            super.close();
+            hasClosed = true;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return it.hasNext();
+        }
+
+        @Override
+        public ExprValue next() {
+            return it.next();
+        }
     }
 
 }

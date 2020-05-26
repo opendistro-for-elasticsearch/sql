@@ -101,16 +101,20 @@ public class ElasticsearchNodeClient implements ElasticsearchClient {
             esResponse = client.searchScroll(request.scrollRequest()).actionGet();
         } else {
             esResponse = client.search(request.searchRequest()).actionGet();
-            request.setScrollId(esResponse.getScrollId());
         }
+        request.setScrollId(esResponse.getScrollId());
 
-        ElasticsearchResponse response = new ElasticsearchResponse(esResponse);
-        if (response.isEmpty()) {
+        return new ElasticsearchResponse(esResponse);
+    }
+
+    @Override
+    public void cleanup(ElasticsearchRequest request) {
+        if (request.isScrollStarted()) {
             client.prepareClearScroll().
-                   addScrollId(esResponse.getScrollId()).
+                   addScrollId(request.getScrollId()).
                    get();
+            request.reset();
         }
-        return response;
     }
 
     @Override
