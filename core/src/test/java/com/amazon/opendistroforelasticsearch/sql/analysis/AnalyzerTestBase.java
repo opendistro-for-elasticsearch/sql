@@ -67,7 +67,7 @@ public class AnalyzerTestBase {
 
   @Bean
   protected ExpressionAnalyzer expressionAnalyzer(DSL dsl, BuiltinFunctionRepository repo) {
-    return new ExpressionAnalyzer(dsl, repo);
+    return new ExpressionAnalyzer(repo);
   }
 
   protected void assertAnalyzeEqual(LogicalPlan expected, UnresolvedPlan unresolvedPlan) {

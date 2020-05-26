@@ -17,7 +17,11 @@ package com.amazon.opendistroforelasticsearch.sql.analysis;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.argument;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.compare;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.filter;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -42,6 +46,15 @@ class AnalyzerTest extends AnalyzerTestBase {
         AstDSL.filter(
             AstDSL.relation("schema"),
             AstDSL.equalTo(AstDSL.field("integer_value"), AstDSL.intLiteral(1))));
+  }
+
+  @Test
+  public void analyze_filter_relation() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.filter(
+            LogicalPlanDSL.relation("schema"),
+            dsl.equal(typeEnv, DSL.ref("integer_value"), DSL.literal(integerValue(1)))),
+        filter(relation("schema"), compare("=", field("integer_value"), intLiteral(1))));
   }
 
   @Test

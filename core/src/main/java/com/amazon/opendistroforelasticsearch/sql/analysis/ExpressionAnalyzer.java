@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.analysis;
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
@@ -33,21 +34,25 @@ import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregat
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
-import java.util.List;
-import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
-
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Analyze the {@link UnresolvedExpression} in the {@link AnalysisContext} to construct the {@link
  * Expression}
  */
-@RequiredArgsConstructor
 public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, AnalysisContext> {
-  private final DSL dsl;
   private final BuiltinFunctionRepository repository;
+  private final DSL dsl;
+
+  public ExpressionAnalyzer(
+      BuiltinFunctionRepository repository) {
+    this.repository = repository;
+    this.dsl = new DSL(repository);
+  }
 
   public Expression analyze(UnresolvedExpression unresolved, AnalysisContext context) {
     return unresolved.accept(this, context);
@@ -103,6 +108,15 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
             .map(unresolvedExpression -> analyze(unresolvedExpression, context))
             .collect(Collectors.toList());
     return (Expression) repository.compile(functionName, arguments, context.peek());
+  }
+
+  @Override
+  public Expression visitCompare(Compare node, AnalysisContext context) {
+    FunctionName functionName = FunctionName.of(node.getOperator());
+    Expression left = analyze(node.getLeft(), context);
+    Expression right = analyze(node.getRight(), context);
+    return (Expression)
+        repository.compile(functionName, Arrays.asList(left, right), context.peek());
   }
 
   @Override
