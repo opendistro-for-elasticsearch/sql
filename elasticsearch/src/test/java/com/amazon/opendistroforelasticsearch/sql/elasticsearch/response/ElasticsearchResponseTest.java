@@ -57,6 +57,11 @@ class ElasticsearchResponseTest {
         when(esResponse.getHits()).thenReturn(SearchHits.empty());
         ElasticsearchResponse response2 = new ElasticsearchResponse(esResponse);
         assertTrue(response2.isEmpty());
+
+        when(esResponse.getHits()).thenReturn(
+            new SearchHits(null, new TotalHits(0, TotalHits.Relation.EQUAL_TO), 0));
+        ElasticsearchResponse response3 = new ElasticsearchResponse(esResponse);
+        assertTrue(response3.isEmpty());
     }
 
     @Test

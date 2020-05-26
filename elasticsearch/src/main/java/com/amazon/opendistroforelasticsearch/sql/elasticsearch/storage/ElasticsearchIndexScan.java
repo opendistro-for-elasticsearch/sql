@@ -63,6 +63,8 @@ public class ElasticsearchIndexScan extends TableScanOperator {
 
     @Override
     public void open() {
+        super.open();
+
         // For now pull all results immediately once open
         List<ElasticsearchResponse> responses = new ArrayList<>();
         ElasticsearchResponse response = client.search(request);
@@ -81,6 +83,13 @@ public class ElasticsearchIndexScan extends TableScanOperator {
     @Override
     public ExprValue next() {
         return ExprValueUtils.fromObjectValue(hits.next().getSourceAsMap());
+    }
+
+    @Override
+    public void close() {
+        super.close();
+
+        client.cleanup(request);
     }
 
 }
