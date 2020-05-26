@@ -61,4 +61,18 @@ public class PhysicalPlanDSL {
       Expression>... sorts) {
     return new SortOperator(input, count, Arrays.asList(sorts));
   }
+
+  public static DedupeOperator dedupe(PhysicalPlan input, Expression... expressions) {
+    return new DedupeOperator(input, Arrays.asList(expressions));
+  }
+
+  public static DedupeOperator dedupe(
+      PhysicalPlan input,
+      int allowedDuplication,
+      boolean keepEmpty,
+      boolean consecutive,
+      Expression... expressions) {
+    return new DedupeOperator(
+        input, Arrays.asList(expressions), allowedDuplication, keepEmpty, consecutive);
+  }
 }

@@ -56,12 +56,27 @@ public class LogicalPlanDSL {
     return new LogicalRemove(input, ImmutableSet.copyOf(fields));
   }
 
-  public static LogicalPlan eval(LogicalPlan input, Pair<ReferenceExpression, Expression>... expressions) {
+  public static LogicalPlan eval(
+      LogicalPlan input, Pair<ReferenceExpression, Expression>... expressions) {
     return new LogicalEval(input, Arrays.asList(expressions));
   }
 
-  public static LogicalPlan sort(LogicalPlan input,
-      Integer count, Pair<SortOption, Expression>... sorts) {
+  public static LogicalPlan sort(
+      LogicalPlan input, Integer count, Pair<SortOption, Expression>... sorts) {
     return new LogicalSort(input, count, Arrays.asList(sorts));
+  }
+
+  public static LogicalPlan dedupe(LogicalPlan input, Expression... fields) {
+    return dedupe(input, 1, false, false, fields);
+  }
+
+  public static LogicalPlan dedupe(
+      LogicalPlan input,
+      int allowedDuplication,
+      boolean keepEmpty,
+      boolean consecutive,
+      Expression... fields) {
+    return new LogicalDedupe(
+        input, Arrays.asList(fields), allowedDuplication, keepEmpty, consecutive);
   }
 }

@@ -80,9 +80,6 @@ public class ArgumentFactory {
                 ctx.number != null
                     ? new Argument("number", getArgumentValue(ctx.number))
                     : new Argument("number", new Literal(1, DataType.INTEGER)),
-                ctx.keeevents != null
-                    ? new Argument("keepevents", getArgumentValue(ctx.keeevents))
-                    : new Argument("keepevents", new Literal(false, DataType.BOOLEAN)),
                 ctx.keepempty != null
                     ? new Argument("keepempty", getArgumentValue(ctx.keepempty))
                     : new Argument("keepempty", new Literal(false, DataType.BOOLEAN)),

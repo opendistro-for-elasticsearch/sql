@@ -77,6 +77,7 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
     PhysicalPlan remove = PhysicalPlanDSL.remove(plan, ref);
     PhysicalPlan eval = PhysicalPlanDSL.eval(plan, Pair.of(ref, ref));
     PhysicalPlan sort = PhysicalPlanDSL.sort(plan, 100, Pair.of(SortOption.PPL_ASC, ref));
+    PhysicalPlan dedupe = PhysicalPlanDSL.dedupe(plan, ref);
 
     assertNull(filter.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {}, null));
     assertNull(aggregation.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {}, null));
@@ -85,6 +86,7 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
     assertNull(remove.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {}, null));
     assertNull(eval.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {}, null));
     assertNull(sort.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {}, null));
+    assertNull(dedupe.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {}, null));
   }
 
   public static class PhysicalPlanPrinter extends PhysicalPlanNodeVisitor<String, Integer> {

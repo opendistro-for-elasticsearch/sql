@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.parser;
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.PPLSyntaxParser;
 import com.amazon.opendistroforelasticsearch.sql.ast.Node;
 import java.util.Collections;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.agg;
@@ -25,6 +26,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.aggregate
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.argument;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.compare;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.dedupe;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultDedupArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultFieldsArgs;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.defaultSortOptions;
@@ -188,16 +190,14 @@ public class AstBuilderTest {
     @Test
     public void testDedupCommand() {
         assertEqual("source=t | dedup f1, f2",
-                agg(
+                dedupe(
                         relation("t"),
-                        exprList(field("f1"), field("f2")),
-                        null,
-                        null,
-                        defaultDedupArgs()
+                        defaultDedupArgs(),
+                        field("f1"), field("f2")
                 ));
     }
 
-    @Test
+    @Ignore(value = "disable sortby from the dedup command syntax")
     public void testDedupCommandWithSortby() {
         assertEqual("source=t | dedup f1, f2 sortby f3",
                 agg(

@@ -64,6 +64,7 @@ class LogicalPlanNodeVisitorTest {
     LogicalPlan remove = LogicalPlanDSL.remove(relation, ref);
     LogicalPlan eval = LogicalPlanDSL.eval(relation, Pair.of(ref, expression));
     LogicalPlan sort = LogicalPlanDSL.sort(relation, 100, Pair.of(SortOption.PPL_ASC, expression));
+    LogicalPlan dedup = LogicalPlanDSL.dedupe(relation, 1, false, false, expression);
 
     assertNull(relation.accept(new LogicalPlanNodeVisitor<Integer, Object>() {}, null));
     assertNull(filter.accept(new LogicalPlanNodeVisitor<Integer, Object>() {}, null));
@@ -73,6 +74,7 @@ class LogicalPlanNodeVisitorTest {
     assertNull(remove.accept(new LogicalPlanNodeVisitor<Integer, Object>() {}, null));
     assertNull(eval.accept(new LogicalPlanNodeVisitor<Integer, Object>() {}, null));
     assertNull(sort.accept(new LogicalPlanNodeVisitor<Integer, Object>() {}, null));
+    assertNull(dedup.accept(new LogicalPlanNodeVisitor<Integer, Object>() {}, null));
   }
 
   private static class NodesCount extends LogicalPlanNodeVisitor<Integer, Object> {

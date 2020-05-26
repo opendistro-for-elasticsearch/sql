@@ -38,6 +38,10 @@ public abstract class LogicalPlanNodeVisitor<R, C> {
     return visitNode(plan, context);
   }
 
+  public R visitDedupe(LogicalDedupe plan, C context) {
+    return visitNode(plan, context);
+  }
+
   public R visitRename(LogicalRename plan, C context) {
     return visitNode(plan, context);
   }
