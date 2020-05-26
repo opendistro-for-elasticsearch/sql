@@ -23,6 +23,7 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.io.Resources;
 import org.apache.lucene.search.TotalHits;
+import org.elasticsearch.action.search.ClearScrollRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.cluster.ClusterState;
@@ -32,7 +33,6 @@ import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.cluster.metadata.MetaData;
 import org.elasticsearch.cluster.service.ClusterService;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
-import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.DeprecationHandler;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;
 import org.elasticsearch.common.xcontent.XContentParser;
@@ -43,7 +43,9 @@ import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.threadpool.ThreadPool;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
@@ -60,6 +62,8 @@ import static org.mockito.Answers.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -156,9 +160,6 @@ class ElasticsearchNodeClientTest {
         when(scrollResponse.getScrollId()).thenReturn("scroll456");
         when(scrollResponse.getHits()).thenReturn(SearchHits.empty());
 
-        // Mock clear scroll request
-        when(nodeClient.prepareClearScroll().addScrollId("scroll456").get()).thenReturn(null);
-
         // Verify response for first scroll request
         ElasticsearchRequest request = new ElasticsearchRequest("test");
         ElasticsearchResponse response1 = client.search(request);
@@ -178,9 +179,8 @@ class ElasticsearchNodeClientTest {
     void schedule() {
         ThreadPool threadPool = mock(ThreadPool.class);
         when(threadPool.preserveContext(any())).then(invocation -> invocation.getArgument(0));
+        when(nodeClient.threadPool()).thenReturn(threadPool);
 
-        // Instantiate NodeClient because Mockito cannot mock final method threadPool()
-        nodeClient = new NodeClient(Settings.EMPTY, threadPool);
         doAnswer(invocation -> {
             Runnable task = invocation.getArgument(0);
             task.run();
@@ -192,6 +192,37 @@ class ElasticsearchNodeClientTest {
         AtomicBoolean isRun = new AtomicBoolean(false);
         client.schedule(() -> isRun.set(true));
         assertTrue(isRun.get());
+    }
+
+    @Test
+    void cleanup() {
+        ElasticsearchNodeClient client = new ElasticsearchNodeClient(mock(ClusterService.class),
+                                                                     nodeClient);
+
+        ClearScrollRequestBuilder requestBuilder = mock(ClearScrollRequestBuilder.class);
+        when(nodeClient.prepareClearScroll()).thenReturn(requestBuilder);
+        when(requestBuilder.addScrollId(any())).thenReturn(requestBuilder);
+        when(requestBuilder.get()).thenReturn(null);
+
+        ElasticsearchRequest request = new ElasticsearchRequest("test");
+        request.setScrollId("scroll123");
+        client.cleanup(request);
+        assertFalse(request.isScrollStarted());
+
+        InOrder inOrder = Mockito.inOrder(nodeClient, requestBuilder);
+        inOrder.verify(nodeClient).prepareClearScroll();
+        inOrder.verify(requestBuilder).addScrollId("scroll123");
+        inOrder.verify(requestBuilder).get();
+    }
+
+    @Test
+    void cleanupWithoutScrollId() {
+        ElasticsearchNodeClient client = new ElasticsearchNodeClient(mock(ClusterService.class),
+                                                                     nodeClient);
+
+        ElasticsearchRequest request = new ElasticsearchRequest("test");
+        client.cleanup(request);
+        verify(nodeClient, never()).prepareClearScroll();
     }
 
     private ElasticsearchNodeClient mockClient(String indexName, String mappings) {

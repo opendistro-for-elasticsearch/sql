@@ -42,6 +42,8 @@ import static com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine
 public class PPLService {
     private final PPLSyntaxParser parser;
 
+    private final Analyzer analyzer;
+
     private final StorageEngine storageEngine;
 
     private final ExecutionEngine executionEngine;
@@ -53,8 +55,6 @@ public class PPLService {
             UnresolvedPlan ast = cst.accept(new AstBuilder(new AstExpressionBuilder()));
 
             // 2.Analyze abstract syntax to generate logical plan
-            BuiltinFunctionRepository repository = new BuiltinFunctionRepository(new HashMap<>());
-            Analyzer analyzer = new Analyzer(new ExpressionAnalyzer(new DSL(repository), repository), storageEngine);
             LogicalPlan logicalPlan = analyzer.analyze(ast, new AnalysisContext());
 
             // 3.Generate optimal physical plan from logical plan

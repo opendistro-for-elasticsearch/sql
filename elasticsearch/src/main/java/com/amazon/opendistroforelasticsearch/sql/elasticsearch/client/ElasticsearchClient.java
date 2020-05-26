@@ -43,6 +43,12 @@ public interface ElasticsearchClient {
     ElasticsearchResponse search(ElasticsearchRequest request);
 
     /**
+     * Clean up resources related to the search request, for example scroll context.
+     * @param request       search request
+     */
+    void cleanup(ElasticsearchRequest request);
+
+    /**
      * Schedule a task to run.
      * @param task      task
      */

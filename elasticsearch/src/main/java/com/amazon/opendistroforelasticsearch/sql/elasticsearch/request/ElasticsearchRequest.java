@@ -29,10 +29,14 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import java.util.Objects;
 
 /**
- * Elasticsearch search request
+ * Elasticsearch search request. This has to be stateful because it needs to:
+ *
+ *  1) Accumulate search source builder when visiting logical plan to push down operation
+ *  2) Maintain scroll ID between calls to client search method
  */
 @EqualsAndHashCode
 @RequiredArgsConstructor
+@Getter
 @ToString
 public class ElasticsearchRequest {
 
@@ -56,7 +60,6 @@ public class ElasticsearchRequest {
     /**
      * Search request source builder.
      */
-    @Getter
     private final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
 
     /**
@@ -85,6 +88,14 @@ public class ElasticsearchRequest {
         Objects.requireNonNull(scrollId, "Scroll id cannot be null");
         return new SearchScrollRequest().scroll(DEFAULT_SCROLL_TIMEOUT).
                                          scrollId(scrollId);
+    }
+
+    /**
+     * Reset internal state in case any stale data. However, ideally the same instance
+     * is not supposed to be reused across different physical plan.
+     */
+    public void reset() {
+        scrollId = null;
     }
 
 }
