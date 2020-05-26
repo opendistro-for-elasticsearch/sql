@@ -12,20 +12,24 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public enum BuiltinFunctionName {
   ABS(FunctionName.of("abs")),
-  ADD(FunctionName.of("add")),
-  SUBTRACT(FunctionName.of("subtract")),
-  MULTIPLY(FunctionName.of("multiply")),
-  DIVIDE(FunctionName.of("divide")),
-  MODULES(FunctionName.of("modules")),
 
   AND(FunctionName.of("and")),
   OR(FunctionName.of("or")),
   XOR(FunctionName.of("xor")),
   NOT(FunctionName.of("not")),
   NOTEQUAL(FunctionName.of("notequal")),
-  EQUAL(FunctionName.of("equal")),
 
   TOSTRING(FunctionName.of("tostring")),
+
+  /**
+   * Operator
+   */
+  ADD(FunctionName.of("+")),
+  SUBTRACT(FunctionName.of("-")),
+  MULTIPLY(FunctionName.of("*")),
+  DIVIDE(FunctionName.of("/")),
+  MODULES(FunctionName.of("%")),
+  EQUAL(FunctionName.of("=")),
 
   /** Aggregation Function. */
   AVG(FunctionName.of("avg")),
