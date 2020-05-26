@@ -21,8 +21,8 @@ EMPLOYEES = "employees"
 
 class DocTestConnection(ESConnection):
 
-    def __init__(self):
-        super(DocTestConnection, self).__init__(endpoint=ENDPOINT)
+    def __init__(self, query_language="sql"):
+        super(DocTestConnection, self).__init__(endpoint=ENDPOINT, query_language=query_language)
         self.set_connection()
 
         settings = OutputSettings(table_format="psql", is_vertical=False)
@@ -119,7 +119,7 @@ class DocTests(unittest.TestSuite):
 
 def load_tests(loader, suite, ignore):
     tests = []
-    for fn in doctest_files('dql/explain.rst'):
+    for fn in doctest_files('sql/explain.rst'):
         tests.append(
             docsuite(
                 fn,
@@ -139,7 +139,7 @@ def load_tests(loader, suite, ignore):
             )
         )
 
-    for fn in doctest_files('dql/basics.rst'):  # todo: add more rst to test shuffle
+    for fn in doctest_files('sql/basics.rst'):  # todo: add more rst to test shuffle
         tests.append(docsuite(fn, setUp=set_up_accounts))
 
     # randomize order of tests to make sure they don't depend on each other
