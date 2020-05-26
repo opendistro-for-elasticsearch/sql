@@ -59,10 +59,17 @@ public class SimpleJsonResponseFormatter extends JsonResponseFormatter<QueryResu
 
         response.columnNameTypes().forEach((name, type) -> json.column(new Column(name, type)));
 
-        for (Object[] values : response) {
-            json.row(new DataRow(values));
-        }
+        json.datarows(fetchDataRows(response));
         return json.build();
+    }
+
+    private Object[][] fetchDataRows(QueryResult response) {
+        Object[][] rows = new Object[response.size()][];
+        int i = 0;
+        for (Object[] values : response) {
+            rows[i++] = values;
+        }
+        return rows;
     }
 
     /**
@@ -74,8 +81,7 @@ public class SimpleJsonResponseFormatter extends JsonResponseFormatter<QueryResu
         @Singular("column")
         private final List<Column> schema;
 
-        @Singular("row")
-        private final List<DataRow> datarows;
+        private final Object[][] datarows;
 
         private long total;
         private long size;
@@ -86,12 +92,6 @@ public class SimpleJsonResponseFormatter extends JsonResponseFormatter<QueryResu
     public static class Column {
         private final String name;
         private final String type;
-    }
-
-    @RequiredArgsConstructor
-    @Getter
-    public static class DataRow {
-        private final Object[] row;
     }
 
 }
