@@ -4,6 +4,9 @@ plugins {
 }
 
 def path = project(':').projectDir
+// temporary fix, because currently we are under migration to new architecture. need to run ./gradlew run from
+// plugin module, and will only build ppl in it.
+def plugin_path = project(':plugin').projectDir
 
 task bootstrap(type: Exec) {
     inputs.file "$projectDir/bootstrap.sh"
@@ -14,7 +17,7 @@ task bootstrap(type: Exec) {
 
 //evaluationDependsOn(':')
 task startES(type: SpawnProcessTask) {
-    command "${path}/gradlew -p ${path} run"
+    command "${path}/gradlew -p ${plugin_path} run"
     ready 'started'
 }
 

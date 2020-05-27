@@ -5,32 +5,45 @@ Test query::
 
     sh$ curl -sS -H 'Content-Type: application/json' \
     ... -X POST localhost:9200/_opendistro/_ppl \
-    ... -d '{"query" : "source=demo-log | where region="us-east-1" | eval addOneStatus=status+1 | fields region, addOneStatus"}'
+    ... -d '{"query" : "source=accounts | fields firstname, lastname"}'
     {
       "schema": [
         {
-          "name": "region",
+          "name": "firstname",
           "type": "string"
         },
         {
-          "name": "addOneStatus",
-          "type": "long"
+          "name": "lastname",
+          "type": "string"
         }
       ],
-      "total": 2,
+      "total": 4,
       "datarows": [
         {
           "row": [
-            "us-east-1",
-            201
+            "Amber",
+            "Duke"
           ]
         },
         {
           "row": [
-            "us-east-1",
-            405
+            "Hattie",
+            "Bond"
+          ]
+        },
+        {
+          "row": [
+            "Nanette",
+            "Bates"
+          ]
+        },
+        {
+          "row": [
+            "Dale",
+            "Adams"
           ]
         }
       ],
-      "size": 2
+      "size": 4
     }
+

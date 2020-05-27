@@ -23,7 +23,7 @@ More often you would give specific field name(s) in ``SELECT`` clause to avoid l
 
 PPL query::
 
-    od> source=accounts age>20 | fields firstname, lastname
+    od> source=accounts | fields firstname, lastname;
     fetched rows / total rows = 4/4
     +-------------+------------+
     | firstname   | lastname   |

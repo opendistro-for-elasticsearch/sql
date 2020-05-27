@@ -1,3 +1,16 @@
+# Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License").
+# You may not use this file except in compliance with the License.
+# A copy of the License is located at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# or in the "license" file accompanying this file. This file is distributed
+# on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+# express or implied. See the License for the specific language governing
+# permissions and limitations under the License.
+
 import doctest
 import os
 import zc.customdoctests
@@ -44,23 +57,32 @@ def pretty_print(s):
         print(s)
 
 
-cmd = DocTestConnection()
+sql_cmd = DocTestConnection(query_language="sql")
+ppl_cmd = DocTestConnection(query_language="ppl")
 test_data_client = Elasticsearch([ENDPOINT], verify_certs=True)
 
 
-def cli_transform(s):
-    return u'cmd.process({0})'.format(repr(s.strip().rstrip(';')))
+def sql_cli_transform(s):
+    return u'sql_cmd.process({0})'.format(repr(s.strip().rstrip(';')))
+
+
+def ppl_cli_transform(s):
+    return u'ppl_cmd.process({0})'.format(repr(s.strip().rstrip(';')))
 
 
 def bash_transform(s):
-    if s.startswith("odfesql"):
-        s = re.search(r"odfesql\s+-q\s+\"(.*?)\"", s).group(1)
-        return u'cmd.process({0})'.format(repr(s.strip().rstrip(';')))
+    # TODO: add bothe sql and ppl support
+    # if s.startswith("odfesql"):
+    #     s = re.search(r"odfesql\s+-q\s+\"(.*?)\"", s).group(1)
+    #     return u'cmd.process({0})'.format(repr(s.strip().rstrip(';')))
     return (r'pretty_print(sh("""%s""").stdout.decode("utf-8"))' % s) + '\n'
 
 
-cli_parser = zc.customdoctests.DocTestParser(
-    ps1='od>', comment_prefix='#', transform=cli_transform)
+sql_cli_parser = zc.customdoctests.DocTestParser(
+    ps1='od>', comment_prefix='#', transform=sql_cli_transform)
+
+ppl_cli_parser = zc.customdoctests.DocTestParser(
+    ps1='od>', comment_prefix='#', transform=ppl_cli_transform)
 
 bash_parser = zc.customdoctests.DocTestParser(
     ps1=r'sh\$', comment_prefix='#', transform=bash_transform)
@@ -88,7 +110,8 @@ def load_file(filename, index_name):
 
 
 def set_up(test):
-    test.globs['cmd'] = cmd
+    test.globs['sql_cmd'] = sql_cmd
+    test.globs['ppl_cmd'] = ppl_cmd
 
 
 def tear_down(test):
@@ -99,7 +122,7 @@ def tear_down(test):
 
 docsuite = partial(doctest.DocFileSuite,
                    tearDown=tear_down,
-                   parser=cli_parser, # TODO: add bash parser for curl
+                   parser=sql_cli_parser,
                    optionflags=doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS,
                    encoding='utf-8')
 
@@ -119,7 +142,7 @@ class DocTests(unittest.TestSuite):
 
 def load_tests(loader, suite, ignore):
     tests = []
-    for fn in doctest_files('sql/explain.rst'):
+    for fn in doctest_files('ppl/curl.rst'): # TODO: Add 'sql/explain.rst' after codebase migration
         tests.append(
             docsuite(
                 fn,
@@ -138,9 +161,20 @@ def load_tests(loader, suite, ignore):
                 }
             )
         )
+    # SQL
+    # TODO: add until the migration to new architecture is done, then we have an artifact including ppl and sql both
+    # for fn in doctest_files('sql/basics.rst'):
+    #     tests.append(docsuite(fn, setUp=set_up_accounts))
 
-    for fn in doctest_files('sql/basics.rst'):  # todo: add more rst to test shuffle
-        tests.append(docsuite(fn, setUp=set_up_accounts))
+    # PPL
+    for fn in doctest_files('ppl/cli.rst'):
+        tests.append(
+            docsuite(
+                fn,
+                parser=ppl_cli_parser,
+                setUp=set_up_accounts
+            )
+        )
 
     # randomize order of tests to make sure they don't depend on each other
     random.shuffle(tests)
