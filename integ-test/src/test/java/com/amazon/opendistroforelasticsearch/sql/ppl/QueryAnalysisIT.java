@@ -84,14 +84,13 @@ public class QueryAnalysisIT extends PPLIntegTestCase {
         queryShouldPassSemanticCheck(query);
     }
 
-
     /**
      * Commands that fail semantic analysis should throw {@link SemanticCheckException}
      */
     @Test
     public void unsupportedAggregationShouldFailSemanticCheck() {
         String query = String.format("search source=%s | stats range(age)", TEST_INDEX_ACCOUNT);
-        queryShouldThrowSemanticException(query, "Unsupported aggregation function count");
+        queryShouldThrowSemanticException(query, "Unsupported aggregation function range");
     }
 
     @Test
