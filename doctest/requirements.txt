@@ -1,2 +1,2 @@
 zc.customdoctests==1.0.1
-# odfe-sql-cli==1.7.0.0
+# Add odfe-sql-cli once we have it on official PyPI

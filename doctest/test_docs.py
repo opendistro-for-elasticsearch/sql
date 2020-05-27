@@ -94,8 +94,6 @@ def set_up_accounts(test):
 
 
 def load_file(filename, index_name):
-    # todo: using one client under the hood for both uploading test data and set up cli connection?
-    #   cmd.client?
     filepath = "./test_data/" + filename
 
     # generate iterable data
@@ -135,13 +133,13 @@ def doctest_files(*items):
 
 
 class DocTests(unittest.TestSuite):
-
     def run(self, result, debug=False):
         super().run(result, debug)
 
 
 def load_tests(loader, suite, ignore):
     tests = []
+    # docs with bash-based examples
     for fn in doctest_files('ppl/curl.rst'): # TODO: Add 'sql/explain.rst' after codebase migration
         tests.append(
             docsuite(
@@ -161,12 +159,12 @@ def load_tests(loader, suite, ignore):
                 }
             )
         )
-    # SQL
+    # SQL docs with cli-based examples
     # TODO: add until the migration to new architecture is done, then we have an artifact including ppl and sql both
     # for fn in doctest_files('sql/basics.rst'):
     #     tests.append(docsuite(fn, setUp=set_up_accounts))
 
-    # PPL
+    # PPL docs with cli-based examples
     for fn in doctest_files('ppl/cli.rst'):
         tests.append(
             docsuite(

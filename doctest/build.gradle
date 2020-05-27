@@ -4,7 +4,7 @@ plugins {
 }
 
 def path = project(':').projectDir
-// temporary fix, because currently we are under migration to new architecture. need to run ./gradlew run from
+// temporary fix, because currently we are under migration to new architecture. Need to run ./gradlew run from
 // plugin module, and will only build ppl in it.
 def plugin_path = project(':plugin').projectDir
 
