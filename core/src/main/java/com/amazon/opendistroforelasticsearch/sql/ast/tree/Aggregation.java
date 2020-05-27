@@ -59,12 +59,15 @@ public class Aggregation extends UnresolvedPlan {
         this.argExprList = argExprList;
     }
 
+    public boolean hasArgument() {
+        return !aggExprList.isEmpty();
+    }
+
     @Override
     public Aggregation attach(UnresolvedPlan child) {
         this.child = child;
         return this;
     }
-
 
     @Override
     public List<UnresolvedPlan> getChild() {

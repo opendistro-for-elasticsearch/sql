@@ -18,8 +18,8 @@ package com.amazon.opendistroforelasticsearch.sql.analysis;
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.In;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Let;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Dedupe;
@@ -94,8 +94,7 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     LogicalPlan child = node.getChild().get(0).accept(this, context);
     ImmutableMap.Builder<ReferenceExpression, ReferenceExpression> renameMapBuilder =
         new ImmutableMap.Builder<>();
-    for (com.amazon.opendistroforelasticsearch.sql.ast.expression.Map renameMap :
-        node.getRenameList()) {
+    for (Map renameMap : node.getRenameList()) {
       Expression origin = expressionAnalyzer.analyze(renameMap.getOrigin(), context);
       // We should define the new target field in the context instead of analyze it.
       if (renameMap.getTarget() instanceof Field) {
@@ -134,7 +133,7 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
    * <p>Todo, the include/exclude fields should change the env definition. The cons of current
    * implementation is even the query contain the field reference which has been excluded from
    * fields command. There is no {@link SemanticCheckException} will be thrown. Instead, the during
-   * runtime evaluation, the not exist filed will be resolve to {@link ExprMissingValue} which will
+   * runtime evaluation, the not exist field will be resolve to {@link ExprMissingValue} which will
    * not impact the correctness.
    *
    * <p>Postpone the implementation when finding more use case.
@@ -146,13 +145,14 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
         node.getProjectList().stream()
             .map(expr -> (ReferenceExpression) expressionAnalyzer.analyze(expr, context))
             .collect(Collectors.toList());
-    Argument argument = node.getArgExprList().get(0);
-    Boolean exclude = (Boolean) argument.getValue().getValue();
-    if (exclude) {
-      return new LogicalRemove(child, ImmutableSet.copyOf(referenceExpressions));
-    } else {
-      return new LogicalProject(child, referenceExpressions);
+    if (node.hasArguments()) {
+      Argument argument = node.getArgExprList().get(0);
+      Boolean exclude = (Boolean) argument.getValue().getValue();
+      if (exclude) {
+        return new LogicalRemove(child, ImmutableSet.copyOf(referenceExpressions));
+      }
     }
+    return new LogicalProject(child, referenceExpressions);
   }
 
   /** Build {@link LogicalEval} */

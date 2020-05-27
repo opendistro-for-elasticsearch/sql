@@ -1,0 +1,131 @@
+/*
+ *   Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License").
+ *   You may not use this file except in compliance with the License.
+ *   A copy of the License is located at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   or in the "license" file accompanying this file. This file is distributed
+ *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ *   express or implied. See the License for the specific language governing
+ *   permissions and limitations under the License.
+ */
+
+package com.amazon.opendistroforelasticsearch.sql.ppl;
+
+import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
+import java.io.IOException;
+import org.elasticsearch.client.Request;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.ResponseException;
+import org.junit.Ignore;
+import org.junit.Test;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
+import static org.elasticsearch.rest.RestStatus.OK;
+
+public class QueryAnalysisIT extends PPLIntegTestCase {
+
+    @Override
+    public void init() throws IOException {
+        loadIndex(Index.ACCOUNT);
+    }
+
+    /**
+     * Valid commands should pass semantic check
+     */
+    @Test
+    public void searchCommandShouldPassSemanticCheck() {
+        String query = String.format("search source=%s age=20", TEST_INDEX_ACCOUNT);
+        queryShouldPassSemanticCheck(query);
+    }
+
+    @Test
+    public void whereCommandShouldPassSemanticCheck() {
+        String query = String.format("search source=%s | where age=20", TEST_INDEX_ACCOUNT);
+        queryShouldPassSemanticCheck(query);
+    }
+
+    @Test
+    public void fieldsCommandShouldPassSemanticCheck() {
+        String query = String.format("search source=%s | fields firstname", TEST_INDEX_ACCOUNT);
+        queryShouldPassSemanticCheck(query);
+    }
+
+    @Ignore("Can't resolve target field yet")
+    @Test
+    public void renameCommandShouldPassSemanticCheck() {
+        String query = String.format("search source=%s | rename firstname as first", TEST_INDEX_ACCOUNT);
+        queryShouldPassSemanticCheck(query);
+    }
+
+    @Test
+    public void statsCommandShouldPassSemanticCheck() {
+        String query = String.format("search source=%s | stats avg(age)", TEST_INDEX_ACCOUNT);
+        queryShouldPassSemanticCheck(query);
+    }
+
+    @Test
+    public void dedupCommandShouldPassSemanticCheck() {
+        String query = String.format("search source=%s | dedup firstname, lastname", TEST_INDEX_ACCOUNT);
+        queryShouldPassSemanticCheck(query);
+    }
+
+    @Test
+    public void sortCommandShouldPassSemanticCheck() {
+        String query = String.format("search source=%s | sort age", TEST_INDEX_ACCOUNT);
+        queryShouldPassSemanticCheck(query);
+    }
+
+    @Test
+    public void evalCommandShouldPassSemanticCheck() {
+        String query = String.format("search source=%s | eval age=abs(age)", TEST_INDEX_ACCOUNT);
+        queryShouldPassSemanticCheck(query);
+    }
+
+
+    /**
+     * Commands that fail semantic analysis should throw {@link SemanticCheckException}
+     */
+    @Test
+    public void unsupportedAggregationShouldFailSemanticCheck() {
+        String query = String.format("search source=%s | stats count(age)", TEST_INDEX_ACCOUNT);
+        queryShouldThrowSemanticException(query, "Unsupported aggregation function: count");
+    }
+
+    @Test
+    public void nonexistentIndexShouldFailSemanticCheck() {
+        String query = String.format("search source=%s | fields name", TEST_INDEX_ACCOUNT);
+        queryShouldThrowSemanticException(query, "Can't resolve expression: name");
+    }
+
+
+    private void queryShouldPassSemanticCheck(String query) {
+        Request request = buildRequest(query);
+        try {
+            Response response = client().performRequest(request);
+            assertEquals(OK.getStatus(), response.getStatusLine().getStatusCode());
+        } catch (SemanticCheckException e) {
+            fail("Expected to pass semantic check but failed for query: " + query);
+        } catch (IOException e) {
+            throw new IllegalStateException("Unexpected IOException raised for query: " + query);
+        }
+    }
+
+    private void queryShouldThrowSemanticException(String query, String... messages) {
+        try {
+            executeQuery(query);
+            fail("Expected to throw SemanticCheckException, but none was thrown for query: " + query);
+        } catch (ResponseException e) {
+            String errorMsg = e.getMessage();
+            assertTrue(errorMsg.contains("SemanticCheckException"));
+            for (String msg: messages) {
+                assertTrue(errorMsg.contains(msg));
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException("Unexpected exception raised for query: " + query);
+        }
+    }
+
+}

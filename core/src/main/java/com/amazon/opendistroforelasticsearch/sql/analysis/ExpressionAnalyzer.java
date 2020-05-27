@@ -96,7 +96,7 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
           repository.compile(
               builtinFunctionName.get().getName(), Collections.singletonList(arg), context.peek());
     } else {
-      throw new SemanticCheckException("Unsupported aggregation function " + node.getFuncName());
+      throw new SemanticCheckException("Unsupported aggregation function: " + node.getFuncName());
     }
   }
 
