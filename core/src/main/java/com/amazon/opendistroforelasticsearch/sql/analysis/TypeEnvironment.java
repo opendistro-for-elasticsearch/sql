@@ -63,7 +63,7 @@ public class TypeEnvironment implements Environment<Expression, ExprType> {
                 }
             }
         }
-        throw new SemanticCheckException(String.format("Can't resolve expression: %s", var));
+        throw new SemanticCheckException(String.format("can't resolve expression %s in type env", var));
     }
 
     /**
@@ -77,7 +77,7 @@ public class TypeEnvironment implements Environment<Expression, ExprType> {
             ReferenceExpression ref = (ReferenceExpression) var;
             symbolTable.store(new Symbol(Namespace.FIELD_NAME, ref.getAttr()), type);
         } else {
-            throw new IllegalArgumentException(String.format("Only support defined reference, unexpected expression: %s"
+            throw new IllegalArgumentException(String.format("only support define reference, unexpected expression %s"
                     , var));
         }
     }

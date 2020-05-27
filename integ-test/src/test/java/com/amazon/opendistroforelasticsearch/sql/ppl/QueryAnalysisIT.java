@@ -91,13 +91,13 @@ public class QueryAnalysisIT extends PPLIntegTestCase {
     @Test
     public void unsupportedAggregationShouldFailSemanticCheck() {
         String query = String.format("search source=%s | stats count(age)", TEST_INDEX_ACCOUNT);
-        queryShouldThrowSemanticException(query, "Unsupported aggregation function: count");
+        queryShouldThrowSemanticException(query, "Unsupported aggregation function count");
     }
 
     @Test
     public void nonexistentIndexShouldFailSemanticCheck() {
         String query = String.format("search source=%s | fields name", TEST_INDEX_ACCOUNT);
-        queryShouldThrowSemanticException(query, "Can't resolve expression: name");
+        queryShouldThrowSemanticException(query, "can't resolve expression name in type env");
     }
 
 
