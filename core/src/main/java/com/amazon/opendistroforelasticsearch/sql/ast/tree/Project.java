@@ -48,7 +48,7 @@ public class Project extends UnresolvedPlan {
         this.argExprList = argExprList;
     }
 
-    public boolean hasArguments() {
+    public boolean hasArgument() {
         return !argExprList.isEmpty();
     }
 

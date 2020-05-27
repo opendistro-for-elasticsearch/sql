@@ -145,7 +145,7 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
         node.getProjectList().stream()
             .map(expr -> (ReferenceExpression) expressionAnalyzer.analyze(expr, context))
             .collect(Collectors.toList());
-    if (node.hasArguments()) {
+    if (node.hasArgument()) {
       Argument argument = node.getArgExprList().get(0);
       Boolean exclude = (Boolean) argument.getValue().getValue();
       if (exclude) {
