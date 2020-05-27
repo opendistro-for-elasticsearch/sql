@@ -19,30 +19,22 @@ Test query::
       ],
       "total": 4,
       "datarows": [
-        {
-          "row": [
-            "Amber",
-            "Duke"
-          ]
-        },
-        {
-          "row": [
-            "Hattie",
-            "Bond"
-          ]
-        },
-        {
-          "row": [
-            "Nanette",
-            "Bates"
-          ]
-        },
-        {
-          "row": [
-            "Dale",
-            "Adams"
-          ]
-        }
+        [
+          "Amber",
+          "Duke"
+        ],
+        [
+          "Hattie",
+          "Bond"
+        ],
+        [
+          "Nanette",
+          "Bates"
+        ],
+        [
+          "Dale",
+          "Adams"
+        ]
       ],
       "size": 4
     }

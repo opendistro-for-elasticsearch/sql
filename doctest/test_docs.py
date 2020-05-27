@@ -71,10 +71,10 @@ def ppl_cli_transform(s):
 
 
 def bash_transform(s):
-    # TODO: add bothe sql and ppl support
-    # if s.startswith("odfesql"):
-    #     s = re.search(r"odfesql\s+-q\s+\"(.*?)\"", s).group(1)
-    #     return u'cmd.process({0})'.format(repr(s.strip().rstrip(';')))
+    # TODO: add ppl support, be default cli uses sql
+    if s.startswith("odfesql"):
+        s = re.search(r"odfesql\s+-q\s+\"(.*?)\"", s).group(1)
+        return u'cmd.process({0})'.format(repr(s.strip().rstrip(';')))
     return (r'pretty_print(sh("""%s""").stdout.decode("utf-8"))' % s) + '\n'
 
 
