@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.plugin;
 
 import com.amazon.opendistroforelasticsearch.sql.plugin.rest.RestPPLQueryAction;
+import com.amazon.opendistroforelasticsearch.sql.plugin.rest.RestSQLQueryAction;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.metadata.IndexNameExpressionResolver;
 import org.elasticsearch.cluster.node.DiscoveryNodes;
@@ -54,7 +55,8 @@ public class SQLPlugin extends Plugin implements ActionPlugin {
                                              Supplier<DiscoveryNodes> nodesInCluster) {
         Objects.requireNonNull(clusterService, "Cluster service is required");
         return Arrays.asList(
-                new RestPPLQueryAction(restController, clusterService)
+                new RestPPLQueryAction(restController, clusterService),
+                new RestSQLQueryAction(restController, clusterService)
         );
     }
 
