@@ -29,7 +29,7 @@ import java.util.Locale;
 import static com.amazon.opendistroforelasticsearch.sql.utils.ExpressionUtils.format;
 
 /**
- * The average aggregator aggregate the value evaluated by the expression.
+ * The count aggregator aggregate the value evaluated by the expression.
  * If the expression evaluated result is NULL or MISSING, then the result is NULL.
  */
 public class AvgAggregator extends Aggregator<AvgAggregator.AvgState> {
