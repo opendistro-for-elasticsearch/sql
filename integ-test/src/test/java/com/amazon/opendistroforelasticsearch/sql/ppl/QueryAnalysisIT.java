@@ -90,22 +90,19 @@ public class QueryAnalysisIT extends PPLIntegTestCase {
      */
     @Test
     public void unsupportedAggregationShouldFailSemanticCheck() {
-        String query = String.format("search source=%s | stats count(age)", TEST_INDEX_ACCOUNT);
+        String query = String.format("search source=%s | stats range(age)", TEST_INDEX_ACCOUNT);
         queryShouldThrowSemanticException(query, "Unsupported aggregation function count");
     }
 
     @Test
-    public void nonexistentIndexShouldFailSemanticCheck() {
+    public void nonexistentFieldShouldFailSemanticCheck() {
         String query = String.format("search source=%s | fields name", TEST_INDEX_ACCOUNT);
         queryShouldThrowSemanticException(query, "can't resolve expression name in type env");
     }
 
-
     private void queryShouldPassSemanticCheck(String query) {
-        Request request = buildRequest(query);
         try {
-            Response response = client().performRequest(request);
-            assertEquals(OK.getStatus(), response.getStatusLine().getStatusCode());
+            executeQuery(query);
         } catch (SemanticCheckException e) {
             fail("Expected to pass semantic check but failed for query: " + query);
         } catch (IOException e) {
