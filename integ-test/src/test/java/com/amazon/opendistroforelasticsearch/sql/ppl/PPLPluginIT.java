@@ -52,7 +52,7 @@ public class PPLPluginIT extends PPLIntegTestCase {
             "    \"type\": \"string\"\n" +
             "  }],\n" +
             "  \"total\": 1,\n" +
-            "  \"datarows\": [{\"row\": [\"hello\"]}],\n" +
+            "  \"datarows\": [[\"hello\"]],\n" +
             "  \"size\": 1\n" +
             "}\n",
             response
