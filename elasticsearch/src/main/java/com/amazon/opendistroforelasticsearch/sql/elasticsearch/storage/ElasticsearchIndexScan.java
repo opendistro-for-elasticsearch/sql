@@ -21,15 +21,26 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchRequest;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
 import com.google.common.collect.Iterables;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.script.Script;
 import org.elasticsearch.search.SearchHit;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Iterator;
 import java.util.List;
+
+import static java.util.Collections.emptyMap;
 
 /**
  * Elasticsearch index scan operator
@@ -90,6 +101,31 @@ public class ElasticsearchIndexScan extends TableScanOperator {
         super.close();
 
         client.cleanup(request);
+    }
+
+    public void pushDown(LogicalFilter filter) {
+        request.getSourceBuilder().query(
+            QueryBuilders.scriptQuery(
+                new Script(
+                    Script.DEFAULT_SCRIPT_TYPE,
+                    "expression",
+                    serialize(filter.getCondition()),
+                    emptyMap() // TODO
+                )
+            )
+        );
+    }
+
+    private String serialize(Expression expression) {
+        try {
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            ObjectOutputStream objectOutput = new ObjectOutputStream(output);
+            objectOutput.writeObject(expression);
+            objectOutput.flush();
+            return Base64.getEncoder().encodeToString(output.toByteArray());
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to serialize expression: " + expression, e);
+        }
     }
 
 }

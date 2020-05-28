@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.plugin;
 
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.script.ExpressionScriptEngine;
 import com.amazon.opendistroforelasticsearch.sql.plugin.rest.RestPPLQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.plugin.rest.RestSQLQueryAction;
 import org.elasticsearch.client.Client;
@@ -31,8 +32,11 @@ import org.elasticsearch.env.Environment;
 import org.elasticsearch.env.NodeEnvironment;
 import org.elasticsearch.plugins.ActionPlugin;
 import org.elasticsearch.plugins.Plugin;
+import org.elasticsearch.plugins.ScriptPlugin;
 import org.elasticsearch.rest.RestController;
 import org.elasticsearch.rest.RestHandler;
+import org.elasticsearch.script.ScriptContext;
+import org.elasticsearch.script.ScriptEngine;
 import org.elasticsearch.script.ScriptService;
 import org.elasticsearch.threadpool.ThreadPool;
 import org.elasticsearch.watcher.ResourceWatcherService;
@@ -43,7 +47,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-public class SQLPlugin extends Plugin implements ActionPlugin {
+public class SQLPlugin extends Plugin implements ActionPlugin, ScriptPlugin {
 
     private ClusterService clusterService;
 
@@ -70,4 +74,8 @@ public class SQLPlugin extends Plugin implements ActionPlugin {
                                       xContentRegistry, environment, nodeEnvironment, namedWriteableRegistry);
     }
 
+    @Override
+    public ScriptEngine getScriptEngine(Settings settings, Collection<ScriptContext<?>> contexts) {
+        return new ExpressionScriptEngine();
+    }
 }

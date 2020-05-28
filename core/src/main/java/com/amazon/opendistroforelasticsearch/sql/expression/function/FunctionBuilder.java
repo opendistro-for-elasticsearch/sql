@@ -17,12 +17,13 @@ package com.amazon.opendistroforelasticsearch.sql.expression.function;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * The definition of function which create {@link FunctionImplementation} from input {@link Expression} list.
  */
-public interface FunctionBuilder {
+public interface FunctionBuilder extends Serializable {
 
     /**
      * Create {@link FunctionImplementation} from input {@link Expression} list

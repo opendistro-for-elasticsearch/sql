@@ -17,12 +17,13 @@ package com.amazon.opendistroforelasticsearch.sql.expression.function;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * The definition of Function Implementation.
  */
-public interface FunctionImplementation {
+public interface FunctionImplementation extends Serializable {
 
     /**
      * Get Function Name.

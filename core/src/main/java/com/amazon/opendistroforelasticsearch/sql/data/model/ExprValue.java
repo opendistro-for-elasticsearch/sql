@@ -17,10 +17,12 @@ package com.amazon.opendistroforelasticsearch.sql.data.model;
 
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
 
+import java.io.Serializable;
+
 /**
  * The definition of the Expression Value.
  */
-public interface ExprValue {
+public interface ExprValue extends Serializable {
     /**
      * Get the Object value of the Expression Value.
      */

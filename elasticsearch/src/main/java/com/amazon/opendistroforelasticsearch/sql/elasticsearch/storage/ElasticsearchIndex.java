@@ -19,6 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregation;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalDedupe;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalEval;
@@ -144,7 +145,9 @@ public class ElasticsearchIndex implements Table {
 
             @Override
             public PhysicalPlan visitFilter(LogicalFilter node, ElasticsearchIndexScan context) {
-                return new FilterOperator(visitChild(node, context), node.getCondition());
+                //return new FilterOperator(visitChild(node, context), node.getCondition());
+                context.pushDown(node);
+                return context;
             }
 
             @Override

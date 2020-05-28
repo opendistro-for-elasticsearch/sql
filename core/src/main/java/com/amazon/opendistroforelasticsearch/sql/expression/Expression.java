@@ -19,10 +19,12 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 
+import java.io.Serializable;
+
 /**
  * The definition of the resolved expression.
  */
-public interface Expression {
+public interface Expression extends Serializable {
 
     /**
      * Evaluate the value of expression in the value environment

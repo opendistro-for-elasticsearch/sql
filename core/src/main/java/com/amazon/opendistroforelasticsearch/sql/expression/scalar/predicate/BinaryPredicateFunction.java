@@ -32,6 +32,7 @@ import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Table;
 import lombok.experimental.UtilityClass;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -198,7 +199,7 @@ public class BinaryPredicateFunction {
                         Long::equals,
                         Float::equals,
                         Double::equals,
-                        String::equals,
+                        (BiFunction<String, String, Boolean> & Serializable) String::equals,
                         Boolean::equals,
                         List::equals,
                         Map::equals
@@ -230,7 +231,7 @@ public class BinaryPredicateFunction {
                 equal(functionName, doubleFunc, ExprValueUtils::getDoubleValue,
                         ExprType.BOOLEAN));
         builder.put(new FunctionSignature(functionName, Arrays.asList(ExprType.STRING, ExprType.STRING)),
-                equal(functionName, stringFunc, ExprValueUtils::getStringValue,
+                equal(functionName, stringFunc, (Function<ExprValue, String> & Serializable) ExprValueUtils::getStringValue,
                         ExprType.BOOLEAN));
         builder.put(new FunctionSignature(functionName, Arrays.asList(ExprType.BOOLEAN, ExprType.BOOLEAN)),
                 equal(functionName, booleanFunc, ExprValueUtils::getBooleanValue,

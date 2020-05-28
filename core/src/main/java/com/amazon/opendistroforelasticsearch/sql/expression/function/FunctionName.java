@@ -19,12 +19,14 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+import java.io.Serializable;
+
 /**
  * The definition of Function Name.
  */
 @EqualsAndHashCode
 @RequiredArgsConstructor
-public class FunctionName {
+public class FunctionName implements Serializable {
     @Getter
     private final String functionName;
 
