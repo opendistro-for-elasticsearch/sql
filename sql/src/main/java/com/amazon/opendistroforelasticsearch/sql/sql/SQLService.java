@@ -21,18 +21,29 @@ import com.amazon.opendistroforelasticsearch.sql.analysis.Analyzer;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature;
 import com.amazon.opendistroforelasticsearch.sql.planner.Planner;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.SQLSyntaxParser;
+import com.amazon.opendistroforelasticsearch.sql.sql.functions.Substring;
 import com.amazon.opendistroforelasticsearch.sql.sql.parser.AstBuilder;
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
-import lombok.RequiredArgsConstructor;
+import com.google.common.collect.ImmutableMap;
 import org.antlr.v4.runtime.tree.ParseTree;
 
+import java.util.Arrays;
+
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.QueryResponse;
 
-@RequiredArgsConstructor
+/**
+ * SQL service
+ */
 public class SQLService {
 
     private final SQLSyntaxParser parser;
@@ -42,6 +53,21 @@ public class SQLService {
     private final StorageEngine storageEngine;
 
     private final ExecutionEngine executionEngine;
+
+    private final BuiltinFunctionRepository functionRepository;
+
+
+    public SQLService(SQLSyntaxParser parser, Analyzer analyzer,
+                      StorageEngine storageEngine, ExecutionEngine executionEngine,
+                      BuiltinFunctionRepository functionRepository) {
+        this.parser = parser;
+        this.analyzer = analyzer;
+        this.storageEngine = storageEngine;
+        this.executionEngine = executionEngine;
+        this.functionRepository = functionRepository;
+
+        registerSQLFunctions();
+    }
 
     /**
      * Parse, analyze, plan and execute the query.
@@ -65,6 +91,21 @@ public class SQLService {
         } catch (Exception e) {
             listener.onFailure(e);
         }
+    }
+
+    private void registerSQLFunctions() {
+        functionRepository.register(substring());
+    }
+
+    private static FunctionResolver substring() {
+        FunctionName funcName = FunctionName.of("SUBSTRING");
+        return new FunctionResolver(
+            funcName,
+            ImmutableMap.of(
+                new FunctionSignature(funcName, Arrays.asList(STRING, INTEGER, INTEGER)),
+                Substring::new
+            )
+        );
     }
 
 }

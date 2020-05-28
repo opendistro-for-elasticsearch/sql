@@ -23,6 +23,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
@@ -56,6 +57,11 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
 
   public Expression analyze(UnresolvedExpression unresolved, AnalysisContext context) {
     return unresolved.accept(this, context);
+  }
+
+  @Override
+  public Expression visitQualifiedName(QualifiedName node, AnalysisContext context) {
+      return DSL.ref(node.toString());
   }
 
   @Override

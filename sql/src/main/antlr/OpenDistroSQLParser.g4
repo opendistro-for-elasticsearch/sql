@@ -47,7 +47,7 @@ dmlStatement
 //    Primary DML Statements
 
 selectStatement
-    : SELECT selectElements fromClause
+    : SELECT selectElements fromClause whereClause?
     ;
 
 //    Select Statement's Details
@@ -64,7 +64,15 @@ fromClause
     : FROM tableName
     ;
 
+whereClause
+    : WHERE whereExpr=expression
+    ;
+
 tableName
+    : uid
+    ;
+
+fullColumnName
     : uid
     ;
 
@@ -137,10 +145,13 @@ predicate
 // Add in ASTVisitor nullNotnull in constant
 expressionAtom
     : constant                                                      #constantExpressionAtom
+    | fullColumnName                                                #fullColumnNameExpressionAtom
+    | scalarFunction                                                #functionCallExpressionAtom
     | unaryOperator expressionAtom                                  #unaryExpressionAtom
     | '(' expression (',' expression)* ')'                          #nestedExpressionAtom
     | left=expressionAtom bitOperator right=expressionAtom          #bitExpressionAtom
     | left=expressionAtom mathOperator right=expressionAtom         #mathExpressionAtom
+    | left=expressionAtom comparisonOperator right=expressionAtom   #binaryComparisonPredicate
     ;
 
 unaryOperator
@@ -162,4 +173,20 @@ bitOperator
 
 mathOperator
     : '*' | '/' | '%' | DIV | MOD | '+' | '-'
+    ;
+
+scalarFunction
+    : functionNameBase '(' functionArgs? ')'
+    ;
+
+functionArgs
+    : (constant | fullColumnName | expression)
+    (
+      ','
+      (constant | fullColumnName | expression)
+    )*
+    ;
+
+functionNameBase
+    : SUBSTRING
     ;

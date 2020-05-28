@@ -10,7 +10,7 @@ repositories {
 }
 
 generateGrammarSource {
-    arguments += ['-visitor', '-package', 'com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser']
+    arguments += ['-visitor', '-package', 'com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser']
     source = sourceSets.main.antlr
     outputDirectory = file("build/generated-src/antlr/main/com/amazon/opendistroforelasticsearch/sql/sql/antlr/parser")
 }

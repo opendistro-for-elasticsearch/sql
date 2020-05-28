@@ -16,22 +16,26 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Compare;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
-import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroSQLParser.StringLiteralContext;
-import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroSQLParserBaseVisitor;
+import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.MathExpressionAtomContext;
+import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.UidContext;
+import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import static com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils.unquoteIdentifier;
-import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroSQLParser.BooleanLiteralContext;
-import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroSQLParser.DecimalLiteralContext;
-import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroSQLParser.MathExpressionAtomContext;
-import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroSQLParser.UidContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.BinaryComparisonPredicateContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.BooleanLiteralContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.DecimalLiteralContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.ScalarFunctionContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.StringLiteralContext;
 
 /**
  * Expression builder
@@ -43,9 +47,29 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
         return new Function(
             ctx.mathOperator().getText(),
             Arrays.asList(
-                ctx.left.accept(this),
-                ctx.right.accept(this)
+                visit(ctx.left),
+                visit(ctx.right)
             )
+        );
+    }
+
+    @Override
+    public UnresolvedExpression visitBinaryComparisonPredicate(BinaryComparisonPredicateContext ctx) {
+        return new Compare(
+            ctx.comparisonOperator().getText(),
+            visit(ctx.left),
+            visit(ctx.right)
+        );
+    }
+
+    @Override
+    public UnresolvedExpression visitScalarFunction(ScalarFunctionContext ctx) {
+        return new Function(
+            ctx.functionNameBase().getText(),
+            ctx.functionArgs().children.stream().
+                                        map(this::visit).
+                                        filter(argExpr -> argExpr != defaultResult()). // remove parentheses
+                                        collect(Collectors.toList())
         );
     }
 
@@ -61,12 +85,17 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
 
     @Override
     public UnresolvedExpression visitDecimalLiteral(DecimalLiteralContext ctx) {
-        return new Literal(Double.valueOf(ctx.getText()), DataType.DOUBLE);
+        return new Literal(Integer.valueOf(ctx.getText()), DataType.INTEGER);
     }
 
     @Override
     public UnresolvedExpression visitBooleanLiteral(BooleanLiteralContext ctx) {
         return new Literal(Boolean.valueOf(ctx.getText()), DataType.BOOLEAN);
+    }
+
+    @Override
+    protected UnresolvedExpression aggregateResult(UnresolvedExpression aggregate, UnresolvedExpression nextResult) {
+        return nextResult != null ? nextResult : aggregate;
     }
 
 }

@@ -38,7 +38,11 @@ public class SQLPluginIT extends RestIntegTestCase {
                                         addDoc("{\"firstname\": \"world\", \"lastname\": \"Smith\"}").
                                         create();
 
-        String results = index.query("SELECT 1 + 2 FROM %s");
+        String results = index.query("SELECT lastname FROM %s WHERE firstname = 'world'");
+        assertEquals(
+            "",
+            results
+        );
     }
 
     static class Index {

@@ -52,7 +52,7 @@ public class SQLServiceConfig {
 
     @Bean
     public SQLService pplService() {
-        return new SQLService(new SQLSyntaxParser(), analyzer(), storageEngine, executionEngine);
+        return new SQLService(new SQLSyntaxParser(), analyzer(), storageEngine, executionEngine, functionRepository);
     }
 
 }
