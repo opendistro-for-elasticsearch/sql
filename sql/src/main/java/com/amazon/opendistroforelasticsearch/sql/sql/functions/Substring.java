@@ -38,7 +38,7 @@ public class Substring extends SQLFunction {
     protected ExprValue valueOf(ExprValue[] argValues) {
         String str = (String) argValues[0].value();
         int start = (int) argValues[1].value();
-        int length = (int) argValues[1].value();
+        int length = (int) argValues[2].value();
         String result = str.substring(start, start + length);
         return ExprValueUtils.stringValue(result);
     }
