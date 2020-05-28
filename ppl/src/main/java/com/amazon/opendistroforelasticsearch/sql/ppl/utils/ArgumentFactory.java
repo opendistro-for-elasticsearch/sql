@@ -18,7 +18,6 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.utils;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
-import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -30,6 +29,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.FieldsCommandContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.IntegerLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.SortCommandContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.SortFieldContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.StatsCommandContext;
 
 
@@ -108,7 +108,7 @@ public class ArgumentFactory {
      * @param ctx SortFieldContext instance
      * @return the list of arguments fetched from the sort field in sort command
      */
-    public static List<Argument> getArgumentList(OpenDistroPPLParser.SortFieldContext ctx) {
+    public static List<Argument> getArgumentList(SortFieldContext ctx) {
         return Arrays.asList(
                 ctx.MINUS() != null
                         ? new Argument("asc", new Literal(false, DataType.BOOLEAN))

@@ -1,0 +1,40 @@
+{
+  "schema": [
+    {
+      "name": "firstname",
+      "type": "string"
+    },
+    {
+      "name": "age",
+      "type": "integer"
+    }
+  ],
+  "total": 6,
+  "datarows": [
+    [
+      "Amber JOHnny",
+      32
+    ],
+    [
+      "Hattie",
+      36
+    ],
+    [
+      "Nanette",
+      28
+    ],
+    [
+      "Dale",
+      33
+    ],
+    [
+      "Virginia",
+      39
+    ],
+    [
+      "Dillard",
+      34
+    ]
+  ],
+  "size": 6
+}

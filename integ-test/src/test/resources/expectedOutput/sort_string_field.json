@@ -1,0 +1,17 @@
+{
+  "schema": [{
+    "name": "lastname",
+    "type": "string"
+  }],
+  "total": 7,
+  "datarows": [
+    ["Adams"],
+    ["Ayala"],
+    ["Bates"],
+    ["Bond"],
+    ["Duke Willmington"],
+    ["Mcpherson"],
+    ["Ratliff"]
+  ],
+  "size": 7
+}

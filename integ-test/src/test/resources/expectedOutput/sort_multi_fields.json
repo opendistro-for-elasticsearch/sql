@@ -1,0 +1,55 @@
+{
+  "schema": [
+    {
+      "name": "firstname",
+      "type": "string"
+    },
+    {
+      "name": "age",
+      "type": "integer"
+    },
+    {
+      "name": "balance",
+      "type": "integer"
+    }
+  ],
+  "total": 7,
+  "datarows": [
+    [
+      "Nanette",
+      28,
+      32838
+    ],
+    [
+      "Amber JOHnny",
+      32,
+      39225
+    ],
+    [
+      "Dale",
+      33,
+      4180
+    ],
+    [
+      "Dillard",
+      34,
+      48086
+    ],
+    [
+      "Hattie",
+      36,
+      5686
+    ],
+    [
+      "Elinor",
+      36,
+      16418
+    ],
+    [
+      "Virginia",
+      39,
+      40540
+    ]
+  ],
+  "size": 7
+}
