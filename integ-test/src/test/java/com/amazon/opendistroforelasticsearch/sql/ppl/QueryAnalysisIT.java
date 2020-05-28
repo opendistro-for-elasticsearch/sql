@@ -17,13 +17,10 @@ package com.amazon.opendistroforelasticsearch.sql.ppl;
 
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import java.io.IOException;
-import org.elasticsearch.client.Request;
-import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseException;
 import org.junit.Ignore;
 import org.junit.Test;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
-import static org.elasticsearch.rest.RestStatus.OK;
 
 public class QueryAnalysisIT extends PPLIntegTestCase {
 

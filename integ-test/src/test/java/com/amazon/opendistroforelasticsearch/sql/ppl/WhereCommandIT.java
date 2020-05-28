@@ -16,8 +16,11 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
 import java.io.IOException;
-import org.junit.Test;
+import org.json.JSONObject;
+import org.junit.jupiter.api.Test;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
 
 public class WhereCommandIT extends PPLIntegTestCase {
 
@@ -28,23 +31,24 @@ public class WhereCommandIT extends PPLIntegTestCase {
 
     @Test
     public void testWhereWithLogicalExpr() throws IOException {
-        String result = executeQuery(String.format(
-                "source=%s | fields firstname | where firstname='Amber'", TEST_INDEX_ACCOUNT));
-        assertTrue(result.contains("\"datarows\": [[\"Amber\"]]"));
+        JSONObject result = executeQuery(String.format(
+                "source=%s | fields firstname | where firstname='Amber' | fields firstname", TEST_INDEX_ACCOUNT));
+        verifyDataRows(result, rows("Amber"));
     }
 
     @Test
     public void testWhereWithMultiLogicalExpr() throws IOException {
-        String result = executeQuery(String.format(
-                "source=%s | where firstname='Amber' lastname='Duke' age=32", TEST_INDEX_ACCOUNT));
-        assertTrue(result.contains("Amber") && result.contains("Duke") && result.contains("32"));
+        JSONObject result = executeQuery(String.format(
+                "source=%s | where firstname='Amber' lastname='Duke' age=32 | fields firstname, lastname, age",
+                TEST_INDEX_ACCOUNT));
+        verifyDataRows(result, rows("Amber", "Duke", 32));
     }
 
     @Test
     public void testWhereEquivalentSortCommand() throws IOException {
         assertEquals(
-                executeQuery(String.format("source=%s | where firstname='Amber'", TEST_INDEX_ACCOUNT)),
-                executeQuery(String.format("source=%s firstname='Amber'", TEST_INDEX_ACCOUNT))
+                executeQueryToString(String.format("source=%s | where firstname='Amber'", TEST_INDEX_ACCOUNT)),
+                executeQueryToString(String.format("source=%s firstname='Amber'", TEST_INDEX_ACCOUNT))
         );
     }
 }

@@ -19,6 +19,8 @@ import com.amazon.opendistroforelasticsearch.sql.esintgtest.RestIntegTestCase;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Assert;
 
 import java.io.IOException;
@@ -32,7 +34,11 @@ import static com.amazon.opendistroforelasticsearch.sql.plugin.rest.RestPPLQuery
  */
 public abstract class PPLIntegTestCase extends RestIntegTestCase {
 
-    protected String executeQuery(String query) throws IOException {
+    protected JSONObject executeQuery(String query) throws IOException {
+        return jsonify(executeQueryToString(query));
+    }
+
+    protected String executeQueryToString(String query) throws IOException {
         Response response = client().performRequest(buildRequest(query));
         Assert.assertEquals(200, response.getStatusLine().getStatusCode());
         return getResponseBody(response, true);
@@ -49,6 +55,14 @@ public abstract class PPLIntegTestCase extends RestIntegTestCase {
         restOptionsBuilder.addHeader("Content-Type", "application/json");
         request.setOptions(restOptionsBuilder);
         return request;
+    }
+
+    private JSONObject jsonify(String text) {
+        try {
+            return new JSONObject(text);
+        } catch (JSONException e) {
+            throw new IllegalStateException(String.format("Failed to transform %s to JSON format", text));
+        }
     }
 
 }

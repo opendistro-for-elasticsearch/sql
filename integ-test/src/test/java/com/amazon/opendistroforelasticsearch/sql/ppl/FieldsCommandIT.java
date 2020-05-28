@@ -16,9 +16,13 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
 import java.io.IOException;
+import org.json.JSONObject;
 import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.columnName;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.columnPattern;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyColumn;
 
 public class FieldsCommandIT extends PPLIntegTestCase {
 
@@ -29,20 +33,20 @@ public class FieldsCommandIT extends PPLIntegTestCase {
 
     @Test
     public void testFieldsWithOneField() throws IOException {
-        String result = executeQuery(String.format("source=%s | fields firstname", TEST_INDEX_ACCOUNT));
-        assertTrue(result.contains("firstname"));
+        JSONObject result = executeQuery(String.format("source=%s | fields firstname", TEST_INDEX_ACCOUNT));
+        verifyColumn(result, columnName("firstname"));
     }
 
     @Test
     public void testFieldsWithMultiFields() throws IOException {
-        String result = executeQuery(String.format("source=%s | fields firstname, lastname", TEST_INDEX_ACCOUNT));
-        assertTrue(result.contains("firstname") && result.contains("lastname"));
+        JSONObject result = executeQuery(String.format("source=%s | fields firstname, lastname", TEST_INDEX_ACCOUNT));
+        verifyColumn(result, columnName("firstname"), columnName("lastname"));
     }
 
     @Ignore("Cannot resolve wildcard yet")
     @Test
     public void testFieldsWildCard() throws IOException {
-        String result = executeQuery(String.format("source=%s | fields ", TEST_INDEX_ACCOUNT) + "firstnam%");
-        assertTrue(result.contains("firstname"));
+        JSONObject result = executeQuery(String.format("source=%s | fields ", TEST_INDEX_ACCOUNT) + "firstnam%");
+        verifyColumn(result, columnPattern("^firstnam.*"));
     }
 }

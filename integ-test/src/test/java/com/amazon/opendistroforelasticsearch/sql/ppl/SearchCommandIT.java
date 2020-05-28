@@ -17,34 +17,42 @@ package com.amazon.opendistroforelasticsearch.sql.ppl;
 
 import java.io.IOException;
 import org.elasticsearch.client.ResponseException;
-import org.junit.Test;
+import org.json.JSONObject;
+import org.junit.jupiter.api.Test;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_BANK;
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_DOG;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.columnName;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyColumn;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
 
 public class SearchCommandIT extends PPLIntegTestCase {
 
     @Override
     public void init() throws IOException {
         loadIndex(Index.BANK);
+        loadIndex(Index.DOG);
     }
 
     @Test
     public void testSearchAllFields() throws IOException {
-        String result = executeQuery(String.format("search source=%s", TEST_INDEX_BANK));
-        assertTrue(result.contains("\"total\": 7"));
+        JSONObject result = executeQuery(String.format("search source=%s", TEST_INDEX_DOG));
+        verifyColumn(result, columnName("dog_name"), columnName("holdersName"), columnName("age"));
     }
 
     @Test
     public void testSearchCommandWithoutSearchKeyword() throws IOException {
         assertEquals(
-                executeQuery(String.format("search source=%s", TEST_INDEX_BANK)),
-                executeQuery(String.format("source=%s", TEST_INDEX_BANK))
+                executeQueryToString(String.format("search source=%s", TEST_INDEX_BANK)),
+                executeQueryToString(String.format("source=%s", TEST_INDEX_BANK))
         );
     }
 
     @Test
     public void testSearchCommandWithLogicalExpression() throws IOException {
-        String result = executeQuery(String.format("search source=%s firstname='Hattie'", TEST_INDEX_BANK));
-        assertTrue(result.contains("\"Hattie\""));
+        JSONObject result = executeQuery(String.format(
+                "search source=%s firstname='Hattie' | fields firstname", TEST_INDEX_BANK));
+        verifyDataRows(result, rows("Hattie"));
     }
 
     @Test
