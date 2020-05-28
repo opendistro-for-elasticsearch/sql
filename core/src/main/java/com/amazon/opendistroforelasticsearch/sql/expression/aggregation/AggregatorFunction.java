@@ -41,6 +41,7 @@ public class AggregatorFunction {
     public static void register(BuiltinFunctionRepository repository) {
         repository.register(avg());
         repository.register(sum());
+        repository.register(count());
     }
 
     private static FunctionResolver avg() {
@@ -51,6 +52,31 @@ public class AggregatorFunction {
                         .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.DOUBLE)),
                                 arguments -> new AvgAggregator(arguments, ExprType.DOUBLE))
                         .build()
+        );
+    }
+
+    private static FunctionResolver count() {
+        FunctionName functionName = BuiltinFunctionName.COUNT.getName();
+        return new FunctionResolver(
+            functionName,
+            new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
+                .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.INTEGER)),
+                    arguments -> new CountAggregator(arguments, ExprType.INTEGER))
+                .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.LONG)),
+                    arguments -> new CountAggregator(arguments, ExprType.INTEGER))
+                .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.FLOAT)),
+                    arguments -> new CountAggregator(arguments, ExprType.INTEGER))
+                .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.DOUBLE)),
+                    arguments -> new CountAggregator(arguments, ExprType.INTEGER))
+                .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.STRING)),
+                    arguments -> new CountAggregator(arguments, ExprType.INTEGER))
+                .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.STRUCT)),
+                    arguments -> new CountAggregator(arguments, ExprType.INTEGER))
+                .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.ARRAY)),
+                    arguments -> new CountAggregator(arguments, ExprType.INTEGER))
+                .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.BOOLEAN)),
+                    arguments -> new CountAggregator(arguments, ExprType.INTEGER))
+                .build()
         );
     }
 

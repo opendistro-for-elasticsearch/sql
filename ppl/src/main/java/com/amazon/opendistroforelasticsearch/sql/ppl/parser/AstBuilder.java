@@ -108,7 +108,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
     /** Rename command */
     @Override
     public UnresolvedPlan visitRenameCommand(RenameCommandContext ctx) {
-        return new Project(
+        return new Rename(
                 new ArrayList<>(
                         Collections.singletonList(
                                 new Map(

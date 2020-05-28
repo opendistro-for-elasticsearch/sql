@@ -135,7 +135,7 @@ public class AstBuilderTest {
     @Test
     public void testRenameCommand() {
         assertEqual("source=t | rename f as g",
-                project(
+                rename(
                         relation("t"),
                         map("f", "g")
                 ));
