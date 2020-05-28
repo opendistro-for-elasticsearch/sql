@@ -48,6 +48,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.rename;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sort;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sortOptions;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
+import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertEquals;
 
 public class AstBuilderTest {
@@ -148,8 +149,8 @@ public class AstBuilderTest {
                         exprList(
                                 aggregate("count", field("a"))
                         ),
-                        null,
-                        null,
+                        emptyList(),
+                        emptyList(),
                         defaultStatsArgs()
                 ));
     }
@@ -162,7 +163,7 @@ public class AstBuilderTest {
                         exprList(
                                 aggregate("count", field("a"))
                         ),
-                        null,
+                        emptyList(),
                         exprList(field("b")),
                         defaultStatsArgs()
                 ));
@@ -178,8 +179,8 @@ public class AstBuilderTest {
                                 exprList(
                                     aggregate("count", field("a"))
                                 ),
-                                null,
-                                null,
+                                emptyList(),
+                                emptyList(),
                                 defaultStatsArgs()
                         ),
                         map(aggregate("count", field("a")), field("alias"))

@@ -45,6 +45,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualified
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sort;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
+import static java.util.Collections.emptyList;
 
 public class AstExpressionBuilderTest extends AstBuilderTest{
 
@@ -261,7 +262,7 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                                 aggregate("avg", field("a"))
 
                         ),
-                        null,
+                        emptyList(),
                         exprList(field("b")),
                         defaultStatsArgs()
                 ));
@@ -279,8 +280,8 @@ public class AstExpressionBuilderTest extends AstBuilderTest{
                                         argument("rank", intLiteral(1))
                                 )
                         ),
-                        null,
-                        null,
+                        emptyList(),
+                        emptyList(),
                         defaultStatsArgs()
                 ));
     }
