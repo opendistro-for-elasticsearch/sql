@@ -17,11 +17,12 @@ package com.amazon.opendistroforelasticsearch.sql.ppl;
 
 import java.io.IOException;
 import java.util.List;
-import org.junit.Test;
-import org.junit.jupiter.api.Disabled;
+import org.junit.Ignore;
+import org.junit.jupiter.api.Test;
+
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
 
-@Disabled("Rename target cannot be resolved yet")
+@Ignore("Rename target cannot be resolved yet")
 public class RenameCommandIT extends PPLIntegTestCase {
 
     @Override

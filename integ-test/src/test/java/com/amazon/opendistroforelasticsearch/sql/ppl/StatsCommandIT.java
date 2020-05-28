@@ -16,7 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
 import java.io.IOException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
 
 public class StatsCommandIT extends PPLIntegTestCase {
