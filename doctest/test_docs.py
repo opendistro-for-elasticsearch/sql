@@ -114,7 +114,6 @@ def set_up(test):
 
 def tear_down(test):
     # drop leftover tables after each test
-    # TODO: delete all will potentially also delete AES FGAC metadata index
     test_data_client.indices.delete(index=[ACCOUNTS, EMPLOYEES], ignore_unavailable=True)
 
 
