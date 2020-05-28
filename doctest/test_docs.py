@@ -124,7 +124,7 @@ docsuite = partial(doctest.DocFileSuite,
                    encoding='utf-8')
 
 
-doctest_file = partial(os.path.join, 'sample_docs')
+doctest_file = partial(os.path.join, '../docs')
 
 
 def doctest_files(items):
@@ -139,7 +139,7 @@ class DocTests(unittest.TestSuite):
 def load_tests(loader, suite, ignore):
     tests = []
     # Load doctest docs by category
-    with open('sample_docs/category.json') as json_file:
+    with open('../docs/category.json') as json_file:
         category = json.load(json_file)
 
     bash_docs = category['bash']
