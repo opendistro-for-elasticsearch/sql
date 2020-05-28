@@ -20,6 +20,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import org.junit.jupiter.api.Test;
 
 class NullsFirstExprValueOrderingTest {
@@ -35,5 +36,12 @@ class NullsFirstExprValueOrderingTest {
     ExprValueOrdering ordering = ExprValueOrdering.natural().nullsFirst().nullsLast();
     assertEquals(-1, ordering.compare(integerValue(5), LITERAL_NULL));
     assertEquals(-1, ordering.compare(integerValue(5), LITERAL_MISSING));
+  }
+
+  @Test
+  public void natural_null_first_compare_same_object() {
+    ExprValueOrdering ordering = ExprValueOrdering.natural().nullsFirst();
+    ExprValue exprValue = integerValue(5);
+    assertEquals(0, ordering.compare(exprValue, exprValue));
   }
 }
