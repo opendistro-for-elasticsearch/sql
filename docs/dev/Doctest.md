@@ -57,9 +57,9 @@ Doctest runs with project build by `./gradlew build`. You can also only run doct
 Make sure you don't have any Elasticsearch instance running at `http://localhost:9200`
 
 ### 1.4.2 How to write documentation with doctest?
-1. If you want to add a new doc file, you can add it to `doc` folder, under correct sub-folder, in `.rst` format. 
+1. If you want to add a new doc, you can add it to `doc` folder, under correct sub-folder, in `.rst` format. 
 > **Attention**: For code examples in documentation, a Mixing usage of `cli` and `bash` in one doc is not supported yet.
-2. Add your new doc file to `doctest/test_doc.py`
+2. Add your new doc file path to `doc/category.json` by its category
 3. Run doctest `./gradlew doctest` to see if your tests can pass
 
 ## 1.5 Future Plan

@@ -124,10 +124,10 @@ docsuite = partial(doctest.DocFileSuite,
                    encoding='utf-8')
 
 
-doctest_file = partial(os.path.join, 'docs')
+doctest_file = partial(os.path.join, 'sample_docs')
 
 
-def doctest_files(*items):
+def doctest_files(items):
     return (doctest_file(item) for item in items)
 
 
@@ -138,8 +138,16 @@ class DocTests(unittest.TestSuite):
 
 def load_tests(loader, suite, ignore):
     tests = []
+    # Load doctest docs by category
+    with open('sample_docs/category.json') as json_file:
+        category = json.load(json_file)
+
+    bash_docs = category['bash']
+    ppl_cli_docs = category['ppl_cli']
+    sql_cli_docs = category['sql_cli']
+
     # docs with bash-based examples
-    for fn in doctest_files('ppl/curl.rst'): # TODO: Add 'sql/explain.rst' after codebase migration
+    for fn in doctest_files(bash_docs):
         tests.append(
             docsuite(
                 fn,
@@ -158,13 +166,13 @@ def load_tests(loader, suite, ignore):
                 }
             )
         )
-    # SQL docs with cli-based examples
+    # docs with sql-cli based examples
     # TODO: add until the migration to new architecture is done, then we have an artifact including ppl and sql both
     # for fn in doctest_files('sql/basics.rst'):
     #     tests.append(docsuite(fn, setUp=set_up_accounts))
 
-    # PPL docs with cli-based examples
-    for fn in doctest_files('ppl/cli.rst'):
+    # docs with ppl-cli based examples
+    for fn in doctest_files(ppl_cli_docs):
         tests.append(
             docsuite(
                 fn,
