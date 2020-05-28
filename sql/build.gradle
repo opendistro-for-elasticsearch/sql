@@ -38,36 +38,3 @@ dependencies {
 
 }
 
-jacoco {
-    toolVersion = "0.8.3"
-}
-
-jacocoTestReport {
-    reports {
-        html.enabled true
-    }
-    afterEvaluate {
-        classDirectories.setFrom(files(classDirectories.files.collect {
-            fileTree(dir: it,
-                    exclude: ['**/antlr/parser/**'])
-        }))
-    }
-}
-test.finalizedBy(project.tasks.jacocoTestReport)
-jacocoTestCoverageVerification {
-    violationRules {
-        rule {
-            limit {
-                minimum = 1.0
-            }
-
-        }
-    }
-    afterEvaluate {
-        classDirectories.setFrom(files(classDirectories.files.collect {
-            fileTree(dir: it,
-                    exclude: ['**/antlr/parser/**'])
-        }))
-    }
-}
-check.dependsOn jacocoTestCoverageVerification
