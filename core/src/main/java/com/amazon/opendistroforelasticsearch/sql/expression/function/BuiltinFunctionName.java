@@ -33,7 +33,8 @@ public enum BuiltinFunctionName {
 
   /** Aggregation Function. */
   AVG(FunctionName.of("avg")),
-  SUM(FunctionName.of("sum"));
+  SUM(FunctionName.of("sum")),
+  COUNT(FunctionName.of("count"));
 
   private final FunctionName name;
 

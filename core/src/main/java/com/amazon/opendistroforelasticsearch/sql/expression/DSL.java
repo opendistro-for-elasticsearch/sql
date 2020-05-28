@@ -22,9 +22,8 @@ import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregat
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
-import lombok.RequiredArgsConstructor;
-
 import java.util.Arrays;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class DSL {
@@ -122,5 +121,10 @@ public class DSL {
   public Aggregator sum(Environment<Expression, ExprType> env, Expression... expressions) {
     return (Aggregator)
         repository.compile(BuiltinFunctionName.SUM.getName(), Arrays.asList(expressions), env);
+  }
+
+  public Aggregator count(Environment<Expression, ExprType> env, Expression... expressions) {
+    return (Aggregator)
+        repository.compile(BuiltinFunctionName.COUNT.getName(), Arrays.asList(expressions), env);
   }
 }
