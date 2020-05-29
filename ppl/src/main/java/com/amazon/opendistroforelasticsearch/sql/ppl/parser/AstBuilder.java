@@ -120,9 +120,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
         );
     }
 
-    /**
-     * Stats command
-     */
+    /** Stats command */
     @Override
     public UnresolvedPlan visitStatsCommand(StatsCommandContext ctx) {
         ImmutableList.Builder<UnresolvedExpression> aggListBuilder = new ImmutableList.Builder<>();
@@ -135,7 +133,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
                         .add(new Map(aggExpression, visitExpression(aggCtx.alias)));
             }
         }
-        List<UnresolvedExpression> groupList = ctx.byClause() == null ? null :
+        List<UnresolvedExpression> groupList = ctx.byClause() == null ? Collections.emptyList() :
                 ctx.byClause()
                         .fieldList()
                         .fieldExpression()
@@ -144,7 +142,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
                         .collect(Collectors.toList());
         Aggregation aggregation = new Aggregation(
                 aggListBuilder.build(),
-                null,
+                Collections.emptyList(),
                 groupList,
                 ArgumentFactory.getArgumentList(ctx)
         );

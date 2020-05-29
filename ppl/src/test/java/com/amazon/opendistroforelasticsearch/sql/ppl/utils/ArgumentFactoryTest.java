@@ -31,6 +31,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.projectWi
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sort;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
+import static java.util.Collections.emptyList;
 
 public class ArgumentFactoryTest extends AstBuilderTest {
 
@@ -55,8 +56,8 @@ public class ArgumentFactoryTest extends AstBuilderTest {
                 agg(
                         relation("t"),
                         exprList(aggregate("avg", field("a"))),
-                        null,
-                        null,
+                        emptyList(),
+                        emptyList(),
                         exprList(
                                 argument("partitions", intLiteral(1)),
                                 argument("allnum", booleanLiteral(false)),

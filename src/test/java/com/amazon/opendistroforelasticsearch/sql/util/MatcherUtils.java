@@ -34,6 +34,7 @@ import java.util.function.Function;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.greaterThan;
@@ -130,17 +131,22 @@ public class MatcherUtils {
         return featureValueOf("Json Match", matcher, actual -> (Integer) actual.query(key));
     }
 
-    @SuppressWarnings("unchecked")
+    @SafeVarargs
     public static void verifySchema(JSONObject response, Matcher<JSONObject>... matchers) {
         verify(response.getJSONArray("schema"), matchers);
     }
 
-    @SuppressWarnings("unchecked")
+    @SafeVarargs
     public static void verifyDataRows(JSONObject response, Matcher<JSONArray>... matchers) {
         verify(response.getJSONArray("datarows"), matchers);
     }
 
-    @SuppressWarnings("unchecked")
+    @SafeVarargs
+    public static void verifyColumn(JSONObject response, Matcher<JSONObject>... matchers) {
+        verify(response.getJSONArray("schema"), matchers);
+    }
+
+    @SafeVarargs
     public static <T> void verify(JSONArray array, Matcher<T>... matchers) {
         List<T> objects = new ArrayList<>();
         array.iterator().forEachRemaining(o -> objects.add((T) o));
@@ -148,7 +154,7 @@ public class MatcherUtils {
         assertThat(objects, containsInAnyOrder(matchers));
     }
 
-    @SuppressWarnings("unchecked")
+    @SafeVarargs
     public static <T> void verifySome(JSONArray array, Matcher<T>... matchers) {
         List<T> objects = new ArrayList<>();
         array.iterator().forEachRemaining(o -> objects.add((T) o));
@@ -192,6 +198,34 @@ public class MatcherUtils {
                 List<Object> actualObjects = new ArrayList<>();
                 array.iterator().forEachRemaining(actualObjects::add);
                 return Arrays.asList(expectedObjects).equals(actualObjects);
+            }
+        };
+    }
+
+    public static TypeSafeMatcher<JSONObject> columnPattern(String regex) {
+        return new TypeSafeMatcher<JSONObject>() {
+            @Override
+            protected boolean matchesSafely(JSONObject jsonObject) {
+                return ((String)jsonObject.query("/name")).matches(regex);
+            }
+            
+            @Override
+            public void describeTo(Description description) {
+                description.appendText(String.format("(column_pattern=%s)", regex));
+            }
+        };
+    }
+    
+    public static TypeSafeMatcher<JSONObject> columnName(String name) {
+        return new TypeSafeMatcher<JSONObject>() {
+            @Override
+            protected boolean matchesSafely(JSONObject jsonObject) {
+                return jsonObject.query("/name").equals(name);
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText(String.format("(name=%s)", name));
             }
         };
     }

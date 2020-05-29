@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.ast.expression;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.google.common.collect.ImmutableList;
+import java.util.Collections;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -29,11 +30,10 @@ import lombok.ToString;
 @AllArgsConstructor
 public class Field extends UnresolvedExpression {
     private QualifiedName field;
-    private List<Argument> fieldArgs;
+    private List<Argument> fieldArgs = Collections.emptyList();
 
     public Field(QualifiedName field) {
         this.field = field;
-        this.fieldArgs = null;
     }
 
     public Field(String field) {
@@ -43,6 +43,10 @@ public class Field extends UnresolvedExpression {
     public Field(String field, List<Argument> fieldArgs) {
         this.field = new QualifiedName(field);
         this.fieldArgs = fieldArgs;
+    }
+
+    public boolean hasArgument() {
+        return !fieldArgs.isEmpty();
     }
 
     @Override

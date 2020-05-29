@@ -48,6 +48,10 @@ public class Project extends UnresolvedPlan {
         this.argExprList = argExprList;
     }
 
+    public boolean hasArgument() {
+        return !argExprList.isEmpty();
+    }
+
     @Override
     public Project attach(UnresolvedPlan child) {
         this.child = child;
