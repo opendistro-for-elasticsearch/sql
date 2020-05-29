@@ -19,10 +19,12 @@ package com.amazon.opendistroforelasticsearch.sql.sql.functions;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
+import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -41,7 +43,16 @@ public class Substring extends SQLFunction {
         String str = (String) argValues[0].value();
         int start = (int) argValues[1].value();
         int length = (int) argValues[2].value();
-        String result = str.substring(start, start + length);
+        int end = start + length;
+
+        if (!(0 <= start && end <= str.length())) {
+            throw new SemanticCheckException(String.format(
+                "Semantic error on arguments: %s." +
+                    "Expect: start is non-negative and start + length is no greater than string length.",
+                        Arrays.toString(argValues)));
+        }
+
+        String result = str.substring(start, end);
         return ExprValueUtils.stringValue(result);
     }
 
