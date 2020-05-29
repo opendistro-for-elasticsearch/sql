@@ -34,13 +34,26 @@ public class SQLPluginIT extends RestIntegTestCase {
 
     @Test
     public void testQueryWithNestedFunctionCall() throws IOException {
-        Index index = new Index("test").addDoc("{\"firstname\": \"hello\", \"lastname\": \"John\"}").
-                                        addDoc("{\"firstname\": \"world\", \"lastname\": \"Smith\"}").
-                                        create();
+        Index index = new Index("accounts").addDoc("{\"firstname\": \"hello\", \"lastname\": \"world\"}").
+                                            addDoc("{\"firstname\": \"John\", \"lastname\": \"Smith\"}").
+                                            addDoc("{\"firstname\": \"Allen\"}").
+                                            create();
 
-        String results = index.query("SELECT lastname FROM %s WHERE firstname = 'world'");
+        String results = index.query(
+            "SELECT firstname FROM accounts " +
+            "WHERE SUBSTRING(SUBSTRING(lastname,0,3),0,1) = 'w'"
+        );
+
         assertEquals(
-            "",
+            "{\n" +
+            "  \"schema\": [{\n" +
+            "    \"name\": \"firstname\",\n" +
+            "    \"type\": \"string\"\n" +
+            "  }],\n" +
+            "  \"total\": 1,\n" +
+            "  \"datarows\": [[\"hello\"]],\n" +
+            "  \"size\": 1\n" +
+            "}\n",
             results
         );
     }

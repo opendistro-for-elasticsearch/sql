@@ -146,8 +146,7 @@ public class ElasticsearchIndex implements Table {
             @Override
             public PhysicalPlan visitFilter(LogicalFilter node, ElasticsearchIndexScan context) {
                 //return new FilterOperator(visitChild(node, context), node.getCondition());
-                context.pushDown(node);
-                return context;
+                return context.pushDown(node);
             }
 
             @Override

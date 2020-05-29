@@ -21,8 +21,10 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchRequest;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.script.ExpressionScriptEngine;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
 import com.google.common.collect.Iterables;
 import lombok.EqualsAndHashCode;
@@ -34,7 +36,6 @@ import org.elasticsearch.search.SearchHit;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Iterator;
@@ -103,17 +104,18 @@ public class ElasticsearchIndexScan extends TableScanOperator {
         client.cleanup(request);
     }
 
-    public void pushDown(LogicalFilter filter) {
+    public PhysicalPlan pushDown(LogicalFilter filter) {
         request.getSourceBuilder().query(
             QueryBuilders.scriptQuery(
                 new Script(
                     Script.DEFAULT_SCRIPT_TYPE,
-                    "expression",
+                    ExpressionScriptEngine.EXPRESSION_LANG_NAME,
                     serialize(filter.getCondition()),
                     emptyMap() // TODO
                 )
             )
         );
+        return this; // Assume everything pushed down and nothing needed for physical filter operator
     }
 
     private String serialize(Expression expression) {
