@@ -58,5 +58,21 @@ public class StatsCommandIT extends PPLIntegTestCase {
                 result);
     }
 
+    @Test
+    public void testStatsCount() throws IOException {
+        String result = executeQueryToString(String.format("source=%s | stats count(account_number)", TEST_INDEX_ACCOUNT));
+        assertEquals(
+        "{\n"
+            + "  \"schema\": [{\n"
+            + "    \"name\": \"count(account_number)\",\n"
+            + "    \"type\": \"integer\"\n"
+            + "  }],\n"
+            + "  \"total\": 1,\n"
+            + "  \"datarows\": [[1000]],\n"
+            + "  \"size\": 1\n"
+            + "}\n",
+                result);
+    }
+
     //TODO: each stats aggregate function should be tested here when implemented
 }
