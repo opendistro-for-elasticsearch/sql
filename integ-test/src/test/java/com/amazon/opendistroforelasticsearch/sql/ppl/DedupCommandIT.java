@@ -16,9 +16,12 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
 import java.io.IOException;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_BANK;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_BANK_WITH_NULL_VALUES;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
 
 public class DedupCommandIT extends PPLIntegTestCase {
 
@@ -30,33 +33,29 @@ public class DedupCommandIT extends PPLIntegTestCase {
 
     @Test
     public void testDedup() throws IOException {
-        String result = executeQuery(String.format("source=%s | dedup age | fields firstname, age", TEST_INDEX_BANK));
-        String expected = getExpectedOutput("dedup.json");
-        assertEquals(expected, result);
+        JSONObject result = executeQuery(String.format("source=%s | dedup male | fields male", TEST_INDEX_BANK));
+        verifyDataRows(result, rows(true), rows(false));
     }
 
     @Test
     public void testConsecutiveDedup() throws IOException {
-        String result = executeQuery(String.format(
-                "source=%s | fields firstname, male | dedup male consecutive=true", TEST_INDEX_BANK));
-        String expected = getExpectedOutput("dedup_consecutive.json");
-        assertEquals(expected, result);
+        JSONObject result = executeQuery(String.format(
+                "source=%s | dedup male consecutive=true | fields male", TEST_INDEX_BANK));
+        verifyDataRows(result, rows(true), rows(false), rows(true), rows(false));
     }
 
     @Test
     public void testAllowMoreDuplicates() throws IOException {
-        String result = executeQuery(String.format(
-                "source=%s | fields firstname, male | dedup 2 male", TEST_INDEX_BANK));
-        String expected = getExpectedOutput("dedup_allow_duplicates.json");
-        assertEquals(expected, result);
+        JSONObject result = executeQuery(String.format(
+                "source=%s | dedup 2 male | fields male", TEST_INDEX_BANK));
+        verifyDataRows(result, rows(true), rows(true), rows(false), rows(false));
     }
 
     @Test
     public void testKeepEmptyDedup() throws IOException {
-        String result = executeQuery(String.format(
-                "source=%s |fields firstname, balance | dedup firstname, balance keepempty=true",
+        JSONObject result = executeQuery(String.format(
+                "source=%s | dedup balance keepempty=true | fields balance",
                 TEST_INDEX_BANK_WITH_NULL_VALUES));
-        String expected = getExpectedOutput("dedup_keepempty.json");
-        assertEquals(expected, result);
+        verifyDataRows(result, rows(39225), rows(32838), rows(4180), rows(48086), rows(null),rows(null), rows(null));
     }
 }

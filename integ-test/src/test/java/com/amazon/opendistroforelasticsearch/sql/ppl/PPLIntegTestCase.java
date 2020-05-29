@@ -16,18 +16,10 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
 import com.amazon.opendistroforelasticsearch.sql.esintgtest.RestIntegTestCase;
-import com.google.common.io.Files;
-import java.io.File;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
-import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
 
@@ -42,7 +34,11 @@ import static com.amazon.opendistroforelasticsearch.sql.plugin.rest.RestPPLQuery
  */
 public abstract class PPLIntegTestCase extends RestIntegTestCase {
 
-    protected String executeQuery(String query) throws IOException {
+    protected JSONObject executeQuery(String query) throws IOException {
+        return jsonify(executeQueryToString(query));
+    }
+
+    protected String executeQueryToString(String query) throws IOException {
         Response response = client().performRequest(buildRequest(query));
         Assert.assertEquals(200, response.getStatusLine().getStatusCode());
         return getResponseBody(response, true);
@@ -61,46 +57,12 @@ public abstract class PPLIntegTestCase extends RestIntegTestCase {
         return request;
     }
 
-    protected JSONArray getJSONArrayResult(String result) {
-        return jsonify(result).getJSONArray("datarows");
+    private JSONObject jsonify(String text) {
+        try {
+            return new JSONObject(text);
+        } catch (JSONException e) {
+            throw new IllegalStateException(String.format("Failed to transform %s to JSON format", text));
+        }
     }
 
-    protected List<List<Object>> getResultSet(String result) {
-        JSONArray array = getJSONArrayResult(result);
-        List<List<Object>> datarows = new ArrayList<>();
-        array.toList().forEach(object -> datarows.add(((JSONArray)object).toList()));
-        return datarows;
-    }
-
-    protected JSONArray getSchema(String result) {
-        return jsonify(result).getJSONArray("schema");
-    }
-
-    @SuppressWarnings("unchecked")
-    protected List<Map<String, String>> getSchemaAsMapList(String result) {
-        JSONArray schema = getSchema(result);
-        List<Map<String, String>> mapList = new ArrayList<>();
-        schema.forEach(item -> {
-            mapList.add(((HashMap<String, String>)item));
-        });
-        return mapList;
-    }
-
-    protected List<String> getColumnNames(String result) {
-        return getSchemaAsMapList(result).stream().map(map -> map.get("name")).collect(Collectors.toList());
-    }
-
-    private JSONObject jsonify(String result) {
-        return new JSONObject(result);
-    }
-
-    /**
-     * Util: get the file content as a string from a designated file in expectedOutput directory of integ-test module
-     */
-    protected static String getExpectedOutput(String filename) throws IOException {
-        String projectPath = System.getProperty("project.root", null);
-        String resourcesDir = "integ-test/src/test/resources/expectedOutput/";
-        File file = new File(projectPath + "/" + resourcesDir + filename);
-        return Files.asCharSource(file, StandardCharsets.UTF_8).read();
-    }
 }

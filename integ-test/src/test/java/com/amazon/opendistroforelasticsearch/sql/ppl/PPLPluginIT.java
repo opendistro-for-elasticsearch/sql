@@ -44,7 +44,7 @@ public class PPLPluginIT extends PPLIntegTestCase {
         request.setJsonEntity("{\"name\": \"hello\"}");
         client().performRequest(request);
 
-        String response = executeQuery("search source=a");
+        String response = executeQueryToString("search source=a");
         assertEquals(
             "{\n" +
             "  \"schema\": [{\n" +

@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.ppl;
 
 import java.io.IOException;
 import java.util.List;
+import org.json.JSONObject;
 import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 

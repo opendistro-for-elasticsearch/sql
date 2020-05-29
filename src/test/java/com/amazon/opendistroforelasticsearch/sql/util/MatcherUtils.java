@@ -130,17 +130,17 @@ public class MatcherUtils {
         return featureValueOf("Json Match", matcher, actual -> (Integer) actual.query(key));
     }
 
-    @SuppressWarnings("unchecked")
+    @SafeVarargs
     public static void verifySchema(JSONObject response, Matcher<JSONObject>... matchers) {
         verify(response.getJSONArray("schema"), matchers);
     }
 
-    @SuppressWarnings("unchecked")
+    @SafeVarargs
     public static void verifyDataRows(JSONObject response, Matcher<JSONArray>... matchers) {
         verify(response.getJSONArray("datarows"), matchers);
     }
 
-    @SuppressWarnings("unchecked")
+    @SafeVarargs
     public static <T> void verify(JSONArray array, Matcher<T>... matchers) {
         List<T> objects = new ArrayList<>();
         array.iterator().forEachRemaining(o -> objects.add((T) o));
@@ -148,7 +148,7 @@ public class MatcherUtils {
         assertThat(objects, containsInAnyOrder(matchers));
     }
 
-    @SuppressWarnings("unchecked")
+   @SafeVarargs
     public static <T> void verifySome(JSONArray array, Matcher<T>... matchers) {
         List<T> objects = new ArrayList<>();
         array.iterator().forEachRemaining(o -> objects.add((T) o));
