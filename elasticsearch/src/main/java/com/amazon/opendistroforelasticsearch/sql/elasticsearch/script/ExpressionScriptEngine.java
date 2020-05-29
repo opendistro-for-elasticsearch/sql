@@ -17,9 +17,13 @@
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.script;
 
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import org.apache.lucene.index.LeafReaderContext;
 import org.elasticsearch.SpecialPermission;
+import org.elasticsearch.index.fielddata.ScriptDocValues;
 import org.elasticsearch.script.FilterScript;
 import org.elasticsearch.script.ScriptContext;
 import org.elasticsearch.script.ScriptEngine;
@@ -31,6 +35,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -123,7 +128,34 @@ public class ExpressionScriptEngine implements ScriptEngine {
             SpecialPermission.check();
 
             return AccessController.doPrivileged((PrivilegedAction<Boolean>) () -> {
-                return true;
+                Map<String, Object> values = new HashMap<>();
+
+                /*
+                for (Map.Entry<String, ScriptDocValues<?>> field : getDoc().entrySet()) {
+                    String fieldName = field.getKey();
+                    ScriptDocValues<?> fieldValue = field.getValue();
+                    values.put(fieldName, fieldValue.get(0));
+                }
+                */
+
+                // 1) getDoc() is not iterable; 2) Doc value is array; 3) Get text field ends up with exception
+                String[] fieldNames = {"firstname", "lastname"};
+                for (String fieldName : fieldNames) {
+                    if (getDoc().containsKey(fieldName)) {
+                        ScriptDocValues<?> value = getDoc().get(fieldName + ".keyword");
+                        if (!value.isEmpty()) {
+                            values.put(fieldName, value.get(0));
+                        }
+                    }
+                }
+
+                ExprValue tupleValue = ExprValueUtils.tupleValue(values);
+                ExprValue result = template.valueOf(tupleValue.bindingTuples());
+
+                if (result.type() != ExprType.BOOLEAN) {
+                    throw new IllegalStateException("Expression has wrong result type: " + result);
+                }
+                return (Boolean) result.value();
             });
         }
     }
