@@ -30,8 +30,10 @@ import java.util.List;
  */
 public class Substring extends SQLFunction {
 
+    public static final FunctionName FUNCTION_NAME = FunctionName.of("SUBSTRING");
+
     public Substring(List<Expression> arguments) {
-        super(FunctionName.of("SUBSTRING"), arguments);
+        super(FUNCTION_NAME, arguments);
     }
 
     @Override

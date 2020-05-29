@@ -25,6 +25,7 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.json.JSONObject;
 
 import java.util.Objects;
 
@@ -37,7 +38,6 @@ import java.util.Objects;
 @EqualsAndHashCode
 @RequiredArgsConstructor
 @Getter
-@ToString
 public class ElasticsearchRequest {
 
     /**
@@ -98,4 +98,11 @@ public class ElasticsearchRequest {
         scrollId = null;
     }
 
+    @Override
+    public String toString() {
+        return "ElasticsearchRequest{" +
+            "indexName='" + indexName + '\'' +
+            ", sourceBuilder=" + new JSONObject(sourceBuilder.toString()).toString(2) +
+            '}';
+    }
 }

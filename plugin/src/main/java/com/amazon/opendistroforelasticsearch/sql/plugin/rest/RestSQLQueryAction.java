@@ -52,6 +52,7 @@ public class RestSQLQueryAction extends BaseRestHandler {
     private static final Logger LOG = LogManager.getLogger();
 
     public static final String SQL_QUERY_ENDPOINT = "_opendistro/_sql";
+    public static final String SQL_EXPLAIN_ENDPOINT = SQL_QUERY_ENDPOINT + "/_explain";
     private static final String SQL_QUERY_FIELD_NAME = "query";
 
     private final ClusterService clusterService;
@@ -59,6 +60,7 @@ public class RestSQLQueryAction extends BaseRestHandler {
     public RestSQLQueryAction(RestController restController, ClusterService clusterService) {
         super();
         restController.registerHandler(RestRequest.Method.POST, SQL_QUERY_ENDPOINT, this);
+        restController.registerHandler(RestRequest.Method.POST, SQL_EXPLAIN_ENDPOINT, this);
         this.clusterService = clusterService;
     }
 
@@ -70,7 +72,17 @@ public class RestSQLQueryAction extends BaseRestHandler {
     @Override
     protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient nodeClient) {
         SQLService sqlService = createSQLService(nodeClient);
-        return channel -> sqlService.execute(parseQueryFromPayload(request), createListener(channel));
+        String query = parseQueryFromPayload(request);
+
+        if (isExplainRequest(request)) {
+            return channel -> channel.sendResponse(
+                new BytesRestResponse(OK, "application/json; charset=UTF-8", sqlService.explain(query)));
+        }
+        return channel -> sqlService.execute(query, createListener(channel));
+    }
+
+    private boolean isExplainRequest(RestRequest request) {
+        return request.path().endsWith(SQL_EXPLAIN_ENDPOINT);
     }
 
     private String parseQueryFromPayload(RestRequest restRequest) {

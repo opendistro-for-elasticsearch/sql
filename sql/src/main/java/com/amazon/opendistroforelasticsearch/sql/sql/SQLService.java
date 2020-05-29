@@ -22,20 +22,23 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature;
 import com.amazon.opendistroforelasticsearch.sql.planner.Planner;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.SQLSyntaxParser;
 import com.amazon.opendistroforelasticsearch.sql.sql.functions.Substring;
 import com.amazon.opendistroforelasticsearch.sql.sql.parser.AstBuilder;
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.STRING;
@@ -71,38 +74,72 @@ public class SQLService {
 
     /**
      * Parse, analyze, plan and execute the query.
-     * @param query
-     * @param listener
+     * @param query         SQL query
+     * @param listener      callback listener
      */
     public void execute(String query, ResponseListener<QueryResponse> listener) {
         try {
-            // 1.Parse query and convert parse tree (CST) to abstract syntax tree (AST)
-            ParseTree cst = parser.parse(query);
-            UnresolvedPlan ast = cst.accept(new AstBuilder());
+            PhysicalPlan physicalPlan = plan(analyze(parse(query)));
 
-            // 2.Analyze abstract syntax to generate logical plan
-            LogicalPlan logicalPlan = analyzer.analyze(ast, new AnalysisContext());
-
-            // 3.Generate optimal physical plan from logical plan
-            PhysicalPlan physicalPlan = new Planner(storageEngine).plan(logicalPlan);
-
-            // 4.Execute physical plan and send response
             executionEngine.execute(physicalPlan, listener);
         } catch (Exception e) {
             listener.onFailure(e);
         }
     }
 
+    public String explain(String query) {
+        LogicalPlan logicalPlan = analyze(parse(query));
+        String logicalPlanExplain = logicalPlan.accept(new LogicalPlanNodeVisitor<String, Integer>() {
+            @Override
+            protected String visitNode(LogicalPlan node, Integer depth) {
+                return Strings.repeat("\t", depth) + node + "\n"
+                    + node.getChild().stream().
+                                      map(c -> c.accept(this, depth + 1)).
+                                      collect(Collectors.joining());
+            }
+        }, 0);
+
+        PhysicalPlan physicalPlan = plan(logicalPlan);
+        String physicalPlanExplain = physicalPlan.accept(new PhysicalPlanNodeVisitor<String, Integer>() {
+            @Override
+            protected String visitNode(PhysicalPlan node, Integer depth) {
+                return Strings.repeat("\t", depth) + node + "\n"
+                    + node.getChild().stream().
+                                      map(c -> c.accept(this, depth + 1)).
+                                      collect(Collectors.joining());
+            }
+        }, 0);
+
+        return String.format("=== Logical plan === \n %s \n" +
+                             "=== Physical Plan === \n %s \n",
+                             logicalPlanExplain, physicalPlanExplain);
+    }
+
+    /** Parse query and convert parse tree (CST) to abstract syntax tree (AST) */
+    private UnresolvedPlan parse(String query) {
+        ParseTree cst = parser.parse(query);
+        return cst.accept(new AstBuilder());
+    }
+
+    /** Analyze abstract syntax to generate logical plan */
+    private LogicalPlan analyze(UnresolvedPlan ast) {
+        return analyzer.analyze(ast, new AnalysisContext());
+    }
+
+    /** Generate optimal physical plan from logical plan */
+    private PhysicalPlan plan(LogicalPlan logicalPlan) {
+        return new Planner(storageEngine).plan(logicalPlan);
+    }
+
     private void registerSQLFunctions() {
         functionRepository.register(substring());
     }
 
-    private static FunctionResolver substring() {
-        FunctionName funcName = FunctionName.of("SUBSTRING");
+    private FunctionResolver substring() {
         return new FunctionResolver(
-            funcName,
+            Substring.FUNCTION_NAME,
             ImmutableMap.of(
-                new FunctionSignature(funcName, Arrays.asList(STRING, INTEGER, INTEGER)),
+                new FunctionSignature(Substring.FUNCTION_NAME, Arrays.asList(STRING, INTEGER, INTEGER)),
                 Substring::new
             )
         );

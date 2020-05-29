@@ -27,7 +27,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /** Project the fields specified in {@link ProjectOperator#projectList} from input. */
-@ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor
 public class ProjectOperator extends PhysicalPlan {
@@ -61,5 +60,12 @@ public class ProjectOperator extends PhysicalPlan {
       }
     }
     return ExprTupleValue.fromExprValueMap(mapBuilder.build());
+  }
+
+  @Override
+  public String toString() {
+    return "ProjectOperator{" +
+        "projectList=" + projectList +
+        '}';
   }
 }
