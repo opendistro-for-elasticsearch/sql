@@ -54,8 +54,9 @@ public class DedupCommandIT extends PPLIntegTestCase {
     @Test
     public void testKeepEmptyDedup() throws IOException {
         JSONObject result = executeQuery(String.format(
-                "source=%s | dedup balance keepempty=true | fields balance",
+                "source=%s | dedup balance keepempty=true | fields firstname, balance",
                 TEST_INDEX_BANK_WITH_NULL_VALUES));
-        verifyDataRows(result, rows(39225), rows(32838), rows(4180), rows(48086), rows(null),rows(null), rows(null));
+        verifyDataRows(result, rows("Amber JOHnny", 39225), rows("Hattie"), rows("Nanette", 32838),
+                rows("Dale", 4180), rows("Elinor"), rows("Virginia"), rows("Dillard", 48086));
     }
 }

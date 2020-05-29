@@ -127,7 +127,7 @@ public class AstBuilderTest {
         assertEqual("source=t | fields - f, g",
                 projectWithArg(
                         relation("t"),
-                        Collections.singletonList(argument("exclude", booleanLiteral(true))),
+                        exprList(argument("exclude", booleanLiteral(true))),
                         field("f"), field("g")
                 ));
     }
@@ -135,7 +135,7 @@ public class AstBuilderTest {
     @Test
     public void testRenameCommand() {
         assertEqual("source=t | rename f as g",
-                project(
+                rename(
                         relation("t"),
                         map("f", "g")
                 ));

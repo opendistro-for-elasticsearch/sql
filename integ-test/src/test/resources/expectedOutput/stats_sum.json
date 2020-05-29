@@ -1,9 +1,0 @@
-{
-  "schema": [{
-    "name": "sum(balance)",
-    "type": "long"
-  }],
-  "total": 1,
-  "datarows": [[25714837]],
-  "size": 1
-}

@@ -108,7 +108,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
     /** Rename command */
     @Override
     public UnresolvedPlan visitRenameCommand(RenameCommandContext ctx) {
-        return new Project(
+        return new Rename(
                 new ArrayList<>(
                         Collections.singletonList(
                                 new Map(
@@ -120,9 +120,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
         );
     }
 
-    /**
-     * Stats command
-     */
+    /** Stats command */
     @Override
     public UnresolvedPlan visitStatsCommand(StatsCommandContext ctx) {
         ImmutableList.Builder<UnresolvedExpression> aggListBuilder = new ImmutableList.Builder<>();

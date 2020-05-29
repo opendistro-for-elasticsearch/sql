@@ -122,7 +122,7 @@ public class AstDSL {
     return literal(null, DataType.NULL);
   }
 
-  public static UnresolvedExpression map(String origin, String target) {
+  public static Map map(String origin, String target) {
     return new Map(new Field(origin), new Field(target));
   }
 

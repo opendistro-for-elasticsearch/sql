@@ -28,16 +28,34 @@ public class StatsCommandIT extends PPLIntegTestCase {
 
     @Test
     public void testStatsAvg() throws IOException {
-        String result = executeQuery(String.format("source=%s | stats avg(age)", TEST_INDEX_ACCOUNT));
-        String expected = getExpectedOutput("stats_avg.json");
-        assertEquals(expected, result);
+        String result = executeQueryToString(String.format("source=%s | stats avg(age)", TEST_INDEX_ACCOUNT));
+        assertEquals(
+        "{\n"
+            + "  \"schema\": [{\n"
+            + "    \"name\": \"avg(age)\",\n"
+            + "    \"type\": \"double\"\n"
+            + "  }],\n"
+            + "  \"total\": 1,\n"
+            + "  \"datarows\": [[30.171]],\n"
+            + "  \"size\": 1\n"
+            + "}\n",
+                result);
     }
 
     @Test
     public void testStatsSum() throws IOException {
-        String result = executeQuery(String.format("source=%s | stats sum(balance)", TEST_INDEX_ACCOUNT));
-        String expected = getExpectedOutput("stats_sum.json");
-        assertEquals(expected, result);
+        String result = executeQueryToString(String.format("source=%s | stats sum(balance)", TEST_INDEX_ACCOUNT));
+        assertEquals(
+        "{\n"
+            + "  \"schema\": [{\n"
+            + "    \"name\": \"sum(balance)\",\n"
+            + "    \"type\": \"long\"\n"
+            + "  }],\n"
+            + "  \"total\": 1,\n"
+            + "  \"datarows\": [[25714837]],\n"
+            + "  \"size\": 1\n"
+            + "}\n",
+                result);
     }
 
     //TODO: each stats aggregate function should be tested here when implemented

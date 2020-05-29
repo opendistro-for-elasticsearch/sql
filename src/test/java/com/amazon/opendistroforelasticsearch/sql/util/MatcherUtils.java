@@ -34,7 +34,9 @@ import java.util.function.Function;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.containsInRelativeOrder;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasEntry;
@@ -141,6 +143,16 @@ public class MatcherUtils {
     }
 
     @SafeVarargs
+    public static void verifyColumn(JSONObject response, Matcher<JSONObject>... matchers) {
+        verify(response.getJSONArray("schema"), matchers);
+    }
+
+    @SafeVarargs
+    public static void verifyOrder(JSONObject response, Matcher<JSONArray>... matchers) {
+        verifyOrder(response.getJSONArray("datarows"), matchers);
+    }
+
+    @SafeVarargs
     public static <T> void verify(JSONArray array, Matcher<T>... matchers) {
         List<T> objects = new ArrayList<>();
         array.iterator().forEachRemaining(o -> objects.add((T) o));
@@ -148,7 +160,7 @@ public class MatcherUtils {
         assertThat(objects, containsInAnyOrder(matchers));
     }
 
-   @SafeVarargs
+    @SafeVarargs
     public static <T> void verifySome(JSONArray array, Matcher<T>... matchers) {
         List<T> objects = new ArrayList<>();
         array.iterator().forEachRemaining(o -> objects.add((T) o));
@@ -157,6 +169,14 @@ public class MatcherUtils {
         for (Matcher<T> matcher : matchers) {
             assertThat(objects, hasItems(matcher));
         }
+    }
+
+    @SafeVarargs
+    public static <T> void verifyOrder(JSONArray array, Matcher<T>... matchers) {
+        List<T> objects = new ArrayList<>();
+        array.iterator().forEachRemaining(o -> objects.add((T) o));
+        assertEquals(matchers.length, objects.size());
+        assertThat(objects, containsInRelativeOrder(matchers));
     }
 
     public static TypeSafeMatcher<JSONObject> schema(String expectedName, String expectedAlias, String expectedType) {
@@ -192,6 +212,34 @@ public class MatcherUtils {
                 List<Object> actualObjects = new ArrayList<>();
                 array.iterator().forEachRemaining(actualObjects::add);
                 return Arrays.asList(expectedObjects).equals(actualObjects);
+            }
+        };
+    }
+
+    public static TypeSafeMatcher<JSONObject> columnPattern(String regex) {
+        return new TypeSafeMatcher<JSONObject>() {
+            @Override
+            protected boolean matchesSafely(JSONObject jsonObject) {
+                return ((String)jsonObject.query("/name")).matches(regex);
+            }
+            
+            @Override
+            public void describeTo(Description description) {
+                description.appendText(String.format("(column_pattern=%s)", regex));
+            }
+        };
+    }
+    
+    public static TypeSafeMatcher<JSONObject> columnName(String name) {
+        return new TypeSafeMatcher<JSONObject>() {
+            @Override
+            protected boolean matchesSafely(JSONObject jsonObject) {
+                return jsonObject.query("/name").equals(name);
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText(String.format("(name=%s)", name));
             }
         };
     }

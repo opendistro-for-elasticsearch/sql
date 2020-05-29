@@ -113,14 +113,14 @@ class AnalyzerTest extends AnalyzerTestBase {
                         AstDSL.agg(
                             AstDSL.relation("schema"),
                             AstDSL.exprList(AstDSL.aggregate("avg", field("integer_value"))),
-                            null,
+                            Collections.emptyList(),
                             ImmutableList.of(),
                             AstDSL.defaultStatsArgs()),
                         AstDSL.map(
                             AstDSL.aggregate("avg", field("integer_value")),
                             AstDSL.aggregate("avg", field("integer_value"))))));
     assertEquals(
-        "the target expected to be field, but is avg(Field(field=integer_value, fieldArgs=null))",
+        "the target expected to be field, but is avg(Field(field=integer_value, fieldArgs=[]))",
         exception.getMessage());
   }
 

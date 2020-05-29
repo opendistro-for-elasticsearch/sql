@@ -20,6 +20,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
 import com.google.common.collect.ImmutableList;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 import java.util.List;
@@ -27,6 +28,7 @@ import java.util.List;
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @Getter
+@RequiredArgsConstructor
 public class Rename extends UnresolvedPlan {
     private final List<Map> renameList;
     private UnresolvedPlan child;
