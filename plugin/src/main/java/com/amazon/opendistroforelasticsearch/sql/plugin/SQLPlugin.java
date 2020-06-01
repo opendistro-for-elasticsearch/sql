@@ -62,10 +62,12 @@ public class SQLPlugin extends Plugin implements ActionPlugin {
     public Collection<Object> createComponents(Client client, ClusterService clusterService, ThreadPool threadPool,
                                                ResourceWatcherService resourceWatcherService, ScriptService scriptService,
                                                NamedXContentRegistry xContentRegistry, Environment environment,
-                                               NodeEnvironment nodeEnvironment, NamedWriteableRegistry namedWriteableRegistry) {
+                                               NodeEnvironment nodeEnvironment, NamedWriteableRegistry namedWriteableRegistry,
+                                               IndexNameExpressionResolver indexNameExpressionResolver) {
         this.clusterService = clusterService;
         return super.createComponents(client, clusterService, threadPool, resourceWatcherService, scriptService,
-                                      xContentRegistry, environment, nodeEnvironment, namedWriteableRegistry);
+                                      xContentRegistry, environment, nodeEnvironment, namedWriteableRegistry,
+                                      indexNameExpressionResolver);
     }
 
 }

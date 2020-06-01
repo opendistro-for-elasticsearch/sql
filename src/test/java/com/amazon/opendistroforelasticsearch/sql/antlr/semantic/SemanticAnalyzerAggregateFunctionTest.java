@@ -91,7 +91,7 @@ public class SemanticAnalyzerAggregateFunctionTest extends SemanticAnalyzerTestB
         expectValidationFailWithErrorMessages(
             "SELECT AVG(p.active) FROM semantics s, s.projects p",
             "Function [AVG] cannot work with [BOOLEAN].",
-            "Usage: AVG(NUMBER T) -> T"
+            "Usage: AVG(NUMBER T) -> DOUBLE"
         );
     }
 
@@ -152,7 +152,7 @@ public class SemanticAnalyzerAggregateFunctionTest extends SemanticAnalyzerTestB
         expectValidationFailWithErrorMessages(
             "SELECT city FROM semantics GROUP BY city HAVING AVG(address) > 10",
             "Function [AVG] cannot work with [TEXT].",
-            "Usage: AVG(NUMBER T) -> T"
+            "Usage: AVG(NUMBER T) -> DOUBLE"
         );
     }
 

@@ -38,11 +38,14 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstant
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_GAME_OF_THRONES;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_NESTED_TYPE;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ONLINE;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.schema;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRowsInOrder;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySchema;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.isEmptyString;
-import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.not;
 
 public class AggregationIT extends SQLIntegTestCase {
@@ -62,6 +65,14 @@ public class AggregationIT extends SQLIntegTestCase {
         JSONObject result = executeQuery(String.format("SELECT COUNT(*) FROM %s", TEST_INDEX_ACCOUNT));
         Assert.assertThat(getTotalHits(result), equalTo(1000));
         Assert.assertThat(getIntAggregationValue(result, "COUNT(*)", "value"), equalTo(1000));
+    }
+
+    @Test
+    public void countDistinctTest() {
+        JSONObject response = executeJdbcRequest(String.format("SELECT COUNT(distinct gender) FROM %s", TEST_INDEX_ACCOUNT));
+
+        verifySchema(response, schema("COUNT(DISTINCT gender)", null, "integer"));
+        verifyDataRows(response, rows(2));
     }
 
     @Test
@@ -414,59 +425,61 @@ public class AggregationIT extends SQLIntegTestCase {
     }
 
     @Test
-    public void orderByAscTest() throws IOException {
+    public void orderByAscTest() {
+        JSONObject response = executeJdbcRequest(String.format("SELECT COUNT(*) FROM %s " +
+                "GROUP BY gender ORDER BY COUNT(*)", TEST_INDEX_ACCOUNT));
 
-        JSONObject result = executeQuery(String.format("SELECT COUNT(*) FROM %s GROUP BY age ORDER BY COUNT(*)",
-                TEST_INDEX_ACCOUNT));
-        JSONObject ageAgg = getAggregation(result, "age");
-        JSONArray buckets = ageAgg.getJSONArray("buckets");
+        verifySchema(response, schema("COUNT(*)", null, "integer"));
+        verifyDataRows(response,
+                rows(493),
+                rows(507));
+    }
 
-        int previousBucketCount = 0;
-        int currentBucketCount;
-        for (int i = 0; i < buckets.length(); ++i) {
-            currentBucketCount = (int) buckets.query(String.format(Locale.ROOT, "/%d/COUNT(*)/value", i));
+    @Test
+    public void orderByAliasAscTest() {
+        JSONObject response = executeJdbcRequest(String.format("SELECT COUNT(*) as count FROM %s " +
+                "GROUP BY gender ORDER BY count", TEST_INDEX_ACCOUNT));
 
-            if (0 == i) {
-                previousBucketCount = currentBucketCount;
-                continue;
-            }
-
-            Assert.assertThat(currentBucketCount, greaterThanOrEqualTo(previousBucketCount));
-            previousBucketCount = currentBucketCount;
-        }
+        verifySchema(response, schema("count", "count", "integer"));
+        verifyDataRowsInOrder(response,
+                rows(493),
+                rows(507));
     }
 
     @Test
     public void orderByDescTest() throws IOException {
+        JSONObject response = executeJdbcRequest(String.format("SELECT COUNT(*) FROM %s " +
+                "GROUP BY gender ORDER BY COUNT(*) DESC", TEST_INDEX_ACCOUNT));
 
-        JSONObject result = executeQuery(String.format("SELECT COUNT(*) FROM %s GROUP BY age" +
-                " ORDER BY COUNT(*) DESC", TEST_INDEX_ACCOUNT));
-        JSONObject ageAgg = getAggregation(result, "age");
-        JSONArray buckets = ageAgg.getJSONArray("buckets");
+        verifySchema(response, schema("COUNT(*)", null, "integer"));
+        verifyDataRowsInOrder(response,
+                rows(507),
+                rows(493));
+    }
 
-        int previousBucketCount = 0;
-        int currentBucketCount;
-        for (int i = 0; i < buckets.length(); ++i) {
-            currentBucketCount = (int) buckets.query(String.format(Locale.ROOT, "/%d/COUNT(*)/value", i));
+    @Test
+    public void orderByAliasDescTest() throws IOException {
+        JSONObject response = executeJdbcRequest(String.format("SELECT COUNT(*) as count FROM %s " +
+                "GROUP BY gender ORDER BY count DESC", TEST_INDEX_ACCOUNT));
 
-            if (0 == i) {
-                previousBucketCount = currentBucketCount;
-                continue;
-            }
-
-            Assert.assertThat(currentBucketCount, lessThanOrEqualTo(previousBucketCount));
-            previousBucketCount = currentBucketCount;
-        }
+        verifySchema(response, schema("count", "count", "integer"));
+        verifyDataRowsInOrder(response,
+                rows(507),
+                rows(493));
     }
 
     @Test
     public void limitTest() throws IOException {
+        JSONObject response = executeJdbcRequest(String.format("SELECT COUNT(*) FROM %s " +
+                "GROUP BY age ORDER BY COUNT(*) LIMIT 5", TEST_INDEX_ACCOUNT));
 
-        JSONObject result = executeQuery(String.format("SELECT COUNT(*) FROM %s GROUP BY age" +
-                " ORDER BY COUNT(*) LIMIT 5", TEST_INDEX_ACCOUNT));
-        JSONObject ageAgg = getAggregation(result, "age");
-        JSONArray buckets = ageAgg.getJSONArray("buckets");
-        Assert.assertThat(buckets.length(), equalTo(5));
+        verifySchema(response, schema("COUNT(*)", null, "integer"));
+        verifyDataRowsInOrder(response,
+                rows(35),
+                rows(39),
+                rows(39),
+                rows(42),
+                rows(42));
     }
 
     @Test
@@ -1237,5 +1250,9 @@ public class AggregationIT extends SQLIntegTestCase {
         Assert.assertTrue(targetField.has(subFieldName));
 
         return targetField.getDouble(subFieldName);
+    }
+
+    private JSONObject executeJdbcRequest(String query) {
+        return new JSONObject(executeQuery(query, "jdbc"));
     }
 }

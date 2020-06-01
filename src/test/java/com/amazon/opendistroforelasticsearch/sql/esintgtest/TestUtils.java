@@ -61,6 +61,23 @@ public class TestUtils {
     }
 
     /**
+     * https://github.com/elastic/elasticsearch/pull/49959
+     * Deprecate creation of dot-prefixed index names except for hidden and system indices.
+     * Create hidden index by REST client.
+     * @param client        client connection
+     * @param indexName     test index name
+     * @param mapping       test index mapping or null if no predefined mapping
+     */
+    public static void createHiddenIndexByRestClient(RestClient client, String indexName, String mapping) {
+        Request request = new Request("PUT", "/" + indexName);
+        JSONObject jsonObject = isNullOrEmpty(mapping) ? new JSONObject() : new JSONObject(mapping);
+        jsonObject.put("settings", new JSONObject("{\"index\":{\"hidden\":true}}"));
+        request.setJsonEntity(jsonObject.toString());
+
+        performRequest(client, request);
+    }
+
+    /**
      * Check if index already exists by ES index exists API which returns:
      *  200 - specified indices or aliases exist
      *  404 - one or more indices specified or aliases do not exist
@@ -100,7 +117,7 @@ public class TestUtils {
         try {
             Response response = client.performRequest(request);
             int status = response.getStatusLine().getStatusCode();
-            if (status != 200) {
+            if (status >= 400) {
                 throw new IllegalStateException("Failed to perform request. Error code: " + status);
             }
             return response;
@@ -182,6 +199,10 @@ public class TestUtils {
     public static String getDogs2IndexMapping() {
         return "{  \"mappings\": {" +
                 " \"properties\": {\n" +
+                "          \"dog_name\": {\n" +
+                "            \"type\": \"text\",\n" +
+                "            \"fielddata\": true\n" +
+                "          },\n"+
                 "          \"holdersName\": {\n" +
                 "            \"type\": \"keyword\"\n" +
                 "          }"+
@@ -499,8 +520,9 @@ public class TestUtils {
                 "        \"type\": \"text\"\n" +
                 "      },\n" +
                 "      \"gender\": {\n" +
-                "        \"type\": \"text\"\n" +
-                "      },\n" +
+                "        \"type\": \"text\",\n" +
+                "        \"fielddata\": true\n" +
+                "      }," +
                 "      \"lastname\": {\n" +
                 "        \"type\": \"keyword\"\n" +
                 "      },\n" +
@@ -608,6 +630,64 @@ public class TestUtils {
                 "}";
     }
 
+    public static String getDateTimeIndexMapping() {
+        return "{" +
+                "  \"mappings\": {" +
+                "    \"properties\": {" +
+                "      \"birthday\": {" +
+                "        \"type\": \"date\"" +
+                "      }" +
+                "    }" +
+                "  }" +
+                "}";
+    }
+
+    public static String getNestedSimpleIndexMapping() {
+        return "{" +
+                "  \"mappings\": {" +
+                "    \"properties\": {" +
+                "      \"address\": {" +
+                "        \"type\": \"nested\"," +
+                "        \"properties\": {" +
+                "          \"city\": {" +
+                "            \"type\": \"text\"," +
+                "            \"fields\": {" +
+                "              \"keyword\": {" +
+                "                \"type\": \"keyword\"," +
+                "                \"ignore_above\": 256" +
+                "              }" +
+                "            }" +
+                "          }," +
+                "          \"state\": {" +
+                "            \"type\": \"text\"," +
+                "            \"fields\": {" +
+                "              \"keyword\": {" +
+                "                \"type\": \"keyword\"," +
+                "                \"ignore_above\": 256" +
+                "              }" +
+                "            }" +
+                "          }" +
+                "        }" +
+                "      }," +
+                "      \"age\": {" +
+                "        \"type\": \"long\"" +
+                "      }," +
+                "      \"id\": {" +
+                "        \"type\": \"long\"" +
+                "      }," +
+                "      \"name\": {" +
+                "        \"type\": \"text\"," +
+                "        \"fields\": {" +
+                "          \"keyword\": {" +
+                "            \"type\": \"keyword\"," +
+                "            \"ignore_above\": 256" +
+                "          }" +
+                "        }" +
+                "      }" +
+                "    }" +
+                "  }" +
+                "}";
+    }
     public static void loadBulk(Client client, String jsonPath, String defaultIndex) throws Exception {
         System.out.println(String.format("Loading file %s into elasticsearch cluster", jsonPath));
         String absJsonPath = getResourceFilePath(jsonPath);

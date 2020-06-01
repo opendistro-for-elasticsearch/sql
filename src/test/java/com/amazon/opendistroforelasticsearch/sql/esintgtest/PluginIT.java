@@ -31,8 +31,6 @@ import static org.hamcrest.Matchers.equalTo;
 
 public class PluginIT extends SQLIntegTestCase {
 
-    private static final String PERSISTENT = "persistent";
-
     @Override
     protected void init() throws Exception {
         wipeAllClusterSettings();

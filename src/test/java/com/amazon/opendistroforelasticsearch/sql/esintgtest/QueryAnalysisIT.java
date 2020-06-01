@@ -20,14 +20,10 @@ import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.SyntaxAnalysisExce
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlFeatureNotImplementedException;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseException;
-import org.elasticsearch.client.RestClient;
 import org.elasticsearch.rest.RestStatus;
-import org.elasticsearch.test.ESIntegTestCase;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -36,7 +32,6 @@ import java.io.IOException;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_ENABLED;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_SEMANTIC_SUGGESTION;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_SEMANTIC_THRESHOLD;
-import static org.elasticsearch.common.xcontent.XContentType.JSON;
 import static org.elasticsearch.rest.RestStatus.BAD_REQUEST;
 import static org.elasticsearch.rest.RestStatus.OK;
 import static org.elasticsearch.rest.RestStatus.SERVICE_UNAVAILABLE;
@@ -248,6 +243,14 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
         queryShouldThrowFeatureNotImplementedException(
                 "SELECT balance DIV age FROM elasticsearch-sql_test_index_bank",
                 "Operator [DIV] is not supported yet"
+        );
+    }
+
+    @Test
+    public void useNegativeNumberConstantShouldPass() {
+        queryShouldPassAnalysis(
+            "SELECT * FROM elasticsearch-sql_test_index_bank " +
+            "WHERE age > -1 AND balance < -123.456789"
         );
     }
 

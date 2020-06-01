@@ -62,6 +62,12 @@ public class SemanticAnalyzer implements GenericSqlParseTreeVisitor<Type> {
     }
 
     @Override
+    public Type visitSelectAllColumn() {
+        mappingLoader.visitSelectAllColumn();
+        return typeChecker.visitSelectAllColumn();
+    }
+
+    @Override
     public void visitAs(String alias, Type type) {
         mappingLoader.visitAs(unquoteSingleField(alias), type);
         typeChecker.visitAs(unquoteSingleField(alias), type);

@@ -1,14 +1,15 @@
 name: Release SQL Artifacts
+# This workflow is triggered on creating tags to master or an opendistro release branch
 on:
   push:
-    branches:
-      - opendistro-*
+    tags:
+      - 'v*'
 
 jobs:
   build:
     strategy:
       matrix:
-        java: [13]
+        java: [14]
 
     name: Build and Release SQL Plugin
     runs-on: [ubuntu-16.04]

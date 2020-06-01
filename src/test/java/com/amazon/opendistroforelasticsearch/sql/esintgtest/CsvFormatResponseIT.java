@@ -94,7 +94,7 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
         final String result = executeQueryWithStringOutput(query);
 
         final String[] unexpectedPercentiles = {"1.0", "5.0", "25.0", "50.0", "75.0", "95.0", "99.0"};
-        final String expectedHeaders = "PERCENTILES(age,10,49.0).10.0,PERCENTILES(age,10,49.0).49.0";
+        final String expectedHeaders = "\"PERCENTILES(age,10,49.0).10.0\",\"PERCENTILES(age,10,49.0).49.0\"";
         Assert.assertThat(result, containsString(expectedHeaders));
         for (final String unexpectedPercentile : unexpectedPercentiles) {
             Assert.assertThat(result, not(containsString("PERCENTILES(age,10,49.0)." + unexpectedPercentile)));
@@ -609,6 +609,64 @@ public class CsvFormatResponseIT extends SQLIntegTestCase {
         Assert.assertTrue(lines.get(0).contains("_doc,437") || lines.get(0).contains("437,_doc"));
     }
     //endregion Tests migrated from CSVResultsExtractorTests
+
+    @Test
+    public void sensitiveCharacterSanitizeTest() throws IOException {
+        String requestBody =
+            "{" +
+            "  \"=cmd|' /C notepad'!_xlbgnm.A1\": \"+cmd|' /C notepad'!_xlbgnm.A1\",\n" +
+            "  \"-cmd|' /C notepad'!_xlbgnm.A1\": \"@cmd|' /C notepad'!_xlbgnm.A1\"\n" +
+            "}";
+
+        Request request = new Request("PUT", "/userdata/_doc/1?refresh=true");
+        request.setJsonEntity(requestBody);
+        TestUtils.performRequest(client(), request);
+
+        CSVResult csvResult = executeCsvRequest("SELECT * FROM userdata", false, false, false, false);
+        List<String> headers = csvResult.getHeaders();
+        Assert.assertEquals(2, headers.size());
+        Assert.assertTrue(headers.contains("'=cmd|' /C notepad'!_xlbgnm.A1"));
+        Assert.assertTrue(headers.contains("'-cmd|' /C notepad'!_xlbgnm.A1"));
+
+        List<String> lines = csvResult.getLines();
+        Assert.assertEquals(1, lines.size());
+        Assert.assertTrue(lines.get(0).contains("'+cmd|' /C notepad'!_xlbgnm.A1"));
+        Assert.assertTrue(lines.get(0).contains("'@cmd|' /C notepad'!_xlbgnm.A1"));
+    }
+
+    @Test
+    public void sensitiveCharacterSanitizeAndQuotedTest() throws IOException {
+        String requestBody =
+            "{" +
+            "  \"=cmd|' /C notepad'!_xlbgnm.A1,,\": \",+cmd|' /C notepad'!_xlbgnm.A1\",\n" +
+            "  \",@cmd|' /C notepad'!_xlbgnm.A1\": \"+cmd|' /C notepad,,'!_xlbgnm.A1\",\n" +
+            "  \"-cmd|' /C notepad,,'!_xlbgnm.A1\": \",,,@cmd|' /C notepad'!_xlbgnm.A1\"\n" +
+            "}";
+
+        Request request = new Request("PUT", "/userdata2/_doc/1?refresh=true");
+        request.setJsonEntity(requestBody);
+        TestUtils.performRequest(client(), request);
+
+        CSVResult csvResult = executeCsvRequest("SELECT * FROM userdata2", false, false, false, false);
+        String headers = String.join(",", csvResult.getHeaders());
+        Assert.assertTrue(headers.contains("\"'=cmd|' /C notepad'!_xlbgnm.A1,,\""));
+        Assert.assertTrue(headers.contains("\",@cmd|' /C notepad'!_xlbgnm.A1\""));
+        Assert.assertTrue(headers.contains("\"'-cmd|' /C notepad,,'!_xlbgnm.A1\""));
+
+        List<String> lines = csvResult.getLines();
+        Assert.assertEquals(1, lines.size());
+        Assert.assertTrue(lines.get(0).contains("\",+cmd|' /C notepad'!_xlbgnm.A1\""));
+        Assert.assertTrue(lines.get(0).contains("\"'+cmd|' /C notepad,,'!_xlbgnm.A1\""));
+        Assert.assertTrue(lines.get(0).contains("\",,,@cmd|' /C notepad'!_xlbgnm.A1\""));
+    }
+
+    @Test
+    public void selectFunctionAsFieldTest() throws IOException {
+        String query = "select log(age) from " + TEST_INDEX_ACCOUNT;
+        CSVResult result = executeCsvRequest(query, false, false, false, false);
+        List<String> headers = result.getHeaders();
+        Assert.assertEquals(1, headers.size());
+    }
 
     private void verifyFieldOrder(final String[] expectedFields) throws IOException {
 

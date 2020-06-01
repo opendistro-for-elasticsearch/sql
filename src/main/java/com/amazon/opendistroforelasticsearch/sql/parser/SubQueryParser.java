@@ -71,8 +71,9 @@ public class SubQueryParser {
              * for example, subquerySelectItem is "SUM(emp.empno) as TEMP",
              * and final select list is TEMP. then return true.
              */
-            if (fieldAliasRewriter.containsKey(field.getAlias())) {
-                field.setAlias(fieldAliasRewriter.get(field.getAlias()).apply(field.getAlias()));
+            String fieldIdentifier = Strings.isNullOrEmpty(field.getAlias()) ? field.getName() : field.getAlias();
+            if (fieldAliasRewriter.containsKey(fieldIdentifier)) {
+                field.setAlias(fieldAliasRewriter.get(fieldIdentifier).apply(fieldIdentifier));
             } else {
                 fieldIterator.remove();
             }

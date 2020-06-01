@@ -37,6 +37,8 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
+import java.util.Collections;
+import java.util.List;
 
 import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter.Style.PRETTY;
 import static org.elasticsearch.rest.RestStatus.INTERNAL_SERVER_ERROR;
@@ -54,8 +56,14 @@ public class RestPPLQueryAction extends BaseRestHandler {
 
     public RestPPLQueryAction(RestController restController, ClusterService clusterService) {
         super();
-        restController.registerHandler(RestRequest.Method.POST, QUERY_API_ENDPOINT, this);
         this.clusterService = clusterService;
+    }
+
+    @Override
+    public List<Route> routes() {
+        return Collections.singletonList(
+            new Route(RestRequest.Method.POST, QUERY_API_ENDPOINT)
+        );
     }
 
     @Override

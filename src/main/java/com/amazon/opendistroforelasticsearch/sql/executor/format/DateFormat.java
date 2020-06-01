@@ -29,6 +29,7 @@ public class DateFormat {
     static {
         // Special cases that are parsed separately
         formatMap.put("date_optional_time", "");
+        formatMap.put("strict_date_optional_time", "");
         formatMap.put("epoch_millis", "");
         formatMap.put("epoch_second", "");
 

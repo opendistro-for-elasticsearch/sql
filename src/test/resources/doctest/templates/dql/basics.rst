@@ -1,7 +1,7 @@
 
-===========
-Basic Query
-===========
+=============
+Basic Queries
+=============
 
 .. rubric:: Table of contents
 

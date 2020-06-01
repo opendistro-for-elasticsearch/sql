@@ -31,20 +31,6 @@ import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.Sq
 public class EndpointIT extends DocTest {
 
     @Section(1)
-    public void queryByGet() {
-        section(
-            title("GET"),
-            description("You can send HTTP GET request with your query embedded in URL parameter."),
-            example(
-                description(),
-                get("SELECT * FROM accounts"),
-                queryFormat(CURL_REQUEST, IGNORE_RESPONSE),
-                explainFormat(IGNORE_REQUEST, IGNORE_RESPONSE)
-            )
-        );
-    }
-
-    @Section(2)
     public void queryByPost() {
         section(
             title("POST"),
@@ -58,7 +44,7 @@ public class EndpointIT extends DocTest {
         );
     }
 
-    @Section(3)
+    @Section(2)
     public void explainQuery() {
         section(
             title("Explain"),
@@ -73,6 +59,25 @@ public class EndpointIT extends DocTest {
                 queryFormat(IGNORE_REQUEST, IGNORE_RESPONSE),
                 explainFormat(CURL_REQUEST, PRETTY_JSON_RESPONSE)
             )
+        );
+    }
+
+    @Section(3)
+    public void cursorQuery() {
+        section(
+                title("Cursor"),
+                description(
+                        "To get paginated response for a query, user needs to provide `fetch_size` parameter as part of normal query.",
+                        "The value of `fetch_size` should be greater than `0`. In absence of `fetch_size`, default value of 1000 is used.",
+                        "A value of `0` will fallback to non-paginated response.",
+                        "This feature is only available over `jdbc` format for now."
+                ),
+                example(
+                        description(),
+                        post("SELECT firstname, lastname FROM accounts WHERE age > 20 ORDER BY state ASC"),
+                        queryFormat(CURL_REQUEST, PRETTY_JSON_RESPONSE),
+                        explainFormat(IGNORE_REQUEST, IGNORE_RESPONSE)
+                )
         );
     }
 

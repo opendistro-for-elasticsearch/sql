@@ -35,13 +35,21 @@ public class SemanticAnalyzerFromClauseTest extends SemanticAnalyzerTestBase {
     }
 
     @Test
-    public void useIndexPatternShouldSkipAllCheck() {
-        validate("SELECT abc FROM semant* WHERE def = 1");
+    public void useNotExistFieldInIndexPatternShouldFail() {
+        expectValidationFailWithErrorMessages(
+                "SELECT abc FROM semant* WHERE def = 1",
+                "Field [def] cannot be found or used here.",
+                "Did you mean [address]?"
+        );
     }
 
     @Test
-    public void useIndexAndIndexPatternShouldSkipAllCheck() {
-        validate("SELECT abc FROM semantics, semant* WHERE def = 1");
+    public void useNotExistFieldInIndexAndIndexPatternShouldFail() {
+        expectValidationFailWithErrorMessages(
+                "SELECT abc FROM semantics, semant* WHERE def = 1",
+                "Field [def] cannot be found or used here.",
+                "Did you mean [address]?"
+        );
     }
 
     /**

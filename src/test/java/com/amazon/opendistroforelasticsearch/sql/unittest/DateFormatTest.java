@@ -214,7 +214,11 @@ public class DateFormatTest {
 
     private Select getSelect(String query) {
         try {
-            return new SqlParser().parseSelect(parseSql(query));
+            Select select = new SqlParser().parseSelect(parseSql(query));
+            if (select.getRowCount() == null){
+                select.setRowCount(Select.DEFAULT_LIMIT);
+            }
+            return select;
         } catch (SqlParseException e) {
             throw new RuntimeException(e);
         }

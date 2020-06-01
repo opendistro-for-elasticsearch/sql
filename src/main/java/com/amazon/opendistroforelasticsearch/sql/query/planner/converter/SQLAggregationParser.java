@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.query.planner.converter;
 
 import com.alibaba.druid.sql.ast.SQLExpr;
 import com.alibaba.druid.sql.ast.expr.SQLAggregateExpr;
+import com.alibaba.druid.sql.ast.expr.SQLAggregateOption;
 import com.alibaba.druid.sql.ast.expr.SQLCastExpr;
 import com.alibaba.druid.sql.ast.expr.SQLIdentifierExpr;
 import com.alibaba.druid.sql.ast.expr.SQLMethodInvokeExpr;
@@ -259,8 +260,12 @@ public class SQLAggregationParser {
         public static String nameOfExpr(SQLExpr expr) {
             String exprName = expr.toString().toLowerCase();
             if (expr instanceof SQLAggregateExpr) {
-                exprName = String.format("%s(%s)", ((SQLAggregateExpr) expr).getMethodName(),
-                                         ((SQLAggregateExpr) expr).getArguments().get(0));
+                SQLAggregateExpr aggExpr = (SQLAggregateExpr) expr;
+                SQLAggregateOption option = aggExpr.getOption();
+                exprName = option == null
+                        ? String.format("%s(%s)", aggExpr.getMethodName(), aggExpr.getArguments().get(0))
+                        : String.format("%s(%s %s)", aggExpr.getMethodName(), option.name(),
+                            aggExpr.getArguments().get(0));
             } else if (expr instanceof SQLMethodInvokeExpr) {
                 exprName = String.format("%s(%s)", ((SQLMethodInvokeExpr) expr).getMethodName(),
                         nameOfExpr(((SQLMethodInvokeExpr) expr).getParameters().get(0)));

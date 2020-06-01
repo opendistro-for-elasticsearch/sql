@@ -26,6 +26,8 @@ public enum MetricName {
     FAILED_REQ_COUNT_SYS("failed_request_count_syserr"),
     FAILED_REQ_COUNT_CUS("failed_request_count_cuserr"),
     FAILED_REQ_COUNT_CB("failed_request_count_cb"),
+    DEFAULT_CURSOR_REQUEST_TOTAL("default_cursor_request_total"),
+    DEFAULT_CURSOR_REQUEST_COUNT_TOTAL("default_cursor_request_count"),
     CIRCUIT_BREAKER("circuit_breaker"),
     DEFAULT("default");
 
@@ -45,7 +47,8 @@ public enum MetricName {
 
     public boolean isNumerical() {
         return this == REQ_TOTAL || this == REQ_COUNT_TOTAL || this == FAILED_REQ_COUNT_SYS
-                || this == FAILED_REQ_COUNT_CUS || this == FAILED_REQ_COUNT_CB || this == DEFAULT;
+                || this == FAILED_REQ_COUNT_CUS || this == FAILED_REQ_COUNT_CB || this == DEFAULT
+                || this == DEFAULT_CURSOR_REQUEST_TOTAL || this == DEFAULT_CURSOR_REQUEST_COUNT_TOTAL;
     }
 
 }

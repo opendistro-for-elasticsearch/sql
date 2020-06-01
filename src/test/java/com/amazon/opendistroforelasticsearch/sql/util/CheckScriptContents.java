@@ -222,7 +222,7 @@ public class CheckScriptContents {
 
     }
 
-    private static XContentParser createParser(String mappings) throws IOException {
+    public static XContentParser createParser(String mappings) throws IOException {
         return XContentType.JSON.xContent().createParser(
             NamedXContentRegistry.EMPTY,
             DeprecationHandler.THROW_UNSUPPORTED_OPERATION,
@@ -254,7 +254,7 @@ public class CheckScriptContents {
         return mockService;
     }
 
-    private static IndexNameExpressionResolver mockIndexNameExpressionResolver() {
+    public static IndexNameExpressionResolver mockIndexNameExpressionResolver() {
         IndexNameExpressionResolver mockResolver = mock(IndexNameExpressionResolver.class);
         when(mockResolver.concreteIndexNames(any(), any(), any())).thenAnswer(
             (Answer<String[]>) invocation -> {
@@ -269,7 +269,7 @@ public class CheckScriptContents {
         return mockResolver;
     }
 
-    private static SqlSettings mockSqlSettings() {
+    public static SqlSettings mockSqlSettings() {
         SqlSettings settings = spy(new SqlSettings());
 
         // Force return empty list to avoid ClusterSettings be invoked which is a final class and hard to mock.

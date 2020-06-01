@@ -22,6 +22,8 @@ src/site-server/node_modules
 /out/
 .gradle/
 build/
+gen/
+*.tokens
 
 # various IDE files
 .vscode

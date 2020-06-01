@@ -1,3 +1,8 @@
+[![Test and Build Workflow](https://github.com/opendistro-for-elasticsearch/sql/workflows/Java%20CI/badge.svg)](https://github.com/opendistro-for-elasticsearch/sql/actions)
+[![Documentation](https://img.shields.io/badge/api-reference-blue.svg)](https://opendistro.github.io/for-elasticsearch-docs/docs/sql/endpoints/)
+[![Chat](https://img.shields.io/badge/chat-on%20forums-blue)](https://discuss.opendistrocommunity.dev/c/sql/)
+![PRs welcome!](https://img.shields.io/badge/PRs-welcome!-success)
+
 # Open Distro for Elasticsearch SQL
 
 
@@ -29,9 +34,6 @@ The package uses the [Gradle](https://docs.gradle.org/4.10.2/userguide/userguide
 To use the feature, send requests to the `_opendistro/_sql` URI. You can use a request parameter or the request body (recommended).
 
 * Simple query
-```
-GET https://<host>:<port>/_opendistro/_sql?sql=select * from my-index limit 50
-```
 
 ```
 POST https://<host>:<port>/_opendistro/_sql

@@ -40,6 +40,7 @@ public class TestsConstants {
     public final static String TEST_INDEX_LOCATION = TEST_INDEX + "_location";
     public final static String TEST_INDEX_LOCATION2 = TEST_INDEX + "_location2";
     public final static String TEST_INDEX_NESTED_TYPE = TEST_INDEX + "_nested_type";
+    public final static String TEST_INDEX_NESTED_SIMPLE = TEST_INDEX + "_nested_simple";
     public final static String TEST_INDEX_NESTED_WITH_QUOTES = TEST_INDEX + "_nested_type_with_quotes";
     public final static String TEST_INDEX_EMPLOYEE_NESTED = TEST_INDEX + "_employee_nested";
     public final static String TEST_INDEX_JOIN_TYPE = TEST_INDEX + "_join_type";
@@ -49,6 +50,8 @@ public class TestsConstants {
     public final static String TEST_INDEX_ORDER = TEST_INDEX + "_order";
     public final static String TEST_INDEX_WEBLOG = TEST_INDEX + "_weblog";
     public final static String TEST_INDEX_DATE = TEST_INDEX + "_date";
+    public final static String TEST_INDEX_DATE_TIME = TEST_INDEX + "_datetime";
+
 
     public final static String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     public final static String TS_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";

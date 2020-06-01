@@ -58,7 +58,7 @@ If there is update in master or you want to keep the forked repository long livi
 
 After getting the source code as well as Elasticsearch and Kibana, your workspace layout may look like this::
 
-   $ make opendistro
+   $ mkdir opendistro
    $ cd opendistro
    $ ls -la                                                                     
    total 32
