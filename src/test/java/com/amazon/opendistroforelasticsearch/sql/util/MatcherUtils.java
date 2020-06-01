@@ -36,6 +36,7 @@ import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.containsInRelativeOrder;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasEntry;
@@ -147,6 +148,11 @@ public class MatcherUtils {
     }
 
     @SafeVarargs
+    public static void verifyOrder(JSONObject response, Matcher<JSONArray>... matchers) {
+        verifyOrder(response.getJSONArray("datarows"), matchers);
+    }
+
+    @SafeVarargs
     public static <T> void verify(JSONArray array, Matcher<T>... matchers) {
         List<T> objects = new ArrayList<>();
         array.iterator().forEachRemaining(o -> objects.add((T) o));
@@ -163,6 +169,14 @@ public class MatcherUtils {
         for (Matcher<T> matcher : matchers) {
             assertThat(objects, hasItems(matcher));
         }
+    }
+
+    @SafeVarargs
+    public static <T> void verifyOrder(JSONArray array, Matcher<T>... matchers) {
+        List<T> objects = new ArrayList<>();
+        array.iterator().forEachRemaining(o -> objects.add((T) o));
+        assertEquals(matchers.length, objects.size());
+        assertThat(objects, containsInRelativeOrder(matchers));
     }
 
     public static TypeSafeMatcher<JSONObject> schema(String expectedName, String expectedAlias, String expectedType) {
