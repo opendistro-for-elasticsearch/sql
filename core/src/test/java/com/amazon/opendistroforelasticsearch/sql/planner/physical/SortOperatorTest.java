@@ -20,6 +20,7 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.sort;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
@@ -61,6 +62,22 @@ class SortOperatorTest extends PhysicalPlanTestBase {
         contains(
             tupleValue(ImmutableMap.of("size", 320, "response", 200)),
             tupleValue(ImmutableMap.of("size", 499, "response", 404)),
+            tupleValue(ImmutableMap.of("size", 399, "response", 503))));
+  }
+
+  @Test
+  public void sort_one_field_with_duplication() {
+    when(inputPlan.hasNext()).thenReturn(true, true, true, false);
+    when(inputPlan.next())
+        .thenReturn(tupleValue(ImmutableMap.of("size", 499, "response", 404)))
+        .thenReturn(tupleValue(ImmutableMap.of("size", 320, "response", 404)))
+        .thenReturn(tupleValue(ImmutableMap.of("size", 399, "response", 503)));
+
+    assertThat(
+        execute(sort(inputPlan, 100, Pair.of(SortOption.PPL_ASC, ref("response")))),
+        contains(
+            tupleValue(ImmutableMap.of("size", 499, "response", 404)),
+            tupleValue(ImmutableMap.of("size", 320, "response", 404)),
             tupleValue(ImmutableMap.of("size", 399, "response", 503))));
   }
 
@@ -262,7 +279,14 @@ class SortOperatorTest extends PhysicalPlanTestBase {
 
     assertThat(
         execute(sort(inputPlan, 1, Pair.of(SortOption.PPL_ASC, ref("response")))),
-        contains(
-            tupleValue(ImmutableMap.of("size", 320, "response", 200))));
+        contains(tupleValue(ImmutableMap.of("size", 320, "response", 200))));
+  }
+
+  @Test
+  public void sort_one_field_without_input() {
+    when(inputPlan.hasNext()).thenReturn(false);
+
+    assertEquals(
+        0, execute(sort(inputPlan, 1, Pair.of(SortOption.PPL_ASC, ref("response")))).size());
   }
 }

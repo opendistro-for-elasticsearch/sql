@@ -1,0 +1,12 @@
+{
+  "bash": [
+    "sample/ppl/curl.rst"
+  ],
+  "ppl_cli": [
+    "sample/ppl/cli.rst"
+  ],
+  "sql_cli": [
+    "sample/sql/basics.rst",
+    "sample/sql/explain.rst"
+  ]
+}

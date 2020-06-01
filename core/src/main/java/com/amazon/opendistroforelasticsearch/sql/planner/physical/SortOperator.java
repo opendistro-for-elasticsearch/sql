@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.PriorityQueue;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Singular;
@@ -76,11 +77,21 @@ public class SortOperator extends PhysicalPlan {
   @Override
   public void open() {
     super.open();
-    TreeMultiset<ExprValue> treeSet = TreeMultiset.create(sorter::compare);
+    PriorityQueue<ExprValue> sorted = new PriorityQueue<>(1, sorter::compare);
     while (input.hasNext()) {
-      treeSet.add(input.next());
+      sorted.add(input.next());
     }
-    iterator = Iterators.limit(treeSet.iterator(), count);
+    iterator = Iterators.limit(new Iterator<ExprValue>() {
+      @Override
+      public boolean hasNext() {
+        return !sorted.isEmpty();
+      }
+
+      @Override
+      public ExprValue next() {
+        return sorted.poll();
+      }
+    }, count);
   }
 
   @Override

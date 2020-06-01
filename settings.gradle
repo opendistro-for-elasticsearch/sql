@@ -22,4 +22,4 @@ include 'common'
 include 'elasticsearch'
 include 'core'
 include 'protocol'
-
+include 'doctest'
