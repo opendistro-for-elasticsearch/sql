@@ -16,6 +16,11 @@
 package com.amazon.opendistroforelasticsearch.sql.plugin;
 
 import com.amazon.opendistroforelasticsearch.sql.plugin.rest.RestPPLQueryAction;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Supplier;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.metadata.IndexNameExpressionResolver;
 import org.elasticsearch.cluster.node.DiscoveryNodes;
@@ -36,38 +41,38 @@ import org.elasticsearch.script.ScriptService;
 import org.elasticsearch.threadpool.ThreadPool;
 import org.elasticsearch.watcher.ResourceWatcherService;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
-import java.util.function.Supplier;
-
 public class SQLPlugin extends Plugin implements ActionPlugin {
 
-    private ClusterService clusterService;
+  private ClusterService clusterService;
 
-    @Override
-    public List<RestHandler> getRestHandlers(Settings settings, RestController restController,
-                                             ClusterSettings clusterSettings, IndexScopedSettings indexScopedSettings,
-                                             SettingsFilter settingsFilter,
-                                             IndexNameExpressionResolver indexNameExpressionResolver,
-                                             Supplier<DiscoveryNodes> nodesInCluster) {
-        Objects.requireNonNull(clusterService, "Cluster service is required");
-        return Arrays.asList(
-                new RestPPLQueryAction(restController, clusterService)
-        );
-    }
+  @Override
+  public List<RestHandler> getRestHandlers(Settings settings, RestController restController,
+                                           ClusterSettings clusterSettings,
+                                           IndexScopedSettings indexScopedSettings,
+                                           SettingsFilter settingsFilter,
+                                           IndexNameExpressionResolver indexNameExpressionResolver,
+                                           Supplier<DiscoveryNodes> nodesInCluster) {
+    Objects.requireNonNull(clusterService, "Cluster service is required");
+    return Arrays.asList(
+        new RestPPLQueryAction(restController, clusterService)
+    );
+  }
 
-    @Override
-    public Collection<Object> createComponents(Client client, ClusterService clusterService, ThreadPool threadPool,
-                                               ResourceWatcherService resourceWatcherService, ScriptService scriptService,
-                                               NamedXContentRegistry xContentRegistry, Environment environment,
-                                               NodeEnvironment nodeEnvironment, NamedWriteableRegistry namedWriteableRegistry,
-                                               IndexNameExpressionResolver indexNameExpressionResolver) {
-        this.clusterService = clusterService;
-        return super.createComponents(client, clusterService, threadPool, resourceWatcherService, scriptService,
-                                      xContentRegistry, environment, nodeEnvironment, namedWriteableRegistry,
-                                      indexNameExpressionResolver);
-    }
+  @Override
+  public Collection<Object> createComponents(Client client, ClusterService clusterService,
+                                             ThreadPool threadPool,
+                                             ResourceWatcherService resourceWatcherService,
+                                             ScriptService scriptService,
+                                             NamedXContentRegistry contentRegistry,
+                                             Environment environment,
+                                             NodeEnvironment nodeEnvironment,
+                                             NamedWriteableRegistry namedWriteableRegistry,
+                                             IndexNameExpressionResolver resolver) {
+    this.clusterService = clusterService;
+    return super
+        .createComponents(client, clusterService, threadPool, resourceWatcherService, scriptService,
+            contentRegistry, environment, nodeEnvironment, namedWriteableRegistry,
+            resolver);
+  }
 
 }

@@ -32,7 +32,7 @@ test {
 
 checkstyle {
     configFile rootProject.file("config/checkstyle/google_checks.xml")
-    toolVersion "8.30"
+    toolVersion "8.20"
 }
 
 jacoco {

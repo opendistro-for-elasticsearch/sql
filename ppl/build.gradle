@@ -40,13 +40,6 @@ dependencies {
 
 }
 
-checkstyle {
-    configFile rootProject.file("config/checkstyle/google_checks.xml")
-    toolVersion "8.30"
-    configProperties = [
-            "org.checkstyle.google.suppressionfilter.config": rootProject.file("config/checkstyle/suppressions.xml")]
-}
-
 jacoco {
     toolVersion = "0.8.5"
 }

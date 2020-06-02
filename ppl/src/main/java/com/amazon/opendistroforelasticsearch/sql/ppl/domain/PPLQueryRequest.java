@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl.domain;
 
-
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
 

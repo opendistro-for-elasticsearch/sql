@@ -1,6 +1,5 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.function;
 
-
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
