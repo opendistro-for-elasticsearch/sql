@@ -21,12 +21,12 @@ import org.json.JSONObject;
 
 @RequiredArgsConstructor
 public class PPLQueryRequest {
-    public static final PPLQueryRequest NULL = new PPLQueryRequest("", null);
+  public static final PPLQueryRequest NULL = new PPLQueryRequest("", null);
 
-    private final String pplQuery;
-    private final JSONObject jsonContent;
+  private final String pplQuery;
+  private final JSONObject jsonContent;
 
-    public String getRequest() {
-        return pplQuery;
-    }
+  public String getRequest() {
+    return pplQuery;
+  }
 }

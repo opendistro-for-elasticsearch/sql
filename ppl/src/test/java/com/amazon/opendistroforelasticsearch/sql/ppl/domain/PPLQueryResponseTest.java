@@ -18,8 +18,8 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.domain;
 import org.junit.Test;
 
 public class PPLQueryResponseTest {
-    @Test
-    public void testQueryResponse() {
-        PPLQueryResponse response = new PPLQueryResponse();
-    }
+  @Test
+  public void testQueryResponse() {
+    PPLQueryResponse response = new PPLQueryResponse();
+  }
 }

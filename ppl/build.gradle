@@ -3,6 +3,7 @@ plugins {
     id "io.freefair.lombok"
     id 'jacoco'
     id 'antlr'
+    id 'checkstyle'
 }
 
 repositories {
@@ -25,9 +26,9 @@ dependencies {
     antlr "org.antlr:antlr4:4.7.1"
 
     compile "org.antlr:antlr4-runtime:4.7.1"
-    compile group: 'com.google.guava', name: 'guava', version:'23.0'
-    compile group: 'org.elasticsearch', name: 'elasticsearch-x-content', version:"${es_version}"
-    compile group: 'org.json', name: 'json', version:'20180813'
+    compile group: 'com.google.guava', name: 'guava', version: '23.0'
+    compile group: 'org.elasticsearch', name: 'elasticsearch-x-content', version: "${es_version}"
+    compile group: 'org.json', name: 'json', version: '20180813'
     compile group: 'org.springframework', name: 'spring-context', version: '5.2.5.RELEASE'
     compile group: 'org.springframework', name: 'spring-beans', version: '5.2.5.RELEASE'
     compile project(':common')
@@ -37,6 +38,13 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '3.3.3'
 
+}
+
+checkstyle {
+    configFile rootProject.file("config/checkstyle/google_checks.xml")
+    toolVersion "8.30"
+    configProperties = [
+            "org.checkstyle.google.suppressionfilter.config": rootProject.file("config/checkstyle/suppressions.xml")]
 }
 
 jacoco {
