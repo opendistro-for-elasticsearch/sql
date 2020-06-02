@@ -23,7 +23,6 @@ dependencies {
     testCompile group: 'org.elasticsearch.client', name: 'elasticsearch-rest-client', version:"${es_version}"
     testCompile group: 'org.hamcrest', name: 'hamcrest', version: '2.1'
     testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', version:'2.11.1'
-    testCompile project(path: ':', configuration: 'integtest')
     testCompile project(':plugin')
     testCompile project(':legacy')
     testImplementation('org.junit.jupiter:junit-jupiter-api:5.6.2')
@@ -35,20 +34,12 @@ testingConventions.enabled = false
 checkstyleTest.ignoreFailures = true
 forbiddenApisTest.enabled = false
 
-compileJava {
-    options.compilerArgs.addAll(["-processor", 'lombok.launch.AnnotationProcessorHider$AnnotationProcessor'])
-}
-
 compileTestJava {
     options.compilerArgs.addAll(["-processor", 'lombok.launch.AnnotationProcessorHider$AnnotationProcessor'])
     doFirst { // Necessary because of many warnings in legacy SQL IT
         options.compilerArgs.remove('-Werror')
         options.compilerArgs.remove('-Xdoclint:all')
     }
-}
-
-test {
-    useJUnitPlatform()
 }
 
 tasks.integTest.dependsOn(':plugin:bundlePlugin')

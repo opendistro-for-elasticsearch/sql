@@ -35,58 +35,58 @@ import static com.amazon.opendistroforelasticsearch.sql.sql.TestsConstants.TEST_
 
 public class SourceFieldIT extends SQLIntegTestCase {
 
-	@Override
-	protected void init() throws Exception {
-		loadIndex(Index.ACCOUNT);
-	}
+    @Override
+    protected void init() throws Exception {
+        loadIndex(Index.ACCOUNT);
+    }
 
-	@Test
-	public void includeTest() throws IOException {
-		SearchHits response = query(String.format("SELECT include('*name','*ge'),include('b*'),include('*ddre*'),include('gender') FROM %s/account LIMIT 1000", TEST_INDEX_ACCOUNT));
-		for (SearchHit hit : response.getHits()) {
-			Set<String> keySet = hit.getSourceAsMap().keySet();
-			for (String field : keySet) {
-				Assert.assertTrue(field.endsWith("name") || field.endsWith("ge") || field.startsWith("b") || field.contains("ddre") || field.equals("gender"));
-			}
-		}
+    @Test
+    public void includeTest() throws IOException {
+        SearchHits response = query(String.format("SELECT include('*name','*ge'),include('b*'),include('*ddre*'),include('gender') FROM %s/account LIMIT 1000", TEST_INDEX_ACCOUNT));
+        for (SearchHit hit : response.getHits()) {
+            Set<String> keySet = hit.getSourceAsMap().keySet();
+            for (String field : keySet) {
+                Assert.assertTrue(field.endsWith("name") || field.endsWith("ge") || field.startsWith("b") || field.contains("ddre") || field.equals("gender"));
+            }
+        }
 
-	}
-	
-	@Test
-	public void excludeTest() throws IOException {
+    }
 
-		SearchHits response = query(String.format("SELECT exclude('*name','*ge'),exclude('b*'),exclude('*ddre*'),exclude('gender') FROM %s/account LIMIT 1000", TEST_INDEX_ACCOUNT));
+    @Test
+    public void excludeTest() throws IOException {
 
-		for (SearchHit hit : response.getHits()) {
-			Set<String> keySet = hit.getSourceAsMap().keySet();
-			for (String field : keySet) {
-				Assert.assertFalse(field.endsWith("name") || field.endsWith("ge") || field.startsWith("b") || field.contains("ddre") || field.equals("gender"));
-			}
-		}
-	}
-	
-	@Test
-	public void allTest() throws IOException {
+        SearchHits response = query(String.format("SELECT exclude('*name','*ge'),exclude('b*'),exclude('*ddre*'),exclude('gender') FROM %s/account LIMIT 1000", TEST_INDEX_ACCOUNT));
 
-		SearchHits response = query(String.format("SELECT exclude('*name','*ge'),include('b*'),exclude('*ddre*'),include('gender') FROM %s/account LIMIT 1000", TEST_INDEX_ACCOUNT));
+        for (SearchHit hit : response.getHits()) {
+            Set<String> keySet = hit.getSourceAsMap().keySet();
+            for (String field : keySet) {
+                Assert.assertFalse(field.endsWith("name") || field.endsWith("ge") || field.startsWith("b") || field.contains("ddre") || field.equals("gender"));
+            }
+        }
+    }
 
-		for (SearchHit hit : response.getHits()) {
-			Set<String> keySet = hit.getSourceAsMap().keySet();
-			for (String field : keySet) {
-				Assert.assertFalse(field.endsWith("name") || field.endsWith("ge") ||  field.contains("ddre") );
-				Assert.assertTrue(field.startsWith("b") || field.equals("gender"));
-			}
-		}
-	}
+    @Test
+    public void allTest() throws IOException {
 
-	private SearchHits query(String query) throws IOException {
-		final JSONObject jsonObject = executeQuery(query);
+        SearchHits response = query(String.format("SELECT exclude('*name','*ge'),include('b*'),exclude('*ddre*'),include('gender') FROM %s/account LIMIT 1000", TEST_INDEX_ACCOUNT));
 
-		final XContentParser parser = XContentFactory.xContent(XContentType.JSON).createParser(
-				NamedXContentRegistry.EMPTY,
-				LoggingDeprecationHandler.INSTANCE,
-				jsonObject.toString());
-		return SearchResponse.fromXContent(parser).getHits();
-	}
+        for (SearchHit hit : response.getHits()) {
+            Set<String> keySet = hit.getSourceAsMap().keySet();
+            for (String field : keySet) {
+                Assert.assertFalse(field.endsWith("name") || field.endsWith("ge") ||  field.contains("ddre") );
+                Assert.assertTrue(field.startsWith("b") || field.equals("gender"));
+            }
+        }
+    }
+
+    private SearchHits query(String query) throws IOException {
+        final JSONObject jsonObject = executeQuery(query);
+
+        final XContentParser parser = XContentFactory.xContent(XContentType.JSON).createParser(
+                NamedXContentRegistry.EMPTY,
+                LoggingDeprecationHandler.INSTANCE,
+                jsonObject.toString());
+        return SearchResponse.fromXContent(parser).getHits();
+    }
 
 }
