@@ -15,8 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.unittest.rewriter.inline;
 
-import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
-import com.amazon.opendistroforelasticsearch.sql.esintgtest.SQLIntegTestCase;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.parser.SqlParser;
 import com.amazon.opendistroforelasticsearch.sql.query.AggregationQueryAction;

@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.unittest.utils;
 
-import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils;
+import com.amazon.opendistroforelasticsearch.sql.util.TestUtils;
 import com.amazon.opendistroforelasticsearch.sql.utils.JsonPrettyFormatter;
 import com.google.common.io.Files;
 import org.junit.Test;

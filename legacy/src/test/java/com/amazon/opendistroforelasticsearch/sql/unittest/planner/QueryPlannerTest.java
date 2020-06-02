@@ -32,14 +32,6 @@ import com.amazon.opendistroforelasticsearch.sql.query.join.ESJoinQueryActionFac
 import com.amazon.opendistroforelasticsearch.sql.query.planner.HashJoinQueryPlanRequestBuilder;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.QueryPlanner;
 import com.amazon.opendistroforelasticsearch.sql.request.SqlRequest;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.core.config.Configurator;
-import org.apache.logging.log4j.core.config.builder.api.AppenderComponentBuilder;
-import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilder;
-import org.apache.logging.log4j.core.config.builder.api.LayoutComponentBuilder;
-import org.apache.logging.log4j.core.config.builder.api.LoggerComponentBuilder;
-import org.apache.logging.log4j.core.config.builder.api.RootLoggerComponentBuilder;
-import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
 import org.apache.lucene.search.TotalHits;
 import org.apache.lucene.search.TotalHits.Relation;
 import org.elasticsearch.action.ActionFuture;
@@ -53,7 +45,6 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -64,7 +55,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
-import static org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilderFactory.newConfigurationBuilder;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -89,6 +79,7 @@ public abstract class QueryPlannerTest {
     private SearchResponse response2;
     private static final String SCROLL_ID2 = "2";
 
+    /*
     @BeforeClass
     public static void initLogger() {
         ConfigurationBuilder<BuiltConfiguration> builder = newConfigurationBuilder();
@@ -109,6 +100,7 @@ public abstract class QueryPlannerTest {
 
         Configurator.initialize(builder.build());
     }
+    */
 
     @Before
     public void init() {

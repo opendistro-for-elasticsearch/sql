@@ -18,7 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.unittest;
 import com.alibaba.druid.sql.parser.ParserException;
 import com.amazon.opendistroforelasticsearch.sql.domain.ColumnTypeProvider;
 import com.amazon.opendistroforelasticsearch.sql.domain.QueryActionRequest;
-import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants;
+import com.amazon.opendistroforelasticsearch.sql.util.TestsConstants;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.executor.Format;
 import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema;
@@ -36,7 +36,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,7 +50,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class JSONRequestTest {
 
     @Mock

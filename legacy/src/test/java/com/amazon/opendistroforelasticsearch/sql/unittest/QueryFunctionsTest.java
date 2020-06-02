@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.unittest;
 
-import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants;
+import com.amazon.opendistroforelasticsearch.sql.util.TestsConstants;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.query.ESActionFactory;
 import com.amazon.opendistroforelasticsearch.sql.util.CheckScriptContents;

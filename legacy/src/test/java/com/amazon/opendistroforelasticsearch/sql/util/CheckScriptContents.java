@@ -22,7 +22,6 @@ import com.amazon.opendistroforelasticsearch.sql.domain.Condition;
 import com.amazon.opendistroforelasticsearch.sql.domain.Select;
 import com.amazon.opendistroforelasticsearch.sql.domain.Where;
 import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
-import com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants;
 import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
 import com.amazon.opendistroforelasticsearch.sql.parser.ElasticSqlExprParser;
 import com.amazon.opendistroforelasticsearch.sql.parser.ScriptFilter;
