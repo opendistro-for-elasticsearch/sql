@@ -20,7 +20,7 @@ import java.io.IOException;
 import org.elasticsearch.client.ResponseException;
 import org.junit.Ignore;
 import org.junit.Test;
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.sql.TestsConstants.TEST_INDEX_ACCOUNT;
 
 public class QueryAnalysisIT extends PPLIntegTestCase {
 

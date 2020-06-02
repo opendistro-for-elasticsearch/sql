@@ -1,0 +1,74 @@
+{
+    "from" : 0,
+    "size" : 0,
+    "_source" : {
+        "includes" : [
+            "address",
+            "script",
+            "COUNT"
+        ],
+        "excludes" : [ ]
+    },
+    "stored_fields" : [
+        "address",
+        "a2345"
+    ],
+    "script_fields" : {
+        "a2345" : {
+            "script" : {
+                "source" : "if((doc['gender'].value=='0')){'aaa'} else {'bbb'}",
+                "lang" : "painless"
+            },
+            "ignore_failure" : false
+        }
+    },
+    "aggregations" : {
+        "terms(field=address,execution_hint=global_ordinals)" : {
+            "terms" : {
+                "field" : "address",
+                "size" : 10,
+                "min_doc_count" : 1,
+                "shard_min_doc_count" : 0,
+                "show_term_doc_count_error" : false,
+                "execution_hint": "global_ordinals",
+                "order" : [
+                    {
+                        "_count" : "desc"
+                    },
+                    {
+                        "_key" : "asc"
+                    }
+                ]
+            },
+            "aggregations" : {
+                "a2345" : {
+                    "terms" : {
+                        "script" : {
+                            "source" : "if((doc['gender'].value=='0')){'aaa'} else {'bbb'}",
+                            "lang" : "painless"
+                        },
+                        "size" : 10,
+                        "min_doc_count" : 1,
+                        "shard_min_doc_count" : 0,
+                        "show_term_doc_count_error" : false,
+                        "order" : [
+                            {
+                                "_count" : "desc"
+                            },
+                            {
+                                "_key" : "asc"
+                            }
+                        ]
+                    },
+                    "aggregations" : {
+                        "COUNT(age)" : {
+                            "value_count" : {
+                                "field" : "age"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

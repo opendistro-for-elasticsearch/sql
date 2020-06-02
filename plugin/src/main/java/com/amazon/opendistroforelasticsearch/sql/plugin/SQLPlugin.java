@@ -15,6 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.plugin;
 
+import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
+import com.amazon.opendistroforelasticsearch.sql.executor.AsyncRestExecutor;
+import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
 import com.amazon.opendistroforelasticsearch.sql.plugin.rest.RestPPLQueryAction;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.metadata.IndexNameExpressionResolver;
@@ -23,8 +26,10 @@ import org.elasticsearch.cluster.service.ClusterService;
 import org.elasticsearch.common.io.stream.NamedWriteableRegistry;
 import org.elasticsearch.common.settings.ClusterSettings;
 import org.elasticsearch.common.settings.IndexScopedSettings;
+import org.elasticsearch.common.settings.Setting;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.settings.SettingsFilter;
+import org.elasticsearch.common.util.concurrent.EsExecutors;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;
 import org.elasticsearch.env.Environment;
 import org.elasticsearch.env.NodeEnvironment;
@@ -33,18 +38,34 @@ import org.elasticsearch.plugins.Plugin;
 import org.elasticsearch.rest.RestController;
 import org.elasticsearch.rest.RestHandler;
 import org.elasticsearch.script.ScriptService;
+import org.elasticsearch.threadpool.ExecutorBuilder;
+import org.elasticsearch.threadpool.FixedExecutorBuilder;
 import org.elasticsearch.threadpool.ThreadPool;
 import org.elasticsearch.watcher.ResourceWatcherService;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
 public class SQLPlugin extends Plugin implements ActionPlugin {
 
+    /**
+     * Sql plugin specific settings in ES cluster settings
+     */
+    private final SqlSettings sqlSettings = new SqlSettings();
+
     private ClusterService clusterService;
+
+    public String name() {
+        return "sql";
+    }
+
+    public String description() {
+        return "Use sql to query elasticsearch.";
+    }
 
     @Override
     public List<RestHandler> getRestHandlers(Settings settings, RestController restController,
@@ -53,8 +74,15 @@ public class SQLPlugin extends Plugin implements ActionPlugin {
                                              IndexNameExpressionResolver indexNameExpressionResolver,
                                              Supplier<DiscoveryNodes> nodesInCluster) {
         Objects.requireNonNull(clusterService, "Cluster service is required");
+
+        LocalClusterState.state().setResolver(indexNameExpressionResolver);
+        Metrics.getInstance().registerDefaultMetrics();
+
         return Arrays.asList(
-                new RestPPLQueryAction(restController, clusterService)
+                new RestPPLQueryAction(restController, clusterService),
+                new RestSqlAction(settings, restController),
+                new RestSqlStatsAction(settings, restController),
+                new RestSqlSettingsAction(settings, restController)
         );
     }
 
@@ -65,9 +93,31 @@ public class SQLPlugin extends Plugin implements ActionPlugin {
                                                NodeEnvironment nodeEnvironment, NamedWriteableRegistry namedWriteableRegistry,
                                                IndexNameExpressionResolver indexNameExpressionResolver) {
         this.clusterService = clusterService;
+
+        LocalClusterState.state().setClusterService(clusterService);
+        LocalClusterState.state().setSqlSettings(sqlSettings);
+
         return super.createComponents(client, clusterService, threadPool, resourceWatcherService, scriptService,
                                       xContentRegistry, environment, nodeEnvironment, namedWriteableRegistry,
                                       indexNameExpressionResolver);
+    }
+
+    @Override
+    public List<ExecutorBuilder<?>> getExecutorBuilders(Settings settings) {
+        return Collections.singletonList(
+            new FixedExecutorBuilder(
+                settings,
+                AsyncRestExecutor.SQL_WORKER_THREAD_POOL_NAME,
+                EsExecutors.numberOfProcessors(settings),
+                1000,
+                null
+            )
+        );
+    }
+
+    @Override
+    public List<Setting<?>> getSettings() {
+        return sqlSettings.getSettings();
     }
 
 }

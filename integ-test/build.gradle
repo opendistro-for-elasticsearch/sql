@@ -1,6 +1,7 @@
 apply plugin: 'elasticsearch.build'
 apply plugin: 'elasticsearch.rest-test'
 apply plugin: 'java'
+apply plugin: 'io.freefair.lombok'
 
 ext {
     projectSubstitutions = [:]
@@ -24,6 +25,7 @@ dependencies {
     testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', version:'2.11.1'
     testCompile project(path: ':', configuration: 'integtest')
     testCompile project(':plugin')
+    testCompile project(':legacy')
     testImplementation('org.junit.jupiter:junit-jupiter-api:5.6.2')
     testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.6.2')
 }
@@ -32,6 +34,18 @@ dependencyLicenses.enabled = false
 testingConventions.enabled = false
 checkstyleTest.ignoreFailures = true
 forbiddenApisTest.enabled = false
+
+compileJava {
+    options.compilerArgs.addAll(["-processor", 'lombok.launch.AnnotationProcessorHider$AnnotationProcessor'])
+}
+
+compileTestJava {
+    options.compilerArgs.addAll(["-processor", 'lombok.launch.AnnotationProcessorHider$AnnotationProcessor'])
+    doFirst { // Necessary because of many warnings in legacy SQL IT
+        options.compilerArgs.remove('-Werror')
+        options.compilerArgs.remove('-Xdoclint:all')
+    }
+}
 
 test {
     useJUnitPlatform()
@@ -45,9 +59,44 @@ testClusters.integTest {
 
 integTest.runner {
     systemProperty 'tests.security.manager', 'false'
-    systemProperty('project.root', project.rootDir.absolutePath)
+    systemProperty('project.root', project.projectDir.absolutePath)
+
+    systemProperty "https", System.getProperty("https")
+    systemProperty "user", System.getProperty("user")
+    systemProperty "password", System.getProperty("password")
+
+    // Tell the test JVM if the cluster JVM is running under a debugger so that tests can use longer timeouts for
+    // requests. The 'doFirst' delays reading the debug setting on the cluster till execution time.
+    doFirst { systemProperty 'cluster.debug', getDebug()}
 
     if (System.getProperty("test.debug") != null) {
         jvmArgs '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005'
+    }
+
+    // Run different task based on test type. "exclude" is required for each task.
+    def testType = System.getProperty("testType")
+    if (testType == 'doctest') { // Doctest to generate documentation
+        include 'com/amazon/opendistroforelasticsearch/sql/doctest/**/*IT.class'
+        exclude 'com/amazon/opendistroforelasticsearch/sql/correctness/**'
+        exclude 'com/amazon/opendistroforelasticsearch/sql/esintgtest/**'
+
+    } else if (testType == 'comparison') { // Comparision testing
+        include 'com/amazon/opendistroforelasticsearch/sql/correctness/CorrectnessIT.class'
+        exclude 'com/amazon/opendistroforelasticsearch/sql/doctest/**'
+        exclude 'com/amazon/opendistroforelasticsearch/sql/esintgtest/**'
+
+        // Enable logging output to console
+        testLogging.showStandardStreams true
+
+        // Pass down system properties to IT class
+        systemProperty "esHost", System.getProperty("esHost")
+        systemProperty "dbUrl", System.getProperty("dbUrl")
+        systemProperty "otherDbUrls", System.getProperty("otherDbUrls")
+        systemProperty "queries", System.getProperty("queries")
+
+    } else { // Run all other integration tests. Skip doctest for now due to randomness in our stats API.
+        include 'com/amazon/opendistroforelasticsearch/sql/esintgtest/**/*IT.class'
+        exclude 'com/amazon/opendistroforelasticsearch/sql/doctest/**/*IT.class'
+        exclude 'com/amazon/opendistroforelasticsearch/sql/correctness/**'
     }
 }
