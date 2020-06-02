@@ -29,43 +29,46 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class AggregationOperatorTest extends PhysicalPlanTestBase {
-    @Test
-    public void avg_with_one_groups() {
-        PhysicalPlan plan = new AggregationOperator(new TestScan(),
-                Collections.singletonList(dsl.avg(typeEnv(), DSL.ref("response"))),
-                Collections.singletonList(DSL.ref("action")));
-        List<ExprValue> result = execute(plan);
-        assertEquals(2, result.size());
-        assertThat(result, containsInAnyOrder(
-                ExprValueUtils.tupleValue(ImmutableMap.of("action", "GET", "avg(response)", 268d)),
-                ExprValueUtils.tupleValue(ImmutableMap.of("action", "POST", "avg(response)", 350d))
-        ));
-    }
+  @Test
+  public void avg_with_one_groups() {
+    PhysicalPlan plan = new AggregationOperator(new TestScan(),
+        Collections.singletonList(dsl.avg(typeEnv(), DSL.ref("response"))),
+        Collections.singletonList(DSL.ref("action")));
+    List<ExprValue> result = execute(plan);
+    assertEquals(2, result.size());
+    assertThat(result, containsInAnyOrder(
+        ExprValueUtils.tupleValue(ImmutableMap.of("action", "GET", "avg(response)", 268d)),
+        ExprValueUtils.tupleValue(ImmutableMap.of("action", "POST", "avg(response)", 350d))
+    ));
+  }
 
-    @Test
-    public void avg_with_two_groups() {
-        PhysicalPlan plan = new AggregationOperator(new TestScan(),
-                Collections.singletonList(dsl.avg(typeEnv(), DSL.ref("response"))),
-                Arrays.asList(DSL.ref("action"), DSL.ref("ip")));
-        List<ExprValue> result = execute(plan);
-        assertEquals(3, result.size());
-        assertThat(result, containsInAnyOrder(
-                ExprValueUtils.tupleValue(ImmutableMap.of("action", "GET", "ip", "209.160.24.63", "avg(response)", 302d)),
-                ExprValueUtils.tupleValue(ImmutableMap.of("action", "GET", "ip", "112.111.162.4", "avg(response)", 200d)),
-                ExprValueUtils.tupleValue(ImmutableMap.of("action", "POST", "ip", "74.125.19.106", "avg(response)", 350d))
-        ));
-    }
+  @Test
+  public void avg_with_two_groups() {
+    PhysicalPlan plan = new AggregationOperator(new TestScan(),
+        Collections.singletonList(dsl.avg(typeEnv(), DSL.ref("response"))),
+        Arrays.asList(DSL.ref("action"), DSL.ref("ip")));
+    List<ExprValue> result = execute(plan);
+    assertEquals(3, result.size());
+    assertThat(result, containsInAnyOrder(
+        ExprValueUtils.tupleValue(
+            ImmutableMap.of("action", "GET", "ip", "209.160.24.63", "avg(response)", 302d)),
+        ExprValueUtils.tupleValue(
+            ImmutableMap.of("action", "GET", "ip", "112.111.162.4", "avg(response)", 200d)),
+        ExprValueUtils.tupleValue(
+            ImmutableMap.of("action", "POST", "ip", "74.125.19.106", "avg(response)", 350d))
+    ));
+  }
 
-    @Test
-    public void sum_with_one_groups() {
-        PhysicalPlan plan = new AggregationOperator(new TestScan(),
-                Collections.singletonList(dsl.sum(typeEnv(), DSL.ref("response"))),
-                Collections.singletonList(DSL.ref("action")));
-        List<ExprValue> result = execute(plan);
-        assertEquals(2, result.size());
-        assertThat(result, containsInAnyOrder(
-                ExprValueUtils.tupleValue(ImmutableMap.of("action", "GET", "sum(response)", 804)),
-                ExprValueUtils.tupleValue(ImmutableMap.of("action", "POST", "sum(response)", 700))
-        ));
-    }
+  @Test
+  public void sum_with_one_groups() {
+    PhysicalPlan plan = new AggregationOperator(new TestScan(),
+        Collections.singletonList(dsl.sum(typeEnv(), DSL.ref("response"))),
+        Collections.singletonList(DSL.ref("action")));
+    List<ExprValue> result = execute(plan);
+    assertEquals(2, result.size());
+    assertThat(result, containsInAnyOrder(
+        ExprValueUtils.tupleValue(ImmutableMap.of("action", "GET", "sum(response)", 804)),
+        ExprValueUtils.tupleValue(ImmutableMap.of("action", "POST", "sum(response)", 700))
+    ));
+  }
 }

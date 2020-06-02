@@ -15,6 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
@@ -27,14 +30,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
-/** Todo, testing purpose, delete later. */
+/**
+ * Todo, testing purpose, delete later.
+ */
 @ExtendWith(MockitoExtension.class)
 class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
-  @Mock PhysicalPlan plan;
-  @Mock ReferenceExpression ref;
+  @Mock
+  PhysicalPlan plan;
+  @Mock
+  ReferenceExpression ref;
 
   @Test
   public void print_physical_plan() {
@@ -67,26 +71,40 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
     PhysicalPlan filter =
         PhysicalPlanDSL.filter(
             new TestScan(), dsl.equal(typeEnv(), DSL.ref("response"), DSL.literal(10)));
+    assertNull(filter.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
+    }, null));
+
     PhysicalPlan aggregation =
         PhysicalPlanDSL.agg(
             filter, ImmutableList.of(dsl.avg(typeEnv(), DSL.ref("response"))), ImmutableList.of());
+    assertNull(aggregation.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
+    }, null));
+
     PhysicalPlan rename =
         PhysicalPlanDSL.rename(
             aggregation, ImmutableMap.of(DSL.ref("ivalue"), DSL.ref("avg(response)")));
-    PhysicalPlan project = PhysicalPlanDSL.project(plan, ref);
-    PhysicalPlan remove = PhysicalPlanDSL.remove(plan, ref);
-    PhysicalPlan eval = PhysicalPlanDSL.eval(plan, Pair.of(ref, ref));
-    PhysicalPlan sort = PhysicalPlanDSL.sort(plan, 100, Pair.of(SortOption.PPL_ASC, ref));
-    PhysicalPlan dedupe = PhysicalPlanDSL.dedupe(plan, ref);
+    assertNull(rename.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
+    }, null));
 
-    assertNull(filter.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {}, null));
-    assertNull(aggregation.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {}, null));
-    assertNull(rename.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {}, null));
-    assertNull(project.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {}, null));
-    assertNull(remove.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {}, null));
-    assertNull(eval.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {}, null));
-    assertNull(sort.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {}, null));
-    assertNull(dedupe.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {}, null));
+    PhysicalPlan project = PhysicalPlanDSL.project(plan, ref);
+    assertNull(project.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
+    }, null));
+
+    PhysicalPlan remove = PhysicalPlanDSL.remove(plan, ref);
+    assertNull(remove.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
+    }, null));
+
+    PhysicalPlan eval = PhysicalPlanDSL.eval(plan, Pair.of(ref, ref));
+    assertNull(eval.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
+    }, null));
+
+    PhysicalPlan sort = PhysicalPlanDSL.sort(plan, 100, Pair.of(SortOption.PPL_ASC, ref));
+    assertNull(sort.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
+    }, null));
+
+    PhysicalPlan dedupe = PhysicalPlanDSL.dedupe(plan, ref);
+    assertNull(dedupe.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
+    }, null));
   }
 
   public static class PhysicalPlanPrinter extends PhysicalPlanNodeVisitor<String, Integer> {

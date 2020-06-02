@@ -29,33 +29,33 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = false)
 @AllArgsConstructor
 public class Field extends UnresolvedExpression {
-    private QualifiedName field;
-    private List<Argument> fieldArgs = Collections.emptyList();
+  private QualifiedName field;
+  private List<Argument> fieldArgs = Collections.emptyList();
 
-    public Field(QualifiedName field) {
-        this.field = field;
-    }
+  public Field(QualifiedName field) {
+    this.field = field;
+  }
 
-    public Field(String field) {
-        this.field = new QualifiedName(field);
-    }
+  public Field(String field) {
+    this.field = new QualifiedName(field);
+  }
 
-    public Field(String field, List<Argument> fieldArgs) {
-        this.field = new QualifiedName(field);
-        this.fieldArgs = fieldArgs;
-    }
+  public Field(String field, List<Argument> fieldArgs) {
+    this.field = new QualifiedName(field);
+    this.fieldArgs = fieldArgs;
+  }
 
-    public boolean hasArgument() {
-        return !fieldArgs.isEmpty();
-    }
+  public boolean hasArgument() {
+    return !fieldArgs.isEmpty();
+  }
 
-    @Override
-    public List<UnresolvedExpression> getChild() {
-        return ImmutableList.of(this.field);
-    }
+  @Override
+  public List<UnresolvedExpression> getChild() {
+    return ImmutableList.of(this.field);
+  }
 
-    @Override
-    public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
-        return nodeVisitor.visitField(this, context);
-    }
+  @Override
+  public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
+    return nodeVisitor.visitField(this, context);
+  }
 }

@@ -40,15 +40,20 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ContextConfiguration(classes = {ExpressionConfig.class, AnalyzerTestBase.class, TestConfig.class})
 public class AnalyzerTestBase {
 
-  @Autowired protected DSL dsl;
+  @Autowired
+  protected DSL dsl;
 
-  @Autowired protected AnalysisContext analysisContext;
+  @Autowired
+  protected AnalysisContext analysisContext;
 
-  @Autowired protected ExpressionAnalyzer expressionAnalyzer;
+  @Autowired
+  protected ExpressionAnalyzer expressionAnalyzer;
 
-  @Autowired protected Analyzer analyzer;
+  @Autowired
+  protected Analyzer analyzer;
 
-  @Autowired protected Environment<Expression, ExprType> typeEnv;
+  @Autowired
+  protected Environment<Expression, ExprType> typeEnv;
 
   @Bean
   protected Analyzer analyzer(ExpressionAnalyzer expressionAnalyzer, StorageEngine engine) {

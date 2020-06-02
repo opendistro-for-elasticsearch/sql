@@ -1,13 +1,14 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.function;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.Map;
+import java.util.Optional;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Map;
-import java.util.Optional;
-
-/** Builtin Function Name */
+/**
+ * Builtin Function Name.
+ */
 @Getter
 @RequiredArgsConstructor
 public enum BuiltinFunctionName {
@@ -22,7 +23,7 @@ public enum BuiltinFunctionName {
   TOSTRING(FunctionName.of("tostring")),
 
   /**
-   * Operator
+   * Operator.
    */
   ADD(FunctionName.of("+")),
   SUBTRACT(FunctionName.of("-")),
@@ -31,7 +32,9 @@ public enum BuiltinFunctionName {
   MODULES(FunctionName.of("%")),
   EQUAL(FunctionName.of("=")),
 
-  /** Aggregation Function. */
+  /**
+   * Aggregation Function.
+   */
   AVG(FunctionName.of("avg")),
   SUM(FunctionName.of("sum")),
   COUNT(FunctionName.of("count"));

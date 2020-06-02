@@ -16,10 +16,9 @@
 package com.amazon.opendistroforelasticsearch.sql.utils;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import lombok.experimental.UtilityClass;
-
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.experimental.UtilityClass;
 
 /**
  * Utils for {@link Expression}.
@@ -27,10 +26,10 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class ExpressionUtils {
 
-    /**
-     * Format the list of {@link Expression}
-     */
-    public static String format(List<Expression> expressionList) {
-        return expressionList.stream().map(Expression::toString).collect(Collectors.joining(","));
-    }
+  /**
+   * Format the list of {@link Expression}.
+   */
+  public static String format(List<Expression> expressionList) {
+    return expressionList.stream().map(Expression::toString).collect(Collectors.joining(","));
+  }
 }

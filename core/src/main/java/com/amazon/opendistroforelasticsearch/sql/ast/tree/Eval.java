@@ -25,7 +25,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-/** AST node represent Eval operation. */
+/**
+ * AST node represent Eval operation.
+ */
 @Getter
 @Setter
 @ToString

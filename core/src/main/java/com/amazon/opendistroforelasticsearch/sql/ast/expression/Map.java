@@ -24,23 +24,23 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Expression node of one-to-one mapping relation
+ * Expression node of one-to-one mapping relation.
  */
 @Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
 public class Map extends UnresolvedExpression {
-    private final UnresolvedExpression origin;
-    private final UnresolvedExpression target;
+  private final UnresolvedExpression origin;
+  private final UnresolvedExpression target;
 
-    @Override
-    public List<UnresolvedExpression> getChild() {
-        return Arrays.asList(origin, target);
-    }
+  @Override
+  public List<UnresolvedExpression> getChild() {
+    return Arrays.asList(origin, target);
+  }
 
-    @Override
-    public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
-        return nodeVisitor.visitMap(this, context);
-    }
+  @Override
+  public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
+    return nodeVisitor.visitMap(this, context);
+  }
 }

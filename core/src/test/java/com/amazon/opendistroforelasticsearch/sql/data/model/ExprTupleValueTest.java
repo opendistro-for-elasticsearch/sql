@@ -22,24 +22,25 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.Test;
 
 class ExprTupleValueTest {
-    @Test
-    public void equal_to_itself() {
-        ExprValue tupleValue = ExprValueUtils.tupleValue(ImmutableMap.of("integer_value", 2));
-        assertTrue(tupleValue.equals(tupleValue));
-    }
+  @Test
+  public void equal_to_itself() {
+    ExprValue tupleValue = ExprValueUtils.tupleValue(ImmutableMap.of("integer_value", 2));
+    assertTrue(tupleValue.equals(tupleValue));
+  }
 
-    @Test
-    public void tuple_compare_int() {
-        ExprValue tupleValue = ExprValueUtils.tupleValue(ImmutableMap.of("integer_value", 2));
-        ExprValue intValue = ExprValueUtils.integerValue(10);
-        assertFalse(tupleValue.equals(intValue));
-    }
+  @Test
+  public void tuple_compare_int() {
+    ExprValue tupleValue = ExprValueUtils.tupleValue(ImmutableMap.of("integer_value", 2));
+    ExprValue intValue = ExprValueUtils.integerValue(10);
+    assertFalse(tupleValue.equals(intValue));
+  }
 
-    @Test
-    public void compre_tuple_with_different_size() {
-        ExprValue tupleValue1 = ExprValueUtils.tupleValue(ImmutableMap.of("integer_value", 2));
-        ExprValue tupleValue2 = ExprValueUtils.tupleValue(ImmutableMap.of("integer_value", 2, "float_value", 1f));
-        assertFalse(tupleValue1.equals(tupleValue2));
-        assertFalse(tupleValue2.equals(tupleValue1));
-    }
+  @Test
+  public void compre_tuple_with_different_size() {
+    ExprValue tupleValue1 = ExprValueUtils.tupleValue(ImmutableMap.of("integer_value", 2));
+    ExprValue tupleValue2 =
+        ExprValueUtils.tupleValue(ImmutableMap.of("integer_value", 2, "float_value", 1f));
+    assertFalse(tupleValue1.equals(tupleValue2));
+    assertFalse(tupleValue2.equals(tupleValue1));
+  }
 }

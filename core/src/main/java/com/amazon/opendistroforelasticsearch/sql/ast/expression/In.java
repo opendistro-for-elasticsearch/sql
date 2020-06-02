@@ -24,25 +24,26 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Expression node of one-to-many mapping relation IN
- * Params include the field expression and/or wildcard field expression, nested field expression (@field)
- * And the values that the field is mapped to (@valueList)
+ * Expression node of one-to-many mapping relation IN.
+ * Params include the field expression and/or wildcard field expression,
+ * nested field expression (@field).
+ * And the values that the field is mapped to (@valueList).
  */
 @Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
 public class In extends UnresolvedExpression {
-    private final UnresolvedExpression field;
-    private final List<UnresolvedExpression> valueList;
+  private final UnresolvedExpression field;
+  private final List<UnresolvedExpression> valueList;
 
-    @Override
-    public List<UnresolvedExpression> getChild() {
-        return Arrays.asList(field);
-    }
+  @Override
+  public List<UnresolvedExpression> getChild() {
+    return Arrays.asList(field);
+  }
 
-    @Override
-    public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
-        return nodeVisitor.visitIn(this, context);
-    }
+  @Override
+  public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
+    return nodeVisitor.visitIn(this, context);
+  }
 }

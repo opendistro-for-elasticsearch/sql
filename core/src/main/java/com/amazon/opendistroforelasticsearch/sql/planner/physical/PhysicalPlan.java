@@ -20,27 +20,27 @@ import com.amazon.opendistroforelasticsearch.sql.planner.PlanNode;
 import java.util.Iterator;
 
 /**
- * Physical plan
+ * Physical plan.
  */
 public abstract class PhysicalPlan implements PlanNode<PhysicalPlan>,
-        Iterator<ExprValue>,
-        AutoCloseable {
-    /**
-     * Accept the {@link PhysicalPlanNodeVisitor}.
-     *
-     * @param visitor visitor.
-     * @param context visitor context.
-     * @param <R>     returned object type.
-     * @param <C>     context type.
-     * @return returned object.
-     */
-    public abstract <R, C> R accept(PhysicalPlanNodeVisitor<R, C> visitor, C context);
+    Iterator<ExprValue>,
+    AutoCloseable {
+  /**
+   * Accept the {@link PhysicalPlanNodeVisitor}.
+   *
+   * @param visitor visitor.
+   * @param context visitor context.
+   * @param <R>     returned object type.
+   * @param <C>     context type.
+   * @return returned object.
+   */
+  public abstract <R, C> R accept(PhysicalPlanNodeVisitor<R, C> visitor, C context);
 
-    public void open() {
-        getChild().forEach(PhysicalPlan::open);
-    }
+  public void open() {
+    getChild().forEach(PhysicalPlan::open);
+  }
 
-    public void close() {
-        getChild().forEach(PhysicalPlan::close);
-    }
+  public void close() {
+    getChild().forEach(PhysicalPlan::close);
+  }
 }

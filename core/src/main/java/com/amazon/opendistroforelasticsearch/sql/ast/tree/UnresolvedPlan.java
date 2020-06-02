@@ -21,15 +21,15 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
- * Abstract unresolved plan
+ * Abstract unresolved plan.
  */
 @EqualsAndHashCode(callSuper = false)
 @ToString
 public abstract class UnresolvedPlan extends Node {
-    @Override
-    public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
-        return nodeVisitor.visitChildren(this, context);
-    }
+  @Override
+  public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
+    return nodeVisitor.visitChildren(this, context);
+  }
 
-    public abstract UnresolvedPlan attach(UnresolvedPlan child);
+  public abstract UnresolvedPlan attach(UnresolvedPlan child);
 }

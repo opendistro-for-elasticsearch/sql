@@ -15,12 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.analysis.symbol;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
-import org.junit.jupiter.api.Test;
-
-import java.util.Map;
-import java.util.Optional;
-
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.BOOLEAN;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.STRING;
@@ -33,54 +27,61 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
+import java.util.Map;
+import java.util.Optional;
+import org.junit.jupiter.api.Test;
+
 
 public class SymbolTableTest {
 
-    private final SymbolTable symbolTable = new SymbolTable();
+  private final SymbolTable symbolTable = new SymbolTable();
 
-    @Test
-    public void defineFieldSymbolShouldBeAbleToResolve() {
-        defineSymbolShouldBeAbleToResolve(new Symbol(Namespace.FIELD_NAME, "age"), INTEGER);
-    }
+  @Test
+  public void defineFieldSymbolShouldBeAbleToResolve() {
+    defineSymbolShouldBeAbleToResolve(new Symbol(Namespace.FIELD_NAME, "age"), INTEGER);
+  }
 
 
-    @Test
-    public void defineFieldSymbolShouldBeAbleToResolveByPrefix() {
-        symbolTable.store(new Symbol(Namespace.FIELD_NAME, "s.projects.active"), BOOLEAN);
-        symbolTable.store(new Symbol(Namespace.FIELD_NAME, "s.address"), STRING);
-        symbolTable.store(new Symbol(Namespace.FIELD_NAME, "s.manager.name"), STRING);
+  @Test
+  public void defineFieldSymbolShouldBeAbleToResolveByPrefix() {
+    symbolTable.store(new Symbol(Namespace.FIELD_NAME, "s.projects.active"), BOOLEAN);
+    symbolTable.store(new Symbol(Namespace.FIELD_NAME, "s.address"), STRING);
+    symbolTable.store(new Symbol(Namespace.FIELD_NAME, "s.manager.name"), STRING);
 
-        Map<String, ExprType> typeByName = symbolTable.lookupByPrefix(new Symbol(Namespace.FIELD_NAME, "s.projects"));
+    Map<String, ExprType> typeByName =
+        symbolTable.lookupByPrefix(new Symbol(Namespace.FIELD_NAME, "s.projects"));
 
-        assertThat(
-                typeByName,
-                allOf(
-                        aMapWithSize(1),
-                        hasEntry("s.projects.active", BOOLEAN)
-                )
-        );
-    }
+    assertThat(
+        typeByName,
+        allOf(
+            aMapWithSize(1),
+            hasEntry("s.projects.active", BOOLEAN)
+        )
+    );
+  }
 
-    @Test
-    public void failedToResolveSymbolNoNamespaceMatched() {
-        symbolTable.store(new Symbol(Namespace.FUNCTION_NAME, "customFunction"), BOOLEAN);
-        assertFalse(symbolTable.lookup(new Symbol(Namespace.FIELD_NAME, "s.projects")).isPresent());
+  @Test
+  public void failedToResolveSymbolNoNamespaceMatched() {
+    symbolTable.store(new Symbol(Namespace.FUNCTION_NAME, "customFunction"), BOOLEAN);
+    assertFalse(symbolTable.lookup(new Symbol(Namespace.FIELD_NAME, "s.projects")).isPresent());
 
-        assertThat(symbolTable.lookupByPrefix(new Symbol(Namespace.FIELD_NAME, "s.projects")), anEmptyMap());
-    }
+    assertThat(symbolTable.lookupByPrefix(new Symbol(Namespace.FIELD_NAME, "s.projects")),
+        anEmptyMap());
+  }
 
-    @Test
-    public void isEmpty() {
-        symbolTable.store(new Symbol(Namespace.FUNCTION_NAME, "customFunction"), BOOLEAN);
-        assertTrue(symbolTable.isEmpty(Namespace.FIELD_NAME));
-    }
+  @Test
+  public void isEmpty() {
+    symbolTable.store(new Symbol(Namespace.FUNCTION_NAME, "customFunction"), BOOLEAN);
+    assertTrue(symbolTable.isEmpty(Namespace.FIELD_NAME));
+  }
 
-    private void defineSymbolShouldBeAbleToResolve(Symbol symbol, ExprType expectedType) {
-        symbolTable.store(symbol, expectedType);
+  private void defineSymbolShouldBeAbleToResolve(Symbol symbol, ExprType expectedType) {
+    symbolTable.store(symbol, expectedType);
 
-        Optional<ExprType> actualType = symbolTable.lookup(symbol);
-        assertTrue(actualType.isPresent());
-        assertEquals(expectedType, actualType.get());
-    }
+    Optional<ExprType> actualType = symbolTable.lookup(symbol);
+    assertTrue(actualType.isPresent());
+    assertEquals(expectedType, actualType.get());
+  }
 
 }

@@ -22,14 +22,18 @@ import com.amazon.opendistroforelasticsearch.sql.expression.scalar.arthmetic.Ari
 import com.amazon.opendistroforelasticsearch.sql.expression.scalar.arthmetic.UnaryFunction;
 import com.amazon.opendistroforelasticsearch.sql.expression.scalar.predicate.BinaryPredicateFunction;
 import com.amazon.opendistroforelasticsearch.sql.expression.scalar.predicate.UnaryPredicateFunction;
+import java.util.HashMap;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.HashMap;
-
-/** Expression Config for Spring IoC. */
+/**
+ * Expression Config for Spring IoC.
+ */
 @Configuration
 public class ExpressionConfig {
+  /**
+   * BuiltinFunctionRepository constructor.
+   */
   @Bean
   public BuiltinFunctionRepository functionRepository() {
     BuiltinFunctionRepository builtinFunctionRepository =

@@ -26,7 +26,9 @@ import java.util.Map;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.tuple.Pair;
 
-/** Physical Plan DSL. */
+/**
+ * Physical Plan DSL.
+ */
 @UtilityClass
 public class PhysicalPlanDSL {
 

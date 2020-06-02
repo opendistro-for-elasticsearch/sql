@@ -35,6 +35,9 @@ import org.junit.jupiter.params.provider.ValueSource;
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class UnaryFunctionTest extends ExpressionTestBase {
 
+  /**
+   * Test abs with integer value.
+   */
   @ParameterizedTest(name = "abs({0})")
   @ValueSource(ints = {-2, 2})
   public void abs_int_value(Integer value) {
@@ -43,6 +46,9 @@ public class UnaryFunctionTest extends ExpressionTestBase {
         allOf(hasType(ExprType.INTEGER), hasValue(Math.abs(value))));
   }
 
+  /**
+   * Test abs with long value.
+   */
   @ParameterizedTest(name = "abs({0})")
   @ValueSource(longs = {-2L, 2L})
   public void abs_long_value(Long value) {
@@ -51,6 +57,9 @@ public class UnaryFunctionTest extends ExpressionTestBase {
         allOf(hasType(ExprType.LONG), hasValue(Math.abs(value))));
   }
 
+  /**
+   * Test abs with float value.
+   */
   @ParameterizedTest(name = "abs({0})")
   @ValueSource(floats = {-2f, 2f})
   public void abs_float_value(Float value) {
@@ -59,6 +68,9 @@ public class UnaryFunctionTest extends ExpressionTestBase {
         allOf(hasType(ExprType.FLOAT), hasValue(Math.abs(value))));
   }
 
+  /**
+   * Test abs with double value.
+   */
   @ParameterizedTest(name = "abs({0})")
   @ValueSource(doubles = {-2L, 2L})
   public void abs_double_value(Double value) {

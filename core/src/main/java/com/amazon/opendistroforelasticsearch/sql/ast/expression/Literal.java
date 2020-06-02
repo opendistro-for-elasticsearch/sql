@@ -25,7 +25,8 @@ import lombok.ToString;
 
 /**
  * Expression node of literal type
- * Params include literal value (@value) and literal data type (@type) which can be selected from {@link DataType}
+ * Params include literal value (@value) and
+ * literal data type (@type) which can be selected from {@link DataType}.
  */
 @Getter
 @ToString
@@ -33,16 +34,16 @@ import lombok.ToString;
 @RequiredArgsConstructor
 public class Literal extends UnresolvedExpression {
 
-    private final Object value;
-    private final DataType type;
+  private final Object value;
+  private final DataType type;
 
-    @Override
-    public List<UnresolvedExpression> getChild() {
-        return ImmutableList.of();
-    }
+  @Override
+  public List<UnresolvedExpression> getChild() {
+    return ImmutableList.of();
+  }
 
-    @Override
-    public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
-        return nodeVisitor.visitLiteral(this, context);
-    }
+  @Override
+  public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
+    return nodeVisitor.visitLiteral(this, context);
+  }
 }

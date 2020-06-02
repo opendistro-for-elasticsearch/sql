@@ -27,27 +27,27 @@ import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
  * e.g. The operation output column name is bindingName, the value is the ExprValue.
  */
 public abstract class BindingTuple implements Environment<Expression, ExprValue> {
-    public static BindingTuple EMPTY = new BindingTuple() {
-        @Override
-        public ExprValue resolve(ReferenceExpression ref) {
-            return ExprMissingValue.of();
-        }
-    };
-
-    /**
-     * Resolve {@link Expression} in the BindingTuple environment.
-     */
+  public static BindingTuple EMPTY = new BindingTuple() {
     @Override
-    public ExprValue resolve(Expression var) {
-        if (var instanceof ReferenceExpression) {
-            return resolve(((ReferenceExpression) var));
-        } else {
-            throw new ExpressionEvaluationException(String.format("can resolve expression: %s", var));
-        }
+    public ExprValue resolve(ReferenceExpression ref) {
+      return ExprMissingValue.of();
     }
+  };
 
-    /**
-     * Resolve the {@link ReferenceExpression} in BindingTuple context.
-     */
-    public abstract ExprValue resolve(ReferenceExpression ref);
+  /**
+   * Resolve {@link Expression} in the BindingTuple environment.
+   */
+  @Override
+  public ExprValue resolve(Expression var) {
+    if (var instanceof ReferenceExpression) {
+      return resolve(((ReferenceExpression) var));
+    } else {
+      throw new ExpressionEvaluationException(String.format("can resolve expression: %s", var));
+    }
+  }
+
+  /**
+   * Resolve the {@link ReferenceExpression} in BindingTuple context.
+   */
+  public abstract ExprValue resolve(ReferenceExpression ref);
 }

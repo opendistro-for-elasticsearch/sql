@@ -53,7 +53,8 @@ class CountAggregatorTest extends AggregationTest {
   @Test
   public void count_arithmetic_expression() {
     ExprValue result = aggregation(dsl.count(typeEnv,
-        dsl.multiply(typeEnv, DSL.ref("integer_value"), DSL.literal(ExprValueUtils.integerValue(10)))), tuples);
+        dsl.multiply(typeEnv, DSL.ref("integer_value"),
+            DSL.literal(ExprValueUtils.integerValue(10)))), tuples);
     assertEquals(4, result.value());
   }
 

@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id "io.freefair.lombok"
     id 'jacoco'
+    id 'checkstyle'
 }
 
 repositories {
@@ -27,6 +28,11 @@ test {
     testLogging {
         events "passed", "skipped", "failed"
     }
+}
+
+checkstyle {
+    configFile rootProject.file("config/checkstyle/google_checks.xml")
+    toolVersion "8.30"
 }
 
 jacoco {

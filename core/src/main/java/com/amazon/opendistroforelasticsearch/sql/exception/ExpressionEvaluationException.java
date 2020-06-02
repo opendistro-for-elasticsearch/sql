@@ -19,7 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.exception;
  * Exception for Expression Evaluation.
  */
 public class ExpressionEvaluationException extends QueryEngineException {
-    public ExpressionEvaluationException(String message) {
-        super(message);
-    }
+  public ExpressionEvaluationException(String message) {
+    super(message);
+  }
 }

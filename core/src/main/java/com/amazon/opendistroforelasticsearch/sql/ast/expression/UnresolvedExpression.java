@@ -23,8 +23,8 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = false)
 @ToString
 public abstract class UnresolvedExpression extends Node {
-    @Override
-    public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
-        return nodeVisitor.visitChildren(this, context);
-    }
+  @Override
+  public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
+    return nodeVisitor.visitChildren(this, context);
+  }
 }

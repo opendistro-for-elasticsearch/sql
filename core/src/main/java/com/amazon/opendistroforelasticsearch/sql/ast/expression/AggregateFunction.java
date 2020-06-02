@@ -23,35 +23,40 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Expression node of aggregate functions
- * Params include aggregate function name (AVG, SUM, MAX etc.) and the field to aggregate
+ * Expression node of aggregate functions.
+ * Params include aggregate function name (AVG, SUM, MAX etc.) and the field to aggregate.
  */
 @Getter
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
 public class AggregateFunction extends UnresolvedExpression {
-    private final String funcName;
-    private final UnresolvedExpression field;
-    private final List<UnresolvedExpression> argList;
+  private final String funcName;
+  private final UnresolvedExpression field;
+  private final List<UnresolvedExpression> argList;
 
-    public AggregateFunction(String funcName, UnresolvedExpression field) {
-        this.funcName = funcName;
-        this.field = field;
-        this.argList = Collections.emptyList();
-    }
+  /**
+   * Constructor.
+   * @param funcName function name.
+   * @param field {@link UnresolvedExpression}.
+   */
+  public AggregateFunction(String funcName, UnresolvedExpression field) {
+    this.funcName = funcName;
+    this.field = field;
+    this.argList = Collections.emptyList();
+  }
 
-    @Override
-    public List<UnresolvedExpression> getChild() {
-        return Collections.singletonList(field);
-    }
+  @Override
+  public List<UnresolvedExpression> getChild() {
+    return Collections.singletonList(field);
+  }
 
-    @Override
-    public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
-        return nodeVisitor.visitAggregateFunction(this, context);
-    }
+  @Override
+  public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
+    return nodeVisitor.visitAggregateFunction(this, context);
+  }
 
-    @Override
-    public String toString() {
-        return String.format("%s(%s)", funcName, field);
-    }
+  @Override
+  public String toString() {
+    return String.format("%s(%s)", funcName, field);
+  }
 }

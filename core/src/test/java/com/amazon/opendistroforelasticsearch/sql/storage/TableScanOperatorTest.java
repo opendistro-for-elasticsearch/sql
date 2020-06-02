@@ -16,47 +16,47 @@
 
 package com.amazon.opendistroforelasticsearch.sql.storage;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanNodeVisitor;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 class TableScanOperatorTest {
 
-    private final TableScanOperator tableScan = new TableScanOperator() {
-        @Override
-        public boolean hasNext() {
-            return false;
-        }
-
-        @Override
-        public ExprValue next() {
-            return null;
-        }
-    };
-
-    @Test
-    public void accept() {
-        Boolean isVisited = tableScan.accept(new PhysicalPlanNodeVisitor<Boolean, Object>() {
-            @Override
-            protected Boolean visitNode(PhysicalPlan node, Object context) {
-                return (node instanceof TableScanOperator);
-            }
-
-            @Override
-            public Boolean visitTableScan(TableScanOperator node, Object context) {
-                return super.visitTableScan(node, context);
-            }
-        }, null);
-
-        assertTrue(isVisited);
+  private final TableScanOperator tableScan = new TableScanOperator() {
+    @Override
+    public boolean hasNext() {
+      return false;
     }
 
-    @Test
-    public void getChild() {
-        assertTrue(tableScan.getChild().isEmpty());
+    @Override
+    public ExprValue next() {
+      return null;
     }
+  };
+
+  @Test
+  public void accept() {
+    Boolean isVisited = tableScan.accept(new PhysicalPlanNodeVisitor<Boolean, Object>() {
+      @Override
+      protected Boolean visitNode(PhysicalPlan node, Object context) {
+        return (node instanceof TableScanOperator);
+      }
+
+      @Override
+      public Boolean visitTableScan(TableScanOperator node, Object context) {
+        return super.visitTableScan(node, context);
+      }
+    }, null);
+
+    assertTrue(isVisited);
+  }
+
+  @Test
+  public void getChild() {
+    assertTrue(tableScan.getChild().isEmpty());
+  }
 
 }

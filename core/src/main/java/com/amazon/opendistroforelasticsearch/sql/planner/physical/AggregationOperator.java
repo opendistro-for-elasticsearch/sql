@@ -37,128 +37,138 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Group the all the input {@link BindingTuple} by {@link AggregationOperator#groupByExprList}, calculate the
- * aggregation result by using {@link AggregationOperator#aggregatorList}
+ * Group the all the input {@link BindingTuple} by {@link AggregationOperator#groupByExprList},
+ * calculate the aggregation result by using {@link AggregationOperator#aggregatorList}.
  */
 @EqualsAndHashCode
 @ToString
 public class AggregationOperator extends PhysicalPlan {
 
-    private final PhysicalPlan input;
-    private final List<Aggregator> aggregatorList;
-    private final List<Expression> groupByExprList;
-    @EqualsAndHashCode.Exclude
-    private final Group group;
-    @EqualsAndHashCode.Exclude
-    private Iterator<ExprValue> iterator;
+  private final PhysicalPlan input;
+  private final List<Aggregator> aggregatorList;
+  private final List<Expression> groupByExprList;
+  @EqualsAndHashCode.Exclude
+  private final Group group;
+  @EqualsAndHashCode.Exclude
+  private Iterator<ExprValue> iterator;
 
-    public AggregationOperator(PhysicalPlan input, List<Aggregator> aggregatorList,
-            List<Expression> groupByExprList) {
-        this.input = input;
-        this.aggregatorList = aggregatorList;
-        this.groupByExprList = groupByExprList;
-        this.group = new Group();
+  /**
+   * AggregationOperator Constructor.
+   * @param input Input {@link PhysicalPlan}
+   * @param aggregatorList List of {@link Aggregator}
+   * @param groupByExprList List of group by {@link Expression}
+   */
+  public AggregationOperator(PhysicalPlan input, List<Aggregator> aggregatorList,
+                             List<Expression> groupByExprList) {
+    this.input = input;
+    this.aggregatorList = aggregatorList;
+    this.groupByExprList = groupByExprList;
+    this.group = new Group();
+  }
+
+  @Override
+  public <R, C> R accept(PhysicalPlanNodeVisitor<R, C> visitor, C context) {
+    return visitor.visitAggregation(this, context);
+  }
+
+  @Override
+  public List<PhysicalPlan> getChild() {
+    return Collections.singletonList(input);
+  }
+
+
+  @Override
+  public boolean hasNext() {
+    return iterator.hasNext();
+  }
+
+  @Override
+  public ExprValue next() {
+    return iterator.next();
+  }
+
+  @Override
+  public void open() {
+    super.open();
+    while (input.hasNext()) {
+      group.push(input.next());
     }
+    iterator = group.result().iterator();
+  }
 
-    @Override
-    public <R, C> R accept(PhysicalPlanNodeVisitor<R, C> visitor, C context) {
-        return visitor.visitAggregation(this, context);
-    }
+  @VisibleForTesting
+  @RequiredArgsConstructor
+  public class Group {
 
-    @Override
-    public List<PhysicalPlan> getChild() {
-        return Collections.singletonList(input);
-    }
+    private final Map<GroupKey, List<Map.Entry<Aggregator, AggregationState>>> groupListMap =
+        new HashMap<>();
 
-
-    @Override
-    public boolean hasNext() {
-        return iterator.hasNext();
-    }
-
-    @Override
-    public ExprValue next() {
-        return iterator.next();
-    }
-
-    @Override
-    public void open() {
-        super.open();
-        while (input.hasNext()) {
-            group.push(input.next());
-        }
-        iterator = group.result().iterator();
-    }
-
-    @VisibleForTesting
-    @RequiredArgsConstructor
-    public class Group {
-
-        private final Map<GroupKey, List<Map.Entry<Aggregator, AggregationState>>> groupListMap = new HashMap<>();
-
-        /**
-         * Push the BindingTuple to Group. Two functions will be applied to each BindingTuple to generate the
-         * {@link GroupKey} and {@link AggregationState}
-         * Key = GroupKey(bindingTuple), State = Aggregator(bindingTuple)
-         */
-        public void push(ExprValue inputValue) {
-            GroupKey groupKey = new GroupKey(inputValue);
-            groupListMap.computeIfAbsent(groupKey, k ->
-                    aggregatorList.stream()
-                            .map(aggregator -> new AbstractMap.SimpleEntry<>(aggregator,
-                                    aggregator.create()))
-                            .collect(Collectors.toList())
-            );
-            groupListMap.computeIfPresent(groupKey, (key, aggregatorList) -> {
-                aggregatorList
-                        .forEach(entry -> entry.getKey().iterate(inputValue.bindingTuples(), entry.getValue()));
-                return aggregatorList;
-            });
-        }
-
-        /**
-         * Get the list of {@link BindingTuple} for each group.
-         */
-        public List<ExprValue> result() {
-            ImmutableList.Builder<ExprValue> resultBuilder = new ImmutableList.Builder<>();
-            for (Map.Entry<GroupKey, List<Map.Entry<Aggregator, AggregationState>>> entry : groupListMap
-                    .entrySet()) {
-                LinkedHashMap<String, ExprValue> map = new LinkedHashMap<>();
-                map.putAll(entry.getKey().groupKeyMap());
-                for (Map.Entry<Aggregator, AggregationState> stateEntry : entry.getValue()) {
-                    map.put(stateEntry.getKey().toString(), stateEntry.getValue().result());
-                }
-                resultBuilder.add(ExprTupleValue.fromExprValueMap(map));
-            }
-            return resultBuilder.build();
-        }
+    /**
+     * Push the BindingTuple to Group. Two functions will be applied to each BindingTuple to
+     * generate the {@link GroupKey} and {@link AggregationState}
+     * Key = GroupKey(bindingTuple), State = Aggregator(bindingTuple)
+     */
+    public void push(ExprValue inputValue) {
+      GroupKey groupKey = new GroupKey(inputValue);
+      groupListMap.computeIfAbsent(groupKey, k ->
+          aggregatorList.stream()
+              .map(aggregator -> new AbstractMap.SimpleEntry<>(aggregator,
+                  aggregator.create()))
+              .collect(Collectors.toList())
+      );
+      groupListMap.computeIfPresent(groupKey, (key, aggregatorList) -> {
+        aggregatorList
+            .forEach(entry -> entry.getKey().iterate(inputValue.bindingTuples(), entry.getValue()));
+        return aggregatorList;
+      });
     }
 
     /**
-     * Group Key.
+     * Get the list of {@link BindingTuple} for each group.
      */
-    @EqualsAndHashCode
-    @VisibleForTesting
-    public class GroupKey {
-
-        private final List<ExprValue> groupByValueList;
-
-        public GroupKey(ExprValue value) {
-            this.groupByValueList = new ArrayList<>();
-            for (Expression groupExpr : groupByExprList) {
-                this.groupByValueList.add(groupExpr.valueOf(value.bindingTuples()));
-            }
+    public List<ExprValue> result() {
+      ImmutableList.Builder<ExprValue> resultBuilder = new ImmutableList.Builder<>();
+      for (Map.Entry<GroupKey, List<Map.Entry<Aggregator, AggregationState>>> entry : groupListMap
+          .entrySet()) {
+        LinkedHashMap<String, ExprValue> map = new LinkedHashMap<>();
+        map.putAll(entry.getKey().groupKeyMap());
+        for (Map.Entry<Aggregator, AggregationState> stateEntry : entry.getValue()) {
+          map.put(stateEntry.getKey().toString(), stateEntry.getValue().result());
         }
-
-        /**
-         * Return the Map of group field and group field value.
-         */
-        public LinkedHashMap<String, ExprValue> groupKeyMap() {
-            LinkedHashMap<String, ExprValue> map = new LinkedHashMap<>();
-            for (int i = 0; i < groupByExprList.size(); i++) {
-                map.put(groupByExprList.get(i).toString(), groupByValueList.get(i));
-            }
-            return map;
-        }
+        resultBuilder.add(ExprTupleValue.fromExprValueMap(map));
+      }
+      return resultBuilder.build();
     }
+  }
+
+  /**
+   * Group Key.
+   */
+  @EqualsAndHashCode
+  @VisibleForTesting
+  public class GroupKey {
+
+    private final List<ExprValue> groupByValueList;
+
+    /**
+     * GroupKey constructor.
+     */
+    public GroupKey(ExprValue value) {
+      this.groupByValueList = new ArrayList<>();
+      for (Expression groupExpr : groupByExprList) {
+        this.groupByValueList.add(groupExpr.valueOf(value.bindingTuples()));
+      }
+    }
+
+    /**
+     * Return the Map of group field and group field value.
+     */
+    public LinkedHashMap<String, ExprValue> groupKeyMap() {
+      LinkedHashMap<String, ExprValue> map = new LinkedHashMap<>();
+      for (int i = 0; i < groupByExprList.size(); i++) {
+        map.put(groupByExprList.get(i).toString(), groupByValueList.get(i));
+      }
+      return map;
+    }
+  }
 }

@@ -23,27 +23,27 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode
 public class ExprMissingValue implements ExprValue {
-    private static final ExprValue instance = new ExprMissingValue();
+  private static final ExprValue instance = new ExprMissingValue();
 
-    private ExprMissingValue() {
-    }
+  private ExprMissingValue() {
+  }
 
-    public static ExprValue of() {
-        return instance;
-    }
+  public static ExprValue of() {
+    return instance;
+  }
 
-    @Override
-    public Object value() {
-        throw new ExpressionEvaluationException("invalid to call value operation on missing value");
-    }
+  @Override
+  public Object value() {
+    throw new ExpressionEvaluationException("invalid to call value operation on missing value");
+  }
 
-    @Override
-    public ExprType type() {
-        throw new ExpressionEvaluationException("invalid to call type operation on missing value");
-    }
+  @Override
+  public ExprType type() {
+    throw new ExpressionEvaluationException("invalid to call type operation on missing value");
+  }
 
-    @Override
-    public boolean isMissing() {
-        return true;
-    }
+  @Override
+  public boolean isMissing() {
+    return true;
+  }
 }

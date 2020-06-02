@@ -40,72 +40,81 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {ExpressionConfig.class})
 public class PhysicalPlanTestBase {
-    @Autowired
-    protected DSL dsl;
+  @Autowired
+  protected DSL dsl;
 
-    private static final List<ExprValue> inputs = new ImmutableList.Builder<ExprValue>()
-            .add(ExprValueUtils.tupleValue(ImmutableMap.of("ip", "209.160.24.63", "action", "GET", "response", 200, "referer", "www.amazon.com")))
-            .add(ExprValueUtils.tupleValue(ImmutableMap.of("ip", "209.160.24.63", "action", "GET", "response", 404, "referer", "www.amazon.com")))
-            .add(ExprValueUtils.tupleValue(ImmutableMap.of("ip", "112.111.162.4", "action", "GET", "response", 200, "referer", "www.amazon.com")))
-            .add(ExprValueUtils.tupleValue(ImmutableMap.of("ip", "74.125.19.106", "action", "POST", "response", 200, "referer", "www.google.com")))
-            .add(ExprValueUtils.tupleValue(ImmutableMap.of("ip", "74.125.19.106", "action", "POST", "response", 500)))
-            .build();
+  private static final List<ExprValue> inputs = new ImmutableList.Builder<ExprValue>()
+      .add(ExprValueUtils.tupleValue(ImmutableMap
+          .of("ip", "209.160.24.63", "action", "GET", "response", 200, "referer",
+              "www.amazon.com")))
+      .add(ExprValueUtils.tupleValue(ImmutableMap
+          .of("ip", "209.160.24.63", "action", "GET", "response", 404, "referer",
+              "www.amazon.com")))
+      .add(ExprValueUtils.tupleValue(ImmutableMap
+          .of("ip", "112.111.162.4", "action", "GET", "response", 200, "referer",
+              "www.amazon.com")))
+      .add(ExprValueUtils.tupleValue(ImmutableMap
+          .of("ip", "74.125.19.106", "action", "POST", "response", 200, "referer",
+              "www.google.com")))
+      .add(ExprValueUtils
+          .tupleValue(ImmutableMap.of("ip", "74.125.19.106", "action", "POST", "response", 500)))
+      .build();
 
-    private static Map<String, ExprType> typeMapping = new ImmutableMap.Builder<String, ExprType>()
-            .put("ip", ExprType.STRING)
-            .put("action", ExprType.STRING)
-            .put("response", ExprType.INTEGER)
-            .put("referer", ExprType.STRING)
-            .build();
+  private static Map<String, ExprType> typeMapping = new ImmutableMap.Builder<String, ExprType>()
+      .put("ip", ExprType.STRING)
+      .put("action", ExprType.STRING)
+      .put("response", ExprType.INTEGER)
+      .put("referer", ExprType.STRING)
+      .build();
 
-    @Bean
-    protected Environment<Expression, ExprType> typeEnv() {
-        return var -> {
-            if (var instanceof ReferenceExpression) {
-                ReferenceExpression refExpr = (ReferenceExpression) var;
-                if (typeMapping.containsKey(refExpr.getAttr())) {
-                    return typeMapping.get(refExpr.getAttr());
-                }
-            }
-            throw new ExpressionEvaluationException("type resolved failed");
-        };
+  @Bean
+  protected Environment<Expression, ExprType> typeEnv() {
+    return var -> {
+      if (var instanceof ReferenceExpression) {
+        ReferenceExpression refExpr = (ReferenceExpression) var;
+        if (typeMapping.containsKey(refExpr.getAttr())) {
+          return typeMapping.get(refExpr.getAttr());
+        }
+      }
+      throw new ExpressionEvaluationException("type resolved failed");
+    };
+  }
+
+  protected List<ExprValue> execute(PhysicalPlan plan) {
+    ImmutableList.Builder<ExprValue> builder = new ImmutableList.Builder<>();
+    plan.open();
+    while (plan.hasNext()) {
+      builder.add(plan.next());
+    }
+    plan.close();
+    return builder.build();
+  }
+
+  protected static class TestScan extends PhysicalPlan {
+    private final Iterator<ExprValue> iterator;
+
+    public TestScan() {
+      iterator = inputs.iterator();
     }
 
-    protected List<ExprValue> execute(PhysicalPlan plan) {
-        ImmutableList.Builder<ExprValue> builder = new ImmutableList.Builder<>();
-        plan.open();
-        while (plan.hasNext()) {
-            builder.add(plan.next());
-        }
-        plan.close();
-        return builder.build();
+    @Override
+    public <R, C> R accept(PhysicalPlanNodeVisitor<R, C> visitor, C context) {
+      return null;
     }
 
-    protected static class TestScan extends PhysicalPlan {
-        private final Iterator<ExprValue> iterator;
-
-        public TestScan() {
-            iterator = inputs.iterator();
-        }
-
-        @Override
-        public <R, C> R accept(PhysicalPlanNodeVisitor<R, C> visitor, C context) {
-            return null;
-        }
-
-        @Override
-        public List<PhysicalPlan> getChild() {
-            return ImmutableList.of();
-        }
-
-        @Override
-        public boolean hasNext() {
-            return iterator.hasNext();
-        }
-
-        @Override
-        public ExprValue next() {
-            return iterator.next();
-        }
+    @Override
+    public List<PhysicalPlan> getChild() {
+      return ImmutableList.of();
     }
+
+    @Override
+    public boolean hasNext() {
+      return iterator.hasNext();
+    }
+
+    @Override
+    public ExprValue next() {
+      return iterator.next();
+    }
+  }
 }

@@ -19,7 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.exception;
  * Semantic Check Exception.
  */
 public class SemanticCheckException extends QueryEngineException {
-    public SemanticCheckException(String message) {
-        super(message);
-    }
+  public SemanticCheckException(String message) {
+    super(message);
+  }
 }

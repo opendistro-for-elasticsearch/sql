@@ -24,30 +24,30 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Logical plan node of Relation, the interface for building the searching sources
+ * Logical plan node of Relation, the interface for building the searching sources.
  */
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
 public class Relation extends UnresolvedPlan {
-    private final UnresolvedExpression tableName;
+  private final UnresolvedExpression tableName;
 
-    public String getTableName() {
-        return tableName.toString();
-    }
+  public String getTableName() {
+    return tableName.toString();
+  }
 
-    @Override
-    public List<UnresolvedPlan> getChild() {
-        return ImmutableList.of();
-    }
+  @Override
+  public List<UnresolvedPlan> getChild() {
+    return ImmutableList.of();
+  }
 
-    @Override
-    public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
-        return nodeVisitor.visitRelation(this, context);
-    }
+  @Override
+  public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
+    return nodeVisitor.visitRelation(this, context);
+  }
 
-    @Override
-    public UnresolvedPlan attach(UnresolvedPlan child) {
-        return this;
-    }
+  @Override
+  public UnresolvedPlan attach(UnresolvedPlan child) {
+    return this;
+  }
 }

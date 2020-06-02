@@ -32,17 +32,17 @@ import lombok.ToString;
 @EqualsAndHashCode
 @RequiredArgsConstructor
 public class LogicalRename extends LogicalPlan {
-    private final LogicalPlan child;
-    @Getter
-    private final Map<ReferenceExpression, ReferenceExpression> renameMap;
+  private final LogicalPlan child;
+  @Getter
+  private final Map<ReferenceExpression, ReferenceExpression> renameMap;
 
-    @Override
-    public List<LogicalPlan> getChild() {
-        return Collections.singletonList(child);
-    }
+  @Override
+  public List<LogicalPlan> getChild() {
+    return Collections.singletonList(child);
+  }
 
-    @Override
-    public <R, C> R accept(LogicalPlanNodeVisitor<R, C> visitor, C context) {
-        return visitor.visitRename(this, context);
-    }
+  @Override
+  public <R, C> R accept(LogicalPlanNodeVisitor<R, C> visitor, C context) {
+    return visitor.visitRename(this, context);
+  }
 }

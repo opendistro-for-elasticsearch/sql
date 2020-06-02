@@ -32,7 +32,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-/** AST node for Sort {@link Sort#sortList} represent a list of sort expression and sort options. */
+/**
+ * AST node for Sort {@link Sort#sortList} represent a list of sort expression and sort options.
+ */
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @Getter
@@ -59,13 +61,19 @@ public class Sort extends UnresolvedPlan {
     return nodeVisitor.visitSort(this, context);
   }
 
-  /** Sort Options. */
+  /**
+   * Sort Options.
+   */
   @Data
   public static class SortOption {
 
-    /** PPL ascending sort option, null first. */
+    /**
+     * PPL ascending sort option, null first.
+     */
     public static SortOption PPL_ASC = new SortOption(ASC, NULL_FIRST);
-    /** PPL descending sort option, null last. */
+    /**
+     * PPL descending sort option, null last.
+     */
     public static SortOption PPL_DESC = new SortOption(DESC, NULL_LAST);
 
     private final SortOrder sortOrder;

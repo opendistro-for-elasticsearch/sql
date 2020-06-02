@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Expression node of scalar function
+ * Expression node of scalar function.
  * Params include function name (@funcName) and function arguments (@funcArgs)
  */
 @Getter
@@ -32,16 +32,16 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
 public class Function extends UnresolvedExpression {
-    private final String funcName;
-    private final List<UnresolvedExpression> funcArgs;
+  private final String funcName;
+  private final List<UnresolvedExpression> funcArgs;
 
-    @Override
-    public List<UnresolvedExpression> getChild() {
-        return ImmutableList.of();
-    }
+  @Override
+  public List<UnresolvedExpression> getChild() {
+    return ImmutableList.of();
+  }
 
-    @Override
-    public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
-        return nodeVisitor.visitFunction(this, context);
-    }
+  @Override
+  public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
+    return nodeVisitor.visitFunction(this, context);
+  }
 }

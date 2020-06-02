@@ -20,17 +20,17 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
- * AST node
+ * AST node.
  */
 @EqualsAndHashCode
 @ToString
 public abstract class Node {
 
-    public <R, C> R accept(AbstractNodeVisitor<R, C> visitor, C context) {
-        return visitor.visitChildren(this, context);
-    }
+  public <R, C> R accept(AbstractNodeVisitor<R, C> visitor, C context) {
+    return visitor.visitChildren(this, context);
+  }
 
-    public List<? extends Node> getChild() {
-        return null;
-    }
+  public List<? extends Node> getChild() {
+    return null;
+  }
 }

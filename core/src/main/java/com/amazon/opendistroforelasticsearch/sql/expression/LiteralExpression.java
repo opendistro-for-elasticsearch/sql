@@ -22,25 +22,25 @@ import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Literal Expression
+ * Literal Expression.
  */
 @EqualsAndHashCode
 @RequiredArgsConstructor
 public class LiteralExpression implements Expression {
-    private final ExprValue exprValue;
+  private final ExprValue exprValue;
 
-    @Override
-    public ExprValue valueOf(Environment<Expression, ExprValue> env) {
-        return exprValue;
-    }
+  @Override
+  public ExprValue valueOf(Environment<Expression, ExprValue> env) {
+    return exprValue;
+  }
 
-    @Override
-    public ExprType type(Environment<Expression, ExprType> env) {
-        return exprValue.type();
-    }
+  @Override
+  public ExprType type(Environment<Expression, ExprType> env) {
+    return exprValue.type();
+  }
 
-    @Override
-    public String toString() {
-        return exprValue.toString();
-    }
+  @Override
+  public String toString() {
+    return exprValue.toString();
+  }
 }

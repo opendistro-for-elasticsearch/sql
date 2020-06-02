@@ -19,28 +19,28 @@ package com.amazon.opendistroforelasticsearch.sql.executor;
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 /**
  * Execution engine that encapsulates execution details.
  */
 public interface ExecutionEngine {
 
-    /**
-     * Execute physical plan and call back response listener
-     * @param plan      executable physical plan
-     * @param listener  response listener
-     */
-    void execute(PhysicalPlan plan, ResponseListener<QueryResponse> listener);
+  /**
+   * Execute physical plan and call back response listener.
+   *
+   * @param plan     executable physical plan
+   * @param listener response listener
+   */
+  void execute(PhysicalPlan plan, ResponseListener<QueryResponse> listener);
 
-    /**
-     * Data class that encapsulates ExprValue
-     */
-    @Data
-    class QueryResponse {
-        private final List<ExprValue> results;
-    }
+  /**
+   * Data class that encapsulates ExprValue.
+   */
+  @Data
+  class QueryResponse {
+    private final List<ExprValue> results;
+  }
 
 }
