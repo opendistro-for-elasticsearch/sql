@@ -16,6 +16,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
+import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter.Style.PRETTY;
+
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchRestClient;
@@ -28,6 +30,8 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryRequest;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.SimpleJsonResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicReference;
 import org.elasticsearch.client.Node;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RestClient;
@@ -36,88 +40,82 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import java.io.IOException;
-import java.util.concurrent.atomic.AtomicReference;
-
-import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter.Style.PRETTY;
-
 /**
- * Run PPL with query engine outside Elasticsearch cluster. This IT doesn't require our plugin installed actually.
- * The client application, ex. JDBC driver, needs to initialize all components itself required by ppl service.
+ * Run PPL with query engine outside Elasticsearch cluster. This IT doesn't require our plugin
+ * installed actually. The client application, ex. JDBC driver, needs to initialize all components
+ * itself required by ppl service.
  */
 public class StandaloneIT extends PPLIntegTestCase {
 
-    private RestHighLevelClient restClient;
+  private RestHighLevelClient restClient;
 
-    private PPLService pplService;
+  private PPLService pplService;
 
-    @Override
-    public void init() {
-        restClient = new RestHighLevelClient(
-            RestClient.builder(client().getNodes().toArray(new Node[0])));
+  @Override
+  public void init() {
+    restClient =
+        new RestHighLevelClient(RestClient.builder(client().getNodes().toArray(new Node[0])));
 
-        ElasticsearchClient client = new ElasticsearchRestClient(restClient);
-        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-        context.registerBean(StorageEngine.class, () -> new ElasticsearchStorageEngine(client));
-        context.registerBean(ExecutionEngine.class, () -> new ElasticsearchExecutionEngine(client));
-        context.register(PPLServiceConfig.class);
-        context.refresh();
+    ElasticsearchClient client = new ElasticsearchRestClient(restClient);
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    context.registerBean(StorageEngine.class, () -> new ElasticsearchStorageEngine(client));
+    context.registerBean(ExecutionEngine.class, () -> new ElasticsearchExecutionEngine(client));
+    context.register(PPLServiceConfig.class);
+    context.refresh();
 
-        pplService = context.getBean(PPLService.class);
-    }
+    pplService = context.getBean(PPLService.class);
+  }
 
-    @AfterEach
-    public void tearDown() throws Exception {
-        restClient.close();
-        super.tearDown();
-    }
+  @AfterEach
+  public void tearDown() throws Exception {
+    restClient.close();
+    super.tearDown();
+  }
 
-    @Test
-    public void testSourceFieldQuery() throws IOException {
-        Request request1 = new Request("PUT", "/test/_doc/1?refresh=true");
-        request1.setJsonEntity("{\"name\": \"hello\", \"age\": 20}");
-        client().performRequest(request1);
-        Request request2 = new Request("PUT", "/test/_doc/2?refresh=true");
-        request2.setJsonEntity("{\"name\": \"world\", \"age\": 30}");
-        client().performRequest(request2);
+  @Test
+  public void testSourceFieldQuery() throws IOException {
+    Request request1 = new Request("PUT", "/test/_doc/1?refresh=true");
+    request1.setJsonEntity("{\"name\": \"hello\", \"age\": 20}");
+    client().performRequest(request1);
+    Request request2 = new Request("PUT", "/test/_doc/2?refresh=true");
+    request2.setJsonEntity("{\"name\": \"world\", \"age\": 30}");
+    client().performRequest(request2);
 
-        String actual = executeByStandaloneQueryEngine("source=test | fields name");
-        assertEquals(
-            "{\n" +
-            "  \"schema\": [{\n" +
-            "    \"name\": \"name\",\n" +
-            "    \"type\": \"string\"\n" +
-            "  }],\n" +
-            "  \"total\": 2,\n" +
-            "  \"datarows\": [\n" +
-            "    [\"hello\"],\n" +
-            "    [\"world\"]\n" +
-            "  ],\n" +
-            "  \"size\": 2\n" +
-            "}",
-            actual
-        );
-    }
+    String actual = executeByStandaloneQueryEngine("source=test | fields name");
+    assertEquals(
+        "{\n"
+            + "  \"schema\": [{\n"
+            + "    \"name\": \"name\",\n"
+            + "    \"type\": \"string\"\n"
+            + "  }],\n"
+            + "  \"total\": 2,\n"
+            + "  \"datarows\": [\n"
+            + "    [\"hello\"],\n"
+            + "    [\"world\"]\n"
+            + "  ],\n"
+            + "  \"size\": 2\n"
+            + "}",
+        actual);
+  }
 
-    private String executeByStandaloneQueryEngine(String query) {
-        AtomicReference<String> actual = new AtomicReference<>();
-        pplService.execute(
-            new PPLQueryRequest(query, null),
-            new ResponseListener<QueryResponse>() {
+  private String executeByStandaloneQueryEngine(String query) {
+    AtomicReference<String> actual = new AtomicReference<>();
+    pplService.execute(
+        new PPLQueryRequest(query, null),
+        new ResponseListener<QueryResponse>() {
 
-                @Override
-                public void onResponse(QueryResponse response) {
-                    QueryResult result = new QueryResult(response.getResults());
-                    String json = new SimpleJsonResponseFormatter(PRETTY).format(result);
-                    actual.set(json);
-                }
+          @Override
+          public void onResponse(QueryResponse response) {
+            QueryResult result = new QueryResult(response.getResults());
+            String json = new SimpleJsonResponseFormatter(PRETTY).format(result);
+            actual.set(json);
+          }
 
-                @Override
-                public void onFailure(Exception e) {
-                    throw new IllegalStateException("Exception happened during execution", e);
-                }
-            });
-        return actual.get();
-    }
-
+          @Override
+          public void onFailure(Exception e) {
+            throw new IllegalStateException("Exception happened during execution", e);
+          }
+        });
+    return actual.get();
+  }
 }

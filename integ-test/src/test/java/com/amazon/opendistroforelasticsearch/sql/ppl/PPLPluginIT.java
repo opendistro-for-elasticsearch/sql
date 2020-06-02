@@ -15,6 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
+import static org.hamcrest.Matchers.hasProperty;
+
+import java.io.IOException;
+import java.util.Locale;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseException;
@@ -24,69 +28,59 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.io.IOException;
-import java.util.Locale;
-
-import static org.hamcrest.Matchers.hasProperty;
-
 public class PPLPluginIT extends PPLIntegTestCase {
-    @Rule
-    public ExpectedException exceptionRule = ExpectedException.none();
+  @Rule public ExpectedException exceptionRule = ExpectedException.none();
 
-    @Override
-    protected void init() throws Exception {
-        wipeAllClusterSettings();
-    }
+  @Override
+  protected void init() throws Exception {
+    wipeAllClusterSettings();
+  }
 
-    @Test
-    public void testQueryEndpointShouldOK() throws IOException {
-        Request request = new Request("PUT", "/a/_doc/1?refresh=true");
-        request.setJsonEntity("{\"name\": \"hello\"}");
-        client().performRequest(request);
+  @Test
+  public void testQueryEndpointShouldOK() throws IOException {
+    Request request = new Request("PUT", "/a/_doc/1?refresh=true");
+    request.setJsonEntity("{\"name\": \"hello\"}");
+    client().performRequest(request);
 
-        String response = executeQueryToString("search source=a");
-        assertEquals(
-            "{\n" +
-            "  \"schema\": [{\n" +
-            "    \"name\": \"name\",\n" +
-            "    \"type\": \"string\"\n" +
-            "  }],\n" +
-            "  \"total\": 1,\n" +
-            "  \"datarows\": [[\"hello\"]],\n" +
-            "  \"size\": 1\n" +
-            "}\n",
-            response
-        );
-    }
+    String response = executeQueryToString("search source=a");
+    assertEquals(
+        "{\n"
+            + "  \"schema\": [{\n"
+            + "    \"name\": \"name\",\n"
+            + "    \"type\": \"string\"\n"
+            + "  }],\n"
+            + "  \"total\": 1,\n"
+            + "  \"datarows\": [[\"hello\"]],\n"
+            + "  \"size\": 1\n"
+            + "}\n",
+        response);
+  }
 
-    @Test
-    public void testQueryEndpointShouldFail() throws IOException {
-        exceptionRule.expect(ResponseException.class);
-        exceptionRule.expect(hasProperty("response", statusCode(500)));
+  @Test
+  public void testQueryEndpointShouldFail() throws IOException {
+    exceptionRule.expect(ResponseException.class);
+    exceptionRule.expect(hasProperty("response", statusCode(500)));
 
-        client().performRequest(makeRequest("search invalid"));
-    }
+    client().performRequest(makeRequest("search invalid"));
+  }
 
-    protected Request makeRequest(String query) {
-        Request post = new Request("POST", "/_opendistro/_ppl");
-        post.setJsonEntity(String.format(Locale.ROOT,
-                "{\n" +
-                        "  \"query\": \"%s\"\n" +
-                        "}", query));
-        return post;
-    }
+  protected Request makeRequest(String query) {
+    Request post = new Request("POST", "/_opendistro/_ppl");
+    post.setJsonEntity(String.format(Locale.ROOT, "{\n" + "  \"query\": \"%s\"\n" + "}", query));
+    return post;
+  }
 
-    private TypeSafeMatcher<Response> statusCode(int statusCode) {
-        return new TypeSafeMatcher<Response>() {
-            @Override
-            public void describeTo(Description description) {
-                description.appendText(String.format(Locale.ROOT, "statusCode=%d", statusCode));
-            }
+  private TypeSafeMatcher<Response> statusCode(int statusCode) {
+    return new TypeSafeMatcher<Response>() {
+      @Override
+      public void describeTo(Description description) {
+        description.appendText(String.format(Locale.ROOT, "statusCode=%d", statusCode));
+      }
 
-            @Override
-            protected boolean matchesSafely(Response resp) {
-                return resp.getStatusLine().getStatusCode() == statusCode;
-            }
-        };
-    }
+      @Override
+      protected boolean matchesSafely(Response resp) {
+        return resp.getStatusLine().getStatusCode() == statusCode;
+      }
+    };
+  }
 }

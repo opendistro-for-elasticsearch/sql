@@ -15,21 +15,23 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
+import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
+
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
 
 public class StatsCommandIT extends PPLIntegTestCase {
 
-    @Override
-    public void init() throws IOException {
-        loadIndex(Index.ACCOUNT);
-    }
+  @Override
+  public void init() throws IOException {
+    loadIndex(Index.ACCOUNT);
+  }
 
-    @Test
-    public void testStatsAvg() throws IOException {
-        String result = executeQueryToString(String.format("source=%s | stats avg(age)", TEST_INDEX_ACCOUNT));
-        assertEquals(
+  @Test
+  public void testStatsAvg() throws IOException {
+    String result =
+        executeQueryToString(String.format("source=%s | stats avg(age)", TEST_INDEX_ACCOUNT));
+    assertEquals(
         "{\n"
             + "  \"schema\": [{\n"
             + "    \"name\": \"avg(age)\",\n"
@@ -39,13 +41,14 @@ public class StatsCommandIT extends PPLIntegTestCase {
             + "  \"datarows\": [[30.171]],\n"
             + "  \"size\": 1\n"
             + "}\n",
-                result);
-    }
+        result);
+  }
 
-    @Test
-    public void testStatsSum() throws IOException {
-        String result = executeQueryToString(String.format("source=%s | stats sum(balance)", TEST_INDEX_ACCOUNT));
-        assertEquals(
+  @Test
+  public void testStatsSum() throws IOException {
+    String result =
+        executeQueryToString(String.format("source=%s | stats sum(balance)", TEST_INDEX_ACCOUNT));
+    assertEquals(
         "{\n"
             + "  \"schema\": [{\n"
             + "    \"name\": \"sum(balance)\",\n"
@@ -55,13 +58,15 @@ public class StatsCommandIT extends PPLIntegTestCase {
             + "  \"datarows\": [[25714837]],\n"
             + "  \"size\": 1\n"
             + "}\n",
-                result);
-    }
+        result);
+  }
 
-    @Test
-    public void testStatsCount() throws IOException {
-        String result = executeQueryToString(String.format("source=%s | stats count(account_number)", TEST_INDEX_ACCOUNT));
-        assertEquals(
+  @Test
+  public void testStatsCount() throws IOException {
+    String result =
+        executeQueryToString(
+            String.format("source=%s | stats count(account_number)", TEST_INDEX_ACCOUNT));
+    assertEquals(
         "{\n"
             + "  \"schema\": [{\n"
             + "    \"name\": \"count(account_number)\",\n"
@@ -71,8 +76,8 @@ public class StatsCommandIT extends PPLIntegTestCase {
             + "  \"datarows\": [[1000]],\n"
             + "  \"size\": 1\n"
             + "}\n",
-                result);
-    }
+        result);
+  }
 
-    //TODO: each stats aggregate function should be tested here when implemented
+  // TODO: each stats aggregate function should be tested here when implemented
 }
