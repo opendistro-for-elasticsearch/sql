@@ -31,16 +31,6 @@ configurations.all {
     exclude group: "commons-logging", module: "commons-logging"
 }
 
-bundlePlugin {
-    // Copy artifacts to root build/distributions
-    doLast {
-        copy {
-            from buildDir
-            into rootProject.buildDir
-        }
-    }
-}
-
 dependencies {
     compile group: 'org.springframework', name: 'spring-beans', version: '5.2.5.RELEASE'
     compile project(":ppl")
@@ -131,7 +121,4 @@ afterEvaluate {
         dependsOn 'assemble'
     }
 
-    task buildPackages(type: GradleBuild) {
-        tasks = ['build', 'buildRpm', 'buildDeb']
-    }
 }

@@ -21,7 +21,7 @@ jobs:
     - name: Create Artifact Path
       run: |
         mkdir -p opendistro-sql-builds
-        cp -r ./build/distributions/*.zip opendistro-sql-builds/
+        cp -r ./plugin/build/distributions/*.zip opendistro-sql-builds/
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v1
