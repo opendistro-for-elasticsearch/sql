@@ -23,4 +23,5 @@ include 'elasticsearch'
 include 'core'
 include 'protocol'
 include 'doctest'
+include 'legacy'
 

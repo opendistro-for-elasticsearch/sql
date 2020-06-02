@@ -1,0 +1,82 @@
+plugins {
+    id 'java'
+    id 'io.freefair.lombok'
+    id 'antlr'
+}
+
+version '1.8.0.0'
+
+repositories {
+    mavenCentral()
+}
+
+generateGrammarSource {
+    arguments += ['-visitor', '-package', 'com.amazon.opendistroforelasticsearch.sql.antlr.parser']
+    source = sourceSets.main.antlr
+    outputDirectory = file("build/generated-src/antlr/main/com/amazon/opendistroforelasticsearch/sql/antlr/parser")
+}
+
+// Remove ANTLR plugin jars as it's specified as 'compile' dependency internally
+configurations {
+    compile {
+        extendsFrom = extendsFrom.findAll { it != configurations.antlr }
+    }
+}
+
+// TODO: fix compiler warnings
+compileJava.options.warnings = false
+compileJava {
+    options.compilerArgs.addAll(["-processor", 'lombok.launch.AnnotationProcessorHider$AnnotationProcessor'])
+    doFirst {
+        // TODO: do not fail build on warnings, need to fix all compiler warnings
+        options.compilerArgs.remove('-Werror')
+        // TODO: need to fix all java doc format
+        options.compilerArgs.remove('-Xdoclint:all')
+    }
+}
+
+// TODO: Similarly, need to fix compiling errors in test source code
+compileTestJava.options.warnings = false
+compileTestJava {
+    options.compilerArgs.addAll(["-processor", 'lombok.launch.AnnotationProcessorHider$AnnotationProcessor'])
+    doFirst {
+        options.compilerArgs.remove('-Werror')
+        options.compilerArgs.remove('-Xdoclint:all')
+    }
+}
+
+dependencies {
+    compile group: 'com.alibaba', name: 'druid', version:'1.0.15'
+    compile group: 'org.locationtech.spatial4j', name: 'spatial4j', version:'0.7'
+    compile group: "org.elasticsearch.plugin", name: 'parent-join-client', version: "${es_version}"
+    compile group: "org.elasticsearch.plugin", name: 'reindex-client', version: "${es_version}"
+    compile group: 'com.google.guava', name: 'guava', version:'15.0'
+    compile group: 'org.json', name: 'json', version:'20180813'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
+    compile group: 'org.elasticsearch', name: 'elasticsearch', version: "${es_version}"
+
+    // ANTLR gradle plugin and runtime dependency
+    antlr "org.antlr:antlr4:4.7.1"
+    compile "org.antlr:antlr4-runtime:4.7.1"
+
+    //compileOnly group: 'org.locationtech.jts', name: 'jts-core', version:'1.15.0'
+    // compileOnly group: 'org.elasticsearch', name: 'elasticsearch', version:'6.5.3'
+    // compileOnly group: 'com.unboundid', name: 'unboundid-ldapsdk', version:'3.2.0'
+    // compileOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version:'1.58'
+    // compileOnly group: 'log4j', name: 'log4j', version:'1.2.17'
+    // compileOnly group: 'org.apache.logging.log4j', name: 'log4j-api', version:'2.7'
+    // compileOnly group: 'org.apache.logging.log4j', name: 'log4j-core', version:'2.7'
+    compileOnly group: 'javax.servlet', name: 'servlet-api', version:'2.5'
+
+    testCompile group: 'org.hamcrest', name: 'hamcrest-all', version:'1.3'
+    // testCompile group: 'com.alibaba', name: 'fastjson', version:'1.2.56'
+    testCompile group: 'org.mockito', name: 'mockito-core', version:'2.23.4'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile group: "org.elasticsearch.client", name: 'transport', version: "${es_version}"
+
+    // JDBC drivers for comparison test. Somehow Apache Derby throws security permission exception.
+    testCompile group: 'com.amazon.opendistroforelasticsearch.client', name: 'opendistro-sql-jdbc', version: '1.3.0.0'
+    testCompile group: 'com.h2database', name: 'h2', version: '1.4.200'
+    testCompile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.28.0'
+    //testCompile group: 'org.apache.derby', name: 'derby', version: '10.15.1.3'
+}
