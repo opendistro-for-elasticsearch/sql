@@ -16,6 +16,12 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.response;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.Mockito.when;
+
 import org.apache.lucene.search.TotalHits;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
@@ -26,57 +32,48 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 class ElasticsearchResponseTest {
 
-    @Mock
-    private SearchResponse esResponse;
+  @Mock private SearchResponse esResponse;
 
-    @BeforeEach
-    void setUp() {
-        when(esResponse.getHits()).thenReturn(
+  @BeforeEach
+  void setUp() {
+    when(esResponse.getHits())
+        .thenReturn(
             new SearchHits(
-                new SearchHit[]{ new SearchHit(1), new SearchHit(2) },
+                new SearchHit[] {new SearchHit(1), new SearchHit(2)},
                 new TotalHits(2L, TotalHits.Relation.EQUAL_TO),
-                1.0F
-            )
-        );
+                1.0F));
+  }
+
+  @Test
+  void isEmpty() {
+    ElasticsearchResponse response1 = new ElasticsearchResponse(esResponse);
+    assertFalse(response1.isEmpty());
+
+    when(esResponse.getHits()).thenReturn(SearchHits.empty());
+    ElasticsearchResponse response2 = new ElasticsearchResponse(esResponse);
+    assertTrue(response2.isEmpty());
+
+    when(esResponse.getHits())
+        .thenReturn(new SearchHits(null, new TotalHits(0, TotalHits.Relation.EQUAL_TO), 0));
+    ElasticsearchResponse response3 = new ElasticsearchResponse(esResponse);
+    assertTrue(response3.isEmpty());
+  }
+
+  @Test
+  void iterator() {
+    int i = 0;
+    for (SearchHit hit : new ElasticsearchResponse(esResponse)) {
+      if (i == 0) {
+        assertEquals(new SearchHit(1), hit);
+      } else if (i == 1) {
+        assertEquals(new SearchHit(2), hit);
+      } else {
+        fail("More search hits returned than expected");
+      }
+      i++;
     }
-
-    @Test
-    void isEmpty() {
-        ElasticsearchResponse response1 = new ElasticsearchResponse(esResponse);
-        assertFalse(response1.isEmpty());
-
-        when(esResponse.getHits()).thenReturn(SearchHits.empty());
-        ElasticsearchResponse response2 = new ElasticsearchResponse(esResponse);
-        assertTrue(response2.isEmpty());
-
-        when(esResponse.getHits()).thenReturn(
-            new SearchHits(null, new TotalHits(0, TotalHits.Relation.EQUAL_TO), 0));
-        ElasticsearchResponse response3 = new ElasticsearchResponse(esResponse);
-        assertTrue(response3.isEmpty());
-    }
-
-    @Test
-    void iterator() {
-        int i = 0;
-        for (SearchHit hit : new ElasticsearchResponse(esResponse)) {
-            if (i == 0) {
-                assertEquals(new SearchHit(1), hit);
-            } else if (i == 1) {
-                assertEquals(new SearchHit(2), hit);
-            } else {
-                fail("More search hits returned than expected");
-            }
-            i++;
-        }
-    }
-
+  }
 }

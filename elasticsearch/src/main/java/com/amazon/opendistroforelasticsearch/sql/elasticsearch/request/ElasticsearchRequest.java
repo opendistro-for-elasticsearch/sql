@@ -16,6 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.request;
 
+import java.util.Objects;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -26,13 +27,11 @@ import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 
-import java.util.Objects;
-
 /**
  * Elasticsearch search request. This has to be stateful because it needs to:
  *
- *  1) Accumulate search source builder when visiting logical plan to push down operation
- *  2) Maintain scroll ID between calls to client search method
+ * <p>1) Accumulate search source builder when visiting logical plan to push down operation 2)
+ * Maintain scroll ID between calls to client search method
  */
 @EqualsAndHashCode
 @RequiredArgsConstructor
@@ -40,62 +39,57 @@ import java.util.Objects;
 @ToString
 public class ElasticsearchRequest {
 
-    /**
-     * Default scroll context timeout in minutes
-     */
-    public static final TimeValue DEFAULT_SCROLL_TIMEOUT = TimeValue.timeValueMinutes(1L);
+  /** Default scroll context timeout in minutes. */
+  public static final TimeValue DEFAULT_SCROLL_TIMEOUT = TimeValue.timeValueMinutes(1L);
 
-    /**
-     * Index name.
-     */
-    private final String indexName;
+  /** Index name. */
+  private final String indexName;
 
-    /**
-     * Scroll id which is set after first request issued.
-     * Because ElasticsearchClient is shared by multi-thread so this state has to be maintained here.
-     */
-    @Setter
-    private String scrollId;
+  /**
+   * Scroll id which is set after first request issued. Because ElasticsearchClient is shared by
+   * multi-thread so this state has to be maintained here.
+   */
+  @Setter private String scrollId;
 
-    /**
-     * Search request source builder.
-     */
-    private final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+  /** Search request source builder. */
+  private final SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
 
-    /**
-     * Generate Elasticsearch search request.
-     * @return  search request
-     */
-    public SearchRequest searchRequest() {
-        return new SearchRequest().indices(indexName).
-                                   scroll(DEFAULT_SCROLL_TIMEOUT).
-                                   source(sourceBuilder);
-    }
+  /**
+   * Generate Elasticsearch search request.
+   *
+   * @return search request
+   */
+  public SearchRequest searchRequest() {
+    return new SearchRequest()
+        .indices(indexName)
+        .scroll(DEFAULT_SCROLL_TIMEOUT)
+        .source(sourceBuilder);
+  }
 
-    /**
-     * Is scroll started which means pages after first is being requested
-     * @return  true if scroll started
-     */
-    public boolean isScrollStarted() {
-        return (scrollId != null);
-    }
+  /**
+   * Is scroll started which means pages after first is being requested.
+   *
+   * @return true if scroll started
+   */
+  public boolean isScrollStarted() {
+    return (scrollId != null);
+  }
 
-    /**
-     * Generate Elasticsearch scroll request by scroll id maintained.
-     * @return  scroll request
-     */
-    public SearchScrollRequest scrollRequest() {
-        Objects.requireNonNull(scrollId, "Scroll id cannot be null");
-        return new SearchScrollRequest().scroll(DEFAULT_SCROLL_TIMEOUT).
-                                         scrollId(scrollId);
-    }
+  /**
+   * Generate Elasticsearch scroll request by scroll id maintained.
+   *
+   * @return scroll request
+   */
+  public SearchScrollRequest scrollRequest() {
+    Objects.requireNonNull(scrollId, "Scroll id cannot be null");
+    return new SearchScrollRequest().scroll(DEFAULT_SCROLL_TIMEOUT).scrollId(scrollId);
+  }
 
-    /**
-     * Reset internal state in case any stale data. However, ideally the same instance
-     * is not supposed to be reused across different physical plan.
-     */
-    public void reset() {
-        scrollId = null;
-    }
-
+  /**
+   * Reset internal state in case any stale data. However, ideally the same instance is not supposed
+   * to be reused across different physical plan.
+   */
+  public void reset() {
+    scrollId = null;
+  }
 }

@@ -16,49 +16,47 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.request;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchScrollRequest;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 class ElasticsearchRequestTest {
 
-    private final ElasticsearchRequest request = new ElasticsearchRequest("test");
+  private final ElasticsearchRequest request = new ElasticsearchRequest("test");
 
-    @Test
-    void searchRequest() {
-        request.getSourceBuilder().
-                query(QueryBuilders.termQuery("name", "John"));
+  @Test
+  void searchRequest() {
+    request.getSourceBuilder().query(QueryBuilders.termQuery("name", "John"));
 
-        assertEquals(
-            new SearchRequest().indices("test").
-                                scroll(ElasticsearchRequest.DEFAULT_SCROLL_TIMEOUT).
-                                source(new SearchSourceBuilder().query(QueryBuilders.termQuery("name", "John"))),
-            request.searchRequest()
-        );
-    }
+    assertEquals(
+        new SearchRequest()
+            .indices("test")
+            .scroll(ElasticsearchRequest.DEFAULT_SCROLL_TIMEOUT)
+            .source(new SearchSourceBuilder().query(QueryBuilders.termQuery("name", "John"))),
+        request.searchRequest());
+  }
 
-    @Test
-    void isScrollStarted() {
-        assertFalse(request.isScrollStarted());
+  @Test
+  void isScrollStarted() {
+    assertFalse(request.isScrollStarted());
 
-        request.setScrollId("scroll123");
-        assertTrue(request.isScrollStarted());
-    }
+    request.setScrollId("scroll123");
+    assertTrue(request.isScrollStarted());
+  }
 
-    @Test
-    void scrollRequest() {
-        request.setScrollId("scroll123");
-        assertEquals(
-            new SearchScrollRequest().scroll(ElasticsearchRequest.DEFAULT_SCROLL_TIMEOUT).
-                                      scrollId("scroll123"),
-            request.scrollRequest()
-        );
-    }
-
+  @Test
+  void scrollRequest() {
+    request.setScrollId("scroll123");
+    assertEquals(
+        new SearchScrollRequest()
+            .scroll(ElasticsearchRequest.DEFAULT_SCROLL_TIMEOUT)
+            .scrollId("scroll123"),
+        request.scrollRequest());
+  }
 }
