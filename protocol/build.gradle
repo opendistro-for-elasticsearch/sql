@@ -9,8 +9,8 @@ repositories {
 }
 
 dependencies {
-    compile group: 'com.google.guava', name: 'guava', version:'23.0'
-    compile group: 'org.json', name: 'json', version:'20180813' //TODO: change to other JSON lib?
+    compile group: 'com.google.guava', name: 'guava', version: '23.0'
+    compile group: 'org.json', name: 'json', version: '20180813' //TODO: change to other JSON lib?
     compile project(':core')
 
     testImplementation('org.junit.jupiter:junit-jupiter:5.6.2')

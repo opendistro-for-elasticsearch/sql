@@ -3,7 +3,6 @@ plugins {
     id "io.freefair.lombok"
     id 'jacoco'
     id 'antlr'
-    id 'checkstyle'
 }
 
 repositories {
