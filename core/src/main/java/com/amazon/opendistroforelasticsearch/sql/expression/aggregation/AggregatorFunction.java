@@ -23,9 +23,8 @@ import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionNam
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature;
 import com.google.common.collect.ImmutableMap;
-import lombok.experimental.UtilityClass;
-
 import java.util.Collections;
+import lombok.experimental.UtilityClass;
 
 /**
  * The definition of aggregator function
@@ -37,63 +36,66 @@ import java.util.Collections;
  */
 @UtilityClass
 public class AggregatorFunction {
+  /**
+   * Register Aggregation Function.
+   * @param repository {@link BuiltinFunctionRepository}.
+   */
+  public static void register(BuiltinFunctionRepository repository) {
+    repository.register(avg());
+    repository.register(sum());
+    repository.register(count());
+  }
 
-    public static void register(BuiltinFunctionRepository repository) {
-        repository.register(avg());
-        repository.register(sum());
-        repository.register(count());
-    }
+  private static FunctionResolver avg() {
+    FunctionName functionName = BuiltinFunctionName.AVG.getName();
+    return new FunctionResolver(
+        functionName,
+        new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
+            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.DOUBLE)),
+                arguments -> new AvgAggregator(arguments, ExprType.DOUBLE))
+            .build()
+    );
+  }
 
-    private static FunctionResolver avg() {
-        FunctionName functionName = BuiltinFunctionName.AVG.getName();
-        return new FunctionResolver(
-                functionName,
-                new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
-                        .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.DOUBLE)),
-                                arguments -> new AvgAggregator(arguments, ExprType.DOUBLE))
-                        .build()
-        );
-    }
+  private static FunctionResolver count() {
+    FunctionName functionName = BuiltinFunctionName.COUNT.getName();
+    return new FunctionResolver(
+        functionName,
+        new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
+            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.INTEGER)),
+                arguments -> new CountAggregator(arguments, ExprType.INTEGER))
+            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.LONG)),
+                arguments -> new CountAggregator(arguments, ExprType.INTEGER))
+            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.FLOAT)),
+                arguments -> new CountAggregator(arguments, ExprType.INTEGER))
+            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.DOUBLE)),
+                arguments -> new CountAggregator(arguments, ExprType.INTEGER))
+            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.STRING)),
+                arguments -> new CountAggregator(arguments, ExprType.INTEGER))
+            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.STRUCT)),
+                arguments -> new CountAggregator(arguments, ExprType.INTEGER))
+            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.ARRAY)),
+                arguments -> new CountAggregator(arguments, ExprType.INTEGER))
+            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.BOOLEAN)),
+                arguments -> new CountAggregator(arguments, ExprType.INTEGER))
+            .build()
+    );
+  }
 
-    private static FunctionResolver count() {
-        FunctionName functionName = BuiltinFunctionName.COUNT.getName();
-        return new FunctionResolver(
-            functionName,
-            new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
-                .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.INTEGER)),
-                    arguments -> new CountAggregator(arguments, ExprType.INTEGER))
-                .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.LONG)),
-                    arguments -> new CountAggregator(arguments, ExprType.INTEGER))
-                .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.FLOAT)),
-                    arguments -> new CountAggregator(arguments, ExprType.INTEGER))
-                .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.DOUBLE)),
-                    arguments -> new CountAggregator(arguments, ExprType.INTEGER))
-                .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.STRING)),
-                    arguments -> new CountAggregator(arguments, ExprType.INTEGER))
-                .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.STRUCT)),
-                    arguments -> new CountAggregator(arguments, ExprType.INTEGER))
-                .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.ARRAY)),
-                    arguments -> new CountAggregator(arguments, ExprType.INTEGER))
-                .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.BOOLEAN)),
-                    arguments -> new CountAggregator(arguments, ExprType.INTEGER))
-                .build()
-        );
-    }
-
-    private static FunctionResolver sum() {
-        FunctionName functionName = BuiltinFunctionName.SUM.getName();
-        return new FunctionResolver(
-                functionName,
-                new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
-                        .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.INTEGER)),
-                                arguments -> new SumAggregator(arguments, ExprType.INTEGER))
-                        .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.LONG)),
-                                arguments -> new SumAggregator(arguments, ExprType.LONG))
-                        .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.FLOAT)),
-                                arguments -> new SumAggregator(arguments, ExprType.FLOAT))
-                        .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.DOUBLE)),
-                                arguments -> new SumAggregator(arguments, ExprType.DOUBLE))
-                        .build()
-        );
-    }
+  private static FunctionResolver sum() {
+    FunctionName functionName = BuiltinFunctionName.SUM.getName();
+    return new FunctionResolver(
+        functionName,
+        new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
+            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.INTEGER)),
+                arguments -> new SumAggregator(arguments, ExprType.INTEGER))
+            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.LONG)),
+                arguments -> new SumAggregator(arguments, ExprType.LONG))
+            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.FLOAT)),
+                arguments -> new SumAggregator(arguments, ExprType.FLOAT))
+            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.DOUBLE)),
+                arguments -> new SumAggregator(arguments, ExprType.DOUBLE))
+            .build()
+    );
+  }
 }

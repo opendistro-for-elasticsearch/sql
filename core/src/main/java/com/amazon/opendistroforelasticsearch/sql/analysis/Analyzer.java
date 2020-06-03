@@ -61,7 +61,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * Analyze the {@link UnresolvedPlan} in the {@link AnalysisContext} to construct the {@link
- * LogicalPlan}
+ * LogicalPlan}.
  */
 @RequiredArgsConstructor
 public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> {
@@ -88,7 +88,9 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     return new LogicalFilter(child, condition);
   }
 
-  /** Build {@link LogicalRename} */
+  /**
+   * Build {@link LogicalRename}.
+   */
   @Override
   public LogicalPlan visitRename(Rename node, AnalysisContext context) {
     LogicalPlan child = node.getChild().get(0).accept(this, context);
@@ -111,18 +113,20 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     return new LogicalRename(child, renameMapBuilder.build());
   }
 
-  /** Build {@link LogicalAggregation} */
+  /**
+   * Build {@link LogicalAggregation}.
+   */
   @Override
   public LogicalPlan visitAggregation(Aggregation node, AnalysisContext context) {
     LogicalPlan child = node.getChild().get(0).accept(this, context);
     ImmutableList.Builder<Aggregator> aggregatorBuilder = new ImmutableList.Builder<>();
-    for (UnresolvedExpression uExpr : node.getAggExprList()) {
-      aggregatorBuilder.add((Aggregator) expressionAnalyzer.analyze(uExpr, context));
+    for (UnresolvedExpression expr : node.getAggExprList()) {
+      aggregatorBuilder.add((Aggregator) expressionAnalyzer.analyze(expr, context));
     }
 
     ImmutableList.Builder<Expression> groupbyBuilder = new ImmutableList.Builder<>();
-    for (UnresolvedExpression uExpr : node.getGroupExprList()) {
-      groupbyBuilder.add(expressionAnalyzer.analyze(uExpr, context));
+    for (UnresolvedExpression expr : node.getGroupExprList()) {
+      groupbyBuilder.add(expressionAnalyzer.analyze(expr, context));
     }
     return new LogicalAggregation(child, aggregatorBuilder.build(), groupbyBuilder.build());
   }
@@ -155,7 +159,9 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     return new LogicalProject(child, referenceExpressions);
   }
 
-  /** Build {@link LogicalEval} */
+  /**
+   * Build {@link LogicalEval}.
+   */
   @Override
   public LogicalPlan visitEval(Eval node, AnalysisContext context) {
     LogicalPlan child = node.getChild().get(0).accept(this, context);
@@ -172,7 +178,9 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     return new LogicalEval(child, expressionsBuilder.build());
   }
 
-  /** Build {@link LogicalSort} */
+  /**
+   * Build {@link LogicalSort}.
+   */
   @Override
   public LogicalPlan visitSort(Sort node, AnalysisContext context) {
     LogicalPlan child = node.getChild().get(0).accept(this, context);
@@ -193,7 +201,9 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     return new LogicalSort(child, count, sortList);
   }
 
-  /** Build {@link LogicalDedupe} */
+  /**
+   * Build {@link LogicalDedupe}.
+   */
   @Override
   public LogicalPlan visitDedupe(Dedupe node, AnalysisContext context) {
     LogicalPlan child = node.getChild().get(0).accept(this, context);

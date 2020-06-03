@@ -71,9 +71,10 @@ public class NaturalExprValueOrdering extends ExprValueOrdering {
         return MAP_COMPARATOR.apply(getTupleValue(left), getTupleValue(right));
       case ARRAY:
         return LIST_COMPARATOR.apply(getCollectionValue(left), getCollectionValue(right));
+      default:
+        throw new ExpressionEvaluationException(
+            String.format("compare doesn't support type [%s]", left.type()));
     }
-    throw new ExpressionEvaluationException(
-        String.format("compare doesn't support type [%s]", left.type()));
   }
 
   @Override

@@ -42,8 +42,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class ExprValueOrderingTest {
-  @Mock ExprValue left;
-  @Mock ExprValue right;
+  @Mock
+  ExprValue left;
+  @Mock
+  ExprValue right;
 
   @Test
   public void natural() {
@@ -136,9 +138,9 @@ class ExprValueOrderingTest {
   @Test
   public void natural_order_long_value() {
     ExprValueOrdering ordering = ExprValueOrdering.natural();
-    assertEquals(1, ordering.compare(longValue(5l), longValue(4l)));
-    assertEquals(0, ordering.compare(longValue(5l), longValue(5l)));
-    assertEquals(-1, ordering.compare(longValue(4l), longValue(5l)));
+    assertEquals(1, ordering.compare(longValue(5L), longValue(4L)));
+    assertEquals(0, ordering.compare(longValue(5L), longValue(5L)));
+    assertEquals(-1, ordering.compare(longValue(4L), longValue(5L)));
   }
 
   @Test

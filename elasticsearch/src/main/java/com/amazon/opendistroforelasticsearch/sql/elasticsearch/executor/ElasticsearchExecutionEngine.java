@@ -21,38 +21,35 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
-import lombok.RequiredArgsConstructor;
-
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 
-/**
- * Elasticsearch execution engine implementation.
- */
+/** Elasticsearch execution engine implementation. */
 @RequiredArgsConstructor
 public class ElasticsearchExecutionEngine implements ExecutionEngine {
 
-    private final ElasticsearchClient client;
+  private final ElasticsearchClient client;
 
-    @Override
-    public void execute(PhysicalPlan plan, ResponseListener<QueryResponse> listener) {
-        client.schedule(() -> {
-            try {
-                List<ExprValue> result = new ArrayList<>();
-                plan.open();
+  @Override
+  public void execute(PhysicalPlan plan, ResponseListener<QueryResponse> listener) {
+    client.schedule(
+        () -> {
+          try {
+            List<ExprValue> result = new ArrayList<>();
+            plan.open();
 
-                while (plan.hasNext()) {
-                    result.add(plan.next());
-                }
-
-                QueryResponse response = new QueryResponse(result);
-                listener.onResponse(response);
-            } catch (Exception e) {
-                listener.onFailure(e);
-            } finally {
-                plan.close();
+            while (plan.hasNext()) {
+              result.add(plan.next());
             }
-        });
-    }
 
+            QueryResponse response = new QueryResponse(result);
+            listener.onResponse(response);
+          } catch (Exception e) {
+            listener.onFailure(e);
+          } finally {
+            plan.close();
+          }
+        });
+  }
 }

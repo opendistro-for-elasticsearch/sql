@@ -35,13 +35,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class SortOperatorTest extends PhysicalPlanTestBase {
-  @Mock private PhysicalPlan inputPlan;
+  @Mock
+  private PhysicalPlan inputPlan;
 
   /**
    * construct the map which contain null value, because {@link ImmutableMap} doesn't support null
    * value.
    */
-  private Map<String, Object> NULL_MAP =
+  private static final Map<String, Object> NULL_MAP =
       new HashMap<String, Object>() {
         {
           put("size", 399);

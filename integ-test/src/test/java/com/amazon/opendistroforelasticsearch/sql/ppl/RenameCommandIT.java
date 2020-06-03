@@ -15,34 +15,37 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
-import java.io.IOException;
-import org.json.JSONObject;
-import org.junit.Ignore;
-import org.junit.jupiter.api.Test;
-
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.columnName;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.columnPattern;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyColumn;
 
+import java.io.IOException;
+import org.json.JSONObject;
+import org.junit.Ignore;
+import org.junit.jupiter.api.Test;
+
 @Ignore("Rename target cannot be resolved yet")
 public class RenameCommandIT extends PPLIntegTestCase {
 
-    @Override
-    public void init() throws IOException {
-        loadIndex(Index.ACCOUNT);
-    }
+  @Override
+  public void init() throws IOException {
+    loadIndex(Index.ACCOUNT);
+  }
 
-    @Test
-    public void testRenameOneField() throws IOException {
-        JSONObject result = executeQuery(String.format(
-                "source=%s | fields firstname | rename firstname as first_name", TEST_INDEX_ACCOUNT));
-        verifyColumn(result, columnName("first_name"));
-    }
+  @Test
+  public void testRenameOneField() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s | fields firstname | rename firstname as first_name",
+                TEST_INDEX_ACCOUNT));
+    verifyColumn(result, columnName("first_name"));
+  }
 
-    @Test
-    public void testRenameWildcardFields() throws IOException {
-        JSONObject result = executeQuery("source=" + TEST_INDEX_ACCOUNT + " | rename %name as %NAME");
-        verifyColumn(result, columnPattern(".*name$"));
-    }
+  @Test
+  public void testRenameWildcardFields() throws IOException {
+    JSONObject result = executeQuery("source=" + TEST_INDEX_ACCOUNT + " | rename %name as %NAME");
+    verifyColumn(result, columnPattern(".*name$"));
+  }
 }

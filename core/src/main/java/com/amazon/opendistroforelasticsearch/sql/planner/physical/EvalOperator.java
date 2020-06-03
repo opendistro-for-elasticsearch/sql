@@ -90,7 +90,11 @@ public class EvalOperator extends PhysicalPlan {
     }
   }
 
-  /** Construct Map<String, ExprValue> from {@link EvalOperator#expressionList} */
+  /**
+   * Evaluate the expression in the {@link EvalOperator#expressionList} with {@link Environment}.
+   * @param env {@link Environment}
+   * @return The mapping of reference and {@link ExprValue} for each expression.
+   */
   private Map<String, ExprValue> eval(Environment<Expression, ExprValue> env) {
     Map<String, ExprValue> evalResultMap = new LinkedHashMap<>();
     for (Pair<ReferenceExpression, Expression> pair : expressionList) {

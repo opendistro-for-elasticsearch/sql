@@ -32,23 +32,23 @@ import org.springframework.context.annotation.Import;
 @Import({ExpressionConfig.class})
 public class PPLServiceConfig {
 
-    @Autowired
-    private StorageEngine storageEngine;
+  @Autowired
+  private StorageEngine storageEngine;
 
-    @Autowired
-    private ExecutionEngine executionEngine;
+  @Autowired
+  private ExecutionEngine executionEngine;
 
-    @Autowired
-    private BuiltinFunctionRepository functionRepository;
+  @Autowired
+  private BuiltinFunctionRepository functionRepository;
 
-    @Bean
-    public Analyzer analyzer() {
-        return new Analyzer(new ExpressionAnalyzer(functionRepository), storageEngine);
-    }
+  @Bean
+  public Analyzer analyzer() {
+    return new Analyzer(new ExpressionAnalyzer(functionRepository), storageEngine);
+  }
 
-    @Bean
-    public PPLService pplService() {
-        return new PPLService(new PPLSyntaxParser(), analyzer(), storageEngine, executionEngine);
-    }
+  @Bean
+  public PPLService pplService() {
+    return new PPLService(new PPLSyntaxParser(), analyzer(), storageEngine, executionEngine);
+  }
 
 }

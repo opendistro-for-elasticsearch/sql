@@ -19,15 +19,15 @@ package com.amazon.opendistroforelasticsearch.sql.data.model;
  * Expression Type.
  */
 public enum ExprType {
-    UNKNOWN,
+  UNKNOWN,
 
-    DOUBLE,
-    FLOAT,
-    LONG,
-    INTEGER,
+  DOUBLE,
+  FLOAT,
+  LONG,
+  INTEGER,
 
-    BOOLEAN,
-    STRING,
-    STRUCT,
-    ARRAY
+  BOOLEAN,
+  STRING,
+  STRUCT,
+  ARRAY
 }

@@ -15,19 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.function;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
-import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
-import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Arrays;
-import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,68 +22,80 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
+import java.util.Arrays;
+import java.util.Map;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 @ExtendWith(MockitoExtension.class)
 class BuiltinFunctionRepositoryTest {
-    @Mock
-    private FunctionResolver mockfunctionResolver;
-    @Mock
-    private Map<FunctionName, FunctionResolver> mockMap;
-    @Mock
-    private FunctionName mockFunctionName;
-    @Mock
-    private FunctionBuilder functionExpressionBuilder;
-    @Mock
-    private FunctionSignature functionSignature;
-    @Mock
-    private Expression mockExpression;
-    @Mock
-    private Environment<Expression, ExprType> emptyEnv;
+  @Mock
+  private FunctionResolver mockfunctionResolver;
+  @Mock
+  private Map<FunctionName, FunctionResolver> mockMap;
+  @Mock
+  private FunctionName mockFunctionName;
+  @Mock
+  private FunctionBuilder functionExpressionBuilder;
+  @Mock
+  private FunctionSignature functionSignature;
+  @Mock
+  private Expression mockExpression;
+  @Mock
+  private Environment<Expression, ExprType> emptyEnv;
 
-    @Test
-    void register() {
-        BuiltinFunctionRepository repo = new BuiltinFunctionRepository(mockMap);
-        when(mockfunctionResolver.getFunctionName()).thenReturn(mockFunctionName);
-        repo.register(mockfunctionResolver);
+  @Test
+  void register() {
+    BuiltinFunctionRepository repo = new BuiltinFunctionRepository(mockMap);
+    when(mockfunctionResolver.getFunctionName()).thenReturn(mockFunctionName);
+    repo.register(mockfunctionResolver);
 
-        verify(mockMap, times(1)).put(mockFunctionName, mockfunctionResolver);
-    }
+    verify(mockMap, times(1)).put(mockFunctionName, mockfunctionResolver);
+  }
 
-    @Test
-    void compile() {
-        BuiltinFunctionRepository repo = new BuiltinFunctionRepository(mockMap);
-        when(mockfunctionResolver.getFunctionName()).thenReturn(mockFunctionName);
-        when(mockfunctionResolver.resolve(any())).thenReturn(functionExpressionBuilder);
-        when(mockMap.containsKey(any())).thenReturn(true);
-        when(mockMap.get(any())).thenReturn(mockfunctionResolver);
-        repo.register(mockfunctionResolver);
+  @Test
+  void compile() {
+    when(mockfunctionResolver.getFunctionName()).thenReturn(mockFunctionName);
+    when(mockfunctionResolver.resolve(any())).thenReturn(functionExpressionBuilder);
+    when(mockMap.containsKey(any())).thenReturn(true);
+    when(mockMap.get(any())).thenReturn(mockfunctionResolver);
+    BuiltinFunctionRepository repo = new BuiltinFunctionRepository(mockMap);
+    repo.register(mockfunctionResolver);
 
-        repo.compile(mockFunctionName, Arrays.asList(mockExpression), emptyEnv);
-        verify(functionExpressionBuilder, times(1)).apply(any());
-    }
+    repo.compile(mockFunctionName, Arrays.asList(mockExpression), emptyEnv);
+    verify(functionExpressionBuilder, times(1)).apply(any());
+  }
 
-    @Test
-    @DisplayName("resolve registered function should pass")
-    void resolve() {
-        BuiltinFunctionRepository repo = new BuiltinFunctionRepository(mockMap);
-        when(functionSignature.getFunctionName()).thenReturn(mockFunctionName);
-        when(mockfunctionResolver.getFunctionName()).thenReturn(mockFunctionName);
-        when(mockfunctionResolver.resolve(functionSignature)).thenReturn(functionExpressionBuilder);
-        when(mockMap.containsKey(mockFunctionName)).thenReturn(true);
-        when(mockMap.get(mockFunctionName)).thenReturn(mockfunctionResolver);
-        repo.register(mockfunctionResolver);
+  @Test
+  @DisplayName("resolve registered function should pass")
+  void resolve() {
+    when(functionSignature.getFunctionName()).thenReturn(mockFunctionName);
+    when(mockfunctionResolver.getFunctionName()).thenReturn(mockFunctionName);
+    when(mockfunctionResolver.resolve(functionSignature)).thenReturn(functionExpressionBuilder);
+    when(mockMap.containsKey(mockFunctionName)).thenReturn(true);
+    when(mockMap.get(mockFunctionName)).thenReturn(mockfunctionResolver);
+    BuiltinFunctionRepository repo = new BuiltinFunctionRepository(mockMap);
+    repo.register(mockfunctionResolver);
 
-        assertEquals(functionExpressionBuilder, repo.resolve(functionSignature));
-    }
+    assertEquals(functionExpressionBuilder, repo.resolve(functionSignature));
+  }
 
-    @Test
-    @DisplayName("resolve unregistered function should throw exception")
-    void resolve_unregistered() {
-        BuiltinFunctionRepository repo = new BuiltinFunctionRepository(mockMap);
-        when(mockMap.containsKey(any())).thenReturn(false);
-        repo.register(mockfunctionResolver);
+  @Test
+  @DisplayName("resolve unregistered function should throw exception")
+  void resolve_unregistered() {
+    BuiltinFunctionRepository repo = new BuiltinFunctionRepository(mockMap);
+    when(mockMap.containsKey(any())).thenReturn(false);
+    repo.register(mockfunctionResolver);
 
-        ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
-                () -> repo.resolve(new FunctionSignature(FunctionName.of("unknown"), Arrays.asList())));
-        assertEquals("unsupported function name: unknown", exception.getMessage());
-    }
+    ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
+        () -> repo.resolve(new FunctionSignature(FunctionName.of("unknown"), Arrays.asList())));
+    assertEquals("unsupported function name: unknown", exception.getMessage());
+  }
 }

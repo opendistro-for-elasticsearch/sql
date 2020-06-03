@@ -16,6 +16,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
 import org.junit.jupiter.api.Test;
@@ -23,19 +25,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 @ExtendWith(MockitoExtension.class)
 class ElasticsearchStorageEngineTest {
 
-    @Mock
-    private ElasticsearchClient client;
+  @Mock private ElasticsearchClient client;
 
-    @Test
-    public void getTable() {
-        ElasticsearchStorageEngine engine = new ElasticsearchStorageEngine(client);
-        Table table = engine.getTable("test");
-        assertNotNull(table);
-    }
-
+  @Test
+  public void getTable() {
+    ElasticsearchStorageEngine engine = new ElasticsearchStorageEngine(client);
+    Table table = engine.getTable("test");
+    assertNotNull(table);
+  }
 }

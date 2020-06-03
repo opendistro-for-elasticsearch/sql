@@ -16,104 +16,102 @@
 
 package com.amazon.opendistroforelasticsearch.sql.protocol.response.format;
 
-import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
-import com.google.common.collect.ImmutableMap;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-
-import java.util.Arrays;
-
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.tupleValue;
 import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter.Style.COMPACT;
 import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter.Style.PRETTY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
+import com.google.common.collect.ImmutableMap;
+import java.util.Arrays;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 class SimpleJsonResponseFormatterTest {
 
-    @Test
-    void formatResponse() {
-        QueryResult response = new QueryResult(Arrays.asList(
-            tupleValue(ImmutableMap.of("firstname", "John", "age", 20)),
-            tupleValue(ImmutableMap.of("firstname", "Smith", "age", 30))
-        ));
-        SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(COMPACT);
-        assertEquals(
-            "{\"schema\":[{\"name\":\"firstname\",\"type\":\"string\"},{\"name\":\"age\",\"type\":\"integer\"}]," +
-                "\"total\":2,\"datarows\":[[\"John\",20],[\"Smith\",30]],\"size\":2}",
-            formatter.format(response)
-        );
-    }
+  @Test
+  void formatResponse() {
+    QueryResult response =
+        new QueryResult(
+            Arrays.asList(
+                tupleValue(ImmutableMap.of("firstname", "John", "age", 20)),
+                tupleValue(ImmutableMap.of("firstname", "Smith", "age", 30))));
+    SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(COMPACT);
+    assertEquals(
+        "{\"schema\":[{\"name\":\"firstname\",\"type\":\"string\"},"
+            + "{\"name\":\"age\",\"type\":\"integer\"}],"
+            + "\"total\":2,\"datarows\":[[\"John\",20],[\"Smith\",30]],\"size\":2}",
+        formatter.format(response));
+  }
 
-    @Test
-    void formatResponsePretty() {
-        QueryResult response = new QueryResult(Arrays.asList(
-            tupleValue(ImmutableMap.of("firstname", "John", "age", 20)),
-            tupleValue(ImmutableMap.of("firstname", "Smith", "age", 30))
-        ));
-        SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(PRETTY);
-        assertEquals(
-            "{\n" +
-            "  \"schema\": [\n" +
-            "    {\n" +
-            "      \"name\": \"firstname\",\n" +
-            "      \"type\": \"string\"\n" +
-            "    },\n" +
-            "    {\n" +
-            "      \"name\": \"age\",\n" +
-            "      \"type\": \"integer\"\n" +
-            "    }\n" +
-            "  ],\n" +
-            "  \"total\": 2,\n" +
-            "  \"datarows\": [\n" +
-            "    [\n" +
-            "      \"John\",\n" +
-            "      20\n" +
-            "    ],\n" +
-            "    [\n" +
-            "      \"Smith\",\n" +
-            "      30\n" +
-            "    ]\n" +
-            "  ],\n" +
-            "  \"size\": 2\n" +
-            "}",
-            formatter.format(response)
-        );
-    }
+  @Test
+  void formatResponsePretty() {
+    QueryResult response =
+        new QueryResult(
+            Arrays.asList(
+                tupleValue(ImmutableMap.of("firstname", "John", "age", 20)),
+                tupleValue(ImmutableMap.of("firstname", "Smith", "age", 30))));
+    SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(PRETTY);
+    assertEquals(
+        "{\n"
+            + "  \"schema\": [\n"
+            + "    {\n"
+            + "      \"name\": \"firstname\",\n"
+            + "      \"type\": \"string\"\n"
+            + "    },\n"
+            + "    {\n"
+            + "      \"name\": \"age\",\n"
+            + "      \"type\": \"integer\"\n"
+            + "    }\n"
+            + "  ],\n"
+            + "  \"total\": 2,\n"
+            + "  \"datarows\": [\n"
+            + "    [\n"
+            + "      \"John\",\n"
+            + "      20\n"
+            + "    ],\n"
+            + "    [\n"
+            + "      \"Smith\",\n"
+            + "      30\n"
+            + "    ]\n"
+            + "  ],\n"
+            + "  \"size\": 2\n"
+            + "}",
+        formatter.format(response));
+  }
 
-    @Disabled("Need to figure out column headers in some other way than inferring from data implicitly")
-    @Test
-    void formatResponseWithMissingValue() {
-        QueryResult response = new QueryResult(Arrays.asList(
-            tupleValue(ImmutableMap.of("firstname", "John")),
-            tupleValue(ImmutableMap.of("firstname", "Smith", "age", 30))
-        ));
-        SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(COMPACT);
-        assertEquals(
-            "{\"schema\":[{\"name\":\"firstname\",\"type\":\"string\"},{\"name\":\"age\",\"type\":\"integer\"}]," +
-                "\"total\":2,\"datarows\":[{\"row\":[\"John\",null]},{\"row\":[\"Smith\",30]}],\"size\":2}",
-            formatter.format(response)
-        );
-    }
+  @Disabled("Need to figure out column headers in other way than inferring from data implicitly")
+  @Test
+  void formatResponseWithMissingValue() {
+    QueryResult response =
+        new QueryResult(
+            Arrays.asList(
+                tupleValue(ImmutableMap.of("firstname", "John")),
+                tupleValue(ImmutableMap.of("firstname", "Smith", "age", 30))));
+    SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(COMPACT);
+    assertEquals(
+        "{\"schema\":[{\"name\":\"firstname\",\"type\":\"string\"},"
+            + "{\"name\":\"age\",\"type\":\"integer\"}],\"total\":2,"
+            + "\"datarows\":[{\"row\":[\"John\",null]},{\"row\":[\"Smith\",30]}],\"size\":2}",
+        formatter.format(response));
+  }
 
-    @Test
-    void formatError() {
-        SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(COMPACT);
-        assertEquals(
-            "{\"reason\":\"This is an exception\",\"type\":\"RuntimeException\"}",
-            formatter.format(new RuntimeException("This is an exception"))
-        );
-    }
+  @Test
+  void formatError() {
+    SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(COMPACT);
+    assertEquals(
+        "{\"reason\":\"This is an exception\",\"type\":\"RuntimeException\"}",
+        formatter.format(new RuntimeException("This is an exception")));
+  }
 
-    @Test
-    void formatErrorPretty() {
-        SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(PRETTY);
-        assertEquals(
-            "{\n" +
-            "  \"reason\": \"This is an exception\",\n" +
-            "  \"type\": \"RuntimeException\"\n" +
-            "}",
-            formatter.format(new RuntimeException("This is an exception"))
-        );
-    }
-
+  @Test
+  void formatErrorPretty() {
+    SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(PRETTY);
+    assertEquals(
+        "{\n"
+            + "  \"reason\": \"This is an exception\",\n"
+            + "  \"type\": \"RuntimeException\"\n"
+            + "}",
+        formatter.format(new RuntimeException("This is an exception")));
+  }
 }

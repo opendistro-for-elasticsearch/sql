@@ -25,10 +25,10 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 public class LazyBindingTuple extends BindingTuple {
-    private final Function<String, ExprValue> lazyBinding;
+  private final Function<String, ExprValue> lazyBinding;
 
-    @Override
-    public ExprValue resolve(ReferenceExpression ref) {
-        return lazyBinding.apply(ref.getAttr());
-    }
+  @Override
+  public ExprValue resolve(ReferenceExpression ref) {
+    return lazyBinding.apply(ref.getAttr());
+  }
 }

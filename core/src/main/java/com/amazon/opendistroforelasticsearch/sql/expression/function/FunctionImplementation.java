@@ -16,7 +16,6 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.function;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-
 import java.util.List;
 
 /**
@@ -24,13 +23,13 @@ import java.util.List;
  */
 public interface FunctionImplementation {
 
-    /**
-     * Get Function Name.
-     */
-    FunctionName getFunctionName();
+  /**
+   * Get Function Name.
+   */
+  FunctionName getFunctionName();
 
-    /**
-     * Get Function Arguments.
-     */
-    List<Expression> getArguments();
+  /**
+   * Get Function Arguments.
+   */
+  List<Expression> getArguments();
 }

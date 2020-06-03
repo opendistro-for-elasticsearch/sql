@@ -30,39 +30,39 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class Planner {
 
-    /**
-     * Storage engine
-     */
-    private final StorageEngine storageEngine;
+  /**
+   * Storage engine.
+   */
+  private final StorageEngine storageEngine;
 
-    /**
-     * Generate optimal physical plan for logical plan.
-     * TODO: for now just delegate entire logical plan to storage engine.
-     *
-     * @param plan  logical plan
-     * @return      optimal physical plan
-     */
-    public PhysicalPlan plan(LogicalPlan plan) {
-        String tableName = findTableName(plan);
-        Table table = storageEngine.getTable(tableName);
-        return table.implement(plan);
-    }
+  /**
+   * Generate optimal physical plan for logical plan.
+   * TODO: for now just delegate entire logical plan to storage engine.
+   *
+   * @param plan logical plan
+   * @return optimal physical plan
+   */
+  public PhysicalPlan plan(LogicalPlan plan) {
+    String tableName = findTableName(plan);
+    Table table = storageEngine.getTable(tableName);
+    return table.implement(plan);
+  }
 
-    private String findTableName(LogicalPlan plan) {
-        return plan.accept(new LogicalPlanNodeVisitor<String, Object>() {
+  private String findTableName(LogicalPlan plan) {
+    return plan.accept(new LogicalPlanNodeVisitor<String, Object>() {
 
-            @Override
-            protected String visitNode(LogicalPlan node, Object context) {
-                // So far all logical node has single child except LogicalRelation
-                //  whose visitRelation() is already overridden.
-                return node.getChild().get(0).accept(this, context);
-            }
+      @Override
+      protected String visitNode(LogicalPlan node, Object context) {
+        // So far all logical node has single child except LogicalRelation
+        //  whose visitRelation() is already overridden.
+        return node.getChild().get(0).accept(this, context);
+      }
 
-            @Override
-            public String visitRelation(LogicalRelation node, Object context) {
-                return node.getRelationName();
-            }
-        }, null);
-    }
+      @Override
+      public String visitRelation(LogicalRelation node, Object context) {
+        return node.getRelationName();
+      }
+    }, null);
+  }
 
 }

@@ -16,81 +16,80 @@
 
 package com.amazon.opendistroforelasticsearch.sql.protocol.response;
 
-import com.google.common.collect.ImmutableMap;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-
-import java.util.Arrays;
-import java.util.Collections;
-
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.tupleValue;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import com.google.common.collect.ImmutableMap;
+import java.util.Arrays;
+import java.util.Collections;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
 class QueryResultTest {
 
-    @Test
-    void size() {
-        QueryResult response = new QueryResult(Arrays.asList(
-            tupleValue(ImmutableMap.of("name", "John", "age", 20)),
-            tupleValue(ImmutableMap.of("name", "Allen", "age", 30)),
-            tupleValue(ImmutableMap.of("name", "Smith", "age", 40))
-        ));
-        assertEquals(3, response.size());
+  @Test
+  void size() {
+    QueryResult response = new QueryResult(Arrays.asList(
+        tupleValue(ImmutableMap.of("name", "John", "age", 20)),
+        tupleValue(ImmutableMap.of("name", "Allen", "age", 30)),
+        tupleValue(ImmutableMap.of("name", "Smith", "age", 40))
+    ));
+    assertEquals(3, response.size());
+  }
+
+  @Test
+  void columnNameTypes() {
+    QueryResult response = new QueryResult(Collections.singletonList(
+        tupleValue(ImmutableMap.of("name", "John", "age", 20))
+    ));
+
+    assertEquals(
+        ImmutableMap.of("name", "string", "age", "integer"),
+        response.columnNameTypes()
+    );
+  }
+
+  @Test
+  void columnNameTypesFromEmptyExprValues() {
+    QueryResult response = new QueryResult(Collections.emptyList());
+    assertTrue(response.columnNameTypes().isEmpty());
+  }
+
+  @Disabled("Need to figure out column headers in other way than inferring from data implicitly")
+  @Test
+  void columnNameTypesFromExprValuesWithMissing() {
+    QueryResult response = new QueryResult(Arrays.asList(
+        tupleValue(ImmutableMap.of("name", "John")),
+        tupleValue(ImmutableMap.of("name", "John", "age", 20))
+    ));
+
+    assertEquals(
+        ImmutableMap.of("name", "string", "age", "integer"),
+        response.columnNameTypes()
+    );
+  }
+
+  @Test
+  void iterate() {
+    QueryResult response = new QueryResult(Arrays.asList(
+        tupleValue(ImmutableMap.of("name", "John", "age", 20)),
+        tupleValue(ImmutableMap.of("name", "Allen", "age", 30))
+    ));
+
+    int i = 0;
+    for (Object[] objects : response) {
+      if (i == 0) {
+        assertArrayEquals(new Object[] {"John", 20}, objects);
+      } else if (i == 1) {
+        assertArrayEquals(new Object[] {"Allen", 30}, objects);
+      } else {
+        fail("More rows returned than expected");
+      }
+      i++;
     }
-
-    @Test
-    void columnNameTypes() {
-        QueryResult response = new QueryResult(Collections.singletonList(
-            tupleValue(ImmutableMap.of("name", "John", "age", 20))
-        ));
-
-        assertEquals(
-            ImmutableMap.of("name", "string", "age", "integer"),
-            response.columnNameTypes()
-        );
-    }
-
-    @Test
-    void columnNameTypesFromEmptyExprValues() {
-        QueryResult response = new QueryResult(Collections.emptyList());
-        assertTrue(response.columnNameTypes().isEmpty());
-    }
-
-    @Disabled("Need to figure out column headers in some other way than inferring from data implicitly")
-    @Test
-    void columnNameTypesFromExprValuesWithMissing() {
-        QueryResult response = new QueryResult(Arrays.asList(
-            tupleValue(ImmutableMap.of("name", "John")),
-            tupleValue(ImmutableMap.of("name", "John", "age", 20))
-        ));
-
-        assertEquals(
-            ImmutableMap.of("name", "string", "age", "integer"),
-            response.columnNameTypes()
-        );
-    }
-
-    @Test
-    void iterate() {
-        QueryResult response = new QueryResult(Arrays.asList(
-            tupleValue(ImmutableMap.of("name", "John", "age", 20)),
-            tupleValue(ImmutableMap.of("name", "Allen", "age", 30))
-        ));
-
-        int i = 0;
-        for (Object[] objects : response) {
-            if (i == 0) {
-                assertArrayEquals(new Object[]{"John", 20}, objects);
-            } else if (i == 1) {
-                assertArrayEquals(new Object[]{"Allen", 30}, objects);
-            } else {
-                fail("More rows returned than expected");
-            }
-            i++;
-        }
-    }
+  }
 
 }

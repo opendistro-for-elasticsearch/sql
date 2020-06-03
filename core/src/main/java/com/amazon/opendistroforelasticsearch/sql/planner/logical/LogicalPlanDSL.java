@@ -21,13 +21,14 @@ import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
-import lombok.experimental.UtilityClass;
-
 import java.util.List;
 import java.util.Map;
+import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.tuple.Pair;
 
-/** Logical Plan DSL. */
+/**
+ * Logical Plan DSL.
+ */
 @UtilityClass
 public class LogicalPlanDSL {
   public static LogicalPlan aggregation(

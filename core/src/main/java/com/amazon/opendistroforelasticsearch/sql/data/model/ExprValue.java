@@ -21,36 +21,38 @@ import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTup
  * The definition of the Expression Value.
  */
 public interface ExprValue {
-    /**
-     * Get the Object value of the Expression Value.
-     */
-    Object value();
+  /**
+   * Get the Object value of the Expression Value.
+   */
+  Object value();
 
-    /**
-     * Get the {@link ExprType} of the Expression Value.
-     */
-    ExprType type();
+  /**
+   * Get the {@link ExprType} of the Expression Value.
+   */
+  ExprType type();
 
-    /**
-     * Is null value?
-     * @return true: is null value, otherwise false
-     */
-    default boolean isNull() {
-        return false;
-    }
+  /**
+   * Is null value.
+   *
+   * @return true: is null value, otherwise false
+   */
+  default boolean isNull() {
+    return false;
+  }
 
-    /**
-     * Is missing value?
-     * @return true: is missing value, otherwise false
-     */
-    default boolean isMissing() {
-        return false;
-    }
+  /**
+   * Is missing value.
+   *
+   * @return true: is missing value, otherwise false
+   */
+  default boolean isMissing() {
+    return false;
+  }
 
-    /**
-     * Get the {@link BindingTuple}
-     */
-    default BindingTuple bindingTuples() {
-        return BindingTuple.EMPTY;
-    }
+  /**
+   * Get the {@link BindingTuple}.
+   */
+  default BindingTuple bindingTuples() {
+    return BindingTuple.EMPTY;
+  }
 }

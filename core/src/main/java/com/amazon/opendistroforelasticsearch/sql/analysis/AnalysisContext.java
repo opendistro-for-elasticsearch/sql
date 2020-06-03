@@ -21,41 +21,45 @@ import java.util.Objects;
  * The context used for Analyzer.
  */
 public class AnalysisContext {
-    /** Environment stack for symbol scope management */
-    private TypeEnvironment environment;
+  /**
+   * Environment stack for symbol scope management.
+   */
+  private TypeEnvironment environment;
 
-    public AnalysisContext() {
-        this.environment = new TypeEnvironment(null);
-    }
+  public AnalysisContext() {
+    this.environment = new TypeEnvironment(null);
+  }
 
-    public AnalysisContext(TypeEnvironment environment) {
-        this.environment = environment;
-    }
+  public AnalysisContext(TypeEnvironment environment) {
+    this.environment = environment;
+  }
 
-    /**
-     * Push a new environment
-     */
-    public void push() {
-        environment = new TypeEnvironment(environment);
-    }
+  /**
+   * Push a new environment.
+   */
+  public void push() {
+    environment = new TypeEnvironment(environment);
+  }
 
-    /**
-     * Return current environment
-     * @return  current environment
-     */
-    public TypeEnvironment peek() {
-        return environment;
-    }
+  /**
+   * Return current environment.
+   *
+   * @return current environment
+   */
+  public TypeEnvironment peek() {
+    return environment;
+  }
 
-    /**
-     * Pop up current environment from environment chain
-     * @return  current environment (before pop)
-     */
-    public TypeEnvironment pop() {
-        Objects.requireNonNull(environment, "Fail to pop context due to no environment present");
+  /**
+   * Pop up current environment from environment chain.
+   *
+   * @return current environment (before pop)
+   */
+  public TypeEnvironment pop() {
+    Objects.requireNonNull(environment, "Fail to pop context due to no environment present");
 
-        TypeEnvironment curEnv = environment;
-        environment = curEnv.getParent();
-        return curEnv;
-    }
+    TypeEnvironment curEnv = environment;
+    environment = curEnv.getParent();
+    return curEnv;
+  }
 }

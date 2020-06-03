@@ -27,45 +27,45 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * Logical plan node of Project, the interface for building the list of searching fields
+ * Logical plan node of Project, the interface for building the list of searching fields.
  */
 @ToString
 @Getter
 @EqualsAndHashCode(callSuper = false)
 public class Project extends UnresolvedPlan {
-    @Setter
-    private List<UnresolvedExpression> projectList;
-    private List<Argument> argExprList;
-    private UnresolvedPlan child;
+  @Setter
+  private List<UnresolvedExpression> projectList;
+  private List<Argument> argExprList;
+  private UnresolvedPlan child;
 
-    public Project(List<UnresolvedExpression> projectList) {
-        this.projectList = projectList;
-        this.argExprList = Collections.emptyList();
-    }
+  public Project(List<UnresolvedExpression> projectList) {
+    this.projectList = projectList;
+    this.argExprList = Collections.emptyList();
+  }
 
-    public Project(List<UnresolvedExpression> projectList, List<Argument> argExprList) {
-        this.projectList = projectList;
-        this.argExprList = argExprList;
-    }
+  public Project(List<UnresolvedExpression> projectList, List<Argument> argExprList) {
+    this.projectList = projectList;
+    this.argExprList = argExprList;
+  }
 
-    public boolean hasArgument() {
-        return !argExprList.isEmpty();
-    }
+  public boolean hasArgument() {
+    return !argExprList.isEmpty();
+  }
 
-    @Override
-    public Project attach(UnresolvedPlan child) {
-        this.child = child;
-        return this;
-    }
+  @Override
+  public Project attach(UnresolvedPlan child) {
+    this.child = child;
+    return this;
+  }
 
-    @Override
-    public List<UnresolvedPlan> getChild() {
-        return ImmutableList.of(this.child);
-    }
+  @Override
+  public List<UnresolvedPlan> getChild() {
+    return ImmutableList.of(this.child);
+  }
 
-    @Override
-    public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
+  @Override
+  public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
 
-        return nodeVisitor.visitProject(this, context);
-    }
+    return nodeVisitor.visitProject(this, context);
+  }
 }

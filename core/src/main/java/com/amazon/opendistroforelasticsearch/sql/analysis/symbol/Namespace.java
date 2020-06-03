@@ -16,17 +16,17 @@
 package com.amazon.opendistroforelasticsearch.sql.analysis.symbol;
 
 /**
- * Namespace of symbol to avoid naming conflict
+ * Namespace of symbol to avoid naming conflict.
  */
 public enum Namespace {
 
-    FIELD_NAME("Field"),
-    FUNCTION_NAME("Function");
+  FIELD_NAME("Field"),
+  FUNCTION_NAME("Function");
 
-    private final String name;
+  private final String name;
 
-    Namespace(String name) {
-        this.name = name;
-    }
+  Namespace(String name) {
+    this.name = name;
+  }
 
 }

@@ -43,8 +43,12 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import java.util.Arrays;
 import java.util.List;
+import lombok.experimental.UtilityClass;
 
-/** Class of static methods to create specific node instances */
+/**
+ * Class of static methods to create specific node instances.
+ */
+@UtilityClass
 public class AstDSL {
 
   public static UnresolvedPlan filter(UnresolvedPlan input, UnresolvedExpression expression) {
@@ -205,6 +209,9 @@ public class AstDSL {
     return exprList(argument("exclude", booleanLiteral(false)));
   }
 
+  /**
+   * Default Stats Command Args.
+   */
   public static List<Argument> defaultStatsArgs() {
     return exprList(
         argument("partitions", intLiteral(1)),
@@ -213,6 +220,9 @@ public class AstDSL {
         argument("dedupsplit", booleanLiteral(false)));
   }
 
+  /**
+   * Default Dedup Command Args.
+   */
   public static List<Argument> defaultDedupArgs() {
     return exprList(
         argument("number", intLiteral(1)),

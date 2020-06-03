@@ -232,10 +232,19 @@ configurations {
 check.dependsOn jacocoTestReport
 
 // TODO: fix code style in main and test source code
+subprojects {
+    apply plugin: 'checkstyle'
+    checkstyle {
+        configFile rootProject.file("config/checkstyle/google_checks.xml")
+        toolVersion "8.20"
+        configProperties = [
+                "org.checkstyle.google.suppressionfilter.config": rootProject.file("config/checkstyle/suppressions.xml")]
+        ignoreFailures = false
+    }
+}
 checkstyle {
     configFile file("config/checkstyle/checkstyle.xml")
 }
-
 checkstyleMain.ignoreFailures = false
 checkstyleTest.ignoreFailures = true
 

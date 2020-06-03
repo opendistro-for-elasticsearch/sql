@@ -15,31 +15,30 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
-import lombok.EqualsAndHashCode;
-import lombok.RequiredArgsConstructor;
-
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.EqualsAndHashCode;
+import lombok.RequiredArgsConstructor;
 
 @EqualsAndHashCode
 @RequiredArgsConstructor
 public class ExprCollectionValue implements ExprValue {
-    private final List<ExprValue> valueList;
+  private final List<ExprValue> valueList;
 
-    @Override
-    public Object value() {
-        return valueList;
-    }
+  @Override
+  public Object value() {
+    return valueList;
+  }
 
-    @Override
-    public ExprType type() {
-        return ExprType.ARRAY;
-    }
+  @Override
+  public ExprType type() {
+    return ExprType.ARRAY;
+  }
 
-    @Override
-    public String toString() {
-        return valueList.stream()
-                .map(Object::toString)
-                .collect(Collectors.joining(",", "[", "]"));
-    }
+  @Override
+  public String toString() {
+    return valueList.stream()
+        .map(Object::toString)
+        .collect(Collectors.joining(",", "[", "]"));
+  }
 }

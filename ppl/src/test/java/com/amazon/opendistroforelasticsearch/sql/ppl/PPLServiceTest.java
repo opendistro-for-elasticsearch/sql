@@ -15,6 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.when;
+
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
@@ -25,6 +29,7 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryRequest;
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
 import com.google.common.collect.ImmutableMap;
+import java.util.Collections;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,76 +38,74 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import java.util.Collections;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.when;
-
 @RunWith(MockitoJUnitRunner.class)
 public class PPLServiceTest {
-    private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+  private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
-    private PPLService pplService;
+  private PPLService pplService;
 
-    @Mock
-    private StorageEngine storageEngine;
+  @Mock
+  private StorageEngine storageEngine;
 
-    @Mock
-    private ExecutionEngine executionEngine;
+  @Mock
+  private ExecutionEngine executionEngine;
 
-    @Mock
-    private Table table;
+  @Mock
+  private Table table;
 
-    @Mock
-    private PhysicalPlan plan;
+  @Mock
+  private PhysicalPlan plan;
 
-    @Before
-    public void setUp() {
-        when(table.getFieldTypes()).thenReturn(ImmutableMap.of("a", ExprType.INTEGER));
-        when(table.implement(any())).thenReturn(plan);
-        when(storageEngine.getTable(any())).thenReturn(table);
+  /**
+   * Setup the test context.
+   */
+  @Before
+  public void setUp() {
+    when(table.getFieldTypes()).thenReturn(ImmutableMap.of("a", ExprType.INTEGER));
+    when(table.implement(any())).thenReturn(plan);
+    when(storageEngine.getTable(any())).thenReturn(table);
 
-        context.registerBean(StorageEngine.class, () -> storageEngine);
-        context.registerBean(ExecutionEngine.class, () -> executionEngine);
-        context.register(PPLServiceConfig.class);
-        context.refresh();
-        pplService = context.getBean(PPLService.class);
-    }
+    context.registerBean(StorageEngine.class, () -> storageEngine);
+    context.registerBean(ExecutionEngine.class, () -> executionEngine);
+    context.register(PPLServiceConfig.class);
+    context.refresh();
+    pplService = context.getBean(PPLService.class);
+  }
 
-    @Test
-    public void testExecuteShouldPass() {
-        doAnswer(invocation -> {
-            ResponseListener<QueryResponse> listener = invocation.getArgument(1);
-            listener.onResponse(new QueryResponse(Collections.emptyList()));
-            return null;
-        }).when(executionEngine).execute(any(), any());
+  @Test
+  public void testExecuteShouldPass() {
+    doAnswer(invocation -> {
+      ResponseListener<QueryResponse> listener = invocation.getArgument(1);
+      listener.onResponse(new QueryResponse(Collections.emptyList()));
+      return null;
+    }).when(executionEngine).execute(any(), any());
 
-        pplService.execute(new PPLQueryRequest("search source=t a=1", null), new ResponseListener<QueryResponse>() {
-            @Override
-            public void onResponse(QueryResponse pplQueryResponse) {
+    pplService.execute(new PPLQueryRequest("search source=t a=1", null),
+        new ResponseListener<QueryResponse>() {
+          @Override
+          public void onResponse(QueryResponse pplQueryResponse) {
 
-            }
+          }
 
-            @Override
-            public void onFailure(Exception e) {
-                Assert.fail();
-            }
+          @Override
+          public void onFailure(Exception e) {
+            Assert.fail();
+          }
         });
-    }
+  }
 
-    @Test
-    public void testExecuteWithIllegalQueryShouldBeCaughtByHandler() {
-        pplService.execute(new PPLQueryRequest("search", null), new ResponseListener<QueryResponse>() {
-            @Override
-            public void onResponse(QueryResponse pplQueryResponse) {
-                Assert.fail();
-            }
+  @Test
+  public void testExecuteWithIllegalQueryShouldBeCaughtByHandler() {
+    pplService.execute(new PPLQueryRequest("search", null), new ResponseListener<QueryResponse>() {
+      @Override
+      public void onResponse(QueryResponse pplQueryResponse) {
+        Assert.fail();
+      }
 
-            @Override
-            public void onFailure(Exception e) {
+      @Override
+      public void onFailure(Exception e) {
 
-            }
-        });
-    }
+      }
+    });
+  }
 }

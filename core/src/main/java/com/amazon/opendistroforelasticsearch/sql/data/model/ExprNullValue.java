@@ -23,27 +23,27 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode
 public class ExprNullValue implements ExprValue {
-    private static final ExprValue instance = new ExprNullValue();
+  private static final ExprValue instance = new ExprNullValue();
 
-    private ExprNullValue() {
-    }
+  private ExprNullValue() {
+  }
 
-    public static ExprValue of() {
-        return instance;
-    }
+  public static ExprValue of() {
+    return instance;
+  }
 
-    @Override
-    public Object value() {
-        return null;
-    }
+  @Override
+  public Object value() {
+    return null;
+  }
 
-    @Override
-    public ExprType type() {
-        throw new ExpressionEvaluationException("invalid to call type operation on null value");
-    }
+  @Override
+  public ExprType type() {
+    throw new ExpressionEvaluationException("invalid to call type operation on null value");
+  }
 
-    @Override
-    public boolean isNull() {
-        return true;
-    }
+  @Override
+  public boolean isNull() {
+    return true;
+  }
 }

@@ -16,47 +16,42 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.response;
 
+import java.util.Iterator;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 
-import java.util.Iterator;
-
-/**
- * Elasticsearch search response
- */
+/** Elasticsearch search response. */
 @EqualsAndHashCode
 @ToString
 public class ElasticsearchResponse implements Iterable<SearchHit> {
 
-    /**
-     * Search query result (non-aggregation)
-     */
-    private final SearchHits hits;
+  /** Search query result (non-aggregation). */
+  private final SearchHits hits;
 
+  public ElasticsearchResponse(SearchResponse esResponse) {
+    this.hits = esResponse.getHits(); // TODO: aggregation result is separate and not in SearchHit[]
+  }
 
-    public ElasticsearchResponse(SearchResponse esResponse) {
-        this.hits = esResponse.getHits(); //TODO: aggregation result is separate and not in SearchHit[]
-    }
+  /**
+   * Is response empty. As ES doc says, "Each call to the scroll API returns the next batch of
+   * results until there are no more results left to return, ie the hits array is empty."
+   *
+   * @return true for empty
+   */
+  public boolean isEmpty() {
+    return (hits.getHits() == null) || (hits.getHits().length == 0);
+  }
 
-    /**
-     * Is response empty. As ES doc says, "Each call to the scroll API returns the next batch of results
-     * until there are no more results left to return, ie the hits array is empty."
-     * @return  true for empty
-     */
-    public boolean isEmpty() {
-        return (hits.getHits() == null) || (hits.getHits().length == 0);
-    }
-
-    /**
-     * Make response iterable without need to return internal data structure explicitly.
-     * @return  search hit iterator
-     */
-    @Override
-    public Iterator<SearchHit> iterator() {
-        return hits.iterator();
-    }
-
+  /**
+   * Make response iterable without need to return internal data structure explicitly.
+   *
+   * @return search hit iterator
+   */
+  @Override
+  public Iterator<SearchHit> iterator() {
+    return hits.iterator();
+  }
 }

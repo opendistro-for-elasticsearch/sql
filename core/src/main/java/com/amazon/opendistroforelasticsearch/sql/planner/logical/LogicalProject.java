@@ -30,17 +30,17 @@ import lombok.ToString;
 @EqualsAndHashCode
 @RequiredArgsConstructor
 public class LogicalProject extends LogicalPlan {
-    private final LogicalPlan child;
-    @Getter
-    private final List<ReferenceExpression> projectList;
+  private final LogicalPlan child;
+  @Getter
+  private final List<ReferenceExpression> projectList;
 
-    @Override
-    public List<LogicalPlan> getChild() {
-        return Arrays.asList(child);
-    }
+  @Override
+  public List<LogicalPlan> getChild() {
+    return Arrays.asList(child);
+  }
 
-    @Override
-    public <R, C> R accept(LogicalPlanNodeVisitor<R, C> visitor, C context) {
-        return visitor.visitProject(this, context);
-    }
+  @Override
+  public <R, C> R accept(LogicalPlanNodeVisitor<R, C> visitor, C context) {
+    return visitor.visitProject(this, context);
+  }
 }

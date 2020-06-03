@@ -36,11 +36,11 @@ public class OperatorUtils {
    * Construct {@link FunctionBuilder} which call function with arguments produced by observer.
    *
    * @param functionName function name
-   * @param function {@link BiFunction}
-   * @param observer extract the value of type T from the first argument
-   * @param returnType return type
-   * @param <T> the type of the first and second argument to the function
-   * @param <R> the type of the result of the function
+   * @param function     {@link BiFunction}
+   * @param observer     extract the value of type T from the first argument
+   * @param returnType   return type
+   * @param <T>          the type of the first and second argument to the function
+   * @param <R>          the type of the result of the function
    * @return {@link FunctionBuilder}
    */
   public static <T, R> FunctionBuilder binaryOperator(
@@ -55,16 +55,16 @@ public class OperatorUtils {
    * Construct {@link FunctionBuilder} which call function with arguments produced by observer1 and
    * observer2 In general, if any operand evaluates to a MISSING value, the enclosing operator will
    * return MISSING; if none of operands evaluates to a MISSING value but there is an operand
-   * evaluates to a NULL value, the enclosing operator will return NULL
+   * evaluates to a NULL value, the enclosing operator will return NULL.
    *
    * @param functionName function name
-   * @param function {@link BiFunction}
-   * @param observer1 extract the value of type T from the first argument
-   * @param observer2 extract the value of type U from the second argument
-   * @param returnType return type
-   * @param <T> the type of the first argument to the function
-   * @param <U> the type of the second argument to the function
-   * @param <R> the type of the result of the function
+   * @param function     {@link BiFunction}
+   * @param observer1    extract the value of type T from the first argument
+   * @param observer2    extract the value of type U from the second argument
+   * @param returnType   return type
+   * @param <T>          the type of the first argument to the function
+   * @param <U>          the type of the second argument to the function
+   * @param <R>          the type of the result of the function
    * @return {@link FunctionBuilder}
    */
   public static <T, U, R> FunctionBuilder binaryOperator(
@@ -100,14 +100,14 @@ public class OperatorUtils {
    * Construct {@link FunctionBuilder} which call function with arguments produced by observer In
    * general, if any operand evaluates to a MISSING value, the enclosing operator will return
    * MISSING; if none of operands evaluates to a MISSING value but there is an operand evaluates to
-   * a NULL value, the enclosing operator will return NULL
+   * a NULL value, the enclosing operator will return NULL.
    *
    * @param functionName function name
-   * @param function {@link Function}
-   * @param observer extract the value of type T from the first argument
-   * @param returnType return type
-   * @param <T> the type of the first argument to the function
-   * @param <R> the type of the result of the function
+   * @param function     {@link Function}
+   * @param observer     extract the value of type T from the first argument
+   * @param returnType   return type
+   * @param <T>          the type of the first argument to the function
+   * @param <R>          the type of the result of the function
    * @return {@link FunctionBuilder}
    */
   public static <T, R> FunctionBuilder unaryOperator(
@@ -136,15 +136,23 @@ public class OperatorUtils {
         };
   }
 
-  /** String comparator */
+  /**
+   * String comparator.
+   */
   public static final BiFunction<String, String, Integer> STRING_COMPARATOR = String::compareTo;
-  /** List comparator */
+  /**
+   * List comparator.
+   */
   public static final BiFunction<List, List, Integer> LIST_COMPARATOR =
       (left, right) -> Integer.compare(left.size(), right.size());
-  /** Map comparator */
+  /**
+   * Map comparator.
+   */
   public static final BiFunction<Map, Map, Integer> MAP_COMPARATOR =
       (left, right) -> Integer.compare(left.size(), right.size());
-  /** Predicate NULL or MISSING */
+  /**
+   * Predicate NULL or MISSING.
+   */
   public static final BiPredicate<ExprValue, ExprValue> COMPARE_WITH_NULL_OR_MISSING =
       (left, right) -> left.isMissing() || right.isMissing() || left.isNull() || right.isNull();
 }

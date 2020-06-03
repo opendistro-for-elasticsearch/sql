@@ -16,24 +16,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor;
 
-import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
-import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
-import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
-import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
-
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.tupleValue;
 import static com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.QueryResponse;
 import static com.google.common.collect.ImmutableMap.of;
@@ -46,99 +28,120 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
+import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
+import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 @ExtendWith(MockitoExtension.class)
 class ElasticsearchExecutionEngineTest {
 
-    @Mock
-    private ElasticsearchClient client;
+  @Mock private ElasticsearchClient client;
 
-    @BeforeEach
-    void setUp() {
-        doAnswer(invocation -> {
-            // Run task immediately
-            Runnable task = invocation.getArgument(0);
-            task.run();
-            return null;
-        }).when(client).schedule(any());
-    }
+  @BeforeEach
+  void setUp() {
+    doAnswer(
+        invocation -> {
+          // Run task immediately
+          Runnable task = invocation.getArgument(0);
+          task.run();
+          return null;
+        })
+        .when(client)
+        .schedule(any());
+  }
 
-    @Test
-    void executeSuccessfully() {
-        List<ExprValue> expected = Arrays.asList(
-            tupleValue(of("name", "John", "age", 20)),
-            tupleValue(of("name", "Allen", "age", 30))
-        );
-        FakePhysicalPlan plan = new FakePhysicalPlan(expected.iterator());
+  @Test
+  void executeSuccessfully() {
+    List<ExprValue> expected =
+        Arrays.asList(
+            tupleValue(of("name", "John", "age", 20)), tupleValue(of("name", "Allen", "age", 30)));
+    FakePhysicalPlan plan = new FakePhysicalPlan(expected.iterator());
 
-        ElasticsearchExecutionEngine executor = new ElasticsearchExecutionEngine(client);
-        List<ExprValue> actual = new ArrayList<>();
-        executor.execute(plan, new ResponseListener<QueryResponse>() {
-            @Override
-            public void onResponse(QueryResponse response) {
-                actual.addAll(response.getResults());
-            }
+    ElasticsearchExecutionEngine executor = new ElasticsearchExecutionEngine(client);
+    List<ExprValue> actual = new ArrayList<>();
+    executor.execute(
+        plan,
+        new ResponseListener<QueryResponse>() {
+          @Override
+          public void onResponse(QueryResponse response) {
+            actual.addAll(response.getResults());
+          }
 
-            @Override
-            public void onFailure(Exception e) {
-                fail("Error occurred during execution", e);
-            }
+          @Override
+          public void onFailure(Exception e) {
+            fail("Error occurred during execution", e);
+          }
         });
 
-        assertTrue(plan.hasOpen);
-        assertEquals(expected, actual);
-        assertTrue(plan.hasClosed);
-    }
+    assertTrue(plan.hasOpen);
+    assertEquals(expected, actual);
+    assertTrue(plan.hasClosed);
+  }
 
-    @Test
-    void executeWithFailure() {
-        PhysicalPlan plan = mock(PhysicalPlan.class);
-        RuntimeException expected = new RuntimeException("Execution error");
-        when(plan.hasNext()).thenThrow(expected);
+  @Test
+  void executeWithFailure() {
+    PhysicalPlan plan = mock(PhysicalPlan.class);
+    RuntimeException expected = new RuntimeException("Execution error");
+    when(plan.hasNext()).thenThrow(expected);
 
-        ElasticsearchExecutionEngine executor = new ElasticsearchExecutionEngine(client);
-        AtomicReference<Exception> actual = new AtomicReference<>();
-        executor.execute(plan, new ResponseListener<QueryResponse>() {
-            @Override
-            public void onResponse(QueryResponse response) {
-                fail("Expected error didn't happen");
-            }
+    ElasticsearchExecutionEngine executor = new ElasticsearchExecutionEngine(client);
+    AtomicReference<Exception> actual = new AtomicReference<>();
+    executor.execute(
+        plan,
+        new ResponseListener<QueryResponse>() {
+          @Override
+          public void onResponse(QueryResponse response) {
+            fail("Expected error didn't happen");
+          }
 
-            @Override
-            public void onFailure(Exception e) {
-                actual.set(e);
-            }
+          @Override
+          public void onFailure(Exception e) {
+            actual.set(e);
+          }
         });
-        assertEquals(expected, actual.get());
-        verify(plan).close();
+    assertEquals(expected, actual.get());
+    verify(plan).close();
+  }
+
+  @RequiredArgsConstructor
+  private static class FakePhysicalPlan extends TableScanOperator {
+    private final Iterator<ExprValue> it;
+    private boolean hasOpen;
+    private boolean hasClosed;
+
+    @Override
+    public void open() {
+      super.open();
+      hasOpen = true;
     }
 
-    @RequiredArgsConstructor
-    private static class FakePhysicalPlan extends TableScanOperator {
-        private final Iterator<ExprValue> it;
-        private boolean hasOpen;
-        private boolean hasClosed;
-
-        @Override
-        public void open() {
-            super.open();
-            hasOpen = true;
-        }
-
-        @Override
-        public void close() {
-            super.close();
-            hasClosed = true;
-        }
-
-        @Override
-        public boolean hasNext() {
-            return it.hasNext();
-        }
-
-        @Override
-        public ExprValue next() {
-            return it.next();
-        }
+    @Override
+    public void close() {
+      super.close();
+      hasClosed = true;
     }
 
+    @Override
+    public boolean hasNext() {
+      return it.hasNext();
+    }
+
+    @Override
+    public ExprValue next() {
+      return it.next();
+    }
+  }
 }

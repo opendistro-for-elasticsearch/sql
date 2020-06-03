@@ -28,13 +28,15 @@ import org.junit.jupiter.api.Test;
 
 class FilterOperatorTest extends PhysicalPlanTestBase {
 
-    @Test
-    public void filterTest() {
-        FilterOperator plan = new FilterOperator(new TestScan(),
-                dsl.equal(typeEnv(), DSL.ref("response"), DSL.literal(404)));
-        List<ExprValue> result = execute(plan);
-        assertEquals(1, result.size());
-        assertThat(result, containsInAnyOrder(ExprValueUtils
-                .tupleValue(ImmutableMap.of("ip", "209.160.24.63", "action", "GET", "response", 404, "referer", "www.amazon.com"))));
-    }
+  @Test
+  public void filterTest() {
+    FilterOperator plan = new FilterOperator(new TestScan(),
+        dsl.equal(typeEnv(), DSL.ref("response"), DSL.literal(404)));
+    List<ExprValue> result = execute(plan);
+    assertEquals(1, result.size());
+    assertThat(result, containsInAnyOrder(ExprValueUtils
+        .tupleValue(ImmutableMap
+            .of("ip", "209.160.24.63", "action", "GET", "response", 404, "referer",
+                "www.amazon.com"))));
+  }
 }

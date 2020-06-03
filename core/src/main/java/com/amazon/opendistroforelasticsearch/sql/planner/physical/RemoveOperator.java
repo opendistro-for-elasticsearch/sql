@@ -33,7 +33,9 @@ import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-/** Remove the fields specified in {@link RemoveOperator#removeList} from input. */
+/**
+ * Remove the fields specified in {@link RemoveOperator#removeList} from input.
+ */
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor

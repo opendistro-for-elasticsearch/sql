@@ -21,6 +21,11 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.Elasticse
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
 import com.carrotsearch.hppc.cursors.ObjectObjectCursor;
 import com.google.common.collect.ImmutableMap;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.ThreadContext;
 import org.elasticsearch.action.search.SearchResponse;
@@ -34,127 +39,111 @@ import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.threadpool.ThreadPool;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.function.Predicate;
-
-/**
- * Elasticsearch connection by node client.
- */
+/** Elasticsearch connection by node client. */
 @RequiredArgsConstructor
 public class ElasticsearchNodeClient implements ElasticsearchClient {
 
-    /**
-     * Default types and field filter to match all
-     */
-    public static final String[] ALL_TYPES = new String[0];
-    public static final Function<String, Predicate<String>> ALL_FIELDS = (anyIndex -> (anyField -> true));
+  /** Default types and field filter to match all. */
+  public static final String[] ALL_TYPES = new String[0];
 
-    /**
-     * Current cluster state on local node
-     */
-    private final ClusterService clusterService;
+  public static final Function<String, Predicate<String>> ALL_FIELDS =
+      (anyIndex -> (anyField -> true));
 
-    /**
-     * Node client provided by Elasticsearch container.
-     */
-    private final NodeClient client;
+  /** Current cluster state on local node. */
+  private final ClusterService clusterService;
 
-    /**
-     * Index name expression resolver to get concrete index name
-     */
-    private final IndexNameExpressionResolver resolver = new IndexNameExpressionResolver();
+  /** Node client provided by Elasticsearch container. */
+  private final NodeClient client;
 
+  /** Index name expression resolver to get concrete index name. */
+  private final IndexNameExpressionResolver resolver = new IndexNameExpressionResolver();
 
-    /**
-     * Get field mappings of index by an index expression. Majority is copied from legacy LocalClusterState.
-     *
-     * For simplicity, removed type (deprecated) and field filter in argument list.
-     * Also removed mapping cache, cluster state listener (mainly for performance and debugging).
-     *
-     * @param indexExpression     index name expression
-     * @return                    index mapping(s) in our class to isolate Elasticsearch API.
-     *                             IndexNotFoundException is thrown if no index matched.
-     */
-    @Override
-    public Map<String, IndexMapping> getIndexMappings(String indexExpression) {
-        try {
-            ClusterState state = clusterService.state();
-            String[] concreteIndices = resolveIndexExpression(state, new String[]{ indexExpression });
+  /**
+   * Get field mappings of index by an index expression. Majority is copied from legacy
+   * LocalClusterState.
+   *
+   * <p>For simplicity, removed type (deprecated) and field filter in argument list. Also removed
+   * mapping cache, cluster state listener (mainly for performance and debugging).
+   *
+   * @param indexExpression index name expression
+   * @return index mapping(s) in our class to isolate Elasticsearch API. IndexNotFoundException is
+   *     thrown if no index matched.
+   */
+  @Override
+  public Map<String, IndexMapping> getIndexMappings(String indexExpression) {
+    try {
+      ClusterState state = clusterService.state();
+      String[] concreteIndices = resolveIndexExpression(state, new String[] {indexExpression});
 
-            return populateIndexMappings(state.metaData().findMappings(concreteIndices, ALL_TYPES, ALL_FIELDS));
-        } catch (IOException e) {
-            throw new IllegalStateException(
-                "Failed to read mapping in cluster state for index pattern [" + indexExpression + "]", e);
-        }
+      return populateIndexMappings(
+          state.metaData().findMappings(concreteIndices, ALL_TYPES, ALL_FIELDS));
+    } catch (IOException e) {
+      throw new IllegalStateException(
+          "Failed to read mapping in cluster state for index pattern [" + indexExpression + "]", e);
     }
+  }
 
-    /**
-     * TODO: Scroll doesn't work for aggregation. Support aggregation later.
-     */
-    @Override
-    public ElasticsearchResponse search(ElasticsearchRequest request) {
-        SearchResponse esResponse;
-        if (request.isScrollStarted()) {
-            esResponse = client.searchScroll(request.scrollRequest()).actionGet();
-        } else {
-            esResponse = client.search(request.searchRequest()).actionGet();
-        }
-        request.setScrollId(esResponse.getScrollId());
-
-        return new ElasticsearchResponse(esResponse);
+  /** TODO: Scroll doesn't work for aggregation. Support aggregation later. */
+  @Override
+  public ElasticsearchResponse search(ElasticsearchRequest request) {
+    SearchResponse esResponse;
+    if (request.isScrollStarted()) {
+      esResponse = client.searchScroll(request.scrollRequest()).actionGet();
+    } else {
+      esResponse = client.search(request.searchRequest()).actionGet();
     }
+    request.setScrollId(esResponse.getScrollId());
 
-    @Override
-    public void cleanup(ElasticsearchRequest request) {
-        if (request.isScrollStarted()) {
-            client.prepareClearScroll().
-                   addScrollId(request.getScrollId()).
-                   get();
-            request.reset();
-        }
+    return new ElasticsearchResponse(esResponse);
+  }
+
+  @Override
+  public void cleanup(ElasticsearchRequest request) {
+    if (request.isScrollStarted()) {
+      client.prepareClearScroll().addScrollId(request.getScrollId()).get();
+      request.reset();
     }
+  }
 
-    @Override
-    public void schedule(Runnable task) {
-        ThreadPool threadPool = client.threadPool();
-        threadPool.schedule(
-            threadPool.preserveContext(withCurrentContext(task)),
-            new TimeValue(0),
-            "search"    //TODO: use search worker pool for now
-        );
+  @Override
+  public void schedule(Runnable task) {
+    ThreadPool threadPool = client.threadPool();
+    threadPool.schedule(
+        threadPool.preserveContext(withCurrentContext(task)),
+        new TimeValue(0),
+        "search" // TODO: use search worker pool for now
+    );
+  }
+
+  private String[] resolveIndexExpression(ClusterState state, String[] indices) {
+    return resolver.concreteIndexNames(state, IndicesOptions.strictExpandOpen(), indices);
+  }
+
+  private Map<String, IndexMapping> populateIndexMappings(
+      ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> indexMappings) {
+
+    ImmutableMap.Builder<String, IndexMapping> result = ImmutableMap.builder();
+    for (ObjectObjectCursor<String, ImmutableOpenMap<String, MappingMetaData>> cursor :
+        indexMappings) {
+      result.put(cursor.key, populateIndexMapping(cursor.value));
     }
+    return result.build();
+  }
 
-    private String[] resolveIndexExpression(ClusterState state, String[] indices) {
-        return resolver.concreteIndexNames(state, IndicesOptions.strictExpandOpen(), indices);
+  private IndexMapping populateIndexMapping(
+      ImmutableOpenMap<String, MappingMetaData> indexMapping) {
+    if (indexMapping.isEmpty()) {
+      return new IndexMapping(Collections.emptyMap());
     }
+    return new IndexMapping(indexMapping.iterator().next().value);
+  }
 
-    private Map<String, IndexMapping> populateIndexMappings(
-        ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> indexMappings) {
-
-        ImmutableMap.Builder<String, IndexMapping> result = ImmutableMap.builder();
-        for (ObjectObjectCursor<String, ImmutableOpenMap<String, MappingMetaData>> cursor : indexMappings) {
-            result.put(cursor.key, populateIndexMapping(cursor.value));
-        }
-        return result.build();
-    }
-
-    private IndexMapping populateIndexMapping(ImmutableOpenMap<String, MappingMetaData> indexMapping) {
-        if (indexMapping.isEmpty()) {
-            return new IndexMapping(Collections.emptyMap());
-        }
-        return new IndexMapping(indexMapping.iterator().next().value);
-    }
-
-    /** Copy from LogUtils */
-    private static Runnable withCurrentContext(final Runnable task) {
-        final Map<String, String> currentContext = ThreadContext.getImmutableContext();
-        return () -> {
-            ThreadContext.putAll(currentContext);
-            task.run();
-        };
-    }
-
+  /** Copy from LogUtils. */
+  private static Runnable withCurrentContext(final Runnable task) {
+    final Map<String, String> currentContext = ThreadContext.getImmutableContext();
+    return () -> {
+      ThreadContext.putAll(currentContext);
+      task.run();
+    };
+  }
 }

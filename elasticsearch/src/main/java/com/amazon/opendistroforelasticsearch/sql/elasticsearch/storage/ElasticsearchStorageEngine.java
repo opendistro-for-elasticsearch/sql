@@ -21,20 +21,15 @@ import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
 import lombok.RequiredArgsConstructor;
 
-/**
- * Elasticsearch storage engine implementation
- */
+/** Elasticsearch storage engine implementation. */
 @RequiredArgsConstructor
 public class ElasticsearchStorageEngine implements StorageEngine {
 
-    /**
-     * Elasticsearch client connection
-     */
-    private final ElasticsearchClient client;
+  /** Elasticsearch client connection. */
+  private final ElasticsearchClient client;
 
-    @Override
-    public Table getTable(String name) {
-        return new ElasticsearchIndex(client, name);
-    }
-
+  @Override
+  public Table getTable(String name) {
+    return new ElasticsearchIndex(client, name);
+  }
 }

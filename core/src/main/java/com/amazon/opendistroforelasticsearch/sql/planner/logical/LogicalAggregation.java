@@ -17,13 +17,12 @@ package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
+import java.util.Collections;
+import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Logical Aggregation.
@@ -32,19 +31,19 @@ import java.util.List;
 @EqualsAndHashCode
 @RequiredArgsConstructor
 public class LogicalAggregation extends LogicalPlan {
-    private final LogicalPlan child;
-    @Getter
-    private final List<Aggregator> aggregatorList;
-    @Getter
-    private final List<Expression> groupByList;
+  private final LogicalPlan child;
+  @Getter
+  private final List<Aggregator> aggregatorList;
+  @Getter
+  private final List<Expression> groupByList;
 
-    @Override
-    public List<LogicalPlan> getChild() {
-        return Collections.singletonList(child);
-    }
+  @Override
+  public List<LogicalPlan> getChild() {
+    return Collections.singletonList(child);
+  }
 
-    @Override
-    public <R, C> R accept(LogicalPlanNodeVisitor<R, C> visitor, C context) {
-        return visitor.visitAggregation(this, context);
-    }
+  @Override
+  public <R, C> R accept(LogicalPlanNodeVisitor<R, C> visitor, C context) {
+    return visitor.visitAggregation(this, context);
+  }
 }

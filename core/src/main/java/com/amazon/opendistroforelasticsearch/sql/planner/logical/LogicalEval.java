@@ -35,7 +35,8 @@ import org.apache.commons.lang3.tuple.Pair;
 @RequiredArgsConstructor
 public class LogicalEval extends LogicalPlan {
   private final LogicalPlan child;
-  @Getter private final List<Pair<ReferenceExpression, Expression>> expressions;
+  @Getter
+  private final List<Pair<ReferenceExpression, Expression>> expressions;
 
   @Override
   public List<LogicalPlan> getChild() {

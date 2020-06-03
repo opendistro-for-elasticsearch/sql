@@ -24,22 +24,22 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Expression node of the logic NOT
+ * Expression node of the logic NOT.
  */
 @Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
 public class Not extends UnresolvedExpression {
-    private final UnresolvedExpression expression;
+  private final UnresolvedExpression expression;
 
-    @Override
-    public List<UnresolvedExpression> getChild() {
-        return Arrays.asList(expression);
-    }
+  @Override
+  public List<UnresolvedExpression> getChild() {
+    return Arrays.asList(expression);
+  }
 
-    @Override
-    public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
-        return nodeVisitor.visitNot(this, context);
-    }
+  @Override
+  public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
+    return nodeVisitor.visitNot(this, context);
+  }
 }

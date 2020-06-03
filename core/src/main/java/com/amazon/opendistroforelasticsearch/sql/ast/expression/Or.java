@@ -24,23 +24,23 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Expression node of the logic OR
+ * Expression node of the logic OR.
  */
 @Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
 public class Or extends UnresolvedExpression {
-    private final UnresolvedExpression left;
-    private final UnresolvedExpression right;
+  private final UnresolvedExpression left;
+  private final UnresolvedExpression right;
 
-    @Override
-    public List<UnresolvedExpression> getChild() {
-        return Arrays.asList(left, right);
-    }
+  @Override
+  public List<UnresolvedExpression> getChild() {
+    return Arrays.asList(left, right);
+  }
 
-    @Override
-    public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
-        return nodeVisitor.visitOr(this, context);
-    }
+  @Override
+  public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
+    return nodeVisitor.visitOr(this, context);
+  }
 }

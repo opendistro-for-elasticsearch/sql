@@ -23,21 +23,25 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
+/**
+ * Argument.
+ */
 @Getter
 @ToString
 @RequiredArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class Argument extends UnresolvedExpression {
-    private final String argName;
-    private final Literal value;
-    //    private final DataType valueType;
-    @Override
-    public List<UnresolvedExpression> getChild() {
-        return Arrays.asList(value);
-    }
+  private final String argName;
+  private final Literal value;
 
-    @Override
-    public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
-        return nodeVisitor.visitArgument(this, context);
-    }
+  //    private final DataType valueType;
+  @Override
+  public List<UnresolvedExpression> getChild() {
+    return Arrays.asList(value);
+  }
+
+  @Override
+  public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
+    return nodeVisitor.visitArgument(this, context);
+  }
 }

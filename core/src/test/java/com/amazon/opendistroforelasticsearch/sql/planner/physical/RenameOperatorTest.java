@@ -33,35 +33,35 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class RenameOperatorTest extends PhysicalPlanTestBase {
-    @Mock
-    private PhysicalPlan inputPlan;
+  @Mock
+  private PhysicalPlan inputPlan;
 
-    @Test
-    public void avg_aggregation_rename() {
-        PhysicalPlan plan = new RenameOperator(
-                new AggregationOperator(new TestScan(),
-                        Collections.singletonList(dsl.avg(typeEnv(), DSL.ref("response"))),
-                        Collections.singletonList(DSL.ref("action"))),
-                ImmutableMap.of(DSL.ref("avg(response)"), DSL.ref("avg"))
-        );
-        List<ExprValue> result = execute(plan);
-        assertEquals(2, result.size());
-        assertThat(result, containsInAnyOrder(
-                ExprValueUtils.tupleValue(ImmutableMap.of("action", "GET", "avg", 268d)),
-                ExprValueUtils.tupleValue(ImmutableMap.of("action", "POST", "avg", 350d))
-        ));
-    }
+  @Test
+  public void avg_aggregation_rename() {
+    PhysicalPlan plan = new RenameOperator(
+        new AggregationOperator(new TestScan(),
+            Collections.singletonList(dsl.avg(typeEnv(), DSL.ref("response"))),
+            Collections.singletonList(DSL.ref("action"))),
+        ImmutableMap.of(DSL.ref("avg(response)"), DSL.ref("avg"))
+    );
+    List<ExprValue> result = execute(plan);
+    assertEquals(2, result.size());
+    assertThat(result, containsInAnyOrder(
+        ExprValueUtils.tupleValue(ImmutableMap.of("action", "GET", "avg", 268d)),
+        ExprValueUtils.tupleValue(ImmutableMap.of("action", "POST", "avg", 350d))
+    ));
+  }
 
-    @Test
-    public void rename_int_value() {
-        when(inputPlan.hasNext()).thenReturn(true, false);
-        when(inputPlan.next()).thenReturn(ExprValueUtils.integerValue(1));
-        PhysicalPlan plan = new RenameOperator(
-                inputPlan,
-                ImmutableMap.of(DSL.ref("avg(response)"), DSL.ref("avg"))
-        );
-        List<ExprValue> result = execute(plan);
-        assertEquals(1, result.size());
-        assertThat(result, containsInAnyOrder(ExprValueUtils.integerValue(1)));
-    }
+  @Test
+  public void rename_int_value() {
+    when(inputPlan.hasNext()).thenReturn(true, false);
+    when(inputPlan.next()).thenReturn(ExprValueUtils.integerValue(1));
+    PhysicalPlan plan = new RenameOperator(
+        inputPlan,
+        ImmutableMap.of(DSL.ref("avg(response)"), DSL.ref("avg"))
+    );
+    List<ExprValue> result = execute(plan);
+    assertEquals(1, result.size());
+    assertThat(result, containsInAnyOrder(ExprValueUtils.integerValue(1)));
+  }
 }

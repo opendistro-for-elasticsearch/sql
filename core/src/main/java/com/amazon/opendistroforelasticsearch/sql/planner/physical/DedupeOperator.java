@@ -41,8 +41,10 @@ public class DedupeOperator extends PhysicalPlan {
   private final Boolean keepEmpty;
   private final Boolean consecutive;
 
-  @EqualsAndHashCode.Exclude private final Deduper<List<ExprValue>> deduper;
-  @EqualsAndHashCode.Exclude private ExprValue next;
+  @EqualsAndHashCode.Exclude
+  private final Deduper<List<ExprValue>> deduper;
+  @EqualsAndHashCode.Exclude
+  private ExprValue next;
 
   private static final Integer ALL_ONE_DUPLICATION = 1;
   private static final Boolean IGNORE_EMPTY = false;
@@ -55,6 +57,14 @@ public class DedupeOperator extends PhysicalPlan {
     this(input, dedupeList, ALL_ONE_DUPLICATION, IGNORE_EMPTY, NON_CONSECUTIVE);
   }
 
+  /**
+   * Dedup Constructor.
+   * @param input input {@link PhysicalPlan}
+   * @param dedupeList list of dedupe {@link Expression}
+   * @param allowedDuplication max allowed duplication
+   * @param keepEmpty keep empty
+   * @param consecutive consecutive mode
+   */
   @NonNull
   public DedupeOperator(
       PhysicalPlan input,
@@ -103,7 +113,7 @@ public class DedupeOperator extends PhysicalPlan {
    * <p>If any value evaluted by {@link DedupeOperator#dedupeList} is NULL or MISSING, then the *
    * return value is decided by keepEmpty option, default value is ignore.
    *
-   * @param value
+   * @param value {@link ExprValue}.
    * @return true: keep, false: ignore
    */
   public boolean keep(ExprValue value) {
@@ -132,7 +142,9 @@ public class DedupeOperator extends PhysicalPlan {
     private final BiFunction<Map<K, Integer>, K, Integer> seenFirstTime;
     private final Map<K, Integer> seenMap = new ConcurrentHashMap<>();
 
-    /** The Historical Deduper monitor the duplicated element with all the seen value. */
+    /**
+     * The Historical Deduper monitor the duplicated element with all the seen value.
+     */
     public static <K> Deduper<K> historicalDeduper() {
       return new Deduper<>(
           (map, key) -> {

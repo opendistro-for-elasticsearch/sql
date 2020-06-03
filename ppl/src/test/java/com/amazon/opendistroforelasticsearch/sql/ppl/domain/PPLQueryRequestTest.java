@@ -18,9 +18,9 @@ package com.amazon.opendistroforelasticsearch.sql.ppl.domain;
 import org.junit.Test;
 
 public class PPLQueryRequestTest {
-    @Test
-    public void getRequestShouldPass() {
-        PPLQueryRequest request = new PPLQueryRequest("source=t a=1", null);
-        request.getRequest();
-    }
+  @Test
+  public void getRequestShouldPass() {
+    PPLQueryRequest request = new PPLQueryRequest("source=t a=1", null);
+    request.getRequest();
+  }
 }

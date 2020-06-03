@@ -15,6 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.scalar.arthmetic;
 
+import static com.amazon.opendistroforelasticsearch.sql.expression.scalar.OperatorUtils.binaryOperator;
+
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
@@ -24,13 +26,10 @@ import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionNam
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature;
 import com.google.common.collect.ImmutableMap;
-import lombok.experimental.UtilityClass;
-
 import java.util.Arrays;
 import java.util.Map;
 import java.util.function.BiFunction;
-
-import static com.amazon.opendistroforelasticsearch.sql.expression.scalar.OperatorUtils.binaryOperator;
+import lombok.experimental.UtilityClass;
 
 /**
  * The definition of arithmetic function
@@ -42,86 +41,93 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.scalar.Operat
  */
 @UtilityClass
 public class ArithmeticFunction {
+  /**
+   * Register Arithmetic Function.
+   * @param repository {@link BuiltinFunctionRepository}.
+   */
+  public static void register(BuiltinFunctionRepository repository) {
+    repository.register(add());
+    repository.register(subtract());
+    repository.register(multiply());
+    repository.register(divide());
+    repository.register(modules());
+  }
 
-    public static void register(BuiltinFunctionRepository repository) {
-        repository.register(add());
-        repository.register(subtract());
-        repository.register(multiply());
-        repository.register(divide());
-        repository.register(modules());
-    }
+  private static FunctionResolver add() {
+    return new FunctionResolver(
+        BuiltinFunctionName.ADD.getName(),
+        scalarFunction(BuiltinFunctionName.ADD.getName(),
+            Math::addExact,
+            Math::addExact,
+            Float::sum,
+            Double::sum)
+    );
+  }
 
-    private static FunctionResolver add() {
-        return new FunctionResolver(
-                BuiltinFunctionName.ADD.getName(),
-                scalarFunction(BuiltinFunctionName.ADD.getName(),
-                        Math::addExact,
-                        Math::addExact,
-                        Float::sum,
-                        Double::sum)
-        );
-    }
+  private static FunctionResolver subtract() {
+    return new FunctionResolver(
+        BuiltinFunctionName.SUBTRACT.getName(),
+        scalarFunction(BuiltinFunctionName.SUBTRACT.getName(),
+            Math::subtractExact,
+            Math::subtractExact,
+            (v1, v2) -> v1 - v2,
+            (v1, v2) -> v1 - v2)
+    );
+  }
 
-    private static FunctionResolver subtract() {
-        return new FunctionResolver(
-                BuiltinFunctionName.SUBTRACT.getName(),
-                scalarFunction(BuiltinFunctionName.SUBTRACT.getName(),
-                        Math::subtractExact,
-                        Math::subtractExact,
-                        (v1, v2) -> v1 - v2,
-                        (v1, v2) -> v1 - v2)
-        );
-    }
+  private static FunctionResolver multiply() {
+    return new FunctionResolver(
+        BuiltinFunctionName.MULTIPLY.getName(),
+        scalarFunction(BuiltinFunctionName.MULTIPLY.getName(),
+            Math::multiplyExact,
+            Math::multiplyExact,
+            (v1, v2) -> v1 * v2,
+            (v1, v2) -> v1 * v2)
+    );
+  }
 
-    private static FunctionResolver multiply() {
-        return new FunctionResolver(
-                BuiltinFunctionName.MULTIPLY.getName(),
-                scalarFunction(BuiltinFunctionName.MULTIPLY.getName(),
-                        Math::multiplyExact,
-                        Math::multiplyExact,
-                        (v1, v2) -> v1 * v2,
-                        (v1, v2) -> v1 * v2)
-        );
-    }
-
-    private static FunctionResolver divide() {
-        return new FunctionResolver(
-                BuiltinFunctionName.DIVIDE.getName(),
-                scalarFunction(BuiltinFunctionName.DIVIDE.getName(),
-                        (v1, v2) -> v1 / v2,
-                        (v1, v2) -> v1 / v2,
-                        (v1, v2) -> v1 / v2,
-                        (v1, v2) -> v1 / v2)
-        );
-    }
+  private static FunctionResolver divide() {
+    return new FunctionResolver(
+        BuiltinFunctionName.DIVIDE.getName(),
+        scalarFunction(BuiltinFunctionName.DIVIDE.getName(),
+            (v1, v2) -> v1 / v2,
+            (v1, v2) -> v1 / v2,
+            (v1, v2) -> v1 / v2,
+            (v1, v2) -> v1 / v2)
+    );
+  }
 
 
-    private static FunctionResolver modules() {
-        return new FunctionResolver(
-                BuiltinFunctionName.MODULES.getName(),
-                scalarFunction(BuiltinFunctionName.MODULES.getName(),
-                        (v1, v2) -> v1 % v2,
-                        (v1, v2) -> v1 % v2,
-                        (v1, v2) -> v1 % v2,
-                        (v1, v2) -> v1 % v2)
-        );
-    }
+  private static FunctionResolver modules() {
+    return new FunctionResolver(
+        BuiltinFunctionName.MODULES.getName(),
+        scalarFunction(BuiltinFunctionName.MODULES.getName(),
+            (v1, v2) -> v1 % v2,
+            (v1, v2) -> v1 % v2,
+            (v1, v2) -> v1 % v2,
+            (v1, v2) -> v1 % v2)
+    );
+  }
 
-    private static Map<FunctionSignature, FunctionBuilder> scalarFunction(
-            FunctionName functionName,
-            BiFunction<Integer, Integer, Integer> integerFunc,
-            BiFunction<Long, Long, Long> longFunc,
-            BiFunction<Float, Float, Float> floatFunc,
-            BiFunction<Double, Double, Double> doubleFunc) {
-        ImmutableMap.Builder<FunctionSignature, FunctionBuilder> builder = new ImmutableMap.Builder<>();
-        builder.put(new FunctionSignature(functionName, Arrays.asList(ExprType.INTEGER, ExprType.INTEGER)),
-                binaryOperator(functionName, integerFunc, ExprValueUtils::getIntegerValue, ExprType.INTEGER));
-        builder.put(new FunctionSignature(functionName, Arrays.asList(ExprType.LONG, ExprType.LONG)),
-                binaryOperator(functionName, longFunc, ExprValueUtils::getLongValue, ExprType.LONG));
-        builder.put(new FunctionSignature(functionName, Arrays.asList(ExprType.FLOAT, ExprType.FLOAT)),
-                binaryOperator(functionName, floatFunc, ExprValueUtils::getFloatValue, ExprType.FLOAT));
-        builder.put(new FunctionSignature(functionName, Arrays.asList(ExprType.DOUBLE, ExprType.DOUBLE)),
-                binaryOperator(functionName, doubleFunc, ExprValueUtils::getDoubleValue, ExprType.DOUBLE));
-        return builder.build();
-    }
+  private static Map<FunctionSignature, FunctionBuilder> scalarFunction(
+      FunctionName functionName,
+      BiFunction<Integer, Integer, Integer> integerFunc,
+      BiFunction<Long, Long, Long> longFunc,
+      BiFunction<Float, Float, Float> floatFunc,
+      BiFunction<Double, Double, Double> doubleFunc) {
+    ImmutableMap.Builder<FunctionSignature, FunctionBuilder> builder = new ImmutableMap.Builder<>();
+    builder
+        .put(new FunctionSignature(functionName, Arrays.asList(ExprType.INTEGER, ExprType.INTEGER)),
+            binaryOperator(functionName, integerFunc, ExprValueUtils::getIntegerValue,
+                ExprType.INTEGER));
+    builder.put(new FunctionSignature(functionName, Arrays.asList(ExprType.LONG, ExprType.LONG)),
+        binaryOperator(functionName, longFunc, ExprValueUtils::getLongValue, ExprType.LONG));
+    builder.put(new FunctionSignature(functionName, Arrays.asList(ExprType.FLOAT, ExprType.FLOAT)),
+        binaryOperator(functionName, floatFunc, ExprValueUtils::getFloatValue, ExprType.FLOAT));
+    builder
+        .put(new FunctionSignature(functionName, Arrays.asList(ExprType.DOUBLE, ExprType.DOUBLE)),
+            binaryOperator(functionName, doubleFunc, ExprValueUtils::getDoubleValue,
+                ExprType.DOUBLE));
+    return builder.build();
+  }
 }
