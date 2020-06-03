@@ -32,7 +32,7 @@ buildscript {
 plugins {
     id 'nebula.ospackage' version "8.3.0"
     id 'java-library'
-//    id 'checkstyle'
+    id 'checkstyle'
     id "io.freefair.lombok" version "5.0.0-rc4"
 }
 
