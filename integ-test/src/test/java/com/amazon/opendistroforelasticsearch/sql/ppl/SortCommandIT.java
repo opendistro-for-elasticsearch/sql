@@ -21,9 +21,9 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.amazon.opendistroforelasticsearch.sql.sql.TestsConstants.TEST_INDEX_BANK;
-import static com.amazon.opendistroforelasticsearch.sql.sql.TestsConstants.TEST_INDEX_BANK_WITH_NULL_VALUES;
-import static com.amazon.opendistroforelasticsearch.sql.sql.TestsConstants.TEST_INDEX_DOG;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK_WITH_NULL_VALUES;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_DOG;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyOrder;
 

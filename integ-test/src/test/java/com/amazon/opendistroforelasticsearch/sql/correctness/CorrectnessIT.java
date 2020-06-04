@@ -21,7 +21,7 @@ import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.D
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.ESConnection;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.JDBCConnection;
 import com.amazon.opendistroforelasticsearch.sql.correctness.testset.TestDataSet;
-import com.amazon.opendistroforelasticsearch.sql.sql.CustomExternalTestCluster;
+import com.amazon.opendistroforelasticsearch.sql.legacy.CustomExternalTestCluster;
 import com.carrotsearch.randomizedtesting.annotations.ThreadLeakScope;
 import com.google.common.collect.Maps;
 import org.apache.http.HttpHost;

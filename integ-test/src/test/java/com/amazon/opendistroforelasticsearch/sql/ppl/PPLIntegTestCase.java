@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
-import com.amazon.opendistroforelasticsearch.sql.sql.RestIntegTestCase;
+import com.amazon.opendistroforelasticsearch.sql.legacy.RestIntegTestCase;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.util.Locale;
 
 import static com.amazon.opendistroforelasticsearch.sql.plugin.rest.RestPPLQueryAction.QUERY_API_ENDPOINT;
-import static com.amazon.opendistroforelasticsearch.sql.sql.TestUtils.getResponseBody;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getResponseBody;
 
 /**
  * ES Rest integration test base for PPL testing

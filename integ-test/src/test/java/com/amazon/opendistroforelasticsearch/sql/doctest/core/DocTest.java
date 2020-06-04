@@ -20,8 +20,8 @@ import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.Section
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.builder.DocBuilder;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.Document;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.RstDocument;
-import com.amazon.opendistroforelasticsearch.sql.sql.CustomExternalTestCluster;
-import com.amazon.opendistroforelasticsearch.sql.sql.TestUtils;
+import com.amazon.opendistroforelasticsearch.sql.legacy.CustomExternalTestCluster;
+import com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils;
 import com.carrotsearch.randomizedtesting.AnnotatedMethodProvider;
 import com.carrotsearch.randomizedtesting.TestMethodAndParams;
 import com.carrotsearch.randomizedtesting.annotations.TestCaseOrdering;
