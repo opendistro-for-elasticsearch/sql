@@ -25,28 +25,31 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.Test;
 
 class BindingTupleTest {
-    @Test
-    public void resolve_ref_expression() {
-        BindingTuple bindingTuple = ExprValueUtils.tupleValue(ImmutableMap.of("ip", "209.160.24.63")).bindingTuples();
-        assertEquals(ExprValueUtils.stringValue("209.160.24.63"), bindingTuple.resolve(DSL.ref("ip")));
-    }
+  @Test
+  public void resolve_ref_expression() {
+    BindingTuple bindingTuple =
+        ExprValueUtils.tupleValue(ImmutableMap.of("ip", "209.160.24.63")).bindingTuples();
+    assertEquals(ExprValueUtils.stringValue("209.160.24.63"), bindingTuple.resolve(DSL.ref("ip")));
+  }
 
-    @Test
-    public void resolve_missing_expression() {
-        BindingTuple bindingTuple = ExprValueUtils.tupleValue(ImmutableMap.of("ip", "209.160.24.63")).bindingTuples();
-        assertEquals(ExprValueUtils.LITERAL_MISSING, bindingTuple.resolve(DSL.ref("ip_missing")));
-    }
+  @Test
+  public void resolve_missing_expression() {
+    BindingTuple bindingTuple =
+        ExprValueUtils.tupleValue(ImmutableMap.of("ip", "209.160.24.63")).bindingTuples();
+    assertEquals(ExprValueUtils.LITERAL_MISSING, bindingTuple.resolve(DSL.ref("ip_missing")));
+  }
 
-    @Test
-    public void resolve_from_empty_tuple() {
-        assertEquals(ExprValueUtils.LITERAL_MISSING, BindingTuple.EMPTY.resolve(DSL.ref("ip_missing")));
-    }
+  @Test
+  public void resolve_from_empty_tuple() {
+    assertEquals(ExprValueUtils.LITERAL_MISSING, BindingTuple.EMPTY.resolve(DSL.ref("ip_missing")));
+  }
 
-    @Test
-    public void resolve_literal_expression_throw_exception() {
-        BindingTuple bindingTuple = ExprValueUtils.tupleValue(ImmutableMap.of("ip", "209.160.24.63")).bindingTuples();
-        ExpressionEvaluationException exception = assertThrows
-                (ExpressionEvaluationException.class, () -> bindingTuple.resolve(DSL.literal(1)));
-        assertEquals("can resolve expression: 1", exception.getMessage());
-    }
+  @Test
+  public void resolve_literal_expression_throw_exception() {
+    BindingTuple bindingTuple =
+        ExprValueUtils.tupleValue(ImmutableMap.of("ip", "209.160.24.63")).bindingTuples();
+    ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
+        () -> bindingTuple.resolve(DSL.literal(1)));
+    assertEquals("can resolve expression: 1", exception.getMessage());
+  }
 }

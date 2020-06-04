@@ -24,13 +24,13 @@ import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
  */
 public interface Expression {
 
-    /**
-     * Evaluate the value of expression in the value environment
-     */
-    ExprValue valueOf(Environment<Expression, ExprValue> valueEnv);
+  /**
+   * Evaluate the value of expression in the value environment.
+   */
+  ExprValue valueOf(Environment<Expression, ExprValue> valueEnv);
 
-    /**
-     * Evaluate the type of expression in the type environment
-     */
-    ExprType type(Environment<Expression, ExprType> typeEnv);
+  /**
+   * Evaluate the type of expression in the type environment.
+   */
+  ExprType type(Environment<Expression, ExprType> typeEnv);
 }

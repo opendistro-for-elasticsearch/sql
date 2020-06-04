@@ -34,6 +34,7 @@ plugins {
     id 'java-library'
     id 'checkstyle'
     id "io.freefair.lombok" version "5.0.0-rc4"
+    id 'jacoco'
 }
 
 // Repository on root level is for dependencies that project code depends on. And this block must be placed after plugins{}
@@ -53,3 +54,76 @@ allprojects {
         sourceCompatibility = targetCompatibility = "1.8"
     }
 }
+
+// TODO: fix compiler warnings
+compileJava.options.warnings = false
+compileJava {
+    options.compilerArgs.addAll(["-processor", 'lombok.launch.AnnotationProcessorHider$AnnotationProcessor'])
+    doFirst {
+        // TODO: do not fail build on warnings, need to fix all compiler warnings
+        options.compilerArgs.remove('-Werror')
+        // TODO: need to fix all java doc format
+        options.compilerArgs.remove('-Xdoclint:all')
+    }
+}
+// TODO: Similarly, need to fix compiling errors in test source code
+compileTestJava.options.warnings = false
+compileTestJava {
+    options.compilerArgs.addAll(["-processor", 'lombok.launch.AnnotationProcessorHider$AnnotationProcessor'])
+    doFirst {
+        options.compilerArgs.remove('-Werror')
+        options.compilerArgs.remove('-Xdoclint:all')
+    }
+}
+
+jacoco {
+    toolVersion = "0.8.5"
+}
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        csv.enabled false
+    }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it,
+                    exclude: ['**/antlr/parser/**'])
+        }))
+    }
+}
+test.finalizedBy(project.tasks.jacocoTestReport)
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.5
+            }
+
+        }
+    }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it,
+                    exclude: ['**/antlr/parser/**'])
+        }))
+    }
+}
+check.dependsOn jacocoTestCoverageVerification
+
+// TODO: fix code style in main and test source code
+subprojects {
+    apply plugin: 'checkstyle'
+    checkstyle {
+        configFile rootProject.file("config/checkstyle/google_checks.xml")
+        toolVersion "8.20"
+        configProperties = [
+                "org.checkstyle.google.suppressionfilter.config": rootProject.file("config/checkstyle/suppressions.xml")]
+        ignoreFailures = false
+    }
+}
+checkstyle {
+    configFile file("config/checkstyle/checkstyle.xml")
+}
+checkstyleMain.ignoreFailures = false
+checkstyleTest.ignoreFailures = true
+

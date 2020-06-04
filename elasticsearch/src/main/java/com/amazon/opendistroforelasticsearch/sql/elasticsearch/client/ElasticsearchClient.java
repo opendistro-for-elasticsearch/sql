@@ -19,39 +19,41 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.client;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchRequest;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
-
 import java.util.Map;
 
 /**
- * Elasticsearch client abstraction to wrap different Elasticsearch client implementation.
- * For example, implementation by node client for ES plugin or by REST client for standalone mode.
+ * Elasticsearch client abstraction to wrap different Elasticsearch client implementation. For
+ * example, implementation by node client for ES plugin or by REST client for standalone mode.
  */
 public interface ElasticsearchClient {
 
-    /**
-     * Fetch index mapping(s) according to index expression given
-     * @param indexExpression  index expression
-     * @return                 index mapping(s) from index name to its mapping
-     */
-    Map<String, IndexMapping> getIndexMappings(String indexExpression);
+  /**
+   * Fetch index mapping(s) according to index expression given.
+   *
+   * @param indexExpression index expression
+   * @return index mapping(s) from index name to its mapping
+   */
+  Map<String, IndexMapping> getIndexMappings(String indexExpression);
 
-    /**
-     * Perform search query in the search request.
-     * @param request       search request
-     * @return              search response
-     */
-    ElasticsearchResponse search(ElasticsearchRequest request);
+  /**
+   * Perform search query in the search request.
+   *
+   * @param request search request
+   * @return search response
+   */
+  ElasticsearchResponse search(ElasticsearchRequest request);
 
-    /**
-     * Clean up resources related to the search request, for example scroll context.
-     * @param request       search request
-     */
-    void cleanup(ElasticsearchRequest request);
+  /**
+   * Clean up resources related to the search request, for example scroll context.
+   *
+   * @param request search request
+   */
+  void cleanup(ElasticsearchRequest request);
 
-    /**
-     * Schedule a task to run.
-     * @param task      task
-     */
-    void schedule(Runnable task);
-
+  /**
+   * Schedule a task to run.
+   *
+   * @param task task
+   */
+  void schedule(Runnable task);
 }

@@ -26,7 +26,9 @@ import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-/** Project the fields specified in {@link ProjectOperator#projectList} from input. */
+/**
+ * Project the fields specified in {@link ProjectOperator#projectList} from input.
+ */
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor

@@ -15,6 +15,12 @@
 
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
@@ -22,58 +28,54 @@ import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import org.junit.jupiter.api.Test;
 
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 
 class ExpressionAnalyzerTest extends AnalyzerTestBase {
 
-    @Test
-    public void equal() {
-        assertAnalyzeEqual(
-                dsl.equal(typeEnv, DSL.ref("integer_value"), DSL.literal(integerValue(1))),
-                AstDSL.equalTo(AstDSL.unresolvedAttr("integer_value"), AstDSL.intLiteral(1))
-        );
-    }
+  @Test
+  public void equal() {
+    assertAnalyzeEqual(
+        dsl.equal(typeEnv, DSL.ref("integer_value"), DSL.literal(integerValue(1))),
+        AstDSL.equalTo(AstDSL.unresolvedAttr("integer_value"), AstDSL.intLiteral(1))
+    );
+  }
 
-    @Test
-    public void and() {
-        assertAnalyzeEqual(
-                dsl.and(typeEnv, DSL.ref("boolean_value"), DSL.literal(LITERAL_TRUE)),
-                AstDSL.and(AstDSL.unresolvedAttr("boolean_value"), AstDSL.booleanLiteral(true))
-        );
-    }
+  @Test
+  public void and() {
+    assertAnalyzeEqual(
+        dsl.and(typeEnv, DSL.ref("boolean_value"), DSL.literal(LITERAL_TRUE)),
+        AstDSL.and(AstDSL.unresolvedAttr("boolean_value"), AstDSL.booleanLiteral(true))
+    );
+  }
 
-    @Test
-    public void or() {
-        assertAnalyzeEqual(
-            dsl.or(typeEnv, DSL.ref("boolean_value"), DSL.literal(LITERAL_TRUE)),
-            AstDSL.or(AstDSL.unresolvedAttr("boolean_value"), AstDSL.booleanLiteral(true))
-        );
-    }
+  @Test
+  public void or() {
+    assertAnalyzeEqual(
+        dsl.or(typeEnv, DSL.ref("boolean_value"), DSL.literal(LITERAL_TRUE)),
+        AstDSL.or(AstDSL.unresolvedAttr("boolean_value"), AstDSL.booleanLiteral(true))
+    );
+  }
 
-    @Test
-    public void undefined_var_semantic_check_failed() {
-        SemanticCheckException exception = assertThrows(SemanticCheckException.class,
-                () -> analyze(AstDSL.and(AstDSL.unresolvedAttr("undefined_field"), AstDSL.booleanLiteral(true))));
-        assertEquals("can't resolve expression undefined_field in type env", exception.getMessage());
-    }
+  @Test
+  public void undefined_var_semantic_check_failed() {
+    SemanticCheckException exception = assertThrows(SemanticCheckException.class,
+        () -> analyze(
+            AstDSL.and(AstDSL.unresolvedAttr("undefined_field"), AstDSL.booleanLiteral(true))));
+    assertEquals("can't resolve expression undefined_field in type env", exception.getMessage());
+  }
 
-    @Test
-    public void undefined_aggregation_function() {
-        SemanticCheckException exception = assertThrows(SemanticCheckException.class,
-                () -> analyze(AstDSL.aggregate("ESTDC_ERROR", field("integer_value"))));
-        assertEquals("Unsupported aggregation function ESTDC_ERROR", exception.getMessage());
-    }
+  @Test
+  public void undefined_aggregation_function() {
+    SemanticCheckException exception = assertThrows(SemanticCheckException.class,
+        () -> analyze(AstDSL.aggregate("ESTDC_ERROR", field("integer_value"))));
+    assertEquals("Unsupported aggregation function ESTDC_ERROR", exception.getMessage());
+  }
 
-    protected Expression analyze(UnresolvedExpression unresolvedExpression) {
-        return expressionAnalyzer.analyze(unresolvedExpression, analysisContext);
-    }
+  protected Expression analyze(UnresolvedExpression unresolvedExpression) {
+    return expressionAnalyzer.analyze(unresolvedExpression, analysisContext);
+  }
 
-    protected void assertAnalyzeEqual(Expression expected, UnresolvedExpression unresolvedExpression) {
-        assertEquals(expected, analyze(unresolvedExpression));
-    }
+  protected void assertAnalyzeEqual(Expression expected,
+                                    UnresolvedExpression unresolvedExpression) {
+    assertEquals(expected, analyze(unresolvedExpression));
+  }
 }

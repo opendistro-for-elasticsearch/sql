@@ -43,72 +43,72 @@ import java.util.Locale;
  */
 public class SumAggregator extends Aggregator<SumState> {
 
-    public SumAggregator(List<Expression> arguments, ExprType returnType) {
-        super(BuiltinFunctionName.SUM.getName(), arguments, returnType);
-    }
+  public SumAggregator(List<Expression> arguments, ExprType returnType) {
+    super(BuiltinFunctionName.SUM.getName(), arguments, returnType);
+  }
 
-    @Override
-    public SumState create() {
-        return new SumState(returnType);
-    }
+  @Override
+  public SumState create() {
+    return new SumState(returnType);
+  }
 
-    @Override
-    public SumState iterate(BindingTuple tuple, SumState state) {
-        Expression expression = getArguments().get(0);
-        ExprValue value = expression.valueOf(tuple);
-        if (value.isNull() || value.isMissing()) {
-            state.isNullResult = true;
-        } else {
-            state.add(value);
-        }
-        return state;
+  @Override
+  public SumState iterate(BindingTuple tuple, SumState state) {
+    Expression expression = getArguments().get(0);
+    ExprValue value = expression.valueOf(tuple);
+    if (value.isNull() || value.isMissing()) {
+      state.isNullResult = true;
+    } else {
+      state.add(value);
     }
+    return state;
+  }
 
-    @Override
-    public String toString() {
-        return String.format(Locale.ROOT, "sum(%s)", format(getArguments()));
+  @Override
+  public String toString() {
+    return String.format(Locale.ROOT, "sum(%s)", format(getArguments()));
+  }
+
+  /**
+   * Sum State.
+   */
+  protected class SumState implements AggregationState {
+
+    private final ExprType type;
+    private ExprValue sumResult;
+    private boolean isNullResult = false;
+
+    public SumState(ExprType type) {
+      this.type = type;
+      sumResult = ExprValueUtils.integerValue(0);
     }
 
     /**
-     * Sum State.
+     * Add value to current sumResult.
      */
-    protected class SumState implements AggregationState {
-
-        private final ExprType type;
-        private ExprValue sumResult;
-        private boolean isNullResult = false;
-
-        public SumState(ExprType type) {
-            this.type = type;
-            sumResult = ExprValueUtils.integerValue(0);
-        }
-
-        /**
-         * Add value to current sumResult
-         */
-        public void add(ExprValue value) {
-            switch (type) {
-                case INTEGER:
-                    sumResult = integerValue(getIntegerValue(sumResult) + getIntegerValue(value));
-                    break;
-                case LONG:
-                    sumResult = longValue(getLongValue(sumResult) + getLongValue(value));
-                    break;
-                case FLOAT:
-                    sumResult = floatValue(getFloatValue(sumResult) + getFloatValue(value));
-                    break;
-                case DOUBLE:
-                    sumResult = doubleValue(getDoubleValue(sumResult) + getDoubleValue(value));
-                    break;
-                default:
-                    throw new ExpressionEvaluationException(
-                            String.format("unexpected type [%s] in sum aggregation", type));
-            }
-        }
-
-        @Override
-        public ExprValue result() {
-            return isNullResult ? ExprNullValue.of() : sumResult;
-        }
+    public void add(ExprValue value) {
+      switch (type) {
+        case INTEGER:
+          sumResult = integerValue(getIntegerValue(sumResult) + getIntegerValue(value));
+          break;
+        case LONG:
+          sumResult = longValue(getLongValue(sumResult) + getLongValue(value));
+          break;
+        case FLOAT:
+          sumResult = floatValue(getFloatValue(sumResult) + getFloatValue(value));
+          break;
+        case DOUBLE:
+          sumResult = doubleValue(getDoubleValue(sumResult) + getDoubleValue(value));
+          break;
+        default:
+          throw new ExpressionEvaluationException(
+              String.format("unexpected type [%s] in sum aggregation", type));
+      }
     }
+
+    @Override
+    public ExprValue result() {
+      return isNullResult ? ExprNullValue.of() : sumResult;
+    }
+  }
 }

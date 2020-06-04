@@ -15,6 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.aggregation;
 
+import static com.amazon.opendistroforelasticsearch.sql.utils.ExpressionUtils.format;
+
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprNullValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
@@ -22,11 +24,8 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
-
 import java.util.List;
 import java.util.Locale;
-
-import static com.amazon.opendistroforelasticsearch.sql.utils.ExpressionUtils.format;
 
 /**
  * The average aggregator aggregate the value evaluated by the expression.
@@ -34,49 +33,49 @@ import static com.amazon.opendistroforelasticsearch.sql.utils.ExpressionUtils.fo
  */
 public class AvgAggregator extends Aggregator<AvgAggregator.AvgState> {
 
-    public AvgAggregator(List<Expression> arguments, ExprType returnType) {
-        super(BuiltinFunctionName.AVG.getName(), arguments, returnType);
+  public AvgAggregator(List<Expression> arguments, ExprType returnType) {
+    super(BuiltinFunctionName.AVG.getName(), arguments, returnType);
+  }
+
+  @Override
+  public AvgState create() {
+    return new AvgState();
+  }
+
+  @Override
+  public AvgState iterate(BindingTuple tuple, AvgState state) {
+    Expression expression = getArguments().get(0);
+    ExprValue value = expression.valueOf(tuple);
+    if (value.isNull() || value.isMissing()) {
+      state.isNullResult = true;
+    } else {
+      state.count++;
+      state.total += ExprValueUtils.getDoubleValue(value);
+    }
+    return state;
+  }
+
+  @Override
+  public String toString() {
+    return String.format(Locale.ROOT, "avg(%s)", format(getArguments()));
+  }
+
+  /**
+   * Average State.
+   */
+  protected class AvgState implements AggregationState {
+    private int count;
+    private double total;
+    private boolean isNullResult = false;
+
+    public AvgState() {
+      this.count = 0;
+      this.total = 0d;
     }
 
     @Override
-    public AvgState create() {
-        return new AvgState();
+    public ExprValue result() {
+      return isNullResult ? ExprNullValue.of() : ExprValueUtils.doubleValue(total / count);
     }
-
-    @Override
-    public AvgState iterate(BindingTuple tuple, AvgState state) {
-        Expression expression = getArguments().get(0);
-        ExprValue value = expression.valueOf(tuple);
-        if (value.isNull() || value.isMissing()) {
-            state.isNullResult = true;
-        } else {
-            state.count++;
-            state.total += ExprValueUtils.getDoubleValue(value);
-        }
-        return state;
-    }
-
-    @Override
-    public String toString() {
-        return String.format(Locale.ROOT, "avg(%s)", format(getArguments()));
-    }
-
-    /**
-     * Average State.
-     */
-    protected class AvgState implements AggregationState {
-        private int count;
-        private double total;
-        private boolean isNullResult = false;
-
-        public AvgState() {
-            this.count = 0;
-            this.total = 0d;
-        }
-
-        @Override
-        public ExprValue result() {
-            return isNullResult ? ExprNullValue.of() : ExprValueUtils.doubleValue(total / count);
-        }
-    }
+  }
 }

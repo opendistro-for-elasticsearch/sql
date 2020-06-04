@@ -35,7 +35,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ProjectOperatorTest extends PhysicalPlanTestBase {
 
-  @Mock private PhysicalPlan inputPlan;
+  @Mock
+  private PhysicalPlan inputPlan;
 
   @Test
   public void project_one_field() {

@@ -15,34 +15,36 @@
 
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class AnalysisContextTest {
 
-    private final AnalysisContext context = new AnalysisContext();
+  private final AnalysisContext context = new AnalysisContext();
 
-    @Test
-    public void rootEnvironmentShouldBeThereInitially() {
-        assertNotNull(context.peek());
-    }
+  @Test
+  public void rootEnvironmentShouldBeThereInitially() {
+    assertNotNull(context.peek());
+  }
 
-    @Test
-    public void pushAndPopEnvironmentShouldPass() {
-        context.push();
-        context.pop();
-    }
+  @Test
+  public void pushAndPopEnvironmentShouldPass() {
+    context.push();
+    context.pop();
+  }
 
-    @Test
-    public void popRootEnvironmentShouldPass() {
-        context.pop();
-    }
+  @Test
+  public void popRootEnvironmentShouldPass() {
+    context.pop();
+  }
 
-    @Test
-    public void popEmptyEnvironmentStackShouldFail() {
-        context.pop();
-        NullPointerException exception = assertThrows(NullPointerException.class, () -> context.pop());
-        assertEquals("Fail to pop context due to no environment present", exception.getMessage());
-    }
+  @Test
+  public void popEmptyEnvironmentStackShouldFail() {
+    context.pop();
+    NullPointerException exception = assertThrows(NullPointerException.class, () -> context.pop());
+    assertEquals("Fail to pop context due to no environment present", exception.getMessage());
+  }
 }

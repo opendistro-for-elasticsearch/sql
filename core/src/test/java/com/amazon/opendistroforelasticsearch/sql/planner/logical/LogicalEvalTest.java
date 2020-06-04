@@ -32,7 +32,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class LogicalEvalTest extends AnalyzerTestBase {
-  @Mock private Environment<Expression, ExprType> environment;
+  @Mock
+  private Environment<Expression, ExprType> environment;
 
   @Test
   public void analyze_eval_with_one_field() {

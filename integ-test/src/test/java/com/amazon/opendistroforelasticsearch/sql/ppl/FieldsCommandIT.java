@@ -15,10 +15,12 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
-import java.io.IOException;
 import org.json.JSONObject;
 import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+
 import static com.amazon.opendistroforelasticsearch.sql.sql.TestsConstants.TEST_INDEX_ACCOUNT;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.columnName;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.columnPattern;
@@ -26,27 +28,30 @@ import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verify
 
 public class FieldsCommandIT extends PPLIntegTestCase {
 
-    @Override
-    public void init() throws IOException {
-        loadIndex(Index.ACCOUNT);
-    }
+  @Override
+  public void init() throws IOException {
+    loadIndex(Index.ACCOUNT);
+  }
 
-    @Test
-    public void testFieldsWithOneField() throws IOException {
-        JSONObject result = executeQuery(String.format("source=%s | fields firstname", TEST_INDEX_ACCOUNT));
-        verifyColumn(result, columnName("firstname"));
-    }
+  @Test
+  public void testFieldsWithOneField() throws IOException {
+    JSONObject result =
+        executeQuery(String.format("source=%s | fields firstname", TEST_INDEX_ACCOUNT));
+    verifyColumn(result, columnName("firstname"));
+  }
 
-    @Test
-    public void testFieldsWithMultiFields() throws IOException {
-        JSONObject result = executeQuery(String.format("source=%s | fields firstname, lastname", TEST_INDEX_ACCOUNT));
-        verifyColumn(result, columnName("firstname"), columnName("lastname"));
-    }
+  @Test
+  public void testFieldsWithMultiFields() throws IOException {
+    JSONObject result =
+        executeQuery(String.format("source=%s | fields firstname, lastname", TEST_INDEX_ACCOUNT));
+    verifyColumn(result, columnName("firstname"), columnName("lastname"));
+  }
 
-    @Ignore("Cannot resolve wildcard yet")
-    @Test
-    public void testFieldsWildCard() throws IOException {
-        JSONObject result = executeQuery(String.format("source=%s | fields ", TEST_INDEX_ACCOUNT) + "firstnam%");
-        verifyColumn(result, columnPattern("^firstnam.*"));
-    }
+  @Ignore("Cannot resolve wildcard yet")
+  @Test
+  public void testFieldsWildCard() throws IOException {
+    JSONObject result =
+        executeQuery(String.format("source=%s | fields ", TEST_INDEX_ACCOUNT) + "firstnam%");
+    verifyColumn(result, columnPattern("^firstnam.*"));
+  }
 }

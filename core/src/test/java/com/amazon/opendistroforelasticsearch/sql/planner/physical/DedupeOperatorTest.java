@@ -34,13 +34,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class DedupeOperatorTest extends PhysicalPlanTestBase {
-  @Mock private PhysicalPlan inputPlan;
+  @Mock
+  private PhysicalPlan inputPlan;
 
   /**
    * construct the map which contain null value, because {@link ImmutableMap} doesn't support null
    * value.
    */
-  private Map<String, Object> NULL_MAP =
+  private static final Map<String, Object> NULL_MAP =
       new HashMap<String, Object>() {
         {
           put("region", null);
@@ -190,7 +191,7 @@ class DedupeOperatorTest extends PhysicalPlanTestBase {
         .thenReturn(
             tupleValue(ImmutableMap.of("region", "us-east-1", "action", "POST", "response", 200)))
         .thenReturn(
-            tupleValue(ImmutableMap.of( "action", "POST", "response", 200)))
+            tupleValue(ImmutableMap.of("action", "POST", "response", 200)))
         .thenReturn(
             tupleValue(ImmutableMap.of("region", "us-east-1", "action", "GET", "response", 200)));
 
@@ -209,7 +210,7 @@ class DedupeOperatorTest extends PhysicalPlanTestBase {
         .thenReturn(
             tupleValue(ImmutableMap.of("region", "us-east-1", "action", "POST", "response", 200)))
         .thenReturn(
-            tupleValue(ImmutableMap.of( "action", "POST", "response", 200)))
+            tupleValue(ImmutableMap.of("action", "POST", "response", 200)))
         .thenReturn(
             tupleValue(ImmutableMap.of("region", "us-east-1", "action", "GET", "response", 200)));
 
@@ -217,7 +218,7 @@ class DedupeOperatorTest extends PhysicalPlanTestBase {
         execute(dedupe(inputPlan, 1, true, false, DSL.ref("region"))),
         contains(
             tupleValue(ImmutableMap.of("region", "us-east-1", "action", "GET", "response", 200)),
-            tupleValue(ImmutableMap.of( "action", "POST", "response", 200))));
+            tupleValue(ImmutableMap.of("action", "POST", "response", 200))));
   }
 
   @Test

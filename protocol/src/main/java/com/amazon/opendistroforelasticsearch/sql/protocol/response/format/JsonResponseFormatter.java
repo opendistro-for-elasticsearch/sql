@@ -16,61 +16,63 @@
 
 package com.amazon.opendistroforelasticsearch.sql.protocol.response.format;
 
+import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter.Style.PRETTY;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
 
-import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter.Style.PRETTY;
-
 /**
  * Abstract class for all JSON formatter.
- * @param <Response>    response generic type which could be DQL or DML response
+ *
+ * @param <R> response generic type which could be DQL or DML response
  */
 @RequiredArgsConstructor
-public abstract class JsonResponseFormatter<Response> implements ResponseFormatter<Response> {
+public abstract class JsonResponseFormatter<R> implements ResponseFormatter<R> {
 
-    /**
-     * JSON format styles: pretty format or compact format without indent and space
-     */
-    public enum Style {
-        PRETTY, COMPACT
-    }
+  /**
+   * JSON format styles: pretty format or compact format without indent and space.
+   */
+  public enum Style {
+    PRETTY, COMPACT
+  }
 
-    /**
-     * JSON format style
-     */
-    private final Style style;
-
-
-    @Override
-    public String format(Response response) {
-        return jsonify(buildJsonObject(response));
-    }
-
-    @Override
-    public String format(Throwable t) {
-        JsonError error = new JsonError(t.getClass().getSimpleName(),
-                                        t.getMessage());
-        return jsonify(error);
-    }
-
-    /**
-     * Build JSON object to generate response json string.
-     * @param response  response
-     * @return          json object for response
-     */
-    protected abstract Object buildJsonObject(Response response);
+  /**
+   * JSON format style.
+   */
+  private final Style style;
 
 
-    private String jsonify(Object jsonObject) {
-        JSONObject json = new JSONObject(jsonObject);
-        return (style == PRETTY) ? json.toString(2) : json.toString();
-    }
+  @Override
+  public String format(R response) {
+    return jsonify(buildJsonObject(response));
+  }
 
-    @RequiredArgsConstructor
-    @Getter
-    public static class JsonError {
-        private final String type;
-        private final String reason;
-    }
+  @Override
+  public String format(Throwable t) {
+    JsonError error = new JsonError(t.getClass().getSimpleName(),
+        t.getMessage());
+    return jsonify(error);
+  }
+
+  /**
+   * Build JSON object to generate response json string.
+   *
+   * @param response response
+   * @return json object for response
+   */
+  protected abstract Object buildJsonObject(R response);
+
+
+  private String jsonify(Object jsonObject) {
+    JSONObject json = new JSONObject(jsonObject);
+    return (style == PRETTY) ? json.toString(2) : json.toString();
+  }
+
+  @RequiredArgsConstructor
+  @Getter
+  public static class JsonError {
+    private final String type;
+    private final String reason;
+  }
 }

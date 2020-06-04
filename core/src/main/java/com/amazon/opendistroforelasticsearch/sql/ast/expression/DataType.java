@@ -16,11 +16,11 @@
 package com.amazon.opendistroforelasticsearch.sql.ast.expression;
 
 public enum DataType {
-    TYPE_ERROR,
-    NULL,
+  TYPE_ERROR,
+  NULL,
 
-    INTEGER,
-    DOUBLE,
-    STRING,
-    BOOLEAN
+  INTEGER,
+  DOUBLE,
+  STRING,
+  BOOLEAN
 }

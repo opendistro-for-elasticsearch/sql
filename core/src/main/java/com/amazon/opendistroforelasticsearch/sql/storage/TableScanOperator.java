@@ -18,7 +18,6 @@ package com.amazon.opendistroforelasticsearch.sql.storage;
 
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanNodeVisitor;
-
 import java.util.Collections;
 import java.util.List;
 
@@ -28,14 +27,14 @@ import java.util.List;
  */
 public abstract class TableScanOperator extends PhysicalPlan {
 
-    @Override
-    public <R, C> R accept(PhysicalPlanNodeVisitor<R, C> visitor, C context) {
-        return visitor.visitTableScan(this, context);
-    }
+  @Override
+  public <R, C> R accept(PhysicalPlanNodeVisitor<R, C> visitor, C context) {
+    return visitor.visitTableScan(this, context);
+  }
 
-    @Override
-    public List<PhysicalPlan> getChild() {
-        return Collections.emptyList();
-    }
+  @Override
+  public List<PhysicalPlan> getChild() {
+    return Collections.emptyList();
+  }
 
 }

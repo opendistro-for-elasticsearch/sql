@@ -24,22 +24,25 @@ import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 /**
- * PPL Syntax Parser
+ * PPL Syntax Parser.
  */
 public class PPLSyntaxParser {
-    public ParseTree analyzeSyntax(String query) {
-        OpenDistroPPLParser parser = createParser(createLexer(query));
-        parser.addErrorListener(new SyntaxAnalysisErrorListener());
-        return parser.root();
-    }
+  /**
+   * Analyze the query syntax.
+   */
+  public ParseTree analyzeSyntax(String query) {
+    OpenDistroPPLParser parser = createParser(createLexer(query));
+    parser.addErrorListener(new SyntaxAnalysisErrorListener());
+    return parser.root();
+  }
 
-    private OpenDistroPPLParser createParser(Lexer lexer) {
-        return new OpenDistroPPLParser(
-                new CommonTokenStream(lexer));
-    }
+  private OpenDistroPPLParser createParser(Lexer lexer) {
+    return new OpenDistroPPLParser(
+        new CommonTokenStream(lexer));
+  }
 
-    private OpenDistroPPLLexer createLexer(String query) {
-        return new OpenDistroPPLLexer(
-                new CaseInsensitiveCharStream(query));
-    }
+  private OpenDistroPPLLexer createLexer(String query) {
+    return new OpenDistroPPLLexer(
+        new CaseInsensitiveCharStream(query));
+  }
 }

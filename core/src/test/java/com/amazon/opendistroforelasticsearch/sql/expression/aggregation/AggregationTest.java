@@ -15,10 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.aggregation;
 
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.booleanValue;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.collectionValue;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.tupleValue;
-
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;

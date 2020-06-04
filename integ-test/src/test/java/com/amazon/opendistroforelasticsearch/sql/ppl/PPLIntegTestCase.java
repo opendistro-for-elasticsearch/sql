@@ -26,43 +26,39 @@ import org.junit.Assert;
 import java.io.IOException;
 import java.util.Locale;
 
-import static com.amazon.opendistroforelasticsearch.sql.sql.TestUtils.getResponseBody;
 import static com.amazon.opendistroforelasticsearch.sql.plugin.rest.RestPPLQueryAction.QUERY_API_ENDPOINT;
+import static com.amazon.opendistroforelasticsearch.sql.sql.TestUtils.getResponseBody;
 
 /**
  * ES Rest integration test base for PPL testing
  */
 public abstract class PPLIntegTestCase extends RestIntegTestCase {
 
-    protected JSONObject executeQuery(String query) throws IOException {
-        return jsonify(executeQueryToString(query));
+  protected JSONObject executeQuery(String query) throws IOException {
+    return jsonify(executeQueryToString(query));
+  }
+
+  protected String executeQueryToString(String query) throws IOException {
+    Response response = client().performRequest(buildRequest(query));
+    Assert.assertEquals(200, response.getStatusLine().getStatusCode());
+    return getResponseBody(response, true);
+  }
+
+  protected Request buildRequest(String query) {
+    Request request = new Request("POST", QUERY_API_ENDPOINT);
+    request.setJsonEntity(String.format(Locale.ROOT, "{\n" + "  \"query\": \"%s\"\n" + "}", query));
+
+    RequestOptions.Builder restOptionsBuilder = RequestOptions.DEFAULT.toBuilder();
+    restOptionsBuilder.addHeader("Content-Type", "application/json");
+    request.setOptions(restOptionsBuilder);
+    return request;
+  }
+
+  private JSONObject jsonify(String text) {
+    try {
+      return new JSONObject(text);
+    } catch (JSONException e) {
+      throw new IllegalStateException(String.format("Failed to transform %s to JSON format", text));
     }
-
-    protected String executeQueryToString(String query) throws IOException {
-        Response response = client().performRequest(buildRequest(query));
-        Assert.assertEquals(200, response.getStatusLine().getStatusCode());
-        return getResponseBody(response, true);
-    }
-
-    protected Request buildRequest(String query) {
-        Request request = new Request("POST", QUERY_API_ENDPOINT);
-        request.setJsonEntity(String.format(Locale.ROOT,
-            "{\n" +
-            "  \"query\": \"%s\"\n" +
-            "}", query));
-
-        RequestOptions.Builder restOptionsBuilder = RequestOptions.DEFAULT.toBuilder();
-        restOptionsBuilder.addHeader("Content-Type", "application/json");
-        request.setOptions(restOptionsBuilder);
-        return request;
-    }
-
-    private JSONObject jsonify(String text) {
-        try {
-            return new JSONObject(text);
-        } catch (JSONException e) {
-            throw new IllegalStateException(String.format("Failed to transform %s to JSON format", text));
-        }
-    }
-
+  }
 }

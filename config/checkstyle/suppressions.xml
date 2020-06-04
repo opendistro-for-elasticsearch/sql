@@ -6,5 +6,6 @@
 <suppressions>
 
     <suppress files="com[\\/]amazon[\\/]opendistroforelasticsearch[\\/]sql[\\/]antlr[\\/]parser" checks=".*"/>
+    <suppress files="com[\\/]amazon[\\/]opendistroforelasticsearch[\\/]sql[\\/]ppl[\\/]antlr[\\/]parser" checks=".*"/>
 
 </suppressions>

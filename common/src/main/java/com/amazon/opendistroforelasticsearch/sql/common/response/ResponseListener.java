@@ -17,23 +17,24 @@
 package com.amazon.opendistroforelasticsearch.sql.common.response;
 
 /**
- * Response listener for response post-processing callback.
- * This is necessary because execution engine may schedule and execute in different thread.
+ * Response listener for response post-processing callback. This is necessary because execution
+ * engine may schedule and execute in different thread.
  *
- * @param <Response>    response class
+ * @param <R> response class
  */
-public interface ResponseListener<Response> {
+public interface ResponseListener<R> {
 
-    /**
-     * Handle successful response.
-     * @param response  successful response
-     */
-    void onResponse(Response response);
+  /**
+   * Handle successful response.
+   *
+   * @param response successful response
+   */
+  void onResponse(R response);
 
-    /**
-     * Handle failed response.
-     * @param e     exception captured
-     */
-    void onFailure(Exception e);
-
+  /**
+   * Handle failed response.
+   *
+   * @param e exception captured
+   */
+  void onFailure(Exception e);
 }

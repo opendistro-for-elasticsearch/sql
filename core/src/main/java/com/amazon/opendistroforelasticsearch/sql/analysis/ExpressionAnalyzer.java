@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 
 /**
  * Analyze the {@link UnresolvedExpression} in the {@link AnalysisContext} to construct the {@link
- * Expression}
+ * Expression}.
  */
 public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, AnalysisContext> {
   private final BuiltinFunctionRepository repository;

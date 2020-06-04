@@ -24,47 +24,49 @@ import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionImplementation;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
+import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.List;
-
 /**
  * Aggregator which will iterate on the {@link BindingTuple}s to aggregate the result.
  * The Aggregator is not well fit into Expression, because it has side effect.
- * But we still want to make it implement {@link Expression} interface to make {@link ExpressionAnalyzer} easier.
+ * But we still want to make it implement {@link Expression} interface to make
+ * {@link ExpressionAnalyzer} easier.
  */
 @EqualsAndHashCode
 @RequiredArgsConstructor
-public abstract class Aggregator<S extends AggregationState> implements FunctionImplementation, Expression {
-    @Getter
-    private final FunctionName functionName;
-    @Getter
-    private final List<Expression> arguments;
-    protected final ExprType returnType;
+public abstract class Aggregator<S extends AggregationState>
+    implements FunctionImplementation, Expression {
+  @Getter
+  private final FunctionName functionName;
+  @Getter
+  private final List<Expression> arguments;
+  protected final ExprType returnType;
 
-    /**
-     * Create an {@link AggregationState} which will be used for aggregation
-     */
-    public abstract S create();
+  /**
+   * Create an {@link AggregationState} which will be used for aggregation.
+   */
+  public abstract S create();
 
-    /**
-     * Iterate on the {@link BindingTuple}.
-     *
-     * @param tuple {@link BindingTuple}
-     * @param state {@link AggregationState}
-     * @return {@link AggregationState}
-     */
-    public abstract S iterate(BindingTuple tuple, S state);
+  /**
+   * Iterate on the {@link BindingTuple}.
+   *
+   * @param tuple {@link BindingTuple}
+   * @param state {@link AggregationState}
+   * @return {@link AggregationState}
+   */
+  public abstract S iterate(BindingTuple tuple, S state);
 
-    @Override
-    public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
-        throw new ExpressionEvaluationException(String.format("can't evaluate on aggregator: %s", functionName));
-    }
+  @Override
+  public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
+    throw new ExpressionEvaluationException(
+        String.format("can't evaluate on aggregator: %s", functionName));
+  }
 
-    @Override
-    public ExprType type(Environment<Expression, ExprType> typeEnv) {
-        return returnType;
-    }
+  @Override
+  public ExprType type(Environment<Expression, ExprType> typeEnv) {
+    return returnType;
+  }
 }

@@ -20,39 +20,48 @@ import org.elasticsearch.rest.RestRequest;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * Factory of {@link PPLQueryRequest}.
+ */
 public class PPLQueryRequestFactory {
-    private static final String PPL_URL_PARAM_KEY = "ppl";
-    private static final String PPL_FIELD_NAME = "query";
+  private static final String PPL_URL_PARAM_KEY = "ppl";
+  private static final String PPL_FIELD_NAME = "query";
 
-    public static PPLQueryRequest getPPLRequest(RestRequest request) {
-        switch (request.method()) {
-            case GET:
-                return parsePPLRequestFromUrl(request);
-            case POST:
-                return parsePPLRequestFromPayload(request);
-            default:
-                throw new IllegalArgumentException("ES PPL doesn't supported HTTP " + request.method().name());
-        }
+  /**
+   * Build {@link PPLQueryRequest} from {@link RestRequest}.
+   * @param request {@link PPLQueryRequest}
+   * @return {@link RestRequest}
+   */
+  public static PPLQueryRequest getPPLRequest(RestRequest request) {
+    switch (request.method()) {
+      case GET:
+        return parsePPLRequestFromUrl(request);
+      case POST:
+        return parsePPLRequestFromPayload(request);
+      default:
+        throw new IllegalArgumentException(
+            "ES PPL doesn't supported HTTP " + request.method().name());
     }
+  }
 
-    private static PPLQueryRequest parsePPLRequestFromUrl(RestRequest restRequest) {
-        String ppl;
+  private static PPLQueryRequest parsePPLRequestFromUrl(RestRequest restRequest) {
+    String ppl;
 
-        ppl = restRequest.param(PPL_URL_PARAM_KEY);
-        if (ppl == null) {
-            throw new IllegalArgumentException("Cannot find ppl parameter from the URL");
-        }
-        return new PPLQueryRequest(ppl, null);
+    ppl = restRequest.param(PPL_URL_PARAM_KEY);
+    if (ppl == null) {
+      throw new IllegalArgumentException("Cannot find ppl parameter from the URL");
     }
+    return new PPLQueryRequest(ppl, null);
+  }
 
-    private static PPLQueryRequest parsePPLRequestFromPayload(RestRequest restRequest) {
-        String content = restRequest.content().utf8ToString();
-        JSONObject jsonContent;
-        try {
-            jsonContent = new JSONObject(content);
-        } catch (JSONException e) {
-            throw new IllegalArgumentException("Failed to parse request payload", e);
-        }
-        return new PPLQueryRequest(jsonContent.getString(PPL_FIELD_NAME), jsonContent);
+  private static PPLQueryRequest parsePPLRequestFromPayload(RestRequest restRequest) {
+    String content = restRequest.content().utf8ToString();
+    JSONObject jsonContent;
+    try {
+      jsonContent = new JSONObject(content);
+    } catch (JSONException e) {
+      throw new IllegalArgumentException("Failed to parse request payload", e);
     }
+    return new PPLQueryRequest(jsonContent.getString(PPL_FIELD_NAME), jsonContent);
+  }
 }

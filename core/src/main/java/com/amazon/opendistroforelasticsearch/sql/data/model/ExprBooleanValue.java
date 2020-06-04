@@ -19,35 +19,35 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode
 public class ExprBooleanValue implements ExprValue {
-    private static final ExprValue TRUE = new ExprBooleanValue(true);
-    private static final ExprValue FALSE = new ExprBooleanValue(false);
+  private static final ExprValue TRUE = new ExprBooleanValue(true);
+  private static final ExprValue FALSE = new ExprBooleanValue(false);
 
-    private final Boolean value;
+  private final Boolean value;
 
-    private ExprBooleanValue(Boolean value) {
-        this.value = value;
-    }
+  private ExprBooleanValue(Boolean value) {
+    this.value = value;
+  }
 
-    public static ExprValue ofTrue() {
-        return TRUE;
-    }
+  public static ExprValue ofTrue() {
+    return TRUE;
+  }
 
-    public static ExprValue ofFalse() {
-        return FALSE;
-    }
+  public static ExprValue ofFalse() {
+    return FALSE;
+  }
 
-    @Override
-    public Object value() {
-        return value;
-    }
+  @Override
+  public Object value() {
+    return value;
+  }
 
-    @Override
-    public ExprType type() {
-        return ExprType.BOOLEAN;
-    }
+  @Override
+  public ExprType type() {
+    return ExprType.BOOLEAN;
+  }
 
-    @Override
-    public String toString() {
-        return value.toString();
-    }
+  @Override
+  public String toString() {
+    return value.toString();
+  }
 }

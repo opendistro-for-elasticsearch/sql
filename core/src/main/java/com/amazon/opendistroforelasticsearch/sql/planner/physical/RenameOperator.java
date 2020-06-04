@@ -41,40 +41,40 @@ import lombok.ToString;
 @ToString
 @RequiredArgsConstructor
 public class RenameOperator extends PhysicalPlan {
-    private final PhysicalPlan input;
-    private final Map<ReferenceExpression, ReferenceExpression> mapping;
+  private final PhysicalPlan input;
+  private final Map<ReferenceExpression, ReferenceExpression> mapping;
 
-    @Override
-    public <R, C> R accept(PhysicalPlanNodeVisitor<R, C> visitor, C context) {
-        return visitor.visitRename(this, context);
-    }
+  @Override
+  public <R, C> R accept(PhysicalPlanNodeVisitor<R, C> visitor, C context) {
+    return visitor.visitRename(this, context);
+  }
 
-    @Override
-    public List<PhysicalPlan> getChild() {
-        return Collections.singletonList(input);
-    }
+  @Override
+  public List<PhysicalPlan> getChild() {
+    return Collections.singletonList(input);
+  }
 
-    @Override
-    public boolean hasNext() {
-        return input.hasNext();
-    }
+  @Override
+  public boolean hasNext() {
+    return input.hasNext();
+  }
 
-    @Override
-    public ExprValue next() {
-        ExprValue inputValue = input.next();
-        if (STRUCT == inputValue.type()) {
-            Map<String, ExprValue> tupleValue = ExprValueUtils.getTupleValue(inputValue);
-            ImmutableMap.Builder<String, ExprValue> mapBuilder = new Builder<>();
-            for (String bindName : tupleValue.keySet()) {
-                if (mapping.containsKey(DSL.ref(bindName))) {
-                    mapBuilder.put(mapping.get(DSL.ref(bindName)).getAttr(), tupleValue.get(bindName));
-                } else {
-                    mapBuilder.put(bindName, tupleValue.get(bindName));
-                }
-            }
-            return ExprTupleValue.fromExprValueMap(mapBuilder.build());
+  @Override
+  public ExprValue next() {
+    ExprValue inputValue = input.next();
+    if (STRUCT == inputValue.type()) {
+      Map<String, ExprValue> tupleValue = ExprValueUtils.getTupleValue(inputValue);
+      ImmutableMap.Builder<String, ExprValue> mapBuilder = new Builder<>();
+      for (String bindName : tupleValue.keySet()) {
+        if (mapping.containsKey(DSL.ref(bindName))) {
+          mapBuilder.put(mapping.get(DSL.ref(bindName)).getAttr(), tupleValue.get(bindName));
         } else {
-            return inputValue;
+          mapBuilder.put(bindName, tupleValue.get(bindName));
         }
+      }
+      return ExprTupleValue.fromExprValueMap(mapBuilder.build());
+    } else {
+      return inputValue;
     }
+  }
 }

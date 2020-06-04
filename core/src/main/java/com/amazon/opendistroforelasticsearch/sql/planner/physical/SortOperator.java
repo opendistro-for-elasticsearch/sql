@@ -24,7 +24,6 @@ import com.amazon.opendistroforelasticsearch.sql.data.utils.ExprValueOrdering;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.SortOperator.Sorter.SorterBuilder;
 import com.google.common.collect.Iterators;
-import com.google.common.collect.TreeMultiset;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -47,9 +46,18 @@ public class SortOperator extends PhysicalPlan {
   private final PhysicalPlan input;
   private final Integer count;
   private final List<Pair<SortOption, Expression>> sortList;
-  @EqualsAndHashCode.Exclude private final Sorter sorter;
-  @EqualsAndHashCode.Exclude private Iterator<ExprValue> iterator;
+  @EqualsAndHashCode.Exclude
+  private final Sorter sorter;
+  @EqualsAndHashCode.Exclude
+  private Iterator<ExprValue> iterator;
 
+  /**
+   * Sort Operator Constructor.
+   * @param input input {@link PhysicalPlan}
+   * @param count how many sorted result should been return
+   * @param sortList list of sort sort field.
+   *                 The sort field is specified by the {@link Expression} with {@link SortOption}
+   */
   public SortOperator(
       PhysicalPlan input, Integer count, List<Pair<SortOption, Expression>> sortList) {
     this.input = input;
@@ -111,7 +119,8 @@ public class SortOperator extends PhysicalPlan {
 
   @Builder
   public static class Sorter implements Comparator<ExprValue> {
-    @Singular private final List<Pair<Expression, Comparator<ExprValue>>> comparators;
+    @Singular
+    private final List<Pair<Expression, Comparator<ExprValue>>> comparators;
 
     @Override
     public int compare(ExprValue o1, ExprValue o2) {

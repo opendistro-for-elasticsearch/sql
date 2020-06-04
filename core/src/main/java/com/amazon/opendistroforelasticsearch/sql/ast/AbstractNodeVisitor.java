@@ -40,13 +40,21 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 
-/** AST nodes visitor Defines the traverse path */
+/**
+ * AST nodes visitor Defines the traverse path.
+ */
 public abstract class AbstractNodeVisitor<T, C> {
 
   public T visit(Node node, C context) {
     return null;
   }
 
+  /**
+   * Visit child node.
+   * @param node {@link Node}
+   * @param context Context
+   * @return Return Type.
+   */
   public T visitChildren(Node node, C context) {
     T result = defaultResult();
 

@@ -21,20 +21,20 @@ import lombok.RequiredArgsConstructor;
 @EqualsAndHashCode
 @RequiredArgsConstructor
 public class ExprFloatValue implements ExprValue {
-    private final Float value;
+  private final Float value;
 
-    @Override
-    public Object value() {
-        return value;
-    }
+  @Override
+  public Object value() {
+    return value;
+  }
 
-    @Override
-    public ExprType type() {
-        return ExprType.FLOAT;
-    }
+  @Override
+  public ExprType type() {
+    return ExprType.FLOAT;
+  }
 
-    @Override
-    public String toString() {
-        return value.toString();
-    }
+  @Override
+  public String toString() {
+    return value.toString();
+  }
 }

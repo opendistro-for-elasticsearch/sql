@@ -15,15 +15,16 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl.config;
 
-import com.amazon.opendistroforelasticsearch.sql.ppl.PPLService;
-import org.junit.Test;
 import static org.junit.Assert.assertNotNull;
 
+import com.amazon.opendistroforelasticsearch.sql.ppl.PPLService;
+import org.junit.Test;
+
 public class PPLServiceConfigTest {
-    @Test
-    public void testConfigPPLServiceShouldPass() {
-        PPLServiceConfig config = new PPLServiceConfig();
-        PPLService service = config.pplService();
-        assertNotNull(service);
-    }
+  @Test
+  public void testConfigPPLServiceShouldPass() {
+    PPLServiceConfig config = new PPLServiceConfig();
+    PPLService service = config.pplService();
+    assertNotNull(service);
+  }
 }

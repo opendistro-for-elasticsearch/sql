@@ -19,11 +19,11 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Symbol in the scope
+ * Symbol in the scope.
  */
 @Getter
 @RequiredArgsConstructor
 public class Symbol {
-    private final Namespace namespace;
-    private final String name;
+  private final Namespace namespace;
+  private final String name;
 }

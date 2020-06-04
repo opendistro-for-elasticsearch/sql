@@ -27,55 +27,58 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * Logical plan node of Aggregation, the interface for building aggregation actions in queries
+ * Logical plan node of Aggregation, the interface for building aggregation actions in queries.
  */
 @Getter
 @Setter
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class Aggregation extends UnresolvedPlan {
-    private List<UnresolvedExpression> aggExprList;
-    private List<UnresolvedExpression> sortExprList;
-    private List<UnresolvedExpression> groupExprList;
-    private List<Argument> argExprList;
-    private UnresolvedPlan child;
+  private List<UnresolvedExpression> aggExprList;
+  private List<UnresolvedExpression> sortExprList;
+  private List<UnresolvedExpression> groupExprList;
+  private List<Argument> argExprList;
+  private UnresolvedPlan child;
 
-    public Aggregation(List<UnresolvedExpression> aggExprList,
-                       List<UnresolvedExpression> sortExprList,
-                       List<UnresolvedExpression> groupExprList) {
-        this.aggExprList = aggExprList;
-        this.sortExprList = sortExprList;
-        this.groupExprList = groupExprList;
-        this.argExprList = Collections.emptyList();
-    }
+  /**
+   * Aggregation Constructor without argument.
+   */
+  public Aggregation(List<UnresolvedExpression> aggExprList,
+                     List<UnresolvedExpression> sortExprList,
+                     List<UnresolvedExpression> groupExprList) {
+    this(aggExprList, sortExprList, groupExprList, Collections.emptyList());
+  }
 
-    public Aggregation(List<UnresolvedExpression> aggExprList,
-                       List<UnresolvedExpression> sortExprList,
-                       List<UnresolvedExpression> groupExprList,
-                       List<Argument> argExprList) {
-        this.aggExprList = aggExprList;
-        this.sortExprList = sortExprList;
-        this.groupExprList = groupExprList;
-        this.argExprList = argExprList;
-    }
+  /**
+   * Aggregation Constructor.
+   */
+  public Aggregation(List<UnresolvedExpression> aggExprList,
+                     List<UnresolvedExpression> sortExprList,
+                     List<UnresolvedExpression> groupExprList,
+                     List<Argument> argExprList) {
+    this.aggExprList = aggExprList;
+    this.sortExprList = sortExprList;
+    this.groupExprList = groupExprList;
+    this.argExprList = argExprList;
+  }
 
-    public boolean hasArgument() {
-        return !aggExprList.isEmpty();
-    }
+  public boolean hasArgument() {
+    return !aggExprList.isEmpty();
+  }
 
-    @Override
-    public Aggregation attach(UnresolvedPlan child) {
-        this.child = child;
-        return this;
-    }
+  @Override
+  public Aggregation attach(UnresolvedPlan child) {
+    this.child = child;
+    return this;
+  }
 
-    @Override
-    public List<UnresolvedPlan> getChild() {
-        return ImmutableList.of(this.child);
-    }
+  @Override
+  public List<UnresolvedPlan> getChild() {
+    return ImmutableList.of(this.child);
+  }
 
-    @Override
-    public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
-        return nodeVisitor.visitAggregation(this, context);
-    }
+  @Override
+  public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {
+    return nodeVisitor.visitAggregation(this, context);
+  }
 }

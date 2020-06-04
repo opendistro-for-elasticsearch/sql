@@ -25,39 +25,39 @@ import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
  */
 public abstract class PhysicalPlanNodeVisitor<R, C> {
 
-    protected R visitNode(PhysicalPlan node, C context) {
-        return null;
-    }
+  protected R visitNode(PhysicalPlan node, C context) {
+    return null;
+  }
 
-    public R visitFilter(FilterOperator node, C context) {
-        return visitNode(node, context);
-    }
+  public R visitFilter(FilterOperator node, C context) {
+    return visitNode(node, context);
+  }
 
-    public R visitAggregation(AggregationOperator node, C context) {
-        return visitNode(node, context);
-    }
+  public R visitAggregation(AggregationOperator node, C context) {
+    return visitNode(node, context);
+  }
 
-    public R visitRename(RenameOperator node, C context) {
-        return visitNode(node, context);
-    }
+  public R visitRename(RenameOperator node, C context) {
+    return visitNode(node, context);
+  }
 
-    public R visitTableScan(TableScanOperator node, C context) {
-        return visitNode(node, context);
-    }
+  public R visitTableScan(TableScanOperator node, C context) {
+    return visitNode(node, context);
+  }
 
-    public R visitProject(ProjectOperator node, C context) {
-        return visitNode(node, context);
-    }
+  public R visitProject(ProjectOperator node, C context) {
+    return visitNode(node, context);
+  }
 
-    public R visitRemove(RemoveOperator node, C context) {
-        return visitNode(node, context);
-    }
+  public R visitRemove(RemoveOperator node, C context) {
+    return visitNode(node, context);
+  }
 
-    public R visitEval(EvalOperator node, C context) {
-        return visitNode(node, context);
-    }
+  public R visitEval(EvalOperator node, C context) {
+    return visitNode(node, context);
+  }
 
-    public R visitDedupe(DedupeOperator node, C context) {
-        return visitNode(node, context);
-    }
+  public R visitDedupe(DedupeOperator node, C context) {
+    return visitNode(node, context);
+  }
 }

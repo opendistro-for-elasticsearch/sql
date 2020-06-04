@@ -35,25 +35,25 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ElasticsearchPluginConfig {
 
-    @Autowired
-    private ClusterService clusterService;
+  @Autowired
+  private ClusterService clusterService;
 
-    @Autowired
-    private NodeClient nodeClient;
+  @Autowired
+  private NodeClient nodeClient;
 
-    @Bean
-    public ElasticsearchClient client() {
-        return new ElasticsearchNodeClient(clusterService, nodeClient);
-    }
+  @Bean
+  public ElasticsearchClient client() {
+    return new ElasticsearchNodeClient(clusterService, nodeClient);
+  }
 
-    @Bean
-    public StorageEngine storageEngine() {
-        return new ElasticsearchStorageEngine(client());
-    }
+  @Bean
+  public StorageEngine storageEngine() {
+    return new ElasticsearchStorageEngine(client());
+  }
 
-    @Bean
-    public ExecutionEngine executionEngine() {
-        return new ElasticsearchExecutionEngine(client());
-    }
+  @Bean
+  public ExecutionEngine executionEngine() {
+    return new ElasticsearchExecutionEngine(client());
+  }
 
 }

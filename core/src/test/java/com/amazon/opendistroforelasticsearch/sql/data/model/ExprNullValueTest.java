@@ -15,31 +15,31 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
-import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
-import org.junit.jupiter.api.Test;
-
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
+import org.junit.jupiter.api.Test;
+
 public class ExprNullValueTest {
 
-    @Test
-    public void test_is_null() {
-        assertTrue(LITERAL_NULL.isNull());
-    }
+  @Test
+  public void test_is_null() {
+    assertTrue(LITERAL_NULL.isNull());
+  }
 
-    @Test
-    public void getValue() {
-        assertNull(LITERAL_NULL.value());
-    }
+  @Test
+  public void getValue() {
+    assertNull(LITERAL_NULL.value());
+  }
 
-    @Test
-    public void getType() {
-        ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
-                () -> LITERAL_NULL.type());
-        assertEquals("invalid to call type operation on null value", exception.getMessage());
-    }
+  @Test
+  public void getType() {
+    ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
+        () -> LITERAL_NULL.type());
+    assertEquals("invalid to call type operation on null value", exception.getMessage());
+  }
 }

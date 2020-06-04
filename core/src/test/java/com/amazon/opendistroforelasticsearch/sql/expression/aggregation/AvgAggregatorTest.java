@@ -15,47 +15,50 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.aggregation;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 class AvgAggregatorTest extends AggregationTest {
 
-    @Test
-    public void avg_field_expression() {
-        ExprValue result = aggregation(dsl.avg(typeEnv,DSL.ref("integer_value")), tuples);
-        assertEquals(2.5, result.value());
-    }
+  @Test
+  public void avg_field_expression() {
+    ExprValue result = aggregation(dsl.avg(typeEnv, DSL.ref("integer_value")), tuples);
+    assertEquals(2.5, result.value());
+  }
 
-    @Test
-    public void avg_arithmetic_expression() {
-        ExprValue result = aggregation(dsl.avg(typeEnv,
-                dsl.multiply(typeEnv, DSL.ref("integer_value"), DSL.literal(ExprValueUtils.integerValue(10)))), tuples);
-        assertEquals(25.0, result.value());
-    }
+  @Test
+  public void avg_arithmetic_expression() {
+    ExprValue result = aggregation(dsl.avg(typeEnv,
+        dsl.multiply(typeEnv, DSL.ref("integer_value"),
+            DSL.literal(ExprValueUtils.integerValue(10)))), tuples);
+    assertEquals(25.0, result.value());
+  }
 
-    @Test
-    public void avg_with_missing() {
-        ExprValue result = aggregation(dsl.avg(typeEnv,DSL.ref("integer_value")), tuples_with_null_and_missing);
-        assertTrue(result.isNull());
-    }
+  @Test
+  public void avg_with_missing() {
+    ExprValue result =
+        aggregation(dsl.avg(typeEnv, DSL.ref("integer_value")), tuples_with_null_and_missing);
+    assertTrue(result.isNull());
+  }
 
-    @Test
-    public void avg_with_null() {
-        ExprValue result = aggregation(dsl.avg(typeEnv,DSL.ref("double_value")), tuples_with_null_and_missing);
-        assertTrue(result.isNull());
-    }
+  @Test
+  public void avg_with_null() {
+    ExprValue result =
+        aggregation(dsl.avg(typeEnv, DSL.ref("double_value")), tuples_with_null_and_missing);
+    assertTrue(result.isNull());
+  }
 
-    @Test
-    public void valueOf() {
-        ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
-                () -> dsl.avg(typeEnv, DSL.ref("double_value")).valueOf(valueEnv()));
-        assertEquals("can't evaluate on aggregator: avg", exception.getMessage());
-    }
+  @Test
+  public void valueOf() {
+    ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
+        () -> dsl.avg(typeEnv, DSL.ref("double_value")).valueOf(valueEnv()));
+    assertEquals("can't evaluate on aggregator: avg", exception.getMessage());
+  }
 }

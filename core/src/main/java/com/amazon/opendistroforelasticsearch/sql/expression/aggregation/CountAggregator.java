@@ -53,7 +53,9 @@ public class CountAggregator extends Aggregator<CountState> {
     return String.format(Locale.ROOT, "count(%s)", format(getArguments()));
   }
 
-  /** Count State. */
+  /**
+   * Count State.
+   */
   protected class CountState implements AggregationState {
     private int count;
 

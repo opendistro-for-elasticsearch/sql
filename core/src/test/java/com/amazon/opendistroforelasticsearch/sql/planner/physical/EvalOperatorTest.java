@@ -38,8 +38,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class EvalOperatorTest extends PhysicalPlanTestBase {
-  @Mock private PhysicalPlan inputPlan;
-  @Mock private Environment<Expression, ExprType> environment;
+  @Mock
+  private PhysicalPlan inputPlan;
+  @Mock
+  private Environment<Expression, ExprType> environment;
 
   @Test
   public void create_new_field_that_contain_the_result_of_a_calculation() {

@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Logical Dedupe Plan
+ * Logical Dedupe Plan.
  */
 @Getter
 @ToString

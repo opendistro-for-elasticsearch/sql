@@ -27,52 +27,57 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ExprTupleValue implements ExprValue {
 
-    private final LinkedHashMap<String, ExprValue> valueMap;
+  private final LinkedHashMap<String, ExprValue> valueMap;
 
-    public static ExprTupleValue fromExprValueMap(Map<String, ExprValue> map) {
-        LinkedHashMap<String, ExprValue> linkedHashMap = new LinkedHashMap<>(map);
-        return new ExprTupleValue(linkedHashMap);
-    }
+  public static ExprTupleValue fromExprValueMap(Map<String, ExprValue> map) {
+    LinkedHashMap<String, ExprValue> linkedHashMap = new LinkedHashMap<>(map);
+    return new ExprTupleValue(linkedHashMap);
+  }
 
-    @Override
-    public Object value() {
-        return valueMap;
-    }
+  @Override
+  public Object value() {
+    return valueMap;
+  }
 
-    @Override
-    public ExprType type() {
-        return ExprType.STRUCT;
-    }
+  @Override
+  public ExprType type() {
+    return ExprType.STRUCT;
+  }
 
-    @Override
-    public String toString() {
-        return valueMap.entrySet()
-                .stream()
-                .map(entry -> String.format("%s:%s", entry.getKey(), entry.getValue()))
-                .collect(Collectors.joining(",", "{", "}"));
-    }
+  @Override
+  public String toString() {
+    return valueMap.entrySet()
+        .stream()
+        .map(entry -> String.format("%s:%s", entry.getKey(), entry.getValue()))
+        .collect(Collectors.joining(",", "{", "}"));
+  }
 
-    @Override
-    public BindingTuple bindingTuples() {
-        return new LazyBindingTuple(bindingName -> valueMap.getOrDefault(bindingName, ExprMissingValue.of()));
-    }
+  @Override
+  public BindingTuple bindingTuples() {
+    return new LazyBindingTuple(
+        bindingName -> valueMap.getOrDefault(bindingName, ExprMissingValue.of()));
+  }
 
-    public boolean equals(Object o) {
-        if (o == this) {
-            return true;
-        } else if (!(o instanceof ExprTupleValue)) {
-            return false;
-        } else {
-            ExprTupleValue other = (ExprTupleValue) o;
-            Iterator<Entry<String, ExprValue>> thisIterator = this.valueMap.entrySet().iterator();
-            Iterator<Entry<String, ExprValue>> otherIterator = other.valueMap.entrySet().iterator();
-            while (thisIterator.hasNext() && otherIterator.hasNext()) {
-                if (!thisIterator.next().equals(otherIterator.next())) {
-                    return false;
-                }
-            }
-            return !(thisIterator.hasNext() || otherIterator.hasNext());
+  /**
+   * Override the equals method.
+   * @return true for equal, otherwise false.
+   */
+  public boolean equals(Object o) {
+    if (o == this) {
+      return true;
+    } else if (!(o instanceof ExprTupleValue)) {
+      return false;
+    } else {
+      ExprTupleValue other = (ExprTupleValue) o;
+      Iterator<Entry<String, ExprValue>> thisIterator = this.valueMap.entrySet().iterator();
+      Iterator<Entry<String, ExprValue>> otherIterator = other.valueMap.entrySet().iterator();
+      while (thisIterator.hasNext() && otherIterator.hasNext()) {
+        if (!thisIterator.next().equals(otherIterator.next())) {
+          return false;
         }
+      }
+      return !(thisIterator.hasNext() || otherIterator.hasNext());
     }
+  }
 
 }

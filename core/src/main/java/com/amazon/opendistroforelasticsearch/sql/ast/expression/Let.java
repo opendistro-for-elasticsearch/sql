@@ -23,7 +23,9 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-/** Represent the assign operation. e.g. velocity = distance/speed. */
+/**
+ * Represent the assign operation. e.g. velocity = distance/speed.
+ */
 @Getter
 @ToString
 @EqualsAndHashCode(callSuper = false)

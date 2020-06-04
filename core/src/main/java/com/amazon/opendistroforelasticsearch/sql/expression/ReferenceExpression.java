@@ -25,21 +25,21 @@ import lombok.RequiredArgsConstructor;
 @EqualsAndHashCode
 @RequiredArgsConstructor
 public class ReferenceExpression implements Expression {
-    @Getter
-    private final String attr;
+  @Getter
+  private final String attr;
 
-    @Override
-    public ExprValue valueOf(Environment<Expression, ExprValue> env) {
-        return env.resolve(this);
-    }
+  @Override
+  public ExprValue valueOf(Environment<Expression, ExprValue> env) {
+    return env.resolve(this);
+  }
 
-    @Override
-    public ExprType type(Environment<Expression, ExprType> env) {
-        return env.resolve(this);
-    }
+  @Override
+  public ExprType type(Environment<Expression, ExprType> env) {
+    return env.resolve(this);
+  }
 
-    @Override
-    public String toString() {
-        return attr;
-    }
+  @Override
+  public String toString() {
+    return attr;
+  }
 }

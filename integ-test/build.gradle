@@ -18,9 +18,9 @@ configurations.all {
 }
 
 dependencies {
-    testCompile group: 'org.elasticsearch.test', name: 'framework', version:"${es_version}"
-    testCompile group: 'org.elasticsearch.client', name: 'elasticsearch-rest-high-level-client', version:"${es_version}"
-    testCompile group: 'org.elasticsearch.client', name: 'elasticsearch-rest-client', version:"${es_version}"
+    testCompile group: 'org.elasticsearch.test', name: 'framework', version: "${es_version}"
+    testCompile group: 'org.elasticsearch.client', name: 'elasticsearch-rest-high-level-client', version: "${es_version}"
+    testCompile group: 'org.elasticsearch.client', name: 'elasticsearch-rest-client', version: "${es_version}"
     testCompile group: 'org.hamcrest', name: 'hamcrest', version: '2.1'
     testCompile group: 'org.apache.logging.log4j', name: 'log4j-core', version:'2.11.1'
     testCompile project(':plugin')
@@ -44,7 +44,7 @@ compileTestJava {
 
 tasks.integTest.dependsOn(':plugin:bundlePlugin')
 testClusters.integTest {
-    testDistribution='oss'
+    testDistribution = 'oss'
     plugin file(tasks.getByPath(':plugin:bundlePlugin').archiveFile)
 }
 

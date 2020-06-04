@@ -15,6 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ast.expression;
 
+import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toList;
+
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
@@ -26,60 +29,66 @@ import java.util.stream.StreamSupport;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
-import static java.util.Objects.requireNonNull;
-import static java.util.stream.Collectors.toList;
-
 @Getter
 @EqualsAndHashCode(callSuper = false)
 public class QualifiedName extends UnresolvedExpression {
-    private final List<String> parts;
+  private final List<String> parts;
 
-    public QualifiedName(String name) {
-        this.parts = Collections.singletonList(name);
-    }
+  public QualifiedName(String name) {
+    this.parts = Collections.singletonList(name);
+  }
 
-    public QualifiedName(Iterable<String> parts) {
-        List<String> partsList = StreamSupport.stream(parts.spliterator(), false).collect(toList());
-        if (partsList.isEmpty()) {
-            throw new IllegalArgumentException("parts is empty");
-        }
-        this.parts = partsList;
+  /**
+   * QualifiedName Constructor.
+   */
+  public QualifiedName(Iterable<String> parts) {
+    List<String> partsList = StreamSupport.stream(parts.spliterator(), false).collect(toList());
+    if (partsList.isEmpty()) {
+      throw new IllegalArgumentException("parts is empty");
     }
+    this.parts = partsList;
+  }
 
-    public static QualifiedName of(String first, String... rest) {
-        requireNonNull(first);
-        ArrayList<String> parts = new ArrayList<>();
-        parts.add(first);
-        parts.addAll(Arrays.asList(rest));
-        return new QualifiedName(parts);
-    }
+  /**
+   * Construct {@link QualifiedName} from list of string.
+   */
+  public static QualifiedName of(String first, String... rest) {
+    requireNonNull(first);
+    ArrayList<String> parts = new ArrayList<>();
+    parts.add(first);
+    parts.addAll(Arrays.asList(rest));
+    return new QualifiedName(parts);
+  }
 
-    private static QualifiedName of(Iterable<String> parts) {
-        return new QualifiedName(parts);
-    }
+  private static QualifiedName of(Iterable<String> parts) {
+    return new QualifiedName(parts);
+  }
 
-    public Optional<QualifiedName> getPrefix() {
-        if (parts.size() == 1) {
-            return Optional.empty();
-        }
-        return Optional.of(QualifiedName.of(parts.subList(0, parts.size() - 1)));
+  /**
+   * Get Prefix of {@link QualifiedName}.
+   */
+  public Optional<QualifiedName> getPrefix() {
+    if (parts.size() == 1) {
+      return Optional.empty();
     }
+    return Optional.of(QualifiedName.of(parts.subList(0, parts.size() - 1)));
+  }
 
-    public String getSuffix() {
-        return parts.get(parts.size() - 1);
-    }
+  public String getSuffix() {
+    return parts.get(parts.size() - 1);
+  }
 
-    public String toString() {
-        return String.join(".", this.parts);
-    }
+  public String toString() {
+    return String.join(".", this.parts);
+  }
 
-    @Override
-    public List<UnresolvedExpression> getChild() {
-        return ImmutableList.of();
-    }
+  @Override
+  public List<UnresolvedExpression> getChild() {
+    return ImmutableList.of();
+  }
 
-    @Override
-    public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
-        return nodeVisitor.visitQualifiedName(this, context);
-    }
+  @Override
+  public <R, C> R accept(AbstractNodeVisitor<R, C> nodeVisitor, C context) {
+    return nodeVisitor.visitQualifiedName(this, context);
+  }
 }

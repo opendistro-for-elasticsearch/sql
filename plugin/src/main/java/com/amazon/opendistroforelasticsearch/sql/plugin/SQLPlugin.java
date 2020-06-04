@@ -19,6 +19,12 @@ import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.executor.AsyncRestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
 import com.amazon.opendistroforelasticsearch.sql.plugin.rest.RestPPLQueryAction;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Supplier;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.metadata.IndexNameExpressionResolver;
 import org.elasticsearch.cluster.node.DiscoveryNodes;
@@ -43,81 +49,80 @@ import org.elasticsearch.threadpool.FixedExecutorBuilder;
 import org.elasticsearch.threadpool.ThreadPool;
 import org.elasticsearch.watcher.ResourceWatcherService;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.function.Supplier;
-
 public class SQLPlugin extends Plugin implements ActionPlugin {
 
-    /**
-     * Sql plugin specific settings in ES cluster settings
-     */
-    private final SqlSettings sqlSettings = new SqlSettings();
+  /**
+   * Sql plugin specific settings in ES cluster settings.
+   */
+  private final SqlSettings sqlSettings = new SqlSettings();
 
-    private ClusterService clusterService;
+  private ClusterService clusterService;
 
-    public String name() {
-        return "sql";
-    }
+  public String name() {
+    return "sql";
+  }
 
-    public String description() {
-        return "Use sql to query elasticsearch.";
-    }
+  public String description() {
+    return "Use sql to query elasticsearch.";
+  }
 
-    @Override
-    public List<RestHandler> getRestHandlers(Settings settings, RestController restController,
-                                             ClusterSettings clusterSettings, IndexScopedSettings indexScopedSettings,
-                                             SettingsFilter settingsFilter,
-                                             IndexNameExpressionResolver indexNameExpressionResolver,
-                                             Supplier<DiscoveryNodes> nodesInCluster) {
-        Objects.requireNonNull(clusterService, "Cluster service is required");
+  @Override
+  public List<RestHandler> getRestHandlers(Settings settings, RestController restController,
+                                           ClusterSettings clusterSettings,
+                                           IndexScopedSettings indexScopedSettings,
+                                           SettingsFilter settingsFilter,
+                                           IndexNameExpressionResolver indexNameExpressionResolver,
+                                           Supplier<DiscoveryNodes> nodesInCluster) {
+    Objects.requireNonNull(clusterService, "Cluster service is required");
 
-        LocalClusterState.state().setResolver(indexNameExpressionResolver);
-        Metrics.getInstance().registerDefaultMetrics();
+    LocalClusterState.state().setResolver(indexNameExpressionResolver);
+    Metrics.getInstance().registerDefaultMetrics();
 
-        return Arrays.asList(
-                new RestPPLQueryAction(restController, clusterService),
-                new RestSqlAction(settings, restController),
-                new RestSqlStatsAction(settings, restController),
-                new RestSqlSettingsAction(settings, restController)
-        );
-    }
+    return Arrays.asList(
+        new RestPPLQueryAction(restController, clusterService),
+        new RestSqlAction(settings, restController),
+        new RestSqlStatsAction(settings, restController),
+        new RestSqlSettingsAction(settings, restController)
+    );
+  }
 
-    @Override
-    public Collection<Object> createComponents(Client client, ClusterService clusterService, ThreadPool threadPool,
-                                               ResourceWatcherService resourceWatcherService, ScriptService scriptService,
-                                               NamedXContentRegistry xContentRegistry, Environment environment,
-                                               NodeEnvironment nodeEnvironment, NamedWriteableRegistry namedWriteableRegistry,
-                                               IndexNameExpressionResolver indexNameExpressionResolver) {
-        this.clusterService = clusterService;
+  @Override
+  public Collection<Object> createComponents(Client client, ClusterService clusterService,
+                                             ThreadPool threadPool,
+                                             ResourceWatcherService resourceWatcherService,
+                                             ScriptService scriptService,
+                                             NamedXContentRegistry contentRegistry,
+                                             Environment environment,
+                                             NodeEnvironment nodeEnvironment,
+                                             NamedWriteableRegistry namedWriteableRegistry,
+                                             IndexNameExpressionResolver indexNameResolver) {
+    this.clusterService = clusterService;
 
-        LocalClusterState.state().setClusterService(clusterService);
-        LocalClusterState.state().setSqlSettings(sqlSettings);
+    LocalClusterState.state().setClusterService(clusterService);
+    LocalClusterState.state().setSqlSettings(sqlSettings);
 
-        return super.createComponents(client, clusterService, threadPool, resourceWatcherService, scriptService,
-                                      xContentRegistry, environment, nodeEnvironment, namedWriteableRegistry,
-                                      indexNameExpressionResolver);
-    }
+    return super
+        .createComponents(client, clusterService, threadPool, resourceWatcherService, scriptService,
+            contentRegistry, environment, nodeEnvironment, namedWriteableRegistry,
+            indexNameResolver);
+  }
 
-    @Override
-    public List<ExecutorBuilder<?>> getExecutorBuilders(Settings settings) {
-        return Collections.singletonList(
-            new FixedExecutorBuilder(
-                settings,
-                AsyncRestExecutor.SQL_WORKER_THREAD_POOL_NAME,
-                EsExecutors.numberOfProcessors(settings),
-                1000,
-                null
-            )
-        );
-    }
+  @Override
+  public List<ExecutorBuilder<?>> getExecutorBuilders(Settings settings) {
+    return Collections.singletonList(
+        new FixedExecutorBuilder(
+            settings,
+            AsyncRestExecutor.SQL_WORKER_THREAD_POOL_NAME,
+            EsExecutors.numberOfProcessors(settings),
+            1000,
+            null
+        )
+    );
+  }
 
-    @Override
-    public List<Setting<?>> getSettings() {
-        return sqlSettings.getSettings();
-    }
+  @Override
+  public List<Setting<?>> getSettings() {
+    return sqlSettings.getSettings();
+  }
 
 }
