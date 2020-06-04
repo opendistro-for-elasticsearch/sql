@@ -16,7 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql;
 
-import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseException;

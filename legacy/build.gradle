@@ -11,9 +11,9 @@ repositories {
 }
 
 generateGrammarSource {
-    arguments += ['-visitor', '-package', 'com.amazon.opendistroforelasticsearch.sql.antlr.parser']
+    arguments += ['-visitor', '-package', 'com.amazon.opendistroforelasticsearch.sql.legacy.antlr.parser']
     source = sourceSets.main.antlr
-    outputDirectory = file("build/generated-src/antlr/main/com/amazon/opendistroforelasticsearch/sql/antlr/parser")
+    outputDirectory = file("build/generated-src/antlr/main/com/amazon/opendistroforelasticsearch/sql/legacy/antlr/parser")
 }
 
 // Remove ANTLR plugin jars as it's specified as 'compile' dependency internally

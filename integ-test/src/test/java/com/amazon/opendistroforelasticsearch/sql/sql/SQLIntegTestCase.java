@@ -63,9 +63,9 @@ import static com.amazon.opendistroforelasticsearch.sql.sql.TestUtils.getRespons
 import static com.amazon.opendistroforelasticsearch.sql.sql.TestUtils.getWeblogsIndexMapping;
 import static com.amazon.opendistroforelasticsearch.sql.sql.TestUtils.isIndexExist;
 import static com.amazon.opendistroforelasticsearch.sql.sql.TestUtils.loadDataByRestClient;
-import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.CURSOR_CLOSE_ENDPOINT;
-import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.EXPLAIN_API_ENDPOINT;
-import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.QUERY_API_ENDPOINT;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlAction.CURSOR_CLOSE_ENDPOINT;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlAction.EXPLAIN_API_ENDPOINT;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlAction.QUERY_API_ENDPOINT;
 
 /**
  * ES Rest integration test base for SQL testing

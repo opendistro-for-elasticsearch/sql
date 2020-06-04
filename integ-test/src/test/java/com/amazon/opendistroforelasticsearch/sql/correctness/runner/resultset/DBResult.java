@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset;
 
-import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
 import com.google.common.collect.ImmutableSet;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

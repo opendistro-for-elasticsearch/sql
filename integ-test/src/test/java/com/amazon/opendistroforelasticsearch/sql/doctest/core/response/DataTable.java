@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.doctest.core.response;
 
-import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
 import com.google.common.base.Strings;
 
 import java.util.ArrayList;

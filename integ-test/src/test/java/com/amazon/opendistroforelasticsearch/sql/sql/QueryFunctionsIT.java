@@ -16,7 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql;
 
-import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.xcontent.LoggingDeprecationHandler;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;

@@ -16,7 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.doctest.core.request;
 
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponse;
-import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.ResponseException;

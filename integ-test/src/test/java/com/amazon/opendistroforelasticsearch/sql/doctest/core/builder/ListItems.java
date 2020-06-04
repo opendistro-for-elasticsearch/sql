@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.doctest.core.builder;
 
-import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
 
 /**
  * Item list

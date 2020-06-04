@@ -15,8 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.doctest.core.request;
 
-import com.amazon.opendistroforelasticsearch.sql.utils.JsonPrettyFormatter;
-import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import com.amazon.opendistroforelasticsearch.sql.legacy.utils.JsonPrettyFormatter;
+import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import org.apache.http.Header;

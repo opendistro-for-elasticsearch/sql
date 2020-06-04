@@ -21,20 +21,20 @@ import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.Section
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.builder.Requests;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.response.DataTable;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequest;
-import com.amazon.opendistroforelasticsearch.sql.metrics.MetricName;
+import com.amazon.opendistroforelasticsearch.sql.legacy.metrics.MetricName;
 
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.CURL_REQUEST;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.IGNORE_REQUEST;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.IGNORE_RESPONSE;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.PRETTY_JSON_RESPONSE;
-import static com.amazon.opendistroforelasticsearch.sql.metrics.MetricName.DEFAULT_CURSOR_REQUEST_COUNT_TOTAL;
-import static com.amazon.opendistroforelasticsearch.sql.metrics.MetricName.DEFAULT_CURSOR_REQUEST_TOTAL;
-import static com.amazon.opendistroforelasticsearch.sql.metrics.MetricName.FAILED_REQ_COUNT_CB;
-import static com.amazon.opendistroforelasticsearch.sql.metrics.MetricName.FAILED_REQ_COUNT_CUS;
-import static com.amazon.opendistroforelasticsearch.sql.metrics.MetricName.FAILED_REQ_COUNT_SYS;
-import static com.amazon.opendistroforelasticsearch.sql.metrics.MetricName.REQ_COUNT_TOTAL;
-import static com.amazon.opendistroforelasticsearch.sql.metrics.MetricName.REQ_TOTAL;
-import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlStatsAction.STATS_API_ENDPOINT;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.metrics.MetricName.DEFAULT_CURSOR_REQUEST_COUNT_TOTAL;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.metrics.MetricName.DEFAULT_CURSOR_REQUEST_TOTAL;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.metrics.MetricName.FAILED_REQ_COUNT_CB;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.metrics.MetricName.FAILED_REQ_COUNT_CUS;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.metrics.MetricName.FAILED_REQ_COUNT_SYS;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.metrics.MetricName.REQ_COUNT_TOTAL;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.metrics.MetricName.REQ_TOTAL;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlStatsAction.STATS_API_ENDPOINT;
 
 /**
  * Doc test for plugin monitoring functionality

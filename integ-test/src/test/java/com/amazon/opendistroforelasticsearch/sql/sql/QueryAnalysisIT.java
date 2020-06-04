@@ -16,11 +16,11 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql;
 
-import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.SemanticAnalysisException;
-import com.amazon.opendistroforelasticsearch.sql.antlr.syntax.SyntaxAnalysisException;
-import com.amazon.opendistroforelasticsearch.sql.exception.SqlFeatureNotImplementedException;
-import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
-import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import com.amazon.opendistroforelasticsearch.sql.legacy.antlr.semantic.SemanticAnalysisException;
+import com.amazon.opendistroforelasticsearch.sql.legacy.antlr.syntax.SyntaxAnalysisException;
+import com.amazon.opendistroforelasticsearch.sql.legacy.exception.SqlFeatureNotImplementedException;
+import com.amazon.opendistroforelasticsearch.sql.legacy.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseException;
@@ -30,9 +30,9 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_ENABLED;
-import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_SEMANTIC_SUGGESTION;
-import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_SEMANTIC_THRESHOLD;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSettings.QUERY_ANALYSIS_ENABLED;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSettings.QUERY_ANALYSIS_SEMANTIC_SUGGESTION;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSettings.QUERY_ANALYSIS_SEMANTIC_THRESHOLD;
 import static org.elasticsearch.rest.RestStatus.BAD_REQUEST;
 import static org.elasticsearch.rest.RestStatus.OK;
 import static org.elasticsearch.rest.RestStatus.SERVICE_UNAVAILABLE;

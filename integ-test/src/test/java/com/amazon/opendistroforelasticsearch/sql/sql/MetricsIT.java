@@ -16,7 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql;
 
-import com.amazon.opendistroforelasticsearch.sql.metrics.MetricName;
+import com.amazon.opendistroforelasticsearch.sql.legacy.metrics.MetricName;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.json.JSONObject;

@@ -15,9 +15,13 @@
 
 package com.amazon.opendistroforelasticsearch.sql.plugin;
 
-import com.amazon.opendistroforelasticsearch.sql.esdomain.LocalClusterState;
-import com.amazon.opendistroforelasticsearch.sql.executor.AsyncRestExecutor;
-import com.amazon.opendistroforelasticsearch.sql.metrics.Metrics;
+import com.amazon.opendistroforelasticsearch.sql.legacy.esdomain.LocalClusterState;
+import com.amazon.opendistroforelasticsearch.sql.legacy.executor.AsyncRestExecutor;
+import com.amazon.opendistroforelasticsearch.sql.legacy.metrics.Metrics;
+import com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlAction;
+import com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlSettingsAction;
+import com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlStatsAction;
+import com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSettings;
 import com.amazon.opendistroforelasticsearch.sql.plugin.rest.RestPPLQueryAction;
 import java.util.Arrays;
 import java.util.Collection;

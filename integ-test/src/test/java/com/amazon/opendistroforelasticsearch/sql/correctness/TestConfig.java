@@ -17,7 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.correctness;
 
 import com.amazon.opendistroforelasticsearch.sql.correctness.testset.TestDataSet;
 import com.amazon.opendistroforelasticsearch.sql.correctness.testset.TestQuerySet;
-import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 

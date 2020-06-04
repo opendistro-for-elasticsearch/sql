@@ -20,9 +20,9 @@ import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.DocTest
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.Section;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.builder.Example;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.builder.ListItems;
-import com.amazon.opendistroforelasticsearch.sql.executor.Format;
-import com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings;
-import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import com.amazon.opendistroforelasticsearch.sql.legacy.executor.Format;
+import com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSettings;
+import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
 import org.elasticsearch.common.settings.Setting;
 
 import java.util.Arrays;
@@ -33,15 +33,15 @@ import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.Sql
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.IGNORE_REQUEST;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.IGNORE_RESPONSE;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.PRETTY_JSON_RESPONSE;
-import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.CURSOR_ENABLED;
-import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.CURSOR_FETCH_SIZE;
-import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.CURSOR_KEEPALIVE;
-import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_ENABLED;
-import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_SEMANTIC_SUGGESTION;
-import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_ANALYSIS_SEMANTIC_THRESHOLD;
-import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_RESPONSE_FORMAT;
-import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.QUERY_SLOWLOG;
-import static com.amazon.opendistroforelasticsearch.sql.plugin.SqlSettings.SQL_ENABLED;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSettings.CURSOR_ENABLED;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSettings.CURSOR_FETCH_SIZE;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSettings.CURSOR_KEEPALIVE;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSettings.QUERY_ANALYSIS_ENABLED;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSettings.QUERY_ANALYSIS_SEMANTIC_SUGGESTION;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSettings.QUERY_ANALYSIS_SEMANTIC_THRESHOLD;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSettings.QUERY_RESPONSE_FORMAT;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSettings.QUERY_SLOWLOG;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSettings.SQL_ENABLED;
 import static org.elasticsearch.common.settings.Setting.Property;
 import static org.elasticsearch.common.settings.Setting.Property.Dynamic;
 import static org.elasticsearch.common.settings.Setting.Property.Final;

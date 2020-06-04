@@ -16,7 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql;
 
-import com.amazon.opendistroforelasticsearch.sql.executor.csv.CSVResult;
+import com.amazon.opendistroforelasticsearch.sql.legacy.executor.csv.CSVResult;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;

@@ -19,7 +19,7 @@ import com.amazon.opendistroforelasticsearch.sql.doctest.core.DocTest;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.DocTestConfig;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.Section;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.builder.Example;
-import com.amazon.opendistroforelasticsearch.sql.utils.JsonPrettyFormatter;
+import com.amazon.opendistroforelasticsearch.sql.legacy.utils.JsonPrettyFormatter;
 
 import java.io.IOException;
 import java.nio.file.Files;

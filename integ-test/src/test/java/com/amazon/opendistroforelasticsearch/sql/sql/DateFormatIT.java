@@ -16,7 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql;
 
-import com.amazon.opendistroforelasticsearch.sql.exception.SqlParseException;
+import com.amazon.opendistroforelasticsearch.sql.legacy.exception.SqlParseException;
 import com.google.common.collect.Ordering;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;

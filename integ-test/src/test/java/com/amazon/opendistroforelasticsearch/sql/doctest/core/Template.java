@@ -16,7 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.doctest.core;
 
 import com.amazon.opendistroforelasticsearch.sql.util.TestUtils;
-import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;

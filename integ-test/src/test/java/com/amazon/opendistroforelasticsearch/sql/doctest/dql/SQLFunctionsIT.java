@@ -15,13 +15,13 @@
 
 package com.amazon.opendistroforelasticsearch.sql.doctest.dql;
 
-import com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.function.ScalarFunction;
+import com.amazon.opendistroforelasticsearch.sql.legacy.antlr.semantic.types.function.ScalarFunction;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.DocTest;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.DocTestConfig;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.Section;
-import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
 
-import static com.amazon.opendistroforelasticsearch.sql.antlr.semantic.types.TypeExpression.TypeExpressionSpec;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.antlr.semantic.types.TypeExpression.TypeExpressionSpec;
 
 @DocTestConfig(template = "dql/functions.rst")
 public class SQLFunctionsIT extends DocTest {

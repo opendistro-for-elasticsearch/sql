@@ -24,7 +24,7 @@ import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.D
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.DBResult;
 import com.amazon.opendistroforelasticsearch.sql.correctness.testset.TestDataSet;
 import com.amazon.opendistroforelasticsearch.sql.correctness.testset.TestQuerySet;
-import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 

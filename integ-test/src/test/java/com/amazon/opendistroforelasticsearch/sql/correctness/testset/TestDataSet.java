@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.amazon.opendistroforelasticsearch.sql.utils.StringUtils.unquoteSingleField;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils.unquoteSingleField;
 import static java.util.stream.Collectors.joining;
 
 /**

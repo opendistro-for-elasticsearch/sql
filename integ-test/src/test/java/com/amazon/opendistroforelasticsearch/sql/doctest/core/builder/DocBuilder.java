@@ -19,7 +19,7 @@ import com.amazon.opendistroforelasticsearch.sql.doctest.core.markup.Document;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequest;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat;
-import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
 import com.google.common.base.Strings;
 import org.elasticsearch.client.RestClient;
 
@@ -30,8 +30,8 @@ import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.Sql
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.KIBANA_REQUEST;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.PRETTY_JSON_RESPONSE;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.TABLE_RESPONSE;
-import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.EXPLAIN_API_ENDPOINT;
-import static com.amazon.opendistroforelasticsearch.sql.plugin.RestSqlAction.QUERY_API_ENDPOINT;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlAction.EXPLAIN_API_ENDPOINT;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlAction.QUERY_API_ENDPOINT;
 
 /**
  * Build document by custom DSL. To make it more readable, each doc test needs to implement this interface

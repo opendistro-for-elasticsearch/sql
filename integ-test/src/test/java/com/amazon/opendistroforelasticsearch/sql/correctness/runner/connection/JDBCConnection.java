@@ -17,7 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection;
 
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.DBResult;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.Row;
-import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
 import com.google.common.base.Strings;
 import org.json.JSONObject;
 

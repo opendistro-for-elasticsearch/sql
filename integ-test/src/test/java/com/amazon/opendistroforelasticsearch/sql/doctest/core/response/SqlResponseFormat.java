@@ -15,8 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.doctest.core.response;
 
-import com.amazon.opendistroforelasticsearch.sql.utils.JsonPrettyFormatter;
-import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
+import com.amazon.opendistroforelasticsearch.sql.legacy.utils.JsonPrettyFormatter;
+import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
