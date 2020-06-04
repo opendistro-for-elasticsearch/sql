@@ -23,10 +23,14 @@ import lombok.Data;
 @Data
 public class Type {
 
-    /** Column name */
-    private final String name;
+  /**
+   * Column name
+   */
+  private final String name;
 
-    /** Column type */
-    private final String type;
+  /**
+   * Column type
+   */
+  private final String type;
 
 }

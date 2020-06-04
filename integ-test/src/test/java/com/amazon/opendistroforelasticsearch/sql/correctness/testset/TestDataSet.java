@@ -15,82 +15,84 @@
 
 package com.amazon.opendistroforelasticsearch.sql.correctness.testset;
 
+import static com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils.unquoteSingleField;
+import static java.util.stream.Collectors.joining;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils.unquoteSingleField;
-import static java.util.stream.Collectors.joining;
 
 /**
  * Test data set
  */
 public class TestDataSet {
 
-    private final String tableName;
-    private final String schema;
-    private final List<String[]> dataRows;
+  private final String tableName;
+  private final String schema;
+  private final List<String[]> dataRows;
 
-    public TestDataSet(String tableName, String schemaFileContent, String dataFileContent) {
-        this.tableName = tableName;
-        this.schema = schemaFileContent;
-        this.dataRows = splitColumns(dataFileContent, ',');
-    }
+  public TestDataSet(String tableName, String schemaFileContent, String dataFileContent) {
+    this.tableName = tableName;
+    this.schema = schemaFileContent;
+    this.dataRows = splitColumns(dataFileContent, ',');
+  }
 
-    public String getTableName() {
-        return tableName;
-    }
+  public String getTableName() {
+    return tableName;
+  }
 
-    public String getSchema() {
-        return schema;
-    }
+  public String getSchema() {
+    return schema;
+  }
 
-    public List<String[]> getDataRows() {
-        return dataRows;
-    }
+  public List<String[]> getDataRows() {
+    return dataRows;
+  }
 
-    /** Split columns in each line by separator and ignore escaped separator(s) in quoted string. */
-    private List<String[]> splitColumns(String content, char separator) {
-        List<String[]> result = new ArrayList<>();
-        for (String line : content.split("\\r?\\n")) {
+  /**
+   * Split columns in each line by separator and ignore escaped separator(s) in quoted string.
+   */
+  private List<String[]> splitColumns(String content, char separator) {
+    List<String[]> result = new ArrayList<>();
+    for (String line : content.split("\\r?\\n")) {
 
-            List<String> columns = new ArrayList<>();
-            boolean isQuoted = false;
-            int start = 0;
-            for (int i = 0; i < line.length(); i++) {
+      List<String> columns = new ArrayList<>();
+      boolean isQuoted = false;
+      int start = 0;
+      for (int i = 0; i < line.length(); i++) {
 
-                char c = line.charAt(i);
-                if (c == separator) {
-                    if (isQuoted) { // Ignore comma(s) in quoted string
-                        continue;
-                    }
+        char c = line.charAt(i);
+        if (c == separator) {
+          if (isQuoted) { // Ignore comma(s) in quoted string
+            continue;
+          }
 
-                    String column = line.substring(start, i);
-                    columns.add(unquoteSingleField(column, "\""));
-                    start = i + 1;
+          String column = line.substring(start, i);
+          columns.add(unquoteSingleField(column, "\""));
+          start = i + 1;
 
-                } else if (c == '\"') {
-                    isQuoted = !isQuoted;
-                }
-            }
-
-            columns.add(unquoteSingleField(line.substring(start), "\""));
-            result.add(columns.toArray(new String[0]));
+        } else if (c == '\"') {
+          isQuoted = !isQuoted;
         }
-        return result;
-    }
+      }
 
-    @Override
-    public String toString() {
-        int total = dataRows.size();
-        return "Test data set :\n"
-            + " Table name: " + tableName + '\n'
-            + " Schema: " + schema + '\n'
-            + " Data rows (first 5 in " + total + "):"
-            + dataRows.stream().
-                       limit(5).
-                       map(Arrays::toString).
-                       collect(joining("\n ", "\n ", "\n"));
+      columns.add(unquoteSingleField(line.substring(start), "\""));
+      result.add(columns.toArray(new String[0]));
     }
+    return result;
+  }
+
+  @Override
+  public String toString() {
+    int total = dataRows.size();
+    return "Test data set :\n"
+        + " Table name: " + tableName + '\n'
+        + " Schema: " + schema + '\n'
+        + " Data rows (first 5 in " + total + "):"
+        + dataRows.stream().
+        limit(5).
+        map(Arrays::toString).
+        collect(joining("\n ", "\n ", "\n"));
+  }
 
 }

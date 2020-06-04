@@ -16,33 +16,32 @@
 
 package com.amazon.opendistroforelasticsearch.sql.legacy;
 
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
+
+import java.io.IOException;
 import org.elasticsearch.client.ResponseException;
 import org.junit.Rule;
 import org.junit.Test;
-
-import java.io.IOException;
 import org.junit.rules.ExpectedException;
-
-import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
 
 /**
  * Tests to cover requests with "?format=csv" parameter
  */
 public class GetEndpointQueryIT extends SQLIntegTestCase {
 
-    @Rule
-    public ExpectedException rule = ExpectedException.none();
+  @Rule
+  public ExpectedException rule = ExpectedException.none();
 
-    @Override
-    protected void init() throws Exception {
-        loadIndex(Index.ACCOUNT);
-    }
+  @Override
+  protected void init() throws Exception {
+    loadIndex(Index.ACCOUNT);
+  }
 
-    @Test
-    public void getEndPointShouldBeInvalid() throws IOException {
-        rule.expect(ResponseException.class);
-        rule.expectMessage("Incorrect HTTP method");
-        String query = "select name from " + TEST_INDEX_ACCOUNT;
-        executeQueryWithGetRequest(query);
-    }
+  @Test
+  public void getEndPointShouldBeInvalid() throws IOException {
+    rule.expect(ResponseException.class);
+    rule.expectMessage("Incorrect HTTP method");
+    String query = "select name from " + TEST_INDEX_ACCOUNT;
+    executeQueryWithGetRequest(query);
+  }
 }

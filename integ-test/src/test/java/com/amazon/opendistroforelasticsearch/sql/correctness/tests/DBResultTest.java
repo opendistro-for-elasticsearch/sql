@@ -15,40 +15,42 @@
 
 package com.amazon.opendistroforelasticsearch.sql.correctness.tests;
 
-import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.DBResult;
-import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.Type;
-import org.junit.Test;
-
-import java.util.Arrays;
-
 import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+
+import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.DBResult;
+import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.Type;
+import java.util.Arrays;
+import org.junit.Test;
 
 /**
  * Unit tests for {@link DBResult}
  */
 public class DBResultTest {
 
-    @Test
-    public void dbResultFromDifferentDbNameShouldEqual() {
-        DBResult result1 = new DBResult("DB 1", Arrays.asList(new Type("name", "VARCHAR")), emptyList());
-        DBResult result2 = new DBResult("DB 2", Arrays.asList(new Type("name", "VARCHAR")), emptyList());
-        assertEquals(result1, result2);
-    }
+  @Test
+  public void dbResultFromDifferentDbNameShouldEqual() {
+    DBResult result1 =
+        new DBResult("DB 1", Arrays.asList(new Type("name", "VARCHAR")), emptyList());
+    DBResult result2 =
+        new DBResult("DB 2", Arrays.asList(new Type("name", "VARCHAR")), emptyList());
+    assertEquals(result1, result2);
+  }
 
-    @Test
-    public void dbResultWithDifferentColumnShouldNotEqual() {
-        DBResult result1 = new DBResult("DB 1", Arrays.asList(new Type("name", "VARCHAR")), emptyList());
-        DBResult result2 = new DBResult("DB 2", Arrays.asList(new Type("age", "INT")), emptyList());
-        assertNotEquals(result1, result2);
-    }
+  @Test
+  public void dbResultWithDifferentColumnShouldNotEqual() {
+    DBResult result1 =
+        new DBResult("DB 1", Arrays.asList(new Type("name", "VARCHAR")), emptyList());
+    DBResult result2 = new DBResult("DB 2", Arrays.asList(new Type("age", "INT")), emptyList());
+    assertNotEquals(result1, result2);
+  }
 
-    @Test
-    public void dbResultWithDifferentColumnTypeShouldNotEqual() {
-        DBResult result1 = new DBResult("DB 1", Arrays.asList(new Type("age", "FLOAT")), emptyList());
-        DBResult result2 = new DBResult("DB 2", Arrays.asList(new Type("age", "INT")), emptyList());
-        assertNotEquals(result1, result2);
-    }
+  @Test
+  public void dbResultWithDifferentColumnTypeShouldNotEqual() {
+    DBResult result1 = new DBResult("DB 1", Arrays.asList(new Type("age", "FLOAT")), emptyList());
+    DBResult result2 = new DBResult("DB 2", Arrays.asList(new Type("age", "INT")), emptyList());
+    assertNotEquals(result1, result2);
+  }
 
 }

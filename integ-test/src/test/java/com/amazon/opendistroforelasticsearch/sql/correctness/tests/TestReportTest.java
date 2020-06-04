@@ -15,6 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.correctness.tests;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singleton;
+import static org.junit.Assert.fail;
+
 import com.amazon.opendistroforelasticsearch.sql.correctness.report.ErrorTestCase;
 import com.amazon.opendistroforelasticsearch.sql.correctness.report.FailedTestCase;
 import com.amazon.opendistroforelasticsearch.sql.correctness.report.SuccessTestCase;
@@ -25,23 +29,19 @@ import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.Ty
 import org.json.JSONObject;
 import org.junit.Test;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.singleton;
-import static org.junit.Assert.fail;
-
 /**
  * Test for {@link TestReport}
  */
 public class TestReportTest {
 
-    private TestReport report = new TestReport();
+  private TestReport report = new TestReport();
 
-    @Test
-    public void testSuccessReport() {
-        report.addTestCase(new SuccessTestCase(1, "SELECT * FROM accounts"));
-        JSONObject actual = new JSONObject(report);
-        JSONObject expected = new JSONObject(
-            "{" +
+  @Test
+  public void testSuccessReport() {
+    report.addTestCase(new SuccessTestCase(1, "SELECT * FROM accounts"));
+    JSONObject actual = new JSONObject(report);
+    JSONObject expected = new JSONObject(
+        "{" +
             "  \"summary\": {" +
             "    \"total\": 1," +
             "    \"success\": 1," +
@@ -55,22 +55,24 @@ public class TestReportTest {
             "    }" +
             "  ]" +
             "}"
-        );
+    );
 
-        if (!actual.similar(expected)) {
-            fail("Actual JSON is different from expected: " + actual.toString(2));
-        }
+    if (!actual.similar(expected)) {
+      fail("Actual JSON is different from expected: " + actual.toString(2));
     }
+  }
 
-    @Test
-    public void testFailedReport() {
-        report.addTestCase(new FailedTestCase(1, "SELECT * FROM accounts", asList(
-            new DBResult("Elasticsearch", singleton(new Type("firstName", "text")), singleton(new Row(asList("hello")))),
-            new DBResult("H2", singleton(new Type("firstName", "text")), singleton(new Row(asList("world"))))
-        )));
-        JSONObject actual = new JSONObject(report);
-        JSONObject expected = new JSONObject(
-            "{" +
+  @Test
+  public void testFailedReport() {
+    report.addTestCase(new FailedTestCase(1, "SELECT * FROM accounts", asList(
+        new DBResult("Elasticsearch", singleton(new Type("firstName", "text")),
+            singleton(new Row(asList("hello")))),
+        new DBResult("H2", singleton(new Type("firstName", "text")),
+            singleton(new Row(asList("world"))))
+    )));
+    JSONObject actual = new JSONObject(report);
+    JSONObject expected = new JSONObject(
+        "{" +
             "  \"summary\": {" +
             "    \"total\": 1," +
             "    \"success\": 0," +
@@ -106,19 +108,19 @@ public class TestReportTest {
             "    }" +
             "  ]" +
             "}"
-        );
+    );
 
-        if (!actual.similar(expected)) {
-            fail("Actual JSON is different from expected: " + actual.toString(2));
-        }
+    if (!actual.similar(expected)) {
+      fail("Actual JSON is different from expected: " + actual.toString(2));
     }
+  }
 
-    @Test
-    public void testErrorReport() {
-        report.addTestCase(new ErrorTestCase(1, "SELECT * FROM", "Missing table name in query"));
-        JSONObject actual = new JSONObject(report);
-        JSONObject expected = new JSONObject(
-            "{" +
+  @Test
+  public void testErrorReport() {
+    report.addTestCase(new ErrorTestCase(1, "SELECT * FROM", "Missing table name in query"));
+    JSONObject actual = new JSONObject(report);
+    JSONObject expected = new JSONObject(
+        "{" +
             "  \"summary\": {" +
             "    \"total\": 1," +
             "    \"success\": 0," +
@@ -133,11 +135,11 @@ public class TestReportTest {
             "    }" +
             "  ]" +
             "}"
-        );
+    );
 
-        if (!actual.similar(expected)) {
-            fail("Actual JSON is different from expected: " + actual.toString(2));
-        }
+    if (!actual.similar(expected)) {
+      fail("Actual JSON is different from expected: " + actual.toString(2));
     }
+  }
 
 }

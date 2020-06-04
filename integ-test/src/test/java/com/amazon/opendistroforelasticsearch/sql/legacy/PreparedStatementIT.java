@@ -16,58 +16,57 @@
 
 package com.amazon.opendistroforelasticsearch.sql.legacy;
 
+import java.io.IOException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.IOException;
-
 // Refer to https://www.elastic.co/guide/en/elasticsearch/reference/6.5/integration-tests.html
 // for detailed ESIntegTestCase usages doc.
 public class PreparedStatementIT extends SQLIntegTestCase {
 
-    @Override
-    protected void init() throws Exception {
-        loadIndex(Index.ACCOUNT);
+  @Override
+  protected void init() throws Exception {
+    loadIndex(Index.ACCOUNT);
+  }
+
+  @Test
+  public void testPreparedStatement() throws IOException {
+    int ageToCompare = 35;
+
+    JSONObject response = executeRequest(String.format("{\n" +
+        "  \"query\": \"SELECT * FROM %s WHERE age > ? AND state in (?, ?) LIMIT ?\",\n" +
+        "  \"parameters\": [\n" +
+        "    {\n" +
+        "      \"type\": \"integer\",\n" +
+        "      \"value\": \"" + ageToCompare + "\"\n" +
+        "    },\n" +
+        "    {\n" +
+        "      \"type\": \"string\",\n" +
+        "      \"value\": \"TN\"\n" +
+        "    },\n" +
+        "    {\n" +
+        "      \"type\": \"string\",\n" +
+        "      \"value\": \"UT\"\n" +
+        "    },\n" +
+        "    {\n" +
+        "      \"type\": \"integer\",\n" +
+        "      \"value\": \"20\"\n" +
+        "    }\n" +
+        "  ]\n" +
+        "}", TestsConstants.TEST_INDEX_ACCOUNT));
+
+    Assert.assertTrue(response.has("hits"));
+    Assert.assertTrue(response.getJSONObject("hits").has("hits"));
+
+    JSONArray hits = response.getJSONObject("hits").getJSONArray("hits");
+    Assert.assertTrue(hits.length() > 0);
+    for (int i = 0; i < hits.length(); i++) {
+      JSONObject accountJson = hits.getJSONObject(i);
+      Assert.assertTrue(accountJson.getJSONObject("_source").getInt("age") > ageToCompare);
     }
-
-    @Test
-    public void testPreparedStatement() throws IOException {
-        int ageToCompare = 35;
-
-        JSONObject response = executeRequest(String.format("{\n" +
-                "  \"query\": \"SELECT * FROM %s WHERE age > ? AND state in (?, ?) LIMIT ?\",\n" +
-                "  \"parameters\": [\n" +
-                "    {\n" +
-                "      \"type\": \"integer\",\n" +
-                "      \"value\": \"" + ageToCompare + "\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"type\": \"string\",\n" +
-                "      \"value\": \"TN\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"type\": \"string\",\n" +
-                "      \"value\": \"UT\"\n" +
-                "    },\n" +
-                "    {\n" +
-                "      \"type\": \"integer\",\n" +
-                "      \"value\": \"20\"\n" +
-                "    }\n" +
-                "  ]\n" +
-                "}", TestsConstants.TEST_INDEX_ACCOUNT));
-
-        Assert.assertTrue(response.has("hits"));
-        Assert.assertTrue(response.getJSONObject("hits").has("hits"));
-
-        JSONArray hits = response.getJSONObject("hits").getJSONArray("hits");
-        Assert.assertTrue(hits.length() > 0);
-        for(int i = 0; i<hits.length(); i++) {
-            JSONObject accountJson = hits.getJSONObject(i);
-            Assert.assertTrue(accountJson.getJSONObject("_source").getInt("age") > ageToCompare);
-        }
-    }
+  }
 
     /* currently the integ test case will fail if run using Intellj, have to run using gradle command
      * because the integ test cluster created by IntellJ has http diabled, need to spend some time later to

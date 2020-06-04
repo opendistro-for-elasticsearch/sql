@@ -15,36 +15,36 @@
 
 package com.amazon.opendistroforelasticsearch.sql.doctest.core.builder;
 
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.TABLE_RESPONSE;
+import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.TABLE_UNSORTED_RESPONSE;
+
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequest;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponse;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat;
-
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.TABLE_RESPONSE;
-import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.TABLE_UNSORTED_RESPONSE;
 
 /**
  * Request and response format tuple.
  */
 class Formats {
 
-    private final SqlRequestFormat requestFormat;
-    private final SqlResponseFormat responseFormat;
+  private final SqlRequestFormat requestFormat;
+  private final SqlResponseFormat responseFormat;
 
-    Formats(SqlRequestFormat requestFormat, SqlResponseFormat responseFormat) {
-        this.requestFormat = requestFormat;
-        this.responseFormat = responseFormat;
-    }
+  Formats(SqlRequestFormat requestFormat, SqlResponseFormat responseFormat) {
+    this.requestFormat = requestFormat;
+    this.responseFormat = responseFormat;
+  }
 
-    String format(SqlRequest request) {
-        return requestFormat.format(request);
-    }
+  String format(SqlRequest request) {
+    return requestFormat.format(request);
+  }
 
-    String format(SqlResponse response) {
-        return responseFormat.format(response);
-    }
+  String format(SqlResponse response) {
+    return responseFormat.format(response);
+  }
 
-    boolean isTableFormat() {
-        return responseFormat == TABLE_RESPONSE || responseFormat == TABLE_UNSORTED_RESPONSE;
-    }
+  boolean isTableFormat() {
+    return responseFormat == TABLE_RESPONSE || responseFormat == TABLE_UNSORTED_RESPONSE;
+  }
 }

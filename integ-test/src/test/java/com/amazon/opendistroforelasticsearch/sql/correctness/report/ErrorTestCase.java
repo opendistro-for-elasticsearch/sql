@@ -15,11 +15,11 @@
 
 package com.amazon.opendistroforelasticsearch.sql.correctness.report;
 
+import static com.amazon.opendistroforelasticsearch.sql.correctness.report.TestCaseReport.TestResult.FAILURE;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-
-import static com.amazon.opendistroforelasticsearch.sql.correctness.report.TestCaseReport.TestResult.FAILURE;
 
 /**
  * Report for test case that ends with an error.
@@ -29,12 +29,14 @@ import static com.amazon.opendistroforelasticsearch.sql.correctness.report.TestC
 @Getter
 public class ErrorTestCase extends TestCaseReport {
 
-    /** Root cause of the error */
-    private final String reason;
+  /**
+   * Root cause of the error
+   */
+  private final String reason;
 
-    public ErrorTestCase(int id, String sql, String reason) {
-        super(id, sql, FAILURE);
-        this.reason = reason;
-    }
+  public ErrorTestCase(int id, String sql, String reason) {
+    super(id, sql, FAILURE);
+    this.reason = reason;
+  }
 
 }

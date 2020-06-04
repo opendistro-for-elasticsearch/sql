@@ -15,8 +15,18 @@
 
 package com.amazon.opendistroforelasticsearch.sql.correctness.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.ESConnection;
 import com.google.common.io.CharStreams;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Arrays;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.message.BasicStatusLine;
 import org.elasticsearch.client.Request;
@@ -29,81 +39,72 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Arrays;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 /**
  * Tests for {@link ESConnection}
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ESConnectionTest {
 
-    @Mock
-    private RestClient client;
+  @Mock
+  private RestClient client;
 
-    private ESConnection conn;
+  private ESConnection conn;
 
-    @Before
-    public void setUp() throws IOException {
-        conn = new ESConnection("jdbc:elasticsearch://localhost:12345", client);
+  @Before
+  public void setUp() throws IOException {
+    conn = new ESConnection("jdbc:elasticsearch://localhost:12345", client);
 
-        Response response = mock(Response.class);
-        when(client.performRequest(any(Request.class))).thenReturn(response);
-        when(response.getStatusLine()).thenReturn(new BasicStatusLine(new ProtocolVersion("HTTP", 2, 0), 200, ""));
-    }
+    Response response = mock(Response.class);
+    when(client.performRequest(any(Request.class))).thenReturn(response);
+    when(response.getStatusLine())
+        .thenReturn(new BasicStatusLine(new ProtocolVersion("HTTP", 2, 0), 200, ""));
+  }
 
-    @Test
-    public void testCreateTable() throws IOException {
-        conn.create("test", "mapping");
+  @Test
+  public void testCreateTable() throws IOException {
+    conn.create("test", "mapping");
 
-        Request actual = captureActualArg();
-        assertEquals("PUT", actual.getMethod());
-        assertEquals("/test", actual.getEndpoint());
-        assertEquals("mapping", getBody(actual));
-    }
+    Request actual = captureActualArg();
+    assertEquals("PUT", actual.getMethod());
+    assertEquals("/test", actual.getEndpoint());
+    assertEquals("mapping", getBody(actual));
+  }
 
-    @Test
-    public void testInsertData() throws IOException {
-        conn.insert("test", new String[]{"name"}, Arrays.asList(new String[]{"John"}, new String[]{"Hank"}));
+  @Test
+  public void testInsertData() throws IOException {
+    conn.insert("test", new String[] {"name"},
+        Arrays.asList(new String[] {"John"}, new String[] {"Hank"}));
 
-        Request actual = captureActualArg();
-        assertEquals("POST", actual.getMethod());
-        assertEquals("/test/_bulk", actual.getEndpoint());
-        assertEquals(
-            "{\"index\":{}}\n"
+    Request actual = captureActualArg();
+    assertEquals("POST", actual.getMethod());
+    assertEquals("/test/_bulk", actual.getEndpoint());
+    assertEquals(
+        "{\"index\":{}}\n"
             + "{\"name\":\"John\"}\n"
             + "{\"index\":{}}\n"
             + "{\"name\":\"Hank\"}\n",
-            getBody(actual)
-        );
-    }
+        getBody(actual)
+    );
+  }
 
-    @Test
-    public void testDropTable() throws IOException {
-        conn.drop("test");
+  @Test
+  public void testDropTable() throws IOException {
+    conn.drop("test");
 
-        Request actual = captureActualArg();
-        assertEquals("DELETE", actual.getMethod());
-        assertEquals("/test", actual.getEndpoint());
-    }
+    Request actual = captureActualArg();
+    assertEquals("DELETE", actual.getMethod());
+    assertEquals("/test", actual.getEndpoint());
+  }
 
-    private Request captureActualArg() throws IOException {
-        ArgumentCaptor<Request> argCap = ArgumentCaptor.forClass(Request.class);
-        verify(client).performRequest(argCap.capture());
-        return argCap.getValue();
-    }
+  private Request captureActualArg() throws IOException {
+    ArgumentCaptor<Request> argCap = ArgumentCaptor.forClass(Request.class);
+    verify(client).performRequest(argCap.capture());
+    return argCap.getValue();
+  }
 
-    private String getBody(Request request) throws IOException {
-        InputStream inputStream = request.getEntity().getContent();
-        return CharStreams.toString(new InputStreamReader(inputStream));
-    }
+  private String getBody(Request request) throws IOException {
+    InputStream inputStream = request.getEntity().getContent();
+    return CharStreams.toString(new InputStreamReader(inputStream));
+  }
 
 }

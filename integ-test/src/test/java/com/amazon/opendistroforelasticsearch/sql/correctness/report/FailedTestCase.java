@@ -15,15 +15,14 @@
 
 package com.amazon.opendistroforelasticsearch.sql.correctness.report;
 
+import static com.amazon.opendistroforelasticsearch.sql.correctness.report.TestCaseReport.TestResult.FAILURE;
+
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.DBResult;
+import java.util.Comparator;
+import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-
-import java.util.Comparator;
-import java.util.List;
-
-import static com.amazon.opendistroforelasticsearch.sql.correctness.report.TestCaseReport.TestResult.FAILURE;
 
 /**
  * Report for test case that fails due to inconsistent result set.
@@ -33,13 +32,15 @@ import static com.amazon.opendistroforelasticsearch.sql.correctness.report.TestC
 @Getter
 public class FailedTestCase extends TestCaseReport {
 
-    /** Inconsistent result sets for reporting */
-    private final List<DBResult> resultSets;
+  /**
+   * Inconsistent result sets for reporting
+   */
+  private final List<DBResult> resultSets;
 
-    public FailedTestCase(int id, String sql, List<DBResult> resultSets) {
-        super(id, sql, FAILURE);
-        this.resultSets = resultSets;
-        this.resultSets.sort(Comparator.comparing(DBResult::getDatabaseName));
-    }
+  public FailedTestCase(int id, String sql, List<DBResult> resultSets) {
+    super(id, sql, FAILURE);
+    this.resultSets = resultSets;
+    this.resultSets.sort(Comparator.comparing(DBResult::getDatabaseName));
+  }
 
 }

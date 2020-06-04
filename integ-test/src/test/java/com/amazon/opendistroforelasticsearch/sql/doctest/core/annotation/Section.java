@@ -15,11 +15,11 @@
 
 package com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
 /**
  * This annotation is used to indicate current method is a valid method for doc generation
@@ -29,9 +29,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(value = METHOD)
 public @interface Section {
 
-    /**
-     * @return section order
-     */
-    int value() default 0;
+  /**
+   * @return section order
+   */
+  int value() default 0;
 
 }

@@ -15,39 +15,39 @@
 
 package com.amazon.opendistroforelasticsearch.sql.doctest.dml;
 
-import com.amazon.opendistroforelasticsearch.sql.doctest.core.DocTest;
-import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.DocTestConfig;
-import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.Section;
-
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.IGNORE_REQUEST;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequestFormat.KIBANA_REQUEST;
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.PRETTY_JSON_RESPONSE;
 
+import com.amazon.opendistroforelasticsearch.sql.doctest.core.DocTest;
+import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.DocTestConfig;
+import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.Section;
+
 @DocTestConfig(template = "dml/delete.rst", testData = {"accounts.json"})
 public class DeleteIT extends DocTest {
 
-    @Section(1)
-    public void delete() {
-        section(
-            title("DELETE"),
+  @Section(1)
+  public void delete() {
+    section(
+        title("DELETE"),
+        description(
+            "``DELETE`` statement deletes documents that satisfy the predicates in ``WHERE`` clause.",
+            "Note that all documents are deleted in the case of ``WHERE`` clause absent."
+        ),
+        images("rdd/singleDeleteStatement.png"),
+        example(
             description(
-                "``DELETE`` statement deletes documents that satisfy the predicates in ``WHERE`` clause.",
-                "Note that all documents are deleted in the case of ``WHERE`` clause absent."
+                "The ``datarows`` field in this case shows rows impacted, in other words how many",
+                "documents were just deleted."
             ),
-            images("rdd/singleDeleteStatement.png"),
-            example(
-                description(
-                    "The ``datarows`` field in this case shows rows impacted, in other words how many",
-                    "documents were just deleted."
-                ),
-                post(multiLine(
-                    "DELETE FROM accounts",
-                    "WHERE age > 30"
-                )),
-                queryFormat(KIBANA_REQUEST, PRETTY_JSON_RESPONSE),
-                explainFormat(IGNORE_REQUEST, PRETTY_JSON_RESPONSE)
-            )
-        );
-    }
+            post(multiLine(
+                "DELETE FROM accounts",
+                "WHERE age > 30"
+            )),
+            queryFormat(KIBANA_REQUEST, PRETTY_JSON_RESPONSE),
+            explainFormat(IGNORE_REQUEST, PRETTY_JSON_RESPONSE)
+        )
+    );
+  }
 
 }

@@ -15,11 +15,11 @@
 
 package com.amazon.opendistroforelasticsearch.sql.correctness.report;
 
+import static com.amazon.opendistroforelasticsearch.sql.correctness.report.TestCaseReport.TestResult.SUCCESS;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-
-import static com.amazon.opendistroforelasticsearch.sql.correctness.report.TestCaseReport.TestResult.SUCCESS;
 
 /**
  * Base class for different test result.
@@ -28,26 +28,26 @@ import static com.amazon.opendistroforelasticsearch.sql.correctness.report.TestC
 @ToString
 public abstract class TestCaseReport {
 
-    public enum TestResult {
-        SUCCESS, FAILURE;
-    }
+  public enum TestResult {
+    SUCCESS, FAILURE;
+  }
 
-    @Getter
-    private final int id;
+  @Getter
+  private final int id;
 
-    @Getter
-    private final String sql;
+  @Getter
+  private final String sql;
 
-    private final TestResult result;
+  private final TestResult result;
 
-    public TestCaseReport(int id, String sql, TestResult result) {
-        this.id = id;
-        this.sql = sql;
-        this.result = result;
-    }
+  public TestCaseReport(int id, String sql, TestResult result) {
+    this.id = id;
+    this.sql = sql;
+    this.result = result;
+  }
 
-    public String getResult() {
-        return result == SUCCESS ? "Success" : "Failed";
-    }
+  public String getResult() {
+    return result == SUCCESS ? "Success" : "Failed";
+  }
 
 }

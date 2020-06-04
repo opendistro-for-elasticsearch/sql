@@ -17,46 +17,45 @@ package com.amazon.opendistroforelasticsearch.sql.doctest.core.builder;
 
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.request.SqlRequest;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponse;
-import org.elasticsearch.client.RestClient;
-
 import java.util.Objects;
+import org.elasticsearch.client.RestClient;
 
 /**
  * Query and explain request tuple.
  */
 public class Requests {
 
-    private final RestClient client;
-    private final SqlRequest query;
-    private final SqlRequest explain;
+  private final RestClient client;
+  private final SqlRequest query;
+  private final SqlRequest explain;
 
-    public Requests(RestClient client, SqlRequest query) {
-        this(client, query, SqlRequest.NONE);
-    }
+  public Requests(RestClient client, SqlRequest query) {
+    this(client, query, SqlRequest.NONE);
+  }
 
-    public Requests(RestClient client, SqlRequest query, SqlRequest explain) {
-        this.client = client;
-        this.query = query;
-        this.explain = explain;
-    }
+  public Requests(RestClient client, SqlRequest query, SqlRequest explain) {
+    this.client = client;
+    this.query = query;
+    this.explain = explain;
+  }
 
-    public SqlRequest query() {
-        return query;
-    }
+  public SqlRequest query() {
+    return query;
+  }
 
-    public SqlResponse queryResponse() {
-        Objects.requireNonNull(query, "Query request is required");
-        return query.send(client);
-    }
+  public SqlResponse queryResponse() {
+    Objects.requireNonNull(query, "Query request is required");
+    return query.send(client);
+  }
 
-    public SqlRequest explain() {
-        return explain;
-    }
+  public SqlRequest explain() {
+    return explain;
+  }
 
-    public SqlResponse explainResponse() {
-        if (explain == SqlRequest.NONE) {
-            return SqlResponse.NONE;
-        }
-        return explain.send(client);
+  public SqlResponse explainResponse() {
+    if (explain == SqlRequest.NONE) {
+      return SqlResponse.NONE;
     }
+    return explain.send(client);
+  }
 }

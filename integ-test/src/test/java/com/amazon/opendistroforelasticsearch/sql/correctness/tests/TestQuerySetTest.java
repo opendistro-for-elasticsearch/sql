@@ -15,27 +15,28 @@
 
 package com.amazon.opendistroforelasticsearch.sql.correctness.tests;
 
-import com.amazon.opendistroforelasticsearch.sql.correctness.testset.TestQuerySet;
-import org.junit.Test;
-
 import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
+
+import com.amazon.opendistroforelasticsearch.sql.correctness.testset.TestQuerySet;
+import org.junit.Test;
 
 /**
  * Tests for {@link TestQuerySet}
  */
 public class TestQuerySetTest {
 
-    @Test
-    public void testQuerySet() {
-        TestQuerySet querySet = new TestQuerySet("SELECT * FROM accounts\nSELECT * FROM accounts LIMIT 5");
-        assertThat(
-            querySet,
-            contains(
-                "SELECT * FROM accounts",
-                "SELECT * FROM accounts LIMIT 5"
-            )
-        );
-    }
+  @Test
+  public void testQuerySet() {
+    TestQuerySet querySet =
+        new TestQuerySet("SELECT * FROM accounts\nSELECT * FROM accounts LIMIT 5");
+    assertThat(
+        querySet,
+        contains(
+            "SELECT * FROM accounts",
+            "SELECT * FROM accounts LIMIT 5"
+        )
+    );
+  }
 
 }

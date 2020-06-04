@@ -15,6 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.doctest.core;
 
+import static com.carrotsearch.randomizedtesting.annotations.ThreadLeakScope.Scope;
+import static java.nio.file.StandardOpenOption.APPEND;
+import static org.elasticsearch.test.ESIntegTestCase.Scope.SUITE;
+
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.DocTestConfig;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.annotation.Section;
 import com.amazon.opendistroforelasticsearch.sql.doctest.core.builder.DocBuilder;
@@ -27,13 +31,6 @@ import com.carrotsearch.randomizedtesting.TestMethodAndParams;
 import com.carrotsearch.randomizedtesting.annotations.TestCaseOrdering;
 import com.carrotsearch.randomizedtesting.annotations.TestMethodProviders;
 import com.carrotsearch.randomizedtesting.annotations.ThreadLeakScope;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.common.Strings;
-import org.elasticsearch.common.transport.TransportAddress;
-import org.elasticsearch.test.ESIntegTestCase;
-import org.elasticsearch.test.ESIntegTestCase.ClusterScope;
-import org.elasticsearch.test.TestCluster;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.InetAddress;
@@ -43,10 +40,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
-
-import static com.carrotsearch.randomizedtesting.annotations.ThreadLeakScope.Scope;
-import static java.nio.file.StandardOpenOption.APPEND;
-import static org.elasticsearch.test.ESIntegTestCase.Scope.SUITE;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.common.Strings;
+import org.elasticsearch.common.transport.TransportAddress;
+import org.elasticsearch.test.ESIntegTestCase;
+import org.elasticsearch.test.ESIntegTestCase.ClusterScope;
+import org.elasticsearch.test.TestCluster;
 
 /**
  * Documentation test base class
@@ -54,92 +53,93 @@ import static org.elasticsearch.test.ESIntegTestCase.Scope.SUITE;
 @TestMethodProviders({DocTest.SectionMethod.class})
 @TestCaseOrdering(DocTest.SectionOrder.class)
 @ESIntegTestCase.SuiteScopeTestCase
-@ClusterScope(scope= SUITE, numDataNodes=1, supportsDedicatedMasters=false, transportClientRatio=1)
+@ClusterScope(scope = SUITE, numDataNodes = 1, supportsDedicatedMasters = false, transportClientRatio = 1)
 @ThreadLeakScope(Scope.NONE)
 public abstract class DocTest extends ESIntegTestCase implements DocBuilder {
 
+  @Override
+  protected void setupSuiteScopeCluster() {
+    DocTestConfig config = getClass().getAnnotation(DocTestConfig.class);
+    loadTestData(config);
+    copyTemplateToDocument(config);
+  }
+
+  @Override
+  public RestClient restClient() {
+    return getRestClient();
+  }
+
+  @Override
+  public Document openDocument() {
+    DocTestConfig config = getClass().getAnnotation(DocTestConfig.class);
+    Path docPath = absolutePath(config.template());
+    try {
+      PrintWriter docWriter = new PrintWriter(Files.newBufferedWriter(docPath, APPEND));
+      return new RstDocument(docWriter);
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to open document file " + docPath, e);
+    }
+  }
+
+  private void loadTestData(DocTestConfig config) {
+    String[] testFilePaths = config.testData();
+    TestData testData = new TestData(testFilePaths);
+    testData.loadToES(this);
+  }
+
+  private void copyTemplateToDocument(DocTestConfig config) {
+    Path docPath = absolutePath(config.template());
+    Template template = new Template(config.template());
+    template.copyToDocument(docPath);
+  }
+
+  /**
+   * Method annotated by {@link Section} will be treated as test method.
+   */
+  public static class SectionMethod extends AnnotatedMethodProvider {
+    public SectionMethod() {
+      super(Section.class);
+    }
+  }
+
+  /**
+   * Test methods will execute in order defined by value in {@link Section} annotation.
+   */
+  public static class SectionOrder implements Comparator<TestMethodAndParams> {
     @Override
-    protected void setupSuiteScopeCluster() {
-        DocTestConfig config = getClass().getAnnotation(DocTestConfig.class);
-        loadTestData(config);
-        copyTemplateToDocument(config);
+    public int compare(TestMethodAndParams method1, TestMethodAndParams method2) {
+      return Integer.compare(order(method1), order(method2));
     }
 
-    @Override
-    public RestClient restClient() {
-        return getRestClient();
+    private int order(TestMethodAndParams method) {
+      Section section = method.getTestMethod().getAnnotation(Section.class);
+      return section.value();
     }
+  }
 
-    @Override
-    public Document openDocument() {
-        DocTestConfig config = getClass().getAnnotation(DocTestConfig.class);
-        Path docPath = absolutePath(config.template());
-        try {
-            PrintWriter docWriter = new PrintWriter(Files.newBufferedWriter(docPath, APPEND));
-            return new RstDocument(docWriter);
-        } catch (IOException e) {
-            throw new IllegalStateException("Failed to open document file " + docPath, e);
-        }
+  private Path absolutePath(String templateRelativePath) {
+    return Paths.get(TestUtils.getResourceFilePath(DOCUMENT_FOLDER_ROOT + templateRelativePath));
+  }
+
+  @Override
+  protected TestCluster buildTestCluster(Scope scope, long seed) throws IOException {
+
+    String clusterAddresses = System.getProperty(TESTS_CLUSTER);
+
+    if (Strings.hasLength(clusterAddresses)) {
+      String[] stringAddresses = clusterAddresses.split(",");
+      TransportAddress[] transportAddresses = new TransportAddress[stringAddresses.length];
+      int i = 0;
+      for (String stringAddress : stringAddresses) {
+        URL url = new URL("http://" + stringAddress);
+        InetAddress inetAddress = InetAddress.getByName(url.getHost());
+        transportAddresses[i++] =
+            new TransportAddress(new InetSocketAddress(inetAddress, url.getPort()));
+      }
+      return new CustomExternalTestCluster(createTempDir(), externalClusterClientSettings(),
+          transportClientPlugins(), transportAddresses);
     }
-
-    private void loadTestData(DocTestConfig config) {
-        String[] testFilePaths = config.testData();
-        TestData testData = new TestData(testFilePaths);
-        testData.loadToES(this);
-    }
-
-    private void copyTemplateToDocument(DocTestConfig config) {
-        Path docPath = absolutePath(config.template());
-        Template template = new Template(config.template());
-        template.copyToDocument(docPath);
-    }
-
-    /**
-     * Method annotated by {@link Section} will be treated as test method.
-     */
-    public static class SectionMethod extends AnnotatedMethodProvider {
-        public SectionMethod() {
-            super(Section.class);
-        }
-    }
-
-    /**
-     * Test methods will execute in order defined by value in {@link Section} annotation.
-     */
-    public static class SectionOrder implements Comparator<TestMethodAndParams> {
-        @Override
-        public int compare(TestMethodAndParams method1, TestMethodAndParams method2) {
-            return Integer.compare(order(method1), order(method2));
-        }
-
-        private int order(TestMethodAndParams method) {
-            Section section = method.getTestMethod().getAnnotation(Section.class);
-            return section.value();
-        }
-    }
-
-    private Path absolutePath(String templateRelativePath) {
-        return Paths.get(TestUtils.getResourceFilePath(DOCUMENT_FOLDER_ROOT + templateRelativePath));
-    }
-
-    @Override
-    protected TestCluster buildTestCluster(Scope scope, long seed) throws IOException {
-
-        String clusterAddresses = System.getProperty(TESTS_CLUSTER);
-
-        if (Strings.hasLength(clusterAddresses)) {
-            String[] stringAddresses = clusterAddresses.split(",");
-            TransportAddress[] transportAddresses = new TransportAddress[stringAddresses.length];
-            int i = 0;
-            for (String stringAddress : stringAddresses) {
-                URL url = new URL("http://" + stringAddress);
-                InetAddress inetAddress = InetAddress.getByName(url.getHost());
-                transportAddresses[i++] = new TransportAddress(new InetSocketAddress(inetAddress, url.getPort()));
-            }
-            return new CustomExternalTestCluster(createTempDir(), externalClusterClientSettings(),
-                transportClientPlugins(), transportAddresses);
-        }
-        return super.buildTestCluster(scope, seed);
-    }
+    return super.buildTestCluster(scope, seed);
+  }
 
 }

@@ -15,14 +15,13 @@
 
 package com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collection;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
 /**
  * Row in result set.
@@ -32,29 +31,29 @@ import java.util.Collection;
 @Getter
 public class Row {
 
-    private final Collection<Object> values;
+  private final Collection<Object> values;
 
-    public Row() {
-        this(new ArrayList<>()); // values in order by default
-    }
+  public Row() {
+    this(new ArrayList<>()); // values in order by default
+  }
 
-    public Row(Collection<Object> values) {
-        this.values = values;
-    }
+  public Row(Collection<Object> values) {
+    this.values = values;
+  }
 
-    public void add(Object value) {
-        values.add(roundFloatNum(value));
-    }
+  public void add(Object value) {
+    values.add(roundFloatNum(value));
+  }
 
-    private Object roundFloatNum(Object value) {
-        if (value instanceof Float) {
-            BigDecimal decimal = BigDecimal.valueOf((Float) value).setScale(2, RoundingMode.CEILING);
-            value = decimal.doubleValue(); // Convert to double too
-        } else if (value instanceof Double) {
-            BigDecimal decimal = BigDecimal.valueOf((Double) value).setScale(2, RoundingMode.CEILING);
-            value = decimal.doubleValue();
-        }
-        return value;
+  private Object roundFloatNum(Object value) {
+    if (value instanceof Float) {
+      BigDecimal decimal = BigDecimal.valueOf((Float) value).setScale(2, RoundingMode.CEILING);
+      value = decimal.doubleValue(); // Convert to double too
+    } else if (value instanceof Double) {
+      BigDecimal decimal = BigDecimal.valueOf((Double) value).setScale(2, RoundingMode.CEILING);
+      value = decimal.doubleValue();
     }
+    return value;
+  }
 
 }

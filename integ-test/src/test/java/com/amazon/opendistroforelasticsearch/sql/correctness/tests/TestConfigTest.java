@@ -15,12 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.correctness.tests;
 
-import com.amazon.opendistroforelasticsearch.sql.correctness.TestConfig;
-import com.google.common.collect.ImmutableMap;
-import org.junit.Test;
-
-import java.util.Map;
-
 import static java.util.Collections.emptyMap;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.emptyString;
@@ -28,45 +22,50 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import com.amazon.opendistroforelasticsearch.sql.correctness.TestConfig;
+import com.google.common.collect.ImmutableMap;
+import java.util.Map;
+import org.junit.Test;
+
 /**
  * Tests for {@link TestConfig}
  */
 public class TestConfigTest {
 
-    @Test
-    public void testDefaultConfig() {
-        TestConfig config = new TestConfig(emptyMap());
-        assertThat(config.getESHostUrl(), is(emptyString()));
-        assertThat(
-            config.getOtherDbConnectionNameAndUrls(),
-            allOf(
-                hasEntry("H2", "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1"),
-                hasEntry("SQLite", "jdbc:sqlite::memory:")
-            )
-        );
-    }
+  @Test
+  public void testDefaultConfig() {
+    TestConfig config = new TestConfig(emptyMap());
+    assertThat(config.getESHostUrl(), is(emptyString()));
+    assertThat(
+        config.getOtherDbConnectionNameAndUrls(),
+        allOf(
+            hasEntry("H2", "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1"),
+            hasEntry("SQLite", "jdbc:sqlite::memory:")
+        )
+    );
+  }
 
-    @Test
-    public void testCustomESUrls() {
-        Map<String, String> args = ImmutableMap.of("esHost", "localhost:9200");
-        TestConfig config = new TestConfig(args);
-        assertThat(config.getESHostUrl(), is("localhost:9200"));
-    }
+  @Test
+  public void testCustomESUrls() {
+    Map<String, String> args = ImmutableMap.of("esHost", "localhost:9200");
+    TestConfig config = new TestConfig(args);
+    assertThat(config.getESHostUrl(), is("localhost:9200"));
+  }
 
-    @Test
-    public void testCustomDbUrls() {
-        Map<String, String> args = ImmutableMap.of("otherDbUrls",
-                                                   "H2=jdbc:h2:mem:test;DB_CLOSE_DELAY=-1,"
-                                                   + "Derby=jdbc:derby:memory:myDb;create=true");
+  @Test
+  public void testCustomDbUrls() {
+    Map<String, String> args = ImmutableMap.of("otherDbUrls",
+        "H2=jdbc:h2:mem:test;DB_CLOSE_DELAY=-1,"
+            + "Derby=jdbc:derby:memory:myDb;create=true");
 
-        TestConfig config = new TestConfig(args);
-        assertThat(
-            config.getOtherDbConnectionNameAndUrls(),
-            allOf(
-                hasEntry("H2", "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1"),
-                hasEntry("Derby", "jdbc:derby:memory:myDb;create=true")
-            )
-        );
-    }
+    TestConfig config = new TestConfig(args);
+    assertThat(
+        config.getOtherDbConnectionNameAndUrls(),
+        allOf(
+            hasEntry("H2", "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1"),
+            hasEntry("Derby", "jdbc:derby:memory:myDb;create=true")
+        )
+    );
+  }
 
 }

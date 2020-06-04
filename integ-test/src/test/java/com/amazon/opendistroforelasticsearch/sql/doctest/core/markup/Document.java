@@ -22,22 +22,22 @@ import java.io.Closeable;
  */
 public interface Document extends Closeable {
 
-    /**
-     * Remove checked IOException in method signature.
-     */
-    @Override
-    void close();
+  /**
+   * Remove checked IOException in method signature.
+   */
+  @Override
+  void close();
 
-    Document section(String title);
+  Document section(String title);
 
-    Document subSection(String title);
+  Document subSection(String title);
 
-    Document paragraph(String text);
+  Document paragraph(String text);
 
-    Document codeBlock(String description, String code);
+  Document codeBlock(String description, String code);
 
-    Document table(String description, String table);
+  Document table(String description, String table);
 
-    Document image(String description, String filePath);
+  Document image(String description, String filePath);
 
 }

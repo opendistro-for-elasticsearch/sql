@@ -27,20 +27,20 @@ import lombok.ToString;
 @Getter
 public class TestSummary {
 
-    private int total;
+  private int total;
 
-    private int success;
+  private int success;
 
-    private int failure;
+  private int failure;
 
-    public void addSuccess() {
-        success++;
-        total++;
-    }
+  public void addSuccess() {
+    success++;
+    total++;
+  }
 
-    public void addFailure() {
-        failure++;
-        total++;
-    }
+  public void addFailure() {
+    failure++;
+    total++;
+  }
 
 }

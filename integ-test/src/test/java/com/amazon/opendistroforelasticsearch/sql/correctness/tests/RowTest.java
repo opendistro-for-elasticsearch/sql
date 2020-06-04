@@ -15,35 +15,35 @@
 
 package com.amazon.opendistroforelasticsearch.sql.correctness.tests;
 
-import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.Row;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+
+import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.Row;
+import org.junit.Test;
 
 /**
  * Unit test {@link Row}
  */
 public class RowTest {
 
-    @Test
-    public void rowShouldEqualToOtherRowWithSimilarFloat() {
-        Row row1 = new Row();
-        Row row2 = new Row();
-        row1.add(1.000001);
-        row2.add(1.000002);
-        assertEquals(row1, row2);
-        assertEquals(row2, row1);
-    }
+  @Test
+  public void rowShouldEqualToOtherRowWithSimilarFloat() {
+    Row row1 = new Row();
+    Row row2 = new Row();
+    row1.add(1.000001);
+    row2.add(1.000002);
+    assertEquals(row1, row2);
+    assertEquals(row2, row1);
+  }
 
-    @Test
-    public void rowShouldNotEqualToOtherRowWithDifferentString() {
-        Row row1 = new Row();
-        Row row2 = new Row();
-        row1.add("hello");
-        row2.add("hello1");
-        assertNotEquals(row1, row2);
-        assertNotEquals(row2, row1);
-    }
+  @Test
+  public void rowShouldNotEqualToOtherRowWithDifferentString() {
+    Row row1 = new Row();
+    Row row2 = new Row();
+    row1.add("hello");
+    row2.add("hello1");
+    assertNotEquals(row1, row2);
+    assertNotEquals(row2, row1);
+  }
 
 }

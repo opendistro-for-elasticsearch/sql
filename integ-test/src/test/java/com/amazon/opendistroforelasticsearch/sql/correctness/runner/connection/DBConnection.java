@@ -16,7 +16,6 @@
 package com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection;
 
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.DBResult;
-
 import java.util.List;
 
 /**
@@ -24,47 +23,51 @@ import java.util.List;
  */
 public interface DBConnection {
 
-    /**
-     * @return database name
-     */
-    String getDatabaseName();
+  /**
+   * @return database name
+   */
+  String getDatabaseName();
 
-    /**
-     * Connect to database by opening a connection.
-     */
-    void connect();
+  /**
+   * Connect to database by opening a connection.
+   */
+  void connect();
 
-    /**
-     * Create table with the schema.
-     * @param tableName     table name
-     * @param schema        schema json in ES mapping format
-     */
-    void create(String tableName, String schema);
+  /**
+   * Create table with the schema.
+   *
+   * @param tableName table name
+   * @param schema    schema json in ES mapping format
+   */
+  void create(String tableName, String schema);
 
-    /**
-     * Insert batch of data to database.
-     * @param tableName     table name
-     * @param columnNames   column names
-     * @param batch         batch of rows
-     */
-    void insert(String tableName, String[] columnNames, List<String[]> batch);
+  /**
+   * Insert batch of data to database.
+   *
+   * @param tableName   table name
+   * @param columnNames column names
+   * @param batch       batch of rows
+   */
+  void insert(String tableName, String[] columnNames, List<String[]> batch);
 
-    /**
-     * Fetch data from database.
-     * @param query         SQL query
-     * @return              result set
-     */
-    DBResult select(String query);
+  /**
+   * Fetch data from database.
+   *
+   * @param query SQL query
+   * @return result set
+   */
+  DBResult select(String query);
 
-    /**
-     * Drop table.
-     * @param tableName     table name
-     */
-    void drop(String tableName);
+  /**
+   * Drop table.
+   *
+   * @param tableName table name
+   */
+  void drop(String tableName);
 
-    /**
-     * Close the database connection.
-     */
-    void close();
+  /**
+   * Close the database connection.
+   */
+  void close();
 
 }

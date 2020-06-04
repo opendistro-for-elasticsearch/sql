@@ -15,56 +15,57 @@
 
 package com.amazon.opendistroforelasticsearch.sql.correctness.tests;
 
-import com.amazon.opendistroforelasticsearch.sql.correctness.testset.TestDataSet;
-import org.junit.Test;
-
 import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+
+import com.amazon.opendistroforelasticsearch.sql.correctness.testset.TestDataSet;
+import org.junit.Test;
 
 /**
  * Tests for {@link TestDataSet}
  */
 public class TestDataSetTest {
 
-    @Test
-    public void testDataSetWithSingleColumnData() {
-        TestDataSet dataSet = new TestDataSet("test", "mappings", "hello\nworld\n123");
-        assertEquals("test", dataSet.getTableName());
-        assertEquals("mappings", dataSet.getSchema());
-        assertThat(
-            dataSet.getDataRows(),
-            contains(
-                new String[]{"hello"},
-                new String[]{"world"},
-                new String[]{"123"}
-            )
-        );
-    }
+  @Test
+  public void testDataSetWithSingleColumnData() {
+    TestDataSet dataSet = new TestDataSet("test", "mappings", "hello\nworld\n123");
+    assertEquals("test", dataSet.getTableName());
+    assertEquals("mappings", dataSet.getSchema());
+    assertThat(
+        dataSet.getDataRows(),
+        contains(
+            new String[] {"hello"},
+            new String[] {"world"},
+            new String[] {"123"}
+        )
+    );
+  }
 
-    @Test
-    public void testDataSetWithMultiColumnsData() {
-        TestDataSet dataSet = new TestDataSet("test", "mappings", "hello,world\n123");
-        assertThat(
-            dataSet.getDataRows(),
-            contains(
-                new String[]{"hello", "world"},
-                new String[]{"123"}
-            )
-        );
-    }
+  @Test
+  public void testDataSetWithMultiColumnsData() {
+    TestDataSet dataSet = new TestDataSet("test", "mappings", "hello,world\n123");
+    assertThat(
+        dataSet.getDataRows(),
+        contains(
+            new String[] {"hello", "world"},
+            new String[] {"123"}
+        )
+    );
+  }
 
-    @Test
-    public void testDataSetWithEscapedComma() {
-        TestDataSet dataSet = new TestDataSet("test", "mappings", "hello,\"hello,world,123\"\n123\n\"[abc,def,ghi]\",456");
-        assertThat(
-            dataSet.getDataRows(),
-            contains(
-                new String[]{"hello", "hello,world,123"},
-                new String[]{"123"},
-                new String[]{"[abc,def,ghi]", "456"}
-            )
-        );
-    }
+  @Test
+  public void testDataSetWithEscapedComma() {
+    TestDataSet dataSet = new TestDataSet("test", "mappings",
+        "hello,\"hello,world,123\"\n123\n\"[abc,def,ghi]\",456");
+    assertThat(
+        dataSet.getDataRows(),
+        contains(
+            new String[] {"hello", "hello,world,123"},
+            new String[] {"123"},
+            new String[] {"[abc,def,ghi]", "456"}
+        )
+    );
+  }
 
 }
