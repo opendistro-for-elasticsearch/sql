@@ -15,17 +15,18 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_BANK;
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_DOG;
+import org.elasticsearch.client.ResponseException;
+import org.json.JSONObject;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_DOG;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.columnName;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyColumn;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
-
-import java.io.IOException;
-import org.elasticsearch.client.ResponseException;
-import org.json.JSONObject;
-import org.junit.jupiter.api.Test;
 
 public class SearchCommandIT extends PPLIntegTestCase {
 

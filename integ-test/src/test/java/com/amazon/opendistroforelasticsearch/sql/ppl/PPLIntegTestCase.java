@@ -15,12 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.getResponseBody;
-import static com.amazon.opendistroforelasticsearch.sql.plugin.rest.RestPPLQueryAction.QUERY_API_ENDPOINT;
-
-import com.amazon.opendistroforelasticsearch.sql.esintgtest.RestIntegTestCase;
-import java.io.IOException;
-import java.util.Locale;
+import com.amazon.opendistroforelasticsearch.sql.legacy.RestIntegTestCase;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
@@ -28,7 +23,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Assert;
 
-/** ES Rest integration test base for PPL testing. */
+import java.io.IOException;
+import java.util.Locale;
+
+import static com.amazon.opendistroforelasticsearch.sql.plugin.rest.RestPPLQueryAction.QUERY_API_ENDPOINT;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getResponseBody;
+
+/**
+ * ES Rest integration test base for PPL testing
+ */
 public abstract class PPLIntegTestCase extends RestIntegTestCase {
 
   protected JSONObject executeQuery(String query) throws IOException {

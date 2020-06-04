@@ -157,7 +157,7 @@ Use default test set and reference databases by `testType` argument given only. 
 Note that for now test data set argument is not supported because it often requires code changes to map more ES data type to JDBC type as well as convert data.
 
 ```
-$ ./gradlew integTestRunner -DtestType=comparison
+$ ./gradlew :integ-test:comparisonTest
 
     [2020-01-06T11:37:57,437][INFO ][c.a.o.s.c.CorrectnessIT  ] [performComparisonTest] Starting comparison test
     =================================
@@ -242,7 +242,7 @@ $ ./gradlew integTestRunner -DtestType=comparison
 Specify different test case set by `queries` argument:
 
 ```
-$ ./gradlew integTestRunner -DtestType=comparison -Dqueries=sanity_integration_tests.txt
+$ ./gradlew :integ-test:comparisonTest -Dqueries=sanity_integration_tests.txt
 
     ...
     Test query set   : SQL queries (first 5 in 7):
@@ -257,7 +257,7 @@ $ ./gradlew integTestRunner -DtestType=comparison -Dqueries=sanity_integration_t
 Specify external Elasticsearch cluster by `esHost` argument, otherwise an internal Elasticsearch in workspace is in use by default.
 
 ```
-$ ./gradlew integTestRunner -DtestType=comparison -DesHost=localhost:9200
+$ ./gradlew :integ-test:comparisonTest -DesHost=localhost:9200
 
     =================================
     Tested Database  : localhost:9200
@@ -270,7 +270,7 @@ $ ./gradlew integTestRunner -DtestType=comparison -DesHost=localhost:9200
 Specify different databases for comparison. `dbUrl` is for database to be tested. `otherDbUrls` is for other databases whose result set be referenced and compared.
 
 ```
-$ ./gradlew integTestRunner -DtestType=comparison -Dqueries=sanity_integration_tests.txt -DdbUrl=jdbc:sqlite::memory:
+$ ./gradlew :integ-test:comparisonTest -Dqueries=sanity_integration_tests.txt -DdbUrl=jdbc:sqlite::memory:
 
     =================================
     Tested Database  : jdbc:sqlite::memory:
@@ -279,7 +279,7 @@ $ ./gradlew integTestRunner -DtestType=comparison -Dqueries=sanity_integration_t
      H2 = jdbc:h2:mem:test;DB_CLOSE_DELAY=-1
     ...
 
-$ ./gradlew integTestRunner -DtestType=comparison -Dqueries=sanity_integration_tests.txt -DdbUrl=jdbc:sqlite::memory: -DotherDbUrls=Unknown=jdbc:h2:mem:test;DB_CLOSE_DELAY=-1
+$ ./gradlew :integ-test:comparisonTest -Dqueries=sanity_integration_tests.txt -DdbUrl=jdbc:sqlite::memory: -DotherDbUrls=Unknown=jdbc:h2:mem:test;DB_CLOSE_DELAY=-1
 
     =================================
     Tested Database  : jdbc:sqlite::memory:

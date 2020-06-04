@@ -32,10 +32,10 @@ jobs:
       
       - name: Run build
         run: |
-          ./gradlew buildPackages --refresh-dependencies --console=plain -Dbuild.snapshot=false
-          artifact=`ls build/distributions/*.zip`
-          rpm_artifact=`ls build/distributions/*.rpm`
-          deb_artifact=`ls build/distributions/*.deb`
+          ./gradlew build buildDeb buildRpm --no-daemon --refresh-dependencies --console=plain -Dbuild.snapshot=false
+          artifact=`ls plugin/build/distributions/*.zip`
+          rpm_artifact=`ls plugin/build/distributions/*.rpm`
+          deb_artifact=`ls plugin/build/distributions/*.deb`
           
           aws s3 cp $artifact s3://artifacts.opendistroforelasticsearch.amazon.com/downloads/elasticsearch-plugins/opendistro-sql/
           aws s3 cp $rpm_artifact s3://artifacts.opendistroforelasticsearch.amazon.com/downloads/rpms/opendistro-sql/

@@ -15,13 +15,14 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
-import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
-import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
-
-import java.io.IOException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
 
 public class WhereCommandIT extends PPLIntegTestCase {
 

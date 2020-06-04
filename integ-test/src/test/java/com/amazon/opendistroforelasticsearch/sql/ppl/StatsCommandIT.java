@@ -15,10 +15,11 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import org.junit.jupiter.api.Test;
+
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
 
 public class StatsCommandIT extends PPLIntegTestCase {
 

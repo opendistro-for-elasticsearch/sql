@@ -15,13 +15,14 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
-import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
-
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
-import java.io.IOException;
 import org.elasticsearch.client.ResponseException;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import java.io.IOException;
+
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
 
 public class QueryAnalysisIT extends PPLIntegTestCase {
 
