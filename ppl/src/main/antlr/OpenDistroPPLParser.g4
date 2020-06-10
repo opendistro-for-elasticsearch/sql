@@ -72,7 +72,7 @@ sortCommand
     ;
 
 evalCommand
-    : EVAL evalExpression (COMMA evalExpression)*
+    : EVAL evalClause (COMMA evalClause)*
     ;
 
 /** clauses */
@@ -87,6 +87,10 @@ byClause
 
 sortbyClause
     : sortField (COMMA sortField)*
+    ;
+
+evalClause
+    : fieldExpression EQUAL expression
     ;
 
 /** aggregation terms */
@@ -120,20 +124,14 @@ percentileAggFunction
 expression
     : logicalExpression
     | comparisonExpression
-    | evalFunctionCall
-    | binaryArithmetic
+    | valueExpression
     ;
 
 logicalExpression
     : comparisonExpression                                          #comparsion
-    | evalExpression                                                #eval
     | NOT logicalExpression                                         #logicalNot
     | left=logicalExpression OR right=logicalExpression             #logicalOr
     | left=logicalExpression (AND)? right=logicalExpression         #logicalAnd
-    ;
-
-evalExpression
-    : fieldExpression EQUAL expression
     ;
 
 comparisonExpression
@@ -142,10 +140,15 @@ comparisonExpression
     | fieldExpression IN valueList                                  #inExpr
     ;
 
-binaryArithmetic
-    : (leftField=fieldExpression | leftValue=literalValue) binaryOperator
-    (rightField=fieldExpression | rightValue=literalValue)
-    | LT_PRTHS binaryArithmetic RT_PRTHS
+valueExpression
+    : primaryExpression                                             #valueExpressionDefault
+    | left=valueExpression binaryOperator right=valueExpression     #binaryArithmetic
+    ;
+
+primaryExpression
+    : fieldExpression
+    | literalValue
+    | evalFunctionCall
     ;
 
 /** tables */
@@ -182,35 +185,15 @@ wcFieldExpression
     : wcQualifiedName
     ;
 
-
 /** functions */
 evalFunctionCall
     : evalFunctionName LT_PRTHS functionArgs RT_PRTHS
     ;
 
 evalFunctionName
-    : basicFunctionNameBase | esFunctionNameBase
-    ;
-
-basicFunctionNameBase
-    : ABS | ACOS | ADD | ASCII | ASIN | ATAN | ATAN2 | CBRT | CEIL | CONCAT | CONCAT_WS
-    | COS | COSH | COT | CURDATE | DATE | DATE_FORMAT | DAYOFMONTH | DEGREES
-    | E | EXP | EXPM1 | FLOOR | IF | IFNULL | ISNULL | LEFT | LENGTH | LN | LOCATE | LOG
-    | LOG10 | LOG2 | LOWER | LTRIM | MAKETIME | MODULUS | MONTH | MONTHNAME | MULTIPLY
-    | NOW | PI | POW | POWER | RADIANS | RAND | REPLACE | RIGHT | RINT | ROUND | RTRIM
-    | SIGN | SIGNUM | SIN | SINH | SQRT | SUBSTRING | SUBTRACT | TAN | TIMESTAMP | TRIM
-    | UPPER | YEAR | ADDDATE | ADDTIME | GREATEST | LEAST
-    ;
-
-esFunctionNameBase
-    : DATE_HISTOGRAM | DAY_OF_MONTH | DAY_OF_YEAR | DAY_OF_WEEK | EXCLUDE
-    | EXTENDED_STATS | FILTER | GEO_BOUNDING_BOX | GEO_CELL | GEO_DISTANCE | GEO_DISTANCE_RANGE | GEO_INTERSECTS
-    | GEO_POLYGON | INCLUDE | IN_TERMS | HISTOGRAM | HOUR_OF_DAY
-    | MATCHPHRASE | MATCH_PHRASE | MATCHQUERY | MATCH_QUERY | MINUTE_OF_DAY
-    | MINUTE_OF_HOUR | MISSING | MONTH_OF_YEAR | MULTIMATCH | MULTI_MATCH | NESTED
-    | PERCENTILES | QUERY | RANGE | REGEXP_QUERY | REVERSE_NESTED | SCORE
-    | SECOND_OF_MINUTE | STATS | TERM | TERMS | TOPHITS
-    | WEEK_OF_YEAR | WILDCARDQUERY | WILDCARD_QUERY
+    : mathematicalFunctionBase
+    | dateAndTimeFunctionBase
+    | textFunctionBase
     ;
 
 functionArgs
@@ -218,7 +201,19 @@ functionArgs
     ;
 
 functionArg
-    : expression | fieldExpression | literalValue
+    : expression
+    ;
+
+mathematicalFunctionBase
+    : ABS
+    ;
+
+dateAndTimeFunctionBase
+    :
+    ;
+
+textFunctionBase
+    :
     ;
 
 /** operators */
