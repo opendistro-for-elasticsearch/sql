@@ -23,6 +23,10 @@ OpenDistro PPL Reference Manual
 
   - `syntax <cmd/syntax>`_
 
+  - `field command <cmd/dedup.rst>`_
+
+  - `field command <cmd/fields.rst>`_
+
   - `search command <cmd/search.rst>`_
 
   - `where command <cmd/where.rst>`_

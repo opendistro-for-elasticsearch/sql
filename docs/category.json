@@ -6,7 +6,10 @@
   ],
   "ppl_cli": [
     "sample/ppl/cli.rst",
-    "experiment/ppl/cmd/search.rst"
+    "experiment/ppl/cmd/dedup.rst",
+    "experiment/ppl/cmd/fields.rst",
+    "experiment/ppl/cmd/search.rst",
+    "experiment/ppl/cmd/where.rst"
   ],
   "sql_cli": [
     "sample/sql/basics.rst",
