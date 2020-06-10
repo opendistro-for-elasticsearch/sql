@@ -23,14 +23,19 @@ OpenDistro PPL Reference Manual
 
   - `syntax <cmd/syntax>`_
 
-  - `field command <cmd/dedup.rst>`_
+  - `dedup command <cmd/dedup.rst>`_
+
+  - `eval command <cmd/eval.rst>`_
 
   - `field command <cmd/fields.rst>`_
 
+  - `rename command <cmd/rename.rst>`_
+
   - `search command <cmd/search.rst>`_
+
+  - `search command <cmd/sort.rst>`_
+
+  - `search command <cmd/stats.rst>`_
 
   - `where command <cmd/where.rst>`_
 
-* **Function**
-
-  - `Basic Operators <dql/basics.rst>`_

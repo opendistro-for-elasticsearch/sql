@@ -18,8 +18,8 @@ Syntax
 ============
 field [+|-] <field-list>
 
-* index: optional field. if the plus (+) is used, only the fields specified in the field list will be keep. if the minus (-) is used, all the fields specified in the field list will be removed. **Default** +
-* field list: mandatory field. comma-delimited keep or remove fields.
+* index: optional. if the plus (+) is used, only the fields specified in the field list will be keep. if the minus (-) is used, all the fields specified in the field list will be removed. **Default** +
+* field list: mandatory. comma-delimited keep or remove fields.
 
 
 Example 1: Select specified fields from result

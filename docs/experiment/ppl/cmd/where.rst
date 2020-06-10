@@ -18,7 +18,7 @@ Syntax
 ============
 where <boolean-expression>
 
-* bool-expression: optional field. any expression which could be evaluated to boolean value.
+* bool-expression: optional. any expression which could be evaluated to boolean value.
 
 Example 1: Filter result set with condition
 ===========================================
