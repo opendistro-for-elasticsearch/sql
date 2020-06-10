@@ -14,7 +14,7 @@ Protocol
 Introduction
 ============
 
-For the protocol, SQL plugin provides response formats in the JDBC format. JDBC format is widely used because it provides schema information and more functionality such as pagination. Besides JDBC driver, various clients can benefit from the detailed and well formatted response.
+For the protocol, PPL endpoint provides response formats in the JDBC format. JDBC format is widely used because it provides schema information and more functionality such as pagination. Besides JDBC driver, various clients can benefit from the detailed and well formatted response.
 
 
 Request/Response Format
@@ -23,11 +23,11 @@ Request/Response Format
 Description
 -----------
 
-The body of HTTP POST request can take SQL query.
+The body of HTTP POST request can take PPL query.
 
 Example 1
 ---------
-SQL query::
+PPL query::
 
     sh$ curl -sS -H 'Content-Type: application/json' \
     ... -X POST localhost:9200/_opendistro/_ppl \
@@ -78,7 +78,7 @@ Example 1
 
 Here is an example for normal response. The `schema` includes field name and its type and `datarows` includes the result set.
 
-SQL query::
+PPL query::
 
     sh$ curl -sS -H 'Content-Type: application/json' \
     ... -X POST localhost:9200/_opendistro/_ppl \
@@ -121,7 +121,7 @@ Example 2
 
 If any error occurred, error message and the cause will be returned instead.
 
-SQL query::
+PPL query::
 
     sh$ curl -sS -H 'Content-Type: application/json' \
     ... -X POST localhost:9200/_opendistro/_ppl \

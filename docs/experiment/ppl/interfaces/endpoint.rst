@@ -22,12 +22,12 @@ POST
 Description
 -----------
 
-You can also send HTTP POST request with your query in request body.
+You can send HTTP POST request to endpoint **/_opendistro/_ppl** with your query in request body.
 
 Example
 -------
 
-SQL query::
+PPL query::
 
     sh$ curl -sS -H 'Content-Type: application/json' \
     ... -X POST localhost:9200/_opendistro/_ppl \
