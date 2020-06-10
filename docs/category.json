@@ -1,6 +1,8 @@
 {
   "bash": [
-    "sample/ppl/curl.rst"
+    "sample/ppl/curl.rst",
+    "experiment/ppl/interfaces/endpoint.rst",
+    "experiment/ppl/interfaces/protocol.rst"
   ],
   "ppl_cli": [
     "sample/ppl/cli.rst"

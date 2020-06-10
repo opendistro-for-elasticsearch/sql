@@ -1,0 +1,67 @@
+.. highlight:: sh
+
+========
+Endpoint
+========
+
+.. rubric:: Table of contents
+
+.. contents::
+   :local:
+   :depth: 1
+
+
+Introduction
+============
+
+To send query request to PPL plugin, you MUST use HTTP POST request. POST request doesn't have length limitation and allows for other parameters passed to plugin for other functionality such as prepared statement. And also the explain endpoint is used very often for query translation and troubleshooting.
+
+POST
+====
+
+Description
+-----------
+
+You can also send HTTP POST request with your query in request body.
+
+Example
+-------
+
+SQL query::
+
+    sh$ curl -sS -H 'Content-Type: application/json' \
+    ... -X POST localhost:9200/_opendistro/_ppl \
+    ... -d '{"query" : "source=accounts | fields firstname, lastname"}'
+    {
+      "schema": [
+        {
+          "name": "firstname",
+          "type": "string"
+        },
+        {
+          "name": "lastname",
+          "type": "string"
+        }
+      ],
+      "total": 4,
+      "datarows": [
+        [
+          "Amber",
+          "Duke"
+        ],
+        [
+          "Hattie",
+          "Bond"
+        ],
+        [
+          "Nanette",
+          "Bates"
+        ],
+        [
+          "Dale",
+          "Adams"
+        ]
+      ],
+      "size": 4
+    }
+
