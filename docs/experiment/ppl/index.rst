@@ -3,7 +3,15 @@
 OpenDistro PPL Reference Manual
 ===============================
 
-Open Distro for Elasticsearch PPL enables you to extract insights out of Elasticsearch using the familiar PPL query syntax. Please refer to the `technical documentation <https://opendistro.github.io/for-elasticsearch-docs/>`_ for detailed information on installing and configuring opendistro-elasticsearch-sql plugin. In this user reference manual, you can find many information for your reference. In each part, we try to make it clear by adding work example along with detailed description. Here is table of contents of the documentation:
+| Open Distro for Elasticsearch PPL enables you to extract insights out of Elasticsearch using the familiar pipe processing language query syntax. A PPL query is a read-only request to process data and return result.
+| The query consists of a sequence of command, delimited by a pipe (|). The query start with search command and then flowing a set of command delimited by pipe (|).
+| for example, the following query retrieve firstname and lastname from accounts if age large than 18.
+
+.. code-block::
+
+   source=accounts
+   | where age > 18
+   | fields firstname, lastname
 
 * **Interfaces**
 
@@ -12,6 +20,8 @@ Open Distro for Elasticsearch PPL enables you to extract insights out of Elastic
   - `Protocol <interfaces/protocol.rst>`_
 
 * **Commands**
+
+  - `syntax <cmd/syntax>`_
 
   - `search command <cmd/search.rst>`_
 

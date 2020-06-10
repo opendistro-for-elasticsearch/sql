@@ -5,7 +5,8 @@
     "experiment/ppl/interfaces/protocol.rst"
   ],
   "ppl_cli": [
-    "sample/ppl/cli.rst"
+    "sample/ppl/cli.rst",
+    "experiment/ppl/cmd/search.rst"
   ],
   "sql_cli": [
     "sample/sql/basics.rst",
