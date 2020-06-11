@@ -21,7 +21,7 @@ OpenDistro PPL Reference Manual
 
 * **Commands**
 
-  - `syntax <cmd/syntax>`_
+  - `syntax <cmd/syntax.rst>`_
 
   - `dedup command <cmd/dedup.rst>`_
 
@@ -33,9 +33,9 @@ OpenDistro PPL Reference Manual
 
   - `search command <cmd/search.rst>`_
 
-  - `search command <cmd/sort.rst>`_
+  - `sort command <cmd/sort.rst>`_
 
-  - `search command <cmd/stats.rst>`_
+  - `stats command <cmd/stats.rst>`_
 
   - `where command <cmd/where.rst>`_
 

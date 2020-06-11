@@ -25,7 +25,7 @@ field [+|-] <field-list>
 Example 1: Select specified fields from result
 ==============================================
 
-The example show fetch all the document from accounts index.
+The example show fetch account_number, firstname and lastname fields from search results.
 
 PPL query::
 
@@ -43,7 +43,7 @@ PPL query::
 Example 2: Remove specified fields from result
 ==============================================
 
-The example show fetch all the document from accounts index with .
+The example show fetch remove account_number field from search results.
 
 PPL query::
 

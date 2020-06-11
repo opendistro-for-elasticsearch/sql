@@ -18,11 +18,11 @@ Syntax
 ============
 eval <field>=<expression> ["," <field>=<expression> ]...
 
-* field: mandatory. If the field name not exist a new field is added. If the field name already exists, it will be overrided.
+* field: mandatory. If the field name not exist, a new field is added. If the field name already exists, it will be overrided.
 * expression: mandatory. Any expression support by the system.
 
-Example 1: Create the new field with eval
-=========================================
+Example 1: Create the new field
+===============================
 
 The example show to create new field doubleAge for each document. The new doubleAge is the evaluation result of age multiply by 2.
 
@@ -40,10 +40,10 @@ PPL query::
     +-------+-------------+
 
 
-Example 2: Override the existing field with eval result
-=======================================================
+Example 2: Override the existing field
+======================================
 
-The example show to override the exist field with new eval result.
+The example show to override the exist age field with age plus 1.
 
 PPL query::
 
@@ -61,7 +61,7 @@ PPL query::
 Example 3: Create the new field with field defined in eval
 ==========================================================
 
-The example show to create a new field ddAge with field defined in eval command. The new field ddAge is evaluation result of doubleAge multiply by 2, in where doubleAge is defined in the eval command.
+The example show to create a new field ddAge with field defined in eval command. The new field ddAge is the evaluation result of doubleAge multiply by 2, the doubleAge is defined in the eval command.
 
 PPL query::
 

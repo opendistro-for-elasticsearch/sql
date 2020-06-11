@@ -27,7 +27,7 @@ sort [count] <[+|-] sort-field>...
 Example 1: Sort by one field
 =============================
 
-The example show sort all the document with age field in ascending.
+The example show sort all the document with age field in ascending order.
 
 PPL query::
 

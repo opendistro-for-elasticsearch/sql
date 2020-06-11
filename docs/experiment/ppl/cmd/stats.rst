@@ -11,7 +11,7 @@ stats
 
 Description
 ============
-| Using ``sort`` command to calculate the aggregation from search result.
+| Using ``stats`` command to calculate the aggregation from search result.
 
 
 Syntax
@@ -19,9 +19,8 @@ Syntax
 stats <aggregation>... [by-clause]...
 
 
-* count: optional. The maximum number results to return from the sorted result. **Default:** 10000
-* [+|-]: optional. The plus [+] for ascending order and a minus [-] for descending order. **Default:** ascending order.
-* sort-field: mandatory. The field used to sort.
+* aggregation: mandatory. A statistical aggregation function. The argument of aggregation must be field.
+* by-clause: optional. The one or more fields to group the results by. **Default**: If no <by-clause> is specified, the stats command returns only one row, which is the aggregation over the entire result set.
 
 
 Example 1: Calculate the average of a field

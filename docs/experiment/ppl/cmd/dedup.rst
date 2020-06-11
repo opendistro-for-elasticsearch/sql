@@ -32,14 +32,14 @@ The example show dedup the document with gender field.
 
 PPL query::
 
-    od> source=accounts | dedup gender;
+    od> source=accounts | dedup gender | fields account_number, gender;
     fetched rows / total rows = 2/2
-    +------------------+-------------+--------------------+-----------+----------+--------+------------+---------+-------+----------------------+------------+
-    | account_number   | firstname   | address            | balance   | gender   | city   | employer   | state   | age   | email                | lastname   |
-    |------------------+-------------+--------------------+-----------+----------+--------+------------+---------+-------+----------------------+------------|
-    | 1                | Amber       | 880 Holmes Lane    | 39225     | M        | Brogan | Pyrami     | IL      | 32    | amberduke@pyrami.com | Duke       |
-    | 13               | Nanette     | 789 Madison Street | 32838     | F        | Nogal  | Quility    | VA      | 28    | null                 | Bates      |
-    +------------------+-------------+--------------------+-----------+----------+--------+------------+---------+-------+----------------------+------------+
+    +------------------+----------+
+    | account_number   | gender   |
+    |------------------+----------|
+    | 1                | M        |
+    | 13               | F        |
+    +------------------+----------+
 
 Example 2: Keep 2 duplicates documents
 ======================================
@@ -48,15 +48,15 @@ The example show dedup the document with gender field keep 2 duplication.
 
 PPL query::
 
-    od> source=accounts | dedup 2 gender;
+    od> source=accounts | dedup 2 gender | fields account_number, gender;
     fetched rows / total rows = 3/3
-    +------------------+-------------+--------------------+-----------+----------+--------+------------+---------+-------+-----------------------+------------+
-    | account_number   | firstname   | address            | balance   | gender   | city   | employer   | state   | age   | email                 | lastname   |
-    |------------------+-------------+--------------------+-----------+----------+--------+------------+---------+-------+-----------------------+------------|
-    | 1                | Amber       | 880 Holmes Lane    | 39225     | M        | Brogan | Pyrami     | IL      | 32    | amberduke@pyrami.com  | Duke       |
-    | 6                | Hattie      | 671 Bristol Street | 5686      | M        | Dante  | Netagy     | TN      | 36    | hattiebond@netagy.com | Bond       |
-    | 13               | Nanette     | 789 Madison Street | 32838     | F        | Nogal  | Quility    | VA      | 28    | null                  | Bates      |
-    +------------------+-------------+--------------------+-----------+----------+--------+------------+---------+-------+-----------------------+------------+
+    +------------------+----------+
+    | account_number   | gender   |
+    |------------------+----------|
+    | 1                | M        |
+    | 6                | M        |
+    | 13               | F        |
+    +------------------+----------+
 
 Example 3: Ignore the empty field by default
 ============================================
@@ -65,15 +65,15 @@ The example show dedup the document by ignore the empty value field.
 
 PPL query::
 
-    od> source=accounts | dedup email;
+    od> source=accounts | dedup email | fields account_number, email;
     fetched rows / total rows = 3/3
-    +------------------+-------------+----------------------+-----------+----------+--------+------------+---------+-------+-----------------------+------------+
-    | account_number   | firstname   | address              | balance   | gender   | city   | employer   | state   | age   | email                 | lastname   |
-    |------------------+-------------+----------------------+-----------+----------+--------+------------+---------+-------+-----------------------+------------|
-    | 1                | Amber       | 880 Holmes Lane      | 39225     | M        | Brogan | Pyrami     | IL      | 32    | amberduke@pyrami.com  | Duke       |
-    | 6                | Hattie      | 671 Bristol Street   | 5686      | M        | Dante  | Netagy     | TN      | 36    | hattiebond@netagy.com | Bond       |
-    | 18               | Dale        | 467 Hutchinson Court | 4180      | M        | Orick  | null       | MD      | 33    | daleadams@boink.com   | Adams      |
-    +------------------+-------------+----------------------+-----------+----------+--------+------------+---------+-------+-----------------------+------------+
+    +------------------+-----------------------+
+    | account_number   | email                 |
+    |------------------+-----------------------|
+    | 1                | amberduke@pyrami.com  |
+    | 6                | hattiebond@netagy.com |
+    | 18               | daleadams@boink.com   |
+    +------------------+-----------------------+
 
 Example 4: Keep the empty field
 ===============================
@@ -82,16 +82,16 @@ The example show dedup the document by keep null value field.
 
 PPL query::
 
-    od> source=accounts | dedup email keepempty=true ;
+    od> source=accounts | dedup email keepempty=true | fields account_number, email;
     fetched rows / total rows = 4/4
-    +------------------+-------------+----------------------+-----------+----------+--------+------------+---------+-------+-----------------------+------------+
-    | account_number   | firstname   | address              | balance   | gender   | city   | employer   | state   | age   | email                 | lastname   |
-    |------------------+-------------+----------------------+-----------+----------+--------+------------+---------+-------+-----------------------+------------|
-    | 1                | Amber       | 880 Holmes Lane      | 39225     | M        | Brogan | Pyrami     | IL      | 32    | amberduke@pyrami.com  | Duke       |
-    | 6                | Hattie      | 671 Bristol Street   | 5686      | M        | Dante  | Netagy     | TN      | 36    | hattiebond@netagy.com | Bond       |
-    | 13               | Nanette     | 789 Madison Street   | 32838     | F        | Nogal  | Quility    | VA      | 28    | null                  | Bates      |
-    | 18               | Dale        | 467 Hutchinson Court | 4180      | M        | Orick  | null       | MD      | 33    | daleadams@boink.com   | Adams      |
-    +------------------+-------------+----------------------+-----------+----------+--------+------------+---------+-------+-----------------------+------------+
+    +------------------+-----------------------+
+    | account_number   | email                 |
+    |------------------+-----------------------|
+    | 1                | amberduke@pyrami.com  |
+    | 6                | hattiebond@netagy.com |
+    | 13               | null                  |
+    | 18               | daleadams@boink.com   |
+    +------------------+-----------------------+
 
 Example 5: Dedup in consecutive document
 =========================================
@@ -100,13 +100,13 @@ The example show dedup the consecutive document.
 
 PPL query::
 
-    od> source=accounts | dedup email consecutive=true;
+    od> source=accounts | dedup gender consecutive=true | fields account_number, gender;
     fetched rows / total rows = 3/3
-    +------------------+-------------+----------------------+-----------+----------+--------+------------+---------+-------+-----------------------+------------+
-    | account_number   | firstname   | address              | balance   | gender   | city   | employer   | state   | age   | email                 | lastname   |
-    |------------------+-------------+----------------------+-----------+----------+--------+------------+---------+-------+-----------------------+------------|
-    | 1                | Amber       | 880 Holmes Lane      | 39225     | M        | Brogan | Pyrami     | IL      | 32    | amberduke@pyrami.com  | Duke       |
-    | 6                | Hattie      | 671 Bristol Street   | 5686      | M        | Dante  | Netagy     | TN      | 36    | hattiebond@netagy.com | Bond       |
-    | 18               | Dale        | 467 Hutchinson Court | 4180      | M        | Orick  | null       | MD      | 33    | daleadams@boink.com   | Adams      |
-    +------------------+-------------+----------------------+-----------+----------+--------+------------+---------+-------+-----------------------+------------+
+    +------------------+----------+
+    | account_number   | gender   |
+    |------------------+----------|
+    | 1                | M        |
+    | 13               | F        |
+    | 18               | M        |
+    +------------------+----------+
 

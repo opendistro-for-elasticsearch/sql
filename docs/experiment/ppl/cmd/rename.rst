@@ -11,7 +11,7 @@ rename
 
 Description
 ============
-| Using ``rename`` command to rename one or more fields in the search result.
+| Using ``rename`` command to rename one in the search result.
 
 
 Syntax
