@@ -143,6 +143,17 @@ public class AstBuilderTest {
   }
 
   @Test
+  public void testRenameCommandWithMultiFields() {
+    assertEqual("source=t | rename f as g, h as i, j as k",
+        rename(
+            relation("t"),
+            map("f", "g"),
+            map("h", "i"),
+            map("j", "k")
+        ));
+  }
+
+  @Test
   public void testStatsCommand() {
     assertEqual("source=t | stats count(a)",
         agg(

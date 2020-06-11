@@ -46,7 +46,7 @@ fieldsCommand
     ;
 
 renameCommand
-    : RENAME orignalField=wcFieldExpression AS renamedField=wcFieldExpression
+    : RENAME renameClasue (COMMA renameClasue)*
     ;
 
 statsCommand
@@ -79,6 +79,10 @@ evalCommand
 fromClause
     : SOURCE EQUAL tableSource
     | INDEX EQUAL tableSource
+    ;
+
+renameClasue
+    : orignalField=wcFieldExpression AS renamedField=wcFieldExpression
     ;
 
 byClause

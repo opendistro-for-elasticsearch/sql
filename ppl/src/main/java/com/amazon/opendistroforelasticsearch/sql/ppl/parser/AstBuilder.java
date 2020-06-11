@@ -45,7 +45,6 @@ import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLP
 import com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParserBaseVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ppl.utils.ArgumentFactory;
 import com.google.common.collect.ImmutableList;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -116,14 +115,10 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
   @Override
   public UnresolvedPlan visitRenameCommand(RenameCommandContext ctx) {
     return new Rename(
-        new ArrayList<>(
-            Collections.singletonList(
-                new Map(
-                    visitExpression(ctx.orignalField),
-                    visitExpression(ctx.renamedField)
-                )
-            )
-        )
+        ctx.renameClasue()
+            .stream()
+            .map(ct -> new Map(visitExpression(ct.orignalField), visitExpression(ct.renamedField)))
+            .collect(Collectors.toList())
     );
   }
 

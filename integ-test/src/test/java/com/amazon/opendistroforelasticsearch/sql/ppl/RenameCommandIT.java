@@ -44,6 +44,16 @@ public class RenameCommandIT extends PPLIntegTestCase {
   }
 
   @Test
+  public void testRenameMultiField() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s | fields firstname, age | rename firstname as FIRST, age as AGE",
+                TEST_INDEX_ACCOUNT));
+    verifyColumn(result, columnName("FIRST"), columnName("AGE"));
+  }
+
+  @Test
   public void testRenameWildcardFields() throws IOException {
     JSONObject result = executeQuery("source=" + TEST_INDEX_ACCOUNT + " | rename %name as %NAME");
     verifyColumn(result, columnPattern(".*name$"));
