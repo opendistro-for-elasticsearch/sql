@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 
 @EqualsAndHashCode
 @RequiredArgsConstructor
-public class ExprStringValue implements ExprValue {
+public class ExprStringValue implements ExprValue, Comparable<String> {
   private final String value;
 
   @Override
@@ -36,5 +36,10 @@ public class ExprStringValue implements ExprValue {
   @Override
   public String toString() {
     return String.format("\"%s\"", value);
+  }
+
+  @Override
+  public int compareTo(String o) {
+    return value.compareTo(o);
   }
 }

@@ -13,24 +13,31 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum BuiltinFunctionName {
   ABS(FunctionName.of("abs")),
-
-  AND(FunctionName.of("and")),
-  OR(FunctionName.of("or")),
-  XOR(FunctionName.of("xor")),
-  NOT(FunctionName.of("not")),
-  NOTEQUAL(FunctionName.of("notequal")),
-
   TOSTRING(FunctionName.of("tostring")),
 
   /**
-   * Operator.
+   * Arithmetic Operators.
    */
   ADD(FunctionName.of("+")),
   SUBTRACT(FunctionName.of("-")),
   MULTIPLY(FunctionName.of("*")),
   DIVIDE(FunctionName.of("/")),
   MODULES(FunctionName.of("%")),
+
+  /**
+   * Boolean Operators.
+   */
+  AND(FunctionName.of("and")),
+  OR(FunctionName.of("or")),
+  XOR(FunctionName.of("xor")),
+  NOT(FunctionName.of("not")),
   EQUAL(FunctionName.of("=")),
+  NOTEQUAL(FunctionName.of("!=")),
+  LESS(FunctionName.of("<")),
+  LTE(FunctionName.of("<=")),
+  GREATER(FunctionName.of(">")),
+  GTE(FunctionName.of(">=")),
+  LIKE(FunctionName.of("like")),
 
   /**
    * Aggregation Function.

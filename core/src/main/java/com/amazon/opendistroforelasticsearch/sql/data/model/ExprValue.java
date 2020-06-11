@@ -55,4 +55,8 @@ public interface ExprValue {
   default BindingTuple bindingTuples() {
     return BindingTuple.EMPTY;
   }
+
+  default int compareTo(ExprValue v) {
+    return 0;
+  }
 }

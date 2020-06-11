@@ -37,4 +37,9 @@ public class ExprDoubleValue implements ExprValue {
   public String toString() {
     return value.toString();
   }
+
+  @Override
+  public int compareTo(ExprValue target) {
+    return value.compareTo((Double) target.value());
+  }
 }

@@ -13,9 +13,9 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.expression.scalar.arthmetic;
+package com.amazon.opendistroforelasticsearch.sql.expression.operator.arthmetic;
 
-import static com.amazon.opendistroforelasticsearch.sql.expression.scalar.OperatorUtils.unaryOperator;
+import static com.amazon.opendistroforelasticsearch.sql.expression.operator.OperatorUtils.unaryOperator;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;

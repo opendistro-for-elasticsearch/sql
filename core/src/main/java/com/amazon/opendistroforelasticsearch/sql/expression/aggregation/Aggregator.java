@@ -25,6 +25,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionImp
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -68,5 +69,13 @@ public abstract class Aggregator<S extends AggregationState>
   @Override
   public ExprType type(Environment<Expression, ExprType> typeEnv) {
     return returnType;
+  }
+
+  @Override
+  public String toString() {
+    return String.format("%s(%s)", functionName,
+        arguments.stream()
+            .map(Object::toString)
+            .collect(Collectors.joining(", ")));
   }
 }

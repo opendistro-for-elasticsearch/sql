@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.expression.scalar.predicate;
+package com.amazon.opendistroforelasticsearch.sql.expression.operator.predicate;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_FALSE;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
@@ -50,7 +50,7 @@ import lombok.experimental.UtilityClass;
  * equalTo, Compare the left expression and right expression and produces a Boolean.
  */
 @UtilityClass
-public class BinaryPredicateFunction {
+public class BinaryPredicateOperator {
   /**
    * Register Binary Predicate Function.
    *
@@ -61,6 +61,10 @@ public class BinaryPredicateFunction {
     repository.register(or());
     repository.register(xor());
     repository.register(equal());
+    repository.register(less());
+    repository.register(lte());
+    repository.register(greater());
+    repository.register(gte());
   }
 
   /**
@@ -163,6 +167,49 @@ public class BinaryPredicateFunction {
           .put(LITERAL_MISSING, LITERAL_MISSING, LITERAL_TRUE)
           .build();
 
+  /**
+   * The lessThan logic.
+   * A       B       A < B
+   * The lessThanOrEqualTo logic.
+   * A       B       A <= B
+   * The greaterThan logic.
+   * A       B       A > B
+   * The greaterThanOrEqualTo logic.
+   * A       B       A >= B
+   * The lessThan, lessThanOrEqualTo, greaterThan, greaterThanOrEqualTo common logic.
+   * A       NULL    NULL
+   * A       MISSING MISSING
+   * NULL    B       NULL
+   * MISSING B       MISSING
+   * NULL    NULL    NULL
+   * NULL    MISSING NULL
+   * MISSING NULL    NULL
+   * MISSING MISSING MISSING
+   */
+  private static Table<ExprValue, ExprValue, ExprValue>  valueComparisonTable =
+      new ImmutableTable.Builder<ExprValue, ExprValue, ExprValue>()
+          .put(LITERAL_NULL, LITERAL_NULL, LITERAL_NULL)
+          .put(LITERAL_NULL, LITERAL_MISSING, LITERAL_NULL)
+          .put(LITERAL_MISSING, LITERAL_NULL, LITERAL_NULL)
+          .put(LITERAL_MISSING, LITERAL_MISSING, LITERAL_MISSING)
+          .build();
+
+  /**
+   * The like logic.
+   * A       B       A like B
+   * NULL    NULL    TRUE
+   * NULL    MISSING FALSE
+   * MISSING NULL    FALSE
+   * MISSING MISSING TRUE
+   */
+  private static Table<ExprValue, ExprValue, ExprValue> likeTable =
+      new ImmutableTable.Builder<ExprValue, ExprValue, ExprValue>()
+          .put(LITERAL_NULL, LITERAL_NULL, LITERAL_TRUE)
+          .put(LITERAL_NULL, LITERAL_MISSING, LITERAL_FALSE)
+          .put(LITERAL_MISSING, LITERAL_NULL, LITERAL_FALSE)
+          .put(LITERAL_MISSING, LITERAL_MISSING, LITERAL_TRUE)
+          .build();
+
   private static FunctionResolver and() {
     FunctionName functionName = BuiltinFunctionName.AND.getName();
     return FunctionResolver.builder()
@@ -196,7 +243,7 @@ public class BinaryPredicateFunction {
   private static FunctionResolver equal() {
     return new FunctionResolver(
         BuiltinFunctionName.EQUAL.getName(),
-        predicateFunction(
+        predicate(
             BuiltinFunctionName.EQUAL.getName(),
             Integer::equals,
             Long::equals,
@@ -210,7 +257,63 @@ public class BinaryPredicateFunction {
     );
   }
 
-  private static Map<FunctionSignature, FunctionBuilder> predicateFunction(
+  private static FunctionResolver less() {
+    return new FunctionResolver(
+        BuiltinFunctionName.LESS.getName(),
+        predicate(
+            BuiltinFunctionName.LESS.getName(),
+            (v1, v2) -> v1 < v2,
+            (v1, v2) -> v1 < v2,
+            (v1, v2) -> v1 < v2,
+            (v1, v2) -> v1 < v2,
+            (v1, v2) -> v1.compareTo(v2) < 0
+        )
+    );
+  }
+
+  private static FunctionResolver lte() {
+    return new FunctionResolver(
+        BuiltinFunctionName.LTE.getName(),
+        predicate(
+            BuiltinFunctionName.LTE.getName(),
+            (v1, v2) -> v1 <= v2,
+            (v1, v2) -> v1 <= v2,
+            (v1, v2) -> v1 <= v2,
+            (v1, v2) -> v1 <= v2,
+            (v1, v2) -> v1.compareTo(v2) <= 0
+        )
+    );
+  }
+
+  private static FunctionResolver greater() {
+    return new FunctionResolver(
+        BuiltinFunctionName.GREATER.getName(),
+        predicate(
+            BuiltinFunctionName.GREATER.getName(),
+            (v1, v2) -> v1 > v2,
+            (v1, v2) -> v1 > v2,
+            (v1, v2) -> v1 > v2,
+            (v1, v2) -> v1 > v2,
+            (v1, v2) -> v1.compareTo(v2) > 0
+        )
+    );
+  }
+
+  private static FunctionResolver gte() {
+    return new FunctionResolver(
+        BuiltinFunctionName.GTE.getName(),
+        predicate(
+            BuiltinFunctionName.GTE.getName(),
+            (v1, v2) -> v1 >= v2,
+            (v1, v2) -> v1 >= v2,
+            (v1, v2) -> v1 >= v2,
+            (v1, v2) -> v1 >= v2,
+            (v1, v2) -> v1.compareTo(v2) >= 0
+        )
+    );
+  }
+
+  private static Map<FunctionSignature, FunctionBuilder> predicate(
       FunctionName functionName,
       BiFunction<Integer, Integer, Boolean> integerFunc,
       BiFunction<Long, Long, Boolean> longFunc,
@@ -253,6 +356,33 @@ public class BinaryPredicateFunction {
     return builder.build();
   }
 
+  private static Map<FunctionSignature, FunctionBuilder> predicate(
+      FunctionName functionName,
+      BiFunction<Integer, Integer, Boolean> integerFunc,
+      BiFunction<Long, Long, Boolean> longFunc,
+      BiFunction<Float, Float, Boolean> floatFunc,
+      BiFunction<Double, Double, Boolean> doubleFunc,
+      BiFunction<String, String, Boolean> stringFunc) {
+    ImmutableMap.Builder<FunctionSignature, FunctionBuilder> builder = new ImmutableMap.Builder<>();
+    return builder
+        .put(new FunctionSignature(functionName, Arrays.asList(ExprType.INTEGER, ExprType.INTEGER)),
+            compareValue(functionName, integerFunc, ExprValueUtils::getIntegerValue,
+                ExprType.BOOLEAN))
+        .put(new FunctionSignature(functionName, Arrays.asList(ExprType.LONG, ExprType.LONG)),
+            compareValue(functionName, longFunc, ExprValueUtils::getLongValue,
+            ExprType.BOOLEAN))
+        .put(new FunctionSignature(functionName, Arrays.asList(ExprType.FLOAT, ExprType.FLOAT)),
+            compareValue(functionName, floatFunc, ExprValueUtils::getFloatValue,
+            ExprType.BOOLEAN))
+        .put(new FunctionSignature(functionName, Arrays.asList(ExprType.DOUBLE, ExprType.DOUBLE)),
+            compareValue(functionName, doubleFunc, ExprValueUtils::getDoubleValue,
+                ExprType.BOOLEAN))
+        .put(new FunctionSignature(functionName, Arrays.asList(ExprType.STRING, ExprType.STRING)),
+            compareValue(functionName, stringFunc, ExprValueUtils::getStringValue,
+                ExprType.BOOLEAN))
+        .build();
+  }
+
   private static FunctionBuilder binaryPredicate(FunctionName functionName,
                                                  Table<ExprValue, ExprValue, ExprValue> table,
                                                  ExprType returnType) {
@@ -271,6 +401,12 @@ public class BinaryPredicateFunction {
       @Override
       public ExprType type(Environment<Expression, ExprType> env) {
         return returnType;
+      }
+
+      @Override
+      public String toString() {
+        return String.format("%s %s %s", arguments.get(0).toString(), functionName, arguments
+            .get(1).toString());
       }
     };
   }
@@ -297,6 +433,53 @@ public class BinaryPredicateFunction {
       @Override
       public ExprType type(Environment<Expression, ExprType> env) {
         return returnType;
+      }
+
+      @Override
+      public String toString() {
+        return String.format("%s %s %s", arguments.get(0).toString(), functionName, arguments
+            .get(1).toString());
+      }
+    };
+  }
+
+  /**
+   * Building method for operators including.
+   * less than (<) operator
+   * less than or equal to (<=) operator
+   * greater than (>) operator
+   * greater than or equal to (>=) operator
+   */
+  private static <T, R> FunctionBuilder compareValue(FunctionName functionName,
+                                                     BiFunction<T, T, R> function,
+                                                     Function<ExprValue, T> observer,
+                                                     ExprType returnType) {
+    return arguments -> new FunctionExpression(functionName, arguments) {
+      @Override
+      public ExprValue valueOf(Environment<Expression, ExprValue> env) {
+        ExprValue arg1 = arguments.get(0).valueOf(env);
+        ExprValue arg2 = arguments.get(1).valueOf(env);
+        if (valueComparisonTable.contains(arg1, arg2)) {
+          return valueComparisonTable.get(arg1, arg2);
+        } else if (arg1.isNull() || arg2.isNull()) {
+          return LITERAL_NULL;
+        } else if (arg1.isMissing() || arg2.isMissing()) {
+          return LITERAL_MISSING;
+        } else {
+          return ExprValueUtils.fromObjectValue(
+              function.apply(observer.apply(arg1), observer.apply(arg2)));
+        }
+      }
+
+      @Override
+      public ExprType type(Environment<Expression, ExprType> env) {
+        return returnType;
+      }
+
+      @Override
+      public String toString() {
+        return String.format("%s %s %s", arguments.get(0).toString(), functionName, arguments
+            .get(1).toString());
       }
     };
   }
