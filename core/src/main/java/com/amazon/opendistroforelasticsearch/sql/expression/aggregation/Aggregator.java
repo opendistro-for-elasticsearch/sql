@@ -70,12 +70,4 @@ public abstract class Aggregator<S extends AggregationState>
   public ExprType type(Environment<Expression, ExprType> typeEnv) {
     return returnType;
   }
-
-  @Override
-  public String toString() {
-    return String.format("%s(%s)", functionName,
-        arguments.stream()
-            .map(Object::toString)
-            .collect(Collectors.joining(", ")));
-  }
 }

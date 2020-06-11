@@ -15,9 +15,12 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.Test;
 
@@ -42,5 +45,13 @@ class ExprTupleValueTest {
         ExprValueUtils.tupleValue(ImmutableMap.of("integer_value", 2, "float_value", 1f));
     assertFalse(tupleValue1.equals(tupleValue2));
     assertFalse(tupleValue2.equals(tupleValue1));
+  }
+
+  @Test
+  public void comparabilityTest() {
+    ExprValue tupleValue = ExprValueUtils.tupleValue(ImmutableMap.of("integer_value", 2));
+    ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
+        () -> tupleValue.compareTo(tupleValue));
+    assertEquals("invalid to call compare operation on tuple value", exception.getMessage());
   }
 }

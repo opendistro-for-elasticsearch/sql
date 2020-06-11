@@ -15,14 +15,13 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
+
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
+import java.io.IOException;
 import org.elasticsearch.client.ResponseException;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import java.io.IOException;
-
-import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
 
 public class QueryAnalysisIT extends PPLIntegTestCase {
 
@@ -86,12 +85,6 @@ public class QueryAnalysisIT extends PPLIntegTestCase {
   /**
    * Commands that fail semantic analysis should throw {@link SemanticCheckException}.
    */
-  @Test
-  public void unsupportedAggregationShouldFailSemanticCheck() {
-    String query = String.format("search source=%s | stats range(age)", TEST_INDEX_ACCOUNT);
-    queryShouldThrowSemanticException(query, "Unsupported aggregation function range");
-  }
-
   @Test
   public void nonexistentFieldShouldFailSemanticCheck() {
     String query = String.format("search source=%s | fields name", TEST_INDEX_ACCOUNT);

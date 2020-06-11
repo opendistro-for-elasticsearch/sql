@@ -43,9 +43,11 @@ public class UnaryFunctionTest extends ExpressionTestBase {
   @ParameterizedTest(name = "abs({0})")
   @ValueSource(ints = {-2, 2})
   public void abs_int_value(Integer value) {
+    FunctionExpression abs = dsl.abs(typeEnv, DSL.literal(value));
     assertThat(
-        dsl.abs(typeEnv, DSL.literal(value)).valueOf(valueEnv()),
+        abs.valueOf(valueEnv()),
         allOf(hasType(ExprType.INTEGER), hasValue(Math.abs(value))));
+    assertEquals(String.format("abs(%s)", value.toString()), abs.toString());
   }
 
   /**
@@ -54,9 +56,11 @@ public class UnaryFunctionTest extends ExpressionTestBase {
   @ParameterizedTest(name = "abs({0})")
   @ValueSource(longs = {-2L, 2L})
   public void abs_long_value(Long value) {
+    FunctionExpression abs = dsl.abs(typeEnv, DSL.literal(value));
     assertThat(
-        dsl.abs(typeEnv, DSL.literal(value)).valueOf(valueEnv()),
+        abs.valueOf(valueEnv()),
         allOf(hasType(ExprType.LONG), hasValue(Math.abs(value))));
+    assertEquals(String.format("abs(%s)", value.toString()), abs.toString());
   }
 
   /**
@@ -65,9 +69,11 @@ public class UnaryFunctionTest extends ExpressionTestBase {
   @ParameterizedTest(name = "abs({0})")
   @ValueSource(floats = {-2f, 2f})
   public void abs_float_value(Float value) {
+    FunctionExpression abs = dsl.abs(typeEnv, DSL.literal(value));
     assertThat(
-        dsl.abs(typeEnv, DSL.literal(value)).valueOf(valueEnv()),
+        abs.valueOf(valueEnv()),
         allOf(hasType(ExprType.FLOAT), hasValue(Math.abs(value))));
+    assertEquals(String.format("abs(%s)", value.toString()), abs.toString());
   }
 
   /**
@@ -76,9 +82,11 @@ public class UnaryFunctionTest extends ExpressionTestBase {
   @ParameterizedTest(name = "abs({0})")
   @ValueSource(doubles = {-2L, 2L})
   public void abs_double_value(Double value) {
+    FunctionExpression abs = dsl.abs(typeEnv, DSL.literal(value));
     assertThat(
-        dsl.abs(typeEnv, DSL.literal(value)).valueOf(valueEnv()),
+        abs.valueOf(valueEnv()),
         allOf(hasType(ExprType.DOUBLE), hasValue(Math.abs(value))));
+    assertEquals(String.format("abs(%s)", value.toString()), abs.toString());
   }
 
   @Test

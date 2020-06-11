@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
+import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
@@ -33,6 +34,12 @@ public class ExprCollectionValue implements ExprValue {
   @Override
   public ExprType type() {
     return ExprType.ARRAY;
+  }
+
+  @Override
+  public int compareTo(ExprValue v) {
+    throw new ExpressionEvaluationException(
+        "invalid to call compare operation on collection value");
   }
 
   @Override

@@ -63,10 +63,16 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
   }
 
   private static Stream<Arguments> testCompareValueArguments() {
-    List<Object> arguments = Arrays.asList(1, 1L, 1F, 1D, "str");
+    List<List<Object>> arguments = Arrays.asList(
+        Arrays.asList(1, 1), Arrays.asList(1, 2), Arrays.asList(2, 1),
+        Arrays.asList(1L, 1L), Arrays.asList(1L, 2L), Arrays.asList(2L, 1L),
+        Arrays.asList(1F, 1F), Arrays.asList(1F, 2F), Arrays.asList(2F, 1F),
+        Arrays.asList(1D, 1D), Arrays.asList(1D, 2D), Arrays.asList(2D, 1D),
+        Arrays.asList("str", "str"), Arrays.asList("str", "str0"), Arrays.asList("str0", "str")
+    );
     Stream.Builder<Arguments> builder = Stream.builder();
-    for (Object argument : arguments) {
-      builder.add(Arguments.of(fromObjectValue(argument), fromObjectValue(argument)));
+    for (List<Object> argPair : arguments) {
+      builder.add(Arguments.of(fromObjectValue(argPair.get(0)), fromObjectValue(argPair.get(1))));
     }
     return builder.build();
   }

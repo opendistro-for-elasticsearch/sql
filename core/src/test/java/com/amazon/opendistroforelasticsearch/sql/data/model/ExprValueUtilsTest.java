@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.fromObjectValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -22,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -94,6 +96,15 @@ public class ExprValueUtilsTest {
     return builder.build();
   }
 
+  private static Stream<Arguments> getCompareArgumentStream() {
+    List<Object> arguments = Arrays.asList(1, 1L, 1F, 1D, "str");
+    Stream.Builder<Arguments> builder = Stream.builder();
+    for (Object argument : arguments) {
+      builder.add(Arguments.of(fromObjectValue(argument), fromObjectValue(argument)));
+    }
+    return builder.build();
+  }
+
   private static Stream<Arguments> invalidGetNumberValueArgumentStream() {
     return Lists.cartesianProduct(nonNumberValues, numberValueExtractor)
         .stream()
@@ -137,6 +148,12 @@ public class ExprValueUtilsTest {
   @MethodSource("getTypeTestArgumentStream")
   public void getType(ExprValue value, ExprType expectType) {
     assertEquals(expectType, value.type());
+  }
+
+  @ParameterizedTest(name = "compare ExprValue: {0} to {1} ")
+  @MethodSource("getCompareArgumentStream")
+  public void compare(ExprValue v1, ExprValue v2) {
+    assertEquals(0, v1.compareTo(v2));
   }
 
   /**

@@ -70,6 +70,7 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
     ExprType expectedType = WideningTypeRule.max(op1.type(), op2.type());
     assertEquals(expectedType, expression.type(null));
     assertValueEqual(BuiltinFunctionName.ADD, expectedType, op1, op2, expression.valueOf(null));
+    assertEquals(String.format("%s + %s", op1.toString(), op2.toString()), expression.toString());
   }
 
   @ParameterizedTest(name = "{0}(int,null)")
@@ -141,6 +142,7 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
     assertEquals(expectedType, expression.type(null));
     assertValueEqual(BuiltinFunctionName.SUBTRACT, expectedType, op1, op2,
         expression.valueOf(null));
+    assertEquals(String.format("%s - %s", op1.toString(), op2.toString()), expression.toString());
   }
 
   @ParameterizedTest(name = "multiply({1}, {2})")
@@ -151,6 +153,7 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
     assertEquals(expectedType, expression.type(null));
     assertValueEqual(BuiltinFunctionName.MULTIPLY, expectedType, op1, op2,
         expression.valueOf(null));
+    assertEquals(String.format("%s * %s", op1.toString(), op2.toString()), expression.toString());
   }
 
   @ParameterizedTest(name = "divide({1}, {2})")
@@ -160,6 +163,7 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
     ExprType expectedType = WideningTypeRule.max(op1.type(), op2.type());
     assertEquals(expectedType, expression.type(null));
     assertValueEqual(BuiltinFunctionName.DIVIDE, expectedType, op1, op2, expression.valueOf(null));
+    assertEquals(String.format("%s / %s", op1.toString(), op2.toString()), expression.toString());
   }
 
   @ParameterizedTest(name = "module({1}, {2})")
@@ -169,6 +173,7 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
     ExprType expectedType = WideningTypeRule.max(op1.type(), op2.type());
     assertEquals(expectedType, expression.type(null));
     assertValueEqual(BuiltinFunctionName.MODULES, expectedType, op1, op2, expression.valueOf(null));
+    assertEquals(op1.toString() + " % " + op2.toString(), expression.toString());
   }
 
   protected void assertValueEqual(BuiltinFunctionName builtinFunctionName, ExprType type,

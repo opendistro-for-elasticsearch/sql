@@ -32,6 +32,11 @@ public interface ExprValue {
   ExprType type();
 
   /**
+   * Compare the Object value of itself to the ExprValue v.
+   */
+  int compareTo(ExprValue v);
+
+  /**
    * Is null value.
    *
    * @return true: is null value, otherwise false
@@ -54,9 +59,5 @@ public interface ExprValue {
    */
   default BindingTuple bindingTuples() {
     return BindingTuple.EMPTY;
-  }
-
-  default int compareTo(ExprValue v) {
-    return 0;
   }
 }

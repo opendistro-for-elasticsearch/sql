@@ -61,4 +61,18 @@ class AvgAggregatorTest extends AggregationTest {
         () -> dsl.avg(typeEnv, DSL.ref("double_value")).valueOf(valueEnv()));
     assertEquals("can't evaluate on aggregator: avg", exception.getMessage());
   }
+
+  @Test
+  public void test_to_string() {
+    Aggregator avgAggregator = dsl.avg(typeEnv, DSL.ref("integer_value"));
+    assertEquals("avg(integer_value)", avgAggregator.toString());
+  }
+
+  @Test
+  public void test_nested_to_string() {
+    Aggregator avgAggregator = dsl.avg(typeEnv, dsl.multiply(typeEnv, DSL.ref("integer_value"),
+        DSL.literal(ExprValueUtils.integerValue(10))));
+    assertEquals(String.format("avg(%s * %d)", DSL.ref("integer_value"), 10),
+        avgAggregator.toString());
+  }
 }

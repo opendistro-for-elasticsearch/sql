@@ -35,9 +35,10 @@ class UnaryPredicateOperatorTest extends ExpressionTestBase {
   @ParameterizedTest(name = "not({0})")
   @ValueSource(booleans = {true, false})
   public void test_not(Boolean v) {
-    FunctionExpression and = dsl.not(typeEnv(), DSL.literal(booleanValue(v)));
-    assertEquals(ExprType.BOOLEAN, and.type(typeEnv()));
-    assertEquals(!v, ExprValueUtils.getBooleanValue(and.valueOf(valueEnv())));
+    FunctionExpression not = dsl.not(typeEnv(), DSL.literal(booleanValue(v)));
+    assertEquals(ExprType.BOOLEAN, not.type(typeEnv()));
+    assertEquals(!v, ExprValueUtils.getBooleanValue(not.valueOf(valueEnv())));
+    assertEquals(String.format("not %s", v.toString()), not.toString());
   }
 
   @Test
