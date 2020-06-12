@@ -58,25 +58,8 @@ PPL query::
     | 13               | F        |
     +------------------+----------+
 
-Example 3: Ignore the empty field by default
+Example 3: Keep or Ignore the empty field by default
 ============================================
-
-The example show dedup the document by ignore the empty value field.
-
-PPL query::
-
-    od> source=accounts | dedup email | fields account_number, email;
-    fetched rows / total rows = 3/3
-    +------------------+-----------------------+
-    | account_number   | email                 |
-    |------------------+-----------------------|
-    | 1                | amberduke@pyrami.com  |
-    | 6                | hattiebond@netagy.com |
-    | 18               | daleadams@boink.com   |
-    +------------------+-----------------------+
-
-Example 4: Keep the empty field
-===============================
 
 The example show dedup the document by keep null value field.
 
@@ -93,7 +76,23 @@ PPL query::
     | 18               | daleadams@boink.com   |
     +------------------+-----------------------+
 
-Example 5: Dedup in consecutive document
+
+The example show dedup the document by ignore the empty value field.
+
+PPL query::
+
+    od> source=accounts | dedup email | fields account_number, email;
+    fetched rows / total rows = 3/3
+    +------------------+-----------------------+
+    | account_number   | email                 |
+    |------------------+-----------------------|
+    | 1                | amberduke@pyrami.com  |
+    | 6                | hattiebond@netagy.com |
+    | 18               | daleadams@boink.com   |
+    +------------------+-----------------------+
+
+
+Example 4: Dedup in consecutive document
 =========================================
 
 The example show dedup the consecutive document.
