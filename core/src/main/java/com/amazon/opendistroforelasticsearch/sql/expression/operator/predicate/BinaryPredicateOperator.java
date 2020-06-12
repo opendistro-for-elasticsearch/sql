@@ -61,6 +61,7 @@ public class BinaryPredicateOperator {
     repository.register(or());
     repository.register(xor());
     repository.register(equal());
+    repository.register(notEqual());
     repository.register(less());
     repository.register(lte());
     repository.register(greater());
@@ -168,6 +169,22 @@ public class BinaryPredicateOperator {
           .build();
 
   /**
+   * The notEqualTo logic.
+   * A       B       A != B
+   * NULL    NULL    FALSE
+   * NULL    MISSING TRUE
+   * MISSING NULL    TRUE
+   * MISSING MISSING FALSE
+   */
+  private static Table<ExprValue, ExprValue, ExprValue> notEqualTable =
+      new ImmutableTable.Builder<ExprValue, ExprValue, ExprValue>()
+          .put(LITERAL_NULL, LITERAL_NULL, LITERAL_FALSE)
+          .put(LITERAL_NULL, LITERAL_MISSING, LITERAL_TRUE)
+          .put(LITERAL_MISSING, LITERAL_NULL, LITERAL_TRUE)
+          .put(LITERAL_MISSING, LITERAL_MISSING, LITERAL_FALSE)
+          .build();
+
+  /**
    * The lessThan logic.
    * A       B       A < B
    * The lessThanOrEqualTo logic.
@@ -229,6 +246,8 @@ public class BinaryPredicateOperator {
         BuiltinFunctionName.EQUAL.getName(),
         predicate(
             BuiltinFunctionName.EQUAL.getName(),
+            equalTable,
+            LITERAL_FALSE,
             Integer::equals,
             Long::equals,
             Float::equals,
@@ -237,6 +256,25 @@ public class BinaryPredicateOperator {
             Boolean::equals,
             List::equals,
             Map::equals
+        )
+    );
+  }
+
+  private static FunctionResolver notEqual() {
+    return new FunctionResolver(
+        BuiltinFunctionName.NOTEQUAL.getName(),
+        predicate(
+            BuiltinFunctionName.NOTEQUAL.getName(),
+            notEqualTable,
+            LITERAL_TRUE,
+            (v1, v2) -> ! v1.equals(v2),
+            (v1, v2) -> ! v1.equals(v2),
+            (v1, v2) -> ! v1.equals(v2),
+            (v1, v2) -> ! v1.equals(v2),
+            (v1, v2) -> ! v1.equals(v2),
+            (v1, v2) -> ! v1.equals(v2),
+            (v1, v2) -> ! v1.equals(v2),
+            (v1, v2) -> ! v1.equals(v2)
         )
     );
   }
@@ -299,6 +337,8 @@ public class BinaryPredicateOperator {
 
   private static Map<FunctionSignature, FunctionBuilder> predicate(
       FunctionName functionName,
+      Table<ExprValue, ExprValue, ExprValue> table,
+      ExprValue defaultValue,
       BiFunction<Integer, Integer, Boolean> integerFunc,
       BiFunction<Long, Long, Boolean> longFunc,
       BiFunction<Float, Float, Boolean> floatFunc,
@@ -308,36 +348,32 @@ public class BinaryPredicateOperator {
       BiFunction<List, List, Boolean> listFunc,
       BiFunction<Map, Map, Boolean> mapFunc) {
     ImmutableMap.Builder<FunctionSignature, FunctionBuilder> builder = new ImmutableMap.Builder<>();
-    builder
+    return builder
         .put(new FunctionSignature(functionName, Arrays.asList(ExprType.INTEGER, ExprType.INTEGER)),
-            equalTo(functionName, integerFunc, ExprValueUtils::getIntegerValue,
-                ExprType.BOOLEAN));
-    builder.put(new FunctionSignature(functionName, Arrays.asList(ExprType.LONG, ExprType.LONG)),
-        equalTo(functionName, longFunc, ExprValueUtils::getLongValue,
-            ExprType.BOOLEAN));
-    builder.put(new FunctionSignature(functionName, Arrays.asList(ExprType.FLOAT, ExprType.FLOAT)),
-        equalTo(functionName, floatFunc, ExprValueUtils::getFloatValue,
-            ExprType.BOOLEAN));
-    builder
+            equalPredicate(functionName, table, integerFunc, ExprValueUtils::getIntegerValue,
+                defaultValue, ExprType.BOOLEAN))
+        .put(new FunctionSignature(functionName, Arrays.asList(ExprType.LONG, ExprType.LONG)),
+            equalPredicate(functionName, table, longFunc, ExprValueUtils::getLongValue,
+                defaultValue, ExprType.BOOLEAN))
+        .put(new FunctionSignature(functionName, Arrays.asList(ExprType.FLOAT, ExprType.FLOAT)),
+            equalPredicate(functionName, table, floatFunc, ExprValueUtils::getFloatValue,
+                defaultValue, ExprType.BOOLEAN))
         .put(new FunctionSignature(functionName, Arrays.asList(ExprType.DOUBLE, ExprType.DOUBLE)),
-            equalTo(functionName, doubleFunc, ExprValueUtils::getDoubleValue,
-                ExprType.BOOLEAN));
-    builder
+            equalPredicate(functionName, table, doubleFunc, ExprValueUtils::getDoubleValue,
+                defaultValue, ExprType.BOOLEAN))
         .put(new FunctionSignature(functionName, Arrays.asList(ExprType.STRING, ExprType.STRING)),
-            equalTo(functionName, stringFunc, ExprValueUtils::getStringValue,
-                ExprType.BOOLEAN));
-    builder
+            equalPredicate(functionName, table, stringFunc, ExprValueUtils::getStringValue,
+                defaultValue, ExprType.BOOLEAN))
         .put(new FunctionSignature(functionName, Arrays.asList(ExprType.BOOLEAN, ExprType.BOOLEAN)),
-            equalTo(functionName, booleanFunc, ExprValueUtils::getBooleanValue,
-                ExprType.BOOLEAN));
-    builder.put(new FunctionSignature(functionName, Arrays.asList(ExprType.ARRAY, ExprType.ARRAY)),
-        equalTo(functionName, listFunc, ExprValueUtils::getCollectionValue,
-            ExprType.BOOLEAN));
-    builder
+            equalPredicate(functionName, table, booleanFunc, ExprValueUtils::getBooleanValue,
+                defaultValue, ExprType.BOOLEAN))
+        .put(new FunctionSignature(functionName, Arrays.asList(ExprType.ARRAY, ExprType.ARRAY)),
+            equalPredicate(functionName, table, listFunc, ExprValueUtils::getCollectionValue,
+                defaultValue, ExprType.BOOLEAN))
         .put(new FunctionSignature(functionName, Arrays.asList(ExprType.STRUCT, ExprType.STRUCT)),
-            equalTo(functionName, mapFunc, ExprValueUtils::getTupleValue,
-                ExprType.BOOLEAN));
-    return builder.build();
+            equalPredicate(functionName, table, mapFunc, ExprValueUtils::getTupleValue,
+                defaultValue, ExprType.BOOLEAN))
+        .build();
   }
 
   private static Map<FunctionSignature, FunctionBuilder> predicate(
@@ -395,19 +431,25 @@ public class BinaryPredicateOperator {
     };
   }
 
-  private static <T, R> FunctionBuilder equalTo(FunctionName functionName,
-                                                BiFunction<T, T, R> function,
-                                                Function<ExprValue, T> observer,
-                                                ExprType returnType) {
+  /**
+   * Building method for equalTo and notEqualTo operators.
+   * @param defaultValue the return value when expr value is missing/null
+   */
+  private static <T, R> FunctionBuilder equalPredicate(FunctionName functionName,
+                                                       Table<ExprValue, ExprValue, ExprValue> table,
+                                                       BiFunction<T, T, R> function,
+                                                       Function<ExprValue, T> observer,
+                                                       ExprValue defaultValue,
+                                                       ExprType returnType) {
     return arguments -> new FunctionExpression(functionName, arguments) {
       @Override
       public ExprValue valueOf(Environment<Expression, ExprValue> env) {
         ExprValue arg1 = arguments.get(0).valueOf(env);
         ExprValue arg2 = arguments.get(1).valueOf(env);
-        if (equalTable.contains(arg1, arg2)) {
-          return equalTable.get(arg1, arg2);
+        if (table.contains(arg1, arg2)) {
+          return table.get(arg1, arg2);
         } else if (arg1.isMissing() || arg1.isNull() || arg2.isMissing() || arg2.isNull()) {
-          return LITERAL_FALSE;
+          return defaultValue;
         } else {
           return ExprValueUtils.fromObjectValue(
               function.apply(observer.apply(arg1), observer.apply(arg2)));

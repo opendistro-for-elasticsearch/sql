@@ -167,6 +167,23 @@ public class OperatorIT extends PPLIntegTestCase {
   }
 
   @Test
+  public void testNotEqualOperator() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s age != 32 | fields age",
+                TEST_INDEX_BANK));
+    verifyDataRows(result, rows(28), rows(33), rows(34), rows(36), rows(36), rows(39));
+
+    result =
+        executeQuery(
+            String.format(
+                "source=%s 32 != age | fields age",
+                TEST_INDEX_BANK));
+    verifyDataRows(result, rows(28), rows(33), rows(34), rows(36), rows(36), rows(39));
+  }
+
+  @Test
   public void testLessOperator() throws IOException {
     JSONObject result =
         executeQuery(

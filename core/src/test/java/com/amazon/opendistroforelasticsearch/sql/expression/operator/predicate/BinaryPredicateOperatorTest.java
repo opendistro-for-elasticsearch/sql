@@ -62,6 +62,20 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
     return builder.build();
   }
 
+  private static Stream<Arguments> testNotEqualArguments() {
+    List<List<Object>> arguments = Arrays.asList(
+        Arrays.asList(1, 2), Arrays.asList(1L, 2L), Arrays.asList(1F, 2F), Arrays.asList(1D, 2D),
+        Arrays.asList("str0", "str1"), Arrays.asList(true, false),
+        Arrays.asList(ImmutableList.of(1), ImmutableList.of(2)),
+        Arrays.asList(ImmutableMap.of("str", 1), ImmutableMap.of("str", 2))
+    );
+    Stream.Builder<Arguments> builder = Stream.builder();
+    for (List<Object> argPair : arguments) {
+      builder.add(Arguments.of(fromObjectValue(argPair.get(0)), fromObjectValue(argPair.get(1))));
+    }
+    return builder.build();
+  }
+
   private static Stream<Arguments> testCompareValueArguments() {
     List<List<Object>> arguments = Arrays.asList(
         Arrays.asList(1, 1), Arrays.asList(1, 2), Arrays.asList(2, 1),
@@ -344,6 +358,59 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
     equal = dsl.equal(typeEnv(), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD), DSL.literal(LITERAL_TRUE));
     assertEquals(ExprType.BOOLEAN, equal.type(typeEnv()));
     assertEquals(LITERAL_FALSE, equal.valueOf(valueEnv()));
+  }
+
+  @ParameterizedTest(name = "equal({0}, {1})")
+  @MethodSource({"testEqualArguments", "testNotEqualArguments"})
+  public void test_notequal(ExprValue v1, ExprValue v2) {
+    FunctionExpression notequal = dsl.notequal(typeEnv(), DSL.literal(v1), DSL.literal(v2));
+    assertEquals(ExprType.BOOLEAN, notequal.type(typeEnv()));
+    assertEquals(!v1.value().equals(v2.value()),
+        ExprValueUtils.getBooleanValue(notequal.valueOf(valueEnv())));
+    assertEquals(String.format("%s != %s", v1.toString(), v2.toString()), notequal.toString());
+  }
+
+  @Test
+  public void test_null_notequal_missing() {
+    FunctionExpression notequal = dsl.notequal(typeEnv(), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD),
+        DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
+    assertEquals(ExprType.BOOLEAN, notequal.type(typeEnv()));
+    assertEquals(LITERAL_FALSE, notequal.valueOf(valueEnv()));
+
+    notequal = dsl.notequal(typeEnv(), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD),
+        DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
+    assertEquals(ExprType.BOOLEAN, notequal.type(typeEnv()));
+    assertEquals(LITERAL_FALSE, notequal.valueOf(valueEnv()));
+
+    notequal = dsl.notequal(typeEnv(), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD),
+        DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
+    assertEquals(ExprType.BOOLEAN, notequal.type(typeEnv()));
+    assertEquals(LITERAL_TRUE, notequal.valueOf(valueEnv()));
+
+    notequal = dsl.notequal(typeEnv(), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD),
+        DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
+    assertEquals(ExprType.BOOLEAN, notequal.type(typeEnv()));
+    assertEquals(LITERAL_TRUE, notequal.valueOf(valueEnv()));
+
+    notequal = dsl.notequal(typeEnv(), DSL.literal(LITERAL_TRUE),
+        DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
+    assertEquals(ExprType.BOOLEAN, notequal.type(typeEnv()));
+    assertEquals(LITERAL_TRUE, notequal.valueOf(valueEnv()));
+
+    notequal = dsl.notequal(typeEnv(), DSL.literal(LITERAL_TRUE),
+        DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
+    assertEquals(ExprType.BOOLEAN, notequal.type(typeEnv()));
+    assertEquals(LITERAL_TRUE, notequal.valueOf(valueEnv()));
+
+    notequal = dsl.notequal(typeEnv(), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD),
+        DSL.literal(LITERAL_TRUE));
+    assertEquals(ExprType.BOOLEAN, notequal.type(typeEnv()));
+    assertEquals(LITERAL_TRUE, notequal.valueOf(valueEnv()));
+
+    notequal = dsl.notequal(typeEnv(), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD),
+        DSL.literal(LITERAL_TRUE));
+    assertEquals(ExprType.BOOLEAN, notequal.type(typeEnv()));
+    assertEquals(LITERAL_TRUE, notequal.valueOf(valueEnv()));
   }
 
   @ParameterizedTest(name = "less({0}, {1})")

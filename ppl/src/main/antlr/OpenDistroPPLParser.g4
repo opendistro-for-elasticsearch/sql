@@ -144,8 +144,8 @@ valueExpression
     ;
 
 primaryExpression
-    : fieldExpression
-    | evalFunctionCall
+    : evalFunctionCall
+    | fieldExpression
     | literalValue
     ;
 

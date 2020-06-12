@@ -113,6 +113,12 @@ public class DSL {
         repository.compile(BuiltinFunctionName.EQUAL.getName(), Arrays.asList(expressions), env);
   }
 
+  public FunctionExpression notequal(
+      Environment<Expression, ExprType> env, Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.NOTEQUAL.getName(), Arrays.asList(expressions), env);
+  }
+
   public FunctionExpression less(
       Environment<Expression, ExprType> env, Expression... expressions) {
     return (FunctionExpression)
