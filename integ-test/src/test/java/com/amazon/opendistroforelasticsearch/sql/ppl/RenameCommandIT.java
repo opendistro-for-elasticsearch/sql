@@ -15,16 +15,15 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
-import org.json.JSONObject;
-import org.junit.Ignore;
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.columnName;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.columnPattern;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyColumn;
+
+import java.io.IOException;
+import org.json.JSONObject;
+import org.junit.Ignore;
+import org.junit.jupiter.api.Test;
 
 @Ignore("Rename target cannot be resolved yet")
 public class RenameCommandIT extends PPLIntegTestCase {
@@ -42,6 +41,16 @@ public class RenameCommandIT extends PPLIntegTestCase {
                 "source=%s | fields firstname | rename firstname as first_name",
                 TEST_INDEX_ACCOUNT));
     verifyColumn(result, columnName("first_name"));
+  }
+
+  @Test
+  public void testRenameMultiField() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s | fields firstname, age | rename firstname as FIRST, age as AGE",
+                TEST_INDEX_ACCOUNT));
+    verifyColumn(result, columnName("FIRST"), columnName("AGE"));
   }
 
   @Test
