@@ -21,7 +21,7 @@ OpenDistro PPL Reference Manual
 
 * **Commands**
 
-  - `syntax <cmd/syntax.rst>`_
+  - `Syntax <cmd/syntax.rst>`_
 
   - `dedup command <cmd/dedup.rst>`_
 

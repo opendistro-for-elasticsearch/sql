@@ -1,5 +1,5 @@
 =============
-syntax
+Syntax
 =============
 
 .. rubric:: Table of contents
@@ -11,6 +11,7 @@ syntax
 Command Order
 =============
 The PPL query started with ``search`` command to reference a table search from. All the following command could be in any order. In the following example, ``search`` command refer the accounts index as the source, then using fields and where command to do the further processing.
+
 .. code-block::
 
    search source=accounts
