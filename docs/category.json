@@ -1,12 +1,17 @@
 {
   "bash": [
-    "sample/ppl/curl.rst"
+    "experiment/ppl/interfaces/endpoint.rst",
+    "experiment/ppl/interfaces/protocol.rst"
   ],
   "ppl_cli": [
-    "sample/ppl/cli.rst"
+    "experiment/ppl/cmd/dedup.rst",
+    "experiment/ppl/cmd/eval.rst",
+    "experiment/ppl/cmd/fields.rst",
+    "experiment/ppl/cmd/rename.rst",
+    "experiment/ppl/cmd/search.rst",
+    "experiment/ppl/cmd/sort.rst",
+    "experiment/ppl/cmd/stats.rst",
+    "experiment/ppl/cmd/where.rst"
   ],
-  "sql_cli": [
-    "sample/sql/basics.rst",
-    "sample/sql/explain.rst"
-  ]
+  "sql_cli": []
 }
