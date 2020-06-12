@@ -194,22 +194,6 @@ public class BinaryPredicateOperator {
           .put(LITERAL_MISSING, LITERAL_MISSING, LITERAL_MISSING)
           .build();
 
-  /**
-   * The like logic.
-   * A       B       A like B
-   * NULL    NULL    TRUE
-   * NULL    MISSING FALSE
-   * MISSING NULL    FALSE
-   * MISSING MISSING TRUE
-   */
-  private static Table<ExprValue, ExprValue, ExprValue> likeTable =
-      new ImmutableTable.Builder<ExprValue, ExprValue, ExprValue>()
-          .put(LITERAL_NULL, LITERAL_NULL, LITERAL_TRUE)
-          .put(LITERAL_NULL, LITERAL_MISSING, LITERAL_FALSE)
-          .put(LITERAL_MISSING, LITERAL_NULL, LITERAL_FALSE)
-          .put(LITERAL_MISSING, LITERAL_MISSING, LITERAL_TRUE)
-          .build();
-
   private static FunctionResolver and() {
     FunctionName functionName = BuiltinFunctionName.AND.getName();
     return FunctionResolver.builder()

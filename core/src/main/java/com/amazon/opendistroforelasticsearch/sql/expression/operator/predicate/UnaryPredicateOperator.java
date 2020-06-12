@@ -67,19 +67,17 @@ public class UnaryPredicateOperator {
     return FunctionResolver.builder()
         .functionName(functionName)
         .functionBundle(new FunctionSignature(functionName,
-            Arrays.asList(ExprType.BOOLEAN)), predicateFunction(functionName,
-            notMap, ExprType.BOOLEAN))
+            Arrays.asList(ExprType.BOOLEAN)), predicateFunction(functionName, ExprType.BOOLEAN))
         .build();
   }
 
   private static FunctionBuilder predicateFunction(
       FunctionName functionName,
-      Map<ExprValue, ExprValue> map,
       ExprType returnType) {
     return arguments -> new FunctionExpression(functionName, arguments) {
       @Override
       public ExprValue valueOf(Environment<Expression, ExprValue> env) {
-        return map.get(arguments.get(0).valueOf(env));
+        return notMap.get(arguments.get(0).valueOf(env));
       }
 
       @Override

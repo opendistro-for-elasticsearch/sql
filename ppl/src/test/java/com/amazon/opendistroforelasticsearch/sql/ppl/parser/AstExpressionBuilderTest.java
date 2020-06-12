@@ -43,6 +43,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualified
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sort;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.xor;
 import static java.util.Collections.emptyList;
 
 import org.junit.Ignore;
@@ -97,6 +98,18 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
         ));
   }
 
+  @Test
+  public void testLogicalXorExpr() {
+    assertEqual("source=t a=1 xor b=2",
+        filter(
+            relation("t"),
+            xor(
+                compare("=", field("a"), intLiteral(1)),
+                compare("=", field("b"), intLiteral(2))
+            )
+        ));
+  }
+
   /**
    * Todo. search operator should not include functionCall, need to change antlr.
    */
@@ -127,6 +140,14 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
   @Test
   public void testEvalBinaryOperationExpr() {
     assertEqual("source=t | eval f=a+b",
+        eval(
+            relation("t"),
+            let(
+                field("f"),
+                function("+", field("a"), field("b"))
+            )
+        ));
+    assertEqual("source=t | eval f=(a+b)",
         eval(
             relation("t"),
             let(

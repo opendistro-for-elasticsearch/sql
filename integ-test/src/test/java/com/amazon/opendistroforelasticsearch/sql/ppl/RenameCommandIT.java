@@ -25,7 +25,6 @@ import org.json.JSONObject;
 import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 
-@Ignore("Rename target cannot be resolved yet")
 public class RenameCommandIT extends PPLIntegTestCase {
 
   @Override
@@ -48,11 +47,12 @@ public class RenameCommandIT extends PPLIntegTestCase {
     JSONObject result =
         executeQuery(
             String.format(
-                "source=%s | fields firstname, age | rename firstname as FIRST, age as AGE",
+                "source=%s | fields firstname, age | rename firstname as FIRSTNAME, age as AGE",
                 TEST_INDEX_ACCOUNT));
-    verifyColumn(result, columnName("FIRST"), columnName("AGE"));
+    verifyColumn(result, columnName("FIRSTNAME"), columnName("AGE"));
   }
 
+  @Ignore("Wildcard is unsupported yet")
   @Test
   public void testRenameWildcardFields() throws IOException {
     JSONObject result = executeQuery("source=" + TEST_INDEX_ACCOUNT + " | rename %name as %NAME");

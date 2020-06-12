@@ -128,23 +128,25 @@ logicalExpression
     | NOT logicalExpression                                         #logicalNot
     | left=logicalExpression OR right=logicalExpression             #logicalOr
     | left=logicalExpression (AND)? right=logicalExpression         #logicalAnd
+    | left=logicalExpression XOR right=logicalExpression            #logicalXor
     ;
 
 comparisonExpression
-    : left=fieldExpression comparisonOperator
-    (field=fieldExpression | literal=literalValue)                  #compareExpr
-    | fieldExpression IN valueList                                  #inExpr
+    : left=valueExpression comparisonOperator right=valueExpression #compareExpr
+    | valueExpression IN valueList                                  #inExpr
     ;
 
 valueExpression
-    : primaryExpression                                             #valueExpressionDefault
-    | left=valueExpression binaryOperator right=valueExpression     #binaryArithmetic
+    : left=valueExpression binaryOperator right=valueExpression     #binaryArithmetic
+    | LT_PRTHS left=valueExpression binaryOperator
+    right=valueExpression RT_PRTHS                                  #parentheticBinaryArithmetic
+    | primaryExpression                                             #valueExpressionDefault
     ;
 
 primaryExpression
     : fieldExpression
-    | literalValue
     | evalFunctionCall
+    | literalValue
     ;
 
 /** tables */
