@@ -11,19 +11,19 @@ rename
 
 Description
 ============
-| Using ``rename`` command to rename one in the search result.
+| Using ``rename`` command to rename one or more fields in the search result.
 
 
 Syntax
 ============
-rename <source-field> AS <target-field>
+rename <source-field> AS <target-field>["," <source-field> AS <target-field>]...
 
 * source-field: mandatory. The name of the field you want to rename.
 * field list: mandatory. The name you want to rename to.
 
 
 Example 1: Rename one field
-==============================================
+===========================
 
 The example show rename one field.
 
@@ -40,3 +40,21 @@ PPL query::
     | 18   |
     +------+
 
+
+Example 2: Rename multiple fields
+=================================
+
+The example show rename multiple fields.
+
+PPL query::
+
+    od> source=accounts | rename account_number as an, employer as emp;
+    fetched rows / total rows = 4/4
+    +------+
+    | an   |
+    |------|
+    | 1    |
+    | 6    |
+    | 13   |
+    | 18   |
+    +------+
