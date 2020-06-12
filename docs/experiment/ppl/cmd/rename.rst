@@ -48,13 +48,14 @@ The example show rename multiple fields.
 
 PPL query::
 
-    od> source=accounts | rename account_number as an, employer as emp;
+    od> source=accounts | rename account_number as an, employer as emp | fields an, emp;
     fetched rows / total rows = 4/4
-    +------+
-    | an   |
-    |------|
-    | 1    |
-    | 6    |
-    | 13   |
-    | 18   |
-    +------+
+    +------+---------+
+    | an   | emp     |
+    |------+---------|
+    | 1    | Pyrami  |
+    | 6    | Netagy  |
+    | 13   | Quility |
+    | 18   | null    |
+    +------+---------+
+
