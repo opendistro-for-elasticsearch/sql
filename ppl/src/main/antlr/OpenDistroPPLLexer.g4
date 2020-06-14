@@ -65,6 +65,7 @@ AND:                                'AND';
 XOR:                                'XOR';
 TRUE:                               'TRUE';
 FALSE:                              'FALSE';
+LIKE:                               'LIKE';
 
 // DATASET TYPES
 DATAMODEL:                          'DATAMODEL';
@@ -95,6 +96,7 @@ RT_SQR_PRTHS:                       ']';
 SINGLE_QUOTE:                       '\'';
 DOUBLE_QUOTE:                       '"';
 BACKTICK:                           '`';
+UNDERSCORE:                         '_';
 
 // AGGREGATIONS
 AVG:                                'AVG';

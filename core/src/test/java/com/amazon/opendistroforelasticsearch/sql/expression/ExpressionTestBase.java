@@ -19,6 +19,8 @@ import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.BOOL_T
 import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.BOOL_TYPE_NULL_VALUE_FIELD;
 import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.INT_TYPE_MISSING_VALUE_FIELD;
 import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.INT_TYPE_NULL_VALUE_FIELD;
+import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.STRING_TYPE_MISSING_VALUE_FILED;
+import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.STRING_TYPE_NULL_VALUE_FILED;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.booleanValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.collectionValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.doubleValue;
@@ -38,7 +40,6 @@ import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import java.util.Comparator;
 import java.util.List;
 import java.util.function.BiFunction;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -82,9 +83,11 @@ public class ExpressionTestBase {
             return collectionValue(ImmutableList.of(1));
           case BOOL_TYPE_NULL_VALUE_FIELD:
           case INT_TYPE_NULL_VALUE_FIELD:
+          case STRING_TYPE_NULL_VALUE_FILED:
             return nullValue();
           case INT_TYPE_MISSING_VALUE_FIELD:
           case BOOL_TYPE_MISSING_VALUE_FIELD:
+          case STRING_TYPE_MISSING_VALUE_FILED:
             return missingValue();
           default:
             throw new IllegalArgumentException("undefined reference");

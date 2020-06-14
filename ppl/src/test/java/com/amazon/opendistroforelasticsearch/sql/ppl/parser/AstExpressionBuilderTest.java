@@ -110,18 +110,12 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
         ));
   }
 
-  /**
-   * Todo. search operator should not include functionCall, need to change antlr.
-   */
-  @Ignore("search operator should not include functionCall, need to change antlr")
-  public void testEvalExpr() {
-    assertEqual("source=t f=abs(a)",
+  @Test
+  public void testLogicalLikeExpr() {
+    assertEqual("source=t a like '_a%b%c_d_'",
         filter(
             relation("t"),
-            equalTo(
-                field("f"),
-                function("abs", field("a"))
-            )
+            compare("like", field("a"), stringLiteral("_a%b%c_d_"))
         ));
   }
 

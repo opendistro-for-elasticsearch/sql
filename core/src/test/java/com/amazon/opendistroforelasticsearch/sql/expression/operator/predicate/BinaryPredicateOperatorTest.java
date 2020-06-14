@@ -19,12 +19,15 @@ import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.BOOL_T
 import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.BOOL_TYPE_NULL_VALUE_FIELD;
 import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.INT_TYPE_MISSING_VALUE_FIELD;
 import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.INT_TYPE_NULL_VALUE_FIELD;
+import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.STRING_TYPE_MISSING_VALUE_FILED;
+import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.STRING_TYPE_NULL_VALUE_FILED;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_FALSE;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.booleanValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.fromObjectValue;
+import static com.amazon.opendistroforelasticsearch.sql.expression.operator.OperatorUtils.matches;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
@@ -86,6 +89,21 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
     );
     Stream.Builder<Arguments> builder = Stream.builder();
     for (List<Object> argPair : arguments) {
+      builder.add(Arguments.of(fromObjectValue(argPair.get(0)), fromObjectValue(argPair.get(1))));
+    }
+    return builder.build();
+  }
+
+  private static Stream<Arguments> testLikeArguments() {
+    List<List<String>> arguments = Arrays.asList(
+        Arrays.asList("foo", "foo"), Arrays.asList("notFoo", "foo"),
+        Arrays.asList("foobar", "%bar"), Arrays.asList("bar", "%bar"),
+        Arrays.asList("foo", "fo_"), Arrays.asList("foo", "foo_"),
+        Arrays.asList("foorbar", "%o_ar"), Arrays.asList("foobar", "%o_a%"),
+        Arrays.asList("fooba%_\\^$.*[]()|+r", "%\\%\\_\\\\\\^\\$\\.\\*\\[\\]\\(\\)\\|\\+_")
+    );
+    Stream.Builder<Arguments> builder = Stream.builder();
+    for (List<String> argPair : arguments) {
       builder.add(Arguments.of(fromObjectValue(argPair.get(0)), fromObjectValue(argPair.get(1))));
     }
     return builder.build();
@@ -639,5 +657,38 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
         DSL.ref(INT_TYPE_NULL_VALUE_FIELD));
     assertEquals(ExprType.BOOLEAN, gte.type(typeEnv()));
     assertEquals(LITERAL_NULL, gte.valueOf(valueEnv()));
+  }
+
+  @ParameterizedTest(name = "like({0}, {1})")
+  @MethodSource("testLikeArguments")
+  public void test_like(ExprValue v1, ExprValue v2) {
+    FunctionExpression like = dsl.like(typeEnv(), DSL.literal(v1), DSL.literal(v2));
+    assertEquals(ExprType.BOOLEAN, like.type(typeEnv()));
+    assertEquals(matches(((String) v1.value()), (String) v2.value()),
+        ExprValueUtils.getBooleanValue(like.valueOf(valueEnv())));
+    assertEquals(String.format("%s like %s", v1.toString(), v2.toString()), like.toString());
+  }
+
+  @Test
+  public void test_null_like_missing() {
+    FunctionExpression like = dsl.like(typeEnv(), DSL.ref(STRING_TYPE_NULL_VALUE_FILED),
+        DSL.ref(STRING_TYPE_NULL_VALUE_FILED));
+    assertEquals(ExprType.BOOLEAN, like.type(typeEnv()));
+    assertEquals(LITERAL_TRUE, like.valueOf(valueEnv()));
+
+    like = dsl.like(typeEnv(), DSL.ref(STRING_TYPE_MISSING_VALUE_FILED),
+        DSL.ref(STRING_TYPE_MISSING_VALUE_FILED));
+    assertEquals(ExprType.BOOLEAN, like.type(typeEnv()));
+    assertEquals(LITERAL_TRUE, like.valueOf(valueEnv()));
+
+    like = dsl.like(typeEnv(), DSL.ref(STRING_TYPE_NULL_VALUE_FILED),
+        DSL.ref(STRING_TYPE_MISSING_VALUE_FILED));
+    assertEquals(ExprType.BOOLEAN, like.type(typeEnv()));
+    assertEquals(LITERAL_FALSE, like.valueOf(valueEnv()));
+
+    like = dsl.like(typeEnv(), DSL.ref(STRING_TYPE_MISSING_VALUE_FILED),
+        DSL.ref(STRING_TYPE_NULL_VALUE_FILED));
+    assertEquals(ExprType.BOOLEAN, like.type(typeEnv()));
+    assertEquals(LITERAL_FALSE, like.valueOf(valueEnv()));
   }
 }
