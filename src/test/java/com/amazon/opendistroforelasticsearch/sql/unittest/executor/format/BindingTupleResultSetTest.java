@@ -47,6 +47,16 @@ public class BindingTupleResultSetTest {
                                       rowContents(allOf(hasEntry("age", 39), hasEntry("gender", (Object) "f")))));
     }
 
+    @Test
+    public void buildDataRowsFromBindingTupleIncludeLongValueShouldPass() {
+        assertThat(row(Arrays.asList(
+                BindingTuple.from(ImmutableMap.of("longValue", Long.MAX_VALUE, "gender", "m")),
+                BindingTuple.from(ImmutableMap.of("longValue", Long.MIN_VALUE, "gender", "f")))),
+                containsInAnyOrder(
+                        rowContents(allOf(hasEntry("longValue", Long.MAX_VALUE), hasEntry("gender", (Object) "m"))),
+                        rowContents(allOf(hasEntry("longValue", Long.MIN_VALUE), hasEntry("gender", (Object) "f")))));
+    }
+
     private static Matcher<DataRows.Row> rowContents(Matcher<Map<String, Object>> matcher) {
         return featureValueOf("DataRows.Row", matcher, DataRows.Row::getContents);
     }
