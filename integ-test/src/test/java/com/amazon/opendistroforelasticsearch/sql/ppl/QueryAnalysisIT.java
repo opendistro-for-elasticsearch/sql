@@ -84,8 +84,7 @@ public class QueryAnalysisIT extends PPLIntegTestCase {
   }
 
   /**
-   * Commands that fail syntax analysis should throw
-   * {@link SyntaxCheckException}.
+   * Commands that fail syntax analysis should throw {@link SyntaxCheckException}.
    */
   @Test
   public void queryNotStartingWithSearchCommandShouldFailSyntaxCheck() {
@@ -134,9 +133,8 @@ public class QueryAnalysisIT extends PPLIntegTestCase {
     try {
       executeQuery(query);
       fail("Expected to throw SyntaxCheckException, but none was thrown for query: " + query);
-    } catch (ResponseException e) {
+    } catch (SyntaxCheckException e) {
       String errorMsg = e.getMessage();
-      assertTrue(errorMsg.contains("SyntaxCheckException"));
       for (String msg: messages) {
         assertTrue(errorMsg.contains(msg));
       }
