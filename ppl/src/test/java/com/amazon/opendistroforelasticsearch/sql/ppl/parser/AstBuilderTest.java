@@ -200,6 +200,39 @@ public class AstBuilderTest {
   }
 
   @Test
+  public void testStatsCommandWithNestedFunctions() {
+    assertEqual("source=t | stats sum(a+b)",
+        agg(
+            relation("t"),
+            exprList(
+                aggregate(
+                    "sum",
+                    function("+", field("a"), field("b"))
+                )),
+            emptyList(),
+            emptyList(),
+            defaultStatsArgs()
+        ));
+    assertEqual("source=t | stats sum(abs(a)/2)",
+        agg(
+            relation("t"),
+            exprList(
+                aggregate(
+                    "sum",
+                    function(
+                        "/",
+                        function("abs", field("a")),
+                        intLiteral(2)
+                    )
+                )
+            ),
+            emptyList(),
+            emptyList(),
+            defaultStatsArgs()
+        ));
+  }
+
+  @Test
   public void testDedupCommand() {
     assertEqual("source=t | dedup f1, f2",
         dedupe(

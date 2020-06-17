@@ -20,7 +20,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.BooleanLiteralContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.CompareExprContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.DecimalLiteralContext;
-import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.EvalExpressionContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.EvalClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.EvalFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.FieldExpressionContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.InExprContext;
@@ -28,6 +28,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.LogicalAndContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.LogicalNotContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.LogicalOrContext;
+import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.ParentheticBinaryArithmeticContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.PercentileAggFunctionContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.QualifiedNameContext;
 import static com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser.OpenDistroPPLParser.SortFieldContext;
@@ -63,7 +64,15 @@ import org.antlr.v4.runtime.ParserRuleContext;
  */
 public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedExpression> {
   /**
-   * Logical expression excluding boolean, eval, comparison.
+   * Eval clause.
+   */
+  @Override
+  public UnresolvedExpression visitEvalClause(EvalClauseContext ctx) {
+    return new Let((Field) visit(ctx.fieldExpression()), visit(ctx.expression()));
+  }
+
+  /**
+   * Logical expression excluding boolean, comparison.
    */
   @Override
   public UnresolvedExpression visitLogicalNot(LogicalNotContext ctx) {
@@ -80,30 +89,18 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Unresol
     return new And(visit(ctx.left), visit(ctx.right));
   }
 
-
-  /**
-   * Eval expression.
-   */
-  @Override
-  public UnresolvedExpression visitEvalExpression(EvalExpressionContext ctx) {
-    Field field = (Field) visit(ctx.fieldExpression());
-    UnresolvedExpression evalFunctionCall = visit(ctx.expression());
-    return new Let(field, evalFunctionCall);
-  }
-
   /**
    * Comparison expression.
    */
   @Override
   public UnresolvedExpression visitCompareExpr(CompareExprContext ctx) {
-    UnresolvedExpression right = ctx.field != null ? visit(ctx.field) : visit(ctx.literal);
-    return new Compare(ctx.comparisonOperator().getText(), visit(ctx.left), right);
+    return new Compare(ctx.comparisonOperator().getText(), visit(ctx.left), visit(ctx.right));
   }
 
   @Override
   public UnresolvedExpression visitInExpr(InExprContext ctx) {
     return new In(
-        visit(ctx.fieldExpression()),
+        visit(ctx.valueExpression()),
         ctx.valueList()
             .literalValue()
             .stream()
@@ -111,14 +108,23 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Unresol
             .collect(Collectors.toList()));
   }
 
+  /**
+   * Value Expression.
+   */
   @Override
   public UnresolvedExpression visitBinaryArithmetic(BinaryArithmeticContext ctx) {
     return new Function(
         ctx.binaryOperator().getText(),
-        Arrays.asList(
-            ctx.leftField != null ? visit(ctx.leftField) : visit(ctx.leftValue),
-            ctx.rightField != null ? visit(ctx.rightField) : visit(ctx.rightValue)
-        )
+        Arrays.asList(visit(ctx.left), visit(ctx.right))
+    );
+  }
+
+  @Override
+  public UnresolvedExpression visitParentheticBinaryArithmetic(
+      ParentheticBinaryArithmeticContext ctx) {
+    return new Function(
+        ctx.binaryOperator().getText(),
+        Arrays.asList(visit(ctx.left), visit(ctx.right))
     );
   }
 
@@ -148,7 +154,7 @@ public class AstExpressionBuilder extends OpenDistroPPLParserBaseVisitor<Unresol
    */
   @Override
   public UnresolvedExpression visitStatsFunctionCall(StatsFunctionCallContext ctx) {
-    return new AggregateFunction(ctx.statsFunctionName().getText(), visit(ctx.fieldExpression()));
+    return new AggregateFunction(ctx.statsFunctionName().getText(), visit(ctx.valueExpression()));
   }
 
   @Override
