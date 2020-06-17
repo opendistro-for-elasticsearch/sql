@@ -20,10 +20,13 @@ import com.amazon.opendistroforelasticsearch.sql.expression.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.query.planner.core.ColumnNode;
 import com.google.common.annotations.VisibleForTesting;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.amazon.opendistroforelasticsearch.sql.executor.format.DateFieldFormatter.FORMAT_JDBC;
 
 /**
  * The definition of BindingTuple ResultSet.
@@ -32,7 +35,7 @@ public class BindingTupleResultSet extends ResultSet {
 
     public BindingTupleResultSet(List<ColumnNode> columnNodes, List<BindingTuple> bindingTuples) {
         this.schema = buildSchema(columnNodes);
-        this.dataRows = buildDataRows(bindingTuples);
+        this.dataRows = buildDataRows(columnNodes, bindingTuples);
     }
 
     @VisibleForTesting
@@ -47,12 +50,17 @@ public class BindingTupleResultSet extends ResultSet {
     }
 
     @VisibleForTesting
-    public static DataRows buildDataRows(List<BindingTuple> bindingTuples) {
+    public static DataRows buildDataRows(List<ColumnNode> columnNodes, List<BindingTuple> bindingTuples) {
         List<DataRows.Row> rowList = bindingTuples.stream().map(tuple -> {
             Map<String, ExprValue> bindingMap = tuple.getBindingMap();
             Map<String, Object> rowMap = new HashMap<>();
-            for (String s : bindingMap.keySet()) {
-                rowMap.put(s, bindingMap.get(s).value());
+            for (ColumnNode column : columnNodes) {
+                String columnName = column.columnName();
+                Object value = bindingMap.get(columnName).value();
+                if (column.getType() == Schema.Type.DATE) {
+                    value = DateFormat.getFormattedDate(new Date((Long) value), FORMAT_JDBC);
+                }
+                rowMap.put(columnName, value);
             }
             return new DataRows.Row(rowMap);
         }).collect(Collectors.toList());
