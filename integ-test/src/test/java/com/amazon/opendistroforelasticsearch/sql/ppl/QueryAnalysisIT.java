@@ -133,8 +133,9 @@ public class QueryAnalysisIT extends PPLIntegTestCase {
     try {
       executeQuery(query);
       fail("Expected to throw SyntaxCheckException, but none was thrown for query: " + query);
-    } catch (SyntaxCheckException e) {
+    } catch (ResponseException e) {
       String errorMsg = e.getMessage();
+      assertTrue(errorMsg.contains("SyntaxCheckException"));
       for (String msg: messages) {
         assertTrue(errorMsg.contains(msg));
       }
