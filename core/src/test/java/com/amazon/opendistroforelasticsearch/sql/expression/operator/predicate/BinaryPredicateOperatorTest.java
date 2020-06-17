@@ -26,10 +26,12 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.booleanValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.fromObjectValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
+import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
@@ -427,47 +429,16 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
   public void test_less_null() {
     FunctionExpression less = dsl.less(typeEnv(), DSL.literal(1),
         DSL.ref(INT_TYPE_NULL_VALUE_FIELD));
-    assertEquals(ExprType.BOOLEAN, less.type(typeEnv()));
-    assertEquals(LITERAL_NULL, less.valueOf(valueEnv()));
-
-    less = dsl.less(typeEnv(), DSL.ref(INT_TYPE_NULL_VALUE_FIELD), DSL.literal(1));
-    assertEquals(ExprType.BOOLEAN, less.type(typeEnv()));
-    assertEquals(LITERAL_NULL, less.valueOf(valueEnv()));
-
-    less = dsl.less(typeEnv(), DSL.ref(INT_TYPE_NULL_VALUE_FIELD),
-        DSL.ref(INT_TYPE_NULL_VALUE_FIELD));
-    assertEquals(ExprType.BOOLEAN, less.type(typeEnv()));
-    assertEquals(LITERAL_NULL, less.valueOf(valueEnv()));
+    assertThrows(ExpressionEvaluationException.class,
+        () -> less.valueOf(valueEnv()), "invalid to call type operation on null value");
   }
 
   @Test
   public void test_less_missing() {
     FunctionExpression less = dsl.less(typeEnv(), DSL.literal(1),
         DSL.ref(INT_TYPE_MISSING_VALUE_FIELD));
-    assertEquals(ExprType.BOOLEAN, less.type(typeEnv()));
-    assertEquals(LITERAL_MISSING, less.valueOf(valueEnv()));
-
-    less = dsl.less(typeEnv(), DSL.ref(INT_TYPE_MISSING_VALUE_FIELD), DSL.literal(1));
-    assertEquals(ExprType.BOOLEAN, less.type(typeEnv()));
-    assertEquals(LITERAL_MISSING, less.valueOf(valueEnv()));
-
-    less = dsl.less(typeEnv(), DSL.ref(INT_TYPE_MISSING_VALUE_FIELD),
-        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD));
-    assertEquals(ExprType.BOOLEAN, less.type(typeEnv()));
-    assertEquals(LITERAL_MISSING, less.valueOf(valueEnv()));
-  }
-
-  @Test
-  public void test_null_less_missing() {
-    FunctionExpression less = dsl.less(typeEnv(), DSL.ref(INT_TYPE_NULL_VALUE_FIELD),
-        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD));
-    assertEquals(ExprType.BOOLEAN, less.type(typeEnv()));
-    assertEquals(LITERAL_NULL, less.valueOf(valueEnv()));
-
-    less = dsl.less(typeEnv(), DSL.ref(INT_TYPE_MISSING_VALUE_FIELD),
-        DSL.ref(INT_TYPE_NULL_VALUE_FIELD));
-    assertEquals(ExprType.BOOLEAN, less.type(typeEnv()));
-    assertEquals(LITERAL_NULL, less.valueOf(valueEnv()));
+    assertThrows(ExpressionEvaluationException.class,
+        () -> less.valueOf(valueEnv()), "invalid to call type operation on missing value");
   }
 
   @ParameterizedTest(name = "lte({0}, {1})")
@@ -484,47 +455,16 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
   public void test_lte_null() {
     FunctionExpression lte = dsl.lte(typeEnv(), DSL.literal(1),
         DSL.ref(INT_TYPE_NULL_VALUE_FIELD));
-    assertEquals(ExprType.BOOLEAN, lte.type(typeEnv()));
-    assertEquals(LITERAL_NULL, lte.valueOf(valueEnv()));
-
-    lte = dsl.lte(typeEnv(), DSL.ref(INT_TYPE_NULL_VALUE_FIELD), DSL.literal(1));
-    assertEquals(ExprType.BOOLEAN, lte.type(typeEnv()));
-    assertEquals(LITERAL_NULL, lte.valueOf(valueEnv()));
-
-    lte = dsl.lte(typeEnv(), DSL.ref(INT_TYPE_NULL_VALUE_FIELD),
-        DSL.ref(INT_TYPE_NULL_VALUE_FIELD));
-    assertEquals(ExprType.BOOLEAN, lte.type(typeEnv()));
-    assertEquals(LITERAL_NULL, lte.valueOf(valueEnv()));
+    assertThrows(ExpressionEvaluationException.class,
+        () -> lte.valueOf(valueEnv()), "invalid to call type operation on null value");
   }
 
   @Test
   public void test_lte_missing() {
     FunctionExpression lte = dsl.lte(typeEnv(), DSL.literal(1),
         DSL.ref(INT_TYPE_MISSING_VALUE_FIELD));
-    assertEquals(ExprType.BOOLEAN, lte.type(typeEnv()));
-    assertEquals(LITERAL_MISSING, lte.valueOf(valueEnv()));
-
-    lte = dsl.lte(typeEnv(), DSL.ref(INT_TYPE_MISSING_VALUE_FIELD), DSL.literal(1));
-    assertEquals(ExprType.BOOLEAN, lte.type(typeEnv()));
-    assertEquals(LITERAL_MISSING, lte.valueOf(valueEnv()));
-
-    lte = dsl.lte(typeEnv(), DSL.ref(INT_TYPE_MISSING_VALUE_FIELD),
-        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD));
-    assertEquals(ExprType.BOOLEAN, lte.type(typeEnv()));
-    assertEquals(LITERAL_MISSING, lte.valueOf(valueEnv()));
-  }
-
-  @Test
-  public void test_null_lte_missing() {
-    FunctionExpression lte = dsl.lte(typeEnv(), DSL.ref(INT_TYPE_NULL_VALUE_FIELD),
-        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD));
-    assertEquals(ExprType.BOOLEAN, lte.type(typeEnv()));
-    assertEquals(LITERAL_NULL, lte.valueOf(valueEnv()));
-
-    lte = dsl.lte(typeEnv(), DSL.ref(INT_TYPE_MISSING_VALUE_FIELD),
-        DSL.ref(INT_TYPE_NULL_VALUE_FIELD));
-    assertEquals(ExprType.BOOLEAN, lte.type(typeEnv()));
-    assertEquals(LITERAL_NULL, lte.valueOf(valueEnv()));
+    assertThrows(ExpressionEvaluationException.class,
+        () -> lte.valueOf(valueEnv()), "invalid to call type operation on missing value");
   }
 
   @ParameterizedTest(name = "greater({0}, {1})")
@@ -541,47 +481,16 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
   public void test_greater_null() {
     FunctionExpression greater = dsl.greater(typeEnv(), DSL.literal(1),
         DSL.ref(INT_TYPE_NULL_VALUE_FIELD));
-    assertEquals(ExprType.BOOLEAN, greater.type(typeEnv()));
-    assertEquals(LITERAL_NULL, greater.valueOf(valueEnv()));
-
-    greater = dsl.greater(typeEnv(), DSL.ref(INT_TYPE_NULL_VALUE_FIELD), DSL.literal(1));
-    assertEquals(ExprType.BOOLEAN, greater.type(typeEnv()));
-    assertEquals(LITERAL_NULL, greater.valueOf(valueEnv()));
-
-    greater = dsl.greater(typeEnv(), DSL.ref(INT_TYPE_NULL_VALUE_FIELD),
-        DSL.ref(INT_TYPE_NULL_VALUE_FIELD));
-    assertEquals(ExprType.BOOLEAN, greater.type(typeEnv()));
-    assertEquals(LITERAL_NULL, greater.valueOf(valueEnv()));
+    assertThrows(ExpressionEvaluationException.class,
+        () -> greater.valueOf(valueEnv()), "invalid to call type operation on null value");
   }
 
   @Test
   public void test_greater_missing() {
     FunctionExpression greater = dsl.greater(typeEnv(), DSL.literal(1),
         DSL.ref(INT_TYPE_MISSING_VALUE_FIELD));
-    assertEquals(ExprType.BOOLEAN, greater.type(typeEnv()));
-    assertEquals(LITERAL_MISSING, greater.valueOf(valueEnv()));
-
-    greater = dsl.greater(typeEnv(), DSL.ref(INT_TYPE_MISSING_VALUE_FIELD), DSL.literal(1));
-    assertEquals(ExprType.BOOLEAN, greater.type(typeEnv()));
-    assertEquals(LITERAL_MISSING, greater.valueOf(valueEnv()));
-
-    greater = dsl.greater(typeEnv(), DSL.ref(INT_TYPE_MISSING_VALUE_FIELD),
-        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD));
-    assertEquals(ExprType.BOOLEAN, greater.type(typeEnv()));
-    assertEquals(LITERAL_MISSING, greater.valueOf(valueEnv()));
-  }
-
-  @Test
-  public void test_null_greater_missing() {
-    FunctionExpression greater = dsl.greater(typeEnv(), DSL.ref(INT_TYPE_NULL_VALUE_FIELD),
-        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD));
-    assertEquals(ExprType.BOOLEAN, greater.type(typeEnv()));
-    assertEquals(LITERAL_NULL, greater.valueOf(valueEnv()));
-
-    greater = dsl.greater(typeEnv(), DSL.ref(INT_TYPE_MISSING_VALUE_FIELD),
-        DSL.ref(INT_TYPE_NULL_VALUE_FIELD));
-    assertEquals(ExprType.BOOLEAN, greater.type(typeEnv()));
-    assertEquals(LITERAL_NULL, greater.valueOf(valueEnv()));
+    assertThrows(ExpressionEvaluationException.class,
+        () -> greater.valueOf(valueEnv()), "invalid to call type operation on missing value");
   }
 
   @ParameterizedTest(name = "gte({0}, {1})")
@@ -598,46 +507,15 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
   public void test_gte_null() {
     FunctionExpression gte = dsl.gte(typeEnv(), DSL.literal(1),
         DSL.ref(INT_TYPE_NULL_VALUE_FIELD));
-    assertEquals(ExprType.BOOLEAN, gte.type(typeEnv()));
-    assertEquals(LITERAL_NULL, gte.valueOf(valueEnv()));
-
-    gte = dsl.gte(typeEnv(), DSL.ref(INT_TYPE_NULL_VALUE_FIELD), DSL.literal(1));
-    assertEquals(ExprType.BOOLEAN, gte.type(typeEnv()));
-    assertEquals(LITERAL_NULL, gte.valueOf(valueEnv()));
-
-    gte = dsl.gte(typeEnv(), DSL.ref(INT_TYPE_NULL_VALUE_FIELD),
-        DSL.ref(INT_TYPE_NULL_VALUE_FIELD));
-    assertEquals(ExprType.BOOLEAN, gte.type(typeEnv()));
-    assertEquals(LITERAL_NULL, gte.valueOf(valueEnv()));
+    assertThrows(ExpressionEvaluationException.class,
+        () -> gte.valueOf(valueEnv()), "invalid to call type operation on null value");
   }
 
   @Test
   public void test_gte_missing() {
     FunctionExpression gte = dsl.gte(typeEnv(), DSL.literal(1),
         DSL.ref(INT_TYPE_MISSING_VALUE_FIELD));
-    assertEquals(ExprType.BOOLEAN, gte.type(typeEnv()));
-    assertEquals(LITERAL_MISSING, gte.valueOf(valueEnv()));
-
-    gte = dsl.gte(typeEnv(), DSL.ref(INT_TYPE_MISSING_VALUE_FIELD), DSL.literal(1));
-    assertEquals(ExprType.BOOLEAN, gte.type(typeEnv()));
-    assertEquals(LITERAL_MISSING, gte.valueOf(valueEnv()));
-
-    gte = dsl.gte(typeEnv(), DSL.ref(INT_TYPE_MISSING_VALUE_FIELD),
-        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD));
-    assertEquals(ExprType.BOOLEAN, gte.type(typeEnv()));
-    assertEquals(LITERAL_MISSING, gte.valueOf(valueEnv()));
-  }
-
-  @Test
-  public void test_null_gte_missing() {
-    FunctionExpression gte = dsl.gte(typeEnv(), DSL.ref(INT_TYPE_NULL_VALUE_FIELD),
-        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD));
-    assertEquals(ExprType.BOOLEAN, gte.type(typeEnv()));
-    assertEquals(LITERAL_NULL, gte.valueOf(valueEnv()));
-
-    gte = dsl.gte(typeEnv(), DSL.ref(INT_TYPE_MISSING_VALUE_FIELD),
-        DSL.ref(INT_TYPE_NULL_VALUE_FIELD));
-    assertEquals(ExprType.BOOLEAN, gte.type(typeEnv()));
-    assertEquals(LITERAL_NULL, gte.valueOf(valueEnv()));
+    assertThrows(ExpressionEvaluationException.class,
+        () -> gte.valueOf(valueEnv()), "invalid to call type operation on missing value");
   }
 }

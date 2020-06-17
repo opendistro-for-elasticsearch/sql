@@ -184,32 +184,6 @@ public class BinaryPredicateOperator {
           .put(LITERAL_MISSING, LITERAL_MISSING, LITERAL_FALSE)
           .build();
 
-  /**
-   * The lessThan logic.
-   * A       B       A < B
-   * The lessThanOrEqualTo logic.
-   * A       B       A <= B
-   * The greaterThan logic.
-   * A       B       A > B
-   * The greaterThanOrEqualTo logic.
-   * A       B       A >= B
-   * The lessThan, lessThanOrEqualTo, greaterThan, greaterThanOrEqualTo common logic.
-   * A       NULL    NULL
-   * A       MISSING MISSING
-   * NULL    B       NULL
-   * MISSING B       MISSING
-   * NULL    NULL    NULL
-   * NULL    MISSING NULL
-   * MISSING NULL    NULL
-   * MISSING MISSING MISSING
-   */
-  private static Table<ExprValue, ExprValue, ExprValue>  valueComparisonTable =
-      new ImmutableTable.Builder<ExprValue, ExprValue, ExprValue>()
-          .put(LITERAL_NULL, LITERAL_NULL, LITERAL_NULL)
-          .put(LITERAL_NULL, LITERAL_MISSING, LITERAL_NULL)
-          .put(LITERAL_MISSING, LITERAL_NULL, LITERAL_NULL)
-          .put(LITERAL_MISSING, LITERAL_MISSING, LITERAL_MISSING)
-          .build();
 
   private static FunctionResolver and() {
     FunctionName functionName = BuiltinFunctionName.AND.getName();
@@ -485,16 +459,8 @@ public class BinaryPredicateOperator {
       public ExprValue valueOf(Environment<Expression, ExprValue> env) {
         ExprValue arg1 = arguments.get(0).valueOf(env);
         ExprValue arg2 = arguments.get(1).valueOf(env);
-        if (valueComparisonTable.contains(arg1, arg2)) {
-          return valueComparisonTable.get(arg1, arg2);
-        } else if (arg1.isNull() || arg2.isNull()) {
-          return LITERAL_NULL;
-        } else if (arg1.isMissing() || arg2.isMissing()) {
-          return LITERAL_MISSING;
-        } else {
-          return ExprValueUtils.fromObjectValue(
-              function.apply(observer.apply(arg1), observer.apply(arg2)));
-        }
+        return ExprValueUtils.fromObjectValue(
+            function.apply(observer.apply(arg1), observer.apply(arg2)));
       }
 
       @Override
