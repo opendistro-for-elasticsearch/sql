@@ -47,6 +47,11 @@ public class ExprValueUtilsTest {
     }
 
     @Test
+    public void getLongValueFromLongExprValueShouldPass() {
+        assertThat(ExprValueUtils.getLongValue(ExprValueFactory.from(1L)), equalTo(1L));
+    }
+
+    @Test
     public void getIntegerValueFromStringExprValueShouldThrowException() {
         exceptionRule.expect(IllegalStateException.class);
         exceptionRule.expectMessage("invalid to get NUMBER_VALUE from expr type of STRING_VALUE");

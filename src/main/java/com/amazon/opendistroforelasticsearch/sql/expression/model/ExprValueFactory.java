@@ -41,6 +41,10 @@ public class ExprValueFactory {
         return new ExprStringValue(value);
     }
 
+    public static ExprValue longValue(Long value) {
+        return new ExprLongValue(value);
+    }
+
     public static ExprValue tupleValue(Map<String, Object> map) {
         Map<String, ExprValue> valueMap = new HashMap<>();
         map.forEach((k, v) -> valueMap.put(k, from(v)));
@@ -61,7 +65,7 @@ public class ExprValueFactory {
         } else if (o instanceof Integer) {
             return integerValue((Integer) o);
         } else if (o instanceof Long) {
-            return integerValue(((Long) o).intValue());
+            return longValue(((Long) o));
         } else if (o instanceof Boolean) {
             return booleanValue((Boolean) o);
         } else if (o instanceof Double) {
