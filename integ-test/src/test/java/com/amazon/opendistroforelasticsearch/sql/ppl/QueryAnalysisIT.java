@@ -83,6 +83,12 @@ public class QueryAnalysisIT extends PPLIntegTestCase {
     queryShouldPassSyntaxAndSemanticCheck(query);
   }
 
+  @Test
+  public void queryShouldBeCaseInsensitiveInKeywords() {
+    String query = String.format("SEARCH SourCE=%s", TEST_INDEX_ACCOUNT);
+    queryShouldPassSyntaxAndSemanticCheck(query);
+  }
+
   /**
    * Commands that fail syntax analysis should throw {@link SyntaxCheckException}.
    */
