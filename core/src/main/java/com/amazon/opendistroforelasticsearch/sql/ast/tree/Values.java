@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * AST node class for literal values.
+ * AST node class for a sequence of literal values.
  */
 @ToString
 @Getter

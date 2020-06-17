@@ -17,12 +17,12 @@
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
 import static com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils.unquoteIdentifier;
-import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.BooleanLiteralContext;
-import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.DecimalLiteralContext;
-import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.StringLiteralContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.BooleanContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SignedDecimalContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SignedRealContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.StringContext;
 
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.DataType;
-import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
+import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
 
@@ -32,18 +32,23 @@ import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLP
 public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedExpression> {
 
   @Override
-  public UnresolvedExpression visitStringLiteral(StringLiteralContext ctx) {
-    return new Literal(unquoteIdentifier(ctx.getText()), DataType.STRING);
+  public UnresolvedExpression visitString(StringContext ctx) {
+    return AstDSL.stringLiteral(unquoteIdentifier(ctx.getText()));
   }
 
   @Override
-  public UnresolvedExpression visitDecimalLiteral(DecimalLiteralContext ctx) {
-    return new Literal(Integer.valueOf(ctx.getText()), DataType.INTEGER);
+  public UnresolvedExpression visitSignedDecimal(SignedDecimalContext ctx) {
+    return AstDSL.intLiteral(Integer.valueOf(ctx.getText()));
   }
 
   @Override
-  public UnresolvedExpression visitBooleanLiteral(BooleanLiteralContext ctx) {
-    return new Literal(Boolean.valueOf(ctx.getText()), DataType.BOOLEAN);
+  public UnresolvedExpression visitSignedReal(SignedRealContext ctx) {
+    return AstDSL.doubleLiteral(Double.valueOf(ctx.getText()));
+  }
+
+  @Override
+  public UnresolvedExpression visitBoolean(BooleanContext ctx) {
+    return AstDSL.booleanLiteral(Boolean.valueOf(ctx.getText()));
   }
 
   @Override

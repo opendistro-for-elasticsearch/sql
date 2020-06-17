@@ -17,7 +17,9 @@
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.doubleLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.nullLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.values;
@@ -42,25 +44,16 @@ class AstBuilderTest {
   private final AstBuilder astBuilder = new AstBuilder();
 
   @Test
-  public void buildAstForSelectIntegerLiteral() {
+  public void buildASTForSelectLiterals() {
     assertEquals(
         project(
             values(emptyList()),
-            intLiteral(123)
-        ),
-        buildAST("SELECT 123")
-    );
-  }
-
-  @Test
-  public void buildAstForSelectStringAndBooleanLiteral() {
-    assertEquals(
-        project(
-            values(emptyList()),
+            intLiteral(123),
             stringLiteral("hello"),
-            booleanLiteral(false)
+            booleanLiteral(false),
+            doubleLiteral(-4.567)
         ),
-        buildAST("SELECT 'hello', false")
+        buildAST("SELECT 123, 'hello', false, -4.567")
     );
   }
 

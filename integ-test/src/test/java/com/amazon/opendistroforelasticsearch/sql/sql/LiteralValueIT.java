@@ -34,19 +34,39 @@ import org.junit.Test;
 public class LiteralValueIT extends RestIntegTestCase {
 
   @Test
-  public void testIntegerLiteral() {
-    assertEquals(
+  public void testSelectLiterals() {
+    // TODO: Temporary manual assertion and will be replaced by comparison test soon.
+    String expected =
         "{\n"
-        + "  \"schema\": [{\n"
-        + "    \"name\": \"name\",\n"
-        + "    \"type\": \"integer\"\n"
-        + "  }],\n"
-        + "  \"total\": 1,\n"
-        + "  \"datarows\": [[\"123\"]],\n"
-        + "  \"size\": 1\n"
-        + "}\n",
-        executeQuery("SELECT 123")
-    );
+            + "  \"schema\": [\n"
+            + "    {\n"
+            + "      \"name\": \"123\",\n"
+            + "      \"type\": \"integer\"\n"
+            + "    },\n"
+            + "    {\n"
+            + "      \"name\": \"\\\"hello\\\"\",\n"
+            + "      \"type\": \"string\"\n"
+            + "    },\n"
+            + "    {\n"
+            + "      \"name\": \"false\",\n"
+            + "      \"type\": \"boolean\"\n"
+            + "    },\n"
+            + "    {\n"
+            + "      \"name\": \"-4.567\",\n"
+            + "      \"type\": \"double\"\n"
+            + "    }\n"
+            + "  ],\n"
+            + "  \"total\": 1,\n"
+            + "  \"datarows\": [[\n"
+            + "    123,\n"
+            + "    \"hello\",\n"
+            + "    false,\n"
+            + "    -4.567\n"
+            + "  ]],\n"
+            + "  \"size\": 1\n"
+            + "}\n";
+
+    assertEquals(expected, executeQuery("SELECT 123, 'hello', false, -4.567"));
   }
 
   /**

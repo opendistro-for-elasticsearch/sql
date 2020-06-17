@@ -71,6 +71,18 @@ selectElement
 
 //    Literals
 
+constant
+    : stringLiteral             #string
+    | sign? decimalLiteral      #signedDecimal
+    | sign? realLiteral         #signedReal
+    | booleanLiteral            #boolean
+    // Doesn't support the following types for now
+    //| nullLiteral               #null
+    //| BIT_STRING
+    //| NOT? nullLiteral=(NULL_LITERAL | NULL_SPEC_LITERAL)
+    //| LEFT_BRACE dateType=(D | T | TS | DATE | TIME | TIMESTAMP) stringLiteral RIGHT_BRACE
+    ;
+
 decimalLiteral
     : DECIMAL_LITERAL | ZERO_DECIMAL | ONE_DECIMAL | TWO_DECIMAL
     ;
@@ -87,17 +99,20 @@ stringLiteral
     ;
 
 booleanLiteral
-    : TRUE | FALSE;
-
-constant
-    : stringLiteral | decimalLiteral
-    | '-' decimalLiteral
-    | booleanLiteral
-    | REAL_LITERAL | BIT_STRING
-    | NOT? nullLiteral=(NULL_LITERAL | NULL_SPEC_LITERAL)
-    | LEFT_BRACE dateType=(D | T | TS | DATE | TIME | TIMESTAMP) stringLiteral RIGHT_BRACE
+    : TRUE | FALSE
     ;
 
+realLiteral
+    : REAL_LITERAL
+    ;
+
+sign
+    : PLUS | MINUS
+    ;
+
+nullLiteral
+    : NULL_LITERAL
+    ;
 
 //    Expressions, predicates
 

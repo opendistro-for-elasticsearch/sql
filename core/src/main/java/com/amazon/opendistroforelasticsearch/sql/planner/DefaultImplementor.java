@@ -23,6 +23,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalProject;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRemove;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRename;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalSort;
@@ -98,6 +99,12 @@ public class DefaultImplementor<C> extends LogicalPlanNodeVisitor<PhysicalPlan, 
   @Override
   public PhysicalPlan visitValues(LogicalValues node, C context) {
     return new ValuesOperator(node.getValues());
+  }
+
+  @Override
+  public PhysicalPlan visitRelation(LogicalRelation node, C context) {
+    throw new UnsupportedOperationException("Storage engine is responsible for "
+        + "implementing and optimizing logical plan with relation involved");
   }
 
   protected PhysicalPlan visitChild(LogicalPlan node, C context) {
