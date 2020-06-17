@@ -19,6 +19,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Let;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
@@ -31,10 +32,12 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Values;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprMissingValue;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregation;
@@ -47,12 +50,14 @@ import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRemove;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRename;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalSort;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalValues;
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -145,9 +150,9 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
   @Override
   public LogicalPlan visitProject(Project node, AnalysisContext context) {
     LogicalPlan child = node.getChild().get(0).accept(this, context);
-    List<ReferenceExpression> referenceExpressions =
+    List<Expression> referenceExpressions =
         node.getProjectList().stream()
-            .map(expr -> (ReferenceExpression) expressionAnalyzer.analyze(expr, context))
+            .map(expr ->  expressionAnalyzer.analyze(expr, context))
             .collect(Collectors.toList());
     if (node.hasArgument()) {
       Argument argument = node.getArgExprList().get(0);
@@ -222,4 +227,17 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
         keepEmpty,
         consecutive);
   }
+
+  @Override
+  public LogicalPlan visitValues(Values node, AnalysisContext context) {
+    List<List<Literal>> values = node.getValues();
+    List<List<LiteralExpression>> valueExprs = new ArrayList<>();
+    for (List<Literal> value : values) {
+      valueExprs.add(value.stream()
+                          .map(val -> (LiteralExpression) expressionAnalyzer.analyze(val, context))
+                          .collect(Collectors.toList()));
+    }
+    return new LogicalValues(valueExprs);
+  }
+
 }

@@ -39,6 +39,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Values;
 
 /**
  * AST nodes visitor Defines the traverse path.
@@ -166,6 +167,10 @@ public abstract class AbstractNodeVisitor<T, C> {
   }
 
   public T visitDedupe(Dedupe node, C context) {
+    return visitChildren(node, context);
+  }
+
+  public T visitValues(Values node, C context) {
     return visitChildren(node, context);
   }
 }

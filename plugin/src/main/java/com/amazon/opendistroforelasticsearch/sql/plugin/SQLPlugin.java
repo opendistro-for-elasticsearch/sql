@@ -23,6 +23,7 @@ import com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlSettingsAc
 import com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlStatsAction;
 import com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSettings;
 import com.amazon.opendistroforelasticsearch.sql.plugin.rest.RestPPLQueryAction;
+import com.amazon.opendistroforelasticsearch.sql.plugin.rest.RestSQLQueryAction;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -84,7 +85,8 @@ public class SQLPlugin extends Plugin implements ActionPlugin {
 
     return Arrays.asList(
         new RestPPLQueryAction(restController, clusterService),
-        new RestSqlAction(settings, restController),
+        //new RestSqlAction(settings, restController),
+        new RestSQLQueryAction(clusterService),
         new RestSqlStatsAction(settings, restController),
         new RestSqlSettingsAction(settings, restController)
     );

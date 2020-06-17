@@ -22,6 +22,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -36,7 +37,8 @@ public class Planner {
   private final StorageEngine storageEngine;
 
   /**
-   * Generate optimal physical plan for logical plan.
+   * Generate optimal physical plan for logical plan. If no table involved,
+   * translate logical plan to physical by default implementor.
    * TODO: for now just delegate entire logical plan to storage engine.
    *
    * @param plan logical plan
@@ -44,6 +46,10 @@ public class Planner {
    */
   public PhysicalPlan plan(LogicalPlan plan) {
     String tableName = findTableName(plan);
+    if (tableName.isEmpty()) {
+      return plan.accept(new DefaultImplementor<>(), null);
+    }
+
     Table table = storageEngine.getTable(tableName);
     return table.implement(plan);
   }
@@ -53,9 +59,11 @@ public class Planner {
 
       @Override
       protected String visitNode(LogicalPlan node, Object context) {
-        // So far all logical node has single child except LogicalRelation
-        //  whose visitRelation() is already overridden.
-        return node.getChild().get(0).accept(this, context);
+        List<LogicalPlan> children = node.getChild();
+        if (children.isEmpty()) {
+          return "";
+        }
+        return children.get(0).accept(this, context);
       }
 
       @Override

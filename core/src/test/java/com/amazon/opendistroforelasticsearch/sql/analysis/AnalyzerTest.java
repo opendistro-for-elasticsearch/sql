@@ -23,10 +23,12 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
+import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL;
@@ -113,7 +115,7 @@ class AnalyzerTest extends AnalyzerTestBase {
                         AstDSL.agg(
                             AstDSL.relation("schema"),
                             AstDSL.exprList(AstDSL.aggregate("avg", field("integer_value"))),
-                            Collections.emptyList(),
+                            emptyList(),
                             ImmutableList.of(),
                             AstDSL.defaultStatsArgs()),
                         AstDSL.map(
@@ -165,4 +167,23 @@ class AnalyzerTest extends AnalyzerTestBase {
                         AstDSL.defaultFieldsArgs(),
                         AstDSL.field("float_value"))));
   }
+
+  @Test
+  public void project_values() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.values(emptyList()),
+            DSL.literal(123),
+            DSL.literal("hello"),
+            DSL.literal(false)
+        ),
+        AstDSL.project(
+            AstDSL.values(emptyList()),
+            AstDSL.intLiteral(123),
+            AstDSL.stringLiteral("hello"),
+            AstDSL.booleanLiteral(false)
+        )
+    );
+  }
+
 }

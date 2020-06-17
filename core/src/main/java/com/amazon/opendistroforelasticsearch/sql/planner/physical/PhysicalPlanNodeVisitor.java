@@ -60,4 +60,9 @@ public abstract class PhysicalPlanNodeVisitor<R, C> {
   public R visitDedupe(DedupeOperator node, C context) {
     return visitNode(node, context);
   }
+
+  public R visitValues(ValuesOperator node, C context) {
+    return visitNode(node, context);
+  }
+
 }
