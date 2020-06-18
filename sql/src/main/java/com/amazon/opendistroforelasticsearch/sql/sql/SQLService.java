@@ -76,6 +76,21 @@ public class SQLService {
   }
 
   /**
+   * Given AST, run the remaining steps to execute it.
+   * @param ast         AST
+   * @param listener    callback listener
+   */
+  public void execute(UnresolvedPlan ast, ResponseListener<QueryResponse> listener) {
+    try {
+      executionEngine.execute(
+          plan(
+              analyze(ast)), listener);
+    } catch (Exception e) {
+      listener.onFailure(e);
+    }
+  }
+
+  /**
    * Parse query and convert parse tree (CST) to abstract syntax tree (AST).
    */
   public UnresolvedPlan parse(String query) {
@@ -95,21 +110,6 @@ public class SQLService {
    */
   public PhysicalPlan plan(LogicalPlan logicalPlan) {
     return new Planner(storageEngine).plan(logicalPlan);
-  }
-
-  /**
-   * Given AST, run the remaining steps to execute it.
-   * @param ast         AST
-   * @param listener    callback listener
-   */
-  public void execute(UnresolvedPlan ast, ResponseListener<QueryResponse> listener) {
-    try {
-      executionEngine.execute(
-          plan(
-              analyze(ast)), listener);
-    } catch (Exception e) {
-      listener.onFailure(e);
-    }
   }
 
 }

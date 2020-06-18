@@ -27,11 +27,11 @@ import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.Elasticsea
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.ElasticsearchExecutionEngine;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.security.SecurityAccess;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.ElasticsearchStorageEngine;
-import com.amazon.opendistroforelasticsearch.sql.legacy.request.SqlRequest;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.SimpleJsonResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.sql.SQLService;
 import com.amazon.opendistroforelasticsearch.sql.sql.config.SQLServiceConfig;
+import com.amazon.opendistroforelasticsearch.sql.sql.domain.SQLQueryRequest;
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Collections;
@@ -86,7 +86,7 @@ public class RestSQLQueryAction extends BaseRestHandler {
     JSONObject jsonContent = parseJsonPayload(request);
     String query = jsonContent.optString(SQL_QUERY_FIELD_NAME);
     return prepareRequest(
-        new SQLQueryRequest(request, new SqlRequest(query, jsonContent)),
+        new SQLQueryRequest(jsonContent, query, request.path(), ""),
         nodeClient
     );
   }

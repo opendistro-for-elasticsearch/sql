@@ -28,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL;
@@ -172,13 +171,13 @@ class AnalyzerTest extends AnalyzerTestBase {
   public void project_values() {
     assertAnalyzeEqual(
         LogicalPlanDSL.project(
-            LogicalPlanDSL.values(emptyList()),
+            LogicalPlanDSL.values(ImmutableList.of(DSL.literal(123))),
             DSL.literal(123),
             DSL.literal("hello"),
             DSL.literal(false)
         ),
         AstDSL.project(
-            AstDSL.values(emptyList()),
+            AstDSL.values(ImmutableList.of(AstDSL.intLiteral(123))),
             AstDSL.intLiteral(123),
             AstDSL.stringLiteral("hello"),
             AstDSL.booleanLiteral(false)

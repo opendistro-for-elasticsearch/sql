@@ -41,6 +41,7 @@ import com.amazon.opendistroforelasticsearch.sql.legacy.rewriter.matchtoterm.Ver
 import com.amazon.opendistroforelasticsearch.sql.legacy.utils.JsonPrettyFormatter;
 import com.amazon.opendistroforelasticsearch.sql.legacy.utils.LogUtils;
 import com.amazon.opendistroforelasticsearch.sql.legacy.utils.QueryDataAnonymizer;
+import com.amazon.opendistroforelasticsearch.sql.sql.domain.SQLQueryRequest;
 import com.google.common.collect.ImmutableList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -140,15 +141,17 @@ public class RestSqlAction extends BaseRestHandler {
             LOG.info("[{}] Incoming request {}: {}", LogUtils.getRequestId(), request.uri(),
                     QueryDataAnonymizer.anonymizeData(sqlRequest.getSql()));
 
+            Format format = SqlRequestParam.getFormat(request.params());
+
             // Route request to new query engine if it's supported already
-            SQLQueryRequest newSqlRequest = new SQLQueryRequest(request, sqlRequest);
+            SQLQueryRequest newSqlRequest = new SQLQueryRequest(sqlRequest.getJsonContent(), sqlRequest.getSql(),
+                                                                request.path(), format.getFormatName());
             RestChannelConsumer result = newSqlQueryHandler.prepareRequest(newSqlRequest, client);
             if (result != RestSQLQueryAction.NOT_SUPPORTED_YET) {
                 return result;
             }
 
-            final QueryAction queryAction =
-                    explainRequest(client, sqlRequest, SqlRequestParam.getFormat(request.params()));
+            final QueryAction queryAction = explainRequest(client, sqlRequest, format);
             return channel -> executeSqlRequest(request, queryAction, client, channel);
         } catch (Exception e) {
             logAndPublishMetrics(e);

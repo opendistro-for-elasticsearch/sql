@@ -25,8 +25,16 @@ import org.junit.jupiter.api.Test;
 public class SQLQueryRequestTest {
 
   @Test
-  public void shouldSupportQueryWithDefaultFormat() {
+  public void shouldSupportQuery() {
     SQLQueryRequest request = SQLQueryRequestBuilder.request("SELECT 1").build();
+    assertTrue(request.isSupported());
+  }
+
+  @Test
+  public void shouldSupportQueryWithJDBCFormat() {
+    SQLQueryRequest request = SQLQueryRequestBuilder.request("SELECT 1")
+                                                    .format("jdbc")
+                                                    .build();
     assertTrue(request.isSupported());
   }
 
@@ -70,7 +78,7 @@ public class SQLQueryRequestTest {
     private String jsonContent;
     private String query;
     private String path = "_/opendistro/_sql";
-    private String format = "jdbc";
+    private String format;
 
     static SQLQueryRequestBuilder request(String query) {
       SQLQueryRequestBuilder builder = new SQLQueryRequestBuilder();
