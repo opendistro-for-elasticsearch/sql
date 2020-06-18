@@ -24,6 +24,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.Collections;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -104,6 +105,10 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
 
     PhysicalPlan dedupe = PhysicalPlanDSL.dedupe(plan, ref);
     assertNull(dedupe.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
+    }, null));
+
+    PhysicalPlan values = PhysicalPlanDSL.values(Collections.emptyList());
+    assertNull(values.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
   }
 

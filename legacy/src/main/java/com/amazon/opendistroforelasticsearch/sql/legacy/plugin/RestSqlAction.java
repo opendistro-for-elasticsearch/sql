@@ -140,7 +140,7 @@ public class RestSqlAction extends BaseRestHandler {
             LOG.info("[{}] Incoming request {}: {}", LogUtils.getRequestId(), request.uri(),
                     QueryDataAnonymizer.anonymizeData(sqlRequest.getSql()));
 
-
+            // Route request to new query engine if it's supported already
             SQLQueryRequest newSqlRequest = new SQLQueryRequest(request, sqlRequest);
             RestChannelConsumer result = newSqlQueryHandler.prepareRequest(newSqlRequest, client);
             if (result != RestSQLQueryAction.NOT_SUPPORTED_YET) {

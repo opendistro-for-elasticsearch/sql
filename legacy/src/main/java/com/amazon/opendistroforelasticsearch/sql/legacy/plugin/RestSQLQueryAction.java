@@ -137,7 +137,7 @@ public class RestSQLQueryAction extends BaseRestHandler {
     });
   }
 
-  // TODO: many duplicate code here and for example SQLServiceConfig
+  // TODO: duplicate code here as in RestPPLQueryAction
   private ResponseListener<QueryResponse> createListener(RestChannel channel) {
     SimpleJsonResponseFormatter formatter = new SimpleJsonResponseFormatter(PRETTY);
     return new ResponseListener<QueryResponse>() {
