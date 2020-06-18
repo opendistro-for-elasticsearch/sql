@@ -77,7 +77,7 @@ public class SQLService {
   /**
    * Parse query and convert parse tree (CST) to abstract syntax tree (AST).
    */
-  private UnresolvedPlan parse(String query) {
+  public UnresolvedPlan parse(String query) {
     ParseTree cst = parser.parse(query);
     return cst.accept(new AstBuilder());
   }
@@ -85,15 +85,30 @@ public class SQLService {
   /**
    * Analyze abstract syntax to generate logical plan.
    */
-  private LogicalPlan analyze(UnresolvedPlan ast) {
+  public LogicalPlan analyze(UnresolvedPlan ast) {
     return analyzer.analyze(ast, new AnalysisContext());
   }
 
   /**
    * Generate optimal physical plan from logical plan.
    */
-  private PhysicalPlan plan(LogicalPlan logicalPlan) {
+  public PhysicalPlan plan(LogicalPlan logicalPlan) {
     return new Planner(storageEngine).plan(logicalPlan);
+  }
+
+  /**
+   * Given AST, run the remaining steps to execute it.
+   * @param ast         AST
+   * @param listener    callback listener
+   */
+  public void execute(UnresolvedPlan ast, ResponseListener<QueryResponse> listener) {
+    try {
+      executionEngine.execute(
+          plan(
+              analyze(ast)), listener);
+    } catch (Exception e) {
+      listener.onFailure(e);
+    }
   }
 
 }

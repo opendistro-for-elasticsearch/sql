@@ -14,15 +14,20 @@
  *
  */
 
-package com.amazon.opendistroforelasticsearch.sql.plugin.rest;
+package com.amazon.opendistroforelasticsearch.sql.legacy.plugin;
 
 import static com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.QueryResponse;
 import static com.amazon.opendistroforelasticsearch.sql.protocol.response.format.JsonResponseFormatter.Style.PRETTY;
 import static org.elasticsearch.rest.RestStatus.INTERNAL_SERVER_ERROR;
 import static org.elasticsearch.rest.RestStatus.OK;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchNodeClient;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.ElasticsearchExecutionEngine;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.security.SecurityAccess;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.ElasticsearchStorageEngine;
+import com.amazon.opendistroforelasticsearch.sql.legacy.request.SqlRequest;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.format.SimpleJsonResponseFormatter;
 import com.amazon.opendistroforelasticsearch.sql.sql.SQLService;
@@ -45,13 +50,16 @@ import org.json.JSONObject;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 /**
- * New SQL REST action handler.
+ * New SQL REST action handler. This will not registered to Elasticsearch until all old
+ * functionalities migrated to new query engine and legacy REST handler removed.
  */
 public class RestSQLQueryAction extends BaseRestHandler {
 
   private static final Logger LOG = LogManager.getLogger();
 
-  public static final String SQL_QUERY_ENDPOINT = "_opendistro/_sql";
+  public static final RestChannelConsumer NOT_SUPPORTED_YET = null;
+
+  public static final String SQL_QUERY_ENDPOINT = "_opendistro/_newsql";
   private static final String SQL_QUERY_FIELD_NAME = "query";
 
   private final ClusterService clusterService;
@@ -75,12 +83,36 @@ public class RestSQLQueryAction extends BaseRestHandler {
 
   @Override
   protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient nodeClient) {
-    SQLService sqlService = createSQLService(nodeClient);
-    String query = parseQueryFromPayload(request);
-    return channel -> sqlService.execute(query, createListener(channel));
+    JSONObject jsonContent = parseJsonPayload(request);
+    String query = jsonContent.optString(SQL_QUERY_FIELD_NAME);
+    return prepareRequest(
+        new SQLQueryRequest(request, new SqlRequest(query, jsonContent)),
+        nodeClient
+    );
   }
 
-  private String parseQueryFromPayload(RestRequest restRequest) {
+  /**
+   * Prepare REST channel consumer for a SQL query request.
+   * @param request     SQL request
+   * @param nodeClient  node client
+   * @return            channel consumer
+   */
+  public RestChannelConsumer prepareRequest(SQLQueryRequest request, NodeClient nodeClient) {
+    if (!request.isSupported()) {
+      return NOT_SUPPORTED_YET;
+    }
+
+    SQLService sqlService = createSQLService(nodeClient);
+    UnresolvedPlan ast;
+    try {
+      ast = sqlService.parse(request.getQuery());
+    } catch (RuntimeException e) { //TODO: change to specific syntax exception
+      return NOT_SUPPORTED_YET;
+    }
+    return channel -> sqlService.execute(ast, createListener(channel));
+  }
+
+  private JSONObject parseJsonPayload(RestRequest restRequest) {
     String content = restRequest.content().utf8ToString();
     JSONObject jsonContent;
     try {
@@ -88,7 +120,7 @@ public class RestSQLQueryAction extends BaseRestHandler {
     } catch (JSONException e) {
       throw new IllegalArgumentException("Failed to parse request payload", e);
     }
-    return jsonContent.optString(SQL_QUERY_FIELD_NAME);
+    return jsonContent;
   }
 
   private SQLService createSQLService(NodeClient client) {
@@ -96,7 +128,9 @@ public class RestSQLQueryAction extends BaseRestHandler {
       AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
       context.registerBean(ClusterService.class, () -> clusterService);
       context.registerBean(NodeClient.class, () -> client);
-      context.register(ElasticsearchPluginConfig.class);
+      context.register(ElasticsearchNodeClient.class);
+      context.register(ElasticsearchStorageEngine.class);
+      context.register(ElasticsearchExecutionEngine.class);
       context.register(SQLServiceConfig.class);
       context.refresh();
       return context.getBean(SQLService.class);
@@ -119,7 +153,8 @@ public class RestSQLQueryAction extends BaseRestHandler {
       }
 
       private void sendResponse(RestStatus status, String content) {
-        channel.sendResponse(new BytesRestResponse(status, "application/json; charset=UTF-8", content));
+        channel.sendResponse(new BytesRestResponse(
+            status, "application/json; charset=UTF-8", content));
       }
     };
   }

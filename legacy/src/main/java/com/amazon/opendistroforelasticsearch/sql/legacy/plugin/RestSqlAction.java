@@ -51,7 +51,6 @@ import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.rest.BaseRestHandler;
 import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestChannel;
-import org.elasticsearch.rest.RestController;
 import org.elasticsearch.rest.RestRequest;
 import org.elasticsearch.rest.RestStatus;
 
@@ -89,9 +88,15 @@ public class RestSqlAction extends BaseRestHandler {
     public static final String EXPLAIN_API_ENDPOINT = QUERY_API_ENDPOINT + "/_explain";
     public static final String CURSOR_CLOSE_ENDPOINT = QUERY_API_ENDPOINT + "/close";
 
-    public RestSqlAction(Settings settings, RestController restController) {
+    /**
+     * New SQL query request handler.
+     */
+    private final RestSQLQueryAction newSqlQueryHandler;
+
+    public RestSqlAction(Settings settings, RestSQLQueryAction newSqlQueryHandler) {
         super();
         this.allowExplicitIndex = MULTI_ALLOW_EXPLICIT_INDEX.get(settings);
+        this.newSqlQueryHandler = newSqlQueryHandler;
     }
 
     @Override
@@ -134,6 +139,13 @@ public class RestSqlAction extends BaseRestHandler {
 
             LOG.info("[{}] Incoming request {}: {}", LogUtils.getRequestId(), request.uri(),
                     QueryDataAnonymizer.anonymizeData(sqlRequest.getSql()));
+
+
+            SQLQueryRequest newSqlRequest = new SQLQueryRequest(request, sqlRequest);
+            RestChannelConsumer result = newSqlQueryHandler.prepareRequest(newSqlRequest, client);
+            if (result != RestSQLQueryAction.NOT_SUPPORTED_YET) {
+                return result;
+            }
 
             final QueryAction queryAction =
                     explainRequest(client, sqlRequest, SqlRequestParam.getFormat(request.params()));

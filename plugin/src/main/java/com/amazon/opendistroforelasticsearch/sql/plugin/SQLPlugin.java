@@ -18,12 +18,12 @@ package com.amazon.opendistroforelasticsearch.sql.plugin;
 import com.amazon.opendistroforelasticsearch.sql.legacy.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.legacy.executor.AsyncRestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.legacy.metrics.Metrics;
+import com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSQLQueryAction;
 import com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlAction;
 import com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlSettingsAction;
 import com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlStatsAction;
 import com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSettings;
 import com.amazon.opendistroforelasticsearch.sql.plugin.rest.RestPPLQueryAction;
-import com.amazon.opendistroforelasticsearch.sql.plugin.rest.RestSQLQueryAction;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -83,10 +83,11 @@ public class SQLPlugin extends Plugin implements ActionPlugin {
     LocalClusterState.state().setResolver(indexNameExpressionResolver);
     Metrics.getInstance().registerDefaultMetrics();
 
+    RestSQLQueryAction newSqlQueryHandler = new RestSQLQueryAction(clusterService);
     return Arrays.asList(
         new RestPPLQueryAction(restController, clusterService),
-        //new RestSqlAction(settings, restController),
-        new RestSQLQueryAction(clusterService),
+        newSqlQueryHandler,
+        new RestSqlAction(settings, newSqlQueryHandler),
         new RestSqlStatsAction(settings, restController),
         new RestSqlSettingsAction(settings, restController)
     );
