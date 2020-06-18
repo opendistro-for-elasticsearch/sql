@@ -1,0 +1,44 @@
+{
+  "mappings": {
+    "properties": {
+      "gender": {
+        "type": "text",
+        "fielddata": true
+      },
+      "address": {
+        "type": "text",
+        "fielddata": true
+      },
+      "firstname": {
+        "type": "text",
+        "fielddata": true,
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "lastname": {
+        "type": "text",
+        "fielddata": true,
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "state": {
+        "type": "text",
+        "fielddata": true,
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      }
+    }
+  }
+}

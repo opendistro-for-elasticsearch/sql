@@ -1,0 +1,9 @@
+{
+  "mappings": {
+    "properties": {
+      "birthday": {
+        "type": "date"
+      }
+    }
+  }
+}

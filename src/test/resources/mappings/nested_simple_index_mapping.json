@@ -1,0 +1,44 @@
+{
+  "mappings": {
+    "properties": {
+      "address": {
+        "type": "nested",
+        "properties": {
+          "city": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "state": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          }
+        }
+      },
+      "age": {
+        "type": "long"
+      },
+      "id": {
+        "type": "long"
+      },
+      "name": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      }
+    }
+  }
+}

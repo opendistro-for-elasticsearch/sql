@@ -1,0 +1,27 @@
+{
+  "mappings": {
+    "properties": {
+      "join_field": {
+        "type": "join",
+        "relations": {
+          "parentType": "childrenType"
+        }
+      },
+      "parentTile": {
+        "index": "true",
+        "type": "keyword"
+      },
+      "dayOfWeek": {
+        "type": "long"
+      },
+      "author": {
+        "index": "true",
+        "type": "keyword"
+      },
+      "info": {
+        "index": "true",
+        "type": "keyword"
+      }
+    }
+  }
+}

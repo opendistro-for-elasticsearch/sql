@@ -1,0 +1,15 @@
+{
+  "mappings": {
+    "properties": {
+      "place": {
+        "type": "geo_shape"
+      },
+      "center": {
+        "type": "geo_point"
+      },
+      "description": {
+        "type": "text"
+      }
+    }
+  }
+}
