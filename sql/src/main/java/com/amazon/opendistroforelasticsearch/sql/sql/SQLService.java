@@ -26,6 +26,7 @@ import com.amazon.opendistroforelasticsearch.sql.planner.Planner;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.SQLSyntaxParser;
+import com.amazon.opendistroforelasticsearch.sql.sql.domain.SQLQueryRequest;
 import com.amazon.opendistroforelasticsearch.sql.sql.parser.AstBuilder;
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -60,15 +61,15 @@ public class SQLService {
 
   /**
    * Parse, analyze, plan and execute the query.
-   * @param query         SQL query
+   * @param request       SQL query request
    * @param listener      callback listener
    */
-  public void execute(String query, ResponseListener<QueryResponse> listener) {
+  public void execute(SQLQueryRequest request, ResponseListener<QueryResponse> listener) {
     try {
       executionEngine.execute(
                         plan(
                             analyze(
-                                parse(query))), listener);
+                                parse(request.getQuery()))), listener);
     } catch (Exception e) {
       listener.onFailure(e);
     }

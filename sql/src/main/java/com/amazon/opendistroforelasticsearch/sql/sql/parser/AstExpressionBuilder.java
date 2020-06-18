@@ -51,9 +51,4 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
     return AstDSL.booleanLiteral(Boolean.valueOf(ctx.getText()));
   }
 
-  @Override
-  protected UnresolvedExpression aggregateResult(UnresolvedExpression aggregate, UnresolvedExpression nextResult) {
-    return nextResult != null ? nextResult : aggregate;
-  }
-
 }

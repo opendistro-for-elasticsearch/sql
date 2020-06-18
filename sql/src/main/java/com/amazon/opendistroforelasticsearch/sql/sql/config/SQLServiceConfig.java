@@ -30,7 +30,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 /**
- * SQL service configuration.
+ * SQL service configuration for Spring container initialization.
  */
 @Configuration
 @Import({ExpressionConfig.class})
@@ -51,7 +51,7 @@ public class SQLServiceConfig {
   }
 
   @Bean
-  public SQLService pplService() {
+  public SQLService sqlService() {
     return new SQLService(new SQLSyntaxParser(), analyzer(), storageEngine, executionEngine);
   }
 

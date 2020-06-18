@@ -14,15 +14,14 @@
  *
  */
 
-package com.amazon.opendistroforelasticsearch.sql.legacy.plugin;
+package com.amazon.opendistroforelasticsearch.sql.sql.domain;
 
-import com.amazon.opendistroforelasticsearch.sql.legacy.executor.Format;
-import com.amazon.opendistroforelasticsearch.sql.legacy.request.SqlRequest;
-import com.amazon.opendistroforelasticsearch.sql.legacy.request.SqlRequestParam;
+import com.google.common.base.Strings;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import org.elasticsearch.rest.RestRequest;
 import org.json.JSONObject;
 
 /**
@@ -31,6 +30,7 @@ import org.json.JSONObject;
 @ToString
 @Getter
 @EqualsAndHashCode
+@RequiredArgsConstructor
 public class SQLQueryRequest {
 
   /**
@@ -51,19 +51,7 @@ public class SQLQueryRequest {
   /**
    * Request format.
    */
-  private final Format format;
-
-  /**
-   * Populate useful info from original REST request and SQL request.
-   * @param restRequest   ES REST request
-   * @param sqlRequest    Legacy SQL request
-   */
-  public SQLQueryRequest(RestRequest restRequest, SqlRequest sqlRequest) {
-    this.jsonContent = sqlRequest.getJsonContent();
-    this.query = sqlRequest.getSql();
-    this.path = restRequest.path();
-    this.format = SqlRequestParam.getFormat(restRequest.params());
-  }
+  private final String format;
 
   /**
    * Pre-check if the request can be supported by meeting the following criteria:
@@ -91,7 +79,7 @@ public class SQLQueryRequest {
   }
 
   private boolean isDefaultFormat() {
-    return format == Format.JDBC;
+    return Strings.isNullOrEmpty(format) || "jdbc".equalsIgnoreCase(format);
   }
 
 }
