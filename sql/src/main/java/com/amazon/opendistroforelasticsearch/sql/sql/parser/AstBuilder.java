@@ -47,7 +47,7 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
 
     // Attach an Values operator with only a empty row inside so that
     // Project operator can have a chance to evaluate its expression
-    // though the evaluation doesn't have any dependency in the Values.
+    // though the evaluation doesn't have any dependency on what's in Values.
     Values emptyValue = new Values(ImmutableList.of(Collections.emptyList()));
     return project.attach(emptyValue);
   }
