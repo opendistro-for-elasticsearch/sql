@@ -29,15 +29,22 @@ A literal is a symbol that represents a value. The most common literal values in
 Examples
 --------
 
-Here are examples for different type of literals::
+Here is an example for different type of literals::
 
-    od> SELECT 1;
-    fetched rows / total rows = 2/2
-    +------------------+
-    | account_number   |
-    |------------------+
-    | 1                |
-    | 13               |
-    +------------------+
+    od> SELECT 123, 'hello', false, -4.567;
+    fetched rows / total rows = 1/1
+    +-------+-----------+---------+----------+
+    | 123   | "hello"   | false   | -4.567   |
+    |-------+-----------+---------+----------|
+    | 123   | hello     | False   | -4.567   |
+    +-------+-----------+---------+----------+
 
+Limitations
+-----------
+
+The current implementation has the following limitations at the moment:
+
+ 1. Only literals of data types listed as above are supported for now. Other type of literals, such as date and NULL, will be added in future.
+ 2. Expression of literals, such as arithmetic expressions, will be supported later.
+ 3. Standard ANSI `VALUES` clause is not supported, although this is implemented by a Values operator internally.
 
