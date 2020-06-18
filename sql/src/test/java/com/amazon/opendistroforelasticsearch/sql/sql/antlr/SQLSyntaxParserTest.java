@@ -19,6 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.sql.antlr;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.jupiter.api.Test;
 
@@ -34,7 +35,7 @@ class SQLSyntaxParserTest {
 
   @Test
   public void canNotParseInvalidSelect() {
-    assertThrows(RuntimeException.class, () -> parser.parse("SELECT ,"));
+    assertThrows(SyntaxCheckException.class, () -> parser.parse("SELECT ,"));
   }
 
 }

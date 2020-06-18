@@ -22,6 +22,7 @@ import static org.elasticsearch.rest.RestStatus.INTERNAL_SERVER_ERROR;
 import static org.elasticsearch.rest.RestStatus.OK;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
+import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchNodeClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.ElasticsearchExecutionEngine;
@@ -106,7 +107,7 @@ public class RestSQLQueryAction extends BaseRestHandler {
     UnresolvedPlan ast;
     try {
       ast = sqlService.parse(request.getQuery());
-    } catch (RuntimeException e) { //TODO: change to specific syntax exception
+    } catch (SyntaxCheckException e) {
       return NOT_SUPPORTED_YET;
     }
     return channel -> sqlService.execute(ast, createListener(channel));
