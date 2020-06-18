@@ -16,6 +16,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
@@ -46,7 +48,7 @@ public class Planner {
    */
   public PhysicalPlan plan(LogicalPlan plan) {
     String tableName = findTableName(plan);
-    if (tableName.isEmpty()) {
+    if (isNullOrEmpty(tableName)) {
       return plan.accept(new DefaultImplementor<>(), null);
     }
 

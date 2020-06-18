@@ -51,7 +51,7 @@ public class PhysicalPlanDSL {
     return new ProjectOperator(input, Arrays.asList(fields));
   }
 
-  public static RemoveOperator remove(PhysicalPlan input, Expression... fields) {
+  public static RemoveOperator remove(PhysicalPlan input, ReferenceExpression... fields) {
     return new RemoveOperator(input, ImmutableSet.copyOf(fields));
   }
 

@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
-import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -33,7 +33,7 @@ import lombok.ToString;
 public class LogicalRemove extends LogicalPlan {
   private final LogicalPlan child;
   @Getter
-  private final Set<Expression> removeList;
+  private final Set<ReferenceExpression> removeList;
 
   @Override
   public List<LogicalPlan> getChild() {

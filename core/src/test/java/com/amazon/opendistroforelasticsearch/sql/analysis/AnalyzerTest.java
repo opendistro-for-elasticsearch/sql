@@ -23,7 +23,6 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
-import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -114,7 +113,7 @@ class AnalyzerTest extends AnalyzerTestBase {
                         AstDSL.agg(
                             AstDSL.relation("schema"),
                             AstDSL.exprList(AstDSL.aggregate("avg", field("integer_value"))),
-                            emptyList(),
+                            Collections.emptyList(),
                             ImmutableList.of(),
                             AstDSL.defaultStatsArgs()),
                         AstDSL.map(

@@ -150,18 +150,23 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
   @Override
   public LogicalPlan visitProject(Project node, AnalysisContext context) {
     LogicalPlan child = node.getChild().get(0).accept(this, context);
-    List<Expression> referenceExpressions =
-        node.getProjectList().stream()
-            .map(expr ->  expressionAnalyzer.analyze(expr, context))
-            .collect(Collectors.toList());
+
     if (node.hasArgument()) {
       Argument argument = node.getArgExprList().get(0);
       Boolean exclude = (Boolean) argument.getValue().getValue();
       if (exclude) {
+        List<ReferenceExpression> referenceExpressions =
+            node.getProjectList().stream()
+                .map(expr ->  (ReferenceExpression) expressionAnalyzer.analyze(expr, context))
+                .collect(Collectors.toList());
         return new LogicalRemove(child, ImmutableSet.copyOf(referenceExpressions));
       }
     }
-    return new LogicalProject(child, referenceExpressions);
+
+    List<Expression> expressions = node.getProjectList().stream()
+                                       .map(expr ->  expressionAnalyzer.analyze(expr, context))
+                                       .collect(Collectors.toList());
+    return new LogicalProject(child, expressions);
   }
 
   /**

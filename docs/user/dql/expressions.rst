@@ -22,9 +22,9 @@ Description
 
 A literal is a symbol that represents a value. The most common literal values include:
 
- 1. Numeric literals: specify numeric values such as integer and floating-point numbers.
- 2. String literals: specify a string enclosed by single or double quotes.
- 3. Boolean literals: `true` or `false`.
+1. Numeric literals: specify numeric values such as integer and floating-point numbers.
+2. String literals: specify a string enclosed by single or double quotes.
+3. Boolean literals: `true` or `false`.
 
 Examples
 --------
@@ -44,7 +44,7 @@ Limitations
 
 The current implementation has the following limitations at the moment:
 
- 1. Only literals of data types listed as above are supported for now. Other type of literals, such as date and NULL, will be added in future.
- 2. Expression of literals, such as arithmetic expressions, will be supported later.
- 3. Standard ANSI `VALUES` clause is not supported, although this is implemented by a Values operator internally.
+1. Only literals of data types listed as above are supported for now. Other type of literals, such as date and NULL, will be added in future.
+2. Expression of literals, such as arithmetic expressions, will be supported later.
+3. Standard ANSI `VALUES` clause is not supported, although this is implemented by a Values operator internally.
 

@@ -40,11 +40,12 @@ import com.amazon.opendistroforelasticsearch.sql.planner.physical.SortOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.ValuesOperator;
 
 /**
- * Default implementor for logical to physical translation. Default here means all logical operator
- * will be translated to correspondent pipelining operator.
+ * Default implementor for implementing logical to physical translation. "Default" here means all
+ * logical operator will be translated to correspondent physical operator to pipeline operations
+ * in post-processing style in memory.
  * Different storage can override methods here to optimize default pipelining operator, for example
  * a storage has the flexibility to override visitFilter and visitRelation to push down filtering
- * operation to an physical index scan operator.
+ * operation and return a single physical index scan operator.
  *
  * @param <C>   context type
  */
@@ -108,7 +109,7 @@ public class DefaultImplementor<C> extends LogicalPlanNodeVisitor<PhysicalPlan, 
   }
 
   protected PhysicalPlan visitChild(LogicalPlan node, C context) {
-    // Logical operators visited here can only have single child.
+    // Logical operators visited here must have a single child
     return node.getChild().get(0).accept(this, context);
   }
 

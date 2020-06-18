@@ -89,7 +89,7 @@ public class AstDSL {
 
   /**
    * Initialize Values node by rows of literals.
-   * @param values  tuple list
+   * @param values  rows in which each row is a list of literal values
    * @return        Values node
    */
   @SafeVarargs

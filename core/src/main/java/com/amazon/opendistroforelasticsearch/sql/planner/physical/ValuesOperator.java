@@ -34,7 +34,7 @@ import lombok.ToString;
 public class ValuesOperator extends PhysicalPlan {
 
   /**
-   * Original values list.
+   * Original values list for print and equality check.
    */
   private final List<List<LiteralExpression>> values;
 
