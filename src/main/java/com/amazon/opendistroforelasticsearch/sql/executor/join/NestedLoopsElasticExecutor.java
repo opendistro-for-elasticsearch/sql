@@ -174,7 +174,7 @@ public class NestedLoopsElasticExecutor extends ElasticJoinExecutor {
                 nestedLoopsRequest.getSecondTable().getOriginalSelect().isSelectAll());
         SearchHit searchHit = new SearchHit(currentCombinedResults, hitFromFirstTable.getId() + "|"
                 + matchedHit.getId(), new Text(hitFromFirstTable.getType() + "|" + matchedHit.getType()),
-                hitFromFirstTable.getFields());
+                hitFromFirstTable.getFields(), null);
         searchHit.sourceRef(hitFromFirstTable.getSourceRef());
         searchHit.getSourceAsMap().clear();
         searchHit.getSourceAsMap().putAll(hitFromFirstTable.getSourceAsMap());

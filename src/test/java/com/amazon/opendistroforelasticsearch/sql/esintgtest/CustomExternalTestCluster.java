@@ -82,14 +82,14 @@ public class CustomExternalTestCluster extends TestCluster {
         MockTransportClient client = new MockTransportClient(clientSettings, pluginClasses);
         try {
             client.addTransportAddresses(transportAddresses);
-            NodesInfoResponse nodeInfos = client.admin().cluster().prepareNodesInfo().clear().setSettings(true).setHttp(true).get();
+            NodesInfoResponse nodeInfos = client.admin().cluster().prepareNodesInfo().clear()/*.setSettings(true).setHttp(true)*/.get();
             httpAddresses = new InetSocketAddress[nodeInfos.getNodes().size()];
             this.clusterName = nodeInfos.getClusterName().value();
             int dataNodes = 0;
             int masterAndDataNodes = 0;
             for (int i = 0; i < nodeInfos.getNodes().size(); i++) {
                 NodeInfo nodeInfo = nodeInfos.getNodes().get(i);
-                httpAddresses[i] = nodeInfo.getHttp().address().publishAddress().address();
+                httpAddresses[i] = nodeInfo.remoteAddress().address(); //nodeInfo.getHttp().address().publishAddress().address();
                 if (DiscoveryNode.isDataNode(nodeInfo.getSettings())) {
                     dataNodes++;
                     masterAndDataNodes++;

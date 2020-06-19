@@ -30,7 +30,7 @@ import org.mockito.stubbing.OngoingStubbing;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetadata;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
@@ -108,10 +108,10 @@ public class JDBCConnectionTest {
 
     @Test
     public void testSelectQuery() throws SQLException {
-        ResultSetMetadata metadata = mockMetadata(ImmutableMap.of("name", "VARCHAR", "age", "INT"));
+        ResultSetMetaData metadata = mockMetadata(ImmutableMap.of("name", "VARCHAR", "age", "INT"));
         ResultSet resultSet = mockResultSet(new Object[]{"John", 25}, new Object[]{"Hank", 30});
         when(statement.executeQuery(anyString())).thenReturn(resultSet);
-        when(resultSet.getMetadata()).thenReturn(metadata);
+        when(resultSet.getMetaData()).thenReturn(metadata);
 
         DBResult result = conn.select("SELECT * FROM test");
         assertEquals("Test DB", result.getDatabaseName());
@@ -133,10 +133,10 @@ public class JDBCConnectionTest {
 
     @Test
     public void testSelectQueryWithAlias() throws SQLException {
-        ResultSetMetadata metadata = mockMetadata(ImmutableMap.of("name", "VARCHAR", "age", "INT"), "n", "a");
+        ResultSetMetaData metadata = mockMetadata(ImmutableMap.of("name", "VARCHAR", "age", "INT"), "n", "a");
         ResultSet resultSet = mockResultSet(new Object[]{"John", 25}, new Object[]{"Hank", 30});
         when(statement.executeQuery(anyString())).thenReturn(resultSet);
-        when(resultSet.getMetadata()).thenReturn(metadata);
+        when(resultSet.getMetaData()).thenReturn(metadata);
 
         DBResult result = conn.select("SELECT * FROM test");
         assertEquals(
@@ -150,14 +150,14 @@ public class JDBCConnectionTest {
 
     @Test
     public void testSelectQueryWithFloatInResultSet() throws SQLException {
-        ResultSetMetadata metadata = mockMetadata(ImmutableMap.of("name", "VARCHAR", "balance", "FLOAT"));
+        ResultSetMetaData metadata = mockMetadata(ImmutableMap.of("name", "VARCHAR", "balance", "FLOAT"));
         ResultSet resultSet = mockResultSet(
             new Object[]{"John", 25.123},
             new Object[]{"Hank", 30.456},
             new Object[]{"Allen", 15.1}
         );
         when(statement.executeQuery(anyString())).thenReturn(resultSet);
-        when(resultSet.getMetadata()).thenReturn(metadata);
+        when(resultSet.getMetaData()).thenReturn(metadata);
 
         DBResult result = conn.select("SELECT * FROM test");
         assertEquals(
@@ -194,8 +194,8 @@ public class JDBCConnectionTest {
         return resultSet;
     }
 
-    private ResultSetMetadata mockMetadata(Map<String, String> nameAndTypes, String... aliases) throws SQLException {
-        ResultSetMetadata metadata = mock(ResultSetMetadata.class);
+    private ResultSetMetaData mockMetadata(Map<String, String> nameAndTypes, String... aliases) throws SQLException {
+        ResultSetMetaData metadata = mock(ResultSetMetaData.class);
 
         OngoingStubbing<String> getColumnName = when(metadata.getColumnName(anyInt()));
         for (String name : nameAndTypes.keySet()) {

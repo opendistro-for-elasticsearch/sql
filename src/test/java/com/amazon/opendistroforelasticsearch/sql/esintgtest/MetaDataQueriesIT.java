@@ -191,7 +191,7 @@ import static org.hamcrest.Matchers.not;
  *     }
  *   ]
  */
-public class MetadataQueriesIT extends SQLIntegTestCase {
+public class MetaDataQueriesIT extends SQLIntegTestCase {
 
     // Number of fields in the response, assuming no filters, based on output shown above
     private static final int SHOW_FIELD_LENGTH = 10;

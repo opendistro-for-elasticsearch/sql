@@ -184,7 +184,7 @@ public class HashJoinElasticExecutor extends ElasticJoinExecutor {
 
                             SearchHit searchHit = new SearchHit(matchingHit.docId(), combinedId,
                                     new Text(matchingHit.getType() + "|" + secondTableHit.getType()),
-                                    matchingHit.getFields());
+                                    matchingHit.getFields(), null);
                             searchHit.sourceRef(matchingHit.getSourceRef());
                             searchHit.getSourceAsMap().clear();
                             searchHit.getSourceAsMap().putAll(matchingHit.getSourceAsMap());
@@ -239,7 +239,8 @@ public class HashJoinElasticExecutor extends ElasticJoinExecutor {
                         optimizationTermsFilterStructure.get(comparisonID));
 
                 //int docid , id
-                SearchHit searchHit = new SearchHit(resultIds, hit.getId(), new Text(hit.getType()), hit.getFields());
+                SearchHit searchHit = new SearchHit(resultIds, hit.getId(), new Text(hit.getType()),
+                                                    hit.getFields(), null);
                 searchHit.sourceRef(hit.getSourceRef());
 
                 onlyReturnedFields(searchHit.getSourceAsMap(), firstTableRequest.getReturnedFields(),

@@ -156,7 +156,8 @@ class SearchHitRow implements Row<SearchHit> {
                 new Text(
                         hit.getType() + "|" + (other == NULL ? null : ((SearchHitRow) other).hit.getType())
                 ),
-                hit.getFields()
+                hit.getFields(),
+                null
         );
         combined.sourceRef(hit.getSourceRef());
         combined.getSourceAsMap().clear();

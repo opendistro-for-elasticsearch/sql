@@ -143,7 +143,7 @@ public class AsyncRestExecutor implements RestExecutor {
 
         // Preserve context of calling thread to ensure headers of requests are forwarded when running blocking actions
         threadPool.schedule(
-                threadPool.preserveContext(LogUtils.withCurrentContext(runnable)),
+                LogUtils.withCurrentContext(runnable), //TODO: confirm if preserve does happen inside schedule() method
                 new TimeValue(0L),
                 SQL_WORKER_THREAD_POOL_NAME
         );

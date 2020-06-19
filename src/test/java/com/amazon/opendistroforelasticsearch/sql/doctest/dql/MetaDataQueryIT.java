@@ -27,7 +27,7 @@ import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.Sq
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.TABLE_RESPONSE;
 
 @DocTestConfig(template = "dql/metadata.rst", testData = {"accounts.json", "employees_nested.json"})
-public class MetadataQueryIT extends DocTest {
+public class MetaDataQueryIT extends DocTest {
 
     @Section(1)
     public void queryMetadata() {

@@ -24,7 +24,7 @@ import org.json.JSONObject;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetadata;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
@@ -139,7 +139,7 @@ public class JDBCConnection implements DBConnection {
     }
 
     private void populateMetadata(ResultSet resultSet, DBResult result) throws SQLException {
-        ResultSetMetadata metadata = resultSet.getMetadata();
+        ResultSetMetaData metadata = resultSet.getMetaData();
         for (int i = 1; i <= metadata.getColumnCount(); i++) {
 
             // Use label name (alias) if present.

@@ -134,7 +134,7 @@ public class MinusExecutor implements ElasticHitsExecutor {
             ArrayList<Object> values = new ArrayList<>();
             values.add(result);
             fields.put(fieldName, new DocumentField(fieldName, values));
-            SearchHit searchHit = new SearchHit(currentId, currentId + "", new Text(someHit.getType()), fields);
+            SearchHit searchHit = new SearchHit(currentId, currentId + "", new Text(someHit.getType()), fields, null);
             searchHit.sourceRef(someHit.getSourceRef());
             searchHit.getSourceAsMap().clear();
             Map<String, Object> sourceAsMap = new HashMap<>();
@@ -156,7 +156,7 @@ public class MinusExecutor implements ElasticHitsExecutor {
             values.add(result);
             SearchHit originalHit = result.getOriginalHit();
             SearchHit searchHit = new SearchHit(currentId, originalHit.getId(), new Text(originalHit.getType()),
-                    originalHit.getFields());
+                    originalHit.getFields(), null);
             searchHit.sourceRef(originalHit.getSourceRef());
             searchHit.getSourceAsMap().clear();
             Map<String, Object> sourceAsMap = result.getFlattenMap();
