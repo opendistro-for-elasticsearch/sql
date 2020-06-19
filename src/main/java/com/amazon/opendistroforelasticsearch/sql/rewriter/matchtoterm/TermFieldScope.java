@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  */
 public class TermFieldScope {
 
-    // mapper => index, type, field_name, FieldMappingMetaData
+    // mapper => index, type, field_name, FieldMappingMetadata
     private IndexMappings mapper;
     private FieldMappings finalMapping;
     private Map<String, String> aliases;

@@ -30,7 +30,7 @@ import org.mockito.stubbing.OngoingStubbing;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
+import java.sql.ResultSetMetadata;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
@@ -108,10 +108,10 @@ public class JDBCConnectionTest {
 
     @Test
     public void testSelectQuery() throws SQLException {
-        ResultSetMetaData metaData = mockMetaData(ImmutableMap.of("name", "VARCHAR", "age", "INT"));
+        ResultSetMetadata metadata = mockMetadata(ImmutableMap.of("name", "VARCHAR", "age", "INT"));
         ResultSet resultSet = mockResultSet(new Object[]{"John", 25}, new Object[]{"Hank", 30});
         when(statement.executeQuery(anyString())).thenReturn(resultSet);
-        when(resultSet.getMetaData()).thenReturn(metaData);
+        when(resultSet.getMetadata()).thenReturn(metadata);
 
         DBResult result = conn.select("SELECT * FROM test");
         assertEquals("Test DB", result.getDatabaseName());
@@ -133,10 +133,10 @@ public class JDBCConnectionTest {
 
     @Test
     public void testSelectQueryWithAlias() throws SQLException {
-        ResultSetMetaData metaData = mockMetaData(ImmutableMap.of("name", "VARCHAR", "age", "INT"), "n", "a");
+        ResultSetMetadata metadata = mockMetadata(ImmutableMap.of("name", "VARCHAR", "age", "INT"), "n", "a");
         ResultSet resultSet = mockResultSet(new Object[]{"John", 25}, new Object[]{"Hank", 30});
         when(statement.executeQuery(anyString())).thenReturn(resultSet);
-        when(resultSet.getMetaData()).thenReturn(metaData);
+        when(resultSet.getMetadata()).thenReturn(metadata);
 
         DBResult result = conn.select("SELECT * FROM test");
         assertEquals(
@@ -150,14 +150,14 @@ public class JDBCConnectionTest {
 
     @Test
     public void testSelectQueryWithFloatInResultSet() throws SQLException {
-        ResultSetMetaData metaData = mockMetaData(ImmutableMap.of("name", "VARCHAR", "balance", "FLOAT"));
+        ResultSetMetadata metadata = mockMetadata(ImmutableMap.of("name", "VARCHAR", "balance", "FLOAT"));
         ResultSet resultSet = mockResultSet(
             new Object[]{"John", 25.123},
             new Object[]{"Hank", 30.456},
             new Object[]{"Allen", 15.1}
         );
         when(statement.executeQuery(anyString())).thenReturn(resultSet);
-        when(resultSet.getMetaData()).thenReturn(metaData);
+        when(resultSet.getMetadata()).thenReturn(metadata);
 
         DBResult result = conn.select("SELECT * FROM test");
         assertEquals(
@@ -194,28 +194,28 @@ public class JDBCConnectionTest {
         return resultSet;
     }
 
-    private ResultSetMetaData mockMetaData(Map<String, String> nameAndTypes, String... aliases) throws SQLException {
-        ResultSetMetaData metaData = mock(ResultSetMetaData.class);
+    private ResultSetMetadata mockMetadata(Map<String, String> nameAndTypes, String... aliases) throws SQLException {
+        ResultSetMetadata metadata = mock(ResultSetMetadata.class);
 
-        OngoingStubbing<String> getColumnName = when(metaData.getColumnName(anyInt()));
+        OngoingStubbing<String> getColumnName = when(metadata.getColumnName(anyInt()));
         for (String name : nameAndTypes.keySet()) {
             getColumnName = getColumnName.thenReturn(name);
         }
 
-        OngoingStubbing<String> getColumnTypeName = when(metaData.getColumnTypeName(anyInt()));
+        OngoingStubbing<String> getColumnTypeName = when(metadata.getColumnTypeName(anyInt()));
         for (String value : nameAndTypes.values()) {
             getColumnTypeName = getColumnTypeName.thenReturn(value);
         }
 
         if (aliases.length > 0) {
-            OngoingStubbing<String> getColumnLabel = when(metaData.getColumnLabel(anyInt()));
+            OngoingStubbing<String> getColumnLabel = when(metadata.getColumnLabel(anyInt()));
             for (String alias : aliases) {
                 getColumnLabel = getColumnLabel.thenReturn(alias);
             }
         }
 
-        when(metaData.getColumnCount()).thenReturn(nameAndTypes.size());
-        return metaData;
+        when(metadata.getColumnCount()).thenReturn(nameAndTypes.size());
+        return metadata;
     }
 
 }

@@ -109,11 +109,11 @@ public class LocalClusterState {
         this.clusterService = clusterService;
 
         clusterService.addListener(event -> {
-            if (event.metaDataChanged()) {
+            if (event.metadataChanged()) {
                 // State in cluster service is already changed to event.state() before listener fired
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Metadata in cluster state changed: {}",
-                            new IndexMappings(clusterService.state().metaData()));
+                            new IndexMappings(clusterService.state().metadata()));
                 }
                 cache.invalidateAll();
             }
@@ -169,8 +169,8 @@ public class LocalClusterState {
     }
 
     /**
-     * Get field mappings by index expressions, type and field filter. Because IndexMetaData/MappingMetaData
-     * is hard to convert to FieldMappingMetaData, custom mapping domain objects are being used here. In future,
+     * Get field mappings by index expressions, type and field filter. Because IndexMetadata/MappingMetadata
+     * is hard to convert to FieldMappingMetadata, custom mapping domain objects are being used here. In future,
      * it should be moved to domain model layer for all ES specific knowledge.
      * <p>
      * Note that cluster state may be change inside ES so it's possible to read different state in 2 accesses
@@ -222,7 +222,7 @@ public class LocalClusterState {
                                        Function<String, Predicate<String>> fieldFilter) throws IOException {
         LOG.debug("Cache didn't help. Load and parse mapping in cluster state");
         return new IndexMappings(
-                state.metaData().findMappings(indices, types, fieldFilter)
+                state.metadata().findMappings(indices, types, fieldFilter)
         );
     }
 

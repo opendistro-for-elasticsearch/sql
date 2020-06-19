@@ -27,10 +27,10 @@ import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.Sq
 import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.SqlResponseFormat.TABLE_RESPONSE;
 
 @DocTestConfig(template = "dql/metadata.rst", testData = {"accounts.json", "employees_nested.json"})
-public class MetaDataQueryIT extends DocTest {
+public class MetadataQueryIT extends DocTest {
 
     @Section(1)
-    public void queryMetaData() {
+    public void queryMetadata() {
         section(
             title("Querying Metadata"),
             description(

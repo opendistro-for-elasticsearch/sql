@@ -24,7 +24,7 @@ import org.json.JSONObject;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
+import java.sql.ResultSetMetadata;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
@@ -106,7 +106,7 @@ public class JDBCConnection implements DBConnection {
         try (Statement stmt = connection.createStatement()) {
             ResultSet resultSet = stmt.executeQuery(query);
             DBResult result = new DBResult(databaseName);
-            populateMetaData(resultSet, result);
+            populateMetadata(resultSet, result);
             populateData(resultSet, result);
             return result;
         } catch (SQLException e) {
@@ -138,16 +138,16 @@ public class JDBCConnection implements DBConnection {
                       collect(joining(","));
     }
 
-    private void populateMetaData(ResultSet resultSet, DBResult result) throws SQLException {
-        ResultSetMetaData metaData = resultSet.getMetaData();
-        for (int i = 1; i <= metaData.getColumnCount(); i++) {
+    private void populateMetadata(ResultSet resultSet, DBResult result) throws SQLException {
+        ResultSetMetadata metadata = resultSet.getMetadata();
+        for (int i = 1; i <= metadata.getColumnCount(); i++) {
 
             // Use label name (alias) if present.
-            String colName = metaData.getColumnLabel(i);
+            String colName = metadata.getColumnLabel(i);
             if (Strings.isNullOrEmpty(colName)) {
-                colName = metaData.getColumnName(i);
+                colName = metadata.getColumnName(i);
             }
-            result.addColumn(colName, metaData.getColumnTypeName(i));
+            result.addColumn(colName, metadata.getColumnTypeName(i));
         }
     }
 

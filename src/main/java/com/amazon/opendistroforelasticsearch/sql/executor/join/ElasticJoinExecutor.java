@@ -217,7 +217,7 @@ public abstract class ElasticJoinExecutor implements ElasticHitsExecutor {
         Text unamatchedType = new Text(hit.getType() + "|null");
 
         SearchHit searchHit = new SearchHit(docId, unmatchedId, unamatchedType, hit.getFields());
-
+        
         searchHit.sourceRef(hit.getSourceRef());
         searchHit.getSourceAsMap().clear();
         searchHit.getSourceAsMap().putAll(hit.getSourceAsMap());
