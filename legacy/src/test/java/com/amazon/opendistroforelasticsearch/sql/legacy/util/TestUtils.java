@@ -25,8 +25,6 @@ import org.elasticsearch.client.RestClient;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.json.JSONObject;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,7 +32,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -48,6 +45,8 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Strings.isNullOrEmpty;
 
 public class TestUtils {
+
+    private final static String MAPPING_FILE_PATH = "src/test/resources/mappings/";
 
     /**
      * Create test index by REST client.
@@ -130,196 +129,101 @@ public class TestUtils {
     }
 
     public static String getAccountIndexMapping() {
-        String mappingFile = "mappings/account_index_mapping.json";
-        URL url = Resources.getResource(mappingFile);
-        try {
-            return Resources.toString(url, Charsets.UTF_8);
-        } catch(Exception e) {
-            return null;
-        }
+        String mappingFile = "account_index_mapping.json";
+        return getMappingFile(mappingFile);
     }
 
     public static String getPhraseIndexMapping() {
-        String mappingFile = "mappings/phrase_index_mapping.json";
-        URL url = Resources.getResource(mappingFile);
-        try {
-            return Resources.toString(url, Charsets.UTF_8);
-        } catch(Exception e) {
-            return null;
-        }
+        String mappingFile = "phrase_index_mapping.json";
+        return getMappingFile(mappingFile);
     }
 
     public static String getDogIndexMapping() {
-        String mappingFile = "mappings/dog_index_mapping.json";
-        URL url = Resources.getResource(mappingFile);
-        try {
-            return Resources.toString(url, Charsets.UTF_8);
-        } catch(Exception e) {
-            return null;
-        }
+        String mappingFile = "dog_index_mapping.json";
+        return getMappingFile(mappingFile);
     }
 
     public static String getDogs2IndexMapping() {
-        String mappingFile = "mappings/dog2_index_mapping.json";
-        URL url = Resources.getResource(mappingFile);
-        try {
-            return Resources.toString(url, Charsets.UTF_8);
-        } catch(Exception e) {
-            return null;
-        }
+        String mappingFile = "dog2_index_mapping.json";
+        return getMappingFile(mappingFile);
     }
 
     public static String getDogs3IndexMapping() {
-        String mappingFile = "mappings/dog3_index_mapping.json";
-        URL url = Resources.getResource(mappingFile);
-        try {
-            return Resources.toString(url, Charsets.UTF_8);
-        } catch(Exception e) {
-            return null;
-        }
+        String mappingFile = "dog3_index_mapping.json";
+        return getMappingFile(mappingFile);
     }
 
     public static String getPeople2IndexMapping() {
-        String mappingFile = "mappings/people2_index_mapping.json";
-        URL url = Resources.getResource(mappingFile);
-        try {
-            return Resources.toString(url, Charsets.UTF_8);
-        } catch(Exception e) {
-            return null;
-        }
+        String mappingFile = "people2_index_mapping.json";
+        return getMappingFile(mappingFile);
     }
 
     public static String getGameOfThronesIndexMapping() {
-        String mappingFile = "mappings/game_of_thrones_index_mapping.json";
-        URL url = Resources.getResource(mappingFile);
-        try {
-            return Resources.toString(url, Charsets.UTF_8);
-        } catch(Exception e) {
-            return null;
-        }
+        String mappingFile = "game_of_thrones_index_mapping.json";
+        return getMappingFile(mappingFile);
     }
 
     // System
 
     public static String getOdbcIndexMapping() {
-        String mappingFile = "mappings/odbc_index_mapping.json";
-        URL url = Resources.getResource(mappingFile);
-        try {
-            return Resources.toString(url, Charsets.UTF_8);
-        } catch(Exception e) {
-            return null;
-        }
+        String mappingFile = "odbc_index_mapping.json";
+        return getMappingFile(mappingFile);
     }
 
     public static String getLocationIndexMapping() {
-        String mappingFile = "mappings/location_index_mapping.json";
-        URL url = Resources.getResource(mappingFile);
-        try {
-            return Resources.toString(url, Charsets.UTF_8);
-        } catch(Exception e) {
-            return null;
-        }
+        String mappingFile = "location_index_mapping.json";
+        return getMappingFile(mappingFile);
     }
 
     public static String getEmployeeNestedTypeIndexMapping() {
-        String mappingFile = "mappings/employee_nested_type_index_mapping.json";
-        URL url = Resources.getResource(mappingFile);
-        try {
-            return Resources.toString(url, Charsets.UTF_8);
-        } catch(Exception e) {
-            return null;
-        }
+        String mappingFile = "employee_nested_type_index_mapping.json";
+        return getMappingFile(mappingFile);
     }
 
 
     public static String getNestedTypeIndexMapping() {
-        String mappingFile = "mappings/nested_type_index_mapping.json";
-        URL url = Resources.getResource(mappingFile);
-        try {
-            return Resources.toString(url, Charsets.UTF_8);
-        } catch(Exception e) {
-            return null;
-        }
+        String mappingFile = "nested_type_index_mapping.json";
+        return getMappingFile(mappingFile);
     }
 
     public static String getJoinTypeIndexMapping() {
-        String mappingFile = "mappings/join_type_index_mapping.json";
-        URL url = Resources.getResource(mappingFile);
-        try {
-            return Resources.toString(url, Charsets.UTF_8);
-        } catch(Exception e) {
-            return null;
-        }
+        String mappingFile = "join_type_index_mapping.json";
+        return getMappingFile(mappingFile);
     }
 
     public static String getBankIndexMapping() {
-        String mappingFile = "mappings/bank_index_mapping.json";
-        URL url = Resources.getResource(mappingFile);
-        try {
-            return Resources.toString(url, Charsets.UTF_8);
-        } catch(Exception e) {
-            return null;
-        }
+        String mappingFile = "bank_index_mapping.json";
+        return getMappingFile(mappingFile);
     }
 
     public static String getBankWithNullValuesIndexMapping() {
-        String mappingFile = "mappings/bank_with_null_values_index_mapping.json";
-        URL url = Resources.getResource(mappingFile);
-        try {
-            return Resources.toString(url, Charsets.UTF_8);
-        } catch(Exception e) {
-            return null;
-        }
+        String mappingFile = "bank_with_null_values_index_mapping.json";
+        return getMappingFile(mappingFile);
     }
 
     public static String getOrderIndexMapping() {
-        String mappingFile = "mappings/order_index_mapping.json";
-        URL url = Resources.getResource(mappingFile);
-        try {
-            return Resources.toString(url, Charsets.UTF_8);
-        } catch(Exception e) {
-            return null;
-        }
+        String mappingFile = "order_index_mapping.json";
+        return getMappingFile(mappingFile);
     }
 
     public static String getWeblogsIndexMapping() {
-        String mappingFile = "mappings/weblogs_index_mapping.json";
-        URL url = Resources.getResource(mappingFile);
-        try {
-            return Resources.toString(url, Charsets.UTF_8);
-        } catch(Exception e) {
-            return null;
-        }
+        String mappingFile = "weblogs_index_mapping.json";
+        return getMappingFile(mappingFile);
     }
 
     public static String getDateIndexMapping() {
-        String mappingFile = "mappings/date_index_mapping.json";
-        URL url = Resources.getResource(mappingFile);
-        try {
-            return Resources.toString(url, Charsets.UTF_8);
-        } catch(Exception e) {
-            return null;
-        }
+        String mappingFile = "date_index_mapping.json";
+        return getMappingFile(mappingFile);
     }
 
     public static String getDateTimeIndexMapping() {
-        String mappingFile = "mappings/date_time_index_mapping.json";
-        URL url = Resources.getResource(mappingFile);
-        try {
-            return Resources.toString(url, Charsets.UTF_8);
-        } catch(Exception e) {
-            return null;
-        }
+        String mappingFile = "date_time_index_mapping.json";
+        return getMappingFile(mappingFile);
     }
 
     public static String getNestedSimpleIndexMapping() {
-        String mappingFile = "mappings/nested_simple_index_mapping.json";
-        URL url = Resources.getResource(mappingFile);
-        try {
-            return Resources.toString(url, Charsets.UTF_8);
-        } catch(Exception e) {
-            return null;
-        }
+        String mappingFile = "nested_simple_index_mapping.json";
+        return getMappingFile(mappingFile);
     }
     public static void loadBulk(Client client, String jsonPath, String defaultIndex) throws Exception {
         System.out.println(String.format("Loading file %s into elasticsearch cluster", jsonPath));
@@ -468,5 +372,13 @@ public class TestUtils {
         }
 
         return result;
+    }
+
+    public static String getMappingFile(String fileName) {
+        try {
+            return fileToString(MAPPING_FILE_PATH + fileName, true);
+        } catch (IOException e) {
+            return null;
+        }
     }
 }
