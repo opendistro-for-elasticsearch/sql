@@ -217,6 +217,41 @@ public class AggregationExpressionIT extends SQLIntegTestCase {
         rows("m", 3.4339872044851463d, 49333));
   }
 
+  /**
+   * The date is in JDBC format.
+   */
+  @Test
+  public void groupByDateShouldPass() {
+    JSONObject response = executeJdbcRequest(String.format(
+        "SELECT birthdate, count(*) as count " +
+            "FROM %s " +
+            "WHERE age < 30 " +
+            "GROUP BY birthdate ",
+        Index.BANK.getName()));
+
+    verifySchema(response,
+        schema("birthdate", null, "date"),
+        schema("count", "count", "integer"));
+    verifyDataRows(response,
+        rows("2018-06-23 00:00:00.000", 1));
+  }
+
+  @Test
+  public void groupByDateWithAliasShouldPass() {
+    JSONObject response = executeJdbcRequest(String.format(
+        "SELECT birthdate as birth, count(*) as count " +
+            "FROM %s " +
+            "WHERE age < 30 " +
+            "GROUP BY birthdate ",
+        Index.BANK.getName()));
+
+    verifySchema(response,
+        schema("birth", "birth", "date"),
+        schema("count", "count", "integer"));
+    verifyDataRows(response,
+        rows("2018-06-23 00:00:00.000", 1));
+  }
+
   private JSONObject executeJdbcRequest(String query) {
     return new JSONObject(executeQuery(query, "jdbc"));
   }

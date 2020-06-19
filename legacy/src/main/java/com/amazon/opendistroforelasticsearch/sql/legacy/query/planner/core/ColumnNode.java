@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.legacy.query.planner.core;
 
 import com.amazon.opendistroforelasticsearch.sql.legacy.executor.format.Schema;
 import com.amazon.opendistroforelasticsearch.sql.legacy.expression.core.Expression;
+import com.google.common.base.Strings;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,4 +35,8 @@ public class ColumnNode {
     private String alias;
     private Schema.Type type;
     private Expression expr;
+
+    public String columnName() {
+        return Strings.isNullOrEmpty(alias) ? name : alias;
+    }
 }

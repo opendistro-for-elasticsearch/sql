@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
  */
 public class DateFieldFormatter {
     private static final Logger LOG = LogManager.getLogger(DateFieldFormatter.class);
-    private static final String FORMAT_JDBC = "yyyy-MM-dd HH:mm:ss.SSS";
+    public static final String FORMAT_JDBC = "yyyy-MM-dd HH:mm:ss.SSS";
     private static final String FORMAT_DELIMITER = "\\|\\|";
 
     private static final String FORMAT_DOT_DATE_AND_TIME = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
