@@ -47,6 +47,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.node.NodeClient;
+import org.elasticsearch.cluster.service.ClusterService;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.rest.BaseRestHandler;
@@ -94,10 +95,10 @@ public class RestSqlAction extends BaseRestHandler {
      */
     private final RestSQLQueryAction newSqlQueryHandler;
 
-    public RestSqlAction(Settings settings, RestSQLQueryAction newSqlQueryHandler) {
+    public RestSqlAction(Settings settings, ClusterService clusterService) {
         super();
         this.allowExplicitIndex = MULTI_ALLOW_EXPLICIT_INDEX.get(settings);
-        this.newSqlQueryHandler = newSqlQueryHandler;
+        this.newSqlQueryHandler = new RestSQLQueryAction(clusterService);
     }
 
     @Override
@@ -144,8 +145,10 @@ public class RestSqlAction extends BaseRestHandler {
             Format format = SqlRequestParam.getFormat(request.params());
 
             // Route request to new query engine if it's supported already
-            SQLQueryRequest newSqlRequest = new SQLQueryRequest(sqlRequest.getJsonContent(), sqlRequest.getSql(),
-                                                                request.path(), format.getFormatName());
+            SQLQueryRequest newSqlRequest = new SQLQueryRequest(sqlRequest.getJsonContent(),
+                                                                sqlRequest.getSql(),
+                                                                request.path(),
+                                                                format.getFormatName());
             RestChannelConsumer result = newSqlQueryHandler.prepareRequest(newSqlRequest, client);
             if (result != RestSQLQueryAction.NOT_SUPPORTED_YET) {
                 return result;

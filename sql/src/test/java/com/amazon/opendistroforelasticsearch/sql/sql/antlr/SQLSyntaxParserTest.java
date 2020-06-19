@@ -35,7 +35,7 @@ class SQLSyntaxParserTest {
 
   @Test
   public void canNotParseInvalidSelect() {
-    assertThrows(SyntaxCheckException.class, () -> parser.parse("SELECT ,"));
+    assertThrows(SyntaxCheckException.class, () -> parser.parse("SELECT * FROM test"));
   }
 
 }

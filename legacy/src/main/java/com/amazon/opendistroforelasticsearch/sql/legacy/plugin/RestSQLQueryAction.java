@@ -35,7 +35,6 @@ import com.amazon.opendistroforelasticsearch.sql.sql.config.SQLServiceConfig;
 import com.amazon.opendistroforelasticsearch.sql.sql.domain.SQLQueryRequest;
 import java.io.IOException;
 import java.security.PrivilegedExceptionAction;
-import java.util.Collections;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -46,22 +45,18 @@ import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestRequest;
 import org.elasticsearch.rest.RestStatus;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 /**
- * New SQL REST action handler. This will not registered to Elasticsearch until all old
- * functionalities migrated to new query engine and legacy REST handler removed.
+ * New SQL REST action handler. This will not be registered to Elasticsearch unless:
+ *  1) we want to test new SQL engine;
+ *  2) all old functionalities migrated to new query engine and legacy REST handler removed.
  */
 public class RestSQLQueryAction extends BaseRestHandler {
 
   private static final Logger LOG = LogManager.getLogger();
 
   public static final RestChannelConsumer NOT_SUPPORTED_YET = null;
-
-  public static final String SQL_QUERY_ENDPOINT = "_opendistro/_newsql";
-  private static final String SQL_QUERY_FIELD_NAME = "query";
 
   private final ClusterService clusterService;
 
@@ -77,19 +72,12 @@ public class RestSQLQueryAction extends BaseRestHandler {
 
   @Override
   public List<Route> routes() {
-    return Collections.singletonList(
-        new Route(RestRequest.Method.POST, SQL_QUERY_ENDPOINT)
-    );
+    throw new UnsupportedOperationException("New SQL handler is not ready yet");
   }
 
   @Override
   protected RestChannelConsumer prepareRequest(RestRequest request, NodeClient nodeClient) {
-    JSONObject jsonContent = parseJsonPayload(request);
-    String query = jsonContent.optString(SQL_QUERY_FIELD_NAME);
-    return prepareRequest(
-        new SQLQueryRequest(jsonContent, query, request.path(), ""),
-        nodeClient
-    );
+    throw new UnsupportedOperationException("New SQL handler is not ready yet");
   }
 
   /**
@@ -111,17 +99,6 @@ public class RestSQLQueryAction extends BaseRestHandler {
       return NOT_SUPPORTED_YET;
     }
     return channel -> sqlService.execute(ast, createListener(channel));
-  }
-
-  private JSONObject parseJsonPayload(RestRequest restRequest) {
-    String content = restRequest.content().utf8ToString();
-    JSONObject jsonContent;
-    try {
-      jsonContent = new JSONObject(content);
-    } catch (JSONException e) {
-      throw new IllegalArgumentException("Failed to parse request payload", e);
-    }
-    return jsonContent;
   }
 
   private SQLService createSQLService(NodeClient client) {
