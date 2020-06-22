@@ -81,6 +81,13 @@ public class QueryAnalysisIT extends PPLIntegTestCase {
   public void evalCommandShouldPassSemanticCheck() {
     String query = String.format("search source=%s | eval age=abs(age)", TEST_INDEX_ACCOUNT);
     queryShouldPassSyntaxAndSemanticCheck(query);
+    queryShouldPassSyntaxAndSemanticCheck(query);
+  }
+
+  @Test
+  public void queryShouldBeCaseInsensitiveInKeywords() {
+    String query = String.format("SEARCH SourCE=%s", TEST_INDEX_ACCOUNT);
+    queryShouldPassSyntaxAndSemanticCheck(query);
   }
 
   /**
