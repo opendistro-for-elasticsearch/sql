@@ -79,12 +79,9 @@ public class ESConnection implements DBConnection {
 
   @Override
   public void close() {
+    // Only close database connection and leave ES REST connection alone
+    // because it's initialized and manged by outside.
     connection.close();
-    /*try {
-      client.close();
-    } catch (IOException e) {
-      // Ignore
-    }*/
   }
 
   private void performRequest(Request request) {
