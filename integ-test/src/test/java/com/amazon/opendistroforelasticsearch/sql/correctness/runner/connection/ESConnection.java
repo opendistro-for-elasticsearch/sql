@@ -67,7 +67,7 @@ public class ESConnection implements DBConnection {
 
   @Override
   public void insert(String tableName, String[] columnNames, List<String[]> batch) {
-    Request request = new Request("POST", "/" + tableName + "/_bulk");
+    Request request = new Request("POST", "/" + tableName + "/_bulk?refresh=true");
     request.setJsonEntity(buildBulkBody(columnNames, batch));
     performRequest(request);
   }
