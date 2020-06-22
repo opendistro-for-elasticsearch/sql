@@ -134,6 +134,14 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
                 function("+", field("a"), field("b"))
             )
         ));
+    assertEqual("source=t | eval f=(a+b)",
+        eval(
+            relation("t"),
+            let(
+                field("f"),
+                function("+", field("a"), field("b"))
+            )
+        ));
   }
 
   @Test

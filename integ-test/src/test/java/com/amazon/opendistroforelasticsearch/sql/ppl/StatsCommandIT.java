@@ -15,11 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
-import org.junit.jupiter.api.Test;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
 
 import java.io.IOException;
-
-import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
+import org.junit.jupiter.api.Test;
 
 public class StatsCommandIT extends PPLIntegTestCase {
 
@@ -81,4 +80,22 @@ public class StatsCommandIT extends PPLIntegTestCase {
   }
 
   // TODO: each stats aggregate function should be tested here when implemented
+
+  @Test
+  public void testStatsNested() throws IOException {
+    String result =
+        executeQueryToString(
+            String.format("source=%s | stats avg(abs(age)*2) as AGE", TEST_INDEX_ACCOUNT));
+    assertEquals(
+        "{\n"
+            + "  \"schema\": [{\n"
+            + "    \"name\": \"AGE\",\n"
+            + "    \"type\": \"double\"\n"
+            + "  }],\n"
+            + "  \"total\": 1,\n"
+            + "  \"datarows\": [[60.342]],\n"
+            + "  \"size\": 1\n"
+            + "}\n",
+        result);
+  }
 }

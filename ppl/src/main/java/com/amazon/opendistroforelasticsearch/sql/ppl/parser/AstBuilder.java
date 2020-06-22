@@ -190,7 +190,7 @@ public class AstBuilder extends OpenDistroPPLParserBaseVisitor<UnresolvedPlan> {
   @Override
   public UnresolvedPlan visitEvalCommand(EvalCommandContext ctx) {
     return new Eval(
-        ctx.evalExpression()
+        ctx.evalClause()
             .stream()
             .map(ct -> (Let) visitExpression(ct))
             .collect(Collectors.toList())
