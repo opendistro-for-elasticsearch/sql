@@ -25,4 +25,11 @@ public class SelectIT extends SQLIntegTestCase {
     verify("SELECT DistanceMiles FROM kibana_sample_data_flights");
   }
 
+  @Test
+  public void select2() {
+    verify(
+        "SELECT AvgTicketPrice, Carrier FROM kibana_sample_data_flights WHERE AvgTicketPrice <= 500"
+    );
+  }
+
 }

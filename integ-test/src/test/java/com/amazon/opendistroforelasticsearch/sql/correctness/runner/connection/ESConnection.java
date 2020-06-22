@@ -80,11 +80,11 @@ public class ESConnection implements DBConnection {
   @Override
   public void close() {
     connection.close();
-    try {
+    /*try {
       client.close();
     } catch (IOException e) {
       // Ignore
-    }
+    }*/
   }
 
   private void performRequest(Request request) {

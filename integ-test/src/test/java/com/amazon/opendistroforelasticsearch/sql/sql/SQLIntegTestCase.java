@@ -26,19 +26,30 @@ import com.amazon.opendistroforelasticsearch.sql.correctness.runner.connection.J
 import com.amazon.opendistroforelasticsearch.sql.correctness.testset.TestDataSet;
 import com.amazon.opendistroforelasticsearch.sql.correctness.testset.TestQuerySet;
 import com.amazon.opendistroforelasticsearch.sql.legacy.RestIntegTestCase;
+import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
+import com.carrotsearch.randomizedtesting.annotations.ThreadLeakScope;
 import com.google.common.collect.Maps;
 import java.util.Map;
+import org.junit.AfterClass;
 import org.junit.Assert;
 
 /**
  * SQL integration test base class.
  */
+@ThreadLeakScope(ThreadLeakScope.Scope.NONE)
 public abstract class SQLIntegTestCase extends RestIntegTestCase {
 
+  /**
+   * Comparison test runner shared by all methods in this IT class.
+   */
   private static ComparisonTest runner;
 
   @Override
   protected void init() throws Exception {
+    if (runner != null) {
+      return;
+    }
+
     TestConfig config = new TestConfig(getCmdLineArgs());
     runner = new ComparisonTest(getThisDBConnection(config),
                                 getOtherDBConnections(config));
@@ -50,22 +61,41 @@ public abstract class SQLIntegTestCase extends RestIntegTestCase {
   }
 
   /**
+   * Clean up test data and close other database connection.
+   */
+  @AfterClass
+  public static void cleanUp() {
+
+    /*TestConfig config = new TestConfig(getCmdLineArgs());
+    for (TestDataSet dataSet : config.getTestDataSets()) {
+      runner.cleanUp(dataSet);
+    }*/
+
+    try {
+      runner.close();
+    } finally {
+      runner = null;
+    }
+  }
+
+  /**
    * Execute the given query and compare result with other database.
    */
   protected void verify(String query) {
     TestReport result = runner.verify(new TestQuerySet(query));
     TestSummary summary = result.getSummary();
-    Assert.assertEquals("Comparison failed: " + result, 0, summary.getFailure());
+    Assert.assertEquals(StringUtils.format(
+        "Comparison test failed on query [%s]: %s", query, result), 0, summary.getFailure());
   }
 
-  private Map<String, String> getCmdLineArgs() {
+  private static Map<String, String> getCmdLineArgs() {
     return Maps.fromProperties(System.getProperties());
   }
 
   private DBConnection getThisDBConnection(TestConfig config) {
     String dbUrl = config.getDbConnectionUrl();
     if (dbUrl.isEmpty()) {
-      return getESConnection(config);
+      return getESConnection();
     }
     return new JDBCConnection("DB Tested", dbUrl);
   }
@@ -73,7 +103,7 @@ public abstract class SQLIntegTestCase extends RestIntegTestCase {
   /**
    * Use Elasticsearch cluster initialized by ES Gradle task.
    */
-  private DBConnection getESConnection(TestConfig config) {
+  private DBConnection getESConnection() {
     String esHost = client().getNodes().get(0).getHost().toString();
     return new ESConnection("jdbc:elasticsearch://" + esHost, client());
   }
