@@ -42,7 +42,7 @@ public class SyntaxAnalysisErrorListener extends BaseErrorListener {
     Token offendingToken = (Token) offendingSymbol;
     String query = tokens.getText();
 
-    throw new RuntimeException(
+    throw new SyntaxCheckException(
         String.format(
             Locale.ROOT,
             "Failed to parse query due to offending symbol [%s] "

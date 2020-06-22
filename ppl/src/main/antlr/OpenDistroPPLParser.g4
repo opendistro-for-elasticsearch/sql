@@ -109,15 +109,7 @@ statsFunction
     ;
 
 statsFunctionName
-    // aggregation function name
-    : AVG | COUNT | DISTINCT_COUNT | ESTDC | ESTDC_ERROR | MAX | MEAN | MEDIAN | MIN | MODE | RANGE| STDEV
-    | STDEVP | SUM | SUMSQ | VAR | VARP
-    // event order function name
-    | FIRST | LAST
-    // multivalue stats chart function name
-    | LIST | VALUES
-    // time function name
-    | EARLIEST | EARLIEST_TIME | LATEST | LATEST_TIME | PER_DAY | PER_HOUR | PER_MINUTE | PER_SECOND | RATE
+    : AVG | COUNT | SUM
     ;
 
 percentileAggFunction
