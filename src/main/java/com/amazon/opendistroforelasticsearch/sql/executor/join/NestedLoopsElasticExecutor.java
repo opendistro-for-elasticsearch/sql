@@ -33,12 +33,14 @@ import org.elasticsearch.action.search.MultiSearchResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -172,9 +174,12 @@ public class NestedLoopsElasticExecutor extends ElasticJoinExecutor {
                                    SearchHit hitFromFirstTable, SearchHit matchedHit) {
         onlyReturnedFields(matchedHit.getSourceAsMap(), nestedLoopsRequest.getSecondTable().getReturnedFields(),
                 nestedLoopsRequest.getSecondTable().getOriginalSelect().isSelectAll());
+        Map<String, DocumentField> documentFields = new HashMap<>();
+        Map<String, DocumentField> metaFields = new HashMap<>();
+        SearchHit.splitFieldsByMetadata(hitFromFirstTable.getFields(), documentFields, metaFields);
         SearchHit searchHit = new SearchHit(currentCombinedResults, hitFromFirstTable.getId() + "|"
                 + matchedHit.getId(), new Text(hitFromFirstTable.getType() + "|" + matchedHit.getType()),
-                hitFromFirstTable.getFields(), null);
+                documentFields, metaFields);
         searchHit.sourceRef(hitFromFirstTable.getSourceRef());
         searchHit.getSourceAsMap().clear();
         searchHit.getSourceAsMap().putAll(hitFromFirstTable.getSourceAsMap());
