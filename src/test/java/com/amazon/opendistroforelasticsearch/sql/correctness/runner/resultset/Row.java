@@ -29,7 +29,7 @@ import java.util.Collection;
  */
 @EqualsAndHashCode
 @ToString
-//@Getter
+@Getter
 public class Row {
 
     private final Collection<Object> values;
@@ -57,7 +57,4 @@ public class Row {
         return value;
     }
 
-    public Collection<Object> getValues() {
-        return values;
-    }
 }

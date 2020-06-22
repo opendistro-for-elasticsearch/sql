@@ -17,12 +17,10 @@ package com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset;
 
 import lombok.Data;
 
-import java.util.Objects;
-
 /**
  * Column type in schema
  */
-//@Data
+@Data
 public class Type {
 
     /** Column name */
@@ -31,30 +29,4 @@ public class Type {
     /** Column type */
     private final String type;
 
-    public Type(String name, String type) {
-        this.name = name;
-        this.type = type;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Type type1 = (Type) o;
-        return Objects.equals(name, type1.name) &&
-            Objects.equals(type, type1.type);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, type);
-    }
 }
