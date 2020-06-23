@@ -1,0 +1,10 @@
+{
+  "mappings": {
+    "properties": {
+      "dog_name": {
+        "type": "text",
+        "fielddata": true
+      }
+    }
+  }
+}

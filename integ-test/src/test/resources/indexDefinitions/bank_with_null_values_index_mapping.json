@@ -1,0 +1,27 @@
+{
+  "mappings": {
+    "properties": {
+      "account_number": {
+        "type": "long"
+      },
+      "address": {
+        "type": "text"
+      },
+      "age": {
+        "type": "integer"
+      },
+      "balance": {
+        "type": "long"
+      },
+      "gender": {
+        "type": "text"
+      },
+      "firstname": {
+        "type": "text"
+      },
+      "lastname": {
+        "type": "keyword"
+      }
+    }
+  }
+}

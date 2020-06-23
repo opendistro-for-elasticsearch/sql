@@ -1,0 +1,10 @@
+{
+  "mappings": {
+    "properties": {
+      "date_keyword": {
+        "type": "keyword",
+        "ignore_above": 256
+      }
+    }
+  }
+}

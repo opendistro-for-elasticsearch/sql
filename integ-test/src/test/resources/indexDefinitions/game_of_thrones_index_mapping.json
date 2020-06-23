@@ -1,0 +1,44 @@
+{
+  "mappings": {
+    "properties": {
+      "nickname": {
+        "type": "text",
+        "fielddata": true
+      },
+      "name": {
+        "properties": {
+          "firstname": {
+            "type": "text",
+            "fielddata": true
+          },
+          "lastname": {
+            "type": "text",
+            "fielddata": true
+          },
+          "ofHerName": {
+            "type": "integer"
+          },
+          "ofHisName": {
+            "type": "integer"
+          }
+        }
+      },
+      "house": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword"
+          }
+        }
+      },
+      "gender": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword"
+          }
+        }
+      }
+    }
+  }
+}
