@@ -9,6 +9,6 @@
 {"index":{"_id":"20"}}
 {"account_number":20,"firstname":"Elinor","lastname":"Ratliff","age":36,"gender":"M","address":"282 Kings Place"}
 {"index":{"_id":"25"}}
-{"account_number":25,"firstname":"Virginia","lastname":"Ayala","age":39,"gender":"F","address":"171 Putnam Avenue"}
+{"account_number":25,"firstname":"Virginia","lastname":"Ayala","age":null, "gender":"F","address":"171 Putnam Avenue"}
 {"index":{"_id":"32"}}
 {"account_number":32,"balance":48086,"firstname":"Dillard","lastname":"Mcpherson","age":34,"gender":"F","address":"702 Quentin Street"}

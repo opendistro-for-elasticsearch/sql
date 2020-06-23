@@ -16,18 +16,21 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK_WITH_NULL_VALUES;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
 
 import java.io.IOException;
+import org.elasticsearch.client.ResponseException;
+import org.hamcrest.Matchers;
 import org.json.JSONObject;
-import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 
 public class OperatorIT extends PPLIntegTestCase {
   @Override
   public void init() throws IOException {
     loadIndex(Index.BANK);
+    loadIndex(Index.BANK_WITH_NULL_VALUES);
   }
 
   @Test
@@ -78,6 +81,44 @@ public class OperatorIT extends PPLIntegTestCase {
                 "source=%s | where age %s 32 = 0 | fields age",
                 TEST_INDEX_BANK, "%"));
     verifyDataRows(result, rows(32));
+  }
+
+  @Test
+  public void testArithmeticOperatorWithNullValue() throws IOException {
+    String result =
+        executeQueryToString(
+            String.format(
+                "source=%s | eval f = age + 0 | fields f",
+                TEST_INDEX_BANK_WITH_NULL_VALUES));
+    assertEquals(
+        "{\n"
+            + "  \"schema\": [{\n"
+            + "    \"name\": \"f\",\n"
+            + "    \"type\": \"integer\"\n"
+            + "  }],\n"
+            + "  \"total\": 7,\n"
+            + "  \"datarows\": [\n"
+            + "    [32],\n"
+            + "    [36],\n"
+            + "    [28],\n"
+            + "    [33],\n"
+            + "    [36],\n"
+            + "    [null],\n"
+            + "    [34]\n"
+            + "  ],\n"
+            + "  \"size\": 7\n"
+            + "}\n",
+        result);
+  }
+
+  @Test
+  public void testArithmeticOperatorWithMissingValue() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s | eval f = balance * 1 | fields f", TEST_INDEX_BANK_WITH_NULL_VALUES));
+    verifyDataRows(
+        result, rows(39225), rows(32838), rows(4180), rows(48086), rows(), rows(), rows());
   }
 
   @Test
@@ -221,5 +262,38 @@ public class OperatorIT extends PPLIntegTestCase {
                 "source=%s age >= 36 | fields age",
                 TEST_INDEX_BANK));
     verifyDataRows(result, rows(36), rows(36), rows(39));
+  }
+
+  @Test
+  public void testValueComparisonWithNullValue() {
+    queryExecutionShouldThrowExceptionDueToNullOrMissingValue(
+        String.format("source=%s | where age < 32", TEST_INDEX_BANK_WITH_NULL_VALUES),
+        "invalid to call type operation on null value"
+    );
+  }
+
+  @Test
+  public void testValueComparisonWithMissingValue() {
+    queryExecutionShouldThrowExceptionDueToNullOrMissingValue(
+        String.format("source=%s | where balance > 3000", TEST_INDEX_BANK_WITH_NULL_VALUES),
+        "invalid to call type operation on missing value"
+    );
+  }
+
+  private void queryExecutionShouldThrowExceptionDueToNullOrMissingValue(
+      String query, String... errorMsgs) {
+    try {
+      executeQuery(query);
+      fail("Expected to throw ExpressionEvaluationException, but none was thrown for query: "
+          + query);
+    } catch (ResponseException e) {
+      String errorMsg = e.getMessage();
+      assertTrue(errorMsg.contains("ExpressionEvaluationException"));
+      for (String msg: errorMsgs) {
+        assertTrue(errorMsg.contains(msg));
+      }
+    } catch (IOException e) {
+      throw new IllegalStateException("Unexpected exception raised for query: " + query);
+    }
   }
 }
