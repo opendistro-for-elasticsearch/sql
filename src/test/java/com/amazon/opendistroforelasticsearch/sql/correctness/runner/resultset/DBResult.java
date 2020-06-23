@@ -44,7 +44,7 @@ public class DBResult {
     private final String databaseName;
 
     /** Column name and types from result set meta data */
-    //@Getter
+    @Getter
     private final Collection<Type> schema;
 
     /** Data rows from result set */
@@ -92,7 +92,4 @@ public class DBResult {
         return dataRows.stream().map(Row::getValues).collect(Collectors.toSet());
     }
 
-    public Collection<Type> getSchema() {
-        return schema;
-    }
 }
