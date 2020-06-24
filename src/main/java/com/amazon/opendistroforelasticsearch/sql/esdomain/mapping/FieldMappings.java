@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esdomain.mapping;
 
-import org.elasticsearch.cluster.metadata.MappingMetaData;
+import org.elasticsearch.cluster.metadata.MappingMetadata;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -61,7 +61,7 @@ public class FieldMappings implements Mappings<Map<String, Object>> {
      */
     private final Map<String, Object> fieldMappings;
 
-    public FieldMappings(MappingMetaData mappings) {
+    public FieldMappings(MappingMetadata mappings) {
         fieldMappings = mappings.sourceAsMap();
     }
 

@@ -34,6 +34,7 @@ import org.elasticsearch.env.Environment;
 import org.elasticsearch.env.NodeEnvironment;
 import org.elasticsearch.plugins.ActionPlugin;
 import org.elasticsearch.plugins.Plugin;
+import org.elasticsearch.repositories.RepositoriesService;
 import org.elasticsearch.rest.RestController;
 import org.elasticsearch.rest.RestHandler;
 import org.elasticsearch.script.ScriptService;
@@ -89,11 +90,13 @@ public class SqlPlug extends Plugin implements ActionPlugin {
                                                NamedXContentRegistry xContentRegistry, Environment environment,
                                                NodeEnvironment nodeEnvironment,
                                                NamedWriteableRegistry namedWriteableRegistry,
-                                               IndexNameExpressionResolver indexNameExpressionResolver) {
+                                               IndexNameExpressionResolver indexNameExpressionResolver,
+                                               Supplier<RepositoriesService> repositoriesServiceSupplier) {
         LocalClusterState.state().setClusterService(clusterService);
         LocalClusterState.state().setSqlSettings(sqlSettings);
         return super.createComponents(client, clusterService, threadPool, resourceWatcherService, scriptService,
-                xContentRegistry, environment, nodeEnvironment, namedWriteableRegistry, indexNameExpressionResolver);
+                xContentRegistry, environment, nodeEnvironment, namedWriteableRegistry, indexNameExpressionResolver,
+                repositoriesServiceSupplier);
     }
 
     @Override
@@ -102,7 +105,7 @@ public class SqlPlug extends Plugin implements ActionPlugin {
                 new FixedExecutorBuilder(
                         settings,
                         AsyncRestExecutor.SQL_WORKER_THREAD_POOL_NAME,
-                        EsExecutors.numberOfProcessors(settings),
+                        EsExecutors.allocatedProcessors(settings),
                         1000,
                         null
                 )

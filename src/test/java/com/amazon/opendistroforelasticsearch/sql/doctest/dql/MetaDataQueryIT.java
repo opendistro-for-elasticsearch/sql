@@ -30,7 +30,7 @@ import static com.amazon.opendistroforelasticsearch.sql.doctest.core.response.Sq
 public class MetaDataQueryIT extends DocTest {
 
     @Section(1)
-    public void queryMetaData() {
+    public void queryMetadata() {
         section(
             title("Querying Metadata"),
             description(

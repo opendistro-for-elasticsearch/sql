@@ -15,7 +15,7 @@
 
 buildscript {
     ext {
-        es_version = "7.7.0"
+        es_version = "7.8.0"
     }
     // This isn't applying from repositories.gradle so repeating it here
     repositories {
@@ -40,7 +40,7 @@ repositories {
 }
 
 ext {
-    opendistroVersion = '1.8.0'
+    opendistroVersion = '1.9.0'
     isSnapshot = "true" == System.getProperty("build.snapshot", "true")
 }
 
@@ -95,6 +95,10 @@ ext {
 licenseHeaders {
     enabled = true
     excludes = ['com/amazon/opendistroforelasticsearch/sql/antlr/parser/**']
+}
+
+tasks.withType(licenseHeaders.class) {
+    additionalLicense 'AL   ', 'Apache', 'Licensed under the Apache License, Version 2.0 (the "License")'
 }
 
 // TODO: need to fix java doc to enable JavaDoc
@@ -272,13 +276,15 @@ dependencies {
     testCompile group: "org.elasticsearch.client", name: 'transport', version: "${es_version}"
 
     // JDBC drivers for comparison test. Somehow Apache Derby throws security permission exception.
-    testCompile group: 'com.amazon.opendistroforelasticsearch.client', name: 'opendistro-sql-jdbc', version: '1.3.0.0'
+    testCompile group: 'com.amazon.opendistroforelasticsearch.client', name: 'opendistro-sql-jdbc', version: '1.8.0.0'
     testCompile group: 'com.h2database', name: 'h2', version: '1.4.200'
     testCompile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.28.0'
     //testCompile group: 'org.apache.derby', name: 'derby', version: '10.15.1.3'
 }
 
 apply plugin: 'nebula.ospackage'
+
+validateNebulaPom.enabled = false
 
 // This is afterEvaluate because the bundlePlugin ZIP task is updated afterEvaluate and changes the ZIP name to match the plugin name
 afterEvaluate {

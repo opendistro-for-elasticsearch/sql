@@ -21,7 +21,7 @@ import com.amazon.opendistroforelasticsearch.sql.utils.StringUtils;
 import java.util.Map;
 
 import static java.util.Collections.emptyMap;
-import static org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse.FieldMappingMetaData;
+import static org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse.FieldMappingMetadata;
 
 /**
  * Field mapping that parses native ES mapping.
@@ -39,7 +39,7 @@ public class FieldMapping {
     /**
      * Native mapping information returned from ES
      */
-    private final Map<String, FieldMappingMetaData> typeMappings;
+    private final Map<String, FieldMappingMetadata> typeMappings;
 
     /**
      * Maps a field name to Field object that specified in query explicitly
@@ -51,7 +51,7 @@ public class FieldMapping {
     }
 
     public FieldMapping(String fieldName,
-                        Map<String, FieldMappingMetaData> typeMappings,
+                        Map<String, FieldMappingMetadata> typeMappings,
                         Map<String, Field> specifiedFieldByNames) {
 
         this.fieldName = fieldName;
@@ -119,16 +119,16 @@ public class FieldMapping {
     }
 
     /**
-     * Used to retrieve the type of fields from metaData map structures for both regular and nested fields
+     * Used to retrieve the type of fields from metadata map structures for both regular and nested fields
      */
     @SuppressWarnings("unchecked")
     public String type() {
-        FieldMappingMetaData metaData = typeMappings.get(fieldName);
-        Map<String, Object> source = metaData.sourceAsMap();
+        FieldMappingMetadata metadata = typeMappings.get(fieldName);
+        Map<String, Object> source = metadata.sourceAsMap();
         String[] fieldPath = fieldName.split("\\.");
 
         /*
-         * When field is not nested the metaData source is fieldName -> type
+         * When field is not nested the metadata source is fieldName -> type
          * When it is nested or contains "." in general (ex. fieldName.nestedName) the source is nestedName -> type
          */
         String root = (fieldPath.length == 1) ? fieldName : fieldPath[1];

@@ -26,6 +26,7 @@ import org.elasticsearch.common.network.NetworkModule;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.env.Environment;
+import org.elasticsearch.http.HttpInfo;
 import org.elasticsearch.plugins.Plugin;
 import org.elasticsearch.test.InternalTestCluster;
 import org.elasticsearch.test.TestCluster;
@@ -40,6 +41,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.elasticsearch.action.admin.cluster.node.info.NodesInfoRequest.Metric.HTTP;
+import static org.elasticsearch.action.admin.cluster.node.info.NodesInfoRequest.Metric.SETTINGS;
 import static org.elasticsearch.test.ESTestCase.getTestTransportType;
 
 public class CustomExternalTestCluster extends TestCluster {
@@ -82,14 +85,16 @@ public class CustomExternalTestCluster extends TestCluster {
         MockTransportClient client = new MockTransportClient(clientSettings, pluginClasses);
         try {
             client.addTransportAddresses(transportAddresses);
-            NodesInfoResponse nodeInfos = client.admin().cluster().prepareNodesInfo().clear().setSettings(true).setHttp(true).get();
+            NodesInfoResponse nodeInfos = client.admin().cluster().prepareNodesInfo().clear()
+                .addMetrics(SETTINGS.metricName(), HTTP.metricName())
+                .get();
             httpAddresses = new InetSocketAddress[nodeInfos.getNodes().size()];
             this.clusterName = nodeInfos.getClusterName().value();
             int dataNodes = 0;
             int masterAndDataNodes = 0;
             for (int i = 0; i < nodeInfos.getNodes().size(); i++) {
                 NodeInfo nodeInfo = nodeInfos.getNodes().get(i);
-                httpAddresses[i] = nodeInfo.getHttp().address().publishAddress().address();
+                httpAddresses[i] = nodeInfo.getInfo(HttpInfo.class).address().publishAddress().address();
                 if (DiscoveryNode.isDataNode(nodeInfo.getSettings())) {
                     dataNodes++;
                     masterAndDataNodes++;
