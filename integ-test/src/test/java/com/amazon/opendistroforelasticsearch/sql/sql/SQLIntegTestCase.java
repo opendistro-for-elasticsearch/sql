@@ -65,17 +65,26 @@ public abstract class SQLIntegTestCase extends RestIntegTestCase {
    */
   @AfterClass
   public static void cleanUp() {
-
-    /*TestConfig config = new TestConfig(getCmdLineArgs());
-    for (TestDataSet dataSet : config.getTestDataSets()) {
-      runner.cleanUp(dataSet);
-    }*/
-
     try {
+      TestConfig config = new TestConfig(getCmdLineArgs());
+      for (TestDataSet dataSet : config.getTestDataSets()) {
+        runner.cleanUp(dataSet);
+      }
+
       runner.close();
     } finally {
       runner = null;
     }
+  }
+
+  /**
+   * Execute the given query and compare result with other database.
+   */
+  protected void verify(String... queries) {
+    TestReport result = runner.verify(new TestQuerySet(queries));
+    TestSummary summary = result.getSummary();
+    Assert.assertEquals(StringUtils.format(
+        "Comparison test failed on queries: %s", result), 0, summary.getFailure());
   }
 
   /**
