@@ -38,18 +38,13 @@ public class ExprBooleanValue implements ExprValue {
   }
 
   @Override
-  public Object value() {
+  public Boolean value() {
     return value;
   }
 
   @Override
   public ExprType type() {
     return ExprType.BOOLEAN;
-  }
-
-  @Override
-  public int compareTo(ExprValue v) {
-    throw new ExpressionEvaluationException("invalid to call compare operation on boolean value");
   }
 
   @Override

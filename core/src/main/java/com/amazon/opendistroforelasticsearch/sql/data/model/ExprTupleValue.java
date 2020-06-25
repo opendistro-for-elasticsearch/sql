@@ -36,18 +36,13 @@ public class ExprTupleValue implements ExprValue {
   }
 
   @Override
-  public Object value() {
+  public Map value() {
     return valueMap;
   }
 
   @Override
   public ExprType type() {
     return ExprType.STRUCT;
-  }
-
-  @Override
-  public int compareTo(ExprValue v) {
-    throw new ExpressionEvaluationException("invalid to call compare operation on tuple value");
   }
 
   @Override

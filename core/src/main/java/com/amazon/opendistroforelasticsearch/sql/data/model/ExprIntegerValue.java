@@ -24,7 +24,7 @@ public class ExprIntegerValue implements ExprValue {
   private final Integer value;
 
   @Override
-  public Object value() {
+  public Integer value() {
     return value;
   }
 
@@ -36,10 +36,5 @@ public class ExprIntegerValue implements ExprValue {
   @Override
   public String toString() {
     return value.toString();
-  }
-
-  @Override
-  public int compareTo(ExprValue target) {
-    return value.compareTo((Integer) target.value());
   }
 }

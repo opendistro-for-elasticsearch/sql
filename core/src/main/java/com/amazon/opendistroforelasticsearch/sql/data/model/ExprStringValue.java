@@ -24,18 +24,13 @@ public class ExprStringValue implements ExprValue {
   private final String value;
 
   @Override
-  public Object value() {
+  public String value() {
     return value;
   }
 
   @Override
   public ExprType type() {
     return ExprType.STRING;
-  }
-
-  @Override
-  public int compareTo(ExprValue v) {
-    return value.compareTo((String) v.value());
   }
 
   @Override

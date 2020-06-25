@@ -43,11 +43,6 @@ public class ExprMissingValue implements ExprValue {
   }
 
   @Override
-  public int compareTo(ExprValue v) {
-    throw new ExpressionEvaluationException("invalid to call compare operation on missing value");
-  }
-
-  @Override
   public boolean isMissing() {
     return true;
   }

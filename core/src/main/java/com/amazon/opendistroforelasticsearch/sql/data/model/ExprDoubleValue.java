@@ -24,7 +24,7 @@ public class ExprDoubleValue implements ExprValue {
   private final Double value;
 
   @Override
-  public Object value() {
+  public Double value() {
     return value;
   }
 
@@ -36,10 +36,5 @@ public class ExprDoubleValue implements ExprValue {
   @Override
   public String toString() {
     return value.toString();
-  }
-
-  @Override
-  public int compareTo(ExprValue target) {
-    return value.compareTo((Double) target.value());
   }
 }

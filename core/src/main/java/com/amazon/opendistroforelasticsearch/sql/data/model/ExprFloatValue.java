@@ -24,7 +24,7 @@ public class ExprFloatValue implements ExprValue {
   private final Float value;
 
   @Override
-  public Object value() {
+  public Float value() {
     return value;
   }
 
@@ -36,10 +36,5 @@ public class ExprFloatValue implements ExprValue {
   @Override
   public String toString() {
     return value.toString();
-  }
-
-  @Override
-  public int compareTo(ExprValue target) {
-    return value.compareTo((Float) target.value());
   }
 }

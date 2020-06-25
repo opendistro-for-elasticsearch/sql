@@ -43,11 +43,6 @@ public class ExprNullValue implements ExprValue {
   }
 
   @Override
-  public int compareTo(ExprValue v) {
-    throw new ExpressionEvaluationException("invalid to call compare operation on null value");
-  }
-
-  @Override
   public boolean isNull() {
     return true;
   }

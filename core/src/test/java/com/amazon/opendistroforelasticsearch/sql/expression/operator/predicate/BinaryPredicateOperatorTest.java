@@ -25,9 +25,15 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.booleanValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.fromObjectValue;
+import static com.amazon.opendistroforelasticsearch.sql.utils.ComparisonUtil.compare;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDoubleValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprFloatValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprLongValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprStringValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
@@ -420,7 +426,7 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
   public void test_less(ExprValue v1, ExprValue v2) {
     FunctionExpression less = dsl.less(typeEnv(), DSL.literal(v1), DSL.literal(v2));
     assertEquals(ExprType.BOOLEAN, less.type(typeEnv()));
-    assertEquals(v1.compareTo(v2) < 0,
+    assertEquals(compare(v1, v2) < 0,
         ExprValueUtils.getBooleanValue(less.valueOf(valueEnv())));
     assertEquals(String.format("%s < %s", v1.toString(), v2.toString()), less.toString());
   }
@@ -446,7 +452,7 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
   public void test_lte(ExprValue v1, ExprValue v2) {
     FunctionExpression lte = dsl.lte(typeEnv(), DSL.literal(v1), DSL.literal(v2));
     assertEquals(ExprType.BOOLEAN, lte.type(typeEnv()));
-    assertEquals(v1.compareTo(v2) <= 0,
+    assertEquals(compare(v1, v2) <= 0,
         ExprValueUtils.getBooleanValue(lte.valueOf(valueEnv())));
     assertEquals(String.format("%s <= %s", v1.toString(), v2.toString()), lte.toString());
   }
@@ -472,7 +478,7 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
   public void test_greater(ExprValue v1, ExprValue v2) {
     FunctionExpression greater = dsl.greater(typeEnv(), DSL.literal(v1), DSL.literal(v2));
     assertEquals(ExprType.BOOLEAN, greater.type(typeEnv()));
-    assertEquals(v1.compareTo(v2) > 0,
+    assertEquals(compare(v1, v2) > 0,
         ExprValueUtils.getBooleanValue(greater.valueOf(valueEnv())));
     assertEquals(String.format("%s > %s", v1.toString(), v2.toString()), greater.toString());
   }
@@ -498,7 +504,7 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
   public void test_gte(ExprValue v1, ExprValue v2) {
     FunctionExpression gte = dsl.gte(typeEnv(), DSL.literal(v1), DSL.literal(v2));
     assertEquals(ExprType.BOOLEAN, gte.type(typeEnv()));
-    assertEquals(v1.compareTo(v2) >= 0,
+    assertEquals(compare(v1, v2) >= 0,
         ExprValueUtils.getBooleanValue(gte.valueOf(valueEnv())));
     assertEquals(String.format("%s >= %s", v1.toString(), v2.toString()), gte.toString());
   }

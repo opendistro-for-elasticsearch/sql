@@ -96,15 +96,6 @@ public class ExprValueUtilsTest {
     return builder.build();
   }
 
-  private static Stream<Arguments> getCompareArgumentStream() {
-    List<Object> arguments = Arrays.asList(1, 1L, 1F, 1D, "str");
-    Stream.Builder<Arguments> builder = Stream.builder();
-    for (Object argument : arguments) {
-      builder.add(Arguments.of(fromObjectValue(argument), fromObjectValue(argument)));
-    }
-    return builder.build();
-  }
-
   private static Stream<Arguments> invalidGetNumberValueArgumentStream() {
     return Lists.cartesianProduct(nonNumberValues, numberValueExtractor)
         .stream()
@@ -148,12 +139,6 @@ public class ExprValueUtilsTest {
   @MethodSource("getTypeTestArgumentStream")
   public void getType(ExprValue value, ExprType expectType) {
     assertEquals(expectType, value.type());
-  }
-
-  @ParameterizedTest(name = "compare ExprValue: {0} to {1} ")
-  @MethodSource("getCompareArgumentStream")
-  public void compare(ExprValue v1, ExprValue v2) {
-    assertEquals(0, v1.compareTo(v2));
   }
 
   /**

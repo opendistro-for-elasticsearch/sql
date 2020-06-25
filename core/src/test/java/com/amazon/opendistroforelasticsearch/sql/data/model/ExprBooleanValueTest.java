@@ -15,18 +15,20 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
+import static com.amazon.opendistroforelasticsearch.sql.utils.ComparisonUtil.compare;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import org.junit.jupiter.api.Test;
 
-public class ExprBoolenValueTest {
+public class ExprBooleanValueTest {
+
   @Test
   public void comparabilityTest() {
-    ExprValue booleanValue = ExprValueUtils.booleanValue(true);
+    ExprValue booleanValue = ExprValueUtils.booleanValue(false);
     ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
-        () -> booleanValue.compareTo(booleanValue));
-    assertEquals("invalid to call compare operation on boolean value", exception.getMessage());
+        () -> compare(booleanValue, booleanValue));
+    assertEquals("ExprBooleanValue instances are not comparable", exception.getMessage());
   }
 }

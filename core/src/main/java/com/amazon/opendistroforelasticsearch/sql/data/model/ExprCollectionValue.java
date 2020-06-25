@@ -27,19 +27,13 @@ public class ExprCollectionValue implements ExprValue {
   private final List<ExprValue> valueList;
 
   @Override
-  public Object value() {
+  public List value() {
     return valueList;
   }
 
   @Override
   public ExprType type() {
     return ExprType.ARRAY;
-  }
-
-  @Override
-  public int compareTo(ExprValue v) {
-    throw new ExpressionEvaluationException(
-        "invalid to call compare operation on collection value");
   }
 
   @Override

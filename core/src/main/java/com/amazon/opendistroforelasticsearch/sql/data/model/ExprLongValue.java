@@ -24,7 +24,7 @@ public class ExprLongValue implements ExprValue {
   private final Long value;
 
   @Override
-  public Object value() {
+  public Long value() {
     return value;
   }
 
@@ -36,10 +36,5 @@ public class ExprLongValue implements ExprValue {
   @Override
   public String toString() {
     return value.toString();
-  }
-
-  @Override
-  public int compareTo(ExprValue target) {
-    return value.compareTo((Long) target.value());
   }
 }

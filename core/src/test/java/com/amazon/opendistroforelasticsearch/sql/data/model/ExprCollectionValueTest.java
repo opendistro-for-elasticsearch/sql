@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.collectionValue;
+import static com.amazon.opendistroforelasticsearch.sql.utils.ComparisonUtil.compare;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -24,11 +24,12 @@ import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
 public class ExprCollectionValueTest {
+
   @Test
   public void comparabilityTest() {
-    ExprValue collectionValue = collectionValue(Arrays.asList(1));
+    ExprValue collectionValue = ExprValueUtils.collectionValue(Arrays.asList(0, 1));
     ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
-        () -> collectionValue.compareTo(collectionValue));
-    assertEquals("invalid to call compare operation on collection value", exception.getMessage());
+        () -> compare(collectionValue, collectionValue));
+    assertEquals("ExprCollectionValue instances are not comparable", exception.getMessage());
   }
 }
