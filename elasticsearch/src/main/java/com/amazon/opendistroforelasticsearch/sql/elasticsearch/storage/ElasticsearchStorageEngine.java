@@ -17,6 +17,7 @@
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
+import com.amazon.opendistroforelasticsearch.sql.monitor.ResourceMonitor;
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +29,11 @@ public class ElasticsearchStorageEngine implements StorageEngine {
   /** Elasticsearch client connection. */
   private final ElasticsearchClient client;
 
+  /** Elasticsearch resource monitor. */
+  private final ResourceMonitor resourceMonitor;
+
   @Override
   public Table getTable(String name) {
-    return new ElasticsearchIndex(client, name);
+    return new ElasticsearchIndex(client, name, resourceMonitor);
   }
 }

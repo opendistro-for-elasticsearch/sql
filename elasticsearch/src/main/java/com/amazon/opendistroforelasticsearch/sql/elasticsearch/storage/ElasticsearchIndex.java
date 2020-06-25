@@ -19,6 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
+import com.amazon.opendistroforelasticsearch.sql.monitor.ResourceMonitor;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregation;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalDedupe;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalEval;
@@ -72,6 +73,9 @@ public class ElasticsearchIndex implements Table {
   /** Current Elasticsearch index name. */
   private final String indexName;
 
+  /** Elasticsearch resource monitor. */
+  private final ResourceMonitor resourceMonitor;
+
   /*
    * TODO: Assume indexName doesn't have wildcard.
    *  Need to either handle field name conflicts
@@ -90,7 +94,8 @@ public class ElasticsearchIndex implements Table {
   /** TODO: Push down operations to index scan operator as much as possible in future. */
   @Override
   public PhysicalPlan implement(LogicalPlan plan) {
-    ElasticsearchIndexScan indexScan = new ElasticsearchIndexScan(client, indexName);
+    ElasticsearchIndexScan indexScan =
+        new ElasticsearchIndexScan(client, indexName, resourceMonitor);
 
     /**
      * Visit logical plan with index scan as context so logical operators visited, such as

@@ -21,6 +21,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchRequest;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
+import com.amazon.opendistroforelasticsearch.sql.monitor.ResourceMonitor;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
 import com.google.common.collect.Iterables;
 import java.util.ArrayList;
@@ -38,19 +39,27 @@ public class ElasticsearchIndexScan extends TableScanOperator {
   /** Elasticsearch client. */
   private final ElasticsearchClient client;
 
+  private final ResourceMonitor resourceMonitor;
+
   /** Search request. */
   @EqualsAndHashCode.Include @ToString.Include private final ElasticsearchRequest request;
 
   /** Search response for current batch. */
   private Iterator<SearchHit> hits;
 
-  public ElasticsearchIndexScan(ElasticsearchClient client, String indexName) {
+  /** Constructor of ElasticsearchIndexScan. */
+  public ElasticsearchIndexScan(ElasticsearchClient client, String indexName,
+                                ResourceMonitor resourceMonitor) {
     this.client = client;
     this.request = new ElasticsearchRequest(indexName);
+    this.resourceMonitor = resourceMonitor;
   }
 
   @Override
   public void open() {
+    if (!this.resourceMonitor.isHealthy()) {
+      throw new IllegalStateException("resource is not enough to run the query, quit.");
+    }
     super.open();
 
     // For now pull all results immediately once open
