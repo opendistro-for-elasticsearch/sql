@@ -30,6 +30,7 @@ import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
 import com.carrotsearch.randomizedtesting.annotations.ThreadLeakScope;
 import com.google.common.collect.Maps;
 import java.util.Map;
+import org.json.JSONObject;
 import org.junit.AfterClass;
 import org.junit.Assert;
 
@@ -84,17 +85,15 @@ public abstract class SQLIntegTestCase extends RestIntegTestCase {
     TestReport result = runner.verify(new TestQuerySet(queries));
     TestSummary summary = result.getSummary();
     Assert.assertEquals(StringUtils.format(
-        "Comparison test failed on queries: %s", result), 0, summary.getFailure());
+        "Comparison test failed on queries: %s", new JSONObject(result).toString(2)),
+        0, summary.getFailure());
   }
 
   /**
    * Execute the given query and compare result with other database.
    */
   protected void verify(String query) {
-    TestReport result = runner.verify(new TestQuerySet(query));
-    TestSummary summary = result.getSummary();
-    Assert.assertEquals(StringUtils.format(
-        "Comparison test failed on query [%s]: %s", query, result), 0, summary.getFailure());
+    verify(new String[]{ query });
   }
 
   private static Map<String, String> getCmdLineArgs() {

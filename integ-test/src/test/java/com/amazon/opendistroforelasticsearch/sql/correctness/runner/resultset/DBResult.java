@@ -19,7 +19,10 @@ import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
@@ -99,6 +102,70 @@ public class DBResult {
    */
   public Collection<Collection<Object>> getDataRows() {
     return dataRows.stream().map(Row::getValues).collect(Collectors.toSet());
+  }
+
+  /**
+   * Explain the difference between this and other DB result which is helpful for
+   * troubleshooting in final test report.
+   * @param other   other DB result
+   * @return        explain the difference
+   */
+  public String diff(DBResult other) {
+    String result = diffSchema(other);
+    if (result.isEmpty()) {
+      return diffDataRows(other);
+    }
+    return result;
+  }
+
+  private String diffSchema(DBResult other) {
+    if (schema.size() != other.schema.size()) {
+      return StringUtils.format(
+          "Schema size is different: this=[%d], other=[%d]", schema.size(), other.schema.size());
+    }
+
+    Iterator<Type> thisIt = schema.iterator();
+    Iterator<Type> otherIt = other.schema.iterator();
+    int i = 0;
+    while (thisIt.hasNext()) {
+      Type thisType = thisIt.next();
+      Type otherType = otherIt.next();
+      if (!thisType.equals(otherType)) {
+        return StringUtils.format(
+            "Schema type at [%d] is different: thisType=[%s], otherType=[%s]",
+              i, thisType, otherType);
+      }
+      i++;
+    }
+    return "";
+  }
+
+  private String diffDataRows(DBResult other) {
+    List<Row> thisRows = sort(dataRows);
+    List<Row> otherRows = sort(other.dataRows);
+    int thisSize = thisRows.size();
+    int otherSize = otherRows.size();
+
+    if (thisSize != otherSize) {
+      return StringUtils.format(
+          "Data rows size is different: this=[%d], other=[%d]", thisSize, otherSize);
+    }
+
+    for (int i = 0; i < thisSize; i++) {
+      Row thisRow = thisRows.get(i);
+      Row otherRow = otherRows.get(i);
+      if (!thisRow.equals(otherRow)) {
+        return StringUtils.format(
+            "Data row at [%d] is different: this=[%s], other=[%s]", i, thisRow, otherRow);
+      }
+    }
+    return "";
+  }
+
+  private static <T extends Comparable<T>> List<T> sort(Collection<T> collection) {
+    ArrayList<T> list = new ArrayList<>(collection);
+    Collections.sort(list);
+    return list;
   }
 
 }

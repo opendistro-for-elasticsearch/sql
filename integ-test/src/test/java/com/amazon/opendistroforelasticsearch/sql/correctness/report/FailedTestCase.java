@@ -20,6 +20,7 @@ import static com.amazon.opendistroforelasticsearch.sql.correctness.report.TestC
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.DBResult;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -37,10 +38,18 @@ public class FailedTestCase extends TestCaseReport {
    */
   private final List<DBResult> resultSets;
 
+  private final String explain;
+
   public FailedTestCase(int id, String sql, List<DBResult> resultSets) {
     super(id, sql, FAILURE);
     this.resultSets = resultSets;
     this.resultSets.sort(Comparator.comparing(DBResult::getDatabaseName));
+
+    // Generate explanation by diff the first result with remaining
+    this.explain = resultSets.subList(1, resultSets.size())
+                             .stream()
+                             .map(result -> resultSets.get(0).diff(result))
+                             .collect(Collectors.joining(","));
   }
 
 }
