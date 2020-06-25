@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.function.Consumer;
+import java.util.function.Function;
 import org.junit.Test;
 
 /**
@@ -35,21 +35,32 @@ public class SQLCorrectnessIT extends SQLIntegTestCase {
 
   @Test
   public void runAllTests() throws Exception {
-    iterateAllFiles(EXPR_TEST_DIR, expr -> verify("SELECT " + expr));
-    iterateAllFiles(QUERY_TEST_DIR, this::verify);
+    verifyQueries(EXPR_TEST_DIR, expr -> "SELECT " + expr);
+    verifyQueries(QUERY_TEST_DIR, Function.identity());
   }
 
+  /**
+   * Verify queries in files in directories with a converter to preprocess query.
+   * For example, for expressions it is converted to a SELECT clause before testing.
+   */
   @SuppressWarnings("UnstableApiUsage")
-  private void iterateAllFiles(String[] dirs, Consumer<String> verify) throws Exception {
+  private void verifyQueries(String[] dirs, Function<String, String> converter) throws Exception {
     for (String dir : dirs) {
       Path dirPath = Paths.get(Resources.getResource(ROOT_DIR + dir).toURI());
-      Files.walk(dirPath).filter(Files::isRegularFile).forEach(file -> {
-        try {
-          Files.lines(file).forEach(verify);
-        } catch (IOException e) {
-          throw new IllegalStateException("Failed to read file: " + file, e);
-        }
-      });
+      Files.walk(dirPath)
+           .filter(Files::isRegularFile)
+           .forEach(file -> verifyQueries(file, converter));
+    }
+  }
+
+  private void verifyQueries(Path file, Function<String, String> converter) {
+    try {
+      String[] queries = Files.lines(file)
+                              .map(converter)
+                              .toArray(String[]::new);
+      verify(queries);
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to read file: " + file, e);
     }
   }
 

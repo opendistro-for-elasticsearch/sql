@@ -79,7 +79,8 @@ public abstract class SQLIntegTestCase extends RestIntegTestCase {
   }
 
   /**
-   * Execute the given query and compare result with other database.
+   * Execute the given queries and compare result with other database.
+   * The queries will be considered as one test batch.
    */
   protected void verify(String... queries) {
     TestReport result = runner.verify(new TestQuerySet(queries));
@@ -90,7 +91,7 @@ public abstract class SQLIntegTestCase extends RestIntegTestCase {
   }
 
   /**
-   * Execute the given query and compare result with other database.
+   * Execute a single given query and compare result with other database.
    */
   protected void verify(String query) {
     verify(new String[]{ query });
