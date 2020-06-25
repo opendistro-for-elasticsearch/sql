@@ -39,6 +39,15 @@ public class SQLQueryRequestTest {
   }
 
   @Test
+  public void shouldSupportQueryWithZeroFetchSize() {
+    SQLQueryRequest request =
+        SQLQueryRequestBuilder.request("SELECT 1")
+                              .jsonContent("{\"query\": \"SELECT 1\", \"fetch_size\": 0}")
+                              .build();
+    assertTrue(request.isSupported());
+  }
+
+  @Test
   public void shouldNotSupportExplain() {
     SQLQueryRequest explainRequest =
         SQLQueryRequestBuilder.request("SELECT 1")

@@ -74,8 +74,9 @@ public class SQLQueryRequest {
   }
 
   private boolean isOnlyQueryFieldInPayload() {
-    return jsonContent.keySet().size() == 1
-        && jsonContent.has("query");
+    return (jsonContent.keySet().size() == 1 && jsonContent.has("query"))
+        || (jsonContent.keySet().size() == 2 && jsonContent.has("query")
+            && jsonContent.has("fetch_size") && jsonContent.getInt("fetch_size") == 0);
   }
 
   private boolean isDefaultFormat() {
