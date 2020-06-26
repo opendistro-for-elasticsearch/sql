@@ -43,6 +43,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualified
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sort;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.xor;
 import static java.util.Collections.emptyList;
 
 import org.junit.Ignore;
@@ -91,6 +92,18 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
         filter(
             relation("t"),
             and(
+                compare("=", field("a"), intLiteral(1)),
+                compare("=", field("b"), intLiteral(2))
+            )
+        ));
+  }
+
+  @Test
+  public void testLogicalXorExpr() {
+    assertEqual("source=t a=1 xor b=2",
+        filter(
+            relation("t"),
+            xor(
                 compare("=", field("a"), intLiteral(1)),
                 compare("=", field("b"), intLiteral(2))
             )

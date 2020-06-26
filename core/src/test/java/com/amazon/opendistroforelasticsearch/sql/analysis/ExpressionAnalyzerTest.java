@@ -56,6 +56,22 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
+  public void xor() {
+    assertAnalyzeEqual(
+        dsl.xor(typeEnv, DSL.ref("boolean_value"), DSL.literal(LITERAL_TRUE)),
+        AstDSL.xor(AstDSL.unresolvedAttr("boolean_value"), AstDSL.booleanLiteral(true))
+    );
+  }
+
+  @Test
+  public void not() {
+    assertAnalyzeEqual(
+        dsl.not(typeEnv, DSL.ref("boolean_value")),
+        AstDSL.not(AstDSL.unresolvedAttr("boolean_value"))
+    );
+  }
+
+  @Test
   public void undefined_var_semantic_check_failed() {
     SemanticCheckException exception = assertThrows(SemanticCheckException.class,
         () -> analyze(

@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
+import static com.amazon.opendistroforelasticsearch.sql.utils.ComparisonUtil.compare;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -43,5 +44,12 @@ class ExprMissingValueTest {
     ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
         () -> LITERAL_MISSING.type());
     assertEquals("invalid to call type operation on missing value", exception.getMessage());
+  }
+
+  @Test
+  public void comparabilityTest() {
+    ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
+        () -> compare(LITERAL_MISSING, LITERAL_MISSING));
+    assertEquals("invalid to call compare operation on missing value", exception.getMessage());
   }
 }

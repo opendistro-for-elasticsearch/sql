@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.expression.scalar.predicate;
+package com.amazon.opendistroforelasticsearch.sql.expression.operator.predicate;
 
 import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.BOOL_TYPE_MISSING_VALUE_FIELD;
 import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.BOOL_TYPE_NULL_VALUE_FIELD;
@@ -31,13 +31,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-class UnaryPredicateFunctionTest extends ExpressionTestBase {
+class UnaryPredicateOperatorTest extends ExpressionTestBase {
   @ParameterizedTest(name = "not({0})")
   @ValueSource(booleans = {true, false})
   public void test_not(Boolean v) {
-    FunctionExpression and = dsl.not(typeEnv(), DSL.literal(booleanValue(v)));
-    assertEquals(ExprType.BOOLEAN, and.type(typeEnv()));
-    assertEquals(!v, ExprValueUtils.getBooleanValue(and.valueOf(valueEnv())));
+    FunctionExpression not = dsl.not(typeEnv(), DSL.literal(booleanValue(v)));
+    assertEquals(ExprType.BOOLEAN, not.type(typeEnv()));
+    assertEquals(!v, ExprValueUtils.getBooleanValue(not.valueOf(valueEnv())));
+    assertEquals(String.format("not %s", v.toString()), not.toString());
   }
 
   @Test

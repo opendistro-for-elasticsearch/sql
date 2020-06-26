@@ -62,6 +62,7 @@ IN:                                 'IN';
 NOT:                                'NOT';
 OR:                                 'OR';
 AND:                                'AND';
+XOR:                                'XOR';
 TRUE:                               'TRUE';
 FALSE:                              'FALSE';
 

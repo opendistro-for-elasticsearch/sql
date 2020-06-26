@@ -113,6 +113,36 @@ public class DSL {
         repository.compile(BuiltinFunctionName.EQUAL.getName(), Arrays.asList(expressions), env);
   }
 
+  public FunctionExpression notequal(
+      Environment<Expression, ExprType> env, Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.NOTEQUAL.getName(), Arrays.asList(expressions), env);
+  }
+
+  public FunctionExpression less(
+      Environment<Expression, ExprType> env, Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.LESS.getName(), Arrays.asList(expressions), env);
+  }
+
+  public FunctionExpression lte(
+      Environment<Expression, ExprType> env, Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.LTE.getName(), Arrays.asList(expressions), env);
+  }
+
+  public FunctionExpression greater(
+      Environment<Expression, ExprType> env, Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.GREATER.getName(), Arrays.asList(expressions), env);
+  }
+
+  public FunctionExpression gte(
+      Environment<Expression, ExprType> env, Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.GTE.getName(), Arrays.asList(expressions), env);
+  }
+
   public Aggregator avg(Environment<Expression, ExprType> env, Expression... expressions) {
     return (Aggregator)
         repository.compile(BuiltinFunctionName.AVG.getName(), Arrays.asList(expressions), env);

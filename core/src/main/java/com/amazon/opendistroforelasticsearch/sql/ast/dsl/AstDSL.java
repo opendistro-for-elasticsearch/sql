@@ -32,6 +32,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Xor;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Dedupe;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
@@ -157,6 +158,10 @@ public class AstDSL {
 
   public static UnresolvedExpression and(UnresolvedExpression left, UnresolvedExpression right) {
     return new And(left, right);
+  }
+
+  public static UnresolvedExpression xor(UnresolvedExpression left, UnresolvedExpression right) {
+    return new Xor(left, right);
   }
 
   public static UnresolvedExpression in(
