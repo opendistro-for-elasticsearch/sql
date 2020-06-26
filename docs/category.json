@@ -13,5 +13,7 @@
     "experiment/ppl/cmd/stats.rst",
     "experiment/ppl/cmd/where.rst"
   ],
-  "sql_cli": []
+  "sql_cli": [
+    "user/dql/expressions.rst"
+  ]
 }

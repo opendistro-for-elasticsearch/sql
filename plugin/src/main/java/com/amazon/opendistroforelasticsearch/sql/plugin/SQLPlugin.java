@@ -84,7 +84,7 @@ public class SQLPlugin extends Plugin implements ActionPlugin {
 
     return Arrays.asList(
         new RestPPLQueryAction(restController, clusterService),
-        new RestSqlAction(settings, restController),
+        new RestSqlAction(settings, clusterService),
         new RestSqlStatsAction(settings, restController),
         new RestSqlSettingsAction(settings, restController)
     );

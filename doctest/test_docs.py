@@ -170,6 +170,14 @@ def load_tests(loader, suite, ignore):
     # TODO: add until the migration to new architecture is done, then we have an artifact including ppl and sql both
     # for fn in doctest_files('sql/basics.rst'):
     #     tests.append(docsuite(fn, setUp=set_up_accounts))
+    for fn in doctest_files(sql_cli_docs):
+        tests.append(
+            docsuite(
+                fn,
+                parser=sql_cli_parser,
+                setUp=set_up_accounts
+            )
+        )
 
     # docs with ppl-cli based examples
     for fn in doctest_files(ppl_cli_docs):
