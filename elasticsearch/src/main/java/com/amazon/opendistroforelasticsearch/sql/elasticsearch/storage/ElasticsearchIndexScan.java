@@ -44,7 +44,6 @@ public class ElasticsearchIndexScan extends TableScanOperator {
   /** Search response for current batch. */
   private Iterator<SearchHit> hits;
 
-  /** Constructor of ElasticsearchIndexScan. */
   public ElasticsearchIndexScan(ElasticsearchClient client, String indexName) {
     this.client = client;
     this.request = new ElasticsearchRequest(indexName);

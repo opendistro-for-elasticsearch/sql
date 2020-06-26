@@ -18,7 +18,6 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -43,8 +42,7 @@ import org.mockito.stubbing.Answer;
 @ExtendWith(MockitoExtension.class)
 class ElasticsearchIndexScanTest {
 
-  @Mock
-  private ElasticsearchClient client;
+  @Mock private ElasticsearchClient client;
 
   @Test
   void queryEmptyResult() {
