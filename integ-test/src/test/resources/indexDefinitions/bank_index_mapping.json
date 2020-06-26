@@ -1,0 +1,52 @@
+{
+  "mappings": {
+    "properties": {
+      "account_number": {
+        "type": "long"
+      },
+      "address": {
+        "type": "text"
+      },
+      "age": {
+        "type": "integer"
+      },
+      "balance": {
+        "type": "long"
+      },
+      "birthdate": {
+        "type": "date"
+      },
+      "city": {
+        "type": "keyword"
+      },
+      "email": {
+        "type": "text"
+      },
+      "employer": {
+        "type": "text"
+      },
+      "firstname": {
+        "type": "text"
+      },
+      "gender": {
+        "type": "text",
+        "fielddata": true
+      },
+      "lastname": {
+        "type": "keyword"
+      },
+      "male": {
+        "type": "boolean"
+      },
+      "state": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      }
+    }
+  }
+}

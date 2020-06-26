@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
+import static com.amazon.opendistroforelasticsearch.sql.utils.ComparisonUtil.compare;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -51,7 +52,7 @@ class ExprTupleValueTest {
   public void comparabilityTest() {
     ExprValue tupleValue = ExprValueUtils.tupleValue(ImmutableMap.of("integer_value", 2));
     ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
-        () -> tupleValue.compareTo(tupleValue));
-    assertEquals("invalid to call compare operation on tuple value", exception.getMessage());
+        () -> compare(tupleValue, tupleValue));
+    assertEquals("ExprTupleValue instances are not comparable", exception.getMessage());
   }
 }

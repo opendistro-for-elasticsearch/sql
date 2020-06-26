@@ -1,0 +1,21 @@
+{
+  "mappings": {
+    "properties": {
+      "host": {
+        "type": "ip"
+      },
+      "method": {
+        "type": "text"
+      },
+      "url": {
+        "type": "text"
+      },
+      "response": {
+        "type": "text"
+      },
+      "bytes": {
+        "type": "text"
+      }
+    }
+  }
+}

@@ -143,12 +143,6 @@ public class DSL {
         repository.compile(BuiltinFunctionName.GTE.getName(), Arrays.asList(expressions), env);
   }
 
-  public FunctionExpression like(
-      Environment<Expression, ExprType> env, Expression... expressions) {
-    return (FunctionExpression)
-        repository.compile(BuiltinFunctionName.LIKE.getName(), Arrays.asList(expressions), env);
-  }
-
   public Aggregator avg(Environment<Expression, ExprType> env, Expression... expressions) {
     return (Aggregator)
         repository.compile(BuiltinFunctionName.AVG.getName(), Arrays.asList(expressions), env);

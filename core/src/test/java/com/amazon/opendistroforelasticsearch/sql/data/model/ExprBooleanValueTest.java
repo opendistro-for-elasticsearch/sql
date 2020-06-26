@@ -20,16 +20,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
-import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
-public class ExprCollectionValueTest {
+public class ExprBooleanValueTest {
 
   @Test
   public void comparabilityTest() {
-    ExprValue collectionValue = ExprValueUtils.collectionValue(Arrays.asList(0, 1));
+    ExprValue booleanValue = ExprValueUtils.booleanValue(false);
     ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
-        () -> compare(collectionValue, collectionValue));
-    assertEquals("ExprCollectionValue instances are not comparable", exception.getMessage());
+        () -> compare(booleanValue, booleanValue));
+    assertEquals("ExprBooleanValue instances are not comparable", exception.getMessage());
   }
 }

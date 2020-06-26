@@ -32,7 +32,6 @@ import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionBui
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature;
-import com.amazon.opendistroforelasticsearch.sql.expression.operator.OperatorUtils;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Table;
@@ -67,7 +66,6 @@ public class BinaryPredicateOperator {
     repository.register(lte());
     repository.register(greater());
     repository.register(gte());
-    repository.register(like());
   }
 
   /**
@@ -186,48 +184,6 @@ public class BinaryPredicateOperator {
           .put(LITERAL_MISSING, LITERAL_MISSING, LITERAL_FALSE)
           .build();
 
-  /**
-   * The lessThan logic.
-   * A       B       A < B
-   * The lessThanOrEqualTo logic.
-   * A       B       A <= B
-   * The greaterThan logic.
-   * A       B       A > B
-   * The greaterThanOrEqualTo logic.
-   * A       B       A >= B
-   * The lessThan, lessThanOrEqualTo, greaterThan, greaterThanOrEqualTo common logic.
-   * A       NULL    NULL
-   * A       MISSING MISSING
-   * NULL    B       NULL
-   * MISSING B       MISSING
-   * NULL    NULL    NULL
-   * NULL    MISSING NULL
-   * MISSING NULL    NULL
-   * MISSING MISSING MISSING
-   */
-  private static Table<ExprValue, ExprValue, ExprValue>  valueComparisonTable =
-      new ImmutableTable.Builder<ExprValue, ExprValue, ExprValue>()
-          .put(LITERAL_NULL, LITERAL_NULL, LITERAL_NULL)
-          .put(LITERAL_NULL, LITERAL_MISSING, LITERAL_NULL)
-          .put(LITERAL_MISSING, LITERAL_NULL, LITERAL_NULL)
-          .put(LITERAL_MISSING, LITERAL_MISSING, LITERAL_MISSING)
-          .build();
-
-  /**
-   * The like logic.
-   * A       B       A like B
-   * NULL    NULL    TRUE
-   * NULL    MISSING FALSE
-   * MISSING NULL    FALSE
-   * MISSING MISSING TRUE
-   */
-  private static Table<ExprValue, ExprValue, ExprValue> likeTable =
-      new ImmutableTable.Builder<ExprValue, ExprValue, ExprValue>()
-          .put(LITERAL_NULL, LITERAL_NULL, LITERAL_TRUE)
-          .put(LITERAL_NULL, LITERAL_MISSING, LITERAL_FALSE)
-          .put(LITERAL_MISSING, LITERAL_NULL, LITERAL_FALSE)
-          .put(LITERAL_MISSING, LITERAL_MISSING, LITERAL_TRUE)
-          .build();
 
   private static FunctionResolver and() {
     FunctionName functionName = BuiltinFunctionName.AND.getName();
@@ -353,16 +309,6 @@ public class BinaryPredicateOperator {
     );
   }
 
-  private static FunctionResolver like() {
-    return new FunctionResolver(
-        BuiltinFunctionName.LIKE.getName(),
-        predicate(
-            BuiltinFunctionName.LIKE.getName(),
-            OperatorUtils::matches
-        )
-    );
-  }
-
   private static Map<FunctionSignature, FunctionBuilder> predicate(
       FunctionName functionName,
       Table<ExprValue, ExprValue, ExprValue> table,
@@ -427,17 +373,6 @@ public class BinaryPredicateOperator {
                 ExprType.BOOLEAN))
         .put(new FunctionSignature(functionName, Arrays.asList(ExprType.STRING, ExprType.STRING)),
             compareValue(functionName, stringFunc, ExprValueUtils::getStringValue,
-                ExprType.BOOLEAN))
-        .build();
-  }
-
-  private static Map<FunctionSignature, FunctionBuilder> predicate(
-      FunctionName functionName,
-      BiFunction<String, String, Boolean> stringFunc) {
-    ImmutableMap.Builder<FunctionSignature, FunctionBuilder> builder = new ImmutableMap.Builder<>();
-    return builder
-        .put(new FunctionSignature(functionName, Arrays.asList(ExprType.STRING, ExprType.STRING)),
-            likePattern(functionName, stringFunc, ExprValueUtils::getStringValue,
                 ExprType.BOOLEAN))
         .build();
   }
@@ -524,50 +459,12 @@ public class BinaryPredicateOperator {
       public ExprValue valueOf(Environment<Expression, ExprValue> env) {
         ExprValue arg1 = arguments.get(0).valueOf(env);
         ExprValue arg2 = arguments.get(1).valueOf(env);
-        if (valueComparisonTable.contains(arg1, arg2)) {
-          return valueComparisonTable.get(arg1, arg2);
-        } else if (arg1.isNull() || arg2.isNull()) {
-          return LITERAL_NULL;
-        } else if (arg1.isMissing() || arg2.isMissing()) {
-          return LITERAL_MISSING;
-        } else {
-          return ExprValueUtils.fromObjectValue(
-              function.apply(observer.apply(arg1), observer.apply(arg2)));
-        }
+        return ExprValueUtils.fromObjectValue(
+            function.apply(observer.apply(arg1), observer.apply(arg2)));
       }
 
       @Override
       public ExprType type(Environment<Expression, ExprType> env) {
-        return returnType;
-      }
-
-      @Override
-      public String toString() {
-        return String.format("%s %s %s", arguments.get(0).toString(), functionName, arguments
-            .get(1).toString());
-      }
-    };
-  }
-
-  private static <T, R> FunctionBuilder likePattern(FunctionName functionName,
-                                                    BiFunction<T, T, R> function,
-                                                    Function<ExprValue, T> observer,
-                                                    ExprType returnType) {
-    return arguments -> new FunctionExpression(functionName, arguments) {
-      @Override
-      public ExprValue valueOf(Environment<Expression, ExprValue> env) {
-        ExprValue arg1 = arguments.get(0).valueOf(env);
-        ExprValue arg2 = arguments.get(1).valueOf(env);
-        if (likeTable.contains(arg1, arg2)) {
-          return likeTable.get(arg1, arg2);
-        } else {
-          return ExprValueUtils.fromObjectValue(
-              function.apply(observer.apply(arg1), observer.apply(arg2)));
-        }
-      }
-
-      @Override
-      public ExprType type(Environment<Expression, ExprType> typeEnv) {
         return returnType;
       }
 

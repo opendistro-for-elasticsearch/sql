@@ -40,6 +40,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.BiFunction;
 import org.junit.jupiter.api.extension.ExtendWith;
