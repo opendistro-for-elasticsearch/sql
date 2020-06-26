@@ -80,7 +80,7 @@ public class ESConnection implements DBConnection {
   @Override
   public void close() {
     // Only close database connection and leave ES REST connection alone
-    // because it's initialized and manged by outside.
+    // because it's initialized and manged by ES test base class.
     connection.close();
   }
 

@@ -52,7 +52,7 @@ public class FailedTestCase extends TestCaseReport {
     this.explain = resultSets.subList(1, resultSets.size())
                              .stream()
                              .map(result -> resultSets.get(0).diff(result))
-                             .collect(Collectors.joining(","));
+                             .collect(Collectors.joining(", "));
   }
 
 }

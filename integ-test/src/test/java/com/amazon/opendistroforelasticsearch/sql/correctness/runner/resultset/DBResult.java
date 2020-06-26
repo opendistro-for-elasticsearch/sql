@@ -118,37 +118,31 @@ public class DBResult {
   }
 
   private String diffSchema(DBResult other) {
-    if (schema.size() != other.schema.size()) {
-      return StringUtils.format(
-          "Schema size is different: this=[%d], other=[%d]", schema.size(), other.schema.size());
-    }
-
-    List<Type> thisTypes = new ArrayList<>(schema);
-    List<Type> otherTypes = new ArrayList<>(other.schema);
-    int diff = findFirstDifference(thisTypes, otherTypes);
-    if (diff >= 0) {
-      return StringUtils.format(
-          "Schema type at [%d] is different: thisType=[%s], otherType=[%s]",
-          diff, thisTypes.get(diff), otherTypes.get(diff));
-    }
-    return "";
+    List<Type> thisSchema = new ArrayList<>(schema);
+    List<Type> otherSchema = new ArrayList<>(other.schema);
+    return diff("Schema type", thisSchema, otherSchema);
   }
 
   private String diffDataRows(DBResult other) {
     List<Row> thisRows = sort(dataRows);
     List<Row> otherRows = sort(other.dataRows);
+    return diff("Data row", thisRows, otherRows);
+  }
 
-    if (thisRows.size() != otherRows.size()) {
-      return StringUtils.format(
-          "Data rows size is different: this=[%d], other=[%d]",
-          thisRows.size(), otherRows.size());
+  /**
+   * Check if two lists are same otherwise explain if size or any element
+   * is different at some position.
+   */
+  private String diff(String name, List<?> thisList, List<?> otherList) {
+    if (thisList.size() != otherList.size()) {
+      return StringUtils.format("%s size is different: this=[%d], other=[%d]",
+          name, thisList.size(), otherList.size());
     }
 
-    int diff = findFirstDifference(thisRows, otherRows);
+    int diff = findFirstDifference(thisList, otherList);
     if (diff >= 0) {
-      return StringUtils.format(
-          "Data row at [%d] is different: this=[%s], other=[%s]",
-          diff, thisRows.get(diff), otherRows.get(diff));
+      return StringUtils.format("%s at [%d] is different: this=[%s], other=[%s]",
+          name, diff, thisList.get(diff), otherList.get(diff));
     }
     return "";
   }

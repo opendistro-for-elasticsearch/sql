@@ -65,7 +65,7 @@ public class DBResultTest {
 
     assertEquals(
         "Schema type at [1] is different: "
-            + "thisType=[Type(name=age, type=FLOAT)], otherType=[Type(name=age, type=INT)]",
+            + "this=[Type(name=age, type=FLOAT)], other=[Type(name=age, type=INT)]",
         result1.diff(result2)
     );
   }
