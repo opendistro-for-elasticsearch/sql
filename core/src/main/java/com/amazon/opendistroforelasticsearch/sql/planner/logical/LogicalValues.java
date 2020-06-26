@@ -25,7 +25,19 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Logical operator which is a sequence of literal list.
+ * Logical operator which is a sequence of literal rows (like a relation).
+ * Basically, Values operator is used to create rows of constant literals
+ * "out of nothing" which is corresponding with VALUES clause in SQL.
+ * Mostly all rows must have the same number of literals and each column should
+ * have same type or can be converted implicitly.
+ * In particular, typical use cases include:
+ *  1. Project without relation involved.
+ *  2. Defining query or insertion without a relation.
+ * Take the following logical plan for example:
+ *  <pre>
+ *  LogicalProject(expr=[log(2),true,1+2])
+ *   |_ LogicalValues([[]])  #an empty row so that Project can evaluate its expressions in next()
+ *  </pre>
  */
 @ToString
 @Getter

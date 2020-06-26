@@ -151,8 +151,12 @@ public class RestSqlAction extends BaseRestHandler {
                                                                 format.getFormatName());
             RestChannelConsumer result = newSqlQueryHandler.prepareRequest(newSqlRequest, client);
             if (result != RestSQLQueryAction.NOT_SUPPORTED_YET) {
+                LOG.info("[{}] Request {} is handled by new SQL query engine",
+                    LogUtils.getRequestId(), newSqlRequest);
                 return result;
             }
+            LOG.debug("[{}] Request {} is not supported and falling back to old SQL engine",
+                LogUtils.getRequestId(), newSqlRequest);
 
             final QueryAction queryAction = explainRequest(client, sqlRequest, format);
             return channel -> executeSqlRequest(request, queryAction, client, channel);
