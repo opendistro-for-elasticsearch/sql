@@ -3,7 +3,7 @@ package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.expression.scalar.predicate.BinaryPredicateFunction;
+import com.amazon.opendistroforelasticsearch.sql.expression.operator.predicate.BinaryPredicateOperator;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
 import java.util.Collections;
 import java.util.List;
@@ -14,7 +14,7 @@ import lombok.ToString;
 /**
  * The Filter operator use the conditions to evaluate the input {@link BindingTuple}.
  * The Filter operator only return the results that evaluated to true.
- * The NULL and MISSING are handled by the logic defined in {@link BinaryPredicateFunction}.
+ * The NULL and MISSING are handled by the logic defined in {@link BinaryPredicateOperator}.
  */
 @EqualsAndHashCode
 @ToString

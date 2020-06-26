@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.expression.scalar;
+package com.amazon.opendistroforelasticsearch.sql.expression.operator;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -93,6 +95,12 @@ public class OperatorUtils {
           public ExprType type(Environment<Expression, ExprType> env) {
             return returnType;
           }
+
+          @Override
+          public String toString() {
+            return String.format("%s %s %s", arguments.get(0).toString(), functionName, arguments
+                .get(1).toString());
+          }
         };
   }
 
@@ -132,6 +140,14 @@ public class OperatorUtils {
           @Override
           public ExprType type(Environment<Expression, ExprType> env) {
             return returnType;
+          }
+
+          @Override
+          public String toString() {
+            return String.format("%s(%s)", functionName,
+                arguments.stream()
+                    .map(Object::toString)
+                    .collect(Collectors.joining(", ")));
           }
         };
   }

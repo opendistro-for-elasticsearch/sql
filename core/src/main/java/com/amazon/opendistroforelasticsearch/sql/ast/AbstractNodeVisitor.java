@@ -31,6 +31,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Not;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Xor;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Dedupe;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
@@ -119,6 +120,10 @@ public abstract class AbstractNodeVisitor<T, C> {
   }
 
   public T visitAnd(And node, C context) {
+    return visitChildren(node, context);
+  }
+
+  public T visitXor(Xor node, C context) {
     return visitChildren(node, context);
   }
 

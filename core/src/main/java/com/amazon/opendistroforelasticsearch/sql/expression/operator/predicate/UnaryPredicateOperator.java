@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.expression.scalar.predicate;
+package com.amazon.opendistroforelasticsearch.sql.expression.operator.predicate;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_FALSE;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
@@ -41,13 +41,13 @@ import lombok.experimental.UtilityClass;
  * not, Accepts one Boolean value and produces a Boolean.
  */
 @UtilityClass
-public class UnaryPredicateFunction {
+public class UnaryPredicateOperator {
   public static void register(BuiltinFunctionRepository repository) {
     repository.register(not());
   }
 
   /**
-   * The or logic.
+   * The not logic.
    * A       NOT A
    * TRUE    FALSE
    * FALSE   TRUE
@@ -67,24 +67,27 @@ public class UnaryPredicateFunction {
     return FunctionResolver.builder()
         .functionName(functionName)
         .functionBundle(new FunctionSignature(functionName,
-            Arrays.asList(ExprType.BOOLEAN)), predicateFunction(functionName,
-            notMap, ExprType.BOOLEAN))
+            Arrays.asList(ExprType.BOOLEAN)), predicateFunction(functionName, ExprType.BOOLEAN))
         .build();
   }
 
   private static FunctionBuilder predicateFunction(
       FunctionName functionName,
-      Map<ExprValue, ExprValue> map,
       ExprType returnType) {
     return arguments -> new FunctionExpression(functionName, arguments) {
       @Override
       public ExprValue valueOf(Environment<Expression, ExprValue> env) {
-        return map.get(arguments.get(0).valueOf(env));
+        return notMap.get(arguments.get(0).valueOf(env));
       }
 
       @Override
       public ExprType type(Environment<Expression, ExprType> env) {
         return returnType;
+      }
+
+      @Override
+      public String toString() {
+        return String.format("%s %s", functionName, arguments.get(0).toString());
       }
     };
   }

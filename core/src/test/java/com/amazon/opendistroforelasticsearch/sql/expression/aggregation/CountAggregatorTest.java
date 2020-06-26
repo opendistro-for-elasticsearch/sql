@@ -108,4 +108,11 @@ class CountAggregatorTest extends AggregationTest {
     Aggregator countAggregator = dsl.count(typeEnv, DSL.ref("integer_value"));
     assertEquals("count(integer_value)", countAggregator.toString());
   }
+
+  @Test
+  public void test_nested_to_string() {
+    Aggregator countAggregator = dsl.count(typeEnv, dsl.abs(typeEnv, DSL.ref("integer_value")));
+    assertEquals(String.format("count(abs(%s))", DSL.ref("integer_value")),
+        countAggregator.toString());
+  }
 }

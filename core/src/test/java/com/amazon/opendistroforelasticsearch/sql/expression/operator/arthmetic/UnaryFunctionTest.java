@@ -13,7 +13,7 @@
  *   permissions and limitations under the License.
  */
 
-package com.amazon.opendistroforelasticsearch.sql.expression.scalar.arthmetic;
+package com.amazon.opendistroforelasticsearch.sql.expression.operator.arthmetic;
 
 import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.INT_TYPE_MISSING_VALUE_FIELD;
 import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.INT_TYPE_NULL_VALUE_FIELD;
@@ -21,11 +21,13 @@ import static com.amazon.opendistroforelasticsearch.sql.utils.MatcherUtils.hasTy
 import static com.amazon.opendistroforelasticsearch.sql.utils.MatcherUtils.hasValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
+import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -41,9 +43,11 @@ public class UnaryFunctionTest extends ExpressionTestBase {
   @ParameterizedTest(name = "abs({0})")
   @ValueSource(ints = {-2, 2})
   public void abs_int_value(Integer value) {
+    FunctionExpression abs = dsl.abs(typeEnv, DSL.literal(value));
     assertThat(
-        dsl.abs(typeEnv, DSL.literal(value)).valueOf(valueEnv()),
+        abs.valueOf(valueEnv()),
         allOf(hasType(ExprType.INTEGER), hasValue(Math.abs(value))));
+    assertEquals(String.format("abs(%s)", value.toString()), abs.toString());
   }
 
   /**
@@ -52,9 +56,11 @@ public class UnaryFunctionTest extends ExpressionTestBase {
   @ParameterizedTest(name = "abs({0})")
   @ValueSource(longs = {-2L, 2L})
   public void abs_long_value(Long value) {
+    FunctionExpression abs = dsl.abs(typeEnv, DSL.literal(value));
     assertThat(
-        dsl.abs(typeEnv, DSL.literal(value)).valueOf(valueEnv()),
+        abs.valueOf(valueEnv()),
         allOf(hasType(ExprType.LONG), hasValue(Math.abs(value))));
+    assertEquals(String.format("abs(%s)", value.toString()), abs.toString());
   }
 
   /**
@@ -63,9 +69,11 @@ public class UnaryFunctionTest extends ExpressionTestBase {
   @ParameterizedTest(name = "abs({0})")
   @ValueSource(floats = {-2f, 2f})
   public void abs_float_value(Float value) {
+    FunctionExpression abs = dsl.abs(typeEnv, DSL.literal(value));
     assertThat(
-        dsl.abs(typeEnv, DSL.literal(value)).valueOf(valueEnv()),
+        abs.valueOf(valueEnv()),
         allOf(hasType(ExprType.FLOAT), hasValue(Math.abs(value))));
+    assertEquals(String.format("abs(%s)", value.toString()), abs.toString());
   }
 
   /**
@@ -74,9 +82,11 @@ public class UnaryFunctionTest extends ExpressionTestBase {
   @ParameterizedTest(name = "abs({0})")
   @ValueSource(doubles = {-2L, 2L})
   public void abs_double_value(Double value) {
+    FunctionExpression abs = dsl.abs(typeEnv, DSL.literal(value));
     assertThat(
-        dsl.abs(typeEnv, DSL.literal(value)).valueOf(valueEnv()),
+        abs.valueOf(valueEnv()),
         allOf(hasType(ExprType.DOUBLE), hasValue(Math.abs(value))));
+    assertEquals(String.format("abs(%s)", value.toString()), abs.toString());
   }
 
   @Test
