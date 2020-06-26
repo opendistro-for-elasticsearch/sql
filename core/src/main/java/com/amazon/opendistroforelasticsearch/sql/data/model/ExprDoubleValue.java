@@ -24,7 +24,7 @@ public class ExprDoubleValue implements ExprValue {
   private final Double value;
 
   @Override
-  public Double value() {
+  public Object value() {
     return value;
   }
 

@@ -24,7 +24,7 @@ public class ExprStringValue implements ExprValue {
   private final String value;
 
   @Override
-  public String value() {
+  public Object value() {
     return value;
   }
 

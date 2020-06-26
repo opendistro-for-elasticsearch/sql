@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
-import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
@@ -27,7 +26,7 @@ public class ExprCollectionValue implements ExprValue {
   private final List<ExprValue> valueList;
 
   @Override
-  public List value() {
+  public Object value() {
     return valueList;
   }
 

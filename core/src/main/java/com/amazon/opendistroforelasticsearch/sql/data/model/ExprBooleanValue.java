@@ -38,7 +38,7 @@ public class ExprBooleanValue implements ExprValue {
   }
 
   @Override
-  public Boolean value() {
+  public Object value() {
     return value;
   }
 

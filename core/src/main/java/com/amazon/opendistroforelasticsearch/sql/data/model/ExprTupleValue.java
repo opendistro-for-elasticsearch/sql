@@ -36,7 +36,7 @@ public class ExprTupleValue implements ExprValue {
   }
 
   @Override
-  public Map value() {
+  public Object value() {
     return valueMap;
   }
 

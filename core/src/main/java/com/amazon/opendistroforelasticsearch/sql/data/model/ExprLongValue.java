@@ -24,7 +24,7 @@ public class ExprLongValue implements ExprValue {
   private final Long value;
 
   @Override
-  public Long value() {
+  public Object value() {
     return value;
   }
 

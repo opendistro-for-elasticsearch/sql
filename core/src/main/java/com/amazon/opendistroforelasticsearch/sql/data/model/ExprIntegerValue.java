@@ -24,7 +24,7 @@ public class ExprIntegerValue implements ExprValue {
   private final Integer value;
 
   @Override
-  public Integer value() {
+  public Object value() {
     return value;
   }
 

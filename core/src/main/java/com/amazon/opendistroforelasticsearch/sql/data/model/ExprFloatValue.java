@@ -24,7 +24,7 @@ public class ExprFloatValue implements ExprValue {
   private final Float value;
 
   @Override
-  public Float value() {
+  public Object value() {
     return value;
   }
 

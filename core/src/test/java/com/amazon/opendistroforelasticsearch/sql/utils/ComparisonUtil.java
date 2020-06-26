@@ -15,6 +15,12 @@
 
 package com.amazon.opendistroforelasticsearch.sql.utils;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getDoubleValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getFloatValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getIntegerValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getLongValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getStringValue;
+
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprDoubleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprFloatValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprIntegerValue;
@@ -36,15 +42,15 @@ public class ComparisonUtil {
     }
 
     if (v1 instanceof ExprIntegerValue) {
-      return ((Integer) v1.value()).compareTo((Integer) v2.value());
+      return getIntegerValue(v1).compareTo(getIntegerValue(v2));
     } else if (v1 instanceof ExprLongValue) {
-      return ((Long) v1.value()).compareTo((Long) v2.value());
+      return getLongValue(v1).compareTo(getLongValue(v2));
     } else if (v1 instanceof ExprFloatValue) {
-      return ((Float) v1.value()).compareTo((Float) v2.value());
+      return getFloatValue(v1).compareTo(getFloatValue(v2));
     } else if (v1 instanceof ExprDoubleValue) {
-      return ((Double) v1.value()).compareTo((Double) v2.value());
+      return getDoubleValue(v1).compareTo(getDoubleValue(v2));
     } else if (v1 instanceof ExprStringValue) {
-      return ((String) v1.value()).compareTo((String) v2.value());
+      return getStringValue(v1).compareTo(getStringValue(v2));
     } else {
       throw new ExpressionEvaluationException(
           String.format("%s instances are not comparable", v1.getClass().getSimpleName()));
