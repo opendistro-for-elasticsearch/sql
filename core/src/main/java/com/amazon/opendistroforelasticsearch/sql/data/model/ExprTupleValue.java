@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
-import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.LazyBindingTuple;
 import java.util.Iterator;

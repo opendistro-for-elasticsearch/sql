@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
-import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode
