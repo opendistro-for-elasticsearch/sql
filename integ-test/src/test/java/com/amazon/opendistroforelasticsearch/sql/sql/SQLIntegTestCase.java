@@ -16,6 +16,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql;
 
+import static java.util.Collections.emptyMap;
+
 import com.amazon.opendistroforelasticsearch.sql.correctness.TestConfig;
 import com.amazon.opendistroforelasticsearch.sql.correctness.report.TestReport;
 import com.amazon.opendistroforelasticsearch.sql.correctness.report.TestSummary;
@@ -28,14 +30,13 @@ import com.amazon.opendistroforelasticsearch.sql.correctness.testset.TestQuerySe
 import com.amazon.opendistroforelasticsearch.sql.legacy.RestIntegTestCase;
 import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
 import com.carrotsearch.randomizedtesting.annotations.ThreadLeakScope;
-import com.google.common.collect.Maps;
-import java.util.Map;
 import org.json.JSONObject;
 import org.junit.AfterClass;
 import org.junit.Assert;
 
 /**
- * SQL integration test base class.
+ * SQL integration test base class. This is very similar to CorrectnessIT though
+ * enforce the success of all tests rather than report failures only.
  */
 @ThreadLeakScope(ThreadLeakScope.Scope.NONE)
 public abstract class SQLIntegTestCase extends RestIntegTestCase {
@@ -51,8 +52,8 @@ public abstract class SQLIntegTestCase extends RestIntegTestCase {
       return;
     }
 
-    TestConfig config = new TestConfig(getCmdLineArgs());
-    runner = new ComparisonTest(getThisDBConnection(config),
+    TestConfig config = new TestConfig(emptyMap());
+    runner = new ComparisonTest(getESConnection(),
                                 getOtherDBConnections(config));
 
     runner.connect();
@@ -67,7 +68,7 @@ public abstract class SQLIntegTestCase extends RestIntegTestCase {
   @AfterClass
   public static void cleanUp() {
     try {
-      TestConfig config = new TestConfig(getCmdLineArgs());
+      TestConfig config = new TestConfig(emptyMap());
       for (TestDataSet dataSet : config.getTestDataSets()) {
         runner.cleanUp(dataSet);
       }
@@ -88,25 +89,6 @@ public abstract class SQLIntegTestCase extends RestIntegTestCase {
     Assert.assertEquals(StringUtils.format(
         "Comparison test failed on queries: %s", new JSONObject(result).toString(2)),
         0, summary.getFailure());
-  }
-
-  /**
-   * Execute a single given query and compare result with other database.
-   */
-  protected void verify(String query) {
-    verify(new String[]{ query });
-  }
-
-  private static Map<String, String> getCmdLineArgs() {
-    return Maps.fromProperties(System.getProperties());
-  }
-
-  private DBConnection getThisDBConnection(TestConfig config) {
-    String dbUrl = config.getDbConnectionUrl();
-    if (dbUrl.isEmpty()) {
-      return getESConnection();
-    }
-    return new JDBCConnection("DB Tested", dbUrl);
   }
 
   /**

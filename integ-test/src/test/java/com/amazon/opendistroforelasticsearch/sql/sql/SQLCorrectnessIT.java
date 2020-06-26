@@ -31,7 +31,7 @@ public class SQLCorrectnessIT extends SQLIntegTestCase {
 
   private static final String ROOT_DIR = "correctness/";
   private static final String[] EXPR_TEST_DIR = { "expressions" };
-  private static final String[] QUERY_TEST_DIR = { "queries"/*, "bugfixes"*/ };
+  private static final String[] QUERY_TEST_DIR = { "queries"/*, "bugfixes"*/ }; //TODO: skip bugfixes folder for now since it fails
 
   @Test
   public void runAllTests() throws Exception {

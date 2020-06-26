@@ -38,6 +38,9 @@ public class FailedTestCase extends TestCaseReport {
    */
   private final List<DBResult> resultSets;
 
+  /**
+   * Explain where the difference is caused the test failure.
+   */
   private final String explain;
 
   public FailedTestCase(int id, String sql, List<DBResult> resultSets) {

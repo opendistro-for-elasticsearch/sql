@@ -25,7 +25,6 @@ import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.Ty
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.util.Arrays;
-import java.util.HashSet;
 import org.junit.Test;
 
 /**
@@ -58,7 +57,7 @@ public class DBResultTest {
   }
 
   @Test
-  public void canExplainColumnTypeDifference() {
+  public void shouldExplainColumnTypeDifference() {
     DBResult result1 = new DBResult("DB 1",
         Arrays.asList(new Type("name", "VARCHAR"), new Type("age", "FLOAT")), emptyList());
     DBResult result2 = new DBResult("DB 2",
@@ -72,7 +71,7 @@ public class DBResultTest {
   }
 
   @Test
-  public void canExplainDataRowsDifference() {
+  public void shouldExplainDataRowsDifference() {
     DBResult result1 = new DBResult("DB 1", Arrays.asList(new Type("name", "VARCHAR")),
         Sets.newHashSet(
             new Row(Arrays.asList("hello")),

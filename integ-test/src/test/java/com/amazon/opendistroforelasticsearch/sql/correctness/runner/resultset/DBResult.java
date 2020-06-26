@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -124,18 +123,13 @@ public class DBResult {
           "Schema size is different: this=[%d], other=[%d]", schema.size(), other.schema.size());
     }
 
-    Iterator<Type> thisIt = schema.iterator();
-    Iterator<Type> otherIt = other.schema.iterator();
-    int i = 0;
-    while (thisIt.hasNext()) {
-      Type thisType = thisIt.next();
-      Type otherType = otherIt.next();
-      if (!thisType.equals(otherType)) {
-        return StringUtils.format(
-            "Schema type at [%d] is different: thisType=[%s], otherType=[%s]",
-              i, thisType, otherType);
-      }
-      i++;
+    List<Type> thisTypes = new ArrayList<>(schema);
+    List<Type> otherTypes = new ArrayList<>(other.schema);
+    int diff = findFirstDifference(thisTypes, otherTypes);
+    if (diff >= 0) {
+      return StringUtils.format(
+          "Schema type at [%d] is different: thisType=[%s], otherType=[%s]",
+          diff, thisTypes.get(diff), otherTypes.get(diff));
     }
     return "";
   }
@@ -143,25 +137,38 @@ public class DBResult {
   private String diffDataRows(DBResult other) {
     List<Row> thisRows = sort(dataRows);
     List<Row> otherRows = sort(other.dataRows);
-    int thisSize = thisRows.size();
-    int otherSize = otherRows.size();
 
-    if (thisSize != otherSize) {
+    if (thisRows.size() != otherRows.size()) {
       return StringUtils.format(
-          "Data rows size is different: this=[%d], other=[%d]", thisSize, otherSize);
+          "Data rows size is different: this=[%d], other=[%d]",
+          thisRows.size(), otherRows.size());
     }
 
-    for (int i = 0; i < thisSize; i++) {
-      Row thisRow = thisRows.get(i);
-      Row otherRow = otherRows.get(i);
-      if (!thisRow.equals(otherRow)) {
-        return StringUtils.format(
-            "Data row at [%d] is different: this=[%s], other=[%s]", i, thisRow, otherRow);
-      }
+    int diff = findFirstDifference(thisRows, otherRows);
+    if (diff >= 0) {
+      return StringUtils.format(
+          "Data row at [%d] is different: this=[%s], other=[%s]",
+          diff, thisRows.get(diff), otherRows.get(diff));
     }
     return "";
   }
 
+  /**
+   * Find first different element with assumption that the lists given have same size
+   * and there is no NULL element inside.
+   */
+  private static int findFirstDifference(List<?> list1, List<?> list2) {
+    for (int i = 0; i < list1.size(); i++) {
+      if (!list1.get(i).equals(list2.get(i))) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  /**
+   * Convert a collection to list and sort and return this new list.
+   */
   private static <T extends Comparable<T>> List<T> sort(Collection<T> collection) {
     ArrayList<T> list = new ArrayList<>(collection);
     Collections.sort(list);
