@@ -32,6 +32,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionBui
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature;
+import com.amazon.opendistroforelasticsearch.sql.expression.operator.OperatorUtils;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Table;
@@ -66,6 +67,7 @@ public class BinaryPredicateOperator {
     repository.register(lte());
     repository.register(greater());
     repository.register(gte());
+    repository.register(like());
   }
 
   /**
@@ -184,6 +186,21 @@ public class BinaryPredicateOperator {
           .put(LITERAL_MISSING, LITERAL_MISSING, LITERAL_FALSE)
           .build();
 
+  /**
+   * The like logic.
+   * A       B       A like B
+   * NULL    NULL    NULL
+   * NULL    MISSING MISSING
+   * MISSING NULL    MISSING
+   * MISSING MISSING MISSING
+   */
+  private static Table<ExprValue, ExprValue, ExprValue> likeTable =
+      new ImmutableTable.Builder<ExprValue, ExprValue, ExprValue>()
+          .put(LITERAL_NULL, LITERAL_NULL, LITERAL_NULL)
+          .put(LITERAL_NULL, LITERAL_MISSING, LITERAL_MISSING)
+          .put(LITERAL_MISSING, LITERAL_NULL, LITERAL_MISSING)
+          .put(LITERAL_MISSING, LITERAL_MISSING, LITERAL_MISSING)
+          .build();
 
   private static FunctionResolver and() {
     FunctionName functionName = BuiltinFunctionName.AND.getName();
@@ -305,6 +322,16 @@ public class BinaryPredicateOperator {
             (v1, v2) -> v1 >= v2,
             (v1, v2) -> v1 >= v2,
             (v1, v2) -> v1.compareTo(v2) >= 0
+        )
+    );
+  }
+
+  private static FunctionResolver like() {
+    return new FunctionResolver(
+        BuiltinFunctionName.LIKE.getName(),
+        likePredicate(
+            BuiltinFunctionName.LIKE.getName(),
+            OperatorUtils::matches
         )
     );
   }
@@ -443,6 +470,17 @@ public class BinaryPredicateOperator {
     };
   }
 
+  private static Map<FunctionSignature, FunctionBuilder> likePredicate(
+      FunctionName functionName,
+      BiFunction<String, String, Boolean> stringFunc) {
+    ImmutableMap.Builder<FunctionSignature, FunctionBuilder> builder = new ImmutableMap.Builder<>();
+    return builder
+        .put(new FunctionSignature(functionName, Arrays.asList(ExprType.STRING, ExprType.STRING)),
+            likePattern(functionName, stringFunc, ExprValueUtils::getStringValue,
+                ExprType.BOOLEAN))
+        .build();
+  }
+
   /**
    * Building method for operators including.
    * less than (<) operator
@@ -465,6 +503,36 @@ public class BinaryPredicateOperator {
 
       @Override
       public ExprType type(Environment<Expression, ExprType> env) {
+        return returnType;
+      }
+
+      @Override
+      public String toString() {
+        return String.format("%s %s %s", arguments.get(0).toString(), functionName, arguments
+            .get(1).toString());
+      }
+    };
+  }
+
+  private static <T, R> FunctionBuilder likePattern(FunctionName functionName,
+                                                    BiFunction<T, T, R> function,
+                                                    Function<ExprValue, T> observer,
+                                                    ExprType returnType) {
+    return arguments -> new FunctionExpression(functionName, arguments) {
+      @Override
+      public ExprValue valueOf(Environment<Expression, ExprValue> env) {
+        ExprValue arg1 = arguments.get(0).valueOf(env);
+        ExprValue arg2 = arguments.get(1).valueOf(env);
+        if (likeTable.contains(arg1, arg2)) {
+          return likeTable.get(arg1, arg2);
+        } else {
+          return ExprValueUtils.fromObjectValue(
+              function.apply(observer.apply(arg1), observer.apply(arg2)));
+        }
+      }
+
+      @Override
+      public ExprType type(Environment<Expression, ExprType> typeEnv) {
         return returnType;
       }
 
