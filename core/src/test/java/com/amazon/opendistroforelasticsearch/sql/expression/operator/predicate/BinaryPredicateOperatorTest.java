@@ -548,7 +548,7 @@ class BinaryPredicateOperatorTest extends ExpressionTestBase {
   public void test_like(ExprValue v1, ExprValue v2) {
     FunctionExpression like = dsl.like(typeEnv(), DSL.literal(v1), DSL.literal(v2));
     assertEquals(ExprType.BOOLEAN, like.type(typeEnv()));
-    assertEquals(matches(((String) v1.value()), (String) v2.value()),
+    assertEquals(matches(((String) v2.value()), (String) v1.value()),
         ExprValueUtils.getBooleanValue(like.valueOf(valueEnv())));
     assertEquals(String.format("%s like %s", v1.toString(), v2.toString()), like.toString());
   }

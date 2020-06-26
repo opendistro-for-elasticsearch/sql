@@ -19,6 +19,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
+import static com.amazon.opendistroforelasticsearch.sql.expression.operator.OperatorUtils.matches;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
@@ -32,7 +33,6 @@ import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionBui
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature;
-import com.amazon.opendistroforelasticsearch.sql.expression.operator.OperatorUtils;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Table;
@@ -331,7 +331,7 @@ public class BinaryPredicateOperator {
         BuiltinFunctionName.LIKE.getName(),
         likePredicate(
             BuiltinFunctionName.LIKE.getName(),
-            OperatorUtils::matches
+            (v1, v2) -> matches(v2, v1)
         )
     );
   }

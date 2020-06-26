@@ -179,7 +179,7 @@ public class OperatorUtils {
    * @param pattern string pattern to match.
    * @return if text matches pattern returns true; else return false.
    */
-  public static boolean matches(String text, String pattern) {
+  public static boolean matches(String pattern, String text) {
     return Pattern.compile(patternToRegex(pattern)).matcher(text).matches();
   }
 
