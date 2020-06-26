@@ -42,7 +42,6 @@ import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.AvgAggregator;
-import com.amazon.opendistroforelasticsearch.sql.monitor.ResourceMonitor;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL;
@@ -62,8 +61,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class ElasticsearchIndexTest {
 
   @Mock private ElasticsearchClient client;
-
-  @Mock private ResourceMonitor rm;
 
   @Test
   void getFieldTypes() {
@@ -85,7 +82,7 @@ class ElasticsearchIndexTest {
                         .put("birthday", "date")
                         .build())));
 
-    Table index = new ElasticsearchIndex(client, "test", rm);
+    Table index = new ElasticsearchIndex(client, "test");
     Map<String, ExprType> fieldTypes = index.getFieldTypes();
     assertThat(
         fieldTypes,
@@ -107,8 +104,8 @@ class ElasticsearchIndexTest {
   void implementRelationOperatorOnly() {
     String indexName = "test";
     LogicalPlan plan = relation(indexName);
-    Table index = new ElasticsearchIndex(client, indexName, rm);
-    assertEquals(new ElasticsearchIndexScan(client, indexName, rm), index.implement(plan));
+    Table index = new ElasticsearchIndex(client, indexName);
+    assertEquals(new ElasticsearchIndexScan(client, indexName), index.implement(plan));
   }
 
   @Test
@@ -146,7 +143,7 @@ class ElasticsearchIndexTest {
                 dedupeField),
             include);
 
-    Table index = new ElasticsearchIndex(client, indexName, rm);
+    Table index = new ElasticsearchIndex(client, indexName);
     assertEquals(
         PhysicalPlanDSL.project(
             PhysicalPlanDSL.dedupe(
@@ -156,7 +153,7 @@ class ElasticsearchIndexTest {
                             PhysicalPlanDSL.rename(
                                 PhysicalPlanDSL.agg(
                                     PhysicalPlanDSL.filter(
-                                        new ElasticsearchIndexScan(client, indexName, rm),
+                                        new ElasticsearchIndexScan(client, indexName),
                                         filterExpr),
                                     aggregators,
                                     groupByExprs),

@@ -30,11 +30,9 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
-import com.amazon.opendistroforelasticsearch.sql.monitor.ResourceMonitor;
 import java.util.Arrays;
 import org.elasticsearch.common.bytes.BytesArray;
 import org.elasticsearch.search.SearchHit;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -48,18 +46,10 @@ class ElasticsearchIndexScanTest {
   @Mock
   private ElasticsearchClient client;
 
-  @Mock
-  private ResourceMonitor rm;
-
-  @BeforeEach
-  void setup() {
-    when(rm.isHealthy()).thenReturn(true);
-  }
-
   @Test
   void queryEmptyResult() {
     mockResponse();
-    try (ElasticsearchIndexScan indexScan = new ElasticsearchIndexScan(client, "test", rm)) {
+    try (ElasticsearchIndexScan indexScan = new ElasticsearchIndexScan(client, "test")) {
       indexScan.open();
       assertFalse(indexScan.hasNext());
     }
@@ -72,7 +62,7 @@ class ElasticsearchIndexScanTest {
         new SearchHit[] {employee(1, "John", "IT"), employee(2, "Smith", "HR")},
         new SearchHit[] {employee(3, "Allen", "IT")});
 
-    try (ElasticsearchIndexScan indexScan = new ElasticsearchIndexScan(client, "employees", rm)) {
+    try (ElasticsearchIndexScan indexScan = new ElasticsearchIndexScan(client, "employees")) {
       indexScan.open();
 
       assertTrue(indexScan.hasNext());
@@ -87,16 +77,6 @@ class ElasticsearchIndexScanTest {
       assertFalse(indexScan.hasNext());
     }
     verify(client).cleanup(any());
-  }
-
-  @Test
-  void resourceNotEnough() {
-    when(rm.isHealthy()).thenReturn(false);
-    try (ElasticsearchIndexScan indexScan = new ElasticsearchIndexScan(client, "employees", rm)) {
-      IllegalStateException exception =
-          assertThrows(IllegalStateException.class, () -> indexScan.open());
-      assertEquals("resource is not enough to run the query, quit.", exception.getMessage());
-    }
   }
 
   private void mockResponse(SearchHit[]... searchHitBatches) {

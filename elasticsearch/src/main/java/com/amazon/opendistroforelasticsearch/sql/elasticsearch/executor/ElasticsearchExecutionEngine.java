@@ -31,8 +31,11 @@ public class ElasticsearchExecutionEngine implements ExecutionEngine {
 
   private final ElasticsearchClient client;
 
+  private final ElasticsearchExecutionProtector executionProtector;
+
   @Override
-  public void execute(PhysicalPlan plan, ResponseListener<QueryResponse> listener) {
+  public void execute(PhysicalPlan physicalPlan, ResponseListener<QueryResponse> listener) {
+    PhysicalPlan plan = executionProtector.protect(physicalPlan);
     client.schedule(
         () -> {
           try {

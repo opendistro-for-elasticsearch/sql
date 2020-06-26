@@ -20,6 +20,7 @@ import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchNodeClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.ElasticsearchExecutionEngine;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.ElasticsearchExecutionProtector;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.monitor.ElasticsearchMemoryHealthy;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.monitor.ElasticsearchResourceMonitor;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.ElasticsearchStorageEngine;
@@ -55,16 +56,21 @@ public class ElasticsearchPluginConfig {
 
   @Bean
   public StorageEngine storageEngine() {
-    return new ElasticsearchStorageEngine(client(), resourceMonitor());
+    return new ElasticsearchStorageEngine(client());
   }
 
   @Bean
   public ExecutionEngine executionEngine() {
-    return new ElasticsearchExecutionEngine(client());
+    return new ElasticsearchExecutionEngine(client(), protector());
   }
 
   @Bean
   public ResourceMonitor resourceMonitor() {
     return new ElasticsearchResourceMonitor(settings, new ElasticsearchMemoryHealthy());
+  }
+
+  @Bean
+  public ElasticsearchExecutionProtector protector() {
+    return new ElasticsearchExecutionProtector(resourceMonitor());
   }
 }
