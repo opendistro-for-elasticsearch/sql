@@ -39,6 +39,7 @@ public class SqlSettings {
      * 2) It has separate setting for Query and Fetch phase which are all ES internal concepts.
      */
     public static final String SQL_ENABLED = "opendistro.sql.enabled";
+    public static final String SQL_NEW_ENGINE_ENABLED = "opendistro.sql.engine.new.enabled";
     public static final String QUERY_SLOWLOG = "opendistro.sql.query.slowlog";
     public static final String QUERY_RESPONSE_FORMAT = "opendistro.sql.query.response.format";
     public static final String QUERY_ANALYSIS_ENABLED = "opendistro.sql.query.analysis.enabled";
@@ -56,6 +57,7 @@ public class SqlSettings {
     public SqlSettings() {
         Map<String, Setting<?>> settings = new HashMap<>();
         settings.put(SQL_ENABLED, Setting.boolSetting(SQL_ENABLED, true, NodeScope, Dynamic));
+        settings.put(SQL_NEW_ENGINE_ENABLED, Setting.boolSetting(SQL_NEW_ENGINE_ENABLED, true, NodeScope, Dynamic));
         settings.put(QUERY_SLOWLOG, Setting.intSetting(QUERY_SLOWLOG, 2, NodeScope, Dynamic));
         settings.put(QUERY_RESPONSE_FORMAT, Setting.simpleString(QUERY_RESPONSE_FORMAT, Format.JDBC.getFormatName(),
                                                                  NodeScope, Dynamic));
