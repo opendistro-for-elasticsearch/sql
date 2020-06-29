@@ -45,6 +45,10 @@ public class DSL {
     return new LiteralExpression(ExprValueUtils.doubleValue(value));
   }
 
+  public static LiteralExpression literal(String value) {
+    return new LiteralExpression(ExprValueUtils.stringValue(value));
+  }
+
   public static LiteralExpression literal(ExprValue value) {
     return new LiteralExpression(value);
   }
