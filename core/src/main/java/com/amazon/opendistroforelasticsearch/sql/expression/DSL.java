@@ -58,6 +58,38 @@ public class DSL {
         repository.compile(BuiltinFunctionName.ABS.getName(), Arrays.asList(expressions), env);
   }
 
+  public FunctionExpression ceil(Environment<Expression, ExprType> env, Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.CEIL.getName(), Arrays.asList(expressions), env);
+  }
+
+  public FunctionExpression ceiling(
+      Environment<Expression, ExprType> env, Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.CEILING.getName(), Arrays.asList(expressions), env);
+  }
+
+  public FunctionExpression exp(Environment<Expression, ExprType> env, Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.EXP.getName(), Arrays.asList(expressions), env);
+  }
+
+  public FunctionExpression floor(
+      Environment<Expression, ExprType> env, Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.FLOOR.getName(), Arrays.asList(expressions), env);
+  }
+
+  public FunctionExpression ln(Environment<Expression, ExprType> env, Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.LN.getName(), Arrays.asList(expressions), env);
+  }
+
+  public FunctionExpression log(Environment<Expression, ExprType> env, Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.LOG.getName(), Arrays.asList(expressions), env);
+  }
+
   public FunctionExpression add(Environment<Expression, ExprType> env, Expression... expressions) {
     return (FunctionExpression)
         repository.compile(BuiltinFunctionName.ADD.getName(), Arrays.asList(expressions), env);

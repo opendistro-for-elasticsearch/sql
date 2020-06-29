@@ -203,7 +203,7 @@ functionArg
     ;
 
 mathematicalFunctionBase
-    : ABS
+    : ABS | CEIL | CEILING | EXP | FLOOR | LN | LOG
     ;
 
 dateAndTimeFunctionBase

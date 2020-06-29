@@ -39,6 +39,8 @@ import org.springframework.context.annotation.Configuration;
 public class TestConfig {
   public static final String INT_TYPE_NULL_VALUE_FIELD = "int_null_value";
   public static final String INT_TYPE_MISSING_VALUE_FIELD = "int_missing_value";
+  public static final String DOUBLE_TYPE_NULL_VALUE_FIELD = "double_null_value";
+  public static final String DOUBLE_TYPE_MISSING_VALUE_FIELD = "double_missing_value";
   public static final String BOOL_TYPE_NULL_VALUE_FIELD = "null_value_boolean";
   public static final String BOOL_TYPE_MISSING_VALUE_FIELD = "missing_value_boolean";
 
@@ -49,6 +51,8 @@ public class TestConfig {
       .put("long_value", ExprType.LONG)
       .put("float_value", ExprType.FLOAT)
       .put("double_value", ExprType.DOUBLE)
+      .put(DOUBLE_TYPE_NULL_VALUE_FIELD, ExprType.DOUBLE)
+      .put(DOUBLE_TYPE_MISSING_VALUE_FIELD, ExprType.DOUBLE)
       .put("boolean_value", ExprType.BOOLEAN)
       .put(BOOL_TYPE_NULL_VALUE_FIELD, ExprType.BOOLEAN)
       .put(BOOL_TYPE_MISSING_VALUE_FIELD, ExprType.BOOLEAN)
