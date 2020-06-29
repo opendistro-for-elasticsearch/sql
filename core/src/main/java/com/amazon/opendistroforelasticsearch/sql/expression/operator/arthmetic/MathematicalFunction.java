@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.operator.arthmetic;
 
-import static com.amazon.opendistroforelasticsearch.sql.expression.operator.OperatorUtils.binaryOperator;
 import static com.amazon.opendistroforelasticsearch.sql.expression.operator.OperatorUtils.doubleArgFunc;
 import static com.amazon.opendistroforelasticsearch.sql.expression.operator.OperatorUtils.unaryOperator;
 
@@ -70,16 +69,32 @@ public class MathematicalFunction {
    * Definition of ceil(x)/ceiling(x) function.
    * Calculate the next highest integer that x rounds up to
    * The supported signature of ceil/ceiling function is
-   * DOUBLE -> DOUBLE
+   * DOUBLE -> LONG
    */
   private static FunctionResolver ceil() {
-    return new FunctionResolver(BuiltinFunctionName.CEIL.getName(),
-        singleArgumentFunction(BuiltinFunctionName.CEIL.getName(), Math::ceil));
+    FunctionName functionName = BuiltinFunctionName.CEIL.getName();
+    return new FunctionResolver(
+        BuiltinFunctionName.CEIL.getName(),
+        new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
+            .put(
+                new FunctionSignature(functionName, Arrays.asList(ExprType.DOUBLE)),
+                unaryOperator(
+                    functionName, v -> ((long) Math.ceil(v)), ExprValueUtils::getDoubleValue,
+                    ExprType.LONG))
+            .build());
   }
 
   private static FunctionResolver ceiling() {
-    return new FunctionResolver(BuiltinFunctionName.CEILING.getName(),
-        singleArgumentFunction(BuiltinFunctionName.CEILING.getName(), Math::ceil));
+    FunctionName functionName = BuiltinFunctionName.CEILING.getName();
+    return new FunctionResolver(
+        BuiltinFunctionName.CEILING.getName(),
+        new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
+            .put(
+                new FunctionSignature(functionName, Arrays.asList(ExprType.DOUBLE)),
+                unaryOperator(
+                    functionName, v -> ((long) Math.ceil(v)), ExprValueUtils::getDoubleValue,
+                    ExprType.LONG))
+            .build());
   }
 
   /**
@@ -97,11 +112,19 @@ public class MathematicalFunction {
    * Definition of floor(x) function.
    * Calculate the next nearest whole integer that x rounds down to
    * The supported signature of floor function is
-   * DOUBLE -> DOUBLE
+   * DOUBLE -> LONG
    */
   private static FunctionResolver floor() {
-    return new FunctionResolver(BuiltinFunctionName.FLOOR.getName(),
-        singleArgumentFunction(BuiltinFunctionName.FLOOR.getName(), Math::floor));
+    FunctionName functionName = BuiltinFunctionName.FLOOR.getName();
+    return new FunctionResolver(
+        BuiltinFunctionName.FLOOR.getName(),
+        new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
+            .put(
+                new FunctionSignature(functionName, Arrays.asList(ExprType.DOUBLE)),
+                unaryOperator(
+                    functionName, v -> ((long) Math.floor(v)), ExprValueUtils::getDoubleValue,
+                    ExprType.LONG))
+            .build());
   }
 
   /**
@@ -159,7 +182,7 @@ public class MathematicalFunction {
 
   /**
    * Util method to generate single argument function bundles. Applicable for
-   * DOUBLE -> DOUBLE
+   * DOUBLE -> DOUBLE/LONG
    */
   private static Map<FunctionSignature, FunctionBuilder> singleArgumentFunction(
       FunctionName functionName,
