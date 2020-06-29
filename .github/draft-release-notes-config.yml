@@ -1,0 +1,29 @@
+# The overall template of the release notes
+template: |
+  Open Distro for Elasticsearch Version $RESOLVED_VERSION
+  $CHANGES
+
+# Setting the formatting and sorting for the release notes body
+name-template: Version $RESOLVED_VERSION
+change-template: "- $TITLE (PR [#$NUMBER](https://github.com/opendistro-for-elasticsearch/sql/pull/$NUMBER))"
+sort-by: merged_at
+sort-direction: ascending
+
+# Organizing the tagged PRs into categories
+categories:
+  - title: "Version Upgrades"
+    labels:
+      - "version compatibility"
+  - title: "Features"
+    labels:
+      - "feature"
+  - title: "Enhancements"
+    labels:
+      - "enhancement"
+  - title: "Bug Fixes"
+    labels:
+      - "bug"
+      - "bug fix"
+  - title: "Documentation"
+    labels:
+      - "documentation"
