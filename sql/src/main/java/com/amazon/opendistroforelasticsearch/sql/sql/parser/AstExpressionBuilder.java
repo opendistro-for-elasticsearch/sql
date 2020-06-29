@@ -18,18 +18,35 @@ package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
 import static com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils.unquoteIdentifier;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.BooleanContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.MathExpressionAtomContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SignedDecimalContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SignedRealContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.StringContext;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
+import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.NestedExpressionAtomContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
+import java.util.Arrays;
 
 /**
  * Expression builder to parse text to expression in AST.
  */
 public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedExpression> {
+
+  @Override
+  public UnresolvedExpression visitMathExpressionAtom(MathExpressionAtomContext ctx) {
+    return new Function(
+        ctx.mathOperator().getText(),
+        Arrays.asList(visit(ctx.left), visit(ctx.right))
+    );
+  }
+
+  @Override
+  public UnresolvedExpression visitNestedExpressionAtom(NestedExpressionAtomContext ctx) {
+    return visit(ctx.expression());
+  }
 
   @Override
   public UnresolvedExpression visitString(StringContext ctx) {

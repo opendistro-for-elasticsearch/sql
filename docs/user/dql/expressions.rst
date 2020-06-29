@@ -48,3 +48,27 @@ The current implementation has the following limitations at the moment:
 2. Expression of literals, such as arithmetic expressions, will be supported later.
 3. Standard ANSI ``VALUES`` clause is not supported, although the ``SELECT`` literal example above is implemented by a Values operator internally.
 
+Arithmetic Expressions
+======================
+
+Arithmetic expression is an expression formed by numeric literals and binary arithmetic operators:
+
+1. ``+``:
+2. ``-``:
+3. ``*``:
+4. ``/``:
+5. ``%``: mod
+
+Examples
+--------
+
+Here is an example for different type of arithmetic expressions::
+
+    od> SELECT 1 + 2, (9 - 1) % 3, 2 * 4 / 3;
+    fetched rows / total rows = 1/1
+    +---------+-------------+-------------+
+    | 1 + 2   | 9 - 1 % 3   | 2 * 4 / 3   |
+    |---------+-------------+-------------|
+    | 3       | 2           | 2           |
+    +---------+-------------+-------------+
+

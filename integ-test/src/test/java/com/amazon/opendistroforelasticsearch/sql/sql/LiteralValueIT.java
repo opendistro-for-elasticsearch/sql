@@ -69,6 +69,31 @@ public class LiteralValueIT extends RestIntegTestCase {
     assertEquals(expected, executeQuery("SELECT 123, 'hello', false, -4.567"));
   }
 
+  @Test
+  public void testSelectArithmeticExpressions() {
+    String expected =
+        "{\n"
+            + "  \"schema\": [\n"
+            + "    {\n"
+            + "      \"name\": \"1 + 2\",\n"
+            + "      \"type\": \"integer\"\n"
+            + "    },\n"
+            + "    {\n"
+            + "      \"name\": \"3 * 4 / 5\",\n"
+            + "      \"type\": \"integer\"\n"
+            + "    }\n"
+            + "  ],\n"
+            + "  \"total\": 1,\n"
+            + "  \"datarows\": [[\n"
+            + "    3,\n"
+            + "    2\n"
+            + "  ]],\n"
+            + "  \"size\": 1\n"
+            + "}\n";
+
+    assertEquals(expected, executeQuery("SELECT 1 + 2, (3 * 4) / 5"));
+  }
+
   /**
    * This is temporary and would be replaced by comparison test very soon.
    */

@@ -127,4 +127,10 @@ predicate
 
 expressionAtom
     : constant                                                      #constantExpressionAtom
+    | '(' expression ')'                                            #nestedExpressionAtom
+    | left=expressionAtom mathOperator right=expressionAtom         #mathExpressionAtom
+    ;
+
+mathOperator
+    : '+' | '-' | '*' | '/' | '%'
     ;
