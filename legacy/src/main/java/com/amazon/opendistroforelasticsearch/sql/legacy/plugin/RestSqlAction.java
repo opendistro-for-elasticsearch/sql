@@ -41,17 +41,18 @@ import com.amazon.opendistroforelasticsearch.sql.legacy.rewriter.matchtoterm.Ver
 import com.amazon.opendistroforelasticsearch.sql.legacy.utils.JsonPrettyFormatter;
 import com.amazon.opendistroforelasticsearch.sql.legacy.utils.LogUtils;
 import com.amazon.opendistroforelasticsearch.sql.legacy.utils.QueryDataAnonymizer;
+import com.amazon.opendistroforelasticsearch.sql.sql.domain.SQLQueryRequest;
 import com.google.common.collect.ImmutableList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.node.NodeClient;
+import org.elasticsearch.cluster.service.ClusterService;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.index.IndexNotFoundException;
 import org.elasticsearch.rest.BaseRestHandler;
 import org.elasticsearch.rest.BytesRestResponse;
 import org.elasticsearch.rest.RestChannel;
-import org.elasticsearch.rest.RestController;
 import org.elasticsearch.rest.RestRequest;
 import org.elasticsearch.rest.RestStatus;
 
@@ -89,9 +90,15 @@ public class RestSqlAction extends BaseRestHandler {
     public static final String EXPLAIN_API_ENDPOINT = QUERY_API_ENDPOINT + "/_explain";
     public static final String CURSOR_CLOSE_ENDPOINT = QUERY_API_ENDPOINT + "/close";
 
-    public RestSqlAction(Settings settings, RestController restController) {
+    /**
+     * New SQL query request handler.
+     */
+    private final RestSQLQueryAction newSqlQueryHandler;
+
+    public RestSqlAction(Settings settings, ClusterService clusterService) {
         super();
         this.allowExplicitIndex = MULTI_ALLOW_EXPLICIT_INDEX.get(settings);
+        this.newSqlQueryHandler = new RestSQLQueryAction(clusterService);
     }
 
     @Override
@@ -135,8 +142,23 @@ public class RestSqlAction extends BaseRestHandler {
             LOG.info("[{}] Incoming request {}: {}", LogUtils.getRequestId(), request.uri(),
                     QueryDataAnonymizer.anonymizeData(sqlRequest.getSql()));
 
-            final QueryAction queryAction =
-                    explainRequest(client, sqlRequest, SqlRequestParam.getFormat(request.params()));
+            Format format = SqlRequestParam.getFormat(request.params());
+
+            // Route request to new query engine if it's supported already
+            SQLQueryRequest newSqlRequest = new SQLQueryRequest(sqlRequest.getJsonContent(),
+                                                                sqlRequest.getSql(),
+                                                                request.path(),
+                                                                format.getFormatName());
+            RestChannelConsumer result = newSqlQueryHandler.prepareRequest(newSqlRequest, client);
+            if (result != RestSQLQueryAction.NOT_SUPPORTED_YET) {
+                LOG.info("[{}] Request {} is handled by new SQL query engine",
+                    LogUtils.getRequestId(), newSqlRequest);
+                return result;
+            }
+            LOG.debug("[{}] Request {} is not supported and falling back to old SQL engine",
+                LogUtils.getRequestId(), newSqlRequest);
+
+            final QueryAction queryAction = explainRequest(client, sqlRequest, format);
             return channel -> executeSqlRequest(request, queryAction, client, channel);
         } catch (Exception e) {
             logAndPublishMetrics(e);

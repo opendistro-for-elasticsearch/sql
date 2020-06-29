@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
@@ -33,12 +34,18 @@ import lombok.RequiredArgsConstructor;
  * Dedupe operator. Dedupe the input {@link ExprValue} by using the {@link
  * DedupeOperator#dedupeList} The result order follow the input order.
  */
+@Getter
 @EqualsAndHashCode
 public class DedupeOperator extends PhysicalPlan {
+  @Getter
   private final PhysicalPlan input;
+  @Getter
   private final List<Expression> dedupeList;
+  @Getter
   private final Integer allowedDuplication;
+  @Getter
   private final Boolean keepEmpty;
+  @Getter
   private final Boolean consecutive;
 
   @EqualsAndHashCode.Exclude

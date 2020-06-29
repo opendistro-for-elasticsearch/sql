@@ -64,6 +64,9 @@ dependencies {
     compile group: 'org.json', name: 'json', version:'20180813'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.10'
     compile group: 'org.elasticsearch', name: 'elasticsearch', version: "${es_version}"
+    compile project(':sql')
+    compile project(':common')
+    compile project(':elasticsearch')
 
     // ANTLR gradle plugin and runtime dependency
     antlr "org.antlr:antlr4:4.7.1"

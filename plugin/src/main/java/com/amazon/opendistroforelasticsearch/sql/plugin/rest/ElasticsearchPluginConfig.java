@@ -16,11 +16,17 @@
 
 package com.amazon.opendistroforelasticsearch.sql.plugin.rest;
 
+import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchNodeClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.ElasticsearchExecutionEngine;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.protector.ElasticsearchExecutionProtector;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.protector.ExecutionProtector;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.monitor.ElasticsearchMemoryHealthy;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.monitor.ElasticsearchResourceMonitor;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.ElasticsearchStorageEngine;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
+import com.amazon.opendistroforelasticsearch.sql.monitor.ResourceMonitor;
 import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.cluster.service.ClusterService;
@@ -41,6 +47,9 @@ public class ElasticsearchPluginConfig {
   @Autowired
   private NodeClient nodeClient;
 
+  @Autowired
+  private Settings settings;
+
   @Bean
   public ElasticsearchClient client() {
     return new ElasticsearchNodeClient(clusterService, nodeClient);
@@ -53,7 +62,16 @@ public class ElasticsearchPluginConfig {
 
   @Bean
   public ExecutionEngine executionEngine() {
-    return new ElasticsearchExecutionEngine(client());
+    return new ElasticsearchExecutionEngine(client(), protector());
   }
 
+  @Bean
+  public ResourceMonitor resourceMonitor() {
+    return new ElasticsearchResourceMonitor(settings, new ElasticsearchMemoryHealthy());
+  }
+
+  @Bean
+  public ExecutionProtector protector() {
+    return new ElasticsearchExecutionProtector(resourceMonitor());
+  }
 }

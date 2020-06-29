@@ -19,26 +19,10 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregation;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalDedupe;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalEval;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
+import com.amazon.opendistroforelasticsearch.sql.planner.DefaultImplementor;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanNodeVisitor;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalProject;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRemove;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRename;
-import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalSort;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.AggregationOperator;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.DedupeOperator;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.EvalOperator;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.FilterOperator;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.ProjectOperator;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.RemoveOperator;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.RenameOperator;
-import com.amazon.opendistroforelasticsearch.sql.planner.physical.SortOperator;
 import com.amazon.opendistroforelasticsearch.sql.storage.Table;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
@@ -92,68 +76,15 @@ public class ElasticsearchIndex implements Table {
   public PhysicalPlan implement(LogicalPlan plan) {
     ElasticsearchIndexScan indexScan = new ElasticsearchIndexScan(client, indexName);
 
-    /**
+    /*
      * Visit logical plan with index scan as context so logical operators visited, such as
      * aggregation, filter, will accumulate (push down) Elasticsearch query and aggregation DSL on
      * index scan.
      */
-    return plan.accept(
-        new LogicalPlanNodeVisitor<PhysicalPlan, ElasticsearchIndexScan>() {
-          @Override
-          public PhysicalPlan visitDedupe(LogicalDedupe node, ElasticsearchIndexScan context) {
-            return new DedupeOperator(
-                visitChild(node, context),
-                node.getDedupeList(),
-                node.getAllowedDuplication(),
-                node.getKeepEmpty(),
-                node.getConsecutive());
-          }
-
-          @Override
-          public PhysicalPlan visitProject(LogicalProject node, ElasticsearchIndexScan context) {
-            return new ProjectOperator(visitChild(node, context), node.getProjectList());
-          }
-
-          @Override
-          public PhysicalPlan visitRemove(LogicalRemove node, ElasticsearchIndexScan context) {
-            return new RemoveOperator(visitChild(node, context), node.getRemoveList());
-          }
-
-          @Override
-          public PhysicalPlan visitEval(LogicalEval node, ElasticsearchIndexScan context) {
-            return new EvalOperator(visitChild(node, context), node.getExpressions());
-          }
-
-          @Override
-          public PhysicalPlan visitSort(LogicalSort node, ElasticsearchIndexScan context) {
-            return new SortOperator(visitChild(node, context), node.getCount(), node.getSortList());
-          }
-
-          @Override
-          public PhysicalPlan visitRename(LogicalRename node, ElasticsearchIndexScan context) {
-            return new RenameOperator(visitChild(node, context), node.getRenameMap());
-          }
-
-          @Override
-          public PhysicalPlan visitAggregation(
-              LogicalAggregation node, ElasticsearchIndexScan context) {
-            return new AggregationOperator(
-                visitChild(node, context), node.getAggregatorList(), node.getGroupByList());
-          }
-
-          @Override
-          public PhysicalPlan visitFilter(LogicalFilter node, ElasticsearchIndexScan context) {
-            return new FilterOperator(visitChild(node, context), node.getCondition());
-          }
-
+    return plan.accept(new DefaultImplementor<ElasticsearchIndexScan>() {
           @Override
           public PhysicalPlan visitRelation(LogicalRelation node, ElasticsearchIndexScan context) {
             return indexScan;
-          }
-
-          private PhysicalPlan visitChild(LogicalPlan node, ElasticsearchIndexScan context) {
-            // Logical operators visited here can only have single child.
-            return node.getChild().get(0).accept(this, context);
           }
         },
         indexScan);

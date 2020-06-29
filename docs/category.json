@@ -1,7 +1,8 @@
 {
   "bash": [
     "experiment/ppl/interfaces/endpoint.rst",
-    "experiment/ppl/interfaces/protocol.rst"
+    "experiment/ppl/interfaces/protocol.rst",
+    "experiment/ppl/admin/settings.rst"
   ],
   "ppl_cli": [
     "experiment/ppl/cmd/dedup.rst",
@@ -13,5 +14,7 @@
     "experiment/ppl/cmd/stats.rst",
     "experiment/ppl/cmd/where.rst"
   ],
-  "sql_cli": []
+  "sql_cli": [
+    "user/dql/expressions.rst"
+  ]
 }

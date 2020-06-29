@@ -31,6 +31,7 @@ import static org.mockito.Mockito.when;
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.protector.ElasticsearchExecutionProtector;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
 import java.util.ArrayList;
@@ -49,6 +50,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class ElasticsearchExecutionEngineTest {
 
   @Mock private ElasticsearchClient client;
+
+  @Mock private ElasticsearchExecutionProtector protector;
 
   @BeforeEach
   void setUp() {
@@ -69,8 +72,9 @@ class ElasticsearchExecutionEngineTest {
         Arrays.asList(
             tupleValue(of("name", "John", "age", 20)), tupleValue(of("name", "Allen", "age", 30)));
     FakePhysicalPlan plan = new FakePhysicalPlan(expected.iterator());
+    when(protector.protect(plan)).thenReturn(plan);
 
-    ElasticsearchExecutionEngine executor = new ElasticsearchExecutionEngine(client);
+    ElasticsearchExecutionEngine executor = new ElasticsearchExecutionEngine(client, protector);
     List<ExprValue> actual = new ArrayList<>();
     executor.execute(
         plan,
@@ -96,8 +100,9 @@ class ElasticsearchExecutionEngineTest {
     PhysicalPlan plan = mock(PhysicalPlan.class);
     RuntimeException expected = new RuntimeException("Execution error");
     when(plan.hasNext()).thenThrow(expected);
+    when(protector.protect(plan)).thenReturn(plan);
 
-    ElasticsearchExecutionEngine executor = new ElasticsearchExecutionEngine(client);
+    ElasticsearchExecutionEngine executor = new ElasticsearchExecutionEngine(client, protector);
     AtomicReference<Exception> actual = new AtomicReference<>();
     executor.execute(
         plan,
