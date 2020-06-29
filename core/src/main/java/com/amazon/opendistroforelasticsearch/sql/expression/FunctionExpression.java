@@ -21,12 +21,14 @@ import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 /**
  * Function Expression.
  */
 @EqualsAndHashCode
 @RequiredArgsConstructor
+@ToString
 public abstract class FunctionExpression implements Expression, FunctionImplementation {
   @Getter
   private final FunctionName functionName;

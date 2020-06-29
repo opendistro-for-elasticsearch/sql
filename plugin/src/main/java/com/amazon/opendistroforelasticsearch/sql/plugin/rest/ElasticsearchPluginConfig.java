@@ -20,7 +20,8 @@ import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchNodeClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.ElasticsearchExecutionEngine;
-import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.ElasticsearchExecutionProtector;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.protector.ElasticsearchExecutionProtector;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.protector.ExecutionProtector;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.monitor.ElasticsearchMemoryHealthy;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.monitor.ElasticsearchResourceMonitor;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.ElasticsearchStorageEngine;
@@ -70,7 +71,7 @@ public class ElasticsearchPluginConfig {
   }
 
   @Bean
-  public ElasticsearchExecutionProtector protector() {
+  public ExecutionProtector protector() {
     return new ElasticsearchExecutionProtector(resourceMonitor());
   }
 }

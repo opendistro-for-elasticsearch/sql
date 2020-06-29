@@ -45,6 +45,14 @@ public class DSL {
     return new LiteralExpression(ExprValueUtils.doubleValue(value));
   }
 
+  public static LiteralExpression literal(String value) {
+    return new LiteralExpression(ExprValueUtils.stringValue(value));
+  }
+
+  public static LiteralExpression literal(Boolean value) {
+    return new LiteralExpression(ExprValueUtils.booleanValue(value));
+  }
+
   public static LiteralExpression literal(ExprValue value) {
     return new LiteralExpression(value);
   }
@@ -111,6 +119,36 @@ public class DSL {
       Environment<Expression, ExprType> env, Expression... expressions) {
     return (FunctionExpression)
         repository.compile(BuiltinFunctionName.EQUAL.getName(), Arrays.asList(expressions), env);
+  }
+
+  public FunctionExpression notequal(
+      Environment<Expression, ExprType> env, Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.NOTEQUAL.getName(), Arrays.asList(expressions), env);
+  }
+
+  public FunctionExpression less(
+      Environment<Expression, ExprType> env, Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.LESS.getName(), Arrays.asList(expressions), env);
+  }
+
+  public FunctionExpression lte(
+      Environment<Expression, ExprType> env, Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.LTE.getName(), Arrays.asList(expressions), env);
+  }
+
+  public FunctionExpression greater(
+      Environment<Expression, ExprType> env, Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.GREATER.getName(), Arrays.asList(expressions), env);
+  }
+
+  public FunctionExpression gte(
+      Environment<Expression, ExprType> env, Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.GTE.getName(), Arrays.asList(expressions), env);
   }
 
   public Aggregator avg(Environment<Expression, ExprType> env, Expression... expressions) {

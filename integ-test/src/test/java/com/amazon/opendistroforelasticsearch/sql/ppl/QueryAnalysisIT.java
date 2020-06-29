@@ -81,6 +81,7 @@ public class QueryAnalysisIT extends PPLIntegTestCase {
   public void evalCommandShouldPassSemanticCheck() {
     String query = String.format("search source=%s | eval age=abs(age)", TEST_INDEX_ACCOUNT);
     queryShouldPassSyntaxAndSemanticCheck(query);
+    queryShouldPassSyntaxAndSemanticCheck(query);
   }
 
   @Test
@@ -90,7 +91,8 @@ public class QueryAnalysisIT extends PPLIntegTestCase {
   }
 
   /**
-   * Commands that fail syntax analysis should throw {@link SyntaxCheckException}.
+   * Commands that fail syntax analysis should throw
+   * {@link SyntaxCheckException}.
    */
   @Test
   public void queryNotStartingWithSearchCommandShouldFailSyntaxCheck() {

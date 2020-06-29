@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.google.common.collect.ImmutableSet;
@@ -49,7 +50,7 @@ public class LogicalPlanDSL {
     return new LogicalRename(input, renameMap);
   }
 
-  public static LogicalPlan project(LogicalPlan input, ReferenceExpression... fields) {
+  public static LogicalPlan project(LogicalPlan input, Expression... fields) {
     return new LogicalProject(input, Arrays.asList(fields));
   }
 
@@ -80,4 +81,10 @@ public class LogicalPlanDSL {
     return new LogicalDedupe(
         input, Arrays.asList(fields), allowedDuplication, keepEmpty, consecutive);
   }
+
+  @SafeVarargs
+  public LogicalPlan values(List<LiteralExpression>... values) {
+    return new LogicalValues(Arrays.asList(values));
+  }
+
 }

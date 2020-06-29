@@ -22,7 +22,7 @@ import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListene
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchRestClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.ElasticsearchExecutionEngine;
-import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.ElasticsearchExecutionProtector;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.protector.ElasticsearchExecutionProtector;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.ElasticsearchStorageEngine;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.QueryResponse;

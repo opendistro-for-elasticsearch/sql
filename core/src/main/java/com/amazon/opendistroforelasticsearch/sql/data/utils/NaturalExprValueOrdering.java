@@ -23,10 +23,10 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getLongValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getStringValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getTupleValue;
-import static com.amazon.opendistroforelasticsearch.sql.expression.scalar.OperatorUtils.COMPARE_WITH_NULL_OR_MISSING;
-import static com.amazon.opendistroforelasticsearch.sql.expression.scalar.OperatorUtils.LIST_COMPARATOR;
-import static com.amazon.opendistroforelasticsearch.sql.expression.scalar.OperatorUtils.MAP_COMPARATOR;
-import static com.amazon.opendistroforelasticsearch.sql.expression.scalar.OperatorUtils.STRING_COMPARATOR;
+import static com.amazon.opendistroforelasticsearch.sql.expression.operator.OperatorUtils.COMPARE_WITH_NULL_OR_MISSING;
+import static com.amazon.opendistroforelasticsearch.sql.expression.operator.OperatorUtils.LIST_COMPARATOR;
+import static com.amazon.opendistroforelasticsearch.sql.expression.operator.OperatorUtils.MAP_COMPARATOR;
+import static com.amazon.opendistroforelasticsearch.sql.expression.operator.OperatorUtils.STRING_COMPARATOR;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;

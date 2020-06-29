@@ -19,6 +19,8 @@ Open Distro for Elasticsearch SQL enables you to extract insights out of Elastic
 
 * **Data Query Language**
 
+  - `Expressions <dql/expressions.rst>`_
+
   - `Basic Queries <dql/basics.rst>`_
 
   - `Complex Queries <dql/complex.rst>`_

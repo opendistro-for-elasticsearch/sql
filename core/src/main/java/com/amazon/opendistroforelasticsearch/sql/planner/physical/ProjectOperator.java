@@ -17,7 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
-import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import java.util.Collections;
@@ -37,7 +37,7 @@ public class ProjectOperator extends PhysicalPlan {
   @Getter
   private final PhysicalPlan input;
   @Getter
-  private final List<ReferenceExpression> projectList;
+  private final List<Expression> projectList;
 
   @Override
   public <R, C> R accept(PhysicalPlanNodeVisitor<R, C> visitor, C context) {
@@ -58,11 +58,11 @@ public class ProjectOperator extends PhysicalPlan {
   public ExprValue next() {
     ExprValue inputValue = input.next();
     ImmutableMap.Builder<String, ExprValue> mapBuilder = new Builder<>();
-    for (ReferenceExpression ref : projectList) {
-      ExprValue exprValue = ref.valueOf(inputValue.bindingTuples());
+    for (Expression expr : projectList) {
+      ExprValue exprValue = expr.valueOf(inputValue.bindingTuples());
       // missing value is ignored.
       if (!exprValue.isMissing()) {
-        mapBuilder.put(ref.toString(), exprValue);
+        mapBuilder.put(expr.toString(), exprValue);
       }
     }
     return ExprTupleValue.fromExprValueMap(mapBuilder.build());

@@ -128,6 +128,7 @@ logicalExpression
     | NOT logicalExpression                                         #logicalNot
     | left=logicalExpression OR right=logicalExpression             #logicalOr
     | left=logicalExpression (AND)? right=logicalExpression         #logicalAnd
+    | left=logicalExpression XOR right=logicalExpression            #logicalXor
     ;
 
 comparisonExpression

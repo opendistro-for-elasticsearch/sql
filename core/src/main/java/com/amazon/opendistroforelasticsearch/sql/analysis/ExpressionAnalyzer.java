@@ -23,9 +23,11 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.EqualTo;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Not;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Xor;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
@@ -94,6 +96,19 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     Expression right = node.getRight().accept(this, context);
 
     return dsl.or(context.peek(), left, right);
+  }
+
+  @Override
+  public Expression visitXor(Xor node, AnalysisContext context) {
+    Expression left = node.getLeft().accept(this, context);
+    Expression right = node.getRight().accept(this, context);
+
+    return dsl.xor(context.peek(), left, right);
+  }
+
+  @Override
+  public Expression visitNot(Not node, AnalysisContext context) {
+    return dsl.not(context.peek(), node.getExpression().accept(this, context));
   }
 
   @Override

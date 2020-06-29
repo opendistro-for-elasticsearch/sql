@@ -25,6 +25,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionImp
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

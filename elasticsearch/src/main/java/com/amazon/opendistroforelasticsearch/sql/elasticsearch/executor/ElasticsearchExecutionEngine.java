@@ -19,6 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor;
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.protector.ExecutionProtector;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ public class ElasticsearchExecutionEngine implements ExecutionEngine {
 
   private final ElasticsearchClient client;
 
-  private final ElasticsearchExecutionProtector executionProtector;
+  private final ExecutionProtector executionProtector;
 
   @Override
   public void execute(PhysicalPlan physicalPlan, ResponseListener<QueryResponse> listener) {
