@@ -634,7 +634,7 @@ public class TestUtils {
         return "{" +
                 "  \"mappings\": {" +
                 "    \"properties\": {" +
-                "      \"birthday\": {" +
+                "      \"login_time\": {" +
                 "        \"type\": \"date\"" +
                 "      }" +
                 "    }" +
