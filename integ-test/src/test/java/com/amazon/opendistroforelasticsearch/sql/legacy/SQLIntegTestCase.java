@@ -346,7 +346,7 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
     private final String name;
     private final String value;
 
-    ClusterSetting(String type, String name, String value) {
+    public ClusterSetting(String type, String name, String value) {
       this.type = type;
       this.name = name;
       this.value = (value == null) ? "null" : ("\"" + value + "\"");
