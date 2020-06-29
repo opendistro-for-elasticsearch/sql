@@ -45,7 +45,7 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
 
   @Override
   public UnresolvedExpression visitNestedExpressionAtom(NestedExpressionAtomContext ctx) {
-    return visit(ctx.expression());
+    return visit(ctx.expression()); // Discard parenthesis around
   }
 
   @Override
