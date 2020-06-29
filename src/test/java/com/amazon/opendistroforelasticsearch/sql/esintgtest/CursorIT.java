@@ -173,7 +173,7 @@ public class CursorIT extends SQLIntegTestCase {
     @Test
     public void validTotalResultWithAndWithoutPaginationOrderBy() throws IOException {
         String selectQuery = StringUtils.format(
-                "SELECT firstname, state FROM %s ORDER BY balance DESC ", TEST_INDEX_ACCOUNT
+                "SELECT firstname, balance FROM %s ORDER BY balance DESC, firstname DESC", TEST_INDEX_ACCOUNT
         );
         verifyWithAndWithoutPaginationResponse(selectQuery + " LIMIT 2000" , selectQuery , 26);
     }
@@ -181,7 +181,8 @@ public class CursorIT extends SQLIntegTestCase {
     @Test
     public void validTotalResultWithAndWithoutPaginationWhereAndOrderBy() throws IOException {
         String selectQuery = StringUtils.format(
-                "SELECT firstname, state FROM %s WHERE balance < 25000 ORDER BY balance ASC ", TEST_INDEX_ACCOUNT
+                "SELECT firstname, balance FROM %s WHERE balance < 25000 ORDER BY balance ASC, firstname ASC",
+                TEST_INDEX_ACCOUNT
         );
         verifyWithAndWithoutPaginationResponse(selectQuery + " LIMIT 2000" , selectQuery , 80);
 
