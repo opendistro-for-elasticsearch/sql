@@ -19,6 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 import static com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils.unquoteIdentifier;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.BooleanContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.MathExpressionAtomContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.ScalarFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SignedDecimalContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SignedRealContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.StringContext;
@@ -29,6 +30,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpres
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.NestedExpressionAtomContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
  * Expression builder to parse text to expression in AST.
@@ -46,6 +48,18 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitNestedExpressionAtom(NestedExpressionAtomContext ctx) {
     return visit(ctx.expression()); // Discard parenthesis around
+  }
+
+  @Override
+  public UnresolvedExpression visitScalarFunctionCall(ScalarFunctionCallContext ctx) {
+    return new Function(
+        ctx.scalarFunctionName().getText(),
+        ctx.functionArgs()
+           .functionArg()
+           .stream()
+           .map(this::visitFunctionArg)
+           .collect(Collectors.toList())
+    );
   }
 
   @Override

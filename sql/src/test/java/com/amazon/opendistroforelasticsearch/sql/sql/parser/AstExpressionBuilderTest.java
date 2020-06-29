@@ -76,13 +76,21 @@ class AstExpressionBuilderTest {
   }
 
   @Test
-  public void canBuildExpressionWithParenthesis() {
+  public void canBuildExpressionWithParentheses() {
     assertEquals(
         function("*",
             function("+", doubleLiteral(-1.0), doubleLiteral(2.3)),
             function("-", intLiteral(3), intLiteral(1))
         ),
         buildExprAst("(-1.0 + 2.3) * (3 - 1)")
+    );
+  }
+
+  @Test
+  public void canBuildFunctionCall() {
+    assertEquals(
+        function("abs", intLiteral(-1)),
+        buildExprAst("abs(-1)")
     );
   }
 

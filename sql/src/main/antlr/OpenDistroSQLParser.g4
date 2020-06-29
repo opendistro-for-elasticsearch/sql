@@ -61,7 +61,7 @@ querySpecification
     ;
 
 selectElements
-    : selectElement (',' selectElement)*
+    : selectElement (COMMA selectElement)*
     ;
 
 selectElement
@@ -127,10 +127,28 @@ predicate
 
 expressionAtom
     : constant                                                      #constantExpressionAtom
-    | '(' expression ')'                                            #nestedExpressionAtom
+    | functionCall                                                  #functionCallExpressionAtom
+    | LR_BRACKET expression RR_BRACKET                              #nestedExpressionAtom
     | left=expressionAtom mathOperator right=expressionAtom         #mathExpressionAtom
     ;
 
 mathOperator
     : '+' | '-' | '*' | '/' | '%'
     ;
+
+functionCall
+    : scalarFunctionName LR_BRACKET functionArgs? RR_BRACKET        #scalarFunctionCall
+    ;
+
+scalarFunctionName
+    : ABS
+    ;
+
+functionArgs
+    : functionArg (COMMA functionArg)*
+    ;
+
+functionArg
+    : expression
+    ;
+

@@ -6,7 +6,7 @@ Expressions
 
 .. contents::
    :local:
-   :depth: 2
+   :depth: 3
 
 
 Introduction
@@ -51,13 +51,29 @@ The current implementation has the following limitations at the moment:
 Arithmetic Expressions
 ======================
 
-Arithmetic expression is an expression formed by numeric literals and binary arithmetic operators:
+Description
+-----------
 
-1. ``+``:
-2. ``-``:
-3. ``*``:
-4. ``/``:
-5. ``%``: mod
+Operators
+`````````
+
+Arithmetic expression is an expression formed by numeric literals and binary arithmetic operators as follows:
+
+1. ``+``: Add.
+2. ``-``: Subtract.
+3. ``*``: Multiply.
+4. ``/``: Divide. For integers, the result is an integer with fractional part discarded.
+5. ``%``: Modulo. This can be used with integers only with remainder of the division as result.
+
+Precedence
+``````````
+
+Parentheses can be used to control the precedence of arithmetic operators. Otherwise, operators of higher precedence is performed first.
+
+Type Conversion
+```````````````
+
+Implicit type conversion is performed when looking up operator signature. For example, an integer ``+`` a real number matches signature ``+(double,double)`` which results in a real number. This rule also applies to function call discussed below.
 
 Examples
 --------
@@ -71,4 +87,44 @@ Here is an example for different type of arithmetic expressions::
     |---------+-------------+-------------|
     | 3       | 2           | 2           |
     +---------+-------------+-------------+
+
+
+Function Call
+=============
+
+Description
+-----------
+
+A function call is declared by its function name and arguments enclosed by parentheses. For supported function list, please see also: `SQL Functions <dql/functions.rst>`_
+
+Syntax
+``````
+
+A typical function call is in the following form::
+
+ function_name ( [ expression [, expression]* ]? )
+
+Null Handling
+`````````````
+
+TODO
+
+Examples
+--------
+
+Here is an example for different type of arithmetic expressions::
+
+    od> SELECT abs(-1), abs(-1 * abs(-5));
+    fetched rows / total rows = 1/1
+    +-----------+---------------------+
+    | abs(-1)   | abs(-1 * abs(-5))   |
+    |-----------+---------------------|
+    | 1         | 5                   |
+    +-----------+---------------------+
+
+Limitations
+-----------
+
+1. Only a subset of the SQL functions above can be used in select without query for now. More function support are being added.
+2. For now function name is required to be lowercase.
 

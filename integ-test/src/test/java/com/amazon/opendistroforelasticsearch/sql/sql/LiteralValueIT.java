@@ -94,6 +94,22 @@ public class LiteralValueIT extends RestIntegTestCase {
     assertEquals(expected, executeQuery("SELECT 1 + 2, (3 * 4) / 5"));
   }
 
+  @Test
+  public void testSelectFunctionCall() {
+    String expected =
+        "{\n"
+            + "  \"schema\": [{\n"
+            + "    \"name\": \"abs(-1)\",\n"
+            + "    \"type\": \"integer\"\n"
+            + "  }],\n"
+            + "  \"total\": 1,\n"
+            + "  \"datarows\": [[1]],\n"
+            + "  \"size\": 1\n"
+            + "}\n";
+
+    assertEquals(expected, executeQuery("SELECT abs(-1)"));
+  }
+
   /**
    * This is temporary and would be replaced by comparison test very soon.
    */
