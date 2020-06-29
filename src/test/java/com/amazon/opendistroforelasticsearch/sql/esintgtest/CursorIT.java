@@ -32,6 +32,7 @@ import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestUtils.get
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_ACCOUNT;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_DATE_TIME;
 import static com.amazon.opendistroforelasticsearch.sql.esintgtest.TestsConstants.TEST_INDEX_NESTED_SIMPLE;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.containsString;
 
@@ -172,7 +173,7 @@ public class CursorIT extends SQLIntegTestCase {
     @Test
     public void validTotalResultWithAndWithoutPaginationOrderBy() throws IOException {
         String selectQuery = StringUtils.format(
-                "SELECT firstname, state FROM %s ORDER BY balance DESC ", TEST_INDEX_ACCOUNT
+                "SELECT firstname, balance FROM %s ORDER BY balance DESC, firstname DESC", TEST_INDEX_ACCOUNT
         );
         verifyWithAndWithoutPaginationResponse(selectQuery + " LIMIT 2000" , selectQuery , 26);
     }
@@ -180,7 +181,8 @@ public class CursorIT extends SQLIntegTestCase {
     @Test
     public void validTotalResultWithAndWithoutPaginationWhereAndOrderBy() throws IOException {
         String selectQuery = StringUtils.format(
-                "SELECT firstname, state FROM %s WHERE balance < 25000 ORDER BY balance ASC ", TEST_INDEX_ACCOUNT
+                "SELECT firstname, balance FROM %s WHERE balance < 25000 ORDER BY balance ASC, firstname ASC",
+                TEST_INDEX_ACCOUNT
         );
         verifyWithAndWithoutPaginationResponse(selectQuery + " LIMIT 2000" , selectQuery , 80);
 
@@ -256,13 +258,11 @@ public class CursorIT extends SQLIntegTestCase {
             actualDateList.add(response.getJSONArray(DATAROWS).getJSONArray(0).getString(0));
         }
 
-        List<String> expectedDateList = Arrays.asList(
+        assertThat(actualDateList, containsInAnyOrder(
                 "2015-01-01 00:00:00.000",
                 "2015-01-01 12:10:30.000",
                 "1585882955", // by existing design, this is not formatted in MySQL standard format
-                "2020-04-08 06:10:30.000");
-
-        assertThat(actualDateList, equalTo(expectedDateList));
+                "2020-04-08 06:10:30.000"));
     }
 
 
