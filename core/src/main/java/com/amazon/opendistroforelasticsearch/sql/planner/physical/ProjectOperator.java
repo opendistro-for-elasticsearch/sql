@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableMap.Builder;
 import java.util.Collections;
 import java.util.List;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
@@ -33,7 +34,9 @@ import lombok.ToString;
 @EqualsAndHashCode
 @RequiredArgsConstructor
 public class ProjectOperator extends PhysicalPlan {
+  @Getter
   private final PhysicalPlan input;
+  @Getter
   private final List<Expression> projectList;
 
   @Override

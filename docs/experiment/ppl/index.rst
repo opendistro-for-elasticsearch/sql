@@ -19,6 +19,10 @@ OpenDistro PPL Reference Manual
 
   - `Protocol <interfaces/protocol.rst>`_
 
+* **Administration**
+
+  - `Plugin Settings <admin/settings.rst>`_
+
 * **Commands**
 
   - `Syntax <cmd/syntax.rst>`_

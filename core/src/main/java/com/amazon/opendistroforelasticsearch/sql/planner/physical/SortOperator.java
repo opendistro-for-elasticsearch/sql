@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.PriorityQueue;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.Singular;
 import lombok.ToString;
 import org.apache.commons.lang3.tuple.Pair;
@@ -43,8 +44,11 @@ import org.apache.commons.lang3.tuple.Pair;
 @ToString
 @EqualsAndHashCode
 public class SortOperator extends PhysicalPlan {
+  @Getter
   private final PhysicalPlan input;
+  @Getter
   private final Integer count;
+  @Getter
   private final List<Pair<SortOption, Expression>> sortList;
   @EqualsAndHashCode.Exclude
   private final Sorter sorter;
@@ -79,7 +83,7 @@ public class SortOperator extends PhysicalPlan {
 
   @Override
   public <R, C> R accept(PhysicalPlanNodeVisitor<R, C> visitor, C context) {
-    return null;
+    return visitor.visitSort(this, context);
   }
 
   @Override

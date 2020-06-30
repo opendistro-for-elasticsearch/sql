@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
@@ -43,9 +44,11 @@ import lombok.ToString;
 @EqualsAndHashCode
 @ToString
 public class AggregationOperator extends PhysicalPlan {
-
+  @Getter
   private final PhysicalPlan input;
+  @Getter
   private final List<Aggregator> aggregatorList;
+  @Getter
   private final List<Expression> groupByExprList;
   @EqualsAndHashCode.Exclude
   private final Group group;
