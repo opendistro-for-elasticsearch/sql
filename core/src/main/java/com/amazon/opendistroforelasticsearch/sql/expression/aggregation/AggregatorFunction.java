@@ -44,6 +44,8 @@ public class AggregatorFunction {
     repository.register(avg());
     repository.register(sum());
     repository.register(count());
+    repository.register(min());
+    repository.register(max());
   }
 
   private static FunctionResolver avg() {
@@ -95,6 +97,40 @@ public class AggregatorFunction {
                 arguments -> new SumAggregator(arguments, ExprType.FLOAT))
             .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.DOUBLE)),
                 arguments -> new SumAggregator(arguments, ExprType.DOUBLE))
+            .build()
+    );
+  }
+
+  private static FunctionResolver min() {
+    FunctionName functionName = BuiltinFunctionName.MIN.getName();
+    return new FunctionResolver(
+        functionName,
+        new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
+            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.INTEGER)),
+                arguments -> new MinAggregator(arguments, ExprType.INTEGER))
+            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.LONG)),
+                arguments -> new MinAggregator(arguments, ExprType.LONG))
+            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.FLOAT)),
+                arguments -> new MinAggregator(arguments, ExprType.FLOAT))
+            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.DOUBLE)),
+                arguments -> new MinAggregator(arguments, ExprType.DOUBLE))
+            .build()
+    );
+  }
+
+  private static FunctionResolver max() {
+    FunctionName functionName = BuiltinFunctionName.MAX.getName();
+    return new FunctionResolver(
+        functionName,
+        new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
+            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.INTEGER)),
+                arguments -> new MaxAggregator(arguments, ExprType.INTEGER))
+            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.LONG)),
+                arguments -> new MaxAggregator(arguments, ExprType.LONG))
+            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.FLOAT)),
+                arguments -> new MaxAggregator(arguments, ExprType.FLOAT))
+            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.DOUBLE)),
+                arguments -> new MaxAggregator(arguments, ExprType.DOUBLE))
             .build()
     );
   }

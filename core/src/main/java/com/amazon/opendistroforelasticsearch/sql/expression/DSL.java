@@ -165,4 +165,14 @@ public class DSL {
     return (Aggregator)
         repository.compile(BuiltinFunctionName.COUNT.getName(), Arrays.asList(expressions), env);
   }
+
+  public Aggregator min(Environment<Expression, ExprType> env, Expression... expressions) {
+    return (Aggregator)
+        repository.compile(BuiltinFunctionName.MIN.getName(), Arrays.asList(expressions), env);
+  }
+
+  public Aggregator max(Environment<Expression, ExprType> env, Expression... expressions) {
+    return (Aggregator)
+        repository.compile(BuiltinFunctionName.MAX.getName(), Arrays.asList(expressions), env);
+  }
 }

@@ -44,7 +44,9 @@ public enum BuiltinFunctionName {
    */
   AVG(FunctionName.of("avg")),
   SUM(FunctionName.of("sum")),
-  COUNT(FunctionName.of("count"));
+  COUNT(FunctionName.of("count")),
+  MIN(FunctionName.of("min")),
+  MAX(FunctionName.of("max"));
 
   private final FunctionName name;
 

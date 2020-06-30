@@ -16,8 +16,10 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_ACCOUNT;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK_WITH_NULL_VALUES;
 
 import java.io.IOException;
+import org.elasticsearch.client.ResponseException;
 import org.junit.jupiter.api.Test;
 
 public class StatsCommandIT extends PPLIntegTestCase {
@@ -25,6 +27,7 @@ public class StatsCommandIT extends PPLIntegTestCase {
   @Override
   public void init() throws IOException {
     loadIndex(Index.ACCOUNT);
+    loadIndex(Index.BANK_WITH_NULL_VALUES);
   }
 
   @Test
@@ -79,7 +82,41 @@ public class StatsCommandIT extends PPLIntegTestCase {
         result);
   }
 
-  // TODO: each stats aggregate function should be tested here when implemented
+  @Test
+  public void testStatsMin() throws IOException {
+    String result =
+        executeQueryToString(
+            String.format("source=%s | stats min(age)", TEST_INDEX_ACCOUNT));
+    assertEquals(
+        "{\n"
+            + "  \"schema\": [{\n"
+            + "    \"name\": \"min(age)\",\n"
+            + "    \"type\": \"long\"\n"
+            + "  }],\n"
+            + "  \"total\": 1,\n"
+            + "  \"datarows\": [[20]],\n"
+            + "  \"size\": 1\n"
+            + "}\n",
+        result);
+  }
+
+  @Test
+  public void testStatsMax() throws IOException {
+    String result =
+        executeQueryToString(
+            String.format("source=%s | stats max(age)", TEST_INDEX_ACCOUNT));
+    assertEquals(
+        "{\n"
+            + "  \"schema\": [{\n"
+            + "    \"name\": \"max(age)\",\n"
+            + "    \"type\": \"long\"\n"
+            + "  }],\n"
+            + "  \"total\": 1,\n"
+            + "  \"datarows\": [[40]],\n"
+            + "  \"size\": 1\n"
+            + "}\n",
+        result);
+  }
 
   @Test
   public void testStatsNested() throws IOException {
@@ -97,5 +134,39 @@ public class StatsCommandIT extends PPLIntegTestCase {
             + "  \"size\": 1\n"
             + "}\n",
         result);
+  }
+
+  @Test
+  public void testStatsWithNull() {
+    String query = String.format("source=%s | stats avg(age)", TEST_INDEX_BANK_WITH_NULL_VALUES);
+    aggregationWithNullOrMissingShouldThrowException(
+        query,
+        "invalid to call type operation on null value"
+    );
+  }
+
+  @Test
+  public void testStatsWithMissing() {
+    String query = String.format(
+        "source=%s | stats avg(balance)", TEST_INDEX_BANK_WITH_NULL_VALUES);
+    aggregationWithNullOrMissingShouldThrowException(
+        query,
+        "invalid to call type operation on null value"
+    );
+  }
+
+  private void aggregationWithNullOrMissingShouldThrowException(String query, String... errMsgs) {
+    try {
+      executeQuery(query);
+      fail();
+    } catch (ResponseException e) {
+      String message = e.getMessage();
+      assertTrue(message.contains("ExpressionEvaluationException"));
+      for (String msg: errMsgs) {
+        assertTrue(message.contains(msg));
+      }
+    } catch (IOException e) {
+      throw new IllegalStateException("Unexpected exception raised for query: " + query);
+    }
   }
 }
