@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
-import com.amazon.opendistroforelasticsearch.sql.legacy.RestIntegTestCase;
+import com.amazon.opendistroforelasticsearch.sql.legacy.SQLIntegTestCase;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
@@ -32,7 +32,7 @@ import static com.amazon.opendistroforelasticsearch.sql.legacy.TestUtils.getResp
 /**
  * ES Rest integration test base for PPL testing
  */
-public abstract class PPLIntegTestCase extends RestIntegTestCase {
+public abstract class PPLIntegTestCase extends SQLIntegTestCase {
 
   protected JSONObject executeQuery(String query) throws IOException {
     return jsonify(executeQueryToString(query));

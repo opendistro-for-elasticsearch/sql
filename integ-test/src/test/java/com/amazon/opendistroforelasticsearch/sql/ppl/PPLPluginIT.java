@@ -61,10 +61,10 @@ public class PPLPluginIT extends PPLIntegTestCase {
     exceptionRule.expect(ResponseException.class);
     exceptionRule.expect(hasProperty("response", statusCode(500)));
 
-    client().performRequest(makeRequest("search invalid"));
+    client().performRequest(makePPLRequest("search invalid"));
   }
 
-  protected Request makeRequest(String query) {
+  protected Request makePPLRequest(String query) {
     Request post = new Request("POST", "/_opendistro/_ppl");
     post.setJsonEntity(String.format(Locale.ROOT, "{\n" + "  \"query\": \"%s\"\n" + "}", query));
     return post;

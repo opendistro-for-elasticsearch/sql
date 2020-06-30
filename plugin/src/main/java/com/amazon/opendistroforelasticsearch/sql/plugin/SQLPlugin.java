@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.plugin;
 
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.setting.ElasticsearchSettings;
 import com.amazon.opendistroforelasticsearch.sql.legacy.esdomain.LocalClusterState;
 import com.amazon.opendistroforelasticsearch.sql.legacy.executor.AsyncRestExecutor;
 import com.amazon.opendistroforelasticsearch.sql.legacy.metrics.Metrics;
@@ -23,6 +24,7 @@ import com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlSettingsAc
 import com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlStatsAction;
 import com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSettings;
 import com.amazon.opendistroforelasticsearch.sql.plugin.rest.RestPPLQueryAction;
+import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -62,6 +64,11 @@ public class SQLPlugin extends Plugin implements ActionPlugin {
 
   private ClusterService clusterService;
 
+  /**
+   * Settings should be inited when bootstrap the plugin.
+   */
+  private com.amazon.opendistroforelasticsearch.sql.common.setting.Settings pluginSettings;
+
   public String name() {
     return "sql";
   }
@@ -78,12 +85,13 @@ public class SQLPlugin extends Plugin implements ActionPlugin {
                                            IndexNameExpressionResolver indexNameExpressionResolver,
                                            Supplier<DiscoveryNodes> nodesInCluster) {
     Objects.requireNonNull(clusterService, "Cluster service is required");
+    Objects.requireNonNull(pluginSettings, "Cluster settings is required");
 
     LocalClusterState.state().setResolver(indexNameExpressionResolver);
     Metrics.getInstance().registerDefaultMetrics();
 
     return Arrays.asList(
-        new RestPPLQueryAction(restController, clusterService),
+        new RestPPLQueryAction(restController, clusterService, pluginSettings),
         new RestSqlAction(settings, clusterService),
         new RestSqlStatsAction(settings, restController),
         new RestSqlSettingsAction(settings, restController)
@@ -101,6 +109,7 @@ public class SQLPlugin extends Plugin implements ActionPlugin {
                                              NamedWriteableRegistry namedWriteableRegistry,
                                              IndexNameExpressionResolver indexNameResolver) {
     this.clusterService = clusterService;
+    this.pluginSettings = new ElasticsearchSettings(clusterService.getClusterSettings());
 
     LocalClusterState.state().setClusterService(clusterService);
     LocalClusterState.state().setSqlSettings(sqlSettings);
@@ -126,7 +135,10 @@ public class SQLPlugin extends Plugin implements ActionPlugin {
 
   @Override
   public List<Setting<?>> getSettings() {
-    return sqlSettings.getSettings();
+    ImmutableList<Setting<?>> settings =
+        new ImmutableList.Builder<Setting<?>>().addAll(sqlSettings.getSettings())
+            .addAll(ElasticsearchSettings.pluginSettings()).build();
+    return settings;
   }
 
 }
