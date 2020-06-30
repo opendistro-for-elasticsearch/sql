@@ -95,7 +95,7 @@ Function Call
 Description
 -----------
 
-A function call is declared by its function name and arguments enclosed by parentheses. For supported function list, please see also: `SQL Functions <dql/functions.rst>`_
+A function call is declared by function name followed by its arguments. The arguments are enclosed in parentheses and separated by comma. For complete function list supported, please see also: `SQL Functions <functions.rst>`_
 
 Syntax
 ``````
@@ -125,6 +125,6 @@ Here is an example for different type of arithmetic expressions::
 Limitations
 -----------
 
-1. Only a subset of the SQL functions above can be used in select without query for now. More function support are being added.
+1. Only a subset of the SQL functions above is implemented in new engine for now. More function support are being added.
 2. For now function name is required to be lowercase.
 

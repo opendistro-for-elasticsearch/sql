@@ -94,6 +94,19 @@ class AstExpressionBuilderTest {
     );
   }
 
+  @Test
+  public void canBuildNestedFunctionCall() {
+    assertEquals(
+        function("abs",
+            function("*",
+              function("abs", intLiteral(-5)),
+              intLiteral(-1)
+            )
+        ),
+        buildExprAst("abs(abs(-5) * -1)")
+    );
+  }
+
   private Node buildExprAst(String expr) {
     OpenDistroSQLLexer lexer = new OpenDistroSQLLexer(new CaseInsensitiveCharStream(expr));
     OpenDistroSQLParser parser = new OpenDistroSQLParser(new CommonTokenStream(lexer));
