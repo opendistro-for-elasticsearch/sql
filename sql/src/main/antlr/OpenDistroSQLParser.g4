@@ -133,7 +133,7 @@ expressionAtom
     ;
 
 mathOperator
-    : '+' | '-' | '*' | '/' | '%'
+    : PLUS | MINUS | STAR | DIVIDE | MODULE
     ;
 
 functionCall
