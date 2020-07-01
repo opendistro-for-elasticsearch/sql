@@ -83,6 +83,7 @@ public class TestReportTest {
             "      \"id\": 1," +
             "      \"result\": 'Failed'," +
             "      \"sql\": \"SELECT * FROM accounts\"," +
+            "      \"explain\": \"Data row at [0] is different: this=[Row(values=[hello])], other=[Row(values=[world])]\"," +
             "      \"resultSets\": [" +
             "        {" +
             "          \"database\": \"Elasticsearch\"," +
