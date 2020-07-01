@@ -19,7 +19,9 @@ import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
@@ -99,6 +101,72 @@ public class DBResult {
    */
   public Collection<Collection<Object>> getDataRows() {
     return dataRows.stream().map(Row::getValues).collect(Collectors.toSet());
+  }
+
+  /**
+   * Explain the difference between this and other DB result which is helpful for
+   * troubleshooting in final test report.
+   * @param other   other DB result
+   * @return        explain the difference
+   */
+  public String diff(DBResult other) {
+    String result = diffSchema(other);
+    if (result.isEmpty()) {
+      return diffDataRows(other);
+    }
+    return result;
+  }
+
+  private String diffSchema(DBResult other) {
+    List<Type> thisSchema = new ArrayList<>(schema);
+    List<Type> otherSchema = new ArrayList<>(other.schema);
+    return diff("Schema type", thisSchema, otherSchema);
+  }
+
+  private String diffDataRows(DBResult other) {
+    List<Row> thisRows = sort(dataRows);
+    List<Row> otherRows = sort(other.dataRows);
+    return diff("Data row", thisRows, otherRows);
+  }
+
+  /**
+   * Check if two lists are same otherwise explain if size or any element
+   * is different at some position.
+   */
+  private String diff(String name, List<?> thisList, List<?> otherList) {
+    if (thisList.size() != otherList.size()) {
+      return StringUtils.format("%s size is different: this=[%d], other=[%d]",
+          name, thisList.size(), otherList.size());
+    }
+
+    int diff = findFirstDifference(thisList, otherList);
+    if (diff >= 0) {
+      return StringUtils.format("%s at [%d] is different: this=[%s], other=[%s]",
+          name, diff, thisList.get(diff), otherList.get(diff));
+    }
+    return "";
+  }
+
+  /**
+   * Find first different element with assumption that the lists given have same size
+   * and there is no NULL element inside.
+   */
+  private static int findFirstDifference(List<?> list1, List<?> list2) {
+    for (int i = 0; i < list1.size(); i++) {
+      if (!list1.get(i).equals(list2.get(i))) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  /**
+   * Convert a collection to list and sort and return this new list.
+   */
+  private static <T extends Comparable<T>> List<T> sort(Collection<T> collection) {
+    ArrayList<T> list = new ArrayList<>(collection);
+    Collections.sort(list);
+    return list;
   }
 
 }
