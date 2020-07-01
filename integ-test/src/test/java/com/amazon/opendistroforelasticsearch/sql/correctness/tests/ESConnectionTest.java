@@ -77,7 +77,7 @@ public class ESConnectionTest {
 
     Request actual = captureActualArg();
     assertEquals("POST", actual.getMethod());
-    assertEquals("/test/_bulk", actual.getEndpoint());
+    assertEquals("/test/_bulk?refresh=true", actual.getEndpoint());
     assertEquals(
         "{\"index\":{}}\n"
             + "{\"name\":\"John\"}\n"
