@@ -107,7 +107,7 @@ A typical function call is in the following form::
 Null Handling
 `````````````
 
-TODO
+If any argument is missing or null, the final result of evaluation will be missing or null accordingly.
 
 Examples
 --------
