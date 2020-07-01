@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.apache.commons.lang3.tuple.Pair;
@@ -49,7 +50,9 @@ import org.apache.commons.lang3.tuple.Pair;
 @EqualsAndHashCode(callSuper = false)
 @RequiredArgsConstructor
 public class EvalOperator extends PhysicalPlan {
+  @Getter
   private final PhysicalPlan input;
+  @Getter
   private final List<Pair<ReferenceExpression, Expression>> expressionList;
 
   @Override

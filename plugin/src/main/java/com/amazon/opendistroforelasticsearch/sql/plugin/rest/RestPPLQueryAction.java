@@ -20,6 +20,7 @@ import static org.elasticsearch.rest.RestStatus.INTERNAL_SERVER_ERROR;
 import static org.elasticsearch.rest.RestStatus.OK;
 
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
+import com.amazon.opendistroforelasticsearch.sql.common.setting.Settings;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.security.SecurityAccess;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.QueryResponse;
 import com.amazon.opendistroforelasticsearch.sql.plugin.request.PPLQueryRequestFactory;
@@ -53,9 +54,19 @@ public class RestPPLQueryAction extends BaseRestHandler {
    */
   private final ClusterService clusterService;
 
-  public RestPPLQueryAction(RestController restController, ClusterService clusterService) {
+  /**
+   * Settings required by been initialization.
+   */
+  private final Settings pluginSettings;
+
+  /**
+   * Constructor of RestPPLQueryAction.
+   */
+  public RestPPLQueryAction(RestController restController, ClusterService clusterService,
+                            Settings pluginSettings) {
     super();
     this.clusterService = clusterService;
+    this.pluginSettings = pluginSettings;
   }
 
   @Override
@@ -77,11 +88,24 @@ public class RestPPLQueryAction extends BaseRestHandler {
         PPLQueryRequestFactory.getPPLRequest(request), createListener(channel));
   }
 
+  /**
+   * Ideally, the AnnotationConfigApplicationContext should be shared across Plugin. By default,
+   * spring construct all the bean as singleton. Currently, there are no better solution to
+   * create the bean in protocol scope. The limitations are
+   * alt-1, add annotation for bean @Scope(value = SCOPE_PROTOTYPE, proxyMode = TARGET_CLASS), it
+   * works by add the proxy,
+   * but when running in Elasticsearch, all the operation need security permission whic is hard
+   * to control.
+   * alt-2, using ObjectFactory with @Autowired, it also works, but require add to all the
+   * configuration.
+   * We will revisit the current solution if any major issue found.
+   */
   private PPLService createPPLService(NodeClient client) {
     return doPrivileged(() -> {
       AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
       context.registerBean(ClusterService.class, () -> clusterService);
       context.registerBean(NodeClient.class, () -> client);
+      context.registerBean(Settings.class, () -> pluginSettings);
       context.register(ElasticsearchPluginConfig.class);
       context.register(PPLServiceConfig.class);
       context.refresh();

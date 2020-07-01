@@ -8,6 +8,7 @@ import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTup
 import java.util.Collections;
 import java.util.List;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
@@ -20,9 +21,11 @@ import lombok.ToString;
 @ToString
 @RequiredArgsConstructor
 public class FilterOperator extends PhysicalPlan {
+  @Getter
   private final PhysicalPlan input;
+  @Getter
   private final Expression conditions;
-  private ExprValue next = null;
+  @ToString.Exclude private ExprValue next = null;
 
   @Override
   public <R, C> R accept(PhysicalPlanNodeVisitor<R, C> visitor, C context) {

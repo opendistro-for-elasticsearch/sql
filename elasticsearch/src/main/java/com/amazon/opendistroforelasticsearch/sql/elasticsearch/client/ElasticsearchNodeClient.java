@@ -58,6 +58,8 @@ public class ElasticsearchNodeClient implements ElasticsearchClient {
   /** Index name expression resolver to get concrete index name. */
   private final IndexNameExpressionResolver resolver = new IndexNameExpressionResolver();
 
+  private static final String SQL_WORKER_THREAD_POOL_NAME = "sql-worker";
+
   /**
    * Get field mappings of index by an index expression. Majority is copied from legacy
    * LocalClusterState.
@@ -111,7 +113,7 @@ public class ElasticsearchNodeClient implements ElasticsearchClient {
     threadPool.schedule(
         threadPool.preserveContext(withCurrentContext(task)),
         new TimeValue(0),
-        "search" // TODO: use search worker pool for now
+        SQL_WORKER_THREAD_POOL_NAME
     );
   }
 

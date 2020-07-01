@@ -22,9 +22,11 @@ import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListene
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchRestClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.ElasticsearchExecutionEngine;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.protector.ElasticsearchExecutionProtector;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage.ElasticsearchStorageEngine;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.QueryResponse;
+import com.amazon.opendistroforelasticsearch.sql.monitor.AlwaysHealthyMonitor;
 import com.amazon.opendistroforelasticsearch.sql.ppl.config.PPLServiceConfig;
 import com.amazon.opendistroforelasticsearch.sql.ppl.domain.PPLQueryRequest;
 import com.amazon.opendistroforelasticsearch.sql.protocol.response.QueryResult;
@@ -58,8 +60,10 @@ public class StandaloneIT extends PPLIntegTestCase {
 
     ElasticsearchClient client = new ElasticsearchRestClient(restClient);
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-    context.registerBean(StorageEngine.class, () -> new ElasticsearchStorageEngine(client));
-    context.registerBean(ExecutionEngine.class, () -> new ElasticsearchExecutionEngine(client));
+    context.registerBean(StorageEngine.class,
+        () -> new ElasticsearchStorageEngine(client));
+    context.registerBean(ExecutionEngine.class, () -> new ElasticsearchExecutionEngine(client,
+        new ElasticsearchExecutionProtector(new AlwaysHealthyMonitor())));
     context.register(PPLServiceConfig.class);
     context.refresh();
 
