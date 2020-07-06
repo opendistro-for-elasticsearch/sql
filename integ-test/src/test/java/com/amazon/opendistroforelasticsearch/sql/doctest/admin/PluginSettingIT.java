@@ -152,8 +152,8 @@ public class PluginSettingIT extends DocTest {
   public void sqlNewQueryEngineSetting() {
     docSetting(
         SQL_NEW_ENGINE_ENABLED,
-        "We are migrating existing functionalities to a new query engine under development." +
-            "User can choose to disable the new engine by the following command if any issue found.",
+        "We are migrating existing functionalities to a new query engine under development. " +
+            "User can choose to enable the new engine if interested or disable if any issue found.",
         true
     );
   }
