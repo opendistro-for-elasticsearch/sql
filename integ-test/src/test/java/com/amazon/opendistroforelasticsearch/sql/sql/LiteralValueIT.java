@@ -26,11 +26,13 @@ import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * Integration test for different type of literal values such as integer, decimal, boolean etc.
  */
+@Ignore
 public class LiteralValueIT extends RestIntegTestCase {
 
   @Test

@@ -196,6 +196,6 @@ def load_tests(loader, suite, ignore):
     random.shuffle(tests)
 
     # prepend a temporary doc to enable new engine so new SQL docs followed can pass
-    tests.insert(0, doc_suite('../docs/user/dql/newsql.rst'))
+    tests.insert(0, doc_suite('../docs/user/dql/newsql.txt'))
 
     return DocTests(tests)

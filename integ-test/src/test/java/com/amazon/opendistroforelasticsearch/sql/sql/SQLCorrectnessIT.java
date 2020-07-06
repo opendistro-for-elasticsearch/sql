@@ -16,12 +16,16 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql;
 
+import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlSettingsAction.SETTINGS_API_ENDPOINT;
+
 import com.google.common.io.Resources;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.function.Function;
+import org.elasticsearch.client.Request;
+import org.elasticsearch.client.RequestOptions;
 import org.junit.Test;
 
 /**
@@ -32,6 +36,12 @@ public class SQLCorrectnessIT extends SQLIntegTestCase {
   private static final String ROOT_DIR = "correctness/";
   private static final String[] EXPR_TEST_DIR = { "expressions" };
   private static final String[] QUERY_TEST_DIR = { "queries"/*, "bugfixes"*/ }; //TODO: skip bugfixes folder for now since it fails
+
+  @Override
+  protected void init() throws Exception {
+    super.init();
+    enableNewQueryEngine();
+  }
 
   @Test
   public void runAllTests() throws Exception {
@@ -62,6 +72,18 @@ public class SQLCorrectnessIT extends SQLIntegTestCase {
     } catch (IOException e) {
       throw new IllegalStateException("Failed to read file: " + file, e);
     }
+  }
+
+  /** Enable new query engine which is disabled by default for now. */
+  private void enableNewQueryEngine() throws IOException {
+    Request request = new Request("PUT", SETTINGS_API_ENDPOINT);
+    request.setJsonEntity("{\"transient\" : {\"opendistro.sql.engine.new.enabled\" : \"true\"}}");
+
+    RequestOptions.Builder restOptionsBuilder = RequestOptions.DEFAULT.toBuilder();
+    restOptionsBuilder.addHeader("Content-Type", "application/json");
+    request.setOptions(restOptionsBuilder);
+
+    client().performRequest(request);
   }
 
 }
