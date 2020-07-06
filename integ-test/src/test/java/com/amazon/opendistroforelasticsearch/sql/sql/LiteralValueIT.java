@@ -32,7 +32,7 @@ import org.junit.Test;
 /**
  * Integration test for different type of literal values such as integer, decimal, boolean etc.
  */
-@Ignore
+@Ignore("Need change after merge and fix PR conflicts")
 public class LiteralValueIT extends RestIntegTestCase {
 
   @Test
