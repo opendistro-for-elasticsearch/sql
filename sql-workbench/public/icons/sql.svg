@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 32 32" style="enable-background:new 0 0 32 32;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:none;stroke:#343741;stroke-width:2;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st1{fill:none;stroke:#343741;stroke-width:2;stroke-miterlimit:10;}
+	.st2{fill:#343741;}
+</style>
+<g>
+	<rect x="1" y="1" class="st0" width="30" height="30"/>
+	<polygon class="st2" points="6,6 6,8.5 10.7,12 6,15.5 6,18 14,12 	"/>
+	<line class="st1" x1="15" y1="19" x2="26" y2="19"/>
+</g>
+</svg>

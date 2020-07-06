@@ -1,0 +1,46 @@
+
+name: Test and Build
+
+on: [pull_request, push]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sql-workbench
+
+    steps:
+      - name: Checkout Kibana
+        uses: actions/checkout@v1
+        with:
+          repository: elastic/kibana
+          ref: v7.8.0
+          path: kibana
+      - name: Checkout Plugin
+        uses: actions/checkout@v1
+        with:
+          path: kibana/plugins/sql-workbench
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '10.21.0'
+      - name: Kibana Pluign Bootstrap
+        uses: nick-invision/retry@v1
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          command: yarn kbn bootstrap
+      - name: Test
+        run: |
+          yarn test:jest
+      - name: Build Artifact
+        run: |
+          yarn build
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: sql-workbench
+          path: ./build

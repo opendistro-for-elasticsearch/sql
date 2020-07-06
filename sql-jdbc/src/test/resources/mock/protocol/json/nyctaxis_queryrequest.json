@@ -1,0 +1,3 @@
+{
+  "query": "select pickup_datetime, trip_type, passenger_count, fare_amount, extra, vendor_id from nyc_taxis LIMIT 5"
+}

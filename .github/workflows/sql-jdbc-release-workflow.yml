@@ -1,0 +1,41 @@
+name: Build and Release SQL-JDBC
+# This workflow is triggered on creating tags to master or an opendistro release branch
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  Release-SQL-JDBC:
+    strategy:
+      matrix:
+        java: [10]
+
+    name: Build and Release SQL Plugin
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sql-jdbc
+
+    steps:
+      - name: Checkout SQL-JDBC
+        uses: actions/checkout@v1
+      
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+        
+      - name: Setup Java ${{ matrix.java }}
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java }}
+      
+      - name: Run build
+        run: |
+          ./gradlew publishShadowPublicationToInternal-releasesRepository '-Dorg.gradle.jvmargs=--add-modules java.xml.bind' -Dbuild.snapshot=false
+          artifact=`ls -1t build/libs/*.jar | grep -v "SNAPSHOT.jar" | grep -v "sources.jar" | head -1`
+          aws s3 cp $artifact s3://artifacts.opendistroforelasticsearch.amazon.com/downloads/elasticsearch-clients/opendistro-sql-jdbc/
+          aws cloudfront create-invalidation --distribution-id E2S86LO5GZAJQM --paths "/downloads/*"

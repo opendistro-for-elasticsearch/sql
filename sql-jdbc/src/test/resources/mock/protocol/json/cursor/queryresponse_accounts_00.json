@@ -1,0 +1,30 @@
+{
+  "schema": [
+    {
+      "name": "firstname",
+      "type": "text"
+    },
+    {
+      "name": "age",
+      "type": "long"
+    }
+  ],
+  "cursor": "abcde_1",
+  "total": 20,
+  "datarows": [
+    [
+      "Amber",
+      32
+    ],
+    [
+      "Hattie",
+      36
+    ],
+    [
+      "Nanette",
+      28
+    ]
+  ],
+  "size": 3,
+  "status": 200
+}

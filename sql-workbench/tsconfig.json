@@ -1,0 +1,17 @@
+{
+  // extend Kibana's tsconfig, or use your own settings
+  "extends": "../../tsconfig.json",
+
+  // tell the TypeScript compiler where to find your source files
+  "include": ["server/**/*", "public/**/*", "test/**/*", "babel.config.js"],
+  "exclude": ["node_modules", "*/node_modules/"],
+
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictNullChecks": false,
+    "suppressImplicitAnyIndexErrors": true,
+    "lib": ["es5", "es2015", "es2017", "dom"]
+  }
+}
