@@ -26,6 +26,9 @@ import java.nio.file.Paths;
 import java.util.function.Function;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.rest.RestStatus;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -83,7 +86,9 @@ public class SQLCorrectnessIT extends SQLIntegTestCase {
     restOptionsBuilder.addHeader("Content-Type", "application/json");
     request.setOptions(restOptionsBuilder);
 
-    client().performRequest(request);
+    Response response = client().performRequest(request);
+    Assert.assertEquals(RestStatus.OK,
+        RestStatus.fromCode(response.getStatusLine().getStatusCode()));
   }
 
 }
