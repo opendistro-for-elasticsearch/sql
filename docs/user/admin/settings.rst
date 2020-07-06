@@ -532,7 +532,7 @@ SQL query::
 
 	>> curl -H 'Content-Type: application/json' -X PUT localhost:9200/_opendistro/_sql/settings -d '{
 	  "transient" : {
-	    "opendistro.sql.engine.new.enabled" : "false"
+	    "opendistro.sql.engine.new.enabled" : "true"
 	  }
 	}'
 
@@ -546,7 +546,7 @@ Result set::
 	      "sql" : {
 	        "engine" : {
 	          "new" : {
-	            "enabled" : "false"
+	            "enabled" : "true"
 	          }
 	        }
 	      }
