@@ -25,8 +25,7 @@ jobs:
         run: |
           mkdir kibana/plugins
           mv sql-workbench kibana/plugins
-          cd kibana/plugins/sql-workbench
-      - name: Kibana Pluign Bootstrap
+      - name: Kibana Plugin Bootstrap
         uses: nick-invision/retry@v1
         with:
           timeout_minutes: 60

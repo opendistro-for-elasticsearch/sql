@@ -31,25 +31,26 @@ jobs:
           token: ${{secrets.OD_ACCESS}}
           path: kibana
 
-      - name: Restructure directory
-        run: |
-          cp -r sql-workbench ../kibana/plugins
-
       - name: Setup Node
         uses: actions/setup-node@v1
         with:
           node-version: '10.21.0'
 
-      - name: Kibana Pluign Bootstrap
+      - name: Move Workbench to Plugins Dir
+        run: |
+          mkdir kibana/plugins
+          mv sql-workbench kibana/plugins
+
+      - name: Kibana Plugin Bootstrap
         uses: nick-invision/retry@v1
         with:
           timeout_minutes: 60
           max_attempts: 3
-          command: cd ../kibana/plugins/sql-workbench; yarn kbn bootstrap
+          command: cd kibana/plugins/sql-workbench; yarn kbn bootstrap
 
       - name: Build Artifact
         run: |
-          cd ../kibana/plugins/sql-workbench
+          cd kibana/plugins/sql-workbench
           yarn build
           artifact=`ls ./build/*.zip`
 
