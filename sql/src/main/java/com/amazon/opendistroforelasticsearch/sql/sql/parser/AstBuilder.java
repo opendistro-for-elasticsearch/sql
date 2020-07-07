@@ -16,10 +16,13 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.FromClauseContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SimpleSelectContext;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Values;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
@@ -39,17 +42,39 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
 
   @Override
   public UnresolvedPlan visitSimpleSelect(SimpleSelectContext ctx) {
-    List<ParseTree> selectElements = ctx.querySpecification().selectElements().children;
-    Project project = new Project(selectElements.stream()
-                                                .map(this::visitAstExpression)
-                                                .filter(Objects::nonNull)
-                                                .collect(Collectors.toList()));
+    UnresolvedPlan project = visit(ctx.querySpecification().selectClause());
+
+    if (ctx.querySpecification().fromClause() != null) {
+      UnresolvedPlan relation = visit(ctx.querySpecification().fromClause());
+      if (project == null) {
+        return relation;
+      }
+      return project.attach(relation);
+    }
 
     // Attach an Values operator with only a empty row inside so that
     // Project operator can have a chance to evaluate its expression
     // though the evaluation doesn't have any dependency on what's in Values.
     Values emptyValue = new Values(ImmutableList.of(Collections.emptyList()));
     return project.attach(emptyValue);
+  }
+
+  @Override
+  public UnresolvedPlan visitSelectClause(SelectClauseContext ctx) {
+    if (ctx.selectElements().star != null) { //TODO: how to support SELECT *,age...
+      return null;
+    }
+
+    List<ParseTree> selectElements = ctx.selectElements().children;
+    return new Project(selectElements.stream()
+                                     .map(this::visitAstExpression)
+                                     .filter(Objects::nonNull)
+                                     .collect(Collectors.toList()));
+  }
+
+  @Override
+  public UnresolvedPlan visitFromClause(FromClauseContext ctx) {
+    return new Relation(visitAstExpression(ctx.tableName().qualifiedName()));
   }
 
   @Override

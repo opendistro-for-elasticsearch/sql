@@ -20,6 +20,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLi
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.doubleLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.project;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.values;
 import static java.util.Collections.emptyList;
@@ -43,7 +44,7 @@ class AstBuilderTest {
   private final AstBuilder astBuilder = new AstBuilder();
 
   @Test
-  public void buildASTForSelectLiterals() {
+  public void buildSelectLiterals() {
     assertEquals(
         project(
             values(emptyList()),
@@ -53,6 +54,14 @@ class AstBuilderTest {
             doubleLiteral(-4.567)
         ),
         buildAST("SELECT 123, 'hello', false, -4.567")
+    );
+  }
+
+  @Test
+  public void buildSelectStar() {
+    assertEquals(
+        relation("test"),
+        buildAST("SELECT * FROM test")
     );
   }
 

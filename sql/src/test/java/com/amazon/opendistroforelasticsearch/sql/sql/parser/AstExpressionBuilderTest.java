@@ -32,6 +32,24 @@ class AstExpressionBuilderTest {
   private final AstExpressionBuilder astExprBuilder = new AstExpressionBuilder();
 
   @Test
+  public void canBuildExprAstForQualifiedName() {
+    assertEquals(
+        AstDSL.qualifiedName("test"),
+        buildQualifiedName("test")
+    );
+
+    assertEquals(
+        AstDSL.qualifiedName("hello world"),
+        buildQualifiedName("`hello world`")
+    );
+
+    assertEquals(
+        AstDSL.qualifiedName("log.2020.01"),
+        buildQualifiedName("`log.2020.01`")
+    );
+  }
+
+  @Test
   public void canBuildExprAstForStringLiteral() {
     assertEquals(
         AstDSL.stringLiteral("hello"),
@@ -63,11 +81,19 @@ class AstExpressionBuilderTest {
     );
   }
 
+  private Node buildQualifiedName(String expr) {
+    return createParser(expr).qualifiedName().accept(astExprBuilder);
+  }
+
   private Node buildExprAst(String expr) {
+    return createParser(expr).constant().accept(astExprBuilder);
+  }
+
+  private OpenDistroSQLParser createParser(String expr) {
     OpenDistroSQLLexer lexer = new OpenDistroSQLLexer(new CaseInsensitiveCharStream(expr));
     OpenDistroSQLParser parser = new OpenDistroSQLParser(new CommonTokenStream(lexer));
     parser.addErrorListener(new SyntaxAnalysisErrorListener());
-    return parser.constant().accept(astExprBuilder);
+    return parser;
   }
 
 }

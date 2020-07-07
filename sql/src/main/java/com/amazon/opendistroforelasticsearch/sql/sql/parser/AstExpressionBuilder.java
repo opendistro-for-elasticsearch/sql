@@ -23,13 +23,29 @@ import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDis
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.StringContext;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
+import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
+import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.QualifiedNameContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
+import java.util.stream.Collectors;
+import org.antlr.v4.runtime.ParserRuleContext;
 
 /**
  * Expression builder to parse text to expression in AST.
  */
 public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedExpression> {
+
+  @Override
+  public UnresolvedExpression visitQualifiedName(QualifiedNameContext ctx) {
+    return new QualifiedName(
+        ctx.ident()
+           .stream()
+           .map(ParserRuleContext::getText)
+           .map(StringUtils::unquoteIdentifier)
+           .collect(Collectors.toList())
+    );
+  }
 
   @Override
   public UnresolvedExpression visitString(StringContext ctx) {

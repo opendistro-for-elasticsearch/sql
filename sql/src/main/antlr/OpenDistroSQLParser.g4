@@ -57,17 +57,42 @@ selectStatement
 //    Select Statement's Details
 
 querySpecification
+    : selectClause
+      fromClause?
+    ;
+
+selectClause
     : SELECT selectElements
     ;
 
 selectElements
-    : selectElement (',' selectElement)*
+    : (star=STAR | selectElement) (',' selectElement)*
     ;
 
 selectElement
     : expression                                         #selectExpressionElement
     ;
 
+fromClause
+    : FROM tableName
+    ;
+
+
+//    Identifiers
+
+tableName
+    : qualifiedName
+    ;
+
+qualifiedName
+    : ident (DOT ident)*
+    ;
+
+ident
+    : ID
+    //| BACKTICK_QUOTE_ID
+    | STRING_LITERAL
+    ;
 
 //    Literals
 
