@@ -32,7 +32,9 @@ jobs:
       #     command: cd kibana; yarn kbn bootstrap; cd ..
       - name: Kibana Plugin Bootstrap
         run: |
-          cd /home/runner/work/sql/sql/kibana/plugins/sql-workbench
+          cd kibana
+          cd plugins
+          cd sql-workbench
           yarn kbn bootstrap
           yarn kbn bootstrap
       - name: Test
