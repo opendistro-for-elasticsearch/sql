@@ -29,7 +29,7 @@ jobs:
         with:
           timeout_minutes: 60
           max_attempts: 3
-          command: yarn kbn bootstrap
+          command: cd kibana; yarn kbn bootstrap
       - name: Test
         run: |
           yarn test:jest
