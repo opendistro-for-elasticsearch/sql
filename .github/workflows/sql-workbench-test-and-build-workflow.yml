@@ -7,6 +7,9 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: kibana/plugins/sql-workbench
 
     steps:
       - name: Checkout Plugin
@@ -16,10 +19,7 @@ jobs:
         with:
           repository: elastic/kibana
           ref: v7.8.0
-          path: kibana
-      - name: Restructure directory
-        run: |
-          cp -r sql-workbench ../kibana/plugins
+          path: sql/kibana
       - name: Setup Node
         uses: actions/setup-node@v1
         with:
@@ -29,15 +29,15 @@ jobs:
         with:
           timeout_minutes: 60
           max_attempts: 3
-          command: cd ../kibana/plugins/sql-workbench; yarn kbn bootstrap
+          command: yarn kbn bootstrap
       - name: Test
         run: |
-          cd ../kibana/plugins/sql-workbench; yarn test:jest
+          yarn test:jest
       - name: Build Artifact
         run: |
-          cd ../kibana/plugins/sql-workbench; yarn build
+          yarn build
       - name: Upload Artifact
         uses: actions/upload-artifact@v1
         with:
           name: sql-workbench
-          path: ../kibana/plugins/sql-workbench/build
+          path: ./build
