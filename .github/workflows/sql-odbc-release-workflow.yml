@@ -6,11 +6,11 @@ on:
       - 'v*'
 
 jobs:
+  defaults:
+    run:
+      working-directory: sql-odbc
   build-mac:
     runs-on: macos-latest
-    defaults:
-      run:
-        working-directory: sql-odbc
     steps:
       - uses: actions/checkout@v1
       - name: run-cppcheck
@@ -87,9 +87,6 @@ jobs:
           aws s3 cp "$mac_installer" s3://artifacts.opendistroforelasticsearch.amazon.com/downloads/elasticsearch-clients/opendistro-sql-odbc/mac/
   build-windows32:
     runs-on: windows-latest
-    defaults:
-      run:
-        working-directory: sql-odbc
     steps:
       - uses: actions/checkout@v1
       - name: add-msbuild-to-path
@@ -142,9 +139,6 @@ jobs:
           aws s3 cp "$windows_installer" s3://artifacts.opendistroforelasticsearch.amazon.com/downloads/elasticsearch-clients/opendistro-sql-odbc/windows/
   build-windows64:
     runs-on: windows-latest
-    defaults:
-      run:
-        working-directory: sql-odbc
     steps:
       - uses: actions/checkout@v1
       - name: add-msbuild-to-path

@@ -10,9 +10,6 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: sql-workbench
 
     steps:
 
@@ -23,6 +20,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
+      - name: Checkout Plugin
+        uses: actions/checkout@v1
+
       - name: Checkout Kibana
         uses: actions/checkout@v1
         with:
@@ -31,10 +31,9 @@ jobs:
           token: ${{secrets.OD_ACCESS}}
           path: kibana
 
-      - name: Checkout Plugin
-        uses: actions/checkout@v1
-        with:
-          path: kibana/plugins/sql-workbench
+      - name: Restructure directory
+        run: |
+          cp -r sql-workbench ../kibana/plugins
 
       - name: Setup Node
         uses: actions/setup-node@v1
@@ -46,10 +45,11 @@ jobs:
         with:
           timeout_minutes: 60
           max_attempts: 3
-          command: yarn kbn bootstrap
+          command: cd ../kibana/plugins/sql-workbench; yarn kbn bootstrap
 
       - name: Build Artifact
         run: |
+          cd ../kibana/plugins/sql-workbench
           yarn build
           artifact=`ls ./build/*.zip`
 

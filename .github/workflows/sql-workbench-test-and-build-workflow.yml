@@ -19,7 +19,7 @@ jobs:
           path: kibana
       - name: Restructure directory
         run: |
-          cp sql-workbench ../kibana/plugins
+          cp -r sql-workbench ../kibana/plugins
       - name: Setup Node
         uses: actions/setup-node@v1
         with:
