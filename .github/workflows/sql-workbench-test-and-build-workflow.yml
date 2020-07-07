@@ -24,12 +24,18 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: '10.21.0'
-      - name: Kibana Pluign Bootstrap
-        uses: nick-invision/retry@v1
-        with:
-          timeout_minutes: 60
-          max_attempts: 3
-          command: cd kibana; yarn kbn bootstrap
+      # - name: Kibana Pluign Bootstrap
+      #   uses: nick-invision/retry@v1
+      #   with:
+      #     timeout_minutes: 60
+      #     max_attempts: 3
+      #     command: cd kibana; yarn kbn bootstrap; cd ..
+      - name: Kibana Plugin Bootstrap
+        run: |
+          yarn kbn bootstrap
+      - name: Kibana Plugin Bootstrap
+        run: |
+          yarn kbn bootstrap
       - name: Test
         run: |
           yarn test:jest
