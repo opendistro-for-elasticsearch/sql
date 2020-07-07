@@ -21,21 +21,17 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: '10.21.0'
-      # - name: Kibana Pluign Bootstrap
-      #   uses: nick-invision/retry@v1
-      #   with:
-      #     timeout_minutes: 60
-      #     max_attempts: 3
-      #     command: cd kibana; yarn kbn bootstrap; cd ..
-      - name: Kibana Plugin Bootstrap
+      - name: Move Workbench to Plugins Dir
         run: |
           mkdir kibana/plugins
           mv sql-workbench kibana/plugins
-          cd kibana
-          cd plugins
-          cd sql-workbench
-          yarn kbn bootstrap
-          yarn kbn bootstrap
+          cd kibana/plugins/sql-workbench
+      - name: Kibana Pluign Bootstrap
+        uses: nick-invision/retry@v1
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          command: yarn kbn bootstrap
       - name: Test
         run: |
           yarn test:jest
