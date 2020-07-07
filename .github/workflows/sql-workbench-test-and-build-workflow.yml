@@ -34,12 +34,14 @@ jobs:
           command: cd kibana/plugins/sql-workbench; yarn kbn bootstrap
       - name: Test
         run: |
+          cd kibana/plugins/sql-workbench
           yarn test:jest
       - name: Build Artifact
         run: |
+          cd kibana/plugins/sql-workbench
           yarn build
       - name: Upload Artifact
         uses: actions/upload-artifact@v1
         with:
           name: sql-workbench
-          path: ./build
+          path: kibana/plugins/sql-workbench/build
