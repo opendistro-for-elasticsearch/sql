@@ -29,7 +29,8 @@ jobs:
       #     command: cd kibana; yarn kbn bootstrap; cd ..
       - name: Kibana Plugin Bootstrap
         run: |
-          mv sql-workbench kibana/plugins/
+          mkdir kibana/plugins
+          mv sql-workbench kibana/plugins
           cd kibana
           cd plugins
           cd sql-workbench
