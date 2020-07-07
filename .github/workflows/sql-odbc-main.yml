@@ -82,6 +82,9 @@ jobs:
     #    path: test-output
   build-windows32:
     runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: sql-odbc
     steps:
     - uses: actions/checkout@v1
     - name: add-msbuild-to-path
@@ -134,6 +137,9 @@ jobs:
     #    path: test-output
   build-windows64:
     runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: sql-odbc
     steps:
     - uses: actions/checkout@v1
     - name: add-msbuild-to-path
