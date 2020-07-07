@@ -25,8 +25,10 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLit
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.values;
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
+import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.SQLSyntaxParser;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.jupiter.api.Test;
@@ -58,10 +60,20 @@ class AstBuilderTest {
   }
 
   @Test
-  public void buildSelectStar() {
+  public void buildSelectAll() {
     assertEquals(
         relation("test"),
         buildAST("SELECT * FROM test")
+    );
+
+    assertThrows(SyntaxCheckException.class, () -> buildAST("SELECT *"));
+  }
+
+  @Test
+  public void buildSelectFields() { //TODO: change to select fields later
+    assertEquals(
+        project(relation("test"), intLiteral(1)),
+        buildAST("SELECT 1 FROM test")
     );
   }
 

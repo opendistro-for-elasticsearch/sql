@@ -25,6 +25,8 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Values;
+import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
+import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.QuerySpecificationContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
 import com.google.common.collect.ImmutableList;
 import java.util.Collections;
@@ -42,21 +44,23 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
 
   @Override
   public UnresolvedPlan visitSimpleSelect(SimpleSelectContext ctx) {
-    UnresolvedPlan project = visit(ctx.querySpecification().selectClause());
+    QuerySpecificationContext query = ctx.querySpecification();
+    UnresolvedPlan project = visit(query.selectClause());
 
-    if (ctx.querySpecification().fromClause() != null) {
-      UnresolvedPlan relation = visit(ctx.querySpecification().fromClause());
-      if (project == null) {
-        return relation;
+    if (query.fromClause() == null) {
+      if (project == null) { // TODO: project operator should never be null
+        throw new SyntaxCheckException("No FROM clause found for select all");
       }
-      return project.attach(relation);
+
+      // Attach an Values operator with only a empty row inside so that
+      // Project operator can have a chance to evaluate its expression
+      // though the evaluation doesn't have any dependency on what's in Values.
+      Values emptyValue = new Values(ImmutableList.of(Collections.emptyList()));
+      return project.attach(emptyValue);
     }
 
-    // Attach an Values operator with only a empty row inside so that
-    // Project operator can have a chance to evaluate its expression
-    // though the evaluation doesn't have any dependency on what's in Values.
-    Values emptyValue = new Values(ImmutableList.of(Collections.emptyList()));
-    return project.attach(emptyValue);
+    UnresolvedPlan relation = visit(query.fromClause());
+    return (project == null) ? relation : project.attach(relation);
   }
 
   @Override
