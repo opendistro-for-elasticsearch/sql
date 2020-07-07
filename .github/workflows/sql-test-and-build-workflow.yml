@@ -1,4 +1,4 @@
-name: Java CI
+name: SQL Java CI
 
 on: [push, pull_request]
 

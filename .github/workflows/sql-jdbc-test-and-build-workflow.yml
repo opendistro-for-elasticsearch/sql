@@ -1,4 +1,4 @@
-name: Java CI
+name: SQL JDBC Java CI
 
 on: [push, pull_request]
 
@@ -30,4 +30,4 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: sql-jdbc
-        path: sql-jdbc-builds
+        path: sql-jdbc/sql-jdbc-builds

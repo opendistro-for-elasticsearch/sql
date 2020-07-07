@@ -1,5 +1,4 @@
-
-name: Test and Build
+name: SQL Workbench Test and Build
 
 on: [pull_request, push]
 
@@ -43,4 +42,4 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: sql-workbench
-          path: ./build
+          path: sql-workbench/build
