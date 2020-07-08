@@ -46,4 +46,15 @@ public class RowTest {
     assertNotEquals(row2, row1);
   }
 
+  @Test
+  public void shouldConsiderNullGreater() {
+    Row row1 = new Row();
+    Row row2 = new Row();
+    row1.add("hello");
+    row1.add(null);
+    row2.add("hello");
+    row2.add("world");
+    assertEquals(1, row1.compareTo(row2));
+  }
+
 }
