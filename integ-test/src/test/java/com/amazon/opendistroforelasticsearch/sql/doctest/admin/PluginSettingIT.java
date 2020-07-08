@@ -28,6 +28,7 @@ import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSetting
 import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSettings.QUERY_RESPONSE_FORMAT;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSettings.QUERY_SLOWLOG;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSettings.SQL_ENABLED;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSettings.SQL_NEW_ENGINE_ENABLED;
 import static org.elasticsearch.common.settings.Setting.Property;
 import static org.elasticsearch.common.settings.Setting.Property.Dynamic;
 import static org.elasticsearch.common.settings.Setting.Property.Final;
@@ -144,6 +145,16 @@ public class PluginSettingIT extends DocTest {
         "User can set this value to indicate how long the cursor context should be kept open. " +
             "Cursor contexts are resource heavy, and a lower value should be used if possible.",
         "5m"
+    );
+  }
+
+  @Section(10)
+  public void sqlNewQueryEngineSetting() {
+    docSetting(
+        SQL_NEW_ENGINE_ENABLED,
+        "We are migrating existing functionalities to a new query engine under development. " +
+            "User can choose to enable the new engine if interested or disable if any issue found.",
+        true
     );
   }
 

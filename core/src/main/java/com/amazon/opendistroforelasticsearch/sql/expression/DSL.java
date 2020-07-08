@@ -19,6 +19,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
+import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import java.util.Arrays;
@@ -138,6 +139,11 @@ public class DSL {
   public FunctionExpression gte(Expression... expressions) {
     return (FunctionExpression)
         repository.compile(BuiltinFunctionName.GTE.getName(), Arrays.asList(expressions));
+  }
+
+  public FunctionExpression like(Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.LIKE.getName(), Arrays.asList(expressions));
   }
 
   public Aggregator avg(Expression... expressions) {
