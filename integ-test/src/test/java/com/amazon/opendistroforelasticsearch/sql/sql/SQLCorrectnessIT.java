@@ -16,6 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql;
 
+import com.amazon.opendistroforelasticsearch.sql.util.TestUtils;
 import com.google.common.io.Resources;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,6 +33,12 @@ public class SQLCorrectnessIT extends SQLIntegTestCase {
   private static final String ROOT_DIR = "correctness/";
   private static final String[] EXPR_TEST_DIR = { "expressions" };
   private static final String[] QUERY_TEST_DIR = { "queries"/*, "bugfixes"*/ }; //TODO: skip bugfixes folder for now since it fails
+
+  @Override
+  protected void init() throws Exception {
+    super.init();
+    TestUtils.enableNewQueryEngine(client());
+  }
 
   @Test
   public void runAllTests() throws Exception {
@@ -63,5 +70,7 @@ public class SQLCorrectnessIT extends SQLIntegTestCase {
       throw new IllegalStateException("Failed to read file: " + file, e);
     }
   }
+
+
 
 }

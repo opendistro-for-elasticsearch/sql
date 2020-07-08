@@ -136,6 +136,25 @@ class DocTests(unittest.TestSuite):
         super().run(result, debug)
 
 
+def doc_suite(fn):
+    return docsuite(
+        fn,
+        parser=bash_parser,
+        setUp=set_up_accounts,
+        globs={
+            'sh': partial(
+                subprocess.run,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                timeout=60,
+                shell=True
+            ),
+            'pretty_print': pretty_print
+        }
+    )
+
+
 def load_tests(loader, suite, ignore):
     tests = []
     # Load doctest docs by category
@@ -148,24 +167,8 @@ def load_tests(loader, suite, ignore):
 
     # docs with bash-based examples
     for fn in doctest_files(bash_docs):
-        tests.append(
-            docsuite(
-                fn,
-                parser=bash_parser,
-                setUp=set_up_accounts,
-                globs={
-                    'sh': partial(
-                        subprocess.run,
-                        stdin=subprocess.PIPE,
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.STDOUT,
-                        timeout=60,
-                        shell=True
-                    ),
-                    'pretty_print': pretty_print
-                }
-            )
-        )
+        tests.append(doc_suite(fn))
+
     # docs with sql-cli based examples
     # TODO: add until the migration to new architecture is done, then we have an artifact including ppl and sql both
     # for fn in doctest_files('sql/basics.rst'):
@@ -191,4 +194,8 @@ def load_tests(loader, suite, ignore):
 
     # randomize order of tests to make sure they don't depend on each other
     random.shuffle(tests)
+
+    # prepend a temporary doc to enable new engine so new SQL docs followed can pass
+    tests.insert(0, doc_suite('../docs/user/dql/newsql.rst'))
+
     return DocTests(tests)
