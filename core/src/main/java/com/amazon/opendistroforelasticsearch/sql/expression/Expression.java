@@ -15,8 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 
 /**
@@ -30,7 +30,7 @@ public interface Expression {
   ExprValue valueOf(Environment<Expression, ExprValue> valueEnv);
 
   /**
-   * Evaluate the type of expression in the type environment.
+   * The type of the expression.
    */
-  ExprType type(Environment<Expression, ExprType> typeEnv);
+  ExprType type();
 }

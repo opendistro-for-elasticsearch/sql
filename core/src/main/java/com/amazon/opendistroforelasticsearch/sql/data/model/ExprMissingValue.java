@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import lombok.EqualsAndHashCode;
 
@@ -38,7 +39,7 @@ public class ExprMissingValue implements ExprValue {
   }
 
   @Override
-  public ExprType type() {
+  public ExprCoreType type() {
     throw new ExpressionEvaluationException("invalid to call type operation on missing value");
   }
 

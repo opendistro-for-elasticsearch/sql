@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.tupleValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.dedupe;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -61,7 +62,7 @@ class DedupeOperatorTest extends PhysicalPlanTestBase {
             tupleValue(ImmutableMap.of("region", "us-east-1", "action", "PUT", "response", 200)));
 
     assertThat(
-        execute(dedupe(inputPlan, DSL.ref("region"))),
+        execute(dedupe(inputPlan, DSL.ref("region", STRING))),
         contains(
             tupleValue(ImmutableMap.of("region", "us-east-1", "action", "GET", "response", 200))));
   }
@@ -76,7 +77,7 @@ class DedupeOperatorTest extends PhysicalPlanTestBase {
             tupleValue(ImmutableMap.of("region", "us-east-1", "action", "POST", "response", 200)))
         .thenReturn(
             tupleValue(ImmutableMap.of("region", "us-east-1", "action", "PUT", "response", 200)));
-    PhysicalPlan plan = dedupe(inputPlan, DSL.ref("action"));
+    PhysicalPlan plan = dedupe(inputPlan, DSL.ref("action", STRING));
 
     assertThat(
         execute(plan),
@@ -98,7 +99,7 @@ class DedupeOperatorTest extends PhysicalPlanTestBase {
             tupleValue(ImmutableMap.of("region", "us-east-1", "action", "PUT", "response", 200)));
 
     assertThat(
-        execute(dedupe(inputPlan, 2, false, false, DSL.ref("region"))),
+        execute(dedupe(inputPlan, 2, false, false, DSL.ref("region", STRING))),
         contains(
             tupleValue(ImmutableMap.of("region", "us-east-1", "action", "GET", "response", 200)),
             tupleValue(ImmutableMap.of("region", "us-east-1", "action", "POST", "response", 200))));
@@ -118,7 +119,7 @@ class DedupeOperatorTest extends PhysicalPlanTestBase {
             tupleValue(ImmutableMap.of("region", "us-east-1", "action", "PUT", "response", 200)));
 
     assertThat(
-        execute(dedupe(inputPlan, 1, false, true, DSL.ref("region"))),
+        execute(dedupe(inputPlan, 1, false, true, DSL.ref("region", STRING))),
         contains(
             tupleValue(ImmutableMap.of("region", "us-east-1", "action", "GET", "response", 200)),
             tupleValue(ImmutableMap.of("region", "us-west-2", "action", "POST", "response", 200)),
@@ -137,7 +138,7 @@ class DedupeOperatorTest extends PhysicalPlanTestBase {
             tupleValue(ImmutableMap.of("region", "us-east-1", "action", "PUT", "response", 200)));
 
     assertThat(
-        execute(dedupe(inputPlan, 1, false, true, DSL.ref("region"))),
+        execute(dedupe(inputPlan, 1, false, true, DSL.ref("region", STRING))),
         contains(
             tupleValue(ImmutableMap.of("region", "us-east-1", "action", "GET", "response", 200))));
   }
@@ -156,7 +157,7 @@ class DedupeOperatorTest extends PhysicalPlanTestBase {
             tupleValue(ImmutableMap.of("region", "us-east-1", "action", "PUT", "response", 200)));
 
     assertThat(
-        execute(dedupe(inputPlan, 2, false, true, DSL.ref("region"))),
+        execute(dedupe(inputPlan, 2, false, true, DSL.ref("region", STRING))),
         contains(
             tupleValue(ImmutableMap.of("region", "us-east-1", "action", "GET", "response", 200)),
             tupleValue(ImmutableMap.of("region", "us-east-1", "action", "POST", "response", 200)),
@@ -176,7 +177,7 @@ class DedupeOperatorTest extends PhysicalPlanTestBase {
             tupleValue(ImmutableMap.of("region", "us-east-1", "action", "GET", "response", 200)));
 
     assertThat(
-        execute(dedupe(inputPlan, DSL.ref("region"), DSL.ref("action"))),
+        execute(dedupe(inputPlan, DSL.ref("region", STRING), DSL.ref("action", STRING))),
         contains(
             tupleValue(ImmutableMap.of("region", "us-east-1", "action", "GET", "response", 200)),
             tupleValue(ImmutableMap.of("region", "us-east-1", "action", "POST", "response", 200))));
@@ -196,7 +197,7 @@ class DedupeOperatorTest extends PhysicalPlanTestBase {
             tupleValue(ImmutableMap.of("region", "us-east-1", "action", "GET", "response", 200)));
 
     assertThat(
-        execute(dedupe(inputPlan, DSL.ref("region"))),
+        execute(dedupe(inputPlan, DSL.ref("region", STRING))),
         contains(
             tupleValue(ImmutableMap.of("region", "us-east-1", "action", "GET", "response", 200))));
   }
@@ -215,7 +216,7 @@ class DedupeOperatorTest extends PhysicalPlanTestBase {
             tupleValue(ImmutableMap.of("region", "us-east-1", "action", "GET", "response", 200)));
 
     assertThat(
-        execute(dedupe(inputPlan, 1, true, false, DSL.ref("region"))),
+        execute(dedupe(inputPlan, 1, true, false, DSL.ref("region", STRING))),
         contains(
             tupleValue(ImmutableMap.of("region", "us-east-1", "action", "GET", "response", 200)),
             tupleValue(ImmutableMap.of("action", "POST", "response", 200))));
@@ -235,7 +236,7 @@ class DedupeOperatorTest extends PhysicalPlanTestBase {
             tupleValue(ImmutableMap.of("region", "us-east-1", "action", "GET", "response", 200)));
 
     assertThat(
-        execute(dedupe(inputPlan, DSL.ref("region"))),
+        execute(dedupe(inputPlan, DSL.ref("region", STRING))),
         contains(
             tupleValue(ImmutableMap.of("region", "us-east-1", "action", "GET", "response", 200))));
   }

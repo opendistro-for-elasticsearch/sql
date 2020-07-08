@@ -15,12 +15,14 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregation;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
@@ -67,23 +69,23 @@ public class PlannerTest extends PhysicalPlanTestBase {
             PhysicalPlanDSL.agg(
                 PhysicalPlanDSL.filter(
                     scan,
-                    dsl.equal(typeEnv(), DSL.ref("response"), DSL.literal(10))
+                    dsl.equal(DSL.ref("response", INTEGER), DSL.literal(10))
                 ),
-                ImmutableList.of(dsl.avg(typeEnv(), DSL.ref("response"))),
+                ImmutableList.of(dsl.avg(DSL.ref("response", INTEGER))),
                 ImmutableList.of()
             ),
-            ImmutableMap.of(DSL.ref("ivalue"), DSL.ref("avg(response)"))
+            ImmutableMap.of(DSL.ref("ivalue", INTEGER), DSL.ref("avg(response)", DOUBLE))
         ),
         LogicalPlanDSL.rename(
             LogicalPlanDSL.aggregation(
                 LogicalPlanDSL.filter(
                     LogicalPlanDSL.relation("schema"),
-                    dsl.equal(typeEnv(), DSL.ref("response"), DSL.literal(10))
+                    dsl.equal(DSL.ref("response", INTEGER), DSL.literal(10))
                 ),
-                ImmutableList.of(dsl.avg(typeEnv(), DSL.ref("response"))),
+                ImmutableList.of(dsl.avg(DSL.ref("response", INTEGER))),
                 ImmutableList.of()
             ),
-            ImmutableMap.of(DSL.ref("ivalue"), DSL.ref("avg(response)"))
+            ImmutableMap.of(DSL.ref("ivalue", INTEGER), DSL.ref("avg(response)", DOUBLE))
         )
     );
   }

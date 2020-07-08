@@ -23,6 +23,9 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.filter;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -42,7 +45,7 @@ class AnalyzerTest extends AnalyzerTestBase {
     assertAnalyzeEqual(
         LogicalPlanDSL.filter(
             LogicalPlanDSL.relation("schema"),
-            dsl.equal(typeEnv, DSL.ref("integer_value"), DSL.literal(integerValue(1)))),
+            dsl.equal(DSL.ref("integer_value", INTEGER), DSL.literal(integerValue(1)))),
         AstDSL.filter(
             AstDSL.relation("schema"),
             AstDSL.equalTo(AstDSL.field("integer_value"), AstDSL.intLiteral(1))));
@@ -53,7 +56,7 @@ class AnalyzerTest extends AnalyzerTestBase {
     assertAnalyzeEqual(
         LogicalPlanDSL.filter(
             LogicalPlanDSL.relation("schema"),
-            dsl.equal(typeEnv, DSL.ref("integer_value"), DSL.literal(integerValue(1)))),
+            dsl.equal(DSL.ref("integer_value", INTEGER), DSL.literal(integerValue(1)))),
         filter(relation("schema"), compare("=", field("integer_value"), intLiteral(1))));
   }
 
@@ -62,7 +65,7 @@ class AnalyzerTest extends AnalyzerTestBase {
     assertAnalyzeEqual(
         LogicalPlanDSL.rename(
             LogicalPlanDSL.relation("schema"),
-            ImmutableMap.of(DSL.ref("integer_value"), DSL.ref("ivalue"))),
+            ImmutableMap.of(DSL.ref("integer_value", INTEGER), DSL.ref("ivalue", INTEGER))),
         AstDSL.rename(
             AstDSL.relation("schema"),
             AstDSL.map(AstDSL.field("integer_value"), AstDSL.field("ivalue"))));
@@ -74,9 +77,9 @@ class AnalyzerTest extends AnalyzerTestBase {
         LogicalPlanDSL.rename(
             LogicalPlanDSL.aggregation(
                 LogicalPlanDSL.relation("schema"),
-                ImmutableList.of(dsl.avg(typeEnv, DSL.ref("integer_value"))),
+                ImmutableList.of(dsl.avg(DSL.ref("integer_value", INTEGER))),
                 ImmutableList.of()),
-            ImmutableMap.of(DSL.ref("avg(integer_value)"), DSL.ref("ivalue"))),
+            ImmutableMap.of(DSL.ref("avg(integer_value)", DOUBLE), DSL.ref("ivalue", DOUBLE))),
         AstDSL.rename(
             AstDSL.agg(
                 AstDSL.relation("schema"),
@@ -92,8 +95,8 @@ class AnalyzerTest extends AnalyzerTestBase {
     assertAnalyzeEqual(
         LogicalPlanDSL.aggregation(
             LogicalPlanDSL.relation("schema"),
-            ImmutableList.of(dsl.avg(typeEnv, DSL.ref("integer_value"))),
-            ImmutableList.of(DSL.ref("string_value"))),
+            ImmutableList.of(dsl.avg(DSL.ref("integer_value", INTEGER))),
+            ImmutableList.of(DSL.ref("string_value", STRING))),
         AstDSL.agg(
             AstDSL.relation("schema"),
             AstDSL.exprList(AstDSL.aggregate("avg", field("integer_value"))),
@@ -128,7 +131,8 @@ class AnalyzerTest extends AnalyzerTestBase {
   public void project_source() {
     assertAnalyzeEqual(
         LogicalPlanDSL.project(
-            LogicalPlanDSL.relation("schema"), DSL.ref("integer_value"), DSL.ref("double_value")),
+            LogicalPlanDSL.relation("schema"), DSL.ref("integer_value", INTEGER), DSL.ref(
+                "double_value", DOUBLE)),
         AstDSL.projectWithArg(
             AstDSL.relation("schema"),
             AstDSL.defaultFieldsArgs(),
@@ -140,7 +144,8 @@ class AnalyzerTest extends AnalyzerTestBase {
   public void remove_source() {
     assertAnalyzeEqual(
         LogicalPlanDSL.remove(
-            LogicalPlanDSL.relation("schema"), DSL.ref("integer_value"), DSL.ref("double_value")),
+            LogicalPlanDSL.relation("schema"), DSL.ref("integer_value", INTEGER), DSL.ref(
+                "double_value", DOUBLE)),
         AstDSL.projectWithArg(
             AstDSL.relation("schema"),
             Collections.singletonList(argument("exclude", booleanLiteral(true))),

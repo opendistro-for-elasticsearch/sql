@@ -30,8 +30,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -236,8 +236,8 @@ class ExprValueOrderingTest {
 
   @Test
   public void order_compare_unknown_type() {
-    when(left.type()).thenReturn(ExprType.UNKNOWN);
-    when(right.type()).thenReturn(ExprType.UNKNOWN);
+    when(left.type()).thenReturn(ExprCoreType.UNKNOWN);
+    when(right.type()).thenReturn(ExprCoreType.UNKNOWN);
 
     ExprValueOrdering ordering = ExprValueOrdering.natural();
     ExpressionEvaluationException exception =

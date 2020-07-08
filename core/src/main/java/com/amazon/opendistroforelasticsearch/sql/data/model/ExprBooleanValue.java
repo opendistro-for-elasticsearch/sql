@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode
@@ -42,8 +43,8 @@ public class ExprBooleanValue implements ExprValue {
   }
 
   @Override
-  public ExprType type() {
-    return ExprType.BOOLEAN;
+  public ExprCoreType type() {
+    return ExprCoreType.BOOLEAN;
   }
 
   @Override

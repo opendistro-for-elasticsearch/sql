@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.STRUCT;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 import static com.amazon.opendistroforelasticsearch.sql.expression.env.Environment.extendEnv;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;

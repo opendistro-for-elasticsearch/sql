@@ -27,10 +27,18 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.longValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.stringValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.tupleValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.ARRAY;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -43,30 +51,30 @@ class ReferenceExpressionTest extends ExpressionTestBase {
 
   @Test
   public void resolve_value() {
-    assertEquals(integerValue(1), DSL.ref("integer_value").valueOf(valueEnv()));
-    assertEquals(longValue(1L), DSL.ref("long_value").valueOf(valueEnv()));
-    assertEquals(floatValue(1f), DSL.ref("float_value").valueOf(valueEnv()));
-    assertEquals(doubleValue(1d), DSL.ref("double_value").valueOf(valueEnv()));
-    assertEquals(booleanValue(true), DSL.ref("boolean_value").valueOf(valueEnv()));
-    assertEquals(stringValue("str"), DSL.ref("string_value").valueOf(valueEnv()));
+    assertEquals(integerValue(1), DSL.ref("integer_value", INTEGER).valueOf(valueEnv()));
+    assertEquals(longValue(1L), DSL.ref("long_value", LONG).valueOf(valueEnv()));
+    assertEquals(floatValue(1f), DSL.ref("float_value", FLOAT).valueOf(valueEnv()));
+    assertEquals(doubleValue(1d), DSL.ref("double_value", DOUBLE).valueOf(valueEnv()));
+    assertEquals(booleanValue(true), DSL.ref("boolean_value", BOOLEAN).valueOf(valueEnv()));
+    assertEquals(stringValue("str"), DSL.ref("string_value", STRING).valueOf(valueEnv()));
     assertEquals(tupleValue(ImmutableMap.of("str", 1)),
-        DSL.ref("struct_value").valueOf(valueEnv()));
-    assertEquals(collectionValue(ImmutableList.of(1)), DSL.ref("array_value").valueOf(valueEnv()));
-    assertEquals(LITERAL_NULL, DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD).valueOf(valueEnv()));
-    assertEquals(LITERAL_MISSING, DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD).valueOf(valueEnv()));
+        DSL.ref("struct_value", STRUCT).valueOf(valueEnv()));
+    assertEquals(collectionValue(ImmutableList.of(1)),
+        DSL.ref("array_value", ARRAY).valueOf(valueEnv()));
+    assertEquals(LITERAL_NULL, DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD, BOOLEAN).valueOf(valueEnv()));
+    assertEquals(LITERAL_MISSING,
+        DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD, BOOLEAN).valueOf(valueEnv()));
   }
 
   @Test
   public void resolve_type() {
-    assertEquals(ExprType.INTEGER, DSL.ref("integer_value").type(typeEnv()));
-    assertEquals(ExprType.LONG, DSL.ref("long_value").type(typeEnv()));
-    assertEquals(ExprType.FLOAT, DSL.ref("float_value").type(typeEnv()));
-    assertEquals(ExprType.DOUBLE, DSL.ref("double_value").type(typeEnv()));
-    assertEquals(ExprType.BOOLEAN, DSL.ref("boolean_value").type(typeEnv()));
-    assertEquals(ExprType.STRING, DSL.ref("string_value").type(typeEnv()));
-    assertEquals(ExprType.STRUCT, DSL.ref("struct_value").type(typeEnv()));
-    assertEquals(ExprType.ARRAY, DSL.ref("array_value").type(typeEnv()));
-    assertThrows(ExpressionEvaluationException.class,
-        () -> DSL.ref("not_exist_field").type(typeEnv()));
+    assertEquals(ExprCoreType.INTEGER, DSL.ref("integer_value", INTEGER).type());
+    assertEquals(ExprCoreType.LONG, DSL.ref("long_value", LONG).type());
+    assertEquals(ExprCoreType.FLOAT, DSL.ref("float_value", FLOAT).type());
+    assertEquals(ExprCoreType.DOUBLE, DSL.ref("double_value", DOUBLE).type());
+    assertEquals(ExprCoreType.BOOLEAN, DSL.ref("boolean_value", BOOLEAN).type());
+    assertEquals(ExprCoreType.STRING, DSL.ref("string_value", STRING).type());
+    assertEquals(ExprCoreType.STRUCT, DSL.ref("struct_value", STRUCT).type());
+    assertEquals(ExprCoreType.ARRAY, DSL.ref("array_value", ARRAY).type());
   }
 }

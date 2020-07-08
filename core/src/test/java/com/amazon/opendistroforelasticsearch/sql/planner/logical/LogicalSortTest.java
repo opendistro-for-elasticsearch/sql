@@ -25,6 +25,8 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.nullLiter
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sort;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.sortOptions;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 
 import com.amazon.opendistroforelasticsearch.sql.analysis.AnalyzerTestBase;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
@@ -39,8 +41,8 @@ class LogicalSortTest extends AnalyzerTestBase {
         LogicalPlanDSL.sort(
             LogicalPlanDSL.relation("schema"),
             1000,
-            ImmutablePair.of(SortOption.PPL_ASC, DSL.ref("integer_value")),
-            ImmutablePair.of(SortOption.PPL_ASC, DSL.ref("double_value"))),
+            ImmutablePair.of(SortOption.PPL_ASC, DSL.ref("integer_value", INTEGER)),
+            ImmutablePair.of(SortOption.PPL_ASC, DSL.ref("double_value", DOUBLE))),
         sort(
             relation("schema"),
             defaultSortOptions(),
@@ -54,8 +56,8 @@ class LogicalSortTest extends AnalyzerTestBase {
         LogicalPlanDSL.sort(
             LogicalPlanDSL.relation("schema"),
             100,
-            ImmutablePair.of(SortOption.PPL_DESC, DSL.ref("integer_value")),
-            ImmutablePair.of(SortOption.PPL_ASC, DSL.ref("double_value"))),
+            ImmutablePair.of(SortOption.PPL_DESC, DSL.ref("integer_value", INTEGER)),
+            ImmutablePair.of(SortOption.PPL_ASC, DSL.ref("double_value", DOUBLE))),
         sort(
             relation("schema"),
             sortOptions(100),

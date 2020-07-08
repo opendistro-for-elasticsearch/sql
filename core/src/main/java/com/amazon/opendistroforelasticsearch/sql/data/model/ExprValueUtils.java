@@ -15,11 +15,12 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.ARRAY;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.BOOLEAN;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.STRING;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.STRUCT;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.ARRAY;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
@@ -168,7 +169,7 @@ public class ExprValueUtils {
   }
 
   @SuppressWarnings("unchecked")
-  private static <T> T convert(ExprValue exprValue, ExprType toType) {
+  private static <T> T convert(ExprValue exprValue, ExprCoreType toType) {
     if (exprValue.type() == toType) {
       return (T) exprValue.value();
     } else {

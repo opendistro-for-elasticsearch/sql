@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -29,19 +30,22 @@ class BindingTupleTest {
   public void resolve_ref_expression() {
     BindingTuple bindingTuple =
         ExprValueUtils.tupleValue(ImmutableMap.of("ip", "209.160.24.63")).bindingTuples();
-    assertEquals(ExprValueUtils.stringValue("209.160.24.63"), bindingTuple.resolve(DSL.ref("ip")));
+    assertEquals(ExprValueUtils.stringValue("209.160.24.63"),
+        bindingTuple.resolve(DSL.ref("ip", STRING)));
   }
 
   @Test
   public void resolve_missing_expression() {
     BindingTuple bindingTuple =
         ExprValueUtils.tupleValue(ImmutableMap.of("ip", "209.160.24.63")).bindingTuples();
-    assertEquals(ExprValueUtils.LITERAL_MISSING, bindingTuple.resolve(DSL.ref("ip_missing")));
+    assertEquals(ExprValueUtils.LITERAL_MISSING,
+        bindingTuple.resolve(DSL.ref("ip_missing", STRING)));
   }
 
   @Test
   public void resolve_from_empty_tuple() {
-    assertEquals(ExprValueUtils.LITERAL_MISSING, BindingTuple.EMPTY.resolve(DSL.ref("ip_missing")));
+    assertEquals(ExprValueUtils.LITERAL_MISSING,
+        BindingTuple.EMPTY.resolve(DSL.ref("ip_missing", STRING)));
   }
 
   @Test

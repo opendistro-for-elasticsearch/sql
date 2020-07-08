@@ -16,7 +16,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
 import com.amazon.opendistroforelasticsearch.sql.planner.DefaultImplementor;
@@ -37,17 +38,17 @@ public class ElasticsearchIndex implements Table {
    * Type mapping from Elasticsearch data type to expression type in our type system in query
    * engine. TODO: date, geo, ip etc.
    */
-  private static final Map<String, ExprType> ES_TYPE_TO_EXPR_TYPE_MAPPING =
-      ImmutableMap.<String, ExprType>builder()
-          .put("text", ExprType.STRING)
-          .put("keyword", ExprType.STRING)
-          .put("integer", ExprType.INTEGER)
-          .put("long", ExprType.LONG)
-          .put("float", ExprType.FLOAT)
-          .put("double", ExprType.DOUBLE)
-          .put("boolean", ExprType.BOOLEAN)
-          .put("nested", ExprType.ARRAY)
-          .put("object", ExprType.STRUCT)
+  private static final Map<String, ExprCoreType> ES_TYPE_TO_EXPR_TYPE_MAPPING =
+      ImmutableMap.<String, ExprCoreType>builder()
+          .put("text", ExprCoreType.STRING)
+          .put("keyword", ExprCoreType.STRING)
+          .put("integer", ExprCoreType.INTEGER)
+          .put("long", ExprCoreType.LONG)
+          .put("float", ExprCoreType.FLOAT)
+          .put("double", ExprCoreType.DOUBLE)
+          .put("boolean", ExprCoreType.BOOLEAN)
+          .put("nested", ExprCoreType.ARRAY)
+          .put("object", ExprCoreType.STRUCT)
           .build();
 
   /** Elasticsearch client connection. */
@@ -90,7 +91,7 @@ public class ElasticsearchIndex implements Table {
         indexScan);
   }
 
-  private ExprType transformESTypeToExprType(String esType) {
-    return ES_TYPE_TO_EXPR_TYPE_MAPPING.getOrDefault(esType, ExprType.UNKNOWN);
+  private ExprCoreType transformESTypeToExprType(String esType) {
+    return ES_TYPE_TO_EXPR_TYPE_MAPPING.getOrDefault(esType, ExprCoreType.UNKNOWN);
   }
 }

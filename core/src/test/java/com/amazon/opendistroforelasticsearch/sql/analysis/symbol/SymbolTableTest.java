@@ -15,9 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.analysis.symbol;
 
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.BOOLEAN;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.INTEGER;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.STRING;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.allOf;
@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;

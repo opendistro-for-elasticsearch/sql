@@ -15,8 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.utils;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
 
@@ -25,9 +25,9 @@ import org.hamcrest.TypeSafeMatcher;
  */
 public class MatcherUtils {
   /**
-   * Check {@link ExprValue} type equal to {@link ExprType}.
+   * Check {@link ExprValue} type equal to {@link ExprCoreType}.
    */
-  public static TypeSafeMatcher<ExprValue> hasType(ExprType type) {
+  public static TypeSafeMatcher<ExprValue> hasType(ExprCoreType type) {
     return new TypeSafeMatcher<ExprValue>() {
       @Override
       public void describeTo(Description description) {

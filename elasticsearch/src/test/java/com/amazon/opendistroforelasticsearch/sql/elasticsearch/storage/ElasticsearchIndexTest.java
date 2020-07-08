@@ -16,6 +16,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.aggregation;
@@ -33,9 +36,11 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
@@ -88,16 +93,16 @@ class ElasticsearchIndexTest {
         fieldTypes,
         allOf(
             aMapWithSize(10),
-            hasEntry("name", ExprType.STRING),
-            hasEntry("address", ExprType.STRING),
-            hasEntry("age", ExprType.INTEGER),
-            hasEntry("account_number", ExprType.LONG),
-            hasEntry("balance1", ExprType.FLOAT),
-            hasEntry("balance2", ExprType.DOUBLE),
-            hasEntry("gender", ExprType.BOOLEAN),
-            hasEntry("family", ExprType.ARRAY),
-            hasEntry("employer", ExprType.STRUCT),
-            hasEntry("birthday", ExprType.UNKNOWN)));
+            hasEntry("name", ExprCoreType.STRING),
+            hasEntry("address", ExprCoreType.STRING),
+            hasEntry("age", ExprCoreType.INTEGER),
+            hasEntry("account_number", ExprCoreType.LONG),
+            hasEntry("balance1", ExprCoreType.FLOAT),
+            hasEntry("balance2", ExprCoreType.DOUBLE),
+            hasEntry("gender", ExprCoreType.BOOLEAN),
+            hasEntry("family", ExprCoreType.ARRAY),
+            hasEntry("employer", ExprCoreType.STRUCT),
+            hasEntry("birthday", ExprCoreType.UNKNOWN)));
   }
 
   @Test
@@ -111,18 +116,19 @@ class ElasticsearchIndexTest {
   @Test
   void implementOtherLogicalOperators() {
     String indexName = "test";
-    ReferenceExpression include = ref("age");
-    ReferenceExpression exclude = ref("name");
-    ReferenceExpression dedupeField = ref("name");
+    ReferenceExpression include = ref("age", INTEGER);
+    ReferenceExpression exclude = ref("name", STRING);
+    ReferenceExpression dedupeField = ref("name", STRING);
     Expression filterExpr = literal(ExprBooleanValue.ofTrue());
-    List<Expression> groupByExprs = Arrays.asList(ref("age"));
-    List<Aggregator> aggregators = Arrays.asList(new AvgAggregator(groupByExprs, ExprType.DOUBLE));
+    List<Expression> groupByExprs = Arrays.asList(ref("age", INTEGER));
+    List<Aggregator> aggregators = Arrays.asList(new AvgAggregator(groupByExprs, DOUBLE));
     Map<ReferenceExpression, ReferenceExpression> mappings =
-        ImmutableMap.of(ref("name"), ref("lastname"));
+        ImmutableMap.of(ref("name", STRING), ref("lastname", STRING));
     Pair<ReferenceExpression, Expression> newEvalField =
-        ImmutablePair.of(ref("name1"), ref("name"));
+        ImmutablePair.of(ref("name1", STRING), ref("name", STRING));
     Integer sortCount = 100;
-    Pair<SortOption, Expression> sortField = ImmutablePair.of(SortOption.PPL_ASC, ref("name1"));
+    Pair<Sort.SortOption, Expression> sortField =
+        ImmutablePair.of(Sort.SortOption.PPL_ASC, ref("name1", STRING));
 
     LogicalPlan plan =
         project(

@@ -20,7 +20,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.common.response.ResponseListener;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine;
 import com.amazon.opendistroforelasticsearch.sql.executor.ExecutionEngine.QueryResponse;
 import com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlan;
@@ -61,7 +61,7 @@ public class PPLServiceTest {
    */
   @Before
   public void setUp() {
-    when(table.getFieldTypes()).thenReturn(ImmutableMap.of("a", ExprType.INTEGER));
+    when(table.getFieldTypes()).thenReturn(ImmutableMap.of("a", ExprCoreType.INTEGER));
     when(table.implement(any())).thenReturn(plan);
     when(storageEngine.getTable(any())).thenReturn(table);
 
