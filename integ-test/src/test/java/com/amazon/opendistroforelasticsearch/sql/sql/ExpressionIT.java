@@ -21,6 +21,7 @@ import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.featur
 import static org.hamcrest.Matchers.is;
 
 import com.amazon.opendistroforelasticsearch.sql.legacy.RestIntegTestCase;
+import com.amazon.opendistroforelasticsearch.sql.util.TestUtils;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.function.Function;
@@ -41,6 +42,12 @@ public class ExpressionIT extends RestIntegTestCase {
 
   @Rule
   public ExpectedException exceptionRule = ExpectedException.none();
+
+  @Override
+  protected void init() throws Exception {
+    super.init();
+    TestUtils.enableNewQueryEngine(client());
+  }
 
   @Test
   public void testDivideZeroExpression() throws Exception {
