@@ -38,10 +38,10 @@ import org.elasticsearch.client.AdminClient;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.IndicesAdminClient;
 import org.elasticsearch.cluster.ClusterState;
-import org.elasticsearch.cluster.metadata.IndexMetaData;
+import org.elasticsearch.cluster.metadata.IndexMetadata;
 import org.elasticsearch.cluster.metadata.IndexNameExpressionResolver;
-import org.elasticsearch.cluster.metadata.MappingMetaData;
-import org.elasticsearch.cluster.metadata.MetaData;
+import org.elasticsearch.cluster.metadata.MappingMetadata;
+import org.elasticsearch.cluster.metadata.Metadata;
 import org.elasticsearch.cluster.service.ClusterService;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.xcontent.DeprecationHandler;
@@ -238,13 +238,13 @@ public class CheckScriptContents {
     public static ClusterService mockClusterService(String mappings) {
         ClusterService mockService = mock(ClusterService.class);
         ClusterState mockState = mock(ClusterState.class);
-        MetaData mockMetaData = mock(MetaData.class);
+        Metadata mockMetaData = mock(Metadata.class);
 
         when(mockService.state()).thenReturn(mockState);
-        when(mockState.metaData()).thenReturn(mockMetaData);
+        when(mockState.metadata()).thenReturn(mockMetaData);
         try {
-            ImmutableOpenMap.Builder<String, ImmutableOpenMap<String, MappingMetaData>> builder = ImmutableOpenMap.builder();
-            builder.put(TestsConstants.TEST_INDEX_BANK, IndexMetaData.fromXContent(createParser(mappings)).getMappings());
+            ImmutableOpenMap.Builder<String, ImmutableOpenMap<String, MappingMetadata>> builder = ImmutableOpenMap.builder();
+            builder.put(TestsConstants.TEST_INDEX_BANK, IndexMetadata.fromXContent(createParser(mappings)).getMappings());
             when(mockMetaData.findMappings(any(), any(), any())).thenReturn(builder.build());
         }
         catch (IOException e) {
