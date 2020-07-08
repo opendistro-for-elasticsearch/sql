@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
@@ -40,7 +41,9 @@ import lombok.ToString;
 @EqualsAndHashCode
 @RequiredArgsConstructor
 public class RemoveOperator extends PhysicalPlan {
+  @Getter
   private final PhysicalPlan input;
+  @Getter
   private final Set<ReferenceExpression> removeList;
 
   @Override

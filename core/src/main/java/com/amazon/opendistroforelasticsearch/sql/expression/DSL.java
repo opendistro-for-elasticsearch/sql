@@ -45,6 +45,14 @@ public class DSL {
     return new LiteralExpression(ExprValueUtils.doubleValue(value));
   }
 
+  public static LiteralExpression literal(String value) {
+    return new LiteralExpression(ExprValueUtils.stringValue(value));
+  }
+
+  public static LiteralExpression literal(Boolean value) {
+    return new LiteralExpression(ExprValueUtils.booleanValue(value));
+  }
+
   public static LiteralExpression literal(ExprValue value) {
     return new LiteralExpression(value);
   }
@@ -173,6 +181,12 @@ public class DSL {
       Environment<Expression, ExprType> env, Expression... expressions) {
     return (FunctionExpression)
         repository.compile(BuiltinFunctionName.GTE.getName(), Arrays.asList(expressions), env);
+  }
+
+  public FunctionExpression like(
+      Environment<Expression, ExprType> env, Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.LIKE.getName(), Arrays.asList(expressions), env);
   }
 
   public Aggregator avg(Environment<Expression, ExprType> env, Expression... expressions) {

@@ -20,7 +20,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.DBResult;
+import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.Row;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.Type;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import java.util.Arrays;
 import org.junit.Test;
 
@@ -51,6 +54,39 @@ public class DBResultTest {
     DBResult result1 = new DBResult("DB 1", Arrays.asList(new Type("age", "FLOAT")), emptyList());
     DBResult result2 = new DBResult("DB 2", Arrays.asList(new Type("age", "INT")), emptyList());
     assertNotEquals(result1, result2);
+  }
+
+  @Test
+  public void shouldExplainColumnTypeDifference() {
+    DBResult result1 = new DBResult("DB 1",
+        Arrays.asList(new Type("name", "VARCHAR"), new Type("age", "FLOAT")), emptyList());
+    DBResult result2 = new DBResult("DB 2",
+        Arrays.asList(new Type("name", "VARCHAR"), new Type("age", "INT")), emptyList());
+
+    assertEquals(
+        "Schema type at [1] is different: "
+            + "this=[Type(name=age, type=FLOAT)], other=[Type(name=age, type=INT)]",
+        result1.diff(result2)
+    );
+  }
+
+  @Test
+  public void shouldExplainDataRowsDifference() {
+    DBResult result1 = new DBResult("DB 1", Arrays.asList(new Type("name", "VARCHAR")),
+        Sets.newHashSet(
+            new Row(Arrays.asList("hello")),
+            new Row(Arrays.asList("world")),
+            new Row(Lists.newArrayList((Object) null))));
+    DBResult result2 = new DBResult("DB 2",Arrays.asList(new Type("name", "VARCHAR")),
+        Sets.newHashSet(
+            new Row(Lists.newArrayList((Object) null)),
+            new Row(Arrays.asList("hello")),
+            new Row(Arrays.asList("world123"))));
+
+    assertEquals(
+        "Data row at [1] is different: this=[Row(values=[world])], other=[Row(values=[world123])]",
+        result1.diff(result2)
+    );
   }
 
 }

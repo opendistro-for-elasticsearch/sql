@@ -21,6 +21,8 @@ import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.DOUBLE
 import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.DOUBLE_TYPE_NULL_VALUE_FIELD;
 import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.INT_TYPE_MISSING_VALUE_FIELD;
 import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.INT_TYPE_NULL_VALUE_FIELD;
+import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.STRING_TYPE_MISSING_VALUE_FILED;
+import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.STRING_TYPE_NULL_VALUE_FILED;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.booleanValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.collectionValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.doubleValue;
@@ -85,10 +87,12 @@ public class ExpressionTestBase {
           case BOOL_TYPE_NULL_VALUE_FIELD:
           case INT_TYPE_NULL_VALUE_FIELD:
           case DOUBLE_TYPE_NULL_VALUE_FIELD:
+          case STRING_TYPE_NULL_VALUE_FILED:
             return nullValue();
           case INT_TYPE_MISSING_VALUE_FIELD:
           case BOOL_TYPE_MISSING_VALUE_FIELD:
           case DOUBLE_TYPE_MISSING_VALUE_FIELD:
+          case STRING_TYPE_MISSING_VALUE_FILED:
             return missingValue();
           default:
             throw new IllegalArgumentException("undefined reference");

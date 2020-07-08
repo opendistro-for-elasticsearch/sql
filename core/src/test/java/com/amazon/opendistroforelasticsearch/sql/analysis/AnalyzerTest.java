@@ -165,4 +165,23 @@ class AnalyzerTest extends AnalyzerTestBase {
                         AstDSL.defaultFieldsArgs(),
                         AstDSL.field("float_value"))));
   }
+
+  @Test
+  public void project_values() {
+    assertAnalyzeEqual(
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.values(ImmutableList.of(DSL.literal(123))),
+            DSL.literal(123),
+            DSL.literal("hello"),
+            DSL.literal(false)
+        ),
+        AstDSL.project(
+            AstDSL.values(ImmutableList.of(AstDSL.intLiteral(123))),
+            AstDSL.intLiteral(123),
+            AstDSL.stringLiteral("hello"),
+            AstDSL.booleanLiteral(false)
+        )
+    );
+  }
+
 }

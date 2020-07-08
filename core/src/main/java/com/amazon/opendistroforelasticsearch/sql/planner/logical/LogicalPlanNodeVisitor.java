@@ -61,4 +61,8 @@ public abstract class LogicalPlanNodeVisitor<R, C> {
   public R visitSort(LogicalSort plan, C context) {
     return visitNode(plan, context);
   }
+
+  public R visitValues(LogicalValues plan, C context) {
+    return visitNode(plan, context);
+  }
 }

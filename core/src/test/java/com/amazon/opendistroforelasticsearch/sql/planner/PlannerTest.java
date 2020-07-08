@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner;
 
+import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -43,6 +44,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -82,6 +84,27 @@ public class PlannerTest extends PhysicalPlanTestBase {
                 ImmutableList.of()
             ),
             ImmutableMap.of(DSL.ref("ivalue"), DSL.ref("avg(response)"))
+        )
+    );
+  }
+
+  @Test
+  public void plan_a_query_without_relation_involved() {
+    // Storage engine mock is not needed here since no relation involved.
+    Mockito.reset(storageEngine);
+
+    assertPhysicalPlan(
+        PhysicalPlanDSL.project(
+            PhysicalPlanDSL.values(emptyList()),
+            DSL.literal(123),
+            DSL.literal("hello"),
+            DSL.literal(false)
+        ),
+        LogicalPlanDSL.project(
+            LogicalPlanDSL.values(emptyList()),
+            DSL.literal(123),
+            DSL.literal("hello"),
+            DSL.literal(false)
         )
     );
   }

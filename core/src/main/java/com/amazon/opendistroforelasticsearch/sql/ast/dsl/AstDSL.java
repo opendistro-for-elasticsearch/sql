@@ -42,6 +42,8 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Values;
+import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.List;
 import lombok.experimental.UtilityClass;
@@ -84,6 +86,16 @@ public class AstDSL {
 
   public static UnresolvedPlan rename(UnresolvedPlan input, Map... maps) {
     return new Rename(Arrays.asList(maps), input);
+  }
+
+  /**
+   * Initialize Values node by rows of literals.
+   * @param values  rows in which each row is a list of literal values
+   * @return        Values node
+   */
+  @SafeVarargs
+  public UnresolvedPlan values(List<Literal>... values) {
+    return new Values(Arrays.asList(values));
   }
 
   public static UnresolvedExpression qualifiedName(String... parts) {

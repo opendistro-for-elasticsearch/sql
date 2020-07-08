@@ -43,6 +43,8 @@ public class TestConfig {
   public static final String DOUBLE_TYPE_MISSING_VALUE_FIELD = "double_missing_value";
   public static final String BOOL_TYPE_NULL_VALUE_FIELD = "null_value_boolean";
   public static final String BOOL_TYPE_MISSING_VALUE_FIELD = "missing_value_boolean";
+  public static final String STRING_TYPE_NULL_VALUE_FILED = "string_null_value";
+  public static final String STRING_TYPE_MISSING_VALUE_FILED = "string_missing_value";
 
   private static Map<String, ExprType> typeMapping = new ImmutableMap.Builder<String, ExprType>()
       .put("integer_value", ExprType.INTEGER)
@@ -57,6 +59,8 @@ public class TestConfig {
       .put(BOOL_TYPE_NULL_VALUE_FIELD, ExprType.BOOLEAN)
       .put(BOOL_TYPE_MISSING_VALUE_FIELD, ExprType.BOOLEAN)
       .put("string_value", ExprType.STRING)
+      .put(STRING_TYPE_NULL_VALUE_FILED, ExprType.STRING)
+      .put(STRING_TYPE_MISSING_VALUE_FILED, ExprType.STRING)
       .put("struct_value", ExprType.STRUCT)
       .put("array_value", ExprType.ARRAY)
       .build();

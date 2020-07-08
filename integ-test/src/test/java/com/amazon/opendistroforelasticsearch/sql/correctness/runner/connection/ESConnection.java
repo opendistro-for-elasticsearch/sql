@@ -67,7 +67,7 @@ public class ESConnection implements DBConnection {
 
   @Override
   public void insert(String tableName, String[] columnNames, List<String[]> batch) {
-    Request request = new Request("POST", "/" + tableName + "/_bulk");
+    Request request = new Request("POST", "/" + tableName + "/_bulk?refresh=true");
     request.setJsonEntity(buildBulkBody(columnNames, batch));
     performRequest(request);
   }
@@ -79,12 +79,9 @@ public class ESConnection implements DBConnection {
 
   @Override
   public void close() {
+    // Only close database connection and leave ES REST connection alone
+    // because it's initialized and manged by ES test base class.
     connection.close();
-    try {
-      client.close();
-    } catch (IOException e) {
-      // Ignore
-    }
   }
 
   private void performRequest(Request request) {
