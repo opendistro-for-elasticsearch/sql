@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,7 +32,7 @@ class FilterOperatorTest extends PhysicalPlanTestBase {
   @Test
   public void filterTest() {
     FilterOperator plan = new FilterOperator(new TestScan(),
-        dsl.equal(typeEnv(), DSL.ref("response"), DSL.literal(404)));
+        dsl.equal(DSL.ref("response", INTEGER), DSL.literal(404)));
     List<ExprValue> result = execute(plan);
     assertEquals(1, result.size());
     assertThat(result, containsInAnyOrder(ExprValueUtils

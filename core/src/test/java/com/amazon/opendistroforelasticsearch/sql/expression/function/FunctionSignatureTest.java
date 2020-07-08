@@ -20,7 +20,8 @@ import static com.amazon.opendistroforelasticsearch.sql.expression.function.Func
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -39,7 +40,8 @@ class FunctionSignatureTest {
   private List<ExprType> funcParamTypeList;
 
   private FunctionName unresolvedFuncName = FunctionName.of("add");
-  private List<ExprType> unresolvedParamTypeList = Arrays.asList(ExprType.INTEGER, ExprType.FLOAT);
+  private List<ExprType> unresolvedParamTypeList =
+      Arrays.asList(ExprCoreType.INTEGER, ExprCoreType.FLOAT);
 
   @Test
   void signature_name_not_match() {
@@ -75,7 +77,7 @@ class FunctionSignatureTest {
   void signature_not_match() {
     when(funcSignature.getFunctionName()).thenReturn(unresolvedFuncName);
     when(funcSignature.getParamTypeList())
-        .thenReturn(Arrays.asList(ExprType.STRING, ExprType.STRING));
+        .thenReturn(Arrays.asList(ExprCoreType.STRING, ExprCoreType.STRING));
     FunctionSignature unresolvedFunSig =
         new FunctionSignature(unresolvedFuncName, unresolvedParamTypeList);
 
@@ -86,7 +88,7 @@ class FunctionSignatureTest {
   void signature_widening_match() {
     when(funcSignature.getFunctionName()).thenReturn(unresolvedFuncName);
     when(funcSignature.getParamTypeList())
-        .thenReturn(Arrays.asList(ExprType.FLOAT, ExprType.FLOAT));
+        .thenReturn(Arrays.asList(ExprCoreType.FLOAT, ExprCoreType.FLOAT));
     FunctionSignature unresolvedFunSig =
         new FunctionSignature(unresolvedFuncName, unresolvedParamTypeList);
 

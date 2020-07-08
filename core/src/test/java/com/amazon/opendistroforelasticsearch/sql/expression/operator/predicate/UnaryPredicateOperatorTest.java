@@ -20,9 +20,9 @@ import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.BOOL_T
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.booleanValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
@@ -35,23 +35,23 @@ class UnaryPredicateOperatorTest extends ExpressionTestBase {
   @ParameterizedTest(name = "not({0})")
   @ValueSource(booleans = {true, false})
   public void test_not(Boolean v) {
-    FunctionExpression not = dsl.not(typeEnv(), DSL.literal(booleanValue(v)));
-    assertEquals(ExprType.BOOLEAN, not.type(typeEnv()));
+    FunctionExpression not = dsl.not(DSL.literal(booleanValue(v)));
+    assertEquals(BOOLEAN, not.type());
     assertEquals(!v, ExprValueUtils.getBooleanValue(not.valueOf(valueEnv())));
     assertEquals(String.format("not %s", v.toString()), not.toString());
   }
 
   @Test
   public void test_not_null() {
-    FunctionExpression and = dsl.not(typeEnv(), DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD));
-    assertEquals(ExprType.BOOLEAN, and.type(typeEnv()));
+    FunctionExpression and = dsl.not(DSL.ref(BOOL_TYPE_NULL_VALUE_FIELD, BOOLEAN));
+    assertEquals(BOOLEAN, and.type());
     assertEquals(LITERAL_NULL, and.valueOf(valueEnv()));
   }
 
   @Test
   public void test_not_missing() {
-    FunctionExpression and = dsl.not(typeEnv(), DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD));
-    assertEquals(ExprType.BOOLEAN, and.type(typeEnv()));
+    FunctionExpression and = dsl.not(DSL.ref(BOOL_TYPE_MISSING_VALUE_FIELD, BOOLEAN));
+    assertEquals(BOOLEAN, and.type());
     assertEquals(LITERAL_MISSING, and.valueOf(valueEnv()));
   }
 }

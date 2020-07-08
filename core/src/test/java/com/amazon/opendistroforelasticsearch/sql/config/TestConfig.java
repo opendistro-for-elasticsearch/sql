@@ -18,7 +18,8 @@ package com.amazon.opendistroforelasticsearch.sql.config;
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.SymbolTable;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
@@ -47,22 +48,22 @@ public class TestConfig {
   public static final String STRING_TYPE_MISSING_VALUE_FILED = "string_missing_value";
 
   private static Map<String, ExprType> typeMapping = new ImmutableMap.Builder<String, ExprType>()
-      .put("integer_value", ExprType.INTEGER)
-      .put(INT_TYPE_NULL_VALUE_FIELD, ExprType.INTEGER)
-      .put(INT_TYPE_MISSING_VALUE_FIELD, ExprType.INTEGER)
-      .put("long_value", ExprType.LONG)
-      .put("float_value", ExprType.FLOAT)
-      .put("double_value", ExprType.DOUBLE)
-      .put(DOUBLE_TYPE_NULL_VALUE_FIELD, ExprType.DOUBLE)
-      .put(DOUBLE_TYPE_MISSING_VALUE_FIELD, ExprType.DOUBLE)
-      .put("boolean_value", ExprType.BOOLEAN)
-      .put(BOOL_TYPE_NULL_VALUE_FIELD, ExprType.BOOLEAN)
-      .put(BOOL_TYPE_MISSING_VALUE_FIELD, ExprType.BOOLEAN)
-      .put("string_value", ExprType.STRING)
-      .put(STRING_TYPE_NULL_VALUE_FILED, ExprType.STRING)
-      .put(STRING_TYPE_MISSING_VALUE_FILED, ExprType.STRING)
-      .put("struct_value", ExprType.STRUCT)
-      .put("array_value", ExprType.ARRAY)
+      .put("integer_value", ExprCoreType.INTEGER)
+      .put(INT_TYPE_NULL_VALUE_FIELD, ExprCoreType.INTEGER)
+      .put(INT_TYPE_MISSING_VALUE_FIELD, ExprCoreType.INTEGER)
+      .put("long_value", ExprCoreType.LONG)
+      .put("float_value", ExprCoreType.FLOAT)
+      .put("double_value", ExprCoreType.DOUBLE)
+      .put(DOUBLE_TYPE_NULL_VALUE_FIELD, ExprCoreType.DOUBLE)
+      .put(DOUBLE_TYPE_MISSING_VALUE_FIELD, ExprCoreType.DOUBLE)
+      .put("boolean_value", ExprCoreType.BOOLEAN)
+      .put(BOOL_TYPE_NULL_VALUE_FIELD, ExprCoreType.BOOLEAN)
+      .put(BOOL_TYPE_MISSING_VALUE_FIELD, ExprCoreType.BOOLEAN)
+      .put("string_value", ExprCoreType.STRING)
+      .put(STRING_TYPE_NULL_VALUE_FILED, ExprCoreType.STRING)
+      .put(STRING_TYPE_MISSING_VALUE_FILED, ExprCoreType.STRING)
+      .put("struct_value", ExprCoreType.STRUCT)
+      .put("array_value", ExprCoreType.ARRAY)
       .build();
 
   @Bean

@@ -19,12 +19,21 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.ARRAY;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 import static com.amazon.opendistroforelasticsearch.sql.expression.operator.OperatorUtils.binaryOperator;
 import static com.amazon.opendistroforelasticsearch.sql.utils.OperatorUtils.matches;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
@@ -192,8 +201,8 @@ public class BinaryPredicateOperator {
     return FunctionResolver.builder()
         .functionName(functionName)
         .functionBundle(new FunctionSignature(functionName,
-            Arrays.asList(ExprType.BOOLEAN, ExprType.BOOLEAN)), binaryPredicate(functionName,
-            andTable, ExprType.BOOLEAN))
+            Arrays.asList(BOOLEAN, BOOLEAN)), binaryPredicate(functionName,
+            andTable, BOOLEAN))
         .build();
   }
 
@@ -202,8 +211,8 @@ public class BinaryPredicateOperator {
     return FunctionResolver.builder()
         .functionName(functionName)
         .functionBundle(new FunctionSignature(functionName,
-            Arrays.asList(ExprType.BOOLEAN, ExprType.BOOLEAN)), binaryPredicate(functionName,
-            orTable, ExprType.BOOLEAN))
+            Arrays.asList(BOOLEAN, BOOLEAN)), binaryPredicate(functionName,
+            orTable, BOOLEAN))
         .build();
   }
 
@@ -212,8 +221,8 @@ public class BinaryPredicateOperator {
     return FunctionResolver.builder()
         .functionName(functionName)
         .functionBundle(new FunctionSignature(functionName,
-            Arrays.asList(ExprType.BOOLEAN, ExprType.BOOLEAN)), binaryPredicate(functionName,
-            xorTable, ExprType.BOOLEAN))
+            Arrays.asList(BOOLEAN, BOOLEAN)), binaryPredicate(functionName,
+            xorTable, BOOLEAN))
         .build();
   }
 
@@ -340,30 +349,30 @@ public class BinaryPredicateOperator {
       BiFunction<Map, Map, Boolean> mapFunc) {
     ImmutableMap.Builder<FunctionSignature, FunctionBuilder> builder = new ImmutableMap.Builder<>();
     return builder
-        .put(new FunctionSignature(functionName, Arrays.asList(ExprType.INTEGER, ExprType.INTEGER)),
+        .put(new FunctionSignature(functionName, Arrays.asList(INTEGER, INTEGER)),
             equalPredicate(functionName, table, integerFunc, ExprValueUtils::getIntegerValue,
-                defaultValue, ExprType.BOOLEAN))
-        .put(new FunctionSignature(functionName, Arrays.asList(ExprType.LONG, ExprType.LONG)),
+                defaultValue, BOOLEAN))
+        .put(new FunctionSignature(functionName, Arrays.asList(LONG, LONG)),
             equalPredicate(functionName, table, longFunc, ExprValueUtils::getLongValue,
-                defaultValue, ExprType.BOOLEAN))
-        .put(new FunctionSignature(functionName, Arrays.asList(ExprType.FLOAT, ExprType.FLOAT)),
+                defaultValue, BOOLEAN))
+        .put(new FunctionSignature(functionName, Arrays.asList(FLOAT, FLOAT)),
             equalPredicate(functionName, table, floatFunc, ExprValueUtils::getFloatValue,
-                defaultValue, ExprType.BOOLEAN))
-        .put(new FunctionSignature(functionName, Arrays.asList(ExprType.DOUBLE, ExprType.DOUBLE)),
+                defaultValue, BOOLEAN))
+        .put(new FunctionSignature(functionName, Arrays.asList(DOUBLE, DOUBLE)),
             equalPredicate(functionName, table, doubleFunc, ExprValueUtils::getDoubleValue,
-                defaultValue, ExprType.BOOLEAN))
-        .put(new FunctionSignature(functionName, Arrays.asList(ExprType.STRING, ExprType.STRING)),
+                defaultValue, BOOLEAN))
+        .put(new FunctionSignature(functionName, Arrays.asList(STRING, STRING)),
             equalPredicate(functionName, table, stringFunc, ExprValueUtils::getStringValue,
-                defaultValue, ExprType.BOOLEAN))
-        .put(new FunctionSignature(functionName, Arrays.asList(ExprType.BOOLEAN, ExprType.BOOLEAN)),
+                defaultValue, BOOLEAN))
+        .put(new FunctionSignature(functionName, Arrays.asList(BOOLEAN, BOOLEAN)),
             equalPredicate(functionName, table, booleanFunc, ExprValueUtils::getBooleanValue,
-                defaultValue, ExprType.BOOLEAN))
-        .put(new FunctionSignature(functionName, Arrays.asList(ExprType.ARRAY, ExprType.ARRAY)),
+                defaultValue, BOOLEAN))
+        .put(new FunctionSignature(functionName, Arrays.asList(ARRAY, ARRAY)),
             equalPredicate(functionName, table, listFunc, ExprValueUtils::getCollectionValue,
-                defaultValue, ExprType.BOOLEAN))
-        .put(new FunctionSignature(functionName, Arrays.asList(ExprType.STRUCT, ExprType.STRUCT)),
+                defaultValue, BOOLEAN))
+        .put(new FunctionSignature(functionName, Arrays.asList(STRUCT, STRUCT)),
             equalPredicate(functionName, table, mapFunc, ExprValueUtils::getTupleValue,
-                defaultValue, ExprType.BOOLEAN))
+                defaultValue, BOOLEAN))
         .build();
   }
 
@@ -382,25 +391,25 @@ public class BinaryPredicateOperator {
     ImmutableMap.Builder<FunctionSignature, FunctionBuilder> builder = new ImmutableMap.Builder<>();
     return builder
         .put(
-            new FunctionSignature(functionName, Arrays.asList(ExprType.INTEGER, ExprType.INTEGER)),
+            new FunctionSignature(functionName, Arrays.asList(INTEGER, INTEGER)),
             binaryOperator(
-                functionName, integerFunc, ExprValueUtils::getIntegerValue, ExprType.BOOLEAN))
+                functionName, integerFunc, ExprValueUtils::getIntegerValue, BOOLEAN))
         .put(
-            new FunctionSignature(functionName, Arrays.asList(ExprType.LONG, ExprType.LONG)),
+            new FunctionSignature(functionName, Arrays.asList(LONG, LONG)),
             binaryOperator(
-                functionName, longFunc, ExprValueUtils::getLongValue, ExprType.BOOLEAN))
+                functionName, longFunc, ExprValueUtils::getLongValue, BOOLEAN))
         .put(
-            new FunctionSignature(functionName, Arrays.asList(ExprType.FLOAT, ExprType.FLOAT)),
+            new FunctionSignature(functionName, Arrays.asList(FLOAT, FLOAT)),
             binaryOperator(
-                functionName, floatFunc, ExprValueUtils::getFloatValue, ExprType.BOOLEAN))
+                functionName, floatFunc, ExprValueUtils::getFloatValue, BOOLEAN))
         .put(
-            new FunctionSignature(functionName, Arrays.asList(ExprType.DOUBLE, ExprType.DOUBLE)),
+            new FunctionSignature(functionName, Arrays.asList(DOUBLE, DOUBLE)),
             binaryOperator(
-                functionName, doubleFunc, ExprValueUtils::getDoubleValue, ExprType.BOOLEAN))
+                functionName, doubleFunc, ExprValueUtils::getDoubleValue, BOOLEAN))
         .put(
-            new FunctionSignature(functionName, Arrays.asList(ExprType.STRING, ExprType.STRING)),
+            new FunctionSignature(functionName, Arrays.asList(STRING, STRING)),
             binaryOperator(
-                functionName, stringFunc, ExprValueUtils::getStringValue, ExprType.BOOLEAN))
+                functionName, stringFunc, ExprValueUtils::getStringValue, BOOLEAN))
         .build();
   }
 
@@ -413,9 +422,9 @@ public class BinaryPredicateOperator {
       BiFunction<String, String, Boolean> stringFunc) {
     ImmutableMap.Builder<FunctionSignature, FunctionBuilder> builder = new ImmutableMap.Builder<>();
     return builder
-        .put(new FunctionSignature(functionName, Arrays.asList(ExprType.STRING, ExprType.STRING)),
+        .put(new FunctionSignature(functionName, Arrays.asList(STRING, STRING)),
             binaryOperator(functionName, stringFunc, ExprValueUtils::getStringValue,
-                ExprType.BOOLEAN))
+                BOOLEAN))
         .build();
   }
 
@@ -427,7 +436,7 @@ public class BinaryPredicateOperator {
    */
   private static FunctionBuilder binaryPredicate(FunctionName functionName,
                                                  Table<ExprValue, ExprValue, ExprValue> table,
-                                                 ExprType returnType) {
+                                                 ExprCoreType returnType) {
     return arguments -> new FunctionExpression(functionName, arguments) {
       @Override
       public ExprValue valueOf(Environment<Expression, ExprValue> env) {
@@ -441,7 +450,7 @@ public class BinaryPredicateOperator {
       }
 
       @Override
-      public ExprType type(Environment<Expression, ExprType> env) {
+      public ExprType type() {
         return returnType;
       }
 
@@ -455,6 +464,7 @@ public class BinaryPredicateOperator {
 
   /**
    * Building method for equalTo and notEqualTo operators.
+   *
    * @param defaultValue the return value when expr value is missing/null
    */
   private static <T, R> FunctionBuilder equalPredicate(FunctionName functionName,
@@ -479,7 +489,7 @@ public class BinaryPredicateOperator {
       }
 
       @Override
-      public ExprType type(Environment<Expression, ExprType> env) {
+      public ExprType type() {
         return returnType;
       }
 

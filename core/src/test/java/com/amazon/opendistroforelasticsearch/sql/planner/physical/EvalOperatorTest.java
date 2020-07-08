@@ -15,6 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.eval;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
@@ -22,12 +25,9 @@ import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.mockito.Mockito.when;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
-import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -40,23 +40,19 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class EvalOperatorTest extends PhysicalPlanTestBase {
   @Mock
   private PhysicalPlan inputPlan;
-  @Mock
-  private Environment<Expression, ExprType> environment;
 
   @Test
   public void create_new_field_that_contain_the_result_of_a_calculation() {
     when(inputPlan.hasNext()).thenReturn(true, false);
     when(inputPlan.next())
         .thenReturn(ExprValueUtils.tupleValue(ImmutableMap.of("distance", 100, "time", 10)));
-    when(environment.resolve(DSL.ref("distance"))).thenReturn(ExprType.INTEGER);
-    when(environment.resolve(DSL.ref("time"))).thenReturn(ExprType.INTEGER);
 
     PhysicalPlan plan =
         eval(
             inputPlan,
             ImmutablePair.of(
-                DSL.ref("velocity"),
-                dsl.divide(environment, DSL.ref("distance"), DSL.ref("time"))));
+                DSL.ref("velocity", DOUBLE),
+                dsl.divide(DSL.ref("distance", INTEGER), DSL.ref("time", INTEGER))));
     assertThat(
         execute(plan),
         allOf(
@@ -71,17 +67,16 @@ class EvalOperatorTest extends PhysicalPlanTestBase {
     when(inputPlan.hasNext()).thenReturn(true, false);
     when(inputPlan.next())
         .thenReturn(ExprValueUtils.tupleValue(ImmutableMap.of("distance", 100, "time", 10)));
-    when(environment.resolve(DSL.ref("distance"))).thenReturn(ExprType.INTEGER);
-    when(environment.resolve(DSL.ref("time"))).thenReturn(ExprType.INTEGER);
 
     PhysicalPlan plan =
         eval(
             inputPlan,
             ImmutablePair.of(
-                DSL.ref("velocity"), dsl.divide(environment, DSL.ref("distance"), DSL.ref("time"))),
+                DSL.ref("velocity", DOUBLE), dsl.divide(DSL.ref("distance", INTEGER), DSL.ref(
+                    "time", INTEGER))),
             ImmutablePair.of(
-                DSL.ref("doubleDistance"),
-                dsl.multiply(environment, DSL.ref("distance"), DSL.literal(2))));
+                DSL.ref("doubleDistance", INTEGER),
+                dsl.multiply(DSL.ref("distance", INTEGER), DSL.literal(2))));
     assertThat(
         execute(plan),
         allOf(
@@ -97,18 +92,16 @@ class EvalOperatorTest extends PhysicalPlanTestBase {
     when(inputPlan.hasNext()).thenReturn(true, false);
     when(inputPlan.next())
         .thenReturn(ExprValueUtils.tupleValue(ImmutableMap.of("distance", 100, "time", 10)));
-    when(environment.resolve(DSL.ref("distance"))).thenReturn(ExprType.INTEGER);
-    when(environment.resolve(DSL.ref("time"))).thenReturn(ExprType.INTEGER);
-    when(environment.resolve(DSL.ref("velocity"))).thenReturn(ExprType.INTEGER);
 
     PhysicalPlan plan =
         eval(
             inputPlan,
             ImmutablePair.of(
-                DSL.ref("velocity"), dsl.divide(environment, DSL.ref("distance"), DSL.ref("time"))),
+                DSL.ref("velocity", INTEGER), dsl.divide(DSL.ref("distance", INTEGER), DSL.ref(
+                    "time", INTEGER))),
             ImmutablePair.of(
-                DSL.ref("doubleVelocity"),
-                dsl.multiply(environment, DSL.ref("velocity"), DSL.literal(2))));
+                DSL.ref("doubleVelocity", INTEGER),
+                dsl.multiply(DSL.ref("velocity", INTEGER), DSL.literal(2))));
     assertThat(
         execute(plan),
         allOf(
@@ -124,14 +117,13 @@ class EvalOperatorTest extends PhysicalPlanTestBase {
     when(inputPlan.hasNext()).thenReturn(true, false);
     when(inputPlan.next())
         .thenReturn(ExprValueUtils.tupleValue(ImmutableMap.of("distance", 100, "time", 10)));
-    when(environment.resolve(DSL.ref("distance"))).thenReturn(ExprType.INTEGER);
 
     PhysicalPlan plan =
         eval(
             inputPlan,
             ImmutablePair.of(
-                DSL.ref("distance"),
-                dsl.multiply(environment, DSL.ref("distance"), DSL.literal(2))));
+                DSL.ref("distance", INTEGER),
+                dsl.multiply(DSL.ref("distance", INTEGER), DSL.literal(2))));
     assertThat(
         execute(plan),
         allOf(
@@ -143,7 +135,8 @@ class EvalOperatorTest extends PhysicalPlanTestBase {
   public void do_nothing_with_none_tuple_value() {
     when(inputPlan.hasNext()).thenReturn(true, false);
     when(inputPlan.next()).thenReturn(ExprValueUtils.integerValue(1));
-    PhysicalPlan plan = eval(inputPlan, ImmutablePair.of(DSL.ref("response"), DSL.ref("referer")));
+    PhysicalPlan plan = eval(inputPlan, ImmutablePair.of(DSL.ref("response", INTEGER),
+        DSL.ref("referer", STRING)));
     List<ExprValue> result = execute(plan);
 
     assertThat(result, allOf(iterableWithSize(1), hasItems(ExprValueUtils.integerValue(1))));

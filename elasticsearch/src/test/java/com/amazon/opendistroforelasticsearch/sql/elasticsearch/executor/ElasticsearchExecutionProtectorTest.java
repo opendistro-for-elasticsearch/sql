@@ -17,6 +17,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.filter;
@@ -24,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.protector.ElasticsearchExecutionProtector;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.executor.protector.ResourceMonitorPlan;
@@ -66,19 +68,19 @@ class ElasticsearchExecutionProtectorTest {
   @Test
   public void testProtectIndexScan() {
     String indexName = "test";
-    ReferenceExpression include = ref("age");
-    ReferenceExpression exclude = ref("name");
-    ReferenceExpression dedupeField = ref("name");
+    ReferenceExpression include = ref("age", INTEGER);
+    ReferenceExpression exclude = ref("name", STRING);
+    ReferenceExpression dedupeField = ref("name", STRING);
     Expression filterExpr = literal(ExprBooleanValue.ofTrue());
-    List<Expression> groupByExprs = Arrays.asList(ref("age"));
-    List<Aggregator> aggregators = Arrays.asList(new AvgAggregator(groupByExprs, ExprType.DOUBLE));
+    List<Expression> groupByExprs = Arrays.asList(ref("age", INTEGER));
+    List<Aggregator> aggregators = Arrays.asList(new AvgAggregator(groupByExprs, DOUBLE));
     Map<ReferenceExpression, ReferenceExpression> mappings =
-        ImmutableMap.of(ref("name"), ref("lastname"));
+        ImmutableMap.of(ref("name", STRING), ref("lastname", STRING));
     Pair<ReferenceExpression, Expression> newEvalField =
-        ImmutablePair.of(ref("name1"), ref("name"));
+        ImmutablePair.of(ref("name1", STRING), ref("name", STRING));
     Integer sortCount = 100;
     Pair<Sort.SortOption, Expression> sortField =
-        ImmutablePair.of(Sort.SortOption.PPL_ASC, ref("name1"));
+        ImmutablePair.of(Sort.SortOption.PPL_ASC, ref("name1", STRING));
 
     assertEquals(
         PhysicalPlanDSL.project(

@@ -20,23 +20,24 @@ import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.INT_TY
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.WideningTypeRule;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
-import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.WideningTypeRule;
 import com.google.common.collect.Lists;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -66,9 +67,9 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
   @ParameterizedTest(name = "add({1}, {2})")
   @MethodSource("arithmeticFunctionArguments")
   public void add(ExprValue op1, ExprValue op2) {
-    FunctionExpression expression = dsl.add(typeEnv(), literal(op1), literal(op2));
+    FunctionExpression expression = dsl.add(literal(op1), literal(op2));
     ExprType expectedType = WideningTypeRule.max(op1.type(), op2.type());
-    assertEquals(expectedType, expression.type(null));
+    assertEquals(expectedType, expression.type());
     assertValueEqual(BuiltinFunctionName.ADD, expectedType, op1, op2, expression.valueOf(null));
     assertEquals(String.format("%s + %s", op1.toString(), op2.toString()), expression.toString());
   }
@@ -76,70 +77,74 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
   @ParameterizedTest(name = "{0}(int,null)")
   @MethodSource("arithmeticOperatorArguments")
   public void arithmetic_int_null(BuiltinFunctionName builtinFunctionName) {
-    BiFunction<Environment<Expression, ExprType>,
+    Function<
         List<Expression>, FunctionExpression> function = functionMapping(builtinFunctionName);
 
     FunctionExpression functionExpression =
-        function.apply(typeEnv(), Arrays.asList(literal(integerValue(1)),
-            ref(INT_TYPE_NULL_VALUE_FIELD)));
-    assertEquals(ExprType.INTEGER, functionExpression.type(typeEnv()));
+        function.apply(Arrays.asList(literal(integerValue(1)),
+            ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER)));
+    assertEquals(INTEGER, functionExpression.type());
     assertEquals(LITERAL_NULL, functionExpression.valueOf(valueEnv()));
 
-    functionExpression = function.apply(typeEnv(),
-        Arrays.asList(ref(INT_TYPE_NULL_VALUE_FIELD), literal(integerValue(1))));
-    assertEquals(ExprType.INTEGER, functionExpression.type(typeEnv()));
+    functionExpression = function.apply(
+        Arrays.asList(ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER), literal(integerValue(1))));
+    assertEquals(INTEGER, functionExpression.type());
     assertEquals(LITERAL_NULL, functionExpression.valueOf(valueEnv()));
   }
 
   @ParameterizedTest(name = "{0}(int,missing)")
   @MethodSource("arithmeticOperatorArguments")
   public void arithmetic_int_missing(BuiltinFunctionName builtinFunctionName) {
-    BiFunction<Environment<Expression, ExprType>,
+    Function<
         List<Expression>, FunctionExpression> function = functionMapping(builtinFunctionName);
     FunctionExpression functionExpression =
-        function.apply(typeEnv(), Arrays.asList(literal(integerValue(1)),
-            ref(INT_TYPE_MISSING_VALUE_FIELD)));
-    assertEquals(ExprType.INTEGER, functionExpression.type(typeEnv()));
+        function.apply(Arrays.asList(literal(integerValue(1)),
+            ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER)));
+    assertEquals(INTEGER, functionExpression.type());
     assertEquals(LITERAL_MISSING, functionExpression.valueOf(valueEnv()));
 
-    functionExpression = function.apply(typeEnv(), Arrays.asList(ref(INT_TYPE_MISSING_VALUE_FIELD),
+    functionExpression = function.apply(Arrays.asList(ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER),
         literal(integerValue(1))));
-    assertEquals(ExprType.INTEGER, functionExpression.type(typeEnv()));
+    assertEquals(INTEGER, functionExpression.type());
     assertEquals(LITERAL_MISSING, functionExpression.valueOf(valueEnv()));
   }
 
   @ParameterizedTest(name = "{0}(null,missing)")
   @MethodSource("arithmeticOperatorArguments")
   public void arithmetic_null_missing(BuiltinFunctionName builtinFunctionName) {
-    BiFunction<Environment<Expression, ExprType>,
+    Function<
         List<Expression>, FunctionExpression> function = functionMapping(builtinFunctionName);
-    FunctionExpression functionExpression = function.apply(typeEnv(),
-        Arrays.asList(ref(INT_TYPE_NULL_VALUE_FIELD), ref(INT_TYPE_NULL_VALUE_FIELD)));
-    assertEquals(ExprType.INTEGER, functionExpression.type(typeEnv()));
+    FunctionExpression functionExpression = function.apply(
+        Arrays.asList(ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER),
+            ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER)));
+    assertEquals(INTEGER, functionExpression.type());
     assertEquals(LITERAL_NULL, functionExpression.valueOf(valueEnv()));
 
-    functionExpression = function.apply(typeEnv(),
-        Arrays.asList(ref(INT_TYPE_MISSING_VALUE_FIELD), ref(INT_TYPE_MISSING_VALUE_FIELD)));
-    assertEquals(ExprType.INTEGER, functionExpression.type(typeEnv()));
+    functionExpression = function.apply(
+        Arrays.asList(ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER),
+            ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER)));
+    assertEquals(INTEGER, functionExpression.type());
     assertEquals(LITERAL_MISSING, functionExpression.valueOf(valueEnv()));
 
-    functionExpression = function.apply(typeEnv(),
-        Arrays.asList(ref(INT_TYPE_MISSING_VALUE_FIELD), ref(INT_TYPE_NULL_VALUE_FIELD)));
-    assertEquals(ExprType.INTEGER, functionExpression.type(typeEnv()));
+    functionExpression = function.apply(
+        Arrays.asList(ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER),
+            ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER)));
+    assertEquals(INTEGER, functionExpression.type());
     assertEquals(LITERAL_MISSING, functionExpression.valueOf(valueEnv()));
 
-    functionExpression = function.apply(typeEnv(),
-        Arrays.asList(ref(INT_TYPE_NULL_VALUE_FIELD), ref(INT_TYPE_MISSING_VALUE_FIELD)));
-    assertEquals(ExprType.INTEGER, functionExpression.type(typeEnv()));
+    functionExpression = function.apply(
+        Arrays.asList(ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER),
+            ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER)));
+    assertEquals(INTEGER, functionExpression.type());
     assertEquals(LITERAL_MISSING, functionExpression.valueOf(valueEnv()));
   }
 
   @ParameterizedTest(name = "subtract({1}, {2})")
   @MethodSource("arithmeticFunctionArguments")
   public void subtract(ExprValue op1, ExprValue op2) {
-    FunctionExpression expression = dsl.subtract(typeEnv(), literal(op1), literal(op2));
+    FunctionExpression expression = dsl.subtract(literal(op1), literal(op2));
     ExprType expectedType = WideningTypeRule.max(op1.type(), op2.type());
-    assertEquals(expectedType, expression.type(null));
+    assertEquals(expectedType, expression.type());
     assertValueEqual(BuiltinFunctionName.SUBTRACT, expectedType, op1, op2,
         expression.valueOf(null));
     assertEquals(String.format("%s - %s", op1.toString(), op2.toString()), expression.toString());
@@ -148,9 +153,9 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
   @ParameterizedTest(name = "multiply({1}, {2})")
   @MethodSource("arithmeticFunctionArguments")
   public void multiply(ExprValue op1, ExprValue op2) {
-    FunctionExpression expression = dsl.multiply(typeEnv(), literal(op1), literal(op2));
+    FunctionExpression expression = dsl.multiply(literal(op1), literal(op2));
     ExprType expectedType = WideningTypeRule.max(op1.type(), op2.type());
-    assertEquals(expectedType, expression.type(null));
+    assertEquals(expectedType, expression.type());
     assertValueEqual(BuiltinFunctionName.MULTIPLY, expectedType, op1, op2,
         expression.valueOf(null));
     assertEquals(String.format("%s * %s", op1.toString(), op2.toString()), expression.toString());
@@ -159,9 +164,9 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
   @ParameterizedTest(name = "divide({1}, {2})")
   @MethodSource("arithmeticFunctionArguments")
   public void divide(ExprValue op1, ExprValue op2) {
-    FunctionExpression expression = dsl.divide(typeEnv(), literal(op1), literal(op2));
+    FunctionExpression expression = dsl.divide(literal(op1), literal(op2));
     ExprType expectedType = WideningTypeRule.max(op1.type(), op2.type());
-    assertEquals(expectedType, expression.type(null));
+    assertEquals(expectedType, expression.type());
     assertValueEqual(BuiltinFunctionName.DIVIDE, expectedType, op1, op2, expression.valueOf(null));
     assertEquals(String.format("%s / %s", op1.toString(), op2.toString()), expression.toString());
   }
@@ -169,9 +174,9 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
   @ParameterizedTest(name = "module({1}, {2})")
   @MethodSource("arithmeticFunctionArguments")
   public void module(ExprValue op1, ExprValue op2) {
-    FunctionExpression expression = dsl.module(typeEnv(), literal(op1), literal(op2));
+    FunctionExpression expression = dsl.module(literal(op1), literal(op2));
     ExprType expectedType = WideningTypeRule.max(op1.type(), op2.type());
-    assertEquals(expectedType, expression.type(null));
+    assertEquals(expectedType, expression.type());
     assertValueEqual(BuiltinFunctionName.MODULES, expectedType, op1, op2, expression.valueOf(null));
     assertEquals(op1.toString() + " % " + op2.toString(), expression.toString());
   }
@@ -180,7 +185,7 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
                                   ExprValue op1,
                                   ExprValue op2,
                                   ExprValue actual) {
-    switch (type) {
+    switch ((ExprCoreType) type) {
       case INTEGER:
         Integer vi1 = ExprValueUtils.getIntegerValue(op1);
         Integer vi2 = ExprValueUtils.getIntegerValue(op2);

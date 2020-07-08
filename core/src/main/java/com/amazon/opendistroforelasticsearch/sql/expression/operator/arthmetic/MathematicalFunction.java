@@ -18,8 +18,8 @@ package com.amazon.opendistroforelasticsearch.sql.expression.operator.arthmetic;
 import static com.amazon.opendistroforelasticsearch.sql.expression.operator.OperatorUtils.doubleArgFunc;
 import static com.amazon.opendistroforelasticsearch.sql.expression.operator.OperatorUtils.unaryOperator;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionBuilder;
@@ -77,10 +77,10 @@ public class MathematicalFunction {
         BuiltinFunctionName.CEIL.getName(),
         new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
             .put(
-                new FunctionSignature(functionName, Arrays.asList(ExprType.DOUBLE)),
+                new FunctionSignature(functionName, Arrays.asList(ExprCoreType.DOUBLE)),
                 unaryOperator(
                     functionName, v -> ((long) Math.ceil(v)), ExprValueUtils::getDoubleValue,
-                    ExprType.LONG))
+                    ExprCoreType.LONG))
             .build());
   }
 
@@ -90,10 +90,10 @@ public class MathematicalFunction {
         BuiltinFunctionName.CEILING.getName(),
         new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
             .put(
-                new FunctionSignature(functionName, Arrays.asList(ExprType.DOUBLE)),
+                new FunctionSignature(functionName, Arrays.asList(ExprCoreType.DOUBLE)),
                 unaryOperator(
                     functionName, v -> ((long) Math.ceil(v)), ExprValueUtils::getDoubleValue,
-                    ExprType.LONG))
+                    ExprCoreType.LONG))
             .build());
   }
 
@@ -120,10 +120,10 @@ public class MathematicalFunction {
         BuiltinFunctionName.FLOOR.getName(),
         new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
             .put(
-                new FunctionSignature(functionName, Arrays.asList(ExprType.DOUBLE)),
+                new FunctionSignature(functionName, Arrays.asList(ExprCoreType.DOUBLE)),
                 unaryOperator(
                     functionName, v -> ((long) Math.floor(v)), ExprValueUtils::getDoubleValue,
-                    ExprType.LONG))
+                    ExprCoreType.LONG))
             .build());
   }
 
@@ -165,18 +165,19 @@ public class MathematicalFunction {
       Function<Double, Double> doubleFunc) {
     ImmutableMap.Builder<FunctionSignature, FunctionBuilder> builder = new ImmutableMap.Builder<>();
     builder.put(
-        new FunctionSignature(functionName, Arrays.asList(ExprType.INTEGER)),
+        new FunctionSignature(functionName, Arrays.asList(ExprCoreType.INTEGER)),
         unaryOperator(
-            functionName, integerFunc, ExprValueUtils::getIntegerValue, ExprType.INTEGER));
+            functionName, integerFunc, ExprValueUtils::getIntegerValue, ExprCoreType.INTEGER));
     builder.put(
-        new FunctionSignature(functionName, Arrays.asList(ExprType.LONG)),
-        unaryOperator(functionName, longFunc, ExprValueUtils::getLongValue, ExprType.LONG));
+        new FunctionSignature(functionName, Arrays.asList(ExprCoreType.LONG)),
+        unaryOperator(functionName, longFunc, ExprValueUtils::getLongValue, ExprCoreType.LONG));
     builder.put(
-        new FunctionSignature(functionName, Arrays.asList(ExprType.FLOAT)),
-        unaryOperator(functionName, floatFunc, ExprValueUtils::getFloatValue, ExprType.FLOAT));
+        new FunctionSignature(functionName, Arrays.asList(ExprCoreType.FLOAT)),
+        unaryOperator(functionName, floatFunc, ExprValueUtils::getFloatValue, ExprCoreType.FLOAT));
     builder.put(
-        new FunctionSignature(functionName, Arrays.asList(ExprType.DOUBLE)),
-        unaryOperator(functionName, doubleFunc, ExprValueUtils::getDoubleValue, ExprType.DOUBLE));
+        new FunctionSignature(functionName, Arrays.asList(ExprCoreType.DOUBLE)),
+        unaryOperator(
+            functionName, doubleFunc, ExprValueUtils::getDoubleValue, ExprCoreType.DOUBLE));
     return builder.build();
   }
 
@@ -190,9 +191,9 @@ public class MathematicalFunction {
     ImmutableMap.Builder<FunctionSignature, FunctionBuilder> builder = new ImmutableMap.Builder<>();
     return builder
         .put(
-            new FunctionSignature(functionName, Arrays.asList(ExprType.DOUBLE)),
+            new FunctionSignature(functionName, Arrays.asList(ExprCoreType.DOUBLE)),
             unaryOperator(
-                functionName, doubleFunc, ExprValueUtils::getDoubleValue, ExprType.DOUBLE))
+                functionName, doubleFunc, ExprValueUtils::getDoubleValue, ExprCoreType.DOUBLE))
         .build();
   }
 
@@ -206,9 +207,10 @@ public class MathematicalFunction {
     ImmutableMap.Builder<FunctionSignature, FunctionBuilder> builder = new ImmutableMap.Builder<>();
     return builder
         .put(
-            new FunctionSignature(functionName, Arrays.asList(ExprType.DOUBLE, ExprType.DOUBLE)),
+            new FunctionSignature(
+                functionName, Arrays.asList(ExprCoreType.DOUBLE, ExprCoreType.DOUBLE)),
             doubleArgFunc(functionName, doubleFunc, ExprValueUtils::getDoubleValue,
-                ExprValueUtils::getDoubleValue, ExprType.DOUBLE))
+                ExprValueUtils::getDoubleValue, ExprCoreType.DOUBLE))
         .build();
   }
 }
