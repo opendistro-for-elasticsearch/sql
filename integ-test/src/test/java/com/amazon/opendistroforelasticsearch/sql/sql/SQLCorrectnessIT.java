@@ -16,19 +16,13 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql;
 
-import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlSettingsAction.SETTINGS_API_ENDPOINT;
-
+import com.amazon.opendistroforelasticsearch.sql.util.TestUtils;
 import com.google.common.io.Resources;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.function.Function;
-import org.elasticsearch.client.Request;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.Response;
-import org.elasticsearch.rest.RestStatus;
-import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -43,7 +37,7 @@ public class SQLCorrectnessIT extends SQLIntegTestCase {
   @Override
   protected void init() throws Exception {
     super.init();
-    enableNewQueryEngine();
+    TestUtils.enableNewQueryEngine(client());
   }
 
   @Test
@@ -77,18 +71,6 @@ public class SQLCorrectnessIT extends SQLIntegTestCase {
     }
   }
 
-  /** Enable new query engine which is disabled by default for now. */
-  private void enableNewQueryEngine() throws IOException {
-    Request request = new Request("PUT", SETTINGS_API_ENDPOINT);
-    request.setJsonEntity("{\"transient\" : {\"opendistro.sql.engine.new.enabled\" : \"true\"}}");
 
-    RequestOptions.Builder restOptionsBuilder = RequestOptions.DEFAULT.toBuilder();
-    restOptionsBuilder.addHeader("Content-Type", "application/json");
-    request.setOptions(restOptionsBuilder);
-
-    Response response = client().performRequest(request);
-    Assert.assertEquals(RestStatus.OK,
-        RestStatus.fromCode(response.getStatusLine().getStatusCode()));
-  }
 
 }

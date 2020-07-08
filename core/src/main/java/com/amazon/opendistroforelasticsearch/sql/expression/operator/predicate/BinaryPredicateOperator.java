@@ -19,6 +19,8 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
+import static com.amazon.opendistroforelasticsearch.sql.expression.operator.OperatorUtils.binaryOperator;
+import static com.amazon.opendistroforelasticsearch.sql.utils.OperatorUtils.matches;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
@@ -66,6 +68,7 @@ public class BinaryPredicateOperator {
     repository.register(lte());
     repository.register(greater());
     repository.register(gte());
+    repository.register(like());
   }
 
   /**
@@ -183,7 +186,6 @@ public class BinaryPredicateOperator {
           .put(LITERAL_MISSING, LITERAL_NULL, LITERAL_TRUE)
           .put(LITERAL_MISSING, LITERAL_MISSING, LITERAL_FALSE)
           .build();
-
 
   private static FunctionResolver and() {
     FunctionName functionName = BuiltinFunctionName.AND.getName();
@@ -309,6 +311,21 @@ public class BinaryPredicateOperator {
     );
   }
 
+  private static FunctionResolver like() {
+    return new FunctionResolver(
+        BuiltinFunctionName.LIKE.getName(),
+        predicate(
+            BuiltinFunctionName.LIKE.getName(),
+            (v1, v2) -> matches(v2, v1)
+        )
+    );
+  }
+
+  /**
+   * Util method to generate EQUAL/NOT EQUAL operation bundles.
+   * Applicable for integer, long, float, double, string types of operands
+   * {@param defaultValue} Default value for one missing/null operand
+   */
   private static Map<FunctionSignature, FunctionBuilder> predicate(
       FunctionName functionName,
       Table<ExprValue, ExprValue, ExprValue> table,
@@ -350,6 +367,11 @@ public class BinaryPredicateOperator {
         .build();
   }
 
+  /**
+   * Util method to generate binary predicate bundles.
+   * Applicable for integer, long, float, double, string types of operands
+   * Missing/Null value operands follow as {@param table} lists
+   */
   private static Map<FunctionSignature, FunctionBuilder> predicate(
       FunctionName functionName,
       BiFunction<Integer, Integer, Boolean> integerFunc,
@@ -359,24 +381,50 @@ public class BinaryPredicateOperator {
       BiFunction<String, String, Boolean> stringFunc) {
     ImmutableMap.Builder<FunctionSignature, FunctionBuilder> builder = new ImmutableMap.Builder<>();
     return builder
-        .put(new FunctionSignature(functionName, Arrays.asList(ExprType.INTEGER, ExprType.INTEGER)),
-            compareValue(functionName, integerFunc, ExprValueUtils::getIntegerValue,
-                ExprType.BOOLEAN))
-        .put(new FunctionSignature(functionName, Arrays.asList(ExprType.LONG, ExprType.LONG)),
-            compareValue(functionName, longFunc, ExprValueUtils::getLongValue,
-            ExprType.BOOLEAN))
-        .put(new FunctionSignature(functionName, Arrays.asList(ExprType.FLOAT, ExprType.FLOAT)),
-            compareValue(functionName, floatFunc, ExprValueUtils::getFloatValue,
-            ExprType.BOOLEAN))
-        .put(new FunctionSignature(functionName, Arrays.asList(ExprType.DOUBLE, ExprType.DOUBLE)),
-            compareValue(functionName, doubleFunc, ExprValueUtils::getDoubleValue,
-                ExprType.BOOLEAN))
+        .put(
+            new FunctionSignature(functionName, Arrays.asList(ExprType.INTEGER, ExprType.INTEGER)),
+            binaryOperator(
+                functionName, integerFunc, ExprValueUtils::getIntegerValue, ExprType.BOOLEAN))
+        .put(
+            new FunctionSignature(functionName, Arrays.asList(ExprType.LONG, ExprType.LONG)),
+            binaryOperator(
+                functionName, longFunc, ExprValueUtils::getLongValue, ExprType.BOOLEAN))
+        .put(
+            new FunctionSignature(functionName, Arrays.asList(ExprType.FLOAT, ExprType.FLOAT)),
+            binaryOperator(
+                functionName, floatFunc, ExprValueUtils::getFloatValue, ExprType.BOOLEAN))
+        .put(
+            new FunctionSignature(functionName, Arrays.asList(ExprType.DOUBLE, ExprType.DOUBLE)),
+            binaryOperator(
+                functionName, doubleFunc, ExprValueUtils::getDoubleValue, ExprType.BOOLEAN))
+        .put(
+            new FunctionSignature(functionName, Arrays.asList(ExprType.STRING, ExprType.STRING)),
+            binaryOperator(
+                functionName, stringFunc, ExprValueUtils::getStringValue, ExprType.BOOLEAN))
+        .build();
+  }
+
+  /**
+   * Util method to generate LIKE predicate bundles.
+   * Applicable for string operands.
+   */
+  private static Map<FunctionSignature, FunctionBuilder> predicate(
+      FunctionName functionName,
+      BiFunction<String, String, Boolean> stringFunc) {
+    ImmutableMap.Builder<FunctionSignature, FunctionBuilder> builder = new ImmutableMap.Builder<>();
+    return builder
         .put(new FunctionSignature(functionName, Arrays.asList(ExprType.STRING, ExprType.STRING)),
-            compareValue(functionName, stringFunc, ExprValueUtils::getStringValue,
+            binaryOperator(functionName, stringFunc, ExprValueUtils::getStringValue,
                 ExprType.BOOLEAN))
         .build();
   }
 
+
+  /**
+   * Building method to construct binary logical predicates AND OR XOR
+   * Where operands order does not matter.
+   * Special cases for missing/null operands refer to {@param table}.
+   */
   private static FunctionBuilder binaryPredicate(FunctionName functionName,
                                                  Table<ExprValue, ExprValue, ExprValue> table,
                                                  ExprType returnType) {
@@ -428,39 +476,6 @@ public class BinaryPredicateOperator {
           return ExprValueUtils.fromObjectValue(
               function.apply(observer.apply(arg1), observer.apply(arg2)));
         }
-      }
-
-      @Override
-      public ExprType type(Environment<Expression, ExprType> env) {
-        return returnType;
-      }
-
-      @Override
-      public String toString() {
-        return String.format("%s %s %s", arguments.get(0).toString(), functionName, arguments
-            .get(1).toString());
-      }
-    };
-  }
-
-  /**
-   * Building method for operators including.
-   * less than (<) operator
-   * less than or equal to (<=) operator
-   * greater than (>) operator
-   * greater than or equal to (>=) operator
-   */
-  private static <T, R> FunctionBuilder compareValue(FunctionName functionName,
-                                                     BiFunction<T, T, R> function,
-                                                     Function<ExprValue, T> observer,
-                                                     ExprType returnType) {
-    return arguments -> new FunctionExpression(functionName, arguments) {
-      @Override
-      public ExprValue valueOf(Environment<Expression, ExprValue> env) {
-        ExprValue arg1 = arguments.get(0).valueOf(env);
-        ExprValue arg2 = arguments.get(1).valueOf(env);
-        return ExprValueUtils.fromObjectValue(
-            function.apply(observer.apply(arg1), observer.apply(arg2)));
       }
 
       @Override

@@ -110,6 +110,15 @@ public class AstExpressionBuilderTest extends AstBuilderTest {
         ));
   }
 
+  @Test
+  public void testLogicalLikeExpr() {
+    assertEqual("source=t a like '_a%b%c_d_'",
+        filter(
+            relation("t"),
+            compare("like", field("a"), stringLiteral("_a%b%c_d_"))
+        ));
+  }
+
   /**
    * Todo. search operator should not include functionCall, need to change antlr.
    */
