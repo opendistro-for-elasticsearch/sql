@@ -41,7 +41,7 @@ public class WideningTypeRule {
 
   /**
    * The widening distance is calculated from the leaf to root.
-   * e.g. distance(INTEGER, FLOAT) = 2, but distance(FLOAT, INTEGER) =
+   * e.g. distance(INTEGER, FLOAT) = 2, but distance(FLOAT, INTEGER) = IMPOSSIBLE_WIDENING
    *
    * @param type1 widen from type
    * @param type2 widen to type
