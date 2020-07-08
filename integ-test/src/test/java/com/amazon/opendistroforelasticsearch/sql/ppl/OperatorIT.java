@@ -265,6 +265,14 @@ public class OperatorIT extends PPLIntegTestCase {
   }
 
   @Test
+  public void testLikeOperator() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format("source=%s firstname like 'Hatti_' | fields firstname", TEST_INDEX_BANK));
+    verifyDataRows(result, rows("Hattie"));
+  }
+
+  @Test
   public void testBinaryPredicateWithNullValue() {
     queryExecutionShouldThrowExceptionDueToNullOrMissingValue(
         String.format("source=%s | where age < 32", TEST_INDEX_BANK_WITH_NULL_VALUES),
