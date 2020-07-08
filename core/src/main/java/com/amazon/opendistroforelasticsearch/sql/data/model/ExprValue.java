@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
 
 /**
@@ -27,9 +28,9 @@ public interface ExprValue {
   Object value();
 
   /**
-   * Get the {@link ExprType} of the Expression Value.
+   * Get the {@link ExprCoreType} of the Expression Value.
    */
-  ExprType type();
+  ExprCoreType type();
 
   /**
    * Is null value.

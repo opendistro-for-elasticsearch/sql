@@ -15,6 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.project;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
@@ -43,7 +45,7 @@ class ProjectOperatorTest extends PhysicalPlanTestBase {
     when(inputPlan.hasNext()).thenReturn(true, false);
     when(inputPlan.next())
         .thenReturn(ExprValueUtils.tupleValue(ImmutableMap.of("action", "GET", "response", 200)));
-    PhysicalPlan plan = project(inputPlan, DSL.ref("action"));
+    PhysicalPlan plan = project(inputPlan, DSL.ref("action", STRING));
     List<ExprValue> result = execute(plan);
 
     assertThat(
@@ -58,7 +60,7 @@ class ProjectOperatorTest extends PhysicalPlanTestBase {
     when(inputPlan.hasNext()).thenReturn(true, false);
     when(inputPlan.next())
         .thenReturn(ExprValueUtils.tupleValue(ImmutableMap.of("action", "GET", "response", 200)));
-    PhysicalPlan plan = project(inputPlan, DSL.ref("response"), DSL.ref("action"));
+    PhysicalPlan plan = project(inputPlan, DSL.ref("response", INTEGER), DSL.ref("action", STRING));
     List<ExprValue> result = execute(plan);
 
     assertThat(
@@ -75,7 +77,7 @@ class ProjectOperatorTest extends PhysicalPlanTestBase {
     when(inputPlan.next())
         .thenReturn(ExprValueUtils.tupleValue(ImmutableMap.of("action", "GET", "response", 200)))
         .thenReturn(ExprValueUtils.tupleValue(ImmutableMap.of("action", "POST")));
-    PhysicalPlan plan = project(inputPlan, DSL.ref("response"), DSL.ref("action"));
+    PhysicalPlan plan = project(inputPlan, DSL.ref("response", INTEGER), DSL.ref("action", STRING));
     List<ExprValue> result = execute(plan);
 
     assertThat(

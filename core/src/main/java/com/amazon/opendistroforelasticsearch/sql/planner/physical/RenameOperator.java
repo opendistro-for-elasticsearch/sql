@@ -15,12 +15,11 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.STRUCT;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
-import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
 import com.google.common.collect.ImmutableMap;
@@ -28,9 +27,9 @@ import com.google.common.collect.ImmutableMap.Builder;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
@@ -40,12 +39,30 @@ import lombok.ToString;
  */
 @EqualsAndHashCode
 @ToString
-@RequiredArgsConstructor
 public class RenameOperator extends PhysicalPlan {
   @Getter
   private final PhysicalPlan input;
   @Getter
   private final Map<ReferenceExpression, ReferenceExpression> mapping;
+  /**
+   * Todo. This is the temporary solution that add the mapping between string and ref. because when
+   * rename the field from input, there we can only get the string field.
+   */
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
+  private final Map<String, ReferenceExpression> nameMapping;
+
+  /**
+   * Constructor of RenameOperator.
+   */
+  public RenameOperator(PhysicalPlan input,
+                        Map<ReferenceExpression, ReferenceExpression> mapping) {
+    this.input = input;
+    this.mapping = mapping;
+    this.nameMapping =
+        mapping.entrySet().stream().collect(Collectors.toMap(entry -> entry.getKey().getAttr(),
+            entry -> entry.getValue()));
+  }
 
   @Override
   public <R, C> R accept(PhysicalPlanNodeVisitor<R, C> visitor, C context) {
@@ -69,8 +86,8 @@ public class RenameOperator extends PhysicalPlan {
       Map<String, ExprValue> tupleValue = ExprValueUtils.getTupleValue(inputValue);
       ImmutableMap.Builder<String, ExprValue> mapBuilder = new Builder<>();
       for (String bindName : tupleValue.keySet()) {
-        if (mapping.containsKey(DSL.ref(bindName))) {
-          mapBuilder.put(mapping.get(DSL.ref(bindName)).getAttr(), tupleValue.get(bindName));
+        if (nameMapping.containsKey(bindName)) {
+          mapBuilder.put(nameMapping.get(bindName).getAttr(), tupleValue.get(bindName));
         } else {
           mapBuilder.put(bindName, tupleValue.get(bindName));
         }

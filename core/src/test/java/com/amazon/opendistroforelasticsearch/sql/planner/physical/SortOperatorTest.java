@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.tupleValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.sort;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -59,7 +60,7 @@ class SortOperatorTest extends PhysicalPlanTestBase {
         .thenReturn(tupleValue(ImmutableMap.of("size", 399, "response", 503)));
 
     assertThat(
-        execute(sort(inputPlan, 100, Pair.of(SortOption.PPL_ASC, ref("response")))),
+        execute(sort(inputPlan, 100, Pair.of(SortOption.PPL_ASC, ref("response", INTEGER)))),
         contains(
             tupleValue(ImmutableMap.of("size", 320, "response", 200)),
             tupleValue(ImmutableMap.of("size", 499, "response", 404)),
@@ -75,7 +76,7 @@ class SortOperatorTest extends PhysicalPlanTestBase {
         .thenReturn(tupleValue(ImmutableMap.of("size", 399, "response", 503)));
 
     assertThat(
-        execute(sort(inputPlan, 100, Pair.of(SortOption.PPL_ASC, ref("response")))),
+        execute(sort(inputPlan, 100, Pair.of(SortOption.PPL_ASC, ref("response", INTEGER)))),
         contains(
             tupleValue(ImmutableMap.of("size", 499, "response", 404)),
             tupleValue(ImmutableMap.of("size", 320, "response", 404)),
@@ -92,7 +93,7 @@ class SortOperatorTest extends PhysicalPlanTestBase {
         .thenReturn(tupleValue(NULL_MAP));
 
     assertThat(
-        execute(sort(inputPlan, 100, Pair.of(SortOption.PPL_ASC, ref("response")))),
+        execute(sort(inputPlan, 100, Pair.of(SortOption.PPL_ASC, ref("response", INTEGER)))),
         contains(
             tupleValue(NULL_MAP),
             tupleValue(ImmutableMap.of("size", 320, "response", 200)),
@@ -110,7 +111,7 @@ class SortOperatorTest extends PhysicalPlanTestBase {
         .thenReturn(tupleValue(ImmutableMap.of("size", 399)));
 
     assertThat(
-        execute(sort(inputPlan, 100, Pair.of(SortOption.PPL_ASC, ref("response")))),
+        execute(sort(inputPlan, 100, Pair.of(SortOption.PPL_ASC, ref("response", INTEGER)))),
         contains(
             tupleValue(ImmutableMap.of("size", 399)),
             tupleValue(ImmutableMap.of("size", 320, "response", 200)),
@@ -127,7 +128,7 @@ class SortOperatorTest extends PhysicalPlanTestBase {
         .thenReturn(tupleValue(ImmutableMap.of("size", 399, "response", 503)));
 
     assertThat(
-        execute(sort(inputPlan, 100, Pair.of(SortOption.PPL_DESC, ref("response")))),
+        execute(sort(inputPlan, 100, Pair.of(SortOption.PPL_DESC, ref("response", INTEGER)))),
         contains(
             tupleValue(ImmutableMap.of("size", 399, "response", 503)),
             tupleValue(ImmutableMap.of("size", 499, "response", 404)),
@@ -144,7 +145,7 @@ class SortOperatorTest extends PhysicalPlanTestBase {
         .thenReturn(tupleValue(ImmutableMap.of("size", 399, "response", 503)));
 
     assertThat(
-        execute(sort(inputPlan, 100, Pair.of(SortOption.PPL_DESC, ref("response")))),
+        execute(sort(inputPlan, 100, Pair.of(SortOption.PPL_DESC, ref("response", INTEGER)))),
         contains(
             tupleValue(ImmutableMap.of("size", 399, "response", 503)),
             tupleValue(ImmutableMap.of("size", 499, "response", 404)),
@@ -162,7 +163,7 @@ class SortOperatorTest extends PhysicalPlanTestBase {
         .thenReturn(tupleValue(ImmutableMap.of("size", 399, "response", 503)));
 
     assertThat(
-        execute(sort(inputPlan, 100, Pair.of(SortOption.PPL_ASC, ref("response")))),
+        execute(sort(inputPlan, 100, Pair.of(SortOption.PPL_ASC, ref("response", INTEGER)))),
         contains(
             tupleValue(ImmutableMap.of("size", 320, "response", 200)),
             tupleValue(ImmutableMap.of("size", 499, "response", 404)),
@@ -185,8 +186,8 @@ class SortOperatorTest extends PhysicalPlanTestBase {
             sort(
                 inputPlan,
                 100,
-                Pair.of(SortOption.PPL_ASC, ref("size")),
-                Pair.of(SortOption.PPL_ASC, ref("response")))),
+                Pair.of(SortOption.PPL_ASC, ref("size", INTEGER)),
+                Pair.of(SortOption.PPL_ASC, ref("response", INTEGER)))),
         contains(
             tupleValue(ImmutableMap.of("size", 320, "response", 200)),
             tupleValue(NULL_MAP),
@@ -210,8 +211,8 @@ class SortOperatorTest extends PhysicalPlanTestBase {
             sort(
                 inputPlan,
                 100,
-                Pair.of(SortOption.PPL_DESC, ref("size")),
-                Pair.of(SortOption.PPL_DESC, ref("response")))),
+                Pair.of(SortOption.PPL_DESC, ref("size", INTEGER)),
+                Pair.of(SortOption.PPL_DESC, ref("response", INTEGER)))),
         contains(
             tupleValue(ImmutableMap.of("size", 499, "response", 404)),
             tupleValue(ImmutableMap.of("size", 399, "response", 503)),
@@ -235,8 +236,8 @@ class SortOperatorTest extends PhysicalPlanTestBase {
             sort(
                 inputPlan,
                 100,
-                Pair.of(SortOption.PPL_ASC, ref("size")),
-                Pair.of(SortOption.PPL_DESC, ref("response")))),
+                Pair.of(SortOption.PPL_ASC, ref("size", INTEGER)),
+                Pair.of(SortOption.PPL_DESC, ref("response", INTEGER)))),
         contains(
             tupleValue(ImmutableMap.of("size", 320, "response", 200)),
             tupleValue(ImmutableMap.of("size", 399, "response", 503)),
@@ -260,8 +261,8 @@ class SortOperatorTest extends PhysicalPlanTestBase {
             sort(
                 inputPlan,
                 100,
-                Pair.of(SortOption.PPL_DESC, ref("size")),
-                Pair.of(SortOption.PPL_ASC, ref("response")))),
+                Pair.of(SortOption.PPL_DESC, ref("size", INTEGER)),
+                Pair.of(SortOption.PPL_ASC, ref("response", INTEGER)))),
         contains(
             tupleValue(ImmutableMap.of("size", 499, "response", 404)),
             tupleValue(NULL_MAP),
@@ -279,7 +280,7 @@ class SortOperatorTest extends PhysicalPlanTestBase {
         .thenReturn(tupleValue(ImmutableMap.of("size", 399, "response", 503)));
 
     assertThat(
-        execute(sort(inputPlan, 1, Pair.of(SortOption.PPL_ASC, ref("response")))),
+        execute(sort(inputPlan, 1, Pair.of(SortOption.PPL_ASC, ref("response", INTEGER)))),
         contains(tupleValue(ImmutableMap.of("size", 320, "response", 200))));
   }
 
@@ -288,6 +289,7 @@ class SortOperatorTest extends PhysicalPlanTestBase {
     when(inputPlan.hasNext()).thenReturn(false);
 
     assertEquals(
-        0, execute(sort(inputPlan, 1, Pair.of(SortOption.PPL_ASC, ref("response")))).size());
+        0,
+        execute(sort(inputPlan, 1, Pair.of(SortOption.PPL_ASC, ref("response", INTEGER)))).size());
   }
 }

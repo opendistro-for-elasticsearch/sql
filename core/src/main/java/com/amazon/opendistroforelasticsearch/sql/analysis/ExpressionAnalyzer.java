@@ -15,6 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.AggregateFunction;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.And;
@@ -63,10 +65,7 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
 
   @Override
   public Expression visitUnresolvedAttribute(UnresolvedAttribute node, AnalysisContext context) {
-    TypeEnvironment typeEnv = context.peek();
-    ReferenceExpression ref = DSL.ref(node.getAttr());
-    typeEnv.resolve(ref);
-    return ref;
+    return visitIdentifier(node.getAttr(), context);
   }
 
   @Override
@@ -74,7 +73,7 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     Expression left = node.getLeft().accept(this, context);
     Expression right = node.getRight().accept(this, context);
 
-    return dsl.equal(context.peek(), left, right);
+    return dsl.equal(left, right);
   }
 
   @Override
@@ -87,7 +86,7 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     Expression left = node.getLeft().accept(this, context);
     Expression right = node.getRight().accept(this, context);
 
-    return dsl.and(context.peek(), left, right);
+    return dsl.and(left, right);
   }
 
   @Override
@@ -95,7 +94,7 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     Expression left = node.getLeft().accept(this, context);
     Expression right = node.getRight().accept(this, context);
 
-    return dsl.or(context.peek(), left, right);
+    return dsl.or(left, right);
   }
 
   @Override
@@ -103,12 +102,12 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     Expression left = node.getLeft().accept(this, context);
     Expression right = node.getRight().accept(this, context);
 
-    return dsl.xor(context.peek(), left, right);
+    return dsl.xor(left, right);
   }
 
   @Override
   public Expression visitNot(Not node, AnalysisContext context) {
-    return dsl.not(context.peek(), node.getExpression().accept(this, context));
+    return dsl.not(node.getExpression().accept(this, context));
   }
 
   @Override
@@ -118,7 +117,7 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
       Expression arg = node.getField().accept(this, context);
       return (Aggregator)
           repository.compile(
-              builtinFunctionName.get().getName(), Collections.singletonList(arg), context.peek());
+              builtinFunctionName.get().getName(), Collections.singletonList(arg));
     } else {
       throw new SemanticCheckException("Unsupported aggregation function " + node.getFuncName());
     }
@@ -131,7 +130,7 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
         node.getFuncArgs().stream()
             .map(unresolvedExpression -> analyze(unresolvedExpression, context))
             .collect(Collectors.toList());
-    return (Expression) repository.compile(functionName, arguments, context.peek());
+    return (Expression) repository.compile(functionName, arguments);
   }
 
   @Override
@@ -140,15 +139,19 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     Expression left = analyze(node.getLeft(), context);
     Expression right = analyze(node.getRight(), context);
     return (Expression)
-        repository.compile(functionName, Arrays.asList(left, right), context.peek());
+        repository.compile(functionName, Arrays.asList(left, right));
   }
 
   @Override
   public Expression visitField(Field node, AnalysisContext context) {
     String attr = node.getField().toString();
+    return visitIdentifier(attr, context);
+  }
+
+  private Expression visitIdentifier(String ident, AnalysisContext context) {
     TypeEnvironment typeEnv = context.peek();
-    ReferenceExpression ref = DSL.ref(attr);
-    typeEnv.resolve(ref);
+    ReferenceExpression ref = DSL.ref(ident,
+        typeEnv.resolve(new Symbol(Namespace.FIELD_NAME, ident)));
     return ref;
   }
 }

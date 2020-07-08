@@ -15,6 +15,14 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.aggregation;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.ARRAY;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -28,70 +36,70 @@ class CountAggregatorTest extends AggregationTest {
 
   @Test
   public void count_integer_field_expression() {
-    ExprValue result = aggregation(dsl.count(typeEnv, DSL.ref("integer_value")), tuples);
+    ExprValue result = aggregation(dsl.count(DSL.ref("integer_value", INTEGER)), tuples);
     assertEquals(4, result.value());
   }
 
   @Test
   public void count_long_field_expression() {
-    ExprValue result = aggregation(dsl.count(typeEnv, DSL.ref("long_value")), tuples);
+    ExprValue result = aggregation(dsl.count(DSL.ref("long_value", LONG)), tuples);
     assertEquals(4, result.value());
   }
 
   @Test
   public void count_float_field_expression() {
-    ExprValue result = aggregation(dsl.count(typeEnv, DSL.ref("float_value")), tuples);
+    ExprValue result = aggregation(dsl.count(DSL.ref("float_value", FLOAT)), tuples);
     assertEquals(4, result.value());
   }
 
   @Test
   public void count_double_field_expression() {
-    ExprValue result = aggregation(dsl.count(typeEnv, DSL.ref("double_value")), tuples);
+    ExprValue result = aggregation(dsl.count(DSL.ref("double_value", DOUBLE)), tuples);
     assertEquals(4, result.value());
   }
 
   @Test
   public void count_arithmetic_expression() {
-    ExprValue result = aggregation(dsl.count(typeEnv,
-        dsl.multiply(typeEnv, DSL.ref("integer_value"),
+    ExprValue result = aggregation(dsl.count(
+        dsl.multiply(DSL.ref("integer_value", INTEGER),
             DSL.literal(ExprValueUtils.integerValue(10)))), tuples);
     assertEquals(4, result.value());
   }
 
   @Test
   public void count_string_field_expression() {
-    ExprValue result = aggregation(dsl.count(typeEnv, DSL.ref("string_value")), tuples);
+    ExprValue result = aggregation(dsl.count(DSL.ref("string_value", STRING)), tuples);
     assertEquals(4, result.value());
   }
 
   @Test
   public void count_boolean_field_expression() {
-    ExprValue result = aggregation(dsl.count(typeEnv, DSL.ref("boolean_value")), tuples);
+    ExprValue result = aggregation(dsl.count(DSL.ref("boolean_value", BOOLEAN)), tuples);
     assertEquals(1, result.value());
   }
 
   @Test
   public void count_struct_field_expression() {
-    ExprValue result = aggregation(dsl.count(typeEnv, DSL.ref("struct_value")), tuples);
+    ExprValue result = aggregation(dsl.count(DSL.ref("struct_value", STRUCT)), tuples);
     assertEquals(1, result.value());
   }
 
   @Test
   public void count_array_field_expression() {
-    ExprValue result = aggregation(dsl.count(typeEnv, DSL.ref("array_value")), tuples);
+    ExprValue result = aggregation(dsl.count(DSL.ref("array_value", ARRAY)), tuples);
     assertEquals(1, result.value());
   }
 
   @Test
   public void count_with_missing() {
-    ExprValue result = aggregation(dsl.count(typeEnv, DSL.ref("integer_value")),
+    ExprValue result = aggregation(dsl.count(DSL.ref("integer_value", INTEGER)),
         tuples_with_null_and_missing);
     assertEquals(2, result.value());
   }
 
   @Test
   public void count_with_null() {
-    ExprValue result = aggregation(dsl.count(typeEnv, DSL.ref("double_value")),
+    ExprValue result = aggregation(dsl.count(DSL.ref("double_value", DOUBLE)),
         tuples_with_null_and_missing);
     assertEquals(2, result.value());
   }
@@ -99,20 +107,20 @@ class CountAggregatorTest extends AggregationTest {
   @Test
   public void valueOf() {
     ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
-        () -> dsl.count(typeEnv, DSL.ref("double_value")).valueOf(valueEnv()));
+        () -> dsl.count(DSL.ref("double_value", DOUBLE)).valueOf(valueEnv()));
     assertEquals("can't evaluate on aggregator: count", exception.getMessage());
   }
 
   @Test
   public void test_to_string() {
-    Aggregator countAggregator = dsl.count(typeEnv, DSL.ref("integer_value"));
+    Aggregator countAggregator = dsl.count(DSL.ref("integer_value", INTEGER));
     assertEquals("count(integer_value)", countAggregator.toString());
   }
 
   @Test
   public void test_nested_to_string() {
-    Aggregator countAggregator = dsl.count(typeEnv, dsl.abs(typeEnv, DSL.ref("integer_value")));
-    assertEquals(String.format("count(abs(%s))", DSL.ref("integer_value")),
+    Aggregator countAggregator = dsl.count(dsl.abs(DSL.ref("integer_value", INTEGER)));
+    assertEquals(String.format("count(abs(%s))", DSL.ref("integer_value", INTEGER)),
         countAggregator.toString());
   }
 }

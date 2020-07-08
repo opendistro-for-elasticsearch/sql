@@ -19,9 +19,10 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
@@ -67,7 +68,7 @@ public class UnaryPredicateOperator {
     return FunctionResolver.builder()
         .functionName(functionName)
         .functionBundle(new FunctionSignature(functionName,
-            Arrays.asList(ExprType.BOOLEAN)), predicateFunction(functionName, ExprType.BOOLEAN))
+            Arrays.asList(BOOLEAN)), predicateFunction(functionName, BOOLEAN))
         .build();
   }
 
@@ -81,7 +82,7 @@ public class UnaryPredicateOperator {
       }
 
       @Override
-      public ExprType type(Environment<Expression, ExprType> env) {
+      public ExprType type() {
         return returnType;
       }
 

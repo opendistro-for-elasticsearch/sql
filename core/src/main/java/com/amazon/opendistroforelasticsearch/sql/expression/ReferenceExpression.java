@@ -15,8 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -28,14 +28,16 @@ public class ReferenceExpression implements Expression {
   @Getter
   private final String attr;
 
+  private final ExprType type;
+
   @Override
   public ExprValue valueOf(Environment<Expression, ExprValue> env) {
     return env.resolve(this);
   }
 
   @Override
-  public ExprType type(Environment<Expression, ExprType> env) {
-    return env.resolve(this);
+  public ExprType type() {
+    return type;
   }
 
   @Override

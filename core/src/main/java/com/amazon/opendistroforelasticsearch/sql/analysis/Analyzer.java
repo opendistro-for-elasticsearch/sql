@@ -15,6 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
@@ -82,7 +84,7 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     context.push();
     TypeEnvironment curEnv = context.peek();
     Table table = storageEngine.getTable(node.getTableName());
-    table.getFieldTypes().forEach((k, v) -> curEnv.define(DSL.ref(k), v));
+    table.getFieldTypes().forEach((k, v) -> curEnv.define(new Symbol(Namespace.FIELD_NAME, k), v));
     return new LogicalRelation(node.getTableName());
   }
 
@@ -106,9 +108,10 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
       // We should define the new target field in the context instead of analyze it.
       if (renameMap.getTarget() instanceof Field) {
         ReferenceExpression target =
-            new ReferenceExpression(((Field) renameMap.getTarget()).getField().toString());
-        context.peek().define(target, origin.type(context.peek()));
-        renameMapBuilder.put(DSL.ref(origin.toString()), target);
+            new ReferenceExpression(((Field) renameMap.getTarget()).getField().toString(),
+                origin.type());
+        context.peek().define(target);
+        renameMapBuilder.put(DSL.ref(origin.toString(), origin.type()), target);
       } else {
         throw new SemanticCheckException(
             String.format("the target expected to be field, but is %s", renameMap.getTarget()));
@@ -157,15 +160,15 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
       if (exclude) {
         List<ReferenceExpression> referenceExpressions =
             node.getProjectList().stream()
-                .map(expr ->  (ReferenceExpression) expressionAnalyzer.analyze(expr, context))
+                .map(expr -> (ReferenceExpression) expressionAnalyzer.analyze(expr, context))
                 .collect(Collectors.toList());
         return new LogicalRemove(child, ImmutableSet.copyOf(referenceExpressions));
       }
     }
 
     List<Expression> expressions = node.getProjectList().stream()
-                                       .map(expr ->  expressionAnalyzer.analyze(expr, context))
-                                       .collect(Collectors.toList());
+        .map(expr -> expressionAnalyzer.analyze(expr, context))
+        .collect(Collectors.toList());
     return new LogicalProject(child, expressions);
   }
 
@@ -178,12 +181,12 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     ImmutableList.Builder<Pair<ReferenceExpression, Expression>> expressionsBuilder =
         new Builder<>();
     for (Let let : node.getExpressionList()) {
-      ReferenceExpression ref = DSL.ref(let.getVar().getField().toString());
       Expression expression = expressionAnalyzer.analyze(let.getExpression(), context);
+      ReferenceExpression ref = DSL.ref(let.getVar().getField().toString(), expression.type());
       expressionsBuilder.add(ImmutablePair.of(ref, expression));
       TypeEnvironment typeEnvironment = context.peek();
       // define the new reference in type env.
-      typeEnvironment.define(ref, expression.type(typeEnvironment));
+      typeEnvironment.define(ref);
     }
     return new LogicalEval(child, expressionsBuilder.build());
   }
@@ -239,8 +242,8 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
     List<List<LiteralExpression>> valueExprs = new ArrayList<>();
     for (List<Literal> value : values) {
       valueExprs.add(value.stream()
-                          .map(val -> (LiteralExpression) expressionAnalyzer.analyze(val, context))
-                          .collect(Collectors.toList()));
+          .map(val -> (LiteralExpression) expressionAnalyzer.analyze(val, context))
+          .collect(Collectors.toList()));
     }
     return new LogicalValues(valueExprs);
   }
