@@ -104,7 +104,7 @@ public class LocalClusterStateTest {
         "        }\n" +
         "      }\n" +
         "    },\n" +
-        // ==== All required by IndexMetadata.fromXContent() ====
+        // ==== All required by IndexMetaData.fromXContent() ====
         "    \"settings\": {\n" +
         "      \"index\": {\n" +
         "        \"number_of_shards\": 5,\n" +
@@ -173,19 +173,19 @@ public class LocalClusterStateTest {
         for (int i = 0; i < 10; i++) {
             LocalClusterState.state().getFieldMappings(new String[]{INDEX_NAME});
         }
-        verify(mockService.state().metadata(), times(1)).findMappings(eq(new String[]{INDEX_NAME}), any(), any());
+        verify(mockService.state().metaData(), times(1)).findMappings(eq(new String[]{INDEX_NAME}), any(), any());
 
         // 2.Fire cluster state change event
         Assert.assertNotNull(listener[0]);
         ClusterChangedEvent mockEvent = mock(ClusterChangedEvent.class);
-        when(mockEvent.metadataChanged()).thenReturn(true);
+        when(mockEvent.metaDataChanged()).thenReturn(true);
         listener[0].clusterChanged(mockEvent);
 
         // 3.Cache should be invalidated and call findMapping another time only
         for (int i = 0; i < 5; i++) {
             LocalClusterState.state().getFieldMappings(new String[]{INDEX_NAME});
         }
-        verify(mockService.state().metadata(), times(2)).findMappings(eq(new String[]{INDEX_NAME}), any(), any());
+        verify(mockService.state().metaData(), times(2)).findMappings(eq(new String[]{INDEX_NAME}), any(), any());
     }
 
     @Test

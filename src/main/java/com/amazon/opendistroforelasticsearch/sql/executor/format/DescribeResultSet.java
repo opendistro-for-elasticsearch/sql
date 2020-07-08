@@ -22,7 +22,7 @@ import com.amazon.opendistroforelasticsearch.sql.executor.format.Schema.Type;
 import com.carrotsearch.hppc.cursors.ObjectObjectCursor;
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.cluster.metadata.MappingMetadata;
+import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 
 import java.util.ArrayList;
@@ -89,20 +89,20 @@ public class DescribeResultSet extends ResultSet {
     private List<Row> loadRows() {
         List<Row> rows = new ArrayList<>();
         GetIndexResponse indexResponse = (GetIndexResponse) queryResult;
-        ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetadata>> indexMappings = indexResponse.getMappings();
+        ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> indexMappings = indexResponse.getMappings();
 
         // Iterate through indices in indexMappings
-        for (ObjectObjectCursor<String, ImmutableOpenMap<String, MappingMetadata>> indexCursor : indexMappings) {
+        for (ObjectObjectCursor<String, ImmutableOpenMap<String, MappingMetaData>> indexCursor : indexMappings) {
             String index = indexCursor.key;
 
             // Check to see if index matches given pattern
             if (matchesPattern(index, statement.getIndexPattern())) {
-                ImmutableOpenMap<String, MappingMetadata> typeMapping = indexCursor.value;
+                ImmutableOpenMap<String, MappingMetaData> typeMapping = indexCursor.value;
                 // Assuming ES 6.x, iterate through the only type of the index to get mapping data
-                for (ObjectObjectCursor<String, MappingMetadata> typeCursor : typeMapping) {
-                    MappingMetadata mappingMetadata = typeCursor.value;
+                for (ObjectObjectCursor<String, MappingMetaData> typeCursor : typeMapping) {
+                    MappingMetaData mappingMetaData = typeCursor.value;
                     // Load rows for each field in the mapping
-                    rows.addAll(loadIndexData(index, mappingMetadata.getSourceAsMap()));
+                    rows.addAll(loadIndexData(index, mappingMetaData.getSourceAsMap()));
                 }
             }
         }
@@ -110,12 +110,12 @@ public class DescribeResultSet extends ResultSet {
     }
 
     @SuppressWarnings("unchecked")
-    private List<Row> loadIndexData(String index, Map<String, Object> mappingMetadata) {
+    private List<Row> loadIndexData(String index, Map<String, Object> mappingMetaData) {
         List<Row> rows = new ArrayList<>();
 
-        Map<String, String> flattenedMetadata = flattenMappingMetadata(mappingMetadata, "", new HashMap<>());
+        Map<String, String> flattenedMetaData = flattenMappingMetaData(mappingMetaData, "", new HashMap<>());
         int position = 1; // Used as an arbitrary ORDINAL_POSITION value for the time being
-        for (Entry<String, String> entry : flattenedMetadata.entrySet()) {
+        for (Entry<String, String> entry : flattenedMetaData.entrySet()) {
             String columnPattern = statement.getColumnPattern();
 
             // Check to see if column name matches pattern, if given
@@ -153,21 +153,21 @@ public class DescribeResultSet extends ResultSet {
      * 'GetIndexRequestBuilder' that was used in the old ShowQueryAction. Since the format of the resulting meta data
      * is different, this method is being used to flatten and retrieve types.
      * <p>
-     * In the future, should look for a way to generalize this since Schema is currently using FieldMappingMetadata
-     * whereas here we are using MappingMetadata.
+     * In the future, should look for a way to generalize this since Schema is currently using FieldMappingMetaData
+     * whereas here we are using MappingMetaData.
      */
     @SuppressWarnings("unchecked")
-    private Map<String, String> flattenMappingMetadata(Map<String, Object> mappingMetadata,
+    private Map<String, String> flattenMappingMetaData(Map<String, Object> mappingMetaData,
                                                        String currPath,
                                                        Map<String, String> flattenedMapping) {
-        Map<String, Object> properties = (Map<String, Object>) mappingMetadata.get("properties");
+        Map<String, Object> properties = (Map<String, Object>) mappingMetaData.get("properties");
         for (Entry<String, Object> entry : properties.entrySet()) {
-            Map<String, Object> metadata = (Map<String, Object>) entry.getValue();
+            Map<String, Object> metaData = (Map<String, Object>) entry.getValue();
 
             String fullPath = addToPath(currPath, entry.getKey());
-            flattenedMapping.put(fullPath, (String) metadata.getOrDefault("type", DEFAULT_OBJECT_DATATYPE));
-            if (metadata.containsKey("properties")) {
-                flattenedMapping = flattenMappingMetadata(metadata, fullPath, flattenedMapping);
+            flattenedMapping.put(fullPath, (String) metaData.getOrDefault("type", DEFAULT_OBJECT_DATATYPE));
+            if (metaData.containsKey("properties")) {
+                flattenedMapping = flattenMappingMetaData(metaData, fullPath, flattenedMapping);
             }
         }
 
