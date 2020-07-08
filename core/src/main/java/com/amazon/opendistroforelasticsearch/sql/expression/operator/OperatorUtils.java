@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
 
@@ -171,69 +170,4 @@ public class OperatorUtils {
    */
   public static final BiPredicate<ExprValue, ExprValue> COMPARE_WITH_NULL_OR_MISSING =
       (left, right) -> left.isMissing() || right.isMissing() || left.isNull() || right.isNull();
-
-  /**
-   * Wildcard pattern matcher util.
-   * Percent (%) character for wildcard,
-   * Underscore (_) character for a single character match.
-   * @param pattern string pattern to match.
-   * @return if text matches pattern returns true; else return false.
-   */
-  public static boolean matches(String pattern, String text) {
-    return Pattern.compile(patternToRegex(pattern)).matcher(text).matches();
-  }
-
-  private static final char DEFAULT_ESCAPE = '\\';
-
-  private static String patternToRegex(String patternString) {
-    StringBuilder regex = new StringBuilder(patternString.length() * 2);
-    regex.append('^');
-    boolean escaped = false;
-    for (char currentChar : patternString.toCharArray()) {
-      if (!escaped && currentChar == DEFAULT_ESCAPE) {
-        escaped = true;
-      } else {
-        switch (currentChar) {
-          case '%':
-            if (escaped) {
-              regex.append("%");
-            } else {
-              regex.append(".*");
-            }
-            escaped = false;
-            break;
-          case '_':
-            if (escaped) {
-              regex.append("_");
-            } else {
-              regex.append('.');
-            }
-            escaped = false;
-            break;
-          default:
-            switch (currentChar) {
-              case '\\':
-              case '^':
-              case '$':
-              case '.':
-              case '*':
-              case '[':
-              case ']':
-              case '(':
-              case ')':
-              case '|':
-              case '+':
-                regex.append('\\');
-                break;
-              default:
-            }
-
-            regex.append(currentChar);
-            escaped = false;
-        }
-      }
-    }
-    regex.append('$');
-    return regex.toString();
-  }
 }
