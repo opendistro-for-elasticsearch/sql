@@ -15,6 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.planner.physical.PhysicalPlanDSL.remove;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
@@ -42,7 +44,7 @@ class RemoveOperatorTest extends PhysicalPlanTestBase {
     when(inputPlan.hasNext()).thenReturn(true, false);
     when(inputPlan.next())
         .thenReturn(ExprValueUtils.tupleValue(ImmutableMap.of("action", "GET", "response", 200)));
-    PhysicalPlan plan = remove(inputPlan, DSL.ref("action"));
+    PhysicalPlan plan = remove(inputPlan, DSL.ref("action", STRING));
     List<ExprValue> result = execute(plan);
 
     assertThat(
@@ -59,7 +61,7 @@ class RemoveOperatorTest extends PhysicalPlanTestBase {
         .thenReturn(
             ExprValueUtils.tupleValue(
                 ImmutableMap.of("action", "GET", "response", 200, "referer", "www.amazon.com")));
-    PhysicalPlan plan = remove(inputPlan, DSL.ref("response"));
+    PhysicalPlan plan = remove(inputPlan, DSL.ref("response", INTEGER));
     List<ExprValue> result = execute(plan);
 
     assertThat(
@@ -78,7 +80,7 @@ class RemoveOperatorTest extends PhysicalPlanTestBase {
         .thenReturn(
             ExprValueUtils.tupleValue(
                 ImmutableMap.of("action", "GET", "response", 200, "referer", "www.amazon.com")));
-    PhysicalPlan plan = remove(inputPlan, DSL.ref("response"), DSL.ref("referer"));
+    PhysicalPlan plan = remove(inputPlan, DSL.ref("response", INTEGER), DSL.ref("referer", STRING));
     List<ExprValue> result = execute(plan);
 
     assertThat(
@@ -94,7 +96,7 @@ class RemoveOperatorTest extends PhysicalPlanTestBase {
     when(inputPlan.next())
         .thenReturn(ExprValueUtils.tupleValue(ImmutableMap.of("action", "GET", "response", 200)))
         .thenReturn(ExprValueUtils.tupleValue(ImmutableMap.of("action", "POST")));
-    PhysicalPlan plan = remove(inputPlan, DSL.ref("response"));
+    PhysicalPlan plan = remove(inputPlan, DSL.ref("response", STRING));
     List<ExprValue> result = execute(plan);
 
     assertThat(
@@ -110,7 +112,7 @@ class RemoveOperatorTest extends PhysicalPlanTestBase {
   public void remove_nothing_with_none_tuple_value() {
     when(inputPlan.hasNext()).thenReturn(true, false);
     when(inputPlan.next()).thenReturn(ExprValueUtils.integerValue(1));
-    PhysicalPlan plan = remove(inputPlan, DSL.ref("response"), DSL.ref("referer"));
+    PhysicalPlan plan = remove(inputPlan, DSL.ref("response", STRING), DSL.ref("referer", STRING));
     List<ExprValue> result = execute(plan);
 
     assertThat(result, allOf(iterableWithSize(1), hasItems(ExprValueUtils.integerValue(1))));

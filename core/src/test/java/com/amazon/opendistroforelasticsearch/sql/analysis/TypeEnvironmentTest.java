@@ -15,14 +15,17 @@
 
 package com.amazon.opendistroforelasticsearch.sql.analysis;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
-import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import org.junit.jupiter.api.Test;
 
 public class TypeEnvironmentTest {
@@ -35,68 +38,68 @@ public class TypeEnvironmentTest {
   @Test
   public void defineFieldSymbolInDifferentEnvironmentsShouldBeAbleToResolve() {
     // Root environment
-    Expression age = DSL.ref("s.age");
-    environment().define(age, ExprType.INTEGER);
-    assertEquals(ExprType.INTEGER, environment().resolve(age));
+    ReferenceExpression age = DSL.ref("s.age", INTEGER);
+    environment().define(age);
+    assertEquals(INTEGER, environment().resolve(toSymbol(age)));
 
     // New environment 1
     context.push();
-    Expression city = DSL.ref("s.city");
-    environment().define(city, ExprType.STRING);
-    assertEquals(ExprType.INTEGER, environment().resolve(age));
-    assertEquals(ExprType.STRING, environment().resolve(city));
+    ReferenceExpression city = DSL.ref("s.city", STRING);
+    environment().define(city);
+    assertEquals(INTEGER, environment().resolve(toSymbol(age)));
+    assertEquals(STRING, environment().resolve(toSymbol(city)));
 
     // New environment 2
     context.push();
-    Expression manager = DSL.ref("s.manager");
-    environment().define(manager, ExprType.STRUCT);
-    assertEquals(ExprType.INTEGER, environment().resolve(age));
-    assertEquals(ExprType.STRING, environment().resolve(city));
-    assertEquals(ExprType.STRUCT, environment().resolve(manager));
+    ReferenceExpression manager = DSL.ref("s.manager", STRUCT);
+    environment().define(manager);
+    assertEquals(INTEGER, environment().resolve(toSymbol(age)));
+    assertEquals(STRING, environment().resolve(toSymbol(city)));
+    assertEquals(STRUCT, environment().resolve(toSymbol(manager)));
   }
 
   @Test
   public void defineFieldSymbolInDifferentEnvironmentsShouldNotAbleToResolveOncePopped() {
     // Root environment
-    Expression age = DSL.ref("s.age");
-    environment().define(age, ExprType.INTEGER);
+    ReferenceExpression age = DSL.ref("s.age", INTEGER);
+    environment().define(age);
 
     // New environment
     context.push();
-    Expression city = DSL.ref("s.city");
-    environment().define(city, ExprType.STRING);
-    Expression manager = DSL.ref("s.manager");
-    environment().define(manager, ExprType.STRUCT);
-    assertEquals(ExprType.INTEGER, environment().resolve(age));
-    assertEquals(ExprType.STRING, environment().resolve(city));
-    assertEquals(ExprType.STRUCT, environment().resolve(manager));
+    ReferenceExpression city = DSL.ref("s.city", STRING);
+    environment().define(city);
+    ReferenceExpression manager = DSL.ref("s.manager", STRUCT);
+    environment().define(manager);
+    assertEquals(INTEGER, environment().resolve(toSymbol(age)));
+    assertEquals(STRING, environment().resolve(toSymbol(city)));
+    assertEquals(STRUCT, environment().resolve(toSymbol(manager)));
 
     context.pop();
-    assertEquals(ExprType.INTEGER, environment().resolve(age));
+    assertEquals(INTEGER, environment().resolve(toSymbol(age)));
     SemanticCheckException exception =
-        assertThrows(SemanticCheckException.class, () -> environment().resolve(city));
-    assertEquals("can't resolve expression s.city in type env", exception.getMessage());
-    exception = assertThrows(SemanticCheckException.class, () -> environment().resolve(manager));
-    assertEquals("can't resolve expression s.manager in type env", exception.getMessage());
+        assertThrows(SemanticCheckException.class, () -> environment().resolve(toSymbol(city)));
+    assertEquals("can't resolve Symbol(namespace=FIELD_NAME, name=s.city) in type env",
+        exception.getMessage());
+    exception = assertThrows(SemanticCheckException.class,
+        () -> environment().resolve(toSymbol(manager)));
+    assertEquals("can't resolve Symbol(namespace=FIELD_NAME, name=s.manager) in type env",
+        exception.getMessage());
   }
 
   @Test
   public void resolveLiteralInEnvFailed() {
     SemanticCheckException exception = assertThrows(SemanticCheckException.class,
-        () -> environment().resolve(DSL.literal(ExprValueUtils.integerValue(1))));
-    assertEquals("can't resolve expression 1 in type env", exception.getMessage());
-  }
-
-
-  @Test
-  public void defineLiteralInEnvIsIllegal() {
-    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-        () -> environment().define(DSL.literal(ExprValueUtils.integerValue(1)), ExprType.INTEGER));
-    assertEquals("only support define reference, unexpected expression 1", exception.getMessage());
+        () -> environment().resolve(new Symbol(Namespace.FIELD_NAME, "1")));
+    assertEquals("can't resolve Symbol(namespace=FIELD_NAME, name=1) in type env",
+        exception.getMessage());
   }
 
   private TypeEnvironment environment() {
     return context.peek();
+  }
+
+  private Symbol toSymbol(ReferenceExpression ref) {
+    return new Symbol(Namespace.FIELD_NAME, ref.getAttr());
   }
 
 }

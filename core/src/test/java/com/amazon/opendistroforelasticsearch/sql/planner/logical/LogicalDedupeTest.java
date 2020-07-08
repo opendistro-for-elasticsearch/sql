@@ -23,6 +23,8 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.exprList;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 
 import com.amazon.opendistroforelasticsearch.sql.analysis.AnalyzerTestBase;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
@@ -34,8 +36,8 @@ class LogicalDedupeTest extends AnalyzerTestBase {
     assertAnalyzeEqual(
         LogicalPlanDSL.dedupe(
             LogicalPlanDSL.relation("schema"),
-            DSL.ref("integer_value"),
-            DSL.ref("double_value")),
+            DSL.ref("integer_value", INTEGER),
+            DSL.ref("double_value", DOUBLE)),
         dedupe(
             relation("schema"),
             defaultDedupArgs(),
@@ -49,8 +51,8 @@ class LogicalDedupeTest extends AnalyzerTestBase {
         LogicalPlanDSL.dedupe(
             LogicalPlanDSL.relation("schema"),
             3, false, true,
-            DSL.ref("integer_value"),
-            DSL.ref("double_value")),
+            DSL.ref("integer_value", INTEGER),
+            DSL.ref("double_value", DOUBLE)),
         dedupe(
             relation("schema"),
             exprList(

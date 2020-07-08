@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.LazyBindingTuple;
 import java.util.Iterator;
@@ -40,8 +41,8 @@ public class ExprTupleValue implements ExprValue {
   }
 
   @Override
-  public ExprType type() {
-    return ExprType.STRUCT;
+  public ExprCoreType type() {
+    return ExprCoreType.STRUCT;
   }
 
   @Override

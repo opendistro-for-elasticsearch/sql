@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.expression.operator.arthmetic;
 
 import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.INT_TYPE_MISSING_VALUE_FIELD;
 import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.INT_TYPE_NULL_VALUE_FIELD;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.utils.MatcherUtils.hasType;
 import static com.amazon.opendistroforelasticsearch.sql.utils.MatcherUtils.hasValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -24,7 +25,7 @@ import static org.hamcrest.Matchers.allOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
@@ -43,10 +44,10 @@ public class UnaryFunctionTest extends ExpressionTestBase {
   @ParameterizedTest(name = "abs({0})")
   @ValueSource(ints = {-2, 2})
   public void abs_int_value(Integer value) {
-    FunctionExpression abs = dsl.abs(typeEnv, DSL.literal(value));
+    FunctionExpression abs = dsl.abs(DSL.literal(value));
     assertThat(
         abs.valueOf(valueEnv()),
-        allOf(hasType(ExprType.INTEGER), hasValue(Math.abs(value))));
+        allOf(hasType(INTEGER), hasValue(Math.abs(value))));
     assertEquals(String.format("abs(%s)", value.toString()), abs.toString());
   }
 
@@ -56,10 +57,10 @@ public class UnaryFunctionTest extends ExpressionTestBase {
   @ParameterizedTest(name = "abs({0})")
   @ValueSource(longs = {-2L, 2L})
   public void abs_long_value(Long value) {
-    FunctionExpression abs = dsl.abs(typeEnv, DSL.literal(value));
+    FunctionExpression abs = dsl.abs(DSL.literal(value));
     assertThat(
         abs.valueOf(valueEnv()),
-        allOf(hasType(ExprType.LONG), hasValue(Math.abs(value))));
+        allOf(hasType(ExprCoreType.LONG), hasValue(Math.abs(value))));
     assertEquals(String.format("abs(%s)", value.toString()), abs.toString());
   }
 
@@ -69,10 +70,10 @@ public class UnaryFunctionTest extends ExpressionTestBase {
   @ParameterizedTest(name = "abs({0})")
   @ValueSource(floats = {-2f, 2f})
   public void abs_float_value(Float value) {
-    FunctionExpression abs = dsl.abs(typeEnv, DSL.literal(value));
+    FunctionExpression abs = dsl.abs(DSL.literal(value));
     assertThat(
         abs.valueOf(valueEnv()),
-        allOf(hasType(ExprType.FLOAT), hasValue(Math.abs(value))));
+        allOf(hasType(ExprCoreType.FLOAT), hasValue(Math.abs(value))));
     assertEquals(String.format("abs(%s)", value.toString()), abs.toString());
   }
 
@@ -82,21 +83,21 @@ public class UnaryFunctionTest extends ExpressionTestBase {
   @ParameterizedTest(name = "abs({0})")
   @ValueSource(doubles = {-2L, 2L})
   public void abs_double_value(Double value) {
-    FunctionExpression abs = dsl.abs(typeEnv, DSL.literal(value));
+    FunctionExpression abs = dsl.abs(DSL.literal(value));
     assertThat(
         abs.valueOf(valueEnv()),
-        allOf(hasType(ExprType.DOUBLE), hasValue(Math.abs(value))));
+        allOf(hasType(ExprCoreType.DOUBLE), hasValue(Math.abs(value))));
     assertEquals(String.format("abs(%s)", value.toString()), abs.toString());
   }
 
   @Test
   public void abs_null_value() {
-    assertTrue(dsl.abs(typeEnv, DSL.ref(INT_TYPE_NULL_VALUE_FIELD)).valueOf(valueEnv()).isNull());
+    assertTrue(dsl.abs(DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER)).valueOf(valueEnv()).isNull());
   }
 
   @Test
   public void abs_missing_value() {
     assertTrue(
-        dsl.abs(typeEnv, DSL.ref(INT_TYPE_MISSING_VALUE_FIELD)).valueOf(valueEnv()).isMissing());
+        dsl.abs(DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER)).valueOf(valueEnv()).isMissing());
   }
 }

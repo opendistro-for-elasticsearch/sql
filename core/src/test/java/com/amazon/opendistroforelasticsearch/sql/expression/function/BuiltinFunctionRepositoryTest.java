@@ -22,7 +22,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
@@ -49,7 +49,7 @@ class BuiltinFunctionRepositoryTest {
   @Mock
   private Expression mockExpression;
   @Mock
-  private Environment<Expression, ExprType> emptyEnv;
+  private Environment<Expression, ExprCoreType> emptyEnv;
 
   @Test
   void register() {
@@ -69,7 +69,7 @@ class BuiltinFunctionRepositoryTest {
     BuiltinFunctionRepository repo = new BuiltinFunctionRepository(mockMap);
     repo.register(mockfunctionResolver);
 
-    repo.compile(mockFunctionName, Arrays.asList(mockExpression), emptyEnv);
+    repo.compile(mockFunctionName, Arrays.asList(mockExpression));
     verify(functionExpressionBuilder, times(1)).apply(any());
   }
 

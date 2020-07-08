@@ -15,9 +15,10 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.operator;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
@@ -48,7 +49,7 @@ public class OperatorUtils {
       FunctionName functionName,
       BiFunction<T, T, R> function,
       Function<ExprValue, T> observer,
-      ExprType returnType) {
+      ExprCoreType returnType) {
     return binaryOperator(functionName, function, observer, observer, returnType);
   }
 
@@ -73,7 +74,7 @@ public class OperatorUtils {
       BiFunction<T, U, R> function,
       Function<ExprValue, T> observer1,
       Function<ExprValue, U> observer2,
-      ExprType returnType) {
+      ExprCoreType returnType) {
     return arguments ->
         new FunctionExpression(functionName, arguments) {
           @Override
@@ -91,7 +92,7 @@ public class OperatorUtils {
           }
 
           @Override
-          public ExprType type(Environment<Expression, ExprType> env) {
+          public ExprType type() {
             return returnType;
           }
 
@@ -121,7 +122,7 @@ public class OperatorUtils {
       FunctionName functionName,
       Function<T, R> function,
       Function<ExprValue, T> observer,
-      ExprType returnType) {
+      ExprCoreType returnType) {
     return arguments ->
         new FunctionExpression(functionName, arguments) {
           @Override
@@ -137,7 +138,7 @@ public class OperatorUtils {
           }
 
           @Override
-          public ExprType type(Environment<Expression, ExprType> env) {
+          public ExprType type() {
             return returnType;
           }
 

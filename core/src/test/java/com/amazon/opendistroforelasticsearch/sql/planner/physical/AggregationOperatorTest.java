@@ -15,6 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,8 +34,8 @@ class AggregationOperatorTest extends PhysicalPlanTestBase {
   @Test
   public void avg_with_one_groups() {
     PhysicalPlan plan = new AggregationOperator(new TestScan(),
-        Collections.singletonList(dsl.avg(typeEnv(), DSL.ref("response"))),
-        Collections.singletonList(DSL.ref("action")));
+        Collections.singletonList(dsl.avg(DSL.ref("response", INTEGER))),
+        Collections.singletonList(DSL.ref("action", STRING)));
     List<ExprValue> result = execute(plan);
     assertEquals(2, result.size());
     assertThat(result, containsInAnyOrder(
@@ -45,8 +47,8 @@ class AggregationOperatorTest extends PhysicalPlanTestBase {
   @Test
   public void avg_with_two_groups() {
     PhysicalPlan plan = new AggregationOperator(new TestScan(),
-        Collections.singletonList(dsl.avg(typeEnv(), DSL.ref("response"))),
-        Arrays.asList(DSL.ref("action"), DSL.ref("ip")));
+        Collections.singletonList(dsl.avg(DSL.ref("response", INTEGER))),
+        Arrays.asList(DSL.ref("action", STRING), DSL.ref("ip", STRING)));
     List<ExprValue> result = execute(plan);
     assertEquals(3, result.size());
     assertThat(result, containsInAnyOrder(
@@ -62,8 +64,8 @@ class AggregationOperatorTest extends PhysicalPlanTestBase {
   @Test
   public void sum_with_one_groups() {
     PhysicalPlan plan = new AggregationOperator(new TestScan(),
-        Collections.singletonList(dsl.sum(typeEnv(), DSL.ref("response"))),
-        Collections.singletonList(DSL.ref("action")));
+        Collections.singletonList(dsl.sum(DSL.ref("response", INTEGER))),
+        Collections.singletonList(DSL.ref("action", STRING)));
     List<ExprValue> result = execute(plan);
     assertEquals(2, result.size());
     assertThat(result, containsInAnyOrder(

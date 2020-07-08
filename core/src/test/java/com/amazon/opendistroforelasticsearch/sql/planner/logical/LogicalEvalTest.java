@@ -16,33 +16,26 @@
 package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.field;
-import static org.mockito.Mockito.when;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 
 import com.amazon.opendistroforelasticsearch.sql.analysis.AnalyzerTestBase;
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
-import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
-import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class LogicalEvalTest extends AnalyzerTestBase {
-  @Mock
-  private Environment<Expression, ExprType> environment;
 
   @Test
   public void analyze_eval_with_one_field() {
-    when(environment.resolve(DSL.ref("integer_value"))).thenReturn(ExprType.INTEGER);
-
     assertAnalyzeEqual(
         LogicalPlanDSL.eval(
             LogicalPlanDSL.relation("schema"),
-            ImmutablePair.of(DSL.ref("absValue"), dsl.abs(environment, DSL.ref("integer_value")))),
+            ImmutablePair
+                .of(DSL.ref("absValue", INTEGER), dsl.abs(DSL.ref("integer_value", INTEGER)))),
         AstDSL.eval(
             AstDSL.relation("schema"),
             AstDSL.let(AstDSL.field("absValue"), AstDSL.function("abs", field("integer_value")))));
@@ -50,14 +43,12 @@ public class LogicalEvalTest extends AnalyzerTestBase {
 
   @Test
   public void analyze_eval_with_two_field() {
-    when(environment.resolve(DSL.ref("integer_value"))).thenReturn(ExprType.INTEGER);
-    when(environment.resolve(DSL.ref("absValue"))).thenReturn(ExprType.INTEGER);
-
     assertAnalyzeEqual(
         LogicalPlanDSL.eval(
             LogicalPlanDSL.relation("schema"),
-            ImmutablePair.of(DSL.ref("absValue"), dsl.abs(environment, DSL.ref("integer_value"))),
-            ImmutablePair.of(DSL.ref("iValue"), dsl.abs(environment, DSL.ref("absValue")))),
+            ImmutablePair
+                .of(DSL.ref("absValue", INTEGER), dsl.abs(DSL.ref("integer_value", INTEGER))),
+            ImmutablePair.of(DSL.ref("iValue", INTEGER), dsl.abs(DSL.ref("absValue", INTEGER)))),
         AstDSL.eval(
             AstDSL.relation("schema"),
             AstDSL.let(AstDSL.field("absValue"), AstDSL.function("abs", field("integer_value"))),

@@ -15,9 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
@@ -60,15 +60,16 @@ public class PhysicalPlanTestBase {
           .tupleValue(ImmutableMap.of("ip", "74.125.19.106", "action", "POST", "response", 500)))
       .build();
 
-  private static Map<String, ExprType> typeMapping = new ImmutableMap.Builder<String, ExprType>()
-      .put("ip", ExprType.STRING)
-      .put("action", ExprType.STRING)
-      .put("response", ExprType.INTEGER)
-      .put("referer", ExprType.STRING)
-      .build();
+  private static Map<String, ExprCoreType> typeMapping =
+      new ImmutableMap.Builder<String, ExprCoreType>()
+          .put("ip", ExprCoreType.STRING)
+          .put("action", ExprCoreType.STRING)
+          .put("response", ExprCoreType.INTEGER)
+          .put("referer", ExprCoreType.STRING)
+          .build();
 
   @Bean
-  protected Environment<Expression, ExprType> typeEnv() {
+  protected Environment<Expression, ExprCoreType> typeEnv() {
     return var -> {
       if (var instanceof ReferenceExpression) {
         ReferenceExpression refExpr = (ReferenceExpression) var;

@@ -15,17 +15,19 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.function;
 
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.DOUBLE;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.FLOAT;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.INTEGER;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.LONG;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.UNKNOWN;
-import static com.amazon.opendistroforelasticsearch.sql.expression.function.WideningTypeRule.IMPOSSIBLE_WIDENING;
-import static com.amazon.opendistroforelasticsearch.sql.expression.function.WideningTypeRule.TYPE_EQUAL;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.SHORT;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.UNKNOWN;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.WideningTypeRule.IMPOSSIBLE_WIDENING;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.WideningTypeRule.TYPE_EQUAL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.WideningTypeRule;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Lists;
@@ -39,9 +41,13 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 class WideningTypeRuleTest {
-  private static Table<ExprType, ExprType, Integer> numberWidenRule =
-      new ImmutableTable.Builder<ExprType, ExprType,
+  private static Table<ExprCoreType, ExprCoreType, Integer> numberWidenRule =
+      new ImmutableTable.Builder<ExprCoreType, ExprCoreType,
           Integer>()
+          .put(SHORT, INTEGER, 1)
+          .put(SHORT, LONG, 2)
+          .put(SHORT, FLOAT, 3)
+          .put(SHORT, DOUBLE, 4)
           .put(INTEGER, LONG, 1)
           .put(INTEGER, FLOAT, 2)
           .put(INTEGER, DOUBLE, 3)
@@ -51,13 +57,13 @@ class WideningTypeRuleTest {
           .build();
 
   private static Stream<Arguments> distanceArguments() {
-    List<ExprType> exprTypes =
-        Arrays.asList(ExprType.values()).stream().filter(type -> type != UNKNOWN).collect(
+    List<ExprCoreType> exprTypes =
+        Arrays.asList(ExprCoreType.values()).stream().filter(type -> type != UNKNOWN).collect(
             Collectors.toList());
     return Lists.cartesianProduct(exprTypes, exprTypes).stream()
         .map(list -> {
-          ExprType type1 = list.get(0);
-          ExprType type2 = list.get(1);
+          ExprCoreType type1 = list.get(0);
+          ExprCoreType type2 = list.get(1);
           if (type1 == type2) {
             return Arguments.of(type1, type2, TYPE_EQUAL);
           } else if (numberWidenRule.contains(type1, type2)) {
@@ -69,13 +75,13 @@ class WideningTypeRuleTest {
   }
 
   private static Stream<Arguments> validMaxTypes() {
-    List<ExprType> exprTypes =
-        Arrays.asList(ExprType.values()).stream().filter(type -> type != UNKNOWN).collect(
+    List<ExprCoreType> exprTypes =
+        Arrays.asList(ExprCoreType.values()).stream().filter(type -> type != UNKNOWN).collect(
             Collectors.toList());
     return Lists.cartesianProduct(exprTypes, exprTypes).stream()
         .map(list -> {
-          ExprType type1 = list.get(0);
-          ExprType type2 = list.get(1);
+          ExprCoreType type1 = list.get(0);
+          ExprCoreType type2 = list.get(1);
           if (type1 == type2) {
             return Arguments.of(type1, type2, type1);
           } else if (numberWidenRule.contains(type1, type2)) {
@@ -90,13 +96,13 @@ class WideningTypeRuleTest {
 
   @ParameterizedTest
   @MethodSource("distanceArguments")
-  public void distance(ExprType v1, ExprType v2, Integer expected) {
+  public void distance(ExprCoreType v1, ExprCoreType v2, Integer expected) {
     assertEquals(expected, WideningTypeRule.distance(v1, v2));
   }
 
   @ParameterizedTest
   @MethodSource("validMaxTypes")
-  public void max(ExprType v1, ExprType v2, ExprType expected) {
+  public void max(ExprCoreType v1, ExprCoreType v2, ExprCoreType expected) {
     if (null == expected) {
       ExpressionEvaluationException exception = assertThrows(
           ExpressionEvaluationException.class, () -> WideningTypeRule.max(v1, v2));

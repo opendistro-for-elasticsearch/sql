@@ -18,7 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.analysis.symbol;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptyNavigableMap;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.NavigableMap;

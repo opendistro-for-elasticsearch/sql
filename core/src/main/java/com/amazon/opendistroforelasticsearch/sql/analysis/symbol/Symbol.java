@@ -17,10 +17,12 @@ package com.amazon.opendistroforelasticsearch.sql.analysis.symbol;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 /**
  * Symbol in the scope.
  */
+@ToString
 @Getter
 @RequiredArgsConstructor
 public class Symbol {

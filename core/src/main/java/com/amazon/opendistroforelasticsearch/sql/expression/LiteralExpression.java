@@ -15,8 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +35,7 @@ public class LiteralExpression implements Expression {
   }
 
   @Override
-  public ExprType type(Environment<Expression, ExprType> env) {
+  public ExprType type() {
     return exprValue.type();
   }
 
