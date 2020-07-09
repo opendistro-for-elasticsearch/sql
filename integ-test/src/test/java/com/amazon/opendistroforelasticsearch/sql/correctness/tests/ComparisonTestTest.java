@@ -48,16 +48,16 @@ public class ComparisonTestTest {
   private DBConnection esConnection;
 
   @Mock
-  private DBConnection otherDbConnection1;
+  private DBConnection otherDbConnection;
 
   private ComparisonTest correctnessTest;
 
   @Before
   public void setUp() {
     when(esConnection.getDatabaseName()).thenReturn("ES");
-    when(otherDbConnection1.getDatabaseName()).thenReturn("Other");
+    when(otherDbConnection.getDatabaseName()).thenReturn("Other");
     correctnessTest = new ComparisonTest(
-        esConnection, new DBConnection[] {otherDbConnection1}
+        esConnection, new DBConnection[] {otherDbConnection}
     );
   }
 
@@ -66,7 +66,7 @@ public class ComparisonTestTest {
     when(esConnection.select(anyString())).thenReturn(
         new DBResult("ES", asList(new Type("firstname", "text")), asList(new Row(asList("John"))))
     );
-    when(otherDbConnection1.select(anyString())).thenReturn(
+    when(otherDbConnection.select(anyString())).thenReturn(
         new DBResult("Other DB", asList(new Type("firstname", "text")),
             asList(new Row(asList("John"))))
     );
@@ -84,7 +84,7 @@ public class ComparisonTestTest {
     DBResult otherDbResult = new DBResult("Other DB", asList(new Type("firstname", "text")),
         asList(new Row(asList("JOHN"))));
     when(esConnection.select(anyString())).thenReturn(esResult);
-    when(otherDbConnection1.select(anyString())).thenReturn(otherDbResult);
+    when(otherDbConnection.select(anyString())).thenReturn(otherDbResult);
 
     TestReport expected = new TestReport();
     expected.addTestCase(
@@ -98,7 +98,7 @@ public class ComparisonTestTest {
     DBConnection anotherDbConnection = mock(DBConnection.class);
     when(anotherDbConnection.getDatabaseName()).thenReturn("Another");
     correctnessTest = new ComparisonTest(
-        esConnection, new DBConnection[] {otherDbConnection1, anotherDbConnection}
+        esConnection, new DBConnection[] {otherDbConnection, anotherDbConnection}
     );
 
     DBResult esResult =
@@ -108,7 +108,7 @@ public class ComparisonTestTest {
     DBResult anotherDbResult = new DBResult("Another DB", asList(new Type("firstname", "text")),
         asList(new Row(asList("John"))));
     when(esConnection.select(anyString())).thenReturn(esResult);
-    when(otherDbConnection1.select(anyString())).thenReturn(otherDbResult);
+    when(otherDbConnection.select(anyString())).thenReturn(otherDbResult);
     when(anotherDbConnection.select(anyString())).thenReturn(anotherDbResult);
 
     TestReport expected = new TestReport();
@@ -123,7 +123,7 @@ public class ComparisonTestTest {
     when(anotherDbConnection.getDatabaseName())
         .thenReturn("ZZZ DB"); // Make sure this will be called after Other DB
     correctnessTest = new ComparisonTest(
-        esConnection, new DBConnection[] {otherDbConnection1, anotherDbConnection}
+        esConnection, new DBConnection[] {otherDbConnection, anotherDbConnection}
     );
 
     DBResult esResult =
@@ -133,7 +133,7 @@ public class ComparisonTestTest {
     DBResult anotherDbResult = new DBResult("ZZZ DB", asList(new Type("firstname", "text")),
         asList(new Row(asList("Hank"))));
     when(esConnection.select(anyString())).thenReturn(esResult);
-    when(otherDbConnection1.select(anyString())).thenReturn(otherDbResult);
+    when(otherDbConnection.select(anyString())).thenReturn(otherDbResult);
     when(anotherDbConnection.select(anyString())).thenReturn(anotherDbResult);
 
     TestReport expected = new TestReport();
@@ -159,7 +159,7 @@ public class ComparisonTestTest {
     when(esConnection.select(anyString())).thenReturn(
         new DBResult("ES", asList(new Type("firstname", "text")), asList(new Row(asList("John"))))
     );
-    when(otherDbConnection1.select(anyString()))
+    when(otherDbConnection.select(anyString()))
         .thenThrow(new RuntimeException("Unsupported feature"));
 
     TestReport expected = new TestReport();
@@ -174,13 +174,13 @@ public class ComparisonTestTest {
     DBConnection anotherDbConnection = mock(DBConnection.class);
     when(anotherDbConnection.getDatabaseName()).thenReturn("Another");
     correctnessTest = new ComparisonTest(
-        esConnection, new DBConnection[] {otherDbConnection1, anotherDbConnection}
+        esConnection, new DBConnection[] {otherDbConnection, anotherDbConnection}
     );
 
     when(esConnection.select(anyString())).thenReturn(
         new DBResult("ES", asList(new Type("firstname", "text")), asList(new Row(asList("John"))))
     );
-    when(otherDbConnection1.select(anyString()))
+    when(otherDbConnection.select(anyString()))
         .thenThrow(new RuntimeException("Unsupported feature"));
     when(anotherDbConnection.select(anyString())).thenReturn(
         new DBResult("Another DB", asList(new Type("firstname", "text")),
@@ -198,7 +198,7 @@ public class ComparisonTestTest {
     DBConnection otherDBConnection2 = mock(DBConnection.class);
     when(otherDBConnection2.getDatabaseName()).thenReturn("ZZZ DB");
     correctnessTest = new ComparisonTest(
-        esConnection, new DBConnection[] {otherDbConnection1, otherDBConnection2}
+        esConnection, new DBConnection[] {otherDbConnection, otherDBConnection2}
     );
 
     DBResult esResult =
@@ -207,7 +207,7 @@ public class ComparisonTestTest {
         new DBResult("Other", asList(new Type("firstname", "text")), Collections.emptyList());
 
     when(esConnection.select(anyString())).thenReturn(esResult);
-    when(otherDbConnection1.select(anyString())).thenReturn(otherResult);
+    when(otherDbConnection.select(anyString())).thenReturn(otherResult);
     when(otherDBConnection2.select(anyString()))
         .thenThrow(new RuntimeException("Unsupported feature"));
 
