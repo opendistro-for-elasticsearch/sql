@@ -1,0 +1,8 @@
+{
+  "error": {
+    "reason": "error reason",
+    "details": "java.lang.NullPointerException\n\tat org.elasticsearch.plugin.nlpcn.Schema.getTypeFromMetaData(Schema.java:156)\n\tat org.elasticsearch.plugin.nlpcn.Schema.populateColumns(Schema.java:146)\n\tat java.base/java.lang.Thread.run(Thread.java:844)\n",
+    "type": "java.lang.NullPointerException"
+  },
+  "status": 500
+}

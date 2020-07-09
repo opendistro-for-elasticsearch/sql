@@ -1,0 +1,14 @@
+ODBCTest->psqlodbc Driver:SQLDriverConnect or SQLConnect
+psqlodbc Driver->libes (C interface):DB Parameters
+libes (C interface)->Connection Factory:ESConn
+Connection Factory->ESConn:Initialize ESConn
+ESConn->libes (C interface):ESConn object
+libes (C interface)->ESConn:DB Parameters
+ESConn->libes (C interface):DB Parameters Validation Result
+libes (C interface)->ESConn:Connect to DB
+database ElasticSearch
+ESConn->ElasticSearch:Get
+ElasticSearch->ESConn:data
+ESConn->libes (C interface):DB Connection Result
+libes (C interface)->psqlodbc Driver:ESConn object with DB Connection
+psqlodbc Driver->ODBCTest:SQL Code Result

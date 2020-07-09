@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<connection-customization class='genericodbc' enabled='true' version='7.8'>
+<vendor name='Elasticsearch' />
+<driver name='ODFE SQL ODBC Driver' />
+    <customizations>
+        <customization name='CAP_CREATE_TEMP_TABLES' value='no' />
+        <customization name='CAP_SUPPRESS_DISCOVERY_QUERIES' value='yes' />
+    </customizations>
+</connection-customization>
