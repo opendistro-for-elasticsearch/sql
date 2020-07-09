@@ -14,3 +14,15 @@
  */
 
 rootProject.name = 'opendistro-sql'
+
+include 'plugin'
+include 'ppl'
+include 'integ-test'
+include 'common'
+include 'elasticsearch'
+include 'core'
+include 'protocol'
+include 'doctest'
+include 'legacy'
+include 'sql'
+

@@ -1,0 +1,10 @@
+{
+  "mappings": {
+    "properties": {
+      "phrase": {
+        "type": "text",
+        "store": true
+      }
+    }
+  }
+}

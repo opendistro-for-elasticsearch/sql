@@ -1,0 +1,13 @@
+{
+  "mappings": {
+    "properties": {
+      "odbc_time": {
+        "type": "date",
+        "format": "'{ts' ''yyyy-MM-dd HH:mm:ss.SSS'''}'"
+      },
+      "docCount": {
+        "type": "text"
+      }
+    }
+  }
+}

@@ -31,3 +31,10 @@ gen/
 
 # git mergetool artifact
 *.orig
+gen
+*.tokens
+
+# Python
+*/.venv
+*/__pycache__
+*.iml

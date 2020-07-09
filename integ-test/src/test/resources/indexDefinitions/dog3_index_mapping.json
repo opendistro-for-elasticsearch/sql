@@ -1,0 +1,12 @@
+{
+  "mappings": {
+    "properties": {
+      "holdersName": {
+        "type": "keyword"
+      },
+      "color": {
+        "type": "text"
+      }
+    }
+  }
+}

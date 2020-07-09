@@ -1,0 +1,130 @@
+plugins {
+    id 'java'
+    id 'jacoco'
+    id 'elasticsearch.esplugin'
+}
+
+ext {
+    projectSubstitutions = [:]
+    licenseFile = rootProject.file('LICENSE.TXT')
+    noticeFile = rootProject.file('NOTICE')
+}
+
+repositories {
+    mavenCentral()
+}
+
+esplugin {
+    name 'opendistro_sql'
+    description 'Open Distro for Elasticsearch SQL'
+    classname 'com.amazon.opendistroforelasticsearch.sql.plugin.SQLPlugin'
+    licenseFile rootProject.file("LICENSE.txt")
+    noticeFile rootProject.file("NOTICE")
+}
+
+javadoc.enabled = false
+test.enabled = false
+integTest.enabled = false
+dependencyLicenses.enabled = false
+thirdPartyAudit.enabled = false
+
+configurations.all {
+    // conflict with spring-jcl
+    exclude group: "commons-logging", module: "commons-logging"
+}
+
+dependencies {
+    compile group: 'org.springframework', name: 'spring-beans', version: '5.2.5.RELEASE'
+    compile project(":ppl")
+    compile project(':legacy')
+    compile project(':elasticsearch')
+}
+
+
+ext {
+    projectSubstitutions = [:]
+    licenseFile = rootProject.file('LICENSE.TXT')
+    noticeFile = rootProject.file('NOTICE')
+}
+
+// ANTLR generated parser file is too large to be checked which caused licenseHeaders stuck.
+licenseHeaders {
+    enabled = true
+    excludes = ['com/amazon/opendistroforelasticsearch/sql/antlr/parser/**']
+}
+
+tasks.withType(licenseHeaders.class) {
+    additionalLicense 'AL   ', 'Apache', 'Licensed under the Apache License, Version 2.0 (the "License")'
+}
+
+// TODO: fix forbidden APIs
+// from police-man plugin, see https://github.com/policeman-tools/forbidden-apis/wiki/GradleUsage
+forbiddenApis.ignoreFailures = true
+// TODO: fix forbidden code patterns
+// introduced by elasticsearch plugin
+// see https://github.com/elastic/elasticsearch/blob/master/buildSrc/src/main/java/org/elasticsearch/gradle/precommit/ForbiddenPatternsTask.java
+forbiddenPatterns {
+    setEnabled(false)
+}
+
+// TODO: fix license. skip dependency license checks
+dependencyLicenses.enabled = false
+
+// We don't need to follow ES testing naming conventions.
+// see https://github.com/elastic/elasticsearch/blob/323f312bbc829a63056a79ebe45adced5099f6e6/buildSrc/src/main/java/org/elasticsearch/gradle/precommit/TestingConventionsTasks.java
+// enable testingConventions check will cause errors like:  "Classes ending with [Tests] must subclass [LuceneTestCase]"
+testingConventions.enabled = false
+
+// TODO: need to verify the thirdPartyAudi
+// currently it complains missing classes like ibatis, mysql etc, should not be a problem
+thirdPartyAudit.enabled = false
+
+
+apply plugin: 'nebula.ospackage'
+validateNebulaPom.enabled = false
+
+// This is afterEvaluate because the bundlePlugin ZIP task is updated afterEvaluate and changes the ZIP name to match the plugin name
+afterEvaluate {
+    ospackage {
+        packageName = "${name}"
+        release = isSnapshot ? "0.1" : '1'
+        version = "${project.version}" - "-SNAPSHOT"
+
+        into '/usr/share/elasticsearch/plugins'
+        from(zipTree(bundlePlugin.archivePath)) {
+            into esplugin.name
+        }
+
+        user 'root'
+        permissionGroup 'root'
+        fileMode 0644
+        dirMode 0755
+
+        requires('elasticsearch-oss', versions.elasticsearch, EQUAL)
+        packager = 'Amazon'
+        vendor = 'Amazon'
+        os = 'LINUX'
+        prefix '/usr'
+
+        license 'ASL-2.0'
+        maintainer 'OpenDistro for Elasticsearch Team <opendistro@amazon.com>'
+        url 'https://opendistro.github.io/elasticsearch/downloads'
+        summary '''
+         SQL plugin for OpenDistro for Elasticsearch.
+         Reference documentation can be found at https://opendistro.github.io/for-elasticsearch-docs/.
+    '''.stripIndent().replace('\n', ' ').trim()
+    }
+
+    buildRpm {
+        arch = 'NOARCH'
+        archiveName "${packageName}-${version}.rpm"
+        dependsOn 'assemble'
+    }
+
+    buildDeb {
+        arch = 'amd64'
+        archiveName "${packageName}-${version}.deb"
+        dependsOn 'assemble'
+    }
+
+}

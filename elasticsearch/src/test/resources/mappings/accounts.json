@@ -1,0 +1,92 @@
+{
+  "accounts": {
+    "mappings": {
+      "_doc": {
+        "properties": {
+          "address": {
+            "type": "text"
+          },
+          "age": {
+            "type": "integer"
+          },
+          "balance": {
+            "type": "double"
+          },
+          "city": {
+            "type": "keyword"
+          },
+          "birthday": {
+            "type": "date"
+          },
+          "location": {
+            "type": "geo_point"
+          },
+          "new_field": {
+            "type": "some_new_es_type_outside_type_system"
+          },
+          "field with spaces": {
+            "type": "text"
+          },
+          "employer": {
+            "type": "text",
+            "fields": {
+              "raw": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "projects": {
+            "type": "nested",
+            "properties": {
+              "members": {
+                "type": "nested",
+                "properties": {
+                  "name": {
+                    "type": "text"
+                  }
+                }
+              },
+              "active": {
+                "type": "boolean"
+              },
+              "release": {
+                "type": "date"
+              }
+            }
+          },
+          "manager": {
+            "properties": {
+              "name": {
+                "type": "text",
+                "fields": {
+                  "keyword": {
+                    "type": "keyword",
+                    "ignore_above": 256
+                  }
+                }
+              },
+              "address": {
+                "type": "keyword"
+              },
+              "salary": {
+                "type": "long"
+              }
+            }
+          }
+        }
+      }
+    },
+    "settings": {
+      "index": {
+        "number_of_shards": 5,
+        "number_of_replicas": 0,
+        "version": {
+          "created": "6050399"
+        }
+      }
+    },
+    "mapping_version": "1",
+    "settings_version": "1"
+  }
+}

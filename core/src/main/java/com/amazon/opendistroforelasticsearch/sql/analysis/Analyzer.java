@@ -1,0 +1,251 @@
+/*
+ *   Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License").
+ *   You may not use this file except in compliance with the License.
+ *   A copy of the License is located at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   or in the "license" file accompanying this file. This file is distributed
+ *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ *   express or implied. See the License for the specific language governing
+ *   permissions and limitations under the License.
+ */
+
+package com.amazon.opendistroforelasticsearch.sql.analysis;
+
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
+import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
+import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Let;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Map;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Aggregation;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Dedupe;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Eval;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Filter;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Rename;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
+import com.amazon.opendistroforelasticsearch.sql.ast.tree.Values;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprMissingValue;
+import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
+import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
+import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregation;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalDedupe;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalEval;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalFilter;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalProject;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRelation;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRemove;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalRename;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalSort;
+import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalValues;
+import com.amazon.opendistroforelasticsearch.sql.storage.StorageEngine;
+import com.amazon.opendistroforelasticsearch.sql.storage.Table;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+
+/**
+ * Analyze the {@link UnresolvedPlan} in the {@link AnalysisContext} to construct the {@link
+ * LogicalPlan}.
+ */
+@RequiredArgsConstructor
+public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> {
+  private final ExpressionAnalyzer expressionAnalyzer;
+  private final StorageEngine storageEngine;
+
+  public LogicalPlan analyze(UnresolvedPlan unresolved, AnalysisContext context) {
+    return unresolved.accept(this, context);
+  }
+
+  @Override
+  public LogicalPlan visitRelation(Relation node, AnalysisContext context) {
+    context.push();
+    TypeEnvironment curEnv = context.peek();
+    Table table = storageEngine.getTable(node.getTableName());
+    table.getFieldTypes().forEach((k, v) -> curEnv.define(new Symbol(Namespace.FIELD_NAME, k), v));
+    return new LogicalRelation(node.getTableName());
+  }
+
+  @Override
+  public LogicalPlan visitFilter(Filter node, AnalysisContext context) {
+    LogicalPlan child = node.getChild().get(0).accept(this, context);
+    Expression condition = expressionAnalyzer.analyze(node.getCondition(), context);
+    return new LogicalFilter(child, condition);
+  }
+
+  /**
+   * Build {@link LogicalRename}.
+   */
+  @Override
+  public LogicalPlan visitRename(Rename node, AnalysisContext context) {
+    LogicalPlan child = node.getChild().get(0).accept(this, context);
+    ImmutableMap.Builder<ReferenceExpression, ReferenceExpression> renameMapBuilder =
+        new ImmutableMap.Builder<>();
+    for (Map renameMap : node.getRenameList()) {
+      Expression origin = expressionAnalyzer.analyze(renameMap.getOrigin(), context);
+      // We should define the new target field in the context instead of analyze it.
+      if (renameMap.getTarget() instanceof Field) {
+        ReferenceExpression target =
+            new ReferenceExpression(((Field) renameMap.getTarget()).getField().toString(),
+                origin.type());
+        context.peek().define(target);
+        renameMapBuilder.put(DSL.ref(origin.toString(), origin.type()), target);
+      } else {
+        throw new SemanticCheckException(
+            String.format("the target expected to be field, but is %s", renameMap.getTarget()));
+      }
+    }
+
+    return new LogicalRename(child, renameMapBuilder.build());
+  }
+
+  /**
+   * Build {@link LogicalAggregation}.
+   */
+  @Override
+  public LogicalPlan visitAggregation(Aggregation node, AnalysisContext context) {
+    LogicalPlan child = node.getChild().get(0).accept(this, context);
+    ImmutableList.Builder<Aggregator> aggregatorBuilder = new ImmutableList.Builder<>();
+    for (UnresolvedExpression expr : node.getAggExprList()) {
+      aggregatorBuilder.add((Aggregator) expressionAnalyzer.analyze(expr, context));
+    }
+
+    ImmutableList.Builder<Expression> groupbyBuilder = new ImmutableList.Builder<>();
+    for (UnresolvedExpression expr : node.getGroupExprList()) {
+      groupbyBuilder.add(expressionAnalyzer.analyze(expr, context));
+    }
+    return new LogicalAggregation(child, aggregatorBuilder.build(), groupbyBuilder.build());
+  }
+
+  /**
+   * Build {@link LogicalProject} or {@link LogicalRemove} from {@link Field}.
+   *
+   * <p>Todo, the include/exclude fields should change the env definition. The cons of current
+   * implementation is even the query contain the field reference which has been excluded from
+   * fields command. There is no {@link SemanticCheckException} will be thrown. Instead, the during
+   * runtime evaluation, the not exist field will be resolve to {@link ExprMissingValue} which will
+   * not impact the correctness.
+   *
+   * <p>Postpone the implementation when finding more use case.
+   */
+  @Override
+  public LogicalPlan visitProject(Project node, AnalysisContext context) {
+    LogicalPlan child = node.getChild().get(0).accept(this, context);
+
+    if (node.hasArgument()) {
+      Argument argument = node.getArgExprList().get(0);
+      Boolean exclude = (Boolean) argument.getValue().getValue();
+      if (exclude) {
+        List<ReferenceExpression> referenceExpressions =
+            node.getProjectList().stream()
+                .map(expr -> (ReferenceExpression) expressionAnalyzer.analyze(expr, context))
+                .collect(Collectors.toList());
+        return new LogicalRemove(child, ImmutableSet.copyOf(referenceExpressions));
+      }
+    }
+
+    List<Expression> expressions = node.getProjectList().stream()
+        .map(expr -> expressionAnalyzer.analyze(expr, context))
+        .collect(Collectors.toList());
+    return new LogicalProject(child, expressions);
+  }
+
+  /**
+   * Build {@link LogicalEval}.
+   */
+  @Override
+  public LogicalPlan visitEval(Eval node, AnalysisContext context) {
+    LogicalPlan child = node.getChild().get(0).accept(this, context);
+    ImmutableList.Builder<Pair<ReferenceExpression, Expression>> expressionsBuilder =
+        new Builder<>();
+    for (Let let : node.getExpressionList()) {
+      Expression expression = expressionAnalyzer.analyze(let.getExpression(), context);
+      ReferenceExpression ref = DSL.ref(let.getVar().getField().toString(), expression.type());
+      expressionsBuilder.add(ImmutablePair.of(ref, expression));
+      TypeEnvironment typeEnvironment = context.peek();
+      // define the new reference in type env.
+      typeEnvironment.define(ref);
+    }
+    return new LogicalEval(child, expressionsBuilder.build());
+  }
+
+  /**
+   * Build {@link LogicalSort}.
+   */
+  @Override
+  public LogicalPlan visitSort(Sort node, AnalysisContext context) {
+    LogicalPlan child = node.getChild().get(0).accept(this, context);
+    // the first options is {"count": "integer"}
+    Integer count = (Integer) node.getOptions().get(0).getValue().getValue();
+    List<Pair<SortOption, Expression>> sortList =
+        node.getSortList().stream()
+            .map(
+                sortField -> {
+                  // the first options is {"asc": "true/false"}
+                  Boolean asc = (Boolean) sortField.getFieldArgs().get(0).getValue().getValue();
+                  Expression expression = expressionAnalyzer.analyze(sortField, context);
+                  return ImmutablePair.of(
+                      asc ? SortOption.PPL_ASC : SortOption.PPL_DESC, expression);
+                })
+            .collect(Collectors.toList());
+
+    return new LogicalSort(child, count, sortList);
+  }
+
+  /**
+   * Build {@link LogicalDedupe}.
+   */
+  @Override
+  public LogicalPlan visitDedupe(Dedupe node, AnalysisContext context) {
+    LogicalPlan child = node.getChild().get(0).accept(this, context);
+    List<Argument> options = node.getOptions();
+    // Todo, refactor the option.
+    Integer allowedDuplication = (Integer) options.get(0).getValue().getValue();
+    Boolean keepEmpty = (Boolean) options.get(1).getValue().getValue();
+    Boolean consecutive = (Boolean) options.get(2).getValue().getValue();
+
+    return new LogicalDedupe(
+        child,
+        node.getFields().stream()
+            .map(f -> expressionAnalyzer.analyze(f, context))
+            .collect(Collectors.toList()),
+        allowedDuplication,
+        keepEmpty,
+        consecutive);
+  }
+
+  @Override
+  public LogicalPlan visitValues(Values node, AnalysisContext context) {
+    List<List<Literal>> values = node.getValues();
+    List<List<LiteralExpression>> valueExprs = new ArrayList<>();
+    for (List<Literal> value : values) {
+      valueExprs.add(value.stream()
+          .map(val -> (LiteralExpression) expressionAnalyzer.analyze(val, context))
+          .collect(Collectors.toList()));
+    }
+    return new LogicalValues(valueExprs);
+  }
+
+}

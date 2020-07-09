@@ -1,0 +1,47 @@
+{
+  "mappings": {
+    "properties": {
+      "message": {
+        "type": "nested",
+        "properties": {
+          "info": {
+            "type": "keyword",
+            "index": "true"
+          },
+          "author": {
+            "type": "keyword",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            },
+            "index": "true"
+          },
+          "dayOfWeek": {
+            "type": "long"
+          }
+        }
+      },
+      "comment": {
+        "type": "nested",
+        "properties": {
+          "data": {
+            "type": "keyword",
+            "index": "true"
+          },
+          "likes": {
+            "type": "long"
+          }
+        }
+      },
+      "myNum": {
+        "type": "long"
+      },
+      "someField": {
+        "type": "keyword",
+        "index": "true"
+      }
+    }
+  }
+}

@@ -1,0 +1,74 @@
+plugins {
+    id 'java'
+    id "io.freefair.lombok"
+    id 'jacoco'
+    id 'antlr'
+}
+
+repositories {
+    mavenCentral()
+}
+
+generateGrammarSource {
+    arguments += ['-visitor', '-package', 'com.amazon.opendistroforelasticsearch.sql.ppl.antlr.parser']
+    source = sourceSets.main.antlr
+    outputDirectory = file("build/generated-src/antlr/main/com/amazon/opendistroforelasticsearch/sql/ppl/antlr/parser")
+}
+
+configurations {
+    compile {
+        extendsFrom = extendsFrom.findAll { it != configurations.antlr }
+    }
+}
+
+dependencies {
+    antlr "org.antlr:antlr4:4.7.1"
+
+    compile "org.antlr:antlr4-runtime:4.7.1"
+    compile group: 'com.google.guava', name: 'guava', version: '23.0'
+    compile group: 'org.elasticsearch', name: 'elasticsearch-x-content', version: "${es_version}"
+    compile group: 'org.json', name: 'json', version: '20180813'
+    compile group: 'org.springframework', name: 'spring-context', version: '5.2.5.RELEASE'
+    compile group: 'org.springframework', name: 'spring-beans', version: '5.2.5.RELEASE'
+    compile project(':common')
+    compile project(':core')
+    compile project(':protocol')
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile group: 'org.mockito', name: 'mockito-core', version: '3.3.3'
+
+}
+
+jacoco {
+    toolVersion = "0.8.5"
+}
+
+jacocoTestReport {
+    reports {
+        html.enabled true
+    }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it,
+                    exclude: ['**/antlr/parser/**'])
+        }))
+    }
+}
+test.finalizedBy(project.tasks.jacocoTestReport)
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 1.0
+            }
+
+        }
+    }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it,
+                    exclude: ['**/antlr/parser/**'])
+        }))
+    }
+}
+check.dependsOn jacocoTestCoverageVerification

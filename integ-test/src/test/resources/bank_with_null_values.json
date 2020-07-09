@@ -1,0 +1,14 @@
+{"index":{"_id":"1"}}
+{"account_number":1,"balance":39225,"firstname":"Amber JOHnny","lastname":"Duke Willmington","age":32,"gender":"M","address":"880 Holmes Lane"}
+{"index": {"_id":"6"}}
+{"account_number":6,"firstname":"Hattie","lastname":"Bond","age":36,"gender":"M","address":"671 Bristol Street"}
+{"index":{"_id":"13"}}
+{"account_number":13,"balance":32838,"firstname":"Nanette","lastname":"Bates","age":28,"gender":"F","address":"789 Madison Street"}
+{"index":{"_id":"18"}}
+{"account_number":18,"balance":4180,"firstname":"Dale","lastname":"Adams","age":33,"gender":"M","address":"467 Hutchinson Court"}
+{"index":{"_id":"20"}}
+{"account_number":20,"firstname":"Elinor","lastname":"Ratliff","age":36,"gender":"M","address":"282 Kings Place"}
+{"index":{"_id":"25"}}
+{"account_number":25,"firstname":"Virginia","lastname":"Ayala","age":null, "gender":"F","address":"171 Putnam Avenue"}
+{"index":{"_id":"32"}}
+{"account_number":32,"balance":48086,"firstname":"Dillard","lastname":"Mcpherson","age":34,"gender":"F","address":"702 Quentin Street"}
