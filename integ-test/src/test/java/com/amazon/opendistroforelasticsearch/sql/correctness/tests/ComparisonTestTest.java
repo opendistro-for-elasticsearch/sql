@@ -194,7 +194,7 @@ public class ComparisonTestTest {
   }
 
   @Test
-  public void testErrorDueToErrorAndInconsistencyMixed() {
+  public void testFailureDueToInconsistencyAndExceptionMixed() {
     DBConnection otherDBConnection2 = mock(DBConnection.class);
     when(otherDBConnection2.getDatabaseName()).thenReturn("ZZZ DB");
     correctnessTest = new ComparisonTest(
