@@ -64,6 +64,7 @@ class ESCommunication {
     bool SetClientEncoding(std::string& encoding);
     bool IsSQLPluginInstalled(const std::string& plugin_response);
     std::string GetServerVersion();
+    std::string GetClusterName();
     std::shared_ptr< Aws::Http::HttpResponse > IssueRequest(
         const std::string& endpoint, const Aws::Http::HttpMethod request_type,
         const std::string& content_type, const std::string& query,

@@ -28,6 +28,7 @@ void ESClearResult(ESResult* es_result);
 void* ESConnectDBParams(runtime_options& rt_opts, int expand_dbname,
                         unsigned int option_count);
 std::string GetServerVersion(void* es_conn);
+std::string GetClusterName(void* es_conn);
 std::string GetErrorMsg(void* es_conn);
 
 // C Interface

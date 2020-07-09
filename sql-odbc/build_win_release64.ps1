@@ -1,5 +1,5 @@
 # Build AWS SDK
-$BITNESS=64
+$BITNESS = 64
 
 # Compare Bitness for 32
 # $ARCH="x64"
@@ -22,3 +22,5 @@ cmake -S src -B cmake-build64 -A x64 -D CMAKE_INSTALL_PREFIX=sdk-build64\AWSSDK\
 
 # # Build Project
 cmake --build .\cmake-build64 --config Release 
+
+cp .\sdk-build64\bin\Release\* .\bin64\Release

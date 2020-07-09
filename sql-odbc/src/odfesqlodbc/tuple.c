@@ -24,7 +24,9 @@
 
 void set_tuplefield_null(TupleField *tuple_field) {
     tuple_field->len = 0;
-    tuple_field->value = NULL; /* strdup(""); */
+    // Changing value to strdup("") from NULL to fix error 
+    // "Object cannot be cast from DBNull to other types" in Excel & Power BI
+    tuple_field->value = strdup(""); /* NULL; */
 }
 
 void set_tuplefield_string(TupleField *tuple_field, const char *string) {

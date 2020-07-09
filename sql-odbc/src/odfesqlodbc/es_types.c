@@ -95,8 +95,9 @@ static Int4 getCharColumnSizeX(const ConnectionClass *conn, OID type,
                                int atttypmod, int adtsize_or_longestlen,
                                int handle_unknown_size_as) {
     int p = -1, maxsize;
-    MYLOG(ES_TRACE, "entering type=%d, atttypmod=%d, adtsize_or=%d, unknown = %d\n",
-          type, atttypmod, adtsize_or_longestlen, handle_unknown_size_as);
+    MYLOG(ES_TRACE,
+          "entering type=%d, atttypmod=%d, adtsize_or=%d, unknown = %d\n", type,
+          atttypmod, adtsize_or_longestlen, handle_unknown_size_as);
 
     maxsize = MAX_VARCHAR_SIZE;
 #ifdef UNICODE_SUPPORT
@@ -115,8 +116,7 @@ static Int4 getCharColumnSizeX(const ConnectionClass *conn, OID type,
     if (atttypmod < 0 && adtsize_or_longestlen < 0)
         return maxsize;
 
-    MYLOG(ES_DEBUG, "!!! adtsize_or_logngest=%d\n",
-          adtsize_or_longestlen);
+    MYLOG(ES_DEBUG, "!!! adtsize_or_logngest=%d\n", adtsize_or_longestlen);
     p = adtsize_or_longestlen; /* longest */
                                /*
                                 * Catalog Result Sets -- use assigned column width (i.e., from
@@ -354,8 +354,7 @@ estype_attr_to_concise_type(const ConnectionClass *conn, OID type,
                 int column_size = getCharColumnSizeX(conn, type, atttypmod,
                                                      adtsize_or_longestlen,
                                                      handle_unknown_size_as);
-                if (column_size > 0
-                    && column_size <= MAX_VARCHAR_SIZE)
+                if (column_size > 0 && column_size <= MAX_VARCHAR_SIZE)
                     bLongVarchar = FALSE;
             }
 #ifdef EXPERIMENTAL_CURRENTLY
@@ -480,37 +479,37 @@ const char *estype_attr_to_name(const ConnectionClass *conn, OID type,
     UNUSED(conn, typmod, conn, auto_increment);
     switch (type) {
         case ES_TYPE_BOOL:
-            return "boolean";
+            return ES_TYPE_NAME_BOOLEAN;
         case ES_TYPE_INT1:
-            return "byte";
+            return ES_TYPE_NAME_BYTE;
         case ES_TYPE_INT2:
-            return "short";
+            return ES_TYPE_NAME_SHORT;
         case ES_TYPE_INT4:
-            return "integer";
+            return ES_TYPE_NAME_INTEGER;
         case ES_TYPE_INT8:
-            return "long";
+            return ES_TYPE_NAME_LONG;
         case ES_TYPE_HALF_FLOAT:
-            return "half_float";
+            return ES_TYPE_NAME_HALF_FLOAT;
         case ES_TYPE_FLOAT4:
-            return "float";
+            return ES_TYPE_NAME_FLOAT;
         case ES_TYPE_FLOAT8:
-            return "double";
+            return ES_TYPE_NAME_DOUBLE;
         case ES_TYPE_SCALED_FLOAT:
-            return "scaled_float";
+            return ES_TYPE_NAME_SCALED_FLOAT;
         case ES_TYPE_KEYWORD:
-            return "keyword";
+            return ES_TYPE_NAME_KEYWORD;
         case ES_TYPE_TEXT:
-            return "text";
+            return ES_TYPE_NAME_TEXT;
         case ES_TYPE_NESTED:
-            return "nested";
+            return ES_TYPE_NAME_NESTED;
         case ES_TYPE_DATETIME:
-            return "date";
+            return ES_TYPE_NAME_DATE;
         case ES_TYPE_OBJECT:
-            return "object";
+            return ES_TYPE_NAME_OBJECT;
         case ES_TYPE_VARCHAR:
-            return "varchar";
+            return ES_TYPE_NAME_VARCHAR;
         default:
-            return "unsupported";
+            return ES_TYPE_NAME_UNSUPPORTED;
     }
 }
 
@@ -546,8 +545,6 @@ estype_attr_column_size(const ConnectionClass *conn, OID type, int atttypmod,
         case ES_TYPE_DATETIME:
             return 24;
         case ES_TYPE_OBJECT:
-            return 0;
-        case ES_TYPE_UNSUPPORTED:
             return 0;
         default:
             return adtsize_or_longest;
@@ -928,7 +925,7 @@ const char *sqltype_to_escast(const ConnectionClass *conn,
 }
 
 OID sqltype_to_estype(const ConnectionClass *conn, SQLSMALLINT fSqlType) {
-    OID esType = 0; 
+    OID esType = 0;
     switch (fSqlType) {
         case SQL_BINARY:
             esType = ES_TYPE_BYTEA;
@@ -1323,7 +1320,6 @@ Int2 estype_unsigned(const ConnectionClass *conn, OID type) {
         case ES_TYPE_NESTED:
         case ES_TYPE_DATETIME:
         case ES_TYPE_OBJECT:
-        case ES_TYPE_UNSUPPORTED:
             return SQL_TRUE;
 
         case ES_TYPE_INT1:
@@ -1342,13 +1338,29 @@ Int2 estype_unsigned(const ConnectionClass *conn, OID type) {
 }
 
 const char *estype_literal_prefix(const ConnectionClass *conn, OID type) {
-    UNUSED(conn, type);
-    return "`";
+    UNUSED(conn);
+    switch (type) {
+        case ES_TYPE_KEYWORD:
+        case ES_TYPE_TEXT:
+        case ES_TYPE_NESTED:
+        case ES_TYPE_OBJECT:
+            return "\"";
+        default:
+            return "";
+    }
 }
 
 const char *estype_literal_suffix(const ConnectionClass *conn, OID type) {
-    UNUSED(conn, type);
-    return "`";
+    UNUSED(conn);
+    switch (type) {
+        case ES_TYPE_KEYWORD:
+        case ES_TYPE_TEXT:
+        case ES_TYPE_NESTED:
+        case ES_TYPE_OBJECT:
+            return "\"";
+        default:
+            return "";
+    }
 }
 
 const char *estype_create_params(const ConnectionClass *conn, OID type) {

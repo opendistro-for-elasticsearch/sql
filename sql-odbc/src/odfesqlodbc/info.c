@@ -457,7 +457,7 @@ RETCODE SQL_API ESAPI_GetInfo(HDBC hdbc, SQLUSMALLINT fInfoType,
             break;
 
         case SQL_OWNER_TERM: /* ODBC 1.0 */
-            p = "schema";
+            p = "";
             break;
 
         case SQL_OWNER_USAGE: /* ODBC 2.0 */
@@ -495,7 +495,7 @@ RETCODE SQL_API ESAPI_GetInfo(HDBC hdbc, SQLUSMALLINT fInfoType,
             break;
 
         case SQL_QUALIFIER_TERM: /* ODBC 1.0 */
-                p = "catalog";
+            p = "cluster";
             break;
 
         case SQL_QUALIFIER_USAGE: /* ODBC 2.0 */

@@ -1,5 +1,5 @@
 # Build AWS SDK
-$BITNESS=64
+$BITNESS = 64
 
 # Compare Bitness for 32
 # $ARCH="x64"
@@ -23,4 +23,4 @@ cmake -S src -B cmake-build${BITNESS} -A x64 -D CMAKE_INSTALL_PREFIX=sdk-build${
 # # Build Project
 cmake --build .\cmake-build${BITNESS} --config Debug 
 
-msbuild cmake-build32\PACKAGE.vcxproj -p:Configuration=Debug
+cp .\sdk-build64\bin\Debug\* .\bin64\Debug

@@ -282,6 +282,7 @@ struct ConnectionClass_ {
     DriverToDataSourceProc DriverToDataSource;
     char transact_status;             /* Is a transaction is currently
                                        * in progress */
+    char cluster_name[MAX_INFO_STRING];
     char es_version[MAX_INFO_STRING]; /* Version of Elasticsearch driver
                                        * we're connected to -
                                        * DJP 25-1-2001 */

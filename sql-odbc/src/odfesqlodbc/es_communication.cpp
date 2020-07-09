@@ -669,3 +669,51 @@ std::string ESCommunication::GetServerVersion() {
     LogMsg(ES_ERROR, m_error_message.c_str());
     return "";
 }
+
+std::string ESCommunication::GetClusterName() {
+    if (!m_http_client) {
+        InitializeConnection();
+    }
+
+    // Issue request
+    std::shared_ptr< Aws::Http::HttpResponse > response =
+        IssueRequest("", Aws::Http::HttpMethod::HTTP_GET, "", "", "");
+    if (response == nullptr) {
+        m_error_message =
+            "Failed to receive response from query. "
+            "Received NULL response.";
+        LogMsg(ES_ERROR, m_error_message.c_str());
+        return "";
+    }
+
+    // Parse cluster name
+    if (response->GetResponseCode() == Aws::Http::HttpResponseCode::OK) {
+        try {
+            AwsHttpResponseToString(response, m_response_str);
+            rabbit::document doc;
+            doc.parse(m_response_str);
+            if (doc.has("cluster_name")) {
+                return doc["cluster_name"].as_string();
+            }
+
+        } catch (const rabbit::type_mismatch& e) {
+            m_error_message = "Error parsing main endpoint response: "
+                              + std::string(e.what());
+            LogMsg(ES_ERROR, m_error_message.c_str());
+        } catch (const rabbit::parse_error& e) {
+            m_error_message = "Error parsing main endpoint response: "
+                              + std::string(e.what());
+            LogMsg(ES_ERROR, m_error_message.c_str());
+        } catch (const std::exception& e) {
+            m_error_message = "Error parsing main endpoint response: "
+                              + std::string(e.what());
+            LogMsg(ES_ERROR, m_error_message.c_str());
+        } catch (...) {
+            LogMsg(ES_ERROR,
+                   "Unknown exception thrown when parsing main endpoint "
+                   "response.");
+        }
+    }
+    LogMsg(ES_ERROR, m_error_message.c_str());
+    return "";
+}

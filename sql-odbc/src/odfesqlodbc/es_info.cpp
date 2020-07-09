@@ -25,7 +25,8 @@
 #include <unordered_map>
 #include <vector>
 
-// TODO #324 (SQL Plugin)- Update if Elasticsearch extends support for multiple tables
+// TODO #324 (SQL Plugin)- Update if Elasticsearch extends support for multiple
+// tables
 #define DEFAULT_TYPE_STR \
     { 'k', 'e', 'y', 'w', 'o', 'r', 'd', '\0' }
 #define DEFAULT_TYPE_INT (SQL_WVARCHAR)
@@ -79,8 +80,7 @@ const std::unordered_map< int, std::vector< int > > sql_es_type_map = {
     {SQL_REAL, {ES_TYPE_HALF_FLOAT, ES_TYPE_FLOAT4}},
     {SQL_DOUBLE, {ES_TYPE_FLOAT8, ES_TYPE_SCALED_FLOAT}},
     {SQL_WVARCHAR,
-     {ES_TYPE_KEYWORD, ES_TYPE_TEXT, ES_TYPE_NESTED, ES_TYPE_OBJECT,
-      ES_TYPE_UNSUPPORTED}},
+     {ES_TYPE_KEYWORD, ES_TYPE_TEXT, ES_TYPE_NESTED, ES_TYPE_OBJECT}},
     {SQL_TYPE_TIMESTAMP, {ES_TYPE_DATETIME}}};
 
 // Boilerplate code for easy column bind handling
@@ -156,6 +156,7 @@ class BindTemplate {
     BindTemplate(const BindTemplate &) = default;
     BindTemplate &operator=(const BindTemplate &) = default;
     virtual std::string AsString() = 0;
+    virtual void UpdateData(SQLPOINTER new_data, size_t size) = 0;
 
    private:
     SQLLEN m_len;
@@ -181,6 +182,10 @@ class BindTemplateInt4 : public BindTemplate {
     }
     std::string AsString() {
         return std::to_string(*static_cast< Int4 * >(GetData()));
+    }
+    void UpdateData(SQLPOINTER new_data, size_t size) {
+        (void)size;
+        m_data = *(Int4 *)new_data;
     }
 
    private:
@@ -212,6 +217,10 @@ class BindTemplateInt2 : public BindTemplate {
     }
     std::string AsString() {
         return std::to_string(*static_cast< Int2 * >(GetData()));
+    }
+    void UpdateData(SQLPOINTER new_data, size_t size) {
+        (void)size;
+        m_data = *(Int2 *)new_data;
     }
 
    private:
@@ -250,6 +259,14 @@ class BindTemplateSQLCHAR : public BindTemplate {
     std::string AsString() {
         char *bind_tbl_data_char = static_cast< char * >(GetData());
         return (bind_tbl_data_char == NULL) ? "" : bind_tbl_data_char;
+    }
+    void UpdateData(SQLPOINTER new_data, size_t size) {
+        m_data.clear();
+        SQLCHAR *data = (SQLCHAR *)new_data;
+        for (size_t i = 0; i < size; i++) {
+            m_data.push_back(*data++);
+        }
+        m_data.push_back(0);
     }
 
    private:
@@ -459,8 +476,13 @@ void SetTableTuples(QResultClass *res, const TableResultSet res_type,
     // General case
     if (res_type == TableResultSet::All) {
         RETCODE result = SQL_NO_DATA_FOUND;
-        while (SQL_SUCCEEDED(result = ESAPI_Fetch(tbl_stmt)))
+        while (SQL_SUCCEEDED(result = ESAPI_Fetch(tbl_stmt))) {
+            if (bind_tbl[TABLES_TABLE_TYPE]->AsString() == "BASE TABLE") {
+                std::string table("TABLE");
+                bind_tbl[TABLES_TABLE_TYPE]->UpdateData(&table, table.size());
+            }
             AssignData(res, bind_tbl);
+        }
         CheckResult(result);
     } else if (res_type == TableResultSet::TableLookUp) {
         // Get accepted table types
@@ -472,11 +494,19 @@ void SetTableTuples(QResultClass *res, const TableResultSet res_type,
 
         // Loop through all data
         RETCODE result = SQL_NO_DATA_FOUND;
-        while (SQL_SUCCEEDED(result = ESAPI_Fetch(tbl_stmt)))
+        while (SQL_SUCCEEDED(result = ESAPI_Fetch(tbl_stmt))) {
+            // Replace BASE TABLE with TABLE for Excel & Power BI SQLTables call
+            if (bind_tbl[TABLES_TABLE_TYPE]->AsString() == "BASE TABLE") {
+                std::string table("TABLE");
+                bind_tbl[TABLES_TABLE_TYPE]->UpdateData(&table, table.size());
+            }
             if (std::find(table_types.begin(), table_types.end(),
                           bind_tbl[TABLES_TABLE_TYPE]->AsString())
-                != table_types.end())
+                != table_types.end()) {
                 AssignData(res, bind_tbl);
+            }
+        }
+
         CheckResult(result);
 
     }
@@ -664,17 +694,21 @@ ESAPI_Tables(HSTMT hstmt, const SQLCHAR *catalog_name_sql,
             if (schema_valid && table_valid && (table_name == "")
                 && (schema_name == ""))
                 result_type = TableResultSet::Catalog;
-        } else if (schema_name == SQL_ALL_SCHEMAS) {
+        } 
+        if (schema_name == SQL_ALL_SCHEMAS) {
             if (catalog_valid && table_valid && (table_name == "")
                 && (catalog_name == ""))
                 result_type = TableResultSet::Schema;
-        } else if (table_type_valid && (table_type == SQL_ALL_TABLE_TYPES)) {
+        } 
+        if (table_type_valid && (table_type == SQL_ALL_TABLE_TYPES)) {
             if (catalog_valid && table_valid && schema_valid
                 && (table_name == "") && (catalog_name == "")
                 && (schema_name == ""))
                 result_type = TableResultSet::TableTypes;
-        } else if (table_type_valid && (table_type != SQL_ALL_TABLE_TYPES))
+        } 
+        if (table_type_valid && (table_type != SQL_ALL_TABLE_TYPES)) {
             result_type = TableResultSet::TableLookUp;
+        }
 
         // Create query to find out list
         std::string query;

@@ -28,14 +28,12 @@ find_library(   VLD
 				vld	
 				HINTS "${LIBRARY_DIRECTORY}/VisualLeakDetector/lib64"
 			)
-
 target_link_libraries(ut_helper ${VLD})
 elseif (WIN32 AND BITNESS EQUAL 32)
 find_library(   VLD
 				vld	
 				HINTS "${LIBRARY_DIRECTORY}/VisualLeakDetector/lib"
 			)
-
 target_link_libraries(ut_helper ${VLD})
 endif()
 

@@ -144,6 +144,9 @@ int LIBES_connect(ConnectionClass *self) {
     std::string server_version = GetServerVersion(esconn);
     STRCPY_FIXED(self->es_version, server_version.c_str());
 
+    std::string cluster_name = GetClusterName(esconn);
+    STRCPY_FIXED(self->cluster_name, cluster_name.c_str());
+
     self->esconn = (void *)esconn;
     return 1;
 }

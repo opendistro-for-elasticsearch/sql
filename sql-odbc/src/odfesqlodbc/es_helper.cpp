@@ -63,6 +63,12 @@ std::string GetServerVersion(void* es_conn) {
                : "";
 }
 
+std::string GetClusterName(void* es_conn) {
+    return es_conn
+               ? static_cast< ESCommunication* >(es_conn)->GetClusterName()
+               : "";
+}
+
 void* InitializeESConn() {
     return new ESCommunication();
 }
