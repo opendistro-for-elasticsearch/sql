@@ -1,0 +1,12 @@
+Title SQLExecDirect Sequence Diagram
+ODBCTest->psqlodbc Driver:SQLExecDirect
+psqlodbc Driver->libes (C interface):Query
+libes (C interface)->libes (C interface):Active Connection
+libes (C interface)->ESConn:Connection, Query
+ESConn->ESConn:Connection, Query validation
+database ElasticSearch
+ESConn->ElasticSearch:Post
+ElasticSearch->ESConn:Data
+ESConn->libes (C interface):Data
+libes (C interface)->psqlodbc Driver:Data
+psqlodbc Driver->ODBCTest:Query Execution Status

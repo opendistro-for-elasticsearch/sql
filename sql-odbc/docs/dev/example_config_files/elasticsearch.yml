@@ -1,0 +1,5 @@
+xpack.security.http.ssl.enabled: true
+xpack.security.http.ssl.client_authentication: none
+xpack.security.http.ssl.key_passphrase: password_if_applicable
+xpack.security.http.ssl.certificate: certificate.pem
+xpack.security.http.ssl.key: key.pem

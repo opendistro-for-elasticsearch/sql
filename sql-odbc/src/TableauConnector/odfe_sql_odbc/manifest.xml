@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='utf-8' ?>
+
+<connector-plugin class='odfe_sql_odbc' superclass='odbc' plugin-version='1.8.0.0' name='SQL' version='18.1' min-version-tableau='2020.1'>
+  <vendor-information>
+      <company name="Open Distro for ES"/>
+      <support-link url="https://github.com/opendistro-for-elasticsearch/sql-odbc"/>
+      <driver-download-link url="https://github.com/opendistro-for-elasticsearch/sql-odbc"/>
+  </vendor-information>
+  <connection-customization class="odfe_sql_odbc" enabled="true" version="10.0">
+    <vendor name="Open Distro for ES"/>
+    <driver name="SQL"/>
+    <customizations>
+      <customization name="CAP_CREATE_TEMP_TABLES" value="no"/>
+      <customization name="CAP_SUPPRESS_DISCOVERY_QUERIES" value="yes" />
+      <customization name="CAP_SELECT_INTO" value="no"/>
+      <customization name="CAP_SELECT_TOP_INTO" value="no"/>
+      <customization name="CAP_QUERY_BOOLEXPR_TO_INTEXPR" value="no"/>
+      <customization name="CAP_QUERY_GROUP_BY_BOOL" value="yes"/>
+      <customization name="CAP_QUERY_GROUP_BY_DEGREE" value="yes"/>
+      <customization name="CAP_QUERY_SORT_BY" value="yes"/>
+      <customization name="CAP_QUERY_SUBQUERIES" value="yes"/>
+      <customization name="CAP_QUERY_TOP_N" value="yes"/>
+      <customization name="CAP_QUERY_TOP_SAMPLE" value="yes"/>
+      <customization name="CAP_QUERY_TOP_SAMPLE_PERCENT" value="yes"/>
+      <customization name="CAP_QUERY_WHERE_FALSE_METADATA" value="yes"/>
+      <customization name="CAP_QUERY_SUBQUERIES_WITH_TOP" value="yes"/>
+      <customization name="CAP_SUPPORTS_SPLIT_FROM_LEFT" value="yes"/>
+      <customization name="CAP_SUPPORTS_SPLIT_FROM_RIGHT" value="yes"/>
+      <customization name="CAP_QUERY_ALLOW_PARTIAL_AGGREGATION" value="no"/>
+      <customization name="CAP_QUERY_TIME_REQUIRES_CAST" value="yes"/>
+      <customization name="CAP_ODBC_METADATA_FORCE_NUM_PREC_RADIX_10" value="yes"/>
+      <customization name="CAP_ODBC_METADATA_FORCE_LENGTH_AS_PRECISION" value="yes"/>
+      <customization name="CAP_ODBC_SUPPRESS_INFO_SCHEMA_TABLES" value="yes"/>
+      <customization name="CAP_ODBC_SUPPRESS_PG_TEMP_SCHEMA_TABLES" value="yes"/>
+      <customization name="CAP_ODBC_METADATA_SUPPRESS_SQLSTATISTICS_API" value="yes"/>
+      <customization name="CAP_SUPPORTS_SPLIT_FROM_RIGHT" value="no"/>
+      <customization name="CAP_CONNECT_STORED_PROCEDURE" value="no"/>
+      <!-- 
+      CAP_SUPPRESS_GET_SERVER_TIME will fix the error while creating extract in tableau.
+      This can be removed when elasticsearch supports query without FROM clause.
+      For smore details: https://community.tableau.com/message/1092123?et=watches.email.thread#1092123
+      -->
+      <customization name="CAP_SUPPRESS_GET_SERVER_TIME" value="yes"/>
+    </customizations>
+  </connection-customization>
+  <connection-dialog file='connection-dialog.tcd'/>
+  <connection-resolver file="connectionResolver.tdr"/>
+  <dialect file='dialect.tdd'/>
+</connector-plugin>

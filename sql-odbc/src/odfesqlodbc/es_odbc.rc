@@ -1,0 +1,257 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+#include "version.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Japanese (Japan) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_JPN)
+LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
+#pragma code_page(932)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "#include ""version.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // Japanese (Japan) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+DLG_CONFIG DIALOGEX 65, 43, 275, 250
+STYLE DS_SETFONT | DS_MODALFRAME | DS_3DLOOK | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Elasticsearch ODBC Driver DSN Setup"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "Data Source Name",IDC_DSNAMETEXT,23,7,77,12,NOT WS_GROUP
+    EDITTEXT        IDC_DSNAME,108,6,120,12,ES_AUTOHSCROLL | WS_DISABLED
+    GROUPBOX        "Connection Settings",IDC_CONN_SETTINGS,7,28,261,56
+    LTEXT           "Host",IDC_STATIC,20,46,20,8,NOT WS_GROUP
+    EDITTEXT        IDC_SERVER,60,44,192,12,ES_AUTOHSCROLL
+    LTEXT           "&Port",IDC_STATIC,20,66,19,8
+    EDITTEXT        IDC_PORT,60,64,192,13,ES_AUTOHSCROLL
+    GROUPBOX        "Authentication Settings",IDC_AUTH_SETTINGS,7,93,260,92,BS_FLAT
+    LTEXT           "Auth",IDC_AUTH_STATIC,21,110,19,8
+    COMBOBOX        IDC_AUTHTYPE,61,108,192,30,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "User",IDC_USERNAME_STATIC,20,129,19,8
+    EDITTEXT        IDC_USER,61,127,191,12,ES_AUTOHSCROLL | WS_DISABLED
+    LTEXT           "Password",IDC_PASSWORD_STATIC,20,149,41,12
+    EDITTEXT        IDC_PASSWORD,61,147,191,12,ES_PASSWORD | ES_AUTOHSCROLL | WS_DISABLED
+    LTEXT           "Region",IDC_REGION_STATIC,20,170,28,8
+    EDITTEXT        IDC_REGION,61,168,191,12,ES_AUTOHSCROLL | WS_DISABLED
+    PUSHBUTTON      "Advanced Options",ID_ADVANCED_OPTIONS,21,195,111,15,WS_GROUP
+    PUSHBUTTON      "Logging Options",ID_LOG_OPTIONS,144,195,108,15,WS_GROUP
+    LTEXT           "V.N.N.N",IDC_DRIVER_VERSION,10,228,108,8
+    DEFPUSHBUTTON   "OK",IDOK,119,224,44,15,WS_GROUP
+    DEFPUSHBUTTON   "Test",IDOK2,167,224,44,15,WS_GROUP
+    PUSHBUTTON      "Cancel",IDCANCEL,215,224,44,15
+END
+
+DLG_ADVANCED_OPTIONS DIALOGEX 0, 0, 157, 113
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Advanced Options"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    GROUPBOX        "",IDC_STATIC,12,4,133,85
+    CONTROL         "SSL",IDC_USESSL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,19,12,10,11
+    LTEXT           "Enable SSL",IDC_SSL_STATIC,37,14,39,8
+    CONTROL         "Host Verification",IDC_HOST_VER,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,19,32,10,9
+    LTEXT           "Hostname Verification",IDC_HOST_VER_STATIC,37,32,71,8
+    LTEXT           "Response Timeout (s)",IDC_CONNTIMEOUT_STATIC,19,51,70,8
+    EDITTEXT        IDC_CONNTIMEOUT,96,50,43,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,49,94,44,14,WS_GROUP
+    PUSHBUTTON      "Cancel",IDCANCEL,98,93,47,15
+    LTEXT           "Fetch Size",IDC_FETCH_SIZE_STATIC,19,71,35,8
+    EDITTEXT        IDC_FETCH_SIZE,96,70,43,12,ES_AUTOHSCROLL
+END
+
+DLG_LOG_OPTIONS DIALOGEX 0, 0, 251, 79
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Logging Options"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    GROUPBOX        "",IDC_STATIC,10,4,230,51
+    LTEXT           "Log Level",IDC_STATIC,22,15,31,8
+    COMBOBOX        IDC_LOG_LEVEL,71,13,149,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Log Path",IDC_STATIC,22,38,29,8
+    EDITTEXT        IDC_LOG_PATH,71,36,149,12,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,144,60,44,14,WS_GROUP
+    PUSHBUTTON      "Cancel",IDCANCEL,193,59,47,15
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    DLG_CONFIG, DIALOG
+    BEGIN
+        RIGHTMARGIN, 270
+        TOPMARGIN, 1
+        BOTTOMMARGIN, 200
+    END
+
+    DLG_ADVANCED_OPTIONS, DIALOG
+    BEGIN
+        LEFTMARGIN, 5
+        RIGHTMARGIN, 152
+        TOPMARGIN, 5
+        BOTTOMMARGIN, 108
+    END
+
+    DLG_LOG_OPTIONS, DIALOG
+    BEGIN
+        LEFTMARGIN, 5
+        RIGHTMARGIN, 246
+        TOPMARGIN, 5
+        BOTTOMMARGIN, 74
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION ES_DRVFILE_VERSION
+ PRODUCTVERSION ES_DRVFILE_VERSION
+ FILEFLAGSMASK 0x3L
+#ifdef _DEBUG
+ FILEFLAGS 0x9L
+#else
+ FILEFLAGS 0x8L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904e4"
+        BEGIN
+            VALUE "Comments", "Elasticsearch ANSI ODBC driver"
+            VALUE "CompanyName", "Amazon"
+            VALUE "FileDescription", "Elasticsearch ODBC Driver (English)"
+            VALUE "FileVersion", ES_ODBC_VERSION
+            VALUE "InternalName", "odfesqlodbc"
+            VALUE "LegalCopyright", "Copyright"
+            VALUE "LegalTrademarks", "ODBC(TM) is a trademark of Microsoft Corporation.  Microsoft? is a registered trademark of Microsoft Corporation. Windows(TM) is a trademark of Microsoft Corporation."
+            VALUE "OriginalFilename", "odfesqlodbc.dll"
+            VALUE "ProductName", "Elasticsearch"
+            VALUE "ProductVersion", ES_ODBC_VERSION
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+DLG_CONFIG AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_ADVANCED_OPTIONS AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_LOG_OPTIONS AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_AUTHTYPE_NONE       "NONE"
+    IDS_AUTHTYPE_BASIC      "BASIC"
+    IDS_AUTHTYPE_IAM        "AWS_SIGV4"
+    IDS_LOGTYPE_OFF         "LOG_OFF"
+    IDS_LOGTYPE_FATAL       "LOG_FATAL"
+    IDS_LOGTYPE_ERROR       "LOG_ERROR"
+    IDS_LOGTYPE_WARNING     "LOG_WARNING"
+    IDS_LOGTYPE_INFO        "LOG_INFO"
+    IDS_LOGTYPE_DEBUG       "LOG_DEBUG"
+    IDS_LOGTYPE_TRACE       "LOG_TRACE"
+    IDS_LOGTYPE_ALL         "LOG_ALL"
+END
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

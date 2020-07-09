@@ -1,0 +1,17 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\ODBC\ODBCINST.INI\ODBC Drivers]
+"ElasticsearchODBC"="Installed"
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\ODBC\ODBCINST.INI\ElasticsearchODBC]
+"Driver"="<project-root>\\bin64\\Release\\odfesqlodbc.dll"
+"Setup"="<project-root>\\bin64\\Release\\odfesqlodbc.dll"
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\ODBC\ODBC.INI\ODBC Data Sources]
+"test_aws_auth_dsn"="ElasticsearchODBC"
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\ODBC\ODBC.INI\test_aws_auth_dsn]
+"host"="https://search-sept-cdg-david-test-domain-gouok3seqeupz64smuvfxyddui.eu-west-3.es.amazonaws.com"
+"auth"="AWS_SIGV4"
+"region"="eu-west-3"
+"useSSL"="0"
