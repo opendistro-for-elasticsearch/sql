@@ -1,0 +1,1 @@
+Open Distro for Elasticsearch SQL ODBC is a read-only ODBC driver for connecting to Open Distro for Elasticsearch SQL support.

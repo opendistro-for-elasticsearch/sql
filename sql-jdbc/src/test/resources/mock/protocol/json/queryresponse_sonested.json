@@ -1,0 +1,55 @@
+{
+  "schema": [
+    {
+      "name": "user",
+      "type": "keyword"
+    },
+    {
+      "name": "title",
+      "type": "text"
+    },
+    {
+      "name": "qid",
+      "type": "keyword"
+    },
+    {
+      "name": "creationDate",
+      "type": "date"
+    }
+  ],
+  "total": 20000,
+  "datarows": [
+    [
+      "Jash",
+      "Display Progress Bar at the Time of Processing",
+      "1000000",
+      "2009-06-16T07:28:42.770"
+    ],
+    [
+      "Michael Ecklund (804104)",
+      "PHP Sort array by field?",
+      "10000005",
+      "2012-04-03T19:25:46.213"
+    ],
+    [
+      "farley (1311218)",
+      "Arrays in PHP seems to drop elements",
+      "10000007",
+      "2012-04-03T19:26:05.400"
+    ],
+    [
+      "John Strickler (292614)",
+      "RESTful servlet URLs - servlet-mapping in web.xml",
+      "10000008",
+      "2012-04-03T19:26:09.137"
+    ],
+    [
+      "rahulm (123536)",
+      "Descriptor conversion problem",
+      "1000001",
+      "2009-06-16T07:28:52.333"
+    ]
+  ],
+  "size": 5,
+  "status": 200
+}

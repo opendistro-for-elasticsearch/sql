@@ -1,4 +1,4 @@
-name: Java CI
+name: SQL JDBC Java CI
 
 on: [push, pull_request]
 
@@ -6,25 +6,28 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sql-jdbc
 
     steps:
     - uses: actions/checkout@v1
     
-    - name: Set up JDK 1.14
+    - name: Set up JDK 1.13
       uses: actions/setup-java@v1
       with:
-        java-version: 1.14
+        java-version: 1.13
     
     - name: Build with Gradle
-      run: ./gradlew build assemble
-
+      run: ./gradlew build
+    
     - name: Create Artifact Path
       run: |
-        mkdir -p opendistro-sql-builds
-        cp -r ./plugin/build/distributions/*.zip opendistro-sql-builds/
+        mkdir -p sql-jdbc-builds
+        cp ./build/libs/*.jar sql-jdbc-builds
 
     - name: Upload Artifacts
       uses: actions/upload-artifact@v1
       with:
-        name: opendistro-sql
-        path: opendistro-sql-builds
+        name: sql-jdbc
+        path: sql-jdbc/sql-jdbc-builds

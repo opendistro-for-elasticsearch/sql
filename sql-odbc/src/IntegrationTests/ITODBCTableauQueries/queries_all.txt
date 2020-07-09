@@ -1,0 +1,216 @@
+SELECT SUBSTRING(`kibana_sample_data_flights`.`OriginWeather`, 1, 1024) AS `OriginWeather` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT SUM(`kibana_sample_data_flights`.`FlightDelayMin`) AS `sum_Offset_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM(`kibana_sample_data_flights`.`FlightDelay`) AS `sum_FlightDelay_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM(`kibana_sample_data_flights`.`DistanceMiles`) AS `sum_DistanceMiles_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT YEAR(`kibana_sample_data_flights`.`timestamp`) AS `yr_timestamp_ok` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT SUM(ABS(`kibana_sample_data_flights`.`dayOfWeek`)) AS `sum_Calculation_160722252357632000_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM(ACOS(`kibana_sample_data_flights`.`dayOfWeek`)) AS `sum_Calculation_160722252358221825_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM(ASIN(`kibana_sample_data_flights`.`dayOfWeek`)) AS `sum_Calculation_160722252358545410_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM(ATAN(`kibana_sample_data_flights`.`dayOfWeek`)) AS `sum_Calculation_160722252358811651_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM(ATAN2(`kibana_sample_data_flights`.`dayOfWeek`,`kibana_sample_data_flights`.`FlightDelayMin`)) AS `sum_Calculation_160722252358811651_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM(`kibana_sample_data_flights`.`dayOfWeek`) AS `sum_Calculation_160722252357632000_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM(COS(`kibana_sample_data_flights`.`dayOfWeek`)) AS `sum_Calculation_160722252357632000_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM(COT(`kibana_sample_data_flights`.`dayOfWeek`)) AS `sum_Calculation_160722252357632000_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM(DEGREES(`kibana_sample_data_flights`.`dayOfWeek`)) AS `sum_Calculation_160722252357632000_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM((`kibana_sample_data_flights`.`dayOfWeek` DIV `kibana_sample_data_flights`.`FlightDelayMin`)) AS `sum_Calculation_160722252357632000_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM(EXP(`kibana_sample_data_flights`.`dayOfWeek`)) AS `sum_Calculation_160722252357632000_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM(`kibana_sample_data_flights`.`dayOfWeek`) AS `sum_Calculation_160722252357632000_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM((((CASE WHEN (ABS((`kibana_sample_data_flights`.`FlightDelayMin`) - (ROUND( ( (`kibana_sample_data_flights`.`FlightDelayMin`) / SQRT(3.0) ), 0 ) * SQRT(3.0)))) + SQRT(3.0) * ((ABS((`kibana_sample_data_flights`.`dayOfWeek`) - (ROUND( ( (`kibana_sample_data_flights`.`dayOfWeek`) / 3.0 ), 0 ) * 3.0))) - 1.0) > 0.0 THEN 1.5 ELSE 0.0 END) - (CASE WHEN ((`kibana_sample_data_flights`.`dayOfWeek`) - (ROUND( ( (`kibana_sample_data_flights`.`dayOfWeek`) / 3.0 ), 0 ) * 3.0) < 0.0) AND ((CASE WHEN (ABS((`kibana_sample_data_flights`.`FlightDelayMin`) - (ROUND( ( (`kibana_sample_data_flights`.`FlightDelayMin`) / SQRT(3.0) ), 0 ) * SQRT(3.0)))) + SQRT(3.0) * ((ABS((`kibana_sample_data_flights`.`dayOfWeek`) - (ROUND( ( (`kibana_sample_data_flights`.`dayOfWeek`) / 3.0 ), 0 ) * 3.0))) - 1.0) > 0.0 THEN SQRT(3.0) / 2.0 ELSE 0.0 END) > 0.0) THEN 3.0 ELSE 0.0 END)) + (ROUND( ( (`kibana_sample_data_flights`.`dayOfWeek`) / 3.0 ), 0 ) * 3.0))) AS `sum_Calculation_160722252357632000_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM(ROUND( (((CASE WHEN (ABS((`kibana_sample_data_flights`.`FlightDelayMin`) - (ROUND( ( (`kibana_sample_data_flights`.`FlightDelayMin`) / SQRT(3.0) ), 0 ) * SQRT(3.0)))) + SQRT(3.0) * ((ABS((`kibana_sample_data_flights`.`dayOfWeek`) - (ROUND( ( (`kibana_sample_data_flights`.`dayOfWeek`) / 3.0 ), 0 ) * 3.0))) - 1.0) > 0.0 THEN SQRT(3.0) / 2.0 ELSE 0.0 END) - (CASE WHEN ((`kibana_sample_data_flights`.`FlightDelayMin`) - (ROUND( ( (`kibana_sample_data_flights`.`FlightDelayMin`) / SQRT(3.0) ), 0 ) * SQRT(3.0)) < 0.0) AND ((CASE WHEN (ABS((`kibana_sample_data_flights`.`FlightDelayMin`) - (ROUND( ( (`kibana_sample_data_flights`.`FlightDelayMin`) / SQRT(3.0) ), 0 ) * SQRT(3.0)))) + SQRT(3.0) * ((ABS((`kibana_sample_data_flights`.`dayOfWeek`) - (ROUND( ( (`kibana_sample_data_flights`.`dayOfWeek`) / 3.0 ), 0 ) * 3.0))) - 1.0) > 0.0 THEN SQRT(3.0) / 2.0 ELSE 0.0 END) > 0.0) THEN SQRT(3.0) ELSE 0.0 END)) + (ROUND( ( (`kibana_sample_data_flights`.`FlightDelayMin`) / SQRT(3.0) ), 0 ) * SQRT(3.0))), 3)) AS `sum_Calculation_160722252357632000_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM(LOG(`kibana_sample_data_flights`.`dayOfWeek`)) AS `sum_Calculation_160722252357632000_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM((LOG(`kibana_sample_data_flights`.`dayOfWeek`)/LOG(10))) AS `sum_Calculation_160722252357632000_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT MAX(`kibana_sample_data_flights`.`dayOfWeek`) AS `usr_Calculation_160722252357632000_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT MIN(`kibana_sample_data_flights`.`dayOfWeek`) AS `usr_Calculation_160722252357632000_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM((CASE WHEN `kibana_sample_data_flights`.`dayOfWeek` >= 0 OR FLOOR(2) = 2 THEN POWER(`kibana_sample_data_flights`.`dayOfWeek`,2) END)) AS `sum_Calculation_160722252357632000_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM(RADIANS(`kibana_sample_data_flights`.`dayOfWeek`)) AS `sum_Calculation_160722252357632000_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM(ROUND(`kibana_sample_data_flights`.`dayOfWeek`)) AS `sum_Calculation_160722252357632000_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM(SIGN(`kibana_sample_data_flights`.`dayOfWeek`)) AS `sum_Calculation_160722252357632000_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM(SIN(`kibana_sample_data_flights`.`dayOfWeek`)) AS `sum_Calculation_160722252357632000_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM(SQRT(`kibana_sample_data_flights`.`dayOfWeek`)) AS `sum_Calculation_160722252357632000_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM(POWER(`kibana_sample_data_flights`.`dayOfWeek`, 2)) AS `sum_Calculation_160722252357632000_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM(TAN(`kibana_sample_data_flights`.`dayOfWeek`)) AS `sum_Calculation_160722252357632000_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM(`kibana_sample_data_flights`.`dayOfWeek`) AS `sum_Calculation_160722252357632000_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM(ASCII(SUBSTRING(`kibana_sample_data_flights`.`OriginWeather`, 1, 1024))) AS `sum_Calculation_160722252357632000_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT `kibana_sample_data_flights`.`Dest` AS `Dest` FROM `kibana_sample_data_flights` WHERE ((`kibana_sample_data_flights`.`Dest` = 'caching_sha2_password') AND (LOCATE('in',LOWER(`kibana_sample_data_flights`.`Dest`)) > 0)) GROUP BY 1
+SELECT SUBSTRING(`kibana_sample_data_flights`.`OriginWeather`, 1, 1024) AS `OriginWeather` FROM `kibana_sample_data_flights` WHERE (RIGHT(RTRIM(LOWER(SUBSTRING(`kibana_sample_data_flights`.`OriginWeather`, 1, 1024))), LENGTH('.')) = '.') GROUP BY 1
+SELECT SUM(IF(ISNULL(1), NULL, LOCATE('Cape',`kibana_sample_data_flights`.`Origin`,GREATEST(1,FLOOR(1))))) AS `sum_Calculation_462181953493630977_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT (CASE WHEN 3 >= 0 THEN LEFT(`kibana_sample_data_flights`.`Origin`,3) ELSE NULL END) AS `Calculation_462181953493630977` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT LENGTH(`kibana_sample_data_flights`.`Origin`) AS `Calculation_462181953493630977` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT LOWER(`kibana_sample_data_flights`.`Origin`) AS `Calculation_462181953493630977` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT LTRIM(`kibana_sample_data_flights`.`Origin`) AS `Calculation_462181953493630977` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT MAX(`kibana_sample_data_flights`.`Origin`) AS `usr_Calculation_462181953493630977_nk` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT IF(ISNULL(0), NULL, SUBSTRING(`kibana_sample_data_flights`.`Origin`,GREATEST(1,FLOOR(0)),FLOOR(5))) AS `Calculation_462181953493630977` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT MIN(`kibana_sample_data_flights`.`Origin`) AS `usr_Calculation_462181953493630977_nk` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT REPLACE(`kibana_sample_data_flights`.`Origin`,'Airport','') AS `Calculation_462181953493630977` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT (CASE WHEN 3 >= 0 THEN RIGHT(`kibana_sample_data_flights`.`Origin`,3) ELSE NULL END) AS `Calculation_462181953493630977` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT RTRIM(`kibana_sample_data_flights`.`Origin`) AS `Calculation_462181953493630977` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT IF(`kibana_sample_data_flights`.`AvgTicketPrice` >= 0, SPACE(FLOOR(`kibana_sample_data_flights`.`AvgTicketPrice`)), NULL) AS `Calculation_462181953493630977` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT TRIM(LEADING '-' FROM TRIM(LEADING SUBSTRING_INDEX(`kibana_sample_data_flights`.`Origin`, '-', (2 - 1)) FROM SUBSTRING_INDEX(`kibana_sample_data_flights`.`Origin`, '-', 2))) AS `Calculation_462181953493630977` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT SUBSTRING(`kibana_sample_data_flights`.`OriginWeather`, 1, 1024) AS `OriginWeather` FROM `kibana_sample_data_flights` WHERE (LEFT(LTRIM(LOWER(SUBSTRING(`kibana_sample_data_flights`.`OriginWeather`, 1, 1024))), LENGTH('$')) = '$') GROUP BY 1
+SELECT TRIM(`kibana_sample_data_flights`.`Origin`) AS `Calculation_462181953493630977` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT UPPER(`kibana_sample_data_flights`.`Origin`) AS `Calculation_462181953493630977` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT ADDDATE( DATE_FORMAT( DATE(`kibana_sample_data_flights`.`password_last_changed`), '%Y-01-01 00:00:00' ), INTERVAL 0 SECOND ) AS `tyr_Calculation_160722252357632000_ok` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT YEAR(DATE(`kibana_sample_data_flights`.`timestamp`)) AS `yr_Calculation_462181953481519104_ok` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT (YEAR(`kibana_sample_data_flights`.`timestamp`) - YEAR(DATE('1990-01-01'))) AS `Calculation_1706301351891775489` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT MONTHNAME(`kibana_sample_data_flights`.`timestamp`) AS `Calculation_1706301351891775489` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT YEAR(TIMESTAMP(STR_TO_DATE('5.April.2004', '%d.%i.%Y'))) AS `yr_Calculation_462181953481519104_ok` FROM `kibana_sample_data_flights`
+SELECT YEAR(ADDDATE( CONCAT( DATE_FORMAT( `kibana_sample_data_flights`.`timestamp`, '%Y-' ), (3*(QUARTER(`kibana_sample_data_flights`.`timestamp`)-1)+1), '-01 00:00:00' ), INTERVAL 0 SECOND )) AS `yr_Calculation_1706301351891775489_ok` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT DAYOFMONTH(`kibana_sample_data_flights`.`timestamp`) AS `Calculation_462181953481519104` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT 2019 AS `yr_Calculation_462181953481519104_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT YEAR(ADDTIME(CAST(CAST(`kibana_sample_data_flights`.`timestamp` AS DATE) AS DATETIME), TIME(`kibana_sample_data_flights`.`timestamp`))) AS `yr_Calculation_1706301351891775489_ok` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT YEAR(MAKETIME(`kibana_sample_data_flights`.`dayOfWeek`, `kibana_sample_data_flights`.`dayOfWeek`, `kibana_sample_data_flights`.`dayOfWeek`)) AS `yr_Calculation_1706301351891775489_ok` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT MAX(`kibana_sample_data_flights`.`timestamp`) AS `max_timestamp_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT MIN(`kibana_sample_data_flights`.`timestamp`) AS `min_timestamp_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT MONTH(`kibana_sample_data_flights`.`timestamp`) AS `mn_timestamp_ok` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT YEAR(NOW()) AS `yr_Calculation_462181953481519104_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT YEAR(CURDATE()) AS `yr_Calculation_462181953481519104_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT YEAR(`kibana_sample_data_flights`.`timestamp`) AS `yr_timestamp_ok` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT ((`kibana_sample_data_flights`.`Origin` = 'Frankfurt am Main Airport') AND (`kibana_sample_data_flights`.`Dest` = 'Sydney Kingsford Smith International Airport')) AS `Calculation_462181953506873347` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT (CASE `kibana_sample_data_flights`.`OriginWeather` WHEN 'Sunny' THEN '1' WHEN 'Rain' THEN '0' ELSE 'NA' END) AS `Calculation_462181953506873347` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT (CASE WHEN (`kibana_sample_data_flights`.`FlightDelay` = 0) THEN 'No delay' ELSE CAST(NULL AS CHAR(1)) END) AS `Calculation_462181953506873347` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT (CASE WHEN (`kibana_sample_data_flights`.`FlightDelay` = 0) THEN 'No delay' WHEN (`kibana_sample_data_flights`.`FlightDelay` = 1) THEN 'Delay' ELSE CAST(NULL AS CHAR(1)) END) AS `Calculation_462181953506873347` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT (RIGHT(RTRIM(`kibana_sample_data_flights`.`Origin`), LENGTH('Airport')) = 'Airport') AS `Calculation_462181953506873347` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT (CASE WHEN (`kibana_sample_data_flights`.`FlightDelay` = 0) THEN 'No delay' ELSE CAST(NULL AS CHAR(1)) END) AS `Calculation_462181953506873347` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT IFNULL(`kibana_sample_data_flights`.`Cancelled`, `kibana_sample_data_flights`.`AvgTicketPrice`) AS `Calculation_462181953506873347` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT (CASE WHEN (`kibana_sample_data_flights`.`AvgTicketPrice` > 500) THEN 'High' WHEN NOT (`kibana_sample_data_flights`.`AvgTicketPrice` > 500) THEN 'Low' ELSE NULL END) AS `Calculation_462181953506873347` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT (NOT ISNULL(DATE_FORMAT(`kibana_sample_data_flights`.`Origin`, '%Y'))) AS `Calculation_462181953506873347` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT ISNULL(`kibana_sample_data_flights`.`FlightNum`) AS `Calculation_462181953506873347` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT MAX(`kibana_sample_data_flights`.`dayOfWeek`) AS `max_max_questions_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT MIN(`kibana_sample_data_flights`.`dayOfWeek`) AS `min_max_questions_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT (NOT ISNULL(DATE_FORMAT(`kibana_sample_data_flights`.`Origin`, '%Y'))) AS `Calculation_462181953506873347` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT ((`kibana_sample_data_flights`.`Origin` = 'Frankfurt am Main Airport') OR (`kibana_sample_data_flights`.`Dest` = 'Sydney Kingsford Smith International Airport')) AS `Calculation_462181953506873347` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT (CASE WHEN (`kibana_sample_data_flights`.`AvgTicketPrice` > 500) THEN 'High' WHEN NOT (`kibana_sample_data_flights`.`AvgTicketPrice` > 500) THEN 'Low' ELSE NULL END) AS `Calculation_462181953506873347` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT (CASE WHEN (`kibana_sample_data_flights`.`AvgTicketPrice` > 500) THEN 'High' WHEN NOT (`kibana_sample_data_flights`.`AvgTicketPrice` > 500) THEN 'Low' ELSE NULL END) AS `Calculation_462181953506873347` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT IFNULL(`kibana_sample_data_flights`.`FlightDelay`, 0) AS `Calculation_462181953506873347` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT MIN(`kibana_sample_data_flights`.`Origin`) AS `TEMP(Calculation_462181953504628738)(2376748618)(0)`,   MAX(`kibana_sample_data_flights`.`Origin`) AS `TEMP(Calculation_462181953504628738)(2968235173)(0)` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT AVG(`kibana_sample_data_flights`.`FlightDelayMin`) AS `avg_max_user_connections_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM(1) AS `cnt_max_user_connections_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT MAX(`kibana_sample_data_flights`.`max_questions`) AS `max_max_questions_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT MIN(`kibana_sample_data_flights`.`dayOfWeek`) AS `min_max_questions_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM((`kibana_sample_data_flights`.`AvgTicketPrice` * `kibana_sample_data_flights`.`AvgTicketPrice`)) AS `TEMP(Calculation_462181953506873347)(1705728846)(0)`,   SUM(`kibana_sample_data_flights`.`AvgTicketPrice`) AS `TEMP(Calculation_462181953506873347)(2465277995)(0)`,   COUNT(`kibana_sample_data_flights`.`AvgTicketPrice`) AS `TEMP(Calculation_462181953506873347)(2633997250)(0)` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT COUNT(`kibana_sample_data_flights`.`DistanceMiles`) AS `TEMP(Calculation_462181953506873347)(2070533874)(0)`,   SUM(`kibana_sample_data_flights`.`DistanceMiles`) AS `TEMP(Calculation_462181953506873347)(3496560911)(0)`,   SUM((`kibana_sample_data_flights`.`DistanceMiles` * `kibana_sample_data_flights`.`DistanceMiles`)) AS `TEMP(Calculation_462181953506873347)(3595387140)(0)` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM(`kibana_sample_data_flights`.`dayOfWeek`) AS `usr_Calculation_160722252357632000_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM(`kibana_sample_data_flights`.`dayOfWeek`) AS `TEMP(Calculation_462181953506873347)(105357904)(0)`,   COUNT(`kibana_sample_data_flights`.`dayOfWeek`) AS `TEMP(Calculation_462181953506873347)(2584840543)(0)`,   SUM(((`kibana_sample_data_flights`.`dayOfWeek` + 0.0) * (`kibana_sample_data_flights`.`dayOfWeek` + 0.0))) AS `TEMP(Calculation_462181953506873347)(3340567470)(0)` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT SUM(`kibana_sample_data_flights`.`DistanceKilometers`) AS `TEMP(Calculation_462181953506873347)(1474522238)(0)`,   COUNT(`kibana_sample_data_flights`.`DistanceKilometers`) AS `TEMP(Calculation_462181953506873347)(2841334535)(0)`,   SUM((`kibana_sample_data_flights`.`DistanceKilometers` * `kibana_sample_data_flights`.`DistanceKilometers`)) AS `TEMP(Calculation_462181953506873347)(461715975)(0)` FROM `kibana_sample_data_flights` GROUP BY 1
+SELECT SUBSTRING(`kibana_sample_data_flights`.`OriginWeather`, 1, 1024) AS `OriginWeather` FROM `kibana_sample_data_flights` WHERE (SUBSTRING(`kibana_sample_data_flights`.`OriginWeather`, 1, 1024) = 'ABC') GROUP BY 1
+SELECT SUM((CASE \tWHEN ISNULL(`kibana_sample_data_flights`.`dayOfWeek`) THEN NULL \tWHEN ISNULL(10) THEN NULL \tELSE GREATEST(`kibana_sample_data_flights`.`dayOfWeek`, 10) END)) AS `sum_Calculation_160722252357632000_ok` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT `kibana_sample_data_flights`.`AvgTicketPrice` AS `AvgTicketPrice`,   `kibana_sample_data_flights`.`Cancelled` AS `Cancelled`,   `kibana_sample_data_flights`.`Carrier` AS `Carrier`,   `kibana_sample_data_flights`.`DestAirportID` AS `DestAirportID`,   `kibana_sample_data_flights`.`DestCityName` AS `DestCityName`,   `kibana_sample_data_flights`.`DestCountry` AS `DestCountry`,   `kibana_sample_data_flights`.`DestLocation` AS `DestLocation`,   `kibana_sample_data_flights`.`DestRegion` AS `Dest~~~<<<query-trunc>>>~~~e`.`kibana_sample_data_flights` AS `kibana_sample_data_flights` FROM `kibana_sample_data_ecommerce`   LEFT JOIN `kibana_sample_data_flights` ON (`kibana_sample_data_ecommerce`.`day_of_week_i` = `kibana_sample_data_flights`.`dayOfWeek`) LIMIT 1000
+SELECT `kibana_sample_data_flights`.`AvgTicketPrice` AS `AvgTicketPrice`,   `kibana_sample_data_flights`.`Cancelled` AS `Cancelled`,   `kibana_sample_data_flights`.`Carrier` AS `Carrier`,   `kibana_sample_data_flights`.`DestAirportID` AS `DestAirportID`,   `kibana_sample_data_flights`.`DestCityName` AS `DestCityName`,   `kibana_sample_data_flights`.`DestCountry` AS `DestCountry`,   `kibana_sample_data_flights`.`DestLocation` AS `DestLocation`,   `kibana_sample_data_flights`.`DestRegion` AS `Dest~~~<<<query-trunc>>>~~~`.`kibana_sample_data_flights` AS `kibana_sample_data_flights` FROM `kibana_sample_data_ecommerce`   RIGHT JOIN `kibana_sample_data_flights` ON (`kibana_sample_data_ecommerce`.`day_of_week_i` = `kibana_sample_data_flights`.`dayOfWeek`) LIMIT 1000
+SELECT `kibana_sample_data_flights`.`OriginCityName` AS `OriginCityName` FROM `kibana_sample_data_flights` GROUP BY 1 ORDER BY `OriginCityName` ASC
+SELECT `kibana_sample_data_flights`.`OriginCityName` AS `OriginCityName` FROM `kibana_sample_data_flights` GROUP BY 1 ORDER BY `OriginCityName` ASC
+SELECT `kibana_sample_data_flights`.`DestCityName` AS `DestCityName`,   SUM(`kibana_sample_data_flights`.`AvgTicketPrice`) AS `$__alias__0` FROM `kibana_sample_data_flights` GROUP BY 1 ORDER BY `$__alias__0` DESC,   `DestCityName` ASC LIMIT 10
+SELECT 'DESKTOP-7APIVOE\\\\Rupal' AS `Calculation_1122522251639717888` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT 0 AS `Calculation_1122522251639717888` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT 0 AS `Calculation_1122522251639717888` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000002
+SELECT 1 AS `Calculation_1122522251639717888` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT 'DESKTOP-7APIVOE' AS `Calculation_1122522251639717888` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT 'ABC' AS `Calculation_1122522251639717888` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT MAX(`kibana_sample_data_flights`.`AvgTicketPrice`) AS `TEMP(TC_)(3575797393)(0)` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM(`kibana_sample_data_flights`.`dayOfWeek`) AS `TEMP(TEMP(TC_)(4001152001)(0))(105357904)(0)`,   COUNT(`kibana_sample_data_flights`.`dayOfWeek`) AS `TEMP(TEMP(TC_)(4001152001)(0))(2584840543)(0)` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT MIN(`kibana_sample_data_flights`.`AvgTicketPrice`) AS `TEMP(TC_)(2076389572)(0)` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM(`kibana_sample_data_flights`.`AvgTicketPrice`) AS `TEMP(TEMP(TC_)(4079199159)(0))(2465277995)(0)`,   COUNT(`kibana_sample_data_flights`.`AvgTicketPrice`) AS `TEMP(TEMP(TC_)(4079199159)(0))(2633997250)(0)` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM(`kibana_sample_data_flights`.`AvgTicketPrice`) AS `TEMP(TC_)(2465277995)(0)` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT COUNT(`kibana_sample_data_flights`.`AvgTicketPrice`) AS `TEMP(TC_)(2633997250)(0)` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT MAX(`kibana_sample_data_flights`.`dayOfWeek`) AS `TEMP(TC_)(718966039)(0)` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT MIN(`kibana_sample_data_flights`.`dayOfWeek`) AS `TEMP(TC_)(2462140059)(0)` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT SUM(`kibana_sample_data_flights`.`dayOfWeek`) AS `TEMP(TC_)(105357904)(0)`,   SUM(`kibana_sample_data_flights`.`AvgTicketPrice`) AS `TEMP(TC_)(2465277995)(0)` FROM `kibana_sample_data_flights` GROUP BY 1.1000000000000001
+SELECT 1 AS `empty` FROM `kibana_sample_data_flights`
+SELECT substring(OriginWeather, 1, 2) AS OriginWeather FROM kibana_sample_data_flights
+SELECT SUM(FlightDelayMin) AS sum_FlightDelayMin_ok FROM kibana_sample_data_flights
+SELECT SUM(FlightDelay) AS sum_FlightDelay_ok FROM kibana_sample_data_flights
+SELECT SUM(DistanceMiles) AS sum_DistanceMiles_ok FROM kibana_sample_data_flights
+SELECT year(timestamp) AS yr_timestamp_ok FROM kibana_sample_data_flights
+SELECT abs(AvgTicketPrice) AS sum_Calculation_160722252357632000_ok FROM kibana_sample_data_flights
+SELECT acos(FlightDelayMin) AS sum_Calculation_160722252358221825_ok FROM kibana_sample_data_flights
+SELECT asin(FlightDelayMin) AS sum_Calculation_160722252358545410_ok FROM kibana_sample_data_flights
+SELECT atan(FlightDelayMin) AS sum_Calculation_160722252358811651_ok FROM kibana_sample_data_flights
+SELECT atan2(FlightDelayMin,dayOfWeek) AS sum_Calculation_160722252358811651_ok FROM kibana_sample_data_flights
+SELECT SUM(FlightDelayMin) AS sum_Calculation_160722252357632000_ok FROM kibana_sample_data_flights
+SELECT cos(FlightDelayMin) AS sum_Calculation_160722252358221825_ok FROM kibana_sample_data_flights
+SELECT cot(AvgTicketPrice) AS sum_Calculation_160722252357632000_ok FROM kibana_sample_data_flights
+SELECT degrees(FlightDelayMin) AS sum_Calculation_160722252357632000_ok FROM kibana_sample_data_flights
+SELECT FlightDelayMin div AvgTicketPrice AS sum_Calculation_160722252357632000_ok FROM kibana_sample_data_flights
+SELECT exp(FlightDelayMin) AS sum_Calculation_160722252357632000_ok FROM kibana_sample_data_flights
+SELECT SUM(dayOfWeek) AS sum_Calculation_160722252357632000_ok FROM kibana_sample_data_flights
+SELECT SUM((((CASE WHEN (ABS((AvgTicketPrice) - (ROUND( ( (AvgTicketPrice) / SQRT(3.0) ), 0 ) * SQRT(3.0)))) + SQRT(3.0) * ((ABS((FlightDelayMin) - (ROUND( ( (FlightDelayMin) / 3.0 ), 0 ) * 3.0))) - 1.0) > 0.0 THEN 1.5 ELSE 0.0 END) - (CASE WHEN ((FlightDelayMin) - (ROUND( ( (FlightDelayMin) / 3.0 ), 0 ) * 3.0) < 0.0) AND ((CASE WHEN (ABS((AvgTicketPrice) - (ROUND( ( (AvgTicketPrice) / SQRT(3.0) ), 0 ) * SQRT(3.0)))) + SQRT(3.0) * ((ABS((FlightDelayMin) - (ROUND( ( (FlightDelayMin) / 3.0 ), 0 ) * 3.0))) - 1.0) > 0.0 THEN SQRT(3.0) / 2.0 ELSE 0.0 END) > 0.0) THEN 3.0 ELSE 0.0 END)) + (ROUND( ( (FlightDelayMin) / 3.0 ), 0 ) * 3.0))) AS sum_Calculation_160722252357632000_ok FROM kibana_sample_data_flights
+SELECT SUM(ROUND( (((CASE WHEN (ABS((AvgTicketPrice) - (ROUND( ( (AvgTicketPrice) / SQRT(3.0) ), 0 ) * SQRT(3.0)))) + SQRT(3.0) * ((ABS((FlightDelayMin) - (ROUND( ( (FlightDelayMin) / 3.0 ), 0 ) * 3.0))) - 1.0) > 0.0 THEN SQRT(3.0) / 2.0 ELSE 0.0 END) - (CASE WHEN ((AvgTicketPrice) - (ROUND( ( (AvgTicketPrice) / SQRT(3.0) ), 0 ) * SQRT(3.0)) < 0.0) AND ((CASE WHEN (ABS((AvgTicketPrice) - (ROUND( ( (AvgTicketPrice) / SQRT(3.0) ), 0 ) * SQRT(3.0)))) + SQRT(3.0) * ((ABS((FlightDelayMin) - (ROUND( ( (FlightDelayMin) / 3.0 ), 0 ) * 3.0))) - 1.0) > 0.0 THEN SQRT(3.0) / 2.0 ELSE 0.0 END) > 0.0) THEN SQRT(3.0) ELSE 0.0 END)) + (ROUND( ( (AvgTicketPrice) / SQRT(3.0) ), 0 ) * SQRT(3.0))), 3)) AS sum_Calculation_160722252357632000_ok FROM kibana_sample_data_flights
+SELECT log(FlightDelayMin) AS sum_Calculation_160722252357632000_ok FROM kibana_sample_data_flights
+SELECT (log(FlightDelayMin)/log(10)) AS sum_Calculation_160722252357632000_ok FROM kibana_sample_data_flights
+SELECT MAX(FlightDelayMin) AS usr_Calculation_160722252357632000_ok FROM kibana_sample_data_flights
+SELECT MIN(FlightDelayMin) AS usr_Calculation_160722252357632000_ok FROM kibana_sample_data_flights
+SELECT sum((case when dayOfWeek >= 0 or floor(2) = 2 then power(dayOfWeek,2) end)) AS sum_Calculation_160722252357632000_ok FROM kibana_sample_data_flights
+SELECT radians(dayOfWeek) AS sum_Calculation_160722252357632000_ok FROM kibana_sample_data_flights
+SELECT round(dayOfWeek) AS sum_Calculation_160722252357632000_ok FROM kibana_sample_data_flights
+SELECT sign(dayOfWeek) AS sum_Calculation_160722252357632000_ok FROM kibana_sample_data_flights
+SELECT sin(dayOfWeek) AS sum_Calculation_160722252357632000_ok FROM kibana_sample_data_flights
+SELECT sqrt(dayOfWeek) AS sum_Calculation_160722252357632000_ok FROM kibana_sample_data_flights
+SELECT power(dayOfWeek, 2) AS sum_Calculation_160722252357632000_ok FROM kibana_sample_data_flights
+SELECT tan(dayOfWeek) AS sum_Calculation_160722252357632000_ok FROM kibana_sample_data_flights
+SELECT SUM(dayOfWeek) AS sum_Calculation_160722252357632000_ok FROM kibana_sample_data_flights
+SELECT ascii(substring(OriginWeather, 1, 5)) AS sum_Calculation_160722252357632000_ok FROM kibana_sample_data_flights
+SELECT Dest, locate('air',Dest) FROM kibana_sample_data_flights
+SELECT substring(OriginWeather, 1, 1024) AS OriginWeather FROM kibana_sample_data_flights WHERE (right(rtrim(lower(substring(OriginWeather, 1, 5))), length('.')) ='.')
+SELECT sum(if(isnull(1), null, locate('Cape',Origin,greatest(1,floor(1))))) AS sum_Calculation_462181953493630977_ok FROM kibana_sample_data_flights
+SELECT (case when 3 >= 0 then left(Origin,3) else null end) AS Calculation_462181953493630977 FROM kibana_sample_data_flights
+SELECT length(Origin) AS Calculation_462181953493630977 FROM kibana_sample_data_flights
+SELECT lower(Origin) AS Calculation_462181953493630977 FROM kibana_sample_data_flights
+SELECT ltrim(Origin) AS Calculation_462181953493630977 FROM kibana_sample_data_flights
+SELECT max(Origin) AS usr_Calculation_462181953493630977_nk FROM kibana_sample_data_flights
+SELECT if(isnull(0), null, substring(Origin,greatest(1,floor(0)),floor(5))) AS Calculation_462181953493630977 FROM kibana_sample_data_flights
+SELECT min(Origin) AS usr_Calculation_462181953493630977_nk FROM kibana_sample_data_flights
+SELECT replace(Origin,'Airport','') AS Calculation_462181953493630977 FROM kibana_sample_data_flights
+SELECT (case when 3 >= 0 then right(Origin,3) else null end) AS Calculation_462181953493630977 FROM kibana_sample_data_flights
+SELECT rtrim(Origin) AS Calculation_462181953493630977 FROM kibana_sample_data_flights
+SELECT if(AvgTicketPrice >= 0, space(floor(AvgTicketPrice)), null) AS Calculation_462181953493630977 FROM kibana_sample_data_flights
+SELECT trim(leading '-' FROM trim(leading substring(Origin, '-', (2 - 1)) FROM substring_index(Origin, '-', 2))) AS Calculation_462181953493630977 FROM kibana_sample_data_flights
+SELECT substring(OriginWeather, 1, 5) AS OriginWeather FROM kibana_sample_data_flights where (left(ltrim(lower(substring(OriginWeather, 1, 5))), length('$')) = '$')
+SELECT trim(Origin) AS Calculation_462181953493630977 FROM kibana_sample_data_flights
+SELECT upper(Origin) AS Calculation_462181953493630977 FROM kibana_sample_data_flights
+SELECT adddate( date_format( date(timestamp), '%Y-01-01 00:00:00' ), interval 0 second ) AS tyr_Calculation_160722252357632000_ok FROM kibana_sample_data_flights
+SELECT year(date(timestamp)) AS yr_Calculation_462181953481519104_ok FROM kibana_sample_data_flights
+SELECT year(timestamp(str_to_date('5.April.2004', '%d.%i.%Y'))) AS yr_Calculation_462181953481519104_ok FROM kibana_sample_data_flights
+SELECT dayofmonth(timestamp) AS Calculation_462181953481519104 FROM kibana_sample_data_flights
+SELECT 2019 AS yr_Calculation_462181953481519104_ok FROM kibana_sample_data_flights
+SELECT max(timestamp) AS max_timestamp_ok FROM kibana_sample_data_flights
+SELECT min(timestamp) AS max_timestamp_ok FROM kibana_sample_data_flights
+SELECT month(timestamp) AS mn_timestamp_ok FROM kibana_sample_data_flights
+SELECT year(now()) AS yr_Calculation_462181953481519104_ok FROM kibana_sample_data_flights
+SELECT year(curdate()) AS yr_Calculation_462181953481519104_ok FROM kibana_sample_data_flights
+SELECT year(timestamp) AS yr_timestamp_ok FROM kibana_sample_data_flights
+SELECT ((Origin = 'Frankfurt am Main Airport') and (Dest = 'Sydney Kingsford Smith International Airport')) AS Calculation_462181953506873347 FROM kibana_sample_data_flights
+SELECT (case OriginWeather when 'Sunny' then '1' when 'Rain' then '0' else 'NA' end) AS Calculation_462181953506873347 FROM kibana_sample_data_flights
+SELECT (case when (FlightDelay = 0) then 'No delay' else cast(null as char(1)) end) AS Calculation_462181953506873347 FROM kibana_sample_data_flights
+SELECT (case when (FlightDelay = 0) then 'No delay' when (FlightDelay = 1) then 'Delay' else cast(null as char(1)) end) AS Calculation_462181953506873347 FROM kibana_sample_data_flights
+SELECT (right(rtrim(Origin), length('Airport')) = 'Airport') AS Calculation_462181953506873347 FROM kibana_sample_data_flights
+SELECT (case when (FlightDelay = 0) then 'No delay' else cast(null as char(1)) end) AS Calculation_462181953506873347 FROM kibana_sample_data_flights
+SELECT ifnull(Cancelled, AvgTicketPrice) AS Calculation_462181953506873347 FROM kibana_sample_data_flights
+SELECT (case when (AvgTicketPrice > 500) THEN 'High' when not (AvgTicketPrice > 500) then 'Low' else null end) AS Calculation_462181953506873347 FROM kibana_sample_data_flights
+SELECT (not isnull(date_format(Origin, '%Y'))) AS Calculation_462181953506873347 FROM kibana_sample_data_flights
+SELECT isnull(FlightNum) AS Calculation_462181953506873347 FROM kibana_sample_data_flights
+SELECT MAX(AvgTicketPrice) AS max_AvgTicketPrice_ok FROM kibana_sample_data_flights
+SELECT MIN(AvgTicketPrice) AS min_AvgTicketPrice_ok FROM kibana_sample_data_flights
+SELECT (not isnull(date_format(Origin, '%Y'))) AS Calculation_462181953506873347 FROM kibana_sample_data_flights
+SELECT ((Origin = 'Frankfurt am Main Airport') or (Dest = 'Sydney Kingsford Smith International Airport')) AS Calculation_462181953506873347 FROM kibana_sample_data_flights
+SELECT (case when (AvgTicketPrice > 500) THEN 'High' when not (AvgTicketPrice > 500) then 'Low' else null end) AS Calculation_462181953506873347 FROM kibana_sample_data_flights
+SELECT (case when (AvgTicketPrice > 500) THEN 'High' when not (AvgTicketPrice > 500) then 'Low' else null end) AS Calculation_462181953506873347 FROM kibana_sample_data_flights
+SELECT ifnull(FlightDelay, 0) AS Calculation_462181953506873347 FROM kibana_sample_data_flights
+SELECT min(Origin) AS temp(Calculation_462181953504628738)(2376748618)(0), max(Origin) AS temp(Calculation_462181953504628738)(2968235173)(0) FROM kibana_sample_data_flights
+SELECT AVG(dayOfWeek) AS avg_dayOfWeek_ok FROM kibana_sample_data_flights
+SELECT SUM(1) AS cnt_dayOfWeek_ok FROM kibana_sample_data_flights
+SELECT COUNT(DISTINCT AvgTicketPrice) AS ctd_AvgTicketPrice_ok FROM kibana_sample_data_flights
+SELECT MAX(AvgTicketPrice) AS max_AvgTicketPrice_ok FROM kibana_sample_data_flights
+SELECT MIN(AvgTicketPrice) AS min_AvgTicketPrice_ok FROM kibana_sample_data_flights
+SELECT sum((AvgTicketPrice * AvgTicketPrice)) AS temp(Calculation_462181953506873347)(1705728846)(0),   sum(AvgTicketPrice) AS temp(Calculation_462181953506873347)(2465277995)(0),   count(AvgTicketPrice) AS temp(Calculation_462181953506873347)(2633997250)(0) FROM kibana_sample_data_flights
+SELECT count(DistanceMiles) AS temp(Calculation_462181953506873347)(2070533874)(0),   sum(DistanceMiles) AS temp(Calculation_462181953506873347)(3496560911)(0),   sum((DistanceMiles * DistanceMiles)) AS temp(Calculation_462181953506873347)(3595387140)(0) FROM kibana_sample_data_flights
+SELECT SUM(dayOfWeek) AS usr_Calculation_160722252357632000_ok FROM kibana_sample_data_flights
+SELECT substring(OriginWeather, 1, 5) AS OriginWeather FROM kibana_sample_data_flights WHERE (substring(OriginWeather, 1, 5) = 'ABC')
+SELECT sum((case when isnull(FlightDelayMin) then null when isnull(10) then null else greatest(FlightDelayMin, 10) end)) AS sum_Calculation_160722252357632000_ok FROM kibana_sample_data_flights
+SELECT AvgTicketPrice AS AvgTicketPrice,   Cancelled AS Cancelled,   Carrier AS Carrier,   DestAirportID AS DestAirportID,   DestCityName AS DestCityName,   DestCountry AS DestCountry,   DestLocation AS DestLocation   FROM kibana_sample_data_ecommerce   INNER JOIN kibana_sample_data_flights ON (kibana_sample_data_ecommerce.day_of_week_i = dayOfWeek) LIMIT 1000
+SELECT AvgTicketPrice AS AvgTicketPrice,   Cancelled AS Cancelled,   Carrier AS Carrier,   DestAirportID AS DestAirportID,   DestCityName AS DestCityName,   DestCountry AS DestCountry,   DestLocation AS DestLocation FROM kibana_sample_data_ecommerce   LEFT JOIN kibana_sample_data_flights ON (kibana_sample_data_ecommerce.day_of_week_i = dayOfWeek) LIMIT 1000
+SELECT AvgTicketPrice AS AvgTicketPrice,   Cancelled AS Cancelled,   Carrier AS Carrier,   DestAirportID AS DestAirportID,   DestCityName AS DestCityName,   DestCountry AS DestCountry,   DestLocation AS DestLocation FROM kibana_sample_data_ecommerce   RIGHT JOIN kibana_sample_data_flights ON (kibana_sample_data_ecommerce.day_of_week_i = dayOfWeek) LIMIT 1000
+SELECT OriginCityName FROM kibana_sample_data_flights ORDER BY OriginCityName ASC
+SELECT OriginCityName FROM kibana_sample_data_flights ORDER BY OriginCityName DESC
+SELECT DestCityName,  SUM(AvgTicketPrice) AS $__alias__0 FROM kibana_sample_data_flights ORDER BY $__alias__0 DESC,  DestCityName ASC LIMIT 10
+SELECT AvgTicketPrice AS AvgTicketPrice,   Cancelled AS Cancelled,   Carrier AS Carrier FROM kibana_sample_data_ecommerce   INNER JOIN kibana_sample_data_flights ON (kibana_sample_data_ecommerce.day_of_week_i = dayOfWeek) LIMIT 1000
+SELECT AvgTicketPrice AS AvgTicketPrice,   Cancelled AS Cancelled,   Carrier AS Carrier FROM kibana_sample_data_ecommerce   LEFT JOIN kibana_sample_data_flights ON (kibana_sample_data_ecommerce.day_of_week_i = dayOfWeek) LIMIT 1000
+SELECT AvgTicketPrice AS AvgTicketPrice,   Cancelled AS Cancelled,   Carrier AS Carrier FROM kibana_sample_data_ecommerce   RIGHT JOIN kibana_sample_data_flights ON (kibana_sample_data_ecommerce.day_of_week_i = dayOfWeek) LIMIT 1000

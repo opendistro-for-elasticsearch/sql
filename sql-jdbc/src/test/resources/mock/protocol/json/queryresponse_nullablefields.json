@@ -1,0 +1,85 @@
+{
+  "schema": [
+    {
+      "name": "testBoolean",
+      "type": "boolean"
+    },
+    {
+      "name": "docId",
+      "type": "text"
+    },
+    {
+      "name": "testByte",
+      "type": "byte"
+    },
+    {
+      "name": "testFloat",
+      "type": "float"
+    },
+    {
+      "name": "testLong",
+      "type": "long"
+    },
+    {
+      "name": "testShort",
+      "type": "short"
+    },
+    {
+      "name": "testHalfFloat",
+      "type": "half_float"
+    },
+    {
+      "name": "testTimeStamp",
+      "type": "date"
+    },
+    {
+      "name": "testScaledFloat",
+      "type": "scaled_float"
+    },
+    {
+      "name": "testKeyword",
+      "type": "keyword"
+    },
+    {
+      "name": "testText",
+      "type": "text"
+    },
+    {
+      "name": "testDouble",
+      "type": "double"
+    }
+  ],
+  "total": 2,
+  "datarows": [
+    [
+      null,
+      "2",
+      null,
+      22.145135459218345,
+      null,
+      null,
+      24.324234543532153,
+      "2015-01-01 12:10:30",
+      24.324234543532153,
+      "Test String",
+      "document3",
+      null
+    ],
+    [
+      true,
+      "1",
+      126,
+      null,
+      32000320003200030,
+      29000,
+      null,
+      null,
+      null,
+      null,
+      null,
+      22.312423148903218
+    ]
+  ],
+  "size": 2,
+  "status": 200
+}

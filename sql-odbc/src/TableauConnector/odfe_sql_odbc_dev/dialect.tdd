@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dialect name='OdfeSqlOdbcDialect'
+         class='odfe_sql_odbc_dev'
+         base='MySQL41UnicodeDriverDialect'
+         version='18.1'>   
+</dialect>
+
