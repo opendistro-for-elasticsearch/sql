@@ -19,8 +19,8 @@ import com.amazon.opendistroforelasticsearch.sql.legacy.antlr.semantic.SemanticA
 import com.carrotsearch.hppc.cursors.ObjectObjectCursor;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
-import org.elasticsearch.cluster.metadata.AliasMetaData;
-import org.elasticsearch.cluster.metadata.MappingMetaData;
+import org.elasticsearch.cluster.metadata.AliasMetadata;
+import org.elasticsearch.cluster.metadata.MappingMetadata;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.xcontent.ToXContent;
@@ -77,22 +77,22 @@ public class GetIndexRequestRestListener extends RestBuilderListener<GetIndexRes
         return new BytesRestResponse(RestStatus.OK, builder);
     }
 
-    private void writeAliases(List<AliasMetaData> aliases, XContentBuilder builder, ToXContent.Params params)
+    private void writeAliases(List<AliasMetadata> aliases, XContentBuilder builder, ToXContent.Params params)
             throws IOException {
         builder.startObject(Fields.ALIASES);
         if (aliases != null) {
-            for (AliasMetaData alias : aliases) {
-                AliasMetaData.Builder.toXContent(alias, builder, params);
+            for (AliasMetadata alias : aliases) {
+                AliasMetadata.Builder.toXContent(alias, builder, params);
             }
         }
         builder.endObject();
     }
 
-    private void writeMappings(ImmutableOpenMap<String, MappingMetaData> mappings,
+    private void writeMappings(ImmutableOpenMap<String, MappingMetadata> mappings,
                                XContentBuilder builder, ToXContent.Params params) throws IOException {
         builder.startObject(Fields.MAPPINGS);
         if (mappings != null) {
-            for (ObjectObjectCursor<String, MappingMetaData> typeEntry : mappings) {
+            for (ObjectObjectCursor<String, MappingMetadata> typeEntry : mappings) {
                 builder.field(typeEntry.key);
                 builder.map(typeEntry.value.sourceAsMap());
             }

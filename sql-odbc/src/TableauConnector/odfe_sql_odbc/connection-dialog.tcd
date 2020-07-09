@@ -1,0 +1,14 @@
+<connection-dialog class='odfe_sql_odbc'>
+  <connection-config>  
+    <authentication-mode value='ComboBoxIntegrated' />
+        <authentication-options>
+            <option name="None" value="NONE" default="true" />
+            <option name="Integrated" value="AWS_SIGV4" />
+            <option name="UsernameAndPassword" value="BASIC" />
+        </authentication-options>
+    <port-prompt value="Port: " default="9200" />
+    <show-ssl-checkbox value="true" />
+    <vendor1-prompt value="Region: " />
+    <vendor2-prompt value="Additional Options: " />
+  </connection-config>
+</connection-dialog>
