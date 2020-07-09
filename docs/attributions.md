@@ -22,7 +22,7 @@ Apart from the problems we identified earlier, we made significant improvement i
 
 1. *Integration Test*: We migrated all integrate tests to standard Elasticsearch IT framework which spins up in-memory cluster for testing. Now all test cases treat plugin code as blackbox and verify functionality from externally.
 2. *New JDBC Driver*: We developed our own JDBC driver without any dependency on Elasticsearch proprietary code.
-    [sql-jdbc](https://github.com/opendistro-for-elasticsearch/sql-jdbc)
+    [sql-jdbc](https://github.com/opendistro-for-elasticsearch/sql/tree/master/sql-jdbc)
 3. *Better Hash JOIN*: OpenDistro SQL launched with Block Hash Join implementation with circuit break mechanism to protect your Elasticsearch memory. Performance testing showed our implementation is 1.5 ~ 2x better than old hash join in terms of throughput and latency and much lower error rate under heavy pressure.
 4. *Query Planner*: Logical and physical planner was added to support JOIN query in efficient and extendible way.
 5. *PartiQL Compatibility*: we are partially compatible with PartiQL specification which allows for query involved in nested JSON documents.

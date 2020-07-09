@@ -56,7 +56,7 @@ Example output: `./build/opendistro-sql-workbench-*.zip`
 
 ## Bugs, Enhancements or Questions
 
-Please file an issue to report any bugs you may find, enhancements you may need or questions you may have [here](https://github.com/opendistro-for-elasticsearch/sql-workbench/issues).
+Please file an issue to report any bugs you may find, enhancements you may need or questions you may have [here](https://github.com/opendistro-for-elasticsearch/sql/issues).
 
 ## License
 
