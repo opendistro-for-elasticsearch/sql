@@ -183,14 +183,14 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   @Test
   public void ceil_null_value() {
     FunctionExpression ceil = dsl.ceil(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
-    assertEquals(LONG, ceil.type());
+    assertEquals(DOUBLE, ceil.type());
     assertTrue(ceil.valueOf(valueEnv()).isNull());
   }
 
   @Test
   public void ceil_missing_value() {
     FunctionExpression ceil = dsl.ceil(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
-    assertEquals(LONG, ceil.type());
+    assertEquals(DOUBLE, ceil.type());
     assertTrue(ceil.valueOf(valueEnv()).isMissing());
   }
 
@@ -315,14 +315,14 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   @Test
   public void floor_null_value() {
     FunctionExpression floor = dsl.floor(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
-    assertEquals(LONG, floor.type());
+    assertEquals(DOUBLE, floor.type());
     assertTrue(floor.valueOf(valueEnv()).isNull());
   }
 
   @Test
   public void floor_missing_value() {
     FunctionExpression floor = dsl.floor(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
-    assertEquals(LONG, floor.type());
+    assertEquals(DOUBLE, floor.type());
     assertTrue(floor.valueOf(valueEnv()).isMissing());
   }
 
