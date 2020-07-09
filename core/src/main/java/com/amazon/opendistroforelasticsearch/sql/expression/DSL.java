@@ -71,11 +71,6 @@ public class DSL {
         repository.compile(BuiltinFunctionName.CEIL.getName(), Arrays.asList(expressions));
   }
 
-  public FunctionExpression ceiling(Expression... expressions) {
-    return (FunctionExpression)
-        repository.compile(BuiltinFunctionName.CEILING.getName(), Arrays.asList(expressions));
-  }
-
   public FunctionExpression exp(Expression... expressions) {
     return (FunctionExpression)
         repository.compile(BuiltinFunctionName.EXP.getName(), Arrays.asList(expressions));

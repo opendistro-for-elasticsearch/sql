@@ -43,7 +43,6 @@ public class MathematicalFunction {
   public static void register(BuiltinFunctionRepository repository) {
     repository.register(abs());
     repository.register(ceil());
-    repository.register(ceiling());
     repository.register(exp());
     repository.register(floor());
     repository.register(ln());
@@ -66,42 +65,32 @@ public class MathematicalFunction {
   }
 
   /**
-   * Definition of ceil(x)/ceiling(x) function.
+   * Definition of ceil(x) function.
    * Calculate the next highest integer that x rounds up to
    * The supported signature of ceil/ceiling function is
-   * DOUBLE -> LONG
+   * INTEGER -> INTEGER
+   * LONG -> LONG
+   * FLOAT -> FLOAT
+   * DOUBLE -> DOUBLE
    */
   private static FunctionResolver ceil() {
     FunctionName functionName = BuiltinFunctionName.CEIL.getName();
     return new FunctionResolver(
-        BuiltinFunctionName.CEIL.getName(),
-        new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
-            .put(
-                new FunctionSignature(functionName, Arrays.asList(ExprCoreType.DOUBLE)),
-                unaryOperator(
-                    functionName, v -> ((long) Math.ceil(v)), ExprValueUtils::getDoubleValue,
-                    ExprCoreType.LONG))
-            .build());
-  }
-
-  private static FunctionResolver ceiling() {
-    FunctionName functionName = BuiltinFunctionName.CEILING.getName();
-    return new FunctionResolver(
-        BuiltinFunctionName.CEILING.getName(),
-        new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
-            .put(
-                new FunctionSignature(functionName, Arrays.asList(ExprCoreType.DOUBLE)),
-                unaryOperator(
-                    functionName, v -> ((long) Math.ceil(v)), ExprValueUtils::getDoubleValue,
-                    ExprCoreType.LONG))
-            .build());
+        functionName,
+        singleArgumentFunction(
+            functionName,
+            v -> (int) Math.ceil(v),
+            v -> (long) Math.ceil(v),
+            v -> (float) Math.ceil(v),
+            Math::ceil
+        ));
   }
 
   /**
    * Definition of exp(x) function.
    * Calculate exponent function e to the x
    * The supported signature of exp function is
-   * DOUBLE -> DOUBLE
+   * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static FunctionResolver exp() {
     return new FunctionResolver(BuiltinFunctionName.EXP.getName(),
@@ -112,26 +101,29 @@ public class MathematicalFunction {
    * Definition of floor(x) function.
    * Calculate the next nearest whole integer that x rounds down to
    * The supported signature of floor function is
-   * DOUBLE -> LONG
+   * INTEGER -> INTEGER
+   * LONG -> LONG
+   * FLOAT -> FLOAT
+   * DOUBLE -> DOUBLE
    */
   private static FunctionResolver floor() {
     FunctionName functionName = BuiltinFunctionName.FLOOR.getName();
     return new FunctionResolver(
-        BuiltinFunctionName.FLOOR.getName(),
-        new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
-            .put(
-                new FunctionSignature(functionName, Arrays.asList(ExprCoreType.DOUBLE)),
-                unaryOperator(
-                    functionName, v -> ((long) Math.floor(v)), ExprValueUtils::getDoubleValue,
-                    ExprCoreType.LONG))
-            .build());
+        functionName,
+        singleArgumentFunction(
+            functionName,
+            v -> (int) Math.floor(v),
+            v -> (long) Math.floor(v),
+            v -> (float) Math.floor(v),
+            Math::floor
+        ));
   }
 
   /**
    * Definition of ln(x) function.
    * Calculate the natural logarithm of x
    * The supported signature of ln function is
-   * DOUBLE -> DOUBLE
+   * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
    */
   private static FunctionResolver ln() {
     return new FunctionResolver(BuiltinFunctionName.LN.getName(),
@@ -142,7 +134,7 @@ public class MathematicalFunction {
    * Definition of log(x, y) function.
    * Calculate the logarithm of x using y as the base
    * The supported signature of log function is
-   * DOUBLE -> DOUBLE
+   * (x: INTEGER/LONG/FLOAT/DOUBLE, y: INTEGER/LONG/FLOAT/DOUBLE) -> DOUBLE
    */
   private static FunctionResolver log() {
     return new FunctionResolver(BuiltinFunctionName.LOG.getName(),
@@ -183,7 +175,7 @@ public class MathematicalFunction {
 
   /**
    * Util method to generate single argument function bundles. Applicable for
-   * DOUBLE -> DOUBLE/LONG
+   * DOUBLE (INTEGER/LONG/FLOAT) -> DOUBLE
    */
   private static Map<FunctionSignature, FunctionBuilder> singleArgumentFunction(
       FunctionName functionName,

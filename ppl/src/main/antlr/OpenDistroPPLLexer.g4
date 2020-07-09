@@ -136,7 +136,6 @@ DC:                                 'DC';
 // BASIC FUNCTIONS
 ABS:                                'ABS';
 CEIL:                               'CEIL';
-CEILING:                            'CEILING';
 EXP:                                'EXP';
 FLOOR:                              'FLOOR';
 LN:                                 'LN';
