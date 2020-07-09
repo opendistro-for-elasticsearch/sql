@@ -22,7 +22,7 @@ import com.amazon.opendistroforelasticsearch.sql.legacy.executor.format.Schema.T
 import com.carrotsearch.hppc.cursors.ObjectObjectCursor;
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.cluster.metadata.MappingMetaData;
+import org.elasticsearch.cluster.metadata.MappingMetadata;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 
 import java.util.ArrayList;
@@ -89,18 +89,18 @@ public class DescribeResultSet extends ResultSet {
     private List<Row> loadRows() {
         List<Row> rows = new ArrayList<>();
         GetIndexResponse indexResponse = (GetIndexResponse) queryResult;
-        ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> indexMappings = indexResponse.getMappings();
+        ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetadata>> indexMappings = indexResponse.getMappings();
 
         // Iterate through indices in indexMappings
-        for (ObjectObjectCursor<String, ImmutableOpenMap<String, MappingMetaData>> indexCursor : indexMappings) {
+        for (ObjectObjectCursor<String, ImmutableOpenMap<String, MappingMetadata>> indexCursor : indexMappings) {
             String index = indexCursor.key;
 
             // Check to see if index matches given pattern
             if (matchesPattern(index, statement.getIndexPattern())) {
-                ImmutableOpenMap<String, MappingMetaData> typeMapping = indexCursor.value;
+                ImmutableOpenMap<String, MappingMetadata> typeMapping = indexCursor.value;
                 // Assuming ES 6.x, iterate through the only type of the index to get mapping data
-                for (ObjectObjectCursor<String, MappingMetaData> typeCursor : typeMapping) {
-                    MappingMetaData mappingMetaData = typeCursor.value;
+                for (ObjectObjectCursor<String, MappingMetadata> typeCursor : typeMapping) {
+                    MappingMetadata mappingMetaData = typeCursor.value;
                     // Load rows for each field in the mapping
                     rows.addAll(loadIndexData(index, mappingMetaData.getSourceAsMap()));
                 }
@@ -110,10 +110,10 @@ public class DescribeResultSet extends ResultSet {
     }
 
     @SuppressWarnings("unchecked")
-    private List<Row> loadIndexData(String index, Map<String, Object> mappingMetaData) {
+    private List<Row> loadIndexData(String index, Map<String, Object> mappingMetadata) {
         List<Row> rows = new ArrayList<>();
 
-        Map<String, String> flattenedMetaData = flattenMappingMetaData(mappingMetaData, "", new HashMap<>());
+        Map<String, String> flattenedMetaData = flattenMappingMetaData(mappingMetadata, "", new HashMap<>());
         int position = 1; // Used as an arbitrary ORDINAL_POSITION value for the time being
         for (Entry<String, String> entry : flattenedMetaData.entrySet()) {
             String columnPattern = statement.getColumnPattern();

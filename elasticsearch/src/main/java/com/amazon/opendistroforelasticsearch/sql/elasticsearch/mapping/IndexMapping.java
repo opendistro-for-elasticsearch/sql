@@ -24,7 +24,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.ToString;
-import org.elasticsearch.cluster.metadata.MappingMetaData;
+import org.elasticsearch.cluster.metadata.MappingMetadata;
 
 /**
  * Elasticsearch index mapping. Because there is no specific behavior for different field types,
@@ -40,7 +40,7 @@ public class IndexMapping {
     this.fieldMappings = fieldMappings;
   }
 
-  public IndexMapping(MappingMetaData metaData) {
+  public IndexMapping(MappingMetadata metaData) {
     this.fieldMappings = flatMappings(metaData.getSourceAsMap());
   }
 
