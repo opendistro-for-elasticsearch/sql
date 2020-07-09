@@ -407,6 +407,67 @@ bool ESCommunication::EstablishConnection() {
     return false;
 }
 
+std::vector< std::string > ESCommunication::GetColumnsWithSelectQuery(
+    const std::string table_name) {
+    std::vector< std::string > list_of_column;
+    if (table_name.empty()) {
+        m_error_message = "Query is NULL";
+        LogMsg(ES_ERROR, m_error_message.c_str());
+        return list_of_column;
+    }
+
+    // Prepare query
+    std::string query = "SELECT * FROM " + table_name + " LIMIT 0";
+    std::string msg = "Attempting to execute a query \"" + query + "\"";
+    LogMsg(ES_DEBUG, msg.c_str());
+
+    // Issue request
+    std::shared_ptr< Aws::Http::HttpResponse > response =
+        IssueRequest(SQL_ENDPOINT_FORMAT_JDBC, Aws::Http::HttpMethod::HTTP_POST,
+                     ctype, query);
+
+    // Validate response
+    if (response == nullptr) {
+        m_error_message =
+            "Failed to receive response from query. "
+            "Received NULL response.";
+        LogMsg(ES_ERROR, m_error_message.c_str());
+        return list_of_column;
+    }
+
+    // Convert body from Aws IOStream to string
+    std::unique_ptr< ESResult > result = std::make_unique< ESResult >();
+    AwsHttpResponseToString(response, result->result_json);
+
+    // If response was not valid, set error
+    if (response->GetResponseCode() != Aws::Http::HttpResponseCode::OK) {
+        m_error_message =
+            "Http response code was not OK. Code received: "
+            + std::to_string(static_cast< long >(response->GetResponseCode()))
+            + ".";
+        if (response->HasClientError())
+            m_error_message +=
+                " Client error: '" + response->GetClientErrorMessage() + "'.";
+        if (!result->result_json.empty()) {
+            m_error_message +=
+                " Response error: '" + result->result_json + "'.";
+        }
+        LogMsg(ES_ERROR, m_error_message.c_str());
+        return list_of_column;
+    }
+
+    GetJsonSchema(*result);
+
+    rabbit::array schema_array = result->es_result_doc["schema"];
+    for (rabbit::array::iterator it = schema_array.begin();
+         it != schema_array.end(); ++it) {
+        std::string column_name = it->at("name").as_string();
+        list_of_column.push_back(column_name);
+    }
+
+    return list_of_column;
+}
+
 int ESCommunication::ExecDirect(const char* query, const char* fetch_size_) {
     if (!query) {
         m_error_message = "Query is NULL";

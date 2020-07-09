@@ -30,6 +30,8 @@ void* ESConnectDBParams(runtime_options& rt_opts, int expand_dbname,
 std::string GetServerVersion(void* es_conn);
 std::string GetClusterName(void* es_conn);
 std::string GetErrorMsg(void* es_conn);
+std::vector< std::string > ESGetColumnsWithSelectQuery(
+    void* es_conn, const std::string table_name);
 
 // C Interface
 extern "C" {
