@@ -47,7 +47,7 @@ import static org.hamcrest.Matchers.not;
  * These are the outputs of "schema" for SHOW and DESCRIBE, the position of the value in "datarows" will match the
  * position of the field in "schema":
  *
- * 1) SHOW query (based on the getTables() method listed here https://docs.oracle.com/javase/8/docs/api/java/sql/DatabaseMetadata.html)
+ * 1) SHOW query (based on the getTables() method listed here https://docs.oracle.com/javase/8/docs/api/java/sql/DatabaseMetaData.html)
  *    "schema": [
  *     {
  *       "name": "TABLE_CAT",
@@ -91,7 +91,7 @@ import static org.hamcrest.Matchers.not;
  *     }
  *   ]
  *
- * 2) DESCRIBE query (based on the getColumns() method listed here https://docs.oracle.com/javase/8/docs/api/java/sql/DatabaseMetadata.html)
+ * 2) DESCRIBE query (based on the getColumns() method listed here https://docs.oracle.com/javase/8/docs/api/java/sql/DatabaseMetaData.html)
  *    "schema": [
  *     {
  *       "name": "TABLE_CAT",

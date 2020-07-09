@@ -15,8 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esdomain.mapping;
 
-import org.elasticsearch.cluster.metadata.MappingMetadata;
-import org.elasticsearch.cluster.metadata.Metadata;
+import org.elasticsearch.cluster.metadata.MappingMetaData;
+import org.elasticsearch.cluster.metadata.MetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 
 import java.util.Map;
@@ -55,12 +55,12 @@ public class IndexMappings implements Mappings<TypeMappings> {
         this.indexMappings = emptyMap();
     }
 
-    public IndexMappings(Metadata metadata) {
-        this.indexMappings = buildMappings(metadata.indices(),
-                indexMetadata -> new TypeMappings(indexMetadata.getMappings()));
+    public IndexMappings(MetaData metaData) {
+        this.indexMappings = buildMappings(metaData.indices(),
+                indexMetaData -> new TypeMappings(indexMetaData.getMappings()));
     }
 
-    public IndexMappings(ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetadata>> mappings) {
+    public IndexMappings(ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> mappings) {
         this.indexMappings = buildMappings(mappings, TypeMappings::new);
     }
 

@@ -26,7 +26,6 @@ import com.amazon.opendistroforelasticsearch.sql.query.maker.QueryMaker;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -183,12 +182,9 @@ public class HashJoinElasticExecutor extends ElasticJoinExecutor {
                             onlyReturnedFields(copiedSource, secondTableRequest.getReturnedFields(),
                                     secondTableRequest.getOriginalSelect().isSelectAll());
 
-                            Map<String, DocumentField> documentFields = new HashMap<>();
-                            Map<String, DocumentField> metaFields = new HashMap<>();
-                            SearchHit.splitFieldsByMetadata(matchingHit.getFields(), documentFields, metaFields);
                             SearchHit searchHit = new SearchHit(matchingHit.docId(), combinedId,
                                     new Text(matchingHit.getType() + "|" + secondTableHit.getType()),
-                                    documentFields, metaFields);
+                                    matchingHit.getFields());
                             searchHit.sourceRef(matchingHit.getSourceRef());
                             searchHit.getSourceAsMap().clear();
                             searchHit.getSourceAsMap().putAll(matchingHit.getSourceAsMap());
@@ -242,12 +238,8 @@ public class HashJoinElasticExecutor extends ElasticJoinExecutor {
                 String key = getComparisonKey(t1ToT2FieldsComparison, hit, true,
                         optimizationTermsFilterStructure.get(comparisonID));
 
-                Map<String, DocumentField> documentFields = new HashMap<>();
-                Map<String, DocumentField> metaFields = new HashMap<>();
-                SearchHit.splitFieldsByMetadata(hit.getFields(), documentFields, metaFields);
                 //int docid , id
-                SearchHit searchHit = new SearchHit(resultIds, hit.getId(), new Text(hit.getType()),
-                        documentFields, metaFields);
+                SearchHit searchHit = new SearchHit(resultIds, hit.getId(), new Text(hit.getType()), hit.getFields());
                 searchHit.sourceRef(hit.getSourceRef());
 
                 onlyReturnedFields(searchHit.getSourceAsMap(), firstTableRequest.getReturnedFields(),

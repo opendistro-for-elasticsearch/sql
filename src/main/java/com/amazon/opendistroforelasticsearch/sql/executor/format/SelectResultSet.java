@@ -65,7 +65,7 @@ import java.util.stream.StreamSupport;
 
 import static java.util.Collections.unmodifiableMap;
 import static java.util.stream.Collectors.toSet;
-import static org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse.FieldMappingMetadata;
+import static org.elasticsearch.action.admin.indices.mapping.get.GetFieldMappingsResponse.FieldMappingMetaData;
 
 public class SelectResultSet extends ResultSet {
 
@@ -188,13 +188,13 @@ public class SelectResultSet extends ResultSet {
                 .getFieldMappings(request)
                 .actionGet();
 
-        Map<String, Map<String, Map<String, FieldMappingMetadata>>> mappings = response.mappings();
+        Map<String, Map<String, Map<String, FieldMappingMetaData>>> mappings = response.mappings();
         if (mappings.isEmpty()) {
             throw new IllegalArgumentException(String.format("Index type %s does not exist", query.getFrom()));
         }
 
         // Assumption is all indices share the same mapping which is validated in TermFieldRewriter.
-        Map<String, Map<String, FieldMappingMetadata>> indexMappings = mappings.values().iterator().next();
+        Map<String, Map<String, FieldMappingMetaData>> indexMappings = mappings.values().iterator().next();
 
         // if index mappings size is 0 and the expression is a cast: that means that we are casting by alias
         // if so, add the original field that was being looked at to the mapping (how?)
@@ -205,7 +205,7 @@ public class SelectResultSet extends ResultSet {
          * 2. If the incorrect type name was given then the response is null
          * 3. If no type name is given, the indexMapping is searched for a typeMapping
          */
-        Map<String, FieldMappingMetadata> typeMappings = new HashMap<>();
+        Map<String, FieldMappingMetaData> typeMappings = new HashMap<>();
         if (indexMappings.containsKey(typeName)) {
             typeMappings = indexMappings.get(typeName);
         } else {
@@ -416,7 +416,7 @@ public class SelectResultSet extends ResultSet {
      * will be used.
      */
     private List<Schema.Column> populateColumns(Query query, String[] fieldNames, Map<String,
-            FieldMappingMetadata> typeMappings) {
+            FieldMappingMetaData> typeMappings) {
         List<String> fieldNameList;
 
         if (isSelectAll() || containsWildcard(query)) {

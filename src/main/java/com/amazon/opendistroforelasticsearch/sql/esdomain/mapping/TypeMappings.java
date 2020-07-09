@@ -15,7 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.esdomain.mapping;
 
-import org.elasticsearch.cluster.metadata.MappingMetadata;
+import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 
 import java.util.Map;
@@ -36,7 +36,7 @@ public class TypeMappings implements Mappings<FieldMappings> {
      */
     private final Map<String, FieldMappings> typeMappings;
 
-    public TypeMappings(ImmutableOpenMap<String, MappingMetadata> mappings) {
+    public TypeMappings(ImmutableOpenMap<String, MappingMetaData> mappings) {
         typeMappings = buildMappings(mappings, FieldMappings::new);
     }
 

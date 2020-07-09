@@ -134,11 +134,7 @@ public class MinusExecutor implements ElasticHitsExecutor {
             ArrayList<Object> values = new ArrayList<>();
             values.add(result);
             fields.put(fieldName, new DocumentField(fieldName, values));
-            Map<String, DocumentField> documentFields = new HashMap<>();
-            Map<String, DocumentField> metaFields = new HashMap<>();
-            SearchHit.splitFieldsByMetadata(fields, documentFields, metaFields);
-            SearchHit searchHit = new SearchHit(currentId, currentId + "", new Text(someHit.getType()),
-                    documentFields, metaFields);
+            SearchHit searchHit = new SearchHit(currentId, currentId + "", new Text(someHit.getType()), fields);
             searchHit.sourceRef(someHit.getSourceRef());
             searchHit.getSourceAsMap().clear();
             Map<String, Object> sourceAsMap = new HashMap<>();
@@ -159,11 +155,8 @@ public class MinusExecutor implements ElasticHitsExecutor {
             ArrayList<Object> values = new ArrayList<>();
             values.add(result);
             SearchHit originalHit = result.getOriginalHit();
-            Map<String, DocumentField> documentFields = new HashMap<>();
-            Map<String, DocumentField> metaFields = new HashMap<>();
-            SearchHit.splitFieldsByMetadata(originalHit.getFields(), documentFields, metaFields);
             SearchHit searchHit = new SearchHit(currentId, originalHit.getId(), new Text(originalHit.getType()),
-                    documentFields, metaFields);
+                    originalHit.getFields());
             searchHit.sourceRef(originalHit.getSourceRef());
             searchHit.getSourceAsMap().clear();
             Map<String, Object> sourceAsMap = result.getFlattenMap();
