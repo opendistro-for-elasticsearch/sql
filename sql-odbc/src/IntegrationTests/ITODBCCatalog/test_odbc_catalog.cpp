@@ -71,19 +71,20 @@ typedef struct bind_info {
 
 // Column test constants and macro
 const std::vector< std::string > flights_column_name = {
-    "FlightNum",      "Origin",         "OriginLocation",  "DestLocation",
-    "FlightDelay",    "DistanceMiles",  "FlightTimeMin",   "OriginWeather",
-    "dayOfWeek",      "AvgTicketPrice", "Carrier",         "FlightDelayMin",
-    "OriginRegion",   "DestAirportID",  "FlightDelayType", "timestamp",
-    "Dest",           "FlightTimeHour", "Cancelled",       "DistanceKilometers",
-    "OriginCityName", "DestWeather",    "OriginCountry",   "DestCountry",
-    "DestRegion",     "DestCityName",   "OriginAirportID"};
+    "FlightNum",       "Origin",         "FlightDelay",
+    "DistanceMiles",   "FlightTimeMin",  "OriginWeather",
+    "dayOfWeek",       "AvgTicketPrice", "Carrier",
+    "FlightDelayMin",  "OriginRegion",   "DestAirportID",
+    "FlightDelayType", "timestamp",      "Dest",
+    "FlightTimeHour",  "Cancelled",      "DistanceKilometers",
+    "OriginCityName",  "DestWeather",    "OriginCountry",
+    "DestCountry",     "DestRegion",     "DestCityName",
+    "OriginAirportID"};
 const std::vector< std::string > flights_data_type = {
-    "keyword", "keyword", "geo_point", "geo_point", "boolean", "float",
-    "float",   "keyword", "integer",   "float",     "keyword", "integer",
-    "keyword", "keyword", "keyword",   "date",      "keyword", "keyword",
-    "boolean", "float",   "keyword",   "keyword",   "keyword", "keyword",
-    "keyword", "keyword", "keyword"};
+    "keyword", "keyword", "boolean", "float",   "float",   "keyword", "integer",
+    "float",   "keyword", "integer", "keyword", "keyword", "keyword", "date",
+    "keyword", "keyword", "boolean", "float",   "keyword", "keyword", "keyword",
+    "keyword", "keyword", "keyword", "keyword"};
 const std::string flights_catalog_odfe = "odfe-cluster";
 const std::string flights_catalog_elas = "elasticsearch";
 const std::string flights_table_name = "kibana_sample_data_flights";
@@ -226,9 +227,10 @@ void CheckTableData(SQLHSTMT m_hstmt,
     TEST_F(TestSQLTables, test_name) {                                         \
         EXPECT_EQ(SQL_SUCCESS, SQLSetStmtAttr(m_hstmt, SQL_ATTR_METADATA_ID,   \
                                               (void*)(!enable_pattern), 0));   \
-        EXPECT_TRUE(SQL_SUCCEEDED(SQLTables(m_hstmt, catalog, SQL_NTS, schema, \
+        SQLRETURN ret2 = SQLTables(m_hstmt, catalog, SQL_NTS, schema,          \
                                             SQL_NTS, table, SQL_NTS,           \
-                                            table_type, SQL_NTS)));            \
+                                            table_type, SQL_NTS);              \
+        LogAnyDiagnostics(SQL_HANDLE_STMT, m_hstmt, ret2);                     \
         if (empty) {                                                           \
             size_t result_count = 0;                                           \
             SQLRETURN ret;                                                     \
@@ -409,7 +411,7 @@ TEST_F(TestSQLColumns, FlightsValidation) {
         }
         column_idx++;
     }
-    EXPECT_EQ(column_idx, static_cast< size_t >(27));
+    EXPECT_EQ(column_idx, static_cast< size_t >(25));
 }
 
 // We expect an empty result set for PrimaryKeys and ForeignKeys
