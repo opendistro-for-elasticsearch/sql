@@ -71,7 +71,7 @@ typedef struct bind_info {
 
 // Column test constants and macro
 const std::vector< std::string > flights_column_name = {
-    "FlightNum",      "Origin",         "OriginLocation",  "DestLocation",
+    "FlightNum",      "Origin",
     "FlightDelay",    "DistanceMiles",  "FlightTimeMin",   "OriginWeather",
     "dayOfWeek",      "AvgTicketPrice", "Carrier",         "FlightDelayMin",
     "OriginRegion",   "DestAirportID",  "FlightDelayType", "timestamp",
@@ -79,7 +79,7 @@ const std::vector< std::string > flights_column_name = {
     "OriginCityName", "DestWeather",    "OriginCountry",   "DestCountry",
     "DestRegion",     "DestCityName",   "OriginAirportID"};
 const std::vector< std::string > flights_data_type = {
-    "keyword", "keyword", "geo_point", "geo_point", "boolean", "float",
+    "keyword", "keyword", "boolean", "float",
     "float",   "keyword", "integer",   "float",     "keyword", "integer",
     "keyword", "keyword", "keyword",   "date",      "keyword", "keyword",
     "boolean", "float",   "keyword",   "keyword",   "keyword", "keyword",
@@ -404,7 +404,7 @@ TEST_F(TestSQLColumns, FlightsValidation) {
         }
         column_idx++;
     }
-    EXPECT_EQ(column_idx, static_cast< size_t >(27));
+    EXPECT_EQ(column_idx, static_cast< size_t >(25));
 }
 
 // We expect an empty result set for PrimaryKeys and ForeignKeys

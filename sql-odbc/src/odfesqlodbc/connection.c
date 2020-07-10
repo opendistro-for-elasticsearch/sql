@@ -655,7 +655,17 @@ void CC_log_error(const char *func, const char *desc,
 }
 
 const char *CurrCat(const ConnectionClass *conn) {
-    return conn->cluster_name;
+    // Keeping this NULL since it's required for getting list of tables in
+    // Microsoft Excel with ODBC Connection mode. This causes error in Data
+    // Connection wizard mode but data connection wizard sends query with
+    // catalog.table_name which fails. So setting this to NULL will enable more
+    // functionality
+    UNUSED(conn);
+    return NULL;
+
+    // Change this to following return value when found a solution which works
+    // with ODBC and Data Connection wizard in Microsoft Excel return
+    // conn->cluster_name;
 }
 
 const char *CurrCatString(const ConnectionClass *conn) {

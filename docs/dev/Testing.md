@@ -142,6 +142,12 @@ The workflow of generating test result is:
 
 ![The Workflow of Comparison Test](img/the-workflow-of-comparison-test.png)
 
+ 1. For the schema, name, type as well as their order requires to be the same.
+ 2. For the data rows, only data in each row matters with row order ignored.
+ 3. Report success if any other database result can match.
+ 4. Report error if all other databases throw exception.
+ 5. Report failure otherwise if mismatch and exception mixed.
+
 ### 3.6 Visualization
 
 TODO
