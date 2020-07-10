@@ -1,0 +1,2 @@
+ut_aws_sdk_cpp
+itodbc_aws_auth

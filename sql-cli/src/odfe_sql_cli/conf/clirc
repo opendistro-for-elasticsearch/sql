@@ -1,0 +1,94 @@
+# Copyright 2020, Amazon Web Services Inc.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# vi: ft=dosini
+[main]
+
+# Multi-line mode allows breaking up the sql statements into multiple lines. If
+# this is set to True, then the end of the statements must have a semi-colon.
+# If this is set to False then sql statements can't be split into multiple
+# lines. End of line (return) is considered as the end of the statement.
+multi_line = True
+
+# If multi_line_mode is set to "odfesql_cli", in multi-line mode, [Enter] will execute
+# the current input if the input ends in a semicolon.
+# If multi_line_mode is set to "safe", in multi-line mode, [Enter] will always
+# insert a newline, and [Esc] [Enter] or [Alt]-[Enter] must be used to execute
+# a command.
+multi_line_mode = odfesql_cli
+
+# log_file location.
+# In Unix/Linux: ~/.conf/odfesql-cli/log
+# In Windows: %USERPROFILE%\AppData\Local\dbcli\odfesql-cli\log
+# %USERPROFILE% is typically C:\Users\{username}
+log_file = default
+
+# history_file location.
+# In Unix/Linux: ~/.conf/odfesql-cli/history
+# In Windows: %USERPROFILE%\AppData\Local\dbcli\odfesql-cli\history
+# %USERPROFILE% is typically C:\Users\{username}
+history_file = default
+
+# Default log level. Possible values: "CRITICAL", "ERROR", "WARNING", "INFO"
+# and "DEBUG". "NONE" disables logging.
+log_level = INFO
+
+# Table format. Possible values: psql, plain, simple, grid, fancy_grid, pipe,
+# ascii, double, github, orgtbl, rst, mediawiki, html, latex, latex_booktabs,
+# textile, moinmoin, jira, vertical, tsv, csv.
+# Recommended: psql, fancy_grid and grid.
+table_format = psql
+
+# Syntax Style. Possible values: manni, igor, xcode, vim, autumn, vs, rrt,
+# native, perldoc, borland, tango, emacs, friendly, monokai, paraiso-dark,
+# colorful, murphy, bw, pastie, paraiso-light, trac, default, fruity
+syntax_style = default
+
+# Set threshold for row limit prompt. Use 0 to disable prompt.
+# maybe not now, since elasticsearch opendisto sql plugin returns 200 rows of data by default if not
+# using LIMIT.
+row_limit = 1000
+
+# Character used to left pad multi-line queries to match the prompt size.
+multiline_continuation_char = '.'
+
+# The string used in place of a null value.
+null_string = 'null'
+
+# Custom colors for the completion menu, toolbar, etc.
+[colors]
+completion-menu.completion.current = 'bg:#ffffff #000000'
+completion-menu.completion = 'bg:#008888 #ffffff'
+completion-menu.meta.completion.current = 'bg:#44aaaa #000000'
+completion-menu.meta.completion = 'bg:#448888 #ffffff'
+completion-menu.multi-column-meta = 'bg:#aaffff #000000'
+scrollbar.arrow = 'bg:#003333'
+scrollbar = 'bg:#00aaaa'
+selected = '#ffffff bg:#6666aa'
+search = '#ffffff bg:#4444aa'
+search.current = '#ffffff bg:#44aa44'
+bottom-toolbar = 'bg:#222222 #aaaaaa'
+bottom-toolbar.off = 'bg:#222222 #888888'
+bottom-toolbar.on = 'bg:#222222 #ffffff'
+search-toolbar = 'noinherit bold'
+search-toolbar.text = 'nobold'
+system-toolbar = 'noinherit bold'
+arg-toolbar = 'noinherit bold'
+arg-toolbar.text = 'nobold'
+bottom-toolbar.transaction.valid = 'bg:#222222 #00ff5f bold'
+bottom-toolbar.transaction.failed = 'bg:#222222 #ff005f bold'
+
+# style classes for colored table output
+output.header = "#00ff5f bold"
+output.odd-row = ""
+output.even-row = ""

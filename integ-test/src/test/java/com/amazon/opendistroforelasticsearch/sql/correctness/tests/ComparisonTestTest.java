@@ -31,6 +31,7 @@ import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.DB
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.Row;
 import com.amazon.opendistroforelasticsearch.sql.correctness.runner.resultset.Type;
 import com.amazon.opendistroforelasticsearch.sql.correctness.testset.TestQuerySet;
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -87,7 +88,7 @@ public class ComparisonTestTest {
 
     TestReport expected = new TestReport();
     expected.addTestCase(
-        new FailedTestCase(1, "SELECT * FROM accounts", asList(esResult, otherDbResult)));
+        new FailedTestCase(1, "SELECT * FROM accounts", asList(esResult, otherDbResult), ""));
     TestReport actual = correctnessTest.verify(querySet("SELECT * FROM accounts"));
     assertEquals(expected, actual);
   }
@@ -137,7 +138,7 @@ public class ComparisonTestTest {
 
     TestReport expected = new TestReport();
     expected.addTestCase(new FailedTestCase(1, "SELECT * FROM accounts",
-        asList(esResult, otherDbResult, anotherDbResult)));
+        asList(esResult, otherDbResult, anotherDbResult), ""));
     TestReport actual = correctnessTest.verify(querySet("SELECT * FROM accounts"));
     assertEquals(expected, actual);
   }
@@ -188,6 +189,31 @@ public class ComparisonTestTest {
 
     TestReport expected = new TestReport();
     expected.addTestCase(new SuccessTestCase(1, "SELECT * FROM accounts"));
+    TestReport actual = correctnessTest.verify(querySet("SELECT * FROM accounts"));
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void testFailureDueToInconsistencyAndExceptionMixed() {
+    DBConnection otherDBConnection2 = mock(DBConnection.class);
+    when(otherDBConnection2.getDatabaseName()).thenReturn("ZZZ DB");
+    correctnessTest = new ComparisonTest(
+        esConnection, new DBConnection[] {otherDbConnection, otherDBConnection2}
+    );
+
+    DBResult esResult =
+        new DBResult("ES", asList(new Type("firstname", "text")), asList(new Row(asList("John"))));
+    DBResult otherResult =
+        new DBResult("Other", asList(new Type("firstname", "text")), Collections.emptyList());
+
+    when(esConnection.select(anyString())).thenReturn(esResult);
+    when(otherDbConnection.select(anyString())).thenReturn(otherResult);
+    when(otherDBConnection2.select(anyString()))
+        .thenThrow(new RuntimeException("Unsupported feature"));
+
+    TestReport expected = new TestReport();
+    expected.addTestCase(new FailedTestCase(1, "SELECT * FROM accounts",
+        asList(esResult, otherResult), "Unsupported feature;"));
     TestReport actual = correctnessTest.verify(querySet("SELECT * FROM accounts"));
     assertEquals(expected, actual);
   }

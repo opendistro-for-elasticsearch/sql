@@ -43,8 +43,8 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.GetMappingsRequest;
 import org.elasticsearch.client.indices.GetMappingsResponse;
-import org.elasticsearch.cluster.metadata.IndexMetaData;
-import org.elasticsearch.cluster.metadata.MappingMetaData;
+import org.elasticsearch.cluster.metadata.IndexMetadata;
+import org.elasticsearch.cluster.metadata.MappingMetadata;
 import org.elasticsearch.common.xcontent.DeprecationHandler;
 import org.elasticsearch.common.xcontent.NamedXContentRegistry;
 import org.elasticsearch.common.xcontent.XContentParser;
@@ -193,9 +193,9 @@ class ElasticsearchRestClientTest {
     assertThrows(IllegalStateException.class, () -> client.cleanup(request));
   }
 
-  private Map<String, MappingMetaData> mockFieldMappings(String indexName, String mappings)
+  private Map<String, MappingMetadata> mockFieldMappings(String indexName, String mappings)
       throws IOException {
-    return ImmutableMap.of(indexName, IndexMetaData.fromXContent(createParser(mappings)).mapping());
+    return ImmutableMap.of(indexName, IndexMetadata.fromXContent(createParser(mappings)).mapping());
   }
 
   private XContentParser createParser(String mappings) throws IOException {

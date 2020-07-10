@@ -1,0 +1,206 @@
+/*
+ * Copyright <2019> Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *  
+ * Licensed under the Apache License, Version 2.0 (the "License").
+ * You may not use this file except in compliance with the License.
+ * A copy of the License is located at
+ *  
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *  
+ * or in the "license" file accompanying this file. This file is distributed
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ * express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ *
+ */
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+}
+
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '4.0.1'
+    id 'jacoco'
+    id 'maven'
+    id 'maven-publish'
+    id 'signing'
+}
+
+group 'com.amazon.opendistroforelasticsearch.client'
+
+// keep version in sync with version in Driver source
+version '1.9.0.0'
+
+boolean snapshot = "true".equals(System.getProperty("build.snapshot", "true"));
+if (snapshot) {
+    version += "-SNAPSHOT"
+}
+
+jacoco {
+    toolVersion = "0.8.3"
+}
+
+sourceCompatibility = 8
+targetCompatibility = 8
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.6'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.7'
+    implementation group: 'com.amazonaws', name: 'aws-java-sdk-core', version: '1.11.452'
+
+    testImplementation('org.junit.jupiter:junit-jupiter-api:5.3.1')
+    testImplementation('org.junit.jupiter:junit-jupiter-params:5.3.1')
+    testImplementation('com.github.tomakehurst:wiremock:2.20.0')
+    testImplementation('org.mockito:mockito-core:2.23.0')
+    testImplementation('org.junit.jupiter:junit-jupiter-engine:5.3.1')
+    testImplementation('org.junit-pioneer:junit-pioneer:0.3.0')
+    testImplementation('org.eclipse.jetty:jetty-server:9.2.24.v20180105')
+
+    testRuntimeOnly('org.slf4j:slf4j-simple:1.7.25') // capture WireMock logging
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"
+}
+
+static def getShadowPath(String path) {
+    return 'com.amazonaws.opendistro.elasticsearch.sql.jdbc.shadow.' + path
+}
+
+shadowJar {
+    baseName = rootProject.name
+    classifier = ''
+    exclude 'META-INF/maven/commons-*/**'
+    exclude 'META-INF/maven/org.apache.*/**'
+    exclude 'META-INF/maven/joda-time/**'
+    exclude 'META-INF/maven/com.fasterxml.*/**'
+    exclude 'META-INF/services/com.fasterxml.*'
+    exclude 'META-INF/services/org.apache.logging*/**'
+    exclude 'META-INF/maven/com.amazonaws/**'
+    exclude 'META-INF/maven/software.amazon.*/**'
+    exclude 'META-INF/LICENSE*'
+    exclude 'META-INF/NOTICE*'
+    exclude 'META-INF/DEPENDENCIES'
+
+    relocate('com.amazonaws', getShadowPath('com.amazonaws')) {
+        exclude 'com.amazonaws.opendistro.*/**'
+    }
+
+    relocate 'org.apache', getShadowPath('org.apache')
+    relocate 'org.joda', getShadowPath('org.joda')
+    relocate 'com.fasterxml', getShadowPath('com.fasterxml')
+    relocate 'software.amazon', getShadowPath('software.amazon')
+}
+
+test {
+    useJUnitPlatform()
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allJava
+}
+
+task javadocJar(type: Jar) {
+    classifier "javadoc"
+    from javadoc.destinationDir
+}
+
+publishing {
+    publications {
+        shadow(MavenPublication) { publication ->
+            project.shadow.component(publication)
+            artifact sourcesJar
+            artifact javadocJar
+
+            pom {
+              name = "Open Distro For Elasticsearch SQL JDBC Driver"
+              packaging = "jar"
+              url = "https://github.com/opendistro-for-elasticsearch/sql-jdbc"
+              description = "Open Distro For Elasticsearch SQL JDBC driver"
+              scm {
+                connection = "scm:git@github.com:opendistro-for-elasticsearch/sql-jdbc.git"
+                developerConnection = "scm:git@github.com:opendistro-for-elasticsearch/sql-jdbc.git"
+                url = "git@github.com:opendistro-for-elasticsearch/sql-jdbc.git"
+              }
+              licenses {
+                license {
+                  name = "The Apache License, Version 2.0"
+                  url = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                }
+              }
+              developers {
+                developer {
+                  id = "amazonwebservices"
+                  organization = "Amazon Web Services"
+                  organizationUrl = "https://aws.amazon.com"
+                }
+              }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name = "internal-snapshots"
+            url = "s3://snapshots.opendistroforelasticsearch.amazon.com/maven"
+            authentication {
+                awsIm(AwsImAuthentication) // load from EC2 role or env var
+            }
+        }
+        maven {
+            name = "internal-releases"
+            url = "s3://artifacts.opendistroforelasticsearch.amazon.com/maven"
+            authentication {
+                awsIm(AwsImAuthentication) // load from EC2 role or env var
+            }
+        }
+        maven {
+            name = "sonatype-staging"
+            url "https://aws.oss.sonatype.org/service/local/staging/deploy/maven2"
+            credentials {
+                username project.hasProperty('ossrhUsername') ? project.property('ossrhUsername') : ''
+                password project.hasProperty('ossrhPassword') ? project.property('ossrhPassword') : ''
+            }
+        }
+    }
+
+    // TODO - enabled debug logging for the time being, remove this eventually
+    gradle.startParameter.setShowStacktrace(ShowStacktrace.ALWAYS)
+    gradle.startParameter.setLogLevel(LogLevel.DEBUG)
+}
+
+signing {
+    required { gradle.taskGraph.hasTask("publishShadowPublicationToSonatype-stagingRepository") }
+    sign publishing.publications.shadow
+}
+
+jacoco {
+    toolVersion = "0.8.3"
+}
+
+jacocoTestReport {
+    reports {
+        html.enabled true
+    }
+}
+test.finalizedBy(project.tasks.jacocoTestReport)
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.4
+            }
+        }
+    }
+}
+
+check.dependsOn jacocoTestCoverageVerification
