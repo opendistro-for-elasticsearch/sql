@@ -242,9 +242,7 @@ public class MatcherUtils {
         List<Number> actualValues = new ArrayList<>();
         item.iterator().forEachRemaining(v -> actualValues.add((Number) v));
         return actualValues.stream()
-            .map(v -> (valuesAreClose(v, expectedValues.get(actualValues.indexOf(v)))))
-            .reduce((a, b) -> a && b)
-            .get();
+            .allMatch(v -> valuesAreClose(v, expectedValues.get(actualValues.indexOf(v))));
       }
 
       @Override
