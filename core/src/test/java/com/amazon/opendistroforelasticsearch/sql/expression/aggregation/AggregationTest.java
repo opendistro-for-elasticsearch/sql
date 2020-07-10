@@ -84,6 +84,12 @@ public class AggregationTest extends ExpressionTestBase {
               ImmutableMap.of("integer_value", 1, "string_value", "f", "double_value", 4d)),
           ExprValueUtils.tupleValue(Collections.singletonMap("double_value", null)));
 
+  protected static List<ExprValue> tuples_with_all_null_or_missing =
+      Arrays.asList(
+          ExprValueUtils.tupleValue(Collections.singletonMap("integer_value", null)),
+          ExprValueUtils.tupleValue(Collections.singletonMap("double", null)),
+          ExprValueUtils.tupleValue(Collections.singletonMap("string_value", null)));
+
   protected ExprValue aggregation(Aggregator aggregator, List<ExprValue> tuples) {
     AggregationState state = aggregator.create();
     for (ExprValue tuple : tuples) {

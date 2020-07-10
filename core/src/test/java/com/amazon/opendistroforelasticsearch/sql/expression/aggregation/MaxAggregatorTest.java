@@ -80,13 +80,20 @@ public class MaxAggregatorTest extends AggregationTest {
   public void test_max_null() {
     ExprValue result =
         aggregation(dsl.max(typeEnv(), DSL.ref("double_value")), tuples_with_null_and_missing);
-    assertTrue(result.isNull());
+    assertEquals(4.0, result.value());
   }
 
   @Test
   public void test_max_missing() {
     ExprValue result =
         aggregation(dsl.max(typeEnv(), DSL.ref("integer_value")), tuples_with_null_and_missing);
+    assertEquals(2, result.value());
+  }
+
+  @Test
+  public void test_max_all_missing_or_null() {
+    ExprValue result =
+        aggregation(dsl.max(typeEnv(), DSL.ref("integer_value")), tuples_with_all_null_or_missing);
     assertTrue(result.isNull());
   }
 

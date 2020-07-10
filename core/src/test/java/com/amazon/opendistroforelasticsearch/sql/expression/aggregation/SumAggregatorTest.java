@@ -81,13 +81,20 @@ class SumAggregatorTest extends AggregationTest {
   public void sum_with_missing() {
     ExprValue result =
         aggregation(dsl.sum(typeEnv, DSL.ref("integer_value")), tuples_with_null_and_missing);
-    assertTrue(result.isNull());
+    assertEquals(3, result.value());
   }
 
   @Test
   public void sum_with_null() {
     ExprValue result =
         aggregation(dsl.sum(typeEnv, DSL.ref("double_value")), tuples_with_null_and_missing);
+    assertEquals(7.0, result.value());
+  }
+
+  @Test
+  public void sum_with_all_missing_or_null() {
+    ExprValue result =
+        aggregation(dsl.sum(typeEnv, DSL.ref("double_value")), tuples_with_all_null_or_missing);
     assertTrue(result.isNull());
   }
 

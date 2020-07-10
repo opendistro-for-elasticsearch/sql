@@ -54,9 +54,8 @@ public class MinAggregator extends Aggregator<MinAggregator.MinState> {
   public MinState iterate(BindingTuple tuple, MinState state) {
     Expression expression = getArguments().get(0);
     ExprValue value = expression.valueOf(tuple);
-    if (value.isNull() || value.isMissing()) {
-      state.isNullResult = true;
-    } else {
+    if (!(value.isNull() || value.isMissing())) {
+      state.isEmptyCollection = false;
       state.min(value);
     }
     return state;
@@ -67,15 +66,15 @@ public class MinAggregator extends Aggregator<MinAggregator.MinState> {
     return String.format("min(%s)", format(getArguments()));
   }
 
-  protected class MinState implements AggregationState {
+  protected static class MinState implements AggregationState {
     private final ExprType type;
     private ExprValue minResult;
-    private boolean isNullResult;
+    private boolean isEmptyCollection;
 
-    public MinState(ExprType type) {
+    MinState(ExprType type) {
       this.type = type;
       minResult = doubleValue(Double.MAX_VALUE);
-      isNullResult = false;
+      isEmptyCollection = true;
     }
 
     public void min(ExprValue value) {
@@ -100,7 +99,7 @@ public class MinAggregator extends Aggregator<MinAggregator.MinState> {
 
     @Override
     public ExprValue result() {
-      return isNullResult ? ExprNullValue.of() : minResult;
+      return isEmptyCollection ? ExprNullValue.of() : minResult;
     }
   }
 }

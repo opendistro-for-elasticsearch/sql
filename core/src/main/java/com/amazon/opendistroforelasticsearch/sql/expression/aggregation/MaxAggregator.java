@@ -49,9 +49,8 @@ public class MaxAggregator extends Aggregator<MaxAggregator.MaxState> {
   public MaxState iterate(BindingTuple tuple, MaxState state) {
     Expression expression = getArguments().get(0);
     ExprValue value = expression.valueOf(tuple);
-    if (value.isNull() || value.isMissing()) {
-      state.isNullResult = true;
-    } else {
+    if (!(value.isNull() || value.isMissing())) {
+      state.isEmptyCollection = false;
       state.max(value);
     }
     return state;
@@ -62,15 +61,15 @@ public class MaxAggregator extends Aggregator<MaxAggregator.MaxState> {
     return String.format("max(%s)", format(getArguments()));
   }
 
-  protected class MaxState implements AggregationState {
+  protected static class MaxState implements AggregationState {
     private final ExprType type;
     private ExprValue maxResult;
-    private boolean isNullResult;
+    private boolean isEmptyCollection;
 
-    public MaxState(ExprType type) {
+    MaxState(ExprType type) {
       this.type = type;
       maxResult = doubleValue(Double.MIN_VALUE);
-      isNullResult = false;
+      isEmptyCollection = true;
     }
 
     public void max(ExprValue value) {
@@ -95,7 +94,7 @@ public class MaxAggregator extends Aggregator<MaxAggregator.MaxState> {
 
     @Override
     public ExprValue result() {
-      return isNullResult ? ExprNullValue.of() : maxResult;
+      return isEmptyCollection ? ExprNullValue.of() : maxResult;
     }
   }
 }
