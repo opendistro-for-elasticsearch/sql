@@ -28,9 +28,10 @@ A literal is a symbol that represents a value. The most common literal values in
 2. String literals: specify a string enclosed by single or double quotes.
 3. Boolean literals: ``true`` or ``false``.
 4. Date and Time literals
-4.1. Date literals: DATE 'YYYY-MM-DD' represent the date.
-4.2. Date literals: TIME 'hh:mm:ss' represent the time.
-4.3. Date literals: TIMESTAMP 'YYYY-MM-DD hh:mm:ss' represent the date.
+
+  4.1. Date literals: DATE 'YYYY-MM-DD' represent the date.
+  4.2. Date literals: TIME 'hh:mm:ss' represent the time.
+  4.3. Date literals: TIMESTAMP 'YYYY-MM-DD hh:mm:ss' represent the date.
 
 Examples
 --------
@@ -53,7 +54,7 @@ The current implementation has the following limitations at the moment:
 1. Only literals of data types listed as above are supported for now. Other type of literals, such as NULL, will be added in future.
 2. Expression of literals, such as arithmetic expressions, will be supported later.
 3. Standard ANSI ``VALUES`` clause is not supported, although the ``SELECT`` literal example above is implemented by a Values operator internally.
-4. Date and Time literals only support ``date format`` listed above.
+4. Date and Time literals only support DATE_FORMAT listed above.
 
 Arithmetic Expressions
 ======================
@@ -116,7 +117,7 @@ Null Handling
 
 If any argument is missing or null, the final result of evaluation will be missing or null accordingly.
 
-Examples arithmetic function
+Arithmetic function examples
 ----------------------------
 
 Here is an example for different type of arithmetic expressions::
@@ -129,7 +130,7 @@ Here is an example for different type of arithmetic expressions::
     | 1.234         | 5                   |
     +---------------+---------------------+
 
-Examples date function
+Date function examples
 ----------------------
 
 Here is an example for different type of arithmetic expressions::
