@@ -35,16 +35,6 @@ plugins {
     id 'checkstyle'
     id "io.freefair.lombok" version "5.0.0-rc4"
     id 'jacoco'
-    id "org.sonarqube" version "2.8"
-}
-
-sonarqube {
-  properties {
-    property "sonar.projectKey", "odfe_sql"
-    property "sonar.organization", "opendistro-sql"
-    property "sonar.host.url", "https://sonarcloud.io"
-    property "sonar.login", System.getenv("SONARCLOUD_LOGIN")
-  }
 }
 
 // Repository on root level is for dependencies that project code depends on. And this block must be placed after plugins{}
