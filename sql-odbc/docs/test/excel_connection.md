@@ -12,3 +12,8 @@ There are multiple ways to load data from Elasticsearch in Microsoft Excel.
 * [ODBC as Data Source](odbc_data_source_connection.md)
 * [Microsoft Query](microsoft_query_connection.md)
 * [Query Wizard](query_wizard_connection.md)
+
+
+## Use Microsoft Excel with data loaded from Open distro for Elasticsearch
+
+* [Exporting CSV files](exporting_csv_files.md)
