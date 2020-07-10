@@ -114,12 +114,6 @@ void ESStopRetrieval(void* es_conn) {
      static_cast< ESCommunication* >(es_conn)->StopResultRetrieval();
 }
 
-std::vector< std::string > ESGetColumnsWithSelectQuery(
-    void* es_conn, const std::string table_name) {
-    return static_cast< ESCommunication* >(es_conn)->GetColumnsWithSelectQuery(
-        table_name);
-}
-
 // This class provides a cross platform way of entering critical sections
 class CriticalSectionHelper {
    public:

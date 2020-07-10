@@ -74,7 +74,6 @@ class ESCommunication {
         std::string& output);
     void SendCloseCursorRequest(const std::string& cursor);
     void StopResultRetrieval();
-    std::vector< std::string > GetColumnsWithSelectQuery(const std::string table_name);
 
    private:
     void InitializeConnection();

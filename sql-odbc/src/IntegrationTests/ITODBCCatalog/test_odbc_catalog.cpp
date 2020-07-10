@@ -71,7 +71,7 @@ typedef struct bind_info {
 
 // Column test constants and macro
 const std::vector< std::string > flights_column_name = {
-    "FlightNum",      "Origin",
+    "FlightNum",      "Origin",         "OriginLocation",  "DestLocation",
     "FlightDelay",    "DistanceMiles",  "FlightTimeMin",   "OriginWeather",
     "dayOfWeek",      "AvgTicketPrice", "Carrier",         "FlightDelayMin",
     "OriginRegion",   "DestAirportID",  "FlightDelayType", "timestamp",
@@ -79,7 +79,7 @@ const std::vector< std::string > flights_column_name = {
     "OriginCityName", "DestWeather",    "OriginCountry",   "DestCountry",
     "DestRegion",     "DestCityName",   "OriginAirportID"};
 const std::vector< std::string > flights_data_type = {
-    "keyword", "keyword", "boolean", "float",
+    "keyword", "keyword", "geo_point", "geo_point", "boolean", "float",
     "float",   "keyword", "integer",   "float",     "keyword", "integer",
     "keyword", "keyword", "keyword",   "date",      "keyword", "keyword",
     "boolean", "float",   "keyword",   "keyword",   "keyword", "keyword",
@@ -157,9 +157,6 @@ const std::vector< table_data > excel_table_data_all{
 };
 const std::vector< table_data > table_data_types{
     {"", "", "", "BASE TABLE", ""}};
-const std::vector< table_data > table_data_schemas{{"", "", "", "", ""}};
-const std::vector< table_data > table_data_catalogs{
-    {"odfe-cluster", "", "", "", ""}};
 
 class TestSQLTables : public testing::Test {
    public:
@@ -280,13 +277,21 @@ class TestSQLCatalogKeys : public testing::Test {
 // NULL test
 TEST_SQL_TABLES(Null, NULL, NULL, NULL, NULL, table_data_all, true, false);
 
-// Catalog tests
-TEST_SQL_TABLES(WildCatalogs, (SQLTCHAR*)L"%", (SQLTCHAR*)L"", (SQLTCHAR*)L"",
-                NULL, table_data_catalogs, false, false)
+// Catalog tests (error: catalogs not supported)
+TEST_F(TestSQLTables, WildCatalogs) {
+    SQLRETURN ret = SQLTables(m_hstmt, (SQLTCHAR*)L"%", SQL_NTS, (SQLTCHAR*)L"",
+                              SQL_NTS, (SQLTCHAR*)L"", SQL_NTS, NULL, SQL_NTS);
+    EXPECT_EQ(ret, SQL_ERROR);
+    LogAnyDiagnostics(SQL_HANDLE_STMT, m_hstmt, ret);
+}
 
-// Schema tests
-TEST_SQL_TABLES(WildSchema, (SQLTCHAR*)L"", (SQLTCHAR*)L"%", (SQLTCHAR*)L"",
-                NULL, table_data_schemas, false, false)
+// Schema tests (error: schemas not supported)
+TEST_F(TestSQLTables, WildSchema) {
+    SQLRETURN ret = SQLTables(m_hstmt, (SQLTCHAR*)L"", SQL_NTS, (SQLTCHAR*)L"%",
+                              SQL_NTS, (SQLTCHAR*)L"", SQL_NTS, NULL, SQL_NTS);
+    EXPECT_EQ(ret, SQL_ERROR);
+    LogAnyDiagnostics(SQL_HANDLE_STMT, m_hstmt, ret);
+}
 
 // Table tests
 TEST_SQL_TABLES(ValidTable, NULL, NULL, (SQLTCHAR*)L"kibana_sample_data%", NULL,
@@ -404,7 +409,7 @@ TEST_F(TestSQLColumns, FlightsValidation) {
         }
         column_idx++;
     }
-    EXPECT_EQ(column_idx, static_cast< size_t >(25));
+    EXPECT_EQ(column_idx, static_cast< size_t >(27));
 }
 
 // We expect an empty result set for PrimaryKeys and ForeignKeys
