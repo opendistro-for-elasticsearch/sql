@@ -43,7 +43,7 @@ sonarqube {
     property "sonar.projectKey", "odfe_sql"
     property "sonar.organization", "opendistro-sql"
     property "sonar.host.url", "https://sonarcloud.io"
-    property "sonar.login", System.getenv("SONARCLOUD_LOGIN")
+    property "sonar.login", System.getenv("SONAR_TOKEN")
   }
 }
 

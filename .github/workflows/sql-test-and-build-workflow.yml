@@ -18,6 +18,7 @@ jobs:
     - name: SonarCloud Analysis
       run: ./gradlew sonarqube
       env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     
     - name: Build with Gradle
