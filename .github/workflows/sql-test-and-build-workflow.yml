@@ -14,6 +14,11 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.14
+
+    - name: SonarCloud Analysis
+      run: ./gradlew sonarqube
+      env:
+        SONARCLOUD_LOGIN: ${{ secrets.SONARCLOUD_LOGIN }}
     
     - name: Build with Gradle
       run: ./gradlew build assemble
