@@ -16,11 +16,10 @@ jobs:
         java-version: 1.14
 
     - name: SonarCloud Analysis
-      uses: sonarsource/sonarcloud-github-action@master
+      run: ./gradlew sonarqube
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   
-
+        SONARCLOUD_LOGIN: ${{ secrets.SONARCLOUD_LOGIN }}
+    
     - name: Build with Gradle
       run: ./gradlew build assemble
 
