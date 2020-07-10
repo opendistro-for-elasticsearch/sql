@@ -115,8 +115,8 @@ public class MathematicalFunctionIT extends PPLIntegTestCase {
                 "source=%s | eval f = log(age) | fields f", TEST_INDEX_BANK));
     verifySchema(result, schema("f", null, "double"));
     verifyDataRows(result,
-        closeTo(Math.log(28)), closeTo(Math.log(32)), closeTo(Math.log(33)), closeTo(Math.log(34)),
-        closeTo(Math.log(36)), closeTo(Math.log(36)), closeTo(Math.log(39))
+        rows(Math.log(28)), rows(Math.log(32)), rows(Math.log(33)), rows(Math.log(34)),
+        rows(Math.log(36)), rows(Math.log(36)), rows(Math.log(39))
     );
   }
 
@@ -128,10 +128,10 @@ public class MathematicalFunctionIT extends PPLIntegTestCase {
                 "source=%s | eval f = log(age, balance) | fields f", TEST_INDEX_BANK));
     verifySchema(result, schema("f", null, "double"));
     verifyDataRows(
-        result, rows(Math.log(39225) / Math.log(32)), rows(Math.log(5686) / Math.log(36)),
-        rows(Math.log(32838) / Math.log(28)), rows(Math.log(4180) / Math.log(33)),
-        rows(Math.log(16418) / Math.log(36)), rows(Math.log(40540) / Math.log(39)),
-        rows(Math.log(48086) / Math.log(34)));
+        result, closeTo(Math.log(39225) / Math.log(32)), closeTo(Math.log(5686) / Math.log(36)),
+        closeTo(Math.log(32838) / Math.log(28)), closeTo(Math.log(4180) / Math.log(33)),
+        closeTo(Math.log(16418) / Math.log(36)), closeTo(Math.log(40540) / Math.log(39)),
+        closeTo(Math.log(48086) / Math.log(34)));
   }
 
   @Test
@@ -155,9 +155,9 @@ public class MathematicalFunctionIT extends PPLIntegTestCase {
     verifySchema(result, schema("f", null, "double"));
     verifyDataRows(
         result,
-        rows(Math.log(32) / Math.log(2)), rows(Math.log(36) / Math.log(2)),
-        rows(Math.log(28) / Math.log(2)), rows(Math.log(33) / Math.log(2)),
-        rows(Math.log(36) / Math.log(2)), rows(Math.log(39) / Math.log(2)),
-        rows(Math.log(34) / Math.log(2)));
+        closeTo(Math.log(32) / Math.log(2)), closeTo(Math.log(36) / Math.log(2)),
+        closeTo(Math.log(28) / Math.log(2)), closeTo(Math.log(33) / Math.log(2)),
+        closeTo(Math.log(36) / Math.log(2)), closeTo(Math.log(39) / Math.log(2)),
+        closeTo(Math.log(34) / Math.log(2)));
   }
 }
