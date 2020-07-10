@@ -18,7 +18,6 @@ package com.amazon.opendistroforelasticsearch.sql.util;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
-import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsInRelativeOrder;
@@ -41,7 +40,6 @@ import org.hamcrest.Description;
 import org.hamcrest.FeatureMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.hamcrest.number.IsCloseTo;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -144,10 +142,6 @@ public class MatcherUtils {
     verify(response.getJSONArray("datarows"), matchers);
   }
 
-  public static void verifyDataRows(JSONObject response, IsCloseTo... matchers) {
-    verify(response.getJSONArray("datarows"), matchers);
-  }
-
   @SafeVarargs
   public static void verifyColumn(JSONObject response, Matcher<JSONObject>... matchers) {
     verify(response.getJSONArray("schema"), matchers);
@@ -239,8 +233,29 @@ public class MatcherUtils {
     };
   }
 
-  public static IsCloseTo closeTo(Number value) {
-    return new IsCloseTo(value.doubleValue(), 1e-10);
+  public static TypeSafeMatcher<JSONArray> closeTo(Number... values) {
+    final double error = 1e-10;
+    return new TypeSafeMatcher<JSONArray>() {
+      @Override
+      protected boolean matchesSafely(JSONArray item) {
+        List<Number> expectedValues = new ArrayList<>(Arrays.asList(values));
+        List<Number> actualValues = new ArrayList<>();
+        item.iterator().forEachRemaining(v -> actualValues.add((Number) v));
+        return actualValues.stream()
+            .map(v -> (valuesAreClose(v, expectedValues.get(actualValues.indexOf(v)))))
+            .reduce((a, b) -> a && b)
+            .get();
+      }
+
+      @Override
+      public void describeTo(Description description) {
+        description.appendText(String.join(",", Arrays.asList().toString()));
+      }
+
+      private boolean valuesAreClose(Number v1, Number v2) {
+        return Math.abs(v1.doubleValue() - v2.doubleValue()) <= error;
+      }
+    };
   }
 
   public static TypeSafeMatcher<JSONObject> columnPattern(String regex) {
