@@ -29,8 +29,8 @@
 // the project's config changing)
 
 const appendToDownloadDir = (fileName) => {
-  const userName = require('os').userInfo().username;
-  return `/Users/${userName}/Downloads/${fileName}`;
+  const homedir = require('os').homedir();
+  return `${homedir}/Downloads/${fileName}`;
 }
 
 /**
