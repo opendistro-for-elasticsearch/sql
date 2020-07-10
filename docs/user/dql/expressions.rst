@@ -27,11 +27,7 @@ A literal is a symbol that represents a value. The most common literal values in
 1. Numeric literals: specify numeric values such as integer and floating-point numbers.
 2. String literals: specify a string enclosed by single or double quotes.
 3. Boolean literals: ``true`` or ``false``.
-4. Date and Time literals
-
-  4.1. Date literals: DATE 'YYYY-MM-DD' represent the date.
-  4.2. Date literals: TIME 'hh:mm:ss' represent the time.
-  4.3. Date literals: TIMESTAMP 'YYYY-MM-DD hh:mm:ss' represent the date.
+4. Date and Time literals: DATE 'YYYY-MM-DD' represent the date, TIME 'hh:mm:ss' represent the time, TIMESTAMP 'YYYY-MM-DD hh:mm:ss' represent the timestamp.
 
 Examples
 --------
