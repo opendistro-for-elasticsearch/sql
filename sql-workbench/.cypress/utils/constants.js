@@ -40,6 +40,12 @@ export const testQueries = [
     cell_idx: 5,
     expected_string: '999'
   },
+  {
+    title: 'Test JOIN',
+    query: 'select a.account_number, a.firstname, a.lastname, e.id, e.name from accounts a join employee_nested e order by a.account_number;',
+    cell_idx: 45,
+    expected_string: 'Amber'
+  },
 ];
 
 export const JSONFile =

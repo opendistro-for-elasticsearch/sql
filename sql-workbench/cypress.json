@@ -9,5 +9,5 @@
   "videosFolder": ".cypress/videos",
   "requestTimeout": 60000,
   "responseTimeout": 60000,
-  "defaultCommandTimeout": 20000
+  "defaultCommandTimeout": 60000
 }

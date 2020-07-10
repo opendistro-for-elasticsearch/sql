@@ -64,7 +64,7 @@ describe('Test UI buttons', () => {
 
 describe('Test and verify downloads', () => {
   before(() => {
-    // Please remove these files in your download directory before testing. 
+    // Please remove these files in your download directory before testing.
     cy.task('filterFilesExist', ['accounts.json', 'accounts.csv', 'accounts.txt']).then(filesExist => {
       expect(filesExist).to.have.lengthOf(0)
     })
@@ -134,6 +134,19 @@ describe('Test table display', () => {
       cy.get('span.euiTableCellContent__text').eq(cell_idx).should((cell) => {
         expect(cell).to.contain(expected_string)
       })
+    })
+  })
+  
+  it('Test nested fields display', () => {
+    cy.get('textarea.ace_text-input').eq(0).focus().type(`{selectall}{backspace}select * from employee_nested;`, { force: true })
+    cy.wait(delay)
+    cy.get('.euiButton__text').contains('Run').click()
+    cy.wait(delay)
+    
+    cy.get('span.euiTableCellContent__text').eq(21).click()
+    cy.wait(delay)
+    cy.get('span.euiTableCellContent__text').eq(27).should((cell) => {
+      expect(cell).to.contain('2018-06-23')
     })
   })
 })
