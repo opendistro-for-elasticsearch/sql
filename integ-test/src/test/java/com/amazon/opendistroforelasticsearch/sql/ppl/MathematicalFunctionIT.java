@@ -16,9 +16,11 @@
 package com.amazon.opendistroforelasticsearch.sql.ppl;
 
 import static com.amazon.opendistroforelasticsearch.sql.legacy.TestsConstants.TEST_INDEX_BANK;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.closeTo;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.schema;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRowsInOrder;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySchema;
 
 import java.io.IOException;
@@ -51,6 +53,18 @@ public class MathematicalFunctionIT extends PPLIntegTestCase {
         executeQuery(
             String.format(
                 "source=%s | eval f = ceil(age) | fields f", TEST_INDEX_BANK));
+    verifySchema(result, schema("f", null, "integer"));
+    verifyDataRows(
+        result,
+        rows(32), rows(36), rows(28), rows(33), rows(36), rows(39), rows(34));
+  }
+
+  @Test
+  public void testCeiling() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s | eval f = ceiling(age) | fields f", TEST_INDEX_BANK));
     verifySchema(result, schema("f", null, "integer"));
     verifyDataRows(
         result,
@@ -94,7 +108,20 @@ public class MathematicalFunctionIT extends PPLIntegTestCase {
   }
 
   @Test
-  public void testLog() throws IOException {
+  public void testLogOneArg() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s | eval f = log(age) | fields f", TEST_INDEX_BANK));
+    verifySchema(result, schema("f", null, "double"));
+    verifyDataRows(result,
+        closeTo(Math.log(28)), closeTo(Math.log(32)), closeTo(Math.log(33)), closeTo(Math.log(34)),
+        closeTo(Math.log(36)), closeTo(Math.log(36)), closeTo(Math.log(39))
+    );
+  }
+
+  @Test
+  public void testLogTwoArgs() throws IOException {
     JSONObject result =
         executeQuery(
             String.format(
@@ -105,5 +132,32 @@ public class MathematicalFunctionIT extends PPLIntegTestCase {
         rows(Math.log(32838) / Math.log(28)), rows(Math.log(4180) / Math.log(33)),
         rows(Math.log(16418) / Math.log(36)), rows(Math.log(40540) / Math.log(39)),
         rows(Math.log(48086) / Math.log(34)));
+  }
+
+  @Test
+  public void testLog10() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s | eval f = log10(age) | fields f", TEST_INDEX_BANK));
+    verifySchema(result, schema("f", null, "double"));
+    verifyDataRows(
+        result, rows(Math.log10(32)), rows(Math.log10(36)), rows(Math.log10(28)),
+        rows(Math.log10(33)), rows(Math.log10(36)), rows(Math.log10(39)), rows(Math.log10(34)));
+  }
+
+  @Test
+  public void testLog2() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s | eval f = log2(age) | fields f", TEST_INDEX_BANK));
+    verifySchema(result, schema("f", null, "double"));
+    verifyDataRows(
+        result,
+        rows(Math.log(32) / Math.log(2)), rows(Math.log(36) / Math.log(2)),
+        rows(Math.log(28) / Math.log(2)), rows(Math.log(33) / Math.log(2)),
+        rows(Math.log(36) / Math.log(2)), rows(Math.log(39) / Math.log(2)),
+        rows(Math.log(34) / Math.log(2)));
   }
 }

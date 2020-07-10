@@ -71,6 +71,11 @@ public class DSL {
         repository.compile(BuiltinFunctionName.CEIL.getName(), Arrays.asList(expressions));
   }
 
+  public FunctionExpression ceiling(Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.CEILING.getName(), Arrays.asList(expressions));
+  }
+
   public FunctionExpression exp(Expression... expressions) {
     return (FunctionExpression)
         repository.compile(BuiltinFunctionName.EXP.getName(), Arrays.asList(expressions));
@@ -89,6 +94,16 @@ public class DSL {
   public FunctionExpression log(Expression... expressions) {
     return (FunctionExpression)
         repository.compile(BuiltinFunctionName.LOG.getName(), Arrays.asList(expressions));
+  }
+
+  public FunctionExpression log10(Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.LOG10.getName(), Arrays.asList(expressions));
+  }
+
+  public FunctionExpression log2(Expression... expressions) {
+    return (FunctionExpression)
+        repository.compile(BuiltinFunctionName.LOG2.getName(), Arrays.asList(expressions));
   }
 
   public FunctionExpression add(Expression... expressions) {

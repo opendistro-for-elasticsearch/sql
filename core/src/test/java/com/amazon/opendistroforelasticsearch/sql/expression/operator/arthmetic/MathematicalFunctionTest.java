@@ -35,8 +35,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
-import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -131,67 +129,101 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
         dsl.abs(DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER)).valueOf(valueEnv()).isMissing());
   }
 
-
   /**
-   * Test ceil with integer value.
+   * Test ceil/ceiling with integer value.
    */
   @ParameterizedTest(name = "ceil({0})")
   @ValueSource(ints = {2, -2})
   public void ceil_int_value(Integer value) {
     FunctionExpression ceil = dsl.ceil(DSL.literal(value));
     assertThat(
-        ceil.valueOf(valueEnv()), allOf(hasType(INTEGER), hasValue((int) Math.ceil(value))));
+        ceil.valueOf(valueEnv()),
+        allOf(hasType(INTEGER), hasValue((int) Math.ceil(value))));
     assertEquals(String.format("ceil(%s)", value.toString()), ceil.toString());
+
+    FunctionExpression ceiling = dsl.ceiling(DSL.literal(value));
+    assertThat(
+        ceiling.valueOf(valueEnv()), allOf(hasType(INTEGER), hasValue((int) Math.ceil(value))));
+    assertEquals(String.format("ceiling(%s)", value.toString()), ceiling.toString());
   }
 
   /**
-   * Test ceil with long value.
+   * Test ceil/ceiling with long value.
    */
   @ParameterizedTest(name = "ceil({0})")
   @ValueSource(longs = {2L, -2L})
   public void ceil_long_value(Long value) {
     FunctionExpression ceil = dsl.ceil(DSL.literal(value));
     assertThat(
-        ceil.valueOf(valueEnv()), allOf(hasType(LONG), hasValue((long) Math.ceil(value))));
+        ceil.valueOf(valueEnv()), allOf(hasType(INTEGER), hasValue((int) Math.ceil(value))));
     assertEquals(String.format("ceil(%s)", value.toString()), ceil.toString());
+
+    FunctionExpression ceiling = dsl.ceiling(DSL.literal(value));
+    assertThat(
+        ceiling.valueOf(valueEnv()), allOf(hasType(INTEGER), hasValue((int) Math.ceil(value))));
+    assertEquals(String.format("ceiling(%s)", value.toString()), ceiling.toString());
   }
 
   /**
-   * Test ceil with float value.
+   * Test ceil/ceiling with float value.
    */
   @ParameterizedTest(name = "ceil({0})")
   @ValueSource(floats = {2F, -2F})
   public void ceil_float_value(Float value) {
     FunctionExpression ceil = dsl.ceil(DSL.literal(value));
     assertThat(
-        ceil.valueOf(valueEnv()), allOf(hasType(FLOAT), hasValue((float) Math.ceil(value))));
+        ceil.valueOf(valueEnv()), allOf(hasType(INTEGER), hasValue((int) Math.ceil(value))));
     assertEquals(String.format("ceil(%s)", value.toString()), ceil.toString());
+
+    FunctionExpression ceiling = dsl.ceiling(DSL.literal(value));
+    assertThat(
+        ceiling.valueOf(valueEnv()), allOf(hasType(INTEGER), hasValue((int) Math.ceil(value))));
+    assertEquals(String.format("ceiling(%s)", value.toString()), ceiling.toString());
   }
 
   /**
-   * Test ceil with double value.
+   * Test ceil/ceiling with double value.
    */
   @ParameterizedTest(name = "ceil({0})")
   @ValueSource(doubles = {-2L, 2L})
   public void ceil_double_value(Double value) {
     FunctionExpression ceil = dsl.ceil(DSL.literal(value));
     assertThat(
-        ceil.valueOf(valueEnv()), allOf(hasType(DOUBLE), hasValue(Math.ceil(value))));
+        ceil.valueOf(valueEnv()), allOf(hasType(INTEGER), hasValue((int) Math.ceil(value))));
     assertEquals(String.format("ceil(%s)", value.toString()), ceil.toString());
+
+    FunctionExpression ceiling = dsl.ceiling(DSL.literal(value));
+    assertThat(
+        ceiling.valueOf(valueEnv()), allOf(hasType(INTEGER), hasValue((int) Math.ceil(value))));
+    assertEquals(String.format("ceiling(%s)", value.toString()), ceiling.toString());
   }
 
+  /**
+   * Test ceil/ceiling with null value.
+   */
   @Test
   public void ceil_null_value() {
     FunctionExpression ceil = dsl.ceil(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, ceil.type());
+    assertEquals(INTEGER, ceil.type());
     assertTrue(ceil.valueOf(valueEnv()).isNull());
+
+    FunctionExpression ceiling = dsl.ceiling(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
+    assertEquals(INTEGER, ceiling.type());
+    assertTrue(ceiling.valueOf(valueEnv()).isNull());
   }
 
+  /**
+   * Test ceil/ceiling with missing value.
+   */
   @Test
   public void ceil_missing_value() {
     FunctionExpression ceil = dsl.ceil(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, ceil.type());
+    assertEquals(INTEGER, ceil.type());
     assertTrue(ceil.valueOf(valueEnv()).isMissing());
+
+    FunctionExpression ceiling = dsl.ceiling(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
+    assertEquals(INTEGER, ceiling.type());
+    assertTrue(ceiling.valueOf(valueEnv()).isMissing());
   }
 
   /**
@@ -246,6 +278,9 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertEquals(String.format("exp(%s)", value.toString()), exp.toString());
   }
 
+  /**
+   * Test exp with null value.
+   */
   @Test
   public void exp_null_value() {
     FunctionExpression exp =  dsl.exp(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
@@ -253,6 +288,9 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertTrue(exp.valueOf(valueEnv()).isNull());
   }
 
+  /**
+   * Test exp with missing value.
+   */
   @Test
   public void exp_missing_value() {
     FunctionExpression exp = dsl.exp(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
@@ -269,7 +307,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     FunctionExpression floor = dsl.floor(DSL.literal(value));
     assertThat(
         floor.valueOf(valueEnv()),
-        allOf(hasType(INTEGER), hasValue(((int) Math.floor(value)))));
+        allOf(hasType(INTEGER), hasValue((int) Math.floor(value))));
     assertEquals(String.format("floor(%s)", value.toString()), floor.toString());
   }
 
@@ -282,7 +320,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     FunctionExpression floor = dsl.floor(DSL.literal(value));
     assertThat(
         floor.valueOf(valueEnv()),
-        allOf(hasType(LONG), hasValue(((long) Math.floor(value)))));
+        allOf(hasType(INTEGER), hasValue((int) Math.floor(value))));
     assertEquals(String.format("floor(%s)", value.toString()), floor.toString());
   }
 
@@ -295,7 +333,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     FunctionExpression floor = dsl.floor(DSL.literal(value));
     assertThat(
         floor.valueOf(valueEnv()),
-        allOf(hasType(FLOAT), hasValue(((float) Math.floor(value)))));
+        allOf(hasType(INTEGER), hasValue((int) Math.floor(value))));
     assertEquals(String.format("floor(%s)", value.toString()), floor.toString());
   }
 
@@ -308,21 +346,27 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     FunctionExpression floor = dsl.floor(DSL.literal(value));
     assertThat(
         floor.valueOf(valueEnv()),
-        allOf(hasType(DOUBLE), hasValue((Math.floor(value)))));
+        allOf(hasType(INTEGER), hasValue((int) Math.floor(value))));
     assertEquals(String.format("floor(%s)", value.toString()), floor.toString());
   }
 
+  /**
+   * Test floor with null value.
+   */
   @Test
   public void floor_null_value() {
     FunctionExpression floor = dsl.floor(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, floor.type());
+    assertEquals(INTEGER, floor.type());
     assertTrue(floor.valueOf(valueEnv()).isNull());
   }
 
+  /**
+   * Test floor with missing value.
+   */
   @Test
   public void floor_missing_value() {
     FunctionExpression floor = dsl.floor(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
-    assertEquals(DOUBLE, floor.type());
+    assertEquals(INTEGER, floor.type());
     assertTrue(floor.valueOf(valueEnv()).isMissing());
   }
 
@@ -378,6 +422,9 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertEquals(String.format("ln(%s)", value.toString()), ln.toString());
   }
 
+  /**
+   * Test ln with null value.
+   */
   @Test
   public void ln_null_value() {
     FunctionExpression ln = dsl.ln(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
@@ -385,6 +432,9 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertTrue(ln.valueOf(valueEnv()).isNull());
   }
 
+  /**
+   * Test ln with missing value.
+   */
   @Test
   public void ln_missing_value() {
     FunctionExpression ln = dsl.ln(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
@@ -393,11 +443,93 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
-   * Test log with int value.
+   * Test log with 1 int argument.
+   */
+  @ParameterizedTest(name = "log({0})")
+  @ValueSource(ints = {2, 3})
+  public void log_int_value(Integer v) {
+    FunctionExpression log = dsl.log(DSL.literal(v));
+    assertEquals(log.type(), DOUBLE);
+    assertThat(
+        getDoubleValue(log.valueOf(valueEnv())),
+        closeTo(Math.log(v), 0.0001)
+    );
+    assertEquals(String.format("log(%s)", v.toString()), log.toString());
+  }
+
+  /**
+   * Test log with 1 long argument.
+   */
+  @ParameterizedTest(name = "log({0})")
+  @ValueSource(longs = {2L, 3L})
+  public void log_int_value(Long v) {
+    FunctionExpression log = dsl.log(DSL.literal(v));
+    assertEquals(log.type(), DOUBLE);
+    assertThat(
+        getDoubleValue(log.valueOf(valueEnv())),
+        closeTo(Math.log(v), 0.0001)
+    );
+    assertEquals(String.format("log(%s)", v.toString()), log.toString());
+  }
+
+  /**
+   * Test log with 1 float argument.
+   */
+  @ParameterizedTest(name = "log({0})")
+  @ValueSource(floats = {2F, 3F})
+  public void log_float_value(Float v) {
+    FunctionExpression log = dsl.log(DSL.literal(v));
+    assertEquals(log.type(), DOUBLE);
+    assertThat(
+        getDoubleValue(log.valueOf(valueEnv())),
+        closeTo(Math.log(v), 0.0001)
+    );
+    assertEquals(String.format("log(%s)", v.toString()), log.toString());
+  }
+
+  /**
+   * Test log with 1 double argument.
+   */
+  @ParameterizedTest(name = "log({0})")
+  @ValueSource(doubles = {2D, 3D})
+  public void log_double_value(Double v) {
+    FunctionExpression log = dsl.log(DSL.literal(v));
+    assertEquals(log.type(), DOUBLE);
+    assertThat(
+        getDoubleValue(log.valueOf(valueEnv())),
+        closeTo(Math.log(v), 0.0001)
+    );
+    assertEquals(String.format("log(%s)", v.toString()), log.toString());
+  }
+
+  /**
+   * Test log with 1 null value argument.
+   */
+  @Test
+  public void log_null_value() {
+    FunctionExpression log = dsl.log(
+        DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, log.type());
+    assertTrue(log.valueOf(valueEnv()).isNull());
+  }
+
+  /**
+   * Test log with 1 missing value argument.
+   */
+  @Test
+  public void log_missing_value() {
+    FunctionExpression log = dsl.log(
+        DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, log.type());
+    assertTrue(log.valueOf(valueEnv()).isMissing());
+  }
+
+  /**
+   * Test log with 2 int arguments.
    */
   @ParameterizedTest(name = "log({0}, {1})")
   @MethodSource("testLogIntegerArguments")
-  public void log_int_value(Integer v1, Integer v2) {
+  public void log_two_int_value(Integer v1, Integer v2) {
     FunctionExpression log = dsl.log(DSL.literal(v1), DSL.literal(v2));
     assertEquals(log.type(), DOUBLE);
     assertThat(
@@ -407,11 +539,11 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
-   * Test log with long value.
+   * Test log with 2 long arguments.
    */
   @ParameterizedTest(name = "log({0}, {1})")
   @MethodSource("testLogLongArguments")
-  public void log_long_value(Long v1, Long v2) {
+  public void log_two_long_value(Long v1, Long v2) {
     FunctionExpression log = dsl.log(DSL.literal(v1), DSL.literal(v2));
     assertEquals(log.type(), DOUBLE);
     assertThat(
@@ -421,11 +553,11 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
-   * Test log with float value.
+   * Test log with 2 float arguments.
    */
   @ParameterizedTest(name = "log({0}, {1})")
   @MethodSource("testLogFloatArguments")
-  public void log_double_value(Float v1, Float v2) {
+  public void log_two_double_value(Float v1, Float v2) {
     FunctionExpression log = dsl.log(DSL.literal(v1), DSL.literal(v2));
     assertEquals(log.type(), DOUBLE);
     assertThat(
@@ -435,11 +567,11 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
-   * Test log with double value.
+   * Test log with 2 double arguments.
    */
   @ParameterizedTest(name = "log({0}, {1})")
   @MethodSource("testLogDoubleArguments")
-  public void log_double_value(Double v1, Double v2) {
+  public void log_two_double_value(Double v1, Double v2) {
     FunctionExpression log = dsl.log(DSL.literal(v1), DSL.literal(v2));
     assertEquals(log.type(), DOUBLE);
     assertThat(
@@ -448,8 +580,11 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertEquals(String.format("log(%s, %s)", v1.toString(), v2.toString()), log.toString());
   }
 
+  /**
+   * Test log with 2 null value arguments.
+   */
   @Test
-  public void log_null_value() {
+  public void log_two_null_value() {
     FunctionExpression log = dsl.log(
         DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE), DSL.literal(2D));
     assertEquals(DOUBLE, log.type());
@@ -466,8 +601,11 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertTrue(log.valueOf(valueEnv()).isNull());
   }
 
+  /**
+   * Test log with 2 missing value arguments.
+   */
   @Test
-  public void log_missing_value() {
+  public void log_two_missing_value() {
     FunctionExpression log = dsl.log(
         DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE), DSL.literal(2D));
     assertEquals(DOUBLE, log.type());
@@ -484,6 +622,9 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertTrue(log.valueOf(valueEnv()).isMissing());
   }
 
+  /**
+   * Test log with null and missing value arguments.
+   */
   @Test
   public void log_null_missing() {
     FunctionExpression log = dsl.log(
@@ -495,6 +636,170 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     log = dsl.log(
         DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE),
         DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, log.type());
+    assertTrue(log.valueOf(valueEnv()).isMissing());
+  }
+
+  /**
+   * Test log10 with int value.
+   */
+  @ParameterizedTest(name = "log10({0})")
+  @ValueSource(ints = {2, 3})
+  public void log10_int_value(Integer v) {
+    FunctionExpression log = dsl.log10(DSL.literal(v));
+    assertEquals(log.type(), DOUBLE);
+    assertThat(
+        getDoubleValue(log.valueOf(valueEnv())),
+        closeTo(Math.log10(v), 0.0001)
+    );
+    assertEquals(String.format("log10(%s)", v.toString()), log.toString());
+  }
+
+  /**
+   * Test log10 with long value.
+   */
+  @ParameterizedTest(name = "log10({0})")
+  @ValueSource(longs = {2L, 3L})
+  public void log10_long_value(Long v) {
+    FunctionExpression log = dsl.log10(DSL.literal(v));
+    assertEquals(log.type(), DOUBLE);
+    assertThat(
+        getDoubleValue(log.valueOf(valueEnv())),
+        closeTo(Math.log10(v), 0.0001)
+    );
+    assertEquals(String.format("log10(%s)", v.toString()), log.toString());
+  }
+
+  /**
+   * Test log10 with float value.
+   */
+  @ParameterizedTest(name = "log10({0})")
+  @ValueSource(floats = {2F, 3F})
+  public void log10_float_value(Float v) {
+    FunctionExpression log = dsl.log10(DSL.literal(v));
+    assertEquals(log.type(), DOUBLE);
+    assertThat(
+        getDoubleValue(log.valueOf(valueEnv())),
+        closeTo(Math.log10(v), 0.0001)
+    );
+    assertEquals(String.format("log10(%s)", v.toString()), log.toString());
+  }
+
+  /**
+   * Test log10 with int value.
+   */
+  @ParameterizedTest(name = "log10({0})")
+  @ValueSource(doubles = {2D, 3D})
+  public void log10_double_value(Double v) {
+    FunctionExpression log = dsl.log10(DSL.literal(v));
+    assertEquals(log.type(), DOUBLE);
+    assertThat(
+        getDoubleValue(log.valueOf(valueEnv())),
+        closeTo(Math.log10(v), 0.0001)
+    );
+    assertEquals(String.format("log10(%s)", v.toString()), log.toString());
+  }
+
+  /**
+   * Test log10 with null value.
+   */
+  @Test
+  public void log10_null_value() {
+    FunctionExpression log = dsl.log10(
+        DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, log.type());
+    assertTrue(log.valueOf(valueEnv()).isNull());
+  }
+
+  /**
+   * Test log10 with missing value.
+   */
+  @Test
+  public void log10_missing_value() {
+    FunctionExpression log = dsl.log10(
+        DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, log.type());
+    assertTrue(log.valueOf(valueEnv()).isMissing());
+  }
+
+  /**
+   * Test log2 with int value.
+   */
+  @ParameterizedTest(name = "log10({0})")
+  @ValueSource(ints = {2, 3})
+  public void log2_int_value(Integer v) {
+    FunctionExpression log = dsl.log2(DSL.literal(v));
+    assertEquals(log.type(), DOUBLE);
+    assertThat(
+        getDoubleValue(log.valueOf(valueEnv())),
+        closeTo(Math.log(v) / Math.log(2), 0.0001)
+    );
+    assertEquals(String.format("log2(%s)", v.toString()), log.toString());
+  }
+
+  /**
+   * Test log2 with long value.
+   */
+  @ParameterizedTest(name = "log10({0})")
+  @ValueSource(longs = {2L, 3L})
+  public void log2_long_value(Long v) {
+    FunctionExpression log = dsl.log2(DSL.literal(v));
+    assertEquals(log.type(), DOUBLE);
+    assertThat(
+        getDoubleValue(log.valueOf(valueEnv())),
+        closeTo(Math.log(v) / Math.log(2), 0.0001)
+    );
+    assertEquals(String.format("log2(%s)", v.toString()), log.toString());
+  }
+
+  /**
+   * Test log2 with float value.
+   */
+  @ParameterizedTest(name = "log10({0})")
+  @ValueSource(floats = {2F, 3F})
+  public void log2_float_value(Float v) {
+    FunctionExpression log = dsl.log2(DSL.literal(v));
+    assertEquals(log.type(), DOUBLE);
+    assertThat(
+        getDoubleValue(log.valueOf(valueEnv())),
+        closeTo(Math.log(v) / Math.log(2), 0.0001)
+    );
+    assertEquals(String.format("log2(%s)", v.toString()), log.toString());
+  }
+
+  /**
+   * Test log2 with double value.
+   */
+  @ParameterizedTest(name = "log10({0})")
+  @ValueSource(doubles = {2D, 3D})
+  public void log2_double_value(Double v) {
+    FunctionExpression log = dsl.log2(DSL.literal(v));
+    assertEquals(log.type(), DOUBLE);
+    assertThat(
+        getDoubleValue(log.valueOf(valueEnv())),
+        closeTo(Math.log(v) / Math.log(2), 0.0001)
+    );
+    assertEquals(String.format("log2(%s)", v.toString()), log.toString());
+  }
+
+  /**
+   * Test log2 with null value.
+   */
+  @Test
+  public void log2_null_value() {
+    FunctionExpression log = dsl.log2(
+        DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, log.type());
+    assertTrue(log.valueOf(valueEnv()).isNull());
+  }
+
+  /**
+   * Test log2 with missing value.
+   */
+  @Test
+  public void log2_missing_value() {
+    FunctionExpression log = dsl.log2(
+        DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
     assertEquals(DOUBLE, log.type());
     assertTrue(log.valueOf(valueEnv()).isMissing());
   }
