@@ -745,8 +745,7 @@ ESAPI_Tables(HSTMT hstmt, const SQLCHAR *catalog_name_sql,
 
         // TODO #324 (SQL Plugin)- evaluate catalog & schema support
         GetCatalogData(query, stmt, tbl_stmt, result_type, table_type,
-                       AssignColumnBindTemplates, SetupColumnQResInfo,
-                       &list_of_columns);
+                       AssignTableBindTemplates, SetupTableQResInfo);
         return SQL_SUCCESS;
     } catch (std::bad_alloc &e) {
         std::string error_msg = std::string("Bad allocation exception: '")
@@ -803,10 +802,22 @@ ESAPI_Columns(HSTMT hstmt, const SQLCHAR *catalog_name_sql,
 
         // TODO #324 (SQL Plugin)- evaluate catalog & schema support
 
+        // Get list of columns with SELECT * query since columns doesn't match
+        // with DESCRIBE & SELECT * query
+        std::vector< std::string > list_of_columns;
+        if (table_valid) {
+            ConnectionClass *conn = SC_get_conn(stmt);
+            list_of_columns =
+                ESGetColumnsWithSelectQuery(conn->esconn, table_name);
+        }
+
+        // TODO #324 (SQL Plugin)- evaluate catalog & schema support
+
         // Execute query
         std::string table_type = "";
         GetCatalogData(query, stmt, col_stmt, TableResultSet::All, table_type,
-                       AssignColumnBindTemplates, SetupColumnQResInfo);
+                       AssignColumnBindTemplates, SetupColumnQResInfo,
+                       &list_of_columns);
         return SQL_SUCCESS;
     } catch (std::bad_alloc &e) {
         std::string error_msg = std::string("Bad allocation exception: '")
