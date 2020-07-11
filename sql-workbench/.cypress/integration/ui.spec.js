@@ -20,133 +20,133 @@ import { delay, testQueries, JSONFile, JDBCFile, CSVFile, TextFile } from "../ut
 
 describe('Test UI buttons', () => {
   beforeEach(() => {
-    cy.visit('app/opendistro-sql-workbench')
-  })
+    cy.visit('app/opendistro-sql-workbench');
+  });
 
-  it('Test Run button', () => {
-    cy.get('textarea.ace_text-input').eq(0).focus().type('{enter}select * from accounts where balance > 49500;', { force: true })
-    cy.wait(delay)
-    cy.get('.euiButton__text').contains('Run').click()
-    cy.wait(delay)
-    cy.get('.euiTab__content').contains('accounts').click()
+  it('Test Run button and field search', () => {
+    cy.get('textarea.ace_text-input').eq(0).focus().type('{enter}select * from accounts where balance > 49500;', { force: true });
+    cy.wait(delay);
+    cy.get('.euiButton__text').contains('Run').click();
+    cy.wait(delay);
+    cy.get('.euiTab__content').contains('accounts').click();
 
-    cy.get('input.euiFieldSearch').type('marissa')
+    cy.get('input.euiFieldSearch').type('marissa');
     cy.get('span.euiTableCellContent__text').eq(15).should((account_number) => {
-      expect(account_number).to.contain('803')
-    })
-  })
+      expect(account_number).to.contain('803');
+    });
+  });
 
   it('Test Translate button', () => {
-    cy.get('textarea.ace_text-input').eq(0).focus().type('{selectall}{backspace}', { force: true })
-    cy.wait(delay)
-    cy.get('textarea.ace_text-input').eq(0).focus().type('{selectall}{backspace}select log(balance) from accounts where abs(age) > 20;', { force: true })
-    cy.wait(delay)
-    cy.get('.euiButton__text').contains('Translate').click()
-    cy.wait(delay)
+    cy.get('textarea.ace_text-input').eq(0).focus().type('{selectall}{backspace}', { force: true });
+    cy.wait(delay);
+    cy.get('textarea.ace_text-input').eq(0).focus().type('{selectall}{backspace}select log(balance) from accounts where abs(age) > 20;', { force: true });
+    cy.wait(delay);
+    cy.get('.euiButton__text').contains('Translate').click();
+    cy.wait(delay);
 
     // Note: Translation retrived this way will get cut off, so doing a substring check
     cy.get('.ace_content').eq(1).then((translate_editor) => {
-      const editor = edit(translate_editor[0])
-      expect(editor.getValue()).to.have.string("Math.abs(doc['age'].value);abs_1 > 20")
-    })
-  })
+      const editor = edit(translate_editor[0]);
+      expect(editor.getValue()).to.have.string("Math.abs(doc['age'].value);abs_1 > 20");
+    });
+  });
 
   it('Test Clear button', () => {
-    cy.get('.euiButton__text').contains('Clear').click()
-    cy.wait(delay)
+    cy.get('.euiButton__text').contains('Clear').click();
+    cy.wait(delay);
 
     cy.get('.ace_content').eq(0).then((sql_query_editor) => {
-      const editor = edit(sql_query_editor[0])
-      expect(editor.getValue()).to.equal('')
-    })
-  })
-})
+      const editor = edit(sql_query_editor[0]);
+      expect(editor.getValue()).to.equal('');
+    });
+  });
+});
 
 describe('Test and verify downloads', () => {
   before(() => {
     // Please remove these files in your download directory before testing.
     cy.task('filterFilesExist', ['accounts.json', 'accounts.csv', 'accounts.txt']).then(filesExist => {
-      expect(filesExist).to.have.lengthOf(0)
-    })
-  })
+      expect(filesExist).to.have.lengthOf(0);
+    });
+  });
 
   beforeEach(() => {
-    cy.visit('app/opendistro-sql-workbench')
-    cy.get('textarea.ace_text-input').eq(0).focus().type('{enter}select * from accounts where balance > 49500;', { force: true })
-    cy.wait(delay)
-    cy.get('.euiButton__text').contains('Run').click()
-    cy.wait(delay)
-    cy.get('.euiTab__content').contains('accounts').click()
-    cy.get('.euiButton__text').contains('Download').click()
-  })
+    cy.visit('app/opendistro-sql-workbench');
+    cy.get('textarea.ace_text-input').eq(0).focus().type('{enter}select * from accounts where balance > 49500;', { force: true });
+    cy.wait(delay);
+    cy.get('.euiButton__text').contains('Run').click();
+    cy.wait(delay);
+    cy.get('.euiTab__content').contains('accounts').click();
+    cy.get('.euiButton__text').contains('Download').click();
+  });
 
   afterEach(() => {
-    cy.task('removeDownloadedFiles', ['accounts.json', 'accounts.csv', 'accounts.txt'])
-  })
+    cy.task('removeDownloadedFiles', ['accounts.json', 'accounts.csv', 'accounts.txt']);
+  });
 
   it('Download and verify JSON', () => {
     cy.get('span.euiContextMenuItem__text').contains('Download JSON').click()
       .task('constructPath', `accounts.json`).then(filepath => cy.readFile(filepath)
         .then(downloadedFile => {
-          expect(JSON.stringify(downloadedFile)).to.have.string(JSONFile)
-        }))
-  })
+          expect(JSON.stringify(downloadedFile)).to.have.string(JSONFile);
+        }));
+  });
 
   it('Download and verify JDBC', () => {
     cy.get('span.euiContextMenuItem__text').contains('Download JDBC').click()
       .task('constructPath', `accounts.json`).then(filepath => cy.readFile(filepath)
         .then(downloadedFile => {
-          expect(JSON.stringify(downloadedFile)).to.equal(JDBCFile)
-        }))
-  })
+          expect(JSON.stringify(downloadedFile)).to.equal(JDBCFile);
+        }));
+  });
 
   it('Download and verify CSV', () => {
     cy.get('span.euiContextMenuItem__text').contains('Download CSV').click()
       .task('constructPath', `accounts.csv`).then(filepath => cy.readFile(filepath)
         .then(downloadedFile => {
-          expect(downloadedFile).to.equal(CSVFile)
-        }))
-  })
+          expect(downloadedFile).to.equal(CSVFile);
+        }));
+  });
 
   it('Download and verify Text', () => {
     cy.get('span.euiContextMenuItem__text').contains('Download Text').click()
       .task('constructPath', `accounts.txt`).then(filepath => cy.readFile(filepath)
         .then(downloadedFile => {
-          expect(downloadedFile).to.equal(TextFile)
-        }))
-  })
-})
+          expect(downloadedFile).to.equal(TextFile);
+        }));
+  });
+});
 
 describe('Test table display', () => {
   beforeEach(() => {
-    cy.visit('app/opendistro-sql-workbench')
-    cy.get('textarea.ace_text-input').eq(0).focus().type('{selectall}{backspace}', { force: true })
-    cy.wait(delay)
-  })
+    cy.visit('app/opendistro-sql-workbench');
+    cy.get('textarea.ace_text-input').eq(0).focus().type('{selectall}{backspace}', { force: true });
+    cy.wait(delay);
+  });
 
   testQueries.map(({ title, query, cell_idx, expected_string }) => {
     it(title, () => {
-      cy.get('textarea.ace_text-input').eq(0).focus().type(`{selectall}{backspace}${query}`, { force: true })
-      cy.wait(delay)
-      cy.get('.euiButton__text').contains('Run').click()
-      cy.wait(delay)
+      cy.get('textarea.ace_text-input').eq(0).focus().type(`{selectall}{backspace}${query}`, { force: true });
+      cy.wait(delay);
+      cy.get('.euiButton__text').contains('Run').click();
+      cy.wait(delay);
 
       cy.get('span.euiTableCellContent__text').eq(cell_idx).should((cell) => {
-        expect(cell).to.contain(expected_string)
-      })
-    })
-  })
-  
+        expect(cell).to.contain(expected_string);
+      });
+    });
+  });
+
   it('Test nested fields display', () => {
-    cy.get('textarea.ace_text-input').eq(0).focus().type(`{selectall}{backspace}select * from employee_nested;`, { force: true })
-    cy.wait(delay)
-    cy.get('.euiButton__text').contains('Run').click()
-    cy.wait(delay)
-    
-    cy.get('span.euiTableCellContent__text').eq(21).click()
-    cy.wait(delay)
+    cy.get('textarea.ace_text-input').eq(0).focus().type(`{selectall}{backspace}select * from employee_nested;`, { force: true });
+    cy.wait(delay);
+    cy.get('.euiButton__text').contains('Run').click();
+    cy.wait(delay);
+
+    cy.get('span.euiTableCellContent__text').eq(21).click();
+    cy.wait(delay);
     cy.get('span.euiTableCellContent__text').eq(27).should((cell) => {
-      expect(cell).to.contain('2018-06-23')
-    })
-  })
-})
+      expect(cell).to.contain('2018-06-23');
+    });
+  });
+});

@@ -31,7 +31,7 @@
 const appendToDownloadDir = (fileName) => {
   const homedir = require('os').homedir();
   return `${homedir}/Downloads/${fileName}`;
-}
+};
 
 /**
  * @type {Cypress.PluginConfig}
@@ -57,6 +57,6 @@ module.exports = (on, config) => {
       files = files.map(fileName => appendToDownloadDir(fileName))
         .filter(path => fs.existsSync(path))
       return files;
-    }
+    },
   });
-}
+};
