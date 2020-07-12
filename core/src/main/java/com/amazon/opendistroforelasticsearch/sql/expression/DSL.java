@@ -19,9 +19,9 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
-import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 
@@ -62,102 +62,124 @@ public class DSL {
   }
 
   public FunctionExpression abs(Expression... expressions) {
-    return (FunctionExpression)
-        repository.compile(BuiltinFunctionName.ABS.getName(), Arrays.asList(expressions));
+    return function(BuiltinFunctionName.ABS, expressions);
+  }
+
+  public FunctionExpression ceil(Expression... expressions) {
+    return function(BuiltinFunctionName.CEIL, expressions);
+  }
+
+  public FunctionExpression ceiling(Expression... expressions) {
+    return function(BuiltinFunctionName.CEILING, expressions);
+  }
+
+  public FunctionExpression exp(Expression... expressions) {
+    return function(BuiltinFunctionName.EXP, expressions);
+  }
+
+  public FunctionExpression floor(Expression... expressions) {
+    return function(BuiltinFunctionName.FLOOR, expressions);
+  }
+
+  public FunctionExpression ln(Expression... expressions) {
+    return function(BuiltinFunctionName.LN, expressions);
+  }
+
+  public FunctionExpression log(Expression... expressions) {
+    return function(BuiltinFunctionName.LOG, expressions);
+  }
+
+  public FunctionExpression log10(Expression... expressions) {
+    return function(BuiltinFunctionName.LOG10, expressions);
+  }
+
+  public FunctionExpression log2(Expression... expressions) {
+    return function(BuiltinFunctionName.LOG2, expressions);
   }
 
   public FunctionExpression add(Expression... expressions) {
-    return (FunctionExpression)
-        repository.compile(BuiltinFunctionName.ADD.getName(), Arrays.asList(expressions));
+    return function(BuiltinFunctionName.ADD, expressions);
   }
 
   public FunctionExpression subtract(Expression... expressions) {
-    return (FunctionExpression)
-        repository.compile(BuiltinFunctionName.SUBTRACT.getName(), Arrays.asList(expressions));
+    return function(BuiltinFunctionName.SUBTRACT, expressions);
   }
 
   public FunctionExpression multiply(Expression... expressions) {
-    return (FunctionExpression)
-        repository.compile(BuiltinFunctionName.MULTIPLY.getName(), Arrays.asList(expressions));
+    return function(BuiltinFunctionName.MULTIPLY, expressions);
   }
 
   public FunctionExpression divide(Expression... expressions) {
-    return (FunctionExpression)
-        repository.compile(BuiltinFunctionName.DIVIDE.getName(), Arrays.asList(expressions));
+    return function(BuiltinFunctionName.DIVIDE, expressions);
   }
 
   public FunctionExpression module(Expression... expressions) {
-    return (FunctionExpression)
-        repository.compile(BuiltinFunctionName.MODULES.getName(), Arrays.asList(expressions));
+    return function(BuiltinFunctionName.MODULES, expressions);
   }
 
   public FunctionExpression and(Expression... expressions) {
-    return (FunctionExpression)
-        repository.compile(BuiltinFunctionName.AND.getName(), Arrays.asList(expressions));
+    return function(BuiltinFunctionName.AND, expressions);
   }
 
   public FunctionExpression or(Expression... expressions) {
-    return (FunctionExpression)
-        repository.compile(BuiltinFunctionName.OR.getName(), Arrays.asList(expressions));
+    return function(BuiltinFunctionName.OR, expressions);
   }
 
   public FunctionExpression xor(Expression... expressions) {
-    return (FunctionExpression)
-        repository.compile(BuiltinFunctionName.XOR.getName(), Arrays.asList(expressions));
+    return function(BuiltinFunctionName.XOR, expressions);
   }
 
   public FunctionExpression not(Expression... expressions) {
-    return (FunctionExpression)
-        repository.compile(BuiltinFunctionName.NOT.getName(), Arrays.asList(expressions));
+    return function(BuiltinFunctionName.NOT, expressions);
   }
 
   public FunctionExpression equal(Expression... expressions) {
-    return (FunctionExpression)
-        repository.compile(BuiltinFunctionName.EQUAL.getName(), Arrays.asList(expressions));
+    return function(BuiltinFunctionName.EQUAL, expressions);
   }
 
   public FunctionExpression notequal(Expression... expressions) {
-    return (FunctionExpression)
-        repository.compile(BuiltinFunctionName.NOTEQUAL.getName(), Arrays.asList(expressions));
+    return function(BuiltinFunctionName.NOTEQUAL, expressions);
   }
 
   public FunctionExpression less(Expression... expressions) {
-    return (FunctionExpression)
-        repository.compile(BuiltinFunctionName.LESS.getName(), Arrays.asList(expressions));
+    return function(BuiltinFunctionName.LESS, expressions);
   }
 
   public FunctionExpression lte(Expression... expressions) {
-    return (FunctionExpression)
-        repository.compile(BuiltinFunctionName.LTE.getName(), Arrays.asList(expressions));
+    return function(BuiltinFunctionName.LTE, expressions);
   }
 
   public FunctionExpression greater(Expression... expressions) {
-    return (FunctionExpression)
-        repository.compile(BuiltinFunctionName.GREATER.getName(), Arrays.asList(expressions));
+    return function(BuiltinFunctionName.GREATER, expressions);
   }
 
   public FunctionExpression gte(Expression... expressions) {
-    return (FunctionExpression)
-        repository.compile(BuiltinFunctionName.GTE.getName(), Arrays.asList(expressions));
+    return function(BuiltinFunctionName.GTE, expressions);
   }
 
   public FunctionExpression like(Expression... expressions) {
-    return (FunctionExpression)
-        repository.compile(BuiltinFunctionName.LIKE.getName(), Arrays.asList(expressions));
+    return function(BuiltinFunctionName.LIKE, expressions);
   }
 
   public Aggregator avg(Expression... expressions) {
-    return (Aggregator)
-        repository.compile(BuiltinFunctionName.AVG.getName(), Arrays.asList(expressions));
+    return aggregate(BuiltinFunctionName.AVG, expressions);
   }
 
   public Aggregator sum(Expression... expressions) {
-    return (Aggregator)
-        repository.compile(BuiltinFunctionName.SUM.getName(), Arrays.asList(expressions));
+    return aggregate(BuiltinFunctionName.SUM, expressions);
   }
 
   public Aggregator count(Expression... expressions) {
-    return (Aggregator)
-        repository.compile(BuiltinFunctionName.COUNT.getName(), Arrays.asList(expressions));
+    return aggregate(BuiltinFunctionName.COUNT, expressions);
+  }
+
+  private FunctionExpression function(BuiltinFunctionName functionName, Expression... expressions) {
+    return (FunctionExpression) repository.compile(
+        functionName.getName(), Arrays.asList(expressions));
+  }
+
+  private Aggregator aggregate(BuiltinFunctionName functionName, Expression... expressions) {
+    return (Aggregator) repository.compile(
+        functionName.getName(), Arrays.asList(expressions));
   }
 }
