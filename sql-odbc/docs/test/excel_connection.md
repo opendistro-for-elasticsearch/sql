@@ -16,4 +16,5 @@ There are multiple ways to load data from Elasticsearch in Microsoft Excel.
 
 ## Use Microsoft Excel with data loaded from Open distro for Elasticsearch
 
+* [Refresh the data](refresh_data.md)
 * [Exporting CSV files](exporting_csv_files.md)
