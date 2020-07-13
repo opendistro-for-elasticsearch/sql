@@ -26,6 +26,8 @@ import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTup
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -186,5 +188,28 @@ public class ExprValueUtilsTest {
         assertEquals(BindingTuple.EMPTY, value.bindingTuples());
       }
     }
+  }
+
+  @Test
+  public void constructDateAndTimeValue() {
+    assertEquals(new ExprDateValue("2012-07-07"),
+        ExprValueUtils.fromObjectValue("2012-07-07", ExprCoreType.DATE));
+    assertEquals(new ExprTimeValue("01:01:01"),
+        ExprValueUtils.fromObjectValue("01:01:01", ExprCoreType.TIME));
+    assertEquals(new ExprTimestampValue("2012-07-07 01:01:01"),
+        ExprValueUtils.fromObjectValue("2012-07-07 01:01:01", ExprCoreType.TIMESTAMP));
+  }
+
+  @Test
+  public void getDateFromValue() {
+    assertEquals(LocalDate.parse("2012-07-07").atStartOfDay(ZoneId.of("UTC")),
+        ExprValueUtils.getDateValue(new ExprDateValue(
+            "2012-07-07")));
+
+    ExpressionEvaluationException exception =
+        assertThrows(ExpressionEvaluationException.class,
+            () -> ExprValueUtils.getDateValue(integerValue(1)));
+    assertEquals("invalid to convert expression with type:INTEGER to type:DATE",
+        exception.getMessage());
   }
 }
