@@ -17,40 +17,84 @@
 package com.amazon.opendistroforelasticsearch.sql.sql;
 
 import static com.amazon.opendistroforelasticsearch.sql.util.TestUtils.createHiddenIndexByRestClient;
+import static com.amazon.opendistroforelasticsearch.sql.util.TestUtils.performRequest;
 
 import java.io.IOException;
 import org.elasticsearch.client.Request;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Integration tests for identifiers including index and field name symbol.
+ * This is only meant for testing queries with identifier can run without error.
+ * The correctness is guaranteed in our comparison test.
+ */
 public class IdentifierIT extends NewSQLIntegTestCase {
 
   @Test
-  public void testHiddenIndexName() throws IOException {
-    createIndex(".system_catalog");
-    executeQuery("SELECT * FROM .system_catalog");
+  public void testRegularIndexNames() throws IOException {
+    createIndexWithOneDoc("logs", "logs_2020_01", "logs-2020-01");
+    queryAndAssert("SELECT * FROM logs");
+    queryAndAssert("SELECT * FROM logs_2020_01");
+    queryAndAssert("SELECT * FROM logs-2020-01");
   }
 
   @Test
-  public void testIndexNameWithDot() throws IOException {
-    createIndex("logs.2020.01");
-    executeQuery("SELECT * FROM `logs.2020.01`");
+  public void testHiddenIndexNameByDoubleQuotes() throws IOException {
+    createIndexWithOneDoc(".system");
+    queryAndAssert("SELECT * FROM \".system\"");
   }
 
   @Test
-  public void testIndexNameWithOtherSpecialChar() throws IOException {
-    createIndex("logs-2020-01", "logs_2020_01", "system logs");
-    executeQuery("SELECT * FROM `logs-2020-01`");
-    executeQuery("SELECT * FROM logs_2020_01");
-    executeQuery("SELECT * FROM `system logs`");
+  public void testIndexNameWithDotByBackTicks() throws IOException {
+    createIndexWithOneDoc("logs.2020.01");
+    queryAndAssert("SELECT * FROM `logs.2020.01`");
   }
 
-  private void createIndex(String... indexNames) throws IOException {
+  @Test
+  public void testIndexNameWithSpecialChar() throws IOException {
+    createIndexWithOneDoc("logs+2020+01");
+    queryAndAssert("SELECT * FROM `logs+2020+01`");
+  }
+
+  private void createIndexWithOneDoc(String... indexNames) throws IOException {
     for (String indexName : indexNames) {
+      new Index(indexName).addDoc("{\"age\": 30}");
+    }
+  }
+
+  private void queryAndAssert(String sql) {
+    assertEquals(
+        "{\n"
+            + "  \"schema\": [{\n"
+            + "    \"name\": \"age\",\n"
+            + "    \"type\": \"integer\"\n"
+            + "  }],\n"
+            + "  \"total\": 1,\n"
+            + "  \"datarows\": [[30]],\n"
+            + "  \"size\": 1\n"
+            + "}\n",
+        executeQuery(sql.replace("\"", "\\\""), "jdbc")
+    );
+  }
+
+  private static class Index {
+
+    private final String indexName;
+
+    Index(String indexName) throws IOException {
+      this.indexName = indexName;
+
       if (indexName.startsWith(".")) {
         createHiddenIndexByRestClient(client(), indexName, "");
       } else {
         executeRequest(new Request("PUT", "/" + indexName));
       }
+    }
+
+    void addDoc(String doc) {
+      Request indexDoc = new Request("POST", String.format("/%s/_doc?refresh=true", indexName));
+      indexDoc.setJsonEntity(doc);
+      performRequest(client(), indexDoc);
     }
   }
 

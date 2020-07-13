@@ -27,17 +27,16 @@ Unquoted Identifiers
 
 Basically an identifier can consist of underscore, letter and digit. In the case of Elasticsearch, the following identifiers are supported for convenience without the need of quotes:
 
-1. Hidden index name prefixed by ``.``: For example a query with ``.kibana`` involved.
-2. Index name with ``-``: This is common for index name with date.
-3. Index pattern with ``*``: TODO
-4. Field name prefixed by ``@``: This is common for meta fields generated in Logstash ingestion.
+1. Index name with ``-``: This is common for index name with date.
+2. Index pattern with ``*``: TODO
+3. Field name prefixed by ``@``: This is common for meta fields generated in Logstash ingestion.
 
 Quoted Identifiers
 ------------------
 
 For others with special character, the identifiers are required to be quoted by back ticks ````` or double quotes. Note the the difference between single quote and double quotes in SQL syntax. The former is used to enclose a string literal while the latter is for escaping special characters in an identifier.
 
-Dot ``.`` in the middle is another common case for index name. To use this kind of name in a ``FROM`` clause for example, you need to quote it so parser can differentiate it from a path discussed as below.
+Dot ``.`` is another common case for index name though it confuses parser. To use this kind of name in a ``FROM`` clause for example, you need to quote it so parser can differentiate it from a path discussed as below. For example, hidden index name prefixed by ``.`` like ``.kibana`` needs to be quoted.
 
 Identifiers Path
 ----------------

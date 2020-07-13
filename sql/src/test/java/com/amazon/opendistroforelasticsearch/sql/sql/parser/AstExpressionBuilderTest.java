@@ -45,10 +45,13 @@ class AstExpressionBuilderTest {
         qualifiedName("test"),
         buildQualifiedName("test")
     );
+  }
 
+  @Test
+  public void canBuildExprAstForQuotedQualifiedName() {
     assertEquals(
         qualifiedName("hello world"),
-        buildQualifiedName("`hello world`")
+        buildQualifiedName("\"hello world\"")
     );
 
     assertEquals(
