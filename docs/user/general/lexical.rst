@@ -47,7 +47,18 @@ In addition, period ``.`` can be used to separate multiple identifiers. TODO
 Examples
 --------
 
-TODO
+Here is an example for quoting index name by back ticks::
+
+    od> SELECT * FROM `accounts`;
+    fetched rows / total rows = 4/4
+    +------------------+-------------+----------------------+-----------+----------+--------+------------+---------+-------+-----------------------+------------+
+    | account_number   | firstname   | address              | balance   | gender   | city   | employer   | state   | age   | email                 | lastname   |
+    |------------------+-------------+----------------------+-----------+----------+--------+------------+---------+-------+-----------------------+------------|
+    | 1                | Amber       | 880 Holmes Lane      | 39225     | M        | Brogan | Pyrami     | IL      | 32    | amberduke@pyrami.com  | Duke       |
+    | 6                | Hattie      | 671 Bristol Street   | 5686      | M        | Dante  | Netagy     | TN      | 36    | hattiebond@netagy.com | Bond       |
+    | 13               | Nanette     | 789 Madison Street   | 32838     | F        | Nogal  | Quility    | VA      | 28    | null                  | Bates      |
+    | 18               | Dale        | 467 Hutchinson Court | 4180      | M        | Orick  | null       | MD      | 33    | daleadams@boink.com   | Adams      |
+    +------------------+-------------+----------------------+-----------+----------+--------+------------+---------+-------+-----------------------+------------+
 
 Keywords
 ========
