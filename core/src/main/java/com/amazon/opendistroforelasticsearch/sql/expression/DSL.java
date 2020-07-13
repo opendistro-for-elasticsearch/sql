@@ -81,11 +81,6 @@ public class DSL {
         repository.compile(BuiltinFunctionName.MULTIPLY.getName(), Arrays.asList(expressions));
   }
 
-  public FunctionExpression dayofmonth(Expression... expressions) {
-    return (FunctionExpression)
-        repository.compile(BuiltinFunctionName.DAYOFMONTH.getName(), Arrays.asList(expressions));
-  }
-
   public FunctionExpression divide(Expression... expressions) {
     return (FunctionExpression)
         repository.compile(BuiltinFunctionName.DIVIDE.getName(), Arrays.asList(expressions));
