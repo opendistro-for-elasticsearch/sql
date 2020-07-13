@@ -14,14 +14,26 @@ categories:
   - title: "Version Upgrades"
     labels:
       - "version compatibility"
+  - title: "Features"
+    labels:
+      - "feature"
+  - title: "Enhancements"
+    labels:
+      - "enhancement"
+  - title: "Maintenance"
+    labels:
+      - "maintenance"
+  - title: "Bug Fixes"
+    labels:
+      - "bug"
   - title: "Documentation"
     labels:
       - "documentation"
-  - title: "SQL"
+  - title: "SQL and PPL"
     labels:
       - "SQL"
       - "PPL"
-  - title: "CLI"
+  - title: "SQL CLI"
     labels:
       - "CLI"
   - title: "SQL JDBC"
