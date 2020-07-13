@@ -734,15 +734,6 @@ ESAPI_Tables(HSTMT hstmt, const SQLCHAR *catalog_name_sql,
         std::string query;
         GenerateTableQuery(query, flag, table_name, result_type, table_valid);
 
-        // Get list of columns with SELECT * query since columns doesn't match
-        // with DESCRIBE & SELECT * query
-        std::vector< std::string > list_of_columns;
-        if (table_valid) {
-            ConnectionClass *conn = SC_get_conn(stmt);
-            list_of_columns =
-                ESGetColumnsWithSelectQuery(conn->esconn, table_name);
-        }
-
         // TODO #324 (SQL Plugin)- evaluate catalog & schema support
         GetCatalogData(query, stmt, tbl_stmt, result_type, table_type,
                        AssignTableBindTemplates, SetupTableQResInfo);
@@ -799,8 +790,6 @@ ESAPI_Columns(HSTMT hstmt, const SQLCHAR *catalog_name_sql,
         std::string query;
         GenerateColumnQuery(query, table_name, column_name, table_valid,
                             column_valid, flag);
-
-        // TODO #324 (SQL Plugin)- evaluate catalog & schema support
 
         // Get list of columns with SELECT * query since columns doesn't match
         // with DESCRIBE & SELECT * query
