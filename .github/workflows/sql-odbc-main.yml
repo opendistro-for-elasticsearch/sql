@@ -28,7 +28,7 @@ jobs:
         brew install libiodbc
     - name: configure-and-build-driver
       run: |
-        .\build_mac_release64.ps1
+        ./build_mac_release64.sh
     #- name: test
     #  run: | 
     #    bash ./run_test_runner.sh
