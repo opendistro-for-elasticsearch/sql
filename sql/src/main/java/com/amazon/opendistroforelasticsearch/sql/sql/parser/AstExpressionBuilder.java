@@ -29,6 +29,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
+import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.NestedExpressionAtomContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.QualifiedNameContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
@@ -95,6 +96,22 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitBoolean(BooleanContext ctx) {
     return AstDSL.booleanLiteral(Boolean.valueOf(ctx.getText()));
+  }
+
+  @Override
+  public UnresolvedExpression visitDateLiteral(OpenDistroSQLParser.DateLiteralContext ctx) {
+    return AstDSL.dateLiteral(unquoteIdentifier(ctx.date.getText()));
+  }
+
+  @Override
+  public UnresolvedExpression visitTimeLiteral(OpenDistroSQLParser.TimeLiteralContext ctx) {
+    return AstDSL.timeLiteral(unquoteIdentifier(ctx.time.getText()));
+  }
+
+  @Override
+  public UnresolvedExpression visitTimestampLiteral(
+      OpenDistroSQLParser.TimestampLiteralContext ctx) {
+    return AstDSL.timestampLiteral(unquoteIdentifier(ctx.timestamp.getText()));
   }
 
 }

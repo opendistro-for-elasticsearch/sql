@@ -140,14 +140,16 @@ int Ver1GEVer2(std::wstring ver_1_str, std::wstring ver_2_str) {
 TEST_SQL_GET_INFO_STRING(SQLDriverName, SQL_DRIVER_NAME, L"odfesqlodbc.dll");
 TEST_SQL_GET_INFO_STRING(SQLDriverODBCVer, SQL_DRIVER_ODBC_VER, L"03.51");
 
-std::wstring version = std::wstring_convert< std::codecvt_utf8_utf16< wchar_t >, wchar_t >{}
+std::wstring version =
+    std::wstring_convert< std::codecvt_utf8_utf16< wchar_t >, wchar_t >{}
         .from_bytes(ELASTICSEARCHDRIVERVERSION);
 TEST_SQL_GET_INFO_STRING(SQLDriverVer, SQL_DRIVER_VER, version);
 
 TEST_SQL_GET_INFO_UINT16(SQLGetDataExtensions, SQL_GETDATA_EXTENSIONS,
                          (SQL_GD_ANY_COLUMN | SQL_GD_ANY_ORDER | SQL_GD_BOUND
                           | SQL_GD_BLOCK));
-TEST_SQL_GET_INFO_STRING(SQLSearchPatternEscape, SQL_SEARCH_PATTERN_ESCAPE, L"");
+TEST_SQL_GET_INFO_STRING(SQLSearchPatternEscape, SQL_SEARCH_PATTERN_ESCAPE,
+                         L"");
 
 //////////////////////
 // Data Source Info //
@@ -158,8 +160,8 @@ TEST_SQL_GET_INFO_UINT16(SQLCursorCommitBehavior, SQL_CURSOR_COMMIT_BEHAVIOR,
 TEST_SQL_GET_INFO_UINT16(SQLTxnCapable, SQL_TXN_CAPABLE, SQL_TC_NONE);
 TEST_SQL_GET_INFO_UINT16(SQLConcatNullBehavior, SQL_CONCAT_NULL_BEHAVIOR,
                          SQL_CB_NULL);
-TEST_SQL_GET_INFO_STRING(SQLSchemaTerm, SQL_SCHEMA_TERM, L"schema");
-TEST_SQL_GET_INFO_STRING(SQLCatalogTerm, SQL_CATALOG_TERM, L"catalog");
+TEST_SQL_GET_INFO_STRING(SQLSchemaTerm, SQL_SCHEMA_TERM, L"");
+TEST_SQL_GET_INFO_STRING(SQLCatalogTerm, SQL_CATALOG_TERM, L"");
 
 ///////////////
 // DBMS Info //
@@ -173,7 +175,8 @@ TEST_SQL_GET_INFO_VERSION_GE(SQLDBMSVer, SQL_DBMS_VER, L"7.1.1");
 ///////////////////
 
 TEST_SQL_GET_INFO_STRING(SQLColumnAlias, SQL_COLUMN_ALIAS, L"Y");
-TEST_SQL_GET_INFO_UINT16(SQLGroupBy, SQL_GROUP_BY, SQL_GB_GROUP_BY_EQUALS_SELECT);
+TEST_SQL_GET_INFO_UINT16(SQLGroupBy, SQL_GROUP_BY,
+                         SQL_GB_GROUP_BY_EQUALS_SELECT);
 TEST_SQL_GET_INFO_STRING(SQLIdentifierQuoteChar, SQL_IDENTIFIER_QUOTE_CHAR,
                          L"`");
 TEST_SQL_GET_INFO_UINT_MASK(SQLOJCapabilities, SQL_OJ_CAPABILITIES,
@@ -187,11 +190,10 @@ TEST_SQL_GET_INFO_UINT_MASK(SQLODBCInterfaceConformance,
                             SQL_ODBC_INTERFACE_CONFORMANCE, SQL_OIC_CORE);
 TEST_SQL_GET_INFO_UINT_MASK(SQLSQLConformance, SQL_SQL_CONFORMANCE,
                             SQL_SC_SQL92_ENTRY);
-TEST_SQL_GET_INFO_UINT_MASK(SQLCatalogUsage, SQL_CATALOG_USAGE,
-                            SQL_CU_DML_STATEMENTS);
-TEST_SQL_GET_INFO_UINT16(SQLCatalogLocation, SQL_CATALOG_LOCATION, SQL_QL_START);
+TEST_SQL_GET_INFO_UINT_MASK(SQLCatalogUsage, SQL_CATALOG_USAGE, 0);
+TEST_SQL_GET_INFO_UINT16(SQLCatalogLocation, SQL_CATALOG_LOCATION, 0);
 TEST_SQL_GET_INFO_STRING(SQLCatalogNameSeparator, SQL_CATALOG_NAME_SEPARATOR,
-                         L".");
+                         L"");
 TEST_SQL_GET_INFO_UINT_MASK(SQLSQL92Predicates, SQL_SQL92_PREDICATES,
                             SQL_SP_BETWEEN | SQL_SP_COMPARISON | SQL_SP_IN
                                 | SQL_SP_ISNULL | SQL_SP_LIKE);
@@ -204,7 +206,8 @@ TEST_SQL_GET_INFO_UINT_MASK(SQLSQL92ValueExpressions,
                             SQL_SQL92_VALUE_EXPRESSIONS,
                             SQL_SVE_CASE | SQL_SVE_CAST);
 TEST_SQL_GET_INFO_UINT_MASK(SQLDatetimeLiterals, SQL_DATETIME_LITERALS, 0);
-TEST_SQL_GET_INFO_STRING(SQLOrderByColumnsInSelect, SQL_ORDER_BY_COLUMNS_IN_SELECT, L"Y");
+TEST_SQL_GET_INFO_STRING(SQLOrderByColumnsInSelect,
+                         SQL_ORDER_BY_COLUMNS_IN_SELECT, L"Y");
 TEST_SQL_GET_INFO_STRING(SQLCatalogName, SQL_CATALOG_NAME, L"N");
 
 ////////////////
@@ -232,10 +235,10 @@ TEST_SQL_GET_INFO_UINT_MASK(SQLConvertVarbinary, SQL_CONVERT_VARBINARY, 0);
 TEST_SQL_GET_INFO_UINT_MASK(SQLConvertChar, SQL_CONVERT_CHAR, 0);
 TEST_SQL_GET_INFO_UINT_MASK(SQLConvertLongVarchar, SQL_CONVERT_LONGVARCHAR, 0);
 TEST_SQL_GET_INFO_UINT_MASK(SQLConvertWChar, SQL_CONVERT_WCHAR, 0);
-TEST_SQL_GET_INFO_UINT_MASK(SQLConvertWLongVarchar, SQL_CONVERT_WLONGVARCHAR, 0);
+TEST_SQL_GET_INFO_UINT_MASK(SQLConvertWLongVarchar, SQL_CONVERT_WLONGVARCHAR,
+                            0);
 TEST_SQL_GET_INFO_UINT_MASK(SQLConvertWVarchar, SQL_CONVERT_WVARCHAR, 0);
 TEST_SQL_GET_INFO_UINT_MASK(SQLConvertGuid, SQL_CONVERT_GUID, 0);
-
 
 //////////////////////
 // Scalar Functions //
@@ -278,8 +281,10 @@ TEST_SQL_GET_INFO_UINT_MASK(SQLSQL92StringFunctions, SQL_SQL92_STRING_FUNCTIONS,
 ////////////
 
 TEST_SQL_GET_INFO_UINT16(SQLMaxIdentifierLen, SQL_MAX_IDENTIFIER_LEN, SHRT_MAX);
-TEST_SQL_GET_INFO_UINT16(SQLMaxColumnsInGroupBy, SQL_MAX_COLUMNS_IN_GROUP_BY, 0);
-TEST_SQL_GET_INFO_UINT16(SQLMaxColumnsInOrderBy, SQL_MAX_COLUMNS_IN_ORDER_BY, 0);
+TEST_SQL_GET_INFO_UINT16(SQLMaxColumnsInGroupBy, SQL_MAX_COLUMNS_IN_GROUP_BY,
+                         0);
+TEST_SQL_GET_INFO_UINT16(SQLMaxColumnsInOrderBy, SQL_MAX_COLUMNS_IN_ORDER_BY,
+                         0);
 TEST_SQL_GET_INFO_UINT16(SQLMaxColumnsInSelect, SQL_MAX_COLUMNS_IN_SELECT, 0);
 
 int main(int argc, char** argv) {

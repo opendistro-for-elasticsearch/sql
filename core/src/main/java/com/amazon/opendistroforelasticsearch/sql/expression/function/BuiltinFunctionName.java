@@ -55,6 +55,11 @@ public enum BuiltinFunctionName {
   LIKE(FunctionName.of("like")),
 
   /**
+   * Date and Time Functions.
+   */
+  DAYOFMONTH(FunctionName.of("dayofmonth")),
+
+  /**
    * Aggregation Function.
    */
   AVG(FunctionName.of("avg")),

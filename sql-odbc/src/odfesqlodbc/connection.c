@@ -636,36 +636,26 @@ void CC_log_error(const char *func, const char *desc,
 #define NULLCHECK(a) (a ? a : "(NULL)")
 
     if (self) {
-        MYLOG(ES_ERROR, "CONN ERROR: func=%s, desc='%s', errnum=%d, errmsg='%s'\n",
-              func, desc, self->__error_number,
-              NULLCHECK(self->__error_message));
+        MYLOG(ES_ERROR,
+              "CONN ERROR: func=%s, desc='%s', errnum=%d, errmsg='%s'\n", func,
+              desc, self->__error_number, NULLCHECK(self->__error_message));
         MYLOG(ES_ERROR,
               "            "
               "------------------------------------------------------------\n");
         MYLOG(ES_ERROR,
               "            henv=%p, conn=%p, status=%u, num_stmts=%d\n",
               self->henv, self, self->status, self->num_stmts);
-        MYLOG(ES_ERROR,
-              "            esconn=%p, stmts=%p, lobj_type=%d\n", self->esconn,
-              self->stmts, self->lobj_type);
+        MYLOG(ES_ERROR, "            esconn=%p, stmts=%p, lobj_type=%d\n",
+              self->esconn, self->stmts, self->lobj_type);
     } else {
-        MYLOG(ES_ERROR, "INVALID CONNECTION HANDLE ERROR: func=%s, desc='%s'\n", func,
-              desc);
+        MYLOG(ES_ERROR, "INVALID CONNECTION HANDLE ERROR: func=%s, desc='%s'\n",
+              func, desc);
     }
 }
 
 const char *CurrCat(const ConnectionClass *conn) {
-    // Keeping this NULL since it's required for getting list of tables in
-    // Microsoft Excel with ODBC Connection mode. This causes error in Data
-    // Connection wizard mode but data connection wizard sends query with
-    // catalog.table_name which fails. So setting this to NULL will enable more
-    // functionality
     UNUSED(conn);
     return NULL;
-
-    // Change this to following return value when found a solution which works
-    // with ODBC and Data Connection wizard in Microsoft Excel return
-    // conn->cluster_name;
 }
 
 const char *CurrCatString(const ConnectionClass *conn) {

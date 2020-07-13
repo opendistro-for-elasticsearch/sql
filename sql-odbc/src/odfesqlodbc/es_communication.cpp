@@ -309,9 +309,9 @@ std::shared_ptr< Aws::Http::HttpResponse > ESCommunication::IssueRequest(
         request->SetAuthorization("Basic " + hashed_userpw);
     } else if (m_rt_opts.auth.auth_type == AUTHTYPE_IAM) {
         std::shared_ptr< Aws::Auth::ProfileConfigFileAWSCredentialsProvider >
-            credential_provider =
-                Aws::MakeShared< Aws::Auth::ProfileConfigFileAWSCredentialsProvider >(
-                    ALLOCATION_TAG.c_str(), ESODBC_PROFILE_NAME.c_str());
+            credential_provider = Aws::MakeShared<
+                Aws::Auth::ProfileConfigFileAWSCredentialsProvider >(
+                ALLOCATION_TAG.c_str(), ESODBC_PROFILE_NAME.c_str());
         Aws::Client::AWSAuthV4Signer signer(credential_provider,
                                             SERVICE_NAME.c_str(),
                                             m_rt_opts.auth.region.c_str());
@@ -524,7 +524,8 @@ int ESCommunication::ExecDirect(const char* query, const char* fetch_size_) {
     try {
         ConstructESResult(*result);
     } catch (std::runtime_error& e) {
-        m_error_message = "Received runtime exception: " + std::string(e.what());
+        m_error_message =
+            "Received runtime exception: " + std::string(e.what());
         if (!result->result_json.empty()) {
             m_error_message += " Result body: " + result->result_json;
         }
@@ -542,10 +543,9 @@ int ESCommunication::ExecDirect(const char* query, const char* fetch_size_) {
     result.release();
 
     if (!cursor.empty()) {
-        // If the response has a cursor, this thread will retrieve more result pages asynchronously.
-        std::thread([&, cursor]() {
-            SendCursorQueries(cursor);
-        }).detach();
+        // If the response has a cursor, this thread will retrieve more result
+        // pages asynchronously.
+        std::thread([&, cursor]() { SendCursorQueries(cursor); }).detach();
     }
 
     return 0;
@@ -570,7 +570,7 @@ void ESCommunication::SendCursorQueries(std::string cursor) {
                 return;
             }
 
-            std::unique_ptr<ESResult> result = std::make_unique<ESResult>();
+            std::unique_ptr< ESResult > result = std::make_unique< ESResult >();
             AwsHttpResponseToString(response, result->result_json);
             PrepareCursorResult(*result);
 
@@ -586,7 +586,8 @@ void ESCommunication::SendCursorQueries(std::string cursor) {
                    && !m_result_queue.push(QUEUE_TIMEOUT, result.get())) {
             }
 
-            // Don't release when attempting to push to the queue as it may take multiple tries.
+            // Don't release when attempting to push to the queue as it may take
+            // multiple tries.
             result.release();
         }
     } catch (std::runtime_error& e) {

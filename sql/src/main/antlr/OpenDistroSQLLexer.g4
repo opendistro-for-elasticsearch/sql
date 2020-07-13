@@ -187,6 +187,7 @@ SINH:                               'SINH';
 SQRT:                               'SQRT';
 SUBTRACT:                           'SUBTRACT';
 TAN:                                'TAN';
+TIME:                               'TIME';
 TIMESTAMP:                          'TIMESTAMP';
 UPPER:                              'UPPER';
 

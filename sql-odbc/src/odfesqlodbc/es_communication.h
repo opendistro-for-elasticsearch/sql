@@ -74,7 +74,8 @@ class ESCommunication {
         std::string& output);
     void SendCloseCursorRequest(const std::string& cursor);
     void StopResultRetrieval();
-    std::vector< std::string > GetColumnsWithSelectQuery(const std::string table_name);
+    std::vector< std::string > GetColumnsWithSelectQuery(
+        const std::string table_name);
 
    private:
     void InitializeConnection();
@@ -85,7 +86,7 @@ class ESCommunication {
     void PrepareCursorResult(ESResult& es_result);
 
     // TODO #35 - Go through and add error messages on exit conditions
-    std::string m_error_message;  
+    std::string m_error_message;
     const std::vector< std::string > m_supported_client_encodings = {"UTF8"};
 
     ConnStatusType m_status;
