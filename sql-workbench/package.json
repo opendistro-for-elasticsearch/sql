@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/opendistro-for-elasticsearch/sql-workbench"
+    "url": "https://github.com/opendistro-for-elasticsearch/sql/tree/master/sql-workbench"
   },
   "scripts": {
     "preinstall": "node ../../preinstall_check",

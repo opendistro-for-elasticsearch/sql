@@ -1,4 +1,4 @@
-[![Test and Build Workflow](https://github.com/opendistro-for-elasticsearch/sql-cli/workflows/Test%20and%20Build/badge.svg)](https://github.com/opendistro-for-elasticsearch/sql/actions)
+[![SQL CLI Test and Build](https://github.com/opendistro-for-elasticsearch/sql/workflows/SQL%20CLI%20Test%20and%20Build/badge.svg)](https://github.com/opendistro-for-elasticsearch/sql/actions)
 [![Latest Version](https://img.shields.io/pypi/v/odfe-sql-cli.svg)](https://pypi.python.org/pypi/odfe-sql-cli/)
 [![Documentation](https://img.shields.io/badge/documentation-blue.svg)](https://opendistro.github.io/for-elasticsearch-docs/docs/sql/cli/)
 [![Chat](https://img.shields.io/badge/chat-on%20forums-blue)](https://discuss.opendistrocommunity.dev/c/sql/)

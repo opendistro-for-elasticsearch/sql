@@ -3,8 +3,8 @@
 <connector-plugin class='odfe_sql_odbc_dev' superclass='odbc' plugin-version='0.2.0' name='Open Distro for Elasticsearch SQL ODBC DEV' version='18.1' min-version-tableau='2020.1'>
   <vendor-information>
       <company name="Open Distro for Elasticsearch"/>
-      <support-link url="https://github.com/opendistro-for-elasticsearch/sql-odbc"/>
-      <driver-download-link url="https://github.com/opendistro-for-elasticsearch/sql-odbc"/>
+      <support-link url="https://github.com/opendistro-for-elasticsearch/sql/tree/master/sql-odbc"/>
+      <driver-download-link url="https://github.com/opendistro-for-elasticsearch/sql/tree/master/sql-odbc"/>
   </vendor-information>
   <connection-customization class="odfe_sql_odbc_dev" enabled="true" version="10.0">
     <vendor name="Open Distro for Elasticsearch"/>
