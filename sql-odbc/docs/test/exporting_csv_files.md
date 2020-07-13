@@ -2,7 +2,7 @@
 
 * Load data from Open Distro For Elasticsearch by any using any [connection mode](excel_connection.md).
 
-Here [ODBC](odbc_data_source_connection.md) connection with SQL statement `SELECT * FROM kibana_sample_data_flights LIMIT 50` in advanced options is used.
+For this example, [ODBC](odbc_data_source_connection.md) connection with SQL statement `SELECT * FROM kibana_sample_data_flights LIMIT 50` in advanced options is used.
 
 <img src="img/export_loaded_data.png">
 
