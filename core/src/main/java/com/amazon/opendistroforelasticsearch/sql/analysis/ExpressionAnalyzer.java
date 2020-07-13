@@ -78,8 +78,7 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
 
   @Override
   public Expression visitLiteral(Literal node, AnalysisContext context) {
-    return DSL
-        .literal(ExprValueUtils.fromObjectValue(node.getValue(), node.getType().getCoreType()));
+    return DSL.literal(ExprValueUtils.fromObjectValue(node.getValue()));
   }
 
   @Override
