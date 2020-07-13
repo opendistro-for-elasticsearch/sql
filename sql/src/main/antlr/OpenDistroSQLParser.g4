@@ -76,6 +76,7 @@ constant
     | sign? decimalLiteral      #signedDecimal
     | sign? realLiteral         #signedReal
     | booleanLiteral            #boolean
+    | datetimeLiteral           #datetime
     // Doesn't support the following types for now
     //| nullLiteral               #null
     //| BIT_STRING
@@ -114,6 +115,25 @@ nullLiteral
     : NULL_LITERAL
     ;
 
+// Date and Time Literal, follow ANSI 92
+datetimeLiteral
+    : dateLiteral
+    | timeLiteral
+    | timestampLiteral
+    ;
+
+dateLiteral
+    : DATE date=stringLiteral
+    ;
+
+timeLiteral
+    : TIME time=stringLiteral
+    ;
+
+timestampLiteral
+    : TIMESTAMP timestamp=stringLiteral
+    ;
+
 //    Expressions, predicates
 
 // Simplified approach for expression
@@ -142,6 +162,11 @@ functionCall
 
 scalarFunctionName
     : ABS | CEIL | CEILING | EXP | FLOOR | LN | LOG | LOG10 | LOG2
+    | dateTimeFunctionName
+    ;
+
+dateTimeFunctionName
+    : DAYOFMONTH
     ;
 
 functionArgs
