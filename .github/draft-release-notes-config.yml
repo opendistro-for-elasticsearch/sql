@@ -14,21 +14,6 @@ categories:
   - title: "Version Upgrades"
     labels:
       - "version compatibility"
-  - title: "Features"
-    labels:
-      - "feature"
-  - title: "Enhancements"
-    labels:
-      - "enhancement"
-  - title: "Maintenance"
-    labels:
-      - "maintenance"
-  - title: "Bug Fixes"
-    labels:
-      - "bug"
-  - title: "Documentation"
-    labels:
-      - "documentation"
   - title: "SQL and PPL"
     labels:
       - "SQL"
@@ -45,3 +30,13 @@ categories:
   - title: "SQL Workbench"
     labels:
       - "Workbench"
+  - title: "Enhancements"
+    labels:
+      - "enhancement"
+      - "maintenance"
+  - title: "Bug Fixes"
+    labels:
+      - "bug"
+  - title: "Documentation"
+    labels:
+      - "documentation"
