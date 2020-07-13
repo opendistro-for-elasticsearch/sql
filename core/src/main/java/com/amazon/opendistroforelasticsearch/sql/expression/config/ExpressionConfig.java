@@ -20,7 +20,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregat
 import com.amazon.opendistroforelasticsearch.sql.expression.datetime.DateTimeFunction;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.operator.arthmetic.ArithmeticFunction;
-import com.amazon.opendistroforelasticsearch.sql.expression.operator.arthmetic.UnaryFunction;
+import com.amazon.opendistroforelasticsearch.sql.expression.operator.arthmetic.MathematicalFunction;
 import com.amazon.opendistroforelasticsearch.sql.expression.operator.predicate.BinaryPredicateOperator;
 import com.amazon.opendistroforelasticsearch.sql.expression.operator.predicate.UnaryPredicateOperator;
 import java.util.HashMap;
@@ -41,7 +41,7 @@ public class ExpressionConfig {
         new BuiltinFunctionRepository(new HashMap<>());
     ArithmeticFunction.register(builtinFunctionRepository);
     BinaryPredicateOperator.register(builtinFunctionRepository);
-    UnaryFunction.register(builtinFunctionRepository);
+    MathematicalFunction.register(builtinFunctionRepository);
     UnaryPredicateOperator.register(builtinFunctionRepository);
     AggregatorFunction.register(builtinFunctionRepository);
     DateTimeFunction.register(builtinFunctionRepository);

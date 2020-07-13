@@ -233,6 +233,29 @@ public class MatcherUtils {
     };
   }
 
+  public static TypeSafeMatcher<JSONArray> closeTo(Number... values) {
+    final double error = 1e-10;
+    return new TypeSafeMatcher<JSONArray>() {
+      @Override
+      protected boolean matchesSafely(JSONArray item) {
+        List<Number> expectedValues = new ArrayList<>(Arrays.asList(values));
+        List<Number> actualValues = new ArrayList<>();
+        item.iterator().forEachRemaining(v -> actualValues.add((Number) v));
+        return actualValues.stream()
+            .allMatch(v -> valuesAreClose(v, expectedValues.get(actualValues.indexOf(v))));
+      }
+
+      @Override
+      public void describeTo(Description description) {
+        description.appendText(String.join(",", Arrays.asList().toString()));
+      }
+
+      private boolean valuesAreClose(Number v1, Number v2) {
+        return Math.abs(v1.doubleValue() - v2.doubleValue()) <= error;
+      }
+    };
+  }
+
   public static TypeSafeMatcher<JSONObject> columnPattern(String regex) {
     return new TypeSafeMatcher<JSONObject>() {
       @Override

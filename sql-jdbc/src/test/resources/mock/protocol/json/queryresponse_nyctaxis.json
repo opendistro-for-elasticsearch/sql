@@ -1,0 +1,73 @@
+{
+  "schema": [
+    {
+      "name": "pickup_datetime",
+      "type": "date"
+    },
+    {
+      "name": "trip_type",
+      "type": "keyword"
+    },
+    {
+      "name": "passenger_count",
+      "type": "integer"
+    },
+    {
+      "name": "fare_amount",
+      "type": "scaled_float"
+    },
+    {
+      "name": "extra",
+      "type": "scaled_float"
+    },
+    {
+      "name": "vendor_id",
+      "type": "keyword"
+    }
+  ],
+  "total": 1000,
+  "datarows": [
+    [
+      "2015-01-01 00:34:42",
+      "1",
+      1,
+      5,
+      0.5,
+      "2"
+    ],
+    [
+      "2015-01-01 00:34:46",
+      "1",
+      1,
+      12,
+      0.5,
+      "2"
+    ],
+    [
+      "2015-01-01 00:34:44",
+      "1",
+      1,
+      5,
+      0.5,
+      "1"
+    ],
+    [
+      "2015-01-01 00:34:48",
+      "1",
+      1,
+      5,
+      0.5,
+      "2"
+    ],
+    [
+      "2015-01-01 00:34:53",
+      "1",
+      1,
+      24.5,
+      0.5,
+      "2"
+    ]
+  ],
+  "size": 5,
+  "status": 200
+}

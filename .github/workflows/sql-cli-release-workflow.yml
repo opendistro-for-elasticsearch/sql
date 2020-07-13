@@ -1,0 +1,55 @@
+name: Release SQL CLI Artifacts
+# This workflows is triggered on creating tags to master
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+
+    runs-on: [ubuntu-16.04]
+    defaults:
+      run:
+        working-directory: sql-cli
+    strategy:
+      matrix:
+        python-version: [3.8]
+
+    steps:
+      - name: Checkout SQL CLI
+        uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install setuptools wheel twine
+      # publish to S3 and PyPI
+      - name: Build and Publish
+        run: |
+          python setup.py sdist bdist_wheel
+          artifact=`ls ./dist/*.tar.gz`
+          wheel_artifact=`ls ./dist/*.whl`
+
+          aws s3 cp $artifact s3://artifacts.opendistroforelasticsearch.amazon.com/downloads/elasticsearch-clients/opendistro-sql-cli/
+          aws s3 cp $wheel_artifact s3://artifacts.opendistroforelasticsearch.amazon.com/downloads/elasticsearch-clients/opendistro-sql-cli/
+
+        # aws cloudfront create-invalidation --distribution-id ${{ secrets.DISTRIBUTION_ID }} --paths "/downloads/*"
+
+        # TODO: Publish to PyPI
+        #     env:
+        #        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+        #        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        #      run: twine upload dist/*

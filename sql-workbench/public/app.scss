@@ -1,0 +1,160 @@
+/*
+ *   Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License").
+ *   You may not use this file except in compliance with the License.
+ *   A copy of the License is located at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   or in the "license" file accompanying this file. This file is distributed
+ *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ *   express or implied. See the License for the specific language governing
+ *   permissions and limitations under the License.
+ */
+
+@import '../node_modules/@elastic/eui/src/global_styling/variables/colors';
+@import '../node_modules/@elastic/eui/src/global_styling/variables/size';
+
+.sql-console-page-header {
+  padding: $euiSizeS $euiSizeL;
+  font-weight: 600;
+}
+
+.sql-console-query-container {
+  padding: $euiSizeL;
+  height: 1142px;
+}
+
+.sql-console-query-editor {
+  height: 430px;
+  max-height: 430px;
+  .container-panel {
+    border-radius: 0px;
+    box-shadow: none;
+  }
+  .sql-query-panel {
+    border-radius: 0px;
+    border-width: 1px;
+    border-right-width: 0.5px;
+    box-shadow: none;
+  }
+  .sql-query-panel-header {
+    padding: $euiSizeS;
+    background-color: $euiColorLightestShade;
+  }
+  .translated-query-panel {
+    border-radius: 0px;
+    border-width: 1px;
+    border-left-width: 0.5px;
+    box-shadow: none;
+  }
+  .translated-query-panel-header {
+    padding: $euiSizeS;
+    background-color: $euiColorLightestShade;
+  }
+  .action-container {
+    padding: $euiSizeM;
+  }
+  .resize-panel {
+    resize: vertical;
+    overflow: auto;
+    cursor: row-resize;
+  }
+  .sql-editor-link:visited {
+    background-color: rgb(255,255,255);
+  }
+  .sql-editor-button {
+    margin:10px;
+  }
+}
+.sql-console-query-result{
+  height: 577px;
+  scroll-behavior: smooth;
+  .sql-console-results-container {
+    overflow: auto;
+  }
+  .query-result-container {
+    border: solid 1.5px #d9d9d9;
+    border-radius: 0px;
+    border-bottom-width: 0;
+  }
+  .tabs-container {
+    overflow: hidden;
+    margin: 3px;
+  }
+  .table-name {
+    font-size: 20px;
+    padding: 20px;
+  }
+  .table-header {
+    /*border-top: solid 1px #d9d9d9;*/
+    background-color: #d9d9d9;
+  }
+  .sideNav-table {
+    border: solid 1px rgb(217, 217, 217);
+    border-collapse: separate;
+  }
+  .search-panel {
+    display: inline-flex;
+    width:100%;
+    padding:20px;
+  }
+  .search-bar {
+    width:80%;
+  }
+  .pagination-container {
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+
+  .tab-arrow-down-container {
+    padding: 25px;
+    height: 56px;
+    vertical-align: middle;
+    color: rgb(0, 121, 165);
+  }
+
+  .download-container {
+    padding: $euiSizeM;
+    height: 56px;
+    vertical-align: middle;
+    border-width: 1px;
+    margin-bottom: 20px;
+  }
+
+  .download-button-container {
+    float:right;
+  }
+
+  .toggleContainer {
+    margin: 20px;
+  }
+}
+
+.expanded-row {
+  /*background-color: rgb(232,243,246);
+  /*background-color: rgb(245,247,250);*/
+  border-collapse: separate;
+}
+
+.expanded-row:hover {
+  background-color: rgb(232,243,246);
+}
+
+.no-background {
+  background-color: rgba(0, 0, 0, 0);
+}
+
+/* Message Tab */
+.code-editor {
+  color: #006BB4;
+}
+
+.error-message {
+  color: red;
+}
+
+.successful-message{
+  color: #006BB4;
+}

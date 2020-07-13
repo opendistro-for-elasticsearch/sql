@@ -12,7 +12,22 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum BuiltinFunctionName {
+  /**
+   * Mathematical Functions.
+   */
   ABS(FunctionName.of("abs")),
+  CEIL(FunctionName.of("ceil")),
+  CEILING(FunctionName.of("ceiling")),
+  EXP(FunctionName.of("exp")),
+  FLOOR(FunctionName.of("floor")),
+  LN(FunctionName.of("ln")),
+  LOG(FunctionName.of("log")),
+  LOG10(FunctionName.of("log10")),
+  LOG2(FunctionName.of("log2")),
+
+  /**
+   * Text Functions.
+   */
   TOSTRING(FunctionName.of("tostring")),
 
   /**

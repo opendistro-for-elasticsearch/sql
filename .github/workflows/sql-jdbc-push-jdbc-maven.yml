@@ -1,0 +1,49 @@
+name: Upload sql-jdbc Jar to Maven
+
+# This workflow will upload the sql-jdbc jar to maven when a new tag is cut
+on:
+  push:
+    tags: 
+      - v*
+
+jobs:
+  upload-jdbc-jar:
+    runs-on: [ubuntu-16.04]
+    defaults:
+      run:
+        working-directory: sql-jdbc
+    name: Upload Jar to Maven
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+        
+      - name: Configure AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      # Since release workflow uses java 10
+      - name: Setup Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: '10'
+
+      - name: Upload jdbc Jar to Maven
+        env:
+          passphrase: ${{ secrets.PASSPHRASE }}
+        run: |
+          cd ..
+          export JAVA10_HOME=$JAVA_HOME
+          aws s3 cp s3://opendistro-docs/github-actions/pgp-public-key .
+          aws s3 cp s3://opendistro-docs/github-actions/pgp-private-key .
+          
+          gpg --import pgp-public-key
+          gpg --allow-secret-key-import --import pgp-private-key
+          
+
+          mkdir /home/runner/.gradle
+          aws s3 cp s3://opendistro-docs/github-actions/gradle.properties /home/runner/.gradle/
+          cd sql-jdbc
+          ./gradlew publishShadowPublicationToSonatype-stagingRepository -Dcompiler.java=10 -Dbuild.snapshot=false -Djavax.net.ssl.trustStore=$JAVA_HOME/lib/security/cacerts

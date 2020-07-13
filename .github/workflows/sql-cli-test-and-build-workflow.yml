@@ -1,0 +1,60 @@
+name: SQL CLI Test and Build
+
+on: [pull_request, push]
+
+jobs:
+  build:
+
+    runs-on: [ubuntu-16.04]
+    defaults:
+      run:
+        working-directory: sql-cli
+    strategy:
+      matrix:
+        python-version: [3.8]
+
+    steps:
+      - name: Checkout SQL CLI
+        uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+          pip install setuptools wheel
+
+      - name: Set up ES and install SQL plugin
+        run: |
+          sudo add-apt-repository ppa:openjdk-r/ppa
+          sudo apt update
+          sudo apt install openjdk-11-jdk
+          sudo apt install unzip
+          wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-oss-7.6.1-amd64.deb
+          sudo dpkg -i elasticsearch-oss-7.6.1-amd64.deb
+          sudo /usr/share/elasticsearch/bin/elasticsearch-plugin install https://d3g5vo6xdbdb9a.cloudfront.net/downloads/elasticsearch-plugins/opendistro-sql/opendistro_sql-1.6.0.0.zip
+          sudo systemctl start elasticsearch.service
+
+      - name: Run Tox Testing
+        run: tox
+
+      - name: Stop ES
+        run: sudo systemctl stop elasticsearch.service
+
+      - name: Build Artifact
+        run: python setup.py sdist bdist_wheel
+
+      - name: Create Artifact Path
+        run: |
+          mkdir -p opendistro-sql-cli-builds
+          cp -r ./dist/*.tar.gz ./dist/*.whl opendistro-sql-cli-builds/
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: opendistro-sql-cli
+          path: sql-cli/opendistro-sql-cli-builds

@@ -140,18 +140,16 @@ public class ComparisonTest implements AutoCloseable {
 
         mismatchResults.add(otherDbResult);
 
-        // Cannot find any database result match
-        if (i == otherDbConnections.length - 1) {
-          return new FailedTestCase(nextId(), sql, mismatchResults);
-        }
       } catch (Exception e) {
         // Ignore and move on to next database
         reasons.append(extractRootCause(e)).append(";");
       }
     }
 
-    // Cannot find any database support this query
-    return new ErrorTestCase(nextId(), sql, "No other databases support this query: " + reasons);
+    if (mismatchResults.size() == 1) { // Only ES result on list. Cannot find other database support this query
+      return new ErrorTestCase(nextId(), sql, "No other databases support this query: " + reasons);
+    }
+    return new FailedTestCase(nextId(), sql, mismatchResults, reasons.toString());
   }
 
   private int nextId() {

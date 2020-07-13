@@ -33,7 +33,7 @@ import org.elasticsearch.action.support.IndicesOptions;
 import org.elasticsearch.client.node.NodeClient;
 import org.elasticsearch.cluster.ClusterState;
 import org.elasticsearch.cluster.metadata.IndexNameExpressionResolver;
-import org.elasticsearch.cluster.metadata.MappingMetaData;
+import org.elasticsearch.cluster.metadata.MappingMetadata;
 import org.elasticsearch.cluster.service.ClusterService;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.unit.TimeValue;
@@ -78,7 +78,7 @@ public class ElasticsearchNodeClient implements ElasticsearchClient {
       String[] concreteIndices = resolveIndexExpression(state, new String[] {indexExpression});
 
       return populateIndexMappings(
-          state.metaData().findMappings(concreteIndices, ALL_TYPES, ALL_FIELDS));
+          state.metadata().findMappings(concreteIndices, ALL_TYPES, ALL_FIELDS));
     } catch (IOException e) {
       throw new IllegalStateException(
           "Failed to read mapping in cluster state for index pattern [" + indexExpression + "]", e);
@@ -111,7 +111,7 @@ public class ElasticsearchNodeClient implements ElasticsearchClient {
   public void schedule(Runnable task) {
     ThreadPool threadPool = client.threadPool();
     threadPool.schedule(
-        threadPool.preserveContext(withCurrentContext(task)),
+        withCurrentContext(task),
         new TimeValue(0),
         SQL_WORKER_THREAD_POOL_NAME
     );
@@ -122,10 +122,10 @@ public class ElasticsearchNodeClient implements ElasticsearchClient {
   }
 
   private Map<String, IndexMapping> populateIndexMappings(
-      ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> indexMappings) {
+      ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetadata>> indexMappings) {
 
     ImmutableMap.Builder<String, IndexMapping> result = ImmutableMap.builder();
-    for (ObjectObjectCursor<String, ImmutableOpenMap<String, MappingMetaData>> cursor :
+    for (ObjectObjectCursor<String, ImmutableOpenMap<String, MappingMetadata>> cursor :
         indexMappings) {
       result.put(cursor.key, populateIndexMapping(cursor.value));
     }
@@ -133,7 +133,7 @@ public class ElasticsearchNodeClient implements ElasticsearchClient {
   }
 
   private IndexMapping populateIndexMapping(
-      ImmutableOpenMap<String, MappingMetaData> indexMapping) {
+      ImmutableOpenMap<String, MappingMetadata> indexMapping) {
     if (indexMapping.isEmpty()) {
       return new IndexMapping(Collections.emptyMap());
     }

@@ -1,0 +1,395 @@
+<!--
+ *   Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved. 
+ * 
+ *   Licensed under the Apache License, Version 2.0 (the "License"). 
+ *   You may not use this file except in compliance with the License. 
+ *   A copy of the License is located at 
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0 
+ * 
+ *   or in the "license" file accompanying this file. This file is distributed 
+ *   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
+ *   express or implied. See the License for the specific language governing 
+ *   permissions and limitations under the License. 
+-->
+<!-- clang-format off -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Elastic Search Test Results</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        table, td, th {
+          border: 1px solid black;
+        }
+        #fail-info {
+            color: lightcoral;
+        }
+        #pass-info {
+            color: lightgreen;
+        }
+        #info {
+            color: white;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        #info-body {
+            background: linear-gradient(27deg, #151515 5px, transparent 5px) 0 5px, linear-gradient(207deg, #151515 5px, transparent 5px) 10px 0px, linear-gradient(27deg, #222 5px, transparent 5px) 0px 10px, linear-gradient(207deg, #222 5px, transparent 5px) 10px 5px, linear-gradient(90deg, #1b1b1b 10px, transparent 10px), linear-gradient(#1d1d1d 25%, #1a1a1a 25%, #1a1a1a 50%, transparent 50%, transparent 75%, #242424 75%, #242424);
+            background-color: #131313;
+            background-size: 20px 20px;
+            font-family: Arial, Helvetica, sans-serif;
+            color: white;
+        }
+        
+        .collapsible {
+            background: inherit;
+            background-color: #131313;
+            background-size: 10px 10px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: medium;
+            margin-left: 5%;
+            border: none;
+            padding: 14px 28px;
+            font-size: 16px;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .active, .collapsible:hover {
+            background-color: #555;
+        }
+
+        .content {
+            padding: 0 5px;
+            display: none;
+            overflow: hidden;
+            background: linear-gradient(27deg, #151515 5px, transparent 5px) 0 5px, linear-gradient(207deg, #151515 5px, transparent 5px) 10px 0px, linear-gradient(27deg, #222 5px, transparent 5px) 0px 10px, linear-gradient(207deg, #222 5px, transparent 5px) 10px 5px, linear-gradient(90deg, #1b1b1b 10px, transparent 10px), linear-gradient(#1d1d1d 25%, #1a1a1a 25%, #1a1a1a 50%, transparent 50%, transparent 75%, #242424 75%, #242424);
+            background-color: #131313;
+            background-size: 20px 20px;
+            font-family: Arial, Helvetica, sans-serif;
+            color: white;
+        }
+
+        #info-div-table {
+            margin-left: 10%;
+            margin-right: 50%;
+        }
+
+        #info-div-title {
+            margin-left: 7%;
+        }
+
+        #info-div-case {
+            margin-left: 10%;
+            margin-right: 50%;
+        }
+
+        #info td, #info th {
+            padding: 4px;
+        }
+
+        #info tr:hover {
+            background-color: #36486b
+        }
+
+        #info td {
+            padding: 8px;
+            text-align: left;
+            border: 1px, solid#ddd;
+        }
+
+        #info-div-test {
+            margin-left: 8%;
+        }
+
+        #info-div-case {
+            margin-left: 5%;
+        }
+
+        #test-div-test {
+            margin-left: 5%;
+        }
+
+        #test-div-table {
+            margin-left: 10%;
+            margin-right: 40%;
+        }
+
+        #tests-table {
+            color: white;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        #tests-table th {
+            background-color: #034f84;
+            text-align: left;
+            padding: 8px;
+        }
+
+        #tests-table tr:hover {
+            background-color: #36486b
+        }
+
+        #tests-table td {
+            padding: 8px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body id="info-body">
+    <header>
+        <h1>Test Results</h1>
+        <h2 style="margin-left: 2%">Unit Tests</h2>
+    </header>
+    <div id="info-div-table">
+        <table id="tests-table">
+            <tr>
+                <th style="background-color: #022140; width: 70%">Unit Test</th>
+                <th style="background-color: #022140; width: 15%">Cases</th>
+                <th style="background-color: #022140; width: 15%">Errors</th>
+            </tr>
+            <colgroup>
+                <col span="1" style="background-color:#034f84; width: 60%" />
+                <col span="1" style="background-color:#034f84; width: 20%" />
+                <col span="1" style="width: 20%" />
+            </colgroup>
+            % for unit_test in data["UT"]:
+            <tr>
+                <td>${unit_test["UnitTest"]}</td>
+                <td>${unit_test["TotalTestCases"]}</td>
+                <td style="background-color:dark${'green' if unit_test['TotalTestCases'] == unit_test['CasePassCount'] else 'red' }">${str(int(unit_test['TotalTestCases']) - int(unit_test['CasePassCount']))}</td>
+            </tr>
+            % endfor
+        </table>
+    </div>
+    % for unit_test in data["UT"]:
+    <%
+    total_cnt = unit_test["TotalTestCases"]
+    pass_cnt = unit_test['CasePassCount']
+    status = ("Passed " + pass_cnt) if (total_cnt == pass_cnt) else ("Failed " + str(int(total_cnt) - int(pass_cnt)))
+    status = status + "/" + total_cnt
+    %>
+    <div id="info-div-case"><h3 id="${'pass-info' if total_cnt == pass_cnt else 'fail-info'}">${unit_test["UnitTest"] + " - " + status} </h3></div>
+    % for test_case in unit_test["TestCases"]:
+    <%
+    total_cnt = test_case["TestCount"]
+    pass_cnt = test_case['PassCount']
+    status = ("Passed " + pass_cnt) if (total_cnt == pass_cnt) else ("Failed " + str(int(total_cnt) - int(pass_cnt)))
+    status = status + "/" + total_cnt
+    %>
+    <div id="info-div-test">
+        <button type="button" class="collapsible" style="color:light${'green' if total_cnt == pass_cnt else 'coral'}">
+            ${test_case["TestCase"] + " - " + status + " - " + test_case["TotalTime"]}
+        </button>
+        <div class="content">
+            <div id="info-div-table">
+                <table id="info">
+                    <tr>
+                        <th style="background-color: #022140; width: 70%">Test Name</th>
+                        <th style="background-color: #022140; width: 15%">Time</th>
+                        <th style="background-color: #022140; width: 15%">Result</th>
+                    </tr>
+                    <colgroup>
+                        <col span="1" style="background-color:#034f84; width: 60%" />
+                        <col span="1" style="background-color:#034f84; width: 20%" />
+                        <col span="1" style="width: 20%" />
+                    </colgroup>
+                    % for test_result in test_case["TestResults"]:
+                    % if "Error" in test_result:
+                    <tr title="${test_result['Error']}">
+                        % else:
+                    <tr>
+                        % endif
+                        <td>${test_result["TestName"]}</td>
+                        <td>${test_result["TestTime"]}</td>
+                        <td style="background-color:dark${'green' if test_result['TestResult']=='OK' else 'red' }">${test_result["TestResult"]}</td>
+                    </tr>
+                    % endfor
+                </table>
+            </div>
+        </div>
+    </div>
+    % endfor
+    % endfor
+    <!-- Integration Tests -->
+    <header>
+        <h2 style="margin-left: 2%">Integration Tests</h2>
+    </header>
+    <div id="info-div-table">
+        <table id="tests-table">
+            <tr>
+                <th style="background-color: #022140; width: 70%">Unit Test</th>
+                <th style="background-color: #022140; width: 15%">Cases</th>
+                <th style="background-color: #022140; width: 15%">Errors</th>
+            </tr>
+            <colgroup>
+                <col span="1" style="background-color:#034f84; width: 60%" />
+                <col span="1" style="background-color:#034f84; width: 20%" />
+                <col span="1" style="width: 20%" />
+            </colgroup>
+            % for integration_test in data["IT"]:
+            <tr>
+                <td>${integration_test["UnitTest"]}</td>
+                <td>${integration_test["TotalTestCases"]}</td>
+                <td style="background-color:dark${'green' if integration_test['TotalTestCases'] == integration_test['CasePassCount'] else 'red' }">${str(int(integration_test['TotalTestCases']) - int(integration_test['CasePassCount']))}</td>
+            </tr>
+            % endfor
+        </table>
+    </div>
+    % for integration_test in data["IT"]:
+    <%
+    total_cnt = integration_test["TotalTestCases"]
+    pass_cnt = integration_test['CasePassCount']
+    status = ("Passed " + pass_cnt) if (total_cnt == pass_cnt) else ("Failed " + str(int(total_cnt) - int(pass_cnt)))
+    status = status + "/" + total_cnt
+    %>
+    <div id="info-div-case"><h3 id="${'pass-info' if total_cnt == pass_cnt else 'fail-info'}">${integration_test["UnitTest"] + " - " + status} </h3></div>
+    % for test_case in integration_test["TestCases"]:
+    <%
+    total_cnt = test_case["TestCount"]
+    pass_cnt = test_case['PassCount']
+    status = ("Passed " + pass_cnt) if (total_cnt == pass_cnt) else ("Failed " + str(int(total_cnt) - int(pass_cnt)))
+    status = status + "/" + total_cnt
+    %>
+    <div id="info-div-test">
+        <button type="button" class="collapsible" style="color:light${'green' if total_cnt == pass_cnt else 'coral'}">
+            ${test_case["TestCase"] + " - " + status + " - " + test_case["TotalTime"]}
+        </button>
+        <div class="content">
+            <div id="info-div-table">
+                <table id="info">
+                    <tr>
+                        <th style="background-color: #022140; width: 70%">Test Name</th>
+                        <th style="background-color: #022140; width: 15%">Time</th>
+                        <th style="background-color: #022140; width: 15%">Result</th>
+                    </tr>
+                    <colgroup>
+                        <col span="1" style="background-color:#034f84; width: 60%" />
+                        <col span="1" style="background-color:#034f84; width: 20%" />
+                        <col span="1" style="width: 20%" />
+                    </colgroup>
+                    % for test_result in test_case["TestResults"]:
+                    % if "Error" in test_result:
+                    <tr title="${test_result['Error']}">
+                        % else:
+                    <tr>
+                        % endif
+                        <td>${test_result["TestName"]}</td>
+                        <td>${test_result["TestTime"]}</td>
+                        <td style="background-color:dark${'green' if test_result['TestResult']=='OK' else 'red' }">${test_result["TestResult"]}</td>
+                    </tr>
+                    % endfor
+                </table>
+            </div>
+        </div>
+    </div>
+    % endfor
+    % endfor
+    <!-- Integration Tests -->
+    <header>
+        <h2 style="margin-left: 2%">Integration Tests</h2>
+    </header>
+    <div id="info-div-table">
+        <table id="tests-table">
+            <tr>
+                <th style="background-color: #022140; width: 70%">Unit Test</th>
+                <th style="background-color: #022140; width: 15%">Cases</th>
+                <th style="background-color: #022140; width: 15%">Errors</th>
+            </tr>
+            <colgroup>
+                <col span="1" style="background-color:#034f84; width: 60%" />
+                <col span="1" style="background-color:#034f84; width: 20%" />
+                <col span="1" style="width: 20%" />
+            </colgroup>
+            % for integration_test in data["IT"]:
+            <tr>
+                <td>${integration_test["UnitTest"]}</td>
+                <td>${integration_test["TotalTestCases"]}</td>
+                <td style="background-color:dark${'green' if integration_test['TotalTestCases'] == integration_test['CasePassCount'] else 'red' }">${str(int(integration_test['TotalTestCases']) - int(integration_test['CasePassCount']))}</td>
+            </tr>
+            % endfor
+        </table>
+    </div>
+    % if "performance" in data.keys():
+    % if "Info" in data["performance"].keys():
+    <!-- Performance Tests -->
+    <header>
+        <h2 style="margin-left: 2%">Performance Info</h2>
+    </header>
+    <div id="info-div-table">
+        <table id="tests-table">
+            <tr>
+                <th style="background-color: #022140; width: 50%">Info</th>
+                <th style="background-color: #022140; width: 50%">Data</th>
+            </tr>
+            <colgroup>
+                <col span="1" style="background-color:#034f84; width: 50%" />
+                <col span="1" style="background-color:#034f84; width: 50%" />
+            </colgroup>
+            % for k,v in data["performance"]["Info"].items():
+            <tr>
+                <td>${k}</td>
+                <td>${v.rstrip()}</td>
+            </tr>
+            % endfor
+        </table>
+    </div>
+    % endif
+    % if "Results" in data["performance"].keys():
+    <!-- Performance Tests -->
+    <header>
+        <h2 style="margin-left: 2%">Performance Results</h2>
+    </header>
+    <div id="info-div-table">
+        <table id="tests-table">
+            <tr>
+                <th style="background-color: #022140; width: 25%">Test Case</th>
+                <th style="background-color: #022140; width: 25%">Query</th>
+                <th style="background-color: #022140; width: 12.5%">Min</th>
+                <th style="background-color: #022140; width: 12.5%">Max</th>
+                <th style="background-color: #022140; width: 12.5%">Mean</th>
+                <th style="background-color: #022140; width: 12.5%">Median</th>
+            </tr>
+            <colgroup>
+                <col span="1" style="background-color:#034f84; width: 25%" />
+                <col span="1" style="background-color:#034f84; width: 25%" />
+                <col span="1" style="background-color:#034f84; width: 12.5%" />
+                <col span="1" style="background-color:#034f84; width: 12.5%" />
+                <col span="1" style="background-color:#034f84; width: 12.5%" />
+                <col span="1" style="background-color:#034f84; width: 12.5%" />
+            </colgroup>
+            % for test_vector in data["performance"]["Results"]:
+            <tr>
+                <td>${test_vector["Case"]}</td>
+                <td>${test_vector["Query"]}</td>
+                <td>${test_vector["Min"]}</td>
+                <td>${test_vector["Max"]}</td>
+                <td>${test_vector["Mean"]}</td>
+                <td>${test_vector["Median"]}</td>
+            </tr>
+            % endfor
+        </table>
+    </div>
+    % endif
+    % endif
+</body>
+<script>
+var coll = document.getElementsByClassName("collapsible");
+var i;
+
+for (i = 0; i < coll.length; i++) {
+  coll[i].addEventListener("click", function() {
+    this.classList.toggle("active");
+    var content = this.nextElementSibling;
+    if (content.style.display === "block") {
+      content.style.display = "none";
+    } else {
+      content.style.display = "block";
+    }
+  });
+}
+</script>
+</html>

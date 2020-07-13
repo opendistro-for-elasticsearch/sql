@@ -68,8 +68,9 @@ public class TestReportTest {
         new DBResult("Elasticsearch", singleton(new Type("firstName", "text")),
             singleton(new Row(asList("hello")))),
         new DBResult("H2", singleton(new Type("firstName", "text")),
-            singleton(new Row(asList("world"))))
-    )));
+            singleton(new Row(asList("world"))))),
+        "[SQLITE_ERROR] SQL error or missing database;"
+    ));
     JSONObject actual = new JSONObject(report);
     JSONObject expected = new JSONObject(
         "{" +
@@ -84,6 +85,7 @@ public class TestReportTest {
             "      \"result\": 'Failed'," +
             "      \"sql\": \"SELECT * FROM accounts\"," +
             "      \"explain\": \"Data row at [0] is different: this=[Row(values=[hello])], other=[Row(values=[world])]\"," +
+            "      \"errors\": \"[SQLITE_ERROR] SQL error or missing database;\"," +
             "      \"resultSets\": [" +
             "        {" +
             "          \"database\": \"Elasticsearch\"," +

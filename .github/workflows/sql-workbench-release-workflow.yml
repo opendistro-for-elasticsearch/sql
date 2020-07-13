@@ -1,0 +1,58 @@
+name: Release SQL-Workbench Artifacts
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Checkout Plugin
+        uses: actions/checkout@v1
+
+      - name: Checkout Kibana
+        uses: actions/checkout@v1
+        with:
+          repository: opendistro-for-elasticsearch/kibana-oss
+          ref: 7.8.0
+          token: ${{secrets.OD_ACCESS}}
+          path: kibana
+
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '10.21.0'
+
+      - name: Move Workbench to Plugins Dir
+        run: |
+          mkdir kibana/plugins
+          mv sql-workbench kibana/plugins
+
+      - name: Kibana Plugin Bootstrap
+        uses: nick-invision/retry@v1
+        with:
+          timeout_minutes: 60
+          max_attempts: 3
+          command: cd kibana/plugins/sql-workbench; yarn kbn bootstrap
+
+      - name: Build Artifact
+        run: |
+          cd kibana/plugins/sql-workbench
+          yarn build
+          artifact=`ls ./build/*.zip`
+
+          aws s3 cp $artifact s3://artifacts.opendistroforelasticsearch.amazon.com/downloads/kibana-plugins/opendistro-sql-workbench/
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.DISTRIBUTION_ID }} --paths "/downloads/*"
