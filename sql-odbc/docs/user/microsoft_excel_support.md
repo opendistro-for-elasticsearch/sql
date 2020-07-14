@@ -34,7 +34,7 @@
 
 To refresh the data click on **Query** > **Refresh**.
 
-<img src="img/refresh_from_query.png" width=300>
+<img src="img/excel_refresh.png" width=300>
 
 Alternately, **Data** > **Refresh** option can also be used to refresh the data.
 
@@ -45,13 +45,12 @@ Alternately, **Data** > **Refresh** option can also be used to refresh the data.
 * Type the file name.
 * Set type as **CSV UTF-8(Comma delimited)(*.csv)**.
 
-<img src="img/refresh_export.png" width=550>
+<img src="img/excel_export.png" width=550>
 
 * Click **Save**.
 * Data will be exported to selected location in CSV format.
 
 ## Troubleshooting
 
-* If the table has large number of datarows, [update the keepalive](https://github.com/opendistro-for-elasticsearch/sql/blob/master/docs/dev/Pagination.md#opendistrosqlcursorkeep_alive) value accordlingly. 
-
+* If the table has large number of datarows, increase [the keepalive](https://github.com/opendistro-for-elasticsearch/sql/blob/master/docs/dev/Pagination.md#opendistrosqlcursorkeep_alive) value accordlingly. 
 
