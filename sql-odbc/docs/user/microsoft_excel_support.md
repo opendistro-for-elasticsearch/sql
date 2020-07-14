@@ -34,7 +34,7 @@
 
 To refresh the data click on **Query** > **Refresh**.
 
-<img src="img/excel_refresh.png" width=300>
+<img src="img/excel_refresh.png" width=500>
 
 Alternately, **Data** > **Refresh** option can also be used to refresh the data.
 
@@ -45,7 +45,7 @@ Alternately, **Data** > **Refresh** option can also be used to refresh the data.
 * Type the file name.
 * Set type as **CSV UTF-8(Comma delimited)(*.csv)**.
 
-<img src="img/excel_export.png" width=550>
+<img src="img/excel_export.png" width=650>
 
 * Click **Save**.
 * Data will be exported to selected location in CSV format.
