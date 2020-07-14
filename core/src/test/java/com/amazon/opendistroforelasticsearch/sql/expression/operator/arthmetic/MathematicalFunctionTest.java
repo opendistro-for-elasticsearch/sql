@@ -19,11 +19,14 @@ import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.DOUBLE
 import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.DOUBLE_TYPE_NULL_VALUE_FIELD;
 import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.INT_TYPE_MISSING_VALUE_FIELD;
 import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.INT_TYPE_NULL_VALUE_FIELD;
+import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.STRING_TYPE_MISSING_VALUE_FILED;
+import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.STRING_TYPE_NULL_VALUE_FILED;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getDoubleValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.utils.MatcherUtils.hasType;
 import static com.amazon.opendistroforelasticsearch.sql.utils.MatcherUtils.hasValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -35,7 +38,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.stream.Stream;
+import java.util.zip.CRC32;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -224,6 +230,137 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     FunctionExpression ceiling = dsl.ceiling(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
     assertEquals(INTEGER, ceiling.type());
     assertTrue(ceiling.valueOf(valueEnv()).isMissing());
+  }
+
+  /**
+   * Test conv from decimal base.
+   */
+  @ParameterizedTest(name = "conv({0})")
+  @ValueSource(strings = {"1", "0", "-1"})
+  public void conv_from_decimal(String value) {
+    FunctionExpression conv = dsl.conv(DSL.literal(value), DSL.literal(10), DSL.literal(2));
+    assertThat(
+        conv.valueOf(valueEnv()),
+        allOf(hasType(STRING), hasValue(Integer.toString(Integer.parseInt(value), 2))));
+
+    conv = dsl.conv(DSL.literal(value), DSL.literal(10), DSL.literal(8));
+    assertThat(
+        conv.valueOf(valueEnv()),
+        allOf(hasType(STRING), hasValue(Integer.toString(Integer.parseInt(value), 8))));
+
+    conv = dsl.conv(DSL.literal(value), DSL.literal(10), DSL.literal(16));
+    assertThat(
+        conv.valueOf(valueEnv()),
+        allOf(hasType(STRING), hasValue(Integer.toString(Integer.parseInt(value), 16))));
+  }
+
+  /**
+   * Test conv to decimal base.
+   */
+  @ParameterizedTest(name = "conv({0})")
+  @ValueSource(strings = {"11", "0", "11111"})
+  public void conv_to_decimal(String value) {
+    FunctionExpression conv = dsl.conv(DSL.literal(value), DSL.literal(2), DSL.literal(10));
+    assertThat(
+        conv.valueOf(valueEnv()),
+        allOf(hasType(STRING), hasValue(Integer.toString(Integer.parseInt(value, 2)))));
+
+    conv = dsl.conv(DSL.literal(value), DSL.literal(8), DSL.literal(10));
+    assertThat(
+        conv.valueOf(valueEnv()),
+        allOf(hasType(STRING), hasValue(Integer.toString(Integer.parseInt(value, 8)))));
+
+    conv = dsl.conv(DSL.literal(value), DSL.literal(16), DSL.literal(10));
+    assertThat(
+        conv.valueOf(valueEnv()),
+        allOf(hasType(STRING), hasValue(Integer.toString(Integer.parseInt(value, 16)))));
+  }
+
+  /**
+   * Test conv with null value.
+   */
+  @Test
+  public void conv_null_value() {
+    FunctionExpression conv = dsl.conv(
+        DSL.ref(STRING_TYPE_NULL_VALUE_FILED, STRING), DSL.literal(10), DSL.literal(2));
+    assertEquals(STRING, conv.type());
+    assertTrue(conv.valueOf(valueEnv()).isNull());
+
+    conv = dsl.conv(
+        DSL.literal("1"), DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER), DSL.literal(2));
+    assertEquals(STRING, conv.type());
+    assertTrue(conv.valueOf(valueEnv()).isNull());
+
+    conv = dsl.conv(
+        DSL.literal("1"), DSL.literal(10), DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
+    assertEquals(STRING, conv.type());
+    assertTrue(conv.valueOf(valueEnv()).isNull());
+  }
+
+  /**
+   * Test conv with missing value.
+   */
+  @Test
+  public void conv_missing_value() {
+    FunctionExpression conv = dsl.conv(
+        DSL.ref(STRING_TYPE_MISSING_VALUE_FILED, STRING), DSL.literal(10), DSL.literal(2));
+    assertEquals(STRING, conv.type());
+    assertTrue(conv.valueOf(valueEnv()).isMissing());
+
+    conv = dsl.conv(
+        DSL.literal("1"), DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER), DSL.literal(2));
+    assertEquals(STRING, conv.type());
+    assertTrue(conv.valueOf(valueEnv()).isMissing());
+
+    conv = dsl.conv(
+        DSL.literal("1"), DSL.literal(10), DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
+    assertEquals(STRING, conv.type());
+    assertTrue(conv.valueOf(valueEnv()).isMissing());
+  }
+
+  /**
+   * Test conv with null and missing values.
+   */
+  @Test
+  public void conv_null_missing() {
+    FunctionExpression conv = dsl.conv(DSL.ref(STRING_TYPE_MISSING_VALUE_FILED, STRING),
+        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER), DSL.literal(2));
+    assertEquals(STRING, conv.type());
+    assertTrue(conv.valueOf(valueEnv()).isMissing());
+  }
+
+  /**
+   * Test crc32 with string value.
+   */
+  @ParameterizedTest(name = "crc({0})")
+  @ValueSource(strings = {"odfe", "sql"})
+  public void crc32_string_value(String value) {
+    FunctionExpression crc = dsl.crc32(DSL.literal(value));
+    CRC32 crc32 = new CRC32();
+    crc32.update(value.getBytes());
+    assertThat(
+        crc.valueOf(valueEnv()),
+        allOf(hasType(LONG), hasValue(crc32.getValue())));
+  }
+
+  /**
+   * Test crc32 with null value.
+   */
+  @Test
+  public void crc32_null_value() {
+    FunctionExpression crc = dsl.crc32(DSL.ref(STRING_TYPE_NULL_VALUE_FILED, STRING));
+    assertEquals(LONG, crc.type());
+    assertTrue(crc.valueOf(valueEnv()).isNull());
+  }
+
+  /**
+   * Test crc32 with missing value.
+   */
+  @Test
+  public void crc32_missing_value() {
+    FunctionExpression crc = dsl.crc32(DSL.ref(STRING_TYPE_MISSING_VALUE_FILED, STRING));
+    assertEquals(LONG, crc.type());
+    assertTrue(crc.valueOf(valueEnv()).isMissing());
   }
 
   /**
@@ -802,5 +939,620 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
         DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
     assertEquals(DOUBLE, log.type());
     assertTrue(log.valueOf(valueEnv()).isMissing());
+  }
+
+  /**
+   * Test mod with integer value.
+   */
+  @ParameterizedTest(name = "mod({0}, {1})")
+  @MethodSource("testLogIntegerArguments")
+  public void mod_int_value(Integer v1, Integer v2) {
+    FunctionExpression mod = dsl.mod(DSL.literal(v1), DSL.literal(v2));
+    assertThat(
+        mod.valueOf(valueEnv()),
+        allOf(hasType(INTEGER), hasValue(v1 % v2)));
+  }
+
+  /**
+   * Test mod with double value.
+   */
+  @ParameterizedTest(name = "mod({0}, {1})")
+  @MethodSource("testLogDoubleArguments")
+  public void mod_double_value(Double v1, Double v2) {
+    FunctionExpression mod = dsl.mod(DSL.literal(v1), DSL.literal(v2));
+    assertThat(
+        mod.valueOf(valueEnv()),
+        allOf(hasType(DOUBLE), hasValue(v1 % v2)));
+  }
+
+  /**
+   * Test mod with null value.
+   */
+  @Test
+  public void mod_null_value() {
+    FunctionExpression mod = dsl.mod(DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER), DSL.literal(1));
+    assertEquals(INTEGER, mod.type());
+    assertTrue(mod.valueOf(valueEnv()).isNull());
+
+    mod = dsl.mod(DSL.literal(1), DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
+    assertEquals(INTEGER, mod.type());
+    assertTrue(mod.valueOf(valueEnv()).isNull());
+
+    mod = dsl.mod(
+        DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER), DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
+    assertEquals(INTEGER, mod.type());
+    assertTrue(mod.valueOf(valueEnv()).isNull());
+  }
+
+  /**
+   * Test mod with missing value.
+   */
+  @Test
+  public void mod_missing_value() {
+    FunctionExpression mod =
+        dsl.mod(DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER), DSL.literal(1));
+    assertEquals(INTEGER, mod.type());
+    assertTrue(mod.valueOf(valueEnv()).isMissing());
+
+    mod = dsl.mod(DSL.literal(1), DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
+    assertEquals(INTEGER, mod.type());
+    assertTrue(mod.valueOf(valueEnv()).isMissing());
+
+    mod = dsl.mod(
+        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER),
+        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
+    assertEquals(INTEGER, mod.type());
+    assertTrue(mod.valueOf(valueEnv()).isMissing());
+  }
+
+  /**
+   * Test mod with null and missing values.
+   */
+  @Test
+  public void mod_null_missing() {
+    FunctionExpression mod = dsl.mod(DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER),
+        DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
+    assertEquals(INTEGER, mod.type());
+    assertTrue(mod.valueOf(valueEnv()).isMissing());
+
+    mod = dsl.mod(DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER),
+        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
+    assertEquals(INTEGER, mod.type());
+    assertTrue(mod.valueOf(valueEnv()).isMissing());
+  }
+
+  /**
+   * Test pow/power with integer value.
+   */
+  @ParameterizedTest(name = "pow({0}, {1}")
+  @MethodSource("testLogIntegerArguments")
+  public void pow_int_value(Integer v1, Integer v2) {
+    FunctionExpression pow = dsl.pow(DSL.literal(v1), DSL.literal(v2));
+    assertThat(
+        pow.valueOf(valueEnv()),
+        allOf(hasType(DOUBLE), hasValue(Math.pow(v1, v2))));
+
+    FunctionExpression power = dsl.power(DSL.literal(v1), DSL.literal(v2));
+    assertThat(
+        power.valueOf(valueEnv()),
+        allOf(hasType(DOUBLE), hasValue(Math.pow(v1, v2))));
+  }
+
+  /**
+   * Test pow/power with long value.
+   */
+  @ParameterizedTest(name = "pow({0}, {1}")
+  @MethodSource("testLogLongArguments")
+  public void pow_long_value(Long v1, Long v2) {
+    FunctionExpression pow = dsl.pow(DSL.literal(v1), DSL.literal(v2));
+    assertThat(
+        pow.valueOf(valueEnv()),
+        allOf(hasType(DOUBLE), hasValue(Math.pow(v1, v2))));
+
+    FunctionExpression power = dsl.power(DSL.literal(v1), DSL.literal(v2));
+    assertThat(
+        power.valueOf(valueEnv()),
+        allOf(hasType(DOUBLE), hasValue(Math.pow(v1, v2))));
+  }
+
+  /**
+   * Test pow/power with float value.
+   */
+  @ParameterizedTest(name = "pow({0}, {1}")
+  @MethodSource("testLogFloatArguments")
+  public void pow_float_value(Float v1, Float v2) {
+    FunctionExpression pow = dsl.pow(DSL.literal(v1), DSL.literal(v2));
+    assertThat(
+        pow.valueOf(valueEnv()),
+        allOf(hasType(DOUBLE), hasValue(Math.pow(v1, v2))));
+
+    FunctionExpression power = dsl.power(DSL.literal(v1), DSL.literal(v2));
+    assertThat(
+        power.valueOf(valueEnv()),
+        allOf(hasType(DOUBLE), hasValue(Math.pow(v1, v2))));
+  }
+
+  /**
+   * Test pow/power with double value.
+   */
+  @ParameterizedTest(name = "pow({0}, {1}")
+  @MethodSource("testLogDoubleArguments")
+  public void pow_double_value(Double v1, Double v2) {
+    FunctionExpression pow = dsl.pow(DSL.literal(v1), DSL.literal(v2));
+    assertThat(
+        pow.valueOf(valueEnv()),
+        allOf(hasType(DOUBLE), hasValue(Math.pow(v1, v2))));
+
+    FunctionExpression power = dsl.power(DSL.literal(v1), DSL.literal(v2));
+    assertThat(
+        power.valueOf(valueEnv()),
+        allOf(hasType(DOUBLE), hasValue(Math.pow(v1, v2))));
+  }
+
+  /**
+   * Test pow/power with null value.
+   */
+  @Test
+  public void pow_null_value() {
+    FunctionExpression pow = dsl.pow(DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER), DSL.literal(1));
+    assertEquals(DOUBLE, pow.type());
+    assertTrue(pow.valueOf(valueEnv()).isNull());
+
+    dsl.pow(DSL.literal(1), DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
+    assertEquals(DOUBLE, pow.type());
+    assertTrue(pow.valueOf(valueEnv()).isNull());
+
+    dsl.pow(
+        DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER), DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
+    assertEquals(DOUBLE, pow.type());
+    assertTrue(pow.valueOf(valueEnv()).isNull());
+
+    FunctionExpression power =
+        dsl.power(DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER), DSL.literal(1));
+    assertEquals(DOUBLE, power.type());
+    assertTrue(power.valueOf(valueEnv()).isNull());
+
+    power = dsl.power(DSL.literal(1), DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
+    assertEquals(DOUBLE, power.type());
+    assertTrue(power.valueOf(valueEnv()).isNull());
+
+    power = dsl.power(
+        DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER), DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
+    assertEquals(DOUBLE, power.type());
+    assertTrue(power.valueOf(valueEnv()).isNull());
+  }
+
+  /**
+   * Test pow/power with missing value.
+   */
+  @Test
+  public void pow_missing_value() {
+    FunctionExpression pow =
+        dsl.pow(DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER), DSL.literal(1));
+    assertEquals(DOUBLE, pow.type());
+    assertTrue(pow.valueOf(valueEnv()).isMissing());
+
+    dsl.pow(DSL.literal(1), DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
+    assertEquals(DOUBLE, pow.type());
+    assertTrue(pow.valueOf(valueEnv()).isMissing());
+
+    dsl.pow(DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER),
+        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
+    assertEquals(DOUBLE, pow.type());
+    assertTrue(pow.valueOf(valueEnv()).isMissing());
+
+    FunctionExpression power =
+        dsl.power(DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER), DSL.literal(1));
+    assertEquals(DOUBLE, power.type());
+    assertTrue(power.valueOf(valueEnv()).isMissing());
+
+    power = dsl.power(DSL.literal(1), DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
+    assertEquals(DOUBLE, power.type());
+    assertTrue(power.valueOf(valueEnv()).isMissing());
+
+    power = dsl.power(DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER),
+        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
+    assertEquals(DOUBLE, power.type());
+    assertTrue(power.valueOf(valueEnv()).isMissing());
+  }
+
+  /**
+   * Test pow/power with null and missing values.
+   */
+  @Test
+  public void pow_null_missing() {
+    FunctionExpression pow = dsl.pow(
+        DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER),
+        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
+    assertEquals(DOUBLE, pow.type());
+    assertTrue(pow.valueOf(valueEnv()).isMissing());
+
+    pow = dsl.pow(
+        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER),
+        DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
+    assertEquals(DOUBLE, pow.type());
+    assertTrue(pow.valueOf(valueEnv()).isMissing());
+
+    FunctionExpression power = dsl.power(
+        DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER),
+        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
+    assertEquals(DOUBLE, power.type());
+    assertTrue(power.valueOf(valueEnv()).isMissing());
+
+    power = dsl.power(
+        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER),
+        DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
+    assertEquals(DOUBLE, power.type());
+    assertTrue(power.valueOf(valueEnv()).isMissing());
+  }
+
+  /**
+   * Test round with integer value.
+   */
+  @ParameterizedTest(name = "round({0}")
+  @ValueSource(ints = {2, -2})
+  public void round_int_value(Integer value) {
+    FunctionExpression round = dsl.round(DSL.literal(value));
+    assertThat(
+        round.valueOf(valueEnv()),
+        allOf(hasType(LONG), hasValue((long) Math.round(value))));
+
+    round = dsl.round(DSL.literal(value), DSL.literal(1));
+    assertThat(
+        round.valueOf(valueEnv()),
+        allOf(hasType(LONG), hasValue(
+            new BigDecimal(value).setScale(1, RoundingMode.HALF_UP).longValue())));
+  }
+
+  /**
+   * Test round with long value.
+   */
+  @ParameterizedTest(name = "round({0}")
+  @ValueSource(longs = {2L, -2L})
+  public void round_long_value(Long value) {
+    FunctionExpression round = dsl.round(DSL.literal(value));
+    assertThat(
+        round.valueOf(valueEnv()),
+        allOf(hasType(LONG), hasValue((long) Math.round(value))));
+
+    round = dsl.round(DSL.literal(value), DSL.literal(1));
+    assertThat(
+        round.valueOf(valueEnv()),
+        allOf(hasType(LONG), hasValue(
+            new BigDecimal(value).setScale(1, RoundingMode.HALF_UP).longValue())));
+  }
+
+  /**
+   * Test round with float value.
+   */
+  @ParameterizedTest(name = "round({0}")
+  @ValueSource(floats = {2F, -2F})
+  public void round_float_value(Float value) {
+    FunctionExpression round = dsl.round(DSL.literal(value));
+    assertThat(
+        round.valueOf(valueEnv()),
+        allOf(hasType(DOUBLE), hasValue((double) Math.round(value))));
+
+    round = dsl.round(DSL.literal(value), DSL.literal(1));
+    assertThat(
+        round.valueOf(valueEnv()),
+        allOf(hasType(DOUBLE), hasValue(
+            new BigDecimal(value).setScale(1, RoundingMode.HALF_UP).doubleValue())));
+  }
+
+  /**
+   * Test round with double value.
+   */
+  @ParameterizedTest(name = "round({0}")
+  @ValueSource(doubles = {2D, -2D})
+  public void round_double_value(Double value) {
+    FunctionExpression round = dsl.round(DSL.literal(value));
+    assertThat(
+        round.valueOf(valueEnv()),
+        allOf(hasType(DOUBLE), hasValue((double) Math.round(value))));
+
+    round = dsl.round(DSL.literal(value), DSL.literal(1));
+    assertThat(
+        round.valueOf(valueEnv()),
+        allOf(hasType(DOUBLE), hasValue(
+            new BigDecimal(value).setScale(1, RoundingMode.HALF_UP).doubleValue())));
+  }
+
+  /**
+   * Test round with null value.
+   */
+  @Test
+  public void round_null_value() {
+    FunctionExpression round = dsl.round(DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
+    assertEquals(LONG, round.type());
+    assertTrue(round.valueOf(valueEnv()).isNull());
+
+    round = dsl.round(DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER), DSL.literal(1));
+    assertEquals(LONG, round.type());
+    assertTrue(round.valueOf(valueEnv()).isNull());
+
+    round = dsl.round(DSL.literal(1), DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
+    assertEquals(LONG, round.type());
+    assertTrue(round.valueOf(valueEnv()).isNull());
+  }
+
+  /**
+   * Test round with null value.
+   */
+  @Test
+  public void round_missing_value() {
+    FunctionExpression round = dsl.round(DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
+    assertEquals(LONG, round.type());
+    assertTrue(round.valueOf(valueEnv()).isMissing());
+
+    round = dsl.round(DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER), DSL.literal(1));
+    assertEquals(LONG, round.type());
+    assertTrue(round.valueOf(valueEnv()).isMissing());
+
+    round = dsl.round(DSL.literal(1), DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
+    assertEquals(LONG, round.type());
+    assertTrue(round.valueOf(valueEnv()).isMissing());
+  }
+
+  /**
+   * Test round with null and missing values.
+   */
+  @Test
+  public void round_null_missing() {
+    FunctionExpression round = dsl.round(
+        DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER),
+        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
+    assertEquals(LONG, round.type());
+    assertTrue(round.valueOf(valueEnv()).isMissing());
+
+    round = dsl.round(
+        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER),
+        DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
+    assertEquals(LONG, round.type());
+    assertTrue(round.valueOf(valueEnv()).isMissing());
+  }
+
+  /**
+   * Test sign with integer value.
+   */
+  @ParameterizedTest(name = "sign({0})")
+  @ValueSource(ints = {2, -2})
+  public void sign_int_value(Integer value) {
+    FunctionExpression sign = dsl.sign(DSL.literal(value));
+    assertThat(
+        sign.valueOf(valueEnv()),
+        allOf(hasType(INTEGER), hasValue((int) Math.signum(value))));
+  }
+
+  /**
+   * Test sign with long value.
+   */
+  @ParameterizedTest(name = "sign({0})")
+  @ValueSource(longs = {2L, -2L})
+  public void sign_long_value(Long value) {
+    FunctionExpression sign = dsl.sign(DSL.literal(value));
+    assertThat(
+        sign.valueOf(valueEnv()),
+        allOf(hasType(INTEGER), hasValue((int) Math.signum(value))));
+  }
+
+  /**
+   * Test sign with float value.
+   */
+  @ParameterizedTest(name = "sign({0})")
+  @ValueSource(floats = {2F, -2F})
+  public void sign_float_value(Float value) {
+    FunctionExpression sign = dsl.sign(DSL.literal(value));
+    assertThat(
+        sign.valueOf(valueEnv()),
+        allOf(hasType(INTEGER), hasValue((int) Math.signum(value))));
+  }
+
+  /**
+   * Test sign with double value.
+   */
+  @ParameterizedTest(name = "sign({0})")
+  @ValueSource(doubles = {2, -2})
+  public void sign_double_value(Double value) {
+    FunctionExpression sign = dsl.sign(DSL.literal(value));
+    assertThat(
+        sign.valueOf(valueEnv()),
+        allOf(hasType(INTEGER), hasValue((int) Math.signum(value))));
+  }
+
+  /**
+   * Test sign with null value.
+   */
+  @Test
+  public void sign_null_value() {
+    FunctionExpression sign = dsl.sign(DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
+    assertEquals(INTEGER, sign.type());
+    assertTrue(sign.valueOf(valueEnv()).isNull());
+  }
+
+  /**
+   * Test sign with missing value.
+   */
+  @Test
+  public void sign_missing_value() {
+    FunctionExpression sign = dsl.sign(DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
+    assertEquals(INTEGER, sign.type());
+    assertTrue(sign.valueOf(valueEnv()).isMissing());
+  }
+
+  /**
+   * Test sqrt with int value.
+   */
+  @ParameterizedTest(name = "sqrt({0})")
+  @ValueSource(ints = {1, 2})
+  public void sqrt_int_value(Integer value) {
+    FunctionExpression sqrt = dsl.sqrt(DSL.literal(value));
+    assertThat(sqrt.valueOf(valueEnv()), allOf(hasType(DOUBLE), hasValue(Math.sqrt(value))));
+  }
+
+  /**
+   * Test sqrt with long value.
+   */
+  @ParameterizedTest(name = "sqrt({0})")
+  @ValueSource(longs = {1L, 2L})
+  public void sqrt_long_value(Long value) {
+    FunctionExpression sqrt = dsl.sqrt(DSL.literal(value));
+    assertThat(sqrt.valueOf(valueEnv()), allOf(hasType(DOUBLE), hasValue(Math.sqrt(value))));
+  }
+
+  /**
+   * Test sqrt with float value.
+   */
+  @ParameterizedTest(name = "sqrt({0})")
+  @ValueSource(floats = {1F, 2F})
+  public void sqrt_float_value(Float value) {
+    FunctionExpression sqrt = dsl.sqrt(DSL.literal(value));
+    assertThat(sqrt.valueOf(valueEnv()), allOf(hasType(DOUBLE), hasValue(Math.sqrt(value))));
+  }
+
+  /**
+   * Test sqrt with double value.
+   */
+  @ParameterizedTest(name = "sqrt({0})")
+  @ValueSource(doubles = {1D, 2D})
+  public void sqrt_double_value(Double value) {
+    FunctionExpression sqrt = dsl.sqrt(DSL.literal(value));
+    assertThat(sqrt.valueOf(valueEnv()), allOf(hasType(DOUBLE), hasValue(Math.sqrt(value))));
+  }
+
+  /**
+   * Test sqrt with negative value.
+   */
+  @ParameterizedTest(name = "sqrt({0})")
+  @ValueSource(doubles = {-1D, -2D})
+  public void sqrt_negative_value(Double value) {
+    FunctionExpression sqrt = dsl.sqrt(DSL.literal(value));
+    assertEquals(DOUBLE, sqrt.type());
+    assertTrue(sqrt.valueOf(valueEnv()).isNull());
+  }
+
+  /**
+   * Test sqrt with null value.
+   */
+  @Test
+  public void sqrt_null_value() {
+    FunctionExpression sqrt = dsl.sqrt(DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
+    assertEquals(DOUBLE, sqrt.type());
+    assertTrue(sqrt.valueOf(valueEnv()).isNull());
+  }
+
+  /**
+   * Test sqrt with missing value.
+   */
+  @Test
+  public void sqrt_missing_value() {
+    FunctionExpression sqrt = dsl.sqrt(DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
+    assertEquals(DOUBLE, sqrt.type());
+    assertTrue(sqrt.valueOf(valueEnv()).isMissing());
+  }
+
+  /**
+   * Test truncate with integer value.
+   */
+  @ParameterizedTest(name = "truncate({0}, {1})")
+  @ValueSource(ints = {2, -2})
+  public void truncate_int_value(Integer value) {
+    FunctionExpression truncate = dsl.truncate(DSL.literal(value), DSL.literal(1));
+    assertThat(
+        truncate.valueOf(valueEnv()), allOf(hasType(LONG),
+            hasValue(new BigDecimal(value).setScale(1, RoundingMode.DOWN).longValue())));
+  }
+
+  /**
+   * Test truncate with long value.
+   */
+  @ParameterizedTest(name = "truncate({0}, {1})")
+  @ValueSource(longs = {2L, -2L})
+  public void truncate_long_value(Long value) {
+    FunctionExpression truncate = dsl.truncate(DSL.literal(value), DSL.literal(1));
+    assertThat(
+        truncate.valueOf(valueEnv()), allOf(hasType(LONG),
+            hasValue(new BigDecimal(value).setScale(1, RoundingMode.DOWN).longValue())));
+  }
+
+  /**
+   * Test truncate with float value.
+   */
+  @ParameterizedTest(name = "truncate({0}, {1})")
+  @ValueSource(floats = {2F, -2F})
+  public void truncate_float_value(Float value) {
+    FunctionExpression truncate = dsl.truncate(DSL.literal(value), DSL.literal(1));
+    assertThat(
+        truncate.valueOf(valueEnv()), allOf(hasType(DOUBLE),
+            hasValue(new BigDecimal(value).setScale(1, RoundingMode.DOWN).doubleValue())));
+  }
+
+  /**
+   * Test truncate with double value.
+   */
+  @ParameterizedTest(name = "truncate({0}, {1})")
+  @ValueSource(doubles = {2D, -2D})
+  public void truncate_double_value(Double value) {
+    FunctionExpression truncate = dsl.truncate(DSL.literal(value), DSL.literal(1));
+    assertThat(
+        truncate.valueOf(valueEnv()), allOf(hasType(DOUBLE),
+            hasValue(new BigDecimal(value).setScale(1, RoundingMode.DOWN).doubleValue())));
+  }
+
+  /**
+   * Test truncate with null value.
+   */
+  @Test
+  public void truncate_null_value() {
+    FunctionExpression truncate =
+        dsl.truncate(DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER), DSL.literal(1));
+    assertEquals(LONG, truncate.type());
+    assertTrue(truncate.valueOf(valueEnv()).isNull());
+
+    truncate = dsl.truncate(DSL.literal(1), DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
+    assertEquals(LONG, truncate.type());
+    assertTrue(truncate.valueOf(valueEnv()).isNull());
+
+    truncate = dsl.truncate(
+        DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER), DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
+    assertEquals(LONG, truncate.type());
+    assertTrue(truncate.valueOf(valueEnv()).isNull());
+  }
+
+  /**
+   * Test truncate with missing value.
+   */
+  @Test
+  public void truncate_missing_value() {
+    FunctionExpression truncate =
+        dsl.truncate(DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER), DSL.literal(1));
+    assertEquals(LONG, truncate.type());
+    assertTrue(truncate.valueOf(valueEnv()).isMissing());
+
+    truncate = dsl.truncate(DSL.literal(1), DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
+    assertEquals(LONG, truncate.type());
+    assertTrue(truncate.valueOf(valueEnv()).isMissing());
+
+    truncate = dsl.truncate(
+        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER),
+        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
+    assertEquals(LONG, truncate.type());
+    assertTrue(truncate.valueOf(valueEnv()).isMissing());
+  }
+
+  /**
+   * Test truncate with null and missing values.
+   */
+  @Test
+  public void truncate_null_missing() {
+    FunctionExpression truncate = dsl.truncate(DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER),
+        DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER));
+    assertEquals(LONG, truncate.type());
+    assertTrue(truncate.valueOf(valueEnv()).isMissing());
+
+    truncate = dsl.truncate(DSL.ref(INT_TYPE_MISSING_VALUE_FIELD, INTEGER),
+        DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
+    assertEquals(LONG, truncate.type());
+    assertTrue(truncate.valueOf(valueEnv()).isMissing());
   }
 }
