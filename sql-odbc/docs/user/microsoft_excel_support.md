@@ -30,7 +30,7 @@
 
 <img src="img/excel_load_data.png">
 
-**NOTE**: There are multiple ways to load data in Microsoft Excel. Alternative options are **Data** > **Get Data** > **From Other Sources** > **From Microsoft Query** and **Data** > **Get Data** > **Legacy Wizards** > **From Data Connection Wizard**.
+**NOTE**: There are multiple ways to load data in Microsoft Excel. Alternate options are **Data** > **Get Data** > **From Other Sources** > **From Microsoft Query** and **Data** > **Get Data** > **Legacy Wizards** > **From Data Connection Wizard**.
 
 ## Refresh Data
 
