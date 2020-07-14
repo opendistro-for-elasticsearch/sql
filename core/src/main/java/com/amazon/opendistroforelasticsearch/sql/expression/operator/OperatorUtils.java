@@ -105,6 +105,57 @@ public class OperatorUtils {
   }
 
   /**
+   * Construct {@link FunctionBuilder} which call function with arguments produced by observer1 and
+   * observer2 In general, if any operand evaluates to a MISSING value, the enclosing operator will
+   * return MISSING; if none of operands evaluates to a MISSING value but there is an operand
+   * evaluates to a NULL value, the enclosing operator will return NULL.
+   *
+   * @param functionName function name
+   * @param function     {@link BiFunction}
+   * @param observer1    extract the value of type T from the first argument
+   * @param observer2    extract the value of type U from the second argument
+   * @param returnType   return type
+   * @param <T>          the type of the first argument to the function
+   * @param <U>          the type of the second argument to the function
+   * @param <R>          the type of the result of the function
+   * @return {@link FunctionBuilder}
+   */
+  public static <T, U, R> FunctionBuilder doubleArgFunc(
+      FunctionName functionName,
+      BiFunction<T, U, R> function,
+      Function<ExprValue, T> observer1,
+      Function<ExprValue, U> observer2,
+      ExprType returnType) {
+    return arguments ->
+        new FunctionExpression(functionName, arguments) {
+          @Override
+          public ExprValue valueOf(Environment<Expression, ExprValue> env) {
+            ExprValue arg1 = arguments.get(0).valueOf(env);
+            ExprValue arg2 = arguments.get(1).valueOf(env);
+            if (arg1.isMissing() || arg2.isMissing()) {
+              return ExprValueUtils.missingValue();
+            } else if (arg1.isNull() || arg2.isNull()) {
+              return ExprValueUtils.nullValue();
+            } else {
+              return ExprValueUtils.fromObjectValue(
+                  function.apply(observer1.apply(arg1), observer2.apply(arg2)));
+            }
+          }
+
+          @Override
+          public ExprType type() {
+            return returnType;
+          }
+
+          @Override
+          public String toString() {
+            return String.format("%s(%s, %s)", functionName, arguments.get(0).toString(), arguments
+                .get(1).toString());
+          }
+        };
+  }
+
+  /**
    * Construct {@link FunctionBuilder} which call function with arguments produced by observer In
    * general, if any operand evaluates to a MISSING value, the enclosing operator will return
    * MISSING; if none of operands evaluates to a MISSING value but there is an operand evaluates to
