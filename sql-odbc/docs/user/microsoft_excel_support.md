@@ -66,7 +66,7 @@ In this case, please use advanced options while connecting to the data source.
 
 <img src="img/excel_advanced_option.png" width=500>
 
-Also, make sure query doesn't include the name of nested or object type column name. For example, `SELECT product FROM kibana_sample_data_ecommerce` where product is nested type column will result in error or data mismatch.
+Also, make sure query doesn't include the name of nested or object type column name. For example, `SELECT products FROM kibana_sample_data_ecommerce` where product is nested type column might have data loss.
 
 This issue will be resolved when [Object field is missing in SELECT result](https://github.com/opendistro-for-elasticsearch/sql/issues/564) is fixed.
 
