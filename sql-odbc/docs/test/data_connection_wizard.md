@@ -29,3 +29,6 @@
 
 <img src="img/data_connection_wizard_load_data.png">
 
+**NOTE**: If **Legacy Wizards** is disabled in Microsoft Excel, It can enabled by **File** > **Options** > **Data** > **Show legacy data import wizards** > Check **From Data Connection Wizard (Legacy)**.
+
+<img src="img/data_connection_wizard_enable.png" width=600>
