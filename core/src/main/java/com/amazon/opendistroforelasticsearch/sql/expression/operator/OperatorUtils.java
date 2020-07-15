@@ -79,6 +79,12 @@ public class OperatorUtils {
       public ExprType type() {
         return returnType;
       }
+
+      @Override
+      public String toString() {
+        return String.format("%s(%s, %s, %s)", functionName, arguments.get(0).toString(), arguments
+            .get(1).toString(), arguments.get(2).toString());
+      }
     };
   }
 
