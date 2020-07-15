@@ -317,7 +317,7 @@ REVERSE_QUOTE_ID:                   '`' ~'`'+ '`';
 // Fragments for Literal primitives
 
 fragment EXPONENT_NUM_PART:         'E' [-+]? DEC_DIGIT+;
-fragment ID_LITERAL:                [*A-Z0-9]+[*A-Z_\-0-9]*;
+fragment ID_LITERAL:                [*A-Z0-9]+?[*A-Z_\-0-9]*;
 fragment DQUOTA_STRING:             '"' ( '\\'. | '""' | ~('"'| '\\') )* '"';
 fragment SQUOTA_STRING:             '\'' ('\\'. | '\'\'' | ~('\'' | '\\'))* '\'';
 fragment BQUOTA_STRING:             '`' ( '\\'. | '``' | ~('`'|'\\'))* '`';

@@ -81,7 +81,7 @@ fromClause
 //    Identifiers
 
 tableName
-    : (DOT)? qualifiedName
+    : qualifiedName
     ;
 
 qualifiedName
@@ -89,7 +89,7 @@ qualifiedName
     ;
 
 ident
-    : ID
+    : DOT? ID
     //| BACKTICK_QUOTE_ID
     | STRING_LITERAL
     ;

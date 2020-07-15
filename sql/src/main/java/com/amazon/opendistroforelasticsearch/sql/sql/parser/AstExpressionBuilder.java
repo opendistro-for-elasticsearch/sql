@@ -124,8 +124,8 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
     return AstDSL.timestampLiteral(unquoteIdentifier(ctx.timestamp.getText()));
   }
 
-  private String visitQualifiedNameText(RuleNode ident) {
-    return unquoteIdentifier(ident.getText());
+  private String visitQualifiedNameText(RuleNode node) {
+    return unquoteIdentifier(node.getText());
   }
 
 }

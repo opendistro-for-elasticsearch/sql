@@ -30,28 +30,23 @@ public class IdentifierIT extends NewSQLIntegTestCase {
 
   @Test
   public void testRegularIndexNames() throws IOException {
-    createIndexWithOneDoc("logs", "logs_2020_01", "logs-2020-01");
+    createIndexWithOneDoc("logs", "logs_2020_01");
     queryAndAssert("SELECT * FROM logs");
     queryAndAssert("SELECT * FROM logs_2020_01");
+  }
+
+  @Test
+  public void testHiddenIndexName() throws IOException {
+    createIndexWithOneDoc(".system", "logs-2020-01");
+    queryAndAssert("SELECT * FROM .system");
     queryAndAssert("SELECT * FROM logs-2020-01");
   }
 
   @Test
-  public void testHiddenIndexNameByDoubleQuotes() throws IOException {
-    createIndexWithOneDoc(".system");
-    queryAndAssert("SELECT * FROM \".system\"");
-  }
-
-  @Test
-  public void testIndexNameWithDotByBackTicks() throws IOException {
-    createIndexWithOneDoc("logs.2020.01");
-    queryAndAssert("SELECT * FROM `logs.2020.01`");
-  }
-
-  @Test
   public void testIndexNameWithSpecialChar() throws IOException {
-    createIndexWithOneDoc("logs+2020+01");
+    createIndexWithOneDoc("logs+2020+01", "logs.2020.01");
     queryAndAssert("SELECT * FROM `logs+2020+01`");
+    queryAndAssert("SELECT * FROM \"logs.2020.01\"");
   }
 
   private void createIndexWithOneDoc(String... indexNames) throws IOException {

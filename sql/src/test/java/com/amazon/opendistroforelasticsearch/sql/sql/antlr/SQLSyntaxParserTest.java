@@ -34,6 +34,18 @@ class SQLSyntaxParserTest {
   }
 
   @Test
+  public void canNotParseIndexNameWithSpecialChar() {
+    assertThrows(SyntaxCheckException.class,
+        () -> parser.parse("SELECT * FROM hello+world"));
+  }
+
+  @Test
+  public void canParseIndexNameWithSpecialCharQuoted() {
+    assertNotNull(parser.parse("SELECT * FROM `hello+world`"));
+    assertNotNull(parser.parse("SELECT * FROM \"hello$world\""));
+  }
+
+  @Test
   public void canNotParseInvalidSelect() {
     assertThrows(SyntaxCheckException.class,
         () -> parser.parse("SELECT * FROM test WHERE age = 10"));

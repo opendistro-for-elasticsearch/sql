@@ -23,20 +23,18 @@ import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.CaseInsensitiveCharStream;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxAnalysisErrorListener;
-import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLLexer;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.RuleNode;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class AstQualifiedNameBuilderTest {
 
   @Test
-  public void canBuildIdentifierFromRegularFieldForSQL92() {
+  public void canBuildFromRegularFieldForSQL92() {
     buildFromIdentifier("test").expectQualifiedName("test");
     buildFromIdentifier("test123").expectQualifiedName("test123");
     buildFromIdentifier("456test").expectQualifiedName("456test");
@@ -44,7 +42,7 @@ public class AstQualifiedNameBuilderTest {
   }
 
   @Test
-  public void canBuildIdentifierFromRegularFieldForElasticsearch() {
+  public void canBuildFromRegularFieldForElasticsearch() {
     buildFromTableName(".kibana").expectQualifiedName(".kibana");
     //buildFromIdentifier("@timestamp").expectQualifiedName("@timestamp");//TODO: field name
     buildFromIdentifier("logs-2020-01").expectQualifiedName("logs-2020-01");
@@ -52,15 +50,14 @@ public class AstQualifiedNameBuilderTest {
   }
 
   @Test
-  public void canBuildIdentifierFromDelimitedIdentifier() {
+  public void canBuildFromDelimitedIdentifier() {
     buildFromIdentifier("\"hello world\"").expectQualifiedName("hello world");
     buildFromIdentifier("`logs.2020.01`").expectQualifiedName("logs.2020.01");
   }
 
-  @Disabled("Check why ANTLR did partial matching in this case")
   @Test
-  public void canNotBuildIdentifierFromRegularIdentifierWithSpecialChar() {
-    buildFromIdentifier("logs.2020.01").expectThrows(SyntaxCheckException.class);
+  public void canBuildFromQualifiedIdentifier() {
+    buildFromQualifiers("account.location.city").expectQualifiedName("account", "location", "city");
   }
 
   private AstExpressionBuilderAssertion buildFromIdentifier(String expr) {
@@ -81,7 +78,7 @@ public class AstQualifiedNameBuilderTest {
     private final Function<OpenDistroSQLParser, RuleNode> build;
     private final String actual;
 
-    public void expectQualifiedName(String expected) {
+    public void expectQualifiedName(String... expected) {
       assertEquals(AstDSL.qualifiedName(expected), buildExpression(actual));
     }
 
