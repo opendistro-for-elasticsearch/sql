@@ -27,28 +27,30 @@ A literal is a symbol that represents a value. The most common literal values in
 1. Numeric literals: specify numeric values such as integer and floating-point numbers.
 2. String literals: specify a string enclosed by single or double quotes.
 3. Boolean literals: ``true`` or ``false``.
+4. Date and Time literals: DATE 'YYYY-MM-DD' represent the date, TIME 'hh:mm:ss' represent the time, TIMESTAMP 'YYYY-MM-DD hh:mm:ss' represent the timestamp.
 
 Examples
 --------
 
 Here is an example for different type of literals::
 
-    od> SELECT 123, 'hello', false, -4.567;
+    od> SELECT 123, 'hello', false, -4.567, DATE '2020-07-07', TIME '01:01:01', TIMESTAMP '2020-07-07 01:01:01';
     fetched rows / total rows = 1/1
-    +-------+-----------+---------+----------+
-    | 123   | "hello"   | false   | -4.567   |
-    |-------+-----------+---------+----------|
-    | 123   | hello     | False   | -4.567   |
-    +-------+-----------+---------+----------+
+    +-------+-----------+---------+----------+---------------------+-------------------+-----------------------------------+
+    | 123   | "hello"   | false   | -4.567   | DATE '2020-07-07'   | TIME '01:01:01'   | TIMESTAMP '2020-07-07 01:01:01'   |
+    |-------+-----------+---------+----------+---------------------+-------------------+-----------------------------------|
+    | 123   | hello     | False   | -4.567   | 2020-07-07          | 01:01:01          | 2020-07-07 01:01:01               |
+    +-------+-----------+---------+----------+---------------------+-------------------+-----------------------------------+
 
 Limitations
 -----------
 
 The current implementation has the following limitations at the moment:
 
-1. Only literals of data types listed as above are supported for now. Other type of literals, such as date and NULL, will be added in future.
+1. Only literals of data types listed as above are supported for now. Other type of literals, such as NULL, will be added in future.
 2. Expression of literals, such as arithmetic expressions, will be supported later.
 3. Standard ANSI ``VALUES`` clause is not supported, although the ``SELECT`` literal example above is implemented by a Values operator internally.
+4. Date and Time literals only support DATE_FORMAT listed above.
 
 Arithmetic Expressions
 ======================
@@ -111,8 +113,8 @@ Null Handling
 
 If any argument is missing or null, the final result of evaluation will be missing or null accordingly.
 
-Examples
---------
+Arithmetic function examples
+----------------------------
 
 Here is an example for different type of arithmetic expressions::
 
@@ -123,6 +125,19 @@ Here is an example for different type of arithmetic expressions::
     |---------------+---------------------|
     | 1.234         | 5                   |
     +---------------+---------------------+
+
+Date function examples
+----------------------
+
+Here is an example for different type of arithmetic expressions::
+
+    od> SELECT dayofmonth(DATE '2020-07-07');
+    fetched rows / total rows = 1/1
+    +---------------------------------+
+    | dayofmonth(DATE '2020-07-07')   |
+    |---------------------------------|
+    | 7                               |
+    +---------------------------------+
 
 Limitations
 -----------

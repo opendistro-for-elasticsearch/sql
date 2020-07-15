@@ -538,12 +538,6 @@ void SetTableTuples(QResultClass *res, const TableResultSet res_type,
         // Get index of result type of interest
         size_t idx = NUM_OF_TABLES_FIELDS;
         switch (res_type) {
-            case TableResultSet::Catalog:
-                idx = TABLES_CATALOG_NAME;
-                break;
-            case TableResultSet::Schema:
-                idx = TABLES_SCHEMA_NAME;
-                break;
             case TableResultSet::TableTypes:
                 idx = TABLES_TABLE_TYPE;
                 break;
@@ -672,7 +666,6 @@ void GetCatalogData(const std::string &query, StatementClass *stmt,
         res, static_cast< EnvironmentClass * >(CC_get_env(SC_get_conn(stmt))));
     SetTableTuples(res, res_type, binds, table_type, stmt, sub_stmt,
                    list_of_columns);
-
     CleanUp(stmt, sub_stmt, SQL_SUCCESS);
 }
 
@@ -707,20 +700,32 @@ ESAPI_Tables(HSTMT hstmt, const SQLCHAR *catalog_name_sql,
 
         if (catalog_name == SQL_ALL_CATALOGS) {
             if (schema_valid && table_valid && (table_name == "")
-                && (schema_name == ""))
-                result_type = TableResultSet::Catalog;
-        } 
+                && (schema_name == "")) {
+                std::string error_msg("Catalogs not supported.");
+                SC_set_error(stmt, STMT_NOT_IMPLEMENTED_ERROR,
+                             error_msg.c_str(), func);
+                CleanUp(stmt, tbl_stmt);
+                return SQL_ERROR;
+            }
+            // result_type = TableResultSet::Catalog;
+        }
         if (schema_name == SQL_ALL_SCHEMAS) {
             if (catalog_valid && table_valid && (table_name == "")
-                && (catalog_name == ""))
-                result_type = TableResultSet::Schema;
-        } 
+                && (catalog_name == "")) {
+                std::string error_msg("Schemas not supported.");
+                SC_set_error(stmt, STMT_NOT_IMPLEMENTED_ERROR,
+                             error_msg.c_str(), func);
+                CleanUp(stmt, tbl_stmt);
+                return SQL_ERROR;
+            }
+            // result_type = TableResultSet::Schema;
+        }
         if (table_type_valid && (table_type == SQL_ALL_TABLE_TYPES)) {
             if (catalog_valid && table_valid && schema_valid
                 && (table_name == "") && (catalog_name == "")
                 && (schema_name == ""))
                 result_type = TableResultSet::TableTypes;
-        } 
+        }
         if (table_type_valid && (table_type != SQL_ALL_TABLE_TYPES)) {
             result_type = TableResultSet::TableLookUp;
         }
@@ -785,8 +790,9 @@ ESAPI_Columns(HSTMT hstmt, const SQLCHAR *catalog_name_sql,
         std::string query;
         GenerateColumnQuery(query, table_name, column_name, table_valid,
                             column_valid, flag);
-        
-        // Get list of columns with SELECT * query since columns doesn't match with DESCRIBE & SELECT * query
+
+        // Get list of columns with SELECT * query since columns doesn't match
+        // with DESCRIBE & SELECT * query
         std::vector< std::string > list_of_columns;
         if (table_valid) {
             ConnectionClass *conn = SC_get_conn(stmt);
