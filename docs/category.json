@@ -16,6 +16,6 @@
   ],
   "sql_cli": [
     "user/dql/expressions.rst",
-    "user/general/lexical.rst"
+    "user/general/identifiers.rst"
   ]
 }

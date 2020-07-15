@@ -81,7 +81,7 @@ fromClause
 //    Identifiers
 
 tableName
-    : qualifiedName
+    : (DOT)? qualifiedName
     ;
 
 qualifiedName

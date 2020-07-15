@@ -25,8 +25,6 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Integration tests for identifiers including index and field name symbol.
- * This is only meant for testing queries with identifier can run without error.
- * The correctness is guaranteed in our comparison test.
  */
 public class IdentifierIT extends NewSQLIntegTestCase {
 
@@ -77,6 +75,9 @@ public class IdentifierIT extends NewSQLIntegTestCase {
     );
   }
 
+  /**
+   * Index abstraction for test code readability.
+   */
   private static class Index {
 
     private final String indexName;

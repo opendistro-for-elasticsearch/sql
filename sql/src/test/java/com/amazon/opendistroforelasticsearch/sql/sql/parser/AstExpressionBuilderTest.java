@@ -21,7 +21,6 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.dateLiter
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.doubleLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
-import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.timeLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.timestampLiteral;
@@ -38,27 +37,6 @@ import org.junit.jupiter.api.Test;
 class AstExpressionBuilderTest {
 
   private final AstExpressionBuilder astExprBuilder = new AstExpressionBuilder();
-
-  @Test
-  public void canBuildExprAstForQualifiedName() {
-    assertEquals(
-        qualifiedName("test"),
-        buildQualifiedName("test")
-    );
-  }
-
-  @Test
-  public void canBuildExprAstForQuotedQualifiedName() {
-    assertEquals(
-        qualifiedName("hello world"),
-        buildQualifiedName("\"hello world\"")
-    );
-
-    assertEquals(
-        qualifiedName("log.2020.01"),
-        buildQualifiedName("`log.2020.01`")
-    );
-  }
 
   @Test
   public void canBuildStringLiteral() {
@@ -164,19 +142,11 @@ class AstExpressionBuilderTest {
     );
   }
 
-  private Node buildQualifiedName(String expr) {
-    return createParser(expr).qualifiedName().accept(astExprBuilder);
-  }
-
   private Node buildExprAst(String expr) {
-    return createParser(expr).expression().accept(astExprBuilder);
-  }
-
-  private OpenDistroSQLParser createParser(String expr) {
     OpenDistroSQLLexer lexer = new OpenDistroSQLLexer(new CaseInsensitiveCharStream(expr));
     OpenDistroSQLParser parser = new OpenDistroSQLParser(new CommonTokenStream(lexer));
     parser.addErrorListener(new SyntaxAnalysisErrorListener());
-    return parser;
+    return parser.expression().accept(astExprBuilder);
   }
 
 }

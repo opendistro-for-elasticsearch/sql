@@ -17,9 +17,9 @@ Open Distro for Elasticsearch SQL enables you to extract insights out of Elastic
 
   - `Plugin Settings <admin/settings.rst>`_
 
-* **General SQL**
+* **Language Structure**
 
-  - `Lexical Structure <general/lexical.rst>`_
+  - `Identifiers <general/identifiers.rst>`_
 
 * **Data Query Language**
 
