@@ -227,8 +227,8 @@ binaryOperator
 /** literals and values*/
 literalValue
     : stringLiteral
-    | (PLUS | MINUS)? integerLiteral
-    | (PLUS | MINUS)? decimalLiteral
+    | integerLiteral
+    | decimalLiteral
     | booleanLiteral
     ;
 
@@ -237,11 +237,11 @@ stringLiteral
     ;
 
 integerLiteral
-    : INTEGER_LITERAL
+    : (PLUS | MINUS)? INTEGER_LITERAL
     ;
 
 decimalLiteral
-    : DECIMAL_LITERAL
+    : (PLUS | MINUS)? DECIMAL_LITERAL
     ;
 
 booleanLiteral

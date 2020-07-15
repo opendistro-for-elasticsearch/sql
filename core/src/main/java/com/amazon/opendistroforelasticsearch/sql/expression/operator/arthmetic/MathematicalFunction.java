@@ -128,6 +128,14 @@ public class MathematicalFunction {
                     functionName, (t, u, v) -> Integer.toString(Integer.parseInt(t, u), v),
                     ExprValueUtils::getStringValue, ExprValueUtils::getIntegerValue,
                     ExprValueUtils::getIntegerValue, ExprCoreType.STRING))
+            .put(
+                new FunctionSignature(functionName,
+                    Arrays.asList(
+                        ExprCoreType.INTEGER, ExprCoreType.INTEGER, ExprCoreType.INTEGER)),
+                tripleArgFunc(functionName,
+                    (t, u, v) -> Integer.toString(Integer.parseInt(t.toString(), u), v),
+                    ExprValueUtils::getIntegerValue, ExprValueUtils::getIntegerValue,
+                    ExprValueUtils::getIntegerValue, ExprCoreType.STRING))
             .build());
   }
 

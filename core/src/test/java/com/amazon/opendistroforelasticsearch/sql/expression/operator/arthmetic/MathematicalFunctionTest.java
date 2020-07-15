@@ -233,7 +233,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
-   * Test conv from decimal base.
+   * Test conv from decimal base with string as a number.
    */
   @ParameterizedTest(name = "conv({0})")
   @ValueSource(strings = {"1", "0", "-1"})
@@ -255,7 +255,29 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
-   * Test conv to decimal base.
+   * Test conv from decimal base with integer as a number.
+   */
+  @ParameterizedTest(name = "conv({0})")
+  @ValueSource(ints = {1, 0, -1})
+  public void conv_from_decimal(Integer value) {
+    FunctionExpression conv = dsl.conv(DSL.literal(value), DSL.literal(10), DSL.literal(2));
+    assertThat(
+        conv.valueOf(valueEnv()),
+        allOf(hasType(STRING), hasValue(Integer.toString(value, 2))));
+
+    conv = dsl.conv(DSL.literal(value), DSL.literal(10), DSL.literal(8));
+    assertThat(
+        conv.valueOf(valueEnv()),
+        allOf(hasType(STRING), hasValue(Integer.toString(value, 8))));
+
+    conv = dsl.conv(DSL.literal(value), DSL.literal(10), DSL.literal(16));
+    assertThat(
+        conv.valueOf(valueEnv()),
+        allOf(hasType(STRING), hasValue(Integer.toString(value, 16))));
+  }
+
+  /**
+   * Test conv to decimal base with string as a number.
    */
   @ParameterizedTest(name = "conv({0})")
   @ValueSource(strings = {"11", "0", "11111"})
@@ -274,6 +296,28 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertThat(
         conv.valueOf(valueEnv()),
         allOf(hasType(STRING), hasValue(Integer.toString(Integer.parseInt(value, 16)))));
+  }
+
+  /**
+   * Test conv to decimal base with integer as a number.
+   */
+  @ParameterizedTest(name = "conv({0})")
+  @ValueSource(ints = {11, 0, 11111})
+  public void conv_to_decimal(Integer value) {
+    FunctionExpression conv = dsl.conv(DSL.literal(value), DSL.literal(2), DSL.literal(10));
+    assertThat(
+        conv.valueOf(valueEnv()),
+        allOf(hasType(STRING), hasValue(Integer.toString(Integer.parseInt(value.toString(), 2)))));
+
+    conv = dsl.conv(DSL.literal(value), DSL.literal(8), DSL.literal(10));
+    assertThat(
+        conv.valueOf(valueEnv()),
+        allOf(hasType(STRING), hasValue(Integer.toString(Integer.parseInt(value.toString(), 8)))));
+
+    conv = dsl.conv(DSL.literal(value), DSL.literal(16), DSL.literal(10));
+    assertThat(
+        conv.valueOf(valueEnv()),
+        allOf(hasType(STRING), hasValue(Integer.toString(Integer.parseInt(value.toString(), 16)))));
   }
 
   /**
@@ -1190,7 +1234,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
    * Test round with integer value.
    */
   @ParameterizedTest(name = "round({0}")
-  @ValueSource(ints = {2, -2})
+  @ValueSource(ints = {21, -21})
   public void round_int_value(Integer value) {
     FunctionExpression round = dsl.round(DSL.literal(value));
     assertThat(
@@ -1202,13 +1246,19 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
         round.valueOf(valueEnv()),
         allOf(hasType(LONG), hasValue(
             new BigDecimal(value).setScale(1, RoundingMode.HALF_UP).longValue())));
+
+    round = dsl.round(DSL.literal(value), DSL.literal(-1));
+    assertThat(
+        round.valueOf(valueEnv()),
+        allOf(hasType(LONG), hasValue(
+            new BigDecimal(value).setScale(-1, RoundingMode.HALF_UP).longValue())));
   }
 
   /**
    * Test round with long value.
    */
   @ParameterizedTest(name = "round({0}")
-  @ValueSource(longs = {2L, -2L})
+  @ValueSource(longs = {21L, -21L})
   public void round_long_value(Long value) {
     FunctionExpression round = dsl.round(DSL.literal(value));
     assertThat(
@@ -1220,13 +1270,19 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
         round.valueOf(valueEnv()),
         allOf(hasType(LONG), hasValue(
             new BigDecimal(value).setScale(1, RoundingMode.HALF_UP).longValue())));
+
+    round = dsl.round(DSL.literal(value), DSL.literal(-1));
+    assertThat(
+        round.valueOf(valueEnv()),
+        allOf(hasType(LONG), hasValue(
+            new BigDecimal(value).setScale(-1, RoundingMode.HALF_UP).longValue())));
   }
 
   /**
    * Test round with float value.
    */
   @ParameterizedTest(name = "round({0}")
-  @ValueSource(floats = {2F, -2F})
+  @ValueSource(floats = {21F, -21F})
   public void round_float_value(Float value) {
     FunctionExpression round = dsl.round(DSL.literal(value));
     assertThat(
@@ -1238,13 +1294,19 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
         round.valueOf(valueEnv()),
         allOf(hasType(DOUBLE), hasValue(
             new BigDecimal(value).setScale(1, RoundingMode.HALF_UP).doubleValue())));
+
+    round = dsl.round(DSL.literal(value), DSL.literal(-1));
+    assertThat(
+        round.valueOf(valueEnv()),
+        allOf(hasType(DOUBLE), hasValue(
+            new BigDecimal(value).setScale(-1, RoundingMode.HALF_UP).doubleValue())));
   }
 
   /**
    * Test round with double value.
    */
   @ParameterizedTest(name = "round({0}")
-  @ValueSource(doubles = {2D, -2D})
+  @ValueSource(doubles = {21D, -21D})
   public void round_double_value(Double value) {
     FunctionExpression round = dsl.round(DSL.literal(value));
     assertThat(
@@ -1256,6 +1318,12 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
         round.valueOf(valueEnv()),
         allOf(hasType(DOUBLE), hasValue(
             new BigDecimal(value).setScale(1, RoundingMode.HALF_UP).doubleValue())));
+
+    round = dsl.round(DSL.literal(value), DSL.literal(-1));
+    assertThat(
+        round.valueOf(valueEnv()),
+        allOf(hasType(DOUBLE), hasValue(
+            new BigDecimal(value).setScale(-1, RoundingMode.HALF_UP).doubleValue())));
   }
 
   /**
