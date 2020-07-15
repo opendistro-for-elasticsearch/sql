@@ -25,6 +25,8 @@ THE SOFTWARE.
 
 parser grammar OpenDistroSQLParser;
 
+import OpenDistroSQLIdentifierParser;
+
 options { tokenVocab=OpenDistroSQLLexer; }
 
 
@@ -77,22 +79,6 @@ fromClause
     : FROM tableName
     ;
 
-
-//    Identifiers
-
-tableName
-    : qualifiedName
-    ;
-
-qualifiedName
-    : ident (DOT ident)*
-    ;
-
-ident
-    : DOT? ID
-    //| BACKTICK_QUOTE_ID
-    | STRING_LITERAL
-    ;
 
 //    Literals
 
