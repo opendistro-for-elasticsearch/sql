@@ -40,6 +40,8 @@ import org.antlr.v4.runtime.tree.ParseTree;
  */
 public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
 
+  private static final Project SELECT_ALL = null;
+
   private final AstExpressionBuilder expressionBuilder = new AstExpressionBuilder();
 
   @Override
@@ -48,7 +50,7 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
     UnresolvedPlan project = visit(query.selectClause());
 
     if (query.fromClause() == null) {
-      if (project == null) { // TODO: project operator should never be null
+      if (project == SELECT_ALL) {
         throw new SyntaxCheckException("No FROM clause found for select all");
       }
 
@@ -60,13 +62,13 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
     }
 
     UnresolvedPlan relation = visit(query.fromClause());
-    return (project == null) ? relation : project.attach(relation);
+    return (project == SELECT_ALL) ? relation : project.attach(relation);
   }
 
   @Override
   public UnresolvedPlan visitSelectClause(SelectClauseContext ctx) {
-    if (ctx.selectElements().star != null) { //TODO: how to support SELECT *,age...
-      return null;
+    if (ctx.selectElements().star != null) { //TODO: project operator should be required?
+      return SELECT_ALL;
     }
 
     List<ParseTree> selectElements = ctx.selectElements().children;

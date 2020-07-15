@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
 public class AstQualifiedNameBuilderTest {
 
   @Test
-  public void canBuildFromRegularFieldForSQL92() {
+  public void canBuildFromRegularFieldForSQLStandard() {
     buildFromIdentifier("test").expectQualifiedName("test");
     buildFromIdentifier("test123").expectQualifiedName("test123");
     buildFromIdentifier("456test").expectQualifiedName("456test");

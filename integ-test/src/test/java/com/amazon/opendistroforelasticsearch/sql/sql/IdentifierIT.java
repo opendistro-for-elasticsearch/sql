@@ -31,22 +31,22 @@ public class IdentifierIT extends NewSQLIntegTestCase {
   @Test
   public void testRegularIndexNames() throws IOException {
     createIndexWithOneDoc("logs", "logs_2020_01");
-    queryAndAssert("SELECT * FROM logs");
-    queryAndAssert("SELECT * FROM logs_2020_01");
+    queryAndAssertTheDoc("SELECT * FROM logs");
+    queryAndAssertTheDoc("SELECT * FROM logs_2020_01");
   }
 
   @Test
-  public void testHiddenIndexName() throws IOException {
+  public void testSpecialRegularIndexNames() throws IOException {
     createIndexWithOneDoc(".system", "logs-2020-01");
-    queryAndAssert("SELECT * FROM .system");
-    queryAndAssert("SELECT * FROM logs-2020-01");
+    queryAndAssertTheDoc("SELECT * FROM .system");
+    queryAndAssertTheDoc("SELECT * FROM logs-2020-01");
   }
 
   @Test
-  public void testIndexNameWithSpecialChar() throws IOException {
+  public void testIndexNamesWithSpecialChar() throws IOException {
     createIndexWithOneDoc("logs+2020+01", "logs.2020.01");
-    queryAndAssert("SELECT * FROM `logs+2020+01`");
-    queryAndAssert("SELECT * FROM \"logs.2020.01\"");
+    queryAndAssertTheDoc("SELECT * FROM `logs+2020+01`");
+    queryAndAssertTheDoc("SELECT * FROM \"logs.2020.01\"");
   }
 
   private void createIndexWithOneDoc(String... indexNames) throws IOException {
@@ -55,7 +55,7 @@ public class IdentifierIT extends NewSQLIntegTestCase {
     }
   }
 
-  private void queryAndAssert(String sql) {
+  private void queryAndAssertTheDoc(String sql) {
     assertEquals(
         "{\n"
             + "  \"schema\": [{\n"

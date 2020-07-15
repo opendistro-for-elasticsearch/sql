@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
-import org.antlr.v4.runtime.tree.ParseTree;
 import org.junit.jupiter.api.Test;
 
 class SQLSyntaxParserTest {
@@ -29,8 +28,18 @@ class SQLSyntaxParserTest {
 
   @Test
   public void canParseSelectLiterals() {
-    ParseTree parseTree = parser.parse("SELECT 123, 'hello'");
-    assertNotNull(parseTree);
+    assertNotNull(parser.parse("SELECT 123, 'hello'"));
+  }
+
+  @Test
+  public void canParseIndexNameWithDate() {
+    assertNotNull(parser.parse("SELECT * FROM logs_2020_01"));
+    assertNotNull(parser.parse("SELECT * FROM logs-2020-01"));
+  }
+
+  @Test
+  public void canParseHiddenIndexName() {
+    assertNotNull(parser.parse("SELECT * FROM .kibana"));
   }
 
   @Test

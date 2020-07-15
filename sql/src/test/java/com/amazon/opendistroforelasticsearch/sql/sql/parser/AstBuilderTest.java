@@ -46,7 +46,7 @@ class AstBuilderTest {
   private final AstBuilder astBuilder = new AstBuilder();
 
   @Test
-  public void buildSelectLiterals() {
+  public void canBuildSelectLiterals() {
     assertEquals(
         project(
             values(emptyList()),
@@ -60,7 +60,7 @@ class AstBuilderTest {
   }
 
   @Test
-  public void buildSelectAll() {
+  public void canBuildSelectAllFromIndex() {
     assertEquals(
         relation("test"),
         buildAST("SELECT * FROM test")
@@ -70,7 +70,7 @@ class AstBuilderTest {
   }
 
   @Test
-  public void buildSelectFields() { //TODO: change to select fields later
+  public void buildSelectFieldsFromIndex() { // TODO: change to select fields later
     assertEquals(
         project(relation("test"), intLiteral(1)),
         buildAST("SELECT 1 FROM test")

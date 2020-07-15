@@ -12,9 +12,7 @@ Identifiers
 Introduction
 ============
 
-Lexical structure is defined by the syntax in language grammar. After lexical analysis, a SQL input statement is parsed into a sequence of token. In original text, each token is typically separated by whitespace (space or tab). There are different types of token, such as string literal, identifier, key word or special character. The sections followed will cover each type of token with more details.
-
-TODO
+Identifiers are used for naming your database objects, such as index name, field name etc. Basically there are two types of identifiers: regular identifiers and delimited identifiers.
 
 
 Regular Identifiers
@@ -68,8 +66,8 @@ Use Cases
 Here are typical examples of the use of delimited identifiers:
 
 1. Identifiers of reserved key word name
-2. Identifiers with dot ``.`` present: similarly as ``-`` in index name to include date information, it is required to be quoted so parser can differentiate it from a path discussed as below.
-3. Identifiers with special character due to gap between ours and Elasticsearch's rule: this is possible because Elasticsearch has its own rule and even support Unicode characters.
+2. Identifiers with dot ``.`` present: similarly as ``-`` in index name to include date information, it is required to be quoted so parser can differentiate it from identifier with qualifiers.
+3. Identifiers with other special character: Elasticsearch has its own rule which allows more special character, for example Unicode character is supported in index name.
 
 Examples
 --------
@@ -99,7 +97,7 @@ In SQL-92, regular identifiers are case insensitive and converted to upper case 
 Examples
 --------
 
-For example, if you run ``SELECT * FROM ACCOUNTS``, it will end up with an index not found exception from our plugin because actually the index name is under lower case.
+For example, if you run ``SELECT * FROM ACCOUNTS``, it will end up with an index not found exception from our plugin because the actual index name is under lower case.
 
 
 Identifier Qualifiers
@@ -108,5 +106,3 @@ Identifier Qualifiers
 For now, we do not support using Elasticsearch cluster name as catalog name to qualify an index name, such as ``my-cluster.logs``.
 
 TODO: field name qualifiers
-
-

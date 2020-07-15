@@ -285,8 +285,8 @@ ONE_DECIMAL:                        '1';
 TWO_DECIMAL:                        '2';
 SINGLE_QUOTE_SYMB:                  '\'';
 DOUBLE_QUOTE_SYMB:                  '"';
+REVERSE_QUOTE_SYMB:                 '`';
 COLON_SYMB:                         ':';
-BACKTICK:                           '`';
 
 
 // Literal Primitives
@@ -310,7 +310,6 @@ BIT_STRING:                         BIT_STRING_L;
 
 ID:                                 ID_LITERAL;
 // DOUBLE_QUOTE_ID:                 '"' ~'"'+ '"';
-BACKTICK_QUOTE_ID:                  BQUOTA_STRING;
 REVERSE_QUOTE_ID:                   '`' ~'`'+ '`';
 
 
