@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
 public class AstQualifiedNameBuilderTest {
 
   @Test
-  public void canBuildFromRegularFieldForSQLStandard() {
+  public void canBuildRegularIdentifierForSQLStandard() {
     buildFromIdentifier("test").expectQualifiedName("test");
     buildFromIdentifier("test123").expectQualifiedName("test123");
     buildFromIdentifier("456test").expectQualifiedName("456test");
@@ -42,7 +42,7 @@ public class AstQualifiedNameBuilderTest {
   }
 
   @Test
-  public void canBuildFromRegularFieldForElasticsearch() {
+  public void canBuildRegularIdentifierForElasticsearch() {
     buildFromTableName(".kibana").expectQualifiedName(".kibana");
     //buildFromIdentifier("@timestamp").expectQualifiedName("@timestamp");//TODO: field name
     buildFromIdentifier("logs-2020-01").expectQualifiedName("logs-2020-01");
@@ -50,13 +50,13 @@ public class AstQualifiedNameBuilderTest {
   }
 
   @Test
-  public void canBuildFromDelimitedIdentifier() {
+  public void canBuildDelimitedIdentifier() {
     buildFromIdentifier("\"hello world\"").expectQualifiedName("hello world");
     buildFromIdentifier("`logs.2020.01`").expectQualifiedName("logs.2020.01");
   }
 
   @Test
-  public void canBuildFromQualifiedIdentifier() {
+  public void canBuildQualifiedIdentifier() {
     buildFromQualifiers("account.location.city").expectQualifiedName("account", "location", "city");
   }
 

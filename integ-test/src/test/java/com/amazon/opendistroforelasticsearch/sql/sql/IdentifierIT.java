@@ -29,21 +29,21 @@ import org.junit.jupiter.api.Test;
 public class IdentifierIT extends NewSQLIntegTestCase {
 
   @Test
-  public void testRegularIndexNames() throws IOException {
+  public void testIndexNames() throws IOException {
     createIndexWithOneDoc("logs", "logs_2020_01");
     queryAndAssertTheDoc("SELECT * FROM logs");
     queryAndAssertTheDoc("SELECT * FROM logs_2020_01");
   }
 
   @Test
-  public void testSpecialRegularIndexNames() throws IOException {
+  public void testSpecialIndexNames() throws IOException {
     createIndexWithOneDoc(".system", "logs-2020-01");
     queryAndAssertTheDoc("SELECT * FROM .system");
     queryAndAssertTheDoc("SELECT * FROM logs-2020-01");
   }
 
   @Test
-  public void testIndexNamesWithSpecialChar() throws IOException {
+  public void testQuotedIndexNames() throws IOException {
     createIndexWithOneDoc("logs+2020+01", "logs.2020.01");
     queryAndAssertTheDoc("SELECT * FROM `logs+2020+01`");
     queryAndAssertTheDoc("SELECT * FROM \"logs.2020.01\"");
