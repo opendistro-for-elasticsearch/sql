@@ -30,7 +30,7 @@
 
 <img src="img/excel_load_data.png">
 
-**NOTE**: There are multiple ways to load data in Microsoft Excel. Alternate options are **Data** > **Get Data** > **From Other Sources** > **From Microsoft Query** and **Data** > **Get Data** > **Legacy Wizards** > **From Data Connection Wizard**.
+**NOTE**: There are multiple ways to load data in Microsoft Excel. Alternate options are [Data Connection Wizard](../test/data_connection_wizard.md), [Microsoft Query Connection](../test/microsoft_query_connection.md) and [Query Wizard Connection](../test/query_wizard_connection.md). These connection modes will load data relatively faster.
 
 ## Refresh Data
 
