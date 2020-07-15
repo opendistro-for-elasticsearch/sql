@@ -7,6 +7,22 @@
 * [Open Distro for Elasticsearch SQL ODBC driver](https://opendistro.github.io/for-elasticsearch-docs/docs/sql/odbc/)
 * A preconfigured [User or System DSN](../../README.md)
 
+## Test Successful Connection
+
+* Open **ODBC Data Source Administrator**.
+* Click on **System DSN**.
+* Select **ODFE SQL ODBC DSN**.
+* Click on **Configure**.
+
+<img src="img/test_dsn_configure.png" width=500>
+
+* Modify connection attributes accordingly.
+* Click on **Test**.
+
+<img src="img/test_dsn_success.png" width=300>
+
+* You should get a message as **Connection Successful**.
+
 ## Load data 
 
 * Open blank workbook in Microsoft Excel.
