@@ -44,6 +44,7 @@ sonarqube {
     property "sonar.organization", "opendistro-sql"
     property "sonar.host.url", "https://sonarcloud.io"
     property "sonar.login", System.getenv("SONAR_TOKEN")
+    property "sonar.coverage.jacoco.xmlReportPaths", "${buildDir}/jacoco/reports.xml"
   }
 }
 
@@ -91,7 +92,8 @@ jacoco {
 }
 jacocoTestReport {
     reports {
-        xml.enabled false
+        xml.enabled true
+        xml.destination file("${buildDir}/jacoco/reports.xml")
         csv.enabled false
     }
     afterEvaluate {
