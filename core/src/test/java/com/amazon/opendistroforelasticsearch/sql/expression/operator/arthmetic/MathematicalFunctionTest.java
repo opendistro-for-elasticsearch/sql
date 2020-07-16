@@ -242,16 +242,19 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertThat(
         conv.valueOf(valueEnv()),
         allOf(hasType(STRING), hasValue(Integer.toString(Integer.parseInt(value), 2))));
+    assertEquals(String.format("conv(\"%s\", 10, 2)", value), conv.toString());
 
     conv = dsl.conv(DSL.literal(value), DSL.literal(10), DSL.literal(8));
     assertThat(
         conv.valueOf(valueEnv()),
         allOf(hasType(STRING), hasValue(Integer.toString(Integer.parseInt(value), 8))));
+    assertEquals(String.format("conv(\"%s\", 10, 8)", value), conv.toString());
 
     conv = dsl.conv(DSL.literal(value), DSL.literal(10), DSL.literal(16));
     assertThat(
         conv.valueOf(valueEnv()),
         allOf(hasType(STRING), hasValue(Integer.toString(Integer.parseInt(value), 16))));
+    assertEquals(String.format("conv(\"%s\", 10, 16)", value), conv.toString());
   }
 
   /**
@@ -264,16 +267,19 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertThat(
         conv.valueOf(valueEnv()),
         allOf(hasType(STRING), hasValue(Integer.toString(value, 2))));
+    assertEquals(String.format("conv(%s, 10, 2)", value), conv.toString());
 
     conv = dsl.conv(DSL.literal(value), DSL.literal(10), DSL.literal(8));
     assertThat(
         conv.valueOf(valueEnv()),
         allOf(hasType(STRING), hasValue(Integer.toString(value, 8))));
+    assertEquals(String.format("conv(%s, 10, 8)", value), conv.toString());
 
     conv = dsl.conv(DSL.literal(value), DSL.literal(10), DSL.literal(16));
     assertThat(
         conv.valueOf(valueEnv()),
         allOf(hasType(STRING), hasValue(Integer.toString(value, 16))));
+    assertEquals(String.format("conv(%s, 10, 16)", value), conv.toString());
   }
 
   /**
@@ -286,16 +292,19 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertThat(
         conv.valueOf(valueEnv()),
         allOf(hasType(STRING), hasValue(Integer.toString(Integer.parseInt(value, 2)))));
+    assertEquals(String.format("conv(\"%s\", 2, 10)", value), conv.toString());
 
     conv = dsl.conv(DSL.literal(value), DSL.literal(8), DSL.literal(10));
     assertThat(
         conv.valueOf(valueEnv()),
         allOf(hasType(STRING), hasValue(Integer.toString(Integer.parseInt(value, 8)))));
+    assertEquals(String.format("conv(\"%s\", 8, 10)", value), conv.toString());
 
     conv = dsl.conv(DSL.literal(value), DSL.literal(16), DSL.literal(10));
     assertThat(
         conv.valueOf(valueEnv()),
         allOf(hasType(STRING), hasValue(Integer.toString(Integer.parseInt(value, 16)))));
+    assertEquals(String.format("conv(\"%s\", 16, 10)", value), conv.toString());
   }
 
   /**
@@ -308,16 +317,19 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertThat(
         conv.valueOf(valueEnv()),
         allOf(hasType(STRING), hasValue(Integer.toString(Integer.parseInt(value.toString(), 2)))));
+    assertEquals(String.format("conv(%s, 2, 10)", value), conv.toString());
 
     conv = dsl.conv(DSL.literal(value), DSL.literal(8), DSL.literal(10));
     assertThat(
         conv.valueOf(valueEnv()),
         allOf(hasType(STRING), hasValue(Integer.toString(Integer.parseInt(value.toString(), 8)))));
+    assertEquals(String.format("conv(%s, 8, 10)", value), conv.toString());
 
     conv = dsl.conv(DSL.literal(value), DSL.literal(16), DSL.literal(10));
     assertThat(
         conv.valueOf(valueEnv()),
         allOf(hasType(STRING), hasValue(Integer.toString(Integer.parseInt(value.toString(), 16)))));
+    assertEquals(String.format("conv(%s, 16, 10)", value), conv.toString());
   }
 
   /**
@@ -385,6 +397,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertThat(
         crc.valueOf(valueEnv()),
         allOf(hasType(LONG), hasValue(crc32.getValue())));
+    assertEquals(String.format("crc32(\"%s\")", value), crc.toString());
   }
 
   /**
@@ -995,6 +1008,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertThat(
         mod.valueOf(valueEnv()),
         allOf(hasType(INTEGER), hasValue(v1 % v2)));
+    assertEquals(String.format("mod(%s, %s)", v1, v2), mod.toString());
   }
 
   /**
@@ -1007,6 +1021,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertThat(
         mod.valueOf(valueEnv()),
         allOf(hasType(DOUBLE), hasValue(v1 % v2)));
+    assertEquals(String.format("mod(%s, %s)", v1, v2), mod.toString());
   }
 
   /**
@@ -1075,11 +1090,13 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertThat(
         pow.valueOf(valueEnv()),
         allOf(hasType(DOUBLE), hasValue(Math.pow(v1, v2))));
+    assertEquals(String.format("pow(%s, %s)", v1, v2), pow.toString());
 
     FunctionExpression power = dsl.power(DSL.literal(v1), DSL.literal(v2));
     assertThat(
         power.valueOf(valueEnv()),
         allOf(hasType(DOUBLE), hasValue(Math.pow(v1, v2))));
+    assertEquals(String.format("pow(%s, %s)", v1, v2), pow.toString());
   }
 
   /**
@@ -1092,11 +1109,13 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertThat(
         pow.valueOf(valueEnv()),
         allOf(hasType(DOUBLE), hasValue(Math.pow(v1, v2))));
+    assertEquals(String.format("pow(%s, %s)", v1, v2), pow.toString());
 
     FunctionExpression power = dsl.power(DSL.literal(v1), DSL.literal(v2));
     assertThat(
         power.valueOf(valueEnv()),
         allOf(hasType(DOUBLE), hasValue(Math.pow(v1, v2))));
+    assertEquals(String.format("pow(%s, %s)", v1, v2), pow.toString());
   }
 
   /**
@@ -1109,11 +1128,13 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertThat(
         pow.valueOf(valueEnv()),
         allOf(hasType(DOUBLE), hasValue(Math.pow(v1, v2))));
+    assertEquals(String.format("pow(%s, %s)", v1, v2), pow.toString());
 
     FunctionExpression power = dsl.power(DSL.literal(v1), DSL.literal(v2));
     assertThat(
         power.valueOf(valueEnv()),
         allOf(hasType(DOUBLE), hasValue(Math.pow(v1, v2))));
+    assertEquals(String.format("pow(%s, %s)", v1, v2), pow.toString());
   }
 
   /**
@@ -1126,11 +1147,13 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertThat(
         pow.valueOf(valueEnv()),
         allOf(hasType(DOUBLE), hasValue(Math.pow(v1, v2))));
+    assertEquals(String.format("pow(%s, %s)", v1, v2), pow.toString());
 
     FunctionExpression power = dsl.power(DSL.literal(v1), DSL.literal(v2));
     assertThat(
         power.valueOf(valueEnv()),
         allOf(hasType(DOUBLE), hasValue(Math.pow(v1, v2))));
+    assertEquals(String.format("pow(%s, %s)", v1, v2), pow.toString());
   }
 
   /**
@@ -1240,18 +1263,21 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertThat(
         round.valueOf(valueEnv()),
         allOf(hasType(LONG), hasValue((long) Math.round(value))));
+    assertEquals(String.format("round(%s)", value), round.toString());
 
     round = dsl.round(DSL.literal(value), DSL.literal(1));
     assertThat(
         round.valueOf(valueEnv()),
         allOf(hasType(LONG), hasValue(
             new BigDecimal(value).setScale(1, RoundingMode.HALF_UP).longValue())));
+    assertEquals(String.format("round(%s, 1)", value), round.toString());
 
     round = dsl.round(DSL.literal(value), DSL.literal(-1));
     assertThat(
         round.valueOf(valueEnv()),
         allOf(hasType(LONG), hasValue(
             new BigDecimal(value).setScale(-1, RoundingMode.HALF_UP).longValue())));
+    assertEquals(String.format("round(%s, -1)", value), round.toString());
   }
 
   /**
@@ -1264,18 +1290,21 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertThat(
         round.valueOf(valueEnv()),
         allOf(hasType(LONG), hasValue((long) Math.round(value))));
+    assertEquals(String.format("round(%s)", value), round.toString());
 
     round = dsl.round(DSL.literal(value), DSL.literal(1));
     assertThat(
         round.valueOf(valueEnv()),
         allOf(hasType(LONG), hasValue(
             new BigDecimal(value).setScale(1, RoundingMode.HALF_UP).longValue())));
+    assertEquals(String.format("round(%s, 1)", value), round.toString());
 
     round = dsl.round(DSL.literal(value), DSL.literal(-1));
     assertThat(
         round.valueOf(valueEnv()),
         allOf(hasType(LONG), hasValue(
             new BigDecimal(value).setScale(-1, RoundingMode.HALF_UP).longValue())));
+    assertEquals(String.format("round(%s, -1)", value), round.toString());
   }
 
   /**
@@ -1288,18 +1317,21 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertThat(
         round.valueOf(valueEnv()),
         allOf(hasType(DOUBLE), hasValue((double) Math.round(value))));
+    assertEquals(String.format("round(%s)", value), round.toString());
 
     round = dsl.round(DSL.literal(value), DSL.literal(1));
     assertThat(
         round.valueOf(valueEnv()),
         allOf(hasType(DOUBLE), hasValue(
             new BigDecimal(value).setScale(1, RoundingMode.HALF_UP).doubleValue())));
+    assertEquals(String.format("round(%s, 1)", value), round.toString());
 
     round = dsl.round(DSL.literal(value), DSL.literal(-1));
     assertThat(
         round.valueOf(valueEnv()),
         allOf(hasType(DOUBLE), hasValue(
             new BigDecimal(value).setScale(-1, RoundingMode.HALF_UP).doubleValue())));
+    assertEquals(String.format("round(%s, -1)", value), round.toString());
   }
 
   /**
@@ -1312,18 +1344,21 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertThat(
         round.valueOf(valueEnv()),
         allOf(hasType(DOUBLE), hasValue((double) Math.round(value))));
+    assertEquals(String.format("round(%s)", value), round.toString());
 
     round = dsl.round(DSL.literal(value), DSL.literal(1));
     assertThat(
         round.valueOf(valueEnv()),
         allOf(hasType(DOUBLE), hasValue(
             new BigDecimal(value).setScale(1, RoundingMode.HALF_UP).doubleValue())));
+    assertEquals(String.format("round(%s, 1)", value), round.toString());
 
     round = dsl.round(DSL.literal(value), DSL.literal(-1));
     assertThat(
         round.valueOf(valueEnv()),
         allOf(hasType(DOUBLE), hasValue(
             new BigDecimal(value).setScale(-1, RoundingMode.HALF_UP).doubleValue())));
+    assertEquals(String.format("round(%s, -1)", value), round.toString());
   }
 
   /**
@@ -1390,6 +1425,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertThat(
         sign.valueOf(valueEnv()),
         allOf(hasType(INTEGER), hasValue((int) Math.signum(value))));
+    assertEquals(String.format("sign(%s)", value), sign.toString());
   }
 
   /**
@@ -1402,6 +1438,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertThat(
         sign.valueOf(valueEnv()),
         allOf(hasType(INTEGER), hasValue((int) Math.signum(value))));
+    assertEquals(String.format("sign(%s)", value), sign.toString());
   }
 
   /**
@@ -1414,6 +1451,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertThat(
         sign.valueOf(valueEnv()),
         allOf(hasType(INTEGER), hasValue((int) Math.signum(value))));
+    assertEquals(String.format("sign(%s)", value), sign.toString());
   }
 
   /**
@@ -1426,6 +1464,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertThat(
         sign.valueOf(valueEnv()),
         allOf(hasType(INTEGER), hasValue((int) Math.signum(value))));
+    assertEquals(String.format("sign(%s)", value), sign.toString());
   }
 
   /**
@@ -1456,6 +1495,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   public void sqrt_int_value(Integer value) {
     FunctionExpression sqrt = dsl.sqrt(DSL.literal(value));
     assertThat(sqrt.valueOf(valueEnv()), allOf(hasType(DOUBLE), hasValue(Math.sqrt(value))));
+    assertEquals(String.format("sqrt(%s)", value), sqrt.toString());
   }
 
   /**
@@ -1466,6 +1506,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   public void sqrt_long_value(Long value) {
     FunctionExpression sqrt = dsl.sqrt(DSL.literal(value));
     assertThat(sqrt.valueOf(valueEnv()), allOf(hasType(DOUBLE), hasValue(Math.sqrt(value))));
+    assertEquals(String.format("sqrt(%s)", value), sqrt.toString());
   }
 
   /**
@@ -1476,6 +1517,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   public void sqrt_float_value(Float value) {
     FunctionExpression sqrt = dsl.sqrt(DSL.literal(value));
     assertThat(sqrt.valueOf(valueEnv()), allOf(hasType(DOUBLE), hasValue(Math.sqrt(value))));
+    assertEquals(String.format("sqrt(%s)", value), sqrt.toString());
   }
 
   /**
@@ -1486,6 +1528,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   public void sqrt_double_value(Double value) {
     FunctionExpression sqrt = dsl.sqrt(DSL.literal(value));
     assertThat(sqrt.valueOf(valueEnv()), allOf(hasType(DOUBLE), hasValue(Math.sqrt(value))));
+    assertEquals(String.format("sqrt(%s)", value), sqrt.toString());
   }
 
   /**
@@ -1529,6 +1572,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertThat(
         truncate.valueOf(valueEnv()), allOf(hasType(LONG),
             hasValue(new BigDecimal(value).setScale(1, RoundingMode.DOWN).longValue())));
+    assertEquals(String.format("truncate(%s, 1)", value), truncate.toString());
   }
 
   /**
@@ -1541,6 +1585,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertThat(
         truncate.valueOf(valueEnv()), allOf(hasType(LONG),
             hasValue(new BigDecimal(value).setScale(1, RoundingMode.DOWN).longValue())));
+    assertEquals(String.format("truncate(%s, 1)", value), truncate.toString());
   }
 
   /**
@@ -1553,6 +1598,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertThat(
         truncate.valueOf(valueEnv()), allOf(hasType(DOUBLE),
             hasValue(new BigDecimal(value).setScale(1, RoundingMode.DOWN).doubleValue())));
+    assertEquals(String.format("truncate(%s, 1)", value), truncate.toString());
   }
 
   /**
@@ -1565,6 +1611,7 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     assertThat(
         truncate.valueOf(valueEnv()), allOf(hasType(DOUBLE),
             hasValue(new BigDecimal(value).setScale(1, RoundingMode.DOWN).doubleValue())));
+    assertEquals(String.format("truncate(%s, 1)", value), truncate.toString());
   }
 
   /**

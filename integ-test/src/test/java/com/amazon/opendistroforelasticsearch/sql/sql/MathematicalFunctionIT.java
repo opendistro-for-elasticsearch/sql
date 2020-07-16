@@ -106,7 +106,7 @@ public class MathematicalFunctionIT extends SQLIntegTestCase {
     verifyDataRows(result, rows(1));
 
     result = executeQuery("select sign(-1.1)");
-    verifySchema(result, schema("sign(1.1)", null, "integer"));
+    verifySchema(result, schema("sign(-1.1)", null, "integer"));
     verifyDataRows(result, rows(-1));
   }
 
