@@ -204,7 +204,7 @@ functionArg
 
 mathematicalFunctionBase
     : ABS | CEIL | CEILING | CONV | CRC32 | EXP | FLOOR | LN | LOG | LOG10 | LOG2 | MOD | POW | POWER
-    | ROUND| SIGN | SQRT | TRUNCATE
+    | ROUND | SIGN | SQRT | TRUNCATE
     ;
 
 dateAndTimeFunctionBase
