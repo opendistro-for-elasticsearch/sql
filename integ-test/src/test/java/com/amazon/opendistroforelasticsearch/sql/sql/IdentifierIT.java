@@ -19,6 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.sql;
 import static com.amazon.opendistroforelasticsearch.sql.util.TestUtils.createHiddenIndexByRestClient;
 import static com.amazon.opendistroforelasticsearch.sql.util.TestUtils.performRequest;
 
+import com.amazon.opendistroforelasticsearch.sql.legacy.SQLIntegTestCase;
 import java.io.IOException;
 import org.elasticsearch.client.Request;
 import org.junit.jupiter.api.Test;
@@ -26,7 +27,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Integration tests for identifiers including index and field name symbol.
  */
-public class IdentifierIT extends NewSQLIntegTestCase {
+public class IdentifierIT extends SQLIntegTestCase {
 
   @Test
   public void testIndexNames() throws IOException {
