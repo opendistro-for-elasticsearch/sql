@@ -139,6 +139,20 @@ Description
 
 Specification is undefined and type check is skipped for now
 
+
+CONV
+====
+
+Description
+-----------
+
+Usage: CONV(x, a, b) converts the number x from a base to b base
+
+Argument type: x: string, a: integer, b: integer
+
+Return type: string
+
+
 COS
 ===
 
@@ -170,6 +184,19 @@ Description
 Specifications: 
 
 1. COT(NUMBER T) -> DOUBLE
+
+
+CRC32
+=====
+
+Description
+-----------
+
+Usage: calculates a cyclic redundancy check value and returns a 32-bit unsigned value
+
+Argument type: string
+
+Return type: long
 
 
 CURDATE
@@ -429,15 +456,17 @@ Specifications:
 1. MAKETIME(INTEGER, INTEGER, INTEGER) -> DATE
 
 
-MODULUS
+MOD
 =======
 
 Description
 -----------
 
-Specifications: 
+Usage: MOD(n, m) calculates the remainder of the number n divided by m
 
-1. MODULUS(NUMBER T, NUMBER) -> T
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: widen type between types of n and m
 
 
 MONTH
@@ -501,10 +530,11 @@ POW
 Description
 -----------
 
-Specifications: 
+Usage: POW(x, y) calculates the value of x raised to the power of y
 
-1. POW(NUMBER T) -> T
-2. POW(NUMBER T, NUMBER) -> T
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
 
 
 POWER
@@ -513,10 +543,11 @@ POWER
 Description
 -----------
 
-Specifications: 
+Usage: POWER(x, y) calculates the value of x raised to the power of y
 
-1. POWER(NUMBER T) -> T
-2. POWER(NUMBER T, NUMBER) -> T
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
 
 
 RADIANS
@@ -581,9 +612,14 @@ ROUND
 Description
 -----------
 
-Specifications: 
+Usage: ROUND(x, d) rounds the argument x to d decimal places, d defaults to 0 if not specified
 
-1. ROUND(NUMBER T) -> T
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type map:
+
+(INTEGER/LONG [,INTEGER]) -> LONG
+(FLOAT/DOUBLE [,INTEGER]) -> LONG
 
 
 RTRIM
@@ -603,9 +639,11 @@ SIGN
 Description
 -----------
 
-Specifications: 
+Usage: returns the sign of the argument as -1, 0, or 1, depending on whether the number is negative, zero, or positive
 
-1. SIGN(NUMBER T) -> T
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: INTEGER
 
 
 SIGNUM
@@ -647,9 +685,14 @@ SQRT
 Description
 -----------
 
-Specifications: 
+Usage: calculates the square root of a non-negative number
 
-1. SQRT(NUMBER T) -> T
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type map:
+
+(Non-negative) INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
+(Negative) INTEGER/LONG/FLOAT/DOUBLE -> NULL
 
 
 SUBSTRING
@@ -705,6 +748,22 @@ Description
 Specifications: 
 
 1. TRIM(STRING T) -> T
+
+
+TRUNCATE
+========
+
+Description
+-----------
+
+Usage: TRUNCATE(x, d) returns the number x, truncated to d decimal place
+
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type map:
+
+INTEGER/LONG -> LONG
+FLOAT/DOUBLE -> DOUBLE
 
 
 UPPER

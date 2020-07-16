@@ -253,15 +253,15 @@ public class MathematicalFunction {
    * Definition of mod(x, y) function.
    * Calculate the remainder of x divided by y
    * The supported signature of mod function is
-   * (INTEGER, INTEGER) -> INTEGER
-   * (LONG, LONG) -> LONG
-   * (FLOAT, FLOAT) -> FLOAT
-   * (DOUBLE, DOUBLE) -> DOUBLE
+   * (x: INTEGER/LONG/FLOAT/DOUBLE, y: INTEGER/LONG/FLOAT/DOUBLE)
+   * -> wider type between types of x and y
    */
   private static FunctionResolver mod() {
     return new FunctionResolver(
         BuiltinFunctionName.MOD.getName(),
         doubleArgumentsFunction(BuiltinFunctionName.MOD.getName(),
+            (v1, v2) -> v2 == 0 ? null : v1 % v2,
+            (v1, v2) -> v2 == 0 ? null : v1 % v2,
             (v1, v2) -> v2 == 0 ? null : v1 % v2,
             (v1, v2) -> v2 == 0 ? null : v1 % v2));
   }
@@ -472,6 +472,8 @@ public class MathematicalFunction {
   private static Map<FunctionSignature, FunctionBuilder> doubleArgumentsFunction(
       FunctionName functionName,
       BiFunction<Integer, Integer, Integer> intFunc,
+      BiFunction<Long, Long, Long> longFunc,
+      BiFunction<Float, Float, Float> floatFunc,
       BiFunction<Double, Double, Double> doubleFunc) {
     return new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
         .put(
@@ -480,6 +482,18 @@ public class MathematicalFunction {
             doubleArgFunc(
                 functionName, intFunc, ExprValueUtils::getIntegerValue,
                 ExprValueUtils::getIntegerValue, ExprCoreType.INTEGER))
+        .put(
+            new FunctionSignature(
+                functionName, Arrays.asList(ExprCoreType.LONG, ExprCoreType.LONG)),
+            doubleArgFunc(
+                functionName, longFunc, ExprValueUtils::getLongValue,
+                ExprValueUtils::getLongValue, ExprCoreType.LONG))
+        .put(
+            new FunctionSignature(
+                functionName, Arrays.asList(ExprCoreType.FLOAT, ExprCoreType.FLOAT)),
+            doubleArgFunc(
+                functionName, floatFunc, ExprValueUtils::getFloatValue,
+                ExprValueUtils::getFloatValue, ExprCoreType.FLOAT))
         .put(
             new FunctionSignature(
                 functionName, Arrays.asList(ExprCoreType.DOUBLE, ExprCoreType.DOUBLE)),
