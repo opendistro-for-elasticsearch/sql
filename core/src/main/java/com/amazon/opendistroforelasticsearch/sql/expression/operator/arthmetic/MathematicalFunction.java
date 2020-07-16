@@ -124,8 +124,9 @@ public class MathematicalFunction {
             .put(
                 new FunctionSignature(functionName,
                     Arrays.asList(ExprCoreType.STRING, ExprCoreType.INTEGER, ExprCoreType.INTEGER)),
-                tripleArgFunc(
-                    functionName, (t, u, v) -> Integer.toString(Integer.parseInt(t, u), v),
+                tripleArgFunc(functionName,
+                    (num, fromBase, toBase) -> Integer.toString(
+                        Integer.parseInt(num, fromBase), toBase),
                     ExprValueUtils::getStringValue, ExprValueUtils::getIntegerValue,
                     ExprValueUtils::getIntegerValue, ExprCoreType.STRING))
             .put(
@@ -133,7 +134,8 @@ public class MathematicalFunction {
                     Arrays.asList(
                         ExprCoreType.INTEGER, ExprCoreType.INTEGER, ExprCoreType.INTEGER)),
                 tripleArgFunc(functionName,
-                    (t, u, v) -> Integer.toString(Integer.parseInt(t.toString(), u), v),
+                    (num, fromBase, toBase) -> Integer.toString(
+                        Integer.parseInt(num.toString(), fromBase), toBase),
                     ExprValueUtils::getIntegerValue, ExprValueUtils::getIntegerValue,
                     ExprValueUtils::getIntegerValue, ExprCoreType.STRING))
             .build());
@@ -260,8 +262,8 @@ public class MathematicalFunction {
     return new FunctionResolver(
         BuiltinFunctionName.MOD.getName(),
         doubleArgumentsFunction(BuiltinFunctionName.MOD.getName(),
-            (v1, v2) -> v1 % v2,
-            (v1, v2) -> v1 % v2));
+            (v1, v2) -> v2 == 0 ? null : v1 % v2,
+            (v1, v2) -> v2 == 0 ? null : v1 % v2));
   }
 
   /**

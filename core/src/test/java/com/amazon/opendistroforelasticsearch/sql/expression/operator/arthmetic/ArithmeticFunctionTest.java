@@ -24,6 +24,8 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.I
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
@@ -42,6 +44,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -169,6 +172,12 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
     assertEquals(expectedType, expression.type());
     assertValueEqual(BuiltinFunctionName.DIVIDE, expectedType, op1, op2, expression.valueOf(null));
     assertEquals(String.format("%s / %s", op1.toString(), op2.toString()), expression.toString());
+
+    expression = dsl.divide(literal(op1), literal(0));
+    expectedType = WideningTypeRule.max(op1.type(), INTEGER);
+    assertEquals(expectedType, expression.type());
+    assertTrue(expression.valueOf(valueEnv()).isNull());
+    assertEquals(String.format("%s / 0", op1.toString()), expression.toString());
   }
 
   @ParameterizedTest(name = "module({1}, {2})")
@@ -179,6 +188,12 @@ class ArithmeticFunctionTest extends ExpressionTestBase {
     assertEquals(expectedType, expression.type());
     assertValueEqual(BuiltinFunctionName.MODULES, expectedType, op1, op2, expression.valueOf(null));
     assertEquals(op1.toString() + " % " + op2.toString(), expression.toString());
+
+    expression = dsl.module(literal(op1), literal(0));
+    expectedType = WideningTypeRule.max(op1.type(), INTEGER);
+    assertEquals(expectedType, expression.type());
+    assertTrue(expression.valueOf(valueEnv()).isNull());
+    assertEquals(op1.toString() + " % 0", expression.toString());
   }
 
   protected void assertValueEqual(BuiltinFunctionName builtinFunctionName, ExprType type,

@@ -1025,6 +1025,16 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   }
 
   /**
+   * Test mod with 0 as divider.
+   */
+  @Test
+  public void mod_divide_zero() {
+    FunctionExpression mod = dsl.mod(DSL.literal(1), DSL.literal(0));
+    assertEquals(INTEGER, mod.type());
+    assertTrue(mod.valueOf(valueEnv()).isNull());
+  }
+
+  /**
    * Test mod with null value.
    */
   @Test
