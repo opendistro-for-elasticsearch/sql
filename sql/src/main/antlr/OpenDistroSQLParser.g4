@@ -151,6 +151,7 @@ predicate
 
 expressionAtom
     : constant                                                      #constantExpressionAtom
+    | columnName                                                    #fullColumnNameExpressionAtom
     | functionCall                                                  #functionCallExpressionAtom
     | LR_BRACKET expression RR_BRACKET                              #nestedExpressionAtom
     | left=expressionAtom mathOperator right=expressionAtom         #mathExpressionAtom

@@ -20,6 +20,7 @@ import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLi
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.doubleLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.project;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.values;
@@ -70,10 +71,10 @@ class AstBuilderTest {
   }
 
   @Test
-  public void buildSelectFieldsFromIndex() { // TODO: change to select fields later
+  public void buildSelectFieldsFromIndex() {
     assertEquals(
-        project(relation("test"), intLiteral(1)),
-        buildAST("SELECT 1 FROM test")
+        project(relation("test"), qualifiedName("age")),
+        buildAST("SELECT age FROM test")
     );
   }
 

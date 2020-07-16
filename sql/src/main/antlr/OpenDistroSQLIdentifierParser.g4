@@ -34,6 +34,10 @@ tableName
     : qualifiedName
     ;
 
+columnName
+    : qualifiedName
+    ;
+
 qualifiedName
     : ident (DOT ident)*
     ;

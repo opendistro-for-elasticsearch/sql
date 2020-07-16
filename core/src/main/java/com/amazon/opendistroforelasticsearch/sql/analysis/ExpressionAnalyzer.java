@@ -27,6 +27,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Literal;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Not;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Or;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Xor;
@@ -147,6 +148,11 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
   public Expression visitField(Field node, AnalysisContext context) {
     String attr = node.getField().toString();
     return visitIdentifier(attr, context);
+  }
+
+  @Override
+  public Expression visitQualifiedName(QualifiedName node, AnalysisContext context) {
+    return visitIdentifier(node.toString(), context);
   }
 
   private Expression visitIdentifier(String ident, AnalysisContext context) {
