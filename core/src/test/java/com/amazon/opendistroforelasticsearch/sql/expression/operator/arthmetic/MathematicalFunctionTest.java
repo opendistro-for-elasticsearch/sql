@@ -35,11 +35,16 @@ import static org.hamcrest.Matchers.closeTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
+import com.google.common.collect.Lists;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.CRC32;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -1009,6 +1014,44 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
         mod.valueOf(valueEnv()),
         allOf(hasType(INTEGER), hasValue(v1 % v2)));
     assertEquals(String.format("mod(%s, %s)", v1, v2), mod.toString());
+
+    mod = dsl.mod(DSL.literal(v1), DSL.literal(0));
+    assertEquals(INTEGER, mod.type());
+    assertTrue(mod.valueOf(valueEnv()).isNull());
+  }
+
+  /**
+   * Test mod with long value.
+   */
+  @ParameterizedTest(name = "mod({0}, {1})")
+  @MethodSource("testLogLongArguments")
+  public void mod_long_value(Long v1, Long v2) {
+    FunctionExpression mod = dsl.mod(DSL.literal(v1), DSL.literal(v2));
+    assertThat(
+        mod.valueOf(valueEnv()),
+        allOf(hasType(LONG), hasValue(v1 % v2)));
+    assertEquals(String.format("mod(%s, %s)", v1, v2), mod.toString());
+
+    mod = dsl.mod(DSL.literal(v1), DSL.literal(0));
+    assertEquals(LONG, mod.type());
+    assertTrue(mod.valueOf(valueEnv()).isNull());
+  }
+
+  /**
+   * Test mod with long value.
+   */
+  @ParameterizedTest(name = "mod({0}, {1})")
+  @MethodSource("testLogFloatArguments")
+  public void mod_float_value(Float v1, Float v2) {
+    FunctionExpression mod = dsl.mod(DSL.literal(v1), DSL.literal(v2));
+    assertThat(
+        mod.valueOf(valueEnv()),
+        allOf(hasType(FLOAT), hasValue(v1 % v2)));
+    assertEquals(String.format("mod(%s, %s)", v1, v2), mod.toString());
+
+    mod = dsl.mod(DSL.literal(v1), DSL.literal(0));
+    assertEquals(FLOAT, mod.type());
+    assertTrue(mod.valueOf(valueEnv()).isNull());
   }
 
   /**
@@ -1022,15 +1065,9 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
         mod.valueOf(valueEnv()),
         allOf(hasType(DOUBLE), hasValue(v1 % v2)));
     assertEquals(String.format("mod(%s, %s)", v1, v2), mod.toString());
-  }
 
-  /**
-   * Test mod with 0 as divider.
-   */
-  @Test
-  public void mod_divide_zero() {
-    FunctionExpression mod = dsl.mod(DSL.literal(1), DSL.literal(0));
-    assertEquals(INTEGER, mod.type());
+    mod = dsl.mod(DSL.literal(v1), DSL.literal(0));
+    assertEquals(DOUBLE, mod.type());
     assertTrue(mod.valueOf(valueEnv()).isNull());
   }
 
