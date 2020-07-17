@@ -203,7 +203,7 @@ functionArg
     ;
 
 mathematicalFunctionBase
-    : ABS
+    : ABS | CEIL | CEILING | EXP | FLOOR | LN | LOG | LOG10 | LOG2
     ;
 
 dateAndTimeFunctionBase
@@ -216,7 +216,7 @@ textFunctionBase
 
 /** operators */
 comparisonOperator
-    : EQUAL | NOT_EQUAL | LESS | NOT_LESS | GREATER | NOT_GREATER
+    : EQUAL | NOT_EQUAL | LESS | NOT_LESS | GREATER | NOT_GREATER | LIKE
     ;
 
 binaryOperator

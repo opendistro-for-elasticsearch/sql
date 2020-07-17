@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
@@ -29,8 +30,8 @@ public class ExprStringValue implements ExprValue {
   }
 
   @Override
-  public ExprType type() {
-    return ExprType.STRING;
+  public ExprCoreType type() {
+    return ExprCoreType.STRING;
   }
 
   @Override

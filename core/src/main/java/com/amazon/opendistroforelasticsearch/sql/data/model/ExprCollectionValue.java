@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
@@ -31,8 +32,8 @@ public class ExprCollectionValue implements ExprValue {
   }
 
   @Override
-  public ExprType type() {
-    return ExprType.ARRAY;
+  public ExprCoreType type() {
+    return ExprCoreType.ARRAY;
   }
 
   @Override

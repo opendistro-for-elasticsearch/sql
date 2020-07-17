@@ -71,6 +71,7 @@ import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSetting
 import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSettings.QUERY_ANALYSIS_SEMANTIC_SUGGESTION;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSettings.QUERY_ANALYSIS_SEMANTIC_THRESHOLD;
 import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSettings.SQL_ENABLED;
+import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.SqlSettings.SQL_NEW_ENGINE_ENABLED;
 import static org.elasticsearch.rest.RestStatus.BAD_REQUEST;
 import static org.elasticsearch.rest.RestStatus.OK;
 import static org.elasticsearch.rest.RestStatus.SERVICE_UNAVAILABLE;
@@ -144,19 +145,21 @@ public class RestSqlAction extends BaseRestHandler {
 
             Format format = SqlRequestParam.getFormat(request.params());
 
-            // Route request to new query engine if it's supported already
-            SQLQueryRequest newSqlRequest = new SQLQueryRequest(sqlRequest.getJsonContent(),
-                                                                sqlRequest.getSql(),
-                                                                request.path(),
-                                                                format.getFormatName());
-            RestChannelConsumer result = newSqlQueryHandler.prepareRequest(newSqlRequest, client);
-            if (result != RestSQLQueryAction.NOT_SUPPORTED_YET) {
-                LOG.info("[{}] Request {} is handled by new SQL query engine",
+            if (isNewEngineEnabled()) {
+                // Route request to new query engine if it's supported already
+                SQLQueryRequest newSqlRequest = new SQLQueryRequest(sqlRequest.getJsonContent(),
+                                                                    sqlRequest.getSql(),
+                                                                    request.path(),
+                                                                    format.getFormatName());
+                RestChannelConsumer result = newSqlQueryHandler.prepareRequest(newSqlRequest, client);
+                if (result != RestSQLQueryAction.NOT_SUPPORTED_YET) {
+                    LOG.info("[{}] Request {} is handled by new SQL query engine",
+                        LogUtils.getRequestId(), newSqlRequest);
+                    return result;
+                }
+                LOG.debug("[{}] Request {} is not supported and falling back to old SQL engine",
                     LogUtils.getRequestId(), newSqlRequest);
-                return result;
             }
-            LOG.debug("[{}] Request {} is not supported and falling back to old SQL engine",
-                LogUtils.getRequestId(), newSqlRequest);
 
             final QueryAction queryAction = explainRequest(client, sqlRequest, format);
             return channel -> executeSqlRequest(request, queryAction, client, channel);
@@ -257,6 +260,10 @@ public class RestSqlAction extends BaseRestHandler {
     private boolean isSQLFeatureEnabled() {
         boolean isSqlEnabled = LocalClusterState.state().getSettingValue(SQL_ENABLED);
         return allowExplicitIndex && isSqlEnabled;
+    }
+
+    private boolean isNewEngineEnabled() {
+        return LocalClusterState.state().getSettingValue(SQL_NEW_ENGINE_ENABLED);
     }
 
     private static ColumnTypeProvider performAnalysis(String sql) {

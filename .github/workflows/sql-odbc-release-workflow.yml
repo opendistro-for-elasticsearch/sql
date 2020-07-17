@@ -1,0 +1,197 @@
+name: Build and Release SQL-ODBC
+# This workflow is triggered on creating tags to master or an opendistro release branch
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-mac:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: sql-odbc
+    steps:
+      - uses: actions/checkout@v1
+      - name: run-cppcheck
+        run: |
+          brew install cppcheck
+          sh run_cppcheck.sh
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - name: upload-cppcheck-results
+        if: failure()
+        uses: actions/upload-artifact@v1
+        with:
+          name: cppcheck-results
+          path: cppcheck-results.log
+      - name: get-dependencies
+        run: |
+          brew unlink unixodbc
+          brew install curl
+          brew install cmake
+          brew install libiodbc
+      - name: aws-sdk-cpp-setup
+        run: |
+          sh aws_sdk_cpp_setup.sh
+      - name: configure
+        run: |
+          prefix_path=$(pwd)
+          mkdir cmake-build
+          cd cmake-build
+          cmake ../src -DCMAKE_INSTALL_PREFIX=$prefix_path/AWSSDK/ -DCMAKE_BUILD_TYPE=Release -DBUILD_ONLY="core" -DCUSTOM_MEMORY_MANAGEMENT="OFF" -DENABLE_RTTI="OFF" -DENABLE_TESTING="OFF"
+          cd ..
+      - name: build-driver
+        run: |
+          cmake --build cmake-build
+      - name: build-installer
+        if: success()
+        run: |
+          cd cmake-build
+          cmake ../src
+          make
+          cpack .
+          cd ..
+      - name: create-output
+        if: success()
+        run: |
+          mkdir build
+          mkdir test-output
+          mkdir installer
+          cp ./lib64/*.dylib build
+          cp ./lib64/*.a build
+          cp $(ls -d bin64/* | grep -v "\.") build
+          cp ./cmake-build/*.pkg installer
+      - name: upload-build
+        if: success()
+        uses: actions/upload-artifact@v1
+        with:
+          name: mac-build
+          path: build
+      - name: upload-installer
+        if: success()
+        uses: actions/upload-artifact@v1
+        with:
+          name: mac-installer
+          path: installer
+      - name: upload-artifacts-s3
+        if: success()
+        run: |
+          cd installer
+          mac_installer=`ls -1t *.pkg | grep "Open Distro for Elasticsearch SQL ODBC Driver" | head -1`
+          echo $mac_installer
+          aws s3 cp "$mac_installer" s3://artifacts.opendistroforelasticsearch.amazon.com/downloads/elasticsearch-clients/opendistro-sql-odbc/mac/
+  build-windows32:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: sql-odbc
+    steps:
+      - uses: actions/checkout@v1
+      - name: add-msbuild-to-path
+        uses: microsoft/setup-msbuild@v1.0.0
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - name: configure-and-build-driver
+        run: |
+          .\build_win_release32.ps1
+      - name: build-installer
+        if: success()
+        run: |
+          cd cmake-build32
+          cmake ..\\src -D CMAKE_INSTALL_PREFIX=$prefix_path\AWSSDK\ -D BUILD_WITH_TESTS=OFF
+          msbuild .\PACKAGE.vcxproj -p:Configuration=Release
+          cd ..
+      - name: create-output
+        if: always()
+        run: |
+          mkdir build
+          mkdir test-output
+          mkdir installer
+          cp .\\bin32\\Release\\*.dll build
+          cp .\\bin32\\Release\\*.exe build
+          cp .\\lib32\\Release\\*.lib build
+          cp .\\cmake-build32\\*.msi installer
+      - name: upload-build
+        if: always()
+        uses: actions/upload-artifact@v1
+        with:
+          name: windows32-build
+          path: build
+      - name: upload-installer
+        if: always()
+        uses: actions/upload-artifact@v1
+        with:
+          name: windows32-installer
+          path: installer
+      - name: upload-artifacts-s3
+        if: success()
+        shell: bash
+        run: |
+          cd installer
+          windows_installer=`ls -1t *.msi | grep "ODFE SQL ODBC Driver" | head -1`
+          echo $windows_installer
+          aws s3 cp "$windows_installer" s3://artifacts.opendistroforelasticsearch.amazon.com/downloads/elasticsearch-clients/opendistro-sql-odbc/windows/
+  build-windows64:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: sql-odbc
+    steps:
+      - uses: actions/checkout@v1
+      - name: add-msbuild-to-path
+        uses: microsoft/setup-msbuild@v1.0.0
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - name: configure-and-build-driver
+        run: |
+          .\build_win_release64.ps1
+      - name: build-installer
+        if: success()
+        run: |
+          cd cmake-build64
+          cmake ..\\src -D CMAKE_INSTALL_PREFIX=$prefix_path\AWSSDK\ -D BUILD_WITH_TESTS=OFF
+          msbuild .\PACKAGE.vcxproj -p:Configuration=Release
+          cd ..
+      - name: create-output
+        if: always()
+        run: |
+          mkdir build
+          mkdir test-output
+          mkdir installer
+          cp .\\bin64\\Release\\*.dll build
+          cp .\\bin64\\Release\\*.exe build
+          cp .\\lib64\\Release\\*.lib build
+          cp .\\cmake-build64\\*.msi installer
+      - name: upload-build
+        if: always()
+        uses: actions/upload-artifact@v1
+        with:
+          name: windows64-build
+          path: build
+      - name: upload-installer
+        if: always()
+        uses: actions/upload-artifact@v1
+        with:
+          name: windows64-installer
+          path: installer
+      - name: upload-artifacts-s3
+        if: success()
+        shell: bash
+        run: |
+          cd installer
+          windows_installer=`ls -1t *.msi | grep "Open Distro for Elasticsearch SQL ODBC Driver" | head -1`
+          echo $windows_installer
+          aws s3 cp "$windows_installer" s3://artifacts.opendistroforelasticsearch.amazon.com/downloads/elasticsearch-clients/opendistro-sql-odbc/windows/

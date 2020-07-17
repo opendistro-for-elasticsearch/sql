@@ -16,6 +16,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.literal;
 import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.ref;
 import static com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlanDSL.aggregation;
@@ -32,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
@@ -57,19 +59,20 @@ class DefaultImplementorTest {
   @Test
   public void visitShouldReturnDefaultPhysicalOperator() {
     String indexName = "test";
-    ReferenceExpression include = ref("age");
-    ReferenceExpression exclude = ref("name");
-    ReferenceExpression dedupeField = ref("name");
+    ReferenceExpression include = ref("age", INTEGER);
+    ReferenceExpression exclude = ref("name", STRING);
+    ReferenceExpression dedupeField = ref("name", STRING);
     Expression filterExpr = literal(ExprBooleanValue.ofTrue());
-    List<Expression> groupByExprs = Arrays.asList(ref("age"));
-    List<Aggregator> aggregators = Arrays.asList(new AvgAggregator(groupByExprs, ExprType.DOUBLE));
+    List<Expression> groupByExprs = Arrays.asList(ref("age", INTEGER));
+    List<Aggregator> aggregators =
+        Arrays.asList(new AvgAggregator(groupByExprs, ExprCoreType.DOUBLE));
     Map<ReferenceExpression, ReferenceExpression> mappings =
-        ImmutableMap.of(ref("name"), ref("lastname"));
+        ImmutableMap.of(ref("name", STRING), ref("lastname", STRING));
     Pair<ReferenceExpression, Expression> newEvalField =
-        ImmutablePair.of(ref("name1"), ref("name"));
+        ImmutablePair.of(ref("name1", STRING), ref("name", STRING));
     Integer sortCount = 100;
     Pair<Sort.SortOption, Expression> sortField =
-        ImmutablePair.of(Sort.SortOption.PPL_ASC, ref("name1"));
+        ImmutablePair.of(Sort.SortOption.PPL_ASC, ref("name1", STRING));
 
     LogicalPlan plan =
         project(

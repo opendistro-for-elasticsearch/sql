@@ -15,18 +15,19 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.fromObjectValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,13 +64,13 @@ public class ExprValueUtilsTest {
   private static List<Function<ExprValue, Object>> allValueExtractor = Lists.newArrayList(
       Iterables.concat(numberValueExtractor, nonNumberValueExtractor));
 
-  private static List<ExprType> numberTypes =
-      Arrays.asList(ExprType.INTEGER, ExprType.LONG, ExprType.FLOAT,
-          ExprType.DOUBLE);
-  private static List<ExprType> nonNumberTypes =
-      Arrays.asList(ExprType.STRING, ExprType.BOOLEAN, ExprType.ARRAY,
-          ExprType.STRUCT);
-  private static List<ExprType> allTypes =
+  private static List<ExprCoreType> numberTypes =
+      Arrays.asList(ExprCoreType.INTEGER, ExprCoreType.LONG, ExprCoreType.FLOAT,
+          ExprCoreType.DOUBLE);
+  private static List<ExprCoreType> nonNumberTypes =
+      Arrays.asList(ExprCoreType.STRING, ExprCoreType.BOOLEAN, ExprCoreType.ARRAY,
+          ExprCoreType.STRUCT);
+  private static List<ExprCoreType> allTypes =
       Lists.newArrayList(Iterables.concat(numberTypes, nonNumberTypes));
 
   private static Stream<Arguments> getValueTestArgumentStream() {
@@ -104,7 +105,7 @@ public class ExprValueUtilsTest {
 
   @SuppressWarnings("unchecked")
   private static Stream<Arguments> invalidConvert() {
-    List<Map.Entry<Function<ExprValue, Object>, ExprType>> extractorWithTypeList =
+    List<Map.Entry<Function<ExprValue, Object>, ExprCoreType>> extractorWithTypeList =
         new ArrayList<>();
     for (int i = 0; i < nonNumberValueExtractor.size(); i++) {
       extractorWithTypeList.add(
@@ -114,16 +115,16 @@ public class ExprValueUtilsTest {
         .stream()
         .filter(list -> {
           ExprValue value = (ExprValue) list.get(0);
-          Map.Entry<Function<ExprValue, Object>, ExprType> entry =
+          Map.Entry<Function<ExprValue, Object>, ExprCoreType> entry =
               (Map.Entry<Function<ExprValue, Object>,
-                  ExprType>) list
+                  ExprCoreType>) list
                   .get(1);
           return entry.getValue() != value.type();
         })
         .map(list -> {
-          Map.Entry<Function<ExprValue, Object>, ExprType> entry =
+          Map.Entry<Function<ExprValue, Object>, ExprCoreType> entry =
               (Map.Entry<Function<ExprValue, Object>,
-                  ExprType>) list
+                  ExprCoreType>) list
                   .get(1);
           return Arguments.of(list.get(0), entry.getKey(), entry.getValue());
         });
@@ -137,7 +138,7 @@ public class ExprValueUtilsTest {
 
   @ParameterizedTest(name = "the type of ExprValue:{0} is: {1} ")
   @MethodSource("getTypeTestArgumentStream")
-  public void getType(ExprValue value, ExprType expectType) {
+  public void getType(ExprValue value, ExprCoreType expectType) {
     assertEquals(expectType, value.type());
   }
 
@@ -160,7 +161,7 @@ public class ExprValueUtilsTest {
   @ParameterizedTest(name = "invalid convert ExprValue:{0} to ExprType:{2}")
   @MethodSource("invalidConvert")
   public void invalidConvertExprValue(ExprValue value, Function<ExprValue, Object> extractor,
-                                      ExprType toType) {
+                                      ExprCoreType toType) {
     Exception exception = assertThrows(ExpressionEvaluationException.class,
         () -> extractor.apply(value));
     assertEquals(String
@@ -181,11 +182,34 @@ public class ExprValueUtilsTest {
   @Test
   public void bindingTuples() {
     for (ExprValue value : allValues) {
-      if (ExprType.STRUCT == value.type()) {
+      if (ExprCoreType.STRUCT == value.type()) {
         assertNotEquals(BindingTuple.EMPTY, value.bindingTuples());
       } else {
         assertEquals(BindingTuple.EMPTY, value.bindingTuples());
       }
     }
+  }
+
+  @Test
+  public void constructDateAndTimeValue() {
+    assertEquals(new ExprDateValue("2012-07-07"),
+        ExprValueUtils.fromObjectValue("2012-07-07", ExprCoreType.DATE));
+    assertEquals(new ExprTimeValue("01:01:01"),
+        ExprValueUtils.fromObjectValue("01:01:01", ExprCoreType.TIME));
+    assertEquals(new ExprTimestampValue("2012-07-07 01:01:01"),
+        ExprValueUtils.fromObjectValue("2012-07-07 01:01:01", ExprCoreType.TIMESTAMP));
+  }
+
+  @Test
+  public void getDateFromValue() {
+    assertEquals(LocalDate.parse("2012-07-07").atStartOfDay(ZoneId.of("UTC")),
+        ExprValueUtils.getDateValue(new ExprDateValue(
+            "2012-07-07")));
+
+    ExpressionEvaluationException exception =
+        assertThrows(ExpressionEvaluationException.class,
+            () -> ExprValueUtils.getDateValue(integerValue(1)));
+    assertEquals("invalid to convert expression with type:INTEGER to type:DATE",
+        exception.getMessage());
   }
 }

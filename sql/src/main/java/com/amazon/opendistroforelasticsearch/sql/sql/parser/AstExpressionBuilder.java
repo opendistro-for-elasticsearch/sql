@@ -18,18 +18,50 @@ package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
 import static com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils.unquoteIdentifier;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.BooleanContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.MathExpressionAtomContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.ScalarFunctionCallContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SignedDecimalContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SignedRealContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.StringContext;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
+import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser;
+import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.NestedExpressionAtomContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
  * Expression builder to parse text to expression in AST.
  */
 public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedExpression> {
+
+  @Override
+  public UnresolvedExpression visitMathExpressionAtom(MathExpressionAtomContext ctx) {
+    return new Function(
+        ctx.mathOperator().getText(),
+        Arrays.asList(visit(ctx.left), visit(ctx.right))
+    );
+  }
+
+  @Override
+  public UnresolvedExpression visitNestedExpressionAtom(NestedExpressionAtomContext ctx) {
+    return visit(ctx.expression()); // Discard parenthesis around
+  }
+
+  @Override
+  public UnresolvedExpression visitScalarFunctionCall(ScalarFunctionCallContext ctx) {
+    return new Function(
+        ctx.scalarFunctionName().getText(),
+        ctx.functionArgs()
+           .functionArg()
+           .stream()
+           .map(this::visitFunctionArg)
+           .collect(Collectors.toList())
+    );
+  }
 
   @Override
   public UnresolvedExpression visitString(StringContext ctx) {
@@ -49,6 +81,22 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitBoolean(BooleanContext ctx) {
     return AstDSL.booleanLiteral(Boolean.valueOf(ctx.getText()));
+  }
+
+  @Override
+  public UnresolvedExpression visitDateLiteral(OpenDistroSQLParser.DateLiteralContext ctx) {
+    return AstDSL.dateLiteral(unquoteIdentifier(ctx.date.getText()));
+  }
+
+  @Override
+  public UnresolvedExpression visitTimeLiteral(OpenDistroSQLParser.TimeLiteralContext ctx) {
+    return AstDSL.timeLiteral(unquoteIdentifier(ctx.time.getText()));
+  }
+
+  @Override
+  public UnresolvedExpression visitTimestampLiteral(
+      OpenDistroSQLParser.TimestampLiteralContext ctx) {
+    return AstDSL.timestampLiteral(unquoteIdentifier(ctx.timestamp.getText()));
   }
 
 }

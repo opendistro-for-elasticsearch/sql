@@ -15,6 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -50,10 +52,10 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
                     PhysicalPlanDSL.agg(
                         PhysicalPlanDSL.filter(
                             new TestScan(),
-                            dsl.equal(typeEnv(), DSL.ref("response"), DSL.literal(10))),
-                        ImmutableList.of(dsl.avg(typeEnv(), DSL.ref("response"))),
+                            dsl.equal(DSL.ref("response", INTEGER), DSL.literal(10))),
+                        ImmutableList.of(dsl.avg(DSL.ref("response", INTEGER))),
                         ImmutableList.of()),
-                    ImmutableMap.of(DSL.ref("ivalue"), DSL.ref("avg(response)"))),
+                    ImmutableMap.of(DSL.ref("ivalue", INTEGER), DSL.ref("avg(response)", DOUBLE))),
                 ref),
             ref);
 
@@ -71,19 +73,20 @@ class PhysicalPlanNodeVisitorTest extends PhysicalPlanTestBase {
   public void test_PhysicalPlanVisitor_should_return_null() {
     PhysicalPlan filter =
         PhysicalPlanDSL.filter(
-            new TestScan(), dsl.equal(typeEnv(), DSL.ref("response"), DSL.literal(10)));
+            new TestScan(), dsl.equal(DSL.ref("response", INTEGER), DSL.literal(10)));
     assertNull(filter.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
     PhysicalPlan aggregation =
         PhysicalPlanDSL.agg(
-            filter, ImmutableList.of(dsl.avg(typeEnv(), DSL.ref("response"))), ImmutableList.of());
+            filter, ImmutableList.of(dsl.avg(DSL.ref("response", INTEGER))), ImmutableList.of());
     assertNull(aggregation.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
     PhysicalPlan rename =
         PhysicalPlanDSL.rename(
-            aggregation, ImmutableMap.of(DSL.ref("ivalue"), DSL.ref("avg(response)")));
+            aggregation, ImmutableMap.of(DSL.ref("ivalue", INTEGER), DSL.ref("avg(response)",
+                DOUBLE)));
     assertNull(rename.accept(new PhysicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 

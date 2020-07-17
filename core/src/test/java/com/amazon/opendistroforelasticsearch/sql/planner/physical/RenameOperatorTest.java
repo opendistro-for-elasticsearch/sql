@@ -15,6 +15,9 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -40,9 +43,9 @@ public class RenameOperatorTest extends PhysicalPlanTestBase {
   public void avg_aggregation_rename() {
     PhysicalPlan plan = new RenameOperator(
         new AggregationOperator(new TestScan(),
-            Collections.singletonList(dsl.avg(typeEnv(), DSL.ref("response"))),
-            Collections.singletonList(DSL.ref("action"))),
-        ImmutableMap.of(DSL.ref("avg(response)"), DSL.ref("avg"))
+            Collections.singletonList(dsl.avg(DSL.ref("response", INTEGER))),
+            Collections.singletonList(DSL.ref("action", STRING))),
+        ImmutableMap.of(DSL.ref("avg(response)", DOUBLE), DSL.ref("avg", DOUBLE))
     );
     List<ExprValue> result = execute(plan);
     assertEquals(2, result.size());
@@ -58,7 +61,7 @@ public class RenameOperatorTest extends PhysicalPlanTestBase {
     when(inputPlan.next()).thenReturn(ExprValueUtils.integerValue(1));
     PhysicalPlan plan = new RenameOperator(
         inputPlan,
-        ImmutableMap.of(DSL.ref("avg(response)"), DSL.ref("avg"))
+        ImmutableMap.of(DSL.ref("avg(response)", DOUBLE), DSL.ref("avg", DOUBLE))
     );
     List<ExprValue> result = execute(plan);
     assertEquals(1, result.size());

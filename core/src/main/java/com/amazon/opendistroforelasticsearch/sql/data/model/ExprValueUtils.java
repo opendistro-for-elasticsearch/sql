@@ -15,13 +15,15 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.ARRAY;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.BOOLEAN;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.STRING;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprType.STRUCT;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.ARRAY;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.google.common.annotations.VisibleForTesting;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -116,6 +118,22 @@ public class ExprValueUtils {
     }
   }
 
+  /**
+   * Construct ExprValue from Object with ExprCoreType.
+   */
+  public static ExprValue fromObjectValue(Object o, ExprCoreType type) {
+    switch (type) {
+      case TIMESTAMP:
+        return new ExprTimestampValue((String)o);
+      case DATE:
+        return new ExprDateValue((String)o);
+      case TIME:
+        return new ExprTimeValue((String)o);
+      default:
+        return fromObjectValue(o);
+    }
+  }
+
   public static Integer getIntegerValue(ExprValue exprValue) {
     return getNumberValue(exprValue).intValue();
   }
@@ -149,6 +167,19 @@ public class ExprValueUtils {
   }
 
   /**
+   * Get {@link ZonedDateTime} from ExprValue of Date type.
+   */
+  public static ZonedDateTime getDateValue(ExprValue exprValue) {
+    if (ExprCoreType.DATE == exprValue.type()) {
+      return ((ExprDateValue) exprValue).getDate();
+    } else {
+      throw new ExpressionEvaluationException(
+          String.format("invalid to convert expression with type:%s to type:%s", exprValue.type(),
+              ExprCoreType.DATE));
+    }
+  }
+
+  /**
    * Get Number Value from {@link ExprValue}.
    */
   @VisibleForTesting
@@ -168,7 +199,7 @@ public class ExprValueUtils {
   }
 
   @SuppressWarnings("unchecked")
-  private static <T> T convert(ExprValue exprValue, ExprType toType) {
+  private static <T> T convert(ExprValue exprValue, ExprCoreType toType) {
     if (exprValue.type() == toType) {
       return (T) exprValue.value();
     } else {

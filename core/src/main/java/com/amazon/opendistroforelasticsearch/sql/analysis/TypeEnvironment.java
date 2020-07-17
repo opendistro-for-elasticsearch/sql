@@ -18,7 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.analysis;
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.SymbolTable;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
@@ -29,7 +29,7 @@ import lombok.Getter;
 /**
  * The definition of Type Environment.
  */
-public class TypeEnvironment implements Environment<Expression, ExprType> {
+public class TypeEnvironment implements Environment<Symbol, ExprType> {
   @Getter
   private final TypeEnvironment parent;
   private final SymbolTable symbolTable;
@@ -47,38 +47,38 @@ public class TypeEnvironment implements Environment<Expression, ExprType> {
   /**
    * Resolve the {@link Expression} from environment.
    *
-   * @param var expression
+   * @param symbol Symbol
    * @return resolved {@link ExprType}
    */
   @Override
-  public ExprType resolve(Expression var) {
-    if (var instanceof ReferenceExpression) {
-      ReferenceExpression ref = (ReferenceExpression) var;
-      for (TypeEnvironment cur = this; cur != null; cur = cur.parent) {
-        Optional<ExprType> typeOptional = cur.symbolTable.lookup(new Symbol(Namespace.FIELD_NAME,
-            ref.getAttr()));
-        if (typeOptional.isPresent()) {
-          return typeOptional.get();
-        }
+  public ExprType resolve(Symbol symbol) {
+    for (TypeEnvironment cur = this; cur != null; cur = cur.parent) {
+      Optional<ExprType> typeOptional = cur.symbolTable.lookup(symbol);
+      if (typeOptional.isPresent()) {
+        return typeOptional.get();
       }
     }
-    throw new SemanticCheckException(String.format("can't resolve expression %s in type env", var));
+    throw new SemanticCheckException(
+        String.format("can't resolve %s in type env", symbol));
   }
 
   /**
    * Define symbol with the type.
    *
-   * @param var  symbol to define
-   * @param type type
+   * @param symbol symbol to define
+   * @param type   type
    */
-  public void define(Expression var, ExprType type) {
-    if (var instanceof ReferenceExpression) {
-      ReferenceExpression ref = (ReferenceExpression) var;
-      symbolTable.store(new Symbol(Namespace.FIELD_NAME, ref.getAttr()), type);
-    } else {
-      throw new IllegalArgumentException(
-          String.format("only support define reference, unexpected expression %s", var));
-    }
+  public void define(Symbol symbol, ExprType type) {
+    symbolTable.store(symbol, type);
+  }
+
+  /**
+   * Define expression with the type.
+   *
+   * @param ref {@link ReferenceExpression}
+   */
+  public void define(ReferenceExpression ref) {
+    define(new Symbol(Namespace.FIELD_NAME, ref.getAttr()), ref.type());
   }
 
 }

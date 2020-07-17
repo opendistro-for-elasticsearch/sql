@@ -1,6 +1,7 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.function;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.WideningTypeRule;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
@@ -53,7 +54,7 @@ public class FunctionSignature {
    */
   public String formatTypes() {
     return getParamTypeList().stream()
-        .map(Enum::toString)
+        .map(ExprType::typeName)
         .collect(Collectors.joining(",", "[", "]"));
   }
 }

@@ -139,6 +139,7 @@ ATAN:                               'ATAN';
 ATAN2:                              'ATAN2';
 CBRT:                               'CBRT';
 CEIL:                               'CEIL';
+CEILING:                            'CEILING';
 CONCAT:                             'CONCAT';
 CONCAT_WS:                          'CONCAT_WS';
 COS:                                'COS';
@@ -186,6 +187,7 @@ SINH:                               'SINH';
 SQRT:                               'SQRT';
 SUBTRACT:                           'SUBTRACT';
 TAN:                                'TAN';
+TIME:                               'TIME';
 TIMESTAMP:                          'TIMESTAMP';
 UPPER:                              'UPPER';
 

@@ -17,8 +17,12 @@ package com.amazon.opendistroforelasticsearch.sql.expression;
 
 import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.BOOL_TYPE_MISSING_VALUE_FIELD;
 import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.BOOL_TYPE_NULL_VALUE_FIELD;
+import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.DOUBLE_TYPE_MISSING_VALUE_FIELD;
+import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.DOUBLE_TYPE_NULL_VALUE_FIELD;
 import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.INT_TYPE_MISSING_VALUE_FIELD;
 import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.INT_TYPE_NULL_VALUE_FIELD;
+import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.STRING_TYPE_MISSING_VALUE_FILED;
+import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.STRING_TYPE_NULL_VALUE_FILED;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.booleanValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.collectionValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.doubleValue;
@@ -31,16 +35,15 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.tupleValue;
 
 import com.amazon.opendistroforelasticsearch.sql.config.TestConfig;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.config.ExpressionConfig;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import java.util.Comparator;
 import java.util.List;
-import java.util.function.BiFunction;
+import java.util.function.Function;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -82,9 +85,13 @@ public class ExpressionTestBase {
             return collectionValue(ImmutableList.of(1));
           case BOOL_TYPE_NULL_VALUE_FIELD:
           case INT_TYPE_NULL_VALUE_FIELD:
+          case DOUBLE_TYPE_NULL_VALUE_FIELD:
+          case STRING_TYPE_NULL_VALUE_FILED:
             return nullValue();
           case INT_TYPE_MISSING_VALUE_FIELD:
           case BOOL_TYPE_MISSING_VALUE_FIELD:
+          case DOUBLE_TYPE_MISSING_VALUE_FIELD:
+          case STRING_TYPE_MISSING_VALUE_FILED:
             return missingValue();
           default:
             throw new IllegalArgumentException("undefined reference");
@@ -100,20 +107,19 @@ public class ExpressionTestBase {
     return typeEnv;
   }
 
-  protected BiFunction<Environment<Expression, ExprType>,
-      List<Expression>, FunctionExpression> functionMapping(
+  protected Function<List<Expression>, FunctionExpression> functionMapping(
       BuiltinFunctionName builtinFunctionName) {
     switch (builtinFunctionName) {
       case ADD:
-        return (env, expressions) -> dsl.add(env, expressions.get(0), expressions.get(1));
+        return (expressions) -> dsl.add(expressions.get(0), expressions.get(1));
       case SUBTRACT:
-        return (env, expressions) -> dsl.subtract(env, expressions.get(0), expressions.get(1));
+        return (expressions) -> dsl.subtract(expressions.get(0), expressions.get(1));
       case MULTIPLY:
-        return (env, expressions) -> dsl.multiply(env, expressions.get(0), expressions.get(1));
+        return (expressions) -> dsl.multiply(expressions.get(0), expressions.get(1));
       case DIVIDE:
-        return (env, expressions) -> dsl.divide(env, expressions.get(0), expressions.get(1));
+        return (expressions) -> dsl.divide(expressions.get(0), expressions.get(1));
       case MODULES:
-        return (env, expressions) -> dsl.module(env, expressions.get(0), expressions.get(1));
+        return (expressions) -> dsl.module(expressions.get(0), expressions.get(1));
       default:
         throw new RuntimeException();
     }

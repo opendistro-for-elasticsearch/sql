@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.util;
 
+import static com.amazon.opendistroforelasticsearch.sql.legacy.plugin.RestSqlSettingsAction.SETTINGS_API_ENDPOINT;
 import static com.google.common.base.Strings.isNullOrEmpty;
 
 import java.io.BufferedReader;
@@ -38,10 +39,13 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.Request;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.rest.RestStatus;
 import org.json.JSONObject;
+import org.junit.Assert;
 
 public class TestUtils {
 
@@ -847,4 +851,21 @@ public class TestUtils {
 
     return result;
   }
+
+  /**
+   * Enable new query engine which is disabled by default for now.
+   */
+  public static void enableNewQueryEngine(RestClient client) throws IOException {
+    Request request = new Request("PUT", SETTINGS_API_ENDPOINT);
+    request.setJsonEntity("{\"transient\" : {\"opendistro.sql.engine.new.enabled\" : \"true\"}}");
+
+    RequestOptions.Builder restOptionsBuilder = RequestOptions.DEFAULT.toBuilder();
+    restOptionsBuilder.addHeader("Content-Type", "application/json");
+    request.setOptions(restOptionsBuilder);
+
+    Response response = client.performRequest(request);
+    Assert.assertEquals(RestStatus.OK,
+        RestStatus.fromCode(response.getStatusLine().getStatusCode()));
+  }
+
 }

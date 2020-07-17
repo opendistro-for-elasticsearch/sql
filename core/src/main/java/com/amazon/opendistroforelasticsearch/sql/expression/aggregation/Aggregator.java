@@ -16,8 +16,9 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.aggregation;
 
 import com.amazon.opendistroforelasticsearch.sql.analysis.ExpressionAnalyzer;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
@@ -25,7 +26,6 @@ import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionImp
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -44,7 +44,7 @@ public abstract class Aggregator<S extends AggregationState>
   private final FunctionName functionName;
   @Getter
   private final List<Expression> arguments;
-  protected final ExprType returnType;
+  protected final ExprCoreType returnType;
 
   /**
    * Create an {@link AggregationState} which will be used for aggregation.
@@ -67,7 +67,7 @@ public abstract class Aggregator<S extends AggregationState>
   }
 
   @Override
-  public ExprType type(Environment<Expression, ExprType> typeEnv) {
+  public ExprType type() {
     return returnType;
   }
 }

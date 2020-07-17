@@ -17,6 +17,7 @@ package com.amazon.opendistroforelasticsearch.sql.legacy.query.planner.physical.
 
 import com.amazon.opendistroforelasticsearch.sql.legacy.query.planner.physical.Row;
 import com.google.common.base.Strings;
+import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.search.SearchHit;
 
@@ -150,13 +151,17 @@ class SearchHitRow implements Row<SearchHit> {
     }
 
     private SearchHit cloneHit(Row<SearchHit> other) {
+        Map<String, DocumentField> documentFields = new HashMap<>();
+        Map<String, DocumentField> metaFields = new HashMap<>();
+        SearchHit.splitFieldsByMetadata(hit.getFields(), documentFields, metaFields);
         SearchHit combined = new SearchHit(
                 hit.docId(),
                 hit.getId() + "|" + (other == NULL ? "0" : ((SearchHitRow) other).hit.getId()),
                 new Text(
                         hit.getType() + "|" + (other == NULL ? null : ((SearchHitRow) other).hit.getType())
                 ),
-                hit.getFields()
+                documentFields,
+                metaFields
         );
         combined.sourceRef(hit.getSourceRef());
         combined.getSourceAsMap().clear();

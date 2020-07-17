@@ -61,7 +61,7 @@ querySpecification
     ;
 
 selectElements
-    : selectElement (',' selectElement)*
+    : selectElement (COMMA selectElement)*
     ;
 
 selectElement
@@ -76,6 +76,7 @@ constant
     | sign? decimalLiteral      #signedDecimal
     | sign? realLiteral         #signedReal
     | booleanLiteral            #boolean
+    | datetimeLiteral           #datetime
     // Doesn't support the following types for now
     //| nullLiteral               #null
     //| BIT_STRING
@@ -114,6 +115,25 @@ nullLiteral
     : NULL_LITERAL
     ;
 
+// Date and Time Literal, follow ANSI 92
+datetimeLiteral
+    : dateLiteral
+    | timeLiteral
+    | timestampLiteral
+    ;
+
+dateLiteral
+    : DATE date=stringLiteral
+    ;
+
+timeLiteral
+    : TIME time=stringLiteral
+    ;
+
+timestampLiteral
+    : TIMESTAMP timestamp=stringLiteral
+    ;
+
 //    Expressions, predicates
 
 // Simplified approach for expression
@@ -127,4 +147,33 @@ predicate
 
 expressionAtom
     : constant                                                      #constantExpressionAtom
+    | functionCall                                                  #functionCallExpressionAtom
+    | LR_BRACKET expression RR_BRACKET                              #nestedExpressionAtom
+    | left=expressionAtom mathOperator right=expressionAtom         #mathExpressionAtom
     ;
+
+mathOperator
+    : PLUS | MINUS | STAR | DIVIDE | MODULE
+    ;
+
+functionCall
+    : scalarFunctionName LR_BRACKET functionArgs? RR_BRACKET        #scalarFunctionCall
+    ;
+
+scalarFunctionName
+    : ABS | CEIL | CEILING | EXP | FLOOR | LN | LOG | LOG10 | LOG2
+    | dateTimeFunctionName
+    ;
+
+dateTimeFunctionName
+    : DAYOFMONTH
+    ;
+
+functionArgs
+    : functionArg (COMMA functionArg)*
+    ;
+
+functionArg
+    : expression
+    ;
+

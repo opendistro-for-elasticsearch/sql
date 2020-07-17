@@ -26,9 +26,9 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.utils.ExpressionUtils.format;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprNullValue;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.SumAggregator.SumState;
@@ -43,7 +43,7 @@ import java.util.Locale;
  */
 public class SumAggregator extends Aggregator<SumState> {
 
-  public SumAggregator(List<Expression> arguments, ExprType returnType) {
+  public SumAggregator(List<Expression> arguments, ExprCoreType returnType) {
     super(BuiltinFunctionName.SUM.getName(), arguments, returnType);
   }
 
@@ -73,11 +73,11 @@ public class SumAggregator extends Aggregator<SumState> {
    */
   protected static class SumState implements AggregationState {
 
-    private final ExprType type;
+    private final ExprCoreType type;
     private ExprValue sumResult;
     private boolean isEmptyCollection;
 
-    SumState(ExprType type) {
+    SumState(ExprCoreType type) {
       this.type = type;
       sumResult = ExprValueUtils.integerValue(0);
       isEmptyCollection = true;
