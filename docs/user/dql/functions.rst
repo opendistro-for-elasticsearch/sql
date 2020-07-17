@@ -152,6 +152,15 @@ Argument type: x: string, a: integer, b: integer
 
 Return type: string
 
+Example::
+
+    od> SELECT CONV('12', 10, 16), CONV('2C', 16, 10), CONV(12, 10, 2), CONV(1111, 2, 10)
+    fetched rows / total rows = 1/1
+    +--------------------+--------------------+-----------------+-------------------+
+    | CONV('12', 10, 16) | CONV('2C', 16, 10) | CONV(12, 10, 2) | CONV(1111, 2, 10) |
+    |--------------------|--------------------|-----------------|-------------------|
+    | "c"                | "44"               | "1100"          | "15"              |
+    +--------------------+--------------------+-----------------+-------------------+
 
 COS
 ===
@@ -197,6 +206,16 @@ Usage: calculates a cyclic redundancy check value and returns a 32-bit unsigned 
 Argument type: string
 
 Return type: long
+
+Example::
+
+    od> SELECT CRC32('MySQL')
+    fetched rows / total rows = 1/1
+    +----------------+
+    | CRC32('MySQL') |
+    |----------------|
+    | "c"            |
+    +----------------+
 
 
 CURDATE
@@ -468,6 +487,16 @@ Argument type: INTEGER/LONG/FLOAT/DOUBLE
 
 Return type: widen type between types of n and m
 
+Example::
+
+    od> SELECT MOD(3, 2), MOD(3.1, 2), MOD(3, 2.1), MOD(3, 0)
+    fetched rows / total rows = 1/1
+    +-----------+-------------+-----------+
+    | MOD(3, 2) | MOD(3.6, 2) | MOD(3, 0) |
+    |-----------|-------------|-----------|
+    | 1         | 1.6         | null      |
+    +-----------+-------------+-----------+
+
 
 MONTH
 =====
@@ -536,6 +565,16 @@ Argument type: INTEGER/LONG/FLOAT/DOUBLE
 
 Return type: DOUBLE
 
+Example::
+
+    od> SELECT POW(3, 2), POW(-3, 2), POW(3, -2), POW(-3, 0.5)
+    fetched rows / total rows = 1/1
+    +-----------+------------+--------------------+--------------+
+    | POW(3, 2) | POW(-3, 2) | POW(3, -2)         | POW(-3, 0.5) |
+    |-----------|------------|--------------------|--------------|
+    | 9         | 9          | 0.1111111111111111 | null         |
+    +-----------+------------+--------------------+--------------+
+
 
 POWER
 =====
@@ -548,6 +587,16 @@ Usage: POWER(x, y) calculates the value of x raised to the power of y
 Argument type: INTEGER/LONG/FLOAT/DOUBLE
 
 Return type: DOUBLE
+
+Example::
+
+    od> SELECT POWER(3, 2), POWER(-3, 2), POWER(3, -2), POWER(-3, 0.5)
+    fetched rows / total rows = 1/1
+    +-------------+--------------+--------------------+----------------+
+    | POWER(3, 2) | POWER(-3, 2) | POWER(3, -2)       | POWER(-3, 0.5) |
+    |-------------|--------------|--------------------|----------------|
+    | 9           | 9            | 0.1111111111111111 | null           |
+    +-------------+--------------+--------------------+----------------+
 
 
 RADIANS
@@ -621,6 +670,16 @@ Return type map:
 (INTEGER/LONG [,INTEGER]) -> LONG
 (FLOAT/DOUBLE [,INTEGER]) -> LONG
 
+Example::
+
+    od> SELECT ROUND(12.34), ROUND(12.34, 1), ROUND(12.34, -1), ROUND(12, 1)
+    fetched rows / total rows = 1/1
+    +--------------+-----------------+------------------+--------------+
+    | ROUND(12.34) | ROUND(12.34, 1) | ROUND(12.34, -1) | ROUND(12, 1) |
+    |--------------|-----------------|------------------|--------------|
+    | 12           | 12.3            | 10               | 12           |
+    +--------------+-----------------+------------------+--------------+
+
 
 RTRIM
 =====
@@ -644,6 +703,16 @@ Usage: returns the sign of the argument as -1, 0, or 1, depending on whether the
 Argument type: INTEGER/LONG/FLOAT/DOUBLE
 
 Return type: INTEGER
+
+Example::
+
+    od> SELECT SIGN(1), SIGN(0), SIGN(-1.1)
+    fetched rows / total rows = 1/1
+    +---------+---------+------------+
+    | SIGN(1) | SIGN(0) | SIGN(-1.1) |
+    |---------|---------|------------|
+    | 1       | 0       | 1          |
+    +---------+---------+------------+
 
 
 SIGNUM
@@ -693,6 +762,16 @@ Return type map:
 
 (Non-negative) INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
 (Negative) INTEGER/LONG/FLOAT/DOUBLE -> NULL
+
+Example::
+
+    od> SELECT SQRT(4), SQRT(4.41), SQRT(-1)
+    fetched rows / total rows = 1/1
+    +---------+------------+----------+
+    | SQRT(4) | SQRT(4.41) | SQRT(-1) |
+    |---------|------------|----------|
+    | 2       | 2.1        | null     |
+    +---------+------------+----------+
 
 
 SUBSTRING
@@ -764,6 +843,16 @@ Return type map:
 
 INTEGER/LONG -> LONG
 FLOAT/DOUBLE -> DOUBLE
+
+Example::
+
+    od> SELECT TRUNCATE(56.78, 1), TRUNCATE(56.78, -1), TRUNCATE(56, 1)
+    fetched rows / total rows = 1/1
+    +--------------------+---------------------+-----------------+
+    | TRUNCATE(56.78, 1) | TRUNCATE(56.78, -1) | TRUNCATE(56, 1) |
+    |--------------------|---------------------|-----------------|
+    | 56.7               | 50                  | 56              |
+    +--------------------+---------------------+-----------------+
 
 
 UPPER
