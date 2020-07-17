@@ -12,7 +12,9 @@ PartiQL (JSON) Support
 Introduction
 ============
 
-In Elasticsearch, there are two types of JSON field in Elasticsarch (called "properties"): ``object`` and ``nested``. An object field can have inner field(s) which could be a simple one or another object field recursively. A nested field is a special version of object type that allows inner field be queried independently. To support queries for both types, we follow the query language syntax defined in PartiQL specification. PartiQL is a SQL-compatible query language that makes it easy and efficient to query semi-structured and nested data regardless of data format. For now our implementation is only partially compatible with PartiQL specification and more support will be provided in future.
+In Elasticsearch, there are two types of JSON field in Elasticsarch (called "properties"): ``object`` and ``nested``. An object field can have inner field(s) which could be a simple one or another object field recursively. A nested field is a special version of object type that allows inner field be queried independently.
+
+To support queries for both types, we follow the query language syntax defined in PartiQL specification. PartiQL is a SQL-compatible query language that makes it easy and efficient to query semi-structured and nested data regardless of data format. For now our implementation is only partially compatible with PartiQL specification and more support will be provided in future.
 
 Test Data
 =========
