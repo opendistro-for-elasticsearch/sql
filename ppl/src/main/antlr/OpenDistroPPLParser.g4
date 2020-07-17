@@ -195,7 +195,7 @@ evalFunctionName
     ;
 
 functionArgs
-    : functionArg (COMMA functionArg)*
+    : (functionArg (COMMA functionArg)*)?
     ;
 
 functionArg
@@ -203,7 +203,7 @@ functionArg
     ;
 
 mathematicalFunctionBase
-    : ABS | CEIL | CEILING | EXP | FLOOR | LN | LOG | LOG10 | LOG2
+    : ABS | CEIL | CEILING | E | EXP | FLOOR | LN | LOG | LOG10 | LOG2 | PI | RAND
     ;
 
 dateAndTimeFunctionBase

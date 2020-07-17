@@ -137,12 +137,15 @@ DC:                                 'DC';
 ABS:                                'ABS';
 CEIL:                               'CEIL';
 CEILING:                            'CEILING';
+E:                                  'E';
 EXP:                                'EXP';
 FLOOR:                              'FLOOR';
 LN:                                 'LN';
 LOG:                                'LOG';
 LOG10:                              'LOG10';
 LOG2:                               'LOG2';
+PI:                                 'PI';
+RAND:                               'RAND';
 
 // LITERALS AND VALUES
 //STRING_LITERAL:                     DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING;

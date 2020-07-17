@@ -19,7 +19,9 @@ import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.DOUBLE
 import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.DOUBLE_TYPE_NULL_VALUE_FIELD;
 import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.INT_TYPE_MISSING_VALUE_FIELD;
 import static com.amazon.opendistroforelasticsearch.sql.config.TestConfig.INT_TYPE_NULL_VALUE_FIELD;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getDoubleValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getFloatValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
@@ -35,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.ExpressionTestBase;
 import com.amazon.opendistroforelasticsearch.sql.expression.FunctionExpression;
+import java.util.Random;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -224,6 +227,15 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     FunctionExpression ceiling = dsl.ceiling(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
     assertEquals(INTEGER, ceiling.type());
     assertTrue(ceiling.valueOf(valueEnv()).isMissing());
+  }
+
+  /**
+   * Test constant e.
+   */
+  @Test
+  public void test_e() {
+    FunctionExpression e = dsl.euler();
+    assertThat(e.valueOf(valueEnv()), allOf(hasType(DOUBLE), hasValue(Math.E)));
   }
 
   /**
@@ -802,5 +814,49 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
         DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
     assertEquals(DOUBLE, log.type());
     assertTrue(log.valueOf(valueEnv()).isMissing());
+  }
+
+  /**
+   * Test constant pi.
+   */
+  @Test
+  public void test_pi() {
+    FunctionExpression pi = dsl.pi();
+    assertThat(pi.valueOf(valueEnv()), allOf(hasType(DOUBLE), hasValue(Math.PI)));
+  }
+
+  /**
+   * Test rand with no argument.
+   */
+  @Test
+  public void rand_no_arg() {
+    FunctionExpression rand = dsl.rand();
+    assertEquals(FLOAT, rand.type());
+    assertTrue(
+        getFloatValue(rand.valueOf(valueEnv())) >= 0
+            && getFloatValue(rand.valueOf(valueEnv())) < 1);
+    assertEquals("rand()", rand.toString());
+  }
+
+  /**
+   * Test rand with integer value.
+   */
+  @ParameterizedTest(name = "rand({0})")
+  @ValueSource(ints = {2, 3})
+  public void rand_int_value(Integer n) {
+    FunctionExpression rand = dsl.rand(DSL.literal(n));
+    assertEquals(FLOAT, rand.type());
+    assertTrue(
+        getFloatValue(rand.valueOf(valueEnv())) >= 0
+        && getFloatValue(rand.valueOf(valueEnv())) < 1);
+    assertEquals(getFloatValue(rand.valueOf(valueEnv())), new Random(n).nextFloat());
+    assertEquals(String.format("rand(%s)", n), rand.toString());
+  }
+
+  @Test
+  public void rand_null_value() {
+    FunctionExpression rand = dsl.rand(DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
+    assertEquals(FLOAT, rand.type());
+    assertTrue(rand.valueOf(valueEnv()).isNull());
   }
 }

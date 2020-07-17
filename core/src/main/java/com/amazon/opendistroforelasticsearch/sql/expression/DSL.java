@@ -73,6 +73,10 @@ public class DSL {
     return function(BuiltinFunctionName.CEILING, expressions);
   }
 
+  public FunctionExpression euler(Expression... expressions) {
+    return function(BuiltinFunctionName.E, expressions);
+  }
+
   public FunctionExpression exp(Expression... expressions) {
     return function(BuiltinFunctionName.EXP, expressions);
   }
@@ -95,6 +99,14 @@ public class DSL {
 
   public FunctionExpression log2(Expression... expressions) {
     return function(BuiltinFunctionName.LOG2, expressions);
+  }
+
+  public FunctionExpression pi(Expression... expressions) {
+    return function(BuiltinFunctionName.PI, expressions);
+  }
+
+  public FunctionExpression rand(Expression... expressions) {
+    return function(BuiltinFunctionName.RAND, expressions);
   }
 
   public FunctionExpression add(Expression... expressions) {

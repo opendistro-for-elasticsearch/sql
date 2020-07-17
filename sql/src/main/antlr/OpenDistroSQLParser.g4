@@ -161,8 +161,12 @@ functionCall
     ;
 
 scalarFunctionName
-    : ABS | CEIL | CEILING | EXP | FLOOR | LN | LOG | LOG10 | LOG2
+    : mathematicalFunctionName
     | dateTimeFunctionName
+    ;
+
+mathematicalFunctionName
+    : ABS | CEIL | CEILING | E | EXP | FLOOR | LN | LOG | LOG10 | LOG2 | PI | RAND
     ;
 
 dateTimeFunctionName
@@ -170,7 +174,7 @@ dateTimeFunctionName
     ;
 
 functionArgs
-    : functionArg (COMMA functionArg)*
+    : (functionArg (COMMA functionArg)*)?
     ;
 
 functionArg
