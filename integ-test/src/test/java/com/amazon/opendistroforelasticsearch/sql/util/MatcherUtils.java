@@ -234,7 +234,7 @@ public class MatcherUtils {
           Object expected = expectedObjects[i];
           boolean isEqual;
 
-          // JSONObject/JSONArray.equals() only check if same reference
+          // Use similar() because JSONObject/JSONArray.equals() only check if same reference
           if (expected instanceof JSONObject) {
             isEqual = ((JSONObject) expected).similar(array.get(i));
           } else if (expected instanceof JSONArray) {

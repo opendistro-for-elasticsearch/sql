@@ -28,11 +28,11 @@ import org.json.JSONObject;
 import org.junit.Test;
 
 /**
- * Integration test for Elasticsearch property field, object and nested.
- * This class is focused on simple SELECT-FROM query to ensure right field
+ * Integration test for Elasticsearch object field (and nested field).
+ * This class is focused on simple SELECT-FROM query to ensure right column
  * number and value is returned.
  */
-public class PropertyFieldSelectIT extends SQLIntegTestCase {
+public class ObjectFieldSelectIT extends SQLIntegTestCase {
 
   @Override
   protected void init() throws Exception {
@@ -95,7 +95,7 @@ public class PropertyFieldSelectIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void testSelectObjectFieldOfListValuesItself() {
+  public void testSelectObjectFieldOfArrayValuesItself() {
     JSONObject response = new JSONObject(query("SELECT accounts FROM %s"));
 
     // Expect the entire list of values is returned just like a nested field
@@ -110,7 +110,7 @@ public class PropertyFieldSelectIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void testSelectObjectFieldOfListValuesInnerFields() {
+  public void testSelectObjectFieldOfArrayValuesInnerFields() {
     JSONObject response = new JSONObject(query("SELECT accounts.id FROM %s"));
 
     // We don't support flatten object field of list value so expect null returned
