@@ -130,21 +130,21 @@ Description
 
 Before looking into how nested object field (tuple values) be queried, we need to figure out how many cases are there and how it being handled by our SQL implementation. Therefore, first of all, let's examine different cases by the query support matrix as follows. This matrix summerizes what has been supported so far for queries with the object and nested fields involved. Note that another complexity is that any field in Elasticsearch, regular or property, can have contain more than one values in a single document. This makes object field not always a tuple value which needs to be handled separately.
 
-+------------------------+---------------+-----------------------+----------------+-------------------------+
-|    Level/Field Type    | Object Fields | Object Fields (array) |  Nested Fields |         Comment         |
-+========================+===============+=======================+================+=========================+
-| Selecting top level    | Yes           | Yes                   | Yes            | The original JSON of    |
-|                        |               |                       |                | field value is returned |
-|                        |               |                       |                | which is either a JSON  |
-|                        |               |                       |                | object or JSON array.   |
-+------------------------+---------------+-----------------------+----------------+-------------------------+
-| Selecting second level | Yes           | No                    | Yes            |                         |
-|                        |               | (null returned)       |                |                         |
-+------------------------+---------------+-----------------------+----------------+ PartiQL specification   |
-| Selecting deeper level | Yes           | No                    | No             | is followed             |
-|                        |               | (null returned)       | (exception may |                         |
-|                        |               |                       | be thrown)     |                         |
-+------------------------+---------------+-----------------------+----------------+-------------------------+
++-------------------------+---------------+-----------------------+---------------------------------------------+-------------------------+
+|     Level/Field Type    | Object Fields | Object Fields (array) |                Nested Fields                |         Comment         |
++=========================+===============+=======================+=============================================+=========================+
+| Selecting top level     | Yes           | Yes                   | Yes                                         | The original JSON of    |
+|                         |               |                       |                                             | field value is returned |
+|                         |               |                       |                                             | which is either a JSON  |
+|                         |               |                       |                                             | object or JSON array.   |
++-------------------------+---------------+-----------------------+---------------------------------------------+-------------------------+
+| Selecting second level  | Yes           | No                    | Yes                                         |                         |
+|                         |               | (null returned)       | (or null returned if not in PartiQL syntax) |                         |
++-------------------------+---------------+-----------------------+---------------------------------------------+ PartiQL specification   |
+| Selecting deeper levels | Yes           | No                    | No                                          | is followed             |
+|                         |               | (null returned)       | (exception may                              |                         |
+|                         |               |                       | be thrown)                                  |                         |
++-------------------------+---------------+-----------------------+---------------------------------------------+-------------------------+
 
 Example 1: Selecting Top Level
 ------------------------------
@@ -175,15 +175,15 @@ Selecting at deeper levels for object fields of regular value returns inner fiel
 Example 3: Selecting Object Field of Array Value
 ------------------------------------------------
 
-Select deeper level for object fields of array value which returns ``NULL`` because inner field ``accounts.id`` is an array instead of a tuple in this document::
+Select deeper level for object fields of array value which returns ``NULL``. For example, because inner field ``accounts.id`` has three values instead of a tuple in this document, null is returned. Similarly, selecting inner field ``projects.name`` directly in nested field returns null. User needs to follow PartiQL syntax to query inner and flatten fields::
 
-    od> SELECT accounts.id FROM people;
+    od> SELECT accounts.id, projects.name FROM people;
     fetched rows / total rows = 1/1
-    +---------------+
-    | accounts.id   |
-    |---------------|
-    | null          |
-    +---------------+
+    +---------------+-----------------+
+    | accounts.id   | projects.name   |
+    |---------------+-----------------|
+    | null          | null            |
+    +---------------+-----------------+
 
 For selecting second level for nested fields, please read on and find more details in the following sections.
 
