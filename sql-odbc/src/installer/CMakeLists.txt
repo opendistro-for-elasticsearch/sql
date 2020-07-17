@@ -53,9 +53,6 @@ if(WIN32)
 else()
     set(CPACK_GENERATOR "productbuild")
 
-    # This script will be run once the Driver component has finished installing.
-    set(CPACK_POSTFLIGHT_DRIVER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/postinstall")
-
     # The productbuild generator copies files from this directory
     set(CPACK_PRODUCTBUILD_RESOURCES_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Resources")
 
@@ -74,6 +71,8 @@ else()
     set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_ROOT}/LICENSE.txt")
     set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/Resources/README.txt")
     set(CPACK_RESOURCE_FILE_WELCOME "${CMAKE_CURRENT_SOURCE_DIR}/Resources/Welcome.txt")
+
+    set(CPACK_PACKAGING_INSTALL_PREFIX "/Library/ODBC/odfe-sql-odbc")
 endif()
 
 # Set up components for installer
