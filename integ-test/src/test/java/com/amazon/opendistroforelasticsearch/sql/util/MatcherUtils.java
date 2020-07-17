@@ -231,12 +231,16 @@ public class MatcherUtils {
         }
 
         for (int i = 0; i < expectedObjects.length; i++) {
+          Object expected = expectedObjects[i];
           boolean isEqual;
-          if (expectedObjects[i] instanceof JSONObject) {
-            // JSONObject.equals() only check if same reference
-            isEqual = ((JSONObject) expectedObjects[i]).similar(array.get(i));
+
+          // JSONObject/JSONArray.equals() only check if same reference
+          if (expected instanceof JSONObject) {
+            isEqual = ((JSONObject) expected).similar(array.get(i));
+          } else if (expected instanceof JSONArray) {
+            isEqual = ((JSONArray) expected).similar(array.get(i));
           } else {
-            isEqual = expectedObjects[i].equals(array.get(i));
+            isEqual = expected.equals(array.get(i));
           }
 
           if (!isEqual) {

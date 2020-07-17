@@ -23,10 +23,16 @@ import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verify
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySchema;
 
 import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
 
-public class ObjectFieldQueryIT extends SQLIntegTestCase {
+/**
+ * Integration test for Elasticsearch property field, object and nested.
+ * This class is focused on simple SELECT-FROM query to ensure right field
+ * number and value is returned.
+ */
+public class PropertyFieldSelectIT extends SQLIntegTestCase {
 
   @Override
   protected void init() throws Exception {
@@ -38,6 +44,8 @@ public class ObjectFieldQueryIT extends SQLIntegTestCase {
     JSONObject response = new JSONObject(query("SELECT city FROM %s"));
 
     verifySchema(response, schema("city", null, "object"));
+
+    // Expect object field itself is returned in a single cell
     verifyDataRows(response,
         rows(new JSONObject(
             "{\n"
@@ -57,9 +65,56 @@ public class ObjectFieldQueryIT extends SQLIntegTestCase {
         schema("city.location", null, "object"),
         schema("city.location.latitude", null, "double")
     );
+
+    // Expect inner regular or object field returned in its single cell
     verifyDataRows(response,
-        rows(new JSONObject("{\"latitude\": 10.5}"), 10.5)
+        rows(
+            new JSONObject("{\"latitude\": 10.5}"),
+            10.5
+        )
     );
+  }
+
+  @Test
+  public void testSelectNestedFieldItself() {
+    JSONObject response = new JSONObject(query("SELECT projects FROM %s"));
+
+    // Nested field is absent in ES Get Field Mapping response either hence "object" used
+    verifySchema(response, schema("projects", null, "object"));
+
+    // Expect nested field itself is returned in a single cell
+    verifyDataRows(response,
+        rows(new JSONArray(
+            "[\n"
+                + "  {\"name\": \"AWS Redshift Spectrum querying\"},\n"
+                + "  {\"name\": \"AWS Redshift security\"},\n"
+                + "  {\"name\": \"AWS Aurora security\"}\n"
+                + "]")
+        )
+    );
+  }
+
+  @Test
+  public void testSelectObjectFieldOfListValuesItself() {
+    JSONObject response = new JSONObject(query("SELECT accounts FROM %s"));
+
+    // Expect the entire list of values is returned just like a nested field
+    verifyDataRows(response,
+        rows(new JSONArray(
+            "[\n"
+                + "  {\"id\": 1},\n"
+                + "  {\"id\": 2}\n"
+                + "]")
+        )
+    );
+  }
+
+  @Test
+  public void testSelectObjectFieldOfListValuesInnerFields() {
+    JSONObject response = new JSONObject(query("SELECT accounts.id FROM %s"));
+
+    // We don't support flatten object field of list value so expect null returned
+    verifyDataRows(response, rows(JSONObject.NULL));
   }
 
   private String query(String sql) {

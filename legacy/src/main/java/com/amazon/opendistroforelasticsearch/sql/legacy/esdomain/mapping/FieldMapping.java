@@ -120,7 +120,12 @@ public class FieldMapping {
     }
 
     /**
-     * Used to retrieve the type of fields from metaData map structures for both regular object and nested fields.
+     * Find field type in ES Get Field Mapping API response. Note that Get Field Mapping API does NOT return
+     * the type for object or nested field. In this case, object type is used as default under the assumption
+     * that the field queried here must exist (which is true if semantic analyzer is enabled).
+     * For input data format, please refer to UT {@link FieldMappingTest#testDeepNestedField()}.
+     *
+     * @return      field type if found in mapping, otherwise "object" type returned
      */
     @SuppressWarnings("unchecked")
     public String type() {
