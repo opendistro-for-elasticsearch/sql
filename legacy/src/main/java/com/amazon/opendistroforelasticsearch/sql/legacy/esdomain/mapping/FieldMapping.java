@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.legacy.esdomain.mapping;
 
 import com.amazon.opendistroforelasticsearch.sql.legacy.domain.Field;
+import com.amazon.opendistroforelasticsearch.sql.legacy.executor.format.DescribeResultSet;
 import com.amazon.opendistroforelasticsearch.sql.legacy.utils.StringUtils;
 
 import java.util.Map;
@@ -123,7 +124,11 @@ public class FieldMapping {
      */
     @SuppressWarnings("unchecked")
     public String type() {
-        FieldMappingMetadata metaData = typeMappings.get(fieldName);
+        FieldMappingMetadata metaData = typeMappings.getOrDefault(fieldName, FieldMappingMetadata.NULL);
+        if (metaData.isNull()) {
+            return DescribeResultSet.DEFAULT_OBJECT_DATATYPE;
+        }
+
         Map<String, Object> source = metaData.sourceAsMap();
         String[] fieldPath = fieldName.split("\\.");
 
@@ -131,11 +136,14 @@ public class FieldMapping {
          * When field is not nested the metaData source is fieldName -> type
          * When it is nested or contains "." in general (ex. fieldName.nestedName) the source is nestedName -> type
          */
-        String root = (fieldPath.length == 1) ? fieldName : fieldPath[1];
+        String root = (fieldPath.length == 1) ? fieldName : fieldPath[fieldPath.length - 1];
         Map<String, Object> fieldMapping = (Map<String, Object>) source.get(root);
+
+        /*
         for (int i = 2; i < fieldPath.length; i++) {
             fieldMapping = (Map<String, Object>) fieldMapping.get(fieldPath[i]);
         }
+        */
 
         return (String) fieldMapping.get("type");
     }

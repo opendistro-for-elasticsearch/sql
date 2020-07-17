@@ -473,7 +473,7 @@ public class SelectResultSet extends ResultSet {
              * explicitly selected.
              */
             FieldMapping field = new FieldMapping(fieldName, typeMappings, fieldMap);
-            if (typeMappings.containsKey(fieldName) && !field.isMetaField()) {
+            if (!field.isMetaField()) {
 
                 if (field.isMultiField() && !field.isSpecified()) {
                     continue;

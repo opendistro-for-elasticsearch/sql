@@ -114,6 +114,8 @@ public class Schema implements Iterable<Schema.Column> {
         DATE, // Date types
         BOOLEAN, // Boolean types
         BINARY, // Binary types
+        OBJECT,
+        NESTED,
         INTEGER_RANGE, FLOAT_RANGE, LONG_RANGE, DOUBLE_RANGE, DATE_RANGE; // Range types
 
         public String nameLowerCase() {

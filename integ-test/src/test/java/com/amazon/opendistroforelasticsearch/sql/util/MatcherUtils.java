@@ -226,9 +226,24 @@ public class MatcherUtils {
 
       @Override
       protected boolean matchesSafely(JSONArray array) {
-        List<Object> actualObjects = new ArrayList<>();
-        array.iterator().forEachRemaining(actualObjects::add);
-        return Arrays.asList(expectedObjects).equals(actualObjects);
+        if (array.length() != expectedObjects.length) {
+          return false;
+        }
+
+        for (int i = 0; i < expectedObjects.length; i++) {
+          boolean isEqual;
+          if (expectedObjects[i] instanceof JSONObject) {
+            // JSONObject.equals() only check if same reference
+            isEqual = ((JSONObject) expectedObjects[i]).similar(array.get(i));
+          } else {
+            isEqual = expectedObjects[i].equals(array.get(i));
+          }
+
+          if (!isEqual) {
+            return false;
+          }
+        }
+        return true;
       }
     };
   }
