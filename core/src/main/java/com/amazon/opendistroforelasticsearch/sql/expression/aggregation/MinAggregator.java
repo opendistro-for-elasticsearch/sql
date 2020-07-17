@@ -28,8 +28,8 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.utils.ExpressionUtils.format;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprNullValue;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
@@ -42,7 +42,7 @@ import java.util.List;
  */
 public class MinAggregator extends Aggregator<MinAggregator.MinState> {
 
-  public MinAggregator(List<Expression> arguments, ExprType returnType) {
+  public MinAggregator(List<Expression> arguments, ExprCoreType returnType) {
     super(BuiltinFunctionName.MIN.getName(), arguments, returnType);
   }
 
@@ -69,13 +69,13 @@ public class MinAggregator extends Aggregator<MinAggregator.MinState> {
   }
 
   protected static class MinState implements AggregationState {
-    private final ExprType type;
+    private final ExprCoreType type;
     private ExprValue minResult;
     private boolean isEmptyCollection;
 
-    MinState(ExprType type) {
+    MinState(ExprCoreType type) {
       this.type = type;
-      minResult = type.equals(ExprType.STRING) ? LITERAL_NULL : doubleValue(Double.MAX_VALUE);
+      minResult = type.equals(ExprCoreType.STRING) ? LITERAL_NULL : doubleValue(Double.MAX_VALUE);
       isEmptyCollection = true;
     }
 

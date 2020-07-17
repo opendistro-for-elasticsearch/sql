@@ -15,11 +15,16 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.aggregation;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
@@ -32,38 +37,38 @@ public class MinAggregatorTest extends AggregationTest {
 
   @Test
   public void test_min_integer() {
-    ExprValue result = aggregation(dsl.min(typeEnv(), DSL.ref("integer_value")), tuples);
+    ExprValue result = aggregation(dsl.min(DSL.ref("integer_value", INTEGER)), tuples);
     assertEquals(1, result.value());
   }
 
   @Test
   public void test_min_long() {
-    ExprValue result = aggregation(dsl.min(typeEnv(), DSL.ref("long_value")), tuples);
+    ExprValue result = aggregation(dsl.min(DSL.ref("long_value", LONG)), tuples);
     assertEquals(1L, result.value());
   }
 
   @Test
   public void test_min_float() {
-    ExprValue result = aggregation(dsl.min(typeEnv(), DSL.ref("float_value")), tuples);
+    ExprValue result = aggregation(dsl.min(DSL.ref("float_value", FLOAT)), tuples);
     assertEquals(1F, result.value());
   }
 
   @Test
   public void test_min_double() {
-    ExprValue result = aggregation(dsl.min(typeEnv(), DSL.ref("double_value")), tuples);
+    ExprValue result = aggregation(dsl.min(DSL.ref("double_value", DOUBLE)), tuples);
     assertEquals(1D, result.value());
   }
 
   @Test
   public void test_min_string() {
-    ExprValue result = aggregation(dsl.min(typeEnv(), DSL.ref("string_value")), tuples);
+    ExprValue result = aggregation(dsl.min(DSL.ref("string_value", STRING)), tuples);
     assertEquals("f", result.value());
   }
 
   @Test
   public void test_min_arithmetic_expression() {
     ExprValue result = aggregation(
-        dsl.min(typeEnv(), dsl.add(typeEnv(), DSL.ref("integer_value"),
+        dsl.min(dsl.add(DSL.ref("integer_value", INTEGER),
             DSL.literal(ExprValueUtils.integerValue(0)))), tuples);
     assertEquals(1, result.value());
   }
@@ -71,56 +76,57 @@ public class MinAggregatorTest extends AggregationTest {
   @Test
   public void test_min_unsupported_type_field() {
     MinAggregator minAggregator =
-        new MinAggregator(ImmutableList.of(DSL.ref("string_value")), ExprType.STRING);
+        new MinAggregator(ImmutableList.of(DSL.ref("struct_value", STRUCT)), STRUCT);
     MinAggregator.MinState minState = minAggregator.create();
     ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
         () -> minAggregator
             .iterate(
-                ExprValueUtils.tupleValue(ImmutableMap.of("string_value", "m")).bindingTuples(),
-                minState)
-    );
-    assertEquals("unexpected type [STRING] in min aggregation", exception.getMessage());
+                ExprValueUtils.tupleValue(
+                    ImmutableMap.of("struct_value", ImmutableMap.of("str", 1)))
+                    .bindingTuples(),
+                minState));
+    assertEquals("unexpected type [STRUCT] in min aggregation", exception.getMessage());
   }
 
   @Test
   public void test_min_null() {
     ExprValue result =
-        aggregation(dsl.min(typeEnv(), DSL.ref("double_value")), tuples_with_null_and_missing);
+        aggregation(dsl.min(DSL.ref("double_value", DOUBLE)), tuples_with_null_and_missing);
     assertEquals(3.0, result.value());
   }
 
   @Test
   public void test_min_missing() {
     ExprValue result =
-        aggregation(dsl.min(typeEnv(), DSL.ref("integer_value")), tuples_with_null_and_missing);
+        aggregation(dsl.min(DSL.ref("integer_value", INTEGER)), tuples_with_null_and_missing);
     assertEquals(1, result.value());
   }
 
   @Test
   public void test_min_all_missing_or_null() {
     ExprValue result =
-        aggregation(dsl.min(typeEnv(), DSL.ref("integer_value")), tuples_with_all_null_or_missing);
+        aggregation(dsl.min(DSL.ref("integer_value", INTEGER)), tuples_with_all_null_or_missing);
     assertTrue(result.isNull());
   }
 
   @Test
   public void test_value_of() {
     ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
-        () -> dsl.min(typeEnv, DSL.ref("double_value")).valueOf(valueEnv()));
+        () -> dsl.min(DSL.ref("double_value", DOUBLE)).valueOf(valueEnv()));
     assertEquals("can't evaluate on aggregator: min", exception.getMessage());
   }
 
   @Test
   public void test_to_string() {
-    Aggregator minAggregator = dsl.min(typeEnv(), DSL.ref("integer_value"));
+    Aggregator minAggregator = dsl.min(DSL.ref("integer_value", INTEGER));
     assertEquals("min(integer_value)", minAggregator.toString());
   }
 
   @Test
   public void test_nested_to_string() {
-    Aggregator minAggregator = dsl.min(typeEnv(), dsl.add(typeEnv, DSL.ref("integer_value"),
+    Aggregator minAggregator = dsl.min(dsl.add(DSL.ref("integer_value", INTEGER),
         DSL.literal(ExprValueUtils.integerValue(10))));
-    assertEquals(String.format("min(%s + %d)", DSL.ref("integer_value"), 10),
+    assertEquals(String.format("min(%s + %d)", DSL.ref("integer_value", INTEGER), 10),
         minAggregator.toString());
   }
 }

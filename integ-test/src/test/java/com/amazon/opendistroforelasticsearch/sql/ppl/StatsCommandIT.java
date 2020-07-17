@@ -137,36 +137,40 @@ public class StatsCommandIT extends PPLIntegTestCase {
   }
 
   @Test
-  public void testStatsWithNull() {
-    String query = String.format("source=%s | stats avg(age)", TEST_INDEX_BANK_WITH_NULL_VALUES);
-    aggregationWithNullOrMissingShouldThrowException(
-        query,
-        "invalid to call type operation on null value"
-    );
+  public void testStatsWithNull() throws IOException {
+    String result =
+        executeQueryToString(
+            String.format(
+                "source=%s | stats avg(age)", TEST_INDEX_BANK_WITH_NULL_VALUES));
+    assertEquals(
+        "{\n"
+            + "  \"schema\": [{\n"
+            + "    \"name\": \"avg(age)\",\n"
+            + "    \"type\": \"double\"\n"
+            + "  }],\n"
+            + "  \"total\": 1,\n"
+            + "  \"datarows\": [[33.166666666666664]],\n"
+            + "  \"size\": 1\n"
+            + "}\n",
+        result);
   }
 
   @Test
-  public void testStatsWithMissing() {
-    String query = String.format(
-        "source=%s | stats avg(balance)", TEST_INDEX_BANK_WITH_NULL_VALUES);
-    aggregationWithNullOrMissingShouldThrowException(
-        query,
-        "invalid to call type operation on null value"
-    );
-  }
-
-  private void aggregationWithNullOrMissingShouldThrowException(String query, String... errMsgs) {
-    try {
-      executeQuery(query);
-      fail();
-    } catch (ResponseException e) {
-      String message = e.getMessage();
-      assertTrue(message.contains("ExpressionEvaluationException"));
-      for (String msg: errMsgs) {
-        assertTrue(message.contains(msg));
-      }
-    } catch (IOException e) {
-      throw new IllegalStateException("Unexpected exception raised for query: " + query);
-    }
+  public void testStatsWithMissing() throws IOException {
+    String result =
+        executeQueryToString(
+            String.format(
+                "source=%s | stats avg(balance)", TEST_INDEX_BANK_WITH_NULL_VALUES));
+    assertEquals(
+        "{\n"
+            + "  \"schema\": [{\n"
+            + "    \"name\": \"avg(balance)\",\n"
+            + "    \"type\": \"double\"\n"
+            + "  }],\n"
+            + "  \"total\": 1,\n"
+            + "  \"datarows\": [[31082.25]],\n"
+            + "  \"size\": 1\n"
+            + "}\n",
+        result);
   }
 }

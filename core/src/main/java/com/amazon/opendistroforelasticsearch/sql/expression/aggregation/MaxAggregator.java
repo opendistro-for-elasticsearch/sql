@@ -25,12 +25,11 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getStringValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.longValue;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.stringValue;
 import static com.amazon.opendistroforelasticsearch.sql.utils.ExpressionUtils.format;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprNullValue;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
@@ -39,7 +38,7 @@ import java.util.List;
 
 public class MaxAggregator extends Aggregator<MaxAggregator.MaxState> {
 
-  public MaxAggregator(List<Expression> arguments, ExprType returnType) {
+  public MaxAggregator(List<Expression> arguments, ExprCoreType returnType) {
     super(BuiltinFunctionName.MAX.getName(), arguments, returnType);
   }
 
@@ -65,13 +64,13 @@ public class MaxAggregator extends Aggregator<MaxAggregator.MaxState> {
   }
 
   protected static class MaxState implements AggregationState {
-    private final ExprType type;
+    private final ExprCoreType type;
     private ExprValue maxResult;
     private boolean isEmptyCollection;
 
-    MaxState(ExprType type) {
+    MaxState(ExprCoreType type) {
       this.type = type;
-      maxResult = type.equals(ExprType.STRING) ? LITERAL_NULL : doubleValue(Double.MAX_VALUE);
+      maxResult = type.equals(ExprCoreType.STRING) ? LITERAL_NULL : doubleValue(Double.MIN_VALUE);
       isEmptyCollection = true;
     }
 

@@ -54,7 +54,6 @@ class AvgAggregatorTest extends AggregationTest {
   public void avg_with_null() {
     ExprValue result =
         aggregation(dsl.avg(DSL.ref("double_value", DOUBLE)), tuples_with_null_and_missing);
-    assertTrue(result.isNull());
     assertEquals(3.5, result.value());
   }
 

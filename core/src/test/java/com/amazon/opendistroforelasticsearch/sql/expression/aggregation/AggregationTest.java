@@ -70,7 +70,7 @@ public class AggregationTest extends ExpressionTestBase {
                   "long_value",
                   4L,
                   "string_value",
-                  "f",
+                  "n",
                   "double_value",
                   4d,
                   "float_value",

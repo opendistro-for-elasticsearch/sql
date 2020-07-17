@@ -15,11 +15,16 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.aggregation;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
@@ -32,38 +37,38 @@ public class MaxAggregatorTest extends AggregationTest {
 
   @Test
   public void test_max_integer() {
-    ExprValue result = aggregation(dsl.max(typeEnv(), DSL.ref("integer_value")), tuples);
+    ExprValue result = aggregation(dsl.max(DSL.ref("integer_value", INTEGER)), tuples);
     assertEquals(4, result.value());
   }
 
   @Test
   public void test_max_long() {
-    ExprValue result = aggregation(dsl.max(typeEnv(), DSL.ref("long_value")), tuples);
+    ExprValue result = aggregation(dsl.max(DSL.ref("long_value", LONG)), tuples);
     assertEquals(4L, result.value());
   }
 
   @Test
   public void test_max_float() {
-    ExprValue result = aggregation(dsl.max(typeEnv(), DSL.ref("float_value")), tuples);
+    ExprValue result = aggregation(dsl.max(DSL.ref("float_value", FLOAT)), tuples);
     assertEquals(4F, result.value());
   }
 
   @Test
   public void test_max_double() {
-    ExprValue result = aggregation(dsl.max(typeEnv(), DSL.ref("double_value")), tuples);
+    ExprValue result = aggregation(dsl.max(DSL.ref("double_value", DOUBLE)), tuples);
     assertEquals(4D, result.value());
   }
 
   @Test
   public void test_max_string() {
-    ExprValue result = aggregation(dsl.max(typeEnv(), DSL.ref("string_value")), tuples);
-    assertEquals("m", result.value());
+    ExprValue result = aggregation(dsl.max(DSL.ref("string_value", STRING)), tuples);
+    assertEquals("n", result.value());
   }
 
   @Test
   public void test_max_arithmetic_expression() {
     ExprValue result = aggregation(
-        dsl.max(typeEnv(), dsl.add(typeEnv(), DSL.ref("integer_value"),
+        dsl.max(dsl.add(DSL.ref("integer_value", INTEGER),
             DSL.literal(ExprValueUtils.integerValue(0)))), tuples);
     assertEquals(4, result.value());
   }
@@ -71,56 +76,57 @@ public class MaxAggregatorTest extends AggregationTest {
   @Test
   public void test_unsupported_type_field() {
     MaxAggregator maxAggregator =
-        new MaxAggregator(ImmutableList.of(DSL.ref("string_value")), ExprType.STRING);
+        new MaxAggregator(ImmutableList.of(DSL.ref("struct_value", STRUCT)), STRUCT);
     MaxAggregator.MaxState maxState = maxAggregator.create();
     ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
         () -> maxAggregator
             .iterate(
-                ExprValueUtils.tupleValue(ImmutableMap.of("string_value", "m")).bindingTuples(),
-                maxState)
-    );
-    assertEquals("unexpected type [STRING] in max aggregation", exception.getMessage());
+                ExprValueUtils.tupleValue(
+                    ImmutableMap.of("struct_value", ImmutableMap.of("str", 1)))
+                    .bindingTuples(),
+                maxState));
+    assertEquals("unexpected type [STRUCT] in max aggregation", exception.getMessage());
   }
 
   @Test
   public void test_max_null() {
     ExprValue result =
-        aggregation(dsl.max(typeEnv(), DSL.ref("double_value")), tuples_with_null_and_missing);
+        aggregation(dsl.max(DSL.ref("double_value", DOUBLE)), tuples_with_null_and_missing);
     assertEquals(4.0, result.value());
   }
 
   @Test
   public void test_max_missing() {
     ExprValue result =
-        aggregation(dsl.max(typeEnv(), DSL.ref("integer_value")), tuples_with_null_and_missing);
+        aggregation(dsl.max(DSL.ref("integer_value", INTEGER)), tuples_with_null_and_missing);
     assertEquals(2, result.value());
   }
 
   @Test
   public void test_max_all_missing_or_null() {
     ExprValue result =
-        aggregation(dsl.max(typeEnv(), DSL.ref("integer_value")), tuples_with_all_null_or_missing);
+        aggregation(dsl.max(DSL.ref("integer_value", INTEGER)), tuples_with_all_null_or_missing);
     assertTrue(result.isNull());
   }
 
   @Test
   public void test_value_of() {
     ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
-        () -> dsl.max(typeEnv, DSL.ref("double_value")).valueOf(valueEnv()));
+        () -> dsl.max(DSL.ref("double_value", DOUBLE)).valueOf(valueEnv()));
     assertEquals("can't evaluate on aggregator: max", exception.getMessage());
   }
 
   @Test
   public void test_to_string() {
-    Aggregator maxAggregator = dsl.max(typeEnv(), DSL.ref("integer_value"));
+    Aggregator maxAggregator = dsl.max(DSL.ref("integer_value", INTEGER));
     assertEquals("max(integer_value)", maxAggregator.toString());
   }
 
   @Test
   public void test_nested_to_string() {
-    Aggregator maxAggregator = dsl.max(typeEnv(), dsl.add(typeEnv, DSL.ref("integer_value"),
+    Aggregator maxAggregator = dsl.max(dsl.add(DSL.ref("integer_value", INTEGER),
         DSL.literal(ExprValueUtils.integerValue(10))));
-    assertEquals(String.format("max(%s + %d)", DSL.ref("integer_value"), 10),
+    assertEquals(String.format("max(%s + %d)", DSL.ref("integer_value", INTEGER), 10),
         maxAggregator.toString());
   }
 }

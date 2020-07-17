@@ -114,16 +114,16 @@ public class AggregatorFunction {
     return new FunctionResolver(
         functionName,
         new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
-            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.INTEGER)),
-                arguments -> new MinAggregator(arguments, ExprType.INTEGER))
-            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.LONG)),
-                arguments -> new MinAggregator(arguments, ExprType.LONG))
-            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.FLOAT)),
-                arguments -> new MinAggregator(arguments, ExprType.FLOAT))
-            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.DOUBLE)),
-                arguments -> new MinAggregator(arguments, ExprType.DOUBLE))
-            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.STRING)),
-                arguments -> new MinAggregator(arguments, ExprType.STRING))
+            .put(new FunctionSignature(functionName, Collections.singletonList(INTEGER)),
+                arguments -> new MinAggregator(arguments, INTEGER))
+            .put(new FunctionSignature(functionName, Collections.singletonList(LONG)),
+                arguments -> new MinAggregator(arguments, LONG))
+            .put(new FunctionSignature(functionName, Collections.singletonList(FLOAT)),
+                arguments -> new MinAggregator(arguments, FLOAT))
+            .put(new FunctionSignature(functionName, Collections.singletonList(DOUBLE)),
+                arguments -> new MinAggregator(arguments, DOUBLE))
+            .put(new FunctionSignature(functionName, Collections.singletonList(STRING)),
+                arguments -> new MinAggregator(arguments, STRING))
             .build());
   }
 
@@ -132,16 +132,16 @@ public class AggregatorFunction {
     return new FunctionResolver(
         functionName,
         new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
-            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.INTEGER)),
-                arguments -> new MaxAggregator(arguments, ExprType.INTEGER))
-            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.LONG)),
-                arguments -> new MaxAggregator(arguments, ExprType.LONG))
-            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.FLOAT)),
-                arguments -> new MaxAggregator(arguments, ExprType.FLOAT))
-            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.DOUBLE)),
-                arguments -> new MaxAggregator(arguments, ExprType.DOUBLE))
-            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.STRING)),
-                arguments -> new MaxAggregator(arguments, ExprType.STRING))
+            .put(new FunctionSignature(functionName, Collections.singletonList(INTEGER)),
+                arguments -> new MaxAggregator(arguments, INTEGER))
+            .put(new FunctionSignature(functionName, Collections.singletonList(LONG)),
+                arguments -> new MaxAggregator(arguments, LONG))
+            .put(new FunctionSignature(functionName, Collections.singletonList(FLOAT)),
+                arguments -> new MaxAggregator(arguments, FLOAT))
+            .put(new FunctionSignature(functionName, Collections.singletonList(DOUBLE)),
+                arguments -> new MaxAggregator(arguments, DOUBLE))
+            .put(new FunctionSignature(functionName, Collections.singletonList(STRING)),
+                arguments -> new MaxAggregator(arguments, STRING))
             .build()
     );
   }

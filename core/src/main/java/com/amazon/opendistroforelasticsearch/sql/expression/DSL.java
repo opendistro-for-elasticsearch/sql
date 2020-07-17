@@ -178,6 +178,14 @@ public class DSL {
     return aggregate(BuiltinFunctionName.COUNT, expressions);
   }
 
+  public Aggregator min(Expression... expressions) {
+    return aggregate(BuiltinFunctionName.MIN, expressions);
+  }
+
+  public Aggregator max(Expression... expressions) {
+    return aggregate(BuiltinFunctionName.MAX, expressions);
+  }
+
   private FunctionExpression function(BuiltinFunctionName functionName, Expression... expressions) {
     return (FunctionExpression) repository.compile(
         functionName.getName(), Arrays.asList(expressions));
@@ -186,15 +194,5 @@ public class DSL {
   private Aggregator aggregate(BuiltinFunctionName functionName, Expression... expressions) {
     return (Aggregator) repository.compile(
         functionName.getName(), Arrays.asList(expressions));
-  }
-
-  public Aggregator min(Environment<Expression, ExprType> env, Expression... expressions) {
-    return (Aggregator)
-        repository.compile(BuiltinFunctionName.MIN.getName(), Arrays.asList(expressions), env);
-  }
-
-  public Aggregator max(Environment<Expression, ExprType> env, Expression... expressions) {
-    return (Aggregator)
-        repository.compile(BuiltinFunctionName.MAX.getName(), Arrays.asList(expressions), env);
   }
 }
