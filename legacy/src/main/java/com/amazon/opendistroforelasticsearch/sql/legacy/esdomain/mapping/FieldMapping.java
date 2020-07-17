@@ -120,31 +120,24 @@ public class FieldMapping {
     }
 
     /**
-     * Used to retrieve the type of fields from metaData map structures for both regular and nested fields
+     * Used to retrieve the type of fields from metaData map structures for both regular object and nested fields.
      */
     @SuppressWarnings("unchecked")
     public String type() {
         FieldMappingMetadata metaData = typeMappings.getOrDefault(fieldName, FieldMappingMetadata.NULL);
         if (metaData.isNull()) {
+            // Assumption is the field must be valid when reaching here (if semantic check enabled).
+            // Otherwise there is no way to differentiate object/nested field and non-existing field
+            // Because ES Get Field API returns empty for both cases.
             return DescribeResultSet.DEFAULT_OBJECT_DATATYPE;
         }
 
         Map<String, Object> source = metaData.sourceAsMap();
         String[] fieldPath = fieldName.split("\\.");
 
-        /*
-         * When field is not nested the metaData source is fieldName -> type
-         * When it is nested or contains "." in general (ex. fieldName.nestedName) the source is nestedName -> type
-         */
-        String root = (fieldPath.length == 1) ? fieldName : fieldPath[fieldPath.length - 1];
-        Map<String, Object> fieldMapping = (Map<String, Object>) source.get(root);
-
-        /*
-        for (int i = 2; i < fieldPath.length; i++) {
-            fieldMapping = (Map<String, Object>) fieldMapping.get(fieldPath[i]);
-        }
-        */
-
+        // For object/nested field,
+        String innermostFieldName = (fieldPath.length == 1) ? fieldName : fieldPath[fieldPath.length - 1];
+        Map<String, Object> fieldMapping = (Map<String, Object>) source.get(innermostFieldName);
         return (String) fieldMapping.get("type");
     }
 
