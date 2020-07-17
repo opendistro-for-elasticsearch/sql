@@ -15,12 +15,14 @@
 
 package com.amazon.opendistroforelasticsearch.sql.expression.aggregation;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.doubleValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.floatValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getDoubleValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getFloatValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getIntegerValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getLongValue;
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getStringValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.integerValue;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.longValue;
 import static com.amazon.opendistroforelasticsearch.sql.utils.ExpressionUtils.format;
@@ -73,7 +75,7 @@ public class MinAggregator extends Aggregator<MinAggregator.MinState> {
 
     MinState(ExprType type) {
       this.type = type;
-      minResult = doubleValue(Double.MAX_VALUE);
+      minResult = type.equals(ExprType.STRING) ? LITERAL_NULL : doubleValue(Double.MAX_VALUE);
       isEmptyCollection = true;
     }
 
@@ -90,6 +92,10 @@ public class MinAggregator extends Aggregator<MinAggregator.MinState> {
           break;
         case DOUBLE:
           minResult = doubleValue(Math.min(getDoubleValue(minResult), getDoubleValue(value)));
+          break;
+        case STRING:
+          minResult = minResult.isNull() ? value : getStringValue(minResult)
+              .compareTo(getStringValue(value)) > 0 ? value : minResult;
           break;
         default:
           throw new ExpressionEvaluationException(

@@ -114,8 +114,9 @@ public class AggregatorFunction {
                 arguments -> new MinAggregator(arguments, ExprType.FLOAT))
             .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.DOUBLE)),
                 arguments -> new MinAggregator(arguments, ExprType.DOUBLE))
-            .build()
-    );
+            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.STRING)),
+                arguments -> new MinAggregator(arguments, ExprType.STRING))
+            .build());
   }
 
   private static FunctionResolver max() {
@@ -131,6 +132,8 @@ public class AggregatorFunction {
                 arguments -> new MaxAggregator(arguments, ExprType.FLOAT))
             .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.DOUBLE)),
                 arguments -> new MaxAggregator(arguments, ExprType.DOUBLE))
+            .put(new FunctionSignature(functionName, Collections.singletonList(ExprType.STRING)),
+                arguments -> new MaxAggregator(arguments, ExprType.STRING))
             .build()
     );
   }

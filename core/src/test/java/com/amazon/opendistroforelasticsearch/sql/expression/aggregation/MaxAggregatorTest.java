@@ -55,6 +55,12 @@ public class MaxAggregatorTest extends AggregationTest {
   }
 
   @Test
+  public void test_max_string() {
+    ExprValue result = aggregation(dsl.max(typeEnv(), DSL.ref("string_value")), tuples);
+    assertEquals("m", result.value());
+  }
+
+  @Test
   public void test_max_arithmetic_expression() {
     ExprValue result = aggregation(
         dsl.max(typeEnv(), dsl.add(typeEnv(), DSL.ref("integer_value"),

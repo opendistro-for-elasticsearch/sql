@@ -55,6 +55,12 @@ public class MinAggregatorTest extends AggregationTest {
   }
 
   @Test
+  public void test_min_string() {
+    ExprValue result = aggregation(dsl.min(typeEnv(), DSL.ref("string_value")), tuples);
+    assertEquals("f", result.value());
+  }
+
+  @Test
   public void test_min_arithmetic_expression() {
     ExprValue result = aggregation(
         dsl.min(typeEnv(), dsl.add(typeEnv(), DSL.ref("integer_value"),
