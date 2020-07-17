@@ -146,11 +146,11 @@ CONV
 Description
 -----------
 
-Usage: CONV(x, a, b) converts the number x from a base to b base
+Usage: CONV(x, a, b) converts the number x from a base to b base.
 
-Argument type: x: string, a: integer, b: integer
+Argument type: x: STRING, a: INTEGER, b: INTEGER
 
-Return type: string
+Return type: STRING
 
 Example::
 
@@ -201,11 +201,11 @@ CRC32
 Description
 -----------
 
-Usage: calculates a cyclic redundancy check value and returns a 32-bit unsigned value
+Usage: Calculates a cyclic redundancy check value and returns a 32-bit unsigned value.
 
-Argument type: string
+Argument type: STRING
 
-Return type: long
+Return type: LONG
 
 Example::
 
@@ -481,11 +481,11 @@ MOD
 Description
 -----------
 
-Usage: MOD(n, m) calculates the remainder of the number n divided by m
+Usage: MOD(n, m) calculates the remainder of the number n divided by m.
 
 Argument type: INTEGER/LONG/FLOAT/DOUBLE
 
-Return type: widen type between types of n and m
+Return type: Wider type between types of n and m if m is nonzero value. If m equals to 0, then returns NULL.
 
 Example::
 
@@ -559,7 +559,7 @@ POW
 Description
 -----------
 
-Usage: POW(x, y) calculates the value of x raised to the power of y
+Usage: POW(x, y) calculates the value of x raised to the power of y. Bad inputs return NULL result.
 
 Argument type: INTEGER/LONG/FLOAT/DOUBLE
 
@@ -582,7 +582,7 @@ POWER
 Description
 -----------
 
-Usage: POWER(x, y) calculates the value of x raised to the power of y
+Usage: POWER(x, y) calculates the value of x raised to the power of y. Bad inputs return NULL result.
 
 Argument type: INTEGER/LONG/FLOAT/DOUBLE
 
@@ -698,7 +698,7 @@ SIGN
 Description
 -----------
 
-Usage: returns the sign of the argument as -1, 0, or 1, depending on whether the number is negative, zero, or positive
+Usage: Returns the sign of the argument as -1, 0, or 1, depending on whether the number is negative, zero, or positive
 
 Argument type: INTEGER/LONG/FLOAT/DOUBLE
 
@@ -754,7 +754,7 @@ SQRT
 Description
 -----------
 
-Usage: calculates the square root of a non-negative number
+Usage: Calculates the square root of a non-negative number
 
 Argument type: INTEGER/LONG/FLOAT/DOUBLE
 
