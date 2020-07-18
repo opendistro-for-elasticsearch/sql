@@ -144,6 +144,18 @@ LOG:                                'LOG';
 LOG10:                              'LOG10';
 LOG2:                               'LOG2';
 
+// TRIGONOMETRIC FUNCTIONS
+ACOS:                               'ACOS';
+ASIN:                               'ASIN';
+ATAN:                               'ATAN';
+ATAN2:                              'ATAN2';
+COS:                                'COS';
+COT:                                'COT';
+DEGREES:                            'DEGREES';
+RADIANS:                            'RADIANS';
+SIN:                                'SIN';
+TAN:                                'TAN';
+
 // LITERALS AND VALUES
 //STRING_LITERAL:                     DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING;
 ID:                                 ID_LITERAL;

@@ -25,6 +25,17 @@ public enum BuiltinFunctionName {
   LOG10(FunctionName.of("log10")),
   LOG2(FunctionName.of("log2")),
 
+  ACOS(FunctionName.of("acos")),
+  ASIN(FunctionName.of("asin")),
+  ATAN(FunctionName.of("atan")),
+  ATAN2(FunctionName.of("atan2")),
+  COS(FunctionName.of("cos")),
+  COT(FunctionName.of("cot")),
+  DEGREES(FunctionName.of("degrees")),
+  RADIANS(FunctionName.of("radians")),
+  SIN(FunctionName.of("sin")),
+  TAN(FunctionName.of("tan")),
+
   /**
    * Text Functions.
    */
