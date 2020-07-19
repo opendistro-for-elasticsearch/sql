@@ -24,7 +24,7 @@
 
 * Select a table from the list. 
 
-<img src="img/excel_table_list.png" width="400">
+<img src="img/excel_table_list.png" width="500">
 
 * Edit SQL statement if required and click on **Run**. Data preview will be loaded.
 
@@ -32,7 +32,7 @@
 
 * Click on **Return Data**. Select sheet and click OK.
 
-<img src="img/excel_select_worksheet.png" width="500">
+<img src="img/excel_select_worksheet.png" width="400">
 
 * Data will be loaded in the spreadsheet.
 
