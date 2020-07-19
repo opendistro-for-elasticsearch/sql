@@ -62,4 +62,5 @@ Alternately, **Data** > **Refresh** option can also be used to refresh the data.
 
 * If the table has large number of datarows, increase [the keepalive](https://github.com/opendistro-for-elasticsearch/sql/blob/master/docs/dev/Pagination.md#opendistrosqlcursorkeep_alive) value accordlingly. 
 
+* You might need to remove `;` from SQL statement to load data preview.
 
