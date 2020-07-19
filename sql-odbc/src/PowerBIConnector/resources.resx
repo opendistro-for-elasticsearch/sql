@@ -118,12 +118,12 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ButtonHelp" xml:space="preserve">
-    <value>Connect to PowerBIConnector</value>
+    <value>Connect to Open Distro For Elasticsearch</value>
   </data>
   <data name="ButtonTitle" xml:space="preserve">
-    <value>PowerBIConnector</value>
+    <value>Open Distro For Elasticsearch</value>
   </data>
   <data name="DataSourceLabel" xml:space="preserve">
-    <value>PowerBIConnector</value>
+    <value>Open Distro For Elasticsearch</value>
   </data>
 </root>

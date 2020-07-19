@@ -23,22 +23,13 @@ PowerBIConnectorType = type function (
 
 PowerBIConnectorImpl = (Host as text, Port as number) as table =>
     let
-        Credential = Extension.CurrentCredential(),
-        AuthenticationMode = Credential[AuthenticationKind],
-
-        // Sets connection string properties for authentication.
-        CredentialConnectionString = 
-                [
-                    AuthenticationType = "No Authentication"
-                ],
-
         ConnectionString = [
             Driver = "ODFE SQL ODBC Driver",
             Host = Host,
             Port = Port
         ],
 
-        OdbcDatasource = Odbc.DataSource(ConnectionString & CredentialConnectionString)
+        OdbcDatasource = Odbc.DataSource(ConnectionString)
     in
         OdbcDatasource;
 
@@ -56,7 +47,7 @@ PowerBIConnector = [
 PowerBIConnector.Publish = [
     Beta = true,
     Category = "Other",
-    ButtonText = { "Open Distro For Elasticsearch" },
+    ButtonText = { Extension.LoadString("ButtonTitle"), Extension.LoadString("ButtonHelp") },
     LearnMoreUrl = "https://opendistro.github.io/for-elasticsearch/",
     SourceImage = PowerBIConnector.Icons,
     SourceTypeImage = PowerBIConnector.Icons
