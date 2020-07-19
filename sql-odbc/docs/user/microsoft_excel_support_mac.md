@@ -24,7 +24,7 @@
 
 * Select a table from the list. 
 
-<img src="img/excel_table_list.png">
+<img src="img/excel_table_list.png" width="400">
 
 * Edit SQL statement if required and click on **Run**. Data preview will be loaded.
 
@@ -32,7 +32,7 @@
 
 * Click on **Return Data**. Select sheet and click OK.
 
-<img src="img/excel_select_worksheet.png" width=400>
+<img src="img/excel_select_worksheet.png" width="500">
 
 * Data will be loaded in the spreadsheet.
 
@@ -53,7 +53,7 @@ Alternately, **Data** > **Refresh** option can also be used to refresh the data.
 * Select Location to Save file.
 * Set File Format to **CSV UTF-8(Comma delimited)(*.csv)**.
 
-<img src="img/excel_export_csv.png" width=750>
+<img src="img/excel_export_csv.png" width="450">
 
 * Click **Save**.
 * Data will be exported to selected location in CSV format.
