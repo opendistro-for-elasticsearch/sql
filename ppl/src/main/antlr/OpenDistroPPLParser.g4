@@ -203,7 +203,8 @@ functionArg
     ;
 
 mathematicalFunctionBase
-    : ABS | CEIL | CEILING | E | EXP | FLOOR | LN | LOG | LOG10 | LOG2 | PI | RAND
+    : ABS | CEIL | CEILING | CONV | CRC32 | E | EXP | FLOOR | LN | LOG | LOG10 | LOG2 | MOD | PI |POW | POWER
+    | RAND | ROUND | SIGN | SQRT | TRUNCATE
     ;
 
 dateAndTimeFunctionBase
@@ -226,8 +227,8 @@ binaryOperator
 /** literals and values*/
 literalValue
     : stringLiteral
-    | (PLUS | MINUS)? integerLiteral
-    | (PLUS | MINUS)? decimalLiteral
+    | integerLiteral
+    | decimalLiteral
     | booleanLiteral
     ;
 
@@ -236,11 +237,11 @@ stringLiteral
     ;
 
 integerLiteral
-    : INTEGER_LITERAL
+    : (PLUS | MINUS)? INTEGER_LITERAL
     ;
 
 decimalLiteral
-    : DECIMAL_LITERAL
+    : (PLUS | MINUS)? DECIMAL_LITERAL
     ;
 
 booleanLiteral

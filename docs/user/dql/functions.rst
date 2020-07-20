@@ -139,6 +139,29 @@ Description
 
 Specification is undefined and type check is skipped for now
 
+
+CONV
+====
+
+Description
+-----------
+
+Usage: CONV(x, a, b) converts the number x from a base to b base.
+
+Argument type: x: STRING, a: INTEGER, b: INTEGER
+
+Return type: STRING
+
+Example::
+
+    od> SELECT CONV('12', 10, 16), CONV('2C', 16, 10), CONV(12, 10, 2), CONV(1111, 2, 10)
+    fetched rows / total rows = 1/1
+    +----------------------+----------------------+-------------------+---------------------+
+    | conv("12", 10, 16)   | conv("2C", 16, 10)   | conv(12, 10, 2)   | conv(1111, 2, 10)   |
+    |----------------------+----------------------+-------------------+---------------------|
+    | c                    | 44                   | 1100              | 15                  |
+    +----------------------+----------------------+-------------------+---------------------+
+
 COS
 ===
 
@@ -170,6 +193,29 @@ Description
 Specifications: 
 
 1. COT(NUMBER T) -> DOUBLE
+
+
+CRC32
+=====
+
+Description
+-----------
+
+Usage: Calculates a cyclic redundancy check value and returns a 32-bit unsigned value.
+
+Argument type: STRING
+
+Return type: LONG
+
+Example::
+
+    od> SELECT CRC32('MySQL')
+    fetched rows / total rows = 1/1
+    +------------------+
+    | crc32("MySQL")   |
+    |------------------|
+    | 3259397556       |
+    +------------------+
 
 
 CURDATE
@@ -429,15 +475,27 @@ Specifications:
 1. MAKETIME(INTEGER, INTEGER, INTEGER) -> DATE
 
 
-MODULUS
+MOD
 =======
 
 Description
 -----------
 
-Specifications: 
+Usage: MOD(n, m) calculates the remainder of the number n divided by m.
 
-1. MODULUS(NUMBER T, NUMBER) -> T
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: Wider type between types of n and m if m is nonzero value. If m equals to 0, then returns NULL.
+
+Example::
+
+    od> SELECT MOD(3, 2), MOD(3.1, 2)
+    fetched rows / total rows = 1/1
+    +-------------+---------------+
+    | mod(3, 2)   | mod(3.1, 2)   |
+    |-------------+---------------|
+    | 1           | 1.1           |
+    +-------------+---------------+
 
 
 MONTH
@@ -501,10 +559,21 @@ POW
 Description
 -----------
 
-Specifications: 
+Usage: POW(x, y) calculates the value of x raised to the power of y. Bad inputs return NULL result.
 
-1. POW(NUMBER T) -> T
-2. POW(NUMBER T, NUMBER) -> T
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    od> SELECT POW(3, 2), POW(-3, 2), POW(3, -2)
+    fetched rows / total rows = 1/1
+    +-------------+--------------+--------------------+
+    | pow(3, 2)   | pow(-3, 2)   | pow(3, -2)         |
+    |-------------+--------------+--------------------|
+    | 9           | 9            | 0.1111111111111111 |
+    +-------------+--------------+--------------------+
 
 
 POWER
@@ -513,10 +582,21 @@ POWER
 Description
 -----------
 
-Specifications: 
+Usage: POWER(x, y) calculates the value of x raised to the power of y. Bad inputs return NULL result.
 
-1. POWER(NUMBER T) -> T
-2. POWER(NUMBER T, NUMBER) -> T
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    od> SELECT POWER(3, 2), POWER(-3, 2), POWER(3, -2)
+    fetched rows / total rows = 1/1
+    +---------------+----------------+--------------------+
+    | power(3, 2)   | power(-3, 2)   | power(3, -2)       |
+    |---------------+----------------+--------------------|
+    | 9             | 9              | 0.1111111111111111 |
+    +---------------+----------------+--------------------+
 
 
 RADIANS
@@ -581,9 +661,24 @@ ROUND
 Description
 -----------
 
-Specifications: 
+Usage: ROUND(x, d) rounds the argument x to d decimal places, d defaults to 0 if not specified
 
-1. ROUND(NUMBER T) -> T
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type map:
+
+(INTEGER/LONG [,INTEGER]) -> LONG
+(FLOAT/DOUBLE [,INTEGER]) -> LONG
+
+Example::
+
+    od> SELECT ROUND(12.34), ROUND(12.34, 1), ROUND(12.34, -1), ROUND(12, 1)
+    fetched rows / total rows = 1/1
+    +----------------+-------------------+--------------------+----------------+
+    | round(12.34)   | round(12.34, 1)   | round(12.34, -1)   | round(12, 1)   |
+    |----------------+-------------------+--------------------+----------------|
+    | 12             | 12.3              | 10                 | 12             |
+    +----------------+-------------------+--------------------+----------------+
 
 
 RTRIM
@@ -603,9 +698,21 @@ SIGN
 Description
 -----------
 
-Specifications: 
+Usage: Returns the sign of the argument as -1, 0, or 1, depending on whether the number is negative, zero, or positive
 
-1. SIGN(NUMBER T) -> T
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: INTEGER
+
+Example::
+
+    od> SELECT SIGN(1), SIGN(0), SIGN(-1.1)
+    fetched rows / total rows = 1/1
+    +-----------+-----------+--------------+
+    | sign(1)   | sign(0)   | sign(-1.1)   |
+    |-----------+-----------+--------------|
+    | 1         | 0         | -1           |
+    +-----------+-----------+--------------+
 
 
 SIGNUM
@@ -647,9 +754,24 @@ SQRT
 Description
 -----------
 
-Specifications: 
+Usage: Calculates the square root of a non-negative number
 
-1. SQRT(NUMBER T) -> T
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type map:
+
+(Non-negative) INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
+(Negative) INTEGER/LONG/FLOAT/DOUBLE -> NULL
+
+Example::
+
+    od> SELECT SQRT(4), SQRT(4.41)
+    fetched rows / total rows = 1/1
+    +-----------+--------------+
+    | sqrt(4)   | sqrt(4.41)   |
+    |-----------+--------------|
+    | 2         | 2.1          |
+    +-----------+--------------+
 
 
 SUBSTRING
@@ -705,6 +827,31 @@ Description
 Specifications: 
 
 1. TRIM(STRING T) -> T
+
+
+TRUNCATE
+========
+
+Description
+-----------
+
+Usage: TRUNCATE(x, d) returns the number x, truncated to d decimal place
+
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type map:
+
+INTEGER/LONG -> LONG
+FLOAT/DOUBLE -> DOUBLE
+
+Example::
+
+    fetched rows / total rows = 1/1
+    +----------------------+-----------------------+-------------------+
+    | truncate(56.78, 1)   | truncate(56.78, -1)   | truncate(56, 1)   |
+    |----------------------+-----------------------+-------------------|
+    | 56.7                 | 50                    | 56                |
+    +----------------------+-----------------------+-------------------+
 
 
 UPPER

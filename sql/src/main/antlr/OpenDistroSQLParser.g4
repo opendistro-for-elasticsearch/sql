@@ -166,7 +166,8 @@ scalarFunctionName
     ;
 
 mathematicalFunctionName
-    : ABS | CEIL | CEILING | E | EXP | FLOOR | LN | LOG | LOG10 | LOG2 | PI | RAND
+    : ABS | CEIL | CEILING | CONV | CRC32 | E | EXP | FLOOR | LN | LOG | LOG10 | LOG2 | MOD | PI | POW | POWER
+    | RAND | ROUND | SIGN | SQRT | TRUNCATE
     ;
 
 dateTimeFunctionName
