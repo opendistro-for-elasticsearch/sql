@@ -1,4 +1,4 @@
-﻿// This file contains your Data Connector logic
+﻿// This file contains Data Connector logic
 section #"Open Distro For Elasticsearch";
 
 [DataSource.Kind="PowerBIConnector", Publish="PowerBIConnector.Publish"]
@@ -28,12 +28,9 @@ PowerBIConnectorImpl = (Host as text, Port as number) as table =>
             Host = Host,
             Port = Port
         ],
-
         OdbcDatasource = Odbc.DataSource(ConnectionString)
     in
         OdbcDatasource;
-
-
 
 // Data Source Kind description
 PowerBIConnector = [
