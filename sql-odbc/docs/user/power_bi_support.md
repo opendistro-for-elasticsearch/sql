@@ -10,7 +10,7 @@
 * [PowerBIConnector.mez](../../src/PowerBIConnector/bin/Release/) 
 
 ## Setup
-* Copy `PowerBIConnector.mez` file in the `<User>\Documents\Power BI Desktop\Custom Connectors` folder. This will let Power BI access custom connector.
+* Copy `PowerBIConnector.mez` file in the `<User>\Documents\Power BI Desktop\Custom Connectors\` folder. This will let Power BI access custom connector.
 * Open Power BI Desktop.
 * Change the security settings. Click on **Files** > **Options and settings** > **Options** > **Security** > Select **Allow any extension to load without validation or warning** for Data Extensions. This will allow the custom connector to load data into Power BI.
 
