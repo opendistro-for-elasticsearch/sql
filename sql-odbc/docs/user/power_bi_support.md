@@ -27,19 +27,19 @@
 
 * You will get a warning for using third-party service. Click on **Continue**.
 
-<img src="img/pbi_third_party_warning.png" width="400">
+<img src="img/pbi_third_party_warning.png" width="450">
 
 * Enter host and port values. Click on **OK**.
 
-<img src="img/pbi_connection_string_options.png" width="400">
+<img src="img/pbi_connection_string_options.png" width="450">
 
 * Select authentication option and click on **Connect**.
 
-<img src="img/pbi_auth.png" width="400">
+<img src="img/pbi_auth.png" width="500">
 
 * Select required table. Data preview will be loaded.
 
-<img src="img/pbi_data_preview.png" width="400">
+<img src="img/pbi_data_preview.png">
 
 * Click on **Load**.
 
