@@ -9,7 +9,7 @@
 
 ## Test Successful Connection
 
-* Open iODBC Data Source Administrator using command 
+* Open **iODBC Data Source Administrator** using command 
 
 `sudo /Applications/iODBC/iODBC\ Administrator64.app/Contents/MacOS/iODBC\ Administrator64`
 
