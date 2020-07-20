@@ -203,7 +203,8 @@ functionArg
     ;
 
 mathematicalFunctionBase
-    : ABS | CEIL | CEILING | EXP | FLOOR | LN | LOG | LOG10 | LOG2
+    : ABS | CEIL | CEILING | CONV | CRC32 | EXP | FLOOR | LN | LOG | LOG10 | LOG2 | MOD | POW | POWER
+    | ROUND | SIGN | SQRT | TRUNCATE
     | trigonometricFunctionName
     ;
 
@@ -231,8 +232,8 @@ binaryOperator
 /** literals and values*/
 literalValue
     : stringLiteral
-    | (PLUS | MINUS)? integerLiteral
-    | (PLUS | MINUS)? decimalLiteral
+    | integerLiteral
+    | decimalLiteral
     | booleanLiteral
     ;
 
@@ -241,11 +242,11 @@ stringLiteral
     ;
 
 integerLiteral
-    : INTEGER_LITERAL
+    : (PLUS | MINUS)? INTEGER_LITERAL
     ;
 
 decimalLiteral
-    : DECIMAL_LITERAL
+    : (PLUS | MINUS)? DECIMAL_LITERAL
     ;
 
 booleanLiteral

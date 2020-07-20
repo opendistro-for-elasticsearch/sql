@@ -21,7 +21,6 @@ import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 
@@ -88,6 +87,14 @@ public class DSL {
     return function(BuiltinFunctionName.CEILING, expressions);
   }
 
+  public FunctionExpression conv(Expression... expressions) {
+    return function(BuiltinFunctionName.CONV, expressions);
+  }
+
+  public FunctionExpression crc32(Expression... expressions) {
+    return function(BuiltinFunctionName.CRC32, expressions);
+  }
+
   public FunctionExpression exp(Expression... expressions) {
     return function(BuiltinFunctionName.EXP, expressions);
   }
@@ -110,6 +117,34 @@ public class DSL {
 
   public FunctionExpression log2(Expression... expressions) {
     return function(BuiltinFunctionName.LOG2, expressions);
+  }
+
+  public FunctionExpression mod(Expression... expressions) {
+    return function(BuiltinFunctionName.MOD, expressions);
+  }
+
+  public FunctionExpression pow(Expression... expressions) {
+    return function(BuiltinFunctionName.POW, expressions);
+  }
+
+  public FunctionExpression power(Expression... expressions) {
+    return function(BuiltinFunctionName.POWER, expressions);
+  }
+
+  public FunctionExpression round(Expression... expressions) {
+    return function(BuiltinFunctionName.ROUND, expressions);
+  }
+
+  public FunctionExpression sign(Expression... expressions) {
+    return function(BuiltinFunctionName.SIGN, expressions);
+  }
+
+  public FunctionExpression sqrt(Expression... expressions) {
+    return function(BuiltinFunctionName.SQRT, expressions);
+  }
+
+  public FunctionExpression truncate(Expression... expressions) {
+    return function(BuiltinFunctionName.TRUNCATE, expressions);
   }
 
   public FunctionExpression acos(Expression... expressions) {
