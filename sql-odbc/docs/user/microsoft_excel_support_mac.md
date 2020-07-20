@@ -7,6 +7,26 @@
 * [Open Distro for Elasticsearch SQL ODBC driver](https://opendistro.github.io/for-elasticsearch-docs/docs/sql/odbc/)
 * A preconfigured [User or System DSN](mac_configure_dsn.md)
 
+## Test Successful Connection
+
+* Open iODBC Data Source Administrator using command `sudo /Applications/iODBC/iODBC\ Administrator64.app/Contents/MacOS/iODBC\ Administrator64`
+* Click on System DSN.
+* Select ODFE SQL ODBC DSN.
+* Click on Configure.
+
+<img src="img/excel_iodbc_dsn.png" width="650">
+
+* Modify connection attributes accordingly.
+* Click on **Ok**.
+* Click on **Test**.
+* Enter credentials if required and Click **Ok**.
+
+<img src="img/excel_iodbc_auth.png" width="250">
+
+* You should get a message as `The connection DSN was tested successfully, and can be used at this time.`
+
+<img src="img/excel_iodbc_test_dsn.png" width="350">
+
 ## Load data 
 
 * Open blank workbook in Microsoft Excel.
