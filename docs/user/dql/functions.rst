@@ -297,7 +297,7 @@ Return type: DOUBLE
 
 Example::
 
-    >od SELECT E()
+    od> SELECT E()
     fetched rows / total rows = 1/1
     +-------------------+
     | e()               |
