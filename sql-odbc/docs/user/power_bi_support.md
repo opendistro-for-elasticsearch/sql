@@ -1,6 +1,5 @@
 # Microsoft Power BI Desktop
 
-
 **NOTE**: **The connector is under development. All connection options are not available yet. There could be issues while loading data**
 
 ## Prerequisites
@@ -42,7 +41,3 @@
 <img src="img/pbi_data_preview.png">
 
 * Click on **Load**.
-
-
-
-
