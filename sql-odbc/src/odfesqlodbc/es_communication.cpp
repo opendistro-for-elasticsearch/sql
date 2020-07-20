@@ -309,9 +309,9 @@ std::shared_ptr< Aws::Http::HttpResponse > ESCommunication::IssueRequest(
         request->SetAuthorization("Basic " + hashed_userpw);
     } else if (m_rt_opts.auth.auth_type == AUTHTYPE_IAM) {
         std::shared_ptr< Aws::Auth::ProfileConfigFileAWSCredentialsProvider >
-            credential_provider =
-                Aws::MakeShared< Aws::Auth::ProfileConfigFileAWSCredentialsProvider >(
-                    ALLOCATION_TAG.c_str(), ESODBC_PROFILE_NAME.c_str());
+            credential_provider = Aws::MakeShared<
+                Aws::Auth::ProfileConfigFileAWSCredentialsProvider >(
+                ALLOCATION_TAG.c_str(), ESODBC_PROFILE_NAME.c_str());
         Aws::Client::AWSAuthV4Signer signer(credential_provider,
                                             SERVICE_NAME.c_str(),
                                             m_rt_opts.auth.region.c_str());
@@ -407,6 +407,67 @@ bool ESCommunication::EstablishConnection() {
     return false;
 }
 
+std::vector< std::string > ESCommunication::GetColumnsWithSelectQuery(
+    const std::string table_name) {
+    std::vector< std::string > list_of_column;
+    if (table_name.empty()) {
+        m_error_message = "Query is NULL";
+        LogMsg(ES_ERROR, m_error_message.c_str());
+        return list_of_column;
+    }
+
+    // Prepare query
+    std::string query = "SELECT * FROM " + table_name + " LIMIT 0";
+    std::string msg = "Attempting to execute a query \"" + query + "\"";
+    LogMsg(ES_DEBUG, msg.c_str());
+
+    // Issue request
+    std::shared_ptr< Aws::Http::HttpResponse > response =
+        IssueRequest(SQL_ENDPOINT_FORMAT_JDBC, Aws::Http::HttpMethod::HTTP_POST,
+                     ctype, query);
+
+    // Validate response
+    if (response == nullptr) {
+        m_error_message =
+            "Failed to receive response from query. "
+            "Received NULL response.";
+        LogMsg(ES_ERROR, m_error_message.c_str());
+        return list_of_column;
+    }
+
+    // Convert body from Aws IOStream to string
+    std::unique_ptr< ESResult > result = std::make_unique< ESResult >();
+    AwsHttpResponseToString(response, result->result_json);
+
+    // If response was not valid, set error
+    if (response->GetResponseCode() != Aws::Http::HttpResponseCode::OK) {
+        m_error_message =
+            "Http response code was not OK. Code received: "
+            + std::to_string(static_cast< long >(response->GetResponseCode()))
+            + ".";
+        if (response->HasClientError())
+            m_error_message +=
+                " Client error: '" + response->GetClientErrorMessage() + "'.";
+        if (!result->result_json.empty()) {
+            m_error_message +=
+                " Response error: '" + result->result_json + "'.";
+        }
+        LogMsg(ES_ERROR, m_error_message.c_str());
+        return list_of_column;
+    }
+
+    GetJsonSchema(*result);
+
+    rabbit::array schema_array = result->es_result_doc["schema"];
+    for (rabbit::array::iterator it = schema_array.begin();
+         it != schema_array.end(); ++it) {
+        std::string column_name = it->at("name").as_string();
+        list_of_column.push_back(column_name);
+    }
+
+    return list_of_column;
+}
+
 int ESCommunication::ExecDirect(const char* query, const char* fetch_size_) {
     if (!query) {
         m_error_message = "Query is NULL";
@@ -463,7 +524,8 @@ int ESCommunication::ExecDirect(const char* query, const char* fetch_size_) {
     try {
         ConstructESResult(*result);
     } catch (std::runtime_error& e) {
-        m_error_message = "Received runtime exception: " + std::string(e.what());
+        m_error_message =
+            "Received runtime exception: " + std::string(e.what());
         if (!result->result_json.empty()) {
             m_error_message += " Result body: " + result->result_json;
         }
@@ -481,10 +543,9 @@ int ESCommunication::ExecDirect(const char* query, const char* fetch_size_) {
     result.release();
 
     if (!cursor.empty()) {
-        // If the response has a cursor, this thread will retrieve more result pages asynchronously.
-        std::thread([&, cursor]() {
-            SendCursorQueries(cursor);
-        }).detach();
+        // If the response has a cursor, this thread will retrieve more result
+        // pages asynchronously.
+        std::thread([&, cursor]() { SendCursorQueries(cursor); }).detach();
     }
 
     return 0;
@@ -509,7 +570,7 @@ void ESCommunication::SendCursorQueries(std::string cursor) {
                 return;
             }
 
-            std::unique_ptr<ESResult> result = std::make_unique<ESResult>();
+            std::unique_ptr< ESResult > result = std::make_unique< ESResult >();
             AwsHttpResponseToString(response, result->result_json);
             PrepareCursorResult(*result);
 
@@ -525,7 +586,8 @@ void ESCommunication::SendCursorQueries(std::string cursor) {
                    && !m_result_queue.push(QUEUE_TIMEOUT, result.get())) {
             }
 
-            // Don't release when attempting to push to the queue as it may take multiple tries.
+            // Don't release when attempting to push to the queue as it may take
+            // multiple tries.
             result.release();
         }
     } catch (std::runtime_error& e) {

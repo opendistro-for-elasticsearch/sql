@@ -636,26 +636,26 @@ void CC_log_error(const char *func, const char *desc,
 #define NULLCHECK(a) (a ? a : "(NULL)")
 
     if (self) {
-        MYLOG(ES_ERROR, "CONN ERROR: func=%s, desc='%s', errnum=%d, errmsg='%s'\n",
-              func, desc, self->__error_number,
-              NULLCHECK(self->__error_message));
+        MYLOG(ES_ERROR,
+              "CONN ERROR: func=%s, desc='%s', errnum=%d, errmsg='%s'\n", func,
+              desc, self->__error_number, NULLCHECK(self->__error_message));
         MYLOG(ES_ERROR,
               "            "
               "------------------------------------------------------------\n");
         MYLOG(ES_ERROR,
               "            henv=%p, conn=%p, status=%u, num_stmts=%d\n",
               self->henv, self, self->status, self->num_stmts);
-        MYLOG(ES_ERROR,
-              "            esconn=%p, stmts=%p, lobj_type=%d\n", self->esconn,
-              self->stmts, self->lobj_type);
+        MYLOG(ES_ERROR, "            esconn=%p, stmts=%p, lobj_type=%d\n",
+              self->esconn, self->stmts, self->lobj_type);
     } else {
-        MYLOG(ES_ERROR, "INVALID CONNECTION HANDLE ERROR: func=%s, desc='%s'\n", func,
-              desc);
+        MYLOG(ES_ERROR, "INVALID CONNECTION HANDLE ERROR: func=%s, desc='%s'\n",
+              func, desc);
     }
 }
 
 const char *CurrCat(const ConnectionClass *conn) {
-    return conn->cluster_name;
+    UNUSED(conn);
+    return NULL;
 }
 
 const char *CurrCatString(const ConnectionClass *conn) {

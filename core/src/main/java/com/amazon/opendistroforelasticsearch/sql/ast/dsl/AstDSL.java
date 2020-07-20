@@ -123,6 +123,18 @@ public class AstDSL {
     return literal(value, DataType.INTEGER);
   }
 
+  public static Literal dateLiteral(String value) {
+    return literal(value, DataType.DATE);
+  }
+
+  public static Literal timeLiteral(String value) {
+    return literal(value, DataType.TIME);
+  }
+
+  public static Literal timestampLiteral(String value) {
+    return literal(value, DataType.TIMESTAMP);
+  }
+
   public static Literal doubleLiteral(Double value) {
     return literal(value, DataType.DOUBLE);
   }

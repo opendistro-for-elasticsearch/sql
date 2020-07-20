@@ -29,7 +29,7 @@ public class FunctionName {
   private final String functionName;
 
   public static FunctionName of(String functionName) {
-    return new FunctionName(functionName);
+    return new FunctionName(functionName.toLowerCase());
   }
 
   @Override

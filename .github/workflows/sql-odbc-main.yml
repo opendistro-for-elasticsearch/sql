@@ -26,26 +26,16 @@ jobs:
         brew install curl
         brew install cmake
         brew install libiodbc
-    - name: aws-sdk-cpp-setup
+    - name: configure-and-build-driver
       run: |
-        sh aws_sdk_cpp_setup.sh
-    - name: configure
-      run: |
-        prefix_path=$(pwd)
-        mkdir cmake-build
-        cd cmake-build
-        cmake ../src -DCMAKE_INSTALL_PREFIX=$prefix_path/AWSSDK/ -DCMAKE_BUILD_TYPE=Release -DBUILD_ONLY="core" -DCUSTOM_MEMORY_MANAGEMENT="OFF" -DENABLE_RTTI="OFF" -DENABLE_TESTING="OFF"
-        cd ..
-    - name: build-driver
-      run: |
-        cmake --build cmake-build
+        ./build_mac_release64.sh
     #- name: test
     #  run: | 
     #    bash ./run_test_runner.sh
     - name: build-installer
       if: success()
       run: |
-        cd cmake-build
+        cd cmake-build64
         cmake ../src 
         make
         cpack .
@@ -59,7 +49,7 @@ jobs:
         cp ./lib64/*.dylib build
         cp ./lib64/*.a build
         cp $(ls -d bin64/* | grep -v "\.") build
-        cp ./cmake-build/*.pkg installer
+        cp ./cmake-build64/*.pkg installer
     #    cp ./bin64/*.html test-output
     #    cp ./bin64/*.log test-output
     - name: upload-build

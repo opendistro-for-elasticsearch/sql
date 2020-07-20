@@ -64,9 +64,8 @@ std::string GetServerVersion(void* es_conn) {
 }
 
 std::string GetClusterName(void* es_conn) {
-    return es_conn
-               ? static_cast< ESCommunication* >(es_conn)->GetClusterName()
-               : "";
+    return es_conn ? static_cast< ESCommunication* >(es_conn)->GetClusterName()
+                   : "";
 }
 
 void* InitializeESConn() {
@@ -111,7 +110,13 @@ void ESClearResult(ESResult* es_result) {
 }
 
 void ESStopRetrieval(void* es_conn) {
-     static_cast< ESCommunication* >(es_conn)->StopResultRetrieval();
+    static_cast< ESCommunication* >(es_conn)->StopResultRetrieval();
+}
+
+std::vector< std::string > ESGetColumnsWithSelectQuery(
+    void* es_conn, const std::string table_name) {
+    return static_cast< ESCommunication* >(es_conn)->GetColumnsWithSelectQuery(
+        table_name);
 }
 
 // This class provides a cross platform way of entering critical sections

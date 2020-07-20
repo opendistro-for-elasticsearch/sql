@@ -306,8 +306,8 @@ void GetCatalogData(const std::string &query, StatementClass *stmt,
                     StatementClass *sub_stmt, const TableResultSet res_type,
                     std::string &table_type,
                     void (*populate_binds)(bind_vector &),
-                    void (*setup_qres_info)(QResultClass *,
-                                            EnvironmentClass *));
+                    void (*setup_qres_info)(QResultClass *, EnvironmentClass *),
+                    std::vector< std::string > *list_of_columns = NULL);
 
 // Common function declarations
 void ConvertToString(std::string &out, bool &valid, const SQLCHAR *sql_char,
@@ -394,7 +394,8 @@ void AssignTableBindTemplates(bind_vector &tabs);
 void SetupTableQResInfo(QResultClass *res, EnvironmentClass *env);
 void SetTableTuples(QResultClass *res, const TableResultSet res_type,
                     const bind_vector &bind_tbl, std::string &table_type,
-                    StatementClass *stmt, StatementClass *tbl_stmt);
+                    StatementClass *stmt, StatementClass *tbl_stmt,
+                    std::vector< std::string > *list_of_columns = NULL);
 
 // Table specific function declarations
 void split(const std::string &input, const std::string &delim,
@@ -457,7 +458,8 @@ void SetupTableQResInfo(QResultClass *res, EnvironmentClass *env) {
 
 void SetTableTuples(QResultClass *res, const TableResultSet res_type,
                     const bind_vector &bind_tbl, std::string &table_type,
-                    StatementClass *stmt, StatementClass *tbl_stmt) {
+                    StatementClass *stmt, StatementClass *tbl_stmt,
+                    std::vector< std::string > *list_of_columns) {
     auto CheckResult = [&](const auto &res) {
         if (res != SQL_NO_DATA_FOUND) {
             SC_full_error_copy(stmt, tbl_stmt, FALSE);
@@ -476,12 +478,24 @@ void SetTableTuples(QResultClass *res, const TableResultSet res_type,
     // General case
     if (res_type == TableResultSet::All) {
         RETCODE result = SQL_NO_DATA_FOUND;
+        int ordinal_position = 0;
         while (SQL_SUCCEEDED(result = ESAPI_Fetch(tbl_stmt))) {
             if (bind_tbl[TABLES_TABLE_TYPE]->AsString() == "BASE TABLE") {
                 std::string table("TABLE");
                 bind_tbl[TABLES_TABLE_TYPE]->UpdateData(&table, table.size());
             }
-            AssignData(res, bind_tbl);
+            if (list_of_columns != NULL && !list_of_columns->empty()) {
+                if (std::find(list_of_columns->begin(), list_of_columns->end(),
+                              bind_tbl[COLUMNS_COLUMN_NAME]->AsString())
+                    != list_of_columns->end()) {
+                    ordinal_position++;
+                    bind_tbl[COLUMNS_ORDINAL_POSITION]->UpdateData(
+                        &ordinal_position, 0);
+                    AssignData(res, bind_tbl);
+                }
+            } else {
+                AssignData(res, bind_tbl);
+            }
         }
         CheckResult(result);
     } else if (res_type == TableResultSet::TableLookUp) {
@@ -524,12 +538,6 @@ void SetTableTuples(QResultClass *res, const TableResultSet res_type,
         // Get index of result type of interest
         size_t idx = NUM_OF_TABLES_FIELDS;
         switch (res_type) {
-            case TableResultSet::Catalog:
-                idx = TABLES_CATALOG_NAME;
-                break;
-            case TableResultSet::Schema:
-                idx = TABLES_SCHEMA_NAME;
-                break;
             case TableResultSet::TableTypes:
                 idx = TABLES_TABLE_TYPE;
                 break;
@@ -639,8 +647,8 @@ void GetCatalogData(const std::string &query, StatementClass *stmt,
                     StatementClass *sub_stmt, const TableResultSet res_type,
                     std::string &table_type,
                     void (*populate_binds)(bind_vector &),
-                    void (*setup_qres_info)(QResultClass *,
-                                            EnvironmentClass *)) {
+                    void (*setup_qres_info)(QResultClass *, EnvironmentClass *),
+                    std::vector< std::string > *list_of_columns) {
     // Execute query
     ExecuteQuery(SC_get_conn(stmt), reinterpret_cast< HSTMT * >(&sub_stmt),
                  query);
@@ -656,8 +664,8 @@ void GetCatalogData(const std::string &query, StatementClass *stmt,
     // Setup QResultClass
     (*setup_qres_info)(
         res, static_cast< EnvironmentClass * >(CC_get_env(SC_get_conn(stmt))));
-    SetTableTuples(res, res_type, binds, table_type, stmt, sub_stmt);
-
+    SetTableTuples(res, res_type, binds, table_type, stmt, sub_stmt,
+                   list_of_columns);
     CleanUp(stmt, sub_stmt, SQL_SUCCESS);
 }
 
@@ -692,20 +700,32 @@ ESAPI_Tables(HSTMT hstmt, const SQLCHAR *catalog_name_sql,
 
         if (catalog_name == SQL_ALL_CATALOGS) {
             if (schema_valid && table_valid && (table_name == "")
-                && (schema_name == ""))
-                result_type = TableResultSet::Catalog;
-        } 
+                && (schema_name == "")) {
+                std::string error_msg("Catalogs not supported.");
+                SC_set_error(stmt, STMT_NOT_IMPLEMENTED_ERROR,
+                             error_msg.c_str(), func);
+                CleanUp(stmt, tbl_stmt);
+                return SQL_ERROR;
+            }
+            // result_type = TableResultSet::Catalog;
+        }
         if (schema_name == SQL_ALL_SCHEMAS) {
             if (catalog_valid && table_valid && (table_name == "")
-                && (catalog_name == ""))
-                result_type = TableResultSet::Schema;
-        } 
+                && (catalog_name == "")) {
+                std::string error_msg("Schemas not supported.");
+                SC_set_error(stmt, STMT_NOT_IMPLEMENTED_ERROR,
+                             error_msg.c_str(), func);
+                CleanUp(stmt, tbl_stmt);
+                return SQL_ERROR;
+            }
+            // result_type = TableResultSet::Schema;
+        }
         if (table_type_valid && (table_type == SQL_ALL_TABLE_TYPES)) {
             if (catalog_valid && table_valid && schema_valid
                 && (table_name == "") && (catalog_name == "")
                 && (schema_name == ""))
                 result_type = TableResultSet::TableTypes;
-        } 
+        }
         if (table_type_valid && (table_type != SQL_ALL_TABLE_TYPES)) {
             result_type = TableResultSet::TableLookUp;
         }
@@ -771,12 +791,22 @@ ESAPI_Columns(HSTMT hstmt, const SQLCHAR *catalog_name_sql,
         GenerateColumnQuery(query, table_name, column_name, table_valid,
                             column_valid, flag);
 
+        // Get list of columns with SELECT * query since columns doesn't match
+        // with DESCRIBE & SELECT * query
+        std::vector< std::string > list_of_columns;
+        if (table_valid) {
+            ConnectionClass *conn = SC_get_conn(stmt);
+            list_of_columns =
+                ESGetColumnsWithSelectQuery(conn->esconn, table_name);
+        }
+
         // TODO #324 (SQL Plugin)- evaluate catalog & schema support
 
         // Execute query
         std::string table_type = "";
         GetCatalogData(query, stmt, col_stmt, TableResultSet::All, table_type,
-                       AssignColumnBindTemplates, SetupColumnQResInfo);
+                       AssignColumnBindTemplates, SetupColumnQResInfo,
+                       &list_of_columns);
         return SQL_SUCCESS;
     } catch (std::bad_alloc &e) {
         std::string error_msg = std::string("Bad allocation exception: '")
