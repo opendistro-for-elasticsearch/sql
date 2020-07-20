@@ -172,10 +172,10 @@ Selecting at deeper levels for object fields of regular value returns inner fiel
     | {'latitude': 10.5} | 10.5                     |
     +--------------------+--------------------------+
 
-Example 3: Selecting Object Field of Array Value
-------------------------------------------------
+Example 3: Selecting Field of Array Value
+-----------------------------------------
 
-Select deeper level for object fields of array value which returns ``NULL``. For example, because inner field ``accounts.id`` has three values instead of a tuple in this document, null is returned. Similarly, selecting inner field ``projects.name`` directly in nested field returns null. User needs to follow PartiQL syntax to query inner and flatten fields::
+Select deeper level for object fields of array value which returns ``NULL``. For example, because inner field ``accounts.id`` has three values instead of a tuple in this document, null is returned. Similarly, selecting inner field ``projects.name`` directly in nested field returns null::
 
     od> SELECT accounts.id, projects.name FROM people;
     fetched rows / total rows = 1/1

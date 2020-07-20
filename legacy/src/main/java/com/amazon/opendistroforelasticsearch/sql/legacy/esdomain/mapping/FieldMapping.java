@@ -123,7 +123,6 @@ public class FieldMapping {
      * Find field type in ES Get Field Mapping API response. Note that Get Field Mapping API does NOT return
      * the type for object or nested field. In this case, object type is used as default under the assumption
      * that the field queried here must exist (which is true if semantic analyzer is enabled).
-     * For input data format, please refer to UT {@link FieldMappingTest#testDeepNestedField()}.
      *
      * @return      field type if found in mapping, otherwise "object" type returned
      */
@@ -131,16 +130,14 @@ public class FieldMapping {
     public String type() {
         FieldMappingMetadata metaData = typeMappings.getOrDefault(fieldName, FieldMappingMetadata.NULL);
         if (metaData.isNull()) {
-            // Assumption is the field must be valid when reaching here (if semantic check enabled).
-            // Otherwise there is no way to differentiate object/nested field and non-existing field
-            // Because ES Get Field API returns empty for both cases.
             return DescribeResultSet.DEFAULT_OBJECT_DATATYPE;
         }
 
         Map<String, Object> source = metaData.sourceAsMap();
         String[] fieldPath = fieldName.split("\\.");
 
-        // For object/nested field,
+        // For object/nested field, fieldName is full path though only innermost field name present in mapping
+        // For example, fieldName='employee.location.city', metaData='{"city":{"type":"text"}}'
         String innermostFieldName = (fieldPath.length == 1) ? fieldName : fieldPath[fieldPath.length - 1];
         Map<String, Object> fieldMapping = (Map<String, Object>) source.get(innermostFieldName);
         return (String) fieldMapping.get("type");

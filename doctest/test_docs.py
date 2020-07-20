@@ -98,15 +98,15 @@ def set_up_test_indices(test):
 
 def load_file(filename, index_name):
     # Create index with the mapping if mapping file exists
-    mapping_file_path = "./test_mapping/" + filename
+    mapping_file_path = './test_mapping/' + filename
     if os.path.isfile(mapping_file_path):
         with open(mapping_file_path, 'r') as f:
             test_data_client.indices.create(index=index_name, body=f.read())
 
     # generate iterable data
-    data_file_path = "./test_data/" + filename
+    data_file_path = './test_data/' + filename
     def load_json():
-        with open(data_file_path, "r") as f:
+        with open(data_file_path, 'r') as f:
             for line in f:
                 yield json.loads(line)
 
