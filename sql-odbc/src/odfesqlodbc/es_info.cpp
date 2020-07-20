@@ -480,6 +480,11 @@ void SetTableTuples(QResultClass *res, const TableResultSet res_type,
     };
     auto AssignData = [&](auto *res, const auto &binds) {
         TupleField *tuple = QR_AddNew(res);
+        // Since we do not support catalogs, we will return an empty string for catalog names.
+        // This is required for Excel for Mac, which uses this information for
+        // its Data Preview window.
+        std::string catalog("");
+        bind_tbl[TABLES_CATALOG_NAME]->UpdateData((void*)catalog.c_str(), 0);
         for (size_t i = 0; i < binds.size(); i++)
             binds[i]->AssignData(&tuple[i]);
     };
@@ -518,20 +523,11 @@ void SetTableTuples(QResultClass *res, const TableResultSet res_type,
         // Loop through all data
         RETCODE result = SQL_NO_DATA_FOUND;
         while (SQL_SUCCEEDED(result = ESAPI_Fetch(tbl_stmt))) {
-            MYLOG(ES_WARNING, "----- Catalog Name: %s\n",
-                  bind_tbl[TABLES_CATALOG_NAME]->AsString().c_str());
-            MYLOG(ES_WARNING, "----- Table Name: %s\n",
-                  bind_tbl[TABLES_TABLE_NAME]->AsString().c_str());
-            MYLOG(ES_WARNING, "----- Table Type: %s\n",
-                  bind_tbl[TABLES_TABLE_TYPE]->AsString().c_str());
             // Replace BASE TABLE with TABLE for Excel & Power BI SQLTables call
             if (bind_tbl[TABLES_TABLE_TYPE]->AsString() == "BASE TABLE") {
                 std::string table("TABLE");
                 bind_tbl[TABLES_TABLE_TYPE]->UpdateData((void*)table.c_str(), table.length());
             }
-            MYLOG(ES_WARNING, "-=- TABLE TYPE a %s a\n", table_type.c_str());
-            MYLOG(ES_WARNING, "COMPARE %s %s done\n", table_type.c_str(),
-                  bind_tbl[TABLES_TABLE_TYPE]->AsString().c_str());
             if (std::find(table_types.begin(), table_types.end(),
                           bind_tbl[TABLES_TABLE_TYPE]->AsString())
                 != table_types.end()) {
