@@ -23,15 +23,15 @@
 * Open Power BI Desktop.
 * Click on **Home** > **Get Data** > **More** > **Other**. Select **Open Distro For Elasticsearch (Beta)**. Click on **Connect**.
 
-<img src="img/pbi_select_connector.png" width="400">
+<img src="img/pbi_select_connector.png" width="500">
 
 * You will get a warning for using third-party service. Click on **Continue**.
 
-<img src="img/pbi_third_party_warning.png" width="450">
+<img src="img/pbi_third_party_warning.png" width="500">
 
 * Enter host and port values. Click on **OK**.
 
-<img src="img/pbi_connection_string_options.png" width="450">
+<img src="img/pbi_connection_string_options.png" width="500">
 
 * Select authentication option and click on **Connect**.
 
