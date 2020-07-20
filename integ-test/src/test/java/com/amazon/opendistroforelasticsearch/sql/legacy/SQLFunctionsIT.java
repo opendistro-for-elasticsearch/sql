@@ -64,6 +64,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
   @Override
   protected void init() throws Exception {
     loadIndex(Index.ACCOUNT);
+    loadIndex(Index.BANK);
     loadIndex(Index.ONLINE);
     loadIndex(Index.DATE);
   }
@@ -367,6 +368,33 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     verifyDataRows(response,
         rows("2014-08-19T07:09:13.434Z"),
         rows("2019-09-25T02:04:13.469Z"));
+  }
+
+  @Test
+  public void castBoolFieldToNumericInSelectClause() {
+    JSONObject response =
+        executeJdbcRequest(
+            "SELECT "
+            + " male, "
+            + " CAST(male AS INT) AS cast_int, "
+            + " CAST(male AS LONG) AS cast_long, "
+            + " CAST(male AS FLOAT) AS cast_float, "
+            + " CAST(male AS DOUBLE) AS cast_double "
+            + "FROM " + TestsConstants.TEST_INDEX_BANK + " "
+            + "WHERE account_number = 1 OR account_number = 13"
+        );
+
+    verifySchema(response,
+        schema("male", "boolean"),
+        schema("cast_int", "integer"),
+        schema("cast_long", "long"),
+        schema("cast_float", "float"),
+        schema("cast_double", "double")
+    );
+    verifyDataRows(response,
+        rows(true, 1, 1, 1, 1),
+        rows(false, 0, 0, 0, 0)
+    );
   }
 
   @Test

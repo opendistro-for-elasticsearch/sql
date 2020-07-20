@@ -973,14 +973,10 @@ public class SQLFunctions {
         String castFieldName = String.format("doc['%s'].value", paramers.get(0).toString());
         switch (StringUtils.toUpper(castType)) {
             case "INT":
-                //return String.format("def %s = Double.parseDouble(%s.toString()).intValue()", name, castFieldName);
-                return getCastNumericScript(name, castFieldName, "int");
             case "LONG":
-                return String.format("def %s = Double.parseDouble(%s.toString()).longValue()", name, castFieldName);
             case "FLOAT":
-                return String.format("def %s = Double.parseDouble(%s.toString()).floatValue()", name, castFieldName);
             case "DOUBLE":
-                return String.format("def %s = Double.parseDouble(%s.toString()).doubleValue()", name, castFieldName);
+                return getCastToNumericValueScript(name, castFieldName, StringUtils.toLower(castType));
             case "STRING":
                 return String.format("def %s = %s.toString()", name, castFieldName);
             case "DATETIME":
@@ -991,12 +987,12 @@ public class SQLFunctions {
         }
     }
 
-    private String getCastNumericScript(String varName, String docValue, String targetType) {
+    private String getCastToNumericValueScript(String varName, String docValue, String targetType) {
         String script =
-            "def %s = (%s instanceof boolean) "
-                + "? (%s ? 1 : 0) "
-                + ": Double.parseDouble(%s.toString()).%sValue()";
-        return StringUtils.format(script, varName, docValue, docValue, docValue, targetType);
+            "def %1$s = (%2$s instanceof boolean) "
+                + "? (%2$s ? 1 : 0) "
+                + ": Double.parseDouble(%2$s.toString()).%3$sValue()";
+        return StringUtils.format(script, varName, docValue, targetType);
     }
 
     /**
