@@ -40,5 +40,6 @@ qualifiedName
 
 ident
     : DOT? ID
-    | STRING_LITERAL
+    | DOUBLE_QUOTE_ID
+    | BACKTICK_QUOTE_ID
     ;

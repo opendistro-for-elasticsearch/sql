@@ -100,14 +100,7 @@ decimalLiteral
     ;
 
 stringLiteral
-    : (
-        STRING_LITERAL
-        | START_NATIONAL_STRING_LITERAL
-      ) STRING_LITERAL+
-    | (
-        STRING_LITERAL
-        | START_NATIONAL_STRING_LITERAL
-      )
+    : STRING_LITERAL
     ;
 
 booleanLiteral

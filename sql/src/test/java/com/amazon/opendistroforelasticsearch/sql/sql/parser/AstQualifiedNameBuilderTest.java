@@ -17,7 +17,6 @@
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
@@ -51,7 +50,7 @@ public class AstQualifiedNameBuilderTest {
 
   @Test
   public void canBuildDelimitedIdentifier() {
-    buildFromIdentifier("\"hello world\"").expectQualifiedName("hello world");
+    buildFromIdentifier("\"hello$world\"").expectQualifiedName("hello$world");
     buildFromIdentifier("`logs.2020.01`").expectQualifiedName("logs.2020.01");
   }
 
@@ -80,10 +79,6 @@ public class AstQualifiedNameBuilderTest {
 
     public void expectQualifiedName(String... expected) {
       assertEquals(AstDSL.qualifiedName(expected), buildExpression(actual));
-    }
-
-    public <T extends Throwable> void expectThrows(Class<T> errorType) {
-      assertThrows(errorType, () -> buildExpression(actual));
     }
 
     private UnresolvedExpression buildExpression(String expr) {

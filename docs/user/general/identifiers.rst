@@ -12,7 +12,7 @@ Identifiers
 Introduction
 ============
 
-Identifiers are used for naming your database objects, such as index name, field name etc. Basically there are two types of identifiers: regular identifiers and delimited identifiers.
+Identifiers are used for naming your database objects, such as index name, field name, alias etc. Basically there are two types of identifiers: regular identifiers and delimited identifiers.
 
 
 Regular Identifiers
@@ -21,12 +21,12 @@ Regular Identifiers
 Description
 -----------
 
-According to ANSI SQL standard, a regular identifier can start with ASCII letter (lower or upper case) or digit. The subsequent character can consist of letter, digit, underscore (``_``). It cannot be a reversed key word. And whitespace and other special characters are not allowed. In our SQL parser, we make extension to the rule for Elasticsearch storage as shown in next sub-section.
+According to ANSI SQL standard, a regular identifier is a string of characters that must start with ASCII letter (lower or upper case). The subsequent character can be a combination of letter, digit, underscore (``_``). It cannot be a reversed key word. And whitespace and other special characters are not allowed. Additionally in our SQL parser, we make extension to the rule for Elasticsearch storage as shown in next sub-section.
 
 Extensions
 ----------
 
-Additionally for Elasticsearch, the following identifiers are supported extensionally by our SQL parser for convenience (without the need of being delimited as shown in next section):
+For Elasticsearch, the following identifiers are supported extensionally by our SQL parser for convenience (without the need of being delimited as shown in next section):
 
 1. Identifiers prefixed by dot ``.``: this is called hidden index in Elasticsearch, for example ``.kibana``.
 2. Identifiers prefixed by at sign ``@``: this is common for meta fields generated in Logstash ingestion.
@@ -58,7 +58,7 @@ Description
 
 A delimited identifier is an identifier enclosed in back ticks ````` or double quotation marks ``"``. In this case, the identifier enclosed is not necessarily a regular identifier. In other words, it can contain any special character not allowed by regular identifier.
 
-Please note the difference between single quote and double quotes in SQL syntax. The former is used to enclose a string literal while the latter is for escaping special characters in an identifier.
+Please note the difference between single quote and double quotes in SQL syntax. Single quote is used to enclose a string literal while double quotes have same purpose as back ticks to escape special characters in an identifier.
 
 Use Cases
 ---------
