@@ -161,8 +161,13 @@ functionCall
     ;
 
 scalarFunctionName
-    : ABS | CEIL | CEILING | EXP | FLOOR | LN | LOG | LOG10 | LOG2
+    : mathematicalFunctionName
     | dateTimeFunctionName
+    ;
+
+mathematicalFunctionName
+    : ABS | CEIL | CEILING | CONV | CRC32 | EXP | FLOOR | LN | LOG | LOG10 | LOG2 | MOD | POW | POWER
+    | ROUND | SIGN | SQRT | TRUNCATE
     ;
 
 dateTimeFunctionName

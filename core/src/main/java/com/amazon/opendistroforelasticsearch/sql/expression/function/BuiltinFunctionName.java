@@ -18,12 +18,21 @@ public enum BuiltinFunctionName {
   ABS(FunctionName.of("abs")),
   CEIL(FunctionName.of("ceil")),
   CEILING(FunctionName.of("ceiling")),
+  CONV(FunctionName.of("conv")),
+  CRC32(FunctionName.of("crc32")),
   EXP(FunctionName.of("exp")),
   FLOOR(FunctionName.of("floor")),
   LN(FunctionName.of("ln")),
   LOG(FunctionName.of("log")),
   LOG10(FunctionName.of("log10")),
   LOG2(FunctionName.of("log2")),
+  MOD(FunctionName.of("mod")),
+  POW(FunctionName.of("pow")),
+  POWER(FunctionName.of("power")),
+  ROUND(FunctionName.of("round")),
+  SIGN(FunctionName.of("sign")),
+  SQRT(FunctionName.of("sqrt")),
+  TRUNCATE(FunctionName.of("truncate")),
 
   /**
    * Text Functions.

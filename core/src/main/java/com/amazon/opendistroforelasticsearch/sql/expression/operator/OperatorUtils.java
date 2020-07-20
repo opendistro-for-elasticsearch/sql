@@ -35,6 +35,60 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class OperatorUtils {
   /**
+   * Construct {@link FunctionBuilder} which call function with three arguments produced by
+   * observers.In general, if any operand evaluates to a MISSING value, the enclosing operator
+   * will return MISSING; if none of operands evaluates to a MISSING value but there is an
+   * operand evaluates to a NULL value, the enclosing operator will return NULL.
+   *
+   * @param functionName function name
+   * @param function {@link BiFunction}
+   * @param observer1 extract the value of type T from the first argument
+   * @param observer2 extract the value of type U from the first argument
+   * @param observer3 extract the value of type V from the first argument
+   * @param returnType return type
+   * @param <T> the type of the first argument to the function
+   * @param <U> the type of the second argument to the function
+   * @param <V> the type of the third argument to the function
+   * @param <R> the type of the result of the function
+   * @return {@link FunctionBuilder}
+   */
+  public static <T, U, V, R> FunctionBuilder tripleArgFunc(
+      FunctionName functionName,
+      TriFunction<T, U, V, R> function,
+      Function<ExprValue, T> observer1,
+      Function<ExprValue, U> observer2,
+      Function<ExprValue, V> observer3,
+      ExprCoreType returnType) {
+    return arguments -> new FunctionExpression(functionName, arguments) {
+      @Override
+      public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
+        ExprValue arg1 = arguments.get(0).valueOf(valueEnv);
+        ExprValue arg2 = arguments.get(1).valueOf(valueEnv);
+        ExprValue arg3 = arguments.get(2).valueOf(valueEnv);
+        if (arg1.isMissing() || arg2.isMissing() || arg3.isMissing()) {
+          return ExprValueUtils.missingValue();
+        } else if (arg1.isNull() || arg2.isNull() || arg3.isNull()) {
+          return ExprValueUtils.nullValue();
+        } else {
+          return ExprValueUtils.fromObjectValue(
+              function.apply(observer1.apply(arg1), observer2.apply(arg2), observer3.apply(arg3)));
+        }
+      }
+
+      @Override
+      public ExprType type() {
+        return returnType;
+      }
+
+      @Override
+      public String toString() {
+        return String.format("%s(%s, %s, %s)", functionName, arguments.get(0).toString(), arguments
+            .get(1).toString(), arguments.get(2).toString());
+      }
+    };
+  }
+
+  /**
    * Construct {@link FunctionBuilder} which call function with arguments produced by observer.
    *
    * @param functionName function name
@@ -222,4 +276,8 @@ public class OperatorUtils {
    */
   public static final BiPredicate<ExprValue, ExprValue> COMPARE_WITH_NULL_OR_MISSING =
       (left, right) -> left.isMissing() || right.isMissing() || left.isNull() || right.isNull();
+
+  public interface TriFunction<T, U, V, R> {
+    R apply(T t, U u, V v);
+  }
 }
