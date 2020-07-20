@@ -906,7 +906,7 @@ SQLRETURN SQL_API SQLColAttributesW(SQLHSTMT hstmt, SQLUSMALLINT iCol,
                                     SQLUSMALLINT iField, SQLPOINTER pCharAttr,
                                     SQLSMALLINT cbCharAttrMax,
                                     SQLSMALLINT *pcbCharAttr,
-#if defined(_WIN64) || defined(SQLCOLATTRIBUTE_SQLLEN)
+#if defined(_WIN64) || defined(_WIN32) || defined(SQLCOLATTRIBUTE_SQLLEN)
                                     SQLLEN *pNumAttr
 #else
                                     SQLPOINTER pNumAttr

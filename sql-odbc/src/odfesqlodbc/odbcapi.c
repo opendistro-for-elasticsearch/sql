@@ -1346,7 +1346,7 @@ SQLRETURN SQL_API SQLColAttributes(SQLHSTMT StatementHandle,
                                    SQLPOINTER CharacterAttribute,
                                    SQLSMALLINT BufferLength,
                                    SQLSMALLINT *StringLength,
-#if defined(_WIN64) || defined(SQLCOLATTRIBUTE_SQLLEN)
+#if defined(_WIN64) || defined(_WIN32) || defined(SQLCOLATTRIBUTE_SQLLEN)
                                    SQLLEN *NumericAttribute
 #else
                                    SQLPOINTER NumericAttribute
