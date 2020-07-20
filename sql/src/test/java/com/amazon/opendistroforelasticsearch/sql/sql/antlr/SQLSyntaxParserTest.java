@@ -55,6 +55,18 @@ class SQLSyntaxParserTest {
   }
 
   @Test
+  public void canNotParseIndexNameStartingWithNumber() {
+    assertThrows(SyntaxCheckException.class,
+        () -> parser.parse("SELECT * FROM 123test"));
+  }
+
+  @Test
+  public void canNotParseIndexNameSingleQuoted() {
+    assertThrows(SyntaxCheckException.class,
+        () -> parser.parse("SELECT * FROM 'test'"));
+  }
+
+  @Test
   public void canNotParseInvalidSelect() {
     assertThrows(SyntaxCheckException.class,
         () -> parser.parse("SELECT * FROM test WHERE age = 10"));

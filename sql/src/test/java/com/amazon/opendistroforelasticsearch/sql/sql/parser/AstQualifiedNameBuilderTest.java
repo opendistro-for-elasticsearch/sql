@@ -36,7 +36,6 @@ public class AstQualifiedNameBuilderTest {
   public void canBuildRegularIdentifierForSQLStandard() {
     buildFromIdentifier("test").expectQualifiedName("test");
     buildFromIdentifier("test123").expectQualifiedName("test123");
-    buildFromIdentifier("456test").expectQualifiedName("456test");
     buildFromIdentifier("test_123").expectQualifiedName("test_123");
   }
 
