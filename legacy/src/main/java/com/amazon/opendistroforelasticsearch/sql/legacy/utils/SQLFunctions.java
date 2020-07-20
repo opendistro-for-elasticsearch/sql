@@ -973,7 +973,8 @@ public class SQLFunctions {
         String castFieldName = String.format("doc['%s'].value", paramers.get(0).toString());
         switch (StringUtils.toUpper(castType)) {
             case "INT":
-                return String.format("def %s = Double.parseDouble(%s.toString()).intValue()", name, castFieldName);
+                //return String.format("def %s = Double.parseDouble(%s.toString()).intValue()", name, castFieldName);
+                return getCastNumericScript(name, castFieldName, "int");
             case "LONG":
                 return String.format("def %s = Double.parseDouble(%s.toString()).longValue()", name, castFieldName);
             case "FLOAT":
@@ -988,6 +989,14 @@ public class SQLFunctions {
             default:
                 throw new SqlParseException("Unsupported cast type " + castType);
         }
+    }
+
+    private String getCastNumericScript(String varName, String docValue, String targetType) {
+        String script =
+            "def %s = (%s instanceof boolean) "
+                + "? (%s ? 1 : 0) "
+                + ": Double.parseDouble(%s.toString()).%sValue()";
+        return StringUtils.format(script, varName, docValue, docValue, docValue, targetType);
     }
 
     /**
