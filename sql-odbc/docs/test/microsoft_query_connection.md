@@ -10,17 +10,13 @@
 
 <img src="img/microsoft_query_disable_use_the_query_wizard_option.png" width="500">
 
-* Click on **Options** in Add Table window.
-
-<img src="img/microsoft_query_add_tables.png" width="300">
-
-* Click **Refresh**. Select checkbox **Tables**. Clear all other checkboxes. Click on **OK**.
-
 <img src="img/microsoft_query_table_options.png" width="300">
 
-* Select tables and click on **Add**. After all required tables are added, click on **Close**.
+* Select table and click on **Add**.
 
 <img src="img/microsoft_query_select_tables.png" width="300">
+ 
+* Click on **Close**.
 
 * Double click on required columns. You can double-click the asterisk (*) to select all the columns from a table.
 
