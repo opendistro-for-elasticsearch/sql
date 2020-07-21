@@ -527,7 +527,7 @@ public class SQLFunctions {
         String name = nextId("date_format");
         if (valueName == null) {
             return new Tuple<>(name, "def " + name + " = DateTimeFormatter.ofPattern('" + pattern + "').withZone("
-                    + (zoneId != null ? "ZoneId.of('" + zoneId + "')" : "ZoneId.systemDefault()")
+                    + (zoneId != null ? "ZoneId.of('" + zoneId + "')" : "ZoneId.of(\"UTC\")")
                     + ").format(Instant.ofEpochMilli(" + getPropertyOrValue(field) + ".toInstant().toEpochMilli()))");
         } else {
             return new Tuple<>(name, exprString(field) + "; "

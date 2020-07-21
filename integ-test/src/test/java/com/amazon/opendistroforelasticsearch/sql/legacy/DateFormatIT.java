@@ -117,7 +117,7 @@ public class DateFormatIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void andWithoutUTCParameter() throws SqlParseException {
+  public void andWithDefaultTimeZone() throws SqlParseException {
     assertThat(
         dateQuery(SELECT_FROM +
                 "WHERE date_format(insert_time, 'yyyy-MM-dd HH:mm:ss') >= '2014-08-17 16:13:12' " +
@@ -166,6 +166,17 @@ public class DateFormatIT extends SQLIntegTestCase {
 
     assertThat(new DateTime(getSource(hits.getJSONObject(0)).get("insert_time"), DateTimeZone.UTC),
         is(new DateTime("2014-08-24T00:00:41.221Z", DateTimeZone.UTC)));
+  }
+
+  @Test
+  public void selectDateTimeWithDefaultTimeZone() throws SqlParseException {
+    JSONObject response = executeJdbcRequest("SELECT date_format(insert_time, 'yyyy-MM-dd') as date " +
+            " FROM " + TestsConstants.TEST_INDEX_ONLINE +
+            " WHERE date_format(insert_time, 'yyyy-MM-dd HH:mm:ss') >= '2014-08-17 16:13:12' " +
+            " AND date_format(insert_time, 'yyyy-MM-dd HH:mm:ss') <= '2014-08-17 16:13:13'");
+
+    verifySchema(response, schema("date", "", "text"));
+    verifyDataRows(response, rows("2014-08-17"));
   }
 
   @Test
@@ -254,5 +265,9 @@ public class DateFormatIT extends SQLIntegTestCase {
         .findFirst()
         .orElseThrow(() -> new RuntimeException(
             "Can't find key" + prefix + " in aggregation " + aggregation));
+  }
+
+  private JSONObject executeJdbcRequest(String query) {
+    return new JSONObject(executeQuery(query, "jdbc"));
   }
 }
