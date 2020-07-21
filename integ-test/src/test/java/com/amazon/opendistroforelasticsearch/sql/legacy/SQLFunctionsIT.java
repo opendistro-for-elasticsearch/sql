@@ -371,7 +371,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void castBoolFieldToNumericInSelectClause() {
+  public void castBoolFieldToNumericValueInSelectClause() {
     JSONObject response =
         executeJdbcRequest(
             "SELECT "
@@ -394,6 +394,27 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
     verifyDataRows(response,
         rows(true, 1, 1, 1, 1),
         rows(false, 0, 0, 0, 0)
+    );
+  }
+
+  @Test
+  public void castBoolFieldToNumericValueWithGroupByAlias() {
+    JSONObject response =
+        executeJdbcRequest(
+            "SELECT "
+            + "CAST(male AS INT) AS cast_int, "
+            + "COUNT(*) "
+            + "FROM " + TestsConstants.TEST_INDEX_BANK + " "
+            + "GROUP BY cast_int"
+        );
+
+    verifySchema(response,
+        schema("cast_int", "cast_int", "double"),
+        schema("COUNT(*)", "integer")
+    );
+    verifyDataRows(response,
+        rows("0", 3),
+        rows("1", 4)
     );
   }
 
