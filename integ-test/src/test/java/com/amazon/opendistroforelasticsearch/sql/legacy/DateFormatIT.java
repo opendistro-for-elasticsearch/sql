@@ -117,6 +117,17 @@ public class DateFormatIT extends SQLIntegTestCase {
   }
 
   @Test
+  public void andWithoutUTCParameter() throws SqlParseException {
+    assertThat(
+        dateQuery(SELECT_FROM +
+                "WHERE date_format(insert_time, 'yyyy-MM-dd HH:mm:ss') >= '2014-08-17 16:13:12' " +
+                "AND date_format(insert_time, 'yyyy-MM-dd HH:mm:ss') <= '2014-08-17 16:13:13'",
+            "yyyy-MM-dd HH:mm:ss"),
+        contains("2014-08-17 16:13:12")
+    );
+  }
+
+  @Test
   public void or() throws SqlParseException {
     assertThat(
         dateQuery(SELECT_FROM +
@@ -209,17 +220,19 @@ public class DateFormatIT extends SQLIntegTestCase {
   }
 
   private Set<Object> dateQuery(String sql) throws SqlParseException {
+    return dateQuery(sql, TestsConstants.SIMPLE_DATE_FORMAT);
+  }
+
+  private Set<Object> dateQuery(String sql, String format) throws SqlParseException {
     try {
       JSONObject response = executeQuery(sql);
-      return getResult(response, "insert_time");
+      return getResult(response, "insert_time", DateTimeFormat.forPattern(format));
     } catch (IOException e) {
       throw new SqlParseException(String.format("Unable to process query '%s'", sql));
     }
   }
 
-  private Set<Object> getResult(JSONObject response, String fieldName) {
-    DateTimeFormatter formatter = DateTimeFormat.forPattern(TestsConstants.SIMPLE_DATE_FORMAT);
-
+  private Set<Object> getResult(JSONObject response, String fieldName, DateTimeFormatter formatter) {
     JSONArray hits = getHits(response);
     Set<Object> result = new TreeSet<>(); // Using TreeSet so order is maintained
     for (int i = 0; i < hits.length(); i++) {
