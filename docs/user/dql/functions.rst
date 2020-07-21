@@ -638,9 +638,9 @@ Description
 
 Usage: RAND()/RAND(N) returns a random floating-point value in the range 0 <= value < 1.0. If integer N is specified, the seed is initialized prior to execution. One implication of this behavior is with identical argument N, rand(N) returns the same value each time, and thus produces a repeatable sequence of column values.
 
-Argument type: x: STRING, a: INTEGER, b: INTEGER
+Argument type: INTEGER
 
-Return type: STRING
+Return type: FLOAT
 
 Example::
 
