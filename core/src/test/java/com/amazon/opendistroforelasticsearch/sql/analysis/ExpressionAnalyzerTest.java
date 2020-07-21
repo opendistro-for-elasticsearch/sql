@@ -74,6 +74,14 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
+  public void qualified_name() {
+    assertAnalyzeEqual(
+        DSL.ref("integer_value", INTEGER),
+        AstDSL.qualifiedName("integer_value")
+    );
+  }
+
+  @Test
   public void undefined_var_semantic_check_failed() {
     SemanticCheckException exception = assertThrows(SemanticCheckException.class,
         () -> analyze(
