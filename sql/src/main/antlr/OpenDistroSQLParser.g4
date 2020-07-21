@@ -25,6 +25,8 @@ THE SOFTWARE.
 
 parser grammar OpenDistroSQLParser;
 
+import OpenDistroSQLIdentifierParser;
+
 options { tokenVocab=OpenDistroSQLLexer; }
 
 
@@ -57,15 +59,24 @@ selectStatement
 //    Select Statement's Details
 
 querySpecification
+    : selectClause
+      fromClause?
+    ;
+
+selectClause
     : SELECT selectElements
     ;
 
 selectElements
-    : selectElement (COMMA selectElement)*
+    : (star=STAR | selectElement) (',' selectElement)*
     ;
 
 selectElement
     : expression                                         #selectExpressionElement
+    ;
+
+fromClause
+    : FROM tableName
     ;
 
 
@@ -89,14 +100,7 @@ decimalLiteral
     ;
 
 stringLiteral
-    : (
-        STRING_LITERAL
-        | START_NATIONAL_STRING_LITERAL
-      ) STRING_LITERAL+
-    | (
-        STRING_LITERAL
-        | START_NATIONAL_STRING_LITERAL
-      )
+    : STRING_LITERAL
     ;
 
 booleanLiteral

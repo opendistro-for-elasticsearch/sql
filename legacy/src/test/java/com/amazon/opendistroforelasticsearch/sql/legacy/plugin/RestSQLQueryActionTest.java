@@ -67,8 +67,8 @@ public class RestSQLQueryActionTest {
   @Test
   public void skipQueryThatNotSupport() {
     SQLQueryRequest request = new SQLQueryRequest(
-        new JSONObject("{\"query\": \"SELECT * FROM test\"}"),
-        "SELECT * FROM test",
+        new JSONObject("{\"query\": \"SELECT * FROM test WHERE age = 10\"}"),
+        "SELECT * FROM test WHERE age = 10",
         QUERY_API_ENDPOINT,
         "");
 
