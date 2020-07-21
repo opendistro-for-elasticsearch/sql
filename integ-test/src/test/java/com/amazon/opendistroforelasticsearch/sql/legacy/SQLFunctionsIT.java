@@ -409,7 +409,7 @@ public class SQLFunctionsIT extends SQLIntegTestCase {
         );
 
     verifySchema(response,
-        schema("cast_int", "cast_int", "double"),
+        schema("cast_int", "cast_int", "double"), //Type is double due to query plan fail to infer
         schema("COUNT(*)", "integer")
     );
     verifyDataRows(response,
