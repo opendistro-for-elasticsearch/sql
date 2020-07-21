@@ -250,7 +250,7 @@ COT
 Description
 -----------
 
-Usage: cot(x) calculate the cotangent of x.
+Usage: cot(x) calculate the cotangent of x. Returns out-of-range error if x equals to 0.
 
 Argument type: INTEGER/LONG/FLOAT/DOUBLE
 
