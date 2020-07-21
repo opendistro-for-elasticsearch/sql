@@ -6,7 +6,7 @@
 * Microsoft Power BI Desktop
 * [Open Distro for Elasticsearch](https://opendistro.github.io/for-elasticsearch-docs/docs/install/)
 * [Open Distro for Elasticsearch SQL ODBC driver](https://opendistro.github.io/for-elasticsearch-docs/docs/sql/odbc/)
-* [PowerBIConnector.mez](../../src/PowerBIConnector/bin/Release/) 
+* [OdfeSqlOdbcPBIConnector.mez](../../src/PowerBIConnector/bin/Release/) 
 
 ## Setup
 * Copy `OdfeSqlOdbcPBIConnector.mez` file in the `<User>\Documents\Power BI Desktop\Custom Connectors\` folder. This will let Power BI access custom connector.
