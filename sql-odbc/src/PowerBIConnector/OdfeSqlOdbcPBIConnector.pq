@@ -1,11 +1,11 @@
-﻿// This file contains Data Connector logic
-section #"Open Distro For Elasticsearch";
+﻿// This file contains your Data Connector logic
+section OdfeSqlOdbcPBIConnector;
 
-[DataSource.Kind="PowerBIConnector", Publish="PowerBIConnector.Publish"]
-shared PowerBIConnector.Contents = Value.ReplaceType(PowerBIConnectorImpl, PowerBIConnectorType); 
+[DataSource.Kind="OdfeSqlOdbcPBIConnector", Publish="OdfeSqlOdbcPBIConnector.Publish"]
+shared OdfeSqlOdbcPBIConnector.Contents = Value.ReplaceType(OdfeSqlOdbcPBIConnectorImpl, OdfeSqlOdbcPBIConnectorType); 
 
 // Wrapper function to provide additional UI customization.
-PowerBIConnectorType = type function (
+OdfeSqlOdbcPBIConnectorType = type function (
         Host as (type text meta [
             Documentation.FieldCaption = "Host",
             Documentation.FieldDescription = "The hostname of the Open Distro For Elasticsearc server.",
@@ -21,7 +21,7 @@ PowerBIConnectorType = type function (
         Documentation.Name = "Open Distro For Elasticsearch"
     ];
 
-PowerBIConnectorImpl = (Host as text, Port as number) as table =>
+OdfeSqlOdbcPBIConnectorImpl = (Host as text, Port as number) as table =>
     let
         ConnectionString = [
             Driver = "ODFE SQL ODBC Driver",
@@ -33,7 +33,7 @@ PowerBIConnectorImpl = (Host as text, Port as number) as table =>
         OdbcDatasource;
 
 // Data Source Kind description
-PowerBIConnector = [
+OdfeSqlOdbcPBIConnector = [
     Authentication = [
         Implicit = []
     ],
@@ -41,16 +41,16 @@ PowerBIConnector = [
 ];
 
 // Data Source UI publishing description
-PowerBIConnector.Publish = [
+OdfeSqlOdbcPBIConnector.Publish = [
     Beta = true,
     Category = "Other",
     ButtonText = { Extension.LoadString("ButtonTitle"), Extension.LoadString("ButtonHelp") },
     LearnMoreUrl = "https://opendistro.github.io/for-elasticsearch/",
-    SourceImage = PowerBIConnector.Icons,
-    SourceTypeImage = PowerBIConnector.Icons
+    SourceImage = OdfeSqlOdbcPBIConnector.Icons,
+    SourceTypeImage = OdfeSqlOdbcPBIConnector.Icons
 ];
 
-PowerBIConnector.Icons = [
-    Icon16 = { Extension.Contents("PowerBIConnector16.png"), Extension.Contents("PowerBIConnector20.png"), Extension.Contents("PowerBIConnector24.png"), Extension.Contents("PowerBIConnector32.png") },
-    Icon32 = { Extension.Contents("PowerBIConnector32.png"), Extension.Contents("PowerBIConnector40.png"), Extension.Contents("PowerBIConnector48.png"), Extension.Contents("PowerBIConnector64.png") }
+OdfeSqlOdbcPBIConnector.Icons = [
+    Icon16 = { Extension.Contents("OdfeSqlOdbcPBIConnector16.png"), Extension.Contents("OdfeSqlOdbcPBIConnector20.png"), Extension.Contents("OdfeSqlOdbcPBIConnector24.png"), Extension.Contents("OdfeSqlOdbcPBIConnector32.png") },
+    Icon32 = { Extension.Contents("OdfeSqlOdbcPBIConnector32.png"), Extension.Contents("OdfeSqlOdbcPBIConnector40.png"), Extension.Contents("OdfeSqlOdbcPBIConnector48.png"), Extension.Contents("OdfeSqlOdbcPBIConnector64.png") }
 ];

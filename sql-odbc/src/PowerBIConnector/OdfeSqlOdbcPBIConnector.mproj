@@ -2,8 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>
-    </ProjectGuid>
+    <ProjectGuid>{75a2dabe-6c5b-498e-8df1-e85d4483a7dc}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>MyRootNamespace</RootNamespace>
     <AssemblyName>MyAssemblyName</AssemblyName>
@@ -19,7 +18,7 @@
     <SuppressCellErrors>False</SuppressCellErrors>
     <MaxRows>1000</MaxRows>
     <ExtensionProject>Yes</ExtensionProject>
-    <Name>PowerBIConnector</Name>
+    <Name>OdfeSqlOdbcPBIConnector</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>false</DebugSymbols>
@@ -37,37 +36,37 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PowerBIConnector.pq">
+    <Compile Include="OdfeSqlOdbcPBIConnector.pq">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="PowerBIConnector16.png">
+    <Compile Include="OdfeSqlOdbcPBIConnector16.png">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="PowerBIConnector20.png">
+    <Compile Include="OdfeSqlOdbcPBIConnector20.png">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="PowerBIConnector24.png">
+    <Compile Include="OdfeSqlOdbcPBIConnector24.png">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="PowerBIConnector32.png">
+    <Compile Include="OdfeSqlOdbcPBIConnector32.png">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="PowerBIConnector40.png">
+    <Compile Include="OdfeSqlOdbcPBIConnector40.png">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="PowerBIConnector48.png">
+    <Compile Include="OdfeSqlOdbcPBIConnector48.png">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="PowerBIConnector64.png">
+    <Compile Include="OdfeSqlOdbcPBIConnector64.png">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="PowerBIConnector80.png">
+    <Compile Include="OdfeSqlOdbcPBIConnector80.png">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="resources.resx">
       <SubType>Code</SubType>
     </Compile>
-    <Content Include="PowerBIConnector.query.pq">
+    <Content Include="OdfeSqlOdbcPBIConnector.query.pq">
       <SubType>Code</SubType>
     </Content>
   </ItemGroup>
