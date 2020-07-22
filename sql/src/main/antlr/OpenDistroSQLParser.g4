@@ -72,7 +72,7 @@ selectElements
     ;
 
 selectElement
-    : expression                                         #selectExpressionElement
+    : expression (AS? alias)?                            #selectExpressionElement
     ;
 
 fromClause

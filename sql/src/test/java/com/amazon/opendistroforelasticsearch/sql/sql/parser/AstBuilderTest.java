@@ -18,10 +18,13 @@ package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.doubleLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.map;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.project;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.qualifiedName;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.relation;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.rename;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.values;
 import static java.util.Collections.emptyList;
@@ -32,6 +35,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.tree.UnresolvedPlan;
 import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.SQLSyntaxParser;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 class AstBuilderTest {
@@ -75,6 +79,35 @@ class AstBuilderTest {
     assertEquals(
         project(relation("test"), qualifiedName("age")),
         buildAST("SELECT age FROM test")
+    );
+  }
+
+  @Test
+  public void can_build_select_fields_with_alias() {
+    assertEquals(
+        rename(
+            relation("test"),
+            map(
+                qualifiedName("age"),
+                qualifiedName("a")
+            )
+        ),
+        buildAST("SELECT age AS a FROM test")
+    );
+  }
+
+  @Disabled
+  @Test
+  public void can_build_select_function_call_with_alias() {
+    assertEquals(
+        rename(
+            relation("test"),
+            map(
+                function("ABS", qualifiedName("age")),
+                qualifiedName("a")
+            )
+        ),
+        buildAST("SELECT ABS(age) AS a FROM test")
     );
   }
 

@@ -38,6 +38,10 @@ columnName
     : qualifiedName
     ;
 
+alias
+    : ident
+    ;
+
 qualifiedName
     : ident (DOT ident)*
     ;
