@@ -897,3 +897,111 @@ RETCODE SQL_API SQLGetTypeInfoW(SQLHSTMT StatementHandle,
     LEAVE_STMT_CS(stmt);
     return ret;
 }
+
+
+/* ODBC 2.x-specific functions */
+// TODO (#590): Add implementations for remaining ODBC 2.x function
+
+SQLRETURN SQL_API SQLColAttributesW(SQLHSTMT hstmt, SQLUSMALLINT iCol,
+                                    SQLUSMALLINT iField, SQLPOINTER pCharAttr,
+                                    SQLSMALLINT cbCharAttrMax,
+                                    SQLSMALLINT *pcbCharAttr,
+#if defined(_WIN64) || defined(_WIN32) || defined(SQLCOLATTRIBUTE_SQLLEN)
+                                    SQLLEN *pNumAttr
+#else
+                                    SQLPOINTER pNumAttr
+#endif
+) {
+    CSTR func = "SQLColAttributeW";
+    RETCODE ret;
+    StatementClass *stmt = (StatementClass *)hstmt;
+    SQLSMALLINT *rgbL, blen = 0, bMax;
+    char *rgbD = NULL, *rgbDt;
+
+    MYLOG(ES_TRACE, "entering\n");
+    if (SC_connection_lost_check(stmt, __FUNCTION__))
+        return SQL_ERROR;
+
+    ENTER_STMT_CS(stmt);
+    SC_clear_error(stmt);
+    switch (iField) {
+        case SQL_DESC_BASE_COLUMN_NAME:
+        case SQL_DESC_BASE_TABLE_NAME:
+        case SQL_DESC_CATALOG_NAME:
+        case SQL_DESC_LABEL:
+        case SQL_DESC_LITERAL_PREFIX:
+        case SQL_DESC_LITERAL_SUFFIX:
+        case SQL_DESC_LOCAL_TYPE_NAME:
+        case SQL_DESC_NAME:
+        case SQL_DESC_SCHEMA_NAME:
+        case SQL_DESC_TABLE_NAME:
+        case SQL_DESC_TYPE_NAME:
+        case SQL_COLUMN_NAME:
+            bMax = cbCharAttrMax * 3 / WCLEN;
+            rgbD = malloc(bMax);
+            rgbL = &blen;
+            for (rgbDt = rgbD;; bMax = blen + 1, rgbDt = realloc(rgbD, bMax)) {
+                if (!rgbDt) {
+                    ret = SQL_ERROR;
+                    break;
+                }
+                rgbD = rgbDt;
+                ret = ESAPI_ColAttributes(hstmt, iCol, iField, rgbD, bMax, rgbL,
+                                          pNumAttr);
+                if (SQL_SUCCESS_WITH_INFO != ret || blen < bMax)
+                    break;
+            }
+            if (SQL_SUCCEEDED(ret)) {
+                blen = (SQLSMALLINT)utf8_to_ucs2(
+                    rgbD, blen, (SQLWCHAR *)pCharAttr, cbCharAttrMax / WCLEN);
+                if (SQL_SUCCESS == ret
+                    && blen * WCLEN >= (unsigned long)cbCharAttrMax) {
+                    ret = SQL_SUCCESS_WITH_INFO;
+                    SC_set_error(stmt, STMT_TRUNCATED,
+                                 "The buffer was too small for the pCharAttr.",
+                                 func);
+                }
+                if (pcbCharAttr)
+                    *pcbCharAttr = blen * WCLEN;
+            }
+            if (rgbD)
+                free(rgbD);
+            break;
+        default:
+            rgbD = pCharAttr;
+            bMax = cbCharAttrMax;
+            rgbL = pcbCharAttr;
+            ret = ESAPI_ColAttributes(hstmt, iCol, iField, rgbD, bMax, rgbL,
+                                      pNumAttr);
+            break;
+    }
+    LEAVE_STMT_CS(stmt);
+
+    return ret;
+}
+
+RETCODE SQL_API SQLGetConnectOptionW(HDBC ConnectionHandle, SQLUSMALLINT Option,
+                                     PTR Value) {
+    ConnectionClass *conn = (ConnectionClass *)ConnectionHandle;
+    RETCODE ret;
+
+    ENTER_CONN_CS(conn);
+    CC_clear_error(conn);
+    MYLOG(ES_TRACE, "entering " FORMAT_UINTEGER "\n", Option);
+    ret = ESAPI_GetConnectOption(ConnectionHandle, Option, Value, NULL, 0);
+    LEAVE_CONN_CS(conn);
+    return ret;
+}
+
+RETCODE SQL_API SQLSetConnectOptionW(HDBC ConnectionHandle, SQLUSMALLINT Option,
+                                     SQLULEN Value) {
+    ConnectionClass *conn = (ConnectionClass *)ConnectionHandle;
+    RETCODE ret;
+
+    MYLOG(ES_TRACE, "entering " FORMAT_INTEGER "\n", Option);
+    ENTER_CONN_CS(conn);
+    CC_clear_error(conn);
+    ret = ESAPI_SetConnectOption(ConnectionHandle, Option, Value);
+    LEAVE_CONN_CS(conn);
+    return ret;
+}

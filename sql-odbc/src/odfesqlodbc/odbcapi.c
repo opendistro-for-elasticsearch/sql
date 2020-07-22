@@ -1291,3 +1291,80 @@ RETCODE SQL_API SQLBindParameter(HSTMT hstmt, SQLUSMALLINT ipar,
                  "SQLBindParameter");
     return SQL_ERROR;
 }
+
+/* ODBC 2.x-specific functions */
+// TODO (#590): Add implementations for remaining ODBC 2.x function
+
+RETCODE SQL_API SQLAllocStmt(SQLHDBC InputHandle, SQLHSTMT *OutputHandle) {
+    RETCODE ret;
+    ConnectionClass *conn;
+    MYLOG(ES_TRACE, "entering\n");
+
+    conn = (ConnectionClass *)InputHandle;
+    ENTER_CONN_CS(conn);
+    ret = ESAPI_AllocStmt(
+        InputHandle, OutputHandle,
+        PODBC_EXTERNAL_STATEMENT | PODBC_INHERIT_CONNECT_OPTIONS);
+    if (*OutputHandle)
+        ((StatementClass *)(*OutputHandle))->external = 1;
+    LEAVE_CONN_CS(conn);
+
+    return ret;
+}
+
+#ifndef UNICODE_SUPPORTXX
+RETCODE SQL_API SQLGetConnectOption(HDBC ConnectionHandle, SQLUSMALLINT Option,
+                                    PTR Value) {
+    RETCODE ret;
+
+    MYLOG(ES_TRACE, "entering " FORMAT_UINTEGER "\n", Option);
+    ENTER_CONN_CS((ConnectionClass *)ConnectionHandle);
+    CC_clear_error((ConnectionClass *)ConnectionHandle);
+    ret = ESAPI_GetConnectOption(ConnectionHandle, Option, Value, NULL, 0);
+    LEAVE_CONN_CS((ConnectionClass *)ConnectionHandle);
+    return ret;
+}
+
+/*	SQLSetConnectOption -> SQLSetConnectAttr */
+RETCODE SQL_API SQLSetConnectOption(HDBC ConnectionHandle, SQLUSMALLINT Option,
+                                    SQLULEN Value) {
+    RETCODE ret;
+    ConnectionClass *conn = (ConnectionClass *)ConnectionHandle;
+
+    MYLOG(ES_TRACE, "entering " FORMAT_INTEGER "\n", Option);
+    ENTER_CONN_CS(conn);
+    CC_clear_error(conn);
+    ret = ESAPI_SetConnectOption(ConnectionHandle, Option, Value);
+    LEAVE_CONN_CS(conn);
+    return ret;
+}
+
+/*	SQLColAttributes -> SQLColAttribute */
+SQLRETURN SQL_API SQLColAttributes(SQLHSTMT StatementHandle,
+                                   SQLUSMALLINT ColumnNumber,
+                                   SQLUSMALLINT FieldIdentifier,
+                                   SQLPOINTER CharacterAttribute,
+                                   SQLSMALLINT BufferLength,
+                                   SQLSMALLINT *StringLength,
+#if defined(_WIN64) || defined(_WIN32) || defined(SQLCOLATTRIBUTE_SQLLEN)
+                                   SQLLEN *NumericAttribute
+#else
+                                   SQLPOINTER NumericAttribute
+#endif
+) {
+    RETCODE ret;
+    StatementClass *stmt = (StatementClass *)StatementHandle;
+
+    MYLOG(ES_TRACE, "entering\n");
+    if (SC_connection_lost_check(stmt, __FUNCTION__))
+        return SQL_ERROR;
+
+    ENTER_STMT_CS(stmt);
+    SC_clear_error(stmt);
+    ret = ESAPI_ColAttributes(StatementHandle, ColumnNumber, FieldIdentifier,
+                              CharacterAttribute, BufferLength, StringLength,
+                              NumericAttribute);
+    LEAVE_STMT_CS(stmt);
+    return ret;
+}
+#endif /* UNICODE_SUPPORTXX */

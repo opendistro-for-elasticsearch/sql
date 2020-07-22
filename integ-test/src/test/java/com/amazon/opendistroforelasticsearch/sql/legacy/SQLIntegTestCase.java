@@ -82,6 +82,7 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
     }
 
     increaseScriptMaxCompilationsRate();
+    enableNewQueryEngine();
     init();
   }
 
@@ -147,6 +148,13 @@ public abstract class SQLIntegTestCase extends ODFERestTestCase {
   private void increaseScriptMaxCompilationsRate() throws IOException {
     updateClusterSettings(
         new ClusterSetting("transient", "script.max_compilations_rate", "10000/1m"));
+  }
+
+  private void enableNewQueryEngine() throws IOException {
+    boolean isEnabled = Boolean.parseBoolean(System.getProperty("enableNewEngine", "false"));
+    if (isEnabled) {
+      com.amazon.opendistroforelasticsearch.sql.util.TestUtils.enableNewQueryEngine(client());
+    }
   }
 
   protected static void wipeAllClusterSettings() throws IOException {
