@@ -30,6 +30,7 @@ import com.amazon.opendistroforelasticsearch.sql.legacy.exception.SqlParseExcept
 import com.amazon.opendistroforelasticsearch.sql.legacy.executor.format.Schema;
 import com.amazon.opendistroforelasticsearch.sql.legacy.utils.SQLFunctions;
 import com.google.common.collect.ImmutableList;
+import java.util.Arrays;
 import org.elasticsearch.common.collect.Tuple;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -39,11 +40,12 @@ import org.junit.rules.ExpectedException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class SQLFunctionsTest {
 
-    private SQLFunctions sqlFunctions;
+    private SQLFunctions sqlFunctions = new SQLFunctions();
 
     @Rule
     public ExpectedException exceptionRule = ExpectedException.none();
@@ -96,4 +98,16 @@ public class SQLFunctionsTest {
         final Schema.Type returnType = sqlFunctions.getScriptFunctionReturnType(field, resolvedType);
         Assert.assertEquals(returnType, Schema.Type.INTEGER);
     }
+
+    @Test
+    public void testCastIntStatementScript() throws SqlParseException {
+        assertEquals(
+            "def result = (doc['age'].value instanceof boolean) "
+                + "? (doc['age'].value ? 1 : 0) "
+                + ": Double.parseDouble(doc['age'].value.toString()).intValue()",
+            sqlFunctions.getCastScriptStatement(
+                "result", "int", Arrays.asList(new KVValue("age")))
+        );
+    }
+
 }
