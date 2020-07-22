@@ -19,6 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprValueFactory;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
 import com.amazon.opendistroforelasticsearch.sql.planner.DefaultImplementor;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
@@ -49,6 +50,7 @@ public class ElasticsearchIndex implements Table {
           .put("boolean", ExprCoreType.BOOLEAN)
           .put("nested", ExprCoreType.ARRAY)
           .put("object", ExprCoreType.STRUCT)
+          .put("date", ExprCoreType.TIMESTAMP)
           .build();
 
   /** Elasticsearch client connection. */
@@ -75,7 +77,8 @@ public class ElasticsearchIndex implements Table {
   /** TODO: Push down operations to index scan operator as much as possible in future. */
   @Override
   public PhysicalPlan implement(LogicalPlan plan) {
-    ElasticsearchIndexScan indexScan = new ElasticsearchIndexScan(client, indexName);
+    ElasticsearchIndexScan indexScan = new ElasticsearchIndexScan(client, indexName,
+        new ElasticsearchExprValueFactory(getFieldTypes()));
 
     /*
      * Visit logical plan with index scan as context so logical operators visited, such as
