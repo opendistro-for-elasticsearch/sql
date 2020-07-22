@@ -12,8 +12,8 @@ Note: In order to use the Open Distro for Elasticsearch SQL ODBC driver with the
 1. Go to the **ODBC Drivers** tab.
 2. Click **Add a Driver**.
 	* **Description of the Driver**: The driver name used for ODBC connections (ex. `ODFE SQL ODBC Driver`)
-	* **Driver File Name**: The path to the driver file (default installed path: `/usr/local/lib/odfesqlodbc/bin/libodfesqlodbc.dylib`)
-	* **Setup File Name**: The path to the driver file (default installed path: `/usr/local/lib/odfesqlodbc/bin/libodfesqlodbc.dylib`)
+	* **Driver File Name**: The path to the driver file (default installed path: `/Library/ODBC/odfesqlodbc/bin/libodfesqlodbc.dylib`)
+	* **Setup File Name**: The path to the driver file (default installed path: `/Library/ODBC/odfesqlodbc/bin/libodfesqlodbc.dylib`)
 	* Set as a **User** driver
     * Below is a screenshot of how the final screen should look.
 3. Click **OK** to save the options.

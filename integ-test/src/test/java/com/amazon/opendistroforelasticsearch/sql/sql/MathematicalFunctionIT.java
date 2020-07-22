@@ -59,6 +59,13 @@ public class MathematicalFunctionIT extends SQLIntegTestCase {
   }
 
   @Test
+  public void testE() throws IOException {
+    JSONObject result = executeQuery("select e()");
+    verifySchema(result, schema("e()", null, "double"));
+    verifyDataRows(result, rows(Math.E));
+  }
+
+  @Test
   public void testMod() throws IOException {
     JSONObject result = executeQuery("select mod(3, 2)");
     verifySchema(result, schema("mod(3, 2)", null, "integer"));

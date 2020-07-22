@@ -72,6 +72,18 @@ public class MathematicalFunctionIT extends PPLIntegTestCase {
   }
 
   @Test
+  public void testE() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s | eval f = e() | fields f", TEST_INDEX_BANK));
+    verifySchema(result, schema("f", null, "double"));
+    verifyDataRows(
+        result, rows(Math.E), rows(Math.E), rows(Math.E), rows(Math.E),
+        rows(Math.E), rows(Math.E), rows(Math.E));
+  }
+
+  @Test
   public void testExp() throws IOException {
     JSONObject result =
         executeQuery(
@@ -276,6 +288,33 @@ public class MathematicalFunctionIT extends PPLIntegTestCase {
     verifySchema(result, schema("f", null, "long"));
     verifyDataRows(result,
         rows(30), rows(30), rows(20), rows(30), rows(30), rows(30), rows(30));
+  }
+
+  @Test
+  public void testPi() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s | eval f = pi() | fields f", TEST_INDEX_BANK));
+    verifySchema(result, schema("f", null, "double"));
+    verifyDataRows(
+        result, rows(Math.PI), rows(Math.PI), rows(Math.PI), rows(Math.PI),
+        rows(Math.PI), rows(Math.PI), rows(Math.PI));
+  }
+
+  @Test
+  public void testRand() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s | eval f = rand() | fields f", TEST_INDEX_BANK));
+    verifySchema(result, schema("f", null, "float"));
+
+    result =
+        executeQuery(
+            String.format(
+                "source=%s | eval f = rand(5) | fields f", TEST_INDEX_BANK));
+    verifySchema(result, schema("f", null, "float"));
   }
 
   @Test

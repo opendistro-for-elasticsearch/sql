@@ -95,6 +95,10 @@ public class DSL {
     return function(BuiltinFunctionName.CRC32, expressions);
   }
 
+  public FunctionExpression euler(Expression... expressions) {
+    return function(BuiltinFunctionName.E, expressions);
+  }
+
   public FunctionExpression exp(Expression... expressions) {
     return function(BuiltinFunctionName.EXP, expressions);
   }
@@ -123,12 +127,20 @@ public class DSL {
     return function(BuiltinFunctionName.MOD, expressions);
   }
 
+  public FunctionExpression pi(Expression... expressions) {
+    return function(BuiltinFunctionName.PI, expressions);
+  }
+
   public FunctionExpression pow(Expression... expressions) {
     return function(BuiltinFunctionName.POW, expressions);
   }
 
   public FunctionExpression power(Expression... expressions) {
     return function(BuiltinFunctionName.POWER, expressions);
+  }
+
+  public FunctionExpression rand(Expression... expressions) {
+    return function(BuiltinFunctionName.RAND, expressions);
   }
 
   public FunctionExpression round(Expression... expressions) {

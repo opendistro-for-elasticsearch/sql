@@ -295,7 +295,7 @@ COLON_SYMB:                         ':';
 // Literal Primitives
 
 START_NATIONAL_STRING_LITERAL:      'N' SQUOTA_STRING;
-STRING_LITERAL:                     DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING;
+STRING_LITERAL:                     SQUOTA_STRING;
 DECIMAL_LITERAL:                    DEC_DIGIT+;
 HEXADECIMAL_LITERAL:                'X' '\'' (HEX_DIGIT HEX_DIGIT)+ '\''
                                     | '0X' HEX_DIGIT+;
@@ -309,33 +309,17 @@ BIT_STRING:                         BIT_STRING_L;
 
 
 
-// Hack for dotID
-// Prevent recognize string:        .123somelatin AS ((.123), FLOAT_LITERAL), ((somelatin), ID)
-//  it must recoginze:              .123somelatin AS ((.), DOT), (123somelatin, ID)
-
-DOT_ID:                             '.' ID_LITERAL;
-
-
-
 // Identifiers
 
 ID:                                 ID_LITERAL;
-// DOUBLE_QUOTE_ID:                 '"' ~'"'+ '"';
-REVERSE_QUOTE_ID:                   '`' ~'`'+ '`';
-STRING_USER_NAME:                   (
-                                        SQUOTA_STRING | DQUOTA_STRING
-                                        | BQUOTA_STRING | ID_LITERAL
-                                    ) '@'
-                                    (
-                                        SQUOTA_STRING | DQUOTA_STRING
-                                        | BQUOTA_STRING | ID_LITERAL
-                                    );
+DOUBLE_QUOTE_ID:                    DQUOTA_STRING;
+BACKTICK_QUOTE_ID:                  BQUOTA_STRING;
 
 
 // Fragments for Literal primitives
 
 fragment EXPONENT_NUM_PART:         'E' [-+]? DEC_DIGIT+;
-fragment ID_LITERAL:                [A-Z_$0-9@]*?[A-Z_$]+?[A-Z_$\-0-9]*;
+fragment ID_LITERAL:                [*A-Z]+?[*A-Z_\-0-9]*;
 fragment DQUOTA_STRING:             '"' ( '\\'. | '""' | ~('"'| '\\') )* '"';
 fragment SQUOTA_STRING:             '\'' ('\\'. | '\'\'' | ~('\'' | '\\'))* '\'';
 fragment BQUOTA_STRING:             '`' ( '\\'. | '``' | ~('`'|'\\'))* '`';
