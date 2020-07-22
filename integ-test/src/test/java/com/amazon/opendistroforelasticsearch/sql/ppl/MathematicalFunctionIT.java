@@ -20,8 +20,8 @@ import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.closeT
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.schema;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
-import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRowsInOrder;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySchema;
+import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySome;
 
 import java.io.IOException;
 import org.json.JSONObject;
@@ -69,6 +69,18 @@ public class MathematicalFunctionIT extends PPLIntegTestCase {
     verifyDataRows(
         result,
         rows(32), rows(36), rows(28), rows(33), rows(36), rows(39), rows(34));
+  }
+
+  @Test
+  public void testE() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s | eval f = e() | fields f", TEST_INDEX_BANK));
+    verifySchema(result, schema("f", null, "double"));
+    verifyDataRows(
+        result, rows(Math.E), rows(Math.E), rows(Math.E), rows(Math.E),
+        rows(Math.E), rows(Math.E), rows(Math.E));
   }
 
   @Test
@@ -276,5 +288,129 @@ public class MathematicalFunctionIT extends PPLIntegTestCase {
     verifySchema(result, schema("f", null, "long"));
     verifyDataRows(result,
         rows(30), rows(30), rows(20), rows(30), rows(30), rows(30), rows(30));
+  }
+
+  @Test
+  public void testPi() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s | eval f = pi() | fields f", TEST_INDEX_BANK));
+    verifySchema(result, schema("f", null, "double"));
+    verifyDataRows(
+        result, rows(Math.PI), rows(Math.PI), rows(Math.PI), rows(Math.PI),
+        rows(Math.PI), rows(Math.PI), rows(Math.PI));
+  }
+
+  @Test
+  public void testRand() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s | eval f = rand() | fields f", TEST_INDEX_BANK));
+    verifySchema(result, schema("f", null, "float"));
+
+    result =
+        executeQuery(
+            String.format(
+                "source=%s | eval f = rand(5) | fields f", TEST_INDEX_BANK));
+    verifySchema(result, schema("f", null, "float"));
+  }
+
+  @Test
+  public void testAcos() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s | eval f = acos(0) | fields f", TEST_INDEX_BANK));
+    verifySchema(result, schema("f", null, "double"));
+    verifySome(result.getJSONArray("datarows"), rows(Math.acos(0)));
+  }
+
+  @Test
+  public void testAsin() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s | eval f = asin(1) | fields f", TEST_INDEX_BANK));
+    verifySchema(result, schema("f", null, "double"));
+    verifySome(result.getJSONArray("datarows"), rows(Math.asin(1)));
+  }
+
+  @Test
+  public void testAtan() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s | eval f = atan(2) | fields f", TEST_INDEX_BANK));
+    verifySchema(result, schema("f", null, "double"));
+    verifySome(result.getJSONArray("datarows"), rows(Math.atan(2)));
+
+    result =
+        executeQuery(
+            String.format(
+                "source=%s | eval f = atan(2, 3) | fields f", TEST_INDEX_BANK));
+    verifySchema(result, schema("f", null, "double"));
+    verifySome(result.getJSONArray("datarows"), rows(Math.atan2(2, 3)));
+  }
+
+  @Test
+  public void testAtan2() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s | eval f = atan2(2, 3) | fields f", TEST_INDEX_BANK));
+    verifySchema(result, schema("f", null, "double"));
+    verifySome(result.getJSONArray("datarows"), rows(Math.atan2(2, 3)));
+  }
+
+  @Test
+  public void testCos() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s | eval f = cos(1.57) | fields f", TEST_INDEX_BANK));
+    verifySchema(result, schema("f", null, "double"));
+    verifySome(result.getJSONArray("datarows"), rows(Math.cos(1.57)));
+  }
+
+  @Test
+  public void testCot() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s | eval f = cot(2) | fields f", TEST_INDEX_BANK));
+    verifySchema(result, schema("f", null, "double"));
+    verifySome(result.getJSONArray("datarows"), closeTo(1 / Math.tan(2)));
+  }
+
+  @Test
+  public void testDegrees() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s | eval f = degrees(1.57) | fields f", TEST_INDEX_BANK));
+    verifySchema(result, schema("f", null, "double"));
+    verifySome(result.getJSONArray("datarows"), rows(Math.toDegrees(1.57)));
+  }
+
+  @Test
+  public void testRadians() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s | eval f = radians(90) | fields f", TEST_INDEX_BANK));
+    verifySchema(result, schema("f", null, "double"));
+    verifySome(result.getJSONArray("datarows"), rows(Math.toRadians(90)));
+  }
+
+  @Test
+  public void testSin() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s | eval f = sin(1.57) | fields f", TEST_INDEX_BANK));
+    verifySchema(result, schema("f", null, "double"));
+    verifySome(result.getJSONArray("datarows"), rows(Math.sin(1.57)));
   }
 }

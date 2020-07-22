@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
 
@@ -255,6 +256,36 @@ public class OperatorUtils {
                     .collect(Collectors.joining(", ")));
           }
         };
+  }
+
+  /**
+   * Construct {@link FunctionBuilder} which call function with no argument.
+   *
+   * @param functionName function name
+   * @param function     {@link Function}
+   * @param returnType   return type
+   * @param <T>          the type of the result to the function
+   * @return {@link FunctionBuilder}
+   */
+  public static <T> FunctionBuilder noArgFunction(FunctionName functionName,
+                                                  Supplier<T> function,
+                                                  ExprCoreType returnType) {
+    return arguments -> new FunctionExpression(functionName, arguments) {
+      @Override
+      public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
+        return ExprValueUtils.fromObjectValue(function.get());
+      }
+
+      @Override
+      public ExprType type() {
+        return returnType;
+      }
+
+      @Override
+      public String toString() {
+        return String.format("%s()", functionName);
+      }
+    };
   }
 
   /**

@@ -194,6 +194,11 @@ public class MatcherUtils {
     assertThat(objects, containsInRelativeOrder(matchers));
   }
 
+  public static TypeSafeMatcher<JSONObject> schema(String expectedName,
+                                                   String expectedType) {
+    return schema(expectedName, null, expectedType);
+  }
+
   public static TypeSafeMatcher<JSONObject> schema(String expectedName, String expectedAlias,
                                                    String expectedType) {
     return new TypeSafeMatcher<JSONObject>() {

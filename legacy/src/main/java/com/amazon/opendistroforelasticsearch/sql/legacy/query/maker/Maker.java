@@ -76,6 +76,11 @@ import static com.amazon.opendistroforelasticsearch.sql.legacy.parser.WhereParse
 
 public abstract class Maker {
 
+    /**
+     * UTC.
+     */
+    private static final ZoneId UTC = ZoneId.of("UTC");
+
     public static final Object NONE = new Object();
 
     public static final Set<String> queryFunctions = Sets.newHashSet(
@@ -409,7 +414,8 @@ public abstract class Maker {
         if (params.size() > 2) {
             zoneId = ZoneId.of(removeSingleQuote(params.get(2).toString())).toString();
         } else {
-            zoneId = ZoneId.systemDefault().toString();
+            // Using UTC, if there is no Zone provided.
+            zoneId = UTC.getId();
         }
 
         RangeQueryBuilder rangeQuery = QueryBuilders.rangeQuery(field).format(format).timeZone(zoneId);

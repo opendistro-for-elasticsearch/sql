@@ -21,7 +21,6 @@ import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
-import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 
@@ -57,6 +56,21 @@ public class DSL {
     return new LiteralExpression(value);
   }
 
+  /**
+   * Wrap a number to {@link LiteralExpression}.
+   */
+  public static LiteralExpression literal(Number value) {
+    if (value instanceof Integer) {
+      return new LiteralExpression(ExprValueUtils.integerValue(value.intValue()));
+    } else if (value instanceof Long) {
+      return new LiteralExpression(ExprValueUtils.longValue(value.longValue()));
+    } else if (value instanceof Float) {
+      return new LiteralExpression(ExprValueUtils.floatValue(value.floatValue()));
+    } else {
+      return new LiteralExpression(ExprValueUtils.doubleValue(value.doubleValue()));
+    }
+  }
+
   public static ReferenceExpression ref(String ref, ExprType type) {
     return new ReferenceExpression(ref, type);
   }
@@ -79,6 +93,10 @@ public class DSL {
 
   public FunctionExpression crc32(Expression... expressions) {
     return function(BuiltinFunctionName.CRC32, expressions);
+  }
+
+  public FunctionExpression euler(Expression... expressions) {
+    return function(BuiltinFunctionName.E, expressions);
   }
 
   public FunctionExpression exp(Expression... expressions) {
@@ -109,12 +127,20 @@ public class DSL {
     return function(BuiltinFunctionName.MOD, expressions);
   }
 
+  public FunctionExpression pi(Expression... expressions) {
+    return function(BuiltinFunctionName.PI, expressions);
+  }
+
   public FunctionExpression pow(Expression... expressions) {
     return function(BuiltinFunctionName.POW, expressions);
   }
 
   public FunctionExpression power(Expression... expressions) {
     return function(BuiltinFunctionName.POWER, expressions);
+  }
+
+  public FunctionExpression rand(Expression... expressions) {
+    return function(BuiltinFunctionName.RAND, expressions);
   }
 
   public FunctionExpression round(Expression... expressions) {
@@ -131,6 +157,46 @@ public class DSL {
 
   public FunctionExpression truncate(Expression... expressions) {
     return function(BuiltinFunctionName.TRUNCATE, expressions);
+  }
+
+  public FunctionExpression acos(Expression... expressions) {
+    return function(BuiltinFunctionName.ACOS, expressions);
+  }
+
+  public FunctionExpression asin(Expression... expressions) {
+    return function(BuiltinFunctionName.ASIN, expressions);
+  }
+
+  public FunctionExpression atan(Expression... expressions) {
+    return function(BuiltinFunctionName.ATAN, expressions);
+  }
+
+  public FunctionExpression atan2(Expression... expressions) {
+    return function(BuiltinFunctionName.ATAN2, expressions);
+  }
+
+  public FunctionExpression cos(Expression... expressions) {
+    return function(BuiltinFunctionName.COS, expressions);
+  }
+
+  public FunctionExpression cot(Expression... expressions) {
+    return function(BuiltinFunctionName.COT, expressions);
+  }
+
+  public FunctionExpression degrees(Expression... expressions) {
+    return function(BuiltinFunctionName.DEGREES, expressions);
+  }
+
+  public FunctionExpression radians(Expression... expressions) {
+    return function(BuiltinFunctionName.RADIANS, expressions);
+  }
+
+  public FunctionExpression sin(Expression... expressions) {
+    return function(BuiltinFunctionName.SIN, expressions);
+  }
+
+  public FunctionExpression tan(Expression... expressions) {
+    return function(BuiltinFunctionName.TAN, expressions);
   }
 
   public FunctionExpression add(Expression... expressions) {
