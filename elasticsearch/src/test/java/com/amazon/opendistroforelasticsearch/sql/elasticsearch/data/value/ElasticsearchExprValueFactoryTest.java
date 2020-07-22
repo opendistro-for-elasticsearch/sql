@@ -116,7 +116,10 @@ class ElasticsearchExprValueFactoryTest {
         tupleValue("{\"dateV\":\"2015-01-01T12:10:30Z\"}").get("dateV"));
     assertEquals(
         new ExprTimestampValue("2015-01-01 12:10:30"),
-        tupleValue("{\"dateV\":\"2015-01-01 12:10:30\"}").get("dateV"));
+        tupleValue("{\"dateV\":\"2015-01-01T12:10:30\"}").get("dateV"));
+    assertEquals(
+            new ExprTimestampValue("2015-01-01 12:10:30"),
+            tupleValue("{\"dateV\":\"2015-01-01 12:10:30\"}").get("dateV"));
     assertEquals(
         new ExprTimestampValue(Instant.ofEpochMilli(1420070400001L)),
         tupleValue("{\"dateV\":1420070400001}").get("dateV"));

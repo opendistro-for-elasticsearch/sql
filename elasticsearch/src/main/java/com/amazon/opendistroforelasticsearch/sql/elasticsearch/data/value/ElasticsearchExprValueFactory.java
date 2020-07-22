@@ -27,6 +27,8 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.L
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchDateFormatters.SQL_LITERAL_DATE_TIME_FORMAT;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchDateFormatters.STRICT_DATE_OPTIONAL_TIME_FORMATTER;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprCollectionValue;
@@ -44,45 +46,27 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.elasticsearch.common.time.DateFormatters;
 
-/**
- * Construct ExprValue from Elasticsearch response.
- */
+/** Construct ExprValue from Elasticsearch response. */
 @RequiredArgsConstructor
 public class ElasticsearchExprValueFactory {
-  /**
-   * The Mapping of Field and ExprType.
-   */
+  /** The Mapping of Field and ExprType. */
   private final Map<String, ExprType> typeMapping;
-  /**
-   * The default timezone is UTC.
-   */
-  private static final ZoneId ZONE = ZoneId.of("UTC");
 
-  private static final DateTimeFormatter DATE_OPTIONAL_TIME =
+  private static final DateTimeFormatter DATE_TIME_FORMATTER =
       new DateTimeFormatterBuilder()
-          .appendPattern("yyyy-MM-dd")
-          .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
-          .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
-          .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
+          .appendOptional(SQL_LITERAL_DATE_TIME_FORMAT)
+          .appendOptional(STRICT_DATE_OPTIONAL_TIME_FORMATTER)
           .toFormatter();
-  private static final DateTimeFormatter STRICT_DATE_OPTIONAL_TIME =
-      DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-  private static final DateTimeFormatter STRICT_DATE_TIME_OFFSET =
-      DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX");
-  private static final DateTimeFormatter DATE_TIME =
-      DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
   private static final String TOP_PATH = "";
 
@@ -98,14 +82,11 @@ public class ElasticsearchExprValueFactory {
     try {
       return constructStruct(OBJECT_MAPPER.readTree(jsonString), TOP_PATH);
     } catch (JsonProcessingException e) {
-      throw new IllegalStateException(
-          String.format("invalid json: %s.", jsonString), e);
+      throw new IllegalStateException(String.format("invalid json: %s.", jsonString), e);
     }
   }
 
-  /**
-   * Construct ExprValue from field and value pair.
-   */
+  /** Construct ExprValue from field and value pair. */
   private ExprValue construct(String field, JsonNode value) {
     if (value.isNull()) {
       return nullValue();
@@ -170,22 +151,18 @@ public class ElasticsearchExprValueFactory {
   }
 
   /**
-   * Todo, Only default DATE_TIME_FORMAT is supported.
+   * Only default strict_date_optional_time||epoch_millis is supported.
+   * https://www.elastic.co/guide/en/elasticsearch/reference/current/date.html
+   * The customized date_format is not supported.
    */
   private ExprValue constructTimestamp(JsonNode value) {
     try {
       if (value.getNodeType().equals(JsonNodeType.NUMBER)) {
         return new ExprTimestampValue(Instant.ofEpochMilli(value.asLong()));
       } else {
-        DateTimeFormatter formatter =
-            new DateTimeFormatterBuilder()
-                .appendOptional(STRICT_DATE_OPTIONAL_TIME)
-                .appendOptional(STRICT_DATE_TIME_OFFSET)
-                .appendOptional(DATE_TIME)
-                .appendOptional(DATE_OPTIONAL_TIME)
-                .toFormatter();
         return new ExprTimestampValue(
-            LocalDateTime.parse(value.asText(), formatter).atZone(ZONE).toInstant());
+            // Using Elasticsearch DateFormatters for now.
+            DateFormatters.from(DATE_TIME_FORMATTER.parse(value.asText())).toInstant());
       }
     } catch (DateTimeParseException e) {
       throw new IllegalStateException(
@@ -200,12 +177,7 @@ public class ElasticsearchExprValueFactory {
     value
         .fieldNames()
         .forEachRemaining(
-            field ->
-                map.put(
-                    field,
-                    construct(
-                        makeField(path, field),
-                        value.get(field))));
+            field -> map.put(field, construct(makeField(path, field), value.get(field))));
     return new ExprTupleValue(map);
   }
 
@@ -216,9 +188,12 @@ public class ElasticsearchExprValueFactory {
    */
   private ExprCollectionValue constructArray(JsonNode value, String path) {
     List<ExprValue> list = new ArrayList<>();
-    value.elements().forEachRemaining(node -> {
-      list.add(constructStruct(node, path));
-    });
+    value
+        .elements()
+        .forEachRemaining(
+            node -> {
+              list.add(constructStruct(node, path));
+            });
     return new ExprCollectionValue(list);
   }
 
