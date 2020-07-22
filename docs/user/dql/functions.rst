@@ -291,9 +291,19 @@ E
 Description
 -----------
 
-Specifications: 
+Usage: E() returns the Euler's number
 
-1. E() -> DOUBLE
+Return type: DOUBLE
+
+Example::
+
+    od> SELECT E()
+    fetched rows / total rows = 1/1
+    +-------------------+
+    | e()               |
+    |-------------------|
+    | 2.718281828459045 |
+    +-------------------+
 
 
 EXP
@@ -548,9 +558,19 @@ PI
 Description
 -----------
 
-Specifications: 
+Usage: PI() returns the constant pi
 
-1. PI() -> DOUBLE
+Return type: DOUBLE
+
+Example::
+
+    od> SELECT PI()
+    fetched rows / total rows = 1/1
+    +-------------------+
+    | pi()              |
+    |-------------------|
+    | 3.141592653589793 |
+    +-------------------+
 
 
 POW
@@ -616,10 +636,21 @@ RAND
 Description
 -----------
 
-Specifications: 
+Usage: RAND()/RAND(N) returns a random floating-point value in the range 0 <= value < 1.0. If integer N is specified, the seed is initialized prior to execution. One implication of this behavior is with identical argument N, rand(N) returns the same value each time, and thus produces a repeatable sequence of column values.
 
-1. RAND() -> NUMBER
-2. RAND(NUMBER T) -> T
+Argument type: INTEGER
+
+Return type: FLOAT
+
+Example::
+
+    od> SELECT RAND(3)
+    fetched rows / total rows = 1/1
+    +------------+
+    | rand(3)    |
+    |------------|
+    | 0.73105735 |
+    +------------+
 
 
 REPLACE

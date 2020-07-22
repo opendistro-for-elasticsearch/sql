@@ -20,7 +20,6 @@ import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.closeT
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.rows;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.schema;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRows;
-import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifyDataRowsInOrder;
 import static com.amazon.opendistroforelasticsearch.sql.util.MatcherUtils.verifySchema;
 
 import java.io.IOException;
@@ -69,6 +68,18 @@ public class MathematicalFunctionIT extends PPLIntegTestCase {
     verifyDataRows(
         result,
         rows(32), rows(36), rows(28), rows(33), rows(36), rows(39), rows(34));
+  }
+
+  @Test
+  public void testE() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s | eval f = e() | fields f", TEST_INDEX_BANK));
+    verifySchema(result, schema("f", null, "double"));
+    verifyDataRows(
+        result, rows(Math.E), rows(Math.E), rows(Math.E), rows(Math.E),
+        rows(Math.E), rows(Math.E), rows(Math.E));
   }
 
   @Test
@@ -276,5 +287,32 @@ public class MathematicalFunctionIT extends PPLIntegTestCase {
     verifySchema(result, schema("f", null, "long"));
     verifyDataRows(result,
         rows(30), rows(30), rows(20), rows(30), rows(30), rows(30), rows(30));
+  }
+
+  @Test
+  public void testPi() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s | eval f = pi() | fields f", TEST_INDEX_BANK));
+    verifySchema(result, schema("f", null, "double"));
+    verifyDataRows(
+        result, rows(Math.PI), rows(Math.PI), rows(Math.PI), rows(Math.PI),
+        rows(Math.PI), rows(Math.PI), rows(Math.PI));
+  }
+
+  @Test
+  public void testRand() throws IOException {
+    JSONObject result =
+        executeQuery(
+            String.format(
+                "source=%s | eval f = rand() | fields f", TEST_INDEX_BANK));
+    verifySchema(result, schema("f", null, "float"));
+
+    result =
+        executeQuery(
+            String.format(
+                "source=%s | eval f = rand(5) | fields f", TEST_INDEX_BANK));
+    verifySchema(result, schema("f", null, "float"));
   }
 }

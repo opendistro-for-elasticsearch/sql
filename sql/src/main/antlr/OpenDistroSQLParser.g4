@@ -170,8 +170,8 @@ scalarFunctionName
     ;
 
 mathematicalFunctionName
-    : ABS | CEIL | CEILING | CONV | CRC32 | EXP | FLOOR | LN | LOG | LOG10 | LOG2 | MOD | POW | POWER
-    | ROUND | SIGN | SQRT | TRUNCATE
+    : ABS | CEIL | CEILING | CONV | CRC32 | E | EXP | FLOOR | LN | LOG | LOG10 | LOG2 | MOD | PI | POW | POWER
+    | RAND | ROUND | SIGN | SQRT | TRUNCATE
     ;
 
 dateTimeFunctionName
@@ -179,7 +179,7 @@ dateTimeFunctionName
     ;
 
 functionArgs
-    : functionArg (COMMA functionArg)*
+    : (functionArg (COMMA functionArg)*)?
     ;
 
 functionArg

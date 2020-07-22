@@ -16,6 +16,7 @@
 package com.amazon.opendistroforelasticsearch.sql.expression.operator.arthmetic;
 
 import static com.amazon.opendistroforelasticsearch.sql.expression.operator.OperatorUtils.doubleArgFunc;
+import static com.amazon.opendistroforelasticsearch.sql.expression.operator.OperatorUtils.noArgFunction;
 import static com.amazon.opendistroforelasticsearch.sql.expression.operator.OperatorUtils.tripleArgFunc;
 import static com.amazon.opendistroforelasticsearch.sql.expression.operator.OperatorUtils.unaryOperator;
 
@@ -31,7 +32,9 @@ import com.google.common.collect.ImmutableMap;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Random;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.zip.CRC32;
@@ -50,6 +53,7 @@ public class MathematicalFunction {
     repository.register(ceiling());
     repository.register(conv());
     repository.register(crc32());
+    repository.register(euler());
     repository.register(exp());
     repository.register(floor());
     repository.register(ln());
@@ -63,6 +67,8 @@ public class MathematicalFunction {
     repository.register(sign());
     repository.register(sqrt());
     repository.register(truncate());
+    repository.register(pi());
+    repository.register(rand());
   }
 
   /**
@@ -161,6 +167,20 @@ public class MathematicalFunction {
                       return crc.getValue();
                     },
                     ExprValueUtils::getStringValue, ExprCoreType.LONG))
+            .build());
+  }
+
+  /**
+   * Definition of e() function.
+   * Get the Euler's number.
+   * () -> DOUBLE
+   */
+  private static FunctionResolver euler() {
+    FunctionName functionName = BuiltinFunctionName.E.getName();
+    return new FunctionResolver(functionName,
+        new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
+            .put(new FunctionSignature(functionName, Collections.emptyList()),
+                noArgFunction(functionName, () -> Math.E, ExprCoreType.DOUBLE))
             .build());
   }
 
@@ -267,6 +287,20 @@ public class MathematicalFunction {
   }
 
   /**
+   * Definition of pi() function.
+   * Get the value of pi.
+   * () -> DOUBLE
+   */
+  private static FunctionResolver pi() {
+    FunctionName functionName = BuiltinFunctionName.PI.getName();
+    return new FunctionResolver(functionName,
+        new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
+            .put(new FunctionSignature(functionName, Collections.emptyList()),
+                noArgFunction(functionName, () -> Math.PI, ExprCoreType.DOUBLE))
+            .build());
+  }
+
+  /**
    * Definition of pow(x, y)/power(x, y) function.
    * Calculate the value of x raised to the power of y
    * The supported signature of pow/power function is
@@ -283,6 +317,30 @@ public class MathematicalFunction {
   private static FunctionResolver power() {
     FunctionName functionName = BuiltinFunctionName.POWER.getName();
     return new FunctionResolver(functionName, doubleArgumentsFunction(functionName, Math::pow));
+  }
+
+  /**
+   * Definition of rand() and rand(N) function.
+   * rand() returns a random floating-point value in the range 0 <= value < 1.0
+   * If integer N is specified, the seed is initialized prior to execution.
+   * One implication of this behavior is with identical argument N,rand(N) returns the same value
+   * each time, and thus produces a repeatable sequence of column values.
+   * The supported signature of rand function is
+   * ([INTEGER]) -> FLOAT
+   */
+  private static FunctionResolver rand() {
+    FunctionName functionName = BuiltinFunctionName.RAND.getName();
+    return new FunctionResolver(functionName,
+        new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
+            .put(
+                new FunctionSignature(functionName, Collections.emptyList()),
+                noArgFunction(functionName, () -> new Random().nextFloat(), ExprCoreType.FLOAT))
+            .put(
+                new FunctionSignature(functionName, Arrays.asList(ExprCoreType.INTEGER)),
+                unaryOperator(
+                    functionName, n -> new Random(n).nextFloat(), ExprValueUtils::getIntegerValue,
+                    ExprCoreType.FLOAT))
+            .build());
   }
 
   /**
