@@ -56,6 +56,21 @@ public class DSL {
     return new LiteralExpression(value);
   }
 
+  /**
+   * Wrap a number to {@link LiteralExpression}.
+   */
+  public static LiteralExpression literal(Number value) {
+    if (value instanceof Integer) {
+      return new LiteralExpression(ExprValueUtils.integerValue(value.intValue()));
+    } else if (value instanceof Long) {
+      return new LiteralExpression(ExprValueUtils.longValue(value.longValue()));
+    } else if (value instanceof Float) {
+      return new LiteralExpression(ExprValueUtils.floatValue(value.floatValue()));
+    } else {
+      return new LiteralExpression(ExprValueUtils.doubleValue(value.doubleValue()));
+    }
+  }
+
   public static ReferenceExpression ref(String ref, ExprType type) {
     return new ReferenceExpression(ref, type);
   }
@@ -142,6 +157,46 @@ public class DSL {
 
   public FunctionExpression truncate(Expression... expressions) {
     return function(BuiltinFunctionName.TRUNCATE, expressions);
+  }
+
+  public FunctionExpression acos(Expression... expressions) {
+    return function(BuiltinFunctionName.ACOS, expressions);
+  }
+
+  public FunctionExpression asin(Expression... expressions) {
+    return function(BuiltinFunctionName.ASIN, expressions);
+  }
+
+  public FunctionExpression atan(Expression... expressions) {
+    return function(BuiltinFunctionName.ATAN, expressions);
+  }
+
+  public FunctionExpression atan2(Expression... expressions) {
+    return function(BuiltinFunctionName.ATAN2, expressions);
+  }
+
+  public FunctionExpression cos(Expression... expressions) {
+    return function(BuiltinFunctionName.COS, expressions);
+  }
+
+  public FunctionExpression cot(Expression... expressions) {
+    return function(BuiltinFunctionName.COT, expressions);
+  }
+
+  public FunctionExpression degrees(Expression... expressions) {
+    return function(BuiltinFunctionName.DEGREES, expressions);
+  }
+
+  public FunctionExpression radians(Expression... expressions) {
+    return function(BuiltinFunctionName.RADIANS, expressions);
+  }
+
+  public FunctionExpression sin(Expression... expressions) {
+    return function(BuiltinFunctionName.SIN, expressions);
+  }
+
+  public FunctionExpression tan(Expression... expressions) {
+    return function(BuiltinFunctionName.TAN, expressions);
   }
 
   public FunctionExpression add(Expression... expressions) {

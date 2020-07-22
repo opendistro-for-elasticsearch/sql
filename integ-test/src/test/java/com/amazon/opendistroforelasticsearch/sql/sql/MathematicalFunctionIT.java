@@ -136,6 +136,13 @@ public class MathematicalFunctionIT extends SQLIntegTestCase {
     verifyDataRows(result, rows(-50));
   }
 
+  @Test
+  public void testAtan() throws IOException {
+    JSONObject result = executeQuery("select atan(2, 3)");
+    verifySchema(result, schema("atan(2, 3)", null, "double"));
+    verifyDataRows(result, rows(Math.atan2(2, 3)));
+  }
+
   protected JSONObject executeQuery(String query) throws IOException {
     Request request = new Request("POST", QUERY_API_ENDPOINT);
     request.setJsonEntity(String.format(Locale.ROOT, "{\n" + "  \"query\": \"%s\"\n" + "}", query));

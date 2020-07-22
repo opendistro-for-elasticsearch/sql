@@ -37,6 +37,17 @@ public enum BuiltinFunctionName {
   SQRT(FunctionName.of("sqrt")),
   TRUNCATE(FunctionName.of("truncate")),
 
+  ACOS(FunctionName.of("acos")),
+  ASIN(FunctionName.of("asin")),
+  ATAN(FunctionName.of("atan")),
+  ATAN2(FunctionName.of("atan2")),
+  COS(FunctionName.of("cos")),
+  COT(FunctionName.of("cot")),
+  DEGREES(FunctionName.of("degrees")),
+  RADIANS(FunctionName.of("radians")),
+  SIN(FunctionName.of("sin")),
+  TAN(FunctionName.of("tan")),
+
   /**
    * Text Functions.
    */

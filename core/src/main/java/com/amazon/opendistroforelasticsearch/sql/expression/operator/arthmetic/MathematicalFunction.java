@@ -69,6 +69,16 @@ public class MathematicalFunction {
     repository.register(truncate());
     repository.register(pi());
     repository.register(rand());
+    repository.register(acos());
+    repository.register(asin());
+    repository.register(atan());
+    repository.register(atan2());
+    repository.register(cos());
+    repository.register(cot());
+    repository.register(degrees());
+    repository.register(radians());
+    repository.register(sin());
+    repository.register(tan());
   }
 
   /**
@@ -485,6 +495,154 @@ public class MathematicalFunction {
                     ExprValueUtils::getDoubleValue, ExprValueUtils::getIntegerValue,
                     ExprCoreType.DOUBLE))
             .build());
+  }
+
+  /**
+   * Definition of acos(x) function.
+   * Calculates the arc cosine of x, that is, the value whose cosine is x.
+   * Returns NULL if x is not in the range -1 to 1.
+   * The supported signature of acos function is
+   * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
+   */
+  private static FunctionResolver acos() {
+    FunctionName functionName = BuiltinFunctionName.ACOS.getName();
+    return new FunctionResolver(
+        functionName,
+        singleArgumentFunction(functionName, v -> v < -1 || v > 1 ? null : Math.acos(v)));
+  }
+
+  /**
+   * Definition of asin(x) function.
+   * Calculates the arc sine of x, that is, the value whose sine is x.
+   * Returns NULL if x is not in the range -1 to 1.
+   * The supported signature of asin function is
+   * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
+   */
+  private static FunctionResolver asin() {
+    FunctionName functionName = BuiltinFunctionName.ASIN.getName();
+    return new FunctionResolver(
+        functionName,
+        singleArgumentFunction(functionName, v -> v < -1 || v > 1 ? null : Math.asin(v)));
+  }
+
+  /**
+   * Definition of atan(x) and atan(y, x) function.
+   * atan(x) calculates the arc tangent of x, that is, the value whose tangent is x.
+   * atan(y, x) calculates the arc tangent of y / x, except that the signs of both arguments
+   * are used to determine the quadrant of the result.
+   * The supported signature of atan function is
+   * (x: INTEGER/LONG/FLOAT/DOUBLE, y: INTEGER/LONG/FLOAT/DOUBLE) -> DOUBLE
+   */
+  private static FunctionResolver atan() {
+    FunctionName functionName = BuiltinFunctionName.ATAN.getName();
+    return new FunctionResolver(functionName,
+        new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
+            .put(
+                new FunctionSignature(functionName, Arrays.asList(ExprCoreType.DOUBLE)),
+                unaryOperator(
+                    functionName, Math::atan, ExprValueUtils::getDoubleValue, ExprCoreType.DOUBLE))
+            .put(
+                new FunctionSignature(
+                    functionName, Arrays.asList(ExprCoreType.DOUBLE, ExprCoreType.DOUBLE)),
+                doubleArgFunc(functionName,
+                    Math::atan2, ExprValueUtils::getDoubleValue, ExprValueUtils::getDoubleValue,
+                    ExprCoreType.DOUBLE))
+            .build());
+  }
+
+  /**
+   * Definition of atan2(y, x) function.
+   * Calculates the arc tangent of y / x, except that the signs of both arguments
+   * are used to determine the quadrant of the result.
+   * The supported signature of atan2 function is
+   * (x: INTEGER/LONG/FLOAT/DOUBLE, y: INTEGER/LONG/FLOAT/DOUBLE) -> DOUBLE
+   */
+  private static FunctionResolver atan2() {
+    FunctionName functionName = BuiltinFunctionName.ATAN2.getName();
+    return new FunctionResolver(functionName,
+        new ImmutableMap.Builder<FunctionSignature, FunctionBuilder>()
+            .put(
+                new FunctionSignature(
+                    functionName, Arrays.asList(ExprCoreType.DOUBLE, ExprCoreType.DOUBLE)),
+                doubleArgFunc(functionName,
+                    Math::atan2, ExprValueUtils::getDoubleValue, ExprValueUtils::getDoubleValue,
+                    ExprCoreType.DOUBLE))
+            .build());
+  }
+
+  /**
+   * Definition of cos(x) function.
+   * Calculates the cosine of X, where X is given in radians
+   * The supported signature of cos function is
+   * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
+   */
+  private static FunctionResolver cos() {
+    FunctionName functionName = BuiltinFunctionName.COS.getName();
+    return new FunctionResolver(functionName, singleArgumentFunction(functionName, Math::cos));
+  }
+
+  /**
+   * Definition of cot(x) function.
+   * Calculates the cotangent of x
+   * The supported signature of cot function is
+   * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
+   */
+  private static FunctionResolver cot() {
+    FunctionName functionName = BuiltinFunctionName.COT.getName();
+    return new FunctionResolver(
+        functionName,
+        singleArgumentFunction(functionName, v -> {
+          if (v == 0) {
+            throw new ArithmeticException(String.format("Out of range value for cot(%s)", v));
+          }
+          return 1 / Math.tan(v);
+        }));
+  }
+
+  /**
+   * Definition of degrees(x) function.
+   * Converts x from radians to degrees
+   * The supported signature of degrees function is
+   * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
+   */
+  private static FunctionResolver degrees() {
+    FunctionName functionName = BuiltinFunctionName.DEGREES.getName();
+    return new FunctionResolver(
+        functionName, singleArgumentFunction(functionName, Math::toDegrees));
+  }
+
+  /**
+   * Definition of radians(x) function.
+   * Converts x from degrees to radians
+   * The supported signature of radians function is
+   * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
+   */
+  private static FunctionResolver radians() {
+    FunctionName functionName = BuiltinFunctionName.RADIANS.getName();
+    return new FunctionResolver(
+        functionName, singleArgumentFunction(functionName, Math::toRadians));
+  }
+
+  /**
+   * Definition of sin(x) function.
+   * Calculates the sine of x, where x is given in radians
+   * The supported signature of sin function is
+   * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
+   */
+  private static FunctionResolver sin() {
+    FunctionName functionName = BuiltinFunctionName.SIN.getName();
+    return new FunctionResolver(functionName, singleArgumentFunction(functionName, Math::sin));
+  }
+
+  /**
+   * Definition of tan(x) function.
+   * Calculates the tangent of x, where x is given in radians
+   * The supported signature of tan function is
+   * INTEGER/LONG/FLOAT/DOUBLE -> DOUBLE
+   */
+  private static FunctionResolver tan() {
+    FunctionName functionName = BuiltinFunctionName.TAN.getName();
+    return new FunctionResolver(functionName, singleArgumentFunction(functionName, Math::tan));
   }
 
   /**

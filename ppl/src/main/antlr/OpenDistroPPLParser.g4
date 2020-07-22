@@ -205,6 +205,11 @@ functionArg
 mathematicalFunctionBase
     : ABS | CEIL | CEILING | CONV | CRC32 | E | EXP | FLOOR | LN | LOG | LOG10 | LOG2 | MOD | PI |POW | POWER
     | RAND | ROUND | SIGN | SQRT | TRUNCATE
+    | trigonometricFunctionName
+    ;
+
+trigonometricFunctionName
+    : ACOS | ASIN | ATAN | ATAN2 | COS | COT | DEGREES | RADIANS | SIN | TAN
     ;
 
 dateAndTimeFunctionBase

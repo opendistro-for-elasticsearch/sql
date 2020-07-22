@@ -33,9 +33,21 @@ ACOS
 Description
 -----------
 
-Specifications: 
+Usage: acos(x) calculate the arc cosine of x. Returns NULL if x is not in the range -1 to 1.
 
-1. ACOS(NUMBER T) -> DOUBLE
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    od> SELECT ACOS(0)
+    fetched rows / total rows = 1/1
+    +--------------------+
+    | acos(0)            |
+    |--------------------|
+    | 1.5707963267948966 |
+    +--------------------+
 
 
 ADD
@@ -66,9 +78,21 @@ ASIN
 Description
 -----------
 
-Specifications: 
+Usage: asin(x) calculate the arc sine of x. Returns NULL if x is not in the range -1 to 1.
 
-1. ASIN(NUMBER T) -> DOUBLE
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    od> SELECT ASIN(0)
+    fetched rows / total rows = 1/1
+    +-----------+
+    | asin(0)   |
+    |-----------|
+    | 0         |
+    +-----------+
 
 
 ATAN
@@ -77,9 +101,21 @@ ATAN
 Description
 -----------
 
-Specifications: 
+Usage: atan(x) calculates the arc tangent of x. atan(y, x) calculates the arc tangent of y / x, except that the signs of both arguments are used to determine the quadrant of the result.
 
-1. ATAN(NUMBER T) -> DOUBLE
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    od> SELECT ATAN(2), ATAN(2, 3)
+    fetched rows / total rows = 1/1
+    +--------------------+--------------------+
+    | atan(2)            | atan(2, 3)         |
+    |--------------------+--------------------|
+    | 1.1071487177940904 | 0.5880026035475675 |
+    +--------------------+--------------------+
 
 
 ATAN2
@@ -88,9 +124,21 @@ ATAN2
 Description
 -----------
 
-Specifications: 
+Usage: atan2(y, x) calculates the arc tangent of y / x, except that the signs of both arguments are used to determine the quadrant of the result.
 
-1. ATAN2(NUMBER T, NUMBER) -> DOUBLE
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    od> SELECT ATAN2(2, 3)
+    fetched rows / total rows = 1/1
+    +--------------------+
+    | atan2(2, 3)        |
+    |--------------------|
+    | 0.5880026035475675 |
+    +--------------------+
 
 
 CAST
@@ -168,9 +216,21 @@ COS
 Description
 -----------
 
-Specifications: 
+Usage: cos(x) calculate the cosine of x, where x is given in radians.
 
-1. COS(NUMBER T) -> DOUBLE
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    od> SELECT COS(0)
+    fetched rows / total rows = 1/1
+    +----------+
+    | cos(0)   |
+    |----------|
+    | 1        |
+    +----------+
 
 
 COSH
@@ -190,9 +250,21 @@ COT
 Description
 -----------
 
-Specifications: 
+Usage: cot(x) calculate the cotangent of x. Returns out-of-range error if x equals to 0.
 
-1. COT(NUMBER T) -> DOUBLE
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    od> SELECT COT(1)
+    fetched rows / total rows = 1/1
+    +--------------------+
+    | cot(1)             |
+    |--------------------|
+    | 0.6420926159343306 |
+    +--------------------+
 
 
 CRC32
@@ -269,9 +341,21 @@ DEGREES
 Description
 -----------
 
-Specifications: 
+Usage: degrees(x) converts x from radians to degrees.
 
-1. DEGREES(NUMBER T) -> DOUBLE
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    od> SELECT DEGREES(1.57)
+    fetched rows / total rows  = 1/1
+    +-------------------+
+    | degrees(1.57)     |
+    |-------------------|
+    | 89.95437383553924 |
+    +-------------------+
 
 
 DIVIDE
@@ -625,9 +709,21 @@ RADIANS
 Description
 -----------
 
-Specifications: 
+Usage: radians(x) converts x from degrees to radians.
 
-1. RADIANS(NUMBER T) -> DOUBLE
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    od> SELECT RADIANS(90)
+    fetched rows / total rows  = 1/1
+    +--------------------+
+    | radians(90)        |
+    |--------------------|
+    | 1.5707963267948966 |
+    +--------------------+
 
 
 RAND
@@ -763,9 +859,21 @@ SIN
 Description
 -----------
 
-Specifications: 
+Usage: sin(x) calculate the sine of x, where x is given in radians.
 
-1. SIN(NUMBER T) -> DOUBLE
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    od> SELECT SIN(0)
+    fetched rows / total rows = 1/1
+    +----------+
+    | sin(0)   |
+    |----------|
+    | 0        |
+    +----------+
 
 
 SINH
@@ -833,9 +941,21 @@ TAN
 Description
 -----------
 
-Specifications: 
+Usage: tan(x) calculate the tangent of x, where x is given in radians.
 
-1. TAN(NUMBER T) -> DOUBLE
+Argument type: INTEGER/LONG/FLOAT/DOUBLE
+
+Return type: DOUBLE
+
+Example::
+
+    od> SELECT TAN(0)
+    fetched rows / total rows = 1/1
+    +----------+
+    | tan(0)   |
+    |----------|
+    | 0        |
+    +----------+
 
 
 TIMESTAMP

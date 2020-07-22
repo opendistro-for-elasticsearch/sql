@@ -34,6 +34,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.closeTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
@@ -72,6 +73,20 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
   private static Stream<Arguments> testLogDoubleArguments() {
     Stream.Builder<Arguments> builder = Stream.builder();
     return builder.add(Arguments.of(2D, 2D)).build();
+  }
+
+  private static Stream<Arguments> trigonometricArguments() {
+    Stream.Builder<Arguments> builder = Stream.builder();
+    return builder
+        .add(Arguments.of(1)).add(Arguments.of(1L)).add(Arguments.of(1F)).add(Arguments.of(1D))
+        .build();
+  }
+
+  private static Stream<Arguments> trigonometricDoubleArguments() {
+    Stream.Builder<Arguments> builder = Stream.builder();
+    return builder
+        .add(Arguments.of(1, 2)).add(Arguments.of(1L, 2L)).add(Arguments.of(1F, 2F))
+        .add(Arguments.of(1D, 2D)).build();
   }
 
   /**
@@ -1766,5 +1781,463 @@ public class MathematicalFunctionTest extends ExpressionTestBase {
     FunctionExpression rand = dsl.rand(DSL.ref(INT_TYPE_NULL_VALUE_FIELD, INTEGER));
     assertEquals(FLOAT, rand.type());
     assertTrue(rand.valueOf(valueEnv()).isNull());
+  }
+
+  /**
+   * Test acos with integer, long, float, double values.
+   */
+  @ParameterizedTest(name = "acos({0})")
+  @MethodSource("trigonometricArguments")
+  public void test_acos(Number value) {
+    FunctionExpression acos = dsl.acos(DSL.literal(value));
+    assertThat(
+        acos.valueOf(valueEnv()),
+        allOf(hasType(DOUBLE), hasValue(Math.acos(value.doubleValue()))));
+    assertEquals(String.format("acos(%s)", value), acos.toString());
+  }
+
+  /**
+   * Test acos with illegal values.
+   */
+  @ParameterizedTest(name = "acos({0})")
+  @ValueSource(doubles = {2D, -2D})
+  public void acos_with_illegal_value(Number value) {
+    FunctionExpression acos = dsl.acos(DSL.literal(value));
+    assertEquals(DOUBLE, acos.type());
+    assertTrue(acos.valueOf(valueEnv()).isNull());
+  }
+
+  /**
+   * Test acos with null value.
+   */
+  @Test
+  public void acos_null_value() {
+    FunctionExpression acos = dsl.acos(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, acos.type());
+    assertTrue(acos.valueOf(valueEnv()).isNull());
+  }
+
+  /**
+   * Test acos with missing value.
+   */
+  @Test
+  public void acos_missing_value() {
+    FunctionExpression acos = dsl.acos(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, acos.type());
+    assertTrue(acos.valueOf(valueEnv()).isMissing());
+  }
+
+  /**
+   * Test asin with integer, long, float, double values.
+   */
+  @ParameterizedTest(name = "asin({0})")
+  @MethodSource("trigonometricArguments")
+  public void test_asin(Number value) {
+    FunctionExpression asin = dsl.asin(DSL.literal(value));
+    assertThat(
+        asin.valueOf(valueEnv()),
+        allOf(hasType(DOUBLE), hasValue(Math.asin(value.doubleValue()))));
+    assertEquals(String.format("asin(%s)", value), asin.toString());
+  }
+
+  /**
+   * Test asin with illegal value.
+   */
+  @ParameterizedTest(name = "asin({0})")
+  @ValueSource(doubles = {2D, -2D})
+  public void asin_with_illegal_value(Number value) {
+    FunctionExpression asin = dsl.asin(DSL.literal(value));
+    assertEquals(DOUBLE, asin.type());
+    assertTrue(asin.valueOf(valueEnv()).isNull());
+  }
+
+  /**
+   * Test asin with null value.
+   */
+  @Test
+  public void asin_null_value() {
+    FunctionExpression asin = dsl.asin(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, asin.type());
+    assertTrue(asin.valueOf(valueEnv()).isNull());
+  }
+
+  /**
+   * Test asin with missing value.
+   */
+  @Test
+  public void asin_missing_value() {
+    FunctionExpression asin = dsl.asin(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, asin.type());
+    assertTrue(asin.valueOf(valueEnv()).isMissing());
+  }
+
+  /**
+   * Test atan with one argument integer, long, float, double values.
+   */
+  @ParameterizedTest(name = "atan({0})")
+  @MethodSource("trigonometricArguments")
+  public void atan_one_arg(Number value) {
+    FunctionExpression atan = dsl.atan(DSL.literal(value));
+    assertThat(
+        atan.valueOf(valueEnv()),
+        allOf(hasType(DOUBLE), hasValue(Math.atan(value.doubleValue()))));
+    assertEquals(String.format("atan(%s)", value), atan.toString());
+  }
+
+  /**
+   * Test atan with two arguments of integer, long, float, double values.
+   */
+  @ParameterizedTest(name = "atan({0}, {1})")
+  @MethodSource("trigonometricDoubleArguments")
+  public void atan_two_args(Number v1, Number v2) {
+    FunctionExpression atan =
+        dsl.atan(DSL.literal(v1), DSL.literal(v2));
+    assertThat(
+        atan.valueOf(valueEnv()),
+        allOf(hasType(DOUBLE), hasValue(Math.atan2(v1.doubleValue(), v2.doubleValue()))));
+    assertEquals(String.format("atan(%s, %s)", v1, v2), atan.toString());
+  }
+
+  /**
+   * Test atan with null value.
+   */
+  @Test
+  public void atan_null_value() {
+    FunctionExpression atan = dsl.atan(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, atan.type());
+    assertTrue(atan.valueOf(valueEnv()).isNull());
+
+    atan = dsl.atan(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE), DSL.literal(1));
+    assertEquals(DOUBLE, atan.type());
+    assertTrue(atan.valueOf(valueEnv()).isNull());
+
+    atan = dsl.atan(DSL.literal(1), DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, atan.type());
+    assertTrue(atan.valueOf(valueEnv()).isNull());
+
+    atan = dsl.atan(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE),
+        DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, atan.type());
+    assertTrue(atan.valueOf(valueEnv()).isNull());
+  }
+
+  /**
+   * Test atan with missing value.
+   */
+  @Test
+  public void atan_missing_value() {
+    FunctionExpression atan = dsl.atan(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, atan.type());
+    assertTrue(atan.valueOf(valueEnv()).isMissing());
+
+    atan = dsl.atan(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE), DSL.literal(1));
+    assertEquals(DOUBLE, atan.type());
+    assertTrue(atan.valueOf(valueEnv()).isMissing());
+
+    atan = dsl.atan(DSL.literal(1), DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, atan.type());
+    assertTrue(atan.valueOf(valueEnv()).isMissing());
+
+    atan = dsl.atan(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE),
+        DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, atan.type());
+    assertTrue(atan.valueOf(valueEnv()).isMissing());
+  }
+
+  /**
+   * Test atan with missing value.
+   */
+  @Test
+  public void atan_null_missing() {
+    FunctionExpression atan = dsl.atan(
+        DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE),
+        DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, atan.type());
+    assertTrue(atan.valueOf(valueEnv()).isMissing());
+
+    atan = dsl.atan(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE),
+        DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, atan.type());
+    assertTrue(atan.valueOf(valueEnv()).isMissing());
+  }
+
+  /**
+   * Test atan2 with integer, long, float, double values.
+   */
+  @ParameterizedTest(name = "atan2({0}, {1})")
+  @MethodSource("trigonometricDoubleArguments")
+  public void test_atan2(Number v1, Number v2) {
+    FunctionExpression atan2 = dsl.atan2(DSL.literal(v1), DSL.literal(v2));
+    assertThat(
+        atan2.valueOf(valueEnv()),
+        allOf(hasType(DOUBLE), hasValue(Math.atan2(v1.doubleValue(), v2.doubleValue()))));
+    assertEquals(String.format("atan2(%s, %s)", v1, v2), atan2.toString());
+  }
+
+  /**
+   * Test atan2 with null value.
+   */
+  @Test
+  public void atan2_null_value() {
+    FunctionExpression atan2 = dsl.atan2(
+        DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE), DSL.literal(1));
+    assertEquals(DOUBLE, atan2.type());
+    assertTrue(atan2.valueOf(valueEnv()).isNull());
+
+    atan2 = dsl.atan2(DSL.literal(1), DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, atan2.type());
+    assertTrue(atan2.valueOf(valueEnv()).isNull());
+
+    atan2 = dsl.atan2(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE),
+        DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, atan2.type());
+    assertTrue(atan2.valueOf(valueEnv()).isNull());
+  }
+
+  /**
+   * Test atan2 with missing value.
+   */
+  @Test
+  public void atan2_missing_value() {
+    FunctionExpression atan2 = dsl.atan2(
+        DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE), DSL.literal(1));
+    assertEquals(DOUBLE, atan2.type());
+    assertTrue(atan2.valueOf(valueEnv()).isMissing());
+
+    atan2 = dsl.atan2(DSL.literal(1), DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, atan2.type());
+    assertTrue(atan2.valueOf(valueEnv()).isMissing());
+
+    atan2 = dsl.atan2(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE),
+        DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, atan2.type());
+    assertTrue(atan2.valueOf(valueEnv()).isMissing());
+  }
+
+  /**
+   * Test atan2 with missing value.
+   */
+  @Test
+  public void atan2_null_missing() {
+    FunctionExpression atan2 = dsl.atan2(
+        DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE),
+        DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, atan2.type());
+    assertTrue(atan2.valueOf(valueEnv()).isMissing());
+
+    atan2 = dsl.atan2(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE),
+        DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, atan2.type());
+    assertTrue(atan2.valueOf(valueEnv()).isMissing());
+  }
+
+  /**
+   * Test cos with integer, long, float, double values.
+   */
+  @ParameterizedTest(name = "cos({0})")
+  @MethodSource("trigonometricArguments")
+  public void test_cos(Number value) {
+    FunctionExpression cos = dsl.cos(DSL.literal(value));
+    assertThat(
+        cos.valueOf(valueEnv()),
+        allOf(hasType(DOUBLE), hasValue(Math.cos(value.doubleValue()))));
+    assertEquals(String.format("cos(%s)", value), cos.toString());
+  }
+
+  /**
+   * Test cos with null value.
+   */
+  @Test
+  public void cos_null_value() {
+    FunctionExpression cos = dsl.cos(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, cos.type());
+    assertTrue(cos.valueOf(valueEnv()).isNull());
+  }
+
+  /**
+   * Test cos with missing value.
+   */
+  @Test
+  public void cos_missing_value() {
+    FunctionExpression cos = dsl.cos(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, cos.type());
+    assertTrue(cos.valueOf(valueEnv()).isMissing());
+  }
+
+  /**
+   * Test cot with integer, long, float, double values.
+   */
+  @ParameterizedTest(name = "cot({0})")
+  @MethodSource("trigonometricArguments")
+  public void test_cot(Number value) {
+    FunctionExpression cot = dsl.cot(DSL.literal(value));
+    assertThat(
+        cot.valueOf(valueEnv()),
+        allOf(hasType(DOUBLE), hasValue(1 / Math.tan(value.doubleValue()))));
+    assertEquals(String.format("cot(%s)", value), cot.toString());
+  }
+
+  /**
+   * Test cot with out-of-range value 0.
+   */
+  @ParameterizedTest(name = "cot({0})")
+  @ValueSource(doubles = {0})
+  public void cot_with_zero(Number value) {
+    FunctionExpression cot = dsl.cot(DSL.literal(value));
+    assertThrows(
+        ArithmeticException.class, () -> cot.valueOf(valueEnv()),
+        String.format("Out of range value for cot(%s)", value));
+  }
+
+  /**
+   * Test cot with null value.
+   */
+  @Test
+  public void cot_null_value() {
+    FunctionExpression cot = dsl.cot(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, cot.type());
+    assertTrue(cot.valueOf(valueEnv()).isNull());
+  }
+
+  /**
+   * Test cot with missing value.
+   */
+  @Test
+  public void cot_missing_value() {
+    FunctionExpression cot = dsl.cot(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, cot.type());
+    assertTrue(cot.valueOf(valueEnv()).isMissing());
+  }
+
+  /**
+   * Test degrees with integer, long, float, double values.
+   */
+  @ParameterizedTest(name = "degrees({0})")
+  @MethodSource("trigonometricArguments")
+  public void test_degrees(Number value) {
+    FunctionExpression degrees = dsl.degrees(DSL.literal(value));
+    assertThat(
+        degrees.valueOf(valueEnv()),
+        allOf(hasType(DOUBLE), hasValue(Math.toDegrees(value.doubleValue()))));
+    assertEquals(String.format("degrees(%s)", value), degrees.toString());
+  }
+
+  /**
+   * Test degrees with null value.
+   */
+  @Test
+  public void degrees_null_value() {
+    FunctionExpression degrees = dsl.degrees(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, degrees.type());
+    assertTrue(degrees.valueOf(valueEnv()).isNull());
+  }
+
+  /**
+   * Test degrees with missing value.
+   */
+  @Test
+  public void degrees_missing_value() {
+    FunctionExpression degrees = dsl.degrees(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, degrees.type());
+    assertTrue(degrees.valueOf(valueEnv()).isMissing());
+  }
+
+  /**
+   * Test radians with integer, long, float, double values.
+   */
+  @ParameterizedTest(name = "radians({0})")
+  @MethodSource("trigonometricArguments")
+  public void test_radians(Number value) {
+    FunctionExpression radians = dsl.radians(DSL.literal(value));
+    assertThat(
+        radians.valueOf(valueEnv()),
+        allOf(hasType(DOUBLE), hasValue(Math.toRadians(value.doubleValue()))));
+    assertEquals(String.format("radians(%s)", value), radians.toString());
+  }
+
+  /**
+   * Test radians with null value.
+   */
+  @Test
+  public void radians_null_value() {
+    FunctionExpression radians = dsl.radians(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, radians.type());
+    assertTrue(radians.valueOf(valueEnv()).isNull());
+  }
+
+  /**
+   * Test radians with missing value.
+   */
+  @Test
+  public void radians_missing_value() {
+    FunctionExpression radians = dsl.radians(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, radians.type());
+    assertTrue(radians.valueOf(valueEnv()).isMissing());
+  }
+
+  /**
+   * Test sin with integer, long, float, double values.
+   */
+  @ParameterizedTest(name = "sin({0})")
+  @MethodSource("trigonometricArguments")
+  public void test_sin(Number value) {
+    FunctionExpression sin = dsl.sin(DSL.literal(value));
+    assertThat(
+        sin.valueOf(valueEnv()),
+        allOf(hasType(DOUBLE), hasValue(Math.sin(value.doubleValue()))));
+    assertEquals(String.format("sin(%s)", value), sin.toString());
+  }
+
+  /**
+   * Test sin with null value.
+   */
+  @Test
+  public void sin_null_value() {
+    FunctionExpression sin = dsl.sin(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, sin.type());
+    assertTrue(sin.valueOf(valueEnv()).isNull());
+  }
+
+  /**
+   * Test sin with missing value.
+   */
+  @Test
+  public void sin_missing_value() {
+    FunctionExpression sin = dsl.sin(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, sin.type());
+    assertTrue(sin.valueOf(valueEnv()).isMissing());
+  }
+
+  /**
+   * Test tan with integer, long, float, double values.
+   */
+  @ParameterizedTest(name = "tan({0})")
+  @MethodSource("trigonometricArguments")
+  public void test_tan(Number value) {
+    FunctionExpression tan = dsl.tan(DSL.literal(value));
+    assertThat(
+        tan.valueOf(valueEnv()),
+        allOf(hasType(DOUBLE), hasValue(Math.tan(value.doubleValue()))));
+    assertEquals(String.format("tan(%s)", value), tan.toString());
+  }
+
+  /**
+   * Test tan with null value.
+   */
+  @Test
+  public void tan_null_value() {
+    FunctionExpression tan = dsl.tan(DSL.ref(DOUBLE_TYPE_NULL_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, tan.type());
+    assertTrue(tan.valueOf(valueEnv()).isNull());
+  }
+
+  /**
+   * Test tan with missing value.
+   */
+  @Test
+  public void tan_missing_value() {
+    FunctionExpression tan = dsl.tan(DSL.ref(DOUBLE_TYPE_MISSING_VALUE_FIELD, DOUBLE));
+    assertEquals(DOUBLE, tan.type());
+    assertTrue(tan.valueOf(valueEnv()).isMissing());
   }
 }
