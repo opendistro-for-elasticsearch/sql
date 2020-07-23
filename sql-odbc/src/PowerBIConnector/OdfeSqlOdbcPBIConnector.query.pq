@@ -1,4 +1,4 @@
-﻿// This file contains queries to test your data connector
+// This file contains queries to test your data connector
 section OdfeSqlOdbcPBIConnector.UnitTests;
 
 shared MyExtension.UnitTest =

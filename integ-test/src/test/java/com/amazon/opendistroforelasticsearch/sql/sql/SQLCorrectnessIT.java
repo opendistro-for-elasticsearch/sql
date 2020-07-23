@@ -28,7 +28,7 @@ import org.junit.Test;
 /**
  * SQL integration test automated by comparison test framework.
  */
-public class SQLCorrectnessIT extends SQLIntegTestCase {
+public class SQLCorrectnessIT extends CorrectnessTestBase {
 
   private static final String ROOT_DIR = "correctness/";
   private static final String[] EXPR_TEST_DIR = { "expressions" };

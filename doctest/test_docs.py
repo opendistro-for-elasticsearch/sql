@@ -13,6 +13,7 @@
 
 import doctest
 import os
+import os.path
 import zc.customdoctests
 import json
 import re
@@ -30,6 +31,7 @@ from elasticsearch import Elasticsearch, helpers
 ENDPOINT = "http://localhost:9200"
 ACCOUNTS = "accounts"
 EMPLOYEES = "employees"
+PEOPLE = "people"
 
 
 class DocTestConnection(ESConnection):
@@ -88,17 +90,23 @@ bash_parser = zc.customdoctests.DocTestParser(
     ps1=r'sh\$', comment_prefix='#', transform=bash_transform)
 
 
-def set_up_accounts(test):
+def set_up_test_indices(test):
     set_up(test)
     load_file("accounts.json", index_name=ACCOUNTS)
+    load_file("people.json", index_name=PEOPLE)
 
 
 def load_file(filename, index_name):
-    filepath = "./test_data/" + filename
+    # Create index with the mapping if mapping file exists
+    mapping_file_path = './test_mapping/' + filename
+    if os.path.isfile(mapping_file_path):
+        with open(mapping_file_path, 'r') as f:
+            test_data_client.indices.create(index=index_name, body=f.read())
 
     # generate iterable data
+    data_file_path = './test_data/' + filename
     def load_json():
-        with open(filepath, "r") as f:
+        with open(data_file_path, 'r') as f:
             for line in f:
                 yield json.loads(line)
 
@@ -114,7 +122,7 @@ def set_up(test):
 
 def tear_down(test):
     # drop leftover tables after each test
-    test_data_client.indices.delete(index=[ACCOUNTS, EMPLOYEES], ignore_unavailable=True)
+    test_data_client.indices.delete(index=[ACCOUNTS, EMPLOYEES, PEOPLE], ignore_unavailable=True)
 
 
 docsuite = partial(doctest.DocFileSuite,
@@ -140,7 +148,7 @@ def doc_suite(fn):
     return docsuite(
         fn,
         parser=bash_parser,
-        setUp=set_up_accounts,
+        setUp=set_up_test_indices,
         globs={
             'sh': partial(
                 subprocess.run,
@@ -178,7 +186,7 @@ def load_tests(loader, suite, ignore):
             docsuite(
                 fn,
                 parser=sql_cli_parser,
-                setUp=set_up_accounts
+                setUp=set_up_test_indices
             )
         )
 
@@ -188,7 +196,7 @@ def load_tests(loader, suite, ignore):
             docsuite(
                 fn,
                 parser=ppl_cli_parser,
-                setUp=set_up_accounts
+                setUp=set_up_test_indices
             )
         )
 

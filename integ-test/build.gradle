@@ -56,12 +56,13 @@ compileTestJava {
     }
 }
 
-tasks.integTest.dependsOn(':plugin:bundlePlugin')
+tasks.integTest.dependsOn(':plugin:bundlePlugin', ':integ-test:integTestWithNewEngine')
 testClusters.integTest {
     testDistribution = 'oss'
     plugin file(tasks.getByPath(':plugin:bundlePlugin').archiveFile)
 }
 
+// Run only legacy SQL ITs with new SQL engine disabled
 integTest.runner {
     systemProperty 'tests.security.manager', 'false'
     systemProperty('project.root', project.projectDir.absolutePath)
@@ -78,10 +79,42 @@ integTest.runner {
         jvmArgs '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005'
     }
 
-    include 'com/amazon/opendistroforelasticsearch/sql/ppl/**/*IT.class'
-    include 'com/amazon/opendistroforelasticsearch/sql/legacy/**/*IT.class'
+    exclude 'com/amazon/opendistroforelasticsearch/sql/ppl/**/*IT.class'
+    exclude 'com/amazon/opendistroforelasticsearch/sql/sql/**/*IT.class'
     exclude 'com/amazon/opendistroforelasticsearch/sql/doctest/**/*IT.class'
     exclude 'com/amazon/opendistroforelasticsearch/sql/correctness/**'
+}
+
+// Run PPL ITs and new, legacy and comparison SQL ITs with new SQL engine enabled
+task integTestWithNewEngine(type: RestIntegTestTask) {
+    dependsOn ':plugin:bundlePlugin'
+    runner {
+        systemProperty 'tests.security.manager', 'false'
+        systemProperty('project.root', project.projectDir.absolutePath)
+
+        systemProperty "https", System.getProperty("https")
+        systemProperty "user", System.getProperty("user")
+        systemProperty "password", System.getProperty("password")
+
+        // Enable new SQL engine
+        systemProperty 'enableNewEngine', 'true'
+
+        // Tell the test JVM if the cluster JVM is running under a debugger so that tests can use longer timeouts for
+        // requests. The 'doFirst' delays reading the debug setting on the cluster till execution time.
+        doFirst { systemProperty 'cluster.debug', getDebug() }
+
+        if (System.getProperty("test.debug") != null) {
+            jvmArgs '-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005'
+        }
+
+        exclude 'com/amazon/opendistroforelasticsearch/sql/doctest/**/*IT.class'
+        exclude 'com/amazon/opendistroforelasticsearch/sql/correctness/**'
+    }
+}
+
+testClusters.integTestWithNewEngine {
+    testDistribution = 'oss'
+    plugin file(tasks.getByPath(':plugin:bundlePlugin').archiveFile)
 }
 
 

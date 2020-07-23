@@ -15,6 +15,9 @@
     "experiment/ppl/cmd/where.rst"
   ],
   "sql_cli": [
-    "user/dql/expressions.rst"
+    "user/dql/expressions.rst",
+    "user/general/identifiers.rst",
+    "user/dql/functions.rst",
+    "user/beyond/partiql.rst"
   ]
 }

@@ -1,0 +1,1 @@
+{"city": {"name": "Seattle", "location": {"latitude": 10.5}}, "accounts": [{"id": 1}, {"id": 2}], "projects": [{"name": "AWS Redshift Spectrum querying"}, {"name": "AWS Redshift security"}, {"name": "AWS Aurora security"}] }

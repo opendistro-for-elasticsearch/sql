@@ -1,4 +1,4 @@
-﻿// This file contains Data Connector logic
+// This file contains Data Connector logic
 section OdfeSqlOdbcPBIConnector;
 
 // When set to true, additional trace information will be written out to the User log. 

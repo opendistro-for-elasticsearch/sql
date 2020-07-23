@@ -39,7 +39,7 @@ import org.junit.Assert;
  * enforce the success of all tests rather than report failures only.
  */
 @ThreadLeakScope(ThreadLeakScope.Scope.NONE)
-public abstract class SQLIntegTestCase extends RestIntegTestCase {
+public abstract class CorrectnessTestBase extends RestIntegTestCase {
 
   /**
    * Comparison test runner shared by all methods in this IT class.

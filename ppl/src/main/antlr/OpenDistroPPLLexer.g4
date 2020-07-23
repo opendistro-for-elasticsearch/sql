@@ -137,12 +137,36 @@ DC:                                 'DC';
 ABS:                                'ABS';
 CEIL:                               'CEIL';
 CEILING:                            'CEILING';
+CONV:                               'CONV';
+CRC32:                              'CRC32';
+E:                                  'E';
 EXP:                                'EXP';
 FLOOR:                              'FLOOR';
 LN:                                 'LN';
 LOG:                                'LOG';
 LOG10:                              'LOG10';
 LOG2:                               'LOG2';
+MOD:                                'MOD';
+PI:                                 'PI';
+POW:                                'POW';
+POWER:                              'POWER';
+RAND:                               'RAND';
+ROUND:                              'ROUND';
+SIGN:                               'SIGN';
+SQRT:                               'SQRT';
+TRUNCATE:                           'TRUNCATE';
+
+// TRIGONOMETRIC FUNCTIONS
+ACOS:                               'ACOS';
+ASIN:                               'ASIN';
+ATAN:                               'ATAN';
+ATAN2:                              'ATAN2';
+COS:                                'COS';
+COT:                                'COT';
+DEGREES:                            'DEGREES';
+RADIANS:                            'RADIANS';
+SIN:                                'SIN';
+TAN:                                'TAN';
 
 // LITERALS AND VALUES
 //STRING_LITERAL:                     DQUOTA_STRING | SQUOTA_STRING | BQUOTA_STRING;
@@ -150,7 +174,7 @@ ID:                                 ID_LITERAL;
 INTEGER_LITERAL:                    DEC_DIGIT+;
 DECIMAL_LITERAL:                    (DEC_DIGIT+)? '.' DEC_DIGIT+;
 
-fragment ID_LITERAL:                [A-Z_$0-9@]*?[A-Z_$\-]+?[A-Z_$\-0-9]*;
+fragment ID_LITERAL:                [A-Z_]+[A-Z_$0-9@\-]*;
 DQUOTA_STRING:                      '"' ( '\\'. | '""' | ~('"'| '\\') )* '"';
 SQUOTA_STRING:                      '\'' ('\\'. | '\'\'' | ~('\'' | '\\'))* '\'';
 BQUOTA_STRING:                      '`' ( '\\'. | '``' | ~('`'|'\\'))* '`';

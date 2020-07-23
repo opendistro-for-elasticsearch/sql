@@ -1,0 +1,35 @@
+{
+  "mappings": {
+    "properties": {
+      "city": {
+        "properties": {
+          "name": {
+            "type": "keyword"
+          },
+          "location": {
+            "properties": {
+              "latitude": {
+                "type": "double"
+              }
+            }
+          }
+        }
+      },
+      "account": {
+        "properties": {
+          "id": {
+            "type": "keyword"
+          }
+        }
+      },
+      "projects": {
+        "type": "nested",
+        "properties": {
+          "name": {
+            "type": "keyword"
+          }
+        }
+      }
+    }
+  }
+}

@@ -54,6 +54,7 @@ public class TestsConstants {
   public final static String TEST_INDEX_WEBLOG = TEST_INDEX + "_weblog";
   public final static String TEST_INDEX_DATE = TEST_INDEX + "_date";
   public final static String TEST_INDEX_DATE_TIME = TEST_INDEX + "_datetime";
+  public final static String TEST_INDEX_DEEP_NESTED = TEST_INDEX + "_deep_nested";
 
 
   public final static String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";

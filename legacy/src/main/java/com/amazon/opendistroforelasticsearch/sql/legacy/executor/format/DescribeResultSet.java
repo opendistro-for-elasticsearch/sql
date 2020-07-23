@@ -40,7 +40,7 @@ public class DescribeResultSet extends ResultSet {
      * You are not required to set the field type to object explicitly, as this is the default value.
      * https://www.elastic.co/guide/en/elasticsearch/reference/current/object.html
      */
-    private static final String DEFAULT_OBJECT_DATATYPE = "object";
+    public static final String DEFAULT_OBJECT_DATATYPE = "object";
 
     private IndexStatement statement;
     private Object queryResult;

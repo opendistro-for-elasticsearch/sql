@@ -382,8 +382,7 @@ TEST_F(TestSQLColumns, FlightsValidation) {
             ordinal++;
             switch (ordinal) {
                 case 1:
-                    EXPECT_TRUE((it.AsString() == flights_catalog_elas)
-                                || (it.AsString() == flights_catalog_odfe));
+                    EXPECT_EQ(it.AsString(), "");
                     break;
                 case 3:
                     EXPECT_EQ(it.AsString(), flights_table_name);

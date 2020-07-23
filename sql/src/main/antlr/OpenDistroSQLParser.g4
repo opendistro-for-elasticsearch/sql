@@ -25,6 +25,8 @@ THE SOFTWARE.
 
 parser grammar OpenDistroSQLParser;
 
+import OpenDistroSQLIdentifierParser;
+
 options { tokenVocab=OpenDistroSQLLexer; }
 
 
@@ -57,15 +59,24 @@ selectStatement
 //    Select Statement's Details
 
 querySpecification
+    : selectClause
+      fromClause?
+    ;
+
+selectClause
     : SELECT selectElements
     ;
 
 selectElements
-    : selectElement (COMMA selectElement)*
+    : (star=STAR | selectElement) (',' selectElement)*
     ;
 
 selectElement
     : expression                                         #selectExpressionElement
+    ;
+
+fromClause
+    : FROM tableName
     ;
 
 
@@ -89,14 +100,7 @@ decimalLiteral
     ;
 
 stringLiteral
-    : (
-        STRING_LITERAL
-        | START_NATIONAL_STRING_LITERAL
-      ) STRING_LITERAL+
-    | (
-        STRING_LITERAL
-        | START_NATIONAL_STRING_LITERAL
-      )
+    : STRING_LITERAL
     ;
 
 booleanLiteral
@@ -161,8 +165,18 @@ functionCall
     ;
 
 scalarFunctionName
-    : ABS | CEIL | CEILING | EXP | FLOOR | LN | LOG | LOG10 | LOG2
+    : mathematicalFunctionName
     | dateTimeFunctionName
+    ;
+
+mathematicalFunctionName
+    : ABS | CEIL | CEILING | CONV | CRC32 | E | EXP | FLOOR | LN | LOG | LOG10 | LOG2 | MOD | PI | POW | POWER
+    | RAND | ROUND | SIGN | SQRT | TRUNCATE
+    | trigonometricFunctionName
+    ;
+
+trigonometricFunctionName
+    : ACOS | ASIN | ATAN | ATAN2 | COS | COT | DEGREES | RADIANS | SIN | TAN
     ;
 
 dateTimeFunctionName
@@ -170,7 +184,7 @@ dateTimeFunctionName
     ;
 
 functionArgs
-    : functionArg (COMMA functionArg)*
+    : (functionArg (COMMA functionArg)*)?
     ;
 
 functionArg
