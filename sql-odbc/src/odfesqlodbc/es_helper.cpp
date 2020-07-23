@@ -59,7 +59,7 @@ std::string GetErrorMsg(void* es_conn) {
 
 ConnErrorType GetErrorType(void* es_conn) {
     return es_conn ? static_cast< ESCommunication* >(es_conn)->GetErrorType()
-                   : ConnErrorType::ERROR_SUCCESS;
+                   : ConnErrorType::CONN_ERROR_SUCCESS;
 }
 
 std::string GetServerVersion(void* es_conn) {

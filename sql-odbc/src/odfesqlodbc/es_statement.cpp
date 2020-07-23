@@ -71,7 +71,7 @@ RETCODE ExecuteStatement(StatementClass *stmt, BOOL commit) {
         ConnErrorType es_err_type = GetErrorType(SC_get_conn(stmt)->esconn);
         std::string es_parse_err = GetResultParserError();
         if (!es_conn_err.empty()) {
-            if (es_err_type == ConnErrorType::ERROR_QUERY_SYNTAX) {
+            if (es_err_type == ConnErrorType::CONN_ERROR_QUERY_SYNTAX) {
                 SC_set_error(stmt, STMT_QUERY_SYNTAX_ERROR, es_conn_err.c_str(),
                              func);
             } else {

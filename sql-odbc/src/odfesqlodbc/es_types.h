@@ -240,12 +240,12 @@ typedef enum {
 } ConnStatusType;
 
 typedef enum {
-    ERROR_SUCCESS,             // 0
-    ERROR_QUERY_SYNTAX,        // 42000
-    ERROR_COMM_LINK_FAILURE,   // 08S01
-    ERROR_INVALID_NULL_PTR,    // HY009
-    ERROR_INVALID_AUTH,        // 28000
-    ERROR_UNABLE_TO_ESTABLISH  // 08001
+    CONN_ERROR_SUCCESS,             // 0
+    CONN_ERROR_QUERY_SYNTAX,        // 42000
+    CONN_ERROR_COMM_LINK_FAILURE,   // 08S01
+    CONN_ERROR_INVALID_NULL_PTR,    // HY009
+    CONN_ERROR_INVALID_AUTH,        // 28000
+    CONN_ERROR_UNABLE_TO_ESTABLISH  // 08001
 } ConnErrorType;
 
 // Only expose this to C++ code, this will be passed through the C interface as
