@@ -34,7 +34,6 @@ import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLP
 import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -91,7 +90,6 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
     List<SelectElementContext> selectElements = ctx.selectElements().selectElement();
     return new Project(selectElements.stream()
                                      .map(this::visitSelectItem)
-                                     .filter(Objects::nonNull)
                                      .collect(Collectors.toList()));
   }
 
@@ -111,12 +109,7 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
 
   private UnresolvedExpression visitSelectItem(SelectElementContext ctx) {
     UnresolvedExpression delegate = visitAstExpression(ctx.expression());
-    if (delegate == null) {
-      return null;
-    }
-
-    String alias = getAlias(ctx);
-    return new Alias(unquoteIdentifier(alias), delegate);
+    return new Alias(unquoteIdentifier(getAlias(ctx)), delegate);
   }
 
   private String getAlias(SelectElementContext ctx) {

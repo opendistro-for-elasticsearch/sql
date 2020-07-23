@@ -22,12 +22,23 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-@Getter
-@ToString
+/**
+ * Field name alias that wraps an expression with an alias.
+ */
 @EqualsAndHashCode(callSuper = false)
+@Getter
 @RequiredArgsConstructor
+@ToString
 public class Alias extends UnresolvedExpression {
+
+  /**
+   * Original field name or alias.
+   */
   private final String name;
+
+  /**
+   * Expression aliased.
+   */
   private final UnresolvedExpression delegate;
 
   @Override

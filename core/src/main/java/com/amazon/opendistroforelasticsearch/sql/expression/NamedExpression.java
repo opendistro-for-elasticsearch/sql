@@ -19,16 +19,24 @@ package com.amazon.opendistroforelasticsearch.sql.expression;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 /**
- * Named expression that represents expression with name or alias.
+ * Named expression that represents expression with name. This is to preserve
+ * original expression name or alias in query and avoid inferring its name
+ * by reconstructing in toString() method.
  */
+@EqualsAndHashCode
 @RequiredArgsConstructor
+@ToString
 public class NamedExpression implements Expression {
+
   @Getter
   private final String name;
+
   private final Expression delegation;
 
   @Override
