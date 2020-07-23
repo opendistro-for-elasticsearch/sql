@@ -35,30 +35,25 @@ import com.google.common.collect.ImmutableList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 /**
  * Abstract syntax tree (AST) builder.
  */
+@RequiredArgsConstructor
 public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
 
   private static final Project SELECT_ALL = null;
+
+  private final AstExpressionBuilder expressionBuilder = new AstExpressionBuilder();
 
   /**
    * SQL query to get original token name because token.getText() returns text
    * without whitespaces or other characters discarded by lexer.
    */
-  private String query;
-
-  public AstBuilder(String query) {
-    this.query = query;
-  }
-
-  public AstBuilder() {
-  }
-
-  private final AstExpressionBuilder expressionBuilder = new AstExpressionBuilder();
+  private final String query;
 
   @Override
   public UnresolvedPlan visitSimpleSelect(SimpleSelectContext ctx) {

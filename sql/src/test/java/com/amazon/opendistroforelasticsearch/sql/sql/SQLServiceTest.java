@@ -95,7 +95,7 @@ class SQLServiceTest {
     }).when(executionEngine).execute(any(), any());
 
     ParseTree parseTree = new SQLSyntaxParser().parse("SELECT 123");
-    UnresolvedPlan ast = parseTree.accept(new AstBuilder());
+    UnresolvedPlan ast = parseTree.accept(new AstBuilder("SELECT 123"));
 
     sqlService.execute(ast,
         new ResponseListener<QueryResponse>() {
@@ -133,7 +133,7 @@ class SQLServiceTest {
     doThrow(new RuntimeException()).when(executionEngine).execute(any(), any());
 
     ParseTree parseTree = new SQLSyntaxParser().parse("SELECT 123");
-    UnresolvedPlan ast = parseTree.accept(new AstBuilder());
+    UnresolvedPlan ast = parseTree.accept(new AstBuilder("SELECT 123"));
 
     sqlService.execute(ast,
         new ResponseListener<QueryResponse>() {
