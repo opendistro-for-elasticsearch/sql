@@ -49,17 +49,6 @@ public class QueryAnalysisIT extends SQLIntegTestCase {
   }
 
   @Test
-  public void queryEndWithSemiColonShouldPassNoMatterIfAnalyzerEnabledOrNot() {
-    String queryEndWithSemiColon = "SELECT * FROM elasticsearch-sql_test_index_bank;";
-    queryShouldPassAnalysis(queryEndWithSemiColon);
-
-    runWithClusterSetting(
-        new ClusterSetting("transient", QUERY_ANALYSIS_ENABLED, "false"),
-        () -> queryShouldPassAnalysis(queryEndWithSemiColon)
-    );
-  }
-
-  @Test
   public void missingFromClauseShouldThrowSyntaxException() {
     queryShouldThrowSyntaxException("SELECT 1");
   }

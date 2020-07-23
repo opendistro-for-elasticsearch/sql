@@ -87,7 +87,7 @@ public class ESActionFactory {
     public static QueryAction create(Client client, QueryActionRequest request)
             throws SqlParseException, SQLFeatureNotSupportedException {
         String sql = request.getSql();
-        // Remove linebreak matcher and semicolon at the end
+        // Remove line breaker anywhere and semicolon at the end
         sql = sql.replaceAll("\\R", " ").trim();
         if (sql.endsWith(";")) {
             sql = sql.substring(0, sql.length() - 1);
