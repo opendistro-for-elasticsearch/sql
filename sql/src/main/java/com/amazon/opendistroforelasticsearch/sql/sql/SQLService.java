@@ -95,7 +95,7 @@ public class SQLService {
    */
   public UnresolvedPlan parse(String query) {
     ParseTree cst = parser.parse(query);
-    return cst.accept(new AstBuilder());
+    return cst.accept(new AstBuilder(query));
   }
 
   /**

@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 /**
@@ -44,6 +45,19 @@ import org.antlr.v4.runtime.tree.ParseTree;
 public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
 
   private static final Project SELECT_ALL = null;
+
+  /**
+   * SQL query to get original token name because token.getText() returns text
+   * without whitespaces or other characters discarded by lexer.
+   */
+  private String query;
+
+  public AstBuilder(String query) {
+    this.query = query;
+  }
+
+  public AstBuilder() {
+  }
 
   private final AstExpressionBuilder expressionBuilder = new AstExpressionBuilder();
 
@@ -101,10 +115,17 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
       return null;
     }
 
-    String name = (ctx.alias() == null)
-                      ? ctx.expression().getText()
-                        : unquoteIdentifier(ctx.alias().getText());
-    return new Alias(name, delegate);
+    String alias = getAlias(ctx);
+    return new Alias(unquoteIdentifier(alias), delegate);
+  }
+
+  private String getAlias(SelectElementContext ctx) {
+    if (ctx.alias() == null) {
+      Token start = ctx.expression().getStart();
+      Token stop = ctx.expression().getStop();
+      return query.substring(start.getStartIndex(), stop.getStopIndex() + 1);
+    }
+    return ctx.alias().getText();
   }
 
 }
