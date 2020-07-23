@@ -32,7 +32,7 @@
 
 <img src="img/pbi_connection_string_options.png" width="500">
 
-* Select authentication option and click on **Connect**.
+* Select authentication option. Enter credentials if required and click on **Connect**.
 
 <img src="img/pbi_auth.png" width="500">
 
