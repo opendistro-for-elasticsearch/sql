@@ -61,7 +61,7 @@ public class IdentifierIT extends SQLIntegTestCase {
         "{\n"
             + "  \"schema\": [{\n"
             + "    \"name\": \"age\",\n"
-            + "    \"type\": \"integer\"\n"
+            + "    \"type\": \"long\"\n"
             + "  }],\n"
             + "  \"total\": 1,\n"
             + "  \"datarows\": [[30]],\n"
