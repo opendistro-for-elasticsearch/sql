@@ -68,11 +68,11 @@ selectClause
     ;
 
 selectElements
-    : (star=STAR | selectElement) (',' selectElement)*
+    : (star=STAR | selectElement) (COMMA selectElement)*
     ;
 
 selectElement
-    : expression (AS? alias)?                            #selectExpressionElement
+    : expression (AS? alias)?
     ;
 
 fromClause

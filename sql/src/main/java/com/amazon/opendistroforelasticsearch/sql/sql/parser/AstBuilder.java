@@ -16,10 +16,13 @@
 
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
+import static com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils.unquoteIdentifier;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.FromClauseContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectClauseContext;
+import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SelectElementContext;
 import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.SimpleSelectContext;
 
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Project;
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Relation;
@@ -71,9 +74,9 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
       return SELECT_ALL;
     }
 
-    List<ParseTree> selectElements = ctx.selectElements().children;
+    List<SelectElementContext> selectElements = ctx.selectElements().selectElement();
     return new Project(selectElements.stream()
-                                     .map(this::visitAstExpression)
+                                     .map(this::visitSelectItem)
                                      .filter(Objects::nonNull)
                                      .collect(Collectors.toList()));
   }
@@ -90,6 +93,18 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
 
   private UnresolvedExpression visitAstExpression(ParseTree tree) {
     return expressionBuilder.visit(tree);
+  }
+
+  private UnresolvedExpression visitSelectItem(SelectElementContext ctx) {
+    UnresolvedExpression delegate = visitAstExpression(ctx.expression());
+    if (delegate == null) {
+      return null;
+    }
+
+    String name = (ctx.alias() == null)
+                      ? ctx.expression().getText()
+                        : unquoteIdentifier(ctx.alias().getText());
+    return new Alias(name, delegate);
   }
 
 }

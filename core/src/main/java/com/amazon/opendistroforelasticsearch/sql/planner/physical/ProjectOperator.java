@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.planner.physical;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprTupleValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
+import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import java.util.Collections;
@@ -62,7 +63,7 @@ public class ProjectOperator extends PhysicalPlan {
       ExprValue exprValue = expr.valueOf(inputValue.bindingTuples());
       // missing value is ignored.
       if (!exprValue.isMissing()) {
-        mapBuilder.put(expr.toString(), exprValue);
+        mapBuilder.put(((NamedExpression) expr).getName(), exprValue);
       }
     }
     return ExprTupleValue.fromExprValueMap(mapBuilder.build());
