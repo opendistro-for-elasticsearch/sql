@@ -50,6 +50,17 @@ OdfeSqlOdbcPBIConnectorImpl = (Host as text, optional Port as number) as table =
                     Auth = "NONE"
                 ],
 
+        // Sets connection string properties for encrypted connections.
+        EncryptedConnectionString =
+            if Credential[EncryptConnection] = null or Credential[EncryptConnection] = true then
+                [
+                    UseSSL = 1
+                ]
+            else
+                [
+                    UseSSL = 0
+                ],
+
         // Set host & port in connection string. 
         // Do not include port in connection string for aws server connection.
         Server = 
@@ -140,7 +151,10 @@ OdfeSqlOdbcPBIConnectorImpl = (Host as text, optional Port as number) as table =
             SQLGetInfo = SQLGetInfo,
             SQLGetTypeInfo = SQLGetTypeInfo,
 
-            OnError = OnOdbcError
+            OnError = OnOdbcError,
+
+            // Connection string properties used for encrypted connections.
+            CredentialConnectionString = EncryptedConnectionString
         ])
     in
         OdbcDatasource;
@@ -163,7 +177,7 @@ OnOdbcError = (errorRecord as record) =>
         if IsDriverNotInstalled then
             error Error.Record("", "The Open Distro For Elasticsearch SQL ODBC driver is not installed. Please install the driver.")
         else if IsHostUnreachable then 
-            error Error.Record("", "Could not connect to server. Please check server is up and configuration is correct. ")
+            error Error.Record("", "Unable to connect. Please check server is up and configurations are correct. ")
         else 
             error errorRecord;
 
