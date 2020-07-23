@@ -35,8 +35,8 @@ import lombok.experimental.UtilityClass;
  */
 @UtilityClass
 public class ExprValueUtils {
-  public static final ExprValue LITERAL_TRUE = ExprBooleanValue.ofTrue();
-  public static final ExprValue LITERAL_FALSE = ExprBooleanValue.ofFalse();
+  public static final ExprValue LITERAL_TRUE = ExprBooleanValue.of(true);
+  public static final ExprValue LITERAL_FALSE = ExprBooleanValue.of(false);
   public static final ExprValue LITERAL_NULL = ExprNullValue.of();
   public static final ExprValue LITERAL_MISSING = ExprMissingValue.of();
 
