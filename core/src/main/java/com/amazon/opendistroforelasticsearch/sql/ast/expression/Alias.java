@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 /**
- * Field name alias that wraps an expression with an alias.
+ * Field name alias abstraction that associate an expression with a name.
  */
 @EqualsAndHashCode(callSuper = false)
 @Getter

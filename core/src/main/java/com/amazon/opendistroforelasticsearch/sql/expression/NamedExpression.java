@@ -34,9 +34,15 @@ import lombok.ToString;
 @ToString
 public class NamedExpression implements Expression {
 
+  /**
+   * Expression name.
+   */
   @Getter
   private final String name;
 
+  /**
+   * Expression that being named.
+   */
   private final Expression delegation;
 
   @Override
