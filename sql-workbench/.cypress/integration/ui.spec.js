@@ -16,7 +16,7 @@
 /// <reference types="cypress" />
 
 import { edit } from "brace";
-import { delay, testQueries, JSONFile, JDBCFile, CSVFile, TextFile } from "../utils/constants";
+import { delay, testQueries, verifyDownloadData, files } from "../utils/constants";
 
 describe('Test UI buttons', () => {
   beforeEach(() => {
@@ -63,57 +63,23 @@ describe('Test UI buttons', () => {
 });
 
 describe('Test and verify downloads', () => {
-  before(() => {
-    // Please remove these files in your download directory before testing.
-    cy.task('filterFilesExist', ['accounts.json', 'accounts.csv', 'accounts.txt']).then(filesExist => {
-      expect(filesExist).to.have.lengthOf(0);
+  verifyDownloadData.map(({ title, url, file }) => {
+    it(title, () => {
+      cy.request({
+        method: 'POST',
+        form: true,
+        url: url,
+        headers: {
+          'content-type': 'application/json;charset=UTF-8',
+          'kbn-version': '7.8.0',
+        },
+        body: {
+          'query': 'select * from accounts where balance > 49500'
+        }
+      }).then(response => {
+        expect(response.body.resp).to.have.string(files[file]);
+      });
     });
-  });
-
-  beforeEach(() => {
-    cy.visit('app/opendistro-sql-workbench');
-    cy.get('textarea.ace_text-input').eq(0).focus().type('{enter}select * from accounts where balance > 49500;', { force: true });
-    cy.wait(delay);
-    cy.get('.euiButton__text').contains('Run').click();
-    cy.wait(delay);
-    cy.get('.euiTab__content').contains('accounts').click();
-    cy.get('.euiButton__text').contains('Download').click();
-  });
-
-  afterEach(() => {
-    cy.task('removeDownloadedFiles', ['accounts.json', 'accounts.csv', 'accounts.txt']);
-  });
-
-  it('Download and verify JSON', () => {
-    cy.get('span.euiContextMenuItem__text').contains('Download JSON').click()
-      .task('constructPath', `accounts.json`).then(filepath => cy.readFile(filepath)
-        .then(downloadedFile => {
-          expect(JSON.stringify(downloadedFile)).to.have.string(JSONFile);
-        }));
-  });
-
-  it('Download and verify JDBC', () => {
-    cy.get('span.euiContextMenuItem__text').contains('Download JDBC').click()
-      .task('constructPath', `accounts.json`).then(filepath => cy.readFile(filepath)
-        .then(downloadedFile => {
-          expect(JSON.stringify(downloadedFile)).to.equal(JDBCFile);
-        }));
-  });
-
-  it('Download and verify CSV', () => {
-    cy.get('span.euiContextMenuItem__text').contains('Download CSV').click()
-      .task('constructPath', `accounts.csv`).then(filepath => cy.readFile(filepath)
-        .then(downloadedFile => {
-          expect(downloadedFile).to.equal(CSVFile);
-        }));
-  });
-
-  it('Download and verify Text', () => {
-    cy.get('span.euiContextMenuItem__text').contains('Download Text').click()
-      .task('constructPath', `accounts.txt`).then(filepath => cy.readFile(filepath)
-        .then(downloadedFile => {
-          expect(downloadedFile).to.equal(TextFile);
-        }));
   });
 });
 

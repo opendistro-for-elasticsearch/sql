@@ -28,35 +28,10 @@
 // This function is called when a project is opened or re-opened (e.g. due to
 // the project's config changing)
 
-const appendToDownloadDir = (fileName) => {
-  const homedir = require('os').homedir();
-  return `${homedir}/Downloads/${fileName}`;
-};
-
 /**
  * @type {Cypress.PluginConfig}
  */
 module.exports = (on, config) => {
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
-  on('task', {
-    constructPath(fileName) {
-      return appendToDownloadDir(fileName);
-    },
-
-    removeDownloadedFiles(files) {
-      const fs = require('fs');
-      files.map(fileName => appendToDownloadDir(fileName))
-        .filter(path => fs.existsSync(path))
-        .map(path => fs.unlinkSync(path));
-      return null;
-    },
-
-    filterFilesExist(files) {
-      const fs = require('fs');
-      files = files.map(fileName => appendToDownloadDir(fileName))
-        .filter(path => fs.existsSync(path))
-      return files;
-    },
-  });
 };
