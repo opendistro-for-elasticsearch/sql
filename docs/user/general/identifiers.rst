@@ -113,11 +113,6 @@ Examples
 
 Here is an example for ...
 
-    od> SELECT acc.age FROM accounts AS acc;
-    fetched rows / total rows = 4/4
-
-
-
 Limitations
 -----------
 
