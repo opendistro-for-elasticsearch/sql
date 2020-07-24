@@ -15,6 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.planner.logical;
 
+import static com.amazon.opendistroforelasticsearch.sql.expression.DSL.named;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -77,7 +78,7 @@ class LogicalPlanNodeVisitorTest {
     assertNull(rename.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 
-    LogicalPlan project = LogicalPlanDSL.project(relation, ref);
+    LogicalPlan project = LogicalPlanDSL.project(relation, named("ref", ref));
     assertNull(project.accept(new LogicalPlanNodeVisitor<Integer, Object>() {
     }, null));
 

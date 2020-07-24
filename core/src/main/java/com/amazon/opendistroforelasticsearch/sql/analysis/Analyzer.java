@@ -40,6 +40,7 @@ import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckExceptio
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.LiteralExpression;
+import com.amazon.opendistroforelasticsearch.sql.expression.NamedExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
 import com.amazon.opendistroforelasticsearch.sql.expression.aggregation.Aggregator;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalAggregation;
@@ -166,8 +167,8 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
       }
     }
 
-    List<Expression> expressions = node.getProjectList().stream()
-        .map(expr -> expressionAnalyzer.analyze(expr, context))
+    List<NamedExpression> expressions = node.getProjectList().stream()
+        .map(expr -> (NamedExpression) expressionAnalyzer.analyze(expr, context))
         .collect(Collectors.toList());
     return new LogicalProject(child, expressions);
   }
