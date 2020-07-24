@@ -1024,16 +1024,16 @@ RETCODE SQL_API SQLErrorW(SQLHENV EnvironmentHandle, SQLHDBC ConnectionHandle,
         mtxt = malloc(buflen);
     }
 
-    if (EnvironmentHandle) {
-        ret = ESAPI_EnvError(EnvironmentHandle, RecNumber, (SQLCHAR *)qstr_ansi,
-                             NativeError, (SQLCHAR *)mtxt, buflen, &tlen, 0);
+    if (StatementHandle) {
+        ret = ESAPI_StmtError(StatementHandle, RecNumber, (SQLCHAR *)qstr_ansi,
+                              NativeError, (SQLCHAR *)mtxt, buflen, &tlen, 0);
     } else if (ConnectionHandle) {
         ret = ESAPI_ConnectError(ConnectionHandle, RecNumber,
                                  (SQLCHAR *)qstr_ansi, NativeError,
                                  (SQLCHAR *)mtxt, buflen, &tlen, 0);
-    } else if (StatementHandle) {
-        ret = ESAPI_StmtError(StatementHandle, RecNumber, (SQLCHAR *)qstr_ansi,
-                              NativeError, (SQLCHAR *)mtxt, buflen, &tlen, 0);
+    } else if (EnvironmentHandle) {
+        ret = ESAPI_EnvError(EnvironmentHandle, RecNumber, (SQLCHAR *)qstr_ansi,
+                             NativeError, (SQLCHAR *)mtxt, buflen, &tlen, 0);
     } else {
         ret = SQL_ERROR;
     }
@@ -1042,6 +1042,7 @@ RETCODE SQL_API SQLErrorW(SQLHENV EnvironmentHandle, SQLHDBC ConnectionHandle,
         if (Sqlstate)
             utf8_to_ucs2(qstr_ansi, -1, Sqlstate, 6);
         if (mtxt && tlen <= BufferLength) {
+            // TODO (#612): Verify wide character conversion
             SQLULEN ulen = utf8_to_ucs2_lf(mtxt, tlen, FALSE, MessageText,
                                            BufferLength, TRUE);
             if (ulen == (SQLULEN)-1)

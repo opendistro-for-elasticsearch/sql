@@ -1378,16 +1378,16 @@ RETCODE SQL_API SQLError(SQLHENV EnvironmentHandle, SQLHDBC ConnectionHandle,
 
     MYLOG(ES_TRACE, "entering\n");
 
-    if (EnvironmentHandle) {
+    if (StatementHandle) {
         ret =
-            ESAPI_EnvError(EnvironmentHandle, RecNumber, Sqlstate, NativeError,
+            ESAPI_StmtError(StatementHandle, RecNumber, Sqlstate, NativeError,
                            MessageText, BufferLength, TextLength, 0);
     } else if (ConnectionHandle) {
         ret = ESAPI_ConnectError(ConnectionHandle, RecNumber, Sqlstate,
                                  NativeError, MessageText, BufferLength,
                                  TextLength, 0);
-    } else if (StatementHandle) {
-        ret = ESAPI_StmtError(StatementHandle, RecNumber, Sqlstate, NativeError,
+    } else if (EnvironmentHandle) {
+        ret = ESAPI_EnvError(EnvironmentHandle, RecNumber, Sqlstate, NativeError,
                               MessageText, BufferLength, TextLength, 0);
     } else {
         ret = SQL_ERROR;
