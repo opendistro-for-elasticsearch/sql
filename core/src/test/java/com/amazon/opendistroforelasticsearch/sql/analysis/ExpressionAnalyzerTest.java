@@ -80,6 +80,14 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
         AstDSL.qualifiedName("integer_value")
     );
   }
+  
+  @Test
+  public void named_expression() {
+    assertAnalyzeEqual(
+        DSL.named("int", DSL.ref("integer_value", INTEGER)),
+        AstDSL.alias("int", AstDSL.qualifiedName("integer_value"))
+    );
+  }
 
   @Test
   public void undefined_var_semantic_check_failed() {
