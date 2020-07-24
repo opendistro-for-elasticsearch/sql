@@ -123,7 +123,7 @@ OdfeSqlOdbcPBIConnectorImpl = (Host as text, optional Port as number) as table =
                         ]
         ],
 
-        OdbcDatasource = Odbc.DataSource(ConnectionString & Server & CredentialConnectionString, [
+        OdbcDatasource = Odbc.DataSource(ConnectionString & Server & CredentialConnectionString & EncryptedConnectionString, [
             // Do not view the tables grouped by their schema names.
             HierarchicalNavigation = false,
             // Prevents execution of native SQL statements. Extensions should set this to true.
