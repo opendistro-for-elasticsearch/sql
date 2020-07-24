@@ -16,6 +16,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -28,7 +29,9 @@ import static org.mockito.Mockito.when;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprValueFactory;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
+import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import org.elasticsearch.common.bytes.BytesArray;
 import org.elasticsearch.search.SearchHit;
@@ -42,12 +45,17 @@ import org.mockito.stubbing.Answer;
 @ExtendWith(MockitoExtension.class)
 class ElasticsearchIndexScanTest {
 
-  @Mock private ElasticsearchClient client;
+  @Mock
+  private ElasticsearchClient client;
+
+  private ElasticsearchExprValueFactory exprValueFactory = new ElasticsearchExprValueFactory(
+          ImmutableMap.of("name", STRING, "department", STRING));
 
   @Test
   void queryEmptyResult() {
     mockResponse();
-    try (ElasticsearchIndexScan indexScan = new ElasticsearchIndexScan(client, "test")) {
+    try (ElasticsearchIndexScan indexScan =
+             new ElasticsearchIndexScan(client, "test", exprValueFactory)) {
       indexScan.open();
       assertFalse(indexScan.hasNext());
     }
@@ -57,10 +65,11 @@ class ElasticsearchIndexScanTest {
   @Test
   void queryAllResults() {
     mockResponse(
-        new SearchHit[] {employee(1, "John", "IT"), employee(2, "Smith", "HR")},
-        new SearchHit[] {employee(3, "Allen", "IT")});
+        new SearchHit[]{employee(1, "John", "IT"), employee(2, "Smith", "HR")},
+        new SearchHit[]{employee(3, "Allen", "IT")});
 
-    try (ElasticsearchIndexScan indexScan = new ElasticsearchIndexScan(client, "employees")) {
+    try (ElasticsearchIndexScan indexScan =
+             new ElasticsearchIndexScan(client, "employees", exprValueFactory)) {
       indexScan.open();
 
       assertTrue(indexScan.hasNext());
