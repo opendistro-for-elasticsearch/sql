@@ -32,7 +32,7 @@
 
 <img src="img/pbi_connection_string_options.png" width="500">
 
-* Select authentication option and click on **Connect**.
+* Select authentication option. Enter credentials if required and click on **Connect**.
 
 <img src="img/pbi_auth.png" width="500">
 
@@ -41,3 +41,18 @@
 <img src="img/pbi_data_preview.png">
 
 * Click on **Load**.
+
+## Troubleshooting 
+
+* If you get an following error, please install [Open Distro For Elasticsearch SQL ODBC Driver](https://opendistro.github.io/for-elasticsearch-docs/docs/sql/odbc/).
+
+<img src="img/pbi_error_driver_not_installed.png" width="350">
+
+* If you get an following error,
+
+<img src="img/pbi_error_conn.png" width="350">
+
+1. Check if host and port values are correct.
+2. Check if auth credentials are correct.
+3. Check if server is running.
+
