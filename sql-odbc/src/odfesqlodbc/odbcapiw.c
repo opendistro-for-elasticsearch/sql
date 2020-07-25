@@ -151,8 +151,8 @@ RETCODE SQL_API SQLDriverConnectW(HDBC hdbc, HWND hwnd, SQLWCHAR *szConnStrIn,
             utf8_to_ucs2(szOut, maxlen, szConnStrOut, cbConnStrOutMax);
         if (outlen >= cbConnStrOutMax && NULL != szConnStrOut
             && NULL != pcbConnStrOut) {
-            MYLOG(ES_ALL, "cbConnstrOutMax=%d pcb=%p\n",
-                  cbConnStrOutMax, pcbConnStrOut);
+            MYLOG(ES_ALL, "cbConnstrOutMax=%d pcb=%p\n", cbConnStrOutMax,
+                  pcbConnStrOut);
             if (SQL_SUCCESS == ret) {
                 CC_set_error(conn, CONN_TRUNCATED,
                              "the ConnStrOut is too small", func);
@@ -281,7 +281,7 @@ RETCODE SQL_API SQLDescribeColW(HSTMT StatementHandle,
 
 RETCODE SQL_API SQLExecDirectW(HSTMT StatementHandle, SQLWCHAR *StatementText,
                                SQLINTEGER TextLength) {
-    if(StatementHandle == NULL)
+    if (StatementHandle == NULL)
         return SQL_ERROR;
 
     StatementClass *stmt = (StatementClass *)StatementHandle;
@@ -301,7 +301,8 @@ RETCODE SQL_API SQLExecDirectW(HSTMT StatementHandle, SQLWCHAR *StatementText,
     // Execute statement if statement is ready
     RETCODE ret = SQL_ERROR;
     if (!SC_opencheck(stmt, "SQLExecDirectW"))
-        ret = ESAPI_ExecDirect(StatementHandle, (const SQLCHAR *)stxt, (SQLINTEGER)slen, 1);
+        ret = ESAPI_ExecDirect(StatementHandle, (const SQLCHAR *)stxt,
+                               (SQLINTEGER)slen, 1);
 
     // Exit critical
     LEAVE_STMT_CS(stmt);
@@ -378,7 +379,7 @@ RETCODE SQL_API SQLGetInfoW(HDBC ConnectionHandle, SQLUSMALLINT InfoType,
 
 RETCODE SQL_API SQLPrepareW(HSTMT StatementHandle, SQLWCHAR *StatementText,
                             SQLINTEGER TextLength) {
-    if(StatementHandle == NULL)
+    if (StatementHandle == NULL)
         return SQL_ERROR;
 
     CSTR func = "SQLPrepareW";
@@ -400,7 +401,8 @@ RETCODE SQL_API SQLPrepareW(HSTMT StatementHandle, SQLWCHAR *StatementText,
     // Prepare statement if statement is ready
     RETCODE ret = SQL_ERROR;
     if (!SC_opencheck(stmt, func))
-        ret = ESAPI_Prepare(StatementHandle, (const SQLCHAR *)stxt, (SQLINTEGER)slen);
+        ret = ESAPI_Prepare(StatementHandle, (const SQLCHAR *)stxt,
+                            (SQLINTEGER)slen);
 
     // Exit critical
     LEAVE_STMT_CS(stmt);
@@ -898,7 +900,6 @@ RETCODE SQL_API SQLGetTypeInfoW(SQLHSTMT StatementHandle,
     return ret;
 }
 
-
 /* ODBC 2.x-specific functions */
 // TODO (#590): Add implementations for remaining ODBC 2.x function
 
@@ -1003,5 +1004,66 @@ RETCODE SQL_API SQLSetConnectOptionW(HDBC ConnectionHandle, SQLUSMALLINT Option,
     CC_clear_error(conn);
     ret = ESAPI_SetConnectOption(ConnectionHandle, Option, Value);
     LEAVE_CONN_CS(conn);
+    return ret;
+}
+
+RETCODE SQL_API SQLErrorW(SQLHENV EnvironmentHandle, SQLHDBC ConnectionHandle,
+                          SQLHSTMT StatementHandle, SQLWCHAR *Sqlstate,
+                          SQLINTEGER *NativeError, SQLWCHAR *MessageText,
+                          SQLSMALLINT BufferLength, SQLSMALLINT *TextLength) {
+    RETCODE ret;
+    SQLSMALLINT buflen;
+    SQLSMALLINT tlen = 0;
+    SQLSMALLINT RecNumber = 1;
+    char qstr_ansi[8], *mtxt = NULL;
+
+    MYLOG(ES_TRACE, "entering\n");
+    buflen = 0;
+    if (MessageText && BufferLength > 0) {
+        buflen = BufferLength;
+        mtxt = malloc(buflen);
+    }
+
+    if (StatementHandle) {
+        ret = ESAPI_StmtError(StatementHandle, RecNumber, (SQLCHAR *)qstr_ansi,
+                              NativeError, (SQLCHAR *)mtxt, buflen, &tlen, 0);
+    } else if (ConnectionHandle) {
+        ret = ESAPI_ConnectError(ConnectionHandle, RecNumber,
+                                 (SQLCHAR *)qstr_ansi, NativeError,
+                                 (SQLCHAR *)mtxt, buflen, &tlen, 0);
+    } else if (EnvironmentHandle) {
+        ret = ESAPI_EnvError(EnvironmentHandle, RecNumber, (SQLCHAR *)qstr_ansi,
+                             NativeError, (SQLCHAR *)mtxt, buflen, &tlen, 0);
+    } else {
+        ret = SQL_ERROR;
+    }
+
+    if (SQL_SUCCEEDED(ret)) {
+        if (Sqlstate)
+            utf8_to_ucs2(qstr_ansi, -1, Sqlstate, 6);
+        if (mtxt && tlen <= BufferLength) {
+            // TODO (#612): Verify wide character conversion
+            SQLULEN ulen = utf8_to_ucs2_lf(mtxt, tlen, FALSE, MessageText,
+                                           BufferLength, TRUE);
+            if (ulen == (SQLULEN)-1)
+                tlen = (SQLSMALLINT)locale_to_sqlwchar(
+                    (SQLWCHAR *)MessageText, mtxt, BufferLength, FALSE);
+            else
+                tlen = (SQLSMALLINT)ulen;
+            if (tlen >= BufferLength)
+                ret = SQL_SUCCESS_WITH_INFO;
+            else if (tlen < 0) {
+                char errc[32];
+
+                SPRINTF_FIXED(errc, "Error: SqlState=%s", qstr_ansi);
+                tlen = (SQLSMALLINT)utf8_to_ucs2(errc, -1, MessageText,
+                                                 BufferLength);
+            }
+        }
+        if (TextLength)
+            *TextLength = tlen;
+    }
+    if (mtxt)
+        free(mtxt);
     return ret;
 }
