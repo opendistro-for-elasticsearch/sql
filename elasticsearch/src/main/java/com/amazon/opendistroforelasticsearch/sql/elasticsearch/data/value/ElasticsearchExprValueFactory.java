@@ -27,6 +27,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.L
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchDateFormatters.SQL_LITERAL_DATE_TIME_FORMAT;
 import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchDateFormatters.STRICT_DATE_OPTIONAL_TIME_FORMATTER;
 
@@ -111,6 +112,8 @@ public class ElasticsearchExprValueFactory {
       return constructArray(value, field);
     } else if (type.equals(TIMESTAMP)) {
       return constructTimestamp(value);
+    } else if (type.equals(ES_TEXT)) {
+      return new ElasticsearchExprTextValue(value.asText());
     } else {
       throw new IllegalStateException(
           String.format(

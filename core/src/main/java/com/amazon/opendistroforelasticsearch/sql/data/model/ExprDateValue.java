@@ -18,22 +18,22 @@
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
+import com.google.common.base.Objects;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Date Value.
+ * Expression Date Value.
  */
-@EqualsAndHashCode
 @RequiredArgsConstructor
-public class ExprDateValue implements ExprValue {
+public class ExprDateValue extends AbstractExprValue {
   /**
    * todo. only support UTC now.
    */
@@ -59,8 +59,13 @@ public class ExprDateValue implements ExprValue {
   }
 
   @Override
-  public ExprCoreType type() {
+  public ExprType type() {
     return ExprCoreType.DATE;
+  }
+
+  @Override
+  public ZonedDateTime dateValue() {
+    return date.atZone(ZONE);
   }
 
   @Override
@@ -68,7 +73,18 @@ public class ExprDateValue implements ExprValue {
     return String.format("DATE '%s'", value());
   }
 
-  public ZonedDateTime getDate() {
-    return date.atZone(ZONE);
+  @Override
+  public int compare(ExprValue other) {
+    return date.compareTo(other.dateValue().toInstant());
+  }
+
+  @Override
+  public boolean equal(ExprValue other) {
+    return date.atZone(ZONE).equals(other.dateValue());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(date);
   }
 }

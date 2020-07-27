@@ -16,17 +16,22 @@
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.LazyBindingTuple;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Expression Tuple Value.
+ */
 @RequiredArgsConstructor
-public class ExprTupleValue implements ExprValue {
+public class ExprTupleValue extends AbstractExprValue {
 
   private final LinkedHashMap<String, ExprValue> valueMap;
 
@@ -41,7 +46,7 @@ public class ExprTupleValue implements ExprValue {
   }
 
   @Override
-  public ExprCoreType type() {
+  public ExprType type() {
     return ExprCoreType.STRUCT;
   }
 
@@ -59,21 +64,27 @@ public class ExprTupleValue implements ExprValue {
         bindingName -> valueMap.getOrDefault(bindingName, ExprMissingValue.of()));
   }
 
+  @Override
+  public Map<String, ExprValue> tupleValue() {
+    return valueMap;
+  }
+
   /**
    * Override the equals method.
    * @return true for equal, otherwise false.
    */
-  public boolean equals(Object o) {
-    if (o == this) {
-      return true;
-    } else if (!(o instanceof ExprTupleValue)) {
+  public boolean equal(ExprValue o) {
+    if (!(o instanceof ExprTupleValue)) {
       return false;
     } else {
       ExprTupleValue other = (ExprTupleValue) o;
       Iterator<Entry<String, ExprValue>> thisIterator = this.valueMap.entrySet().iterator();
       Iterator<Entry<String, ExprValue>> otherIterator = other.valueMap.entrySet().iterator();
       while (thisIterator.hasNext() && otherIterator.hasNext()) {
-        if (!thisIterator.next().equals(otherIterator.next())) {
+        Entry<String, ExprValue> thisEntry = thisIterator.next();
+        Entry<String, ExprValue> otherEntry = otherIterator.next();
+        if (!(thisEntry.getKey().equals(otherEntry.getKey())
+            && thisEntry.getValue().equals(otherEntry.getValue()))) {
           return false;
         }
       }
@@ -81,4 +92,16 @@ public class ExprTupleValue implements ExprValue {
     }
   }
 
+  /**
+   * Only compare the size of the map.
+   */
+  @Override
+  public int compare(ExprValue other) {
+    return Integer.compare(valueMap.size(), other.tupleValue().size());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(valueMap);
+  }
 }

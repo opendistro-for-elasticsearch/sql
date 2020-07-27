@@ -135,77 +135,41 @@ public class ExprValueUtils {
   }
 
   public static Integer getIntegerValue(ExprValue exprValue) {
-    return getNumberValue(exprValue).intValue();
+    return exprValue.integerValue();
   }
 
   public static Double getDoubleValue(ExprValue exprValue) {
-    return getNumberValue(exprValue).doubleValue();
+    return exprValue.doubleValue();
   }
 
   public static Long getLongValue(ExprValue exprValue) {
-    return getNumberValue(exprValue).longValue();
+    return exprValue.longValue();
   }
 
   public static Float getFloatValue(ExprValue exprValue) {
-    return getNumberValue(exprValue).floatValue();
+    return exprValue.floatValue();
   }
 
   public static String getStringValue(ExprValue exprValue) {
-    return convert(exprValue, STRING);
+    return exprValue.stringValue();
   }
 
   public static List<ExprValue> getCollectionValue(ExprValue exprValue) {
-    return convert(exprValue, ARRAY);
+    return exprValue.collectionValue();
   }
 
   public static Map<String, ExprValue> getTupleValue(ExprValue exprValue) {
-    return convert(exprValue, STRUCT);
+    return exprValue.tupleValue();
   }
 
   public static Boolean getBooleanValue(ExprValue exprValue) {
-    return convert(exprValue, BOOLEAN);
+    return exprValue.booleanValue();
   }
 
   /**
    * Get {@link ZonedDateTime} from ExprValue of Date type.
    */
   public static ZonedDateTime getDateValue(ExprValue exprValue) {
-    if (ExprCoreType.DATE == exprValue.type()) {
-      return ((ExprDateValue) exprValue).getDate();
-    } else {
-      throw new ExpressionEvaluationException(
-          String.format("invalid to convert expression with type:%s to type:%s", exprValue.type(),
-              ExprCoreType.DATE));
-    }
-  }
-
-  /**
-   * Get Number Value from {@link ExprValue}.
-   */
-  @VisibleForTesting
-  public static Number getNumberValue(ExprValue exprValue) {
-    switch (exprValue.type()) {
-      case INTEGER:
-      case DOUBLE:
-      case LONG:
-      case FLOAT:
-        return (Number) exprValue.value();
-      default:
-        break;
-    }
-    throw new ExpressionEvaluationException(
-        String
-            .format("invalid to getNumberValue with expression has type of %s", exprValue.type()));
-  }
-
-  @SuppressWarnings("unchecked")
-  private static <T> T convert(ExprValue exprValue, ExprCoreType toType) {
-    if (exprValue.type() == toType) {
-      return (T) exprValue.value();
-    } else {
-      throw new ExpressionEvaluationException(
-          String.format("invalid to convert expression with type:%s to type:%s", exprValue.type(),
-              toType));
-    }
+    return exprValue.dateValue();
   }
 }

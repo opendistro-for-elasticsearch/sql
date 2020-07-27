@@ -16,12 +16,20 @@
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
+import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.amazon.opendistroforelasticsearch.sql.storage.bindingtuple.BindingTuple;
+import java.io.Serializable;
+import java.time.Instant;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Map;
 
 /**
  * The definition of the Expression Value.
  */
-public interface ExprValue {
+public interface ExprValue extends Serializable, Comparable<ExprValue> {
   /**
    * Get the Object value of the Expression Value.
    */
@@ -30,7 +38,7 @@ public interface ExprValue {
   /**
    * Get the {@link ExprCoreType} of the Expression Value.
    */
-  ExprCoreType type();
+  ExprType type();
 
   /**
    * Is null value.
@@ -55,5 +63,93 @@ public interface ExprValue {
    */
   default BindingTuple bindingTuples() {
     return BindingTuple.EMPTY;
+  }
+
+  /**
+   * Get integer value.
+   */
+  default Integer integerValue() {
+    throw new ExpressionEvaluationException(
+        "invalid to get integerValue from value of type " + type());
+  }
+
+  /**
+   * Get long value.
+   */
+  default Long longValue() {
+    throw new ExpressionEvaluationException(
+        "invalid to get longValue from value of type " + type());
+  }
+
+  /**
+   * Get float value.
+   */
+  default Float floatValue() {
+    throw new ExpressionEvaluationException(
+        "invalid to get floatValue from value of type " + type());
+  }
+
+  /**
+   * Get float value.
+   */
+  default Double doubleValue() {
+    throw new ExpressionEvaluationException(
+        "invalid to get doubleValue from value of type " + type());
+  }
+
+  /**
+   * Get string value.
+   */
+  default String stringValue() {
+    throw new ExpressionEvaluationException(
+        "invalid to get stringValue from value of type " + type());
+  }
+
+  /**
+   * Get boolean value.
+   */
+  default Boolean booleanValue() {
+    throw new ExpressionEvaluationException(
+        "invalid to get booleanValue from value of type " + type());
+  }
+
+  /**
+   * Get timestamp value.
+   */
+  default Instant timestampValue() {
+    throw new ExpressionEvaluationException(
+        "invalid to get timestampValue from value of type " + type());
+  }
+
+  /**
+   * Get time value.
+   */
+  default LocalTime timeValue() {
+    throw new ExpressionEvaluationException(
+        "invalid to get timeValue from value of type " + type());
+  }
+
+  /**
+   * Get date value.
+   */
+  default ZonedDateTime dateValue() {
+    throw new ExpressionEvaluationException(
+        "invalid to get dateValue from value of type " + type());
+  }
+
+  /**
+   * Get map value.
+   */
+  default Map<String, ExprValue> tupleValue() {
+    throw new ExpressionEvaluationException(
+        "invalid to get tupleValue from value of type " + type());
+  }
+
+  /**
+   * Get collection value.
+   */
+  default List<ExprValue> collectionValue() {
+    throw new ExpressionEvaluationException(
+        "invalid to get collectionValue from value of type " + type());
   }
 }

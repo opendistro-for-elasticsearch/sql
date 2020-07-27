@@ -288,26 +288,6 @@ public class OperatorUtils {
     };
   }
 
-  /**
-   * String comparator.
-   */
-  public static final BiFunction<String, String, Integer> STRING_COMPARATOR = String::compareTo;
-  /**
-   * List comparator.
-   */
-  public static final BiFunction<List, List, Integer> LIST_COMPARATOR =
-      (left, right) -> Integer.compare(left.size(), right.size());
-  /**
-   * Map comparator.
-   */
-  public static final BiFunction<Map, Map, Integer> MAP_COMPARATOR =
-      (left, right) -> Integer.compare(left.size(), right.size());
-  /**
-   * Predicate NULL or MISSING.
-   */
-  public static final BiPredicate<ExprValue, ExprValue> COMPARE_WITH_NULL_OR_MISSING =
-      (left, right) -> left.isMissing() || right.isMissing() || left.isNull() || right.isNull();
-
   public interface TriFunction<T, U, V, R> {
     R apply(T t, U u, V v);
   }
