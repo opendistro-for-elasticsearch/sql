@@ -45,7 +45,7 @@ public class DateTimeFunction {
    */
   private FunctionResolver dayOfMonth() {
     return FunctionDSL.define(DAYOFMONTH.getName(),
-        FunctionDSL.unaryImpl(DateTimeFunction::exprDayOfMonth, INTEGER, DATE)
+        FunctionDSL.impl(DateTimeFunction::exprDayOfMonth, INTEGER, DATE)
     );
   }
 

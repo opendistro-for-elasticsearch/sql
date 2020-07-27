@@ -77,7 +77,7 @@ public class FunctionDSL {
    * @param argsType   argument type.
    * @return Unary Function Implementation.
    */
-  public SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>> unaryImpl(
+  public SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>> impl(
       SerializableFunction<ExprValue, ExprValue> function,
       ExprType returnType,
       ExprType argsType) {
@@ -125,7 +125,7 @@ public class FunctionDSL {
    * @param args2Type   argument type.
    * @return Unary Function Implementation.
    */
-  public Function<FunctionName, Pair<FunctionSignature, FunctionBuilder>> binaryImpl(
+  public Function<FunctionName, Pair<FunctionSignature, FunctionBuilder>> impl(
       SerializableBiFunction<ExprValue, ExprValue, ExprValue> function,
       ExprType returnType,
       ExprType args1Type,

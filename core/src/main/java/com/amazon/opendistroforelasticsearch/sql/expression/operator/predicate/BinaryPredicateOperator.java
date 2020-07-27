@@ -196,7 +196,7 @@ public class BinaryPredicateOperator {
   private static FunctionResolver equal() {
     return FunctionDSL.define(BuiltinFunctionName.EQUAL.getName(),
         ExprCoreType.coreTypes().stream()
-            .map(type -> FunctionDSL.binaryImpl((v1, v2) -> ExprBooleanValue.of(v1.equals(v2)),
+            .map(type -> FunctionDSL.impl((v1, v2) -> ExprBooleanValue.of(v1.equals(v2)),
                 BOOLEAN, type, type))
             .collect(
                 Collectors.toList()));
@@ -206,7 +206,7 @@ public class BinaryPredicateOperator {
     return FunctionDSL
         .define(BuiltinFunctionName.NOTEQUAL.getName(), ExprCoreType.coreTypes().stream()
             .map(type -> FunctionDSL
-                .binaryImpl((v1, v2) -> ExprBooleanValue.of(!v1.equals(v2)), BOOLEAN, type, type))
+                .impl((v1, v2) -> ExprBooleanValue.of(!v1.equals(v2)), BOOLEAN, type, type))
             .collect(
                 Collectors.toList()));
   }
