@@ -239,6 +239,15 @@ typedef enum {
     CONNECTION_GSS_STARTUP /* Negotiating GSSAPI. */
 } ConnStatusType;
 
+typedef enum {
+    CONN_ERROR_SUCCESS,             // 0
+    CONN_ERROR_QUERY_SYNTAX,        // 42000
+    CONN_ERROR_COMM_LINK_FAILURE,   // 08S01
+    CONN_ERROR_INVALID_NULL_PTR,    // HY009
+    CONN_ERROR_INVALID_AUTH,        // 28000
+    CONN_ERROR_UNABLE_TO_ESTABLISH  // 08001
+} ConnErrorType;
+
 // Only expose this to C++ code, this will be passed through the C interface as
 // a void*
 #ifdef __cplusplus
@@ -284,6 +293,13 @@ typedef struct runtime_options {
     authentication_options auth;
     encryption_options crypt;
 } runtime_options;
+
+typedef struct ErrorDetails {
+    std::string reason;
+    std::string details;
+    std::string source_type;
+    ConnErrorType type;
+} ErrorDetails;
 
 #define INVALID_OID 0
 #define KEYWORD_TYPE_OID 1043

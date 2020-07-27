@@ -21,6 +21,7 @@
 #include <memory>
 #include <queue>
 #include <future>
+#include <regex>
 #include "es_types.h"
 #include "es_result_queue.h"
 
@@ -50,6 +51,7 @@ class ESCommunication {
 
     // Create function for factory
     std::string GetErrorMessage();
+    ConnErrorType GetErrorType();
     bool ConnectionOptions(runtime_options& rt_opts, bool use_defaults,
                            int expand_dbname, unsigned int option_count);
     bool ConnectionOptions2();
@@ -84,12 +86,15 @@ class ESCommunication {
     void ConstructESResult(ESResult& result);
     void GetJsonSchema(ESResult& es_result);
     void PrepareCursorResult(ESResult& es_result);
+    std::shared_ptr< ErrorDetails > ParseErrorResponse(ESResult& es_result);
 
     // TODO #35 - Go through and add error messages on exit conditions
     std::string m_error_message;
     const std::vector< std::string > m_supported_client_encodings = {"UTF8"};
 
     ConnStatusType m_status;
+    ConnErrorType m_error_type;
+    std::shared_ptr< ErrorDetails > m_error_details;
     bool m_valid_connection_options;
     bool m_is_retrieving;
     ESResultQueue m_result_queue;

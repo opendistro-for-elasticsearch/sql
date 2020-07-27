@@ -248,13 +248,13 @@ RETCODE SQL_API SQLDisconnect(HDBC ConnectionHandle) {
 #ifndef UNICODE_SUPPORTXX
 RETCODE SQL_API SQLExecDirect(HSTMT StatementHandle, SQLCHAR *StatementText,
                               SQLINTEGER TextLength) {
-    if(StatementHandle == NULL)
+    if (StatementHandle == NULL)
         return SQL_ERROR;
     StatementClass *stmt = (StatementClass *)StatementHandle;
 
     if (SC_connection_lost_check(stmt, __FUNCTION__))
         return SQL_ERROR;
-    
+
     // Enter critical
     ENTER_STMT_CS(stmt);
 
@@ -274,7 +274,7 @@ RETCODE SQL_API SQLExecDirect(HSTMT StatementHandle, SQLCHAR *StatementText,
 #endif /* UNICODE_SUPPORTXX */
 
 RETCODE SQL_API SQLExecute(HSTMT StatementHandle) {
-    if(StatementHandle == NULL)
+    if (StatementHandle == NULL)
         return SQL_ERROR;
 
     StatementClass *stmt = (StatementClass *)StatementHandle;
@@ -468,7 +468,7 @@ RETCODE SQL_API SQLParamData(HSTMT StatementHandle, PTR *Value) {
 #ifndef UNICODE_SUPPORTXX
 RETCODE SQL_API SQLPrepare(HSTMT StatementHandle, SQLCHAR *StatementText,
                            SQLINTEGER TextLength) {
-    if(StatementHandle == NULL)
+    if (StatementHandle == NULL)
         return SQL_ERROR;
 
     CSTR func = "SQLPrepare";
@@ -1365,6 +1365,35 @@ SQLRETURN SQL_API SQLColAttributes(SQLHSTMT StatementHandle,
                               CharacterAttribute, BufferLength, StringLength,
                               NumericAttribute);
     LEAVE_STMT_CS(stmt);
+    return ret;
+}
+
+/*	SQLError -> SQLDiagRec */
+RETCODE SQL_API SQLError(SQLHENV EnvironmentHandle, SQLHDBC ConnectionHandle,
+                         SQLHSTMT StatementHandle, SQLCHAR *Sqlstate,
+                         SQLINTEGER *NativeError, SQLCHAR *MessageText,
+                         SQLSMALLINT BufferLength, SQLSMALLINT *TextLength) {
+    RETCODE ret;
+    SQLSMALLINT RecNumber = 1;
+
+    MYLOG(ES_TRACE, "entering\n");
+
+    if (StatementHandle) {
+        ret =
+            ESAPI_StmtError(StatementHandle, RecNumber, Sqlstate, NativeError,
+                           MessageText, BufferLength, TextLength, 0);
+    } else if (ConnectionHandle) {
+        ret = ESAPI_ConnectError(ConnectionHandle, RecNumber, Sqlstate,
+                                 NativeError, MessageText, BufferLength,
+                                 TextLength, 0);
+    } else if (EnvironmentHandle) {
+        ret = ESAPI_EnvError(EnvironmentHandle, RecNumber, Sqlstate, NativeError,
+                              MessageText, BufferLength, TextLength, 0);
+    } else {
+        ret = SQL_ERROR;
+    }
+
+    MYLOG(ES_TRACE, "leaving %d\n", ret);
     return ret;
 }
 #endif /* UNICODE_SUPPORTXX */
