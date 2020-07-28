@@ -30,22 +30,22 @@ extern "C" {
 #define ES_TYPE_LO ? ? ? ? /* waiting for permanent type */
 #endif
 
-#define ES_TYPE_NAME_BOOLEAN "boolean";
-#define ES_TYPE_NAME_BYTE "byte";
-#define ES_TYPE_NAME_SHORT "short";
-#define ES_TYPE_NAME_INTEGER "integer";
-#define ES_TYPE_NAME_LONG "long";
-#define ES_TYPE_NAME_HALF_FLOAT "half_float";
-#define ES_TYPE_NAME_FLOAT "float";
-#define ES_TYPE_NAME_DOUBLE "double";
-#define ES_TYPE_NAME_SCALED_FLOAT "scaled_float";
-#define ES_TYPE_NAME_KEYWORD "keyword";
-#define ES_TYPE_NAME_TEXT "text";
-#define ES_TYPE_NAME_NESTED "nested";
-#define ES_TYPE_NAME_DATE "date";
-#define ES_TYPE_NAME_OBJECT "object";
-#define ES_TYPE_NAME_VARCHAR "varchar";
-#define ES_TYPE_NAME_UNSUPPORTED "unsupported";
+#define ES_TYPE_NAME_BOOLEAN "boolean"
+#define ES_TYPE_NAME_BYTE "byte"
+#define ES_TYPE_NAME_SHORT "short"
+#define ES_TYPE_NAME_INTEGER "integer"
+#define ES_TYPE_NAME_LONG "long"
+#define ES_TYPE_NAME_HALF_FLOAT "half_float"
+#define ES_TYPE_NAME_FLOAT "float"
+#define ES_TYPE_NAME_DOUBLE "double"
+#define ES_TYPE_NAME_SCALED_FLOAT "scaled_float"
+#define ES_TYPE_NAME_KEYWORD "keyword"
+#define ES_TYPE_NAME_TEXT "text"
+#define ES_TYPE_NAME_NESTED "nested"
+#define ES_TYPE_NAME_DATE "date"
+#define ES_TYPE_NAME_OBJECT "object"
+#define ES_TYPE_NAME_VARCHAR "varchar"
+#define ES_TYPE_NAME_UNSUPPORTED "unsupported"
 
 #define MS_ACCESS_SERIAL "int identity"
 #define ES_TYPE_BOOL 16
