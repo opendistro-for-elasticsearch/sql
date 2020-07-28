@@ -89,19 +89,6 @@ public class SQLService {
   }
 
   /**
-   * Given logical plan, run the remaining steps to execute it.
-   * @param logicalPlan logical plan
-   * @param listener    callback listener
-   */
-  public void execute(LogicalPlan logicalPlan, ResponseListener<QueryResponse> listener) {
-    try {
-      executionEngine.execute(plan(logicalPlan), listener);
-    } catch (Exception e) {
-      listener.onFailure(e);
-    }
-  }
-
-  /**
    * Parse query and convert parse tree (CST) to abstract syntax tree (AST).
    */
   public UnresolvedPlan parse(String query) {

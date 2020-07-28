@@ -28,6 +28,7 @@ import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
+import com.amazon.opendistroforelasticsearch.sql.common.utils.StringUtils;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.ColumnNameContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.IdentContext;
@@ -36,8 +37,10 @@ import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLP
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.TableNameContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
-import org.antlr.v4.runtime.tree.RuleNode;
+import org.antlr.v4.runtime.RuleContext;
 
 /**
  * Expression builder to parse text to expression in AST.
@@ -46,27 +49,22 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
 
   @Override
   public UnresolvedExpression visitTableName(TableNameContext ctx) {
-    return new QualifiedName(visitQualifiedNameText(ctx));
+    return visitQualifiedName(ctx.qualifiedName());
   }
 
   @Override
   public UnresolvedExpression visitColumnName(ColumnNameContext ctx) {
-    return new QualifiedName(visitQualifiedNameText(ctx));
+    return visitQualifiedName(ctx.qualifiedName());
   }
 
   @Override
   public UnresolvedExpression visitIdent(IdentContext ctx) {
-    return new QualifiedName(visitQualifiedNameText(ctx));
+    return visitIdentifiers(Collections.singletonList(ctx));
   }
 
   @Override
   public UnresolvedExpression visitQualifiedName(QualifiedNameContext ctx) {
-    return new QualifiedName(
-        ctx.ident()
-           .stream()
-           .map(this::visitQualifiedNameText)
-           .collect(Collectors.toList())
-    );
+    return visitIdentifiers(ctx.ident());
   }
 
   @Override
@@ -130,8 +128,14 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
     return AstDSL.timestampLiteral(unquoteIdentifier(ctx.timestamp.getText()));
   }
 
-  private String visitQualifiedNameText(RuleNode node) {
-    return unquoteIdentifier(node.getText());
+  private QualifiedName visitIdentifiers(List<IdentContext> identifiers) {
+    return new QualifiedName(
+        identifiers
+            .stream()
+            .map(RuleContext::getText)
+            .map(StringUtils::unquoteIdentifier)
+            .collect(Collectors.toList())
+    );
   }
 
 }

@@ -156,6 +156,10 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
 
   @Override
   public Expression visitQualifiedName(QualifiedName node, AnalysisContext context) {
+    if (node.getParts().size() > 1) {
+      throw new SyntaxCheckException(String.format(
+          "Qualified name [%s] is not supported yet", node));
+    }
     return visitIdentifier(node.toString(), context);
   }
 
@@ -171,7 +175,7 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
 
     if (isTypeNotSupported(ref.type())) {
       throw new SyntaxCheckException(String.format(
-          "Identifier [%s] of type [%s] is not supported yet,", ident, ref.type()));
+          "Identifier [%s] of type [%s] is not supported yet", ident, ref.type()));
     }
     return ref;
   }
