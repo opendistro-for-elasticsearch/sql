@@ -15,12 +15,28 @@
 
 package com.amazon.opendistroforelasticsearch.sql.ast.expression;
 
-public enum DataType {
-  TYPE_ERROR,
-  NULL,
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-  INTEGER,
-  DOUBLE,
-  STRING,
-  BOOLEAN
+/**
+ * The DataType defintion in AST.
+ * Question, could we use {@link ExprCoreType} directly in AST?
+ */
+@RequiredArgsConstructor
+public enum DataType {
+  TYPE_ERROR(ExprCoreType.UNKNOWN),
+  NULL(ExprCoreType.UNKNOWN),
+
+  INTEGER(ExprCoreType.INTEGER),
+  DOUBLE(ExprCoreType.DOUBLE),
+  STRING(ExprCoreType.STRING),
+  BOOLEAN(ExprCoreType.BOOLEAN),
+
+  DATE(ExprCoreType.DATE),
+  TIME(ExprCoreType.TIME),
+  TIMESTAMP(ExprCoreType.TIMESTAMP);
+
+  @Getter
+  private final ExprCoreType coreType;
 }

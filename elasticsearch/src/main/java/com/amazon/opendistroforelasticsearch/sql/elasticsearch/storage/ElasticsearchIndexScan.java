@@ -17,8 +17,8 @@
 package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
-import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprValueFactory;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.request.ElasticsearchRequest;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.response.ElasticsearchResponse;
 import com.amazon.opendistroforelasticsearch.sql.storage.TableScanOperator;
@@ -38,15 +38,24 @@ public class ElasticsearchIndexScan extends TableScanOperator {
   /** Elasticsearch client. */
   private final ElasticsearchClient client;
 
+  private final ElasticsearchExprValueFactory exprValueFactory;
+
   /** Search request. */
-  @EqualsAndHashCode.Include @ToString.Include private final ElasticsearchRequest request;
+  @EqualsAndHashCode.Include
+  @ToString.Include
+  private final ElasticsearchRequest request;
 
   /** Search response for current batch. */
   private Iterator<SearchHit> hits;
 
-  public ElasticsearchIndexScan(ElasticsearchClient client, String indexName) {
+  /**
+   * Todo.
+   */
+  public ElasticsearchIndexScan(ElasticsearchClient client, String indexName,
+                                ElasticsearchExprValueFactory exprValueFactory) {
     this.client = client;
     this.request = new ElasticsearchRequest(indexName);
+    this.exprValueFactory = exprValueFactory;
   }
 
   @Override
@@ -70,7 +79,7 @@ public class ElasticsearchIndexScan extends TableScanOperator {
 
   @Override
   public ExprValue next() {
-    return ExprValueUtils.fromObjectValue(hits.next().getSourceAsMap());
+    return exprValueFactory.construct(hits.next().getSourceAsString());
   }
 
   @Override

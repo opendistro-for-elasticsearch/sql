@@ -25,6 +25,8 @@ THE SOFTWARE.
 
 parser grammar OpenDistroSQLParser;
 
+import OpenDistroSQLIdentifierParser;
+
 options { tokenVocab=OpenDistroSQLLexer; }
 
 
@@ -57,15 +59,24 @@ selectStatement
 //    Select Statement's Details
 
 querySpecification
+    : selectClause
+      fromClause?
+    ;
+
+selectClause
     : SELECT selectElements
     ;
 
 selectElements
-    : selectElement (COMMA selectElement)*
+    : (star=STAR | selectElement) (',' selectElement)*
     ;
 
 selectElement
     : expression                                         #selectExpressionElement
+    ;
+
+fromClause
+    : FROM tableName
     ;
 
 
@@ -76,6 +87,7 @@ constant
     | sign? decimalLiteral      #signedDecimal
     | sign? realLiteral         #signedReal
     | booleanLiteral            #boolean
+    | datetimeLiteral           #datetime
     // Doesn't support the following types for now
     //| nullLiteral               #null
     //| BIT_STRING
@@ -88,14 +100,7 @@ decimalLiteral
     ;
 
 stringLiteral
-    : (
-        STRING_LITERAL
-        | START_NATIONAL_STRING_LITERAL
-      ) STRING_LITERAL+
-    | (
-        STRING_LITERAL
-        | START_NATIONAL_STRING_LITERAL
-      )
+    : STRING_LITERAL
     ;
 
 booleanLiteral
@@ -112,6 +117,25 @@ sign
 
 nullLiteral
     : NULL_LITERAL
+    ;
+
+// Date and Time Literal, follow ANSI 92
+datetimeLiteral
+    : dateLiteral
+    | timeLiteral
+    | timestampLiteral
+    ;
+
+dateLiteral
+    : DATE date=stringLiteral
+    ;
+
+timeLiteral
+    : TIME time=stringLiteral
+    ;
+
+timestampLiteral
+    : TIMESTAMP timestamp=stringLiteral
     ;
 
 //    Expressions, predicates
@@ -141,11 +165,26 @@ functionCall
     ;
 
 scalarFunctionName
-    : ABS
+    : mathematicalFunctionName
+    | dateTimeFunctionName
+    ;
+
+mathematicalFunctionName
+    : ABS | CEIL | CEILING | CONV | CRC32 | E | EXP | FLOOR | LN | LOG | LOG10 | LOG2 | MOD | PI | POW | POWER
+    | RAND | ROUND | SIGN | SQRT | TRUNCATE
+    | trigonometricFunctionName
+    ;
+
+trigonometricFunctionName
+    : ACOS | ASIN | ATAN | ATAN2 | COS | COT | DEGREES | RADIANS | SIN | TAN
+    ;
+
+dateTimeFunctionName
+    : DAYOFMONTH
     ;
 
 functionArgs
-    : functionArg (COMMA functionArg)*
+    : (functionArg (COMMA functionArg)*)?
     ;
 
 functionArg

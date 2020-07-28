@@ -20,8 +20,8 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode
 public class ExprBooleanValue implements ExprValue {
-  private static final ExprValue TRUE = new ExprBooleanValue(true);
-  private static final ExprValue FALSE = new ExprBooleanValue(false);
+  private static final ExprBooleanValue TRUE = new ExprBooleanValue(true);
+  private static final ExprBooleanValue FALSE = new ExprBooleanValue(false);
 
   private final Boolean value;
 
@@ -29,12 +29,8 @@ public class ExprBooleanValue implements ExprValue {
     this.value = value;
   }
 
-  public static ExprValue ofTrue() {
-    return TRUE;
-  }
-
-  public static ExprValue ofFalse() {
-    return FALSE;
+  public static ExprBooleanValue of(Boolean value) {
+    return value ? TRUE : FALSE;
   }
 
   @Override

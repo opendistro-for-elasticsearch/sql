@@ -27,12 +27,12 @@ The example show fetch all the document from accounts index with .
 
 PPL query::
 
-    od> source=accounts | where account_number=1 or gender="F";
+    od> source=accounts | where account_number=1 or gender="F" | fields account_number, gender;
     fetched rows / total rows = 2/2
-    +------------------+-------------+--------------------+-----------+----------+--------+------------+---------+-------+----------------------+------------+
-    | account_number   | firstname   | address            | balance   | gender   | city   | employer   | state   | age   | email                | lastname   |
-    |------------------+-------------+--------------------+-----------+----------+--------+------------+---------+-------+----------------------+------------|
-    | 1                | Amber       | 880 Holmes Lane    | 39225     | M        | Brogan | Pyrami     | IL      | 32    | amberduke@pyrami.com | Duke       |
-    | 13               | Nanette     | 789 Madison Street | 32838     | F        | Nogal  | Quility    | VA      | 28    | null                 | Bates      |
-    +------------------+-------------+--------------------+-----------+----------+--------+------------+---------+-------+----------------------+------------+
+    +------------------+----------+
+    | account_number   | gender   |
+    |------------------+----------|
+    | 1                | M        |
+    | 13               | F        |
+    +------------------+----------+
 

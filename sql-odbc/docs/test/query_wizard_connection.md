@@ -10,18 +10,6 @@
 
 <img src="img/query_wizard_enable_use_the_query_wizard_option.png" width="400">
 
-* You might get an popup with a message `This data source contains no visible tables`. Click on **OK**.
-
-<img src="img/query_wizard_error_popup.png" width="350">
-
-* Click on **Options** in Query Wizard window.
-
-<img src="img/query_wizard_choose_coulms.png" width="450">
-
-* Select checkbox **Tables**. Clear all other checkboxes. Click on **OK**.
-
-<img src="img/query_wizard_table_options.png" width="300">
-
 * You will see list of available tables & columns. Select required tables/columns and click on **>**. 
 * After selecting all required columns, Click on **Next**.
 

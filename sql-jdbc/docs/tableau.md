@@ -4,7 +4,7 @@
 
 * Download and install [Tableau Desktop](https://www.tableau.com/en-ca/products/desktop/download).
 * Install and configure [Open Distro for Elasticsearch](https://opendistro.github.io/for-elasticsearch-docs/docs/install/).
-* Download the [Open Distro for ElasticSearch JDBC Driver](https://github.com/opendistro-for-elasticsearch/sql-jdbc#download-and-installation).
+* Download the [Open Distro for ElasticSearch JDBC Driver](https://github.com/opendistro-for-elasticsearch/sql/blob/master/sql-jdbc/README.md#download-and-installation).
 
 ## Setup
 
@@ -47,7 +47,7 @@ For futher details check [using a .tdc file with Tableau](https://kb.tableau.com
  ### Connection information
 
 You will need:
-* [JDBC connection string](https://github.com/opendistro-for-elasticsearch/sql-jdbc#connection-url-and-other-settings) to enter in the URL field when you connect.
+* [JDBC connection string](https://github.com/opendistro-for-elasticsearch/sql/blob/master/sql-jdbc/README.md#connection-url-and-other-settings) to enter in the URL field when you connect.
 
   Sample connection string for connecting to localhost: `jdbc:elasticsearch://localhost:9200`.
 
