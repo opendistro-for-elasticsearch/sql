@@ -362,13 +362,13 @@ TEST_F(TestSQLColumns, FlightsValidation) {
     binds.push_back(bind_info(6, SQL_C_CHAR));
     binds.push_back(bind_info(7, SQL_C_SLONG));
     binds.push_back(bind_info(8, SQL_C_SLONG));
-    binds.push_back(bind_info(9, SQL_C_SHORT));
-    binds.push_back(bind_info(10, SQL_C_SHORT));
-    binds.push_back(bind_info(11, SQL_C_SHORT)); 
+    binds.push_back(bind_info(9, SQL_C_SSHORT));
+    binds.push_back(bind_info(10, SQL_C_SSHORT));
+    binds.push_back(bind_info(11, SQL_C_SSHORT)); 
     binds.push_back(bind_info(12, SQL_C_CHAR));
     binds.push_back(bind_info(13, SQL_C_CHAR));
     binds.push_back(bind_info(14, SQL_C_SHORT));
-    binds.push_back(bind_info(15, SQL_C_SHORT));
+    binds.push_back(bind_info(15, SQL_C_SSHORT));
     binds.push_back(bind_info(16, SQL_C_SLONG));
     binds.push_back(bind_info(17, SQL_C_SLONG));
     binds.push_back(bind_info(18, SQL_C_CHAR));
