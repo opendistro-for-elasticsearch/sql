@@ -1,4 +1,8 @@
-# Tableau Desktop
+# Connecting Open Distro For ElasticSearch to Tableau Desktop via the Tableau Connector
+
+## Overview
+
+Connect an Open Distro For ElasticSearch data source to Tableau Desktop via the Tableau Connector to create a basic graph.
 
 ## Prerequisites
 
@@ -6,17 +10,21 @@
 * Install and Configure [Open Distro for Elasticsearch](https://opendistro.github.io/for-elasticsearch-docs/docs/install/)
 * Download and Install [Open Distro for Elasticsearch SQL ODBC driver](../../README.md)
 * Download Tableau Connector for `SQL by Open Distro for ES` ([odfe_sql_odbc.taco](../../src/TableauConnector/odfe_sql_odbc/odfe_sql_odbc.taco)).
+Click on **Download** option for downloading `odfe_sql_odbc.taco` file.
+<img src="img/tableau_download_taco.png" >
 
-## Setup 
+## Prepare data 
 
-* Copy `odfe_sql_odbc.taco` file to **<User>/Documents/My Tableau Repository/Connectors**.
+* Copy `odfe_sql_odbc.taco` file to My Tableau Repository.
+
+  * On windows: **%User%/Documents/My Tableau Repository/Connectors/**.
+  * On Mac: **~/Documents/My Tableau Repository/Connectors/**.
+
 * Open Tableau using following command
 
 ```
 <full-Tableau-path>\bin\tableau.exe -DDisableVerifyConnectorPluginSignature=true
 ```
-
-## Prepare data 
 
 * Click on **Connect** > **More** > **SQL by Open Distro for ES**.
 
@@ -39,19 +47,19 @@ FetchSize=2000;ResponseTimeout=20;
 
 ## Analyze Data
 
-* Drag any required table.
+* Double click on any required table from the list and click on **Update Now** to load data preview.
 
 <img src="img/tableau_select_table.png">
 
-* Click on **Update Now** to load data preview.
+* Data preview will be loaded.
 
 <img src="img/tableau_data_preview.png">
 
-* Click on **Sheet 1**.
+* Click on **Sheet 1**. You can see a list of attributes under **Data** section.
 
 <img src="img/tableau_columns_list.png">
 
-* Generate graph by dragging any required attributes to **Columns** & **Rows**.
+* Double click on any required attributes to generate a graph.
 
 <img src="img/tableau_graph.png">
 
