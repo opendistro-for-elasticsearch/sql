@@ -1,4 +1,4 @@
-# Microsoft Power BI Desktop
+#  Connecting Open Distro For ElasticSearch to Microsoft Power BI Desktop
 
 **NOTE**: **The connector is under development. All connection options are not available yet. There could be issues while loading data**
 
