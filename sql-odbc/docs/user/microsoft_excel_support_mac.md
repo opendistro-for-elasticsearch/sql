@@ -1,4 +1,4 @@
-# Micosoft Excel on Mac OS
+#  Connecting Open Distro For ElasticSearch to Micosoft Excel on Mac OS
 
 ## Prerequisites
 
