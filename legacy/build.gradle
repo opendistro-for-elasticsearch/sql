@@ -60,7 +60,13 @@ dependencies {
     compile group: 'org.locationtech.spatial4j', name: 'spatial4j', version:'0.7'
     compile group: "org.elasticsearch.plugin", name: 'parent-join-client', version: "${es_version}"
     compile group: "org.elasticsearch.plugin", name: 'reindex-client', version: "${es_version}"
-    compile group: 'com.google.guava', name: 'guava', version:'23.0'
+    constraints {
+        implementation('commons-codec:commons-codec:1.13') {
+            because 'https://www.whitesourcesoftware.com/vulnerability-database/WS-2019-0379'
+        }
+    }
+    // https://github.com/google/guava/wiki/CVE-2018-10237
+    implementation group: 'com.google.guava', name: 'guava', version: '29.0-jre'
     compile group: 'org.json', name: 'json', version:'20180813'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.10'
     compile group: 'org.elasticsearch', name: 'elasticsearch', version: "${es_version}"
