@@ -3,7 +3,7 @@
 ## Prerequisites
 
 * Download and Install [Tableau Desktop](https://www.tableau.com/products/desktop/download) 2020 and higher
-* Download and Install [Open Distro for Elasticsearch](https://opendistro.github.io/for-elasticsearch-docs/docs/install/)
+* Install and Configure [Open Distro for Elasticsearch](https://opendistro.github.io/for-elasticsearch-docs/docs/install/)
 * Download and Install [Open Distro for Elasticsearch SQL ODBC driver](../../README.md)
 * Download Tableau Connector for `SQL by Open Distro for ES` ([odfe_sql_odbc.taco](../../src/TableauConnector/odfe_sql_odbc/odfe_sql_odbc.taco)).
 
