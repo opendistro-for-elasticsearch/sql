@@ -100,7 +100,8 @@ const int delay_offset_3_1 = 0;
 const int delay_offset_3_2 = 180;
 const SQLSMALLINT single_col_name_length = 6;
 const SQLSMALLINT single_col_data_type = SQL_WVARCHAR;
-const SQLULEN single_col_column_size = 25;
+const SQLULEN single_col_column_size_25 = 25;
+const SQLULEN single_col_column_size_15 = 15;
 const SQLSMALLINT single_col_decimal_digit = 0;
 const SQLSMALLINT single_col_nullable = 2;
 const std::wstring single_row = L"1";
@@ -936,7 +937,9 @@ TEST_F(TestSQLDescribeCol, SingleColumnMetadata) {
     EXPECT_EQ(single_col, m_column_name);
     EXPECT_EQ(single_col_name_length, m_column_name_length);
     EXPECT_EQ(single_col_data_type, m_data_type);
-    EXPECT_EQ(single_col_column_size, m_column_size);
+    // Values changes according to different server setup
+    EXPECT_TRUE((single_col_column_size_25 == m_column_size)
+                || (single_col_column_size_15 == m_column_size));
     EXPECT_EQ(single_col_decimal_digit, m_decimal_digits);
     EXPECT_EQ(single_col_nullable, m_nullable);
 }
