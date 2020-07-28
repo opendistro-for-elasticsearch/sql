@@ -937,7 +937,7 @@ TEST_F(TestSQLDescribeCol, SingleColumnMetadata) {
     EXPECT_EQ(single_col, m_column_name);
     EXPECT_EQ(single_col_name_length, m_column_name_length);
     EXPECT_EQ(single_col_data_type, m_data_type);
-    // Values changes according to different server setup
+    // Value changes according to pagination setup on server
     EXPECT_TRUE((single_col_column_size_25 == m_column_size)
                 || (single_col_column_size_15 == m_column_size));
     EXPECT_EQ(single_col_decimal_digit, m_decimal_digits);
