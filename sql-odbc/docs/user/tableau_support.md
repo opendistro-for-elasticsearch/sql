@@ -32,7 +32,7 @@ Click on **Download** option for downloading `odfe_sql_odbc.taco` file.
 
 * Enter **Server** & **Port** value. 
 * Select required authentication option. For **AWS_SIGV4** authentication, select **Integrated Authentication** and enter value for **Region**.
-* Use **Additional Options** section for specifying options like **FetchSize**, **ResponseTimeout**. Use **;** to separate values.
+* Use **Additional Options** section for specifying options like **FetchSize**, **ResponseTimeout**. Use `;` to separate values. For example,
 
 ```
 FetchSize=2000;ResponseTimeout=20;
@@ -41,11 +41,13 @@ FetchSize=2000;ResponseTimeout=20;
 <img src="img/tableau_dialog.png" width=400>
 
 * Click on **Sign In**.
-* You will get a list of tables.
+* You will get a list of tables when the connection is successful.
 
 <img src="img/tableau_table_list.png">
 
 ## Analyze Data
+
+To generate a graph,
 
 * Double click on any required table from the list and click on **Update Now** to load data preview.
 
@@ -55,11 +57,11 @@ FetchSize=2000;ResponseTimeout=20;
 
 <img src="img/tableau_data_preview.png">
 
-* Click on **Sheet 1**. You can see a list of attributes under **Data** section.
+* Click on **Sheet 1**. You can see a list of attributes under section **Data**.
 
 <img src="img/tableau_columns_list.png">
 
-* Double click on any required attributes to generate a graph.
+* Double click on any required attributes to generate a simple graph. 
 
 <img src="img/tableau_graph.png">
 
