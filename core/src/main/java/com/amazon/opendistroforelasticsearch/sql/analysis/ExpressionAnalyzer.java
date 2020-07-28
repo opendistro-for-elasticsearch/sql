@@ -32,7 +32,9 @@ import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedAttribute;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Xor;
+import com.amazon.opendistroforelasticsearch.sql.common.antlr.SyntaxCheckException;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import com.amazon.opendistroforelasticsearch.sql.expression.DSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
@@ -166,6 +168,17 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
     TypeEnvironment typeEnv = context.peek();
     ReferenceExpression ref = DSL.ref(ident,
         typeEnv.resolve(new Symbol(Namespace.FIELD_NAME, ident)));
+
+    if (isTypeNotSupported(ref.type())) {
+      throw new SyntaxCheckException(String.format(
+          "Identifier [%s] of type [%s] is not supported yet,", ident, ref.type()));
+    }
     return ref;
   }
+
+  private boolean isTypeNotSupported(ExprType type) {
+    return "struct".equalsIgnoreCase(type.typeName())
+        || "array".equalsIgnoreCase(type.typeName());
+  }
+
 }

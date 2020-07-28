@@ -1749,6 +1749,7 @@ public class QueryIT extends SQLIntegTestCase {
         "For more details, please send request for Json format");
   }
 
+  @Ignore("This is already supported in our new query engine")
   @Test
   public void functionCallWithIllegalScriptShouldThrowESExceptionInJdbc() {
     String response = executeQuery("select log(balance + 2) from " + TEST_INDEX_BANK,
