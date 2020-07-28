@@ -4,7 +4,7 @@ The ElasticsearchODBC driver can be build on Windows and Mac.
 
 ## Setting up Dependencies
 
-The driver [source code](https://github.com/opendistro-for-elasticsearch/sql-odbc) must be downloaded onto the system to build it.
+The driver [source code](https://github.com/opendistro-for-elasticsearch/sql/tree/master/sql-odbc) must be downloaded onto the system to build it.
 
 ### Windows Dependencies
 

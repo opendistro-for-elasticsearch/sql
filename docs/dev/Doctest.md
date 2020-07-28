@@ -145,7 +145,7 @@ Doctest is relying on the console/command line to run code examples in documenta
     * https://github.com/crate/crate/blob/master/docs/general/dql/selects.rst
 
 
-Similar to CarateDB using it’s CLI “crash”, we can make use of our own [SQL-CLI](https://github.com/opendistro-for-elasticsearch/sql-cli)
+Similar to CrateDB using it’s CLI “crash”, we can make use of our own [SQL-CLI](https://github.com/opendistro-for-elasticsearch/sql/tree/master/sql-cli)
 
 To support PPL, we need to add PPL support to SQL-CLI. Since PPL and SQL expose similar http endpoint for query and share similar response format. The update won’t be much of work.
 
