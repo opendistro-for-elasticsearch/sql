@@ -78,6 +78,10 @@ OdfeSqlOdbcPBIConnectorImpl = (Host as text, optional Port as number) as table =
             Driver = "ODFE SQL ODBC Driver"
         ],
 
+        SQLGetInfo = Diagnostics.LogValue("SQLGetInfo_Options", [
+            SQL_AGGREGATE_FUNCTIONS = ODBC[SQL_AF][All]
+        ]),
+
         SQLGetTypeInfo = (types) => 
             if (EnableTraceOutput <> true) then types else
             let
@@ -139,6 +143,7 @@ OdfeSqlOdbcPBIConnectorImpl = (Host as text, optional Port as number) as table =
             AstVisitor = AstVisitor,
             SQLColumns = SQLColumns,
             SQLGetTypeInfo = SQLGetTypeInfo,
+            SQLGetInfo = SQLGetInfo,
 
             OnError = OnOdbcError,
 
