@@ -88,8 +88,8 @@ constant
     | sign? realLiteral         #signedReal
     | booleanLiteral            #boolean
     | datetimeLiteral           #datetime
+    | nullLiteral               #null
     // Doesn't support the following types for now
-    //| nullLiteral               #null
     //| BIT_STRING
     //| NOT? nullLiteral=(NULL_LITERAL | NULL_SPEC_LITERAL)
     //| LEFT_BRACE dateType=(D | T | TS | DATE | TIME | TIMESTAMP) stringLiteral RIGHT_BRACE
@@ -147,6 +147,9 @@ expression
 
 predicate
     : expressionAtom                                                #expressionAtomPredicate
+    | left=predicate comparisonOperator right=predicate             #binaryComparisonPredicate
+    | predicate IS nullNotnull                                      #isNullPredicate
+    | left=predicate NOT? LIKE right=predicate                      #likePredicate
     ;
 
 expressionAtom
@@ -158,6 +161,15 @@ expressionAtom
 
 mathOperator
     : PLUS | MINUS | STAR | DIVIDE | MODULE
+    ;
+
+comparisonOperator
+    : '=' | '>' | '<' | '<' '=' | '>' '='
+    | '<' '>' | '!' '='
+    ;
+
+nullNotnull
+    : NOT? NULL_LITERAL
     ;
 
 functionCall

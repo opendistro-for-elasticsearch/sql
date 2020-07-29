@@ -28,6 +28,14 @@ public abstract class AbstractExprNumberValue extends AbstractExprValue {
   private final Number value;
 
   @Override
+<<<<<<< HEAD
+  public boolean isNumber() {
+    return true;
+  }
+
+  @Override
+=======
+>>>>>>> develop
   public Integer integerValue() {
     return value.intValue();
   }

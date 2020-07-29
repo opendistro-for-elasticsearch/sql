@@ -76,6 +76,7 @@ public enum BuiltinFunctionName {
   GREATER(FunctionName.of(">")),
   GTE(FunctionName.of(">=")),
   LIKE(FunctionName.of("like")),
+  NOT_LIKE(FunctionName.of("not like")),
 
   /**
    * Date and Time Functions.
@@ -87,7 +88,13 @@ public enum BuiltinFunctionName {
    */
   AVG(FunctionName.of("avg")),
   SUM(FunctionName.of("sum")),
-  COUNT(FunctionName.of("count"));
+  COUNT(FunctionName.of("count")),
+
+  /**
+   * NULL Test.
+   */
+  IS_NULL(FunctionName.of("is null")),
+  IS_NOT_NULL(FunctionName.of("is not null"));
 
   private final FunctionName name;
 

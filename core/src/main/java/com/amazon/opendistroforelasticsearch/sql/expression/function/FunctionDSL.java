@@ -119,7 +119,11 @@ public class FunctionDSL {
    * @param args2Type   argument type.
    * @return Unary Function Implementation.
    */
+<<<<<<< HEAD
+  public Function<FunctionName, Pair<FunctionSignature, FunctionBuilder>> impl(
+=======
   public SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>> impl(
+>>>>>>> develop
       SerializableBiFunction<ExprValue, ExprValue, ExprValue> function,
       ExprType returnType,
       ExprType args1Type,
@@ -167,4 +171,23 @@ public class FunctionDSL {
       }
     };
   }
+<<<<<<< HEAD
+
+  /**
+   * Wrapper the binary ExprValue function with default NULL and MISSING handling.
+   */
+  public SerializableBiFunction<ExprValue, ExprValue, ExprValue> nullMissingHandling(
+      SerializableBiFunction<ExprValue, ExprValue, ExprValue> function) {
+    return (v1, v2) -> {
+      if (v1.isMissing() || v2.isMissing()) {
+        return ExprValueUtils.missingValue();
+      } else if (v1.isNull() || v2.isNull()) {
+        return ExprValueUtils.nullValue();
+      } else {
+        return function.apply(v1, v2);
+      }
+    };
+  }
+=======
+>>>>>>> develop
 }

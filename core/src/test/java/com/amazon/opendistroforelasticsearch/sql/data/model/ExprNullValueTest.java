@@ -15,7 +15,6 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.utils.ComparisonUtil.compare;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import org.junit.jupiter.api.Test;
 
@@ -40,9 +40,12 @@ public class ExprNullValueTest {
 
   @Test
   public void getType() {
-    ExpressionEvaluationException exception = assertThrows(ExpressionEvaluationException.class,
-        () -> LITERAL_NULL.type());
-    assertEquals("invalid to call type operation on null value", exception.getMessage());
+    assertEquals(ExprCoreType.UNKNOWN, LITERAL_NULL.type());
+  }
+
+  @Test
+  public void toStringTest() {
+    assertEquals("NULL", LITERAL_NULL.toString());
   }
 
   @Test
