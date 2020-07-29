@@ -151,8 +151,8 @@ class AnalyzerTest extends AnalyzerTestBase {
         AstDSL.projectWithArg(
             AstDSL.relation("schema"),
             Collections.singletonList(argument("exclude", booleanLiteral(true))),
-            AstDSL.field("integer_value"),
-            AstDSL.field("double_value")));
+            AstDSL.alias("integer", AstDSL.field("integer_value")),
+            AstDSL.alias("double", AstDSL.field("double_value"))));
   }
 
   @Disabled("the project/remove command should shrink the type env")
