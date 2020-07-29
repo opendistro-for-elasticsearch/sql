@@ -269,7 +269,7 @@ public class RestSqlAction extends BaseRestHandler {
 
     private boolean isCursorDisabled() {
         Boolean isEnabled = LocalClusterState.state().getSettingValue(CURSOR_ENABLED);
-        return isEnabled == Boolean.FALSE;
+        return Boolean.FALSE.equals(isEnabled);
     }
 
     private static ColumnTypeProvider performAnalysis(String sql) {

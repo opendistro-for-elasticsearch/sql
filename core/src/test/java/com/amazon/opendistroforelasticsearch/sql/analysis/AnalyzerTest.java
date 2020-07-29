@@ -138,7 +138,7 @@ class AnalyzerTest extends AnalyzerTestBase {
         AstDSL.projectWithArg(
             AstDSL.relation("schema"),
             AstDSL.defaultFieldsArgs(),
-            AstDSL.alias("integer_value", AstDSL.field("integer_value")),
+            AstDSL.field("integer_value"), // Field not wrapped by Alias
             AstDSL.alias("double_value", AstDSL.field("double_value"))));
   }
 
@@ -151,8 +151,8 @@ class AnalyzerTest extends AnalyzerTestBase {
         AstDSL.projectWithArg(
             AstDSL.relation("schema"),
             Collections.singletonList(argument("exclude", booleanLiteral(true))),
-            AstDSL.alias("integer", AstDSL.field("integer_value")),
-            AstDSL.alias("double", AstDSL.field("double_value"))));
+            AstDSL.field("integer_value"),
+            AstDSL.field("double_value")));
   }
 
   @Disabled("the project/remove command should shrink the type env")
@@ -167,10 +167,10 @@ class AnalyzerTest extends AnalyzerTestBase {
                         AstDSL.projectWithArg(
                             AstDSL.relation("schema"),
                             AstDSL.defaultFieldsArgs(),
-                            AstDSL.alias("integer_value", AstDSL.field("integer_value")),
-                            AstDSL.alias("double_value", AstDSL.field("double_value"))),
+                            AstDSL.field("integer_value"),
+                            AstDSL.field("double_value")),
                         AstDSL.defaultFieldsArgs(),
-                        AstDSL.alias("float_value", AstDSL.field("float_value")))));
+                        AstDSL.field("float_value"))));
   }
 
   @Test

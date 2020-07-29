@@ -105,14 +105,14 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
 
   private UnresolvedExpression visitSelectItem(SelectElementContext ctx) {
     String name = unquoteIdentifier(getTextInQuery(ctx.expression()));
-    UnresolvedExpression delegate = visitAstExpression(ctx.expression());
+    UnresolvedExpression expr = visitAstExpression(ctx.expression());
 
     if (ctx.alias() == null) {
-      return new Alias(name, delegate);
+      return new Alias(name, expr);
     }
 
     String alias = unquoteIdentifier(ctx.alias().getText());
-    return new Alias(name, delegate, alias);
+    return new Alias(name, expr, alias);
   }
 
   /**

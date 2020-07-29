@@ -32,6 +32,7 @@ import lombok.ToString;
  */
 @AllArgsConstructor
 @EqualsAndHashCode
+@Getter
 @RequiredArgsConstructor
 @ToString
 public class NamedExpression implements Expression {
@@ -39,7 +40,6 @@ public class NamedExpression implements Expression {
   /**
    * Expression name.
    */
-  @Getter
   private final String name;
 
   /**

@@ -75,6 +75,18 @@ public class DSL {
     return new ReferenceExpression(ref, type);
   }
 
+  /**
+   * Wrap a named expression if not.
+   * @param expression  expression
+   * @return            expression if named already or expression wrapped by named expression.
+   */
+  public static NamedExpression named(Expression expression) {
+    if (expression instanceof NamedExpression) {
+      return (NamedExpression) expression;
+    }
+    return named(expression.toString(), expression);
+  }
+
   public static NamedExpression named(String name, Expression expression) {
     return new NamedExpression(name, expression);
   }

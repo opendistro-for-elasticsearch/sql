@@ -36,7 +36,7 @@ public class TestDataSet {
   public TestDataSet(String tableName, String schemaFileContent, String dataFileContent) {
     this.tableName = tableName;
     this.schema = schemaFileContent;
-    this.dataRows = convertColumnStringToObject(splitColumns(dataFileContent, ','));
+    this.dataRows = convertStringDataToActualType(splitColumns(dataFileContent, ','));
   }
 
   public String getTableName() {
@@ -88,7 +88,7 @@ public class TestDataSet {
    * Convert column string values (read from CSV file) to objects of its real type
    * based on the type information in index mapping file.
    */
-  private List<Object[]> convertColumnStringToObject(List<String[]> rows) {
+  private List<Object[]> convertStringDataToActualType(List<String[]> rows) {
     JSONObject types = new JSONObject(schema);
     String[] columnNames = rows.get(0);
 
@@ -97,23 +97,23 @@ public class TestDataSet {
 
     rows.stream()
         .skip(1)
-        .map(row -> convertStringValues(types, columnNames, row))
+        .map(row -> convertStringArrayToObjectArray(types, columnNames, row))
         .forEach(result::add);
     return result;
   }
 
-  private Object[] convertStringValues(JSONObject types, String[] columnNames, String[] row) {
+  private Object[] convertStringArrayToObjectArray(JSONObject types, String[] columnNames, String[] row) {
     Object[] result = new Object[row.length];
     for (int i = 0; i < row.length; i++) {
       String colName = columnNames[i];
       String colTypePath = "/mappings/properties/" + colName;
       String colType = ((JSONObject) types.query(colTypePath)).getString("type");
-      result[i] = convertStringValue(colType, row[i]);
+      result[i] = convertStringToObject(colType, row[i]);
     }
     return result;
   }
 
-  private Object convertStringValue(String type, String str) {
+  private Object convertStringToObject(String type, String str) {
     switch (type.toLowerCase()) {
       case "text":
       case "keyword":

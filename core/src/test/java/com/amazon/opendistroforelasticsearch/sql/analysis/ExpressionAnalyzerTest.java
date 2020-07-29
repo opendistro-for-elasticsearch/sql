@@ -111,21 +111,24 @@ class ExpressionAnalyzerTest extends AnalyzerTestBase {
   }
 
   @Test
-  public void skip_struct_and_array_data_type() {
-    SyntaxCheckException exception1 =
+  public void skip_struct_data_type() {
+    SyntaxCheckException exception =
         assertThrows(SyntaxCheckException.class,
             () -> analyze(AstDSL.qualifiedName("struct_value")));
     assertEquals(
         "Identifier [struct_value] of type [STRUCT] is not supported yet",
-        exception1.getMessage()
+        exception.getMessage()
     );
+  }
 
-    SyntaxCheckException exception2 =
+  @Test
+  public void skip_array_data_type() {
+    SyntaxCheckException exception =
         assertThrows(SyntaxCheckException.class,
             () -> analyze(AstDSL.qualifiedName("array_value")));
     assertEquals(
         "Identifier [array_value] of type [ARRAY] is not supported yet",
-        exception2.getMessage()
+        exception.getMessage()
     );
   }
 

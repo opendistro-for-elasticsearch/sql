@@ -28,11 +28,12 @@ class NamedExpressionTest extends ExpressionTestBase {
   @Test
   void name_an_expression() {
     LiteralExpression delegate = DSL.literal(10);
-    NamedExpression namedExpression = DSL.named("int", delegate);
+    NamedExpression namedExpression = DSL.named("int", delegate, "i");
 
     assertEquals("int", namedExpression.getName());
     assertEquals(delegate.type(), namedExpression.type());
     assertEquals(delegate.valueOf(valueEnv()), namedExpression.valueOf(valueEnv()));
+    assertEquals("i", namedExpression.getAlias());
   }
 
 }

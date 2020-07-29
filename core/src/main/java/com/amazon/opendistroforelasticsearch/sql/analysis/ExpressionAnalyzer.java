@@ -165,7 +165,7 @@ public class ExpressionAnalyzer extends AbstractNodeVisitor<Expression, Analysis
 
   @Override
   public Expression visitAlias(Alias node, AnalysisContext context) {
-    return new NamedExpression(
+    return DSL.named(
         node.getName(),
         node.getDelegate().accept(this, context),
         node.getAlias());
