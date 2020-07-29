@@ -205,43 +205,4 @@ class ExprValueOrderingTest {
         "compare expected value have same type, but with [INTEGER, DOUBLE]",
         exception.getMessage());
   }
-
-  @Test
-  public void order_compare_value_with_null_value() {
-    ExprValueOrdering ordering = ExprValueOrdering.natural();
-    ExpressionEvaluationException exception =
-        assertThrows(
-            ExpressionEvaluationException.class,
-            () -> ordering.compare(integerValue(1), LITERAL_NULL));
-    assertEquals("compare with null or missing value is invalid", exception.getMessage());
-
-    exception =
-        assertThrows(
-            ExpressionEvaluationException.class,
-            () -> ordering.compare(integerValue(1), LITERAL_MISSING));
-    assertEquals("compare with null or missing value is invalid", exception.getMessage());
-
-    exception =
-        assertThrows(
-            ExpressionEvaluationException.class,
-            () -> ordering.compare(LITERAL_NULL, integerValue(1)));
-    assertEquals("compare with null or missing value is invalid", exception.getMessage());
-
-    exception =
-        assertThrows(
-            ExpressionEvaluationException.class,
-            () -> ordering.compare(LITERAL_MISSING, integerValue(1)));
-    assertEquals("compare with null or missing value is invalid", exception.getMessage());
-  }
-
-  @Test
-  public void order_compare_unknown_type() {
-    when(left.type()).thenReturn(ExprCoreType.UNKNOWN);
-    when(right.type()).thenReturn(ExprCoreType.UNKNOWN);
-
-    ExprValueOrdering ordering = ExprValueOrdering.natural();
-    ExpressionEvaluationException exception =
-        assertThrows(ExpressionEvaluationException.class, () -> ordering.compare(left, right));
-    assertEquals("compare doesn't support type [UNKNOWN]", exception.getMessage());
-  }
 }

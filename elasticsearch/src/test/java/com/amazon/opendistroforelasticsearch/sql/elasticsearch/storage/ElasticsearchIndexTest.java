@@ -41,6 +41,7 @@ import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprValueFactory;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
@@ -97,16 +98,16 @@ class ElasticsearchIndexTest {
         fieldTypes,
         allOf(
             aMapWithSize(10),
-            hasEntry("name", ExprCoreType.STRING),
-            hasEntry("address", ExprCoreType.STRING),
-            hasEntry("age", ExprCoreType.INTEGER),
+            hasEntry("name", (ExprType) ExprCoreType.STRING),
+            hasEntry("address", (ExprType) ElasticsearchDataType.ES_TEXT),
+            hasEntry("age", (ExprType) ExprCoreType.INTEGER),
             hasEntry("account_number", ExprCoreType.LONG),
-            hasEntry("balance1", ExprCoreType.FLOAT),
-            hasEntry("balance2", ExprCoreType.DOUBLE),
-            hasEntry("gender", ExprCoreType.BOOLEAN),
-            hasEntry("family", ExprCoreType.ARRAY),
-            hasEntry("employer", ExprCoreType.STRUCT),
-            hasEntry("birthday", ExprCoreType.TIMESTAMP)));
+            hasEntry("balance1", (ExprType) ExprCoreType.FLOAT),
+            hasEntry("balance2", (ExprType) ExprCoreType.DOUBLE),
+            hasEntry("gender", (ExprType) ExprCoreType.BOOLEAN),
+            hasEntry("family", (ExprType) ExprCoreType.ARRAY),
+            hasEntry("employer", (ExprType) ExprCoreType.STRUCT),
+            hasEntry("birthday", (ExprType) ExprCoreType.TIMESTAMP)));
   }
 
   @Test

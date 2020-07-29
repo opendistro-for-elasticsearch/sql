@@ -18,20 +18,21 @@
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Objects;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Time Value.
+ * Expression Time Value.
  */
-@EqualsAndHashCode
 @RequiredArgsConstructor
-public class ExprTimeValue implements ExprValue {
+public class ExprTimeValue extends AbstractExprValue {
   /**
    * todo. only support UTC now.
    */
@@ -56,12 +57,32 @@ public class ExprTimeValue implements ExprValue {
   }
 
   @Override
-  public ExprCoreType type() {
+  public ExprType type() {
     return ExprCoreType.TIME;
+  }
+
+  @Override
+  public LocalTime timeValue() {
+    return time;
   }
 
   @Override
   public String toString() {
     return String.format("TIME '%s'", value());
+  }
+
+  @Override
+  public int compare(ExprValue other) {
+    return time.compareTo(other.timeValue());
+  }
+
+  @Override
+  public boolean equal(ExprValue other) {
+    return time.equals(other.timeValue());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(time);
   }
 }
