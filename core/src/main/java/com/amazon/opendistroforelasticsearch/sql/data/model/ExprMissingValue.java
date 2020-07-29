@@ -50,8 +50,8 @@ public class ExprMissingValue extends AbstractExprValue {
 
   /**
    * When MISSING value compare to other expression value.
-   * 1) NULL is equal to MISSING.
-   * 2) NULL is less than all other expression values.
+   * 1) MISSING is equal to MISSING.
+   * 2) MISSING is less than all other expression values.
    */
   @Override
   public int compare(ExprValue other) {

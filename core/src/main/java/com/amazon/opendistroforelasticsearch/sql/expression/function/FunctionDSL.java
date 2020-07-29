@@ -90,13 +90,7 @@ public class FunctionDSL {
             @Override
             public ExprValue valueOf(Environment<Expression, ExprValue> valueEnv) {
               ExprValue value = arguments.get(0).valueOf(valueEnv);
-              if (value.isMissing()) {
-                return ExprValueUtils.missingValue();
-              } else if (value.isNull()) {
-                return ExprValueUtils.nullValue();
-              } else {
-                return function.apply(value);
-              }
+              return function.apply(value);
             }
 
             @Override
@@ -125,7 +119,7 @@ public class FunctionDSL {
    * @param args2Type   argument type.
    * @return Unary Function Implementation.
    */
-  public Function<FunctionName, Pair<FunctionSignature, FunctionBuilder>> impl(
+  public SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>> impl(
       SerializableBiFunction<ExprValue, ExprValue, ExprValue> function,
       ExprType returnType,
       ExprType args1Type,
@@ -155,6 +149,22 @@ public class FunctionDSL {
             }
           };
       return Pair.of(functionSignature, functionBuilder);
+    };
+  }
+
+  /**
+   * Wrapper the unary ExprValue function with default NULL and MISSING handling.
+   */
+  public SerializableFunction<ExprValue, ExprValue> nullMissingHandling(
+      SerializableFunction<ExprValue, ExprValue> function) {
+    return value -> {
+      if (value.isMissing()) {
+        return ExprValueUtils.missingValue();
+      } else if (value.isNull()) {
+        return ExprValueUtils.nullValue();
+      } else {
+        return function.apply(value);
+      }
     };
   }
 }
