@@ -63,8 +63,9 @@ class AstBuilderTest {
         project(
             relation("test"),
             alias(
-                "a",
-                function("ABS", qualifiedName("age"))
+                "ABS(age)",
+                function("ABS", qualifiedName("age")),
+                "a"
             )
         ),
         buildAST("SELECT ABS(age) AS a FROM test")
@@ -97,7 +98,7 @@ class AstBuilderTest {
     assertEquals(
         project(
             relation("test"),
-            alias("a", qualifiedName("age"))
+            alias("age", qualifiedName("age"), "a")
         ),
         buildAST("SELECT age AS a FROM test")
     );
@@ -108,10 +109,15 @@ class AstBuilderTest {
     assertEquals(
         project(
             relation("test"),
-            alias("first name", qualifiedName("name")),
             alias(
-                "Age_Expr",
-                function("+", qualifiedName("age"), intLiteral(10))
+                "name",
+                qualifiedName("name"),
+                "first name"
+            ),
+            alias(
+                "(age + 10)",
+                function("+", qualifiedName("age"), intLiteral(10)),
+                "Age_Expr"
             )
         ),
         buildAST("SELECT"

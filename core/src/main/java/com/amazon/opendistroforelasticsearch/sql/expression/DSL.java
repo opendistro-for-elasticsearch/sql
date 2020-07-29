@@ -79,6 +79,10 @@ public class DSL {
     return new NamedExpression(name, expression);
   }
 
+  public static NamedExpression named(String name, Expression expression, String alias) {
+    return new NamedExpression(name, expression, alias);
+  }
+
   public FunctionExpression abs(Expression... expressions) {
     return function(BuiltinFunctionName.ABS, expressions);
   }

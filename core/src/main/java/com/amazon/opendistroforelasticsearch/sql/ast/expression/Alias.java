@@ -17,6 +17,7 @@
 package com.amazon.opendistroforelasticsearch.sql.ast.expression;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
+import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ import lombok.ToString;
 /**
  * Field name alias abstraction that associate an expression with a name.
  */
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Getter
 @RequiredArgsConstructor
@@ -32,7 +34,7 @@ import lombok.ToString;
 public class Alias extends UnresolvedExpression {
 
   /**
-   * Original field name or alias.
+   * Original field name.
    */
   private final String name;
 
@@ -40,6 +42,11 @@ public class Alias extends UnresolvedExpression {
    * Expression aliased.
    */
   private final UnresolvedExpression delegate;
+
+  /**
+   * Optional field alias.
+   */
+  private String alias;
 
   @Override
   public <T, C> T accept(AbstractNodeVisitor<T, C> nodeVisitor, C context) {

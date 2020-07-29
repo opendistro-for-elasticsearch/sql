@@ -230,6 +230,10 @@ public class AstDSL {
     return new Alias(name, expr);
   }
 
+  public Alias alias(String name, UnresolvedExpression expr, String alias) {
+    return new Alias(name, expr, alias);
+  }
+
   public static List<UnresolvedExpression> exprList(UnresolvedExpression... exprList) {
     return Arrays.asList(exprList);
   }

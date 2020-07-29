@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
@@ -103,17 +104,24 @@ public class AstBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedPlan> {
   }
 
   private UnresolvedExpression visitSelectItem(SelectElementContext ctx) {
+    String name = unquoteIdentifier(getTextInQuery(ctx.expression()));
     UnresolvedExpression delegate = visitAstExpression(ctx.expression());
-    return new Alias(unquoteIdentifier(getAlias(ctx)), delegate);
+
+    if (ctx.alias() == null) {
+      return new Alias(name, delegate);
+    }
+
+    String alias = unquoteIdentifier(ctx.alias().getText());
+    return new Alias(name, delegate, alias);
   }
 
-  private String getAlias(SelectElementContext ctx) {
-    if (ctx.alias() == null) {
-      Token start = ctx.expression().getStart();
-      Token stop = ctx.expression().getStop();
-      return query.substring(start.getStartIndex(), stop.getStopIndex() + 1);
-    }
-    return ctx.alias().getText();
+  /**
+   * Get original text in query as it is.
+   */
+  private String getTextInQuery(ParserRuleContext ctx) {
+    Token start = ctx.getStart();
+    Token stop = ctx.getStop();
+    return query.substring(start.getStartIndex(), stop.getStopIndex() + 1);
   }
 
 }

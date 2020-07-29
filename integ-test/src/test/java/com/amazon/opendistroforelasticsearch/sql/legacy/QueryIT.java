@@ -1643,6 +1643,7 @@ public class QueryIT extends SQLIntegTestCase {
     Assert.assertEquals(21, hits.length());
   }
 
+  @Ignore("New engine doesn't have 'alias' field in schema in response")
   @Test
   public void backticksQuotedIndexNameTest() throws Exception {
     TestUtils.createIndexByRestClient(client(), "bank_unquote", null);
