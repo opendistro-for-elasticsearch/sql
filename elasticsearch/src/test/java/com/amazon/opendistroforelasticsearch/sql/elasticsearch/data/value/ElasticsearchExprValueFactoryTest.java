@@ -33,6 +33,7 @@ import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.L
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.TIMESTAMP;
+import static com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType.ES_TEXT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -67,6 +68,7 @@ class ElasticsearchExprValueFactoryTest {
           .put("arrayV", ARRAY)
           .put("arrayV.info", STRING)
           .put("arrayV.author", STRING)
+          .put("textV", ES_TEXT)
           .build();
   private ElasticsearchExprValueFactory exprValueFactory =
       new ElasticsearchExprValueFactory(MAPPING);
@@ -104,6 +106,12 @@ class ElasticsearchExprValueFactoryTest {
   @Test
   public void constructBoolean() {
     assertEquals(booleanValue(true), tupleValue("{\"boolV\":true}").get("boolV"));
+  }
+
+  @Test
+  public void constructText() {
+    assertEquals(new ElasticsearchExprTextValue("text"), tupleValue("{\"textV\":\"text\"}").get(
+        "textV"));
   }
 
   @Test

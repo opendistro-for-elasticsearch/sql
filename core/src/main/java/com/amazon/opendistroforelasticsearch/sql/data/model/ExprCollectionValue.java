@@ -16,14 +16,20 @@
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
+import com.google.common.base.Objects;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
-@EqualsAndHashCode
+/**
+ * Expression Collection Value.
+ */
 @RequiredArgsConstructor
-public class ExprCollectionValue implements ExprValue {
+public class ExprCollectionValue extends AbstractExprValue {
   private final List<ExprValue> valueList;
 
   @Override
@@ -32,8 +38,13 @@ public class ExprCollectionValue implements ExprValue {
   }
 
   @Override
-  public ExprCoreType type() {
+  public ExprType type() {
     return ExprCoreType.ARRAY;
+  }
+
+  @Override
+  public List<ExprValue> collectionValue() {
+    return valueList;
   }
 
   @Override
@@ -41,5 +52,38 @@ public class ExprCollectionValue implements ExprValue {
     return valueList.stream()
         .map(Object::toString)
         .collect(Collectors.joining(",", "[", "]"));
+  }
+
+  @Override
+  public boolean equal(ExprValue o) {
+    if (!(o instanceof ExprCollectionValue)) {
+      return false;
+    } else {
+      ExprCollectionValue other = (ExprCollectionValue) o;
+      Iterator<ExprValue> thisIterator = this.valueList.iterator();
+      Iterator<ExprValue> otherIterator = other.valueList.iterator();
+
+      while (thisIterator.hasNext() && otherIterator.hasNext()) {
+        ExprValue thisEntry = thisIterator.next();
+        ExprValue otherEntry = otherIterator.next();
+        if (!thisEntry.equals(otherEntry)) {
+          return false;
+        }
+      }
+      return !(thisIterator.hasNext() || otherIterator.hasNext());
+    }
+  }
+
+  /**
+   * Only compare the size of the list.
+   */
+  @Override
+  public int compare(ExprValue other) {
+    return Integer.compare(valueList.size(), other.collectionValue().size());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(valueList);
   }
 }

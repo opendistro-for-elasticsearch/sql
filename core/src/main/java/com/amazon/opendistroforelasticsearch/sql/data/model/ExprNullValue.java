@@ -15,18 +15,26 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
-import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
-import lombok.EqualsAndHashCode;
+import java.util.Objects;
 
 /**
- * The definition of the expression null value.
+ * Expression Null Value.
+ * Null value
+ *  <li>equal to null value.
+ *  <li>large than missing value.
+ *  <li>less than any other value.
  */
-@EqualsAndHashCode
-public class ExprNullValue implements ExprValue {
+public class ExprNullValue extends AbstractExprValue {
   private static final ExprValue instance = new ExprNullValue();
 
   private ExprNullValue() {
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode("NULL");
   }
 
   public static ExprValue of() {
@@ -39,7 +47,7 @@ public class ExprNullValue implements ExprValue {
   }
 
   @Override
-  public ExprCoreType type() {
+  public ExprType type() {
     throw new ExpressionEvaluationException("invalid to call type operation on null value");
   }
 
@@ -47,4 +55,24 @@ public class ExprNullValue implements ExprValue {
   public boolean isNull() {
     return true;
   }
+
+  /**
+   * When NULL value compare to other expression value.
+   * 1) NULL is equal to NULL.
+   * 2) NULL is large than MISSING.
+   * 3) NULL is less than all other expression values.
+   */
+  @Override
+  public int compare(ExprValue other) {
+    return other.isNull() ? 0 : other.isMissing() ? 1 : -1;
+  }
+
+  /**
+   * NULL value is equal to NULL value.
+   */
+  @Override
+  public boolean equal(ExprValue other) {
+    return other.isNull();
+  }
+
 }

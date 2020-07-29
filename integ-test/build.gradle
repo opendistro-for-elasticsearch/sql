@@ -137,6 +137,7 @@ task docTest(type: RestIntegTestTask) {
         include 'com/amazon/opendistroforelasticsearch/sql/doctest/**/*IT.class'
         exclude 'com/amazon/opendistroforelasticsearch/sql/correctness/**/*IT.class'
         exclude 'com/amazon/opendistroforelasticsearch/sql/ppl/**/*IT.class'
+        exclude 'com/amazon/opendistroforelasticsearch/sql/sql/**/*IT.class'
         exclude 'com/amazon/opendistroforelasticsearch/sql/legacy/**/*IT.class'
     }
 }
