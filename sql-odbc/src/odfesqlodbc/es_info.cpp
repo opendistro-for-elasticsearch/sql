@@ -95,7 +95,7 @@ const std::unordered_map< std::string, int > data_name_data_type_map = {
     {ES_TYPE_NAME_SCALED_FLOAT, SQL_DOUBLE},
     {ES_TYPE_NAME_KEYWORD, SQL_WVARCHAR},
     {ES_TYPE_NAME_TEXT, SQL_WVARCHAR},
-    {ES_TYPE_NAME_DATE, ES_TYPE_TIMESTAMP},
+    {ES_TYPE_NAME_DATE, SQL_TYPE_TIMESTAMP},
     {ES_TYPE_NAME_OBJECT, SQL_WVARCHAR},
     {ES_TYPE_NAME_NESTED, SQL_WVARCHAR}};
 
@@ -493,6 +493,7 @@ void SetTableTuples(QResultClass *res, const TableResultSet res_type,
         std::string catalog("");
         bind_tbl[TABLES_CATALOG_NAME]->UpdateData((void *)catalog.c_str(), 0);
 
+        // TODO #630 - Revisit logic of adding tuples for SQLTables & SQLColumns
         for (size_t i = 0; i < binds.size(); i++) {
             // Add tuples for SQLColumns
             if (binds.size() > COLUMNS_SQL_DATA_TYPE) {

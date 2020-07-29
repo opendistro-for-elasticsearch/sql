@@ -86,8 +86,11 @@ const std::vector< std::string > flights_data_type = {
     "keyword", "keyword", "boolean", "float",   "keyword", "keyword", "keyword",
     "keyword", "keyword", "keyword", "keyword"};
 const std::vector< short > flights_sql_data_type = {
-    -9,   -9, -7, 7,  7, -9, 4,  7,  -9, 4,  -9, -9, -9,
-    1296, -9, -9, -7, 7, -9, -9, -9, -9, -9, -9, -9};
+    SQL_WVARCHAR, SQL_WVARCHAR, SQL_BIT,      SQL_REAL,           SQL_REAL,
+    SQL_WVARCHAR, SQL_INTEGER,  SQL_REAL,     SQL_WVARCHAR,       SQL_INTEGER,
+    SQL_WVARCHAR, SQL_WVARCHAR, SQL_WVARCHAR, SQL_TYPE_TIMESTAMP, SQL_WVARCHAR,
+    SQL_WVARCHAR, SQL_BIT,      SQL_REAL,     SQL_WVARCHAR,       SQL_WVARCHAR,
+    SQL_WVARCHAR, SQL_WVARCHAR, SQL_WVARCHAR, SQL_WVARCHAR,       SQL_WVARCHAR};
 const std::string flights_catalog_odfe = "odfe-cluster";
 const std::string flights_catalog_elas = "elasticsearch";
 const std::string flights_table_name = "kibana_sample_data_flights";
