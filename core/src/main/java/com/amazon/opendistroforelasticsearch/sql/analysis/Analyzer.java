@@ -18,6 +18,7 @@ package com.amazon.opendistroforelasticsearch.sql.analysis;
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Namespace;
 import com.amazon.opendistroforelasticsearch.sql.analysis.symbol.Symbol;
 import com.amazon.opendistroforelasticsearch.sql.ast.AbstractNodeVisitor;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.Alias;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Argument;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Field;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Let;
@@ -161,7 +162,8 @@ public class Analyzer extends AbstractNodeVisitor<LogicalPlan, AnalysisContext> 
       if (exclude) {
         List<ReferenceExpression> referenceExpressions =
             node.getProjectList().stream()
-                .map(expr -> (ReferenceExpression) expressionAnalyzer.analyze(expr, context))
+                .map(expr -> (ReferenceExpression)
+                    expressionAnalyzer.analyze(((Alias) expr).getDelegate(), context))
                 .collect(Collectors.toList());
         return new LogicalRemove(child, ImmutableSet.copyOf(referenceExpressions));
       }
