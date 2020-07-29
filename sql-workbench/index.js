@@ -35,6 +35,7 @@ export default function (kibana) {
         description: 'SQL Workbench',
         main: 'plugins/' + PLUGIN_NAME + '/app',
         icon:'plugins/' + PLUGIN_NAME + '/icons/sql.svg',
+        order: 9050,
         category: DEFAULT_APP_CATEGORIES.kibana,
       },
       styleSheetPaths: [resolve(__dirname, 'public/app.scss')].find(p => existsSync(p))
