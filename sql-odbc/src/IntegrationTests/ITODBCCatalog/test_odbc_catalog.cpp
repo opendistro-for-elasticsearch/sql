@@ -85,6 +85,12 @@ const std::vector< std::string > flights_data_type = {
     "float",   "keyword", "integer", "keyword", "keyword", "keyword", "date",
     "keyword", "keyword", "boolean", "float",   "keyword", "keyword", "keyword",
     "keyword", "keyword", "keyword", "keyword"};
+const std::vector< short > flights_sql_data_type = {
+    SQL_WVARCHAR, SQL_WVARCHAR, SQL_BIT,      SQL_REAL,           SQL_REAL,
+    SQL_WVARCHAR, SQL_INTEGER,  SQL_REAL,     SQL_WVARCHAR,       SQL_INTEGER,
+    SQL_WVARCHAR, SQL_WVARCHAR, SQL_WVARCHAR, SQL_TYPE_TIMESTAMP, SQL_WVARCHAR,
+    SQL_WVARCHAR, SQL_BIT,      SQL_REAL,     SQL_WVARCHAR,       SQL_WVARCHAR,
+    SQL_WVARCHAR, SQL_WVARCHAR, SQL_WVARCHAR, SQL_WVARCHAR,       SQL_WVARCHAR};
 const std::string flights_catalog_odfe = "odfe-cluster";
 const std::string flights_catalog_elas = "elasticsearch";
 const std::string flights_table_name = "kibana_sample_data_flights";
@@ -355,15 +361,16 @@ TEST_F(TestSQLColumns, FlightsValidation) {
     binds.push_back(bind_info(2, SQL_C_CHAR));
     binds.push_back(bind_info(3, SQL_C_CHAR));
     binds.push_back(bind_info(4, SQL_C_CHAR));
-    binds.push_back(bind_info(5, SQL_C_SSHORT));
+    binds.push_back(bind_info(5, SQL_C_SHORT));
     binds.push_back(bind_info(6, SQL_C_CHAR));
+    binds.push_back(bind_info(7, SQL_C_SLONG));
     binds.push_back(bind_info(8, SQL_C_SLONG));
     binds.push_back(bind_info(9, SQL_C_SSHORT));
     binds.push_back(bind_info(10, SQL_C_SSHORT));
     binds.push_back(bind_info(11, SQL_C_SSHORT));
     binds.push_back(bind_info(12, SQL_C_CHAR));
     binds.push_back(bind_info(13, SQL_C_CHAR));
-    binds.push_back(bind_info(14, SQL_C_SSHORT));
+    binds.push_back(bind_info(14, SQL_C_SHORT));
     binds.push_back(bind_info(15, SQL_C_SSHORT));
     binds.push_back(bind_info(16, SQL_C_SLONG));
     binds.push_back(bind_info(17, SQL_C_SLONG));
@@ -390,16 +397,26 @@ TEST_F(TestSQLColumns, FlightsValidation) {
                 case 4:
                     EXPECT_EQ(it.AsString(), flights_column_name[column_idx]);
                     break;
+                case 5:
+                    EXPECT_EQ(
+                        it.AsString(),
+                        std::to_string(flights_sql_data_type[column_idx]));
+                    break;
                 case 6:
                     EXPECT_EQ(it.AsString(), flights_data_type[column_idx]);
                     break;
-                case 9:
+                case 10:
                     EXPECT_EQ(it.AsString(), flights_decimal_digits);
                     break;
-                case 10:
+                case 11:
                     EXPECT_EQ(it.AsString(), flights_num_prec_radix);
                     break;
-                case 16:
+                case 14:
+                    EXPECT_EQ(
+                        it.AsString(),
+                        std::to_string(flights_sql_data_type[column_idx]));
+                    break;
+                case 17:
                     EXPECT_EQ(it.AsString(), std::to_string(column_idx + 1));
                     break;
                 default:

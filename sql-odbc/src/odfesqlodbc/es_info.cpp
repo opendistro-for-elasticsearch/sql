@@ -83,6 +83,22 @@ const std::unordered_map< int, std::vector< int > > sql_es_type_map = {
      {ES_TYPE_KEYWORD, ES_TYPE_TEXT, ES_TYPE_NESTED, ES_TYPE_OBJECT}},
     {SQL_TYPE_TIMESTAMP, {ES_TYPE_DATETIME}}};
 
+const std::unordered_map< std::string, int > data_name_data_type_map = {
+    {ES_TYPE_NAME_BOOLEAN, SQL_BIT},
+    {ES_TYPE_NAME_BYTE, SQL_TINYINT},
+    {ES_TYPE_NAME_SHORT, SQL_SMALLINT},
+    {ES_TYPE_NAME_INTEGER, SQL_INTEGER},
+    {ES_TYPE_NAME_LONG, SQL_BIGINT},
+    {ES_TYPE_NAME_HALF_FLOAT, SQL_REAL},
+    {ES_TYPE_NAME_FLOAT, SQL_REAL},
+    {ES_TYPE_NAME_DOUBLE, SQL_DOUBLE},
+    {ES_TYPE_NAME_SCALED_FLOAT, SQL_DOUBLE},
+    {ES_TYPE_NAME_KEYWORD, SQL_WVARCHAR},
+    {ES_TYPE_NAME_TEXT, SQL_WVARCHAR},
+    {ES_TYPE_NAME_DATE, SQL_TYPE_TIMESTAMP},
+    {ES_TYPE_NAME_OBJECT, SQL_WVARCHAR},
+    {ES_TYPE_NAME_NESTED, SQL_WVARCHAR}};
+
 // Boilerplate code for easy column bind handling
 class BindTemplate {
    public:
@@ -476,8 +492,29 @@ void SetTableTuples(QResultClass *res, const TableResultSet res_type,
         // information for its Data Preview window.
         std::string catalog("");
         bind_tbl[TABLES_CATALOG_NAME]->UpdateData((void *)catalog.c_str(), 0);
-        for (size_t i = 0; i < binds.size(); i++)
-            binds[i]->AssignData(&tuple[i]);
+
+        // TODO #630 - Revisit logic of adding tuples for SQLTables & SQLColumns
+        for (size_t i = 0; i < binds.size(); i++) {
+            // Add tuples for SQLColumns
+            if (binds.size() > COLUMNS_SQL_DATA_TYPE) {
+                // Add data type for data loading issue in Power BI Desktop
+                auto data_type = data_name_data_type_map
+                        .find(bind_tbl[COLUMNS_TYPE_NAME]->AsString())->second;
+                if (i == COLUMNS_DATA_TYPE) {
+                    set_tuplefield_int2(&tuple[COLUMNS_DATA_TYPE],
+                                        static_cast< short >(data_type));
+                } else if (i == COLUMNS_SQL_DATA_TYPE) {
+                    set_tuplefield_int2(&tuple[COLUMNS_SQL_DATA_TYPE],
+                                        static_cast< short >(data_type));
+                } else {
+                    binds[i]->AssignData(&tuple[i]);
+                }
+            }
+            // Add tuples for SQLTables
+            else {
+                binds[i]->AssignData(&tuple[i]);
+            }
+        }
     };
 
     // General case
