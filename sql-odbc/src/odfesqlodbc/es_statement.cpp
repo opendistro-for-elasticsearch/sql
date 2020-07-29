@@ -68,16 +68,22 @@ RETCODE ExecuteStatement(StatementClass *stmt, BOOL commit) {
     QResultClass *res = SendQueryGetResult(stmt, commit);
     if (!res) {
         std::string es_conn_err = GetErrorMsg(SC_get_conn(stmt)->esconn);
+        ConnErrorType es_err_type = GetErrorType(SC_get_conn(stmt)->esconn);
         std::string es_parse_err = GetResultParserError();
         if (!es_conn_err.empty()) {
-            SC_set_error(stmt, STMT_NO_RESPONSE, es_conn_err.c_str(), func);
+            if (es_err_type == ConnErrorType::CONN_ERROR_QUERY_SYNTAX) {
+                SC_set_error(stmt, STMT_QUERY_SYNTAX_ERROR, es_conn_err.c_str(),
+                             func);
+            } else {
+                SC_set_error(stmt, STMT_NO_RESPONSE, es_conn_err.c_str(), func);
+            }
         } else if (!es_parse_err.empty()) {
             SC_set_error(stmt, STMT_EXEC_ERROR, es_parse_err.c_str(), func);
         } else if (SC_get_errornumber(stmt) <= 0) {
-            SC_set_error(
-                stmt, STMT_NO_RESPONSE,
-                "Failed to retrieve error message from result. Connection may be down.",
-                func);
+            SC_set_error(stmt, STMT_NO_RESPONSE,
+                         "Failed to retrieve error message from result. "
+                         "Connection may be down.",
+                         func);
         }
         return CleanUp();
     }
@@ -160,8 +166,8 @@ SQLRETURN GetNextResultSet(StatementClass *stmt) {
     }
 
     SQLSMALLINT total_columns = -1;
-    if (!SQL_SUCCEEDED(SQLNumResultCols(stmt, &total_columns)) || 
-       (total_columns == -1)) {
+    if (!SQL_SUCCEEDED(SQLNumResultCols(stmt, &total_columns))
+        || (total_columns == -1)) {
         return SQL_ERROR;
     }
 
@@ -175,7 +181,7 @@ SQLRETURN GetNextResultSet(StatementClass *stmt) {
             QR_set_server_cursor_id(q_res, NULL);
         }
 
-        // Responsible for looping through rows, allocating tuples and 
+        // Responsible for looping through rows, allocating tuples and
         // appending these rows in q_result
         CC_Append_Table_Data(es_res->es_result_doc, q_res, total_columns,
                              *(q_res->fields));
@@ -239,7 +245,8 @@ QResultClass *SendQueryGetResult(StatementClass *stmt, BOOL commit) {
 
     // Send command
     ConnectionClass *conn = SC_get_conn(stmt);
-    if (ESExecDirect(conn->esconn, stmt->statement, conn->connInfo.fetch_size) != 0) {
+    if (ESExecDirect(conn->esconn, stmt->statement, conn->connInfo.fetch_size)
+        != 0) {
         QR_Destructor(res);
         return NULL;
     }

@@ -19,6 +19,8 @@ package com.amazon.opendistroforelasticsearch.sql.elasticsearch.storage;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprValueFactory;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
 import com.amazon.opendistroforelasticsearch.sql.planner.DefaultImplementor;
 import com.amazon.opendistroforelasticsearch.sql.planner.logical.LogicalPlan;
@@ -36,11 +38,11 @@ public class ElasticsearchIndex implements Table {
 
   /**
    * Type mapping from Elasticsearch data type to expression type in our type system in query
-   * engine. TODO: date, geo, ip etc.
+   * engine. TODO: geo, ip etc.
    */
-  private static final Map<String, ExprCoreType> ES_TYPE_TO_EXPR_TYPE_MAPPING =
-      ImmutableMap.<String, ExprCoreType>builder()
-          .put("text", ExprCoreType.STRING)
+  private static final Map<String, ExprType> ES_TYPE_TO_EXPR_TYPE_MAPPING =
+      ImmutableMap.<String, ExprType>builder()
+          .put("text", ElasticsearchDataType.ES_TEXT)
           .put("keyword", ExprCoreType.STRING)
           .put("integer", ExprCoreType.INTEGER)
           .put("long", ExprCoreType.LONG)
@@ -49,6 +51,7 @@ public class ElasticsearchIndex implements Table {
           .put("boolean", ExprCoreType.BOOLEAN)
           .put("nested", ExprCoreType.ARRAY)
           .put("object", ExprCoreType.STRUCT)
+          .put("date", ExprCoreType.TIMESTAMP)
           .build();
 
   /** Elasticsearch client connection. */
@@ -75,7 +78,8 @@ public class ElasticsearchIndex implements Table {
   /** TODO: Push down operations to index scan operator as much as possible in future. */
   @Override
   public PhysicalPlan implement(LogicalPlan plan) {
-    ElasticsearchIndexScan indexScan = new ElasticsearchIndexScan(client, indexName);
+    ElasticsearchIndexScan indexScan = new ElasticsearchIndexScan(client, indexName,
+        new ElasticsearchExprValueFactory(getFieldTypes()));
 
     /*
      * Visit logical plan with index scan as context so logical operators visited, such as
@@ -91,7 +95,7 @@ public class ElasticsearchIndex implements Table {
         indexScan);
   }
 
-  private ExprCoreType transformESTypeToExprType(String esType) {
+  private ExprType transformESTypeToExprType(String esType) {
     return ES_TYPE_TO_EXPR_TYPE_MAPPING.getOrDefault(esType, ExprCoreType.UNKNOWN);
   }
 }

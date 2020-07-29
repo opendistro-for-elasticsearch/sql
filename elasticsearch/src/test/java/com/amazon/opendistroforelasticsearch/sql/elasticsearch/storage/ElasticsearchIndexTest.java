@@ -37,11 +37,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort;
-import com.amazon.opendistroforelasticsearch.sql.ast.tree.Sort.SortOption;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.client.ElasticsearchClient;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.type.ElasticsearchDataType;
+import com.amazon.opendistroforelasticsearch.sql.elasticsearch.data.value.ElasticsearchExprValueFactory;
 import com.amazon.opendistroforelasticsearch.sql.elasticsearch.mapping.IndexMapping;
 import com.amazon.opendistroforelasticsearch.sql.expression.Expression;
 import com.amazon.opendistroforelasticsearch.sql.expression.ReferenceExpression;
@@ -65,7 +66,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class ElasticsearchIndexTest {
 
-  @Mock private ElasticsearchClient client;
+  @Mock
+  private ElasticsearchClient client;
+
+  @Mock
+  private ElasticsearchExprValueFactory exprValueFactory;
 
   @Test
   void getFieldTypes() {
@@ -93,16 +98,16 @@ class ElasticsearchIndexTest {
         fieldTypes,
         allOf(
             aMapWithSize(10),
-            hasEntry("name", ExprCoreType.STRING),
-            hasEntry("address", ExprCoreType.STRING),
-            hasEntry("age", ExprCoreType.INTEGER),
+            hasEntry("name", (ExprType) ExprCoreType.STRING),
+            hasEntry("address", (ExprType) ElasticsearchDataType.ES_TEXT),
+            hasEntry("age", (ExprType) ExprCoreType.INTEGER),
             hasEntry("account_number", ExprCoreType.LONG),
-            hasEntry("balance1", ExprCoreType.FLOAT),
-            hasEntry("balance2", ExprCoreType.DOUBLE),
-            hasEntry("gender", ExprCoreType.BOOLEAN),
-            hasEntry("family", ExprCoreType.ARRAY),
-            hasEntry("employer", ExprCoreType.STRUCT),
-            hasEntry("birthday", ExprCoreType.UNKNOWN)));
+            hasEntry("balance1", (ExprType) ExprCoreType.FLOAT),
+            hasEntry("balance2", (ExprType) ExprCoreType.DOUBLE),
+            hasEntry("gender", (ExprType) ExprCoreType.BOOLEAN),
+            hasEntry("family", (ExprType) ExprCoreType.ARRAY),
+            hasEntry("employer", (ExprType) ExprCoreType.STRUCT),
+            hasEntry("birthday", (ExprType) ExprCoreType.TIMESTAMP)));
   }
 
   @Test
@@ -110,7 +115,8 @@ class ElasticsearchIndexTest {
     String indexName = "test";
     LogicalPlan plan = relation(indexName);
     Table index = new ElasticsearchIndex(client, indexName);
-    assertEquals(new ElasticsearchIndexScan(client, indexName), index.implement(plan));
+    assertEquals(
+        new ElasticsearchIndexScan(client, indexName, exprValueFactory), index.implement(plan));
   }
 
   @Test
@@ -119,7 +125,7 @@ class ElasticsearchIndexTest {
     ReferenceExpression include = ref("age", INTEGER);
     ReferenceExpression exclude = ref("name", STRING);
     ReferenceExpression dedupeField = ref("name", STRING);
-    Expression filterExpr = literal(ExprBooleanValue.ofTrue());
+    Expression filterExpr = literal(ExprBooleanValue.of(true));
     List<Expression> groupByExprs = Arrays.asList(ref("age", INTEGER));
     List<Aggregator> aggregators = Arrays.asList(new AvgAggregator(groupByExprs, DOUBLE));
     Map<ReferenceExpression, ReferenceExpression> mappings =
@@ -158,10 +164,12 @@ class ElasticsearchIndexTest {
                         PhysicalPlanDSL.remove(
                             PhysicalPlanDSL.rename(
                                 PhysicalPlanDSL.agg(
-                                    PhysicalPlanDSL.filter(
-                                        new ElasticsearchIndexScan(client, indexName), filterExpr),
-                                    aggregators,
-                                    groupByExprs),
+                                        PhysicalPlanDSL.filter(
+                                                new ElasticsearchIndexScan(
+                                                        client, indexName, exprValueFactory),
+                                                filterExpr),
+                                        aggregators,
+                                        groupByExprs),
                                 mappings),
                             exclude),
                         newEvalField),

@@ -71,19 +71,26 @@ typedef struct bind_info {
 
 // Column test constants and macro
 const std::vector< std::string > flights_column_name = {
-    "FlightNum",      "Origin",         "OriginLocation",  "DestLocation",
-    "FlightDelay",    "DistanceMiles",  "FlightTimeMin",   "OriginWeather",
-    "dayOfWeek",      "AvgTicketPrice", "Carrier",         "FlightDelayMin",
-    "OriginRegion",   "DestAirportID",  "FlightDelayType", "timestamp",
-    "Dest",           "FlightTimeHour", "Cancelled",       "DistanceKilometers",
-    "OriginCityName", "DestWeather",    "OriginCountry",   "DestCountry",
-    "DestRegion",     "DestCityName",   "OriginAirportID"};
+    "FlightNum",       "Origin",         "FlightDelay",
+    "DistanceMiles",   "FlightTimeMin",  "OriginWeather",
+    "dayOfWeek",       "AvgTicketPrice", "Carrier",
+    "FlightDelayMin",  "OriginRegion",   "DestAirportID",
+    "FlightDelayType", "timestamp",      "Dest",
+    "FlightTimeHour",  "Cancelled",      "DistanceKilometers",
+    "OriginCityName",  "DestWeather",    "OriginCountry",
+    "DestCountry",     "DestRegion",     "DestCityName",
+    "OriginAirportID"};
 const std::vector< std::string > flights_data_type = {
-    "keyword", "keyword", "geo_point", "geo_point", "boolean", "float",
-    "float",   "keyword", "integer",   "float",     "keyword", "integer",
-    "keyword", "keyword", "keyword",   "date",      "keyword", "keyword",
-    "boolean", "float",   "keyword",   "keyword",   "keyword", "keyword",
-    "keyword", "keyword", "keyword"};
+    "keyword", "keyword", "boolean", "float",   "float",   "keyword", "integer",
+    "float",   "keyword", "integer", "keyword", "keyword", "keyword", "date",
+    "keyword", "keyword", "boolean", "float",   "keyword", "keyword", "keyword",
+    "keyword", "keyword", "keyword", "keyword"};
+const std::vector< short > flights_sql_data_type = {
+    SQL_WVARCHAR, SQL_WVARCHAR, SQL_BIT,      SQL_REAL,           SQL_REAL,
+    SQL_WVARCHAR, SQL_INTEGER,  SQL_REAL,     SQL_WVARCHAR,       SQL_INTEGER,
+    SQL_WVARCHAR, SQL_WVARCHAR, SQL_WVARCHAR, SQL_TYPE_TIMESTAMP, SQL_WVARCHAR,
+    SQL_WVARCHAR, SQL_BIT,      SQL_REAL,     SQL_WVARCHAR,       SQL_WVARCHAR,
+    SQL_WVARCHAR, SQL_WVARCHAR, SQL_WVARCHAR, SQL_WVARCHAR,       SQL_WVARCHAR};
 const std::string flights_catalog_odfe = "odfe-cluster";
 const std::string flights_catalog_elas = "elasticsearch";
 const std::string flights_table_name = "kibana_sample_data_flights";
@@ -157,9 +164,6 @@ const std::vector< table_data > excel_table_data_all{
 };
 const std::vector< table_data > table_data_types{
     {"", "", "", "BASE TABLE", ""}};
-const std::vector< table_data > table_data_schemas{{"", "", "", "", ""}};
-const std::vector< table_data > table_data_catalogs{
-    {"odfe-cluster", "", "", "", ""}};
 
 class TestSQLTables : public testing::Test {
    public:
@@ -229,9 +233,10 @@ void CheckTableData(SQLHSTMT m_hstmt,
     TEST_F(TestSQLTables, test_name) {                                         \
         EXPECT_EQ(SQL_SUCCESS, SQLSetStmtAttr(m_hstmt, SQL_ATTR_METADATA_ID,   \
                                               (void*)(!enable_pattern), 0));   \
-        EXPECT_TRUE(SQL_SUCCEEDED(SQLTables(m_hstmt, catalog, SQL_NTS, schema, \
+        SQLRETURN ret2 = SQLTables(m_hstmt, catalog, SQL_NTS, schema,          \
                                             SQL_NTS, table, SQL_NTS,           \
-                                            table_type, SQL_NTS)));            \
+                                            table_type, SQL_NTS);              \
+        LogAnyDiagnostics(SQL_HANDLE_STMT, m_hstmt, ret2);                     \
         if (empty) {                                                           \
             size_t result_count = 0;                                           \
             SQLRETURN ret;                                                     \
@@ -280,13 +285,21 @@ class TestSQLCatalogKeys : public testing::Test {
 // NULL test
 TEST_SQL_TABLES(Null, NULL, NULL, NULL, NULL, table_data_all, true, false);
 
-// Catalog tests
-TEST_SQL_TABLES(WildCatalogs, (SQLTCHAR*)L"%", (SQLTCHAR*)L"", (SQLTCHAR*)L"",
-                NULL, table_data_catalogs, false, false)
+// Catalog tests (error: catalogs not supported)
+TEST_F(TestSQLTables, WildCatalogs) {
+    SQLRETURN ret = SQLTables(m_hstmt, (SQLTCHAR*)L"%", SQL_NTS, (SQLTCHAR*)L"",
+                              SQL_NTS, (SQLTCHAR*)L"", SQL_NTS, NULL, SQL_NTS);
+    EXPECT_EQ(ret, SQL_ERROR);
+    LogAnyDiagnostics(SQL_HANDLE_STMT, m_hstmt, ret);
+}
 
-// Schema tests
-TEST_SQL_TABLES(WildSchema, (SQLTCHAR*)L"", (SQLTCHAR*)L"%", (SQLTCHAR*)L"",
-                NULL, table_data_schemas, false, false)
+// Schema tests (error: schemas not supported)
+TEST_F(TestSQLTables, WildSchema) {
+    SQLRETURN ret = SQLTables(m_hstmt, (SQLTCHAR*)L"", SQL_NTS, (SQLTCHAR*)L"%",
+                              SQL_NTS, (SQLTCHAR*)L"", SQL_NTS, NULL, SQL_NTS);
+    EXPECT_EQ(ret, SQL_ERROR);
+    LogAnyDiagnostics(SQL_HANDLE_STMT, m_hstmt, ret);
+}
 
 // Table tests
 TEST_SQL_TABLES(ValidTable, NULL, NULL, (SQLTCHAR*)L"kibana_sample_data%", NULL,
@@ -348,15 +361,16 @@ TEST_F(TestSQLColumns, FlightsValidation) {
     binds.push_back(bind_info(2, SQL_C_CHAR));
     binds.push_back(bind_info(3, SQL_C_CHAR));
     binds.push_back(bind_info(4, SQL_C_CHAR));
-    binds.push_back(bind_info(5, SQL_C_SSHORT));
+    binds.push_back(bind_info(5, SQL_C_SHORT));
     binds.push_back(bind_info(6, SQL_C_CHAR));
+    binds.push_back(bind_info(7, SQL_C_SLONG));
     binds.push_back(bind_info(8, SQL_C_SLONG));
     binds.push_back(bind_info(9, SQL_C_SSHORT));
     binds.push_back(bind_info(10, SQL_C_SSHORT));
     binds.push_back(bind_info(11, SQL_C_SSHORT));
     binds.push_back(bind_info(12, SQL_C_CHAR));
     binds.push_back(bind_info(13, SQL_C_CHAR));
-    binds.push_back(bind_info(14, SQL_C_SSHORT));
+    binds.push_back(bind_info(14, SQL_C_SHORT));
     binds.push_back(bind_info(15, SQL_C_SSHORT));
     binds.push_back(bind_info(16, SQL_C_SLONG));
     binds.push_back(bind_info(17, SQL_C_SLONG));
@@ -375,8 +389,7 @@ TEST_F(TestSQLColumns, FlightsValidation) {
             ordinal++;
             switch (ordinal) {
                 case 1:
-                    EXPECT_TRUE((it.AsString() == flights_catalog_elas)
-                                || (it.AsString() == flights_catalog_odfe));
+                    EXPECT_EQ(it.AsString(), "");
                     break;
                 case 3:
                     EXPECT_EQ(it.AsString(), flights_table_name);
@@ -384,16 +397,26 @@ TEST_F(TestSQLColumns, FlightsValidation) {
                 case 4:
                     EXPECT_EQ(it.AsString(), flights_column_name[column_idx]);
                     break;
+                case 5:
+                    EXPECT_EQ(
+                        it.AsString(),
+                        std::to_string(flights_sql_data_type[column_idx]));
+                    break;
                 case 6:
                     EXPECT_EQ(it.AsString(), flights_data_type[column_idx]);
                     break;
-                case 9:
+                case 10:
                     EXPECT_EQ(it.AsString(), flights_decimal_digits);
                     break;
-                case 10:
+                case 11:
                     EXPECT_EQ(it.AsString(), flights_num_prec_radix);
                     break;
-                case 16:
+                case 14:
+                    EXPECT_EQ(
+                        it.AsString(),
+                        std::to_string(flights_sql_data_type[column_idx]));
+                    break;
+                case 17:
                     EXPECT_EQ(it.AsString(), std::to_string(column_idx + 1));
                     break;
                 default:
@@ -404,7 +427,7 @@ TEST_F(TestSQLColumns, FlightsValidation) {
         }
         column_idx++;
     }
-    EXPECT_EQ(column_idx, static_cast< size_t >(27));
+    EXPECT_EQ(column_idx, static_cast< size_t >(25));
 }
 
 // We expect an empty result set for PrimaryKeys and ForeignKeys

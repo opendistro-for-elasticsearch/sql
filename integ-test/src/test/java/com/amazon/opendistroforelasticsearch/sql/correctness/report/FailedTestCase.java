@@ -43,10 +43,17 @@ public class FailedTestCase extends TestCaseReport {
    */
   private final String explain;
 
-  public FailedTestCase(int id, String sql, List<DBResult> resultSets) {
+  /**
+   * Errors occurred for partial other databases.
+   */
+  private final String errors;
+
+
+  public FailedTestCase(int id, String sql, List<DBResult> resultSets, String errors) {
     super(id, sql, FAILURE);
     this.resultSets = resultSets;
     this.resultSets.sort(Comparator.comparing(DBResult::getDatabaseName));
+    this.errors = errors;
 
     // Generate explanation by diff the first result with remaining
     this.explain = resultSets.subList(1, resultSets.size())

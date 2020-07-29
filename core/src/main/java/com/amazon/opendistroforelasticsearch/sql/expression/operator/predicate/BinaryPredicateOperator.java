@@ -19,17 +19,16 @@ import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtil
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_TRUE;
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.ARRAY;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.BOOLEAN;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.DOUBLE;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.FLOAT;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.INTEGER;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.LONG;
 import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRING;
-import static com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType.STRUCT;
 import static com.amazon.opendistroforelasticsearch.sql.expression.operator.OperatorUtils.binaryOperator;
 import static com.amazon.opendistroforelasticsearch.sql.utils.OperatorUtils.matches;
 
+import com.amazon.opendistroforelasticsearch.sql.data.model.ExprBooleanValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
@@ -40,6 +39,7 @@ import com.amazon.opendistroforelasticsearch.sql.expression.env.Environment;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.BuiltinFunctionRepository;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionBuilder;
+import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionDSL;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionName;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionResolver;
 import com.amazon.opendistroforelasticsearch.sql.expression.function.FunctionSignature;
@@ -47,10 +47,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Table;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
-import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -164,38 +163,6 @@ public class BinaryPredicateOperator {
           .put(LITERAL_MISSING, LITERAL_MISSING, LITERAL_MISSING)
           .build();
 
-  /**
-   * The equalTo logic.
-   * A       B       A == B
-   * NULL    NULL    TRUE
-   * NULL    MISSING FALSE
-   * MISSING NULL    FALSE
-   * MISSING MISSING TRUE
-   */
-  private static Table<ExprValue, ExprValue, ExprValue> equalTable =
-      new ImmutableTable.Builder<ExprValue, ExprValue, ExprValue>()
-          .put(LITERAL_NULL, LITERAL_NULL, LITERAL_TRUE)
-          .put(LITERAL_NULL, LITERAL_MISSING, LITERAL_FALSE)
-          .put(LITERAL_MISSING, LITERAL_NULL, LITERAL_FALSE)
-          .put(LITERAL_MISSING, LITERAL_MISSING, LITERAL_TRUE)
-          .build();
-
-  /**
-   * The notEqualTo logic.
-   * A       B       A != B
-   * NULL    NULL    FALSE
-   * NULL    MISSING TRUE
-   * MISSING NULL    TRUE
-   * MISSING MISSING FALSE
-   */
-  private static Table<ExprValue, ExprValue, ExprValue> notEqualTable =
-      new ImmutableTable.Builder<ExprValue, ExprValue, ExprValue>()
-          .put(LITERAL_NULL, LITERAL_NULL, LITERAL_FALSE)
-          .put(LITERAL_NULL, LITERAL_MISSING, LITERAL_TRUE)
-          .put(LITERAL_MISSING, LITERAL_NULL, LITERAL_TRUE)
-          .put(LITERAL_MISSING, LITERAL_MISSING, LITERAL_FALSE)
-          .build();
-
   private static FunctionResolver and() {
     FunctionName functionName = BuiltinFunctionName.AND.getName();
     return FunctionResolver.builder()
@@ -227,41 +194,21 @@ public class BinaryPredicateOperator {
   }
 
   private static FunctionResolver equal() {
-    return new FunctionResolver(
-        BuiltinFunctionName.EQUAL.getName(),
-        predicate(
-            BuiltinFunctionName.EQUAL.getName(),
-            equalTable,
-            LITERAL_FALSE,
-            Integer::equals,
-            Long::equals,
-            Float::equals,
-            Double::equals,
-            String::equals,
-            Boolean::equals,
-            List::equals,
-            Map::equals
-        )
-    );
+    return FunctionDSL.define(BuiltinFunctionName.EQUAL.getName(),
+        ExprCoreType.coreTypes().stream()
+            .map(type -> FunctionDSL.impl((v1, v2) -> ExprBooleanValue.of(v1.equals(v2)),
+                BOOLEAN, type, type))
+            .collect(
+                Collectors.toList()));
   }
 
   private static FunctionResolver notEqual() {
-    return new FunctionResolver(
-        BuiltinFunctionName.NOTEQUAL.getName(),
-        predicate(
-            BuiltinFunctionName.NOTEQUAL.getName(),
-            notEqualTable,
-            LITERAL_TRUE,
-            (v1, v2) -> ! v1.equals(v2),
-            (v1, v2) -> ! v1.equals(v2),
-            (v1, v2) -> ! v1.equals(v2),
-            (v1, v2) -> ! v1.equals(v2),
-            (v1, v2) -> ! v1.equals(v2),
-            (v1, v2) -> ! v1.equals(v2),
-            (v1, v2) -> ! v1.equals(v2),
-            (v1, v2) -> ! v1.equals(v2)
-        )
-    );
+    return FunctionDSL
+        .define(BuiltinFunctionName.NOTEQUAL.getName(), ExprCoreType.coreTypes().stream()
+            .map(type -> FunctionDSL
+                .impl((v1, v2) -> ExprBooleanValue.of(!v1.equals(v2)), BOOLEAN, type, type))
+            .collect(
+                Collectors.toList()));
   }
 
   private static FunctionResolver less() {
@@ -328,52 +275,6 @@ public class BinaryPredicateOperator {
             (v1, v2) -> matches(v2, v1)
         )
     );
-  }
-
-  /**
-   * Util method to generate EQUAL/NOT EQUAL operation bundles.
-   * Applicable for integer, long, float, double, string types of operands
-   * {@param defaultValue} Default value for one missing/null operand
-   */
-  private static Map<FunctionSignature, FunctionBuilder> predicate(
-      FunctionName functionName,
-      Table<ExprValue, ExprValue, ExprValue> table,
-      ExprValue defaultValue,
-      BiFunction<Integer, Integer, Boolean> integerFunc,
-      BiFunction<Long, Long, Boolean> longFunc,
-      BiFunction<Float, Float, Boolean> floatFunc,
-      BiFunction<Double, Double, Boolean> doubleFunc,
-      BiFunction<String, String, Boolean> stringFunc,
-      BiFunction<Boolean, Boolean, Boolean> booleanFunc,
-      BiFunction<List, List, Boolean> listFunc,
-      BiFunction<Map, Map, Boolean> mapFunc) {
-    ImmutableMap.Builder<FunctionSignature, FunctionBuilder> builder = new ImmutableMap.Builder<>();
-    return builder
-        .put(new FunctionSignature(functionName, Arrays.asList(INTEGER, INTEGER)),
-            equalPredicate(functionName, table, integerFunc, ExprValueUtils::getIntegerValue,
-                defaultValue, BOOLEAN))
-        .put(new FunctionSignature(functionName, Arrays.asList(LONG, LONG)),
-            equalPredicate(functionName, table, longFunc, ExprValueUtils::getLongValue,
-                defaultValue, BOOLEAN))
-        .put(new FunctionSignature(functionName, Arrays.asList(FLOAT, FLOAT)),
-            equalPredicate(functionName, table, floatFunc, ExprValueUtils::getFloatValue,
-                defaultValue, BOOLEAN))
-        .put(new FunctionSignature(functionName, Arrays.asList(DOUBLE, DOUBLE)),
-            equalPredicate(functionName, table, doubleFunc, ExprValueUtils::getDoubleValue,
-                defaultValue, BOOLEAN))
-        .put(new FunctionSignature(functionName, Arrays.asList(STRING, STRING)),
-            equalPredicate(functionName, table, stringFunc, ExprValueUtils::getStringValue,
-                defaultValue, BOOLEAN))
-        .put(new FunctionSignature(functionName, Arrays.asList(BOOLEAN, BOOLEAN)),
-            equalPredicate(functionName, table, booleanFunc, ExprValueUtils::getBooleanValue,
-                defaultValue, BOOLEAN))
-        .put(new FunctionSignature(functionName, Arrays.asList(ARRAY, ARRAY)),
-            equalPredicate(functionName, table, listFunc, ExprValueUtils::getCollectionValue,
-                defaultValue, BOOLEAN))
-        .put(new FunctionSignature(functionName, Arrays.asList(STRUCT, STRUCT)),
-            equalPredicate(functionName, table, mapFunc, ExprValueUtils::getTupleValue,
-                defaultValue, BOOLEAN))
-        .build();
   }
 
   /**
@@ -446,45 +347,6 @@ public class BinaryPredicateOperator {
           return table.get(arg1, arg2);
         } else {
           return table.get(arg2, arg1);
-        }
-      }
-
-      @Override
-      public ExprType type() {
-        return returnType;
-      }
-
-      @Override
-      public String toString() {
-        return String.format("%s %s %s", arguments.get(0).toString(), functionName, arguments
-            .get(1).toString());
-      }
-    };
-  }
-
-  /**
-   * Building method for equalTo and notEqualTo operators.
-   *
-   * @param defaultValue the return value when expr value is missing/null
-   */
-  private static <T, R> FunctionBuilder equalPredicate(FunctionName functionName,
-                                                       Table<ExprValue, ExprValue, ExprValue> table,
-                                                       BiFunction<T, T, R> function,
-                                                       Function<ExprValue, T> observer,
-                                                       ExprValue defaultValue,
-                                                       ExprType returnType) {
-    return arguments -> new FunctionExpression(functionName, arguments) {
-      @Override
-      public ExprValue valueOf(Environment<Expression, ExprValue> env) {
-        ExprValue arg1 = arguments.get(0).valueOf(env);
-        ExprValue arg2 = arguments.get(1).valueOf(env);
-        if (table.contains(arg1, arg2)) {
-          return table.get(arg1, arg2);
-        } else if (arg1.isMissing() || arg1.isNull() || arg2.isMissing() || arg2.isNull()) {
-          return defaultValue;
-        } else {
-          return ExprValueUtils.fromObjectValue(
-              function.apply(observer.apply(arg1), observer.apply(arg2)));
         }
       }
 

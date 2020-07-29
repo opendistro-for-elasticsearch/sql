@@ -16,26 +16,39 @@
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
-import lombok.EqualsAndHashCode;
-import lombok.RequiredArgsConstructor;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 
-@EqualsAndHashCode
-@RequiredArgsConstructor
-public class ExprDoubleValue implements ExprValue {
-  private final Double value;
+/**
+ * Expression Double Value.
+ */
+public class ExprDoubleValue extends AbstractExprNumberValue {
 
-  @Override
-  public Object value() {
-    return value;
+  public ExprDoubleValue(Number value) {
+    super(value);
   }
 
   @Override
-  public ExprCoreType type() {
+  public Object value() {
+    return doubleValue();
+  }
+
+  @Override
+  public ExprType type() {
     return ExprCoreType.DOUBLE;
   }
 
   @Override
   public String toString() {
-    return value.toString();
+    return doubleValue().toString();
+  }
+
+  @Override
+  public int compare(ExprValue other) {
+    return Double.compare(doubleValue(), other.doubleValue());
+  }
+
+  @Override
+  public boolean equal(ExprValue other) {
+    return doubleValue().equals(other.doubleValue());
   }
 }

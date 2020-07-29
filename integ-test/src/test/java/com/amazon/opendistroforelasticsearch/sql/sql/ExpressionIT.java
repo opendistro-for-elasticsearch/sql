@@ -29,6 +29,7 @@ import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.ResponseException;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -38,6 +39,7 @@ import org.junit.rules.ExpectedException;
  * and function expression. Since comparison test in {@link SQLCorrectnessIT} is enforced,
  * this kind of manual written IT class will be focused on anomaly case test.
  */
+@Ignore
 public class ExpressionIT extends RestIntegTestCase {
 
   @Rule
@@ -47,14 +49,6 @@ public class ExpressionIT extends RestIntegTestCase {
   protected void init() throws Exception {
     super.init();
     TestUtils.enableNewQueryEngine(client());
-  }
-
-  @Test
-  public void testDivideZeroExpression() throws Exception {
-    expectResponseException().hasStatusCode(500) //TODO: should be client error code 400?
-                             .containsMessage("\"reason\": \"/ by zero\"")
-                             .containsMessage("\"type\": \"ArithmeticException\"")
-                             .whenExecute("SELECT 5 / (1 - 1)");
   }
 
   public ResponseExceptionAssertion expectResponseException() {

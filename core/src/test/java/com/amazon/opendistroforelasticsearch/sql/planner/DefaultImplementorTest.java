@@ -62,7 +62,7 @@ class DefaultImplementorTest {
     ReferenceExpression include = ref("age", INTEGER);
     ReferenceExpression exclude = ref("name", STRING);
     ReferenceExpression dedupeField = ref("name", STRING);
-    Expression filterExpr = literal(ExprBooleanValue.ofTrue());
+    Expression filterExpr = literal(ExprBooleanValue.of(true));
     List<Expression> groupByExprs = Arrays.asList(ref("age", INTEGER));
     List<Aggregator> aggregators =
         Arrays.asList(new AvgAggregator(groupByExprs, ExprCoreType.DOUBLE));

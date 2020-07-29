@@ -15,15 +15,15 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
-import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
-import lombok.EqualsAndHashCode;
+import java.util.Objects;
 
 /**
- * The definition of the expression missing value.
+ * Expression Missing Value.
+ * Missing value only equal to missing value, and is smaller than any other value.
  */
-@EqualsAndHashCode
-public class ExprMissingValue implements ExprValue {
+public class ExprMissingValue extends AbstractExprValue {
   private static final ExprValue instance = new ExprMissingValue();
 
   private ExprMissingValue() {
@@ -39,12 +39,35 @@ public class ExprMissingValue implements ExprValue {
   }
 
   @Override
-  public ExprCoreType type() {
+  public ExprType type() {
     throw new ExpressionEvaluationException("invalid to call type operation on missing value");
   }
 
   @Override
   public boolean isMissing() {
     return true;
+  }
+
+  /**
+   * When MISSING value compare to other expression value.
+   * 1) MISSING is equal to MISSING.
+   * 2) MISSING is less than all other expression values.
+   */
+  @Override
+  public int compare(ExprValue other) {
+    return other.isMissing() ? 0 : -1;
+  }
+
+  /**
+   * Missing value is equal to Missing value.
+   */
+  @Override
+  public boolean equal(ExprValue other) {
+    return other.isMissing();
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode("MISSING");
   }
 }
