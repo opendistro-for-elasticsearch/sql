@@ -15,21 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.utils;
 
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getBooleanValue;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getCollectionValue;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getDoubleValue;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getFloatValue;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getIntegerValue;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getLongValue;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getStringValue;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.getTupleValue;
-import static com.amazon.opendistroforelasticsearch.sql.expression.operator.OperatorUtils.COMPARE_WITH_NULL_OR_MISSING;
-import static com.amazon.opendistroforelasticsearch.sql.expression.operator.OperatorUtils.LIST_COMPARATOR;
-import static com.amazon.opendistroforelasticsearch.sql.expression.operator.OperatorUtils.MAP_COMPARATOR;
-import static com.amazon.opendistroforelasticsearch.sql.expression.operator.OperatorUtils.STRING_COMPARATOR;
-
 import com.amazon.opendistroforelasticsearch.sql.data.model.ExprValue;
-import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import com.google.common.collect.Ordering;
 
 /**
@@ -45,36 +31,7 @@ public class NaturalExprValueOrdering extends ExprValueOrdering {
 
   @Override
   public int compare(ExprValue left, ExprValue right) {
-    if (COMPARE_WITH_NULL_OR_MISSING.test(left, right)) {
-      throw new ExpressionEvaluationException("compare with null or missing value is invalid");
-    }
-    if (!left.type().equals(right.type())) {
-      throw new ExpressionEvaluationException(
-          String.format(
-              "compare expected value have same type, but with [%s, %s]",
-              left.type(), right.type()));
-    }
-    switch (left.type()) {
-      case DOUBLE:
-        return Double.compare(getDoubleValue(left), getDoubleValue(right));
-      case FLOAT:
-        return Float.compare(getFloatValue(left), getFloatValue(right));
-      case LONG:
-        return Long.compare(getLongValue(left), getLongValue(right));
-      case INTEGER:
-        return Integer.compare(getIntegerValue(left), getIntegerValue(right));
-      case BOOLEAN:
-        return Boolean.compare(getBooleanValue(left), getBooleanValue(right));
-      case STRING:
-        return STRING_COMPARATOR.apply(getStringValue(left), getStringValue(right));
-      case STRUCT:
-        return MAP_COMPARATOR.apply(getTupleValue(left), getTupleValue(right));
-      case ARRAY:
-        return LIST_COMPARATOR.apply(getCollectionValue(left), getCollectionValue(right));
-      default:
-        throw new ExpressionEvaluationException(
-            String.format("compare doesn't support type [%s]", left.type()));
-    }
+    return left.compareTo(right);
   }
 
   @Override

@@ -26,16 +26,42 @@ import static com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDis
 
 import com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.Function;
+import com.amazon.opendistroforelasticsearch.sql.ast.expression.QualifiedName;
 import com.amazon.opendistroforelasticsearch.sql.ast.expression.UnresolvedExpression;
+import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser;
+import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.IdentContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.NestedExpressionAtomContext;
+import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.QualifiedNameContext;
+import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParser.TableNameContext;
 import com.amazon.opendistroforelasticsearch.sql.sql.antlr.parser.OpenDistroSQLParserBaseVisitor;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import org.antlr.v4.runtime.tree.RuleNode;
 
 /**
  * Expression builder to parse text to expression in AST.
  */
 public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<UnresolvedExpression> {
+
+  @Override
+  public UnresolvedExpression visitTableName(TableNameContext ctx) {
+    return new QualifiedName(visitQualifiedNameText(ctx));
+  }
+
+  @Override
+  public UnresolvedExpression visitIdent(IdentContext ctx) {
+    return new QualifiedName(visitQualifiedNameText(ctx));
+  }
+
+  @Override
+  public UnresolvedExpression visitQualifiedName(QualifiedNameContext ctx) {
+    return new QualifiedName(
+        ctx.ident()
+           .stream()
+           .map(this::visitQualifiedNameText)
+           .collect(Collectors.toList())
+    );
+  }
 
   @Override
   public UnresolvedExpression visitMathExpressionAtom(MathExpressionAtomContext ctx) {
@@ -80,6 +106,26 @@ public class AstExpressionBuilder extends OpenDistroSQLParserBaseVisitor<Unresol
   @Override
   public UnresolvedExpression visitBoolean(BooleanContext ctx) {
     return AstDSL.booleanLiteral(Boolean.valueOf(ctx.getText()));
+  }
+
+  @Override
+  public UnresolvedExpression visitDateLiteral(OpenDistroSQLParser.DateLiteralContext ctx) {
+    return AstDSL.dateLiteral(unquoteIdentifier(ctx.date.getText()));
+  }
+
+  @Override
+  public UnresolvedExpression visitTimeLiteral(OpenDistroSQLParser.TimeLiteralContext ctx) {
+    return AstDSL.timeLiteral(unquoteIdentifier(ctx.time.getText()));
+  }
+
+  @Override
+  public UnresolvedExpression visitTimestampLiteral(
+      OpenDistroSQLParser.TimestampLiteralContext ctx) {
+    return AstDSL.timestampLiteral(unquoteIdentifier(ctx.timestamp.getText()));
+  }
+
+  private String visitQualifiedNameText(RuleNode node) {
+    return unquoteIdentifier(node.getText());
   }
 
 }

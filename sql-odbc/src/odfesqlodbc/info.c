@@ -331,14 +331,6 @@ RETCODE SQL_API ESAPI_GetInfo(HDBC hdbc, SQLUSMALLINT fInfoType,
         case SQL_MAX_OWNER_NAME_LEN: /* ODBC 1.0 */
             len = 2;
             value = 0;
-            if (ES_VERSION_GT(conn, 7.4))
-                value = CC_get_max_idlen(conn);
-#ifdef MAX_SCHEMA_LEN
-            else
-                value = MAX_SCHEMA_LEN;
-#endif /* MAX_SCHEMA_LEN */
-            if (0 == value)
-                value = NAMEDATALEN_V73 - 1;
             break;
 
         case SQL_MAX_PROCEDURE_NAME_LEN: /* ODBC 1.0 */
@@ -487,20 +479,20 @@ RETCODE SQL_API ESAPI_GetInfo(HDBC hdbc, SQLUSMALLINT fInfoType,
 
         case SQL_QUALIFIER_LOCATION: /* ODBC 2.0 */
             len = 2;
-                value = SQL_QL_START;
+            value = 0;
             break;
 
         case SQL_QUALIFIER_NAME_SEPARATOR: /* ODBC 1.0 */
-            p = ".";
+            p = "";
             break;
 
         case SQL_QUALIFIER_TERM: /* ODBC 1.0 */
-            p = "cluster";
+            p = "";
             break;
 
         case SQL_QUALIFIER_USAGE: /* ODBC 2.0 */
             len = 4;
-            value = SQL_CU_DML_STATEMENTS;
+            value = 0;
             break;
 
         case SQL_QUOTED_IDENTIFIER_CASE: /* ODBC 2.0 */
@@ -672,10 +664,7 @@ RETCODE SQL_API ESAPI_GetInfo(HDBC hdbc, SQLUSMALLINT fInfoType,
             value = SQL_BS_SELECT_EXPLICIT | SQL_BS_ROW_COUNT_EXPLICIT;
             break;
         case SQL_CATALOG_NAME:
-            if (CurrCat(conn))
-                p = "Y";
-            else
-                p = "N";
+            p = "N";
             break;
         case SQL_COLLATION_SEQ:
             p = "";

@@ -40,7 +40,7 @@ class ExprTupleValueTest {
   }
 
   @Test
-  public void compre_tuple_with_different_size() {
+  public void compare_tuple_with_different_size() {
     ExprValue tupleValue1 = ExprValueUtils.tupleValue(ImmutableMap.of("integer_value", 2));
     ExprValue tupleValue2 =
         ExprValueUtils.tupleValue(ImmutableMap.of("integer_value", 2, "float_value", 1f));

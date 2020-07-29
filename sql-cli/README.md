@@ -1,4 +1,4 @@
-[![Test and Build Workflow](https://github.com/opendistro-for-elasticsearch/sql-cli/workflows/Test%20and%20Build/badge.svg)](https://github.com/opendistro-for-elasticsearch/sql-cli/actions)
+[![SQL CLI Test and Build](https://github.com/opendistro-for-elasticsearch/sql/workflows/SQL%20CLI%20Test%20and%20Build/badge.svg)](https://github.com/opendistro-for-elasticsearch/sql/actions)
 [![Latest Version](https://img.shields.io/pypi/v/odfe-sql-cli.svg)](https://pypi.python.org/pypi/odfe-sql-cli/)
 [![Documentation](https://img.shields.io/badge/documentation-blue.svg)](https://opendistro.github.io/for-elasticsearch-docs/docs/sql/cli/)
 [![Chat](https://img.shields.io/badge/chat-on%20forums-blue)](https://discuss.opendistrocommunity.dev/c/sql/)
@@ -80,13 +80,13 @@ You can also configure the following connection properties:
     * Elasticsearch with X-pack security enabled
 * `--aws-auth`: Turns on AWS sigV4 authentication to connect to an Amazon Elasticsearch Service endpoint. Use with the AWS CLI (`aws configure`) to retrieve the local AWS configuration to authenticate and connect.
 
-For a list of all available configurations, see [clirc](https://github.com/opendistro-for-elasticsearch/sql-cli/blob/master/src/conf/clirc).
+For a list of all available configurations, see [clirc](https://github.com/opendistro-for-elasticsearch/sql/blob/master/sql-cli/src/odfe_sql_cli/conf/clirc).
 
 
 
 ## Using the CLI
 
-1. Save the sample [accounts test data](https://github.com/opendistro-for-elasticsearch/sql/blob/master/src/test/resources/doctest/testdata/accounts.json) file.
+1. Save the sample [accounts test data](https://github.com/opendistro-for-elasticsearch/sql/blob/master/integ-test/src/test/resources/accounts.json) file.
 2. Index the sample data.
 
     ```
@@ -133,7 +133,7 @@ If you discover a potential security issue in this project we ask that you notif
 
 ## Licensing
 
-See the [LICENSE](https://github.com/opendistro-for-elasticsearch/sql-cli/blob/master/LICENSE.TXT) file for our project's licensing. We will ask you to confirm the licensing of your contribution.
+See the [LICENSE](https://github.com/opendistro-for-elasticsearch/sql/blob/master/sql-cli/LICENSE.TXT) file for our project's licensing. We will ask you to confirm the licensing of your contribution.
 
 
 

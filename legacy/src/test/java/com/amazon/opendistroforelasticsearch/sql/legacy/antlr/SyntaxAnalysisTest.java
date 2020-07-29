@@ -79,7 +79,7 @@ public class SyntaxAnalysisTest {
         expectValidationFailWithErrorMessage(
             "SELECT * FROM accounts age = 1",
             "offending symbol [=]", // parser thought 'age' is alias of 'accounts' and failed at '='
-            "Expecting", "'WHERE'"  // "Expecting tokens in {<EOF>, 'INNER', 'JOIN', ... 'WHERE', ','}"
+            "Expecting", ";"        // "Expecting tokens in {<EOF>, ';'}"
         );
     }
 
@@ -128,6 +128,11 @@ public class SyntaxAnalysisTest {
     @Test
     public void arithmeticExpressionInWhereClauseShouldPass() {
         validate("SELECT * FROM accounts WHERE age + 1 = 10");
+    }
+
+    @Test
+    public void queryEndWithSemiColonShouldPass() {
+        validate("SELECT * FROM accounts;");
     }
 
     private void expectValidationFailWithErrorMessage(String query, String... messages) {

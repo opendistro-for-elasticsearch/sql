@@ -10,5 +10,7 @@
     <show-ssl-checkbox value="true" />
     <vendor1-prompt value="Region: " />
     <vendor2-prompt value="Additional Options: " />
+    <has-databases value="false" />
+    <has-schemas value="false" />
   </connection-config>
 </connection-dialog>

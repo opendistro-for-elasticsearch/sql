@@ -32,7 +32,7 @@ options { tokenVocab=OpenDistroSqlLexer; }
 
 //    Root rule
 root
-    : sqlStatement? EOF
+    : sqlStatement? SEMI? EOF
     ;
 
 //    Only SELECT, DELETE, SHOW and DSCRIBE are supported for now

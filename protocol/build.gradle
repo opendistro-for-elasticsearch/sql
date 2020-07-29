@@ -9,7 +9,8 @@ repositories {
 }
 
 dependencies {
-    compile group: 'com.google.guava', name: 'guava', version: '23.0'
+    // https://github.com/google/guava/wiki/CVE-2018-10237
+    compile group: 'com.google.guava', name: 'guava', version: '29.0-jre'
     compile group: 'org.json', name: 'json', version: '20180813' //TODO: change to other JSON lib?
     compile project(':core')
 

@@ -9,7 +9,8 @@ repositories {
 }
 
 dependencies {
-    compile group: 'com.google.guava', name: 'guava', version: '23.0'
+    // https://github.com/google/guava/wiki/CVE-2018-10237
+    compile group: 'com.google.guava', name: 'guava', version: '29.0-jre'
     compile group: 'org.springframework', name: 'spring-context', version: '5.2.5.RELEASE'
     compile group: 'org.springframework', name: 'spring-beans', version: '5.2.5.RELEASE'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.10'

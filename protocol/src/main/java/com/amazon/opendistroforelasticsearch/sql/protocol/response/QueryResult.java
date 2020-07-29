@@ -93,7 +93,7 @@ public class QueryResult implements Iterable<Object[]> {
   }
 
   private String getTypeString(ExprValue exprValue) {
-    return exprValue.type().name().toLowerCase();
+    return exprValue.type().typeName().toLowerCase();
   }
 
 }

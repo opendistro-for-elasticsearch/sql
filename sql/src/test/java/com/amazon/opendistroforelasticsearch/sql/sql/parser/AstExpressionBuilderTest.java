@@ -17,10 +17,13 @@
 package com.amazon.opendistroforelasticsearch.sql.sql.parser;
 
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.booleanLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.dateLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.doubleLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.function;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.intLiteral;
 import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.stringLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.timeLiteral;
+import static com.amazon.opendistroforelasticsearch.sql.ast.dsl.AstDSL.timestampLiteral;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.amazon.opendistroforelasticsearch.sql.ast.Node;
@@ -68,6 +71,30 @@ class AstExpressionBuilderTest {
   }
 
   @Test
+  public void canBuildDateLiteral() {
+    assertEquals(
+        dateLiteral("2020-07-07"),
+        buildExprAst("DATE '2020-07-07'")
+    );
+  }
+
+  @Test
+  public void canBuildTimeLiteral() {
+    assertEquals(
+        timeLiteral("11:30:45"),
+        buildExprAst("TIME '11:30:45'")
+    );
+  }
+
+  @Test
+  public void canBuildTimestampLiteral() {
+    assertEquals(
+        timestampLiteral("2020-07-07 11:30:45"),
+        buildExprAst("TIMESTAMP '2020-07-07 11:30:45'")
+    );
+  }
+
+  @Test
   public void canBuildArithmeticExpression() {
     assertEquals(
         function("+", intLiteral(1), intLiteral(2)),
@@ -104,6 +131,14 @@ class AstExpressionBuilderTest {
             )
         ),
         buildExprAst("abs(abs(-5) * -1)")
+    );
+  }
+
+  @Test
+  public void canBuildDateAndTimeFunctionCall() {
+    assertEquals(
+        function("dayofmonth", dateLiteral("2020-07-07")),
+        buildExprAst("dayofmonth(DATE '2020-07-07')")
     );
   }
 

@@ -19,6 +19,7 @@ package com.amazon.opendistroforelasticsearch.sql.data.type;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Expression Type.
@@ -86,5 +87,13 @@ public enum ExprCoreType implements ExprType {
   @Override
   public String typeName() {
     return this.name();
+  }
+
+  /**
+   * Retrun all the valid ExprCoreType.
+   */
+  public static List<ExprType> coreTypes() {
+    return Arrays.stream(ExprCoreType.values()).filter(type -> type != UNKNOWN)
+        .collect(Collectors.toList());
   }
 }

@@ -12,7 +12,9 @@ PartiQL (JSON) Support
 Introduction
 ============
 
-PartiQL is a SQL-compatible query language that makes it easy and efficient to query semi-structured and nested data regardless of data format. For now our implementation is only partially compatible with PartiQL specification and more support will be provided in future.
+In Elasticsearch, there are two types of JSON field in Elasticsarch (called "properties"): ``object`` and ``nested``. An object field can have inner field(s) which could be a simple one or another object field recursively. A nested field is a special version of object type that allows inner field be queried independently.
+
+To support queries for both types, we follow the query language syntax defined in PartiQL specification. PartiQL is a SQL-compatible query language that makes it easy and efficient to query semi-structured and nested data regardless of data format. For now our implementation is only partially compatible with PartiQL specification and more support will be provided in future.
 
 Test Data
 =========
@@ -20,7 +22,49 @@ Test Data
 Description
 -----------
 
+The test index ``people`` is to demonstrate our support for queries with deep nested object fields.
 The test index ``employees_nested`` used by all examples in this document is very similar to the one used in official PartiQL documentation.
+
+Example: People
+---------------
+
+There are three fields in test index ``people``: 1) deep nested object field ``city``; 2) object field of array value ``account``; 3) nested field ``projects``::
+
+    {
+      "mappings": {
+        "properties": {
+          "city": {
+            "properties": {
+              "name": {
+                "type": "keyword"
+              },
+              "location": {
+                "properties": {
+                  "latitude": {
+                    "type": "double"
+                  }
+                }
+              }
+            }
+          },
+          "account": {
+            "properties": {
+              "id": {
+                "type": "keyword"
+              }
+            }
+          },
+          "projects": {
+            "type": "nested",
+            "properties": {
+              "name": {
+                "type": "keyword"
+              }
+            }
+          }
+        }
+      }
+    }
 
 Example: Employees
 ------------------
@@ -77,6 +121,71 @@ Result set::
 	    }
 	  ]
 	}
+
+Querying Nested Tuple Values
+============================
+
+Description
+-----------
+
+Before looking into how nested object field (tuple values) be queried, we need to figure out how many cases are there and how it being handled by our SQL implementation. Therefore, first of all, let's examine different cases by the query support matrix as follows. This matrix summerizes what has been supported so far for queries with the object and nested fields involved. Note that another complexity is that any field in Elasticsearch, regular or property, can have contain more than one values in a single document. This makes object field not always a tuple value which needs to be handled separately.
+
++-------------------------+---------------+-----------------------+---------------------------------------------+-------------------------+
+|     Level/Field Type    | Object Fields | Object Fields (array) |                Nested Fields                |         Comment         |
++=========================+===============+=======================+=============================================+=========================+
+| Selecting top level     | Yes           | Yes                   | Yes                                         | The original JSON of    |
+|                         |               |                       |                                             | field value is returned |
+|                         |               |                       |                                             | which is either a JSON  |
+|                         |               |                       |                                             | object or JSON array.   |
++-------------------------+---------------+-----------------------+---------------------------------------------+-------------------------+
+| Selecting second level  | Yes           | No                    | Yes                                         |                         |
+|                         |               | (null returned)       | (or null returned if not in PartiQL syntax) |                         |
++-------------------------+---------------+-----------------------+---------------------------------------------+ PartiQL specification   |
+| Selecting deeper levels | Yes           | No                    | No                                          | is followed             |
+|                         |               | (null returned)       | (exception may                              |                         |
+|                         |               |                       | be thrown)                                  |                         |
++-------------------------+---------------+-----------------------+---------------------------------------------+-------------------------+
+
+Example 1: Selecting Top Level
+------------------------------
+
+Selecting top level for object fields, object fields of array value and nested fields returns original JSON object or array of the field. For example, object field ``city`` is a JSON object, object field (of array value) ``accounts`` and nested field ``projects`` are JSON arrays::
+
+    od> SELECT city, accounts, projects FROM people;
+    fetched rows / total rows = 1/1
+    +-----------------------------------------------------+-----------------------+----------------------------------------------------------------------------------------------------------------+
+    | city                                                | accounts              | projects                                                                                                       |
+    |-----------------------------------------------------+-----------------------+----------------------------------------------------------------------------------------------------------------|
+    | {'name': 'Seattle', 'location': {'latitude': 10.5}} | [{'id': 1},{'id': 2}] | [{'name': 'AWS Redshift Spectrum querying'},{'name': 'AWS Redshift security'},{'name': 'AWS Aurora security'}] |
+    +-----------------------------------------------------+-----------------------+----------------------------------------------------------------------------------------------------------------+
+
+Example 2: Selecting Deeper Levels
+----------------------------------
+
+Selecting at deeper levels for object fields of regular value returns inner field value. For example, ``city.location`` is an inner object field and ``city.location.altitude`` is a regular double field::
+
+    od> SELECT city.location, city.location.latitude FROM people;
+    fetched rows / total rows = 1/1
+    +--------------------+--------------------------+
+    | city.location      | city.location.latitude   |
+    |--------------------+--------------------------|
+    | {'latitude': 10.5} | 10.5                     |
+    +--------------------+--------------------------+
+
+Example 3: Selecting Field of Array Value
+-----------------------------------------
+
+Select deeper level for object fields of array value which returns ``NULL``. For example, because inner field ``accounts.id`` has three values instead of a tuple in this document, null is returned. Similarly, selecting inner field ``projects.name`` directly in nested field returns null::
+
+    od> SELECT accounts.id, projects.name FROM people;
+    fetched rows / total rows = 1/1
+    +---------------+-----------------+
+    | accounts.id   | projects.name   |
+    |---------------+-----------------|
+    | null          | null            |
+    +---------------+-----------------+
+
+For selecting second level for nested fields, please read on and find more details in the following sections.
 
 Querying Nested Collection
 ==========================

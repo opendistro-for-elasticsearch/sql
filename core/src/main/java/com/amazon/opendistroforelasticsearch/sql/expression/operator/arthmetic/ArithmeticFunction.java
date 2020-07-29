@@ -94,10 +94,10 @@ public class ArithmeticFunction {
     return new FunctionResolver(
         BuiltinFunctionName.DIVIDE.getName(),
         scalarFunction(BuiltinFunctionName.DIVIDE.getName(),
-            (v1, v2) -> v1 / v2,
-            (v1, v2) -> v1 / v2,
-            (v1, v2) -> v1 / v2,
-            (v1, v2) -> v1 / v2)
+            (v1, v2) -> v2 == 0 ? null : v1 / v2,
+            (v1, v2) -> v2 == 0 ? null : v1 / v2,
+            (v1, v2) -> v2 == 0 ? null : v1 / v2,
+            (v1, v2) -> v2 == 0 ? null : v1 / v2)
     );
   }
 
@@ -106,10 +106,10 @@ public class ArithmeticFunction {
     return new FunctionResolver(
         BuiltinFunctionName.MODULES.getName(),
         scalarFunction(BuiltinFunctionName.MODULES.getName(),
-            (v1, v2) -> v1 % v2,
-            (v1, v2) -> v1 % v2,
-            (v1, v2) -> v1 % v2,
-            (v1, v2) -> v1 % v2)
+            (v1, v2) -> v2 == 0 ? null : v1 % v2,
+            (v1, v2) -> v2 == 0 ? null : v1 % v2,
+            (v1, v2) -> v2 == 0 ? null : v1 % v2,
+            (v1, v2) -> v2 == 0 ? null : v1 % v2)
     );
   }
 
