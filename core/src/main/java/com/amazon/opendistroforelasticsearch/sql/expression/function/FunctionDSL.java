@@ -119,11 +119,7 @@ public class FunctionDSL {
    * @param args2Type   argument type.
    * @return Unary Function Implementation.
    */
-<<<<<<< HEAD
-  public Function<FunctionName, Pair<FunctionSignature, FunctionBuilder>> impl(
-=======
   public SerializableFunction<FunctionName, Pair<FunctionSignature, FunctionBuilder>> impl(
->>>>>>> develop
       SerializableBiFunction<ExprValue, ExprValue, ExprValue> function,
       ExprType returnType,
       ExprType args1Type,
@@ -171,7 +167,6 @@ public class FunctionDSL {
       }
     };
   }
-<<<<<<< HEAD
 
   /**
    * Wrapper the binary ExprValue function with default NULL and MISSING handling.
@@ -188,6 +183,4 @@ public class FunctionDSL {
       }
     };
   }
-=======
->>>>>>> develop
 }

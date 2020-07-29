@@ -15,10 +15,7 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
-<<<<<<< HEAD
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
-=======
->>>>>>> develop
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
 import java.util.Objects;
@@ -44,11 +41,7 @@ public class ExprMissingValue extends AbstractExprValue {
 
   @Override
   public ExprType type() {
-<<<<<<< HEAD
     return ExprCoreType.UNKNOWN;
-=======
-    throw new ExpressionEvaluationException("invalid to call type operation on missing value");
->>>>>>> develop
   }
 
   @Override
@@ -58,13 +51,8 @@ public class ExprMissingValue extends AbstractExprValue {
 
   /**
    * When MISSING value compare to other expression value.
-<<<<<<< HEAD
-   * 1) NULL is equal to MISSING.
-   * 2) NULL is less than all other expression values.
-=======
    * 1) MISSING is equal to MISSING.
    * 2) MISSING is less than all other expression values.
->>>>>>> develop
    */
   @Override
   public int compare(ExprValue other) {
@@ -83,12 +71,9 @@ public class ExprMissingValue extends AbstractExprValue {
   public int hashCode() {
     return Objects.hashCode("MISSING");
   }
-<<<<<<< HEAD
 
   @Override
   public String toString() {
     return "MISSING";
   }
-=======
->>>>>>> develop
 }

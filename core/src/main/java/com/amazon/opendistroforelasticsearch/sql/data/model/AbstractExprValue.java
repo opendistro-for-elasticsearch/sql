@@ -33,22 +33,14 @@ public abstract class AbstractExprValue implements ExprValue {
     } else if (other.isNull() || other.isMissing()) {
       return -other.compareTo(this);
     }
-<<<<<<< HEAD
     if ((this.isNumber() && other.isNumber()) || this.type() == other.type()) {
       return compare(other);
     } else {
-=======
-    if (!this.type().equals(other.type())) {
->>>>>>> develop
       throw new ExpressionEvaluationException(
           String.format(
               "compare expected value have same type, but with [%s, %s]",
               this.type(), other.type()));
     }
-<<<<<<< HEAD
-=======
-    return compare(other);
->>>>>>> develop
   }
 
   /**

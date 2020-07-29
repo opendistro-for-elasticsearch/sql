@@ -15,13 +15,8 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
-<<<<<<< HEAD
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
-=======
-import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
-import com.amazon.opendistroforelasticsearch.sql.exception.ExpressionEvaluationException;
->>>>>>> develop
 import java.util.Objects;
 
 /**
@@ -42,14 +37,11 @@ public class ExprNullValue extends AbstractExprValue {
     return Objects.hashCode("NULL");
   }
 
-<<<<<<< HEAD
   @Override
   public String toString() {
     return "NULL";
   }
 
-=======
->>>>>>> develop
   public static ExprValue of() {
     return instance;
   }
@@ -61,11 +53,7 @@ public class ExprNullValue extends AbstractExprValue {
 
   @Override
   public ExprType type() {
-<<<<<<< HEAD
     return ExprCoreType.UNKNOWN;
-=======
-    throw new ExpressionEvaluationException("invalid to call type operation on null value");
->>>>>>> develop
   }
 
   @Override
