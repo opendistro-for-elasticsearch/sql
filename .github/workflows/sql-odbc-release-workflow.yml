@@ -28,7 +28,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: cppcheck-results
-          path: cppcheck-results.log
+          path: sql-odbc/cppcheck-results.log
       - name: get-dependencies
         run: |
           brew unlink unixodbc
@@ -71,13 +71,13 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: mac-build
-          path: build
+          path: sql-odbc/build
       - name: upload-installer
         if: success()
         uses: actions/upload-artifact@v1
         with:
           name: mac-installer
-          path: installer
+          path: sql-odbc/installer
       - name: upload-artifacts-s3
         if: success()
         run: |
@@ -125,13 +125,13 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: windows32-build
-          path: build
+          path: sql-odbc/build
       - name: upload-installer
         if: always()
         uses: actions/upload-artifact@v1
         with:
           name: windows32-installer
-          path: installer
+          path: sql-odbc/installer
       - name: upload-artifacts-s3
         if: success()
         shell: bash
@@ -180,13 +180,13 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: windows64-build
-          path: build
+          path: sql-odbc/build
       - name: upload-installer
         if: always()
         uses: actions/upload-artifact@v1
         with:
           name: windows64-installer
-          path: installer
+          path: sql-odbc/installer
       - name: upload-artifacts-s3
         if: success()
         shell: bash
