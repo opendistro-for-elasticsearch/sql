@@ -34,7 +34,7 @@ options { tokenVocab=OpenDistroSQLLexer; }
 
 //    Root rule
 root
-    : sqlStatement? EOF
+    : sqlStatement? SEMI? EOF
     ;
 
 //    Only SELECT

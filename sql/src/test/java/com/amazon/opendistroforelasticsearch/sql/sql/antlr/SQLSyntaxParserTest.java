@@ -27,6 +27,11 @@ class SQLSyntaxParserTest {
   private final SQLSyntaxParser parser = new SQLSyntaxParser();
 
   @Test
+  public void canParseQueryEndWithSemiColon() {
+    assertNotNull(parser.parse("SELECT 123;"));
+  }
+
+  @Test
   public void canParseSelectLiterals() {
     assertNotNull(parser.parse("SELECT 123, 'hello'"));
   }
