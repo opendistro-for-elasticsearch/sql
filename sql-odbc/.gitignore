@@ -58,3 +58,4 @@ CTestTestfile.cmake
 /cmake-build64/
 /src/PowerBIConnector/bin/Debug/
 /src/PowerBIConnector/obj/
+/src/PowerBIConnector/.vs/

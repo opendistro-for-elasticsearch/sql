@@ -69,21 +69,21 @@ static const std::string JSON_KW_CURSOR = "cursor";
 
 // clang-format on
 const std::unordered_map< std::string, OID > type_to_oid_map = {
-    {"boolean", ES_TYPE_BOOL},
-    {"byte", ES_TYPE_INT2},
-    {"short", ES_TYPE_INT2},
-    {"integer", ES_TYPE_INT4},
-    {"long", ES_TYPE_INT8},
-    {"half_float", ES_TYPE_FLOAT4},
-    {"float", ES_TYPE_FLOAT4},
-    {"double", ES_TYPE_FLOAT8},
-    {"scaled_float", ES_TYPE_FLOAT8},
-    {"keyword", ES_TYPE_VARCHAR},
-    {"text", ES_TYPE_VARCHAR},
-    {"date", ES_TYPE_TIMESTAMP},
-    {"object", ES_TYPE_VARCHAR},
-    {"nested", ES_TYPE_VARCHAR},
-    {"date", ES_TYPE_DATE}};
+    {ES_TYPE_NAME_BOOLEAN, ES_TYPE_BOOL},
+    {ES_TYPE_NAME_BYTE, ES_TYPE_INT2},
+    {ES_TYPE_NAME_SHORT, ES_TYPE_INT2},
+    {ES_TYPE_NAME_INTEGER, ES_TYPE_INT4},
+    {ES_TYPE_NAME_LONG, ES_TYPE_INT8},
+    {ES_TYPE_NAME_HALF_FLOAT, ES_TYPE_FLOAT4},
+    {ES_TYPE_NAME_FLOAT, ES_TYPE_FLOAT4},
+    {ES_TYPE_NAME_DOUBLE, ES_TYPE_FLOAT8},
+    {ES_TYPE_NAME_SCALED_FLOAT, ES_TYPE_FLOAT8},
+    {ES_TYPE_NAME_KEYWORD, ES_TYPE_VARCHAR},
+    {ES_TYPE_NAME_TEXT, ES_TYPE_VARCHAR},
+    {ES_TYPE_NAME_DATE, ES_TYPE_TIMESTAMP},
+    {ES_TYPE_NAME_OBJECT, ES_TYPE_VARCHAR},
+    {ES_TYPE_NAME_VARCHAR, ES_TYPE_VARCHAR},
+    {ES_TYPE_NAME_DATE, ES_TYPE_DATE}};
 
 #define ES_VARCHAR_SIZE (-2)
 const std::unordered_map< OID, int16_t > oid_to_size_map = {

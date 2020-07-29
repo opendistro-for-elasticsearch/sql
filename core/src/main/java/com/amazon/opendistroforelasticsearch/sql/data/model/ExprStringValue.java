@@ -16,12 +16,16 @@
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
+import java.util.Objects;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
-@EqualsAndHashCode
+/**
+ * Expression String Value.
+ */
 @RequiredArgsConstructor
-public class ExprStringValue implements ExprValue {
+public class ExprStringValue extends AbstractExprValue {
   private final String value;
 
   @Override
@@ -30,12 +34,32 @@ public class ExprStringValue implements ExprValue {
   }
 
   @Override
-  public ExprCoreType type() {
+  public ExprType type() {
     return ExprCoreType.STRING;
+  }
+
+  @Override
+  public String stringValue() {
+    return value;
   }
 
   @Override
   public String toString() {
     return String.format("\"%s\"", value);
+  }
+
+  @Override
+  public int compare(ExprValue other) {
+    return value.compareTo(other.stringValue());
+  }
+
+  @Override
+  public boolean equal(ExprValue other) {
+    return value.equals(other.stringValue());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(value);
   }
 }

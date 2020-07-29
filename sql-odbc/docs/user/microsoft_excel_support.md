@@ -1,4 +1,4 @@
-# Microsoft Excel
+#  Connecting Open Distro For ElasticSearch to Microsoft Excel on Windows
 
 ## Prerequisites
 

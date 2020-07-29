@@ -66,6 +66,12 @@
     <Compile Include="resources.resx">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Diagnostics.pqm">
+      <SubType>Content</SubType>
+    </Compile>
+    <Compile Include="OdbcConstants.pqm">
+      <SubType>Content</SubType>
+    </Compile>
     <Content Include="OdfeSqlOdbcPBIConnector.query.pq">
       <SubType>Code</SubType>
     </Content>

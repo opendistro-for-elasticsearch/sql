@@ -91,6 +91,11 @@ public class QueryIT extends SQLIntegTestCase {
   }
 
   @Test
+  public void queryEndWithSemiColonTest() {
+    executeQuery(StringUtils.format("SELECT * FROM %s;", TEST_INDEX_BANK), "jdbc");
+  }
+
+  @Test
   public void searchTypeTest() throws IOException {
     JSONObject response = executeQuery(String.format(Locale.ROOT, "SELECT * FROM %s LIMIT 1000",
         TestsConstants.TEST_INDEX_PHRASE));

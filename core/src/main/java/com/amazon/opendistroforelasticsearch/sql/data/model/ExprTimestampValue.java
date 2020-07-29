@@ -18,6 +18,7 @@
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
 import com.amazon.opendistroforelasticsearch.sql.data.type.ExprCoreType;
+import com.amazon.opendistroforelasticsearch.sql.data.type.ExprType;
 import com.amazon.opendistroforelasticsearch.sql.exception.SemanticCheckException;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -25,15 +26,15 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
 /**
- * Timestamp Value.
+ * Expression Timestamp Value.
  */
-@EqualsAndHashCode
 @RequiredArgsConstructor
-public class ExprTimestampValue implements ExprValue {
+public class ExprTimestampValue extends AbstractExprValue {
   /**
    * todo. only support UTC now.
    */
@@ -64,12 +65,32 @@ public class ExprTimestampValue implements ExprValue {
   }
 
   @Override
-  public ExprCoreType type() {
+  public ExprType type() {
     return ExprCoreType.TIMESTAMP;
+  }
+
+  @Override
+  public Instant timestampValue() {
+    return timestamp;
   }
 
   @Override
   public String toString() {
     return String.format("TIMESTAMP '%s'", value());
+  }
+
+  @Override
+  public int compare(ExprValue other) {
+    return timestamp.compareTo(other.timestampValue());
+  }
+
+  @Override
+  public boolean equal(ExprValue other) {
+    return timestamp.equals(other.timestampValue());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(timestamp);
   }
 }
