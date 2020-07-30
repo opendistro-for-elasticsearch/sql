@@ -137,7 +137,7 @@ jobs:
         shell: bash
         run: |
           cd installer
-          windows_installer=`ls -1t *.msi | grep "ODFE SQL ODBC Driver" | head -1`
+          windows_installer=`ls -1t *.msi | grep "Open Distro for Elasticsearch SQL ODBC Driver" | head -1`
           echo $windows_installer
           aws s3 cp "$windows_installer" s3://artifacts.opendistroforelasticsearch.amazon.com/downloads/elasticsearch-clients/opendistro-sql-odbc/windows/
   build-windows64:
