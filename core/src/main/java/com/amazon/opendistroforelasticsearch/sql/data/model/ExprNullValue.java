@@ -21,13 +21,9 @@ import java.util.Objects;
 
 /**
  * Expression Null Value.
- * Null value
- *  <li>equal to null value.
- *  <li>large than missing value.
- *  <li>less than any other value.
  */
 public class ExprNullValue extends AbstractExprValue {
-  private static final ExprValue instance = new ExprNullValue();
+  private static final ExprNullValue instance = new ExprNullValue();
 
   private ExprNullValue() {
   }
@@ -42,7 +38,7 @@ public class ExprNullValue extends AbstractExprValue {
     return "NULL";
   }
 
-  public static ExprValue of() {
+  public static ExprNullValue of() {
     return instance;
   }
 
@@ -61,23 +57,18 @@ public class ExprNullValue extends AbstractExprValue {
     return true;
   }
 
-  /**
-   * When NULL value compare to other expression value.
-   * 1) NULL is equal to NULL.
-   * 2) NULL is large than MISSING.
-   * 3) NULL is less than all other expression values.
-   */
   @Override
   public int compare(ExprValue other) {
-    return other.isNull() ? 0 : other.isMissing() ? 1 : -1;
+    throw new IllegalStateException(
+        String.format("[BUG] Unreachable, Comparing with NULL is undefined"));
   }
 
   /**
    * NULL value is equal to NULL value.
+   * Notes, this function should only used for Java Object Compare.
    */
   @Override
   public boolean equal(ExprValue other) {
     return other.isNull();
   }
-
 }

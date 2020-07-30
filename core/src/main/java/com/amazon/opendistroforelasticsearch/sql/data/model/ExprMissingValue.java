@@ -22,15 +22,14 @@ import java.util.Objects;
 
 /**
  * Expression Missing Value.
- * Missing value only equal to missing value, and is smaller than any other value.
  */
 public class ExprMissingValue extends AbstractExprValue {
-  private static final ExprValue instance = new ExprMissingValue();
+  private static final ExprMissingValue instance = new ExprMissingValue();
 
   private ExprMissingValue() {
   }
 
-  public static ExprValue of() {
+  public static ExprMissingValue of() {
     return instance;
   }
 
@@ -49,18 +48,15 @@ public class ExprMissingValue extends AbstractExprValue {
     return true;
   }
 
-  /**
-   * When MISSING value compare to other expression value.
-   * 1) MISSING is equal to MISSING.
-   * 2) MISSING is less than all other expression values.
-   */
   @Override
   public int compare(ExprValue other) {
-    return other.isMissing() ? 0 : -1;
+    throw new IllegalStateException(String.format("[BUG] Unreachable, Comparing with MISSING is "
+        + "undefined"));
   }
 
   /**
    * Missing value is equal to Missing value.
+   * Notes, this function should only used for Java Object Compare.
    */
   @Override
   public boolean equal(ExprValue other) {

@@ -15,10 +15,11 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_FALSE;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_MISSING;
-import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.utils.ComparisonUtil.compare;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -49,6 +50,13 @@ class ExprMissingValueTest {
   @Test
   public void toStringTest() {
     assertEquals("MISSING", LITERAL_MISSING.toString());
+  }
+
+  @Test
+  public void equal() {
+    assertTrue(LITERAL_MISSING.equals(LITERAL_MISSING));
+    assertFalse(LITERAL_FALSE.equals(LITERAL_MISSING));
+    assertFalse(LITERAL_MISSING.equals(LITERAL_FALSE));
   }
 
   @Test

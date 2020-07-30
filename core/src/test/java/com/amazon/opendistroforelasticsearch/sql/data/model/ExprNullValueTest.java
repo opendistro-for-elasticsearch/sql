@@ -15,9 +15,11 @@
 
 package com.amazon.opendistroforelasticsearch.sql.data.model;
 
+import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_FALSE;
 import static com.amazon.opendistroforelasticsearch.sql.data.model.ExprValueUtils.LITERAL_NULL;
 import static com.amazon.opendistroforelasticsearch.sql.utils.ComparisonUtil.compare;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -46,6 +48,13 @@ public class ExprNullValueTest {
   @Test
   public void toStringTest() {
     assertEquals("NULL", LITERAL_NULL.toString());
+  }
+
+  @Test
+  public void equal() {
+    assertTrue(LITERAL_NULL.equals(LITERAL_NULL));
+    assertFalse(LITERAL_FALSE.equals(LITERAL_NULL));
+    assertFalse(LITERAL_NULL.equals(LITERAL_FALSE));
   }
 
   @Test

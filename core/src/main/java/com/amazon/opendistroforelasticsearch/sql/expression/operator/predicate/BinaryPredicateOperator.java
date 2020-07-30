@@ -168,7 +168,8 @@ public class BinaryPredicateOperator {
   private static FunctionResolver equal() {
     return FunctionDSL.define(BuiltinFunctionName.EQUAL.getName(),
         ExprCoreType.coreTypes().stream()
-            .map(type -> FunctionDSL.impl((v1, v2) -> ExprBooleanValue.of(v1.equals(v2)),
+            .map(type -> FunctionDSL.impl(
+                FunctionDSL.nullMissingHandling((v1, v2) -> ExprBooleanValue.of(v1.equals(v2))),
                 BOOLEAN, type, type))
             .collect(
                 Collectors.toList()));
@@ -178,7 +179,12 @@ public class BinaryPredicateOperator {
     return FunctionDSL
         .define(BuiltinFunctionName.NOTEQUAL.getName(), ExprCoreType.coreTypes().stream()
             .map(type -> FunctionDSL
-                .impl((v1, v2) -> ExprBooleanValue.of(!v1.equals(v2)), BOOLEAN, type, type))
+                .impl(
+                    FunctionDSL
+                        .nullMissingHandling((v1, v2) -> ExprBooleanValue.of(!v1.equals(v2))),
+                    BOOLEAN,
+                    type,
+                    type))
             .collect(
                 Collectors.toList()));
   }
@@ -187,7 +193,10 @@ public class BinaryPredicateOperator {
     return FunctionDSL
         .define(BuiltinFunctionName.LESS.getName(), ExprCoreType.coreTypes().stream()
             .map(type -> FunctionDSL
-                .impl((v1, v2) -> ExprBooleanValue.of(v1.compareTo(v2) < 0), BOOLEAN, type, type))
+                .impl(FunctionDSL
+                        .nullMissingHandling((v1, v2) -> ExprBooleanValue.of(v1.compareTo(v2) < 0)),
+                    BOOLEAN,
+                    type, type))
             .collect(
                 Collectors.toList()));
   }
@@ -196,7 +205,12 @@ public class BinaryPredicateOperator {
     return FunctionDSL
         .define(BuiltinFunctionName.LTE.getName(), ExprCoreType.coreTypes().stream()
             .map(type -> FunctionDSL
-                .impl((v1, v2) -> ExprBooleanValue.of(v1.compareTo(v2) <= 0), BOOLEAN, type, type))
+                .impl(
+                    FunctionDSL
+                        .nullMissingHandling(
+                            (v1, v2) -> ExprBooleanValue.of(v1.compareTo(v2) <= 0)),
+                    BOOLEAN,
+                    type, type))
             .collect(
                 Collectors.toList()));
   }
@@ -205,7 +219,9 @@ public class BinaryPredicateOperator {
     return FunctionDSL
         .define(BuiltinFunctionName.GREATER.getName(), ExprCoreType.coreTypes().stream()
             .map(type -> FunctionDSL
-                .impl((v1, v2) -> ExprBooleanValue.of(v1.compareTo(v2) > 0), BOOLEAN, type, type))
+                .impl(FunctionDSL
+                        .nullMissingHandling((v1, v2) -> ExprBooleanValue.of(v1.compareTo(v2) > 0)),
+                    BOOLEAN, type, type))
             .collect(
                 Collectors.toList()));
   }
@@ -214,7 +230,11 @@ public class BinaryPredicateOperator {
     return FunctionDSL
         .define(BuiltinFunctionName.GTE.getName(), ExprCoreType.coreTypes().stream()
             .map(type -> FunctionDSL
-                .impl((v1, v2) -> ExprBooleanValue.of(v1.compareTo(v2) >= 0), BOOLEAN, type, type))
+                .impl(
+                    FunctionDSL.nullMissingHandling(
+                        (v1, v2) -> ExprBooleanValue.of(v1.compareTo(v2) >= 0)),
+                    BOOLEAN,
+                    type, type))
             .collect(
                 Collectors.toList()));
   }
